@@ -15,6 +15,8 @@
 #include "../lib/GameConstants.h"
 #include "../lib/VCMIDirs.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace config;
 
 SettingsStorage settings;
@@ -302,3 +304,5 @@ void config::CConfigHandler::init()
 // That way method definitions can sit in the cpp file
 template struct SettingsStorage::NodeAccessor<SettingsListener>;
 template struct SettingsStorage::NodeAccessor<Settings>;
+
+VCMI_LIB_NAMESPACE_END

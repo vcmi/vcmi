@@ -1,5 +1,5 @@
 /*
- * BattleFieldHandler.h, part of VCMI engine
+ * BattleFieldHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,6 +11,8 @@
 
 #include <vcmi/Entity.h>
 #include "BattleFieldHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
@@ -106,3 +108,5 @@ BattleField BattleFieldInfo::getId() const
 {
 	return battlefield;
 }
+
+VCMI_LIB_NAMESPACE_END

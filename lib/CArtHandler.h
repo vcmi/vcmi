@@ -16,6 +16,8 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArtHandler;
 class CArtifact;
 class CGHeroInstance;
@@ -161,7 +163,7 @@ public:
 	/// of itself, additionally truth is returned for constituents of combined arts
 	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
-	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet *h) const;
+	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet * h, bool equipped) const;
 	void move(ArtifactLocation src, ArtifactLocation dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -174,7 +176,7 @@ public:
 
 	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
-	static CArtifactInstance *createNewArtifactInstance(int aid);
+	static CArtifactInstance *createNewArtifactInstance(ArtifactID aid);
 
 	/**
 	 * Creates an artifact instance.
@@ -183,7 +185,7 @@ public:
 	 * @param spellID optional. the id of a spell if a spell scroll object should be created
 	 * @return the created artifact instance
 	 */
-	static CArtifactInstance * createArtifact(CMap * map, int aid, int spellID = -1);
+	static CArtifactInstance * createArtifact(CMap * map, ArtifactID aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
@@ -301,8 +303,9 @@ struct DLL_LINKAGE ArtSlotInfo
 	ui8 locked; //if locked, then artifact points to the combined artifact
 
 	ArtSlotInfo() : locked(false) {}
+	const CArtifactInstance * getArt() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & artifact;
 		h & locked;
@@ -324,15 +327,20 @@ public:
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
 	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
 	/// (if more than one such artifact lower ID is returned)
-	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const;
+	ArtifactPosition getArtPos(ArtifactID aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
+	ArtifactPosition getArtBackpackPos(ArtifactID aid) const;
+	std::vector<ArtifactPosition> getAllArtPositions(ArtifactID aid, bool onlyWorn, bool allowLocked, bool getAll) const;
+	std::vector<ArtifactPosition> getBackpackArtPositions(ArtifactID aid) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
-	const CArtifactInstance *getHiddenArt(int aid) const;
-	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
+	const CArtifactInstance *getHiddenArt(ArtifactID aid) const;
+	const CCombinedArtifactInstance *getAssemblyByConstituent(ArtifactID aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
-	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false) const;
+	bool hasArt(ArtifactID aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
+	bool hasArtBackpack(ArtifactID aid) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
+	unsigned getArtPosCount(ArtifactID aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual void putArtifact(ArtifactPosition pos, CArtifactInstance * art) = 0;
@@ -350,7 +358,7 @@ public:
 protected:
 
 
-	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(int aid) const;
+	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(ArtifactID aid) const;
 private:
 	void serializeJsonHero(JsonSerializeFormat & handler, CMap * map);
 	void serializeJsonCreature(JsonSerializeFormat & handler, CMap * map);
@@ -358,3 +366,32 @@ private:
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
 };
+
+// Used to try on artifacts before the claimed changes have been applied
+class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
+{
+public:
+	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
+	void setNewArtSlot(ArtifactPosition slot, CArtifactInstance * art, bool locked);
+	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
+	ArtBearer::ArtBearer bearerType() const override;
+
+protected:
+	ArtBearer::ArtBearer Bearer;
+};
+
+namespace ArtifactUtils
+{
+	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
+	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(	const CArtifactInstance * artifact, 
+								const CArtifactSet * target,
+								ArtBearer::ArtBearer bearer);
+	// TODO: Make this constexpr when the toolset is upgraded
+	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();
+	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
+	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
+	DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot);
+}
+
+VCMI_LIB_NAMESPACE_END

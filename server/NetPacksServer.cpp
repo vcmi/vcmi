@@ -61,7 +61,7 @@ void CPackForServer::throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id)
 
 void CPackForServer::throwOnWrongPlayer(CGameHandler * gh, PlayerColor player)
 {
-	if(player != gh->getPlayerAt(c))
+	if(!gh->hasPlayerAt(player, c) && player != gh->getPlayerAt(c))
 	{
 		wrongPlayerMessage(gh, player);
 		throwNotAllowedAction();
@@ -89,7 +89,17 @@ bool SaveGame::applyGh(CGameHandler * gh)
 
 bool EndTurn::applyGh(CGameHandler * gh)
 {
-	PlayerColor player = GS(gh)->currentPlayer;
+	PlayerColor currentPlayer = GS(gh)->currentPlayer;
+	if(player != currentPlayer)
+	{
+		if(gh->getPlayerStatus(player) == EPlayerStatus::INGAME)
+			throwAndComplain(gh, "Player attempted to end turn for another player!");
+
+		logGlobal->debug("Player attempted to end turn after game over. Ignoring this request.");
+
+		return true;
+	}
+
 	throwOnWrongPlayer(gh, player);
 	if(gh->queries.topQuery(player))
 		throwAndComplain(gh, "Cannot end turn before resolving queries!");
@@ -178,6 +188,13 @@ bool ExchangeArtifacts::applyGh(CGameHandler * gh)
 {
 	throwOnWrongPlayer(gh, src.owningPlayer()); //second hero can be ally
 	return gh->moveArtifact(src, dst);
+}
+
+bool BulkExchangeArtifacts::applyGh(CGameHandler * gh)
+{
+	const CGHeroInstance * pSrcHero = gh->getHero(srcHero);
+	throwOnWrongPlayer(gh, pSrcHero->getOwner());
+	return gh->bulkMoveArtifacts(srcHero, dstHero, swap);
 }
 
 bool AssembleArtifacts::applyGh(CGameHandler * gh)
@@ -381,11 +398,8 @@ bool CastAdvSpell::applyGh(CGameHandler * gh)
 bool PlayerMessage::applyGh(CGameHandler * gh)
 {
 	if(!player.isSpectator()) // TODO: clearly not a great way to verify permissions
-	{
 		throwOnWrongPlayer(gh, player);
-		if(gh->getPlayerAt(this->c) != player)
-			throwNotAllowedAction();
-	}
+	
 	gh->playerMessage(player, text, currObj);
 	return true;
 }

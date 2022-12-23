@@ -14,6 +14,9 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
@@ -77,6 +80,8 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 
 		do
 		{
+			boost::this_thread::interruption_point();
+
 			while(storage->calculateHeroChain())
 			{
 				boost::this_thread::interruption_point();
@@ -88,6 +93,8 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 			logAi->trace("Select next actor");
 		} while(storage->selectNextActor());
 
+		boost::this_thread::interruption_point();
+
 		if(storage->calculateHeroChainFinal())
 		{
 			boost::this_thread::interruption_point();
@@ -98,4 +105,6 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	} while(storage->increaseHeroChainTurnLimit());
 
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+}
+
 }

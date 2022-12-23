@@ -19,6 +19,9 @@
 #include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -53,8 +56,6 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 
 	for(auto & developmentInfo : developmentInfos)
 	{
-		auto town = developmentInfo.town;
-
 		for(auto & buildingInfo : developmentInfo.toBuild)
 		{
 			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[Res::GOLD] > 0)
@@ -78,4 +79,6 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 	}
 
 	return tasks;
+}
+
 }

@@ -21,6 +21,8 @@
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:catapult";
 
 namespace spells
@@ -152,3 +154,5 @@ void Catapult::serializeJsonEffect(JsonSerializeFormat & handler)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

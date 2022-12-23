@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE IVCMIDirs
 {
 public:
@@ -21,8 +23,14 @@ public:
 	// Path to writeable directory with user configs
 	virtual boost::filesystem::path userConfigPath() const = 0;
 
+	// Path to writeable directory to store log files
+	virtual boost::filesystem::path userLogsPath() const;
+
 	// Path to saved games
 	virtual boost::filesystem::path userSavePath() const;
+
+	// Path to "extracted" directory, used to temporarily hold extracted Original H3 files
+	virtual boost::filesystem::path userExtractedPath() const;
 
 	// Paths to global system-wide data directories. First items have higher priority
 	virtual std::vector<boost::filesystem::path> dataPaths() const = 0;
@@ -49,7 +57,7 @@ public:
 	// virtual std::string libraryName(const char* basename) const = 0; ?
 	// virtual std::string libraryName(std::string&& basename) const = 0;?
 
-	virtual std::string genHelpString() const = 0;
+	virtual std::string genHelpString() const;
 
 	// Creates not existed, but required directories.
 	// Updates directories what change name/path between versions.
@@ -61,3 +69,5 @@ namespace VCMIDirs
 {
 	extern DLL_LINKAGE const IVCMIDirs & get();
 }
+
+VCMI_LIB_NAMESPACE_END

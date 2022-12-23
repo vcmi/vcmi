@@ -9,17 +9,22 @@
  */
 #pragma once
 
+#include "CWindowObject.h"
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
-#include "../windows/CWindowObject.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CGDwelling;
-class CreatureCostBox;
 class IMarket;
+
+VCMI_LIB_NAMESPACE_END
+
+class CreatureCostBox;
 class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;
@@ -180,8 +185,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -319,9 +324,6 @@ private:
 	void moveArtifacts(bool leftToRight);
 	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
 	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
-	void swapArtifacts(ArtifactPosition artPosition);
-	std::vector<HeroArtifact> moveCompositeArtsToBackpack();
-	void swapArtifacts();
 };
 
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts

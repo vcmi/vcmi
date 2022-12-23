@@ -15,6 +15,8 @@
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRandomRewardObjectInfo;
 
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
@@ -175,6 +177,12 @@ public:
 	}
 };
 
+namespace Rewardable
+{
+	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer", "selectRandom"};
+	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
+}
+
 /// Base class that can handle granting rewards to visiting heroes.
 /// Inherits from CArmedInstance for proper trasfer of armies
 class DLL_LINKAGE CRewardableObject : public CArmedInstance
@@ -256,6 +264,8 @@ public:
 
 	/// function that will be called once reward is fully granted to hero
 	virtual void onRewardGiven(const CGHeroInstance * hero) const;
+	
+	void initObj(CRandomGenerator & rand) override;
 
 	CRewardableObject();
 
@@ -395,3 +405,5 @@ public:
 // class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 // class DLL_LINKAGE CGWitchHut : public CPlayersVisited
 // class DLL_LINKAGE CGScholar : public CGObjectInstance
+
+VCMI_LIB_NAMESPACE_END

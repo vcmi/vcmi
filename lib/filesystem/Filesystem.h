@@ -13,6 +13,8 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CFilesystemList;
 class JsonNode;
 
@@ -34,7 +36,8 @@ class DLL_LINKAGE CFilesystemGenerator
 	TLoadFunctorMap genFunctorMap();
 public:
 	/// prefix = prefix that will be given to file entries in all nodes of this filesystem
-	CFilesystemGenerator(std::string prefix);
+	/// extractArchives = Specifies if Original H3 archives should be extracted to a separate folder
+	CFilesystemGenerator(std::string prefix, bool extractArchives = false);
 
 	/// loads configuration from json
 	/// config - configuration to load, using format of "filesystem" entry in config/filesystem.json
@@ -42,6 +45,9 @@ public:
 
 	/// returns generated filesystem
 	CFilesystemList * getFilesystem();
+
+	/** Specifies if Original H3 archives should be extracted to a separate folder **/
+	bool extractArchives;
 };
 
 /**
@@ -79,7 +85,7 @@ public:
 	 * Will load all filesystem data from Json data at this path (normally - config/filesystem.json)
 	 * @param fsConfigURI - URI from which data will be loaded
 	 */
-	static void load(const std::string & fsConfigURI);
+	static void load(const std::string & fsConfigURI, bool extractArchives = false);
 
 	/**
 	 * @brief addFilesystem adds filesystem into global resource loader
@@ -87,6 +93,14 @@ public:
 	 * @param loader resource loader to add
 	 */
 	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader);
+	
+	/**
+	 * @brief removeFilesystem removes previously added filesystem from global resouce holder
+	 * @param parent parent loader containing filesystem
+	 * @param identifier name of this loader
+	 * @return if filesystem was successfully removed
+	 */
+	static bool removeFilesystem(const std::string & parent, const std::string & identifier);
 
 	/**
 	 * @brief createModFileSystem - creates filesystem out of config file
@@ -94,7 +108,7 @@ public:
 	 * @param fsConfig - configuration to load
 	 * @return generated filesystem that contains all config entries
 	 */
-	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig);
+	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig, bool extractArchives = false);
 
 	~CResourceHandler() = default;
 private:
@@ -105,3 +119,5 @@ private:
 	CResourceHandler() {};
 	std::unique_ptr<ISimpleResourceLoader> rootLoader;
 };
+
+VCMI_LIB_NAMESPACE_END

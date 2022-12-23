@@ -17,16 +17,14 @@
 #include "CBattleAnimations.h"
 
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 
-class CLabel;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCreatureSet;
 class CGHeroInstance;
 class CStack;
-class CCallback;
-class CButton;
-class CToggleButton;
-class CToggleGroup;
 struct BattleResult;
 struct BattleSpellCast;
 struct CObstacleInstance;
@@ -35,8 +33,21 @@ struct SetStackEffect;
 class BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
-struct CatapultProjectileInfo;
 struct BattleTriggerEffect;
+struct BattleHex;
+struct InfoAboutHero;
+class CBattleGameInterface;
+struct CustomEffectInfo;
+class CSpell;
+
+VCMI_LIB_NAMESPACE_END
+
+class CLabel;
+class CCallback;
+class CButton;
+class CToggleButton;
+class CToggleGroup;
+struct CatapultProjectileInfo;
 class CBattleAnimation;
 class CBattleHero;
 class CBattleConsole;
@@ -46,13 +57,9 @@ class CPlayerInterface;
 class CCreatureAnimation;
 struct ProjectileInfo;
 class CClickableHex;
-struct BattleHex;
-struct InfoAboutHero;
-class CBattleGameInterface;
-struct CustomEffectInfo;
 class CAnimation;
 class IImage;
-class CSpell;
+class CStackQueue;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -143,6 +150,7 @@ private:
 	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 
 	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
+	std::map<int, std::vector<CCreature::CreatureAnimation::RayColor>> idToRay;
 
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
@@ -389,7 +397,7 @@ public:
 	friend class CPlayerInterface;
 	friend class CButton;
 	friend class CInGameConsole;
-
+	friend class CStackQueue;
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
 	friend class CEffectAnimation;

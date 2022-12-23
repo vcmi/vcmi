@@ -10,12 +10,14 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class IBonusBearer;
 
 class DLL_LINKAGE Entity
 {
 public:
-	using IconRegistar = std::function<void(int32_t index, const std::string & listName, const std::string & imageName)>;
+	using IconRegistar = std::function<void(int32_t index, int32_t group, const std::string & listName, const std::string & imageName)>;
 
 	virtual ~Entity() = default;
 
@@ -40,3 +42,5 @@ class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>
 public:
 	virtual const IBonusBearer * accessBonuses() const = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -10,9 +10,12 @@
 
 #pragma once
 
+#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 #include "IHandlerBase.h"
 #include "JsonNode.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 class JsonSerializeFormat;
@@ -60,7 +63,7 @@ public:
 	const std::string & getName() const override;
 	const std::string & getSource() const override;
 
-	void performRegistration(::Services * services) const;
+	void performRegistration(Services * services) const;
 private:
 	const ScriptHandler * owner;
 
@@ -84,7 +87,7 @@ private:
 	ServerCallback * srv;
 };
 
-class DLL_LINKAGE ScriptHandler : public ::IHandlerBase, public Service
+class DLL_LINKAGE ScriptHandler : public IHandlerBase, public Service
 {
 public:
 	ScriptMap objects;
@@ -131,3 +134,6 @@ private:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END
+#endif

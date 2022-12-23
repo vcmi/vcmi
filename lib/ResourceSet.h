@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 typedef si32 TResource;
 typedef si64 TResourceCap; //to avoid overflow when adding integers. Signed values are easier to control.
 
@@ -167,3 +169,5 @@ namespace Res
 
 typedef Res::ResourceSet TResources;
 
+
+VCMI_LIB_NAMESPACE_END

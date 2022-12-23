@@ -17,6 +17,8 @@
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CHero;
 class CGBoat;
 class CGTownInstance;
@@ -155,7 +157,7 @@ public:
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	Terrain getNativeTerrain() const;
+	TerrainId getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
@@ -185,6 +187,7 @@ public:
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
+	bool canLearnSkill(SecondarySkill which) const;
 
 	void setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs);
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
@@ -238,7 +241,7 @@ public:
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
-	CBonusSystemNode * whereShouldBeAttached(CGameState *gs) override;
+	CBonusSystemNode & whereShouldBeAttached(CGameState * gs) override;
 	std::string nodeName() const override;
 
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
@@ -268,6 +271,7 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
+	void afterRemoveFromMap(CMap * map) override;
 
 	void updateFrom(const JsonNode & data) override;
 
@@ -314,3 +318,5 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

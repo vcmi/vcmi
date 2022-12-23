@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// The map event is an event which e.g. gives or takes resources of a specific
 /// amount to/from players and can appear regularly or once a time.
 class DLL_LINKAGE CMapEvent
@@ -80,11 +82,11 @@ struct DLL_LINKAGE TerrainTile
 	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
 	bool hasFavorableWinds() const;
 
-	Terrain terType;
+	TerrainType * terType;
 	ui8 terView;
-	std::string riverType;
+	RiverType * riverType;
 	ui8 riverDir;
-	std::string roadType;
+	RoadType * roadType;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
@@ -111,3 +113,5 @@ struct DLL_LINKAGE TerrainTile
 		h & blockingObjects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

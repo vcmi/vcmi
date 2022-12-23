@@ -13,6 +13,7 @@
 #include "CAdvmapInterface.h"
 #include "CHeroWindow.h"
 #include "CTradeWindow.h"
+#include "InfoWindows.h"
 #include "GUIClasses.h"
 #include "QuickRecruitmentWindow.h"
 
@@ -24,7 +25,6 @@
 #include "../Graphics.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../windows/InfoWindows.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 
@@ -842,7 +842,16 @@ void CCastleBuildings::enterDwelling(int level)
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 {
-	GH.pushIntT<QuickRecruitmentWindow>(town, pos);
+	const auto beginIt = town->creatures.cbegin();
+	const auto afterLastIt = town->creatures.size() > GameConstants::CREATURES_PER_TOWN
+		? std::next(beginIt, GameConstants::CREATURES_PER_TOWN)
+		: town->creatures.cend();
+	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
+		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
+	if(hasSomeoneToRecruit)
+		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
+	else
+		CInfoWindow::showInfoDialog(CGI->generaltexth->localizedTexts["townHall"]["noCreaturesToRecruit"].String(), {});
 }
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
@@ -926,7 +935,7 @@ void CCastleBuildings::enterMagesGuild()
 
 void CCastleBuildings::enterTownHall()
 {
-	if(town->visitingHero && town->visitingHero->hasArt(2) &&
+	if(town->visitingHero && town->visitingHero->hasArt(ArtifactID::GRAIL) &&
 		!vstd::contains(town->builtBuildings, BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
 		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
@@ -1162,7 +1171,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	townlist->onSelect = std::bind(&CCastleInterface::townChange, this);
 
 	recreateIcons();
-	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true);
+	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true, false);
 }
 
 CCastleInterface::~CCastleInterface()
@@ -1235,9 +1244,9 @@ void CCastleInterface::recreateIcons()
 	hall = std::make_shared<CTownInfo>(80, 413, town, true);
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
 
-	fastArmyPurhase = std::make_shared<CButton>(Point(122, 413), "itmcl.def", CButton::tooltip(), [&](){builds->enterToTheQuickRecruitmentWindow();});
-	fastArmyPurhase->setImageOrder(town->fortLevel()-1, town->fortLevel()-1, town->fortLevel()-1, town->fortLevel()-1);
-	fastArmyPurhase->setAnimateLonelyFrame(true);
+	fastArmyPurchase = std::make_shared<CButton>(Point(122, 413), "itmcl.def", CButton::tooltip(), [&](){ builds->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
+	fastArmyPurchase->setAnimateLonelyFrame(true);
 
 	creainfo.clear();
 

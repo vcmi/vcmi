@@ -9,9 +9,18 @@
  */
 #pragma once
 
+#include <vcmi/Metatype.h>
+
+#include "ConstTransitivePtr.h"
+#include "GameConstants.h"
+#include "JsonNode.h"
+
 class CClient;
-class CGameState;
 class CGameHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGameState;
 class CConnection;
 class CStackBasicDescriptor;
 class CGHeroInstance;
@@ -20,12 +29,6 @@ class CArmedInstance;
 class CArtifactSet;
 class CBonusSystemNode;
 struct ArtSlotInfo;
-
-#include <vcmi/Metatype.h>
-
-#include "ConstTransitivePtr.h"
-#include "GameConstants.h"
-#include "JsonNode.h"
 
 struct DLL_LINKAGE CPack
 {
@@ -368,3 +371,5 @@ public:
 		h & operation;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

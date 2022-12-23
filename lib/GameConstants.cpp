@@ -35,6 +35,9 @@
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"//todo: remove
 #include "BattleFieldHandler.h"
+#include "ObstacleHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -51,15 +54,15 @@ const TeamID TeamID::NO_TEAM = TeamID(255);
 namespace GameConstants
 {
 #ifdef VCMI_NO_EXTRA_VERSION
-	const std::string VCMI_VERSION = std::string("VCMI 1.0.0");
+	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING;
 #else
-	const std::string VCMI_VERSION = std::string("VCMI 1.0.0.") + GIT_SHA1;
+	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING "." + std::string{GIT_SHA1};
 #endif
 }
 
 si32 HeroTypeID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -83,7 +86,7 @@ const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
 
 si32 ArtifactID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "artifact", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -107,7 +110,7 @@ const Creature * CreatureID::toCreature(const CreatureService * creatures) const
 
 si32 CreatureID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "creature", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -136,7 +139,7 @@ const spells::Spell * SpellID::toSpell(const spells::Service * service) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "spell", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -198,7 +201,7 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "faction", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -286,10 +289,32 @@ const BattleFieldInfo * BattleField::getInfo() const
 
 BattleField BattleField::fromString(std::string identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "battlefield", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "battlefield", identifier);
 
 	if(rawId)
 		return BattleField(rawId.get());
 	else
 		return BattleField::NONE;
 }
+		
+const ObstacleInfo * Obstacle::getInfo() const
+{
+	return VLC->obstacles()->getById(*this);
+}
+
+Obstacle::operator std::string() const
+{
+	return getInfo()->identifier;
+}
+
+Obstacle Obstacle::fromString(std::string identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "obstacle", identifier);
+
+	if(rawId)
+		return Obstacle(rawId.get());
+	else
+		return Obstacle(-1);
+}
+
+VCMI_LIB_NAMESPACE_END

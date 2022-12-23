@@ -14,6 +14,8 @@
 #include "RmgObject.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
@@ -39,29 +41,30 @@ public:
 	
 public:
 	MODIFICATOR(ObjectManager);
-	
+
+
 	void process() override;
 	void init() override;
-	
+
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
-		
+
 	bool createRequiredObjects();
-	
+
 	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const;
 	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, OptimizeType optimizer) const;
-	
+
 	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
 	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
-	
+
 	CGCreature * chooseGuard(si32 strength, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 strength, bool zoneGuard = false);
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
-	
+
 	void updateDistances(const rmg::Object & obj);
 	void createDistancesPriorityQueue();
-	
+
 	const rmg::Area & getVisitableArea() const;
 
 	std::vector<CGObjectInstance*> getMines() const;
@@ -78,3 +81,5 @@ protected:
 	boost::heap::priority_queue<TDistance, boost::heap::compare<DistanceMaximizeFunctor>> tilesByDistance;
 	
 };
+
+VCMI_LIB_NAMESPACE_END

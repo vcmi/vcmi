@@ -12,6 +12,8 @@
 
 #include "SubscriptionRegistry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Environment;
 
 namespace events
@@ -42,3 +44,5 @@ public:
 	}
 };
 }
+
+VCMI_LIB_NAMESPACE_END

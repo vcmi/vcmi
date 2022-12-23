@@ -18,8 +18,8 @@
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
 
-class CGameHandler;
-class CVCMIServer;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGameState;
 struct StartInfo;
 struct BattleResult;
@@ -34,13 +34,20 @@ class IMarket;
 
 class SpellCastEnvironment;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class PoolImpl;
 }
+#endif
 
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
+class CVCMIServer;
 class CBaseForGHApply;
 
 struct PlayerStatus
@@ -126,7 +133,8 @@ public:
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
-	void applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary); //damage, drain life & fire shield
+	// damage, drain life & fire shield; returns amount of drained life
+	int64_t applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
 	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
@@ -172,7 +180,8 @@ public:
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
 	void removeArtifact(const ArtifactLocation &al) override;
-	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override;
+	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override;
+	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap);
 	void synchronizeArtifactHandlerLists();
 
 	void showCompInfo(ShowInInfobox * comp) override;
@@ -215,6 +224,7 @@ public:
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
 	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
+	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 
 	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();
@@ -254,7 +264,7 @@ public:
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
-	void load(const std::string &fname);
+	bool load(const std::string &fname);
 
 	void handleTimeEvents();
 	void handleTownEvents(CGTownInstance *town, NewTurn &n);
@@ -274,12 +284,14 @@ public:
 		h & finishingBattle;
 		h & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 		JsonNode scriptsState;
 		if(h.saving)
 			serverScripts->serializeState(h.saving, scriptsState);
 		h & scriptsState;
 		if(!h.saving)
 			serverScripts->serializeState(h.saving, scriptsState);
+#endif
 	}
 
 	void sendMessageToAll(const std::string &message);
@@ -326,13 +338,17 @@ public:
 
 	CRandomGenerator & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
+#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::PoolImpl> serverScripts;
+#endif
 
 	void reinitScripting();
 

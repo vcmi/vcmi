@@ -15,6 +15,9 @@
 #include "../../../lib/CTownHandler.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -162,6 +165,7 @@ namespace Goals
 		virtual std::string toString() const = 0;
 		virtual HeroPtr getHero() const = 0;
 		virtual ~ITask() {}
+		virtual int getHeroExchangeCount() const = 0;
 	};
 }
 
@@ -170,8 +174,8 @@ class cannotFulfillGoalException : public std::exception
 	std::string msg;
 
 public:
-	explicit cannotFulfillGoalException(crstring _Message)
-		: msg(_Message)
+	explicit cannotFulfillGoalException(const std::string  & message)
+		: msg(message)
 	{
 	}
 
@@ -207,3 +211,5 @@ public:
 		return msg.c_str();
 	}
 };
+
+}

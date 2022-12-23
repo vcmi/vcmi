@@ -253,7 +253,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -282,6 +282,23 @@
 				"enemyAI" : {
 					"type" : "string",
 					"default" : "BattleAI"
+				},
+				"reconnect" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"uuid" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"names" : {
+					"type" : "array",
+					"default" : [],
+					"items":
+					{
+						"type" : "string",
+						"default" : ""
+					}
 				}
 			}
 		},
@@ -363,7 +380,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -378,6 +395,10 @@
 					"type" : "boolean",
 					"default" : true
 				},
+				"extraResolutionsModPath" : {
+					"type" : "string",
+					"default" : "/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"
+				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",
 					"default" : true
@@ -389,6 +410,26 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+				},
+				"lobbyUrl" : {
+					"type" : "string",
+					"description" : "ip address or web link to remote proxy server",
+					"default" : "beholder.vcmi.eu"
+				},
+				"lobbyPort" : {
+					"type" : "number",
+					"description" : "connection port for remote proxy server",
+					"default" : 5002
+				},
+				"lobbyUsername" : {
+					"type" : "string",
+					"description" : "username for the client on the remote proxy server",
+					"default" : ""
+				},
+				"connectionTimeout" : {
+					"type" : "number",
+					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
+					"default" : 2000
 				}
 			}
 		}

@@ -13,6 +13,8 @@
 #include "JsonNode.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCreature;
 struct Bonus;
 class IBonusBearer;
@@ -549,6 +551,8 @@ public:
 	void clear();
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, std::shared_ptr<Bonus> c = nullptr );
+	void reserve(TInternalContainer::size_type sz);
+	TInternalContainer::size_type capacity() const { return bonuses.capacity(); }
 	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
 	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
 	std::shared_ptr<Bonus> &back() { return bonuses.back(); }
@@ -787,21 +791,21 @@ public:
 	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
 	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
-	void attachTo(CBonusSystemNode *parent);
-	void detachFrom(CBonusSystemNode *parent);
+	void attachTo(CBonusSystemNode & parent);
+	void detachFrom(CBonusSystemNode & parent);
 	void detachFromAll();
 	virtual void addNewBonus(const std::shared_ptr<Bonus>& b);
 	void accumulateBonus(const std::shared_ptr<Bonus>& b); //add value of bonus with same type/subtype or create new
 
-	void newChildAttached(CBonusSystemNode *child);
-	void childDetached(CBonusSystemNode *child);
+	void newChildAttached(CBonusSystemNode & child);
+	void childDetached(CBonusSystemNode & child);
 	void propagateBonus(std::shared_ptr<Bonus> b, const CBonusSystemNode & source);
 	void unpropagateBonus(std::shared_ptr<Bonus> b);
 	void removeBonus(const std::shared_ptr<Bonus>& b);
 	void removeBonuses(const CSelector & selector);
 	void removeBonusesRecursive(const CSelector & s);
-	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
-	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
+	void newRedDescendant(CBonusSystemNode & descendant); //propagation needed
+	void removedRedDescendant(CBonusSystemNode & descendant); //de-propagation needed
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool actsAsBonusSourceOnly() const;
@@ -1058,9 +1062,9 @@ public:
 class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
-	Terrain terrainType;
+	TerrainId terrainType;
 	CreatureTerrainLimiter();
-	CreatureTerrainLimiter(const Terrain& terrain);
+	CreatureTerrainLimiter(TerrainId terrain);
 
 	int limit(const BonusLimitationContext &context) const override;
 	virtual std::string toString() const override;
@@ -1288,3 +1292,5 @@ public:
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
+
+VCMI_LIB_NAMESPACE_END

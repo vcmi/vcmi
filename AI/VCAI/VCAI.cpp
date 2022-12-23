@@ -29,7 +29,11 @@
 
 extern FuzzyHelper * fh;
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGVisitableOPW;
+
+VCMI_LIB_NAMESPACE_END
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
@@ -1751,7 +1755,7 @@ HeroPtr VCAI::getHeroWithGrail() const
 {
 	for(const CGHeroInstance * h : cb->getHeroesInfo())
 	{
-		if(h->hasArt(2)) //grail
+		if(h->hasArt(ArtifactID::GRAIL))
 			return h;
 	}
 	return nullptr;

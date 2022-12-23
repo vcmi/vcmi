@@ -14,6 +14,8 @@
 #include "../Goals/CGoal.h"
 #include "../../../lib/CGameState.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class CompleteQuest : public CGoal<CompleteQuest>
@@ -46,4 +48,6 @@ namespace Goals
 		TGoalVec missionKeymaster() const;
 		std::string questToString() const;
 	};
+}
+
 }

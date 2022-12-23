@@ -18,6 +18,8 @@
 #include "filesystem/Filesystem.h"
 #include "ScopeGuard.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const JsonNode nullNode;
 
 template<typename Iterator>
@@ -997,7 +999,7 @@ namespace
 		bool testFilePresence(std::string scope, ResourceID resource)
 		{
 			std::set<std::string> allowedScopes;
-			if(scope != "core" && !scope.empty()) // all real mods may have dependencies
+			if(scope != CModHandler::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
 			{
 				//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
 				bool found = true;
@@ -1006,7 +1008,7 @@ namespace
 				if(!found)
 					return false;
 
-				allowedScopes.insert("core"); // all mods can use H3 files
+				allowedScopes.insert(CModHandler::scopeBuiltin()); // all mods can use H3 files
 			}
 			allowedScopes.insert(scope); // mods can use their own files
 
@@ -1242,3 +1244,5 @@ namespace Validation
 	}
 
 } // Validation namespace
+
+VCMI_LIB_NAMESPACE_END

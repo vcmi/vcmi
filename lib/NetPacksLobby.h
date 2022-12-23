@@ -13,14 +13,17 @@
 
 #include "StartInfo.h"
 
-class CCampaignState;
 class CLobbyScreen;
 class CServerHandler;
+class CVCMIServer;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CCampaignState;
 class CMapInfo;
 struct StartInfo;
 class CMapGenOptions;
 struct ClientPlayer;
-class CVCMIServer;
 
 struct CPackForLobby : public CPack
 {
@@ -135,12 +138,30 @@ struct LobbyGuiAction : public CLobbyPackToPropagate
 	}
 };
 
+struct LobbyEndGame : public CLobbyPackToPropagate
+{
+	bool closeConnection = false, restart = false;
+	
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnServer(CVCMIServer * srv);
+	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+	bool applyOnLobbyHandler(CServerHandler * handler);
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & closeConnection;
+		h & restart;
+	}
+};
+
 struct LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
 	std::shared_ptr<StartInfo> initializedStartInfo;
+	CGameState * initializedGameState;
+	int clientId; //-1 means to all clients
 
-	LobbyStartGame() : initializedStartInfo(nullptr) {}
+	LobbyStartGame() : initializedStartInfo(nullptr), initializedGameState(nullptr), clientId(-1) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 	void applyOnServerAfterAnnounce(CVCMIServer * srv);
@@ -149,7 +170,12 @@ struct LobbyStartGame : public CLobbyPackToPropagate
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & clientId;
 		h & initializedStartInfo;
+		bool sps = h.smartPointerSerialization;
+		h.smartPointerSerialization = true;
+		h & initializedGameState;
+		h.smartPointerSerialization = sps;
 	}
 };
 
@@ -309,3 +335,17 @@ struct LobbyForceSetPlayer : public CLobbyPackToServer
 		h & targetPlayerColor;
 	}
 };
+
+struct LobbyShowMessage : public CLobbyPackToPropagate
+{
+	std::string message;
+	
+	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & message;
+	}
+};
+
+VCMI_LIB_NAMESPACE_END

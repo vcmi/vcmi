@@ -14,6 +14,9 @@
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "TownPortalAction.h"
 
+namespace NKAI
+{
+
 using namespace AIPathfinding;
 
 extern boost::thread_specific_ptr<CCallback> cb;
@@ -54,3 +57,5 @@ uint32_t TownPortalAction::getManaCost(const CGHeroInstance * hero) const
 
 	return hero->getSpellCost(summonBoat.toSpell());
 }*/
+
+}

@@ -14,6 +14,10 @@
 #include "GameConstants.h"
 #include "int3.h"
 
+class CCallback;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGTownInstance;
 class CCreature;
 class CArmedInstance;
@@ -21,7 +25,6 @@ struct StackLocation;
 struct TryMoveHero;
 struct ArtifactLocation;
 class CGHeroInstance;
-class CCallback;
 class IShipyard;
 class CGDwelling;
 struct Component;
@@ -42,7 +45,6 @@ class CCreatureSet;
 struct BattleAttack;
 struct SetStackEffect;
 struct BattleTriggerEffect;
-class CComponent;
 struct CObstacleInstance;
 struct CPackForServer;
 class EVictoryLossCheckResult;
@@ -89,6 +91,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &al){};
 	virtual void artifactDisassembled(const ArtifactLocation &al){};
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
+	virtual void artifactPossibleAssembling(const ArtifactLocation & dst) {};
 
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start){};
 	virtual void heroCreated(const CGHeroInstance*){};
@@ -133,3 +136,5 @@ public:
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
 };
+
+VCMI_LIB_NAMESPACE_END

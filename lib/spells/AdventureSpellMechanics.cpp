@@ -21,6 +21,8 @@
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///AdventureSpellMechanics
 AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s):
 	IAdventureSpellMechanics(s)
@@ -571,7 +573,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 
 	const auto spellLevel = parameters.caster->getSpellSchoolLevel(owner);
 
-	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
+	const auto fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
 
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
@@ -580,7 +582,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 		{
 			ObjectPosInfo posInfo(obj);
 
-			if(fowMap[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
+			if((*fowMap)[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
 				pack.objectPositions.push_back(posInfo);
 		}
 	}
@@ -612,3 +614,5 @@ bool ViewEarthMechanics::filterObject(const CGObjectInstance * obj, const int32_
 	return (obj->ID == Obj::RESOURCE) || (spellLevel > 1 && obj->ID == Obj::MINE);
 }
 
+
+VCMI_LIB_NAMESPACE_END

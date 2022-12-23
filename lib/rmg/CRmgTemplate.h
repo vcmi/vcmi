@@ -16,6 +16,8 @@
 #include "../Terrain.h"
 #include "CMapGenOptions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonSerializeFormat;
 
 namespace ETemplateZoneType
@@ -103,8 +105,8 @@ public:
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
 
-	const std::set<Terrain> & getTerrainTypes() const;
-	void setTerrainTypes(const std::set<Terrain> & value);
+	const std::set<TerrainId> & getTerrainTypes() const;
+	void setTerrainTypes(const std::set<TerrainId> & value);
 
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
@@ -144,7 +146,7 @@ protected:
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
-	std::set<Terrain> terrainTypes;
+	std::set<TerrainId> terrainTypes;
 	bool townsAreSameType;
 
 	std::set<TFaction> townTypes;
@@ -216,3 +218,5 @@ private:
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };
+
+VCMI_LIB_NAMESPACE_END

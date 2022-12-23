@@ -12,6 +12,8 @@
 
 #include "UnitEffect.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct StacksInjured;
 
 namespace spells
@@ -44,3 +46,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

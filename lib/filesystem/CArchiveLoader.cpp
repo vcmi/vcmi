@@ -10,10 +10,13 @@
 #include "StdInc.h"
 #include "CArchiveLoader.h"
 
+#include "VCMIDirs.h"
 #include "CFileInputStream.h"
 #include "CCompressedStream.h"
 
 #include "CBinaryReader.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)
@@ -21,9 +24,10 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive) :
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive, bool extractArchives) :
     archive(std::move(_archive)),
-    mountPoint(std::move(_mountPoint))
+    mountPoint(std::move(_mountPoint)),
+	extractArchives(extractArchives)
 {
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
@@ -75,6 +79,25 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 
 		// Add lod entry to local entries map
 		entries[ResourceID(mountPoint + entry.name)] = entry;
+
+		if(extractArchives)
+		{
+			si64 currentPosition = fileStream.tell(); // save filestream position
+
+			std::string fName = filename;
+			boost::to_upper(fName);
+
+			if(fName.find(".PCX") != std::string::npos)
+				extractToFolder("IMAGES", mountPoint, entry);
+			else if ((fName.find(".DEF") != std::string::npos ) || (fName.find(".MSK") != std::string::npos) || (fName.find(".FNT") != std::string::npos) || (fName.find(".PAL") != std::string::npos))
+				extractToFolder("SPRITES", mountPoint, entry);
+			else if ((fName.find(".h3c") != std::string::npos))
+				extractToFolder("SPRITES", mountPoint, entry);
+			else
+				extractToFolder("MISC", mountPoint, entry);
+
+			fileStream.seek(currentPosition); // restore filestream position
+		}
 	}
 }
 
@@ -110,6 +133,9 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 		auto it = offsets.find(entry.second.offset);
 		it++;
 		entry.second.fullSize = *it - entry.second.offset;
+
+		if(extractArchives)
+			extractToFolder("VIDEO", fileStream, entry.second);
 	}
 }
 
@@ -137,6 +163,9 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 		entry.fullSize = reader.readInt32();
 		entry.compressedSize = 0;
 		entries[ResourceID(mountPoint + entry.name)] = entry;
+
+		if(extractArchives)
+			extractToFolder("SOUND", fileStream, entry);
 	}
 }
 
@@ -179,3 +208,40 @@ std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bo
 	}
 	return foundID;
 }
+
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, ArchiveEntry entry)
+{
+	si64 currentPosition = fileStream.tell(); // save filestream position
+
+	std::vector<ui8> data(entry.fullSize);
+	fileStream.seek(entry.offset);
+	fileStream.read(data.data(), entry.fullSize);
+
+	bfs::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
+
+	// writeToOutputFile
+	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
+	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	out.write((char*)data.data(), entry.fullSize);
+
+	fileStream.seek(currentPosition); // restore filestream position
+}
+
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry)
+{
+	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
+
+	extractToFolder(outputSubFolder, *inputStream, entry);
+}
+
+bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
+{
+	bfs::path extractionFolderPath = VCMIDirs::get().userExtractedPath() / outputSubFolder;
+	bfs::path extractedFilePath = extractionFolderPath / entryName;
+
+	bfs::create_directories(extractionFolderPath);
+
+	return extractedFilePath;
+}
+
+VCMI_LIB_NAMESPACE_END

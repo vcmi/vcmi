@@ -9,10 +9,14 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace battle
 {
 	class Unit;
 }
+
+VCMI_LIB_NAMESPACE_END
 
 class EnemyInfo
 {

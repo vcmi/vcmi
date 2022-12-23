@@ -15,6 +15,8 @@
 #include "HeroBonus.h"
 #include "ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGTownInstance;
 class CGDwelling;
@@ -81,7 +83,7 @@ public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
 	//TODO: boost::array, bool if possible
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	std::shared_ptr<boost::multi_array<ui8, 3>> fogOfWarMap; //[z][x][y] true - visible, false - hidden
 
 	TeamState();
 	TeamState(TeamState && other);
@@ -95,3 +97,5 @@ public:
 	}
 
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -155,6 +155,7 @@ typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Su
 class ColorShifter
 {
 public:
+	virtual ~ColorShifter() = default;
 	virtual SDL_Color shiftColor(SDL_Color clr) const = 0;
 };
 
@@ -235,6 +236,7 @@ namespace CSDL_Ext
 	SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
 
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
+	void drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2);
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);

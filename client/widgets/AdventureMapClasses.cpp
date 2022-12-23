@@ -14,6 +14,7 @@
 
 #include "MiscWidgets.h"
 #include "CComponent.h"
+#include "Images.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -25,8 +26,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Compat.h"
-
-#include "../widgets/Images.h"
 
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"
@@ -391,10 +390,11 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	}
 
 	// else - use terrain color (blocked version or normal)
+	const auto & colorPair = parent->colors.find(tile->terType->id)->second;
 	if (tile->blocked && (!tile->visitable))
-		return parent->colors.find(tile->terType)->second.second;
+		return colorPair.second;
 	else
-		return parent->colors.find(tile->terType)->second.first;
+		return colorPair.first;
 }
 void CMinimapInstance::tileToPixels (const int3 &tile, int &x, int &y, int toX, int toY)
 {
@@ -495,30 +495,29 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	}
 }
 
-std::map<Terrain, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
+std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
-	std::map<Terrain, std::pair<SDL_Color, SDL_Color> > ret;
+	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(const auto & terrain : CGI->terrainTypeHandler->terrains())
 	{
-		auto & m = Terrain::Manager::getInfo(terrain);
 		SDL_Color normal =
 		{
-			ui8(m.minimapUnblocked[0]),
-			ui8(m.minimapUnblocked[1]),
-			ui8(m.minimapUnblocked[2]),
+			ui8(terrain.minimapUnblocked[0]),
+			ui8(terrain.minimapUnblocked[1]),
+			ui8(terrain.minimapUnblocked[2]),
 			ui8(255)
 		};
 
 		SDL_Color blocked =
 		{
-			ui8(m.minimapBlocked[0]),
-			ui8(m.minimapBlocked[1]),
-			ui8(m.minimapBlocked[2]),
+			ui8(terrain.minimapBlocked[0]),
+			ui8(terrain.minimapBlocked[1]),
+			ui8(terrain.minimapBlocked[2]),
 			ui8(255)
 		};
 
-		ret[terrain] = std::make_pair(normal, blocked);
+		ret[terrain.id] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }
@@ -1039,12 +1038,10 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(captureAllKeys)
 			{
-				captureAllKeys = false;
 				endEnteringText(false);
 			}
 			else if(SDLK_TAB == key.keysym.sym)
 			{
-				captureAllKeys = true;
 				startEnteringText();
 			}
 			break;
@@ -1053,7 +1050,6 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(enteredText.size() > 0  &&  captureAllKeys)
 			{
-				captureAllKeys = false;
 				endEnteringText(true);
 				CCS->soundh->playSound("CHAT");
 			}
@@ -1130,7 +1126,9 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	CSDL_Ext::startTextInput(&pos);
+	captureAllKeys = true;
+
+	CSDL_Ext::startTextInput(&GH.statusbar->pos);
 
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
@@ -1149,6 +1147,8 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
+	captureAllKeys = false;
+
 	CSDL_Ext::stopTextInput();
 
 	prevEntDisp = -1;
@@ -1159,7 +1159,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		previouslyEntered.push_back(txt);
 		//print(txt);
 	}
-	enteredText = "";
+	enteredText.clear();
 	if(GH.topInt() == adventureInt)
 	{
 		GH.statusbar->alignment = CENTER;

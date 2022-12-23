@@ -13,9 +13,15 @@
 #include "CWindowObject.h"
 #include "../../lib/FunctionList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class IMarket;
+
+VCMI_LIB_NAMESPACE_END
+
 class CSlider;
 class CTextBox;
+class CPicture;
 class CGStatusBar;
 
 class CTradeWindow : public CWindowObject, public CWindowWithArtifacts //base for markets and altar of sacrifice
@@ -103,6 +109,7 @@ public:
 protected:
 	std::shared_ptr<CGStatusBar> statusBar;
 	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CPicture>> images;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<CTextBox>> texts;
 };

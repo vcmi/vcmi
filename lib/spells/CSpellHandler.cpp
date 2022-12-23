@@ -32,6 +32,8 @@
 
 #include "ISpellMechanics.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace SpellConfig
 {
 static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
@@ -503,10 +505,10 @@ std::unique_ptr<spells::Mechanics> CSpell::battleMechanics(const spells::IBattle
 
 void CSpell::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIndex(), "SPELLS", iconBook);
-	cb(getIndex()+1, "SPELLINT", iconEffect);
-	cb(getIndex(), "SPELLBON", iconScenarioBonus);
-	cb(getIndex(), "SPELLSCR", iconScroll);
+	cb(getIndex(), 0, "SPELLS", iconBook);
+	cb(getIndex()+1, 0, "SPELLINT", iconEffect);
+	cb(getIndex(), 0, "SPELLBON", iconScenarioBonus);
+	cb(getIndex(), 0, "SPELLSCR", iconScroll);
 }
 
 void CSpell::updateFrom(const JsonNode & data)
@@ -761,7 +763,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->modh->identifiers.requestIdentifier(json.meta, counteredSpell.first, [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.push_back(SpellID(id));
 			});
@@ -1018,3 +1020,5 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 
 	return allowedSpells;
 }
+
+VCMI_LIB_NAMESPACE_END

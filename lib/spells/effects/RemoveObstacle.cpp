@@ -20,6 +20,8 @@
 #include "../../battle/CObstacleInstance.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:removeObstacle";
 
 namespace spells
@@ -112,3 +114,5 @@ std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics *
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

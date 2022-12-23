@@ -2,7 +2,7 @@
 /server/vcmiserver
 /launcher/vcmilauncher
 /launcher/vcmilauncher_automoc.cpp
-/conan-generated
+/conan-*
 
 build/
 .cache/*
@@ -39,6 +39,8 @@ doc/*
 VCMI_VS11.sdf
 *.ipch
 VCMI_VS11.opensdf
+.DS_Store
+CMakeUserPresets.json
 
 # Visual Studio
 *.suo

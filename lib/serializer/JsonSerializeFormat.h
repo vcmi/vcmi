@@ -11,6 +11,8 @@
 
 #include "../JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonSerializeFormat;
 class JsonStructSerializer;
 class JsonArraySerializer;
@@ -523,3 +525,5 @@ void JsonArraySerializer::serializeInt(const size_t index, T & value)
 	if (!owner->saving)
 		value = static_cast<T>(temp);
 };
+
+VCMI_LIB_NAMESPACE_END

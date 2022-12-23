@@ -562,7 +562,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				if(!texts.empty())
 					owner->myInt->showInfoDialog(texts.front());
 				else
-					owner->myInt->showInfoDialog("Unknown problem with this spell, no more information available.");
+					owner->myInt->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["spellUnknownProblem"].String());
 			}
 		}
 		else //adventure spell
@@ -593,7 +593,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 		std::string dmgInfo;
 		auto causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);
 		if(causedDmg == 0 || mySpell->id == SpellID::TITANS_LIGHTNING_BOLT) //Titan's Lightning Bolt already has damage info included
-			dmgInfo = "";
+			dmgInfo.clear();
 		else
 		{
 			dmgInfo = CGI->generaltexth->allTexts[343];

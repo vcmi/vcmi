@@ -12,6 +12,8 @@
 
 #include "UnitEffect.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct Bonus;
 struct SetStackEffect;
 struct MetaString;
@@ -43,3 +45,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

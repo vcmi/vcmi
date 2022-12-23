@@ -12,6 +12,8 @@
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AINodeStorage.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT HeroExchange : public CGoal<HeroExchange>
@@ -31,4 +33,6 @@ namespace Goals
 
 		uint64_t getReinforcementArmyStrength() const;
 	};
+}
+
 }

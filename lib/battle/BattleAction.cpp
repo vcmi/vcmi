@@ -13,6 +13,8 @@
 #include "Unit.h"
 #include "CBattleInfoCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const int32_t INVALID_UNIT_ID = -1000;
 
 BattleAction::BattleAction():
@@ -103,6 +105,22 @@ BattleAction BattleAction::makeEndOFTacticPhase(ui8 side)
 	return ba;
 }
 
+BattleAction BattleAction::makeSurrender(ui8 side)
+{
+	BattleAction ba;
+	ba.side = side;
+	ba.actionType = EActionType::SURRENDER;
+	return ba;
+}
+
+BattleAction BattleAction::makeRetreat(ui8 side)
+{
+	BattleAction ba;
+	ba.side = side;
+	ba.actionType = EActionType::RETREAT;
+	return ba;
+}
+
 std::string BattleAction::toString() const
 {
 	std::stringstream actionTypeStream;
@@ -181,3 +199,5 @@ std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
 	os << ba.toString();
 	return os;
 }
+
+VCMI_LIB_NAMESPACE_END

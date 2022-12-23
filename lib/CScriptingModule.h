@@ -9,7 +9,10 @@
  */
 #pragma once
 
+#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
 {
@@ -45,3 +48,6 @@ public:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END
+#endif

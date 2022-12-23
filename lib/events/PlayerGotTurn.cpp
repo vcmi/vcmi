@@ -13,6 +13,8 @@
 
 #include <vcmi/events/EventBus.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -59,3 +61,5 @@ void CPlayerGotTurn::setPlayerIndex(int32_t value)
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

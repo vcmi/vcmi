@@ -12,6 +12,8 @@
 
 #include "EntityService.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class SecondarySkill;
 class Skill;
 
@@ -19,3 +21,5 @@ class DLL_LINKAGE SkillService : public EntityServiceT<SecondarySkill, Skill>
 {
 public:
 };
+
+VCMI_LIB_NAMESPACE_END

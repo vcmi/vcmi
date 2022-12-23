@@ -10,6 +10,8 @@
 #pragma once
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CArmedInstance;
 
@@ -37,3 +39,5 @@ struct DLL_LINKAGE SideInBattle
 		h & enchanterCounter;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

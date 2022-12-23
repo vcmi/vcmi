@@ -10,8 +10,13 @@
 #pragma once
 #include "../windows/CWindowObject.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCampaignState;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class CButton;
 class CTextBox;
 class CToggleGroup;

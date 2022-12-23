@@ -12,6 +12,8 @@
 
 #include "UnitEffect.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleStackMoved;
 
 namespace spells
@@ -39,3 +41,5 @@ protected:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -18,6 +18,7 @@ class CModListView;
 }
 
 class CModManager;
+class CModList;
 class CModListModel;
 class CModFilterModel;
 class CDownloadManager;
@@ -63,6 +64,9 @@ class CModListView : public QWidget
 	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
 
+signals:
+	void extraResolutionsEnabledChanged(bool enabled);
+
 public:
 	explicit CModListView(QWidget * parent = 0);
 	~CModListView();
@@ -75,6 +79,9 @@ public:
 	void disableModInfo();
 
 	void selectMod(const QModelIndex & index);
+	bool isExtraResolutionsModEnabled() const;
+
+	const CModList & getModList() const;
 
 private slots:
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);

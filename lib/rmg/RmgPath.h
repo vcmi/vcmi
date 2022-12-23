@@ -14,6 +14,8 @@
 #include "../int3.h"
 #include "RmgArea.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace rmg
 {
 class Path
@@ -47,3 +49,5 @@ private:
 	Area dPath;
 };
 }
+
+VCMI_LIB_NAMESPACE_END

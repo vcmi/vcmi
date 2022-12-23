@@ -17,6 +17,10 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
+class CCallback;
+
+extern boost::thread_specific_ptr<CCallback> cb; //for templates
+
 struct AIPathNode : public CGPathNode
 {
 	uint32_t chainMask;
@@ -57,7 +61,9 @@ class AINodeStorage : public INodeStorage
 private:
 	int3 sizes;
 
-	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
+	// 1 - layer (air, water, land)
+	// 2-4 - position on map[z][x][y]
+	// 5 - chain (normal, battle, spellcast and combinations)
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CPlayerSpecificInfoCallback * cb;
 	const VCAI * ai;

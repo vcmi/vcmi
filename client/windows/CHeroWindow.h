@@ -13,9 +13,14 @@
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGHeroInstance;
+
+VCMI_LIB_NAMESPACE_END
+
 class CButton;
 struct SDL_Surface;
-class CGHeroInstance;
 class CHeroWindow;
 class LClickableAreaHero;
 class LRClickableAreaWText;
@@ -52,13 +57,12 @@ public:
 	int64_t getTreeVersion() const override;
 };
 
-class CHeroWindow : public CWindowObject, public CGarrisonHolder, public CWindowWithArtifacts
+class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
 {
 	std::shared_ptr<CLabel> name;
 	std::shared_ptr<CLabel> title;
 
 	std::shared_ptr<CAnimImage> banner;
-	std::shared_ptr<CGStatusBar> statusBar;
 
 	std::vector<std::shared_ptr<CHeroSwitcher>> heroList;
 	std::shared_ptr<CPicture> listSelection;

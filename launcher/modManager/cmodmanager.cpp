@@ -18,7 +18,11 @@
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
 
-static QString detectModArchive(QString path, QString modName)
+namespace
+{
+const QLatin1String extraResolutionsMod{"vcmi-extras.extraresolutions"};
+
+QString detectModArchive(QString path, QString modName)
 {
 	auto files = ZipArchive::listFiles(qstringToPath(path));
 
@@ -40,6 +44,8 @@ static QString detectModArchive(QString path, QString modName)
 	
 	return "";
 }
+}
+
 
 CModManager::CModManager(CModList * modList)
 	: modList(modList)
@@ -64,9 +70,9 @@ void CModManager::resetRepositories()
 	modList->resetRepositories();
 }
 
-void CModManager::loadRepository(QString file)
+void CModManager::loadRepository(QVariantMap repomap)
 {
-	modList->addRepository(JsonUtils::JsonFromFile(file).toMap());
+	modList->addRepository(repomap);
 }
 
 void CModManager::loadMods()
@@ -154,8 +160,6 @@ bool CModManager::canUninstallMod(QString modname)
 	if(!mod.isInstalled())
 		return addError(modname, "Mod is not installed");
 
-	if(mod.isEnabled())
-		return addError(modname, "Mod must be disabled first");
 	return true;
 }
 
@@ -168,6 +172,10 @@ bool CModManager::canEnableMod(QString modname)
 
 	if(!mod.isInstalled())
 		return addError(modname, "Mod must be installed first");
+
+	//check for compatibility
+	if(!mod.isCompatible())
+		return addError(modname, "Mod is not compatible, please update VCMI and checkout latest mod revisions");
 
 	for(auto modEntry : mod.getValue("depends").toStringList())
 	{
@@ -215,6 +223,11 @@ bool CModManager::canDisableMod(QString modname)
 	return true;
 }
 
+bool CModManager::isExtraResolutionsModEnabled() const
+{
+	return modList->hasMod(extraResolutionsMod) && modList->getMod(extraResolutionsMod).isEnabled();
+}
+
 static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 {
 	if(path.size() > 1)
@@ -242,6 +255,9 @@ bool CModManager::doEnableMod(QString mod, bool on)
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
 
+	if(mod == extraResolutionsMod)
+		sendExtraResolutionsEnabledChanged(on);
+
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
 	return true;
@@ -257,7 +273,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
 
-	QString modDirName = detectModArchive(archivePath, modname);
+	QString modDirName = ::detectModArchive(archivePath, modname);
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 
@@ -282,12 +298,15 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	loadMods();
 	modList->reloadRepositories();
 
+	if(modname == extraResolutionsMod)
+		sendExtraResolutionsEnabledChanged(true);
+
 	return true;
 }
 
 bool CModManager::doUninstallMod(QString modname)
 {
-	ResourceID resID(std::string("Mods/") + modname.toUtf8().data(), EResType::DIRECTORY);
+	ResourceID resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
@@ -296,11 +315,14 @@ bool CModManager::doUninstallMod(QString modname)
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
-		return addError(modname, "Mod is located in protected directory, plase remove it manually:\n" + modFullDir.absolutePath());
+		return addError(modname, "Mod is located in protected directory, please remove it manually:\n" + modFullDir.absolutePath());
 
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	loadMods();
 	modList->reloadRepositories();
+
+	if(modname == extraResolutionsMod)
+		sendExtraResolutionsEnabledChanged(false);
 
 	return true;
 }
@@ -309,16 +331,24 @@ bool CModManager::removeModDir(QString path)
 {
 	// issues 2673 and 2680 its why you do not recursively remove without sanity check
 	QDir checkDir(path);
+	QDir dir(path);
+	
 	if(!checkDir.cdUp() || QString::compare("Mods", checkDir.dirName(), Qt::CaseInsensitive))
 		return false;
+#ifndef VCMI_IOS //ios applications are stored in the isolated container
 	if(!checkDir.cdUp() || QString::compare("vcmi", checkDir.dirName(), Qt::CaseInsensitive))
 		return false;
 
-	QDir dir(path);
 	if(!dir.absolutePath().contains("vcmi", Qt::CaseInsensitive))
 		return false;
+#endif
 	if(!dir.absolutePath().contains("Mods", Qt::CaseInsensitive))
 		return false;
 
 	return dir.removeRecursively();
+}
+
+void CModManager::sendExtraResolutionsEnabledChanged(bool enabled)
+{
+	emit extraResolutionsEnabledChanged(enabled);
 }

@@ -11,6 +11,8 @@
 #include "CCallbackBase.h"
 #include "IBattleInfoCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGTownInstance;
 class CGHeroInstance;
 class CStack;
@@ -46,7 +48,7 @@ public:
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 	const IBonusBearer * getBattleNode() const;
 
-	Terrain battleTerrainType() const override;
+	TerrainId battleTerrainType() const override;
 	BattleField battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 
@@ -113,3 +115,5 @@ public:
 	bool battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
 	bool battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
 };
+
+VCMI_LIB_NAMESPACE_END

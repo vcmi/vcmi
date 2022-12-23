@@ -19,6 +19,9 @@
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -64,12 +67,12 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 	if(ai->nullkiller->isHeroLocked(hero))
 	{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Skipping locked hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 		return tasks;
@@ -77,13 +80,13 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gather army found %d paths", paths.size());
 #endif
 
 	for(const AIPath & path : paths)
 	{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
 		
@@ -91,7 +94,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
@@ -99,7 +102,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		if(ai->nullkiller->arePathHeroesLocked(path))
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path because of locked hero");
 #endif
 			continue;
@@ -112,7 +115,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		// avoid transferring very small amount of army
 		if(armyValue < 0.1f)
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too small.");
 #endif
 			continue;
@@ -121,7 +124,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		// avoid trying to move bigger army to the weaker one.
 		if(armyValue > 1)
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too large.");
 #endif
 			continue;
@@ -131,7 +134,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
@@ -156,7 +159,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 			if(blockedAction)
 			{
-	#if AI_TRACE_LEVEL >= 2
+	#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Action is blocked. Considering decomposition.");
 	#endif
 				composition.addNext(blockedAction->decompose(path.targetHero));
@@ -175,25 +178,25 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	const int3 pos = upgrader->visitablePos();
 	TResources availableResources = ai->nullkiller->getFreeResources();
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
 #endif
 	
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Found %d paths", paths.size());
 #endif
 
 	for(const AIPath & path : paths)
 	{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
 		if(upgrader->visitingHero != path.targetHero)
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
 #endif
 			continue;
@@ -201,7 +204,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(ai->nullkiller->arePathHeroesLocked(path))
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path because of locked hero");
 #endif
 			continue;
@@ -209,7 +212,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(path.getFirstBlockedAction())
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			// TODO: decomposition?
 			logAi->trace("Ignore path. Action is blocked.");
 #endif
@@ -218,7 +221,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
@@ -234,7 +237,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto isSafe = isSafeToVisit(path.targetHero, path.heroArmy, danger);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
@@ -256,4 +259,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	}
 
 	return tasks;
+}
+
 }

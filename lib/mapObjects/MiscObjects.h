@@ -13,6 +13,8 @@
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMap;
 
 /// Legacy class, use CRewardableObject instead
@@ -445,7 +447,7 @@ public:
 	}
 };
 
-class CGShipyard : public CGObjectInstance, public IShipyard
+class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
 {
 public:
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
@@ -541,3 +543,5 @@ public:
 		return true;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -16,6 +16,8 @@
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	class AIPreviousNodeRule : public MovementToDestinationRule
@@ -32,4 +34,6 @@ namespace AIPathfinding
 			const PathfinderConfig * pathfinderConfig,
 			CPathfinderHelper * pathfinderHelper) const override;
 	};
+}
+
 }

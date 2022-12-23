@@ -18,6 +18,7 @@
 struct HeroPtr;
 class VCAI;
 class FuzzyHelper;
+class CCallback;
 
 namespace Goals
 {

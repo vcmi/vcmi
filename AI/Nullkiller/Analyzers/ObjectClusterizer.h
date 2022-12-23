@@ -11,6 +11,9 @@
 
 #include "../Pathfinding/AINodeStorage.h"
 
+namespace NKAI
+{
+
 struct ClusterObjectInfo
 {
 	float priority;
@@ -72,3 +75,5 @@ public:
 private:
 	bool shouldVisitObject(const CGObjectInstance * obj) const;
 };
+
+}

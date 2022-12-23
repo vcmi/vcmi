@@ -12,6 +12,10 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+namespace bfs = boost::filesystem;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CFileInputStream;
 
 /**
@@ -50,10 +54,11 @@ public:
 	 * These are valid extensions: .LOD, .SND, .VID
 	 *
 	 * @param archive Specifies the file path to the archive which should be indexed and loaded.
+	 * @param extractArchives Specifies if the original H3 archives should be extracted to a separate folder.
 	 *
 	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
 	 */
-	CArchiveLoader(std::string mountPoint, boost::filesystem::path archive);
+	CArchiveLoader(std::string mountPoint, bfs::path archive, bool extractArchives = false);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
@@ -62,6 +67,10 @@ public:
 	std::string getMountPoint() const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
+	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, ArchiveEntry entry);
+	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
+	void extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry);
 
 private:
 	/**
@@ -86,10 +95,18 @@ private:
 	void initSNDArchive(const std::string &mountPoint, CFileInputStream & fileStream);
 
 	/** The file path to the archive which is scanned and indexed. */
-	boost::filesystem::path archive;
+	bfs::path archive;
 
 	std::string mountPoint;
 
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
 	std::unordered_map<ResourceID, ArchiveEntry> entries;
+
+	/** Specifies if Original H3 archives should be extracted to a separate folder **/
+	bool extractArchives;
 };
+
+/** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/
+bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName);
+
+VCMI_LIB_NAMESPACE_END

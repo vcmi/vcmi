@@ -24,11 +24,13 @@
 #include "mapObjects/CObjectHandler.h"
 #include "HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const Terrain CTownHandler::defaultGoodTerrain{"grass"};
-const Terrain CTownHandler::defaultEvilTerrain{"lava"};
-const Terrain CTownHandler::defaultNeutralTerrain{"rough"};
+const TerrainId CTownHandler::defaultGoodTerrain(Terrain::GRASS);
+const TerrainId CTownHandler::defaultEvilTerrain(Terrain::LAVA);
+const TerrainId CTownHandler::defaultNeutralTerrain(Terrain::ROUGH);
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
@@ -124,15 +126,19 @@ void CFaction::registerIcons(const IconRegistar & cb) const
 	if(town)
 	{
 		auto & info = town->clientInfo;
-		cb(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
-		cb(info.icons[0][1], "ITPT", info.iconLarge[0][1]);
-		cb(info.icons[1][0], "ITPT", info.iconLarge[1][0]);
-		cb(info.icons[1][1], "ITPT", info.iconLarge[1][1]);
+		cb(info.icons[0][0], 0, "ITPT", info.iconLarge[0][0]);
+		cb(info.icons[0][1], 0, "ITPT", info.iconLarge[0][1]);
+		cb(info.icons[1][0], 0, "ITPT", info.iconLarge[1][0]);
+		cb(info.icons[1][1], 0, "ITPT", info.iconLarge[1][1]);
 
-		cb(info.icons[0][0] + 2, "ITPA", info.iconSmall[0][0]);
-		cb(info.icons[0][1] + 2, "ITPA", info.iconSmall[0][1]);
-		cb(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
-		cb(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
+		cb(info.icons[0][0] + 2, 0, "ITPA", info.iconSmall[0][0]);
+		cb(info.icons[0][1] + 2, 0, "ITPA", info.iconSmall[0][1]);
+		cb(info.icons[1][0] + 2, 0, "ITPA", info.iconSmall[1][0]);
+		cb(info.icons[1][1] + 2, 0, "ITPA", info.iconSmall[1][1]);
+
+		cb(index, 1, "CPRSMALL", info.towerIconSmall);
+		cb(index, 1, "TWCRPORT", info.towerIconLarge);
+
 	}
 }
 
@@ -753,6 +759,9 @@ CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
 void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 {
 	town.clientInfo.siegePrefix = source["imagePrefix"].String();
+	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
+	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
+
 	VLC->modh->identifiers.requestIdentifier("creature", source["shooter"], [&town](si32 creature)
 	{
 		auto crId = CreatureID(creature);
@@ -820,11 +829,11 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	info.buildingsIcons = source["buildingsIcons"].String();
 
 	//left for back compatibility - will be removed later
-	if (source["guildBackground"].String() != "")
+	if(!source["guildBackground"].String().empty())
 		info.guildBackground = source["guildBackground"].String();
 	else
 		info.guildBackground = "TPMAGE.bmp";
-	if (source["tavernVideo"].String() != "")
+	if(!source["tavernVideo"].String().empty())
 	    info.tavernVideo = source["tavernVideo"].String();
 	else
 		info.tavernVideo = "TAVERN.BIK";
@@ -942,9 +951,9 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-Terrain CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
+TerrainId CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
 {
-	Terrain terrain = defaultGoodTerrain;
+	TerrainId terrain = defaultGoodTerrain;
 
 	switch(alignment)
 	{
@@ -961,7 +970,6 @@ Terrain CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment align
 CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
 {
 	auto faction = new CFaction();
-	faction->index = index;
 
 	faction->index = static_cast<TFaction>(index);
 	faction->name = source["name"].String();
@@ -983,7 +991,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	auto nativeTerrain = source["nativeTerrain"];
 	faction->nativeTerrain = nativeTerrain.isNull()
 		? getDefaultTerrainForAlignment(faction->alignment)
-		: Terrain(nativeTerrain.String());
+		: VLC->terrainTypeHandler->getInfoByName(nativeTerrain.String())->id;
 
 	if (!source["town"].isNull())
 	{
@@ -1002,7 +1010,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
 
 	objects.push_back(object);
 
@@ -1041,7 +1049,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 
 	if (objects.size() > index)
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
@@ -1075,7 +1083,7 @@ void CTownHandler::loadRandomFaction()
 	static const ResourceID randomFactionPath("config/factions/random.json");
 
 	JsonNode randomFactionJson(randomFactionPath);
-	randomFactionJson.setMeta("core", true);
+	randomFactionJson.setMeta(CModHandler::scopeBuiltin(), true);
 	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
 }
 
@@ -1179,3 +1187,5 @@ const std::vector<std::string> & CTownHandler::getTypeNames() const
 	return typeNames;
 }
 
+
+VCMI_LIB_NAMESPACE_END

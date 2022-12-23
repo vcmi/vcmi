@@ -12,6 +12,8 @@
 #include "CTypeList.h"
 #include "../mapObjects/CArmedInstance.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class FileStream;
 
 class DLL_LINKAGE CSaverBase
@@ -245,6 +247,12 @@ public:
 		save(internalPtr);
 	}
 	template <typename T>
+	void save(const std::shared_ptr<const T> &data)
+	{
+		const T *internalPtr = data.get();
+		save(internalPtr);
+	}
+	template <typename T>
 	void save(const std::unique_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
@@ -344,6 +352,18 @@ public:
 			save((ui8)0);
 		}
 	}
+
+	template <typename T>
+	void save(const boost::multi_array<T, 3> &data)
+	{
+		ui32 length = data.num_elements();
+		*this & length;
+		auto shape = data.shape();
+		ui32 x = shape[0], y = shape[1], z = shape[2];
+		*this & x & y & z;
+		for(ui32 i = 0; i < length; i++)
+			save(data.data()[i]);
+	}
 };
 
 class DLL_LINKAGE CSaveFile : public IBinaryWriter
@@ -371,3 +391,5 @@ public:
 		return * this;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -23,6 +23,8 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
 {
@@ -771,7 +773,7 @@ void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
 	{
-		detachFrom(const_cast<CCreature*>(type));
+		detachFrom(const_cast<CCreature&>(*type));
 		if (type->isMyUpgrade(c) && VLC->modh->modules.STACK_EXP)
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
@@ -779,7 +781,7 @@ void CStackInstance::setType(const CCreature *c)
 	CStackBasicDescriptor::setType(c);
 
 	if(type)
-		attachTo(const_cast<CCreature*>(type));
+		attachTo(const_cast<CCreature&>(*type));
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
@@ -802,12 +804,12 @@ std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus)
 void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
 {
 	if(_armyObj)
-		detachFrom(const_cast<CArmedInstance*>(_armyObj));
+		detachFrom(const_cast<CArmedInstance&>(*_armyObj));
 
 	_armyObj = ArmyObj;
 
 	if(ArmyObj)
-		attachTo(const_cast<CArmedInstance*>(_armyObj));
+		attachTo(const_cast<CArmedInstance&>(*_armyObj));
 }
 
 std::string CStackInstance::getQuantityTXT(bool capitalized) const
@@ -857,9 +859,6 @@ PlayerColor CStackInstance::getOwner() const
 
 void CStackInstance::deserializationFix()
 {
-	const CCreature *backup = type;
-	type = nullptr;
-		setType(backup);
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = nullptr;
 	setArmyObj(armyBackup);
@@ -1053,8 +1052,8 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	{
 		std::string typeName("");
 		handler.serializeString("type", typeName);
-		if(typeName != "")
-			setType(VLC->creh->getCreature("core", typeName));
+		if(!typeName.empty())
+			setType(VLC->creh->getCreature(CModHandler::scopeMap(), typeName));
 	}
 }
 
@@ -1074,3 +1073,5 @@ bool CSimpleArmy::setCreature(SlotID slot, CreatureID cre, TQuantity count)
 	army[slot] = std::make_pair(cre, count);
 	return true;
 }
+
+VCMI_LIB_NAMESPACE_END

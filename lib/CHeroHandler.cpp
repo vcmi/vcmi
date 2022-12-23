@@ -27,6 +27,8 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "BattleFieldHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CHero::CHero() = default;
 CHero::~CHero() = default;
 
@@ -57,10 +59,10 @@ HeroTypeID CHero::getId() const
 
 void CHero::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIconIndex(), "UN32", iconSpecSmall);
-	cb(getIconIndex(), "UN44", iconSpecLarge);
-	cb(getIconIndex(), "PORTRAITSLARGE", portraitLarge);
-	cb(getIconIndex(), "PORTRAITSSMALL", portraitSmall);
+	cb(getIconIndex(), 0, "UN32", iconSpecSmall);
+	cb(getIconIndex(), 0, "UN44", iconSpecLarge);
+	cb(getIconIndex(), 0, "PORTRAITSLARGE", portraitLarge);
+	cb(getIconIndex(), 0, "PORTRAITSSMALL", portraitSmall);
 }
 
 void CHero::updateFrom(const JsonNode & data)
@@ -151,41 +153,6 @@ void CHeroClass::serializeJson(JsonSerializeFormat & handler)
 CHeroClass::CHeroClass()
  : faction(0), id(), affinity(0), defaultTavernChance(0), commander(nullptr)
 {
-}
-
-std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
-{
-	std::vector<BattleHex> ret;
-	if(isAbsoluteObstacle)
-	{
-		assert(!hex.isValid());
-		range::copy(blockedTiles, std::back_inserter(ret));
-		return ret;
-	}
-
-	for(int offset : blockedTiles)
-	{
-		BattleHex toBlock = hex + offset;
-		if((hex.getY() & 1) && !(toBlock.getY() & 1))
-			toBlock += BattleHex::LEFT;
-
-		if(!toBlock.isValid())
-			logGlobal->error("Misplaced obstacle!");
-		else
-			ret.push_back(toBlock);
-	}
-
-	return ret;
-}
-
-bool CObstacleInfo::isAppropriate(const Terrain & terrainType, const BattleField & battlefield) const
-{
-	auto bgInfo = battlefield.getInfo();
-
-	if(bgInfo->isSpecial)
-		return vstd::contains(allowedSpecialBfields, bgInfo->identifier);
-
-	return vstd::contains(allowedTerrains, terrainType);
 }
 
 void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill)
@@ -378,11 +345,10 @@ CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	loadObstacles();
 	loadTerrains();
-	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", Terrain::Manager::terrains()[i], i);
+		VLC->modh->identifiers.registerObject(CModHandler::scopeBuiltin(), "terrain", terrain.name, terrain.id);
 	}
 	loadBallistics();
 	loadExperience();
@@ -818,51 +784,6 @@ void CHeroHandler::loadExperience()
 	expPerLevel.pop_back();//last value is broken
 }
 
-void CHeroHandler::loadObstacles()
-{
-	auto loadObstacles = [](const JsonNode & node, bool absolute, std::vector<CObstacleInfo> & out)
-	{
-		for(const JsonNode &obs : node.Vector())
-		{
-			out.emplace_back();
-			CObstacleInfo & obi = out.back();
-			obi.defName = obs["defname"].String();
-			obi.width =  static_cast<si32>(obs["width"].Float());
-			obi.height = static_cast<si32>(obs["height"].Float());
-			for(auto & t : obs["allowedTerrain"].Vector())
-				obi.allowedTerrains.emplace_back(t.String());
-			for(auto & t : obs["specialBattlefields"].Vector())
-				obi.allowedSpecialBfields.emplace_back(t.String());
-			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
-			obi.isAbsoluteObstacle = absolute;
-		}
-	};
-	
-	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
-	for(auto & mod : allConfigs)
-	{
-		ISimpleResourceLoader * modResourceLoader;
-		try
-		{
-			modResourceLoader = CResourceHandler::get(mod);
-		}
-		catch(const std::out_of_range &)
-		{
-			logMod->warn("Mod '%1%' doesn't exist! Its obstacles won't be loaded!", mod);
-			continue;
-		}
-
-		const ResourceID obstaclesResource{"config/obstacles.json"};
-		if(!modResourceLoader->existsResource(obstaclesResource))
-			continue;
-		
-		const JsonNode config(mod, obstaclesResource);
-		loadObstacles(config["obstacles"], false, obstacles);
-		loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	}
-}
-
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)
 static std::string genRefName(std::string input)
 {
@@ -947,7 +868,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	size_t index = objects.size();
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 	object->imageIndex = (si32)index + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
 	objects.push_back(object);
@@ -957,7 +878,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 	object->imageIndex = static_cast<si32>(index);
 
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
@@ -1053,9 +974,9 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		terrCosts[terrain] = Terrain::Manager::getInfo(terrain).moveCost;
+		terrCosts[terrain.id] = terrain.moveCost;
 	}
 }
 
@@ -1072,3 +993,5 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 
 	return allowedHeroes;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,8 @@
 
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRmgTemplate;
 class CRandomGenerator;
 
@@ -142,6 +144,8 @@ public:
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
 
+	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
+
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.
@@ -186,3 +190,5 @@ public:
 		//TODO add name of template to class, enables selection of a template by a user
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

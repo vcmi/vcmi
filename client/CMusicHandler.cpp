@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include <SDL_mixer.h>
+#include <SDL.h>
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
@@ -32,17 +33,6 @@ static std::string sounds[] = {
 };
 #undef VCMI_SOUND_NAME
 #undef VCMI_SOUND_FILE
-
-// Not pretty, but there's only one music handler object in the game.
-static void soundFinishedCallbackC(int channel)
-{
-	CCS->soundh->soundFinishedCallback(channel);
-}
-
-static void musicFinishedCallbackC()
-{
-	CCS->musich->musicFinishedCallback();
-}
 
 void CAudioBase::init()
 {
@@ -101,27 +91,35 @@ CSoundHandler::CSoundHandler():
 	};
 	
 	//predefine terrain set
-	//TODO: need refactoring - support custom sounds for new terrains and load from json
-	int h3mTerrId = 0;
-	for(auto snd :
+	//TODO: support custom sounds for new terrains and load from json
+	horseSounds =
 	{
-		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
-		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
-		soundBase::horseSubterranean, soundBase::horseLava,
-		soundBase::horseWater, soundBase::horseRock
-	})
-	{
-		horseSounds[Terrain::createTerrainTypeH3M(h3mTerrId++)] = snd;
-	}
-	for(auto & terrain : Terrain::Manager::terrains())
+		{Terrain::DIRT, soundBase::horseDirt},
+		{Terrain::SAND, soundBase::horseSand},
+		{Terrain::GRASS, soundBase::horseGrass},
+		{Terrain::SNOW, soundBase::horseSnow},
+		{Terrain::SWAMP, soundBase::horseSwamp},
+		{Terrain::ROUGH, soundBase::horseRough},
+		{Terrain::SUBTERRANEAN, soundBase::horseSubterranean},
+		{Terrain::LAVA, soundBase::horseLava},
+		{Terrain::WATER, soundBase::horseWater},
+		{Terrain::ROCK, soundBase::horseRock}
+	};
+}
+
+void CSoundHandler::loadHorseSounds()
+{
+	const auto & terrains = CGI->terrainTypeHandler->terrains();
+	for(const auto & terrain : terrains)
 	{
 		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain))
+		if(vstd::contains(horseSounds, terrain.id))
 			continue;
-		
-		horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(Terrain::Manager::getInfo(terrain).horseSoundId));
+
+		//Use already existing horse sound
+		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
 	}
-};
+}
 
 void CSoundHandler::init()
 {
@@ -131,8 +129,10 @@ void CSoundHandler::init()
 
 	if (initialized)
 	{
-		// Load sounds
-		Mix_ChannelFinished(soundFinishedCallbackC);
+		Mix_ChannelFinished([](int channel)
+		{
+			CCS->soundh->soundFinishedCallback(channel);
+		});
 	}
 }
 
@@ -235,7 +235,7 @@ int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 	return playSound(*RandomGeneratorUtil::nextItem(sound_vec, CRandomGenerator::getDefault()));
 }
 
-void CSoundHandler::stopSound( int handler )
+void CSoundHandler::stopSound(int handler)
 {
 	if (initialized && handler != -1)
 		Mix_HaltChannel(handler);
@@ -359,21 +359,24 @@ CMusicHandler::CMusicHandler():
 	for(const ResourceID & file : mp3files)
 	{
 		if(boost::algorithm::istarts_with(file.getName(), "MUSIC/Combat"))
-			addEntryToSet("battle", file.getName(), file.getName());
+			addEntryToSet("battle", file.getName());
 		else if(boost::algorithm::istarts_with(file.getName(), "MUSIC/AITheme"))
-			addEntryToSet("enemy-turn", file.getName(), file.getName());
+			addEntryToSet("enemy-turn", file.getName());
 	}
 
-	for(auto & terrain : Terrain::Manager::terrains())
+}
+
+void CMusicHandler::loadTerrainMusicThemes()
+{
+	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
 	{
-		auto & entry = Terrain::Manager::getInfo(terrain);
-		addEntryToSet("terrain", terrain, "Music/" + entry.musicFilename);
+		addEntryToSet("terrain_" + terrain.name, "Music/" + terrain.musicFilename);
 	}
 }
 
-void CMusicHandler::addEntryToSet(const std::string & set, const std::string & musicID, const std::string & musicURI)
+void CMusicHandler::addEntryToSet(const std::string & set, const std::string & musicURI)
 {
-	musicsSet[set][musicID] = musicURI;
+	musicsSet[set].push_back(musicURI);
 }
 
 void CMusicHandler::init()
@@ -381,7 +384,12 @@ void CMusicHandler::init()
 	CAudioBase::init();
 
 	if (initialized)
-		Mix_HookMusicFinished(musicFinishedCallbackC);
+	{
+		Mix_HookMusicFinished([]()
+		{
+			CCS->musich->musicFinishedCallback();
+		});
+	}
 }
 
 void CMusicHandler::release()
@@ -399,15 +407,20 @@ void CMusicHandler::release()
 	CAudioBase::release();
 }
 
-void CMusicHandler::playMusic(const std::string & musicURI, bool loop)
+void CMusicHandler::playMusic(const std::string & musicURI, bool loop, bool fromStart)
 {
-	if (current && current->isTrack(musicURI))
+	if (current && current->isPlaying() && current->isTrack(musicURI))
 		return;
 
-	queueNext(this, "", musicURI, loop);
+	queueNext(this, "", musicURI, loop, fromStart);
 }
 
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop, bool fromStart)
+{
+	playMusicFromSet(musicSet + "_" + entryID, loop, fromStart);
+}
+
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -416,34 +429,11 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
 		return;
 	}
 
-	if (current && current->isSet(whichSet))
+	if (current && current->isPlaying() && current->isSet(whichSet))
 		return;
 
 	// in this mode - play random track from set
-	queueNext(this, whichSet, "", loop);
-}
-
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::string & entryID, bool loop)
-{
-	auto selectedSet = musicsSet.find(whichSet);
-	if (selectedSet == musicsSet.end())
-	{
-		logGlobal->error("Error: playing music from non-existing set: %s", whichSet);
-		return;
-	}
-
-	auto selectedEntry = selectedSet->second.find(entryID);
-	if (selectedEntry == selectedSet->second.end())
-	{
-		logGlobal->error("Error: playing non-existing entry %s from set: %s", entryID, whichSet);
-		return;
-	}
-
-	if (current && current->isTrack(selectedEntry->second))
-		return;
-
-	// in this mode - play specific track from set
-	queueNext(this, "", selectedEntry->second, loop);
+	queueNext(this, whichSet, "", loop, fromStart);
 }
 
 void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
@@ -462,11 +452,11 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	}
 }
 
-void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped)
+void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped, bool fromStart)
 {
 	try
 	{
-		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped));
+		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 	}
 	catch(std::exception &e)
 	{
@@ -501,7 +491,7 @@ void CMusicHandler::musicFinishedCallback()
 
 	if (current.get() != nullptr)
 	{
-		//return if current music still not finished
+		// if music is looped, play it again
 		if (current->play())
 			return;
 		else
@@ -515,10 +505,14 @@ void CMusicHandler::musicFinishedCallback()
 	}
 }
 
-MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
+MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart):
 	owner(owner),
 	music(nullptr),
+	playing(false),
+	startTime(uint32_t(-1)),
+	startPosition(0),
 	loop(looped ? -1 : 1),
+	fromStart(fromStart),
 	setName(std::move(setName))
 {
 	if (!musicURI.empty())
@@ -563,15 +557,41 @@ bool MusicEntry::play()
 	if (!setName.empty())
 	{
 		const auto & set = owner->musicsSet[setName];
-		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
+		const auto & iter = RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault());
+		load(*iter);
 	}
 
 	logGlobal->trace("Playing music file %s", currentName);
-	if(Mix_PlayMusic(music, 1) == -1)
+
+	if (!fromStart && owner->trackPositions.count(currentName) > 0 && owner->trackPositions[currentName] > 0)
 	{
-		logGlobal->error("Unable to play music (%s)", Mix_GetError());
-		return false;
+		float timeToStart = owner->trackPositions[currentName];
+		startPosition = std::round(timeToStart * 1000);
+
+		// erase stored position:
+		// if music track will be interrupted again - new position will be written in stop() method
+		// if music track is not interrupted and will finish by timeout/end of file - it will restart from begginning as it should
+		owner->trackPositions.erase(owner->trackPositions.find(currentName));
+
+		if (Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)
+		{
+			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			return false;
+		}
 	}
+	else
+	{
+		startPosition = 0;
+
+		if(Mix_PlayMusic(music, 1) == -1)
+		{
+			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			return false;
+		}
+	}
+
+	startTime = SDL_GetTicks();
+	playing = true;
 	return true;
 }
 
@@ -579,12 +599,23 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-		logGlobal->trace("Stopping music file %s", currentName);
+		playing = false;
 		loop = 0;
+		uint32_t endTime = SDL_GetTicks();
+		assert(startTime != uint32_t(-1));
+		float playDuration = (endTime - startTime + startPosition) / 1000.f;
+		owner->trackPositions[currentName] = playDuration;
+		logGlobal->info("Stopping music file %s at %f", currentName, playDuration);
+
 		Mix_FadeOutMusic(fade_ms);
 		return true;
 	}
 	return false;
+}
+
+bool MusicEntry::isPlaying()
+{
+	return playing;
 }
 
 bool MusicEntry::isSet(std::string set)

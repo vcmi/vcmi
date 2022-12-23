@@ -11,8 +11,10 @@
 
 #include "cmodlist.h"
 
-class CModManager
+class CModManager : public QObject
 {
+	Q_OBJECT
+
 	CModList * modList;
 
 	QString settingsPath();
@@ -29,11 +31,16 @@ class CModManager
 	bool addError(QString modname, QString message);
 	bool removeModDir(QString mod);
 
+	void sendExtraResolutionsEnabledChanged(bool enabled);
+
+signals:
+	void extraResolutionsEnabledChanged(bool enabled);
+
 public:
 	CModManager(CModList * modList);
 
 	void resetRepositories();
-	void loadRepository(QString filename);
+	void loadRepository(QVariantMap repomap);
 	void loadModSettings();
 	void loadMods();
 
@@ -51,4 +58,6 @@ public:
 	bool canUninstallMod(QString mod);
 	bool canEnableMod(QString mod);
 	bool canDisableMod(QString mod);
+
+	bool isExtraResolutionsModEnabled() const;
 };

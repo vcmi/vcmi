@@ -18,6 +18,8 @@
 #include "../mapping/CMapEditManager.h"
 #include "RmgPath.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void RoadPlacer::process()
 {
 	connectRoads();
@@ -69,7 +71,8 @@ void RoadPlacer::drawRoads(bool secondary)
 	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
-	std::string roadType = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
+	std::string roadCode = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
+	RoadId roadType = VLC->terrainTypeHandler->getRoadByCode(roadCode)->id;
 	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 
@@ -121,3 +124,5 @@ char RoadPlacer::dump(const int3 & t)
 		return 'i';
 	return Modificator::dump(t);
 }
+
+VCMI_LIB_NAMESPACE_END

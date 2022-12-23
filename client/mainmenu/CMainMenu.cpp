@@ -115,7 +115,7 @@ void CMenuScreen::show(SDL_Surface * to)
 
 void CMenuScreen::activate()
 {
-	CCS->musich->playMusic("Music/MainMenu", true);
+	CCS->musich->playMusic("Music/MainMenu", true, true);
 	if(!config["video"].isNull())
 		CCS->videoh->open(config["video"]["name"].String());
 	CIntObject::activate();
@@ -428,7 +428,9 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
 
 	inputNames[0]->setText(firstPlayer, true);
+#ifndef VCMI_IOS
 	inputNames[0]->giveFocus();
+#endif
 }
 
 void CMultiPlayers::onChange(std::string newText)
@@ -479,8 +481,8 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 
 		inputAddress->giveFocus();
 	}
-	inputAddress->setText(settings["server"]["server"].String(), true);
-	inputPort->setText(CServerHandler::getDefaultPortStr(), true);
+	inputAddress->setText(host ? CServerHandler::localhostAddress : CSH->getHostAddress(), true);
+	inputPort->setText(boost::lexical_cast<std::string>(CSH->getHostPort()), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 186, 218, 18), 0));
@@ -490,6 +492,7 @@ void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText("Connecting...");
 	buttonOk->block(true);
+	CSDL_Ext::stopTextInput();
 
 	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->text, boost::lexical_cast<ui16>(inputPort->text));
 }

@@ -22,6 +22,8 @@
 #include "serializer/JsonUpdater.h"
 #include "mapObjects/CObjectClassesHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 int32_t CCreature::getIndex() const
 {
 	return idNumber.toEnum();
@@ -44,8 +46,8 @@ const std::string & CCreature::getJsonKey() const
 
 void CCreature::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIconIndex(), "CPRSMALL", smallIconName);
-	cb(getIconIndex(), "TWCRPORT", largeIconName);
+	cb(getIconIndex(), 0, "CPRSMALL", smallIconName);
+	cb(getIconIndex(), 0, "TWCRPORT", largeIconName);
 }
 
 CreatureID CCreature::getId() const
@@ -283,22 +285,22 @@ std::string CCreature::nodeName() const
 	return "\"" + namePl + "\"";
 }
 
-bool CCreature::isItNativeTerrain(const Terrain & terrain) const
+bool CCreature::isItNativeTerrain(TerrainId terrain) const
 {
 	auto native = getNativeTerrain();
-	return native == terrain || native == Terrain::ANY;
+	return native == terrain || native == Terrain::ANY_TERRAIN;
 }
 
-Terrain CCreature::getNativeTerrain() const
+TerrainId CCreature::getNativeTerrain() const
 {
-	const std::string cachingStringBlocksRetaliation = "type_NO_TERRAIN_PENALTY";
-	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::NO_TERRAIN_PENALTY);
+	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY";
+	static const auto selectorNoTerrainPenalty = Selector::type()(Bonus::NO_TERRAIN_PENALTY);
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
-	return hasBonus(selectorBlocksRetaliation, selectorBlocksRetaliation)
-		? Terrain::ANY
-		: (Terrain)(*VLC->townh)[faction]->nativeTerrain;
+	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
+		? Terrain::ANY_TERRAIN
+		: (*VLC->townh)[faction]->nativeTerrain;
 }
 
 void CCreature::updateFrom(const JsonNode & data)
@@ -423,7 +425,7 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 void CCreatureHandler::loadCommanders()
 {
 	JsonNode data(ResourceID("config/commanders.json"));
-	data.setMeta("core"); // assume that commanders are in core mod (for proper bonuses resolution)
+	data.setMeta(CModHandler::scopeBuiltin()); // assume that commanders are in core mod (for proper bonuses resolution)
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -631,6 +633,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 		{
 			JsonNode templ;
 			templ["animation"].String() = cre->advMapDef;
+			templ.setMeta(scope);
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->addTemplate(templ);
 		}
 
@@ -904,6 +907,23 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	}
 
 	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
+
+	for(const JsonNode & value : config["graphics"]["missile"]["ray"].Vector())
+	{
+		CCreature::CreatureAnimation::RayColor color;
+
+		color.r1 = value["start"].Vector()[0].Integer();
+		color.g1 = value["start"].Vector()[1].Integer();
+		color.b1 = value["start"].Vector()[2].Integer();
+		color.a1 = value["start"].Vector()[3].Integer();
+
+		color.r2 = value["end"].Vector()[0].Integer();
+		color.g2 = value["end"].Vector()[1].Integer();
+		color.b2 = value["end"].Vector()[2].Integer();
+		color.a2 = value["end"].Vector()[3].Integer();
+
+		creature->animation.projectileRay.push_back(color);
+	}
 
 	creature->special = config["special"].Bool() || config["disabled"].Bool();
 
@@ -1230,7 +1250,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	{
 		if (b.type != Bonus::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
-		curVal = static_cast<si32>(parser.readNumber());// 0 level is never active
+		parser.readNumber(); // 0 level is never active
 		for (int i = 1; i < 11; ++i)
 		{
 			curVal = static_cast<si32>(parser.readNumber());
@@ -1343,12 +1363,12 @@ void CCreatureHandler::buildBonusTreeForTiers()
 	for(CCreature * c : objects)
 	{
 		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
-			c->attachTo(&creaturesOfLevel[c->level]);
+			c->attachTo(creaturesOfLevel[c->level]);
 		else
-			c->attachTo(&creaturesOfLevel[0]);
+			c->attachTo(creaturesOfLevel[0]);
 	}
 	for(CBonusSystemNode &b : creaturesOfLevel)
-		b.attachTo(&allCreatures);
+		b.attachTo(allCreatures);
 }
 
 void CCreatureHandler::afterLoadFinalization()
@@ -1360,3 +1380,5 @@ void CCreatureHandler::deserializationFix()
 {
 	buildBonusTreeForTiers();
 }
+
+VCMI_LIB_NAMESPACE_END

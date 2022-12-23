@@ -20,7 +20,9 @@
 
 #include "../../lib/CModHandler.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 //extern static const int3 dirs[8];
@@ -161,55 +163,6 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 	return h == rhs.get(true);
 }
 
-void foreach_tile_pos(std::function<void(const int3 & pos)> foo)
-{
-	// some micro-optimizations since this function gets called a LOT
-	// callback pointer is thread-specific and slow to retrieve -> read map size only once
-	int3 mapSize = cb->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
-	{
-		for(int j = 0; j < mapSize.y; j++)
-		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(int3(i, j, k));
-		}
-	}
-}
-
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo)
-{
-	int3 mapSize = cbp->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
-	{
-		for(int j = 0; j < mapSize.y; j++)
-		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(cbp, int3(i, j, k));
-		}
-	}
-}
-
-void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo)
-{
-	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
-	for(const int3 & dir : int3::getDirs())
-	{
-		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
-			foo(pos + dir);
-	}
-}
-
-void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo)
-{
-	for(const int3 & dir : int3::getDirs())
-	{
-		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
-			foo(cbp, pos + dir);
-	}
-}
-
 bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
 {
 	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
@@ -284,7 +237,7 @@ bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
 
 bool isObjectPassable(const CGObjectInstance * obj)
 {
-	return isObjectPassable(obj, ai->playerID, cb->getPlayerRelations(obj->tempOwner, ai->playerID));
+	return isObjectPassable(obj, ai->playerID, ai->myCb->getPlayerRelations(obj->tempOwner, ai->playerID));
 }
 
 // Pathfinder internal helper
@@ -357,6 +310,9 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
+	if(!obj)
+		return false;
+
 	//TODO: allow polling of remaining creatures in dwelling
 	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
 		return true;
@@ -388,11 +344,14 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
+	auto relations = ai->cb->getPlayerRelations(obj->tempOwner, h->tempOwner);
+
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
 	case Obj::HERO: //never visit our heroes at random
-		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
+		return relations == PlayerRelations::ENEMIES; //do not visit our towns at random
+
 	case Obj::BORDER_GATE:
 	{
 		for(auto q : ai->cb->getMyQuests())
@@ -422,8 +381,11 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	}
 	case Obj::CREATURE_GENERATOR1:
 	{
-		if(obj->tempOwner != h->tempOwner)
+		if(relations == PlayerRelations::ENEMIES)
 			return true; //flag just in case
+
+		if(relations == PlayerRelations::ALLIES)
+			return false;
 
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
 
@@ -464,7 +426,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		break;
 	}
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		if(h->level < 12)
+		if(h->level < 10)
 			return false;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
@@ -492,4 +454,16 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return false;
 
 	return true;
+}
+
+bool townHasFreeTavern(const CGTownInstance * town)
+{
+	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
+	if(!town->visitingHero) return true;
+
+	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
+
+	return canMoveVisitingHeroToGarnison;
+}
+
 }

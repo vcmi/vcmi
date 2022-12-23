@@ -12,6 +12,8 @@
 
 #include "../JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
 	JsonTreeSerializer(instanceResolver_, &root_, true, false)
 {
@@ -106,7 +108,7 @@ void JsonSerializer::serializeLIC(const std::string & fieldName, LICSet & value)
 
 void JsonSerializer::serializeString(const std::string & fieldName, std::string & value)
 {
-	if(value != "")
+	if(!value.empty())
 		currentObject->operator[](fieldName).String() = value;
 }
 
@@ -185,3 +187,5 @@ void JsonSerializer::writeLICPartBuffer(const std::string & fieldName, const std
 	}
 }
 
+
+VCMI_LIB_NAMESPACE_END

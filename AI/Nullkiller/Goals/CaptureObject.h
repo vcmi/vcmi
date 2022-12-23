@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -37,4 +40,6 @@ namespace Goals
 		virtual bool hasHash() const override { return true; }
 		virtual uint64_t getHash() const override;
 	};
+}
+
 }

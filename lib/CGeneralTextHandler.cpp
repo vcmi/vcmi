@@ -19,6 +19,8 @@
 #include "VCMI_Lib.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 size_t Unicode::getCharacterSize(char firstByte)
 {
 	// length of utf-8 character can be determined from 1st byte by counting number of highest bits set to 1:
@@ -336,12 +338,12 @@ CGeneralTextHandler::CGeneralTextHandler()
 	
 	for(int i = 0; i < h3mTerrainNames.size(); ++i)
 	{
-		terrainNames[Terrain::createTerrainTypeH3M(i)] = h3mTerrainNames[i];
+		terrainNames[i] = h3mTerrainNames[i];
 	}
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		if(!Terrain::Manager::getInfo(terrain).terrainText.empty())
-			terrainNames[terrain] = Terrain::Manager::getInfo(terrain).terrainText;
+		if(!terrain.terrainText.empty())
+			terrainNames[terrain.id] = terrain.terrainText;
 	}
 	
 
@@ -519,3 +521,5 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 	else
 		return textIndex + 1;
 }
+
+VCMI_LIB_NAMESPACE_END

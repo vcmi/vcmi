@@ -12,10 +12,14 @@
 #include "../../AIGateway.h"
 #include "../../Goals/AdventureSpellCast.h"
 #include "../../Goals/CaptureObject.h"
+#include "../../Goals/Invalid.h"
 #include "../../Goals/BuildBoat.h"
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "BoatActions.h"
+
+namespace NKAI
+{
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
@@ -34,7 +38,7 @@ namespace AIPathfinding
 			return Goals::sptr(Goals::CaptureObject(shipyard->o));
 		}
 		
-		return sptr(Goals::Invalid());
+		return Goals::sptr(Goals::Invalid());
 	}
 
 	bool BuildBoatAction::canAct(const AIPathNode * source) const
@@ -43,7 +47,7 @@ namespace AIPathfinding
 
 		if(cb->getPlayerRelations(hero->tempOwner, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
 		{
-#if AI_TRACE_LEVEL > 1
+#if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Shipyard is enemy.");
 #endif
 			return false;
@@ -55,7 +59,7 @@ namespace AIPathfinding
 
 		if(!cb->getResourceAmount().canAfford(source->actor->armyCost + boatCost))
 		{
-#if AI_TRACE_LEVEL > 1
+#if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Not enough resources.");
 #endif
 
@@ -128,4 +132,6 @@ namespace AIPathfinding
 
 		return hero->getSpellCost(summonBoat.toSpell());
 	}
+}
+
 }

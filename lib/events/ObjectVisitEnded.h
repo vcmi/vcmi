@@ -14,6 +14,8 @@
 
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -31,3 +33,5 @@ private:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

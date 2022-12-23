@@ -23,6 +23,8 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
@@ -44,7 +46,7 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 
 	if(!handler.saving)
 	{
-		asCastle = (instanceId != "");
+		asCastle = !instanceId.empty();
 		allowedFactions.clear();
 	}
 
@@ -1130,10 +1132,11 @@ void CGTownInstance::setType(si32 ID, si32 subID)
 
 void CGTownInstance::updateAppearance()
 {
+	auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
 	//FIXME: not the best way to do this
-	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(terrain, this);
 	if (app)
-		appearance = app.get();
+		appearance = app;
 }
 
 std::string CGTownInstance::nodeName() const
@@ -1143,7 +1146,7 @@ std::string CGTownInstance::nodeName() const
 
 void CGTownInstance::deserializationFix()
 {
-	attachTo(&townAndVis);
+	attachTo(townAndVis);
 
 	//Hero is already handled by CGameState::attachArmedObjects
 
@@ -1213,8 +1216,8 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
 		assert(p);
-		h->detachFrom(p);
-		h->attachTo(&townAndVis);
+		h->detachFrom(*p);
+		h->attachTo(townAndVis);
 		visitingHero = h;
 		h->visitedTown = this;
 		h->inTownGarrison = false;
@@ -1223,8 +1226,8 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(visitingHero->tempOwner);
 		visitingHero->visitedTown = nullptr;
-		visitingHero->detachFrom(&townAndVis);
-		visitingHero->attachTo(p);
+		visitingHero->detachFrom(townAndVis);
+		visitingHero->attachTo(*p);
 		visitingHero = nullptr;
 	}
 }
@@ -1236,8 +1239,8 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
 		assert(p);
-		h->detachFrom(p);
-		h->attachTo(this);
+		h->detachFrom(*p);
+		h->attachTo(*this);
 		garrisonHero = h;
 		h->visitedTown = this;
 		h->inTownGarrison = true;
@@ -1247,8 +1250,8 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 		PlayerState *p = cb->gameState()->getPlayerState(garrisonHero->tempOwner);
 		garrisonHero->visitedTown = nullptr;
 		garrisonHero->inTownGarrison = false;
-		garrisonHero->detachFrom(this);
-		garrisonHero->attachTo(p);
+		garrisonHero->detachFrom(*this);
+		garrisonHero->attachTo(*p);
 		garrisonHero = nullptr;
 	}
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
@@ -1287,9 +1290,9 @@ int CGTownInstance::getTownLevel() const
 	return level;
 }
 
-CBonusSystemNode * CGTownInstance::whatShouldBeAttached()
+CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 {
-	return &townAndVis;
+	return townAndVis;
 }
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const
@@ -1441,6 +1444,12 @@ void CGTownInstance::afterAddToMap(CMap * map)
 		map->towns.push_back(this);
 }
 
+void CGTownInstance::afterRemoveFromMap(CMap * map)
+{
+	if (ID == Obj::TOWN)
+		vstd::erase_if_present(map->towns, this);
+}
+
 void CGTownInstance::reset()
 {
 	CGTownInstance::merchantArtifacts.clear();
@@ -1457,7 +1466,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		auto decodeBuilding = [this](const std::string & identifier) -> si32
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier("core", getTown()->getBuildingScope(), identifier);
+			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), getTown()->getBuildingScope(), identifier);
 
 			if(rawId)
 				return rawId.get();
@@ -1861,3 +1870,5 @@ const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) co
 	std::string greeting = fmt.str();
 	return greeting;
 }
+
+VCMI_LIB_NAMESPACE_END

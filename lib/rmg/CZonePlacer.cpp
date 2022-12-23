@@ -17,6 +17,8 @@
 #include "Zone.h"
 #include "Functions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
@@ -191,16 +193,17 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 				else
 				{
 					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
-					if(tt == Terrain("dirt"))
+					if(tt == Terrain::DIRT)
 					{
 						//any / random
 						zonesToPlace.push_back(zone);
 					}
 					else
 					{
-						if(tt.isUnderground())
+						const auto & terrainType = VLC->terrainTypeHandler->terrains()[tt];
+						if(terrainType.isUnderground() && !terrainType.isSurface())
 						{
-							//underground
+							//underground only
 							zonesOnLevel[1]++;
 							levels[zone.first] = 1;
 						}
@@ -498,24 +501,24 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
 
-	int levels = map.map().twoLevel ? 2 : 1;
+	int levels = map.map().levels();
 
 	/*
 	1. Create Voronoi diagram
 	2. find current center of mass for each zone. Move zone to that center to balance zones sizes
 	*/
 
-	for (int i = 0; i<width; i++)
+	int3 pos;
+	for(pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for (int j = 0; j<height; j++)
+		for(pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
-				for (auto zone : zones)
+				for(auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == pos.z)
 						distances.push_back(std::make_pair(zone.second, (float)pos.dist2dSQ(zone.second->getPos())));
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
@@ -526,24 +529,28 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	}
 
 	for (auto zone : zones)
+	{
+		if(zone.second->area().empty())
+			throw rmgException("Empty zone is generated, probably RMG template is inappropriate for map size");
+		
 		moveZoneToCenterOfMass(zone.second);
+	}
 
 	//assign actual tiles to each zone using nonlinear norm for fine edges
 
 	for (auto zone : zones)
 		zone.second->clearTiles(); //now populate them again
 
-	for (int i=0; i<width; i++)
+	for (pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for(int j=0; j<height; j++)
+		for (pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for (pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
 				for (auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == pos.z)
 						distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
 					else
 						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
@@ -572,8 +579,10 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			paintZoneTerrain(*zone.second, *rand, map, Terrain("subterra"));
+			paintZoneTerrain(*zone.second, *rand, map, Terrain::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");
 }
+
+VCMI_LIB_NAMESPACE_END

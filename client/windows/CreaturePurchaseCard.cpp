@@ -17,6 +17,7 @@
 #include "QuickRecruitmentWindow.h"
 #include "../gui/CGuiHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "CCreatureWindow.h"
 
 void CreaturePurchaseCard::initButtons()
 {
@@ -47,6 +48,7 @@ void CreaturePurchaseCard::switchCreatureLevel()
 	auto nextCreatureId = vstd::circularAt(upgradesID, ++index);
 	creatureOnTheCard = nextCreatureId.toCreature();
 	picture = std::make_shared<CCreaturePic>(parent->pos.x, parent->pos.y, creatureOnTheCard);
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(parent->pos.x, parent->pos.y), picture, creatureOnTheCard);
 	parent->updateAllSliders();
 	cost->set(creatureOnTheCard->cost * slider->getValue());
 }
@@ -54,14 +56,14 @@ void CreaturePurchaseCard::switchCreatureLevel()
 void CreaturePurchaseCard::initAmountInfo()
 {
 	availableAmount = std::make_shared<CLabel>(pos.x + 25, pos.y + 146, FONT_SMALL, CENTER, Colors::YELLOW);
-	purhaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
+	purchaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
 	updateAmountInfo(0);
 }
 
 void CreaturePurchaseCard::updateAmountInfo(int value)
 {
 	availableAmount->setText(boost::lexical_cast<std::string>(maxAmount-value));
-	purhaseAmount->setText(boost::lexical_cast<std::string>(value));
+	purchaseAmount->setText(boost::lexical_cast<std::string>(value));
 }
 
 void CreaturePurchaseCard::initSlider()
@@ -96,8 +98,26 @@ void CreaturePurchaseCard::initView()
 {
 	picture = std::make_shared<CCreaturePic>(pos.x, pos.y, creatureOnTheCard);
 	background = std::make_shared<CPicture>("QuickRecruitmentWindow/CreaturePurchaseCard.png", pos.x-4, pos.y-50);
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(pos.x, pos.y), picture, creatureOnTheCard);
+
 	initAmountInfo();
 	initSlider();
-	initButtons();
+	initButtons(); // order important! buttons need slider!
 	initCostBox();
+}
+
+CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & position, const std::shared_ptr<CCreaturePic> creaturePic, const CCreature * creatureOnTheCard)
+	: CIntObject(RCLICK),
+	creatureOnTheCard(creatureOnTheCard)
+{
+	pos.x += position.x;
+	pos.y += position.y;
+	pos.w = CREATURE_WIDTH;
+	pos.h = CREATURE_HEIGHT;
+}
+
+void CreaturePurchaseCard::CCreatureClickArea::clickRight(tribool down, bool previousState)
+{
+	if (down)
+		GH.pushIntT<CStackWindow>(creatureOnTheCard, true);
 }

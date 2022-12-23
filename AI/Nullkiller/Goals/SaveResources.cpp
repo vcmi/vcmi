@@ -14,6 +14,9 @@
 #include "../../../lib/CPathfinder.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -36,4 +39,6 @@ void SaveResources::accept(AIGateway * ai)
 std::string SaveResources::toString() const
 {
 	return "SaveResources " + resources.toString();
+}
+
 }

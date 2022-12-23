@@ -14,6 +14,8 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CModHandler;
 class CModIndentifier;
 class CModInfo;
@@ -177,6 +179,30 @@ public:
 		FAILED,
 		PASSED
 	};
+	
+	struct Version
+	{
+		int major = 0;
+		int minor = 0;
+		int patch = 0;
+		
+		Version() = default;
+		Version(int mj, int mi, int p): major(mj), minor(mi), patch(p) {}
+		
+		static Version GameVersion();
+		static Version fromString(std::string from);
+		std::string toString() const;
+		
+		bool compatible(const Version & other, bool checkMinor = false, bool checkPatch = false) const;
+		bool isNull() const;
+		
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & major;
+			h & minor;
+			h & patch;
+		}
+	};
 
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
@@ -184,6 +210,13 @@ public:
 	/// human-readable strings
 	std::string name;
 	std::string description;
+	
+	/// version of the mod
+	Version version;
+	
+	/// vcmi versions compatible with the mod
+
+	Version vcmiCompatibleMin, vcmiCompatibleMax;
 
 	/// list of mods that should be loaded before this one
 	std::set <TModID> dependencies;
@@ -210,18 +243,6 @@ public:
 	static std::string getModDir(std::string name);
 	static std::string getModFile(std::string name);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & identifier;
-		h & description;
-		h & name;
-		h & dependencies;
-		h & conflicts;
-		h & config;
-		h & checksum;
-		h & validation;
-		h & enabled;
-	}
 private:
 	void loadLocalData(const JsonNode & data);
 };
@@ -256,6 +277,46 @@ class DLL_LINKAGE CModHandler
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 public:
+
+	/// returns true if scope is reserved for internal use and can not be used by mods
+	static bool isScopeReserved(const TModID & scope);
+
+	/// reserved scope name for referencing built-in (e.g. H3) objects
+	static const TModID & scopeBuiltin();
+
+	/// reserved scope name for accessing objects from any loaded mod
+	static const TModID & scopeGame();
+
+	/// reserved scope name for accessing object for map loading
+	static const TModID & scopeMap();
+
+	class DLL_LINKAGE Incompatibility: public std::exception
+	{
+	public:
+		using StringPair = std::pair<const std::string, const std::string>;
+		using ModList = std::list<StringPair>;
+		
+		Incompatibility(ModList && _missingMods):
+			missingMods(std::move(_missingMods))
+		{
+			std::ostringstream _ss;
+			for(auto & m : missingMods)
+				_ss << m.first << ' ' << m.second << std::endl;
+			message = _ss.str();
+		}
+		
+		const char * what() const noexcept override
+		{
+			return message.c_str();
+		}
+		
+	private:
+		//list of mods required to load the game
+		// first: mod name
+		// second: mod version
+		const ModList missingMods;
+		std::string message;
+	};
 
 	CIdentifierStorage identifiers;
 
@@ -336,10 +397,41 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & allMods;
-		h & activeMods;
+		if(h.saving)
+		{
+			h & activeMods;
+			for(const auto & m : activeMods)
+				h & allMods[m].version;
+		}
+		else
+		{
+			loadMods();
+			std::vector<TModID> newActiveMods;
+			h & newActiveMods;
+			
+			Incompatibility::ModList missingMods;
+			for(const auto & m : newActiveMods)
+
+			{
+				CModInfo::Version mver;
+				h & mver;
+				
+				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
+					allMods[m].enabled = true;
+				else
+					missingMods.emplace_back(m, mver.toString());
+			}
+			
+			if(!missingMods.empty())
+				throw Incompatibility(std::move(missingMods));
+			
+			std::swap(activeMods, newActiveMods);
+		}
+				
 		h & settings;
 		h & modules;
 		h & identifiers;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

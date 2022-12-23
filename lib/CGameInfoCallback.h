@@ -12,6 +12,9 @@
 #include "int3.h"
 #include "ResourceSet.h" // for Res::ERes
 #include "battle/CCallbackBase.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Player;
 class Team;
 
@@ -185,7 +188,7 @@ public:
 	virtual const CMapHeader * getMapHeader()const;
 	virtual int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const;
-	virtual std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
+	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	virtual void calculatePaths(std::shared_ptr<PathfinderConfig> config);
@@ -235,7 +238,9 @@ public:
 
 	virtual int getResourceAmount(Res::ERes type) const;
 	virtual TResources getResourceAmount() const;
-	virtual const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map
+	virtual std::shared_ptr<const boost::multi_array<ui8, 3>> getVisibilityMap() const; //returns visibility map
 	//virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
 
+
+VCMI_LIB_NAMESPACE_END

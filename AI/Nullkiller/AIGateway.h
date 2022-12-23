@@ -25,7 +25,8 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
-struct QuestInfo;
+namespace NKAI
+{
 
 class AIStatus
 {
@@ -165,6 +166,7 @@ public:
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
 	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
 	void battleEnd(const BattleResult * br) override;
@@ -175,7 +177,6 @@ public:
 	void endTurn();
 
 	// TODO: all the routines like recruiting hero or building army should be removed from here and extracted to elementar goals or whatever
-	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
@@ -218,3 +219,5 @@ public:
 		h & battlename;
 	}
 };
+
+}

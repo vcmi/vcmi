@@ -20,6 +20,10 @@
 #include <dispatch/dispatch.h>
 #endif
 
+#ifdef VCMI_IOS
+#include "ios/utils.h"
+#endif
+
 const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
 const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
 const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
@@ -357,6 +361,75 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
 		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 }
+
+template<typename Int>
+Int lerp(Int a, Int b, float f)
+{
+	return a + std::round((b - a) * f);
+}
+
+static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	for(int x = x1; x <= x2; x++)
+	{
+		float f = float(x - x1) / float(x2 - x1);
+		int y = lerp(y1, y2, f);
+
+		uint8_t r = lerp(color1.r, color2.r, f);
+		uint8_t g = lerp(color1.g, color2.g, f);
+		uint8_t b = lerp(color1.b, color2.b, f);
+		uint8_t a = lerp(color1.a, color2.a, f);
+
+		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
+		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
+	}
+}
+
+static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	for(int y = y1; y <= y2; y++)
+	{
+		float f = float(y - y1) / float(y2 - y1);
+		int x = lerp(x1, x2, f);
+
+		uint8_t r = lerp(color1.r, color2.r, f);
+		uint8_t g = lerp(color1.g, color2.g, f);
+		uint8_t b = lerp(color1.b, color2.b, f);
+		uint8_t a = lerp(color1.a, color2.a, f);
+
+		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
+		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
+	}
+}
+
+void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	int width  = std::abs(x1-x2);
+	int height = std::abs(y1-y2);
+
+	if ( width == 0 && height == 0)
+	{
+		Uint8 *p = CSDL_Ext::getPxPtr(sur, x1, y1);
+		ColorPutter<4, 0>::PutColorAlpha(p, color1);
+		return;
+	}
+
+	if (width > height)
+	{
+		if ( x1 < x2)
+			drawLineX(sur, x1,y1,x2,y2, color1, color2);
+		else
+			drawLineX(sur, x2,y2,x1,y1, color2, color1);
+	}
+	else
+	{
+		if ( y1 < y2)
+			drawLineY(sur, x1,y1,x2,y2, color1, color2);
+		else
+			drawLineY(sur, x2,y2,x1,y1, color2, color1);
+	}
+}
+
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
 	for(int i = 0; i < w; i++)
@@ -790,15 +863,37 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(SDL_Rect * where)
 {
+	auto impl = [](SDL_Rect * where)
+	{
+		if (SDL_IsTextInputActive() == SDL_FALSE)
+		{
+			SDL_StartTextInput();
+		}
+		SDL_SetTextInputRect(where);
+	};
+
 #ifdef VCMI_APPLE
 	dispatch_async(dispatch_get_main_queue(), ^{
 #endif
 
-	if (SDL_IsTextInputActive() == SDL_FALSE)
-	{
-		SDL_StartTextInput();
-	}
-	SDL_SetTextInputRect(where);
+#ifdef VCMI_IOS
+	// TODO ios: looks like SDL bug actually, try fixing there
+	auto renderer = SDL_GetRenderer(mainWindow);
+	float scaleX, scaleY;
+	SDL_Rect viewport;
+	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
+	SDL_RenderGetViewport(renderer, &viewport);
+
+	const auto nativeScale = iOS_utils::screenScale();
+	auto rectInScreenCoordinates = *where;
+	rectInScreenCoordinates.x = (viewport.x + rectInScreenCoordinates.x) * scaleX / nativeScale;
+	rectInScreenCoordinates.y = (viewport.y + rectInScreenCoordinates.y) * scaleY / nativeScale;
+	rectInScreenCoordinates.w = rectInScreenCoordinates.w * scaleX / nativeScale;
+	rectInScreenCoordinates.h = rectInScreenCoordinates.h * scaleY / nativeScale;
+	impl(&rectInScreenCoordinates);
+#else
+	impl(where);
+#endif
 
 #ifdef VCMI_APPLE
 	});

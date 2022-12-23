@@ -11,6 +11,8 @@
 #include "AILayerTransitionRule.h"
 #include "../../Engine/Nullkiller.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage)
@@ -38,7 +40,7 @@ namespace AIPathfinding
 
 			if(virtualBoat && tryEmbarkVirtualBoat(destination, source, virtualBoat))
 			{
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace("Embarking to virtual boat while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
 #endif
 			}
@@ -139,7 +141,7 @@ namespace AIPathfinding
 				}
 				else
 				{
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 					logAi->trace(
 						"Special transition node already allocated. Blocked moving %s -> %s",
 						source.coord.toString(),
@@ -158,4 +160,6 @@ namespace AIPathfinding
 
 		return result;
 	}
+}
+
 }

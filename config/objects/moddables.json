@@ -27,7 +27,7 @@
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
-				"mask" : [ "VV", "AV"]
+				"mask" : [ "VVV", "VAV"]
 			},
 			"sounds" : {
 				"removal" : ["KILLFADE"]

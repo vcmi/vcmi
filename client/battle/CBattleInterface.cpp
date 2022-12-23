@@ -42,6 +42,7 @@
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/BattleFieldHandler.h"
+#include "../../lib/ObstacleHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
@@ -155,7 +156,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
 	}
-	queue->update();
 
 	//preparing siege info
 	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
@@ -361,7 +361,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(elem->obstacleType == CObstacleInstance::USUAL)
 		{
-			std::string animationName = elem->getInfo().defName;
+			std::string animationName = elem->getInfo().animation;
 
 			auto cached = animationsCache.find(animationName);
 
@@ -379,7 +379,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		}
 		else if (elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			std::string animationName = elem->getInfo().defName;
+			std::string animationName = elem->getInfo().animation;
 
 			auto cached = animationsCache.find(animationName);
 
@@ -410,7 +410,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(LOCPLINT->battleInt)
 		{
-			CCS->musich->playMusicFromSet("battle", true);
+			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
 			blockUI(settings["session"]["spectate"].Bool());
 			battleIntroSoundChannel = -1;
@@ -422,6 +422,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	currentAction = PossiblePlayerBattleAction::INVALID;
 	selectedAction = PossiblePlayerBattleAction::INVALID;
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
+	queue->update();
 	blockUI(true);
 }
 
@@ -455,8 +456,8 @@ CBattleInterface::~CBattleInterface()
 
 	if (adventureInt && adventureInt->selection)
 	{
-		auto & terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
-		CCS->musich->playMusicFromSet("terrain", terrain, true);
+		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
+		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
 	animsAreDisplayed.setn(false);
 }
@@ -858,17 +859,17 @@ void CBattleInterface::reallySurrender()
 
 void CBattleInterface::bAutofightf()
 {
-	if (spellDestSelectMode) //we are casting a spell
+	if(spellDestSelectMode) //we are casting a spell
 		return;
 
 	//Stop auto-fight mode
-	if (curInt->isAutoFightOn)
+	if(curInt->isAutoFightOn)
 	{
 		assert(curInt->autofightingAI);
 		curInt->isAutoFightOn = false;
 		logGlobal->trace("Stopping the autofight...");
 	}
-	else
+	else if(!curInt->autofightingAI)
 	{
 		curInt->isAutoFightOn = true;
 		blockUI(true);
@@ -913,7 +914,7 @@ void CBattleInterface::bSpellf()
 
 		if (blockingBonus->source == Bonus::ARTIFACT)
 		{
-			const int32_t artID = blockingBonus->sid;
+			const auto artID = ArtifactID(blockingBonus->sid);
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
 			std::string heroName = myHero->hasArt(artID) ? myHero->name : enemyHero().name;
@@ -1019,15 +1020,22 @@ void CBattleInterface::initStackProjectile(const CStack * stack)
 	else
 		creature = stack->getCreature();
 
-	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
-	projectile->preload();
+	if (creature->animation.projectileRay.empty())
+	{
+		std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
+		projectile->preload();
 
-	if(projectile->size(1) != 0)
-		logAnim->error("Expected empty group 1 in stack projectile");
+		if(projectile->size(1) != 0)
+			logAnim->error("Expected empty group 1 in stack projectile");
+		else
+			projectile->createFlippedGroup(0, 1);
+
+		idToProjectile[stack->getCreature()->idNumber] = projectile;
+	}
 	else
-		projectile->createFlippedGroup(0, 1);
-
-	idToProjectile[stack->getCreature()->idNumber] = projectile;
+	{
+		idToRay[stack->getCreature()->idNumber] = creature->animation.projectileRay;
+	}
 }
 
 void CBattleInterface::stackRemoved(uint32_t stackID)
@@ -1082,11 +1090,10 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 
 	std::array<int, 2> killedBySide = {0, 0};
 
-	int targets = 0, damage = 0;
+	int targets = 0;
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
 		++targets;
-		damage += (int)attackedInfo.dmg;
 
 		ui8 side = attackedInfo.defender->side;
 		killedBySide.at(side) += attackedInfo.amountKilled;
@@ -1619,7 +1626,9 @@ void CBattleInterface::activateStack()
 
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
-	const CStack *s = activeStack;
+	const CStack * s = activeStack;
+	if(!s)
+		return;
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);
@@ -1884,7 +1893,7 @@ void CBattleInterface::blockUI(bool on)
 	bSurrender->block(on || curInt->cb->battleGetSurrenderCost() < 0);
 
 	// block only if during enemy turn and auto-fight is off
-	// othervice - crash on accessing non-exisiting active stack
+	// otherwise - crash on accessing non-exisiting active stack
 	bAutofight->block(!curInt->isAutoFightOn && !activeStack);
 
 	if (tacticsMode && btactEnd && btactNext)
@@ -3204,23 +3213,63 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				continue; // wait...
 		}
 
-		size_t group = it->reverse ? 1 : 0;
-		auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
-
-		if(image)
+		if (idToProjectile.count(it->creID))
 		{
-			SDL_Rect dst;
-			dst.h = image->height();
-			dst.w = image->width();
-			dst.x = static_cast<int>(it->x - dst.w / 2);
-			dst.y = static_cast<int>(it->y - dst.h / 2);
+			size_t group = it->reverse ? 1 : 0;
+			auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
 
-			image->draw(to, &dst, nullptr);
+			if(image)
+			{
+				SDL_Rect dst;
+				dst.h = image->height();
+				dst.w = image->width();
+				dst.x = static_cast<int>(it->x - dst.w / 2);
+				dst.y = static_cast<int>(it->y - dst.h / 2);
+
+				image->draw(to, &dst, nullptr);
+			}
+		}
+		if (idToRay.count(it->creID))
+		{
+			auto const & ray = idToRay[it->creID];
+
+			if (std::abs(it->dx) > std::abs(it->dy)) // draw in horizontal axis
+			{
+				int y1 =  it->y0 - ray.size() / 2;
+				int y2 =  it->y - ray.size() / 2;
+
+				int x1 = it->x0;
+				int x2 = it->x;
+
+				for (size_t i = 0; i < ray.size(); ++i)
+				{
+					SDL_Color beginColor{ ray[i].r1, ray[i].g1, ray[i].b1, ray[i].a1};
+					SDL_Color endColor  { ray[i].r2, ray[i].g2, ray[i].b2, ray[i].a2};
+
+					CSDL_Ext::drawLine(to, x1, y1 + i, x2, y2 + i, beginColor, endColor);
+				}
+			}
+			else // draw in vertical axis
+			{
+				int x1 = it->x0 - ray.size() / 2;
+				int x2 = it->x - ray.size() / 2;
+
+				int y1 =  it->y0;
+				int y2 =  it->y;
+
+				for (size_t i = 0; i < ray.size(); ++i)
+				{
+					SDL_Color beginColor{ ray[i].r1, ray[i].g1, ray[i].b1, ray[i].a1};
+					SDL_Color endColor  { ray[i].r2, ray[i].g2, ray[i].b2, ray[i].a2};
+
+					CSDL_Ext::drawLine(to, x1 + i, y1, x2 + i, y2, beginColor, endColor);
+				}
+			}
 		}
 
 		// Update projectile
 		++it->step;
-		if (it->step == it->lastStep)
+		if (it->step > it->lastStep)
 		{
 			toBeDeleted.insert(toBeDeleted.end(), it);
 		}

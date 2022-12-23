@@ -12,30 +12,32 @@
 #include "mapping/CMapDefines.h"
 #include "CGameState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace PathfinderUtil
 {
-	using FoW = std::vector<std::vector<std::vector<ui8> > >;
+	using FoW = std::shared_ptr<const boost::multi_array<ui8, 3>>;
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::EEPathfindingLayer layer>
-	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const FoW & fow, const PlayerColor player, const CGameState * gs)
+	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, FoW fow, const PlayerColor player, const CGameState * gs)
 	{
-		if(!fow[pos.x][pos.y][pos.z])
+		if(!(*fow)[pos.z][pos.x][pos.y])
 			return CGPathNode::BLOCKED;
 
 		switch(layer)
 		{
 		case ELayer::LAND:
 		case ELayer::SAIL:
-			if(tinfo->visitable)
+			if(tinfo.visitable)
 			{
-				if(tinfo->visitableObjects.front()->ID == Obj::SANCTUARY && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
+				if(tinfo.visitableObjects.front()->ID == Obj::SANCTUARY && tinfo.visitableObjects.back()->ID == Obj::HERO && tinfo.visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
 				{
 					return CGPathNode::BLOCKED;
 				}
 				else
 				{
-					for(const CGObjectInstance * obj : tinfo->visitableObjects)
+					for(const CGObjectInstance * obj : tinfo.visitableObjects)
 					{
 						if(obj->blockVisit)
 							return CGPathNode::BLOCKVIS;
@@ -46,7 +48,7 @@ namespace PathfinderUtil
 					}
 				}
 			}
-			else if(tinfo->blocked)
+			else if(tinfo.blocked)
 			{
 				return CGPathNode::BLOCKED;
 			}
@@ -59,13 +61,13 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::WATER:
-			if(tinfo->blocked || tinfo->terType.isLand())
+			if(tinfo.blocked || tinfo.terType->isLand())
 				return CGPathNode::BLOCKED;
 
 			break;
 
 		case ELayer::AIR:
-			if(tinfo->blocked || tinfo->terType.isLand())
+			if(tinfo.blocked || tinfo.terType->isLand())
 				return CGPathNode::FLYABLE;
 
 			break;
@@ -74,3 +76,5 @@ namespace PathfinderUtil
 		return CGPathNode::ACCESSIBLE;
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

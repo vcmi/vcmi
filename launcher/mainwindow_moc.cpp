@@ -11,7 +11,6 @@
 #include "mainwindow_moc.h"
 #include "ui_mainwindow_moc.h"
 
-#include <QProcess>
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
@@ -20,6 +19,7 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 
 #include "updatedialog_moc.h"
+#include "main.h"
 
 void MainWindow::load()
 {
@@ -27,16 +27,22 @@ void MainWindow::load()
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Launcher_log.txt", console);
+#endif
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
 
+#ifdef Q_OS_IOS
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().binaryPath() / "icons"));
+#else
 	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
+#endif
 
 	settings.init();
 }
@@ -78,10 +84,24 @@ MainWindow::MainWindow(QWidget * parent)
 		ui->tabSelectList->setMaximumWidth(width + 4);
 	}
 	ui->tabListWidget->setCurrentIndex(0);
-	ui->settingsView->setDisplayList();
 
-	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
-		ui->tabListWidget, SLOT(setCurrentIndex(int)));
+	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
+	ui->settingsView->setDisplayList();
+	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
+		ui->settingsView, &CSettingsView::fillValidResolutions);
+
+	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
+#ifdef Q_OS_IOS
+		if(auto widget = qApp->focusWidget())
+			widget->clearFocus();
+#endif
+		ui->tabListWidget->setCurrentIndex(i);
+	});
+	
+#ifdef Q_OS_IOS
+	QScroller::grabGesture(ui->tabSelectList, QScroller::LeftMouseButtonGesture);
+	ui->tabSelectList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+#endif
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
@@ -99,26 +119,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
-	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
+	startGame({});
 }
 
-void MainWindow::startExecutable(QString name)
+void MainWindow::on_tabSelectList_currentRowChanged(int currentRow)
 {
-	QProcess process;
+	ui->startGameButton->setEnabled(currentRow != TabRows::LOBBY);
+}
 
-	// Start the executable
-	if(process.startDetached(name, {}))
-	{
-		close(); // exit launcher
-	}
-	else
-	{
-		QMessageBox::critical(this,
-		                      "Error starting executable",
-		                      "Failed to start " + name + "\n"
-		                      "Reason: " + process.errorString(),
-		                      QMessageBox::Ok,
-		                      QMessageBox::Ok);
-		return;
-	}
+const CModList & MainWindow::getModList() const
+{
+	return ui->modlistView->getModList();
 }

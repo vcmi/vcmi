@@ -12,6 +12,9 @@
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
 	auto townInfo = developmentInfo.town->town;
@@ -129,8 +132,6 @@ void BuildAnalyzer::update()
 	{
 		logAi->trace("Checking town %s", town->name);
 
-		auto townInfo = town->town;
-
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
 
@@ -207,8 +208,6 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	logAi->trace("checking %s", info.name);
 	logAi->trace("buildInfo %s", info.toString());
 
-	buildPtr = nullptr;
-
 	if(!town->hasBuilt(building))
 	{
 		auto canBuild = ai->cb->canBuildStructure(town, building);
@@ -241,8 +240,6 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			}
 			else
 			{
-				buildPtr = townInfo->buildings.at(building);
-
 				logAi->trace("cant build. Need %d", missingBuildings[0].num);
 
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
@@ -337,7 +334,7 @@ BuildingInfo::BuildingInfo()
 	buildCost = 0;
 	buildCostWithPrerequisits = 0;
 	prerequisitesCount = 0;
-	name = "";
+	name.clear();
 	armyStrength = 0;
 }
 
@@ -399,4 +396,6 @@ std::string BuildingInfo::toString() const
 		+ ", creature: " + std::to_string(creatureGrows) + " x " + std::to_string(creatureLevel)
 		+ " x " + creatureCost.toString()
 		+ ", daily: " + dailyIncome.toString();
+}
+
 }

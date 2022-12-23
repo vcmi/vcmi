@@ -388,6 +388,20 @@ void CGStatusBar::init()
 	GH.statusbar = shared_from_this();
 }
 
+void CGStatusBar::clickLeft(tribool down, bool previousState)
+{
+	if(!down && onClick)
+	{
+		onClick();
+	}
+}
+
+void CGStatusBar::setOnClick(std::function<void()> handler)
+{
+	onClick = handler;
+	addUsedEvents(LCLICK);
+}
+
 Point CGStatusBar::getBorderSize()
 {
 	//Width of borders where text should not be printed
@@ -420,7 +434,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	background.reset();
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
-#ifndef VCMI_ANDROID
+#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
 	giveFocus();
 #endif
 }
@@ -437,7 +451,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
-#ifndef VCMI_ANDROID
+#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
 	giveFocus();
 #endif
 }
@@ -459,7 +473,7 @@ CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	background->pos = pos;
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
-#ifndef VCMI_ANDROID
+#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
 	giveFocus();
 #endif
 }
@@ -577,7 +591,7 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 		redraw();
 		cb(text);
 	}
-	newText = "";
+	newText.clear();
 
 #ifdef VCMI_ANDROID
 	notifyAndroidTextInputChanged(text);

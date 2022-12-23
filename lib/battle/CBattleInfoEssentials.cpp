@@ -14,9 +14,11 @@
 #include "../NetPacks.h"
 #include "../mapObjects/CGTownInstance.h"
 
-Terrain CBattleInfoEssentials::battleTerrainType() const
+VCMI_LIB_NAMESPACE_BEGIN
+
+TerrainId CBattleInfoEssentials::battleTerrainType() const
 {
-	RETURN_IF_NOT_BATTLE(Terrain());
+	RETURN_IF_NOT_BATTLE(TerrainId());
 	return getBattle()->getTerrainType();
 }
 
@@ -423,3 +425,5 @@ bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const
 
 	return boost::logic::indeterminate(positivness) || (attacker == initialOwner) == (bool)positivness;
 }
+
+VCMI_LIB_NAMESPACE_END

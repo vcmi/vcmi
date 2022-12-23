@@ -17,6 +17,8 @@
 #include "../JsonNode.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 class CRandomGenerator;
 
@@ -144,7 +146,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	JsonNode base; /// describes base template
 
-	std::vector<ObjectTemplate> templates;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
 	SObjectSounds sounds;
 
@@ -154,7 +156,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
-	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
+	virtual bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const;
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
@@ -177,17 +179,21 @@ public:
 	boost::optional<std::string> getCustomName() const;
 	SObjectSounds getSounds() const;
 
-	void addTemplate(const ObjectTemplate & templ);
+	void addTemplate(std::shared_ptr<const ObjectTemplate> templ);
 	void addTemplate(JsonNode config);
 
 	/// returns all templates matching parameters
-	std::vector<ObjectTemplate> getTemplates() const;
-	std::vector<ObjectTemplate> getTemplates(const Terrain & terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const TerrainId terrainType) const;
+
+	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
+	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
+	std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const;
+
 	BattleField getBattlefield() const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-	boost::optional<ObjectTemplate> getOverride(const Terrain & terrainType, const CGObjectInstance * object) const;
 
 	const RandomMapInfo & getRMGInfo();
 
@@ -199,14 +205,14 @@ public:
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
-	virtual CGObjectInstance * create(const ObjectTemplate & tmpl) const = 0;
+	virtual CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const = 0;
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -264,7 +270,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
-	typedef std::multimap<std::pair<si32, si32>, ObjectTemplate> TTemplatesContainer;
+	typedef std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>> TTemplatesContainer;
 	TTemplatesContainer legacyTemplates;
 
 	/// contains list of custom names for H3 objects (e.g. Dwellings), used to load H3 data
@@ -297,7 +303,7 @@ public:
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
-	TObjectTypeHandler getHandlerFor(std::string type, std::string subtype) const;
+	TObjectTypeHandler getHandlerFor(std::string scope, std::string type, std::string subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 
 	std::string getObjectName(si32 type) const;
@@ -316,3 +322,5 @@ public:
 		h & objects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

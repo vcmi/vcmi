@@ -26,7 +26,11 @@
 #include "../../lib/CondSh.h"
 #include "Pathfinding/AIPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct QuestInfo;
+
+VCMI_LIB_NAMESPACE_END
 
 class AIhelper;
 

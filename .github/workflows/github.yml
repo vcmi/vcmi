@@ -1,17 +1,70 @@
 name: VCMI
 
 on:
-    push:
-      branches:
-        - features/*
-        - develop
-    pull_request:
+  push:
+    branches:
+      - features/*
+      - beta
+      - master
+  pull_request:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
+  check_last_build:
+    if: github.event.schedule != ''
+    runs-on: ubuntu-latest
+    outputs:
+      skip_build: ${{ steps.check_if_built.outputs.skip_build }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Get repo name
+        id: get_repo_name
+        run: echo "::set-output name=value::${GITHUB_REPOSITORY#*/}"
+      - name: Get last successful build for ${{ github.sha }}
+        uses: octokit/request-action@v2.1.0
+        id: get_last_scheduled_run
+        with:
+          route: GET /repos/{owner}/{repo}/actions/runs
+          owner: ${{ github.repository_owner }}
+          repo: ${{ steps.get_repo_name.outputs.value }}
+          status: success
+          per_page: 1
+          head_sha: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check if successful build of the current commit exists
+        id: check_if_built
+        run: |
+          if [ ${{ fromJson(steps.get_last_scheduled_run.outputs.data).total_count }} -gt 0 ]; then
+            echo '::set-output name=skip_build::1'
+          else
+            echo '::set-output name=skip_build::0'
+          fi
+      - name: Cancel current run
+        if: steps.check_if_built.outputs.skip_build == 1
+        uses: octokit/request-action@v2.1.0
+        with:
+          route: POST /repos/{owner}/{repo}/actions/runs/{run_id}/cancel
+          owner: ${{ github.repository_owner }}
+          repo: ${{ steps.get_repo_name.outputs.value }}
+          run_id: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Wait for the run to be cancelled
+        if: steps.check_if_built.outputs.skip_build == 1
+        run: sleep 60
+
   build:
+    needs: check_last_build
+    if: always() && needs.check_last_build.skip_build != 1
     strategy:
       matrix:
         include:
@@ -39,6 +92,13 @@ jobs:
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
             artifact_platform: arm
+          - platform: ios
+            os: macos-12
+            test: 0
+            pack: 1
+            extension: ipa
+            preset: ios-release-conan
+            conan_profile: ios-arm64
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -69,6 +129,10 @@ jobs:
         MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
 
+    - uses: actions/setup-python@v4
+      if: "${{ matrix.conan_profile != '' }}"
+      with:
+        python-version: '3.10'
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
@@ -79,7 +143,10 @@ jobs:
           --no-imports \
           --build=never \
           --profile:build=default \
-          --profile:host=CI/conan/${{ matrix.conan_profile }}
+          --profile:host=CI/conan/${{ matrix.conan_profile }} \
+          --options with_apple_system_libs=True
+      env:
+        GENERATE_ONLY_BUILT_CONFIG: 1
 
     - name: Git branch name
       id: git-branch-name
@@ -93,6 +160,7 @@ jobs:
         fi
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GITVERSION="$VCMI_PACKAGE_GITVERSION" >> $GITHUB_ENV
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
@@ -106,7 +174,8 @@ jobs:
             ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
             -DENABLE_TEST=${{matrix.test}} \
             -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
-            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME"
+            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME" \
+            -DENABLE_GITVERSION="$VCMI_PACKAGE_GITVERSION"
       env:
         CC: ${{ matrix.cc }}
         CXX: ${{ matrix.cxx }}
@@ -138,6 +207,8 @@ jobs:
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
         "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
+        test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
+          && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
     - name: Additional logs
@@ -155,7 +226,7 @@ jobs:
           ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload build
-      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         source '${{github.workspace}}/CI/upload_package.sh'
@@ -173,7 +244,7 @@ jobs:
 
     - name: Trigger Android
       uses: peter-evans/repository-dispatch@v1
-      if: ${{ github.ref == 'refs/heads/develop' && matrix.platform == 'mxe' }}
+      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master') && matrix.platform == 'mxe' }}
       with:
         token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
         repository: vcmi/vcmi-android

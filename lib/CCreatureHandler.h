@@ -21,6 +21,8 @@
 #include "CRandomGenerator.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
@@ -61,6 +63,16 @@ public:
 
 	struct CreatureAnimation
 	{
+		struct RayColor {
+			uint8_t r1, g1, b1, a1;
+			uint8_t r2, g2, b2, a2;
+
+			template <typename Handler> void serialize(Handler &h, const int version)
+			{
+				h & r1 & g1 & b1 & a1 & r2 & g2 & b2 & a2;
+			}
+		};
+
 		double timeBetweenFidgets, idleAnimationTime,
 			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
@@ -70,6 +82,7 @@ public:
 		int troopCountLocationOffset, attackClimaxFrame;
 
 		std::string projectileImageName;
+		std::vector<RayColor> projectileRay;
 		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
 		template <typename Handler> void serialize(Handler &h, const int version)
@@ -89,6 +102,7 @@ public:
 			h & troopCountLocationOffset;
 			h & attackClimaxFrame;
 			h & projectileImageName;
+			h & projectileRay;
 		}
 	} animation;
 
@@ -119,14 +133,14 @@ public:
 
 	ArtifactID warMachine;
 
-	bool isItNativeTerrain(const Terrain & terrain) const;
+	bool isItNativeTerrain(TerrainId terrain) const;
 	/**
 	Returns creature native terrain considering some terrain bonuses.
 	@param considerBonus is used to avoid Dead Lock when this method is called inside getAllBonuses
 	considerBonus = true is called from Pathfinder and fills actual nativeTerrain considering bonus(es).
 	considerBonus = false is called on Battle init and returns already prepared nativeTerrain without Bonus system calling.
 	*/
-	Terrain getNativeTerrain() const;
+	TerrainId getNativeTerrain() const;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	const std::string & getName() const override;
@@ -303,3 +317,5 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

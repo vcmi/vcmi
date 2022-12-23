@@ -57,13 +57,16 @@ namespace Goals
 
 		void scanSector(int scanRadius)
 		{
-			for(int x = ourPos.x - scanRadius; x <= ourPos.x + scanRadius; x++)
-			{
-				for(int y = ourPos.y - scanRadius; y <= ourPos.y + scanRadius; y++)
-				{
-					int3 tile = int3(x, y, ourPos.z);
+			int3 tile = int3(0, 0, ourPos.z);
 
-					if(cbp->isInTheMap(tile) && ts->fogOfWarMap[tile.x][tile.y][tile.z])
+			const auto & slice = (*(ts->fogOfWarMap))[ourPos.z];
+
+			for(tile.x = ourPos.x - scanRadius; tile.x <= ourPos.x + scanRadius; tile.x++)
+			{
+				for(tile.y = ourPos.y - scanRadius; tile.y <= ourPos.y + scanRadius; tile.y++)
+				{
+
+					if(cbp->isInTheMap(tile) && slice[tile.x][tile.y])
 					{
 						scanTile(tile);
 					}
@@ -84,13 +87,13 @@ namespace Goals
 
 			foreach_tile_pos([&](const int3 & pos)
 			{
-				if(ts->fogOfWarMap[pos.x][pos.y][pos.z])
+				if((*(ts->fogOfWarMap))[pos.z][pos.x][pos.y])
 				{
 					bool hasInvisibleNeighbor = false;
 
 					foreach_neighbour(cbp, pos, [&](CCallback * cbp, int3 neighbour)
 					{
-						if(!ts->fogOfWarMap[neighbour.x][neighbour.y][neighbour.z])
+						if(!(*(ts->fogOfWarMap))[neighbour.z][neighbour.x][neighbour.y])
 						{
 							hasInvisibleNeighbor = true;
 						}
@@ -174,7 +177,7 @@ namespace Goals
 			{
 				foreach_neighbour(cbp, tile, [&](CCallback * cbp, int3 neighbour)
 				{
-					if(ts->fogOfWarMap[neighbour.x][neighbour.y][neighbour.z])
+					if((*(ts->fogOfWarMap))[neighbour.z][neighbour.x][neighbour.y])
 					{
 						out.push_back(neighbour);
 					}
@@ -182,18 +185,20 @@ namespace Goals
 			}
 		}
 
-		int howManyTilesWillBeDiscovered(
-			const int3 & pos) const
+		int howManyTilesWillBeDiscovered(const int3 & pos) const
 		{
 			int ret = 0;
-			for(int x = pos.x - sightRadius; x <= pos.x + sightRadius; x++)
+			int3 npos = int3(0, 0, pos.z);
+
+			const auto & slice = (*(ts->fogOfWarMap))[pos.z];
+
+			for(npos.x = pos.x - sightRadius; npos.x <= pos.x + sightRadius; npos.x++)
 			{
-				for(int y = pos.y - sightRadius; y <= pos.y + sightRadius; y++)
+				for(npos.y = pos.y - sightRadius; npos.y <= pos.y + sightRadius; npos.y++)
 				{
-					int3 npos = int3(x, y, pos.z);
 					if(cbp->isInTheMap(npos)
 						&& pos.dist2d(npos) - 0.5 < sightRadius
-						&& !ts->fogOfWarMap[npos.x][npos.y][npos.z])
+						&& !slice[npos.x][npos.y])
 					{
 						if(allowDeadEndCancellation
 							&& !hasReachableNeighbor(npos))

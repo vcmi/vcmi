@@ -26,6 +26,8 @@
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
@@ -311,7 +313,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	standardVictory.effect.type = EventEffect::VICTORY;
 	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
 	standardVictory.identifier = "standardVictory";
-	standardVictory.description = ""; // TODO: display in quest window
+	standardVictory.description.clear(); // TODO: display in quest window
 	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
 	standardVictory.trigger = EventExpression(victoryCondition);
 
@@ -319,7 +321,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	standardDefeat.effect.type = EventEffect::DEFEAT;
 	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
 	standardDefeat.identifier = "standardDefeat";
-	standardDefeat.description = ""; // TODO: display in quest window
+	standardDefeat.description.clear(); // TODO: display in quest window
 	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
 	standardDefeat.trigger = EventExpression(defeatCondition);
 
@@ -336,7 +338,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		TriggeredEvent specialVictory;
 		specialVictory.effect.type = EventEffect::VICTORY;
 		specialVictory.identifier = "specialVictory";
-		specialVictory.description = ""; // TODO: display in quest window
+		specialVictory.description.clear(); // TODO: display in quest window
 
 		mapHeader->victoryIconIndex = ui16(vicCondition);
 		mapHeader->victoryMessage = VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1];
@@ -398,7 +400,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = readInt3();
-				cond.objectType = BuildingID::VILLAGE_HALL + reader.readUInt8();
+				cond.objectType = BuildingID::TOWN_HALL + reader.readUInt8();
 				oper.expressions.push_back(cond);
 				cond.objectType = BuildingID::FORT + reader.readUInt8();
 				oper.expressions.push_back(cond);
@@ -524,7 +526,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		specialDefeat.effect.type = EventEffect::DEFEAT;
 		specialDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
 		specialDefeat.identifier = "specialDefeat";
-		specialDefeat.description = ""; // TODO: display in quest window
+		specialDefeat.description.clear(); // TODO: display in quest window
 
 		mapHeader->defeatIconIndex = ui16(lossCond);
 		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[size_t(lossCond) + 1];
@@ -868,15 +870,15 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 {
 	const int artmask = map->version == EMapFormat::ROE ? 0xff : 0xffff;
-	int aid;
+	ArtifactID aid;
 
 	if(map->version == EMapFormat::ROE)
 	{
-		aid = reader.readUInt8();
+		aid = ArtifactID(reader.readUInt8());
 	}
 	else
 	{
-		aid = reader.readUInt16();
+		aid = ArtifactID(reader.readUInt16());
 	}
 
 	bool isArt  =  aid != artmask;
@@ -921,28 +923,28 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 void CMapLoaderH3M::readTerrain()
 {
 	map->initTerrain();
+	const auto & terrains = VLC->terrainTypeHandler->terrains();
+	const auto & rivers = VLC->terrainTypeHandler->rivers();
+	const auto & roads = VLC->terrainTypeHandler->roads();
 
 	// Read terrain
-	for(int a = 0; a < 2; ++a)
+	int3 pos;
+	for(pos.z = 0; pos.z < map->levels(); ++pos.z)
 	{
-		if(a == 1 && !map->twoLevel)
+		//OH3 format is [z][y][x]
+		for(pos.y = 0; pos.y < map->height; pos.y++)
 		{
-			break;
-		}
-
-		for(int c = 0; c < map->width; c++)
-		{
-			for(int z = 0; z < map->height; z++)
+			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
-				auto & tile = map->getTile(int3(z, c, a));
-				tile.terType = Terrain::createTerrainTypeH3M(reader.readUInt8());
+				auto & tile = map->getTile(pos);
+				tile.terType = const_cast<TerrainType*>(&terrains[reader.readUInt8()]);
 				tile.terView = reader.readUInt8();
-				tile.riverType = RIVER_NAMES[reader.readUInt8()];
+				tile.riverType = const_cast<RiverType*>(&rivers[reader.readUInt8()]);
 				tile.riverDir = reader.readUInt8();
-				tile.roadType = ROAD_NAMES[reader.readUInt8()];
+				tile.roadType = const_cast<RoadType*>(&roads[reader.readUInt8()]);
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
-				tile.blocked = ((!tile.terType.isPassable() || tile.terType == Terrain("BORDER") ) ? true : false); //underground tiles are always blocked
+				tile.blocked = ((!tile.terType->isPassable() || tile.terType->id == Terrain::BORDER ) ? true : false); //underground tiles are always blocked
 				tile.visitable = 0;
 			}
 		}
@@ -958,9 +960,9 @@ void CMapLoaderH3M::readDefInfo()
 	// Read custom defs
 	for(int idd = 0; idd < defAmount; ++idd)
 	{
-		ObjectTemplate tmpl;
-		tmpl.readMap(reader);
-		templates.push_back(tmpl);
+		auto tmpl = new ObjectTemplate;
+		tmpl->readMap(reader);
+		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 	}
 }
 
@@ -977,10 +979,10 @@ void CMapLoaderH3M::readObjects()
 		int defnum = reader.readUInt32();
 		ObjectInstanceID idToBeGiven = ObjectInstanceID((si32)map->objects.size());
 
-		ObjectTemplate & objTempl = templates.at(defnum);
+		std::shared_ptr<const ObjectTemplate> objTempl = templates.at(defnum);
 		reader.skip(5);
 
-		switch(objTempl.id)
+		switch(objTempl->id)
 		{
 		case Obj::EVENT:
 			{
@@ -1205,22 +1207,22 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_RELIC_ART:
 		case Obj::SPELL_SCROLL:
 			{
-				int artID = ArtifactID::NONE; //random, set later
+				auto artID = ArtifactID::NONE; //random, set later
 				int spellID = -1;
 				auto  art = new CGArtifact();
 				nobj = art;
 
 				readMessageAndGuards(art->message, art);
 
-				if(objTempl.id == Obj::SPELL_SCROLL)
+				if(objTempl->id == Obj::SPELL_SCROLL)
 				{
 					spellID = reader.readUInt32();
 					artID = ArtifactID::SPELL_SCROLL;
 				}
-				else if(objTempl.id == Obj::ARTIFACT)
+				else if(objTempl->id == Obj::ARTIFACT)
 				{
 					//specific artifact
-					artID = objTempl.subid;
+					artID = ArtifactID(objTempl->subid);
 				}
 
 				art->storedArtifact = CArtifactInstance::createArtifact(map, artID, spellID);
@@ -1235,7 +1237,7 @@ void CMapLoaderH3M::readObjects()
 				readMessageAndGuards(res->message, res);
 
 				res->amount = reader.readUInt32();
-				if(objTempl.subid == Res::GOLD)
+				if(objTempl->subid == Res::GOLD)
 				{
 					// Gold is multiplied by 100.
 					res->amount *= 100;
@@ -1246,7 +1248,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_TOWN:
 		case Obj::TOWN:
 			{
-				nobj = readTown(objTempl.subid);
+				nobj = readTown(objTempl->subid);
 				break;
 			}
 		case Obj::MINE:
@@ -1347,7 +1349,7 @@ void CMapLoaderH3M::readObjects()
 				auto dwelling = new CGDwelling();
 				nobj = dwelling;
 				CSpecObjInfo * spec = nullptr;
-				switch(objTempl.id)
+				switch(objTempl->id)
 				{
 				case Obj::RANDOM_DWELLING:
 					spec = new CCreGenLeveledCastleInfo();
@@ -1450,7 +1452,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case Obj::PYRAMID: //Pyramid of WoG object
 			{
-				if(objTempl.subid == 0)
+				if(objTempl->subid == 0)
 				{
 					nobj = new CBank();
 				}
@@ -1470,13 +1472,13 @@ void CMapLoaderH3M::readObjects()
 			}
 		default: //any other object
 			{
-				if (VLC->objtypeh->knownSubObjects(objTempl.id).count(objTempl.subid))
+				if (VLC->objtypeh->knownSubObjects(objTempl->id).count(objTempl->subid))
 				{
-					nobj = VLC->objtypeh->getHandlerFor(objTempl.id, objTempl.subid)->create(objTempl);
+					nobj = VLC->objtypeh->getHandlerFor(objTempl->id, objTempl->subid)->create(objTempl);
 				}
 				else
 				{
-					logGlobal->warn("Unrecognized object: %d:%d at %s on map %s", objTempl.id.toEnum(), objTempl.subid, objPos.toString(), map->name);
+					logGlobal->warn("Unrecognized object: %d:%d at %s on map %s", objTempl->id.toEnum(), objTempl->subid, objPos.toString(), map->name);
 					nobj = new CGObjectInstance();
 				}
 				break;
@@ -1484,11 +1486,11 @@ void CMapLoaderH3M::readObjects()
 		}
 
 		nobj->pos = objPos;
-		nobj->ID = objTempl.id;
+		nobj->ID = objTempl->id;
 		nobj->id = idToBeGiven;
 		if(nobj->ID != Obj::HERO && nobj->ID != Obj::HERO_PLACEHOLDER && nobj->ID != Obj::PRISON)
 		{
-			nobj->subID = objTempl.subid;
+			nobj->subID = objTempl->subid;
 		}
 		nobj->appearance = objTempl;
 		assert(idToBeGiven == ObjectInstanceID((si32)map->objects.size()));
@@ -1752,11 +1754,11 @@ CGSeerHut * CMapLoaderH3M::readSeerHut()
 	else
 	{
 		//RoE
-		int artID = reader.readUInt8();
+		auto artID = ArtifactID(reader.readUInt8());
 		if (artID != 255)
 		{
 			//not none quest
-			hut->quest->m5arts.push_back (artID);
+			hut->quest->addArtifactID(artID);
 			hut->quest->missionType = CQuest::MISSION_ART;
 		}
 		else
@@ -1884,8 +1886,8 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			int artNumber = reader.readUInt8();
 			for(int yy = 0; yy < artNumber; ++yy)
 			{
-				int artid = reader.readUInt16();
-				guard->quest->m5arts.push_back(artid);
+				auto artid = ArtifactID(reader.readUInt16());
+				guard->quest->addArtifactID(artid);
 				map->allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
 			break;
@@ -2264,3 +2266,5 @@ void CMapLoaderH3M::afterRead()
 		}
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

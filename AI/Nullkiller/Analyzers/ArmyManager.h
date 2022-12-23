@@ -17,6 +17,9 @@
 #include "../../../lib/CTownHandler.h"
 #include "../../../lib/CBuildingHandler.h"
 
+namespace NKAI
+{
+
 class Nullkiller;
 
 struct SlotInfo
@@ -41,6 +44,7 @@ struct ArmyUpgradeInfo
 class DLL_EXPORT IArmyManager //: public: IAbstractManager
 {
 public:
+	virtual ~IArmyManager() = default;
 	virtual void update() = 0;
 	virtual ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const = 0;
 	virtual	ui64 howManyReinforcementsCanBuy(
@@ -101,3 +105,5 @@ private:
 	std::vector<StackUpgradeInfo> getHillFortUpgrades(const CCreatureSet * army) const;
 	std::vector<StackUpgradeInfo> getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const;
 };
+
+}

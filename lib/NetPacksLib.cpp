@@ -28,6 +28,8 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
@@ -177,8 +179,9 @@ DLL_LINKAGE void SetMovePoints::applyGs(CGameState *gs)
 DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
+	auto fogOfWarMap = team->fogOfWarMap;
 	for(int3 t : tiles)
-		team->fogOfWarMap[t.x][t.y][t.z] = mode;
+		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
 		std::unordered_set<int3, ShashInt3> tilesRevealed;
@@ -200,7 +203,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 			}
 		}
 		for(int3 t : tilesRevealed) //probably not the most optimal solution ever
-			team->fogOfWarMap[t.x][t.y][t.z] = 1;
+			(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 	}
 }
 
@@ -362,6 +365,19 @@ DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState *gs)
 	}
 }
 
+DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
+{
+	if(!gs || !gs->scenarioOps)
+		return;
+	
+	//TODO: what does mean if more that one player connected?
+	if(playerConnectionId == PlayerSettings::PLAYER_AI)
+	{
+		for(auto player : players)
+			gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
+	}
+}
+
 DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 {
 	CBonusSystemNode *node;
@@ -398,7 +414,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
 		p->heroes -= beatenHero;
-		beatenHero->detachFrom(beatenHero->whereShouldBeAttachedOnSiege(gs));
+		beatenHero->detachFrom(*beatenHero->whereShouldBeAttachedOnSiege(gs));
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
@@ -561,8 +577,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 		gs->map->addBlockVisTiles(h);
 	}
 
+	auto fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(int3 t : fowRevealed)
-		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
+		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 }
 
 DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
@@ -666,7 +683,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 
 	gs->map->heroesOnMap.push_back(h);
 	p->heroes.push_back(h);
-	h->attachTo(p);
+	h->attachTo(*p);
 	if(fresh)
 	{
 		h->initObj(gs->getRandomGenerator());
@@ -684,28 +701,33 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	CGHeroInstance *h = gs->getHero(id);
 
 	//bonus system
-	h->detachFrom(&gs->globalEffects);
-	h->attachTo(gs->getPlayerState(player));
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	h->detachFrom(gs->globalEffects);
+	h->attachTo(*gs->getPlayerState(player));
 
+	auto oldOffset = h->getVisitableOffset();
 	gs->map->removeBlockVisTiles(h,true);
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	auto newOffset = h->getVisitableOffset();
+
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
+	h->pos = h->pos - oldOffset + newOffset;
 	gs->map->heroesOnMap.push_back(h);
 	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
+
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
 }
 
 DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 {
-	Terrain terrainType;
+	TerrainId terrainType = Terrain::BORDER;
 
 	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain("water")).front();
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
@@ -714,7 +736,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	else
 	{
 		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType;
+		terrainType = t.terType->id;
 	}
 
 	CGObjectInstance *o = nullptr;
@@ -722,7 +744,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 	case Obj::BOAT:
 		o = new CGBoat();
-		terrainType = Terrain("water"); //TODO: either boat should only spawn on water, or all water objects should be handled this way
+		terrainType = Terrain::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
 	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();
@@ -828,18 +850,11 @@ DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
 
 DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
-	const ArtSlotInfo *s = getSlot();
-	if(s && s->artifact)
-	{
-		if(!s->locked)
-			return s->artifact;
-		else
-		{
-			logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
-			return nullptr;
-		}
-	}
-	return nullptr;
+	auto s = getSlot();
+	if(s)
+		return s->getArt();
+	else
+		return nullptr;
 }
 
 DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
@@ -914,10 +929,8 @@ DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 
 DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 {
-	auto s = new CStackInstance(type, count);
-	auto obj = gs->getArmyInstance(army);
-	if(obj)
-		obj->putStack(slot, s);
+	if(auto obj = gs->getArmyInstance(army))
+		obj->putStack(slot, new CStackInstance(type, count));
 	else
 		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
 }
@@ -1078,49 +1091,117 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	al.removeArtifact();
 }
 
-DLL_LINKAGE void MoveArtifact::applyGs(CGameState *gs)
+DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 {
-	CArtifactInstance *a = src.getArt();
-	if(dst.slot < GameConstants::BACKPACK_START)
+	CArtifactInstance * art = src.getArt();
+	if(!ArtifactUtils::isSlotBackpack(dst.slot))
 		assert(!dst.getArt());
 
-	a->move(src, dst);
+	art->move(src, dst);
+}
 
-	//TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
-	if (a->artType->id == ArtifactID::TITANS_THUNDER && dst.slot == ArtifactPosition::RIGHT_HAND) //Titan's Thunder creates new spellbook on equip
+DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
+{
+	enum class EBulkArtsOp
 	{
-		auto hPtr = boost::get<ConstTransitivePtr<CGHeroInstance> >(&dst.artHolder);
-		if(hPtr)
+		BULK_MOVE,
+		BULK_REMOVE,
+		BULK_PUT
+	};
+
+	auto bulkArtsOperation = [this](std::vector<LinkedSlots> & artsPack, 
+		CArtifactSet * artSet, EBulkArtsOp operation) -> void
+	{
+		int numBackpackArtifactsMoved = 0;
+		for(auto & slot : artsPack)
 		{
-			CGHeroInstance *h = *hPtr;
-			if(h && !h->hasSpellbook())
-				gs->giveHeroArtifact(h, ArtifactID::SPELLBOOK);
+			// When an object gets removed from the backpack, the backpack shrinks
+			// so all the following indices will be affected. Thus, we need to update
+			// the subsequent artifact slots to account for that
+			auto srcPos = slot.srcPos;
+			if(ArtifactUtils::isSlotBackpack(srcPos) && (operation != EBulkArtsOp::BULK_PUT))
+			{
+				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
+			}
+			auto slotInfo = artSet->getSlot(srcPos);
+			assert(slotInfo);
+			auto art = const_cast<CArtifactInstance*>(slotInfo->getArt());
+			assert(art);
+			switch(operation)
+			{
+			case EBulkArtsOp::BULK_MOVE:
+				const_cast<CArtifactInstance*>(art)->move(
+					ArtifactLocation(srcArtHolder, srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
+				break;
+			case EBulkArtsOp::BULK_REMOVE:
+				art->removeFrom(ArtifactLocation(dstArtHolder, srcPos));
+				break;
+			case EBulkArtsOp::BULK_PUT:
+				art->putAt(ArtifactLocation(srcArtHolder, slot.dstPos));
+				break;
+			default:
+				break;
+			}
+
+			if(srcPos >= GameConstants::BACKPACK_START)
+			{
+				numBackpackArtifactsMoved++;
+			}
 		}
+	};
+	
+	if(swap)
+	{
+		// Swap
+		auto leftSet = getSrcHolderArtSet();
+		auto rightSet = getDstHolderArtSet();
+		CArtifactFittingSet artFittingSet(leftSet->bearerType());
+
+		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
+		artFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
+
+		bulkArtsOperation(artsPack1, rightSet, EBulkArtsOp::BULK_REMOVE);
+		bulkArtsOperation(artsPack0, leftSet, EBulkArtsOp::BULK_MOVE);
+		bulkArtsOperation(artsPack1, &artFittingSet, EBulkArtsOp::BULK_PUT);
+	}
+	else
+	{
+		bulkArtsOperation(artsPack0, getSrcHolderArtSet(), EBulkArtsOp::BULK_MOVE);
 	}
 }
 
 DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 {
-	CArtifactSet *artSet = al.getHolderArtSet();
+	CArtifactSet * artSet = al.getHolderArtSet();
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
-	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet), builtArt));
+	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
+	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet, combineEquipped), builtArt));
 	UNUSED(transformedArt);
 
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
-	//retrieve all constituents
+	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
 	{
-		ArtifactPosition pos = artSet->getArtPos(constituent->id);
+		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->id, true, false) :
+			artSet->getArtBackpackPos(constituent->id);
 		assert(pos >= 0);
-		CArtifactInstance *constituentInstance = artSet->getArt(pos);
+		CArtifactInstance * constituentInstance = artSet->getArt(pos);
 
 		//move constituent from hero to be part of new, combined artifact
 		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, pos));
 		combinedArt->addAsConstituent(constituentInstance, pos);
-		if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot) && vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
-			al.slot = pos;
+		if(combineEquipped)
+		{
+			if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot)
+				&& vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
+				al.slot = pos;
+		}
+		else
+		{
+			al.slot = std::min(al.slot, pos);
+		}
 	}
 
 	//put new combined artifacts
@@ -1138,7 +1219,7 @@ DLL_LINKAGE void DisassembledArtifact::applyGs(CGameState *gs)
 	{
 		ArtifactLocation constituentLoc = al;
 		constituentLoc.slot = (ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
-		disassembled->detachFrom(ci.art);
+		disassembled->detachFrom(*ci.art);
 		ci.art->putAt(constituentLoc);
 	}
 
@@ -1266,10 +1347,10 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 			}
 		}
 
-		CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
-		nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
+		CBonusSystemNode & nodeToMove = cai->whatShouldBeAttached();
+		nodeToMove.detachFrom(cai->whereShouldBeAttached(gs));
 		obj->setProperty(what,val);
-		nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
+		nodeToMove.attachTo(cai->whereShouldBeAttached(gs));
 	}
 	else //not an armed instance
 	{
@@ -1696,3 +1777,25 @@ DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
 }
+
+const CArtifactInstance * ArtSlotInfo::getArt() const
+{
+	if(locked)
+	{
+		logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
+		return nullptr;
+	}
+	return artifact;
+}
+
+CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), srcArtHolder);
+}
+
+CArtifactSet * BulkMoveArtifacts::getDstHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), dstArtHolder);
+}
+
+VCMI_LIB_NAMESPACE_END

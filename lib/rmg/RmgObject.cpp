@@ -19,6 +19,8 @@
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "Functions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace rmg;
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
@@ -103,16 +105,26 @@ void Object::Instance::setPositionRaw(const int3 & position)
 	dObject.pos = dPosition + dParent.getPosition();
 }
 
-void Object::Instance::setTemplate(const Terrain & terrain)
+void Object::Instance::setAnyTemplate()
 {
-	if(dObject.appearance.id == Obj::NO_OBJ)
+	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates();
+	if(templates.empty())
+		throw rmgException(boost::to_string(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.subID));
+
+	dObject.appearance = templates.front();
+	dAccessibleAreaCache.clear();
+	setPosition(getPosition(false));
+}
+
+void Object::Instance::setTemplate(TerrainId terrain)
+{
+	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
+	if (templates.empty())
 	{
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
-		if(templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % static_cast<std::string>(terrain)));
-		
-		dObject.appearance = templates.front();
+		auto terrainName = VLC->terrainTypeHandler->terrains()[terrain].name;
+		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
 	}
+	dObject.appearance = templates.front();
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
@@ -130,7 +142,7 @@ void Object::Instance::clear()
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
 	auto relPosition = position - getPosition(true);
-	return dObject.appearance.isVisitableFrom(relPosition.x, relPosition.y);
+	return dObject.appearance->isVisitableFrom(relPosition.x, relPosition.y);
 }
 
 CGObjectInstance & Object::Instance::object()
@@ -253,7 +265,7 @@ void Object::setPosition(const int3 & position)
 		i.setPositionRaw(i.getPosition());
 }
 
-void Object::setTemplate(const Terrain & terrain)
+void Object::setTemplate(const TerrainId & terrain)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain);
@@ -277,6 +289,21 @@ void Object::Instance::finalize(RmgMap & map)
 	if(!map.isOnMap(getPosition(true)))
 		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
 	
+	//If no specific template was defined for this object, select any matching
+	if (!dObject.appearance)
+	{
+		auto terrainType = map.map().getTile(getPosition(true)).terType;
+		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->id);
+		if (templates.empty())
+		{
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
+		}
+		else
+		{
+			setTemplate(terrainType->id);
+		}
+	}
+
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
 	
@@ -284,16 +311,6 @@ void Object::Instance::finalize(RmgMap & map)
 	{
 		if(!map.isOnMap(tile))
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
-	}
-	
-	if (dObject.appearance.id == Obj::NO_OBJ)
-	{
-		auto terrainType = map.map().getTile(getPosition(true)).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType);
-		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
-		
-		setTemplate(terrainType);
 	}
 	
 	for(auto & tile : getBlockedArea().getTilesVector())
@@ -325,3 +342,5 @@ void Object::clear()
 	dAccessibleAreaFullCache.clear();
 }
  
+
+VCMI_LIB_NAMESPACE_END

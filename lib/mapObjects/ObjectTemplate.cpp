@@ -23,6 +23,8 @@
 
 #include "CRewardableConstructor.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static bool isOnVisitableFromTopList(int identifier, int type)
 {
 	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
@@ -53,7 +55,9 @@ ObjectTemplate::ObjectTemplate():
 	id(Obj::NO_OBJ),
 	subid(0),
 	printPriority(0),
-	stringID("")
+	width(0),
+	height(0),
+	visitable(false)
 {
 }
 
@@ -65,7 +69,13 @@ ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
 	printPriority(other.printPriority),
 	animationFile(other.animationFile),
 	editorAnimationFile(other.editorAnimationFile),
-	stringID(other.stringID)
+	stringID(other.stringID),
+	width(other.width),
+	height(other.height),
+	visitable(other.visitable),
+	blockedOffsets(other.blockedOffsets),
+	blockMapOffset(other.blockMapOffset),
+	visitableOffset(other.visitableOffset)
 {
 	//default copy constructor is failing with usedTiles this for unknown reason
 
@@ -84,11 +94,18 @@ ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
 	animationFile = rhs.animationFile;
 	editorAnimationFile = rhs.editorAnimationFile;
 	stringID = rhs.stringID;
+	width = rhs.width;
+	height = rhs.height;
+	visitable = rhs.visitable;
+	blockedOffsets = rhs.blockedOffsets;
+	blockMapOffset = rhs.blockMapOffset;
+	visitableOffset = rhs.visitableOffset;
 
 	usedTiles.clear();
 	usedTiles.resize(rhs.usedTiles.size());
 	for(size_t i = 0; i < usedTiles.size(); i++)
 		std::copy(rhs.usedTiles[i].begin(), rhs.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
+
 	return *this;
 }
 
@@ -121,9 +138,9 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	assert(visitStr.size() == 6*8);
 
 	setSize(8, 6);
-	for (size_t i=0; i<6; i++) // 6 rows
+	for(size_t i = 0; i < 6; i++) // 6 rows
 	{
-		for (size_t j=0; j<8; j++) // 8 columns
+		for(size_t j = 0; j < 8; j++) // 8 columns
 		{
 			auto & tile = usedTiles[i][j];
 			tile |= VISIBLE; // assume that all tiles are visible
@@ -140,20 +157,20 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	// so these two fields can be interpreted as "strong affinity" and "weak affinity" towards terrains
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
-	assert(terrStr.size() == 9); // all terrains but rock
-	for (size_t i=0; i<9; i++)
+	assert(terrStr.size() == Terrain::ROCK); // all terrains but rock - counting from 0
+	for(TerrainId i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
 	{
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
-				allowedTerrains.insert(terrain);
+				allowedTerrains.insert(terrain.id);
 		}
 	}
 
@@ -168,6 +185,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 		visitDir = (8|16|32|64|128);
 
 	readMsk();
+	recalculate();
 }
 
 void ObjectTemplate::readMsk()
@@ -197,9 +215,9 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for(auto & byte : visitMask)
 		byte = reader.readUInt8();
 
-	for (size_t i=0; i<6; i++) // 6 rows
+	for(size_t i = 0; i < 6; i++) // 6 rows
 	{
-		for (size_t j=0; j<8; j++) // 8 columns
+		for(size_t j = 0; j < 8; j++) // 8 columns
 		{
 			auto & tile = usedTiles[5 - i][7 - j];
 			tile |= VISIBLE; // assume that all tiles are visible
@@ -213,19 +231,19 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for (size_t i=0; i<9; i++)
+	for(size_t i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
 	{
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
-				allowedTerrains.insert(terrain);
+				allowedTerrains.insert(terrain.id);
 		}
 	}
 
@@ -243,6 +261,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	readMsk();
 
 	afterLoadFixup();
+	recalculate();
 }
 
 void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
@@ -267,37 +286,44 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for (auto & entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(entry.String());
+		for(auto& entry : node["allowedTerrains"].Vector())
+		{
+			try {
+				allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
+			}
+			catch (const std::out_of_range & )
+			{
+				logGlobal->warn("Failed to find terrain '%s' for object '%s'", entry.String(), animationFile);
+			}
+		}
 	}
 	else
 	{
-		for(auto & i : Terrain::Manager::terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
-			if(!i.isPassable() || i.isWater())
+			if(!terrain.isPassable() || terrain.isWater())
 				continue;
-			allowedTerrains.insert(i);
+			allowedTerrains.insert(terrain.id);
 		}
 	}
 
 	if(withTerrain && allowedTerrains.empty())
-		logGlobal->warn("Loaded template without allowed terrains!");
-
+		logGlobal->warn("Loaded template %s without allowed terrains!", animationFile);
 
 	auto charToTile = [&](const char & ch) -> ui8
 	{
 		switch (ch)
 		{
-			case ' ' : return 0;
-			case '0' : return 0;
-			case 'V' : return VISIBLE;
-			case 'B' : return VISIBLE | BLOCKED;
-			case 'H' : return BLOCKED;
-			case 'A' : return VISIBLE | BLOCKED | VISITABLE;
-			case 'T' : return BLOCKED | VISITABLE;
-			default:
-				logGlobal->error("Unrecognized char %s in template mask", ch);
-				return 0;
+		case ' ' : return 0;
+		case '0' : return 0;
+		case 'V' : return VISIBLE;
+		case 'B' : return VISIBLE | BLOCKED;
+		case 'H' : return BLOCKED;
+		case 'A' : return VISIBLE | BLOCKED | VISITABLE;
+		case 'T' : return BLOCKED | VISITABLE;
+		default:
+			logGlobal->error("Unrecognized char %s in template mask", ch);
+			return 0;
 		}
 	};
 
@@ -305,21 +331,22 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	size_t height = mask.size();
 	size_t width  = 0;
-	for (auto & line : mask)
+	for(auto & line : mask)
 		vstd::amax(width, line.String().size());
 
 	setSize((ui32)width, (ui32)height);
 
-	for (size_t i=0; i<mask.size(); i++)
+	for(size_t i = 0; i < mask.size(); i++)
 	{
 		const std::string & line = mask[i].String();
-		for (size_t j=0; j < line.size(); j++)
+		for(size_t j = 0; j < line.size(); j++)
 			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
 
 	printPriority = static_cast<si32>(node["zIndex"].Float());
 
 	afterLoadFixup();
+	recalculate();
 }
 
 void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
@@ -351,7 +378,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (Terrain::Manager::terrains().size() - 2))
+		if(allowedTerrains.size() < (VLC->terrainTypeHandler->terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
@@ -413,38 +440,42 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 		node["zIndex"].Float() = printPriority;
 }
 
-ui32 ObjectTemplate::getWidth() const
+void ObjectTemplate::calculateWidth()
 {
 	//TODO: Use 2D array
-	//TODO: better precalculate and store constant value
-	ui32 ret = 0;
-	for (const auto &row : usedTiles) //copy is expensive
+	for(const auto& row : usedTiles) //copy is expensive
 	{
-		ret = std::max<ui32>(ret, (ui32)row.size());
+		width = std::max<ui32>(width, (ui32)row.size());
 	}
-	return ret;
 }
 
-ui32 ObjectTemplate::getHeight() const
+void ObjectTemplate::calculateHeight()
 {
 	//TODO: Use 2D array
-	return static_cast<ui32>(usedTiles.size());
+	height = static_cast<ui32>(usedTiles.size());
 }
 
 void ObjectTemplate::setSize(ui32 width, ui32 height)
 {
 	usedTiles.resize(height);
-	for (auto & line : usedTiles)
+	for(auto & line : usedTiles)
 		line.resize(width, 0);
 }
 
-bool ObjectTemplate::isVisitable() const
+void ObjectTemplate::calculateVsitable()
 {
-	for (auto & line : usedTiles)
-		for (auto & tile : line)
+	for(auto& line : usedTiles)
+	{
+		for(auto& tile : line)
+		{
 			if (tile & VISITABLE)
-				return true;
-	return false;
+			{
+				visitable = true;
+				return;
+			}
+		}
+	}
+	visitable = false;
 }
 
 bool ObjectTemplate::isWithin(si32 X, si32 Y) const
@@ -469,31 +500,33 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 	return isWithin(X, Y) && usedTiles[Y][X] & BLOCKED;
 }
 
-std::set<int3> ObjectTemplate::getBlockedOffsets() const
+void ObjectTemplate::calculateBlockedOffsets()
 {
-	std::set<int3> ret;
+	blockedOffsets.clear();
 	for(int w = 0; w < (int)getWidth(); ++w)
 	{
 		for(int h = 0; h < (int)getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
-				ret.insert(int3(-w, -h, 0));
+				blockedOffsets.insert(int3(-w, -h, 0));
 		}
 	}
-	return ret;
 }
 
-int3 ObjectTemplate::getBlockMapOffset() const
+void ObjectTemplate::calculateBlockMapOffset()
 {
 	for(int w = 0; w < (int)getWidth(); ++w)
 	{
 		for(int h = 0; h < (int)getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
-				return int3(w, h, 0);
+			{
+				blockMapOffset = int3(w, h, 0);
+				return;
+			}
 		}
 	}
-	return int3(0,0,0);
+	blockMapOffset = int3(0, 0, 0);
 }
 
 bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
@@ -502,6 +535,7 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 	// 1 2 3
 	// 8   4
 	// 7 6 5
+	//TODO: static? cached?
 	int dirMap[3][3] =
 	{
 		{ visitDir &   1, visitDir &   2, visitDir &   4 },
@@ -515,26 +549,36 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 	return dirMap[dy][dx] != 0;
 }
 
-int3 ObjectTemplate::getVisitableOffset() const
+void ObjectTemplate::calculateVisitableOffset()
 {
 	for(int y = 0; y < (int)getHeight(); y++)
-		for (int x = 0; x < (int)getWidth(); x++)
+	{
+		for(int x = 0; x < (int)getWidth(); x++)
+		{
 			if (isVisitableAt(x, y))
-				return int3(x,y,0);
-
-    //logGlobal->warn("Warning: getVisitableOffset called on non-visitable obj!");
-	return int3(0,0,0);
+			{
+				visitableOffset = int3(x, y, 0);
+				return;
+			}
+		}
+	}
+	visitableOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::isVisitableFromTop() const
+bool ObjectTemplate::canBePlacedAt(TerrainId terrain) const
 {
-	return visitDir & 2;
-	//for some reason the line below is never called :?
-	//return isVisitableFrom (0, 1);
+	return vstd::contains(allowedTerrains, terrain);
 }
 
-bool ObjectTemplate::canBePlacedAt(Terrain terrain) const
+void ObjectTemplate::recalculate()
 {
-	return allowedTerrains.count(terrain) != 0;
+	calculateWidth();
+	calculateHeight();
+	calculateVsitable();
+	//The lines below use width and height
+	calculateBlockedOffsets();
+	calculateBlockMapOffset();
+	calculateVisitableOffset();
 }
 
+VCMI_LIB_NAMESPACE_END

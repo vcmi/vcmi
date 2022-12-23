@@ -17,6 +17,8 @@
 #include "../CGameState.h"
 #include "../CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void CArmedInstance::randomizeArmy(int type)
 {
 	for (auto & elem : stacks)
@@ -76,7 +78,11 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		factions.insert(creature->faction);
 		// Check for undead flag instead of faction (undead mummies are neutral)
-		hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
+		if (!hasUndead)
+		{
+			//this is costly check, let's skip it at first undead
+			hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
+		}
 	}
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
@@ -136,15 +142,18 @@ void CArmedInstance::armyChanged()
 	updateMoraleBonusFromArmy();
 }
 
-CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
+CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
 {
 	if(tempOwner < PlayerColor::PLAYER_LIMIT)
-		return gs->getPlayerState(tempOwner);
-	else
-		return &gs->globalEffects;
+		if(auto * where = gs->getPlayerState(tempOwner))
+			return *where;
+
+	return gs->globalEffects;
 }
 
-CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
+CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 {
-	return this;
+	return *this;
 }
+
+VCMI_LIB_NAMESPACE_END

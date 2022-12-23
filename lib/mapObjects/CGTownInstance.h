@@ -15,6 +15,8 @@
 
 #include "../CTownHandler.h" // For CTown
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCastleEvent;
 class CGTownInstance;
 class CGDwelling;
@@ -272,7 +274,7 @@ public:
 	}
 	//////////////////////////////////////////////////////////////////////////
 
-	CBonusSystemNode *whatShouldBeAttached() override;
+	CBonusSystemNode & whatShouldBeAttached() override;
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
@@ -342,6 +344,7 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
+	void afterRemoveFromMap(CMap * map) override;
 	static void reset();
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
@@ -364,3 +367,5 @@ private:
 	void initOverriddenBids();
 	void addTownBonuses();
 };
+
+VCMI_LIB_NAMESPACE_END

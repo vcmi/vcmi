@@ -942,11 +942,6 @@
 			}
 		}
 	},
-	"swampFoliage" : {
-		"index" :211,
-		"handler": "terrain",
-		"types" : { "object" : { "index" : 0} }
-	},
 	"cloverField" : {
 		"index" :222, 
 		"handler": "terrain", 
@@ -975,7 +970,7 @@
 	"favorableWinds" : {
 		"index" :225,
 		"handler": "terrain",
-		"types" : { "object" : { "index" : 0, "battleground": "favorable_winds" } }
+		"types" : { "object" : { "index" : 0, "battleground": "ship" } }
 	},
 	"fieryFields": {
 		"index" :226,
@@ -1069,6 +1064,7 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } },
 
 	//These are WoG objects? They are not available in H3
 	"frozenLakeDUPLICATE"			: { "index" :172, "handler": "static", "types" : { "object" : { "index" : 0} } },

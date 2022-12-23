@@ -2,13 +2,20 @@
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
 
-	"version" : "0.99",
+	"version" : "1.1",
 	"author" : "VCMI Team",
 	"contact" : "http://forum.vcmi.eu/index.php",
 	"modType" : "Graphical",
+	
+	"factions" : [ "config/vcmi/towerFactions" ],
+	"creatures" : [ "config/vcmi/towerCreature" ],
 
 	"filesystem":
 	{
+		"CONFIG/" :
+		[
+			{"type" : "dir",  "path" : "/Config"}
+		],
 		"DATA/" :
 		[
 			{"type" : "dir",  "path" : "/Data"}

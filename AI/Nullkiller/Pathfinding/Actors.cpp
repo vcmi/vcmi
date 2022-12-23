@@ -16,6 +16,8 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "Actions/BuyArmyAction.h"
 
+using namespace NKAI;
+
 CCreatureSet emptyArmy;
 
 bool HeroExchangeArmy::needsLastStack() const
@@ -68,7 +70,7 @@ ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatu
 
 int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 {
-#if AI_TRACE_LEVEL > 0
+#if NKAI_TRACE_LEVEL > 0
 	if(!hero)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
@@ -164,23 +166,6 @@ ExchangeResult ChainActor::tryExchangeNoLock(const ChainActor * specialActor, co
 	return baseActor->tryExchangeNoLock(specialActor, other);
 }
 
-namespace vstd
-{
-	template <class M, class Key, class F>
-	typename M::mapped_type & getOrCompute(M &m, Key const& k, F f)
-	{
-		typedef typename M::mapped_type V;
-
-		std::pair<typename M::iterator, bool> r = m.insert(typename M::value_type(k, V()));
-		V &v = r.first->second;
-
-		if(r.second)
-			f(v);
-
-		return v;
-	}
-}
-
 ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const
 {
 	const ChainActor * otherBase = other->baseActor;
@@ -269,17 +254,18 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			return result; // already inserted
 		}
 
-		auto position = inserted.first;
-
 		auto differentMasks = (actor->chainMask & other->chainMask) == 0;
 
 		if(!differentMasks) return result;
+
+		if(actor->allowSpellCast || other->allowSpellCast)
+			return result;
 
 		TResources resources = ai->cb->getResourceAmount();
 
 		if(!resources.canAfford(actor->armyCost + other->armyCost))
 		{
-#if PATHFINDER_TRACE_LEVEL >= 2
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Can not afford exchange because of total cost %s but we have %s",
 				(actor->armyCost + other->armyCost).toString(),
@@ -319,7 +305,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		auto reinforcement = newArmy->getArmyStrength() - actor->creatureSet->getArmyStrength();
 
-#if PATHFINDER_TRACE_LEVEL >= 2
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Exchange %s->%s reinforcement: %d, %f%%",
 			actor->toString(),
@@ -461,15 +447,6 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 			continue;
 
 		auto creature = creatureInfo.second.back().toCreature();
-		auto count = creatureInfo.first;
-
-		if(waitForGrowth)
-		{
-			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(dwelling);
-
-			count += town ? town->creatureGrowth(creature->level) : creature->growth;
-		}
-
 		dwellingCreatures->addToSlot(
 			dwellingCreatures->getSlotFor(creature),
 			creature->idNumber,

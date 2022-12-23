@@ -15,6 +15,8 @@
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../Goals/AdventureSpellCast.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	class TownPortalAction : public SpecialAction
@@ -32,4 +34,6 @@ namespace AIPathfinding
 
 		virtual std::string toString() const override;
 	};
+}
+
 }

@@ -16,6 +16,8 @@
 #include "JsonRandom.h"
 #include "../IGameCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace {
 	MetaString loadMessage(const JsonNode & value)
 	{
@@ -94,6 +96,8 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 		info.reward.movePoints = JsonRandom::loadValue(reward["movePoints"], rng);
 		info.reward.movePercentage = JsonRandom::loadValue(reward["movePercentage"], rng, -1);
+		
+		info.reward.removeObject = reward["removeObject"].Bool();
 
 		//FIXME: compile this line on Visual
 		//info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
@@ -111,16 +115,35 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 		info.message = loadMessage(reward["message"]);
 		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);
+		
+		object->info.push_back(info);
 	}
 
 	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
 	object->onVisited = loadMessage(parameters["onVisitedMessage"]);
 	object->onEmpty   = loadMessage(parameters["onEmptyMessage"]);
-
-	//TODO: visitMode and selectMode
-
 	object->resetDuration = static_cast<ui16>(parameters["resetDuration"].Float());
 	object->canRefuse = parameters["canRefuse"].Bool();
+	
+	auto visitMode = parameters["visitMode"].String();
+	for(int i = 0; Rewardable::VisitModeString.size(); ++i)
+	{
+		if(Rewardable::VisitModeString[i] == visitMode)
+		{
+			object->visitMode = i;
+			break;
+		}
+	}
+	
+	auto selectMode = parameters["selectMode"].String();
+	for(int i = 0; Rewardable::SelectModeString.size(); ++i)
+	{
+		if(Rewardable::SelectModeString[i] == selectMode)
+		{
+			object->selectMode = i;
+			break;
+		}
+	}	
 }
 
 bool CRandomRewardObjectInfo::givesResources() const
@@ -179,11 +202,10 @@ CRewardableConstructor::CRewardableConstructor()
 
 void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
-	AObjectTypeHandler::init(config);
 	objectInfo.init(config);
 }
 
-CGObjectInstance * CRewardableConstructor::create(const ObjectTemplate & tmpl) const
+CGObjectInstance * CRewardableConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	auto ret = new CRewardableObject();
 	preInitObject(ret);
@@ -196,7 +218,9 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 	objectInfo.configureObject(dynamic_cast<CRewardableObject*>(object), rng);
 }
 
-std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(const ObjectTemplate & tmpl) const
+std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	return std::unique_ptr<IObjectInfo>(new CRandomRewardObjectInfo(objectInfo));
 }
+
+VCMI_LIB_NAMESPACE_END

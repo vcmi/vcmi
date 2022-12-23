@@ -42,6 +42,8 @@
 #include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 
@@ -490,6 +492,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
 	text.addTxt(MetaString::GENERAL_TXT, 541);
+	assert(caster);
 	caster->getCasterName(text);
 
 	target.add(std::move(text), spells::Problem::NORMAL);
@@ -720,10 +723,12 @@ const CreatureService * BaseMechanics::creatures() const
 	return VLC->creatures(); //todo: redirect
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * BaseMechanics::scripts() const
 {
 	return VLC->scripts(); //todo: redirect
 }
+#endif
 
 const Service * BaseMechanics::spells() const
 {
@@ -771,6 +776,8 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 	case SpellID::VIEW_AIR:
 		return make_unique<ViewAirMechanics>(s);
 	default:
-		return std::unique_ptr<IAdventureSpellMechanics>();
+		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : make_unique<AdventureSpellMechanics>(s);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

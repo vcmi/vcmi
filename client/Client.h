@@ -19,35 +19,43 @@
 #include "../lib/CondSh.h"
 #include "../lib/CPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CPack;
 struct CPackForServer;
 class CCampaignState;
-class CBattleCallback;
 class IGameEventsReceiver;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
 class CGameState;
 class CGameInterface;
-class CCallback;
 class BattleAction;
-class CClient;
 struct CPathsInfo;
 class BinaryDeserializer;
 class BinarySerializer;
-namespace boost { class thread; }
 
 template<typename T> class CApplier;
-class CBaseForCLApply;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class PoolImpl;
 }
+#endif
 
 namespace events
 {
 	class EventBus;
 }
+
+VCMI_LIB_NAMESPACE_END
+
+class CBattleCallback;
+class CCallback;
+class CClient;
+class CBaseForCLApply;
+
+namespace boost { class thread; }
 
 template<typename T>
 class ThreadSafeVector
@@ -142,8 +150,8 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
-	void newGame();
-	void loadGame();
+	void newGame(CGameState * gameState);
+	void loadGame(CGameState * gameState);
 	void serialize(BinarySerializer & h, const int version);
 	void serialize(BinaryDeserializer & h, const int version);
 
@@ -233,13 +241,18 @@ public:
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
+#endif
+
 private:
 	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces
 	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
 
+#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::PoolImpl> clientScripts;
+#endif
 	std::unique_ptr<events::EventBus> clientEventBus;
 
 	std::shared_ptr<CApplier<CBaseForCLApply>> applier;

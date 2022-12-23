@@ -10,11 +10,14 @@
 #pragma once
 
 #include <vcmi/EntityService.h>
+#include <vcmi/Entity.h>
 #include "HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "Terrain.h"
 #include "battle/BattleHex.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleFieldInfo : public EntityT<BattleField>
 {
@@ -83,3 +86,5 @@ public:
 		h & objects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

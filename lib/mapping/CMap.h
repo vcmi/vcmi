@@ -20,6 +20,8 @@
 #include "../LogicalExpression.h"
 #include "CMapDefines.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArtifactInstance;
 class CGObjectInstance;
 class CGHeroInstance;
@@ -286,6 +288,8 @@ public:
 	CMapHeader();
 	virtual ~CMapHeader();
 
+	ui8 levels() const;
+
 	EMapFormat::EMapFormat version; /// The default value is EMapFormat::SOD.
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
@@ -326,7 +330,7 @@ public:
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;
-		h & triggeredEvents;
+		//Do not serialize triggeredEvents in header as they can contain information about heroes and armies
 		h & victoryMessage;
 		h & victoryIconIndex;
 		h & defeatMessage;
@@ -361,9 +365,14 @@ public:
 	void eraseArtifactInstance(CArtifactInstance * art);
 
 	void addNewQuestInstance(CQuest * quest);
+	void removeQuestInstance(CQuest * quest);
 
+	void setUniqueInstanceName(CGObjectInstance * obj);
 	///Use only this method when creating new map object instances
 	void addNewObject(CGObjectInstance * obj);
+	void moveObject(CGObjectInstance * obj, const int3 & dst);
+	void removeObject(CGObjectInstance * obj);
+
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, Obj::EObj type);
@@ -408,12 +417,14 @@ public:
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	TerrainTile*** terrain;
+	si32 uidCounter; //TODO: initialize when loading an old map
 
 public:
 	template <typename Handler>
 	void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);
+		h & triggeredEvents; //from CMapHeader
 		h & rumors;
 		h & allowedSpell;
 		h & allowedAbilities;
@@ -426,18 +437,18 @@ public:
 		h & questIdentifierToId;
 
 		//TODO: viccondetails
-		int level = twoLevel ? 2 : 1;
+		const int level = levels();
 		if(h.saving)
 		{
 			// Save terrain
-			for(int i = 0; i < width ; ++i)
+			for(int z = 0; z < level; ++z)
 			{
-				for(int j = 0; j < height ; ++j)
+				for(int x = 0; x < width; ++x)
 				{
-					for(int k = 0; k < level; ++k)
+					for(int y = 0; y < height; ++y)
 					{
-						h & terrain[i][j][k];
-						h & guardingCreaturePositions[i][j][k];
+						h & terrain[z][x][y];
+						h & guardingCreaturePositions[z][x][y];
 					}
 				}
 			}
@@ -445,26 +456,27 @@ public:
 		else
 		{
 			// Load terrain
-			terrain = new TerrainTile**[width];
-			guardingCreaturePositions = new int3**[width];
-			for(int i = 0; i < width; ++i)
+			terrain = new TerrainTile**[level];
+			guardingCreaturePositions = new int3**[level];
+			for(int z = 0; z < level; ++z)
 			{
-				terrain[i] = new TerrainTile*[height];
-				guardingCreaturePositions[i] = new int3*[height];
-				for(int j = 0; j < height; ++j)
+				terrain[z] = new TerrainTile*[width];
+				guardingCreaturePositions[z] = new int3*[width];
+				for(int x = 0; x < width; ++x)
 				{
-					terrain[i][j] = new TerrainTile[level];
-					guardingCreaturePositions[i][j] = new int3[level];
+					terrain[z][x] = new TerrainTile[height];
+					guardingCreaturePositions[z][x] = new int3[height];
 				}
 			}
-			for(int i = 0; i < width ; ++i)
+			for(int z = 0; z < level; ++z)
 			{
-				for(int j = 0; j < height ; ++j)
+				for(int x = 0; x < width; ++x)
 				{
-					for(int k = 0; k < level; ++k)
+					for(int y = 0; y < height; ++y)
 					{
-						h & terrain[i][j][k];
-						h & guardingCreaturePositions[i][j][k];
+
+						h & terrain[z][x][y];
+						h & guardingCreaturePositions[z][x][y];
 					}
 				}
 			}
@@ -487,3 +499,5 @@ public:
 		h & instanceNames;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

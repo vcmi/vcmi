@@ -14,6 +14,8 @@
 
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -64,3 +66,5 @@ std::shared_ptr<Effect> Effect::create(const Registry * registry, const std::str
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -3,1233 +3,1354 @@
 // * "absoluteObstacles" are a little special: there can be only one such obstacle in the battlefield and its position is always the same.
 //
 // Their properties:
-// * "allowedTerrain" vector of terrain types (TT format) where obstacle is appropriate
+// * "allowedTerrains" vector of terrain types (TT format) where obstacle is appropriate
 // * "specialBattlefields" vector of battlefield images (BI format) where obstacle is appropriate. If there is a special battlefield image, then only this list is checked. Otherwise it's ignored. 
 // * "blockedTiles": for absolute obstacles contains absolute coordinates. For usual obstacles contains offsets relative to the obstacle position (that is bottom left corner). If obstacle is placed in an odd row (counting from 0) and the blocked tile is in an even row, position will be shifted one tile to the left. Thanks to that ie. -16 is always top-right hex, no matter where the obstale will get placed.
 // * "width" for usual obstacles it's count of tiles that must be free to the right for obstacle to be placed. For absolute obstacles, it's x offset for the graphics.
 // * "height" for usual obstacles it's count of tiles that must be free to the top for obstacle to be placed. For absolute obstacles, it's y offset for the graphics.
-// * "defname" is name of the graphics. It's def file for usual obstacles and bitmap for the absolute ones.
+// * "animation" is name of the graphics. It's def file for usual obstacles and bitmap for the absolute ones.
 
 {
-"obstacles" : [
+	"0":
 	{
-		"id" : 0,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObDino1.def",
-		"unknown" : 1
+		"animation" : "ObDino1.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"1":
 	{
-		"id" : 1,
-		"allowedTerrain" : ["dirt", "sand", "rough", "subterra"],
+		"allowedTerrains" : ["dirt", "sand", "rough", "subterra"],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObDino2.def",
-		"unknown" : 0
+		"animation" : "ObDino2.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"2":
 	{
-		"id" : 2,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -14, -15, -16],
-		"defname" : "ObDino3.def",
-		"unknown" : 1
+		"animation" : "ObDino3.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"3":
 	{
-		"id" : 3,
-		"allowedTerrain" : ["dirt", "rough"],
+		"allowedTerrains" : ["dirt", "rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObSkel1.def",
-		"unknown" : 1
+		"animation" : "ObSkel1.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"4":
 	{
-		"id" : 4,
-		"allowedTerrain" : ["dirt", "rough", "subterra"],
+		"allowedTerrains" : ["dirt", "rough", "subterra"],
 		"specialBattlefields" : ["sand_shore", "cursed_ground"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObSkel2.def",
-		"unknown" : 1
+		"animation" : "ObSkel2.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"5":
 	{
-		"id" : 5,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3],
-		"defname" : "ObBDT01.def",
-		"unknown" : 1
+		"animation" : "ObBDT01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"6":
 	{
-		"id" : 6,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [-15, -16],
-		"defname" : "ObDRk01.def",
-		"unknown" : 1
+		"animation" : "ObDRk01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"7":
 	{
-		"id" : 7,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObDRk02.def",
-		"unknown" : 0
+		"animation" : "ObDRk02.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"8":
 	{
-		"id" : 8,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [-16],
-		"defname" : "ObDRk03.def",
-		"unknown" : 1
+		"animation" : "ObDRk03.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"9":
 	{
-		"id" : 9,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObDRk04.def",
-		"unknown" : 0
+		"animation" : "ObDRk04.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"10":
 	{
-		"id" : 10,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObDSh01.def",
-		"unknown" : 0
+		"animation" : "ObDSh01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"11":
 	{
-		"id" : 11,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObDTF03.def",
-		"unknown" : 0
+		"animation" : "ObDTF03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"12":
 	{
-		"id" : 12,
-		"allowedTerrain" : ["dirt", "rough"],
+		"allowedTerrains" : ["dirt", "rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
-		"defname" : "ObDtS03.def",
-		"unknown" : 0
+		"animation" : "ObDtS03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"13":
 	{
-		"id" : 13,
-		"allowedTerrain" : ["dirt", "rough"],
+		"allowedTerrains" : ["dirt", "rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15],
-		"defname" : "ObDtS04.def",
-		"unknown" : 1
+		"animation" : "ObDtS04.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"14":
 	{
-		"id" : 14,
-		"allowedTerrain" : ["dirt", "rough"],
+		"allowedTerrains" : ["dirt", "rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [2, -15, -16],
-		"defname" : "ObDtS14.def",
-		"unknown" : 1
+		"animation" : "ObDtS14.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"15":
 	{
-		"id" : 15,
-		"allowedTerrain" : ["dirt", "rough"],
+		"allowedTerrains" : ["dirt", "rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [1, -16, -33],
-		"defname" : "ObDtS15.def",
-		"unknown" : 1
+		"animation" : "ObDtS15.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"16":
 	{
-		"id" : 16,
-		"allowedTerrain" : ["sand"],
+		"allowedTerrains" : ["sand"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 4,
 		"blockedTiles" :  [-15, -16, -32, -33, -48, -49],
-		"defname" : "ObDsM01.def",
-		"unknown" : 1
+		"animation" : "ObDsM01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"17":
 	{
-		"id" : 17,
-		"allowedTerrain" : ["sand"],
+		"allowedTerrains" : ["sand"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, -15, -16],
-		"defname" : "ObDsS02.def",
-		"unknown" : 1
+		"animation" : "ObDsS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"18":
 	{
-		"id" : 18,
-		"allowedTerrain" : ["sand"],
+		"allowedTerrains" : ["sand"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
-		"defname" : "ObDsS17.def",
-		"unknown" : 1
+		"animation" : "ObDsS17.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"19":
 	{
-		"id" : 19,
-		"allowedTerrain" : ["grass", "swamp"],
+		"allowedTerrains" : ["grass", "swamp"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObGLg01.def",
-		"unknown" : 1
+		"animation" : "ObGLg01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"20":
 	{
-		"id" : 20,
-		"allowedTerrain" : ["grass", "swamp"],
+		"allowedTerrains" : ["grass", "swamp"],
 		"specialBattlefields" : ["magic_plains"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObGRk01.def",
-		"unknown" : 0
+		"animation" : "ObGRk01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"21":
 	{
-		"id" : 21,
-		"allowedTerrain" : ["grass", "swamp"],
+		"allowedTerrains" : ["grass", "swamp"],
 		"specialBattlefields" : [],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObGSt01.def",
-		"unknown" : 1
+		"animation" : "ObGSt01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"22":
 	{
-		"id" : 22,
-		"allowedTerrain" : ["grass"],
+		"allowedTerrains" : ["grass"],
 		"specialBattlefields" : ["magic_plains"],
 		"width" : 6,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, 4, -13, -14, -15, -16],
-		"defname" : "ObGrS01.def",
-		"unknown" : 1
+		"animation" : "ObGrS01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"23":
 	{
-		"id" : 23,
-		"allowedTerrain" : ["grass"],
+		"allowedTerrains" : ["grass"],
 		"specialBattlefields" : [],
 		"width" : 7,
 		"height" : 1,
 		"blockedTiles" :  [1, 2],
-		"defname" : "OBGrS02.def",
-		"unknown" : 1
+		"animation" : "OBGrS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"24":
 	{
-		"id" : 24,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObSnS01.def",
-		"unknown" : 1
+		"animation" : "ObSnS01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"25":
 	{
-		"id" : 25,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 1,
 		"blockedTiles" :  [1, 2, 3, 4],
-		"defname" : "ObSnS02.def",
-		"unknown" : 1
+		"animation" : "ObSnS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"26":
 	{
-		"id" : 26,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, -16, -33],
-		"defname" : "ObSnS03.def",
-		"unknown" : 1
+		"animation" : "ObSnS03.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"27":
 	{
-		"id" : 27,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObSnS04.def",
-		"unknown" : 1
+		"animation" : "ObSnS04.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"28":
 	{
-		"id" : 28,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [1],
-		"defname" : "ObSnS05.def",
-		"unknown" : 1
+		"animation" : "ObSnS05.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"29":
 	{
-		"id" : 29,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2],
-		"defname" : "ObSnS06.def",
-		"unknown" : 0
+		"animation" : "ObSnS06.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"30":
 	{
-		"id" : 30,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObSnS07.def",
-		"unknown" : 1
+		"animation" : "ObSnS07.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"31":
 	{
-		"id" : 31,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObSnS08.def",
-		"unknown" : 0
+		"animation" : "ObSnS08.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"32":
 	{
-		"id" : 32,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 7,
 		"height" : 2,
 		"blockedTiles" :  [2, 3, 4, 5, -13, -14, -15, -16],
-		"defname" : "ObSnS09.def",
-		"unknown" : 1
+		"animation" : "ObSnS09.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"33":
 	{
-		"id" : 33,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 5,
 		"blockedTiles" :  [3, -13, -14, -15, -33, -49, -66],
-		"defname" : "ObSnS10.def",
-		"unknown" : 1
+		"animation" : "ObSnS10.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"34":
 	{
-		"id" : 34,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0],
-		"defname" : "ObSwS01.def",
-		"unknown" : 0
+		"animation" : "ObSwS01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"35":
 	{
-		"id" : 35,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 8,
 		"height" : 3,
 		"blockedTiles" :  [-10, -11, -12, -13, -14, -15, -16],
-		"defname" : "ObSwS02.def",
-		"unknown" : 1
+		"animation" : "ObSwS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"36":
 	{
-		"id" : 36,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObSwS03.def",
-		"unknown" : 0
+		"animation" : "ObSwS03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"37":
 	{
-		"id" : 37,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObSwS04.def",
-		"unknown" : 0
+		"animation" : "ObSwS04.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"38":
 	{
-		"id" : 38,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 4,
 		"blockedTiles" :  [-13, -14, -15, -16, -30, -31, -32, -33],
-		"defname" : "ObSwS11b.def",
-		"unknown" : 1
+		"animation" : "ObSwS11b.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"39":
 	{
-		"id" : 39,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-16, -17, -31, -32, -33, -34],
-		"defname" : "ObSwS13a.def",
-		"unknown" : 1
+		"animation" : "ObSwS13a.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"40":
 	{
-		"id" : 40,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -16],
-		"defname" : "ObRgS01.def",
-		"unknown" : 1
+		"animation" : "ObRgS01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"41":
 	{
-		"id" : 41,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-14, -15, -16, -32, -33],
-		"defname" : "ObRgS02.def",
-		"unknown" : 1
+		"animation" : "ObRgS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"42":
 	{
-		"id" : 42,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15, -16],
-		"defname" : "ObRgS03.def",
-		"unknown" : 1
+		"animation" : "ObRgS03.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"43":
 	{
-		"id" : 43,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-16, -32, -33],
-		"defname" : "ObRgS04.def",
-		"unknown" : 1
+		"animation" : "ObRgS04.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"44":
 	{
-		"id" : 44,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-15, -16, -32],
-		"defname" : "ObRgS05.def",
-		"unknown" : 1
+		"animation" : "ObRgS05.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"45":
 	{
-		"id" : 45,
-		"allowedTerrain" : ["subterra"],
+		"allowedTerrains" : ["subterra"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, -15, -16],
-		"defname" : "ObSuS01.def",
-		"unknown" : 0
+		"animation" : "ObSuS01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"46":
 	{
-		"id" : 46,
-		"allowedTerrain" : ["subterra"],
+		"allowedTerrains" : ["subterra"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObSuS02.def",
-		"unknown" : 0
+		"animation" : "ObSuS02.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"47":
 	{
-		"id" : 47,
-		"allowedTerrain" : ["subterra"],
+		"allowedTerrains" : ["subterra"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
-		"defname" : "ObSuS11b.def",
-		"unknown" : 0
+		"animation" : "ObSuS11b.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"48":
 	{
-		"id" : 48,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-14, -32, -33],
-		"defname" : "ObLvS01.def",
-		"unknown" : 1
+		"animation" : "ObLvS01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"49":
 	{
-		"id" : 49,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -14, -15, -16],
-		"defname" : "ObLvS02.def",
-		"unknown" : 1
+		"animation" : "ObLvS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"50":
 	{
-		"id" : 50,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 3,
 		"blockedTiles" :  [-13, -14, -15, -30, -31, -32, -33],
-		"defname" : "ObLvS03.def",
-		"unknown" : 1
+		"animation" : "ObLvS03.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"51":
 	{
-		"id" : 51,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObLvS04.def",
-		"unknown" : 0
+		"animation" : "ObLvS04.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"52":
 	{
-		"id" : 52,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 4,
 		"blockedTiles" :  [-14, -15, -32, -33, -49, -50],
-		"defname" : "ObLvS09.def",
-		"unknown" : 1
+		"animation" : "ObLvS09.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"53":
 	{
-		"id" : 53,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 3,
 		"blockedTiles" :  [-13, -14, -15, -16, -30, -31],
-		"defname" : "ObLvS17.def",
-		"unknown" : 1
+		"animation" : "ObLvS17.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"54":
 	{
-		"id" : 54,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 3,
 		"blockedTiles" :  [-13, -14, -15, -16, -31, -32, -33],
-		"defname" : "ObLvS22.def",
-		"unknown" : 1
+		"animation" : "ObLvS22.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"55":
 	{
-		"id" : 55,
-		"allowedTerrain" : ["water"],
+		"allowedTerrains" : ["water"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-15, -16, -33],
-		"defname" : "ObBtS04.def",
-		"unknown" : 1
+		"animation" : "ObBtS04.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"56":
 	{
-		"id" : 56,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, -15, -16],
-		"defname" : "ObBhS02.def",
-		"unknown" : 1
+		"animation" : "ObBhS02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"57":
 	{
-		"id" : 57,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObBhS03.def",
-		"unknown" : 0
+		"animation" : "ObBhS03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"58":
 	{
-		"id" : 58,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 5,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -14, -15, -16],
-		"defname" : "ObBhS11a.def",
-		"unknown" : 1
+		"animation" : "ObBhS11a.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"59":
 	{
-		"id" : 59,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -14, -15],
-		"defname" : "ObBhS12b.def",
-		"unknown" : 1
+		"animation" : "ObBhS12b.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"60":
 	{
-		"id" : 60,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -16],
-		"defname" : "ObBhS14b.def",
-		"unknown" : 1
+		"animation" : "ObBhS14b.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"61":
 	{
-		"id" : 61,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["holy_ground"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObHGs00.def",
-		"unknown" : 0
+		"animation" : "ObHGs00.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"62":
 	{
-		"id" : 62,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["holy_ground"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObHGs01.def",
-		"unknown" : 0
+		"animation" : "ObHGs01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"63":
 	{
-		"id" : 63,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["holy_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [1],
-		"defname" : "ObHGs02.def",
-		"unknown" : 0
+		"animation" : "ObHGs02.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"64":
 	{
-		"id" : 64,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["holy_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObHGs03.def",
-		"unknown" : 0
+		"animation" : "ObHGs03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"65":
 	{
-		"id" : 65,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["holy_ground"],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
-		"defname" : "ObHGs04.def",
-		"unknown" : 0
+		"animation" : "ObHGs04.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"66":
 	{
-		"id" : 66,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["evil_fog"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObEFs00.def",
-		"unknown" : 0
+		"animation" : "ObEFs00.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"67":
 	{
-		"id" : 67,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["evil_fog"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObEFs01.def",
-		"unknown" : 0
+		"animation" : "ObEFs01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"68":
 	{
-		"id" : 68,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["evil_fog"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObEFs02.def",
-		"unknown" : 0
+		"animation" : "ObEFs02.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"69":
 	{
-		"id" : 69,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["evil_fog"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2],
-		"defname" : "ObEFs03.def",
-		"unknown" : 0
+		"animation" : "ObEFs03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"70":
 	{
-		"id" : 70,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["evil_fog"],
 		"width" : 6,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -12, -13],
-		"defname" : "ObEFs04.def",
-		"unknown" : 0
+		"animation" : "ObEFs04.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"71":
 	{
-		"id" : 71,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["clover_field"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObCFs00.def",
-		"unknown" : 1
+		"animation" : "ObCFs00.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"72":
 	{
-		"id" : 72,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["clover_field"],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObCFs01.def",
-		"unknown" : 1
+		"animation" : "ObCFs01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"73":
 	{
-		"id" : 73,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["clover_field"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15, -16],
-		"defname" : "ObCFs02.def",
-		"unknown" : 1
+		"animation" : "ObCFs02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"74":
 	{
-		"id" : 74,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["clover_field"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -14, -15, -16],
-		"defname" : "ObCFs03.def",
-		"unknown" : 1
+		"animation" : "ObCFs03.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"75":
 	{
-		"id" : 75,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["lucid_pools"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObLPs00.def",
-		"unknown" : 1
+		"animation" : "ObLPs00.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"76":
 	{
-		"id" : 76,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["lucid_pools"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObLPs01.def",
-		"unknown" : 1
+		"animation" : "ObLPs01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"77":
 	{
-		"id" : 77,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["lucid_pools"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, -15, -16],
-		"defname" : "ObLPs02.def",
-		"unknown" : 1
+		"animation" : "ObLPs02.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"78":
 	{
-		"id" : 78,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["lucid_pools"],
 		"width" : 5,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -13, -14, -15, -16],
-		"defname" : "ObLPs03.def",
-		"unknown" : 1
+		"animation" : "ObLPs03.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"79":
 	{
-		"id" : 79,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["fiery_fields"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObFFs00.def",
-		"unknown" : 0
+		"animation" : "ObFFs00.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"80":
 	{
-		"id" : 80,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["fiery_fields"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObFFs01.def",
-		"unknown" : 0
+		"animation" : "ObFFs01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"81":
 	{
-		"id" : 81,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["fiery_fields"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -15],
-		"defname" : "ObFFs02.def",
-		"unknown" : 0
+		"animation" : "ObFFs02.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"82":
 	{
-		"id" : 82,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["fiery_fields"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
-		"defname" : "ObFFs03.def",
-		"unknown" : 0
+		"animation" : "ObFFs03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"83":
 	{
-		"id" : 83,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["fiery_fields"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
-		"defname" : "ObFFs04.def",
-		"unknown" : 0
+		"animation" : "ObFFs04.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"84":
 	{
-		"id" : 84,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["rocklands"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObRLs00.def",
-		"unknown" : 0
+		"animation" : "ObRLs00.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"85":
 	{
-		"id" : 85,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["rocklands"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"defname" : "ObRLs01.def",
-		"unknown" : 0
+		"animation" : "ObRLs01.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"86":
 	{
-		"id" : 86,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["rocklands"],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"defname" : "ObRLs02.def",
-		"unknown" : 0
+		"animation" : "ObRLs02.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"87":
 	{
-		"id" : 87,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["rocklands"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
-		"defname" : "ObRLs03.def",
-		"unknown" : 0
+		"animation" : "ObRLs03.def",
+		"unknown" : 0,
+		"absolute" : false
 	},
+	"88":
 	{
-		"id" : 88,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["magic_clouds"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"defname" : "ObMCs00.def",
-		"unknown" : 1
+		"animation" : "ObMCs00.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"89":
 	{
-		"id" : 89,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["magic_clouds"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [1, -16],
-		"defname" : "ObMCs01.def",
-		"unknown" : 1
+		"animation" : "ObMCs01.def",
+		"unknown" : 1,
+		"absolute" : false
 	},
+	"90":
 	{
-		"id" : 90,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["magic_clouds"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -14, -15],
-		"defname" : "ObMCs02.def",
-		"unknown" : 1
-	}
-],
-"absoluteObstacles" : [
+		"animation" : "ObMCs02.def",
+		"unknown" : 1,
+		"absolute" : false
+	},
+
+	"100":
 	{
-		"id" : 0,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [80, 94, 95, 96, 97, 105, 106, 107, 108, 109, 110],
-		"defname" : "ObDtL04.pcx"
+		"animation" : "ObDtL04.pcx",
+		"absolute" : true
 	},
+	"101":
 	{
-		"id" : 1,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 256,
 		"height" : 254,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-		"defname" : "ObDtL06.pcx"
+		"animation" : "ObDtL06.pcx",
+		"absolute" : true
 	},
+	"102":
 	{
-		"id" : 2,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [60, 61, 62, 63, 64, 72, 73, 74, 75, 76, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149],
-		"defname" : "ObDtL10.pcx"
+		"animation" : "ObDtL10.pcx",
+		"absolute" : true
 	},
+	"103":
 	{
-		"id" : 3,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"defname" : "ObDtL02.pcx"
+		"animation" : "ObDtL02.pcx",
+		"absolute" : true
 	},
+	"104":
 	{
-		"id" : 4,
-		"allowedTerrain" : ["dirt"],
+		"allowedTerrains" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 146,
 		"height" : 254,
 		"blockedTiles" :  [76, 77, 78, 79, 80, 89, 90, 91, 92, 93],
-		"defname" : "ObDtL03.pcx"
+		"animation" : "ObDtL03.pcx",
+		"absolute" : true
 	},
+	"105":
 	{
-		"id" : 5,
-		"allowedTerrain" : ["grass"],
+		"allowedTerrains" : ["grass"],
 		"specialBattlefields" : [],
 		"width" : 173,
 		"height" : 221,
 		"blockedTiles" :  [55, 56, 57, 58, 75, 76, 77, 95, 112, 113, 131],
-		"defname" : "ObGrL01.pcx"
+		"animation" : "ObGrL01.pcx",
+		"absolute" : true
 	},
+	"106":
 	{
-		"id" : 6,
-		"allowedTerrain" : ["grass"],
+		"allowedTerrains" : ["grass"],
 		"specialBattlefields" : [],
 		"width" : 180,
 		"height" : 264,
 		"blockedTiles" :  [81, 91, 92, 93, 94, 95, 96, 97, 98, 106, 107, 123],
-		"defname" : "ObGrL02.pcx"
+		"animation" : "ObGrL02.pcx",
+		"absolute" : true
 	},
+	"107":
 	{
-		"id" : 7,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 166,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 78, 79, 91, 92, 93, 97, 98, 106, 107, 108],
-		"defname" : "ObSnL01.pcx"
+		"animation" : "ObSnL01.pcx",
+		"absolute" : true
 	},
+	"108":
 	{
-		"id" : 8,
-		"allowedTerrain" : ["snow"],
+		"allowedTerrains" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 302,
 		"height" : 172,
 		"blockedTiles" :  [41, 42, 43, 58, 75, 92, 108, 126, 143],
-		"defname" : "ObSnL14.pcx"
+		"animation" : "ObSnL14.pcx",
+		"absolute" : true
 	},
+	"109":
 	{
-		"id" : 9,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 300,
 		"height" : 170,
 		"blockedTiles" :  [40, 41, 58, 59, 74, 75, 92, 93, 109, 110, 111, 127, 128, 129, 130],
-		"defname" : "ObSwL15.pcx"
+		"animation" : "ObSwL15.pcx",
+		"absolute" : true
 	},
+	"110":
 	{
-		"id" : 10,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 278,
 		"height" : 171,
 		"blockedTiles" :  [43, 60, 61, 77, 93, 94, 95, 109, 110, 126, 127],
-		"defname" : "ObSwL14.pcx"
+		"animation" : "ObSwL14.pcx",
+		"absolute" : true
 	},
+	"111":
 	{
-		"id" : 11,
-		"allowedTerrain" : ["swamp"],
+		"allowedTerrains" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 256,
 		"height" : 254,
 		"blockedTiles" :  [74, 75, 76, 77, 91, 92, 93, 94, 95, 109, 110, 111, 112],
-		"defname" : "ObSwL22.pcx"
+		"animation" : "ObSwL22.pcx",
+		"absolute" : true
 	},
+	"112":
 	{
-		"id" : 12,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [77, 78, 79, 80, 81, 91, 92, 93, 94, 105, 106, 107],
-		"defname" : "ObLvL01.pcx"
+		"animation" : "ObLvL01.pcx",
+		"absolute" : true
 	},
+	"113":
 	{
-		"id" : 13,
-		"allowedTerrain" : ["lava"],
+		"allowedTerrains" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 256,
 		"height" : 128,
 		"blockedTiles" :  [43, 60, 61, 76, 77, 93, 109, 126, 127, 142, 143],
-		"defname" : "OBLvL02.pcx"
+		"animation" : "OBLvL02.pcx",
+		"absolute" : true
 	},
+	"114":
 	{
-		"id" : 14,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 186,
 		"height" : 212,
 		"blockedTiles" :  [55, 72, 90, 107, 125, 126, 127, 128, 129, 130, 131, 132],
-		"defname" : "ObRgL01.pcx"
+		"animation" : "ObRgL01.pcx",
+		"absolute" : true
 	},
+	"115":
 	{
-		"id" : 15,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 347,
 		"height" : 174,
 		"blockedTiles" :  [41, 59, 76, 94, 111, 129, 143, 144, 145],
-		"defname" : "ObRgL02.pcx"
+		"animation" : "ObRgL02.pcx",
+		"absolute" : true
 	},
+	"116":
 	{
-		"id" : 16,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 294,
 		"height" : 169,
 		"blockedTiles" :  [40, 41, 42, 43, 58, 75, 93, 110, 128, 145],
-		"defname" : "ObRgL03.pcx"
+		"animation" : "ObRgL03.pcx",
+		"absolute" : true
 	},
+	"117":
 	{
-		"id" : 17,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 165,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 105],
-		"defname" : "ObRgL04.pcx"
+		"animation" : "ObRgL04.pcx",
+		"absolute" : true
 	},
+	"118":
 	{
-		"id" : 18,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-		"defname" : "ObRgL05.pcx"
+		"animation" : "ObRgL05.pcx",
+		"absolute" : true
 	},
+	"119":
 	{
-		"id" : 19,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 252,
 		"height" : 254,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 91, 92, 93, 94],
-		"defname" : "ObRgL06.pcx"
+		"animation" : "ObRgL06.pcx",
+		"absolute" : true
 	},
+	"120":
 	{
-		"id" : 20,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 278,
 		"height" : 128,
 		"blockedTiles" :  [23, 40, 58, 75, 93, 110, 128, 145, 163],
-		"defname" : "ObRgL15.pcx"
+		"animation" : "ObRgL15.pcx",
+		"absolute" : true
 	},
+	"121":
 	{
-		"id" : 21,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-		"defname" : "ObRgL05.pcx"
+		"animation" : "ObRgL05.pcx",
+		"absolute" : true
 	},
+	"122":
 	{
-		"id" : 22,
-		"allowedTerrain" : ["rough"],
+		"allowedTerrains" : ["rough"],
 		"specialBattlefields" : ["cursed_ground"],
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 106, 107, 108, 109, 110, 111, 112],
-		"defname" : "ObRgL22.pcx"
+		"animation" : "ObRgL22.pcx",
+		"absolute" : true
 	},
+	"123":
 	{
-		"id" : 23,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 147,
 		"height" : 264,
 		"blockedTiles" :  [72, 73, 74, 75, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"defname" : "ObBhL02.pcx"
+		"animation" : "ObBhL02.pcx",
+		"absolute" : true
 	},
+	"124":
 	{
-		"id" : 24,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 178,
 		"height" : 262,
 		"blockedTiles" :  [71, 72, 73, 74, 75, 76, 77, 78, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"defname" : "ObBhL03.pcx"
+		"animation" : "ObBhL03.pcx",
+		"absolute" : true
 	},
+	"125":
 	{
-		"id" : 25,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 173,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 90, 105, 106],
-		"defname" : "ObBhL05.pcx"
+		"animation" : "ObBhL05.pcx",
+		"absolute" : true
 	},
+	"126":
 	{
-		"id" : 26,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 241,
 		"height" : 272,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-		"defname" : "ObBhL06.pcx"
+		"animation" : "ObBhL06.pcx",
+		"absolute" : true
 	},
+	"127":
 	{
-		"id" : 27,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 261,
 		"height" : 129,
 		"blockedTiles" :  [27, 28, 43, 44, 60, 61, 76, 77, 93, 94, 109, 110, 126, 127, 142, 143, 159],
-		"defname" : "ObBhL14.pcx"
+		"animation" : "ObBhL14.pcx",
+		"absolute" : true
 	},
+	"128":
 	{
-		"id" : 28,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["sand_shore"],
 		"width" : 180,
 		"height" : 154,
 		"blockedTiles" :  [22, 38, 39, 40, 44, 45, 46, 55, 56, 57, 62, 63, 123, 124, 125, 130, 131, 140, 141, 146, 147, 148],
-		"defname" : "ObBhL16.pcx"
+		"animation" : "ObBhL16.pcx",
+		"absolute" : true
 	},
+	"129":
 	{
-		"id" : 29,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["clover_field"],
 		"width" : 304,
 		"height" : 264,
 		"blockedTiles" :  [76, 77, 92, 93, 94, 95, 109, 110, 111],
-		"defname" : "ObCFL00.pcx"
+		"animation" : "ObCFL00.pcx",
+		"absolute" : true
 	},
+	"130":
 	{
-		"id" : 30,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["lucid_pools"],
 		"width" : 256,
 		"height" : 257,
 		"blockedTiles" :  [76, 77, 78, 92, 93, 94, 107, 108, 109],
-		"defname" : "ObLPL00.pcx"
+		"animation" : "ObLPL00.pcx",
+		"absolute" : true
 	},
+	"131":
 	{
-		"id" : 31,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["fiery_fields"],
 		"width" : 257,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 91, 92, 93, 94, 95, 108, 109, 110, 111],
-		"defname" : "ObFFL00.pcx"
+		"animation" : "ObFFL00.pcx",
+		"absolute" : true
 	},
+	"132":
 	{
-		"id" : 32,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["rocklands"],
 		"width" : 277,
 		"height" : 218,
 		"blockedTiles" :  [60, 61, 75, 76, 77, 91, 92, 93, 94, 95],
-		"defname" : "ObRLL00.pcx"
+		"animation" : "ObRLL00.pcx",
+		"absolute" : true
 	},
+	"133":
 	{
-		"id" : 33,
-		"allowedTerrain" : [],
+		"allowedTerrains" : [],
 		"specialBattlefields" : ["magic_clouds"],
 		"width" : 300,
 		"height" : 214,
 		"blockedTiles" :  [59, 60, 74, 75, 76, 93, 94, 95, 111, 112],
-		"defname" : "ObMCL00.pcx"
+		"animation" : "ObMCL00.pcx",
+		"absolute" : true
 	}
-]
-
 }

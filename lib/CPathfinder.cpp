@@ -20,6 +20,8 @@
 #include "CPlayerState.h"
 #include "PathfinderUtil.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool canSeeObj(const CGObjectInstance * obj)
 {
 	/// Pathfinder should ignore placed events
@@ -33,20 +35,20 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 	int3 pos;
 	const PlayerColor player = out.hero->tempOwner;
 	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
+	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
 	const bool useWaterWalking = options.useWaterWalking;
 
-	for(pos.x=0; pos.x < sizes.x; ++pos.x)
+	for(pos.z=0; pos.z < sizes.z; ++pos.z)
 	{
-		for(pos.y=0; pos.y < sizes.y; ++pos.y)
+		for(pos.x=0; pos.x < sizes.x; ++pos.x)
 		{
-			for(pos.z=0; pos.z < sizes.z; ++pos.z)
+			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile * tile = &gs->map->getTile(pos);
-				if(tile->terType.isWater())
+				const TerrainTile tile = gs->map->getTile(pos);
+				if(tile.terType->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -54,7 +56,7 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 					if(useWaterWalking)
 						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
 				}
-				if(tile->terType.isLand())
+				if(tile.terType->isLand())
 				{
 					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -337,7 +339,7 @@ void CPathfinder::calculatePaths()
 		auto hlp = config->getOrCreatePathfinderHelper(source, gs);
 
 		if(hlp->isHeroPatrolLocked())
-			break;
+			continue;
 
 		pq.push(initialNode);
 	}
@@ -463,7 +465,7 @@ std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(TeleportChan
 					allowedExits.push_back(p);
 			}
 		}
-		else if(CGTeleport::isExitPassable(gs, hero, obj))
+		else if(obj && CGTeleport::isExitPassable(gs, hero, obj))
 			allowedExits.push_back(obj->visitablePos());
 	}
 
@@ -623,7 +625,7 @@ void LayerTransitionRule::process(
 		else if(destination.node->accessible != CGPathNode::ACCESSIBLE)
 		{
 			/// Hero that fly can only land on accessible tiles
-			if(!destination.isGuardianTile && destination.nodeObject)
+			if(destination.nodeObject)
 				destination.blocked = true;
 		}
 
@@ -901,7 +903,7 @@ CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return gs->guardingCreaturePosition(source.node->coord) == destination.node->coord;
+	return gs->guardingCreaturePosition(destination.node->coord) == destination.node->coord;
 }
 
 void CPathfinderHelper::initializePatrol()
@@ -1008,10 +1010,10 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 
 TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 {
-	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
 		noTerrainPenalty.push_back(static_cast<bool>(
-				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(i)))));
+				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(terrain.id)))));
 	}
 
 	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
@@ -1019,6 +1021,7 @@ TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 	flyingMovementVal = bl->valOfBonuses(Selector::type()(Bonus::FLYING_MOVEMENT));
 	waterWalking = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::WATER_WALKING)));
 	waterWalkingVal = bl->valOfBonuses(Selector::type()(Bonus::WATER_WALKING));
+	pathfindingVal = bl->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING));
 }
 
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
@@ -1075,6 +1078,9 @@ int TurnInfo::valOfBonuses(Bonus::BonusType type, int subtype) const
 		return bonusCache->flyingMovementVal;
 	case Bonus::WATER_WALKING:
 		return bonusCache->waterWalkingVal;
+	case Bonus::SECONDARY_SKILL_PREMY:
+		if (subtype == SecondarySkill::PATHFINDING)
+			return bonusCache->pathfindingVal;
 	}
 
 	return bonuses->valOfBonuses(Selector::type()(type).And(Selector::subtype()(subtype)));
@@ -1174,7 +1180,7 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & hlpt = map->getTile(hlp);
-		if(!hlpt.terType.isPassable())
+		if(!hlpt.terType->isPassable())
 			continue;
 
 // 		//we cannot visit things from blocked tiles
@@ -1184,18 +1190,18 @@ void CPathfinderHelper::getNeighbours(
 // 		}
 
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srct.terType.isWater() && limitCoastSailing && hlpt.terType.isWater() && dir.x && dir.y) //diagonal move through water
+		if(srct.terType->isWater() && limitCoastSailing && hlpt.terType->isWater() && dir.x && dir.y) //diagonal move through water
 		{
 			int3 hlp1 = tile,
 				hlp2 = tile;
 			hlp1.x += dir.x;
 			hlp2.y += dir.y;
 
-			if(map->getTile(hlp1).terType.isLand() || map->getTile(hlp2).terType.isLand())
+			if(map->getTile(hlp1).terType->isLand() || map->getTile(hlp2).terType->isLand())
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == hlpt.terType.isLand())
+		if(indeterminate(onLand) || onLand == hlpt.terType->isLand())
 		{
 			vec.push_back(hlp);
 		}
@@ -1233,7 +1239,7 @@ int CPathfinderHelper::getMovementCost(
 	{
 		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0);
 	}
-	else if(dt->terType.isWater())
+	else if(dt->terType->isWater())
 	{
 		if(hero->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
 			ret = static_cast<int>(ret * 0.666);
@@ -1246,7 +1252,7 @@ int CPathfinderHelper::getMovementCost(
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{
 		int old = ret;
-		ret = static_cast < int>(ret * 1.414213);
+		ret = static_cast<int>(ret * M_SQRT2);
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
 		if(ret > remainingMovePoints && remainingMovePoints >= old)
 		{
@@ -1261,7 +1267,7 @@ int CPathfinderHelper::getMovementCost(
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
-		getNeighbours(*dt, dst, vec, ct->terType.isLand(), true);
+		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
 		for(auto & elem : vec)
 		{
 			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);
@@ -1300,7 +1306,7 @@ void CGPath::convert(ui8 mode)
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 	: sizes(Sizes), hero(hero_)
 {
-	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][ELayer::NUM_LAYERS]);
+	nodes.resize(boost::extents[ELayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y]);
 }
 
 CPathsInfo::~CPathsInfo() = default;
@@ -1332,11 +1338,11 @@ bool CPathsInfo::getPath(CGPath & out, const int3 & dst) const
 
 const CGPathNode * CPathsInfo::getNode(const int3 & coord) const
 {
-	auto landNode = &nodes[coord.x][coord.y][coord.z][ELayer::LAND];
+	auto landNode = &nodes[ELayer::LAND][coord.z][coord.x][coord.y];
 	if(landNode->reachable())
 		return landNode;
 	else
-		return &nodes[coord.x][coord.y][coord.z][ELayer::SAIL];
+		return &nodes[ELayer::SAIL][coord.z][coord.x][coord.y];
 }
 
 PathNodeInfo::PathNodeInfo()
@@ -1420,3 +1426,5 @@ bool PathNodeInfo::isNodeObjectVisitable() const
 	return (node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
 		&& (canSeeObj(nodeObject) || canSeeObj(nodeHero));
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -11,6 +11,8 @@
 
 #include "ConstTransitivePtr.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Artifact;
 class ArtifactService;
 class Creature;
@@ -676,10 +678,6 @@ enum class ETeleportChannelType
 	MIXED
 };
 
-
-static std::vector<std::string> RIVER_NAMES {"", "rw", "ri", "rm", "rl"};
-static std::vector<std::string> ROAD_NAMES {"", "pd", "pg", "pc"};
-
 class Obj
 {
 public:
@@ -831,6 +829,56 @@ public:
 };
 
 ID_LIKE_OPERATORS(Obj, Obj::EObj)
+
+namespace Terrain
+{
+	enum ETerrain : si8
+	{
+		NATIVE_TERRAIN = -4,
+		ANY_TERRAIN = -3,
+		WRONG = -2,
+		BORDER = -1,
+		FIRST_REGULAR_TERRAIN = 0,
+		DIRT = 0,
+		SAND,
+		GRASS,
+		SNOW,
+		SWAMP,
+		ROUGH,
+		SUBTERRANEAN,
+		LAVA,
+		WATER,
+		ROCK,
+		ORIGINAL_TERRAIN_COUNT
+	};
+}
+
+namespace Road
+{
+	enum ERoad : ui8
+	{
+		NO_ROAD = 0,
+		FIRST_REGULAR_ROAD = 1,
+		DIRT_ROAD = 1,
+		GRAVEL_ROAD = 2,
+		COBBLESTONE_ROAD = 3,
+		ORIGINAL_ROAD_COUNT //+1
+	};
+}
+
+namespace River
+{
+	enum ERiver : ui8
+	{
+		NO_RIVER = 0,
+		FIRST_REGULAR_RIVER = 1,
+		WATER_RIVER = 1,
+		ICY_RIVER = 2,
+		MUD_RIVER = 3,
+		LAVA_RIVER = 4,
+		ORIGINAL_RIVER_COUNT //+1
+	};
+}
 
 namespace SecSkillLevel
 {
@@ -1006,6 +1054,14 @@ public:
 	ID_LIKE_CLASS_COMMON(ArtifactID, EArtifactID)
 
 	EArtifactID num;
+
+	struct hash
+	{
+		size_t operator()(const ArtifactID & aid) const
+		{
+			return std::hash<int>()(aid.num);
+		}
+	};
 };
 
 ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
@@ -1125,6 +1181,16 @@ class BattleField : public BaseForID<BattleField, si32>
 
 	DLL_LINKAGE static BattleField fromString(std::string identifier);
 };
+	
+class ObstacleInfo;
+class Obstacle : public BaseForID<Obstacle, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(Obstacle, si32)
+	
+	DLL_LINKAGE const ObstacleInfo * getInfo() const;
+	DLL_LINKAGE operator std::string() const;
+	DLL_LINKAGE static Obstacle fromString(std::string identifier);
+};
 
 enum class ESpellSchool: ui8
 {
@@ -1173,6 +1239,9 @@ typedef si64 TExpType;
 typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
+typedef si8 TerrainId;
+typedef si8 RoadId;
+typedef si8 RiverId;
 
 typedef int TRmgTemplateZoneId;
 
@@ -1181,3 +1250,5 @@ typedef int TRmgTemplateZoneId;
 #undef ID_LIKE_OPERATORS_INTERNAL
 #undef INSTID_LIKE_CLASS_COMMON
 #undef OP_DECL_INT
+
+VCMI_LIB_NAMESPACE_END

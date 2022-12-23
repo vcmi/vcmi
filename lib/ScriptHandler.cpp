@@ -11,6 +11,7 @@
 
 #include "ScriptHandler.h"
 
+#if SCRIPTING_ENABLED
 #include <vcmi/Services.h>
 #include <vcmi/Environment.h>
 
@@ -21,6 +22,8 @@
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonSerializer.h"
 #include "filesystem/Filesystem.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 static const std::vector<std::string> IMPLEMENTS_MAP =
 {
@@ -68,7 +71,7 @@ const std::string & ScriptImpl::getSource() const
 	return sourceText;
 }
 
-void ScriptImpl::performRegistration(::Services * services) const
+void ScriptImpl::performRegistration(Services * services) const
 {
 	switch(implements)
 	{
@@ -239,7 +242,7 @@ ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::str
 
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(logMod, scope, data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(logMod, scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
 	objects[object->identifier] = object;
 }
 
@@ -311,3 +314,6 @@ void ScriptHandler::saveState(JsonNode & state)
 
 
 }
+
+VCMI_LIB_NAMESPACE_END
+#endif

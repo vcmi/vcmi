@@ -11,6 +11,8 @@
 
 #include "../../lib/GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
@@ -146,7 +148,7 @@ public:
 	// FIXME: due to usage of JsonNode I can't make these methods const
 	const CGHeroInstance * strongestHero(PlayerColor owner);
 	std::vector<CGHeroInstance *> getLostCrossoverHeroes(); /// returns a list of crossover heroes which started the scenario, but didn't complete it
-	
+
 	CCampaignScenario();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
@@ -242,3 +244,5 @@ public:
 
 	static std::unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
 };
+
+VCMI_LIB_NAMESPACE_END

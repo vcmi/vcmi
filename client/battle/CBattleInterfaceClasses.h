@@ -13,8 +13,20 @@
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
+struct BattleResult;
+class CStack;
+
+namespace battle
+{
+class Unit;
+}
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class CBattleInterface;
 class CPicture;
 class CFilledTexture;
@@ -23,12 +35,6 @@ class CToggleButton;
 class CToggleGroup;
 class CLabel;
 class CTextBox;
-struct BattleResult;
-class CStack;
-namespace battle
-{
-	class Unit;
-}
 class CAnimImage;
 class CPlayerInterface;
 
@@ -151,6 +157,7 @@ class CStackQueue : public CIntObject
 {
 	class StackBox : public CIntObject
 	{
+		CStackQueue * owner;
 	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
@@ -169,6 +176,7 @@ class CStackQueue : public CIntObject
 	std::shared_ptr<CAnimation> icons;
 	std::shared_ptr<CAnimation> stateIcons;
 
+	int32_t getSiegeShooterIconID();
 public:
 	const bool embedded;
 

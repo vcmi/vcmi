@@ -68,7 +68,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_APPLE
 #  include "TargetConditionals.h"
-#  if TARGET_IPHONE_SIMULATOR
+#  if TARGET_OS_SIMULATOR || TARGET_IPHONE_SIMULATOR
 #    define VCMI_IOS
 #    define VCMI_IOS_SIM
 #  elif TARGET_OS_IPHONE
@@ -80,10 +80,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  endif
 #else
 #  error "VCMI supports only Windows, OSX, Linux and Android targets"
-#endif
-
-#ifdef VCMI_IOS
-#  error "iOS system isn't yet supported."
 #endif
 
 // Each compiler uses own way to supress fall through warning. Try to find it.
@@ -268,10 +264,34 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 // should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
 #define UNUSED(VAR) ((void)VAR)
 
+// old iOS SDKs compatibility
+#ifdef VCMI_IOS
+#include <AvailabilityVersions.h>
+
+#ifndef __IPHONE_13_0
+#define __IPHONE_13_0 130000
+#endif
+#endif // VCMI_IOS
+
+// single-process build makes 2 copies of the main lib by wrapping it in a namespace
+#ifdef VCMI_LIB_NAMESPACE
+#define VCMI_LIB_NAMESPACE_BEGIN namespace VCMI_LIB_NAMESPACE {
+#define VCMI_LIB_NAMESPACE_END }
+#define VCMI_LIB_USING_NAMESPACE using namespace VCMI_LIB_NAMESPACE;
+#define VCMI_LIB_WRAP_NAMESPACE(x) VCMI_LIB_NAMESPACE::x
+#else
+#define VCMI_LIB_NAMESPACE_BEGIN
+#define VCMI_LIB_NAMESPACE_END
+#define VCMI_LIB_USING_NAMESPACE
+#define VCMI_LIB_WRAP_NAMESPACE(x) x
+#endif
+
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
 #include <vstd/CLoggerBase.h>
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 void inline handleException()
 {
@@ -726,6 +746,20 @@ namespace vstd
 		return false;
 	}
 
+	template <class M, class Key, class F>
+	typename M::mapped_type & getOrCompute(M & m, Key const & k, F f)
+	{
+		typedef typename M::mapped_type V;
+
+		std::pair<typename M::iterator, bool> r = m.insert(typename M::value_type(k, V()));
+		V & v = r.first->second;
+
+		if(r.second)
+			f(v);
+
+		return v;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;
@@ -743,3 +777,5 @@ namespace std
 	}
 }
 #endif // NO_STD_TOSTRING
+
+VCMI_LIB_NAMESPACE_END

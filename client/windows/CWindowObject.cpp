@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CWindowObject.h"
 
+#include "CAdvmapInterface.h"
+
 #include "../widgets/MiscWidgets.h"
 
 #include "../gui/SDL_Pixels.h"
@@ -26,7 +28,6 @@
 #include "../CPlayerInterface.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
-#include "../windows/CAdvmapInterface.h"
 
 #include "../../CCallback.h"
 

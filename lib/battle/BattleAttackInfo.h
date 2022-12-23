@@ -9,13 +9,15 @@
  */
 #pragma once
 
+#include "BattleHex.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace battle
 {
 	class Unit;
 	class CUnitState;
 }
-
-#include "BattleHex.h"
 
 struct DLL_LINKAGE BattleAttackInfo
 {
@@ -34,3 +36,5 @@ struct DLL_LINKAGE BattleAttackInfo
 	BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, bool Shooting = false);
 	BattleAttackInfo reverse() const;
 };
+
+VCMI_LIB_NAMESPACE_END

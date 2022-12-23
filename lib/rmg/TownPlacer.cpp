@@ -24,6 +24,8 @@
 #include "WaterAdopter.h"
 #include "TileInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void TownPlacer::process()
 {
 	auto * manager = zone.getModificator<ObjectManager>();
@@ -69,7 +71,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
 		
-		CGTownInstance * town = (CGTownInstance *) townFactory->create(ObjectTemplate());
+		CGTownInstance * town = (CGTownInstance *) townFactory->create();
 		town->tempOwner = player;
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
@@ -163,7 +165,7 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 		{
 			auto mineHandler = VLC->objtypeh->getHandlerFor(Obj::MINE, res);
 			auto & rmginfo = mineHandler->getRMGInfo();
-			auto mine = (CGMine*)mineHandler->create(ObjectTemplate());
+			auto mine = (CGMine*)mineHandler->create();
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
@@ -184,7 +186,7 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 		{
 			for(int rc = generator.rand.nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
+				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create();
 				resourse->amount = CGResource::RANDOM_AMOUNT;
 				manager.addNearbyObject(resourse, mine);
 			}
@@ -225,7 +227,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 		}
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
-		auto town = (CGTownInstance *) townFactory->create(ObjectTemplate());
+		auto town = (CGTownInstance *) townFactory->create();
 		town->ID = Obj::TOWN;
 		
 		town->tempOwner = player;
@@ -278,3 +280,5 @@ int TownPlacer::getTotalTowns() const
 {
 	return totalTowns;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -18,6 +18,8 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
 	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
@@ -68,7 +70,7 @@ void CMapGenOptions::setPlayerCount(si8 value)
 	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	playerCount = value;
 
-	auto possibleCompPlayersCount = value;
+	auto possibleCompPlayersCount = PlayerColor::PLAYER_LIMIT_I - value;
 	if (compOnlyPlayerCount > possibleCompPlayersCount)
 		setCompOnlyPlayerCount(possibleCompPlayersCount);
 
@@ -203,7 +205,7 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 {
 	mapTemplate = value;
 	//TODO validate & adapt options according to template
-	assert(0);
+	//assert(0);
 }
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)
@@ -401,21 +403,21 @@ bool CMapGenOptions::checkOptions() const
 	}
 }
 
-const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
+std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 {
 	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
 	auto humanPlayers = countHumanPlayers();
-	
+
 	auto templates = VLC->tplh->getTemplates();
-	
+
 	vstd::erase_if(templates, [this, &tplSize, humanPlayers](const CRmgTemplate * tmpl)
 	{
 		if(!tmpl->matchesSize(tplSize))
 			return true;
-		
+
 		if(!tmpl->isWaterContentAllowed(getWaterContent()))
 			return true;
-		
+
 		if(getPlayerCount() != -1)
 		{
 			if (!tmpl->getPlayers().isInRange(getPlayerCount()))
@@ -427,17 +429,23 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 			if(humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
 				return true;
 		}
-		
+
 		if(compOnlyPlayerCount != -1)
 		{
 			if (!tmpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
 				return true;
 		}
-		
+
 		return false;
 	});
-	
-	// Select tpl
+
+	return templates;
+}
+
+const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
+{
+	auto templates = getPossibleTemplates();
+
 	if(templates.empty())
 		return nullptr;
 	
@@ -485,3 +493,5 @@ void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType val
 {
 	playerType = value;
 }
+
+VCMI_LIB_NAMESPACE_END

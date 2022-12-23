@@ -91,6 +91,7 @@ private:
 	CGameHandler * gh;
 };
 
+VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
@@ -185,6 +186,7 @@ private:
 };
 
 }//
+VCMI_LIB_NAMESPACE_END
 
 CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);
@@ -1048,17 +1050,19 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 		}
 	}
+
+	int64_t drainedLife = 0;
+
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(bat, blm, attackerState, fireShield, defender, distance, false);
+		drainedLife += applyBattleEffects(bat, attackerState, fireShield, defender, distance, false);
 
 	//multiple-hex normal attack
 	std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
-
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
-			applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
+			drainedLife += applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 	}
 
 	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type()(Bonus::SPELL_LIKE_ATTACK));
@@ -1086,7 +1090,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
+				drainedLife += applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 			}
 		}
 
@@ -1134,7 +1138,28 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		addGenericKilledLog(blm, defender, totalKills, multipleTargets);
 	}
-	sendAndApply(&blm);
+
+	// drain life effect (as well as log entry) must be applied after the attack
+	if(drainedLife > 0)
+	{
+		BattleAttack bat;
+		bat.stackAttacking = attacker->unitId();
+		{
+			CustomEffectInfo customEffect;
+			customEffect.sound = soundBase::DRAINLIF;
+			customEffect.effect = 52;
+			customEffect.stack = attackerState->unitId();
+			bat.customEffects.push_back(std::move(customEffect));
+		}
+		sendAndApply(&bat);
+
+		MetaString text;
+		attackerState->addText(text, MetaString::GENERAL_TXT, 361);
+		attackerState->addNameReplacement(text, false);
+		text.addReplacement(drainedLife);
+		defender->addNameReplacement(text, true);
+		blm.lines.push_back(std::move(text));
+	}
 
 	if(!fireShield.empty())
 	{
@@ -1174,12 +1199,24 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		StacksInjured pack;
 		pack.stacks.push_back(bsa);
 		sendAndApply(&pack);
-		sendGenericKilledLog(attacker, bsa.killedAmount, false);
+
+		// TODO: this is already implemented in Damage::describeEffect()
+		{
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, 376);
+			text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
+			text.addReplacement(totalDamage);
+			blm.lines.push_back(std::move(text));
+		}
+		addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 	}
+
+	sendAndApply(&blm);
 
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
-void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
+
+int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1208,34 +1245,14 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 		CStack::prepareAttacked(bsa, getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	auto addLifeDrain = [&](int64_t & toHeal, EHealLevel level, EHealPower power)
-	{
-		attackerState->heal(toHeal, level, power);
-
-		if(toHeal > 0)
-		{
-			CustomEffectInfo customEffect;
-			customEffect.sound = soundBase::DRAINLIF;
-			customEffect.effect = 52;
-			customEffect.stack = attackerState->unitId();
-			bat.customEffects.push_back(customEffect);
-
-			MetaString text;
-			attackerState->addText(text, MetaString::GENERAL_TXT, 361);
-			attackerState->addNameReplacement(text, false);
-			text.addReplacement((int)toHeal);
-			def->addNameReplacement(text, true);
-			blm.lines.push_back(text);
-		}
-	};
+	int64_t drainedLife = 0;
 
 	//life drain handling
 	if(attackerState->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(Bonus::LIFE_DRAIN) / 100;
-
-		if(toHeal > 0)
-			addLifeDrain(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		drainedLife += toHeal;
 	}
 
 	//soul steal handling
@@ -1248,7 +1265,8 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 			if(attackerState->hasBonusOfType(Bonus::SOUL_STEAL, subtype))
 			{
 				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(Bonus::SOUL_STEAL, subtype) * attackerState->MaxHealth();
-				addLifeDrain(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				attackerState->heal(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				drainedLife += toHeal;
 				break;
 			}
 		}
@@ -1263,6 +1281,8 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
 		fireShield.push_back(std::make_pair(def, fireShieldDamage));
 	}
+
+	return drainedLife;
 }
 
 void CGameHandler::sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple)
@@ -1297,30 +1317,28 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
 		}
 		MetaString line;
-		line.addReplacement(txt.str());
-		blm.lines.push_back(line);
+		line << txt.str();
+		blm.lines.push_back(std::move(line));
 	}
 }
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	for(auto playerConns : connections)
+	if(lobby->state == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+		return;
+	
+	for(auto & playerConnections : connections)
 	{
-		for(auto i = playerConns.second.begin(); i != playerConns.second.end(); )
+		PlayerColor playerId = playerConnections.first;
+		auto * playerSettings = gs->scenarioOps->getPlayersSettings(playerId.getNum());
+		if(!playerSettings)
+			continue;
+		
+		auto playerConnection = vstd::find(playerConnections.second, c);
+		if(playerConnection != playerConnections.second.end())
 		{
-			if(lobby->state != EServerState::SHUTDOWN && *i == c)
-			{
-				i = playerConns.second.erase(i);
-				if(playerConns.second.size())
-					continue;
-				PlayerCheated pc;
-				pc.player = playerConns.first;
-				pc.losingCheatCode = true;
-				sendAndApply(&pc);
-				checkVictoryLossConditionsForPlayer(playerConns.first);
-			}
-			else
-				++i;
+			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
+			playerMessage(playerId, messageText, ObjectInstanceID{});
 		}
 	}
 }
@@ -1652,7 +1670,9 @@ CGameHandler::~CGameHandler()
 void CGameHandler::reinitScripting()
 {
 	serverEventBus = make_unique<events::EventBus>();
+#if SCRIPTING_ENABLED
 	serverScripts.reset(new scripting::PoolImpl(this, spellEnv));
+#endif
 }
 
 void CGameHandler::init(StartInfo *si)
@@ -1911,7 +1931,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			auto ti = make_unique<TurnInfo>(h, 1);
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->maxMovePointsCached(gs->map->getTile(h->getPosition(false)).terType.isLand(), ti.get());
+			hth.move = h->maxMovePointsCached(gs->map->getTile(h->getPosition(false)).terType->isLand(), ti.get());
 			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
@@ -1993,12 +2013,14 @@ void CGameHandler::newTurn()
 				fw.mode = 1;
 				fw.player = player;
 				// find all hidden tiles
-				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-				for (size_t i=0; i<fow.size(); i++)
-					for (size_t j=0; j<fow.at(i).size(); j++)
-						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
-							if (!fow.at(i).at(j).at(k))
-								fw.tiles.insert(int3((si32)i,(si32)j,(si32)k));
+				const auto fow = getPlayerTeam(player)->fogOfWarMap;
+
+				auto shape = fow->shape();
+				for(size_t z = 0; z < shape[0]; z++)
+					for(size_t x = 0; x < shape[1]; x++)
+						for(size_t y = 0; y < shape[2]; y++)
+							if (!(*fow)[z][x][y])
+								fw.tiles.insert(int3(x, y, z));
 
 				sendAndApply (&fw);
 			}
@@ -2110,7 +2132,9 @@ void CGameHandler::run(bool resume)
 		logGlobal->info(sbuffer.str());
 	}
 
+#if SCRIPTING_ENABLED
 	services()->scripts()->run(serverScripts);
+#endif
 
 	if(resume)
 		events::GameResumed::defaultExecute(serverEventBus.get());
@@ -2214,10 +2238,10 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 {
 	battleResult.set(nullptr);
 
-	const auto t = getTile(tile);
-	Terrain terrain = t->terType;
+	const auto & t = *getTile(tile);
+	TerrainId terrain = t.terType->id;
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = Terrain("sand");
+		terrain = Terrain::SAND;
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
@@ -2314,7 +2338,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
-	const bool disembarking = h->boat && t.terType.isLand() && !t.blocked;
+	const bool disembarking = h->boat && t.terType->isLand() && !t.blocked;
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -2336,11 +2360,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (((!t.terType.isPassable()  ||  (t.blocked && !t.visitable && !canFly))
+	if (((!t.terType->isPassable()  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType.isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-		|| ((h->boat && t.terType.isLand() && t.blocked)
+		|| ((h->boat && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ((distance(h->pos, dst) >= 1.5 && !teleporting)
 			&& complain("Tiles are not neighboring!"))
@@ -2943,7 +2967,7 @@ void CGameHandler::save(const std::string & filename)
 	}
 }
 
-void CGameHandler::load(const std::string & filename)
+bool CGameHandler::load(const std::string & filename)
 {
 	logGlobal->info("Loading from %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
@@ -2960,12 +2984,22 @@ void CGameHandler::load(const std::string & filename)
 		}
 		logGlobal->info("Game has been successfully loaded!");
 	}
-	catch(std::exception &e)
+	catch(const CModHandler::Incompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
+		auto errorMsg = VLC->generaltexth->localizedTexts["server"]["errors"]["modsIncompatibility"].String() + '\n';
+		errorMsg += e.what();
+		lobby->announceMessage(errorMsg);
+		return false;
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		return false;
 	}
 	gs->preInit(VLC);
 	gs->updateOnLoad(lobby->si.get());
+	return true;
 }
 
 bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)
@@ -3358,6 +3392,11 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 
 	}
 	return true;
+}
+
+bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const
+{
+	return connections.at(player).count(c);
 }
 
 PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const
@@ -3877,10 +3916,101 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
 			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
+	auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
-	MoveArtifact ma;
-	ma.src = src;
-	ma.dst = dst;
+	MoveArtifact ma(&src, &dst);
+	sendAndApply(&ma);
+	return true;
+}
+
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+{
+	// Make sure exchange is even possible between the two heroes.
+	if(!isAllowedExchange(srcHero, dstHero))
+		COMPLAIN_RET("That heroes cannot make any exchange!");
+
+	auto psrcHero = getHero(srcHero);
+	auto pdstHero = getHero(dstHero);
+	if((!psrcHero) || (!pdstHero))
+		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
+
+	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero),
+		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero), swap);
+	auto & slotsSrcDst = ma.artsPack0;
+	auto & slotsDstSrc = ma.artsPack1;
+
+	if(swap)
+	{
+		auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
+			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		{
+			for(auto & artifact : srcHero->artifactsWorn)
+			{
+				if(artifact.second.locked)
+					continue;
+				if(!ArtifactUtils::isArtRemovable(artifact))
+					continue;
+				slots.push_back(BulkMoveArtifacts::LinkedSlots(artifact.first, artifact.first));
+
+				auto art = artifact.second.getArt();
+				assert(art);
+				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, art->artType->id, artifact.first))
+					giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+			}
+		};
+		auto moveArtsInBackpack = [](const CGHeroInstance * pHero,
+			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		{
+			for(auto & slotInfo : pHero->artifactsInBackpack)
+			{
+				auto slot = pHero->getArtPos(slotInfo.artifact);
+				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
+			}
+		};
+		// Move over artifacts that are worn srcHero -> dstHero
+		moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
+		// Move over artifacts that are worn dstHero -> srcHero
+		moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
+		// Move over artifacts that are in backpack srcHero -> dstHero
+		moveArtsInBackpack(psrcHero, slotsSrcDst);
+		// Move over artifacts that are in backpack dstHero -> srcHero
+		moveArtsInBackpack(pdstHero, slotsDstSrc);
+	}
+	else
+	{
+		// Temporary fitting set for artifacts. Used to select available slots before sending data.
+		CArtifactFittingSet artFittingSet(pdstHero->bearerType());
+		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
+		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
+
+		auto moveArtifact = [this, &artFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
+			ArtifactPosition srcSlot, const CGHeroInstance * pdstHero) -> void
+		{
+			assert(artifact);
+			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet, pdstHero->bearerType());
+			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
+			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+
+			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		};
+
+		// Move over artifacts that are worn
+		for(auto & artInfo : psrcHero->artifactsWorn)
+		{
+			if(ArtifactUtils::isArtRemovable(artInfo))
+			{
+				moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero);
+			}
+		}
+		// Move over artifacts that are in backpack
+		for(auto & slotInfo : psrcHero->artifactsInBackpack)
+		{
+			moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)), psrcHero->getArtPos(slotInfo.artifact), pdstHero);
+		}
+	}
 	sendAndApply(&ma);
 	return true;
 }
@@ -3901,13 +4031,18 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	if (!destArtifact)
 		COMPLAIN_RET("assembleArtifacts: there is no such artifact instance!");
 
-	if (assemble)
+	if(assemble)
 	{
 		CArtifact *combinedArt = VLC->arth->objects[assembleTo];
-		if (!combinedArt->constituents)
+		if(!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if (!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
+		bool combineEquipped = !ArtifactUtils::isSlotBackpack(artifactSlot);
+		if(!vstd::contains(destArtifact->assemblyPossibilities(hero, combineEquipped), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
+
+		
+		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
+			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
 		aa.al = ArtifactLocation(hero, artifactSlot);
@@ -4044,7 +4179,7 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	if (!h->canLearnSkill())
 		COMPLAIN_RET("Hero can't learn any more skills");
 
-	if (h->type->heroClass->secSkillProbability.at(skill)==0)//can't learn this skill (like necromancy for most of non-necros)
+	if (!h->canLearnSkill(skill))
 		COMPLAIN_RET("The hero can't learn this skill!");
 
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_SKILL), skill))
@@ -4967,16 +5102,65 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
-	bool cheated = true;
+	bool cheated = false;
 	PlayerMessageClient temp_message(player, message);
 	sendAndApply(&temp_message);
 
-	std::vector<std::string> cheat;
-	boost::split(cheat, message, boost::is_any_of(" "));
-	int obj = 0;
-	if (cheat.size() == 2)
+	std::vector<std::string> words;
+	boost::split(words, message, boost::is_any_of(" "));
+	
+	bool isHost = false;
+	for(auto & c : connections[player])
+		if(lobby->isClientHost(c->connectionID))
+			isHost = true;
+	
+	if(isHost && words.size() >= 2 && words[0] == "game")
 	{
-		obj = std::atoi(cheat[1].c_str());
+		if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
+		{
+			SystemMessage temp_message("game was terminated");
+			sendAndApply(&temp_message);
+			lobby->state = EServerState::SHUTDOWN;
+			return;
+		}
+		if(words.size() == 3 && words[1] == "save")
+		{
+			save("Saves/" + words[2]);
+			SystemMessage temp_message("game saved as " + words[2]);
+			sendAndApply(&temp_message);
+			return;
+		}
+		if(words.size() == 3 && words[1] == "kick")
+		{
+			auto playername = words[2];
+			PlayerColor playerToKick(PlayerColor::CANNOT_DETERMINE);
+			if(std::all_of(playername.begin(), playername.end(), ::isdigit))
+				playerToKick = PlayerColor(std::stoi(playername));
+			else
+			{
+				for(auto & c : connections)
+				{
+					if(c.first.getStr(false) == playername)
+						playerToKick = c.first;
+				}
+			}
+			
+			if(playerToKick != PlayerColor::CANNOT_DETERMINE)
+			{
+				PlayerCheated pc;
+				pc.player = playerToKick;
+				pc.losingCheatCode = true;
+				sendAndApply(&pc);
+				checkVictoryLossConditionsForPlayer(playerToKick);
+			}
+			return;
+		}
+	}
+	
+	int obj = 0;
+	if (words.size() == 2)
+	{
+		obj = std::atoi(words[1].c_str());
 		if (obj)
 			currObj = ObjectInstanceID(obj);
 	}
@@ -4986,38 +5170,38 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if (cheat.size() == 1 || obj)
-		handleCheatCode(cheat[0], player, hero, town, cheated);
+	if (words.size() == 1 || obj)
+		handleCheatCode(words[0], player, hero, town, cheated);
 	else
 	{
 		for (const auto & i : gs->players)
 		{
 			if (i.first == PlayerColor::NEUTRAL)
 				continue;
-			if (cheat[1] == "ai")
+			if (words[1] == "ai")
 			{
 				if (i.second.human)
 					continue;
 			}
-			else if (cheat[1] != "all" && cheat[1] != i.first.getStr())
+			else if (words[1] != "all" && words[1] != i.first.getStr())
 				continue;
 
-			if (cheat[0] == "vcmiformenos" || cheat[0] == "vcmieagles" || cheat[0] == "vcmiungoliant")
+			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant")
 			{
-				handleCheatCode(cheat[0], i.first, nullptr, nullptr, cheated);
+				handleCheatCode(words[0], i.first, nullptr, nullptr, cheated);
 			}
-			else if (cheat[0] == "vcmiarmenelos")
+			else if (words[0] == "vcmiarmenelos")
 			{
 				for (const auto & t : i.second.towns)
 				{
-					handleCheatCode(cheat[0], i.first, nullptr, t, cheated);
+					handleCheatCode(words[0], i.first, nullptr, t, cheated);
 				}
 			}
 			else
 			{
 				for (const auto & h : i.second.heroes)
 				{
-					handleCheatCode(cheat[0], i.first, h, nullptr, cheated);
+					handleCheatCode(words[0], i.first, h, nullptr, cheated);
 				}
 			}
 		}
@@ -5164,19 +5348,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				sendAndApply(&ssp);
 			}
 		}
-		//regeneration
-		if (st->hasBonusOfType(Bonus::HP_REGENERATION))
-		{
-			bte.effect = Bonus::HP_REGENERATION;
-			bte.val = std::min((int)(st->MaxHealth() - st->getFirstHPleft()), st->valOfBonuses(Bonus::HP_REGENERATION));
-		}
-		if (st->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
-		{
-			bte.effect = Bonus::HP_REGENERATION;
-			bte.val = st->MaxHealth() - st->getFirstHPleft();
-		}
-		if (bte.val) //anything to heal
-			sendAndApply(&bte);
 
 		if (st->hasBonusOfType(Bonus::POISON))
 		{
@@ -5583,7 +5754,7 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 			auto topArmy = dialog->exchangingArmies.at(0);
 			auto bottomArmy = dialog->exchangingArmies.at(1);
 
-			if (topArmy == o1 && bottomArmy == o2 || bottomArmy == o1 && topArmy == o2)
+			if ((topArmy == o1 && bottomArmy == o2) || (bottomArmy == o1 && topArmy == o2))
 				return true;
 		}
 	}
@@ -6471,6 +6642,8 @@ void CGameHandler::runBattle()
 			}
 		}
 	}
+	// it is possible that due to opening spells one side was eliminated -> check for end of battle
+	checkBattleStateChanges();
 
 	bool firstRound = true;//FIXME: why first round is -1?
 
@@ -6513,8 +6686,28 @@ void CGameHandler::runBattle()
 				if(!q.front().empty())
 				{
 					auto next = q.front().front();
+					const auto stack = dynamic_cast<const CStack *>(next);
+
+					// regeneration takes place before everything else but only during first turn attempt in each round
+					// also works under blind and similar effects
+					if(stack && stack->alive() && !stack->waiting)
+					{
+						BattleTriggerEffect bte;
+						bte.stackID = stack->ID;
+						bte.effect = Bonus::HP_REGENERATION;
+
+						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
+						if(stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
+							bte.val = lostHealth;
+						else if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
+							bte.val = std::min(lostHealth, stack->valOfBonuses(Bonus::HP_REGENERATION));
+
+						if(bte.val) // anything to heal
+							sendAndApply(&bte);
+					}
+
 					if(next->willMove())
-						return dynamic_cast<const CStack *>(next);
+						return stack;
 				}
 			}
 
@@ -6888,6 +7081,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 {
 	if (cheat == "vcmiistari")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give hero spellbook
 		if (!hero->hasSpellbook())
@@ -6913,6 +7107,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiarmenelos")
 	{
+		cheated = true;
 		if (!town) return;
 		///Build all buildings in selected town
 		for (auto & build : town->town->buildings)
@@ -6927,6 +7122,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Gives N creatures into each slot
 		std::map<std::string, std::pair<int, int>> creatures;
@@ -6941,6 +7137,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcminoldor")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give all war machines to hero
 		if (!hero->getArt(ArtifactPosition::MACH1))
@@ -6952,6 +7149,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiforgeofnoldorking")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give hero all artifacts except war machines, spell scrolls and spell book
 		for (int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
@@ -6959,12 +7157,14 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiglorfindel")
 	{
+		cheated = true;
 		if (!hero) return;
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
 	}
 	else if (cheat == "vcminahar")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give 1000000 movement points to hero
 		SetMovePoints smp;
@@ -6981,6 +7181,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiformenos")
 	{
+		cheated = true;
 		///Give resources to player
 		TResources resources;
 		resources[Res::GOLD] = 100000;
@@ -6991,6 +7192,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmisilmaril")
 	{
+		cheated = true;
 		///Player wins
 		PlayerCheated pc;
 		pc.player = player;
@@ -6999,6 +7201,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmimelkor")
 	{
+		cheated = true;
 		///Player looses
 		PlayerCheated pc;
 		pc.player = player;
@@ -7007,24 +7210,25 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
 	{
+		cheated = true;
 		///Reveal or conceal FoW
 		FoWChange fc;
 		fc.mode = (cheat == "vcmieagles" ? 1 : 0);
 		fc.player = player;
 		const auto & fowMap = gs->getPlayerTeam(player)->fogOfWarMap;
-		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
+		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->levels())];
 		int lastUnc = 0;
-		for (int i = 0; i < gs->map->width; i++)
-			for (int j = 0; j < gs->map->height; j++)
-				for (int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if (!fowMap.at(i).at(j).at(k) || !fc.mode)
-						hlp_tab[lastUnc++] = int3(i, j, k);
+
+		for(int z = 0; z < gs->map->levels(); z++)
+			for(int x = 0; x < gs->map->width; x++)
+				for(int y = 0; y < gs->map->height; y++)
+					if(!(*fowMap)[z][x][y] || !fc.mode)
+						hlp_tab[lastUnc++] = int3(x, y, z);
+
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 		delete [] hlp_tab;
 		sendAndApply(&fc);
 	}
-	else
-		cheated = false;
 }
 
 void CGameHandler::removeObstacle(const CObstacleInstance & obstacle)
@@ -7315,15 +7519,17 @@ CRandomGenerator & CGameHandler::getRandomGenerator()
 	return CRandomGenerator::getDefault();
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * CGameHandler::getGlobalContextPool() const
 {
 	return serverScripts.get();
 }
 
-scripting::Pool *  CGameHandler::getContextPool() const
+scripting::Pool * CGameHandler::getContextPool() const
 {
 	return serverScripts.get();
 }
+#endif
 
 const ObjectInstanceID CGameHandler::putNewObject(Obj ID, int subID, int3 pos)
 {

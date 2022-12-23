@@ -22,6 +22,8 @@
 #include "HeroBonus.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CLegacyConfigParser;
 class JsonNode;
 class CTown;
@@ -185,7 +187,7 @@ public:
 
 	TFaction index;
 
-	Terrain nativeTerrain;
+	TerrainId nativeTerrain;
 	EAlignment::EAlignment alignment;
 	bool preferUndergroundPlacement;
 
@@ -301,6 +303,8 @@ public:
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
 		CreatureID siegeShooter; // shooter creature ID
+		std::string towerIconSmall;
+		std::string towerIconLarge;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -319,6 +323,8 @@ public:
 			h & siegePrefix;
 			h & siegePositions;
 			h & siegeShooter;
+			h & towerIconSmall;
+			h & towerIconLarge;
 		}
 	} clientInfo;
 
@@ -358,9 +364,9 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
-	const static Terrain defaultGoodTerrain;
-	const static Terrain defaultEvilTerrain;
-	const static Terrain defaultNeutralTerrain;
+	const static TerrainId defaultGoodTerrain;
+	const static TerrainId defaultEvilTerrain;
+	const static TerrainId defaultNeutralTerrain;
 
 	static TPropagatorPtr & emptyPropagator();
 
@@ -391,7 +397,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	Terrain getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
+	TerrainId getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 	void loadRandomFaction();
 
 
@@ -430,3 +436,5 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CFaction * loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };
+
+VCMI_LIB_NAMESPACE_END

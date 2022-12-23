@@ -18,6 +18,8 @@
 #include "CMapGenerator.h"
 #include "RmgPath.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 {
 	return true;
@@ -26,7 +28,7 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
-					terrainType(Terrain("grass")),
+					terrainType(Terrain::GRASS),
 					map(map),
 					generator(generator)
 {
@@ -132,12 +134,12 @@ void Zone::setTownType(si32 town)
 	townType = town;
 }
 
-const Terrain & Zone::getTerrainType() const
+TerrainId Zone::getTerrainType() const
 {
 	return terrainType;
 }
 
-void Zone::setTerrainType(const Terrain & terrain)
+void Zone::setTerrainType(TerrainId terrain)
 {
 	terrainType = terrain;
 }
@@ -193,11 +195,7 @@ void Zone::fractalize()
 	rmg::Area clearedTiles(dAreaFree);
 	rmg::Area possibleTiles(dAreaPossible);
 	rmg::Area tilesToIgnore; //will be erased in this iteration
-	
-	//the more treasure density, the greater distance between paths. Scaling is experimental.
-	int totalDensity = 0;
-	for(auto ti : treasureInfo)
-		totalDensity += ti.density;
+
 	const float minDistance = 10 * 10; //squared
 	
 	if(type != ETemplateZoneType::JUNCTION)
@@ -369,16 +367,16 @@ void Modificator::dump()
 {
 	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
 	auto & mapInstance = map.map();
-	int levels = mapInstance.twoLevel ? 2 : 1;
+	int levels = mapInstance.levels();
 	int width =  mapInstance.width;
 	int height = mapInstance.height;
-	for (int k = 0; k < levels; k++)
+	for(int z = 0; z < levels; z++)
 	{
 		for(int j=0; j<height; j++)
 		{
-			for (int i=0; i<width; i++)
+			for(int i=0; i<width; i++)
 			{
-				out << dump(int3(i, j, k));
+				out << dump(int3(i, j, z));
 			}
 			out << std::endl;
 		}
@@ -409,3 +407,5 @@ Modificator::~Modificator()
 {
 	
 }
+
+VCMI_LIB_NAMESPACE_END

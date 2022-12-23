@@ -14,6 +14,8 @@
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
@@ -45,7 +47,7 @@ namespace AIPathfinding
 			return;
 		}
 
-#if PATHFINDER_TRACE_LEVEL >= 2
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Movement from tile %s is blocked. Try to bypass. Action: %d, blocker: %d",
 			destination.coord.toString(),
@@ -126,7 +128,6 @@ namespace AIPathfinding
 		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
 		auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
 		auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
-		auto nodeHero = pathfinderHelper->hero;
 		QuestAction questAction(questInfo);
 
 		if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->missionType == CQuest::MISSION_NONE)
@@ -148,7 +149,6 @@ namespace AIPathfinding
 					return false;
 				}
 
-				destinationNode = questNode.get();
 				destination.node = questNode.get();
 
 				nodeStorage->commit(destination, source);
@@ -157,8 +157,6 @@ namespace AIPathfinding
 
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
-				auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
-
 				node->specialAction.reset(new QuestAction(questAction));
 			});
 		}
@@ -224,7 +222,7 @@ namespace AIPathfinding
 
 		if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
 		{
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Bypass guard at destination while moving %s -> %s",
 				source.coord.toString(),
@@ -252,7 +250,7 @@ namespace AIPathfinding
 
 		if(!battleNodeOptional)
 		{
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Can not allocate battle node while moving %s -> %s",
 				source.coord.toString(),
@@ -265,7 +263,7 @@ namespace AIPathfinding
 
 		if(battleNode->locked)
 		{
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Block bypass guard at destination while moving %s -> %s",
 				source.coord.toString(),
@@ -292,7 +290,7 @@ namespace AIPathfinding
 
 			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
 
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Begin bypass guard at destination with danger %s while moving %s -> %s",
 				std::to_string(danger),
@@ -304,4 +302,6 @@ namespace AIPathfinding
 
 		return false;
 	}
+}
+
 }

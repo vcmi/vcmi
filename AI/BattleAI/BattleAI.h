@@ -13,7 +13,12 @@
 #include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CSpell;
+
+VCMI_LIB_NAMESPACE_END
+
 class EnemyInfo;
 
 /*

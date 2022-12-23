@@ -10,6 +10,8 @@
 #pragma once
 #include "GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
@@ -182,7 +184,7 @@ namespace JsonUtils
 	 * null   : if value in source is present but set to null it will delete entry in dest
 	 * @note this function will destroy data in source
 	 */
-	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source, bool noOverride = false);
+	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source, bool ignoreOverride = false, bool copyMeta = false);
 
 	/**
 	 * @brief recursively merges source into dest, replacing identical fields
@@ -192,7 +194,7 @@ namespace JsonUtils
 	 * null   : if value in source is present but set to null it will delete entry in dest
 	 * @note this function will preserve data stored in source by creating copy
 	 */
-	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source, bool noOverride = false);
+	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source, bool ignoreOverride = false, bool copyMeta = false);
 
     /** @brief recursively merges descendant into copy of base node
      * Result emulates inheritance semantic
@@ -360,3 +362,5 @@ Type JsonNode::convertTo() const
 {
 	return JsonDetail::JsonConverter<Type>::convert(*this);
 }
+
+VCMI_LIB_NAMESPACE_END

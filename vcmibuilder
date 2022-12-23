@@ -29,7 +29,6 @@ do
 		--data) data_dir=$2         ; shift 2 ;;
 		--dest) dest_dir=$2         ; shift 2 ;;
 		--convertMP3) useffmpeg=true; shift 1 ;;
-#		--download) download=true   ; shift 1 ;;
 		--validate) validate=true   ; shift 1 ;;
 		*) print_help=true          ; shift 1 ;;
 	esac
@@ -53,9 +52,6 @@ then
 	echo " --convertMP3     " "Convert all mp3 files into ogg/vorbis"
 	echo "                  " "Requires ffmpeg or avconv"
 	echo
-#	echo " --download       " "Automatically download optional package using wget"
-#	echo "                  " "Requires wget and Internet connection"
-#	echo
 	echo " --dest DIRECTORY " "Path where resulting data will be placed. Default is ~/.local/share/vcmi"
 	echo
 	echo " --validate       " "Run basic validness checks"
@@ -116,10 +112,10 @@ if [[ -n "$gog_file" ]]
 then
 	currentver="$(innoextract --version | head -n1 | cut -d ' ' -f2)"
 	requiredver="1.6"
-        if verlt $currentver $requiredver;
-           then
-                fail "innoextract version is $currentver, update it to version $requiredver or higher"
-        fi
+	if verlt $currentver $requiredver;
+	then
+		fail "innoextract version is $currentver, update it to version $requiredver or higher"
+	fi
 fi
 
 if [[ -n "$useffmpeg" ]]
@@ -135,11 +131,6 @@ fi
 if [[ -n "$cd1_dir" ]]
 then
 	test_utility "unshield" "-V"
-fi
-
-if [[ -n "$download" ]]
-then
-	test_utility "unzip"
 fi
 
 if [[ -z "$gog_file" ]] && [[ -z "$data_dir" ]] && ( [[ -z "$cd1_dir" ]] || [[ -z "$cd2_dir" ]] )
@@ -177,20 +168,26 @@ mkdir -p "$temp_dir"
 
 if [[ -n "$gog_file" ]]
 then
-	data_dir="$temp_dir"/app
+	data_dir="$temp_dir"/gog
 	mkdir -p "$data_dir"
 
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
-        gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
+	gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
 	cd "$data_dir" && innoextract "$gog_file"
+	
+	# some versions of gog.com installer (or innoextract tool?) place game files inside /app directory
+	if [[ -d "$data_dir"/app ]]
+	then
+		data_dir="$data_dir"/app
+	fi
 fi
 
 if [[ -n "$cd1_dir" ]]
 then
 	data_dir="$temp_dir"/cddir
 	mkdir -p "$data_dir"
-	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir" 
+	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir"
 
 	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
 	if [ -d "$data_dir"/Heroes3 ]
@@ -236,18 +233,6 @@ then
 	cp -r "$data_dir"/[Mm][Pp]3 "$dest_dir"
 fi
 
-if [[ -n "$download" ]]
-then
-	wget "http://download.vcmi.eu/core.zip" -O "$temp_dir"/core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
-	vcmi_archive="$temp_dir"/core.zip
-fi
-
-if [[ -n "$vcmi_archive" ]]
-then
-	echo "decompressing $vcmi_archive"
-	unzip -qo "$vcmi_archive" -d "$dest_dir" || fail "Error: failed to extract VCMI archive!"
-fi
-
 if [[ -n "$useffmpeg" ]]
 then
 	# now when all music files were installed convert them to ogg
@@ -269,10 +254,10 @@ fi
 
 if [[ -n "$validate" ]]
 then
-	test -f "$dest_dir"/Data/H3bitmap.lod || fail "Error: Heroes 3 data files are missing!"
-	test -f "$dest_dir"/Data/H3sprite.lod || fail "Error: Heroes 3 data files are missing!"
-	test -f "$dest_dir"/Data/VIDEO.VID    || fail "Error: Heroes 3 data files (CD2) are missing!"
-	test -d "$dest_dir"/Mods/vcmi/Data    || fail "Error: VCMI data files are missing!"
+	test -f "$dest_dir"/[Dd][Aa][Tt][Aa]/H3bitmap.lod || fail "Error: Heroes 3 data files are missing!"
+	test -f "$dest_dir"/[Dd][Aa][Tt][Aa]/H3sprite.lod || fail "Error: Heroes 3 data files are missing!"
+	test -f "$dest_dir"/[Dd][Aa][Tt][Aa]/VIDEO.VID    || fail "Error: Heroes 3 data files (CD2) are missing!"
+	#test -d "$dest_dir"/Mods/vcmi/Data                || fail "Error: VCMI data files are missing!"
 fi
 
 rm -rf "$temp_dir"

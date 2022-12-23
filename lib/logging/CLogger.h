@@ -12,6 +12,8 @@
 #include "../CConsoleHandler.h"
 #include "../filesystem/FileStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CLogger;
 struct LogRecord;
 class ILogTarget;
@@ -196,7 +198,9 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
+#ifndef VCMI_IOS
 	CConsoleHandler * console;
+#endif
 	ELogLevel::ELogLevel threshold;
 	bool coloredOutputEnabled;
 	CLogFormatter formatter;
@@ -225,3 +229,5 @@ private:
 	CLogFormatter formatter;
 	mutable boost::mutex mx;
 };
+
+VCMI_LIB_NAMESPACE_END

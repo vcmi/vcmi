@@ -21,6 +21,40 @@
 #include "JsonDetail.h"
 #include "StringConstants.h"
 
+namespace
+{
+// to avoid duplicating const and non-const code
+template<typename Node>
+Node & resolvePointer(Node & in, const std::string & pointer)
+{
+	if(pointer.empty())
+		return in;
+	assert(pointer[0] == '/');
+
+	size_t splitPos = pointer.find('/', 1);
+
+	std::string entry = pointer.substr(1, splitPos - 1);
+	std::string remainer = splitPos == std::string::npos ? "" : pointer.substr(splitPos);
+
+	if(in.getType() == VCMI_LIB_WRAP_NAMESPACE(JsonNode)::JsonType::DATA_VECTOR)
+	{
+		if(entry.find_first_not_of("0123456789") != std::string::npos) // non-numbers in string
+			throw std::runtime_error("Invalid Json pointer");
+
+		if(entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
+			throw std::runtime_error("Invalid Json pointer");
+
+		size_t index = boost::lexical_cast<size_t>(entry);
+
+		if (in.Vector().size() > index)
+			return in.Vector()[index].resolvePointer(remainer);
+	}
+	return in[entry].resolvePointer(remainer);
+}
+}
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace JsonDetail;
 
 class LibClasses;
@@ -404,35 +438,6 @@ const JsonNode & JsonNode::operator[](std::string child) const
 	if (it != Struct().end())
 		return it->second;
 	return nullNode;
-}
-
-// to avoid duplicating const and non-const code
-template<typename Node>
-Node & resolvePointer(Node & in, const std::string & pointer)
-{
-	if (pointer.empty())
-		return in;
-	assert(pointer[0] == '/');
-
-	size_t splitPos = pointer.find('/', 1);
-
-	std::string entry   =   pointer.substr(1, splitPos -1);
-	std::string remainer =  splitPos == std::string::npos ? "" : pointer.substr(splitPos);
-
-	if (in.getType() == JsonNode::JsonType::DATA_VECTOR)
-	{
-		if (entry.find_first_not_of("0123456789") != std::string::npos) // non-numbers in string
-			throw std::runtime_error("Invalid Json pointer");
-
-		if (entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
-			throw std::runtime_error("Invalid Json pointer");
-
-		size_t index = boost::lexical_cast<size_t>(entry);
-
-		if (in.Vector().size() > index)
-			return in.Vector()[index].resolvePointer(remainer);
-	}
-	return in[entry].resolvePointer(remainer);
 }
 
 const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
@@ -1009,13 +1014,21 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 		return getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
 }
 
-void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
+void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, bool copyMeta)
 {
 	if (dest.getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		std::swap(dest, source);
 		return;
 	}
+
+	bool hasNull = dest.isNull() || source.isNull();
+	bool sameType = dest.getType() == source.getType();
+	bool sourceNumeric = source.getType() == JsonNode::JsonType::DATA_FLOAT || source.getType() == JsonNode::JsonType::DATA_INTEGER;
+	bool destNumeric = dest.getType() == JsonNode::JsonType::DATA_FLOAT || dest.getType() == JsonNode::JsonType::DATA_INTEGER;
+	bool bothNumeric = sourceNumeric && destNumeric;
+
+	assert( hasNull || sameType || bothNumeric );
 
 	switch (source.getType())
 	{
@@ -1035,30 +1048,33 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			if(!noOverride && vstd::contains(source.flags, "override"))
+			if(!ignoreOverride && vstd::contains(source.flags, "override"))
 			{
 				std::swap(dest, source);
 			}
 			else
 			{
+				if (copyMeta)
+					dest.meta = source.meta;
+
 				//recursively merge all entries from struct
 				for(auto & node : source.Struct())
-					merge(dest[node.first], node.second, noOverride);
+					merge(dest[node.first], node.second, ignoreOverride);
 			}
 		}
 	}
 }
 
-void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool noOverride)
+void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool ignoreOverride, bool copyMeta)
 {
 	// uses copy created in stack to safely merge two nodes
-	merge(dest, source, noOverride);
+	merge(dest, source, ignoreOverride, copyMeta);
 }
 
 void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 {
 	JsonNode inheritedNode(base);
-	merge(inheritedNode, descendant, true);
+	merge(inheritedNode, descendant, true, true);
 	descendant.swap(inheritedNode);
 }
 
@@ -1212,3 +1228,5 @@ DLL_LINKAGE JsonNode JsonUtils::intNode(si64 value)
 	node.Integer() = value;
 	return node;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -20,8 +20,9 @@
 #include "IHandlerBase.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CHeroClass;
-class CGameInfo;
 class CGHeroInstance;
 struct BattleHex;
 class JsonNode;
@@ -223,32 +224,6 @@ public:
 	EAlignment::EAlignment getAlignment() const;
 };
 
-struct DLL_LINKAGE CObstacleInfo
-{
-	std::string defName;
-	std::vector<Terrain> allowedTerrains;
-	std::vector<std::string> allowedSpecialBfields;
-
-	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
-	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
-	std::vector<si16> blockedTiles; //offsets relative to obstacle position (that is its left bottom corner)
-
-	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
-
-	bool isAppropriate(const Terrain & terrainType, const BattleField & specialBattlefield) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & defName;
-		h & allowedTerrains;
-		h & allowedSpecialBfields;
-		h & isAbsoluteObstacle;
-		h & width;
-		h & height;
-		h & blockedTiles;
-	}
-};
-
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
 	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill);
@@ -286,13 +261,12 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	void loadExperience();
 	void loadBallistics();
 	void loadTerrains();
-	void loadObstacles();
 
 public:
 	CHeroClassHandler classes;
 
 	//default costs of going through terrains. -1 means terrain is impassable
-	std::map<Terrain, int> terrCosts;
+	std::map<TerrainId, int> terrCosts;
 
 	struct SBallisticsLevelInfo
 	{
@@ -314,9 +288,6 @@ public:
 		}
 	};
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
-
-	std::vector<CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
-	std::vector<CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
 
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
@@ -340,11 +311,11 @@ public:
 		h & expPerLevel;
 		h & ballistics;
 		h & terrCosts;
-		h & obstacles;
-		h & absoluteObstacles;
 	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CHero * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };
+
+VCMI_LIB_NAMESPACE_END

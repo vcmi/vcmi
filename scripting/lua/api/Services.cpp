@@ -26,6 +26,8 @@
 #include "../LuaCallWrapper.h"
 
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -95,3 +97,5 @@ const std::vector<SpellServiceProxy::CustomRegType> SpellServiceProxy::REGISTER_
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

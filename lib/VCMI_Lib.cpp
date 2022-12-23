@@ -33,16 +33,19 @@
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
+#include "ObstacleHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 LibClasses * VLC = nullptr;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential)
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool extractArchives)
 {
 	console = Console;
 	VLC = new LibClasses();
 	try
 	{
-		VLC->loadFilesystem(onlyEssential);
+		VLC->loadFilesystem(onlyEssential, extractArchives);
 	}
 	catch(...)
 	{
@@ -81,10 +84,12 @@ const HeroTypeService * LibClasses::heroTypes() const
 	return heroh;
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * LibClasses::scripts() const
 {
 	return scriptHandler;
 }
+#endif
 
 const spells::Service * LibClasses::spells() const
 {
@@ -114,6 +119,11 @@ spells::effects::Registry * LibClasses::spellEffects()
 const BattleFieldService * LibClasses::battlefields() const
 {
 	return battlefieldsHandler;
+}
+
+const ObstacleService * LibClasses::obstacles() const
+{
+	return obstacleHandler;
 }
 
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -147,7 +157,7 @@ void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 	}
 }
 
-void LibClasses::loadFilesystem(bool onlyEssential)
+void LibClasses::loadFilesystem(bool onlyEssential, bool extractArchives)
 {
 	CStopWatch totalTime;
 	CStopWatch loadTime;
@@ -155,7 +165,7 @@ void LibClasses::loadFilesystem(bool onlyEssential)
 	CResourceHandler::initialize();
 	logGlobal->info("\tInitialization: %d ms", loadTime.getDiff());
 
-	CResourceHandler::load("config/filesystem.json");
+	CResourceHandler::load("config/filesystem.json", extractArchives);
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 
 	modh = new CModHandler();
@@ -187,6 +197,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(bth, "Bonus type", pomtime);
 
+	createHandler(terrainTypeHandler, "Terrain", pomtime);
+
 	createHandler(generaltexth, "General text", pomtime);
 
 	createHandler(heroh, "Hero", pomtime);
@@ -209,9 +221,13 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
 
+#if SCRIPTING_ENABLED
 	createHandler(scriptHandler, "Script", pomtime);
+#endif
 
 	createHandler(battlefieldsHandler, "Battlefields", pomtime);
+	
+	createHandler(obstacleHandler, "Obstacles", pomtime);
 
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 
@@ -238,7 +254,9 @@ void LibClasses::clear()
 	delete bth;
 	delete tplh;
 	delete terviewh;
+#if SCRIPTING_ENABLED
 	delete scriptHandler;
+#endif
 	delete battlefieldsHandler;
 	makeNull();
 }
@@ -258,7 +276,9 @@ void LibClasses::makeNull()
 	bth = nullptr;
 	tplh = nullptr;
 	terviewh = nullptr;
+#if SCRIPTING_ENABLED
 	scriptHandler = nullptr;
+#endif
 	battlefieldsHandler = nullptr;
 }
 
@@ -279,10 +299,12 @@ void LibClasses::callWhenDeserializing()
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }
 
+#if SCRIPTING_ENABLED
 void LibClasses::scriptsLoaded()
 {
 	scriptHandler->performRegistration(this);
 }
+#endif
 
 LibClasses::~LibClasses()
 {
@@ -298,3 +320,5 @@ void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
 	modh->content = content;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -11,6 +11,9 @@
 
 #include "CScriptingModule.h"
 
+#if SCRIPTING_ENABLED
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 
@@ -30,3 +33,6 @@ Module::Module()
 Module::~Module() = default;
 
 }
+
+VCMI_LIB_NAMESPACE_END
+#endif

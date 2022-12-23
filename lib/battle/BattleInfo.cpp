@@ -17,9 +17,12 @@
 #include "../CGeneralTextHandler.h"
 #include "../Terrain.h"
 #include "../BattleFieldHandler.h"
+#include "../ObstacleHandler.h"
 
 //TODO: remove
 #include "../IGameCallback.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
@@ -81,7 +84,7 @@ void BattleInfo::localInit()
 	{
 		auto armyObj = battleGetArmyObject(i);
 		armyObj->battle = this;
-		armyObj->attachTo(this);
+		armyObj->attachTo(*this);
 	}
 
 	for(CStack * s : stacks)
@@ -188,7 +191,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
+BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo();
@@ -240,9 +243,6 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 	//randomize obstacles
  	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
  	{
-		const int ABSOLUTE_OBSTACLES_COUNT = VLC->heroh->absoluteObstacles.size();
-		const int USUAL_OBSTACLES_COUNT = VLC->heroh->obstacles.size(); //shouldn't be changes if we want H3-like obstacle placement
-
 		RandGen r;
 		auto ourRand = [&](){ return r.rand(); };
 		r.srand(tile);
@@ -253,19 +253,20 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, battlefieldType);
+			auto * info = Obstacle(id).getInfo();
+			return info && info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
 		};
-		auto appropriateUsualObstacle = [&](int id) -> bool
+		auto appropriateUsualObstacle = [&](int id)
 		{
-			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, battlefieldType);
+			auto * info = Obstacle(id).getInfo();
+			return info && !info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
 		};
-
+		
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
 		{
-			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
-
 			try
 			{
+				RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
@@ -274,7 +275,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
-				tilesToBlock -= (int)VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
+				tilesToBlock -= Obstacle(obstPtr->ID).getInfo()->blockedTiles.size() / 2;
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
@@ -283,14 +284,14 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 			}
 		}
 
-		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT-1, ourRand);
 		try
 		{
 			while(tilesToBlock > 0)
 			{
+				RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
-				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
+				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
 
 				auto validPosition = [&](BattleHex pos) -> bool
 				{
@@ -523,10 +524,15 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-BattleInfo::BattleInfo()
-	: round(-1), activeStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BattleField::NONE), terrainType(),
-	tacticsSide(0), tacticDistance(0)
+BattleInfo::BattleInfo():
+	round(-1),
+	activeStack(-1),
+	town(nullptr),
+	tile(-1,-1,-1),
+	battlefieldType(BattleField::NONE),
+	terrainType(),
+	tacticsSide(0),
+	tacticDistance(0)
 {
 	setBattle(this);
 	setNodeType(BATTLE);
@@ -559,7 +565,7 @@ BattleField BattleInfo::getBattlefieldType() const
 	return battlefieldType;
 }
 
-Terrain BattleInfo::getTerrainType() const
+TerrainId BattleInfo::getTerrainType() const
 {
 	return terrainType;
 }
@@ -961,12 +967,14 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * BattleInfo::getContextPool() const
 {
 	//this is real battle, use global scripting context pool
 	//TODO: make this line not ugly
 	return IObjectInterface::cb->getGlobalContextPool();
 }
+#endif
 
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 {
@@ -1005,3 +1013,5 @@ CMP_stack::CMP_stack(int Phase, int Turn, uint8_t Side)
 	turn = Turn;
 	side = Side;
 }
+
+VCMI_LIB_NAMESPACE_END

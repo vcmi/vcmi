@@ -25,9 +25,12 @@
 #ifdef VCMI_ANDROID
 
 #include "AI/VCAI/VCAI.h"
+#include "AI/Nullkiller/AIGateway.h"
 #include "AI/BattleAI/BattleAI.h"
 
 #endif
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
@@ -94,7 +97,12 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	return std::make_shared<VCAI>();
+	if(libpath.stem() == "libNullkiller") {
+		return std::make_shared<NKAI::AIGateway>();
+	}
+	else{
+		return std::make_shared<VCAI>();
+	}
 }
 
 template<>
@@ -126,10 +134,12 @@ std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
+#if SCRIPTING_ENABLED
 std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const boost::filesystem::path & dllname)
 {
 	return createAny<scripting::Module>(dllname, "GetNewModule");
 }
+#endif
 
 BattleAction CGlobalAI::activeStack(const CStack * stack)
 {
@@ -255,3 +265,5 @@ void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading
 		battleAI->init(env, cbc);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

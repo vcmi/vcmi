@@ -28,6 +28,8 @@
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../VCMI_Lib.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void createModificators(RmgMap & map)
 {
 	for(auto & z : map.getZones())
@@ -93,14 +95,14 @@ void createBorder(RmgMap & gen, Zone & zone)
 	}
 }
 
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType)
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TerrainId terrain)
 {
 	auto v = zone.getArea().getTilesVector();
 	map.getEditManager()->getTerrainSelection().setSelection(v);
-	map.getEditManager()->drawTerrain(terrainType, &generator);
+	map.getEditManager()->drawTerrain(terrain, &generator);
 }
 
-int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain)
+int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId terrain)
 {
 	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
@@ -116,10 +118,10 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	if(zone.getType()==ETemplateZoneType::WATER)
 	{
 		//collect all water terrain types
-		std::vector<Terrain> waterTerrains;
-		for(auto & terrain : Terrain::Manager::terrains())
+		std::vector<TerrainId> waterTerrains;
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 			if(terrain.isWater())
-				waterTerrains.push_back(terrain);
+				waterTerrains.push_back(terrain.id);
 		
 		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
@@ -134,25 +136,21 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 			zone.setTerrainType(*RandomGeneratorUtil::nextItem(zone.getTerrainTypes(), gen.rand));
 		}
 		
-		//TODO: allow new types of terrain?
+		//Now, replace disallowed terrains on surface and in the underground
+		const auto & terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
+
+		if(zone.isUnderground())
 		{
-			if(zone.isUnderground())
+			if(!terrainType.isUnderground())
 			{
-				if(!vstd::contains(gen.getConfig().terrainUndergroundAllowed, zone.getTerrainType()))
-				{
-					//collect all underground terrain types
-					std::vector<Terrain> undegroundTerrains;
-					for(auto & terrain : Terrain::Manager::terrains())
-						if(terrain.isUnderground())
-							undegroundTerrains.push_back(terrain);
-					
-					zone.setTerrainType(*RandomGeneratorUtil::nextItem(undegroundTerrains, gen.rand));
-				}
+				zone.setTerrainType(Terrain::SUBTERRANEAN);
 			}
-			else
+		}
+		else
+		{
+			if (!terrainType.isSurface())
 			{
-				if(vstd::contains(gen.getConfig().terrainGroundProhibit, zone.getTerrainType()) || zone.getTerrainType().isUnderground())
-					zone.setTerrainType(Terrain("dirt"));
+				zone.setTerrainType(Terrain::DIRT);
 			}
 		}
 	}
@@ -168,53 +166,13 @@ void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 			for(int y = 0; y < map.map().height; y++)
 			{
 				int3 tile(x, y, 1);
-				if(!map.map().getTile(tile).terType.isPassable())
+				if(!map.map().getTile(tile).terType->isPassable())
 				{
 					map.setOccupied(tile, ETileType::USED);
 				}
 			}
 		}
 	}
-	
-	//tighten obstacles to improve visuals
-	
-	/*for (int i = 0; i < 3; ++i)
-	{
-		int blockedTiles = 0;
-		int freeTiles = 0;
-		
-		for (int z = 0; z < (map.map().twoLevel ? 2 : 1); z++)
-		{
-			for (int x = 0; x < map.map().width; x++)
-			{
-				for (int y = 0; y < map.map().height; y++)
-				{
-					int3 tile(x, y, z);
-					if (!map.isPossible(tile)) //only possible tiles can change
-						continue;
-					
-					int blockedNeighbours = 0;
-					int freeNeighbours = 0;
-					map.foreach_neighbour(tile, [&map, &blockedNeighbours, &freeNeighbours](int3 &pos)
-					{
-						if (map.isBlocked(pos))
-							blockedNeighbours++;
-						if (map.isFree(pos))
-							freeNeighbours++;
-					});
-					if (blockedNeighbours > 4)
-					{
-						map.setOccupied(tile, ETileType::BLOCKED);
-						blockedTiles++;
-					}
-					else if (freeNeighbours > 4)
-					{
-						map.setOccupied(tile, ETileType::FREE);
-						freeTiles++;
-					}
-				}
-			}
-		}
-		logGlobal->trace("Set %d tiles to BLOCKED and %d tiles to FREE", blockedTiles, freeTiles);
-	}*/
 }
+
+VCMI_LIB_NAMESPACE_END

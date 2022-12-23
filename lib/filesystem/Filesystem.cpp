@@ -20,13 +20,17 @@
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
+#include "../CModHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 CResourceHandler CResourceHandler::globalResourceHandler;
 
-CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
+CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
 	filesystem(new CFilesystemList()),
-	prefix(prefix)
+	prefix(prefix),
+	extractArchives(extractArchives)
 {
 }
 
@@ -103,7 +107,7 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 	std::string URI = prefix + config["path"].String();
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, archiveType));
 	if (filename)
-		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename), false);
+		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename, extractArchives), false);
 }
 
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
@@ -156,7 +160,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 
 void CResourceHandler::initialize()
 {
-	// Create tree-loke structure that looks like this:
+	// Create tree-like structure that looks like this:
 	// root
 	// |
 	// |- initial
@@ -169,6 +173,10 @@ void CResourceHandler::initialize()
 	// |- local
 	//    |-saves
 	//    |-config
+
+	// when built as single process, server can be started multiple times
+	if (globalResourceHandler.rootLoader)
+		return;
 
 	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
@@ -194,13 +202,13 @@ ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
 	return knownLoaders.at(identifier);
 }
 
-void CResourceHandler::load(const std::string &fsConfigURI)
+void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives)
 {
 	auto fsConfigData = get("initial")->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"]));
+	addFilesystem("data", CModHandler::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
 void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)
@@ -225,9 +233,26 @@ void CResourceHandler::addFilesystem(const std::string & parent, const std::stri
 	knownLoaders[identifier] = loader;
 }
 
-ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig)
+bool CResourceHandler::removeFilesystem(const std::string & parent, const std::string & identifier)
 {
-	CFilesystemGenerator generator(prefix);
+	if(knownLoaders.count(identifier) == 0)
+		return false;
+	
+	if(knownLoaders.count(parent) == 0)
+		return false;
+	
+	auto list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
+	assert(list);
+	list->removeLoader(knownLoaders[identifier]);
+	knownLoaders.erase(identifier);
+	return true;
+}
+
+ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig, bool extractArchives)
+{
+	CFilesystemGenerator generator(prefix, extractArchives);
 	generator.loadConfig(fsConfig);
 	return generator.getFilesystem();
 }
+
+VCMI_LIB_NAMESPACE_END

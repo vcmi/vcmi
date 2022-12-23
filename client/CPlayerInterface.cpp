@@ -84,8 +84,6 @@
 
 using namespace CSDL_Ext;
 
-void processCommand(const std::string &message, CClient *&client);
-
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
@@ -152,6 +150,10 @@ void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CC
 {
 	cb = CB;
 	env = ENV;
+
+	CCS->soundh->loadHorseSounds();
+	CCS->musich->loadTerrainMusicThemes();
+
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
@@ -216,27 +218,6 @@ void CPlayerInterface::yourTurn()
 	acceptTurn();
 }
 
-STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const ObjectInstanceID & hid)
-{
-	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
-	for (auto & elem : hlp.objects)
-		if (elem.obj && elem.obj->id == hid)
-		{
-			elem.rect = r;
-			return;
-		}
-}
-
-STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const ObjectInstanceID & hid)
-{
-	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
-	for (int h=0; h<hlp.objects.size(); ++h)
-		if (hlp.objects[h].obj && hlp.objects[h].obj->id == hid)
-		{
-			hlp.objects.erase(hlp.objects.begin()+h);
-			return;
-		}
-}
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -244,6 +225,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if(LOCPLINT != this)
 		return;
 
+	//FIXME: read once and store
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-ignore-hero"].Bool())
 		return;
 
@@ -255,7 +237,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		//AI hero left the visible area (we can't obtain info)
 		//TODO very evil workaround -> retrieve pointer to hero so we could animate it
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
-		const TerrainTile2 & tile = CGI->mh->ttiles[hp.x - 1][hp.y][hp.z];
+		const TerrainTile2 & tile = CGI->mh->ttiles[hp.z][hp.x - 1][hp.y];
 		for(auto & elem : tile.objects)
 			if(elem.obj && elem.obj->id == details.id)
 				hero = dynamic_cast<const CGHeroInstance *>(elem.obj);
@@ -273,7 +255,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true, false);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -922,19 +904,19 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 void CPlayerInterface::battleEnd(const BattleResult *br)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (isAutoFightOn)
+	if(isAutoFightOn || autofightingAI)
 	{
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
-		adventureInt->quickCombatUnlock();
 
-		if (!battleInt)
+		if(!battleInt)
 		{
 			GH.pushIntT<CBattleResultWindow>(*br, *this);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
+			adventureInt->quickCombatUnlock();
 			return;
 		}
 	}
@@ -942,6 +924,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->battleFinished(*br);
+	adventureInt->quickCombatUnlock();
 }
 
 void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
@@ -1326,7 +1309,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 				ki->townChanged(townObj);
 		}
 	}
-	else if (GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
+	else if(town && GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
 		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt().get());
@@ -1738,429 +1721,146 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 
 void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
 {
-	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	auto subArr = (CGI->mh->ttiles)[hp.z];
+
+	ho->isStanding = false;
+
+	int heroWidth  = ho->appearance->getWidth();
+	int heroHeight = ho->appearance->getHeight();
+
+	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
+	int tileMaxX = std::max(details.start.x, details.end.x);
+	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
+	int tileMaxY = std::max(details.start.y, details.end.y);
+
+	// determine tiles on which hero will be visible during movement and add hero as visible object on these tiles where necessary
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
 	{
-		//ho->moveDir = 1;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, -31)));
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 1, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 33, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 65, -31)));
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			bool heroVisibleHere = false;
+			auto & tile = subArr[tileX][tileY];
 
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 1)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
+			for ( auto const & obj : tile.objects)
+			{
+				if (obj.obj == ho)
+				{
+					heroVisibleHere = true;
+					break;
+				}
+			}
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 33)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		//ho->moveDir = 2;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 0, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 32, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 64, -31)));
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33), ho->id);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		//ho->moveDir = 3;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -1, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 31, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 63, -31)));
-		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, -31)));
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 1)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 33)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		//ho->moveDir = 4;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 0)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 32)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-		//ho->moveDir = 5;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, -1)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 31)));
-
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -1, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 31, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 63, 63)));
-		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 63)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		//ho->moveDir = 6;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
-
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 0, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 32, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 64, 63)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		//ho->moveDir = 7;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, -1)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 31)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 63)));
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 1, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 33, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 65, 63)));
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		//ho->moveDir = 8;
-		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 0)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
-
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 32)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), objectBlitOrderSorter);
+			if ( !heroVisibleHere)
+			{
+				tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
+				std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
+			}
+		}
 	}
 }
 
 void CPlayerInterface::movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho )
 {
-	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	auto subArr = (CGI->mh->ttiles)[hp.z];
+
+	int heroWidth  = ho->appearance->getWidth();
+	int heroHeight = ho->appearance->getHeight();
+
+	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
+	int tileMaxX = std::max(details.start.x, details.end.x);
+	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
+	int tileMaxY = std::max(details.start.y, details.end.y);
+
+	std::shared_ptr<CAnimation> animation = graphics->getAnimation(ho);
+
+	assert(animation);
+	assert(animation->size(0) != 0);
+	auto image = animation->getImage(0,0);
+
+	int heroImageOldX = details.start.x * 32;
+	int heroImageOldY = details.start.y * 32;
+
+	int heroImageNewX = details.end.x * 32;
+	int heroImageNewY = details.end.y * 32;
+
+	int heroImageCurrX = heroImageOldX + i*(heroImageNewX - heroImageOldX)/32;
+	int heroImageCurrY = heroImageOldY + i*(heroImageNewY - heroImageOldY)/32;
+
+	// recompute which part of hero sprite will be visible on each tile at this point of movement animation
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
 	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = i-32;
-		adventureInt->terrain.moveY = i-32;
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			for ( auto & obj : tile.objects)
+			{
+				if (obj.obj == ho)
+				{
+					int tilePosX = tileX * 32;
+					int tilePosY = tileY * 32;
 
-		subRect(hp.x-3, hp.y-2, hp.z, genRect(32, 32, -31+i, -31+i), ho->id);
-		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 1+i, -31+i), ho->id);
-		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 33+i, -31+i), ho->id);
-		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 65+i, -31+i), ho->id);
-
-		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 1+i), ho->id);
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 1+i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 1+i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 1+i), ho->id);
-
-		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 33+i), ho->id);
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 33+i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
+					obj.rect.x = tilePosX - heroImageCurrX + image->width() - 32;
+					obj.rect.y = tilePosY - heroImageCurrY + image->height() - 32;
+				}
+			}
+		}
 	}
-	else if (details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveY = i-32;
 
-		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
-		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 32, -31+i), ho->id);
-		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 64, -31+i), ho->id);
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1+i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1+i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1+i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33+i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = -i+32;
-		adventureInt->terrain.moveY = i-32;
-
-		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, -1-i, -31+i), ho->id);
-		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 31-i, -31+i), ho->id);
-		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 63-i, -31+i), ho->id);
-		subRect(hp.x+1, hp.y-2, hp.z, genRect(32, 32, 95-i, -31+i), ho->id);
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 1+i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 1+i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 1+i), ho->id);
-		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 1+i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 33+i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 33+i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
-		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = -i+32;
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 0), ho->id);
-		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 0), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
-		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-
-		//setting advmap shift
-		adventureInt->terrain.moveX = -i+32;
-		adventureInt->terrain.moveY = -i+32;
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, -1-i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, -1-i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, -1-i), ho->id);
-		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, -1-i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 31-i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 31-i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 31-i), ho->id);
-		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 31-i), ho->id);
-
-		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, -1-i, 63-i), ho->id);
-		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 31-i, 63-i), ho->id);
-		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
-		subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
-	}
-	else if (details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveY = -i+32;
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1-i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1-i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31-i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31-i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31-i), ho->id);
-
-		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 0, 63-i), ho->id);
-		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
-		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = i-32;
-		adventureInt->terrain.moveY = -i+32;
-
-		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, -1-i), ho->id);
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, -1-i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, -1-i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, -1-i), ho->id);
-
-		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 31-i), ho->id);
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 31-i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 31-i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 31-i), ho->id);
-
-		subRect(hp.x-3, hp.y+1, hp.z, genRect(32, 32, -31+i, 63-i), ho->id);
-		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 1+i, 63-i), ho->id);
-		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
-		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = i-32;
-
-		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 0), ho->id);
-
-		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 32), ho->id);
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
-	}
+	adventureInt->terrain.moveX = (32 - i) * (heroImageNewX - heroImageOldX) / 32;
+	adventureInt->terrain.moveY = (32 - i) * (heroImageNewY - heroImageOldY) / 32;
 }
 
 void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho )
 {
-	adventureInt->terrain.moveX = adventureInt->terrain.moveY = 0;
+	auto subArr = (CGI->mh->ttiles)[hp.z];
 
-	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	int heroWidth  = ho->appearance->getWidth();
+	int heroHeight = ho->appearance->getHeight();
+
+	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
+	int tileMaxX = std::max(details.start.x, details.end.x);
+	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
+	int tileMaxY = std::max(details.start.y, details.end.y);
+
+	// erase hero from all tiles on which he is currently visible
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
 	{
-		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-3, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		delObjRect(hp.x-2, hp.y-2, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x+1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-		delObjRect(hp.x-2, hp.y+1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-		delObjRect(hp.x+1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-	}
-	else if (details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-3, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x, hp.y+1, hp.z, ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			for (size_t i = 0; i < tile.objects.size(); ++i)
+			{
+				if ( tile.objects[i].obj == ho)
+				{
+					tile.objects.erase(tile.objects.begin() + i);
+					break;
+				}
+			}
+		}
 	}
 
-	//restoring good rects
-	subRect(details.end.x-2, details.end.y-1, details.end.z, genRect(32, 32, 0, 0), ho->id);
-	subRect(details.end.x-1, details.end.y-1, details.end.z, genRect(32, 32, 32, 0), ho->id);
-	subRect(details.end.x, details.end.y-1, details.end.z, genRect(32, 32, 64, 0), ho->id);
+	// re-add hero to all tiles on which he will still be visible after animation is over
+	for ( int tileX = details.end.x - heroWidth + 1; tileX <= details.end.x; ++tileX)
+	{
+		for ( int tileY = details.end.y - heroHeight + 1; tileY <= details.end.y; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
+		}
+	}
 
-	subRect(details.end.x-2, details.end.y, details.end.z, genRect(32, 32, 0, 32), ho->id);
-	subRect(details.end.x-1, details.end.y, details.end.z, genRect(32, 32, 32, 32), ho->id);
-	subRect(details.end.x, details.end.y, details.end.z, genRect(32, 32, 64, 32), ho->id);
+	// update object list on all tiles that were affected during previous operations
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
+	{
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
+		}
+	}
 
-	//restoring good order of objects
-	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.end(), objectBlitOrderSorter);
-
-	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), objectBlitOrderSorter);
+	//recompute hero sprite positioning using hero's final position
+	movementPxStep(details, 32, hp, ho);
 }
 
 void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )
@@ -2329,10 +2029,13 @@ void CPlayerInterface::acceptTurn()
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
 	}
-	waitWhileDialog();
 
 	if(CSH->howManyPlayerInterfaces() > 1)
+	{
+		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
+
 		adventureInt->startTurn();
+	}
 
 	adventureInt->heroList.update();
 	adventureInt->townList.update();
@@ -2582,6 +2285,12 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if (artWin)
 			artWin->artifactMoved(src, dst);
 	}
+	if(!GH.objsToBlit.empty())
+		GH.objsToBlit.back()->redraw();
+}
+
+void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
+{
 	askToAssembleArtifact(dst);
 }
 
@@ -2736,8 +2445,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		path.convert(0);
-		Terrain currentTerrain = Terrain("BORDER"); // not init yet
-		Terrain newTerrain;
+		TerrainId currentTerrain = Terrain::BORDER; // not init yet
+		TerrainId newTerrain;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2792,7 +2501,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType;
+				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType->id;
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);
@@ -2882,7 +2591,7 @@ void CPlayerInterface::updateAmbientSounds(bool resetAll)
 	{
 		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
 		// We want sound for every special terrain on tile and not just one on top
-		for(auto & ttObj : CGI->mh->ttiles[tile.x][tile.y][tile.z].objects)
+		for(auto & ttObj : CGI->mh->ttiles[tile.z][tile.x][tile.y].objects)
 		{
 			if(ttObj.ambientSound)
 				updateSounds(ttObj.ambientSound.get(), dist);

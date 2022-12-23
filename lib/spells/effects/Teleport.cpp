@@ -17,6 +17,8 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //TODO: Teleport effect
 
 static const std::string EFFECT_NAME = "core:teleport";
@@ -122,3 +124,5 @@ EffectTarget Teleport::transformTarget(const Mechanics * m, const Target & aimPo
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

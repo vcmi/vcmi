@@ -12,6 +12,8 @@
 
 #include "UnitEffect.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct Bonus;
 class CSelector;
 class BonusList;
@@ -44,3 +46,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

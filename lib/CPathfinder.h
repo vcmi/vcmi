@@ -17,6 +17,8 @@
 
 #include <boost/heap/fibonacci_heap.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 class CGHeroInstance;
 class CGObjectInstance;
@@ -178,7 +180,7 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
-	boost::multi_array<CGPathNode, 4> nodes; //[w][h][level][layer]
+	boost::multi_array<CGPathNode, 4> nodes; //[layer][level][w][h]
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
 	~CPathsInfo();
@@ -189,7 +191,7 @@ struct DLL_LINKAGE CPathsInfo
 	STRONG_INLINE
 	CGPathNode * getNode(const int3 & coord, const ELayer layer)
 	{
-		return &nodes[coord.x][coord.y][coord.z][layer];
+		return &nodes[layer][coord.z][coord.x][coord.y];
 	}
 };
 
@@ -386,6 +388,9 @@ class DLL_LINKAGE INodeStorage
 {
 public:
 	using ELayer = EPathfindingLayer;
+
+	virtual ~INodeStorage() = default;
+
 	virtual std::vector<CGPathNode *> getInitialNodes() = 0;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
@@ -448,6 +453,7 @@ public:
 	PathfinderConfig(
 		std::shared_ptr<INodeStorage> nodeStorage,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
+	virtual ~PathfinderConfig() = default;
 
 	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) = 0;
 };
@@ -513,6 +519,7 @@ struct DLL_LINKAGE TurnInfo
 		int flyingMovementVal;
 		bool waterWalking;
 		int waterWalkingVal;
+		int pathfindingVal;
 
 		BonusCache(TConstBonusListPtr bonusList);
 	};
@@ -522,7 +529,7 @@ struct DLL_LINKAGE TurnInfo
 	TConstBonusListPtr bonuses;
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
-	Terrain nativeTerrain;
+	TerrainId nativeTerrain;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
@@ -605,3 +612,5 @@ public:
 	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -32,6 +32,8 @@
 #include "../StringConstants.h"
 #include "../battle/Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID = 0)
@@ -79,42 +81,24 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType != ROAD_NAMES[0] && from.roadType != ROAD_NAMES[0])
+	if(dest.roadType->id && from.roadType->id)
 	{
-		int roadPos = std::min(vstd::find_pos(ROAD_NAMES, dest.roadType), vstd::find_pos(ROAD_NAMES, from.roadType)); //used road ID
-		switch(roadPos)
-		{
-		case 1:
-			ret = 75;
-			break;
-		case 2:
-			ret = 65;
-			break;
-		case 3:
-			ret = 50;
-			break;
-		default:
-			logGlobal->error("Unknown road type: %d", roadPos);
-			break;
-		}
+		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
-	else if(ti->nativeTerrain != from.terType //the terrain is not native
-		&& ti->nativeTerrain != Terrain::ANY //no special creature bonus
-		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType.id()) //no special movement bonus
-		)
+	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
+			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
 	{
-		static const CSelector selectorPATHFINDING = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
-		static const std::string keyPATHFINDING = "type_"+std::to_string((si32)Bonus::SECONDARY_SKILL_PREMY)+"s_"+std::to_string((si32)SecondarySkill::PATHFINDING);
 
-		ret = VLC->heroh->terrCosts[from.terType];
-		ret -= valOfBonuses(selectorPATHFINDING, keyPATHFINDING);
+		ret = VLC->heroh->terrCosts[from.terType->id];
+		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
 	return (ui32)ret;
 }
 
-Terrain CGHeroInstance::getNativeTerrain() const
+TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 	// This is clearly bug in H3 however intended behaviour is not clear.
@@ -122,18 +106,18 @@ Terrain CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	Terrain nativeTerrain("BORDER");
+	TerrainId nativeTerrain = Terrain::BORDER;
 
 	for(auto stack : stacks)
 	{
-		Terrain stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == Terrain("BORDER"))
+		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
 			continue;
-		if(nativeTerrain == Terrain("BORDER"))
+		if(nativeTerrain == Terrain::BORDER)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return Terrain("BORDER");
+			return Terrain::BORDER;
 	}
 	return nativeTerrain;
 }
@@ -209,6 +193,23 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 bool CGHeroInstance::canLearnSkill() const
 {
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
+}
+
+bool CGHeroInstance::canLearnSkill(SecondarySkill which) const
+{
+	if ( !canLearnSkill())
+		return false;
+
+	if (!cb->isAllowed(2, which))
+		return false;
+
+	if (getSecSkillLevel(which) > 0)
+		return false;
+
+	if (type->heroClass->secSkillProbability[which] == 0)
+		return false;
+
+	return true;
 }
 
 int CGHeroInstance::maxMovePoints(bool onLand) const
@@ -531,9 +532,10 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+		auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
 		if (customApp)
-			appearance = customApp.get();
+			appearance = customApp;
 	}
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
@@ -840,11 +842,10 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				}
 				else
 				{
-					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
+					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::tuple<int, int, int>
 					{
 						const CCreature * c = VLC->creh->objects[getCreatureID(pick)];
-						std::vector<int> v = {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
-						return v;
+						return std::tuple<int, int, int> {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
 					};
 					if(quality(topPick) < quality(newPick))
 						topPick = newPick;
@@ -1078,17 +1079,17 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 	if(visitedTown)
 		return whereShouldBeAttachedOnSiege(visitedTown->isBattleOutsideTown(this));
 
-	return CArmedInstance::whereShouldBeAttached(gs);
+	return &CArmedInstance::whereShouldBeAttached(gs);
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState * gs)
+CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 {
 	if(visitedTown)
 	{
 		if(inTownGarrison)
-			return visitedTown;
+			return *visitedTown;
 		else
-			return &visitedTown->townAndVis;
+			return visitedTown->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);
@@ -1133,7 +1134,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
 	if (!skillsInfo.wisdomCounter)
 	{
-		if (cb->isAllowed(2, SecondarySkill::WISDOM) && !getSecSkillLevel(SecondarySkill::WISDOM))
+		if (canLearnSkill(SecondarySkill::WISDOM))
 			obligatorySkills.push_back(SecondarySkill::WISDOM);
 	}
 	if (!skillsInfo.magicSchoolCounter)
@@ -1147,7 +1148,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 
 		for (auto skill : ss)
 		{
-			if (cb->isAllowed(2, skill) && !getSecSkillLevel(skill)) //only schools hero doesn't know yet
+			if (canLearnSkill(skill)) //only schools hero doesn't know yet
 			{
 				obligatorySkills.push_back(skill);
 				break; //only one
@@ -1159,7 +1160,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	//picking sec. skills for choice
 	std::set<SecondarySkill> basicAndAdv, expert, none;
 	for(int i = 0; i < VLC->skillh->size(); i++)
-		if (cb->isAllowed(2,i))
+		if (canLearnSkill(SecondarySkill(i)))
 			none.insert(SecondarySkill(i));
 
 	for(auto & elem : secSkills)
@@ -1402,12 +1403,17 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 	if(ID == Obj::HERO)
 		map->heroesOnMap.push_back(this);
 }
+void CGHeroInstance::afterRemoveFromMap(CMap* map)
+{
+	if (ID == Obj::HERO)
+		vstd::erase_if_present(map->heroesOnMap, this);
+}
 
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+		auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 
 		if(rawId)
 			subID = rawId.get();
@@ -1428,7 +1434,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeString("biography", biography);
 	handler.serializeInt("experience", exp, 0);
 
-	if (!handler.saving)
+	if(!handler.saving && exp != 0xffffffff) //do not gain levels if experience is not initialized
 	{
 		while (gainsLevel())
 		{
@@ -1639,3 +1645,5 @@ bool CGHeroInstance::isMissionCritical() const
 	}
 	return false;
 }
+
+VCMI_LIB_NAMESPACE_END

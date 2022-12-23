@@ -28,6 +28,8 @@
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
@@ -110,11 +112,16 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_ART:
-			for(auto & elem : m5arts)
+			// if the object was deserialized
+			if(artifactsRequirements.empty())
+				for(auto id : m5arts)
+					++artifactsRequirements[id];
+
+			for(const auto & elem : artifactsRequirements)
 			{
-				if(h->hasArt(elem, false, true))
-					continue;
-				return false; //if the artifact was not found
+				// check required amount of artifacts
+				if(h->getArtPosCount(elem.first, false, true, true) < elem.second)
+					return false;
 			}
 			return true;
 		case MISSION_ARMY:
@@ -415,6 +422,12 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 	}
 }
 
+void CQuest::addArtifactID(ArtifactID id)
+{
+	m5arts.push_back(id);
+	++artifactsRequirements[id];
+}
+
 void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
 {
 	auto q = handler.enterStruct(fieldName);
@@ -461,7 +474,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		break;
 	case MISSION_ART:
 		//todo: ban artifacts
-		handler.serializeIdArray<ui16, ArtifactID>("artifacts", m5arts);
+		handler.serializeIdArray<ArtifactID>("artifacts", m5arts);
 		break;
 	case MISSION_ARMY:
         {
@@ -925,7 +938,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		case MANA_POINTS:
 		case MORALE_BONUS:
 		case LUCK_BONUS:
-			identifier = "";
+			identifier.clear();
 			break;
 		case RESOURCES:
 			identifier = GameConstants::RESOURCE_NAMES[rID];
@@ -963,7 +976,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		const JsonNode & rewardsJson = handler.getCurrent();
 
-		fullIdentifier = "";
+		fullIdentifier.clear();
 
 		if(rewardsJson.Struct().empty())
 			return;
@@ -1015,7 +1028,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(doRequest)
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier("core", fullIdentifier, false);
+			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), fullIdentifier, false);
 
 			if(rawId)
 			{
@@ -1172,3 +1185,5 @@ bool CGBorderGate::passableFor(PlayerColor color) const
 {
 	return wasMyColorVisited(color);
 }
+
+VCMI_LIB_NAMESPACE_END

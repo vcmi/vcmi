@@ -24,6 +24,8 @@
 #include "../battle/CObstacleInstance.h"
 #include "../CStack.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BinarySerializer;
 class BinaryDeserializer;
 class CTypeList;
@@ -238,6 +240,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
+	s.template registerType<CPackForClient, PlayerReinitInterface>();
 	s.template registerType<CPackForClient, RemoveBonus>();
 	s.template registerType<CPackForClient, UpdateArtHandlerLists>();
 	s.template registerType<CPackForClient, UpdateMapEvents>();
@@ -316,6 +319,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CArtifactOperationPack, MoveArtifact>();
 	s.template registerType<CArtifactOperationPack, AssembledArtifact>();
 	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
+	s.template registerType<CArtifactOperationPack, BulkMoveArtifacts>();
 
 	s.template registerType<CPackForClient, SaveGameClient>();
 	s.template registerType<CPackForClient, PlayerMessageClient>();
@@ -355,6 +359,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BulkMergeStacks>();
 	s.template registerType<CPackForServer, BulkSmartSplitStack>();
 	s.template registerType<CPackForServer, BulkMoveArmy>();
+	s.template registerType<CPackForServer, BulkExchangeArtifacts>();
 }
 
 template<typename Serializer>
@@ -370,10 +375,12 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyChatMessage>();
 	// Only host client send
 	s.template registerType<CLobbyPackToPropagate, LobbyGuiAction>();
+	s.template registerType<CLobbyPackToPropagate, LobbyEndGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
 	// Only server send
 	s.template registerType<CLobbyPackToPropagate, LobbyUpdateState>();
+	s.template registerType<CLobbyPackToPropagate, LobbyShowMessage>();
 
 	// For client with permissions
 	s.template registerType<CLobbyPackToServer, LobbyChangePlayerOption>();
@@ -408,3 +415,5 @@ extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif
 
+
+VCMI_LIB_NAMESPACE_END

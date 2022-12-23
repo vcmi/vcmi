@@ -478,7 +478,11 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			int yPos = 344 + step * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", CGI->creatures()->getByIndex(elem.first)->getIconIndex(), 0, xPos, yPos));
+				auto creature = CGI->creatures()->getByIndex(elem.first);
+				if (creature->getId() == CreatureID::ARROW_TOWERS )
+					continue; // do not show destroyed towers in battle results
+
+				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", creature->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;
 				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str()));
@@ -506,7 +510,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			break;
 		}
 
-		CCS->musich->playMusic("Music/Win Battle", false);
+		CCS->musich->playMusic("Music/Win Battle", false, true);
 		CCS->videoh->open("WIN3.BIK");
 		std::string str = CGI->generaltexth->allTexts[text];
 
@@ -543,7 +547,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			logGlobal->error("Invalid battle result code %d. Assumed normal.", static_cast<int>(br.result));
 			break;
 		}
-		CCS->musich->playMusic(musicName, false);
+		CCS->musich->playMusic(musicName, false, true);
 		CCS->videoh->open(videoName);
 
 		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));
@@ -763,7 +767,13 @@ void CStackQueue::update()
 		stackBoxes[boxIndex]->setUnit(nullptr);
 }
 
-CStackQueue::StackBox::StackBox(CStackQueue * owner)
+int32_t CStackQueue::getSiegeShooterIconID()
+{
+	return owner->siegeH->town->town->faction->index;
+}
+
+CStackQueue::StackBox::StackBox(CStackQueue * owner):
+	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -795,7 +805,16 @@ void CStackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	{
 		background->colorize(unit->unitOwner());
 		icon->visible = true;
-		icon->setFrame(unit->creatureIconIndex());
+
+		// temporary code for mod compatibility:
+		// first, set icon that should definitely exist (arrow tower icon in base vcmi mod)
+		// second, try to switch to icon that should be provided by mod
+		// if mod is not up to date and does have arrow tower icon yet - second setFrame call will fail and retain previously set image
+		// for 1.2 release & later next line should be moved into 'else' block
+		icon->setFrame(unit->creatureIconIndex(), 0);
+		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
+			icon->setFrame(owner->getSiegeShooterIconID(), 1);
+
 		amount->setText(makeNumberShort(unit->getCount()));
 
 		if(stateIcon)

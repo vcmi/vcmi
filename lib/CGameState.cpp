@@ -37,6 +37,8 @@
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 boost::shared_mutex CGameState::mutex;
 
 template <typename T> class CApplyOnGS;
@@ -530,7 +532,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
 				faction = getRandomGenerator().nextInt((int)VLC->townh->size() - 1);
-				if(info->asCastle && info->instanceId != "")
+				if(info->asCastle && !info->instanceId.empty())
 				{
 					auto iter = map->instanceNames.find(info->instanceId);
 
@@ -758,6 +760,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 	initHeroes();
 	initStartingBonus();
 	initTowns();
+	placeHeroesInTowns();
 	initMapObjects();
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
@@ -954,19 +957,20 @@ void CGameState::initGrailPosition()
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
 
 		// add all not blocked tiles in range
-		for (int i = BORDER_WIDTH; i < map->width - BORDER_WIDTH ; i++)
+
+		for (int z = 0; z < map->levels(); z++)
 		{
-			for (int j = BORDER_WIDTH; j < map->height - BORDER_WIDTH; j++)
+			for(int x = BORDER_WIDTH; x < map->width - BORDER_WIDTH ; x++)
 			{
-				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
+				for(int y = BORDER_WIDTH; y < map->height - BORDER_WIDTH; y++)
 				{
-					const TerrainTile &t = map->getTile(int3(i, j, k));
+					const TerrainTile &t = map->getTile(int3(x, y, z));
 					if(!t.blocked
 						&& !t.visitable
-						&& t.terType.isLand()
-						&& t.terType.isPassable()
-						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
-						allowedPos.push_back(int3(i,j,k));
+						&& t.terType->isLand()
+						&& t.terType->isPassable()
+						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
+						allowedPos.push_back(int3(x,y,z));
 				}
 			}
 		}
@@ -1145,7 +1149,14 @@ void CGameState::placeCampaignHeroes()
 
 void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos)
 {
-	townPos.x -= 2; //FIXME: use actual visitable offset of town
+	for(auto town : map->towns)
+	{
+		if(town->getPosition() == townPos)
+		{
+			townPos = town->visitablePos();
+			break;
+		}
+	}
 
 	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor);
 	hero->pos += hero->getVisitableOffset();
@@ -1353,7 +1364,8 @@ void CGameState::placeStartingHeroes()
 			{
 				if(auto campaignBonus = scenarioOps->campState->getBonusForCurrentMap())
 				{
-					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1)) continue;
+					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1))
+						continue;
 				}
 			}
 
@@ -1593,20 +1605,13 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 void CGameState::initFogOfWar()
 {
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
+
+	int layers = map->levels();
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->width);
-		for(int g=0; g<map->width; ++g)
-			elem.second.fogOfWarMap[g].resize(map->height);
-
-		for(int g=-0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				elem.second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
-
-		for(int g=0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
-					elem.second.fogOfWarMap[g][h][v] = 0;
+		auto fow = elem.second.fogOfWarMap;
+		fow->resize(boost::extents[layers][map->width][map->height]);
+		std::fill(fow->data(), fow->data() + fow->num_elements(), 0);
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -1616,7 +1621,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
+				(*elem.second.fogOfWarMap)[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -1858,6 +1863,37 @@ void CGameState::initMapObjects()
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }
 
+void CGameState::placeHeroesInTowns()
+{
+	for(auto k=players.begin(); k!=players.end(); ++k)
+	{
+		if(k->first==PlayerColor::NEUTRAL)
+			continue;
+
+		for(CGHeroInstance *h : k->second.heroes)
+		{
+			for(CGTownInstance *t : k->second.towns)
+			{
+				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
+
+				// current hero position is at one of blocking tiles of current town
+				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
+				if (heroOnTownBlockableTile)
+				{
+					int3 townVisitablePos = t->visitablePos();
+					int3 correctedPos = townVisitablePos + h->getVisitableOffset();
+
+					map->removeBlockVisTiles(h);
+					h->pos = correctedPos;
+					map->addBlockVisTiles(h);
+
+					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
+				}
+			}
+		}
+	}
+}
+
 void CGameState::initVisitingAndGarrisonedHeroes()
 {
 	for(auto k=players.begin(); k!=players.end(); ++k)
@@ -1870,17 +1906,10 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
-				int3 vistile = t->pos; vistile.x--; //tile next to the entrance
-				if(vistile == h->pos || h->pos==t->pos)
+				if (t->visitableAt(h->visitablePos().x, h->visitablePos().y))
 				{
+					assert(t->visitingHero == nullptr);
 					t->setVisitingHero(h);
-					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
-					{
-						map->removeBlockVisTiles(h);
-						h->pos.x -= 1;
-						map->addBlockVisTiles(h);
-					}
-					break;
 				}
 			}
 		}
@@ -1925,7 +1954,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 		return BattleField::fromString("sand_shore");
 	
 	return BattleField::fromString(
-		*RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand));
+		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
@@ -2019,6 +2048,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 
 void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
+	//FIXME: creating pathfinder is costly, maybe reset / clear is enough?
 	CPathfinder pathfinder(this, config);
 	pathfinder.calculatePaths();
 }
@@ -2080,7 +2110,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 void CGameState::updateRumor()
@@ -2106,7 +2136,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType.id();
+				rumorExtra = getTile(map->grailPos)->terType->id;
 				break;
 			}
 
@@ -2164,7 +2194,7 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
+	return (*getPlayerTeam(player)->fogOfWarMap)[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )
@@ -2252,7 +2282,7 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
 		{
 			for(auto & elem : p->heroes)
-				if(elem->hasArt(condition.objectType))
+				if(elem->hasArt(ArtifactID(condition.objectType)))
 					return true;
 			return false;
 		}
@@ -2338,8 +2368,8 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		case EventCondition::TRANSPORT:
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-			if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
-				|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
+			if((t->visitingHero && t->visitingHero->hasArt(ArtifactID(condition.objectType)))
+				|| (t->garrisonHero && t->garrisonHero->hasArt(ArtifactID(condition.objectType))))
 			{
 				return true;
 			}
@@ -2720,13 +2750,13 @@ void CGameState::buildGlobalTeamPlayerTree()
 	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		TeamState *t = &k->second;
-		t->attachTo(&globalEffects);
+		t->attachTo(globalEffects);
 
 		for(PlayerColor teamMember : k->second.players)
 		{
 			PlayerState *p = getPlayerState(teamMember);
 			assert(p);
-			p->attachTo(t);
+			p->attachTo(*t);
 		}
 	}
 }
@@ -2736,7 +2766,9 @@ void CGameState::attachArmedObjects()
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
-			armed->whatShouldBeAttached()->attachTo(armed->whereShouldBeAttached(this));
+		{
+			armed->whatShouldBeAttached().attachTo(armed->whereShouldBeAttached(this));
+		}
 	}
 }
 
@@ -2851,6 +2883,8 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 		heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
 		heroToPlace->type = VLC->heroh->objects[heroToPlace->subID];
+		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO,
+															   heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
 		for(auto &&i : heroToPlace->stacks)
 			i.second->type = VLC->creh->objects[i.second->getCreatureID()];
@@ -3096,6 +3130,7 @@ int ArmyDescriptor::getStrength() const
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
+	fogOfWarMap = std::make_shared<boost::multi_array<ui8, 3>>();
 }
 
 TeamState::TeamState(TeamState && other):
@@ -3110,3 +3145,5 @@ CRandomGenerator & CGameState::getRandomGenerator()
 {
 	return rand;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,8 @@
 #include "Unit.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///BattleProxy
 
 BattleProxy::BattleProxy(Subject subject_)
@@ -47,7 +49,7 @@ BattleField BattleProxy::getBattlefieldType() const
 	return subject->battleGetBattlefieldType();
 }
 
-Terrain BattleProxy::getTerrainType() const
+TerrainId BattleProxy::getTerrainType() const
 {
 	return subject->battleTerrainType();
 }
@@ -112,3 +114,5 @@ const IBonusBearer * BattleProxy::asBearer() const
 	return subject->getBattleNode();
 }
 
+
+VCMI_LIB_NAMESPACE_END

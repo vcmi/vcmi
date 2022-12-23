@@ -26,6 +26,8 @@
 
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 IGameCallback * IObjectInterface::cb = nullptr;
 
 ///helpers
@@ -152,24 +154,24 @@ void CGObjectInstance::setOwner(PlayerColor ow)
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
-	return appearance.getWidth();
+	return appearance->getWidth();
 }
 int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
 {
-	return appearance.getHeight();
+	return appearance->getHeight();
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
-	return appearance.isVisitableAt(pos.x - x, pos.y - y);
+	return appearance->isVisitableAt(pos.x - x, pos.y - y);
 }
 bool CGObjectInstance::blockingAt(int x, int y) const
 {
-	return appearance.isBlockedAt(pos.x - x, pos.y - y);
+	return appearance->isBlockedAt(pos.x - x, pos.y - y);
 }
 
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
-	return appearance.isVisibleAt(pos.x - x, pos.y - y);
+	return appearance->isVisibleAt(pos.x - x, pos.y - y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -179,7 +181,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	{
 		for(int h=0; h<getHeight(); ++h)
 		{
-			if(appearance.isBlockedAt(w, h))
+			if(appearance->isBlockedAt(w, h))
 				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
 		}
 	}
@@ -188,15 +190,14 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 
 std::set<int3> CGObjectInstance::getBlockedOffsets() const
 {
-	return appearance.getBlockedOffsets();
+	return appearance->getBlockedOffsets();
 }
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
 {
-	const TerrainTile &tile = cb->gameState()->map->getTile(visitablePos());
-
-	this->ID = Obj(ID);
-	this->subID = subID;
+	auto position = visitablePos();
+	auto oldOffset = getVisitableOffset();
+	auto &tile = cb->gameState()->map->getTile(position);
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
@@ -206,15 +207,29 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 		logGlobal->error("Unknown object type %d:%d at %s", ID, subID, visitablePos().toString());
 		return;
 	}
-	if(!handler->getTemplates(tile.terType).empty())
-		appearance = handler->getTemplates(tile.terType)[0];
-	else
-		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
-	if (ID == Obj::HERO)
+	if(!handler->getTemplates(tile.terType->id).empty())
 	{
-		//adjust for the prison offset
-		pos = visitablePos();
+		appearance = handler->getTemplates(tile.terType->id)[0];
 	}
+	else
+	{
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", ID, subID, visitablePos().toString(), tile.terType->name);
+		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
+	}
+
+	if(this->ID == Obj::PRISON && ID == Obj::HERO)
+	{
+		auto newOffset = getVisitableOffset();
+		// FIXME: potentially unused code - setType is NOT called when releasing hero from prison
+		// instead, appearance update & pos adjustment occurs in GiveHero::applyGs
+
+		// adjust position since hero and prison may have different visitable offset
+		pos = pos - oldOffset + newOffset;
+	}
+
+	this->ID = Obj(ID);
+	this->subID = subID;
+
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
@@ -264,7 +279,7 @@ int CGObjectInstance::getSightRadius() const
 
 int3 CGObjectInstance::getVisitableOffset() const
 {
-	return appearance.getVisitableOffset();
+	return appearance->getVisitableOffset();
 }
 
 void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const
@@ -350,7 +365,7 @@ int3 CGObjectInstance::visitablePos() const
 
 bool CGObjectInstance::isVisitable() const
 {
-	return appearance.isVisitable();
+	return appearance->isVisitable();
 }
 
 bool CGObjectInstance::passableFor(PlayerColor color) const
@@ -375,7 +390,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeInt("y", pos.y);
 		handler.serializeInt("l", pos.z);
 		JsonNode app;
-		appearance.writeJson(app, false);
+		appearance->writeJson(app, false);
 		handler.serializeRaw("template",app, boost::none);
 	}
 
@@ -386,6 +401,11 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 }
 
 void CGObjectInstance::afterAddToMap(CMap * map)
+{
+	//nothing here
+}
+
+void CGObjectInstance::afterRemoveFromMap(CMap * map)
 {
 	//nothing here
 }
@@ -429,7 +449,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if(tile->terType.isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
+			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}
@@ -519,3 +539,5 @@ const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
 {
 	return castFrom(const_cast<CGObjectInstance*>(obj));
 }
+
+VCMI_LIB_NAMESPACE_END

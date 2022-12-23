@@ -13,6 +13,8 @@
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
@@ -40,9 +42,11 @@ rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
 void createBorder(RmgMap & gen, Zone & zone);
 
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType);
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TerrainId terrainType);
 
 void initTerrainType(Zone & zone, CMapGenerator & gen);
 
-int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
+int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId terrain);
 
+
+VCMI_LIB_NAMESPACE_END

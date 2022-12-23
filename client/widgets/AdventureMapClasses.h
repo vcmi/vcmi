@@ -13,21 +13,26 @@
 #include "../../lib/FunctionList.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArmedInstance;
-class CAnimation;
-class CAnimImage;
-class CShowableAnim;
-class CFilledTexture;
 class CGGarrison;
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
-class CButton;
 struct Component;
-class CComponent;
 struct InfoAboutArmy;
 struct InfoAboutHero;
 struct InfoAboutTown;
+
+VCMI_LIB_NAMESPACE_END
+
+class CAnimation;
+class CAnimImage;
+class CShowableAnim;
+class CFilledTexture;
+class CButton;
+class CComponent;
 class CHeroTooltip;
 class CTownTooltip;
 class CTextBox;
@@ -217,7 +222,7 @@ protected:
 	int level;
 
 	//to initialize colors
-	std::map<Terrain, std::pair<SDL_Color, SDL_Color> > loadColors();
+	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > loadColors();
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -228,7 +233,7 @@ protected:
 
 public:
 	// terrainID -> (normal color, blocked color)
-	const std::map<Terrain, std::pair<SDL_Color, SDL_Color> > colors;
+	const std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > colors;
 
 	CMinimap(const Rect & position);
 

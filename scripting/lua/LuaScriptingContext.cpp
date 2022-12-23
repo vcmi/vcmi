@@ -26,6 +26,8 @@
 #include "../../lib/CGameInfoCallback.h"
 
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 
@@ -509,14 +511,14 @@ int LuaContext::loadModule()
 
 		registar->pushMetatable(L);
 	}
-	else if(scope == "core")
+	else if(scope == CModHandler::scopeBuiltin())
 	{
 
 	//	boost::algorithm::replace_all(modulePath, boost::is_any_of("\\/ "), "");
 
 		boost::algorithm::replace_all(modulePath, ".", "/");
 
-		auto loader = CResourceHandler::get("core");
+		auto loader = CResourceHandler::get(CModHandler::scopeBuiltin());
 
 		modulePath = "scripts/lib/" + modulePath;
 
@@ -605,3 +607,5 @@ int LuaContext::logErrorImpl()
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -38,3 +38,5 @@ const std::vector<ObjectVisitStartedProxy::CustomRegType> ObjectVisitStartedProx
 }
 }
 
+
+VCMI_LIB_NAMESPACE_END

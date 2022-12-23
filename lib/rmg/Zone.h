@@ -33,6 +33,8 @@
 								postfunction(z.second->getModificator<x>()); \
 							}
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RmgMap;
 class CMapGenerator;
 class Zone;
@@ -98,8 +100,8 @@ public:
 	
 	si32 getTownType() const;
 	void setTownType(si32 town);
-	const Terrain & getTerrainType() const;
-	void setTerrainType(const Terrain & terrain);
+	TerrainId getTerrainType() const;
+	void setTerrainType(TerrainId terrain);
 		
 	void connectPath(const rmg::Path & path);
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter = AREA_NO_FILTER) const;
@@ -138,6 +140,8 @@ protected:
 	
 	//template info
 	si32 townType;
-	Terrain terrainType;
+	TerrainId terrainType;
 	
 };
+
+VCMI_LIB_NAMESPACE_END

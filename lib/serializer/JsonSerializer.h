@@ -11,6 +11,8 @@
 
 #include  "JsonTreeSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE JsonSerializer : public JsonTreeSerializer<JsonNode *>
 {
 public:
@@ -44,3 +46,5 @@ private:
 	void writeLICPartBuffer(const std::string & fieldName, const std::string & partName, std::vector<std::string> & buffer);
 
 };
+
+VCMI_LIB_NAMESPACE_END

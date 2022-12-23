@@ -10,121 +10,16 @@
 
 #pragma once
 
-#include "../CRandomGenerator.h"
-#include "../int3.h"
 #include "../GameConstants.h"
+#include "CMapOperation.h"
 #include "Terrain.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
 struct TerrainViewPattern;
 class CMap;
-
-/// Represents a map rectangle.
-struct DLL_LINKAGE MapRect
-{
-	MapRect();
-	MapRect(int3 pos, si32 width, si32 height);
-	si32 x, y, z;
-	si32 width, height;
-
-	si32 left() const;
-	si32 right() const;
-	si32 top() const;
-	si32 bottom() const;
-
-	int3 topLeft() const; /// Top left corner of this rect.
-	int3 topRight() const; /// Top right corner of this rect.
-	int3 bottomLeft() const; /// Bottom left corner of this rect.
-	int3 bottomRight() const; /// Bottom right corner of this rect.
-
-	/// Returns a MapRect of the intersection of this rectangle and the given one.
-	MapRect operator&(const MapRect & rect) const;
-
-	template<typename Func>
-	void forEach(Func f) const
-	{
-		for(int j = y; j < bottom(); ++j)
-		{
-			for(int i = x; i < right(); ++i)
-			{
-				f(int3(i, j, z));
-			}
-		}
-	}
-};
-
-/// Generic selection class to select any type
-template<typename T>
-class DLL_LINKAGE CMapSelection
-{
-public:
-	explicit CMapSelection(CMap * map) : map(map) { }
-	virtual ~CMapSelection() { };
-	void select(const T & item)
-	{
-		selectedItems.insert(item);
-	}
-	void deselect(const T & item)
-	{
-		selectedItems.erase(item);
-	}
-	std::set<T> getSelectedItems()
-	{
-		return selectedItems;
-	}
-	CMap * getMap() { return map; }
-	virtual void selectRange(const MapRect & rect) { }
-	virtual void deselectRange(const MapRect & rect) { }
-	virtual void selectAll() { }
-	virtual void clearSelection() { }
-
-private:
-	std::set<T> selectedItems;
-	CMap * map;
-};
-
-/// Selection class to select terrain.
-class DLL_LINKAGE CTerrainSelection : public CMapSelection<int3>
-{
-public:
-	explicit CTerrainSelection(CMap * map);
-	void selectRange(const MapRect & rect) override;
-	void deselectRange(const MapRect & rect) override;
-	void selectAll() override;
-	void clearSelection() override;
-	void setSelection(const std::vector<int3> & vec);
-};
-
-/// Selection class to select objects.
-class DLL_LINKAGE CObjectSelection: public CMapSelection<CGObjectInstance *>
-{
-public:
-	explicit CObjectSelection(CMap * map);
-};
-
-/// The abstract base class CMapOperation defines an operation that can be executed, undone and redone.
-class DLL_LINKAGE CMapOperation : public boost::noncopyable
-{
-public:
-	explicit CMapOperation(CMap * map);
-	virtual ~CMapOperation() { };
-
-	virtual void execute() = 0;
-	virtual void undo() = 0;
-	virtual void redo() = 0;
-	virtual std::string getLabel() const = 0; /// Returns a display-able name of the operation.
-
-	static const int FLIP_PATTERN_HORIZONTAL = 1;
-	static const int FLIP_PATTERN_VERTICAL = 2;
-	static const int FLIP_PATTERN_BOTH = 3;
-
-protected:
-	MapRect extendTileAround(const int3 & centerPos) const;
-	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size
-
-	CMap * map;
-};
 
 /// The CMapUndoManager provides the functionality to save operations and undo/redo them.
 class DLL_LINKAGE CMapUndoManager : boost::noncopyable
@@ -138,6 +33,8 @@ public:
 
 	/// The undo redo limit is a number which says how many undo/redo items can be saved. The default
 	/// value is 10. If the value is 0, no undo/redo history will be maintained.
+	
+	/// FIXME: unlimited undo please
 	int getUndoRedoLimit() const;
 	void setUndoRedoLimit(int value);
 
@@ -145,6 +42,9 @@ public:
 	const CMapOperation * peekUndo() const;
 
 	void addOperation(std::unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
+
+	//poor man's signal
+	void setUndoCallback(std::function<void(bool, bool)> functor);
 
 private:
 	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
@@ -155,6 +55,9 @@ private:
 	TStack undoStack;
 	TStack redoStack;
 	int undoRedoLimit;
+
+	void onUndoRedo();
+	std::function<void(bool allowUndo, bool allowRedo)> undoCallback;
 };
 
 /// The map edit manager provides functionality for drawing terrain and placing
@@ -169,15 +72,19 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(Terrain terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(TerrainId terType, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
-	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);
+	void drawRoad(RoadId roadType, CRandomGenerator * gen = nullptr);
 	
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
-	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
+	void drawRiver(RiverId riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
+	void insertObjects(std::set<CGObjectInstance *> & objects);
+	void moveObject(CGObjectInstance * obj, const int3 & pos);
+	void removeObject(CGObjectInstance * obj);
+	void removeObjects(std::set<CGObjectInstance *> & objects);
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();
@@ -194,227 +101,4 @@ private:
 	CObjectSelection objectSel;
 };
 
-/* ---------------------------------------------------------------------------- */
-/* Implementation/Detail classes, Private API */
-/* ---------------------------------------------------------------------------- */
-
-/// The CComposedOperation is an operation which consists of several operations.
-class CComposedOperation : public CMapOperation
-{
-public:
-	CComposedOperation(CMap * map);
-
-	void execute() override;
-	void undo() override;
-	void redo() override;
-
-	void addOperation(std::unique_ptr<CMapOperation> && operation);
-
-private:
-	std::list<std::unique_ptr<CMapOperation> > operations;
-};
-
-/// The terrain view pattern describes a specific composition of terrain tiles
-/// in a 3x3 matrix and notes which terrain view frame numbers can be used.
-struct DLL_LINKAGE TerrainViewPattern
-{
-	struct WeightedRule
-	{
-		WeightedRule(std::string &Name);
-		/// Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
-		inline bool isStandardRule() const
-		{
-			return standardRule;
-		}
-		inline bool isAnyRule() const
-		{
-			return anyRule;
-		}
-		inline bool isDirtRule() const
-		{
-			return dirtRule;
-		}
-		inline bool isSandRule() const
-		{
-			return sandRule;
-		}
-		inline bool isTransition() const
-		{
-			return transitionRule;
-		}
-		inline bool isNativeStrong() const
-		{
-			return nativeStrongRule;
-		}
-		inline bool isNativeRule() const
-		{
-			return nativeRule;
-		}
-		void setNative();
-
-		/// The name of the rule. Can be any value of the RULE_* constants or a ID of a another pattern.
-		//FIXME: remove string variable altogether, use only in constructor
-		std::string name;
-		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
-		int points;
-
-	private:
-		bool standardRule;
-		bool anyRule;
-		bool dirtRule;
-		bool sandRule;
-		bool transitionRule;
-		bool nativeStrongRule;
-		bool nativeRule;
-
-		WeightedRule(); //only allow string constructor
-	};
-
-	static const int PATTERN_DATA_SIZE = 9;
-	/// Constant for the flip mode different images. Pattern will be flipped and different images will be used(mapping area is divided into 4 parts)
-	static const std::string FLIP_MODE_DIFF_IMAGES;
-	/// Constant for the rule dirt, meaning a dirty border is required.
-	static const std::string RULE_DIRT;
-	/// Constant for the rule sand, meaning a sandy border is required.
-	static const std::string RULE_SAND;
-	/// Constant for the rule transition, meaning a dirty OR sandy border is required.
-	static const std::string RULE_TRANSITION;
-	/// Constant for the rule native, meaning a native border is required.
-	static const std::string RULE_NATIVE;
-	/// Constant for the rule native strong, meaning a native type is required.
-	static const std::string RULE_NATIVE_STRONG;
-	/// Constant for the rule any, meaning a native type, dirty OR sandy border is required.
-	static const std::string RULE_ANY;
-
-	TerrainViewPattern();
-
-	/// The pattern data can be visualized as a 3x3 matrix:
-	/// [ ][ ][ ]
-	/// [ ][ ][ ]
-	/// [ ][ ][ ]
-	///
-	/// The box in the center belongs always to the native terrain type and
-	/// is the point of origin. Depending on the terrain type different rules
-	/// can be used. Their meaning differs also from type to type.
-	///
-	/// std::vector -> several rules can be used in one cell
-	std::array<std::vector<WeightedRule>, PATTERN_DATA_SIZE> data;
-
-	/// The identifier of the pattern, if it's referenced from a another pattern.
-	std::string id;
-
-	/// This describes the mapping between this pattern and the corresponding range of frames
-	/// which should be used for the ter view.
-	///
-	/// std::vector -> size=1: typical, size=2: if this pattern should map to two different types of borders
-	/// std::pair   -> 1st value: lower range, 2nd value: upper range
-	std::vector<std::pair<int, int> > mapping;
-	/// If diffImages is true, different images/frames are used to place a rotated terrain view. If it's false
-	/// the same frame will be used and rotated.
-	bool diffImages;
-	/// The rotationTypesCount is only used if diffImages is true and holds the number how many rotation types(horizontal, etc...)
-	/// are supported.
-	int rotationTypesCount;
-
-	/// The minimum and maximum points to reach to validate the pattern successfully.
-	int minPoints, maxPoints;
-};
-
-/// The terrain view pattern config loads pattern data from the filesystem.
-class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
-{
-public:
-	typedef std::vector<TerrainViewPattern> TVPVector;
-
-	CTerrainViewPatternConfig();
-	~CTerrainViewPatternConfig();
-
-	const std::vector<TVPVector> & getTerrainViewPatterns(const Terrain & terrain) const;
-	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(std::string patternId, const std::string & id) const;
-	boost::optional<const TVPVector &> getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const;
-	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
-	void flipPattern(TerrainViewPattern & pattern, int flip) const;
-
-private:
-	std::map<std::string, std::vector<TVPVector> > terrainViewPatterns;
-	std::map<std::string, TVPVector> terrainTypePatterns;
-};
-
-/// The CDrawTerrainOperation class draws a terrain area on the map.
-class CDrawTerrainOperation : public CMapOperation
-{
-public:
-	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, Terrain terType, CRandomGenerator * gen);
-
-	void execute() override;
-	void undo() override;
-	void redo() override;
-	std::string getLabel() const override;
-
-private:
-	struct ValidationResult
-	{
-		ValidationResult(bool result, const std::string & transitionReplacement = "");
-
-		bool result;
-		/// The replacement of a T rule, either D or S.
-		std::string transitionReplacement;
-		int flip;
-	};
-
-	struct InvalidTiles
-	{
-		std::set<int3> foreignTiles, nativeTiles;
-		bool centerPosValid;
-
-		InvalidTiles() : centerPosValid(false) { }
-	};
-
-	void updateTerrainTypes();
-	void invalidateTerrainViews(const int3 & centerPos);
-	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
-
-	void updateTerrainViews();
-	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
-	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
-	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
-	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
-
-	CTerrainSelection terrainSel;
-	Terrain terType;
-	CRandomGenerator * gen;
-	std::set<int3> invalidatedTerViews;
-};
-
-class DLL_LINKAGE CTerrainViewPatternUtils
-{
-public:
-	static void printDebuggingInfoAboutTile(const CMap * map, int3 pos);
-};
-
-/// The CClearTerrainOperation clears+initializes the terrain.
-class CClearTerrainOperation : public CComposedOperation
-{
-public:
-	CClearTerrainOperation(CMap * map, CRandomGenerator * gen);
-
-	std::string getLabel() const override;
-
-private:
-
-};
-
-/// The CInsertObjectOperation class inserts an object to the map.
-class CInsertObjectOperation : public CMapOperation
-{
-public:
-	CInsertObjectOperation(CMap * map, CGObjectInstance * obj);
-
-	void execute() override;
-	void undo() override;
-	void redo() override;
-	std::string getLabel() const override;
-
-private:
-	CGObjectInstance * obj;
-};
+VCMI_LIB_NAMESPACE_END

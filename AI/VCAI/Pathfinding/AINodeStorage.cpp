@@ -20,7 +20,7 @@
 AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
 {
-	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]);
+	nodes.resize(boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][NUM_CHAINS]);
 	dangerEvaluator.reset(new FuzzyHelper());
 }
 
@@ -28,8 +28,6 @@ AINodeStorage::~AINodeStorage() = default;
 
 void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
-	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
-
 	int3 pos;
 	const int3 sizes = gs->getMapSize();
 	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
@@ -39,17 +37,17 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 	const bool useFlying = options.useFlying;
 	const bool useWaterWalking = options.useWaterWalking;
 
-	for(pos.x=0; pos.x < sizes.x; ++pos.x)
+	for(pos.z=0; pos.z < sizes.z; ++pos.z)
 	{
-		for(pos.y=0; pos.y < sizes.y; ++pos.y)
+		for(pos.x=0; pos.x < sizes.x; ++pos.x)
 		{
-			for(pos.z=0; pos.z < sizes.z; ++pos.z)
+			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile * tile = &gs->map->getTile(pos);
-				if(!tile->terType.isPassable())
+				const TerrainTile & tile = gs->map->getTile(pos);
+				if(!tile.terType->isPassable())
 					continue;
 				
-				if(tile->terType.isWater())
+				if(tile.terType->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -87,7 +85,7 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 
 boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
-	auto chains = nodes[pos.x][pos.y][pos.z][layer];
+	auto chains = nodes[layer][pos.z][pos.x][pos.y];
 
 	for(AIPathNode & node : chains)
 	{
@@ -126,7 +124,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 {
 	for(int i = 0; i < NUM_CHAINS; i++)
 	{
-		AIPathNode & heroNode = nodes[coord.x][coord.y][coord.z][layer][i];
+		AIPathNode & heroNode = nodes[layer][coord.z][coord.x][coord.y][i];
 
 		heroNode.chainMask = 0;
 		heroNode.danger = 0;
@@ -290,7 +288,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 {
 	auto pos = destination.coord;
-	auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
+	auto chains = nodes[EPathfindingLayer::LAND][pos.z][pos.x][pos.y];
 	auto destinationNode = getAINode(destination.node);
 
 	for(const AIPathNode & node : chains)
@@ -323,7 +321,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const
 {
-	const AIPathNode & node = nodes[pos.x][pos.y][pos.z][layer][0];
+	const AIPathNode & node = nodes[layer][pos.z][pos.x][pos.y][0];
 
 	return node.action != CGPathNode::ENodeAction::UNKNOWN;
 }
@@ -331,7 +329,7 @@ bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer l
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;
-	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
+	auto chains = nodes[isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL][pos.z][pos.x][pos.y];
 	auto initialPos = hero->visitablePos();
 
 	for(const AIPathNode & node : chains)

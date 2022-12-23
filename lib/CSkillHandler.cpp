@@ -22,6 +22,8 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///CSkill
 CSkill::LevelInfo::LevelInfo()
 {
@@ -68,9 +70,9 @@ void CSkill::registerIcons(const IconRegistar & cb) const
 	{
 		int frame = 2 + level + 3 * id;
 		const LevelInfo & skillAtLevel = at(level);
-		cb(frame, "SECSK32", skillAtLevel.iconSmall);
-		cb(frame, "SECSKILL", skillAtLevel.iconMedium);
-		cb(frame, "SECSK82", skillAtLevel.iconLarge);
+		cb(frame, 0, "SECSK32", skillAtLevel.iconSmall);
+		cb(frame, 0, "SECSKILL", skillAtLevel.iconMedium);
+		cb(frame, 0, "SECSK82", skillAtLevel.iconLarge);
 	}
 }
 
@@ -265,7 +267,7 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 
 si32 CSkillHandler::decodeSkill(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "skill", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "skill", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -281,3 +283,5 @@ std::string CSkillHandler::encodeSkillWithType(const si32 index)
 {
 	return CModHandler::makeFullIdentifier("", "skill", encodeSkill(index));
 }
+
+VCMI_LIB_NAMESPACE_END

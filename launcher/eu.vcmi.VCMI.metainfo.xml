@@ -35,9 +35,11 @@
 		</screenshot>
 	</screenshots>
 	<url type="homepage">https://vcmi.eu/</url>
-	<url type="bugtracker">https://bugs.vcmi.eu/</url>
+	<url type="bugtracker">https://github.com/vcmi/vcmi/issues</url>
 	<url type="faq">https://vcmi.eu/faq/</url>
 	<releases>
+		<release version="1.1.0" date="2022-12-23" />
+		<release version="1.0.0" date="2022-09-11" />
 		<release version="0.99" date="2016-11-01" />
 	</releases>
 	<developer_name>VCMI Team</developer_name>
@@ -50,6 +52,7 @@
 	<provides>
 		<binary>vcmibuilder</binary>
 		<binary>vcmiclient</binary>
+		<binary>vcmieditor</binary>
 		<binary>vcmilauncher</binary>
 		<binary>vcmiserver</binary>
 	</provides>

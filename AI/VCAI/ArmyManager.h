@@ -28,6 +28,7 @@ struct SlotInfo
 class DLL_EXPORT IArmyManager //: public: IAbstractManager
 {
 public:
+	virtual ~IArmyManager() = default;
 	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
 	virtual void setAI(VCAI * AI) = 0;
 	virtual bool canGetArmy(const CArmedInstance * target, const CArmedInstance * source) const = 0;

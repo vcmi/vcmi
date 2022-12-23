@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ResourceID;
 
 class CMap;
@@ -171,3 +173,5 @@ public:
 
 	 virtual ~IMapSaver(){}
 };
+
+VCMI_LIB_NAMESPACE_END

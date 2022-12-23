@@ -27,6 +27,8 @@
 #include "WaterAdopter.h"
 #include "RmgArea.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void WaterProxy::process()
 {
 	for(auto & t : zone.area().getTilesVector())
@@ -41,7 +43,7 @@ void WaterProxy::process()
 	for(auto & t : zone.area().getTilesVector())
 	{
 		assert(map.isOnMap(t));
-		assert(map.map().getTile(t).terType == zone.getTerrainType());
+		assert(map.map().getTile(t).terType->id == zone.getTerrainType());
 	}
 	
 	for(auto z : map.getZones())
@@ -51,7 +53,7 @@ void WaterProxy::process()
 		
 		for(auto & t : z.second->area().getTilesVector())
 		{
-			if(map.map().getTile(t).terType == zone.getTerrainType())
+			if(map.map().getTile(t).terType->id == zone.getTerrainType())
 			{
 				z.second->areaPossible().erase(t);
 				z.second->area().erase(t);
@@ -200,7 +202,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		return false;
 	
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create(ObjectTemplate());
+	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create();
 	
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
@@ -259,7 +261,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		return false;
 	
 	int subtype = chooseRandomAppearance(generator.rand, Obj::SHIPYARD, land.getTerrainType());
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(ObjectTemplate());
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create();
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	rmg::Object rmgObject(*shipyard);
@@ -358,3 +360,5 @@ char WaterProxy::dump(const int3 & t)
 	
 	return '~';
 }
+
+VCMI_LIB_NAMESPACE_END

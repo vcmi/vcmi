@@ -12,6 +12,8 @@
 #include "Zone.h"
 #include "../mapObjects/ObjectTemplate.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
@@ -19,14 +21,14 @@ class CMapGenerator;
 
 struct ObjectInfo
 {
-	ObjectTemplate templ;
+	std::shared_ptr<const ObjectTemplate> templ;
 	ui32 value = 0;
 	ui16 probability = 0;
 	ui32 maxPerZone = -1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
-	void setTemplate(si32 type, si32 subtype, Terrain terrain);
+	void setTemplate(si32 type, si32 subtype, TerrainId terrain);
 	
 	ObjectInfo();
 	
@@ -65,3 +67,5 @@ protected:
 	
 	Zone * questArtZone = nullptr; //artifacts required for Seer Huts will be placed here - or not if null
 };
+
+VCMI_LIB_NAMESPACE_END

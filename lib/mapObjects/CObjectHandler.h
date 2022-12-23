@@ -15,6 +15,8 @@
 #include "../int3.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class IGameCallback;
 class CGObjectInstance;
@@ -123,7 +125,7 @@ public:
 	/// Index of object in map's list of objects
 	ObjectInstanceID id;
 	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
-	ObjectTemplate appearance;
+	std::shared_ptr<const ObjectTemplate> appearance;
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
@@ -197,6 +199,7 @@ public:
 	void setProperty(ui8 what, ui32 val) override final;
 
 	virtual void afterAddToMap(CMap * map);
+	virtual void afterRemoveFromMap(CMap * map);
 
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -254,3 +257,5 @@ public:
 		h & resVals;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

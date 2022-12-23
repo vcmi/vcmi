@@ -17,6 +17,8 @@
 #include "../../battle/CUnitState.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:clone";
 
 namespace spells
@@ -137,3 +139,5 @@ void Clone::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

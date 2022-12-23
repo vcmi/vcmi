@@ -37,7 +37,9 @@ void CGameInfo::setFromLib()
 	spellh = VLC->spellh;
 	skillh = VLC->skillh;
 	objtypeh = VLC->objtypeh;
+	terrainTypeHandler = VLC->terrainTypeHandler;
 	battleFieldHandler = VLC->battlefieldsHandler;
+	obstacleHandler = VLC->obstacleHandler;
 }
 
 const ArtifactService * CGameInfo::artifacts() const
@@ -70,10 +72,12 @@ const HeroTypeService * CGameInfo::heroTypes() const
 	return globalServices->heroTypes();
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * CGameInfo::scripts()  const
 {
 	return globalServices->scripts();
 }
+#endif
 
 const spells::Service * CGameInfo::spells()  const
 {
@@ -83,6 +87,11 @@ const spells::Service * CGameInfo::spells()  const
 const SkillService * CGameInfo::skills() const
 {
 	return globalServices->skills();
+}
+
+const ObstacleService * CGameInfo::obstacles() const
+{
+	return globalServices->obstacles();
 }
 
 void CGameInfo::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)

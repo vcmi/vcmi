@@ -19,6 +19,8 @@
 #include "../../../lib/battle/Unit.h"
 #include "../../../lib/BattleFieldHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -86,7 +88,7 @@ int BattleCbProxy::getTerrainType(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	return LuaStack::quickRetStr(L, object->battleTerrainType());
+	return LuaStack::quickRetInt(L, object->battleTerrainType());
 }
 
 int BattleCbProxy::getUnitByPos(lua_State * L)
@@ -114,3 +116,5 @@ int BattleCbProxy::getUnitByPos(lua_State * L)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

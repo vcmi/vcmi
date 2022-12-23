@@ -15,6 +15,8 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../../Global.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStackInstance;
 class FileStream;
 
@@ -382,13 +384,24 @@ public:
 			else
 			{
 				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
-				data = hlp; //possibly adds const
+				data = hlp;
 				loadedSharedPointers[internalPtrDerived] = typeList.castSharedToMostDerived(hlp);
 			}
 		}
 		else
 			data.reset();
 	}
+
+	template <typename T>
+	void load(std::shared_ptr<const T> & data)
+	{
+		std::shared_ptr<T> nonConstData;
+
+		load(nonConstData);
+
+		data = nonConstData;
+	}
+
 	template <typename T>
 	void load(std::unique_ptr<T> &data)
 	{
@@ -510,6 +523,20 @@ public:
 			data = boost::optional<T>();
 		}
 	}
+
+	template <typename T>
+	void load(boost::multi_array<T, 3> & data)
+	{
+		ui32 length = readAndCheckLength();
+		ui32 x, y, z;
+		load(x);
+		load(y);
+		load(z);
+		data.resize(boost::extents[x][y][z]);
+		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
+		for(ui32 i = 0; i < length; i++)
+			load(data.data()[i]);
+	}
 };
 
 class DLL_LINKAGE CLoadFile : public IBinaryReader
@@ -537,3 +564,5 @@ public:
 		return * this;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

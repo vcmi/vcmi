@@ -275,8 +275,31 @@ void EraseArtifact::applyCl(CClient *cl)
 void MoveArtifact::applyCl(CClient *cl)
 {
 	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
+	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
 	if(src.owningPlayer() != dst.owningPlayer())
+	{
 		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
+		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
+	}
+}
+
+void BulkMoveArtifacts::applyCl(CClient * cl)
+{
+	auto applyMove = [this, cl](std::vector<LinkedSlots> & artsPack) -> void
+	{
+		for(auto & slotToMove : artsPack)
+		{
+			auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
+			auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
+			callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			if(srcLoc.owningPlayer() != dstLoc.owningPlayer())
+				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+		}
+	};
+
+	applyMove(artsPack0);
+	if(swap)
+		applyMove(artsPack1);
 }
 
 void AssembledArtifact::applyCl(CClient *cl)
@@ -343,6 +366,34 @@ void PlayerEndsGame::applyCl(CClient *cl)
 	// In auto testing mode we always close client if red player won or lose
 	if(!settings["session"]["testmap"].isNull() && player == PlayerColor(0))
 		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+}
+
+void PlayerReinitInterface::applyCl(CClient * cl)
+{
+	auto initInterfaces = [cl]()
+	{
+		cl->initPlayerInterfaces();
+		auto currentPlayer = cl->gameState()->currentPlayer;
+		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
+		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+	};
+	
+	for(auto player : players)
+	{
+		auto & plSettings = CSH->si->getIthPlayersSettings(player);
+		if(playerConnectionId == PlayerSettings::PLAYER_AI)
+		{
+			plSettings.connectedPlayerIDs.clear();
+			cl->initPlayerEnvironments();
+			initInterfaces();
+		}
+		else if(playerConnectionId == CSH->c->connectionID)
+		{
+			plSettings.connectedPlayerIDs.insert(playerConnectionId);
+			cl->playerint.clear();
+			initInterfaces();
+		}
+	}
 }
 
 void RemoveBonus::applyCl(CClient *cl)
@@ -790,7 +841,11 @@ void YourTurn::applyCl(CClient *cl)
 void SaveGameClient::applyCl(CClient *cl)
 {
 	const auto stem = FileInfo::GetPathStem(fname);
-	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
+	if(!CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1"))
+	{
+		logNetwork->error("Failed to create resource %s", stem.to_string() + ".vcgm1");
+		return;
+	}
 
 	try
 	{

@@ -13,6 +13,12 @@
 #include "common.h"
 #include "StackWithBonuses.h"
 
+#define BATTLE_TRACE_LEVEL 0
+
+/// <summary>
+/// Evaluate attack value of one particular attack taking into account various effects like
+/// retaliation, 2-hex breath, collateral damage, shooters blocked damage
+/// </summary>
 class AttackPossibility
 {
 public:
@@ -24,9 +30,9 @@ public:
 
 	std::vector<std::shared_ptr<battle::CUnitState>> affectedUnits;
 
-	int64_t damageDealt = 0;
-	int64_t damageReceived = 0; //usually by counter-attack
-	int64_t collateralDamage = 0; // friendly fire (usually by two-hex attacks)
+	int64_t defenderDamageReduce = 0;
+	int64_t attackerDamageReduce = 0; //usually by counter-attack
+	int64_t collateralDamageReduce = 0; // friendly fire (usually by two-hex attacks)
 	int64_t shootersBlockedDmg = 0;
 
 	AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack_);
@@ -34,8 +40,14 @@ public:
 	int64_t damageDiff() const;
 	int64_t attackValue() const;
 
-	static AttackPossibility evaluate(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle * state);
+	static AttackPossibility evaluate(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state);
+
+	static int64_t calculateDamageReduce(
+		const battle::Unit * attacker,
+		const battle::Unit * defender,
+		uint64_t damageDealt,
+		const CBattleInfoCallback & cb);
 
 private:
-	static int64_t evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle * state);
+	static int64_t evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state);
 };

@@ -20,6 +20,8 @@
 
 #include "CObjectClassesHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)
@@ -446,6 +448,11 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 		triggerRewardReset();
 }
 
+void CRewardableObject::initObj(CRandomGenerator & rand)
+{
+	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+}
+
 CRewardableObject::CRewardableObject():
 	selectMode(0),
 	visitMode(0),
@@ -845,17 +852,16 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 	case Obj::WARRIORS_TOMB:
 		{
 			onSelect.addTxt(MetaString::ADVOB_TXT, 161);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 163);
 
-			info.resize(2);
+			info.resize(1);
 			loadRandomArtifact(rand, info[0], 30, 50, 25, 5);
 
 			Bonus bonus(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::OBJECT, -3, ID);
 			info[0].reward.bonuses.push_back(bonus);
-			info[1].reward.bonuses.push_back(bonus);
 			info[0].limiter.numOfGrants = 1;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
 			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
-			info[1].message.addTxt(MetaString::ADVOB_TXT, 163);
 		}
 		break;
 	case Obj::WAGON:
@@ -964,22 +970,22 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			break;
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		{
+			selectMode = SELECT_FIRST;
 			onVisited.addTxt(MetaString::ADVOB_TXT, 67);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 68);
 
-			// Don't like this one but don't see any easier approach
 			CVisitInfo visit;
 			visit.reward.primary[PrimarySkill::ATTACK] = 2;
 			visit.reward.primary[PrimarySkill::DEFENSE] = 2;
 			visit.reward.primary[PrimarySkill::KNOWLEDGE] = 2;
 			visit.reward.primary[PrimarySkill::SPELL_POWER] = 2;
+			visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 
 			static_assert(SecSkillLevel::LEVELS_SIZE == 4, "Behavior of Library of Enlignment may not be correct");
 			for (int i=0; i<SecSkillLevel::LEVELS_SIZE; i++)
 			{
 				visit.limiter.minLevel = 10 - i * 2;
 				visit.limiter.secondary[SecondarySkill::DIPLOMACY] = i;
-				visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 				info.push_back(visit);
 			}
 			break;
@@ -1122,7 +1128,7 @@ std::vector<int3> CGMagicSpring::getVisitableOffsets() const
 
 	for(int y = 0; y < 6; y++)
 		for (int x = 0; x < 8; x++) //starting from left
-			if (appearance.isVisitableAt(x, y))
+			if (appearance->isVisitableAt(x, y))
 				visitableTiles.push_back (int3(x, y , 0));
 
 	return visitableTiles;
@@ -1159,3 +1165,5 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	// hero is either not on visitable tile (should not happen) or tile is already used
 	return std::vector<ui32>();
 }
+
+VCMI_LIB_NAMESPACE_END

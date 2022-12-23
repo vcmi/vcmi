@@ -134,3 +134,16 @@ function(install_vcpkg_imported_tgt tgt)
 	message("${tgt_name}: ${TGT_DLL}")
 	install(FILES ${TGT_DLL} DESTINATION ${BIN_DIR})
 endfunction(install_vcpkg_imported_tgt)
+
+# install dependencies from Conan, install_dir should contain \${CMAKE_INSTALL_PREFIX}
+function(vcmi_install_conan_deps install_dir)
+	if(NOT USING_CONAN)
+		return()
+	endif()
+	install(CODE "
+		execute_process(COMMAND
+			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CONAN_INSTALL_FOLDER}\" --import-folder \"${install_dir}\"
+		)
+		file(REMOVE \"${install_dir}/conan_imports_manifest.txt\")
+	")
+endfunction()

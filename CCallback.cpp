@@ -181,6 +181,12 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition
 	return true;
 }
 
+void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+{
+	BulkExchangeArtifacts bma(srcHero, dstHero, swap);
+	sendRequest(&bma);
+}
+
 bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=player)
@@ -284,6 +290,8 @@ void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * cu
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	PlayerMessage pm(mess, currentObject? currentObject->id : ObjectInstanceID(-1));
+	if(player)
+		pm.player = *player;
 	sendRequest(&pm);
 }
 
@@ -324,7 +332,7 @@ int3 CCallback::getGuardingCreaturePosition(int3 tile)
 	if (!gs->map->isInTheMap(tile))
 		return int3(-1,-1,-1);
 
-	return gs->map->guardingCreaturePositions[tile.x][tile.y][tile.z];
+	return gs->map->guardingCreaturePositions[tile.z][tile.x][tile.y];
 }
 
 void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
@@ -366,10 +374,12 @@ void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver>
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * CBattleCallback::getContextPool() const
 {
 	return cl->getGlobalContextPool();
 }
+#endif
 
 CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C )
 {
@@ -384,4 +394,10 @@ bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 	ma.ba = *action;
 	sendRequest(&ma);
 	return true;
+}
+
+boost::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(
+	const BattleStateInfoForRetreat & battleState)
+{
+	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision(battleState);
 }

@@ -12,9 +12,17 @@
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGWitchHut;
+
+VCMI_LIB_NAMESPACE_END
+
+namespace NKAI
+{
+
 class BuildingInfo;
 class Nullkiller;
-class CGWitchHut;
 
 class RewardEvaluator
 {
@@ -61,6 +69,7 @@ struct DLL_EXPORT EvaluationContext
 class IEvaluationContextBuilder
 {
 public:
+	virtual ~IEvaluationContextBuilder() = default;
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal goal) const = 0;
 };
 
@@ -99,3 +108,5 @@ private:
 
 	EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;
 };
+
+}

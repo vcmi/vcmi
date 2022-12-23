@@ -18,6 +18,8 @@
 
 #include "battle/CUnitState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleStackAttacked;
 class BattleInfo;
 
@@ -29,7 +31,7 @@ public:
 
 	ui32 ID; //unique ID of stack
 	const CCreature * type;
-	Terrain nativeTerrain; //tmp variable to save native terrain value on battle init
+	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
@@ -51,7 +53,7 @@ public:
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
-	bool isOnTerrain(const Terrain & terrain) const;
+	bool isOnTerrain(TerrainId terrain) const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
@@ -139,3 +141,5 @@ public:
 private:
 	const BattleInfo * battle; //do not serialize
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -26,6 +26,8 @@
 #include "../CPlayerState.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
@@ -1425,6 +1427,9 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGArtifact::afterAddToMap(CMap * map)
 {
+	//Artifacts from map objects are never removed
+	//FIXME: This should be revertible in map editor
+
 	if(ID == Obj::SPELL_SCROLL && storedArtifact && storedArtifact->id.getNum() < 0)
         map->addNewArtifactInstance(storedArtifact);
 }
@@ -1447,8 +1452,10 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 {
 	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
 	{
+		// Necromancy can't be learned on random maps
 		for(int i = 0; i < VLC->skillh->size(); i++)
-			allowedAbilities.push_back(i);
+			if(VLC->skillh->getByIndex(i)->getId() != SecondarySkill::NECROMANCY)
+				allowedAbilities.push_back(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
 }
@@ -1795,27 +1802,27 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		//TODO: unify
 		const JsonNode & json = handler.getCurrent();
 		bonusType = RANDOM;
-		if(json["rewardPrimSkill"].String() != "")
+		if(!json["rewardPrimSkill"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier("core", "primSkill", json["rewardPrimSkill"].String());
+			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "primSkill", json["rewardPrimSkill"].String());
 			if(raw)
 			{
 				bonusType = PRIM_SKILL;
 				bonusID = raw.get();
 			}
 		}
-		else if(json["rewardSkill"].String() != "")
+		else if(!json["rewardSkill"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier("core", "skill", json["rewardSkill"].String());
+			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "skill", json["rewardSkill"].String());
 			if(raw)
 			{
 				bonusType = SECONDARY_SKILL;
 				bonusID = raw.get();
 			}
 		}
-		else if(json["rewardSpell"].String() != "")
+		else if(!json["rewardSpell"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier("core", "spell", json["rewardSpell"].String());
+			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", json["rewardSpell"].String());
 			if(raw)
 			{
 				bonusType = SPELL;
@@ -2205,3 +2212,5 @@ void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	serializeJsonOwner(handler);
 }
+
+VCMI_LIB_NAMESPACE_END

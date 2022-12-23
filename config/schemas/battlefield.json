@@ -2,7 +2,7 @@
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI battlefield format",
-	"description" : "Format used to define new artifacts in VCMI",
+	"description" : "Format used to define new battlefields in VCMI",
 	"required" : [ "graphics" ],
 
 	"additionalProperties" : false,

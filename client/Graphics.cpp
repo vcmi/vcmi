@@ -101,7 +101,7 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
+	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{
 		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))
@@ -173,8 +173,8 @@ void Graphics::loadHeroAnimations()
 	{
 		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
-			if (!heroAnimations.count(templ.animationFile))
-				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
+			if (!heroAnimations.count(templ->animationFile))
+				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
 		}
 	}
 
@@ -381,21 +381,21 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
 	return getAnimation(obj->appearance);
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
+std::shared_ptr<CAnimation> Graphics::getAnimation(std::shared_ptr<const ObjectTemplate> info)
 {
 	//the only(?) invisible object
-	if(info.id == Obj::EVENT)
+	if(info->id == Obj::EVENT)
 	{
 		return std::shared_ptr<CAnimation>();
 	}
 
-	if(info.animationFile.empty())
+	if(info->animationFile.empty())
 	{
-		logGlobal->warn("Def name for obj (%d,%d) is empty!", info.id, info.subid);
+		logGlobal->warn("Def name for obj (%d,%d) is empty!", info->id, info->subid);
 		return std::shared_ptr<CAnimation>();
 	}
 
-	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info.animationFile];
+	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info->animationFile];
 
 	//already loaded
 	if(ret)
@@ -404,8 +404,8 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
 		return ret;
 	}
 
-	ret = std::make_shared<CAnimation>(info.animationFile);
-	mapObjectAnimations[info.animationFile] = ret;
+	ret = std::make_shared<CAnimation>(info->animationFile);
+	mapObjectAnimations[info->animationFile] = ret;
 
 	ret->preload();
 	return ret;
@@ -429,11 +429,13 @@ void Graphics::loadErmuToPicture()
 	assert (etp_idx == 44);
 }
 
-void Graphics::addImageListEntry(size_t index, const std::string & listName, const std::string & imageName)
+void Graphics::addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName)
 {
 	if (!imageName.empty())
 	{
 		JsonNode entry;
+		if (group != 0)
+			entry["group"].Integer() = group;
 		entry["frame"].Integer() = index;
 		entry["file"].String() = imageName;
 
@@ -443,7 +445,7 @@ void Graphics::addImageListEntry(size_t index, const std::string & listName, con
 
 void Graphics::addImageListEntries(const EntityService * service)
 {
-	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3);
+	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3, _4);
 
 	auto loopCb = [&](const Entity * entity, bool & stop)
 	{

@@ -19,6 +19,8 @@
 #include "spells/CSpellHandler.h"
 #include "NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ///CStack
 CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, SlotID S)
@@ -80,13 +82,14 @@ void CStack::localInit(BattleInfo * battleInfo)
 	exportBonuses();
 	if(base) //stack originating from "real" stack in garrison -> attach to it
 	{
-		attachTo(const_cast<CStackInstance *>(base));
+		attachTo(const_cast<CStackInstance&>(*base));
 	}
 	else //attach directly to obj to which stack belongs and creature type
 	{
 		CArmedInstance * army = battle->battleGetArmyObject(side);
-		attachTo(army);
-		attachTo(const_cast<CCreature *>(type));
+		assert(army);
+		attachTo(*army);
+		attachTo(const_cast<CCreature&>(*type));
 	}
 	nativeTerrain = type->getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
@@ -304,6 +307,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 			res.push_back(otherDefenderPos);
 		}
 	}
+	UNUSED(mask);
 
 	return res;
 }
@@ -328,11 +332,11 @@ bool CStack::canBeHealed() const
 bool CStack::isOnNativeTerrain() const
 {
 	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == Terrain::ANY || nativeTerrain == battle->getTerrainType();
+	auto res = nativeTerrain == Terrain::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
 	return res;
 }
 
-bool CStack::isOnTerrain(const Terrain & terrain) const
+bool CStack::isOnTerrain(TerrainId terrain) const
 {
 	return battle->getTerrainType() == terrain;
 }
@@ -410,3 +414,5 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	ssp.absolute = false;
 	server->apply(&ssp);
 }
+
+VCMI_LIB_NAMESPACE_END

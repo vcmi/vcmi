@@ -13,17 +13,22 @@
 #include "../lib/GameConstants.h"
 #include "gui/Geometries.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGTownInstance;
 class CHeroClass;
-struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
 class CGObjectInstance;
 class ObjectTemplate;
-class CAnimation;
 class EntityService;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
+struct SDL_Color;
+class CAnimation;
 
 enum EFonts
 {
@@ -33,7 +38,7 @@ enum EFonts
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
 {
-	void addImageListEntry(size_t index, const std::string & listName, const std::string & imageName);
+	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 
 	void addImageListEntries(const EntityService * service);
 
@@ -98,7 +103,7 @@ public:
 	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
 
 	std::shared_ptr<CAnimation> getAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getAnimation(const ObjectTemplate & info);
+	std::shared_ptr<CAnimation> getAnimation(std::shared_ptr<const ObjectTemplate> info);
 };
 
 extern Graphics * graphics;

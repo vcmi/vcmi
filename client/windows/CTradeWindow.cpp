@@ -192,7 +192,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);
-				subtitle = "";
+				subtitle.clear();
 				aw->deal->block(!aw->arts->artifactsOnAltar.size());
 			}
 
@@ -676,6 +676,10 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
 			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+
+			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
+			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
+			images.push_back(std::make_shared<CPicture>(background->bg, Rect(20, 187, 47, 47), 18, 339 ));
 			sliderNeeded = false;
 			break;
 		default:

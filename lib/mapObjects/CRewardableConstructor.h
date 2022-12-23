@@ -14,6 +14,8 @@
 
 #include "../JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
@@ -49,9 +51,11 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 public:
 	CRewardableConstructor();
 
-	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
+	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
-	std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const override;
+	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 };
+
+VCMI_LIB_NAMESPACE_END

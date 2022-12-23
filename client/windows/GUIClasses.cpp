@@ -15,6 +15,7 @@
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
 #include "CreatureCostBox.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -36,7 +37,6 @@
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../lobby/CSavingScreen.h"
 
@@ -438,6 +438,11 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
+static std::string resolutionToString(int w, int h)
+{
+	return std::to_string(w) + 'x' + std::to_string(h);
+}
+
 CSystemOptionsWindow::CSystemOptionsWindow()
 	: CWindowObject(PLAYER_COLORED, "SysOpBck"),
 	onFullscreenChanged(settings.listen["video"]["fullscreen"])
@@ -550,11 +555,8 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 
 	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
-	std::string resText;
-	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
-	resText += "x";
-	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["height"].Float());
-	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resText);
+	const auto & screenRes = settings["video"]["screenRes"];
+	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
 }
 
 void CSystemOptionsWindow::selectGameRes()
@@ -562,14 +564,29 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
-	for( config::CConfigHandler::GuiOptionsMap::value_type& value : conf.guiOptions)
+#ifndef VCMI_IOS
+	SDL_Rect displayBounds;
+	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+#endif
+
+	size_t currentResolutionIndex = 0;
+	size_t i = 0;
+	for(const auto & it : conf.guiOptions)
 	{
-		std::string resX = boost::lexical_cast<std::string>(value.first.first);
-		std::string resY = boost::lexical_cast<std::string>(value.first.second);
-		items.push_back(resX + 'x' + resY);
+		const auto & resolution = it.first;
+#ifndef VCMI_IOS
+		if(displayBounds.w < resolution.first || displayBounds.h < resolution.second)
+			continue;
+#endif
+
+		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
+		if(gameResLabel->text == resolutionStr)
+			currentResolutionIndex = i;
+		items.push_back(std::move(resolutionStr));
+		++i;
 	}
 
-	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1));
+	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1), currentResolutionIndex);
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -855,41 +872,6 @@ std::function<void()> CExchangeController::onMoveArmyToRight()
 	return [&]() { moveArmy(true); };
 }
 
-void CExchangeController::swapArtifacts(ArtifactPosition slot)
-{
-	bool leftHasArt = !left->isPositionFree(slot);
-	bool rightHasArt = !right->isPositionFree(slot);
-
-	if(!leftHasArt && !rightHasArt)
-		return;
-
-	ArtifactLocation leftLocation = ArtifactLocation(left, slot);
-	ArtifactLocation rightLocation = ArtifactLocation(right, slot);
-
-	if(leftHasArt && !left->artifactsWorn.at(slot).artifact->canBePutAt(rightLocation, true))
-		return;
-
-	if(rightHasArt && !right->artifactsWorn.at(slot).artifact->canBePutAt(leftLocation, true))
-		return;
-
-	if(leftHasArt)
-	{
-		if(rightHasArt)
-		{
-			auto art = right->getArt(slot);
-
-			cb->swapArtifacts(leftLocation, rightLocation);
-			cb->swapArtifacts(ArtifactLocation(right, right->getArtPos(art)), leftLocation);
-		}
-		else
-			cb->swapArtifacts(leftLocation, rightLocation);
-	}
-	else
-	{
-		cb->swapArtifacts(rightLocation, leftLocation);
-	}
-}
-
 std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 {
 	std::vector<CArtifactInstance *> result;
@@ -902,92 +884,13 @@ std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 	return result;
 }
 
-const std::vector<ArtifactPosition> unmovablePositions = {ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4};
-
-bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
-{
-	return slot.second.artifact
-		&& !slot.second.locked
-		&& !vstd::contains(unmovablePositions, slot.first);
-}
-
-// Puts all composite arts to backpack and returns their previous location
-std::vector<HeroArtifact> CExchangeController::moveCompositeArtsToBackpack()
-{
-	std::vector<const CGHeroInstance *> sides = {left, right};
-	std::vector<HeroArtifact> artPositions;
-
-	for(auto hero : sides)
-	{
-		for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-		{
-			auto artPosition = ArtifactPosition(i);
-			auto art = hero->getArt(artPosition);
-
-			if(art && art->canBeDisassembled())
-			{
-				cb->swapArtifacts(
-					ArtifactLocation(hero, artPosition),
-					ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
-
-				artPositions.push_back(HeroArtifact(hero, art, artPosition));
-			}
-		}
-	}
-
-	return artPositions;
-}
-
-void CExchangeController::swapArtifacts()
-{
-	for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-	{
-		if(vstd::contains(unmovablePositions, i))
-			continue;
-
-		swapArtifacts(ArtifactPosition(i));
-	}
-
-	auto leftHeroBackpack = getBackpackArts(left);
-	auto rightHeroBackpack = getBackpackArts(right);
-
-	for(auto leftArt : leftHeroBackpack)
-	{
-		cb->swapArtifacts(
-			ArtifactLocation(left, left->getArtPos(leftArt)),
-			ArtifactLocation(right, ArtifactPosition(GameConstants::BACKPACK_START)));
-	}
-
-	for(auto rightArt : rightHeroBackpack)
-	{
-		cb->swapArtifacts(
-			ArtifactLocation(right, right->getArtPos(rightArt)),
-			ArtifactLocation(left, ArtifactPosition(GameConstants::BACKPACK_START)));
-	}
-}
-
 std::function<void()> CExchangeController::onSwapArtifacts()
 {
 	return [&]()
 	{
 		GsThread::run([=]
 		{
-			// it is not possible directly exchange composite artifacts like Angelic Alliance and Armor of Damned
-			auto compositeArtLocations = moveCompositeArtsToBackpack();
-
-			swapArtifacts();
-
-			for(HeroArtifact artLocation : compositeArtLocations)
-			{
-				auto target = artLocation.hero == left ? right : left;
-				auto currentPos = target->getArtPos(artLocation.artifact);
-
-				cb->swapArtifacts(
-					ArtifactLocation(target, currentPos),
-					ArtifactLocation(target, artLocation.artPosition));
-			}
-
-			view->redraw();
+			cb->bulkMoveArtifacts(left->id, right->id, true);
 		});
 	};
 }
@@ -1143,20 +1046,8 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 	}
 
 	GsThread::run([=]
-	{	
-		while(vstd::contains_if(source->artifactsWorn, isArtRemovable))
-		{
-			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), isArtRemovable);
-
-			moveArtifact(source, target, art->first);
-		}
-
-		while(!source->artifactsInBackpack.empty())
-		{
-			moveArtifact(source, target, source->getArtPos(source->artifactsInBackpack.begin()->artifact));
-		}
-
-		view->redraw();
+	{
+		cb->bulkMoveArtifacts(source->id, target->id, false);
 	});
 }
 
@@ -1165,26 +1056,11 @@ void CExchangeController::moveArtifact(
 	const CGHeroInstance * target,
 	ArtifactPosition srcPosition)
 {
-	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
+	auto dstLocation = ArtifactLocation(target,
+		ArtifactUtils::getArtifactDstPosition(source->getArt(srcPosition), target, target->bearerType()));
 
-	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
-	{
-		auto existingArtifact = target->getArt(slot);
-		auto existingArtInfo = target->getSlot(slot);
-		ArtifactLocation destLocation(target, slot);
-
-		if(!existingArtifact
-			&& (!existingArtInfo || !existingArtInfo->locked)
-			&& artifact->canBePutAt(destLocation))
-		{
-			cb->swapArtifacts(srcLocation, ArtifactLocation(target, slot));
-			
-			return;
-		}
-	}
-
-	cb->swapArtifacts(srcLocation, ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START)));
+	cb->swapArtifacts(srcLocation, dstLocation);
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
@@ -1286,7 +1162,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			int skill = hero->secSkills[g].first,
 				level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + qeLayout ? 83 : 88);
+			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + (qeLayout ? 83 : 88));
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -1301,12 +1177,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
-		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + qeLayout ? 41 : 45);
+		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialtyAreas[b]->text = hero->type->specDescr;
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
-		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + qeLayout ? 41 : 45);
+		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
@@ -1314,7 +1190,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
-		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + qeLayout ? 41 : 45);
+		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->name);
@@ -1514,7 +1390,7 @@ void CPuzzleWindow::showAll(SDL_Surface * to)
 	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 	int3 topTile = grailPos - moveInt;
 
-	MapDrawingInfo info(topTile, &LOCPLINT->cb->getVisibilityMap(), &mapRect);
+	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), &mapRect);
 	info.puzzleMode = true;
 	info.grailPos = grailPos;
 	CGI->mh->drawTerrainRectNew(to, &info);
@@ -1683,9 +1559,7 @@ int CUniversityWindow::CItem::state()
 {
 	if(parent->hero->getSecSkillLevel(SecondarySkill(ID)))//hero know this skill
 		return 1;
-	if(!parent->hero->canLearnSkill())//can't learn more skills
-		return 0;
-	if(parent->hero->type->heroClass->secSkillProbability[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
+	if(!parent->hero->canLearnSkill(SecondarySkill(ID)))//can't learn more skills
 		return 0;
 	return 2;
 }
@@ -2202,10 +2076,10 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
-	selected(0)
+	selected(initialSelection)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -2217,10 +2091,10 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
-	selected(0)
+	selected(initialSelection)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());

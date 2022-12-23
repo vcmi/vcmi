@@ -10,12 +10,13 @@
 #include "StdInc.h"
 #include "CGarrisonInt.h"
 
+#include "Buttons.h"
+#include "TextControls.h"
+
 #include "../gui/CGuiHandler.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/TextControls.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 

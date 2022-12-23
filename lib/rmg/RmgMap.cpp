@@ -30,6 +30,8 @@
 #include "Functions.h"
 #include "CMapGenerator.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
@@ -73,8 +75,8 @@ void RmgMap::initTiles(CMapGenerator & generator)
 {
 	mapInstance->initTerrain();
 	
-	tiles.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->twoLevel ? 2 : 1]);
-	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->twoLevel ? 2 : 1]);
+	tiles.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->levels()]);
+	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->levels()]);
 	
 	//init native town count with 0
 	for (auto faction : VLC->townh->getAllowedFactions())
@@ -82,7 +84,7 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	
 	getEditManager()->clearTerrain(&generator.rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(Terrain("grass"), &generator.rand);
+	getEditManager()->drawTerrain(Terrain::GRASS, &generator.rand);
 	
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -229,7 +231,7 @@ void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-void RmgMap::setRoad(const int3& tile, const std::string & roadType)
+void RmgMap::setRoad(const int3& tile, RoadId roadType)
 {
 	assertOnMap(tile);
 	
@@ -302,7 +304,7 @@ void RmgMap::dump(bool zoneId) const
 {
 	static int id = 0;
 	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
-	int levels = mapInstance->twoLevel ? 2 : 1;
+	int levels = mapInstance->levels();
 	int width =  mapInstance->width;
 	int height = mapInstance->height;
 	for (int k = 0; k < levels; k++)
@@ -338,3 +340,5 @@ void RmgMap::dump(bool zoneId) const
 	}
 	out << std::endl;
 }
+
+VCMI_LIB_NAMESPACE_END

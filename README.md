@@ -1,6 +1,7 @@
 [![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/github/vcmi/vcmi?branch=develop&svg=true)](https://ci.appveyor.com/project/vcmi/vcmi)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/vcmi/badge.svg)](https://scan.coverity.com/projects/vcmi)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.0.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.0.0)
 # VCMI Project
 VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities.
 
@@ -9,7 +10,7 @@ VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it ne
  * Homepage:   https://vcmi.eu/
  * Wiki:       https://wiki.vcmi.eu/
  * Forums:     https://forum.vcmi.eu/
- * Bugtracker: https://bugs.vcmi.eu/
+ * Bugtracker: https://github.com/vcmi/vcmi/issues
  * Slack:      https://slack.vcmi.eu/
 
 ## Installation guides
@@ -20,15 +21,18 @@ To use VCMI you need to own original data files.
  * [Linux](https://wiki.vcmi.eu/Installation_on_Linux)
  * [macOS](https://wiki.vcmi.eu/Installation_on_macOS)
  * [Windows](https://wiki.vcmi.eu/Installation_on_Windows)
+ * [iOS](https://wiki.vcmi.eu/Installation_on_iOS)
 
 ## Building from source
 
 Platform support is constantly tested by continuous integration and CMake configuration adjusted to generate nice looking projects for all major IDE. Following guides will help you to setup build environment with no effort:
 
+ * (optional) All platforms: [using Conan package manager to obtain prebuilt dependencies](docs/conan.md)
  * [On Linux](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux))
  * [On Linux for Windows with MXE](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux/Cmake/MXE))
  * [On macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(macOS))
  * [On Windows using MSVC and Vcpkg](https://wiki.vcmi.eu/How_to_build_VCMI_(Windows/Vcpkg))
+ * [iOS on macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(iOS))
 
 ## Copyright and license
 

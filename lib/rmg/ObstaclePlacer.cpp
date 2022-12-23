@@ -22,22 +22,12 @@
 #include "CMapGenerator.h"
 #include "../CRandomGenerator.h"
 #include "Functions.h"
+#include "../mapping/CMapEditManager.h"
 
-void ObstaclePlacer::process()
+VCMI_LIB_NAMESPACE_BEGIN
+
+void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 {
-	auto * manager = zone.getModificator<ObjectManager>();
-	if(!manager)
-		return;
-	
-	auto * riverManager = zone.getModificator<RiverPlacer>();
-	
-	typedef std::vector<ObjectTemplate> ObstacleVector;
-	//obstacleVector possibleObstacles;
-	
-	std::map<int, ObstacleVector> obstaclesBySize;
-	typedef std::pair<int, ObstacleVector> ObstaclePair;
-	std::vector<ObstaclePair> possibleObstacles;
-	
 	//get all possible obstacles for this terrain
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -48,8 +38,8 @@ void ObstaclePlacer::process()
 			{
 				for(auto temp : handler->getTemplates())
 				{
-					if(temp.canBePlacedAt(zone.getTerrainType()) && temp.getBlockMapOffset().valid())
-						obstaclesBySize[temp.getBlockedOffsets().size()].push_back(temp);
+					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().valid())
+						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		}
@@ -62,122 +52,169 @@ void ObstaclePlacer::process()
 	{
 		return p1.first > p2.first; //bigger obstacles first
 	});
-	
-	auto blockedArea = zone.area().getSubarea([this](const int3 & t)
+}
+
+int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRandomGenerator & rand, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
+{
+	int maxWeight = std::numeric_limits<int>::min();
+	for(int i = 0; i < possibleObstacles.size(); ++i)
 	{
-		return map.shouldBeBlocked(t);
-	});
-	blockedArea.subtract(zone.areaUsed());
-	zone.areaPossible().subtract(blockedArea);
-	
-	
-	auto prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
-	
+		if(!possibleObstacles[i].first)
+			continue;
+
+		auto shuffledObstacles = possibleObstacles[i].second;
+		RandomGeneratorUtil::randomShuffle(shuffledObstacles, rand);
+
+		for(auto temp : shuffledObstacles)
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
+			auto obj = handler->create(temp);
+			allObjects.emplace_back(*obj);
+			rmg::Object * rmgObject = &allObjects.back();
+			for(auto & offset : obj->getBlockedOffsets())
+			{
+				rmgObject->setPosition(tile - offset);
+				if(!map->isInTheMap(rmgObject->getPosition()))
+					continue;
+
+				if(!rmgObject->getArea().getSubarea([map](const int3 & t)
+				{
+					return !map->isInTheMap(t);
+				}).empty())
+					continue;
+
+				if(isProhibited(rmgObject->getArea()))
+					continue;
+
+				int coverageBlocked = 0;
+				int coveragePossible = 0;
+				//do not use area intersection in optimization purposes
+				for(auto & t : rmgObject->getArea().getTilesVector())
+				{
+					auto coverage = verifyCoverage(t);
+					if(coverage.first)
+						++coverageBlocked;
+					if(coverage.second)
+						++coveragePossible;
+				}
+
+				int coverageOverlap = possibleObstacles[i].first - coverageBlocked - coveragePossible;
+				int weight = possibleObstacles[i].first + coverageBlocked - coverageOverlap * possibleObstacles[i].first;
+				assert(coverageOverlap >= 0);
+
+				if(weight > maxWeight)
+				{
+					weightedObjects.clear();
+					maxWeight = weight;
+					weightedObjects.emplace_back(rmgObject, rmgObject->getPosition());
+					if(weight > 0)
+						break;
+				}
+				else if(weight == maxWeight)
+					weightedObjects.emplace_back(rmgObject, rmgObject->getPosition());
+
+			}
+		}
+
+		if(maxWeight > 0)
+			break;
+	}
+
+	return maxWeight;
+}
+
+void ObstacleProxy::placeObstacles(CMap * map, CRandomGenerator & rand)
+{
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
 	int tilePos = 0;
+	std::set<CGObjectInstance*> objs;
+
 	while(!blockedArea.empty() && tilePos < blockedArea.getTilesVector().size())
 	{
 		auto tile = blockedArea.getTilesVector()[tilePos];
-		
+
 		std::list<rmg::Object> allObjects;
-		std::vector<std::pair<rmg::Object*, int3>> weightedObjects; //obj + position
-		int maxWeight = std::numeric_limits<int>::min();
-		for(int i = 0; i < possibleObstacles.size(); ++i)
-		{
-			if(!possibleObstacles[i].first)
-				continue;
-			
-			auto shuffledObstacles = possibleObstacles[i].second;
-			RandomGeneratorUtil::randomShuffle(shuffledObstacles, generator.rand);
-			
-			for(auto & temp : shuffledObstacles)
-			{
-				auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
-				auto obj = handler->create(temp);
-				allObjects.emplace_back(*obj);
-				rmg::Object * rmgObject = &allObjects.back();
-				for(auto & offset : obj->getBlockedOffsets())
-				{
-					rmgObject->setPosition(tile - offset);
-					if(!map.isOnMap(rmgObject->getPosition()))
-						continue;
-					
-					if(!rmgObject->getArea().getSubarea([this](const int3 & t)
-					{
-						return !map.isOnMap(t);
-					}).empty())
-						continue;
-					
-					if(prohibitedArea.overlap(rmgObject->getArea()))
-						continue;
-					
-					if(!zone.area().contains(rmgObject->getArea()))
-						continue;
-					
-					int coverageBlocked = 0;
-					int coveragePossible = 0;
-					//do not use area intersection in optimization purposes
-					for(auto & t : rmgObject->getArea().getTilesVector())
-					{
-						if(map.shouldBeBlocked(t))
-							++coverageBlocked;
-						if(zone.areaPossible().contains(t))
-							++coveragePossible;
-					}
-					
-					int coverageOverlap = possibleObstacles[i].first - coverageBlocked - coveragePossible;
-					int weight = possibleObstacles[i].first + coverageBlocked - coverageOverlap * possibleObstacles[i].first;
-					assert(coverageOverlap >= 0);
-					
-					if(weight > maxWeight)
-					{
-						weightedObjects.clear();
-						maxWeight = weight;
-						weightedObjects.emplace_back(rmgObject, rmgObject->getPosition());
-						if(weight > 0)
-							break;
-					}
-					else if(weight == maxWeight)
-						weightedObjects.emplace_back(rmgObject, rmgObject->getPosition());
-					
-				}
-			}
-			
-			if(maxWeight > 0)
-				break;
-		}
-		
+		std::vector<std::pair<rmg::Object*, int3>> weightedObjects;
+		int maxWeight = getWeightedObjects(tile, map, rand, allObjects, weightedObjects);
+
 		if(weightedObjects.empty())
 		{
 			tilePos += 1;
 			continue;
 		}
-		
-		auto objIter = RandomGeneratorUtil::nextItem(weightedObjects, generator.rand);
+
+		auto objIter = RandomGeneratorUtil::nextItem(weightedObjects, rand);
 		objIter->first->setPosition(objIter->second);
-		manager->placeObject(*objIter->first, false, false);
+		placeObject(*objIter->first, objs);
+
 		blockedArea.subtract(objIter->first->getArea());
 		tilePos = 0;
-		
-		//river processing
-		if(riverManager)
-		{
-			if(objIter->first->instances().front()->object().typeName == "mountain")
-				riverManager->riverSource().unite(objIter->first->getArea());
-			if(objIter->first->instances().front()->object().typeName == "lake")
-				riverManager->riverSink().unite(objIter->first->getArea());
-		}
-		
+
+		postProcess(*objIter->first);
+
 		if(maxWeight < 0)
 			logGlobal->warn("Placed obstacle with negative weight at %s", objIter->second.toString());
-		
+
 		for(auto & o : allObjects)
 		{
 			if(&o != objIter->first)
 				o.clear();
 		}
 	}
+
+	finalInsertion(map->getEditManager(), objs);
+}
+
+void ObstacleProxy::finalInsertion(CMapEditManager * manager, std::set<CGObjectInstance*> & instances)
+{
+	manager->insertObjects(instances); //insert as one operation - for undo purposes
+}
+
+std::pair<bool, bool> ObstacleProxy::verifyCoverage(const int3 & t) const
+{
+	return {blockedArea.contains(t), false};
+}
+
+void ObstacleProxy::placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances)
+{
+	for (auto * instance : object.instances())
+	{
+		instances.insert(&instance->object());
+	}
+}
+
+void ObstacleProxy::postProcess(const rmg::Object & object)
+{
+}
+
+bool ObstacleProxy::isProhibited(const rmg::Area & objArea) const
+{
+	return false;
+}
+
+
+
+void ObstaclePlacer::process()
+{
+	manager = zone.getModificator<ObjectManager>();
+	if(!manager)
+		return;
+	
+	riverManager = zone.getModificator<RiverPlacer>();
+	
+	collectPossibleObstacles(zone.getTerrainType());
+	
+	blockedArea = zone.area().getSubarea([this](const int3 & t)
+	{
+		return map.shouldBeBlocked(t);
+	});
+	blockedArea.subtract(zone.areaUsed());
+	zone.areaPossible().subtract(blockedArea);
+	
+	prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
+		
+	placeObstacles(&map.map(), generator.rand);
 }
 
 void ObstaclePlacer::init()
@@ -189,3 +226,43 @@ void ObstaclePlacer::init()
 	DEPENDENCY(RoadPlacer);
 	DEPENDENCY_ALL(RockPlacer);
 }
+
+std::pair<bool, bool> ObstaclePlacer::verifyCoverage(const int3 & t) const
+{
+	return {map.shouldBeBlocked(t), zone.areaPossible().contains(t)};
+}
+
+void ObstaclePlacer::placeObject(rmg::Object & object, std::set<CGObjectInstance*> &)
+{
+	manager->placeObject(object, false, false);
+}
+
+void ObstaclePlacer::postProcess(const rmg::Object & object)
+{
+	//river processing
+	if(riverManager)
+	{
+		const auto objTypeName = object.instances().front()->object().typeName;
+		if(objTypeName == "mountain")
+			riverManager->riverSource().unite(object.getArea());
+		else if(objTypeName == "lake")
+			riverManager->riverSink().unite(object.getArea());
+	}
+}
+
+bool ObstaclePlacer::isProhibited(const rmg::Area & objArea) const
+{
+	if(prohibitedArea.overlap(objArea))
+		return true;
+	 
+	if(!zone.area().contains(objArea))
+		return true;
+	
+	return false;
+}
+
+void ObstaclePlacer::finalInsertion(CMapEditManager *, std::set<CGObjectInstance*> &)
+{
+}
+
+VCMI_LIB_NAMESPACE_END

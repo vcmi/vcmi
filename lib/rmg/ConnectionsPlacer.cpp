@@ -25,6 +25,8 @@
 #include "WaterProxy.h"
 #include "TownPlacer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void ConnectionsPlacer::process()
 {
 	collectNeighbourZones();
@@ -82,8 +84,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
-	bool directProhibited = vstd::contains(Terrain::Manager::getInfo(zone.getTerrainType()).prohibitTransitions, otherZone->getTerrainType())
-						 || vstd::contains(Terrain::Manager::getInfo(otherZone->getTerrainType()).prohibitTransitions, zone.getTerrainType());
+	const auto& terrains = VLC->terrainTypeHandler->terrains();
+	bool directProhibited = vstd::contains(terrains[zone.getTerrainType()].prohibitTransitions, otherZone->getTerrainType())
+						 || vstd::contains(terrains[otherZone->getTerrainType()].prohibitTransitions, zone.getTerrainType());
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
 	if(!directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
@@ -204,8 +207,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto gate1 = factory->create(ObjectTemplate());
-			auto gate2 = factory->create(ObjectTemplate());
+			auto gate1 = factory->create();
+			auto gate2 = factory->create();
 			rmg::Object rmgGate1(*gate1), rmgGate2(*gate2);
 			rmgGate1.setTemplate(zone.getTerrainType());
 			rmgGate2.setTemplate(otherZone->getTerrainType());
@@ -249,8 +252,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	if(!success)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto teleport1 = factory->create(ObjectTemplate());
-		auto teleport2 = factory->create(ObjectTemplate());
+		auto teleport1 = factory->create();
+		auto teleport2 = factory->create();
 		
 		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
 		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());
@@ -278,3 +281,5 @@ void ConnectionsPlacer::collectNeighbourZones()
 		dNeighbourZones[zid].insert(i);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END
