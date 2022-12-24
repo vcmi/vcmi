@@ -2,6 +2,7 @@
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/github/vcmi/vcmi?branch=develop&svg=true)](https://ci.appveyor.com/project/vcmi/vcmi)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/vcmi/badge.svg)](https://scan.coverity.com/projects/vcmi)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.1.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.1.0)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 # VCMI Project
 VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities.
 
