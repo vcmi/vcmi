@@ -49,6 +49,7 @@ public:
 	std::string nameTranslated;
 	std::string terrainViewPatterns;
 	std::string horseSound;
+	std::string horseSoundPenalty;
 
 	TerrainId id;
 	TerrainId rockTerrain;
@@ -86,6 +87,7 @@ public:
 		h & id;
 		h & moveCost;
 		h & horseSound;
+		h & horseSoundPenalty;
 		h & passabilityType;
 		h & transitionRequired;
 	}

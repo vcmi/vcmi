@@ -11,7 +11,8 @@
 		"river" : "mudRiver",
 		"battleFields" : ["dirt_birches", "dirt_hills", "dirt_pines"],
 		"terrainViewPatterns" : "dirt",
-		"horseSound" : "horseDirt"
+		"horseSound" : "horse00",
+		"horseSoundPenalty" : "horse20"
 	},
 	"sand" :
 	{
@@ -26,7 +27,8 @@
 		"battleFields" : ["sand_mesas"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "sand",
-		"horseSound" : "horseSand"
+		"horseSound" : "horse01",
+		"horseSoundPenalty" : "horse21"
 	},
 	"grass" :
 	{
@@ -39,7 +41,8 @@
 		"shortIdentifier" : "gr",
 		"river" : "waterRiver",
 		"battleFields" : ["grass_hills", "grass_pines"],
-		"horseSound" : "horseGrass"
+		"horseSound" : "horse02",
+		"horseSoundPenalty" : "horse22"
 	},
 	"snow" :
 	{
@@ -52,7 +55,8 @@
 		"shortIdentifier" : "sn",
 		"river" : "iceRiver",
 		"battleFields" : ["snow_mountains", "snow_trees"],
-		"horseSound" : "horseSnow"
+		"horseSound" : "horse03",
+		"horseSoundPenalty" : "horse23"
 	},
 	"swamp" :
 	{
@@ -65,7 +69,8 @@
 		"shortIdentifier" : "sw",
 		"river" : "waterRiver",
 		"battleFields" : ["swamp_trees"],
-		"horseSound" : "horseSwamp"
+		"horseSound" : "horse04",
+		"horseSoundPenalty" : "horse24"
 	},
 	"rough" :
 	{
@@ -78,7 +83,8 @@
 		"shortIdentifier" : "rg",
 		"river" : "mudRiver",
 		"battleFields" : ["rough"],
-		"horseSound" : "horseRough"
+		"horseSound" : "horse05",
+		"horseSoundPenalty" : "horse25"
 	},
 	"subterra" :
 	{
@@ -93,7 +99,8 @@
 		"river" : "waterRiver",
 		"battleFields" : ["subterranean"],
 		"rockTerrain" : "rock",
-		"horseSound" : "horseSubterranean"
+		"horseSound" : "horse06",
+		"horseSoundPenalty" : "horse26"
 	},
 	"lava" :
 	{
@@ -108,7 +115,8 @@
 		"river" : "lavaRiver",
 		"battleFields" : ["lava"],
 		"rockTerrain" : "rock",
-		"horseSound" : "horseLava"
+		"horseSound" : "horse07",
+		"horseSoundPenalty" : "horse27"
 	},
 	"water" :
 	{
@@ -123,7 +131,8 @@
 		"battleFields" : ["ship"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "water",
-		"horseSound" : "horseWater",
+		"horseSound" : "horse08",
+		"horseSoundPenalty" : "horse28"
 		"sounds": {
 			"ambient": ["LOOPOCEA"]
 		}
@@ -141,6 +150,7 @@
 		"battleFields" : ["rocklands"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "rock",
-		"horseSound" : "horseRock"
+		"horseSound" : "horse09",
+		"horseSoundPenalty" : "horse29"
 	}
 }

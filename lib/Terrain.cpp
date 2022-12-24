@@ -44,6 +44,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->musicFilename = json["music"].String();
 	info->tilesFilename = json["tiles"].String();
 	info->horseSound = json["horseSound"].String();
+	info->horseSoundPenalty = json["horseSoundPenalty"].String();
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 	info->nameTranslated = json["nameTranslated"].String();
@@ -201,8 +202,8 @@ RoadType * RoadTypeHandler::loadFromJson(
 
 	info->id              = RoadId(index);
 	info->identifier      = identifier;
-	info->tilesFilename   = json["animation"].String();
-	info->shortIdentifier = json["code"].String();
+	info->tilesFilename   = json["tilesFilename"].String();
+	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 
 	return info;
