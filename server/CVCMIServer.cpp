@@ -1118,14 +1118,11 @@ int main(int argc, char * argv[])
 }
 
 #ifdef VCMI_ANDROID
-void CVCMIServer::create(const std::vector<std::string> & args)
+void CVCMIServer::create()
 {
 	const char * foo = "android-server";
 	std::vector<const void *> argv = {foo};
-	for(auto & a : args)
-		argv.push_back(a.c_str());
-
-	main(argv.size(), const_cast<char **>(foo));
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
 }
 #elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
