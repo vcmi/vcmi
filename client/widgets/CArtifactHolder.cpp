@@ -254,6 +254,22 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 	}
 }
 
+void CArtifactsOfHero::activate()
+{
+	if (commonInfo->src.AOH == this && commonInfo->src.art)
+		CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", commonInfo->src.art->artType->getIconIndex()));
+
+	CIntObject::activate();
+}
+
+void CArtifactsOfHero::deactivate()
+{
+	if (commonInfo->src.AOH == this && commonInfo->src.art)
+		CCS->curh->dragAndDropCursor(nullptr);
+
+	CIntObject::deactivate();
+}
+
 /**
  * Selects artifact slot so that the containing artifact looks like it's picked up.
  */
@@ -675,10 +691,8 @@ void CArtifactsOfHero::updateParentWindow()
 
 		if(!updateState)
 		{
-			cew->deactivate();
 			cew->updateWidgets();
 			cew->redraw();
-			cew->activate();
 		}
 	}
 }

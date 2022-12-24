@@ -1413,7 +1413,7 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+		auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 
 		if(rawId)
 			subID = rawId.get();
@@ -1434,7 +1434,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeString("biography", biography);
 	handler.serializeInt("experience", exp, 0);
 
-	if (!handler.saving)
+	if(!handler.saving && exp != 0xffffffff) //do not gain levels if experience is not initialized
 	{
 		while (gainsLevel())
 		{

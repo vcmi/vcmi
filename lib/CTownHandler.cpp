@@ -1010,7 +1010,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
 
 	objects.push_back(object);
 
@@ -1049,7 +1049,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 
 	if (objects.size() > index)
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
@@ -1083,7 +1083,7 @@ void CTownHandler::loadRandomFaction()
 	static const ResourceID randomFactionPath("config/factions/random.json");
 
 	JsonNode randomFactionJson(randomFactionPath);
-	randomFactionJson.setMeta("core", true);
+	randomFactionJson.setMeta(CModHandler::scopeBuiltin(), true);
 	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
 }
 

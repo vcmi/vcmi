@@ -703,13 +703,18 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	//bonus system
 	h->detachFrom(gs->globalEffects);
 	h->attachTo(*gs->getPlayerState(player));
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
 
+	auto oldOffset = h->getVisitableOffset();
 	gs->map->removeBlockVisTiles(h,true);
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
+	auto newOffset = h->getVisitableOffset();
+
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
+	h->pos = h->pos - oldOffset + newOffset;
 	gs->map->heroesOnMap.push_back(h);
 	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
+
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
 }

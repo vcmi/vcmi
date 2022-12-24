@@ -530,7 +530,12 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	}
 
 	for (auto zone : zones)
+	{
+		if(zone.second->area().empty())
+			throw rmgException("Empty zone is generated, probably RMG template is inappropriate for map size");
+		
 		moveZoneToCenterOfMass(zone.second);
+	}
 
 	//assign actual tiles to each zone using nonlinear norm for fine edges
 

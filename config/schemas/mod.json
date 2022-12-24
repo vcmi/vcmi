@@ -56,6 +56,23 @@
 			"description": "List of mods that can't be enabled in the same time as this one",
 			"items": { "type":"string" }
 		},
+		"compatibility" : {
+			"type":"object",
+			"description": "Supported versions of vcmi engine",
+			"additionalProperties" : false,
+			"properties" : {
+				"min" : {
+					"type" : "string",
+					"description" : "minimal compatible vcmi engine version in a format major.minor.patch. When specified, earlier versions won't be supported"
+					//"pattern" : "^\\d+\\.\\d+\\.\\d+$" // Not implemented in schema support
+				},
+				"max" : {
+					"type" : "string",
+					"description" : "maximum compatible vcmi engine version in a format major.minor.patch. When specified, later versions won't be supported"
+					//"pattern" : "^\\d+\\.\\d+\\.\\d+$" // Not implemented in schema support
+				}
+			}
+		},
 
 		"keepDisabled" : {
 			"type":"boolean",
@@ -116,6 +133,12 @@
 		"battlefields":{
 			"type":"array",
 			"description": "List of configuration files for battlefields",
+			"items": { "type":"string", "format" : "textFile" }
+
+		},
+		"obstacles":{
+			"type":"array",
+			"description": "List of configuration files for obstacles",
 			"items": { "type":"string", "format" : "textFile" }
 
 		},

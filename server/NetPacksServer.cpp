@@ -89,7 +89,17 @@ bool SaveGame::applyGh(CGameHandler * gh)
 
 bool EndTurn::applyGh(CGameHandler * gh)
 {
-	PlayerColor player = GS(gh)->currentPlayer;
+	PlayerColor currentPlayer = GS(gh)->currentPlayer;
+	if(player != currentPlayer)
+	{
+		if(gh->getPlayerStatus(player) == EPlayerStatus::INGAME)
+			throwAndComplain(gh, "Player attempted to end turn for another player!");
+
+		logGlobal->debug("Player attempted to end turn after game over. Ignoring this request.");
+
+		return true;
+	}
+
 	throwOnWrongPlayer(gh, player);
 	if(gh->queries.topQuery(player))
 		throwAndComplain(gh, "Cannot end turn before resolving queries!");
