@@ -965,7 +965,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		info.killed         = elem.killed();
 		info.rebirth        = elem.willRebirth();
 		info.cloneKilled    = elem.cloneKilled();
-		info.fireShield    = elem.fireShield();
+		info.fireShield     = elem.fireShield();
 
 		if (elem.isSpell())
 			info.spellEffect = elem.spellID;
