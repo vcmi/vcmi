@@ -731,7 +731,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
 			UpgradeInfo ui;
-			myCb->getUpgradeInfo(obj, SlotID(i), ui);
+			myCb->fillUpgradeInfo(obj, SlotID(i), ui);
 			if(ui.oldID >= 0 && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
 			{
 				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);

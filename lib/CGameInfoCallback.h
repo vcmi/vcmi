@@ -69,7 +69,7 @@ public:
 
 
 //	//armed object
-//	void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+//	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const = 0;
@@ -164,7 +164,7 @@ public:
 
 
 	//armed object
-	virtual void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const override;

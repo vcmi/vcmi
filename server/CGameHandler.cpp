@@ -3717,7 +3717,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
 	}
 	UpgradeInfo ui;
-	getUpgradeInfo(obj, pos, ui);
+	fillUpgradeInfo(obj, pos, ui);
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayerState(player);
 	int crQuantity = obj->stacks.at(pos)->count;

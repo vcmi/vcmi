@@ -756,7 +756,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
 			UpgradeInfo ui;
-			cb->getUpgradeInfo(obj, SlotID(i), ui);
+			cb->fillUpgradeInfo(obj, SlotID(i), ui);
 			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);

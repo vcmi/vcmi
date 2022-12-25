@@ -179,7 +179,7 @@ public:
 	void apply(CPack *pack);
 	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
 
-	void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
+	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out) override; //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
@@ -294,7 +294,7 @@ private:
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickUnusedHeroTypeRandomly(PlayerColor owner); // picks a unused hero type randomly
 	int pickNextHeroType(PlayerColor owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
-	UpgradeInfo getUpgradeInfo(const CStackInstance &stack) const;
+	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;

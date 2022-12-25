@@ -1957,15 +1957,15 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 }
 
 
-void CGameState::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
+void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {
 	assert(obj);
 	assert(obj->hasStackAtSlot(stackPos));
 
-	out = getUpgradeInfo(obj->getStack(stackPos));
+	out = fillUpgradeInfo(obj->getStack(stackPos));
 }
 
-UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack) const
+UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 {
 	UpgradeInfo ret;
 	const CCreature *base = stack.type;

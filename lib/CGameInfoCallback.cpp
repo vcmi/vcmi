@@ -166,13 +166,13 @@ const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 		return nullptr;
 }
 
-void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
+void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
-	gs->getUpgradeInfo(obj, stackPos, out);
-	//return gs->getUpgradeInfo(obj->getStack(stackPos));
+	gs->fillUpgradeInfo(obj, stackPos, out);
+	//return gs->fillUpgradeInfo(obj->getStack(stackPos));
 }
 
 const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) const
