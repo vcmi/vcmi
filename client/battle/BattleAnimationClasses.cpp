@@ -24,7 +24,6 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -238,6 +237,7 @@ ECreatureAnimType MeleeAttackAnimation::getUpwardsGroup(bool multiAttack) const
 	return findValidGroup({
 		ECreatureAnimType::GROUP_ATTACK_UP,
 		ECreatureAnimType::SPECIAL_UP,
+		ECreatureAnimType::SPECIAL_FRONT, // weird, but required for H3
 		ECreatureAnimType::ATTACK_UP
 	});
 }
@@ -262,6 +262,7 @@ ECreatureAnimType MeleeAttackAnimation::getDownwardsGroup(bool multiAttack) cons
 	return findValidGroup({
 		ECreatureAnimType::GROUP_ATTACK_DOWN,
 		ECreatureAnimType::SPECIAL_DOWN,
+		ECreatureAnimType::SPECIAL_FRONT, // weird, but required for H3
 		ECreatureAnimType::ATTACK_DOWN
 	});
 }
@@ -822,6 +823,7 @@ ECreatureAnimType CastAnimation::getUpwardsGroup() const
 	return findValidGroup({
 		ECreatureAnimType::CAST_UP,
 		ECreatureAnimType::SPECIAL_UP,
+		ECreatureAnimType::SPECIAL_FRONT, // weird, but required for H3
 		ECreatureAnimType::SHOOT_UP,
 		ECreatureAnimType::ATTACK_UP
 	});
@@ -842,6 +844,7 @@ ECreatureAnimType CastAnimation::getDownwardsGroup() const
 	return findValidGroup({
 		ECreatureAnimType::CAST_DOWN,
 		ECreatureAnimType::SPECIAL_DOWN,
+		ECreatureAnimType::SPECIAL_FRONT, // weird, but required for H3
 		ECreatureAnimType::SHOOT_DOWN,
 		ECreatureAnimType::ATTACK_DOWN
 	});

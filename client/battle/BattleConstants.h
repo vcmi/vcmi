@@ -31,15 +31,13 @@ enum class EBattleEffect
 };
 
 enum class EAnimationEvents {
-	OPENING     = 0, // TODO battle opening sound is playing
+	OPENING     = 0, // battle opening sound is playing
 	ACTION      = 1, // there are any ongoing animations
-	BEFORE_MOVE = 2, // TODO effects played before stack can act, e.g. regen or bad morale
-	MOVEMENT    = 3, // stacks are moving or turning around
-	BEFORE_HIT  = 4, // effects played before all attack/defence/hit animations
-	ATTACK      = 5, // attack and defence animations are playing
-	HIT         = 6, // hit & death animations are playing
-	AFTER_HIT   = 7, // after all hit & death animations are over
-	PROJECTILES = 8, // TODO there are any flying projectiles
+	MOVEMENT    = 2, // stacks are moving or turning around
+	BEFORE_HIT  = 3, // effects played before all attack/defence/hit animations
+	ATTACK      = 4, // attack and defence animations are playing
+	HIT         = 5, // hit & death animations are playing
+	AFTER_HIT   = 6, // after all hit & death animations are over
 	COUNT
 };
 
@@ -74,7 +72,7 @@ enum class ECreatureAnimType
 	SHOOT_FRONT     = 15, // Shooters only
 	SHOOT_DOWN      = 16, // Shooters only
 	SPECIAL_UP      = 17, // If empty, fallback to SPECIAL_FRONT
-	SPECIAL_FRONT   = 18, // Used for any special moves - dragon breath, spellcasting, (possibly - Pit Lord/Ogre Mage ability)
+	SPECIAL_FRONT   = 18, // Used for any special moves - dragon breath, spellcasting, Pit Lord/Ogre Mage ability
 	SPECIAL_DOWN    = 19, // If empty, fallback to SPECIAL_FRONT
 	MOVE_START      = 20, // small animation to be played before MOVING
 	MOVE_END        = 21, // small animation to be played after MOVING

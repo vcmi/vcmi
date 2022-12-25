@@ -673,7 +673,6 @@ void BattleStacksController::endAction(const BattleAction* action)
 	assert(owner.getAnimationCondition(EAnimationEvents::MOVEMENT) == false);
 	assert(owner.getAnimationCondition(EAnimationEvents::ATTACK) == false);
 	assert(owner.getAnimationCondition(EAnimationEvents::HIT) == false);
-	assert(owner.getAnimationCondition(EAnimationEvents::PROJECTILES) == false);
 
 	owner.windowObject->blockUI(activeStack == nullptr);
 	removeExpiredColorFilters();
@@ -684,14 +683,14 @@ void BattleStacksController::startAction(const BattleAction* action)
 	removeExpiredColorFilters();
 }
 
-void BattleStacksController::stackActivated(const CStack *stack) //TODO: check it all before game state is changed due to abilities
+void BattleStacksController::stackActivated(const CStack *stack)
 {
 	stackToActivate = stack;
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	owner.activateStack();
 }
 
-void BattleStacksController::activateStack() //TODO: check it all before game state is changed due to abilities
+void BattleStacksController::activateStack()
 {
 	if ( !currentAnimations.empty())
 		return;
