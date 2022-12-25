@@ -49,10 +49,11 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
 /// List of tags of languages that can be selected from Launcher (and have translation for Launcher)
 static const std::string languageTagList[] =
 {
-	"en", // english
-	"pl", // polish
-	"ru", // russian
-	"uk", // ukrainian
+	"english",
+	"german",
+	"polish",
+	"russian",
+	"ukrainian",
 };
 
 void CSettingsView::setDisplayList()

@@ -523,6 +523,11 @@
      </item>
      <item>
       <property name="text">
+       <string>Deutsch (German)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Polska (Polish)</string>
       </property>
      </item>
