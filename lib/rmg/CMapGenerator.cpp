@@ -76,6 +76,11 @@ void CMapGenerator::loadConfig()
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
+	//override config with game options
+	if(!mapGenOptions.isRoadEnabled(config.secondaryRoadType))
+		config.secondaryRoadType = "";
+	if(!mapGenOptions.isRoadEnabled(config.defaultRoadType))
+		config.defaultRoadType = config.secondaryRoadType;
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -183,6 +188,7 @@ void CMapGenerator::addPlayerInfo()
 
 	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2};
 	std::array<std::list<int>, 2> teamNumbers;
+	std::set<int> teamsTotal;
 
 	int teamOffset = 0;
 	int playerCount = 0;
@@ -238,19 +244,26 @@ void CMapGenerator::addPlayerInfo()
 			player.canHumanPlay = true;
 		}
 
-		if (teamNumbers[j].empty())
+		if(pSettings.getTeam() != TeamID::NO_TEAM)
 		{
-			logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
-			assert (teamNumbers[j].size());
+			player.team = pSettings.getTeam();
 		}
-		auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
-		player.team = TeamID(*itTeam);
-		teamNumbers[j].erase(itTeam);
+		else
+		{
+			if (teamNumbers[j].empty())
+			{
+				logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
+				assert (teamNumbers[j].size());
+			}
+			auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+			player.team = TeamID(*itTeam);
+			teamNumbers[j].erase(itTeam);
+		}
+		teamsTotal.insert(player.team.getNum());
 		map->map().players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->map().howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
-			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
+	map->map().howManyTeams = teamsTotal.size();
 }
 
 void CMapGenerator::genZones()

@@ -84,8 +84,11 @@ void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color co
 void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 {
 	overlay = newOverlay;
-	addChild(newOverlay.get());
-	overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	if(overlay)
+	{
+		addChild(newOverlay.get());
+		overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	}
 	update();
 }
 
@@ -449,6 +452,11 @@ void CToggleGroup::selectionChanged(int to)
 		parent->redraw();
 }
 
+int CToggleGroup::getSelected() const
+{
+	return selectedID;
+}
+
 CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
 	: CIntObject(LCLICK | RCLICK | WHEEL),
 	value(value),
@@ -566,14 +574,19 @@ void CSlider::setScrollStep(int to)
 	scrollStep = to;
 }
 
-int CSlider::getAmount()
+int CSlider::getAmount() const
 {
 	return amount;
 }
 
-int CSlider::getValue()
+int CSlider::getValue() const
 {
 	return value;
+}
+
+int CSlider::getCapacity() const
+{
+	return capacity;
 }
 
 void CSlider::moveLeft()

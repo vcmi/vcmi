@@ -165,6 +165,7 @@ struct SSetCaptureState
 };
 
 #define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
+#define OBJ_CONSTRUCTION_TARGETED(obj) SObjectConstruction obj__i(obj)
 #define OBJECT_CONSTRUCTION_CAPTURING(actions) defActions = actions; SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 #define OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 
