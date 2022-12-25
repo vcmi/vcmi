@@ -329,10 +329,12 @@ endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network OPTIONAL_COMPONENTS LinguistTools)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network OPTIONAL_COMPONENTS LinguistTools)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network )
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network )
 
-	if (NOT DEFINED Qt5LinguistTools_DIR)
+	find_package(QT NAMES Qt6 Qt5 COMPONENTS LinguistTools )
+	find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LinguistTools)
+	if (NOT Qt5LinguistTools_DIR)
 		set(ENABLE_TRANSLATIONS OFF)
 	endif()
 endif()
