@@ -137,6 +137,7 @@ void MainWindow::on_lobbyButton_clicked()
 
 void MainWindow::updateTranslation()
 {
+#ifdef ENABLE_QT_TRANSLATIONS
 	std::string languageCode = settings["general"]["language"].String();
 
 	QString translationFile = "./launcher/translations/" + QString::fromStdString(languageCode) + ".qm";
@@ -146,4 +147,5 @@ void MainWindow::updateTranslation()
 		logGlobal->error("Failed to load translation");
 	if (!qApp->installTranslator(&translator))
 		logGlobal->error("Failed to install translator");
+#endif
 }

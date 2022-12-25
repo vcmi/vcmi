@@ -26,7 +26,9 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+#ifdef ENABLE_QT_TRANSLATIONS
 	QTranslator translator;
+#endif
 private:
 	Ui::MainWindow * ui;
 	void load();
