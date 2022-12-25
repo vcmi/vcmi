@@ -114,6 +114,11 @@ void CSettingsView::loadSettings()
 	if(encodingIndex < ui->comboBoxEncoding->count())
 		ui->comboBoxEncoding->setCurrentIndex((int)encodingIndex);
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
+
+	std::string language = settings["general"]["language"].String();
+	size_t languageIndex = boost::range::find(languageTagList, language) - languageTagList;
+	if(languageIndex < ui->comboBoxLanguage->count())
+		ui->comboBoxLanguage->setCurrentIndex((int)languageIndex);
 }
 
 void CSettingsView::fillValidResolutions(bool isExtraResolutionsModEnabled)
@@ -319,7 +324,8 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 	Settings node = settings.write["general"]["language"];
 	node->String() = languageTagList[index];
 
-	dynamic_cast<MainWindow*>(qApp->activeWindow())->updateTranslation();
+	if ( qApp->activeWindow() && dynamic_cast<MainWindow*>(qApp->activeWindow()) )
+		dynamic_cast<MainWindow*>(qApp->activeWindow())->updateTranslation();
 }
 
 void CSettingsView::changeEvent(QEvent *event)

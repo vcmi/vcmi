@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
+			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "language", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -50,6 +50,10 @@
 				"lastMap" : {
 					"type":"string",
 					"default" : "Maps/Arrogance"
+				},
+				"language" : {
+					"type":"string",
+					"default" : "english"
 				},
 				"lastSave" : {
 					"type":"string",

@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
+	updateTranslation(); // load translation
 
 	ui->setupUi(this);
 
