@@ -69,6 +69,10 @@ MainWindow::MainWindow(QWidget * parent)
 		move(position);
 	}
 
+#ifdef Q_OS_IOS
+	ui->startEditorButton->hide();
+#endif
+
 	ui->tabListWidget->setCurrentIndex(0);
 
 	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
@@ -101,6 +105,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_startGameButton_clicked()
 {
 	startGame({});
+}
+
+void MainWindow::on_startEditorButton_clicked()
+{
+	startEditor({});
 }
 
 const CModList & MainWindow::getModList() const

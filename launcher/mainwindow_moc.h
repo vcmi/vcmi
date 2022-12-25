@@ -52,4 +52,5 @@ private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();
 	void on_lobbyButton_clicked();
+	void on_startEditorButton_clicked();
 };
