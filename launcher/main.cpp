@@ -66,7 +66,9 @@ void startGame(const QStringList & args)
 
 void startEditor(const QStringList & args)
 {
+#ifndef Q_OS_IOS
 	startExecutable(pathToQString(VCMIDirs::get().editorPath()), args);
+#endif
 }
 
 #ifndef Q_OS_IOS
