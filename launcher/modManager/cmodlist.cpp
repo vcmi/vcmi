@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "cmodlist.h"
 
+#include "../lib/CConfigHandler.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
@@ -157,23 +158,35 @@ QString CModEntry::getName() const
 
 QVariant CModEntry::getValue(QString value) const
 {
+	QString lang = QString::fromStdString(settings["general"]["language"].String());
+	QString langValue = "translation_" + lang;
+
+	// Priorities
+	// 1) data from newest version
+	// 2) data from preferred language
+
+	bool useRepositoryData = repository.contains(value);
+
 	if(repository.contains(value) && localData.contains(value))
 	{
 		// value is present in both repo and locally installed. Select one from latest version
 		QString installedVer = localData["installedVersion"].toString();
 		QString availableVer = repository["latestVersion"].toString();
 
-		if(compareVersions(installedVer, availableVer))
-			return repository[value];
-		else
-			return localData[value];
+		useRepositoryData = compareVersions(installedVer, availableVer);
 	}
 
-	if(repository.contains(value))
-		return repository[value];
+	auto & storage = useRepositoryData ? repository : localData;
 
-	if(localData.contains(value))
-		return localData[value];
+	if (storage.contains(langValue))
+	{
+		auto langStorage = storage[langValue].toMap();
+		if (langStorage.contains(value))
+			return langStorage[value];
+	}
+
+	if (storage.contains(value))
+		return storage[value];
 
 	return QVariant();
 }

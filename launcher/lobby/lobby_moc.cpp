@@ -35,6 +35,14 @@ Lobby::Lobby(QWidget *parent) :
 	ui->kickButton->setVisible(false);
 }
 
+void Lobby::changeEvent(QEvent *event)
+{
+	if ( event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+}
+
 Lobby::~Lobby()
 {
 	delete ui;

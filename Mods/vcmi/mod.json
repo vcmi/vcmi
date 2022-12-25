@@ -1,6 +1,13 @@
 {
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
+	
+	"translation_uk" : {
+		"name" : "VCMI - ключові файли",
+		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
+		"author" : "Команда VCMI",
+		"modType" : "Графіка",
+	},
 
 	"version" : "1.0",
 	"author" : "VCMI Team",

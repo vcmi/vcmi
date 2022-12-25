@@ -25,16 +25,6 @@ static const QString names[ModFields::COUNT] =
 	"author"
 };
 
-static const QString header[ModFields::COUNT] =
-{
-	"Name",
-	"", // status icon
-	"", // status icon
-	"Type",
-	"Version",
-	"Size",
-	"Author"
-};
 }
 
 namespace ModStatus
@@ -155,13 +145,25 @@ Qt::ItemFlags CModListModel::flags(const QModelIndex &) const
 
 QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	static const QString header[ModFields::COUNT] =
+	{
+		QT_TR_NOOP("Name"),
+		QT_TR_NOOP(""), // status icon
+		QT_TR_NOOP(""), // status icon
+		QT_TR_NOOP("Type"),
+		QT_TR_NOOP("Version"),
+		QT_TR_NOOP("Size"),
+		QT_TR_NOOP("Author")
+	};
+
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return ModFields::header[section];
+		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str());
 	return QVariant();
 }
 
 void CModListModel::reloadRepositories()
 {
+	//emit headerDataChanged(Qt::Horizontal, 0, -1 );
 	beginResetModel();
 	endResetModel();
 }

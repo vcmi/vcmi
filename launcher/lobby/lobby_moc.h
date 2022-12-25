@@ -19,6 +19,7 @@ class Lobby : public QWidget
 {
 	Q_OBJECT
 
+	void changeEvent(QEvent *event) override;
 public:
 	explicit Lobby(QWidget *parent = nullptr);
 	~Lobby();

@@ -25,6 +25,7 @@ public:
 
 	void loadSettings();
 	void setDisplayList();
+	void changeEvent(QEvent *event) override;
 
 	bool isExtraResolutionsModEnabled{};
 
@@ -67,6 +68,8 @@ private slots:
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
 
 	void on_updatesButton_clicked();
+
+	void on_comboBoxLanguage_currentIndexChanged(int index);
 
 private:
 	Ui::CSettingsView * ui;

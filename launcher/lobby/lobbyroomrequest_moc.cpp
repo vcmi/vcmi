@@ -27,6 +27,14 @@ LobbyRoomRequest::LobbyRoomRequest(SocketLobby & socket, const QString & room, c
 	show();
 }
 
+void LobbyRoomRequest::changeEvent(QEvent *event)
+{
+	if ( event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+}
+
 LobbyRoomRequest::~LobbyRoomRequest()
 {
 	delete ui;

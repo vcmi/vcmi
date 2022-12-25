@@ -26,6 +26,7 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+	QTranslator translator;
 private:
 	Ui::MainWindow * ui;
 	void load();
@@ -35,12 +36,14 @@ private:
 		MODS = 0, SETTINGS = 1, LOBBY = 2
 	};
 
+	void changeEvent(QEvent *event) override;
 public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
 
 	const CModList & getModList() const;
 
+	void updateTranslation();
 	
 public slots:
 	void on_startGameButton_clicked();

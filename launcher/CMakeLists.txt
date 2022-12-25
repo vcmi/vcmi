@@ -88,7 +88,7 @@ else()
 endif()
 
 find_package(Qt5LinguistTools)
-set(launcher_TS translation/launcher_pl.ts translation/launcher_ru.ts translation/launcher_uk.ts)
+set(launcher_TS translation/launcher_en.ts translation/launcher_pl.ts translation/launcher_ru.ts translation/launcher_uk.ts)
 qt5_add_translation( QM_FILES ${launcher_TS} )
 
 if(WIN32)
@@ -160,4 +160,5 @@ else()
 		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
 endif()
+
 install(DIRECTORY icons DESTINATION ${ICONS_DESTINATION})

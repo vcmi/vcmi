@@ -33,10 +33,6 @@ int main(int argc, char * argv[])
 #endif
 	QApplication vcmilauncher(argc, argv);
 
-	//QTranslator translator;
-	//translator.load("./launcher_uk.qm");
-	//vcmilauncher.installTranslator(&translator);
-
 	MainWindow mainWindow;
 	mainWindow.show();
 	result = vcmilauncher.exec();

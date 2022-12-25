@@ -34,6 +34,15 @@ void CModListView::setupModModel()
 		this, &CModListView::extraResolutionsEnabledChanged);
 }
 
+void CModListView::changeEvent(QEvent *event)
+{
+	if ( event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+		modModel->reloadRepositories();
+	}
+}
+
 void CModListView::setupFilterModel()
 {
 	filterModel = new CModFilterModel(modModel, this);
@@ -227,8 +236,8 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
-	QString compatibleString = prefix + "Mod is compatible</p>";
-	QString incompatibleString = redPrefix + "Mod is incompatible</p>";
+	QString compatibleString = prefix + tr("Mod is compatible") + "</p>";
+	QString incompatibleString = redPrefix + tr("Mod is incompatible") + "</p>";
 	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
 	QString result;

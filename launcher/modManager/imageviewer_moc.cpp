@@ -20,6 +20,14 @@ ImageViewer::ImageViewer(QWidget * parent)
 	ui->setupUi(this);
 }
 
+void ImageViewer::changeEvent(QEvent *event)
+{
+	if ( event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+}
+
 ImageViewer::~ImageViewer()
 {
 	delete ui;

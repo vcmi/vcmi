@@ -11,6 +11,8 @@
 #include "csettingsview_moc.h"
 #include "ui_csettingsview_moc.h"
 
+#include "mainwindow_moc.h"
+
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
 #include "../updatedialog_moc.h"
@@ -42,6 +44,15 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
 	"GB2312", // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
 	// Korean encodings
 	"CP949" // extension of EUC-KR.
+};
+
+/// List of tags of languages that can be selected from Launcher (and have translation for Launcher)
+static const std::string languageTagList[] =
+{
+	"en", // english
+	"pl", // polish
+	"ru", // russian
+	"uk", // ukrainian
 };
 
 void CSettingsView::setDisplayList()
@@ -301,3 +312,19 @@ void CSettingsView::on_updatesButton_clicked()
 	UpdateDialog::showUpdateDialog(true);
 }
 
+
+void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
+{
+	Settings node = settings.write["general"]["language"];
+	node->String() = languageTagList[index];
+
+	dynamic_cast<MainWindow*>(qApp->activeWindow())->updateTranslation();
+}
+
+void CSettingsView::changeEvent(QEvent *event)
+{
+	if ( event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+}

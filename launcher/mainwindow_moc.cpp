@@ -79,6 +79,14 @@ MainWindow::MainWindow(QWidget * parent)
 		UpdateDialog::showUpdateDialog(false);
 }
 
+void MainWindow::changeEvent(QEvent *event)
+{
+	if ( event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+}
+
 MainWindow::~MainWindow()
 {
 	//save window settings
@@ -115,4 +123,17 @@ void MainWindow::on_lobbyButton_clicked()
 {
 	ui->startGameButton->setEnabled(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
+}
+
+void MainWindow::updateTranslation()
+{
+	std::string languageCode = settings["general"]["language"].String();
+
+	QString translationFile = "./launcher_" + QString::fromStdString(languageCode) + ".qm";
+
+	qApp->removeTranslator(&translator);
+	if (!translator.load(translationFile))
+		logGlobal->error("Failed to load translation");
+	if (!qApp->installTranslator(&translator))
+		logGlobal->error("Failed to install translator");
 }
