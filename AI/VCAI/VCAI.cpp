@@ -98,11 +98,13 @@ void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	validateObject(details.id); //enemy hero may have left visible area
+	//enemy hero may have left visible area
+	validateObject(details.id);
 	auto hero = cb->getHero(details.id);
 
-	const int3 from = hero->convertToVisitablePos(details.start);
-	const int3 to = hero->convertToVisitablePos(details.end);
+	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
+	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
+
 	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
 	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
