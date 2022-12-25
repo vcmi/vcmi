@@ -305,8 +305,6 @@ public:
 class PointEffectAnimation : public BattleAnimation
 {
 	std::string soundName;
-	bool soundPlayed;
-	bool soundFinished;
 	bool effectFinished;
 	int effectFlags;
 
@@ -320,33 +318,29 @@ class PointEffectAnimation : public BattleAnimation
 	bool screenFill() const;
 
 	void onEffectFinished();
-	void onSoundFinished();
 	void clearEffect();
-
-	void playSound();
 	void playEffect();
 
 public:
 	enum EEffectFlags
 	{
 		ALIGN_TO_BOTTOM = 1,
-		WAIT_FOR_SOUND  = 2, // Unused, can be removed
-		FORCE_ON_TOP    = 4,
-		SCREEN_FILL     = 8,
+		FORCE_ON_TOP    = 2,
+		SCREEN_FILL     = 4,
 	};
 
 	/// Create animation with screen-wide effect
-	PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, int effects = 0);
+	PointEffectAnimation(BattleInterface & owner, std::string animationName, int effects = 0);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos                 , int effects = 0);
-	PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<Point> pos    , int effects = 0);
+	PointEffectAnimation(BattleInterface & owner, std::string animationName, Point pos                 , int effects = 0);
+	PointEffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos    , int effects = 0);
 
 	/// Create animation positioned at certain hex(es)
-	PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, BattleHex hex             , int effects = 0);
-	PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
+	PointEffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex             , int effects = 0);
+	PointEffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
 
-	PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
+	PointEffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
 	 ~PointEffectAnimation();
 
 	bool init() override;

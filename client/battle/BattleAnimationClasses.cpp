@@ -797,10 +797,11 @@ void CatapultAnimation::nextFrame()
 	explosionEmitted = true;
 	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, defendingStack) + Point(225, 225) - Point(126, 105);
 
-	if(catapultDamage > 0)
-		owner.stacksController->addNewAnim( new PointEffectAnimation(owner, "WALLHIT", "SGEXPL.DEF", shotTarget));
-	else
-		owner.stacksController->addNewAnim( new PointEffectAnimation(owner, "WALLMISS", "CSGRCK.DEF", shotTarget));
+	std::string soundFilename  = (catapultDamage > 0) ? "WALLHIT" : "WALLMISS";
+	std::string effectFilename = (catapultDamage > 0) ? "SGEXPL" : "CSGRCK";
+
+	CCS->soundh->playSound( soundFilename );
+	owner.stacksController->addNewAnim( new PointEffectAnimation(owner, effectFilename, shotTarget));
 }
 
 void CatapultAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -864,45 +865,42 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, int effects):
+PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, int effects):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
-	soundName(soundName),
 	effectFlags(effects),
-	soundPlayed(false),
-	soundFinished(false),
 	effectFinished(false)
 {
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<BattleHex> hex, int effects):
-	PointEffectAnimation(owner, soundName, animationName, effects)
+PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
+	PointEffectAnimation(owner, animationName, effects)
 {
 	battlehexes = hex;
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, BattleHex hex, int effects):
-	PointEffectAnimation(owner, soundName, animationName, effects)
+PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
+	PointEffectAnimation(owner, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<Point> pos, int effects):
-	PointEffectAnimation(owner, soundName, animationName, effects)
+PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
+	PointEffectAnimation(owner, animationName, effects)
 {
 	positions = pos;
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos, int effects):
-	PointEffectAnimation(owner, soundName, animationName, effects)
+PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
+	PointEffectAnimation(owner, animationName, effects)
 {
 	positions.push_back(pos);
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos, BattleHex hex,   int effects):
-	PointEffectAnimation(owner, soundName, animationName, effects)
+PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects):
+	PointEffectAnimation(owner, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -969,10 +967,9 @@ bool PointEffectAnimation::init()
 
 void PointEffectAnimation::nextFrame()
 {
-	playSound();
 	playEffect();
 
-	if (soundFinished && effectFinished)
+	if (effectFinished)
 	{
 		//remove visual effect itself only if sound has finished as well - necessary for obstacles like force field
 		clearEffect();
@@ -983,11 +980,6 @@ void PointEffectAnimation::nextFrame()
 bool PointEffectAnimation::alignToBottom() const
 {
 	return effectFlags & ALIGN_TO_BOTTOM;
-}
-
-bool PointEffectAnimation::waitForSound() const
-{
-	return effectFlags & WAIT_FOR_SOUND;
 }
 
 bool PointEffectAnimation::forceOnTop() const
@@ -1003,31 +995,6 @@ bool PointEffectAnimation::screenFill() const
 void PointEffectAnimation::onEffectFinished()
 {
 	effectFinished = true;
-}
-
-void PointEffectAnimation::onSoundFinished()
-{
-	soundFinished = true;
-}
-
-void PointEffectAnimation::playSound()
-{
-	if (soundPlayed)
-		return;
-
-	soundPlayed = true;
-	if (soundName.empty())
-	{
-		onSoundFinished();
-		return;
-	}
-
-	int channel = CCS->soundh->playSound(soundName);
-
-	if (!waitForSound() || channel == -1)
-		onSoundFinished();
-	else
-		CCS->soundh->setCallback(channel, [&](){ onSoundFinished(); });
 }
 
 void PointEffectAnimation::playEffect()
@@ -1063,7 +1030,6 @@ void PointEffectAnimation::clearEffect()
 PointEffectAnimation::~PointEffectAnimation()
 {
 	assert(effectFinished);
-	assert(soundFinished);
 }
 
 HeroCastAnimation::HeroCastAnimation(BattleInterface & owner, std::shared_ptr<BattleHero> hero, BattleHex dest, const CStack * defender, const CSpell * spell):

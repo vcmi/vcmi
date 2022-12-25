@@ -17,6 +17,8 @@
 #include "BattleRenderer.h"
 #include "CreatureAnimation.h"
 
+#include "../CMusicHandler.h"
+#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
@@ -95,7 +97,8 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		owner.stacksController->addNewAnim(new PointEffectAnimation(owner, spellObstacle->appearSound, spellObstacle->appearAnimation, whereTo, oi->pos));
+		CCS->soundh->playSound( spellObstacle->appearSound );
+		owner.stacksController->addNewAnim(new PointEffectAnimation(owner, spellObstacle->appearAnimation, whereTo, oi->pos));
 
 		//so when multiple obstacles are added, they show up one after another
 		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
