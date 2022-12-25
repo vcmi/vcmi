@@ -7,13 +7,26 @@
     <x>0</x>
     <y>0</y>
     <width>652</width>
-    <height>331</height>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="3">
+    <widget class="QLabel" name="label_4">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Username</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="5">
     <widget class="QPushButton" name="connectButton">
      <property name="sizePolicy">
@@ -30,22 +43,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="3">
-    <widget class="QLabel" name="label_4">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Username</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="4">
-    <widget class="QLineEdit" name="userEdit"/>
-   </item>
    <item row="0" column="1">
     <widget class="QLineEdit" name="serverEdit">
      <property name="text">
@@ -60,200 +57,248 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="3" rowspan="2" colspan="3">
-    <widget class="QStackedWidget" name="stackedWidget">
-     <property name="currentIndex">
+   <item row="0" column="4">
+    <widget class="QLineEdit" name="userEdit"/>
+   </item>
+   <item row="1" column="0" colspan="6">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="bottomMargin">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="sessionsPage">
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0" colspan="2">
-        <widget class="QTableWidget" name="sessionsTable">
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-         <attribute name="horizontalHeaderCascadingSectionResizes">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>80</number>
-         </attribute>
-         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderMinimumSectionSize">
-          <number>20</number>
-         </attribute>
-         <attribute name="verticalHeaderDefaultSectionSize">
-          <number>20</number>
-         </attribute>
-         <column>
-          <property name="text">
-           <string>Session</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Players</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string/>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="newButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>New room</string>
+          <string>People in lobby</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="joinButton">
-         <property name="enabled">
-          <bool>false</bool>
+       <item>
+        <widget class="QListWidget" name="listUsers">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="text">
-          <string>Join room</string>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>96</height>
+          </size>
          </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="roomPage">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="1">
-        <widget class="QPushButton" name="kickButton">
-         <property name="text">
-          <string>Kick player</string>
+         <property name="midLineWidth">
+          <number>0</number>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QListWidget" name="playersList">
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Players in the room</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QPushButton" name="buttonLeave">
-         <property name="text">
-          <string>Leave</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Mods mismatch</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QListWidget" name="modsList">
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::NoSelection</enum>
          </property>
+         <property name="isWrapping" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="layoutMode">
+          <enum>QListView::SinglePass</enum>
+         </property>
         </widget>
        </item>
-       <item row="6" column="1">
-        <widget class="QPushButton" name="buttonReady">
+       <item>
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Ready</string>
+          <string>Lobby chat</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QPushButton" name="buttonResolve">
-         <property name="text">
-          <string>Resolve conflicts</string>
+       <item>
+        <widget class="QPlainTextEdit" name="chat">
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QRadioButton" name="optNewGame">
-           <property name="text">
-            <string>New game</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="optLoadGame">
-           <property name="text">
-            <string>Load game</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+       <item>
+        <widget class="QLineEdit" name="messageEdit"/>
        </item>
       </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="1" column="0" rowspan="3" colspan="3">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
+     </item>
      <item>
-      <widget class="QListWidget" name="listUsers">
+      <widget class="QStackedWidget" name="stackedWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
-         <verstretch>120</verstretch>
+         <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
+       <property name="currentIndex">
+        <number>0</number>
        </property>
+       <widget class="QWidget" name="sessionsPage">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="1" column="0">
+          <widget class="QPushButton" name="newButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>New room</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="joinButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Join room</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QTableWidget" name="sessionsTable">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <attribute name="horizontalHeaderCascadingSectionResizes">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="horizontalHeaderDefaultSectionSize">
+            <number>80</number>
+           </attribute>
+           <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="verticalHeaderMinimumSectionSize">
+            <number>20</number>
+           </attribute>
+           <attribute name="verticalHeaderDefaultSectionSize">
+            <number>20</number>
+           </attribute>
+           <column>
+            <property name="text">
+             <string>Session</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Players</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string/>
+            </property>
+           </column>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="roomPage">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="1" column="1">
+          <widget class="QPushButton" name="kickButton">
+           <property name="text">
+            <string>Kick player</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QListWidget" name="playersList">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Players in the room</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QPushButton" name="buttonLeave">
+           <property name="text">
+            <string>Leave</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Mods mismatch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QListWidget" name="modsList">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::MultiSelection</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QPushButton" name="buttonReady">
+           <property name="text">
+            <string>Ready</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QPushButton" name="buttonResolve">
+           <property name="text">
+            <string>Resolve</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QRadioButton" name="optNewGame">
+             <property name="text">
+              <string>New game</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="optLoadGame">
+             <property name="text">
+              <string>Load game</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
-     </item>
-     <item>
-      <widget class="QPlainTextEdit" name="chat">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="messageEdit"/>
      </item>
     </layout>
    </item>
