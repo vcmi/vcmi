@@ -547,7 +547,7 @@ std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 
 	for(const auto & info : projectile)
 	{
-		if(info.minimumAngle < angle && info.minimumAngle > maximum)
+		if(info.minimumAngle < angle && info.minimumAngle >= maximum)
 		{
 			maximum = info.minimumAngle;
 			res = info.resourceName;
@@ -763,7 +763,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->modh->identifiers.requestIdentifier(json.meta, counteredSpell.first, [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.push_back(SpellID(id));
 			});

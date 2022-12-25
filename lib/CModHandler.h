@@ -14,6 +14,12 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 
+#ifdef __UCLIBC__
+#undef major
+#undef minor
+#undef patch
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;

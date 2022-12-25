@@ -40,8 +40,8 @@ public:
 	using BorderPallete = std::array<SDL_Color, 3>;
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
-	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha = 255) const = 0;
+	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr, ui8 alpha = 255) const=0;
+	virtual void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src, ui8 alpha = 255) const = 0;
 
 	virtual std::shared_ptr<IImage> scaleFast(float scale) const = 0;
 
@@ -53,8 +53,12 @@ public:
 	//set special color for flag
 	virtual void setFlagColor(PlayerColor player)=0;
 
-	virtual int width() const=0;
-	virtual int height() const=0;
+	//test transparency of specific pixel
+	virtual bool isTransparent(const Point & coords) const = 0;
+
+	virtual Point dimensions() const = 0;
+	int width() const;
+	int height() const;
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
@@ -69,6 +73,9 @@ public:
 
 	IImage();
 	virtual ~IImage();
+
+	/// loads image from specified file. Returns 0-sized images on failure
+	static std::shared_ptr<IImage> createFromFile( const std::string & path );
 };
 
 /// Class for handling animation

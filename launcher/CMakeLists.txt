@@ -106,7 +106,7 @@ if(WIN32)
 	set(launcher_ICON VCMI_launcher.rc)
 endif()
 
-if(BUILD_SINGLE_APP)
+if(ENABLE_SINGLE_APP_BUILD)
 	add_library(vcmilauncher STATIC ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})

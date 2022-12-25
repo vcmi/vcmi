@@ -16,8 +16,8 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
@@ -77,15 +77,18 @@ void CButton::addCallback(std::function<void()> callback)
 void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, CENTER, color, Text));
+	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
 
 void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 {
 	overlay = newOverlay;
-	addChild(newOverlay.get());
-	overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	if(overlay)
+	{
+		addChild(newOverlay.get());
+		overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	}
 	update();
 }
 
@@ -207,26 +210,10 @@ void CButton::hover (bool on)
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
-		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
-		{
-			if(on && LOCPLINT->battleInt->console->alterTxt == "")
-			{
-				LOCPLINT->battleInt->console->alterTxt = name;
-				LOCPLINT->battleInt->console->whoSetAlter = 1;
-			}
-			else if (LOCPLINT->battleInt->console->alterTxt == name)
-			{
-				LOCPLINT->battleInt->console->alterTxt = "";
-				LOCPLINT->battleInt->console->whoSetAlter = 0;
-			}
-		}
-		else if(GH.statusbar) //for other buttons
-		{
-			if (on)
-				GH.statusbar->setText(name);
-			else if ( GH.statusbar->getText()==(name) )
-				GH.statusbar->clear();
-		}
+		if (on)
+			GH.statusbar->write(name);
+		else
+			GH.statusbar->clearIfMatching(name);
 	}
 }
 
@@ -465,6 +452,11 @@ void CToggleGroup::selectionChanged(int to)
 		parent->redraw();
 }
 
+int CToggleGroup::getSelected() const
+{
+	return selectedID;
+}
+
 CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
 	: CIntObject(LCLICK | RCLICK | WHEEL),
 	value(value),
@@ -530,7 +522,7 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
 		if(GH.statusbar)
-			GH.statusbar->setText(helpBox);
+			GH.statusbar->write(helpBox);
 	}
 }
 
@@ -582,14 +574,19 @@ void CSlider::setScrollStep(int to)
 	scrollStep = to;
 }
 
-int CSlider::getAmount()
+int CSlider::getAmount() const
 {
 	return amount;
 }
 
-int CSlider::getValue()
+int CSlider::getValue() const
 {
 	return value;
+}
+
+int CSlider::getCapacity() const
+{
+	return capacity;
 }
 
 void CSlider::moveLeft()

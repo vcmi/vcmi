@@ -692,19 +692,19 @@ CAdvMapInt::CAdvMapInt():
 	for (int i = 0; i < 5; ++i)
 	{
 		panelWorldView->addChildIcon(std::pair<int, Point>(i, Point(5, 58 + i * 20)), iconColorMultiplier);
-		panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+		panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[612 + i]));
 	}
 	for (int i = 0; i < 7; ++i)
 	{
 		panelWorldView->addChildIcon(std::pair<int, Point>(i +  5, Point(5, 182 + i * 20)), iconColorMultiplier);
 		panelWorldView->addChildIcon(std::pair<int, Point>(i + 12, Point(160, 182 + i * 20)), iconColorMultiplier);
-		panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+		panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[619 + i]));
 	}
-	panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft +   5, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+	panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft +   5, 367, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT,
 											Colors::WHITE, CGI->generaltexth->allTexts[617]));
-	panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+	panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 367, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT,
 											Colors::WHITE, CGI->generaltexth->allTexts[618]));
 
 	activeMapPanel = panelMain;
@@ -716,11 +716,6 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 
 	addUsedEvents(MOVE);
-
-	statusbar->setOnClick([&]
-		{
-			if(LOCPLINT) LOCPLINT->cingconsole->startEnteringText();
-		});
 }
 
 CAdvMapInt::~CAdvMapInt()
@@ -1668,13 +1663,13 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = curHero() ? objAtTile->getHoverText(curHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
-		statusbar->setText(text);
+		statusbar->write(text);
 	}
 	else
 	{
 		std::string hlp;
 		CGI->mh->getTerrainDescr(mapPos, hlp, false);
-		statusbar->setText(hlp);
+		statusbar->write(hlp);
 	}
 
 	if(spellBeingCasted)
@@ -1811,7 +1806,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, GH.current->motion, CENTER);
+	CRClickPopup::createAndPush(obj, GH.current->motion, ETextAlignment::CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

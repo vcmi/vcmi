@@ -1085,7 +1085,6 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
-		return false;
 	}
 #endif
 

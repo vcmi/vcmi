@@ -4,7 +4,7 @@
 		"targetType" : "NO_TARGET",
 
 		"sounds": {
-			"cast": "QUIKSAND"
+			"cast": "" // no casting sound, only obstacle placement sound
 		},
 		"levels" : {
 			"base":{
@@ -55,7 +55,7 @@
 		"targetType" : "NO_TARGET",
 
 		"sounds": {
-			"cast": ""
+			"cast": "" // no casting sound, only obstacle placement sound
 		},
 		"levels" : {
 			"base":{

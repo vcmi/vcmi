@@ -19,6 +19,7 @@ class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
+class CRandomGenerator;
 
 class rmgException : public std::exception
 {

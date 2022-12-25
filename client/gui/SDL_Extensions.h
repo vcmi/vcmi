@@ -49,6 +49,12 @@ inline bool isShiftKeyDown()
 }
 namespace CSDL_Ext
 {
+	template<typename Int>
+	Int lerp(Int a, Int b, float f)
+	{
+		return a + std::round((b - a) * f);
+	}
+
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{
@@ -152,40 +158,54 @@ struct ColorPutter
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
 
+/// Base class for applying palette transformation on images
 class ColorShifter
 {
 public:
-	virtual ~ColorShifter() = default;
-	virtual SDL_Color shiftColor(SDL_Color clr) const = 0;
+	~ColorShifter() = default;
+	virtual SDL_Color shiftColor(SDL_Color input) const = 0;
 };
 
-class ColorShifterLightBlue : public ColorShifter
+/// Generic class for palette transformation
+/// formula:
+/// result = input * factor + added
+class ColorShifterMultiplyAndAdd : public ColorShifter
 {
+	SDL_Color added;
+	SDL_Color factor;
+
 public:
-	SDL_Color shiftColor(SDL_Color clr) const override
+	ColorShifterMultiplyAndAdd(SDL_Color factor, SDL_Color added) :
+		factor(factor),
+		added(added)
+	{}
+
+	SDL_Color shiftColor(SDL_Color input) const override
 	{
-		clr.b = clr.b + (255 - clr.b) / 2;
-		return clr;
+		return {
+			uint8_t(std::min(255.f, std::round(input.r * float(factor.r) / 255.f + added.r))),
+			uint8_t(std::min(255.f, std::round(input.g * float(factor.g) / 255.f + added.g))),
+			uint8_t(std::min(255.f, std::round(input.b * float(factor.b) / 255.f + added.b))),
+			uint8_t(std::min(255.f, std::round(input.a * float(factor.a) / 255.f + added.a)))
+		};
 	}
 };
 
-class ColorShifterDeepBlue : public ColorShifter
+/// Color shifter that allows to specify color to be excempt from changes
+class ColorShifterMultiplyAndAddExcept : public ColorShifterMultiplyAndAdd
 {
+	SDL_Color ignored;
 public:
-	SDL_Color shiftColor(SDL_Color clr) const override
-	{
-		clr.b = 255;
-		return clr;
-	}
-};
+	ColorShifterMultiplyAndAddExcept(SDL_Color factor, SDL_Color added, SDL_Color ignored) :
+		ColorShifterMultiplyAndAdd(factor, added),
+		ignored(ignored)
+	{}
 
-class ColorShifterDeepRed : public ColorShifter
-{
-public:
-	SDL_Color shiftColor(SDL_Color clr) const override
+	SDL_Color shiftColor(SDL_Color input) const override
 	{
-		clr.r = 255;
-		return clr;
+		if ( input.r == ignored.r && input.g == ignored.g && input.b == ignored.b && input.a == ignored.a)
+			return input;
+		return ColorShifterMultiplyAndAdd::shiftColor(input);
 	}
 };
 
@@ -222,7 +242,6 @@ namespace CSDL_Ext
 	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
 	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
 	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
-	void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);

@@ -298,8 +298,6 @@ private:
 	CRandomGenerator rand;
 	Services * services;
 
-	friend class CCallback;
-	friend class CClient;
 	friend class IGameCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;

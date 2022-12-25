@@ -92,14 +92,14 @@ public:
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
-	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
-	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src, ui8 alpha=255) const override;
 	std::shared_ptr<IImage> scaleFast(float scale) const override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
-	int width() const override;
-	int height() const override;
+	bool isTransparent(const Point & coords) const override;
+	Point dimensions() const override;
 
 	void horizontalFlip() override;
 	void verticalFlip() override;
@@ -133,6 +133,11 @@ public:
 	SDLImageLoader(SDLImage * Img);
 	~SDLImageLoader();
 };
+
+std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
+{
+	return std::shared_ptr<IImage>(new SDLImage(path));
+}
 
 // Extremely simple file cache. TODO: smarter, more general solution
 class CFileCache
@@ -554,6 +559,15 @@ SDLImageLoader::~SDLImageLoader()
 IImage::IImage() = default;
 IImage::~IImage() = default;
 
+int IImage::width() const
+{
+	return dimensions().x;
+}
+
+int IImage::height() const
+{
+	return dimensions().y;
+}
 
 SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 	: surf(nullptr),
@@ -640,7 +654,7 @@ SDLImage::SDLImage(std::string filename)
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, const Rect *src, ui8 alpha) const
 {
 	if(!surf)
 		return;
@@ -650,7 +664,7 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha
 	draw(where, &destRect, src);
 }
 
-void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha) const
+void SDLImage::draw(SDL_Surface* where, const SDL_Rect* dest, const SDL_Rect* src, ui8 alpha) const
 {
 	if (!surf)
 		return;
@@ -730,14 +744,14 @@ void SDLImage::setFlagColor(PlayerColor player)
 		CSDL_Ext::setPlayerColor(surf, player);
 }
 
-int SDLImage::width() const
+bool SDLImage::isTransparent(const Point & coords) const
 {
-	return fullSize.x;
+	return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
 }
 
-int SDLImage::height() const
+Point SDLImage::dimensions() const
 {
-	return fullSize.y;
+	return fullSize;
 }
 
 void SDLImage::horizontalFlip()

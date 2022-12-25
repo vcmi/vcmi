@@ -7,9 +7,13 @@
 #include "../lib/Terrain.h"
 #include "resourceExtractor/ResourceConverter.h"
 
-class CMap;
+class ObjectBrowser;
 class ObjectBrowserProxyModel;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
 class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
 
 namespace Ui
 {

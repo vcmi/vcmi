@@ -231,6 +231,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 {
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 
+	entry.offset = 0;
 	extractToFolder(outputSubFolder, *inputStream, entry);
 }
 

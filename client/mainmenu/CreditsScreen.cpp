@@ -30,7 +30,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	std::string text((char *)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"') + 1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote);
-	credits = std::make_shared<CMultiLineLabel>(Rect(pos.w - 350, 0, 350, 600), FONT_CREDITS, CENTER, Colors::WHITE, text);
+	credits = std::make_shared<CMultiLineLabel>(Rect(pos.w - 350, 0, 350, 600), FONT_CREDITS, ETextAlignment::CENTER, Colors::WHITE, text);
 	credits->scrollTextTo(-600); // move all text below the screen
 }
 
