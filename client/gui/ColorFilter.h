@@ -11,7 +11,10 @@
 #pragma once
 
 struct SDL_Color;
+
+VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
+VCMI_LIB_NAMESPACE_END
 
 /// Base class for applying palette transformation on images
 class ColorFilter
