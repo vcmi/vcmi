@@ -244,7 +244,7 @@ jobs:
 
     - name: Trigger Android
       uses: peter-evans/repository-dispatch@v1
-      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master') && matrix.platform == 'mxe' }}
+      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') && matrix.platform == 'mxe' }}
       with:
         token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
         repository: vcmi/vcmi-android

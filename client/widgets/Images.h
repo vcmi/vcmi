@@ -57,7 +57,7 @@ public:
 };
 
 /// area filled with specific texture
-class CFilledTexture : CIntObject
+class CFilledTexture : public CIntObject
 {
 	SDL_Surface * texture;
 

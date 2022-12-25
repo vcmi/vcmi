@@ -501,9 +501,19 @@ void CRmgTemplate::setId(const std::string & value)
 	id = value;
 }
 
+void CRmgTemplate::setName(const std::string & value)
+{
+	name = value;
+}
+
 const std::string & CRmgTemplate::getName() const
 {
-	return name.empty() ? id : name;
+	return name;
+}
+
+const std::string & CRmgTemplate::getId() const
+{
+	return id;
 }
 
 const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getPlayers() const
@@ -529,6 +539,11 @@ const std::vector<ZoneConnection> & CRmgTemplate::getConnections() const
 void CRmgTemplate::validate() const
 {
 	//TODO add some validation checks, throw on failure
+}
+
+std::pair<int3, int3> CRmgTemplate::getMapSizes() const
+{
+	return {minSize, maxSize};
 }
 
 void CRmgTemplate::CPlayerCountRange::addRange(int lower, int upper)
