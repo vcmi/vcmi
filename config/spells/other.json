@@ -57,7 +57,7 @@
 		"targetType" : "NO_TARGET",
 
 		"sounds": {
-			"cast": "", // no casting sound, only obstacle placement sound
+			"cast": "" // no casting sound, only obstacle placement sound
 		},
 		"levels" : {
 			"base":{

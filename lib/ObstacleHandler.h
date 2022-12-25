@@ -61,10 +61,13 @@ public:
 		h & iconIndex;
 		h & identifier;
 		h & animation;
-		h & appearSound;
 		h & appearAnimation;
-		h & triggerSound;
-		h & triggerAnimation;
+		if (version > 805)
+		{
+			h & appearSound;
+			h & triggerAnimation;
+			h & triggerSound;
+		}
 		h & allowedTerrains;
 		h & allowedSpecialBfields;
 		h & isAbsoluteObstacle;
