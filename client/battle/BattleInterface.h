@@ -90,27 +90,6 @@ struct StackAttackInfo
 /// Main class for battles, responsible for relaying information from server to various battle entities
 class BattleInterface
 {
-private:
-	std::shared_ptr<BattleWindow> windowObject;
-	std::shared_ptr<BattleConsole> console;
-
-	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
-
-	std::shared_ptr<CPlayerInterface> attackerInt; // attacker interface, not null if attacker is human in our vcmiclient
-	std::shared_ptr<CPlayerInterface> defenderInt; // defender interface, not null if attacker is human in our vcmiclient
-
-	std::shared_ptr<CPlayerInterface> curInt; //current player interface
-
-	 //copy of initial armies (for result window)
-	const CCreatureSet *army1;
-	const CCreatureSet *army2;
-
-	const CGHeroInstance *attackingHeroInstance;
-	const CGHeroInstance *defendingHeroInstance;
-
-	bool tacticsMode;
-	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
-
 	using AwaitingAnimationAction = std::function<void()>;
 
 	struct AwaitingAnimationEvents {
@@ -124,6 +103,53 @@ private:
 
 	/// List of events that are waiting to be triggered
 	std::vector<AwaitingAnimationEvents> awaitingEvents;
+
+	/// used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
+	std::shared_ptr<CPlayerInterface> tacticianInterface;
+
+	/// attacker interface, not null if attacker is human in our vcmiclient
+	std::shared_ptr<CPlayerInterface> attackerInt;
+
+	/// defender interface, not null if attacker is human in our vcmiclient
+	std::shared_ptr<CPlayerInterface> defenderInt;
+
+public:
+	/// copy of initial armies (for result window)
+	const CCreatureSet *army1;
+	const CCreatureSet *army2;
+
+	/// ID of channel on which battle opening sound is playing, or -1 if none
+	int battleIntroSoundChannel;
+
+	std::shared_ptr<BattleWindow> windowObject;
+	std::shared_ptr<BattleConsole> console;
+
+	/// currently active player interface
+	std::shared_ptr<CPlayerInterface> curInt;
+
+	const CGHeroInstance *attackingHeroInstance;
+	const CGHeroInstance *defendingHeroInstance;
+
+	bool tacticsMode;
+
+	std::unique_ptr<BattleProjectileController> projectilesController;
+	std::unique_ptr<BattleSiegeController> siegeController;
+	std::unique_ptr<BattleObstacleController> obstacleController;
+	std::unique_ptr<BattleFieldController> fieldController;
+	std::unique_ptr<BattleStacksController> stacksController;
+	std::unique_ptr<BattleActionsController> actionsController;
+	std::unique_ptr<BattleEffectsController> effectsController;
+
+	std::shared_ptr<BattleHero> attackingHero;
+	std::shared_ptr<BattleHero> defendingHero;
+
+	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
+
+	bool myTurn; //if true, interface is active (commands can be ordered)
+	int moveSoundHander; // sound handler used when moving a unit
+
+	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
+	~BattleInterface();
 
 	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
@@ -141,28 +167,6 @@ private:
 	void executeSpellCast(); //called when a hero casts a spell
 
 	void appendBattleLog(const std::string & newEntry);
-
-public:
-	std::unique_ptr<BattleProjectileController> projectilesController;
-	std::unique_ptr<BattleSiegeController> siegeController;
-	std::unique_ptr<BattleObstacleController> obstacleController;
-	std::unique_ptr<BattleFieldController> fieldController;
-	std::unique_ptr<BattleStacksController> stacksController;
-	std::unique_ptr<BattleActionsController> actionsController;
-	std::unique_ptr<BattleEffectsController> effectsController;
-
-	std::shared_ptr<BattleHero> attackingHero;
-	std::shared_ptr<BattleHero> defendingHero;
-
-	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
-
-	bool myTurn; //if true, interface is active (commands can be ordered)
-	int moveSoundHander; // sound handler used when moving a unit
-
-	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end
-
-	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
-	~BattleInterface();
 
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
 	void setPrintStackRange(bool set); //if true,range of active stack will be printed
@@ -199,7 +203,6 @@ public:
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
-	void displayBattleFinished(); //displays battle result
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
@@ -219,31 +222,4 @@ public:
 
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
-
-	// TODO: cleanup this list
-	friend class CPlayerInterface;
-	friend class CInGameConsole;
-	friend class StackQueue;
-	friend class BattleResultWindow;
-	friend class BattleHero;
-	friend class CBattleStackAnimation;
-	friend class CReverseAnimation;
-	friend class CDefenceAnimation;
-	friend class CMovementAnimation;
-	friend class CMovementStartAnimation;
-	friend class CAttackAnimation;
-	friend class CMeleeAttackAnimation;
-	friend class CShootingAnimation;
-	friend class CCastAnimation;
-	friend class ClickableHex;
-	friend class BattleProjectileController;
-	friend class BattleSiegeController;
-	friend class BattleObstacleController;
-	friend class BattleFieldController;
-	friend class BattleWindow;
-	friend class BattleStacksController;
-	friend class BattleActionsController;
-	friend class BattleEffectsController;
-	friend class BattleRenderer;
-	friend class CInGameConsole;
 };

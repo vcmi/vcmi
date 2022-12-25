@@ -56,7 +56,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, curInt(att)
 	, myTurn(false)
 	, moveSoundHander(-1)
-	, bresult(nullptr)
 {
 	for ( auto & event : animationEvents)
 		event.setn(false);
@@ -306,15 +305,10 @@ void BattleInterface::gateStateChanged(const EGateState state)
 
 void BattleInterface::battleFinished(const BattleResult& br)
 {
-	bresult = &br;
 	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
 	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	stacksController->setActiveStack(nullptr);
-	displayBattleFinished();
-}
 
-void BattleInterface::displayBattleFinished()
-{
 	CCS->curh->set(Cursor::Map::POINTER);
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
@@ -322,7 +316,7 @@ void BattleInterface::displayBattleFinished()
 		return;
 	}
 
-	GH.pushInt(std::make_shared<BattleResultWindow>(*bresult, *(this->curInt)));
+	GH.pushInt(std::make_shared<BattleResultWindow>(br, *(this->curInt)));
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }
@@ -345,7 +339,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		auto group = spell->animationInfo.projectile.empty() ?
 					EAnimationEvents::HIT:
-					EAnimationEvents::BEFORE_HIT;//FIXME: should be on projectile spawning
+					EAnimationEvents::BEFORE_HIT;//FIXME: recheck whether this should be on projectile spawning
 
 		executeOnAnimationCondition(group, true, [=]() {
 			CCS->soundh->playSound(castSoundPath);
