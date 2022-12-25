@@ -158,8 +158,7 @@ QString CModEntry::getName() const
 
 QVariant CModEntry::getValue(QString value) const
 {
-	QString lang = QString::fromStdString(settings["general"]["language"].String());
-	QString langValue = "translation_" + lang;
+	QString langValue = QString::fromStdString(settings["general"]["language"].String());
 
 	// Priorities
 	// 1) data from newest version

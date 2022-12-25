@@ -129,7 +129,7 @@ void MainWindow::updateTranslation()
 {
 	std::string languageCode = settings["general"]["language"].String();
 
-	QString translationFile = "./launcher_" + QString::fromStdString(languageCode) + ".qm";
+	QString translationFile = "./launcher/translations/" + QString::fromStdString(languageCode) + ".qm";
 
 	qApp->removeTranslator(&translator);
 	if (!translator.load(translationFile))
