@@ -12,7 +12,7 @@
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
-const unsigned int ProtocolVersion = 3;
+const unsigned int ProtocolVersion = 4;
 const std::string ProtocolEncoding = "utf8";
 
 class ProtocolError: public std::runtime_error
@@ -24,10 +24,10 @@ public:
 enum ProtocolConsts
 {
 	//client consts
-	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, KICK, READY, FORCESTART,
+	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, KICK, READY, FORCESTART, HERE, ALIVE, HOSTMODE,
 
 	//server consts
-	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST, MODS, CLIENTMODS
+	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST, MODS, CLIENTMODS, USERS, HEALTH, GAMEMODE
 };
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
@@ -78,6 +78,16 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	//[unsupported] start session immediately
 	//%1: room name
 	{FORCESTART, "<FORCESTART>%1"},
+	
+	//request user list
+	{HERE, "<HERE>"},
+	
+	//used as reponse to healcheck
+	{ALIVE, "<ALIVE>"},
+	
+	//host sets game mode (new game or load game)
+	//%1: game mode - 0 for new game, 1 for load game
+	{HOSTMODE, "<HOSTMODE>%1"},
 
 	//=== server commands ===
 	//server commands are started from :>>, arguments are enumerated by : symbol
@@ -140,7 +150,20 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	//received chat message
 	//arg[0]: sender username
 	//arg[1]: message text
-	{CHAT, "MSG"}
+	{CHAT, "MSG"},
+	
+	//list of users currently in lobby
+	//arg[0]: amount of players, following arguments depend on it
+	//arg[x]: username
+	//arg[x+1]: room (empty if not in the room)
+	{USERS, "USERS"},
+	
+	//healthcheck from server
+	{HEALTH, "HEALTH"},
+	
+	//game mode (new game or load game) set by host
+	//arg[0]: game mode
+	{GAMEMODE, "GAMEMODE"}
 };
 
 class ServerCommand

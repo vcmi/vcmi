@@ -135,9 +135,12 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		if(args[1] == username)
 		{
 			ui->buttonReady->setText("Ready");
-			ui->chat->clear(); //cleanup the chat
+			ui->optNewGame->setChecked(true);
 			sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
+			bool isHost = command.command == JOINED && hostSession == session;
+			ui->optNewGame->setEnabled(isHost);
+			ui->optLoadGame->setEnabled(isHost);
 			ui->stackedWidget->setCurrentWidget(command.command == JOINED ? ui->roomPage : ui->sessionsPage);
 		}
 		else
@@ -202,10 +205,12 @@ void Lobby::serverCommand(const ServerCommand & command) try
 				ui->playersList->addItem(new QListWidgetItem(QIcon("icons:mod-disabled.png"), args[tagPoint]));
 			
 			if(args[tagPoint] == username)
+			{
 				if(args[tagPoint + 1] == "True")
 					ui->buttonReady->setText("Not ready");
 				else
 					ui->buttonReady->setText("Ready");
+			}
 		}
 		break;
 
@@ -215,6 +220,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		gameArgs << "--lobby";
 		gameArgs << "--lobby-address" << serverUrl;
 		gameArgs << "--lobby-port" << QString::number(serverPort);
+		gameArgs << "--lobby-username" << username;
+		gameArgs << "--lobby-gamemode" << QString::number(isLoadGameMode);
 		gameArgs << "--uuid" << args[0];
 		startGame(gameArgs);		
 		break;
@@ -236,6 +243,35 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		chatMessage(args[0], msg);
 		break;
 		}
+			
+	case HEALTH: {
+		protocolAssert(args.size() == 0);
+		socketLobby.send(ProtocolStrings[ALIVE]);
+		break;
+	}
+			
+	case USERS: {
+		protocolAssert(args.size() > 0);
+		amount = args[0].toInt();
+		
+		protocolAssert(amount == (args.size() - 1));
+		ui->listUsers->clear();
+		for(int i = 0; i < amount; ++i)
+		{
+			ui->listUsers->addItem(new QListWidgetItem(args[i + 1]));
+		}
+		break;
+	}
+			
+	case GAMEMODE: {
+		protocolAssert(args.size() == 1);
+		isLoadGameMode = args[0].toInt();
+		if(isLoadGameMode == 1)
+			ui->optLoadGame->setChecked(true);
+		else
+			ui->optNewGame->setChecked(true);
+		break;
+	}
 
 	default:
 		sysMessage("Unknown server command");
@@ -289,7 +325,7 @@ void Lobby::onDisconnected()
 	ui->userEdit->setEnabled(true);
 	ui->newButton->setEnabled(false);
 	ui->joinButton->setEnabled(false);
-	ui->sessionsTable->clear();
+	ui->sessionsTable->setRowCount(0);
 }
 
 void Lobby::chatMessage(QString title, QString body, bool isSystem)
@@ -327,6 +363,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 {
 	if(checked)
 	{
+		ui->connectButton->setText("Disconnect");
 		authentificationStatus = AuthStatus::AUTH_NONE;
 		username = ui->userEdit->text();
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
@@ -358,8 +395,10 @@ void Lobby::on_connectButton_toggled(bool checked)
 	}
 	else
 	{
+		ui->connectButton->setText("Connection");
 		ui->serverEdit->setEnabled(true);
 		ui->userEdit->setEnabled(true);
+		ui->listUsers->clear();
 		socketLobby.disconnectServer();
 	}
 }
@@ -413,5 +452,29 @@ void Lobby::on_kickButton_clicked()
 {
 	if(ui->playersList->currentItem() && ui->playersList->currentItem()->text() != username)
 		socketLobby.send(ProtocolStrings[KICK].arg(ui->playersList->currentItem()->text()));
+}
+
+
+void Lobby::on_buttonResolve_clicked()
+{
+	//TODO: auto-resolve mods conflicts
+}
+
+void Lobby::on_optNewGame_toggled(bool checked)
+{
+	if(checked)
+	{
+		if(isLoadGameMode)
+			socketLobby.send(ProtocolStrings[HOSTMODE].arg(0));
+	}
+}
+
+void Lobby::on_optLoadGame_toggled(bool checked)
+{
+	if(checked)
+	{
+		if(!isLoadGameMode)
+			socketLobby.send(ProtocolStrings[HOSTMODE].arg(1));
+	}
 }
 
