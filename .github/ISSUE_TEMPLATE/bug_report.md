@@ -10,6 +10,9 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+**Game logs**
+Please attach game logs: `VCMI_client.txt`, `VCMI_server.txt` etc.
+
 **To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
@@ -30,7 +33,7 @@ If this something which worked well some time ago, please let us know about vers
 If applicable, add screenshots to help explain your problem.
 
 **Version**
- - OS: [e.g. Windows, MacOS intel, MacOS Arm, Android, Linux, iOS]
+ - OS: [e.g. Windows, macOS Intel, macOS ARM, Android, Linux, iOS]
  - Version: [VCMI version]
 
 **Additional context**
