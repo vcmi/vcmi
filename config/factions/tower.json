@@ -202,8 +202,6 @@
 			"siege" :
 			{
 				"shooter" : "mage",
-				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
-				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGTW",
 				"gate" :
 				{

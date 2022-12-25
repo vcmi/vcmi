@@ -25,6 +25,7 @@ set(client_SRCS
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
 		gui/NotificationHandler.cpp
+		gui/InterfaceObjectConfigurable.cpp
 
 		widgets/AdventureMapClasses.cpp
 		widgets/Buttons.cpp
@@ -110,6 +111,7 @@ set(client_HEADERS
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
 		gui/NotificationHandler.h
+		gui/InterfaceObjectConfigurable.h
 
 		widgets/AdventureMapClasses.h
 		widgets/Buttons.h
@@ -197,7 +199,10 @@ else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
 
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
+if(ENABLE_NULLKILLER_AI)
+	add_dependencies(vcmiclient Nullkiller)
+endif()
 if(APPLE_IOS)
 	if(ENABLE_ERM)
 		add_dependencies(vcmiclient vcmiERM)

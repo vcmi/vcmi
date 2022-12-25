@@ -14,6 +14,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+std::string IHandlerBase::getScopeBuiltin() const
+{
+	return CModHandler::scopeBuiltin();
+}
 
 void IHandlerBase::registerObject(std::string scope, std::string type_name, std::string name, si32 index)
 {

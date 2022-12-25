@@ -438,7 +438,7 @@ void CMultiPlayers::onChange(std::string newText)
 	size_t namesCount = 0;
 
 	for(auto & elem : inputNames)
-		if(!elem->text.empty())
+		if(!elem->getText().empty())
 			namesCount++;
 }
 
@@ -447,8 +447,8 @@ void CMultiPlayers::enterSelectionScreen()
 	std::vector<std::string> names;
 	for(auto name : inputNames)
 	{
-		if(name->text.length())
-			names.push_back(name->text);
+		if(name->getText().length())
+			names.push_back(name->getText());
 	}
 
 	Settings name = settings.write["general"]["playerName"];
@@ -494,7 +494,7 @@ void CSimpleJoinScreen::connectToServer()
 	buttonOk->block(true);
 	CSDL_Ext::stopTextInput();
 
-	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->text, boost::lexical_cast<ui16>(inputPort->text));
+	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }
 
 void CSimpleJoinScreen::leaveScreen()
@@ -512,7 +512,7 @@ void CSimpleJoinScreen::leaveScreen()
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {
-	buttonOk->block(inputAddress->text.empty() || inputPort->text.empty());
+	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 }
 
 void CSimpleJoinScreen::connectThread(const std::string addr, const ui16 port)

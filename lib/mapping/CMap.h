@@ -284,6 +284,9 @@ public:
 	static const int MAP_SIZE_MIDDLE = 72;
 	static const int MAP_SIZE_LARGE = 108;
 	static const int MAP_SIZE_XLARGE = 144;
+	static const int MAP_SIZE_HUGE = 180;
+	static const int MAP_SIZE_XHUGE = 216;
+	static const int MAP_SIZE_GIANT = 252;
 
 	CMapHeader();
 	virtual ~CMapHeader();

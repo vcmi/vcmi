@@ -12,12 +12,12 @@
 #include "objectbrowser.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
-ObjectBrowser::ObjectBrowser(QObject *parent)
+ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
 	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY_TERRAIN)
 {
 }
 
-bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
+bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	bool result = QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 
@@ -57,7 +57,7 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 	return result;
 }
 
-bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
+bool ObjectBrowserProxyModel::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
 {
 	if(source_parent.isValid())
 	{
@@ -76,3 +76,52 @@ bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &sour
 	return (filter.isNull() || filter.isEmpty() || item->text().contains(filter, Qt::CaseInsensitive));
 }
 
+Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
+{
+	Qt::ItemFlags defaultFlags = QSortFilterProxyModel::flags(index);
+
+	if (index.isValid())
+		return Qt::ItemIsDragEnabled | defaultFlags;
+	
+	return defaultFlags;
+}
+
+QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) const
+{
+	assert(indexes.size() == 1);
+	
+	auto * standardModel = qobject_cast<QStandardItemModel*>(sourceModel());
+	assert(standardModel);
+	
+	QModelIndex index = indexes.front();
+	
+	if(!index.isValid())
+		return nullptr;
+
+	QMimeData * mimeData = new QMimeData;
+	mimeData->setImageData(standardModel->itemFromIndex(mapToSource(index))->data());
+	return mimeData;
+}
+
+ObjectBrowser::ObjectBrowser(QWidget * parent):
+	QTreeView(parent)
+{
+	setDropIndicatorShown(false);
+}
+
+void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
+{
+	logGlobal->info("Drag'n'drop: Start dragging object from ObjectBrowser");
+	QDrag *drag = new QDrag(this);
+	auto indexes = selectedIndexes();
+	if(indexes.isEmpty())
+		return;
+	
+	QMimeData * mimeData = model()->mimeData(indexes);
+	if(!mimeData)
+		return;
+		
+	drag->setMimeData(mimeData);
+
+	Qt::DropAction dropAction = drag->exec(supportedActions);
+}

@@ -11,36 +11,11 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "CRmgTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRmgTemplate;
 class CRandomGenerator;
-
-namespace EWaterContent
-{
-	enum EWaterContent
-	{
-		RANDOM = -1,
-		NONE,
-		NORMAL,
-		ISLANDS
-	};
-}
-
-namespace EMonsterStrength
-{
-	enum EMonsterStrength
-	{
-		RANDOM = -2,
-		ZONE_WEAK = -1,
-		ZONE_NORMAL = 0,
-		ZONE_STRONG = 1,
-		GLOBAL_WEAK = 2,
-		GLOBAL_NORMAL = 3,
-		GLOBAL_STRONG = 4
-	};
-}
 
 namespace EPlayerType
 {
@@ -76,6 +51,10 @@ public:
 		/// The default value is EPlayerType::AI.
 		EPlayerType::EPlayerType getPlayerType() const;
 		void setPlayerType(EPlayerType::EPlayerType value);
+		
+		/// Team id for this player. TeamID::NO_TEAM by default - team will be randomly assigned
+		TeamID getTeam() const;
+		void setTeam(TeamID value);
 
 		/// Constant for a random town selection.
 		static const si32 RANDOM_TOWN = -1;
@@ -84,6 +63,7 @@ public:
 		PlayerColor color;
 		si32 startingTown;
 		EPlayerType::EPlayerType playerType;
+		TeamID team;
 
 	public:
 		template <typename Handler>
@@ -92,6 +72,8 @@ public:
 			h & color;
 			h & startingTown;
 			h & playerType;
+			if(version >= 806)
+				h & team;
 		}
 	};
 
@@ -130,6 +112,9 @@ public:
 
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
+	
+	bool isRoadEnabled(const std::string & roadName) const;
+	void setRoadEnabled(const std::string & roadName, bool enable);
 
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
@@ -138,11 +123,14 @@ public:
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
 	void setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType);
+	
+	void setPlayerTeam(PlayerColor color, TeamID team = TeamID::NO_TEAM);
 
 	/// The random map template to generate the map with or empty/not set if the template should be chosen randomly.
 	/// Default: Not set/random.
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
+	void setMapTemplate(const std::string & name);
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
 
@@ -171,6 +159,8 @@ private:
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
+	std::set<std::string> disabledRoads;
+	
 	const CRmgTemplate * mapTemplate;
 
 public:
@@ -187,7 +177,21 @@ public:
 		h & waterContent;
 		h & monsterStrength;
 		h & players;
-		//TODO add name of template to class, enables selection of a template by a user
+		std::string templateName;
+		if(mapTemplate && h.saving)
+		{
+			templateName = mapTemplate->getId();
+		}
+		if(version >= 806)
+		{
+			h & templateName;
+			if(!h.saving)
+			{
+				setMapTemplate(templateName);
+			}
+			
+			h & disabledRoads;
+		}
 	}
 };
 

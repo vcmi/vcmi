@@ -66,7 +66,7 @@ void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
 void CSpellWindow::InteractiveArea::hover(bool on)
 {
 	if(on)
-		owner->statusBar->setText(hoverText);
+		owner->statusBar->write(hoverText);
 	else
 		owner->statusBar->clear();
 }
@@ -513,7 +513,7 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, ETextAlignment::CENTER);
 
 	for(auto l : {name, level, cost})
-		l->autoRedraw = false;
+		l->setAutoRedraw(false);
 }
 
 CSpellWindow::SpellArea::~SpellArea() = default;
@@ -609,7 +609,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->setText(boost::to_string(boost::format("%s (%s)") % mySpell->name % CGI->generaltexth->allTexts[171+mySpell->level]));
+			owner->statusBar->write(boost::to_string(boost::format("%s (%s)") % mySpell->name % CGI->generaltexth->allTexts[171+mySpell->level]));
 		else
 			owner->statusBar->clear();
 	}

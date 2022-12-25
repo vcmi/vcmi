@@ -1126,7 +1126,17 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
+	if (!active)
+		return;
+
+	if (captureAllKeys)
+		return;
+
 	assert(GH.statusbar);
+	assert(currentStatusBar.expired());//effectively, nullptr check
+
+	currentStatusBar = GH.statusbar;
+
 	captureAllKeys = true;
 	enteredText = "_";
 
@@ -1145,12 +1155,23 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		previouslyEntered.push_back(txt);
 	}
 	enteredText.clear();
-	GH.statusbar->setEnteringMode(false);
+
+	auto statusbar = currentStatusBar.lock();
+	assert(statusbar);
+
+	if (statusbar)
+		statusbar->setEnteringMode(false);
+
+	currentStatusBar.reset();
 }
 
 void CInGameConsole::refreshEnteredText()
 {
-	GH.statusbar->setEnteredText(enteredText);
+	auto statusbar = currentStatusBar.lock();
+	assert(statusbar);
+
+	if (statusbar)
+		statusbar->setEnteredText(enteredText);
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)

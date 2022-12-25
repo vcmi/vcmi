@@ -799,7 +799,7 @@ void CTownItem::updateGarrisons()
 void CTownItem::update()
 {
 	std::string incomeVal = boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]);
-	if (incomeVal != income->text)
+	if (incomeVal != income->getText())
 		income->setText(incomeVal);
 
 	heroes->update();

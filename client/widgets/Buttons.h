@@ -185,6 +185,7 @@ public:
 	/// in some cases, e.g. LoadGame difficulty selection, after refreshing the UI, the ToggleGroup should 
 	/// reset all of it's child buttons to BLOCK state, then make selection again
 	void setSelectedOnly(int id);
+	int getSelected() const;
 };
 
 /// A typical slider for volume with an animated indicator
@@ -256,8 +257,9 @@ public:
 	void setAmount(int to);
 
 	/// Accessors
-	int getAmount();
-	int getValue();
+	int getAmount() const;
+	int getValue() const;
+	int getCapacity() const;
 
 	void addCallback(std::function<void(int)> callback);
 

@@ -203,8 +203,6 @@
 			"siege" :
 			{
 				"shooter" : "archer",
-				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
-				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGCS",
 				"gate" :
 				{

@@ -760,6 +760,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 	initHeroes();
 	initStartingBonus();
 	initTowns();
+	placeHeroesInTowns();
 	initMapObjects();
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
@@ -1363,7 +1364,8 @@ void CGameState::placeStartingHeroes()
 			{
 				if(auto campaignBonus = scenarioOps->campState->getBonusForCurrentMap())
 				{
-					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1)) continue;
+					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1))
+						continue;
 				}
 			}
 
@@ -1861,6 +1863,37 @@ void CGameState::initMapObjects()
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }
 
+void CGameState::placeHeroesInTowns()
+{
+	for(auto k=players.begin(); k!=players.end(); ++k)
+	{
+		if(k->first==PlayerColor::NEUTRAL)
+			continue;
+
+		for(CGHeroInstance *h : k->second.heroes)
+		{
+			for(CGTownInstance *t : k->second.towns)
+			{
+				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
+
+				// current hero position is at one of blocking tiles of current town
+				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
+				if (heroOnTownBlockableTile)
+				{
+					int3 townVisitablePos = t->visitablePos();
+					int3 correctedPos = townVisitablePos + h->getVisitableOffset();
+
+					map->removeBlockVisTiles(h);
+					h->pos = correctedPos;
+					map->addBlockVisTiles(h);
+
+					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
+				}
+			}
+		}
+	}
+}
+
 void CGameState::initVisitingAndGarrisonedHeroes()
 {
 	for(auto k=players.begin(); k!=players.end(); ++k)
@@ -1873,17 +1906,10 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
-				int3 vistile = t->visitablePos(); vistile.x++; //tile next to the entrance
-				if(vistile == h->pos || h->pos==t->visitablePos())
+				if (t->visitableAt(h->visitablePos().x, h->visitablePos().y))
 				{
+					assert(t->visitingHero == nullptr);
 					t->setVisitingHero(h);
-					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
-					{
-						map->removeBlockVisTiles(h);
-						h->pos.x -= 1;
-						map->addBlockVisTiles(h);
-					}
-					break;
 				}
 			}
 		}

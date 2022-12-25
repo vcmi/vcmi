@@ -55,7 +55,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 #include <execinfo.h>
 #endif
 
@@ -958,7 +958,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -1013,6 +1013,10 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
+	
+#ifdef SINGLE_PROCESS_APP
+	options.emplace("run-by-client", po::variable_value{true, true});
+#endif
 
 	po::notify(options);
 
@@ -1049,7 +1053,7 @@ int main(int argc, char * argv[])
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
@@ -1114,14 +1118,11 @@ int main(int argc, char * argv[])
 }
 
 #ifdef VCMI_ANDROID
-void CVCMIServer::create(const std::vector<std::string> & args)
+void CVCMIServer::create()
 {
 	const char * foo = "android-server";
 	std::vector<const void *> argv = {foo};
-	for(auto & a : args)
-		argv.push_back(a.c_str());
-
-	main(argv.size(), const_cast<char **>(foo));
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
 }
 #elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
