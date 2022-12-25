@@ -245,7 +245,6 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		}
 			
 	case HEALTH: {
-		protocolAssert(args.size() == 0);
 		socketLobby.send(ProtocolStrings[ALIVE]);
 		break;
 	}
