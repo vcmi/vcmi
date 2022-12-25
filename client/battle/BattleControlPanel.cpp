@@ -99,12 +99,10 @@ void BattleControlPanel::tacticPhaseStarted()
 }
 void BattleControlPanel::tacticPhaseEnded()
 {
-	build(variables["battleItems"]);
+	deleteWidget("tacticNext");
+	deleteWidget("tacticEnd");
 
-	if(auto w = widget<CButton>("tacticNext"))
-		w.reset();
-	if(auto w = widget<CButton>("tacticEnd"))
-		w.reset();
+	build(variables["battleItems"]);
 
 	if(auto w = widget<CPicture>("menu"))
 	{

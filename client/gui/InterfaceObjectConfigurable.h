@@ -52,6 +52,8 @@ protected:
 			return nullptr;
 		return std::dynamic_pointer_cast<T>(iter->second);
 	}
+	
+	void deleteWidget(const std::string & name);
 		
 	//basic serializers
 	Point readPosition(const JsonNode &) const;

@@ -66,6 +66,13 @@ void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, 
 	callbacks[callbackName] = callback;
 }
 
+void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
+{
+	auto iter = widgets.find(name);
+	if(iter != widgets.end())
+		widgets.erase(iter);
+}
+
 void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
