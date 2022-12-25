@@ -12,10 +12,12 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="150"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="150"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="150"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="153"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="153"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="153"/>
         <source>Type</source>
@@ -24,16 +26,19 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="154"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="154"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="154"/>
         <source>Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="155"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="155"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="155"/>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="156"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="156"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="156"/>
         <source>Author</source>
@@ -169,6 +174,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
         <source>Mod name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -176,6 +182,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
@@ -199,6 +206,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <source>Latest version</source>
         <translation type="unfinished"></translation>
     </message>
@@ -206,6 +214,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="241"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="241"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="241"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
@@ -229,6 +238,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <source>Authors</source>
         <translation type="unfinished"></translation>
     </message>
@@ -236,6 +246,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
@@ -259,6 +270,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
         <source>Home</source>
         <translation type="unfinished"></translation>
     </message>
@@ -269,6 +281,8 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="252"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="268"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="268"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
@@ -311,6 +325,8 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
         <source>Required VCMI version</source>
         <translation type="unfinished"></translation>
     </message>
@@ -318,6 +334,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="267"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="267"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="267"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
@@ -341,6 +358,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
         <source>Supported VCMI versions</source>
         <translation type="unfinished"></translation>
     </message>
@@ -348,6 +366,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
@@ -371,6 +390,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <source>Conflicting mods</source>
         <translation type="unfinished"></translation>
     </message>
@@ -378,6 +398,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
@@ -401,6 +422,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <source>This mod can not be enabled because following mods are incompatible with this mod</source>
         <translation type="unfinished"></translation>
     </message>
@@ -408,6 +430,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
@@ -431,6 +454,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
         <translation type="unfinished"></translation>
     </message>
@@ -438,6 +462,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
@@ -461,6 +486,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <source>Notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -468,6 +494,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="818"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="818"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="818"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
@@ -485,10 +512,12 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
         <source>Mod is compatible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
@@ -557,7 +586,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="544"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="549"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="544"/>
         <source>Neutral AI</source>
         <translation type="unfinished"></translation>
@@ -630,24 +659,29 @@
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="526"/>
+        <source>Deutsch (German)</source>
+        <translation type="unfinished">Deutsch (Немецкий)</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="531"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="526"/>
         <source>Polska (Polish)</source>
         <translation>Polska (Польский)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="531"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="531"/>
         <source>Русский (Russian)</source>
         <translation>Русский</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="541"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
         <source>Українська (Ukrainian)</source>
         <translation>Українська (Украинский)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="574"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="579"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="574"/>
         <source>Friendly AI</source>
         <translation type="unfinished"></translation>
@@ -737,7 +771,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="627"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="632"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="627"/>
         <source>Enemy AI</source>
         <translation type="unfinished"></translation>
