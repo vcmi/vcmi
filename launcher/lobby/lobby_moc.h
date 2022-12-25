@@ -49,9 +49,16 @@ private slots:
 
 	void on_kickButton_clicked();
 
+	void on_buttonResolve_clicked();
+
+	void on_optNewGame_toggled(bool checked);
+
+	void on_optLoadGame_toggled(bool checked);
+
 private:
 	QString serverUrl;
 	int serverPort;
+	bool isLoadGameMode = false;
 	
 	Ui::Lobby *ui;
 	SocketLobby socketLobby;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>652</width>
-    <height>329</height>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,9 +30,6 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="3">
-    <widget class="QLineEdit" name="messageEdit"/>
-   </item>
    <item row="0" column="3">
     <widget class="QLabel" name="label_4">
      <property name="sizePolicy">
@@ -53,13 +50,6 @@
     <widget class="QLineEdit" name="serverEdit">
      <property name="text">
       <string>127.0.0.1:5002</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QPlainTextEdit" name="chat">
-     <property name="readOnly">
-      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -147,34 +137,10 @@
      </widget>
      <widget class="QWidget" name="roomPage">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="5" column="1">
-        <widget class="QPushButton" name="buttonReady">
+       <item row="1" column="1">
+        <widget class="QPushButton" name="kickButton">
          <property name="text">
-          <string>Ready</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Mods mismatch</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QPushButton" name="buttonLeave">
-         <property name="text">
-          <string>Leave</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QListWidget" name="modsList">
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
+          <string>Kick player</string>
          </property>
         </widget>
        </item>
@@ -191,13 +157,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="kickButton">
-         <property name="text">
-          <string>Kick player</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
@@ -205,9 +164,98 @@
          </property>
         </widget>
        </item>
+       <item row="6" column="0">
+        <widget class="QPushButton" name="buttonLeave">
+         <property name="text">
+          <string>Leave</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Mods mismatch</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QListWidget" name="modsList">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QPushButton" name="buttonReady">
+         <property name="text">
+          <string>Ready</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="buttonResolve">
+         <property name="text">
+          <string>Resolve conflicts</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="optNewGame">
+           <property name="text">
+            <string>New game</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="optLoadGame">
+           <property name="text">
+            <string>Load game</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
     </widget>
+   </item>
+   <item row="1" column="0" rowspan="3" colspan="3">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QListWidget" name="listUsers">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>120</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPlainTextEdit" name="chat">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="messageEdit"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
