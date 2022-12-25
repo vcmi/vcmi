@@ -145,8 +145,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	{
 	case spells::Mode::HERO:
 	{
-		//if(battleCastSpells(side.get()) > 0)
-		//	return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
+		if(battleCastSpells(side.get()) > 0)
+			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 
 		auto hero = dynamic_cast<const CGHeroInstance *>(caster);
 
