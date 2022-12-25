@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -22,24 +23,11 @@ class BattleInterface;
 class BattleConsole;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
-class BattleControlPanel : public CIntObject
-{
+class BattleControlPanel : public InterfaceObjectConfigurable
+{	
 	BattleInterface & owner;
-
-	std::shared_ptr<CPicture> menu;
-
-	std::shared_ptr<CButton> bOptions;
-	std::shared_ptr<CButton> bSurrender;
-	std::shared_ptr<CButton> bFlee;
-	std::shared_ptr<CButton> bAutofight;
-	std::shared_ptr<CButton> bSwitchAction;
-	std::shared_ptr<CButton> bSpell;
-	std::shared_ptr<CButton> bWait;
-	std::shared_ptr<CButton> bDefence;
-	std::shared_ptr<CButton> bConsoleUp;
-	std::shared_ptr<CButton> bConsoleDown;
-	std::shared_ptr<CButton> btactNext;
-	std::shared_ptr<CButton> btactEnd;
+	
+	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
 	/// button press handling functions
 	void bOptionsf();
