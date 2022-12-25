@@ -161,10 +161,12 @@ public:
 	std::string toString() const
 	{
 		//Performance is important here
-		char str[16] = {};
-		std::sprintf(str, "(%d %d %d)", x, y, z);
+		std::string result = "{" +
+				std::to_string(x) + " " +
+				std::to_string(y) + " " +
+				std::to_string(z) + "}";
 
-		return std::string(str);
+		return result;
 	}
 
 	bool valid() const //Should be named "isValid"?

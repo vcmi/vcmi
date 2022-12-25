@@ -663,9 +663,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
 	//This part is performance-critical
-
-	char cachingStr[20] = {};
-	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
+	std::string cachingStr = "type_" + std::to_string(int(type)) + "_" + std::to_string(subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
@@ -694,8 +692,7 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
 	//This part is performance-ciritcal
-	char cachingStr[20] = {};
-	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
+	std::string cachingStr = "type_" + std::to_string(int(type)) + "_" + std::to_string(subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
