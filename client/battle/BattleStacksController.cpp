@@ -225,7 +225,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 		{
 			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeIn", nullptr));
 			if (stack->isClone())
-				addNewAnim(new ColorTransformAnimation(owner, stack, "cloning", SpellID(SpellID::CLONE).toSpell()));
+				addNewAnim(new ColorTransformAnimation(owner, stack, "cloning", nullptr));
 		});
 	}
 }
@@ -437,7 +437,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
 
 			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, soundBase::FIRESHIE, attackedInfo.attacker->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, "FIRESHIE", attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
 				owner.displaySpellEffect(attackedInfo.spellEffect.toSpell(), attackedInfo.defender->getPosition());
@@ -449,7 +449,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.rebirth)
 		{
 			owner.executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
-				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, soundBase::RESURECT, attackedInfo.defender->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, "RESURECT", attackedInfo.defender->getPosition());
 				addNewAnim(new ResurrectionAnimation(owner, attackedInfo.defender));
 			});
 		}
@@ -552,7 +552,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
-			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, "GOODLUCK", attacker->getPosition());
 		});
 	}
 
@@ -560,7 +560,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
-			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, "BADLUCK", attacker->getPosition());
 		});
 	}
 
@@ -568,7 +568,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
-			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, soundBase::deathBlow, defender->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, "DEATHBLO", defender->getPosition());
 		});
 
 		for(auto elem : info.secondaryDefender)
@@ -603,7 +603,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=]()
 		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, soundBase::DRAINLIF, attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, "DRAINLIF", attacker->getPosition());
 		});
 	}
 

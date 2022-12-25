@@ -56,7 +56,7 @@ public:
 
 	//displays custom effect on the battlefield
 	void displayEffect(EBattleEffect effect, const BattleHex & destTile);
-	void displayEffect(EBattleEffect effect, uint32_t soundID, const BattleHex & destTile);
+	void displayEffect(EBattleEffect effect, std::string soundFile, const BattleHex & destTile);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 

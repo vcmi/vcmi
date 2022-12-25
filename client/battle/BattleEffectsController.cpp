@@ -40,16 +40,16 @@ BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 
 void BattleEffectsController::displayEffect(EBattleEffect effect, const BattleHex & destTile)
 {
-	displayEffect(effect, soundBase::invalid, destTile);
+	displayEffect(effect, "", destTile);
 }
 
-void BattleEffectsController::displayEffect(EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect effect, std::string soundFile, const BattleHex & destTile)
 {
 	size_t effectID = static_cast<size_t>(effect);
 
 	std::string customAnim = graphics->battleACToDef[effectID][0];
 
-	owner.stacksController->addNewAnim(new PointEffectAnimation(owner, soundBase::stringsList()[soundID], customAnim, destTile));
+	owner.stacksController->addNewAnim(new PointEffectAnimation(owner, soundFile, customAnim, destTile));
 }
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
@@ -66,22 +66,22 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 	switch(bte.effect)
 	{
 		case Bonus::HP_REGENERATION:
-			displayEffect(EBattleEffect::REGENERATION, soundBase::REGENER, stack->getPosition());
+			displayEffect(EBattleEffect::REGENERATION, "REGENER", stack->getPosition());
 			break;
 		case Bonus::MANA_DRAIN:
-			displayEffect(EBattleEffect::MANA_DRAIN, soundBase::MANADRAI, stack->getPosition());
+			displayEffect(EBattleEffect::MANA_DRAIN, "MANADRAI", stack->getPosition());
 			break;
 		case Bonus::POISON:
-			displayEffect(EBattleEffect::POISON, soundBase::POISON, stack->getPosition());
+			displayEffect(EBattleEffect::POISON, "POISON", stack->getPosition());
 			break;
 		case Bonus::FEAR:
-			displayEffect(EBattleEffect::FEAR, soundBase::FEAR, stack->getPosition());
+			displayEffect(EBattleEffect::FEAR, "FEAR", stack->getPosition());
 			break;
 		case Bonus::MORALE:
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
-			displayEffect(EBattleEffect::GOOD_MORALE, soundBase::GOODMRLE, stack->getPosition());
+			displayEffect(EBattleEffect::GOOD_MORALE, "GOODMRLE", stack->getPosition());
 			owner.appendBattleLog(hlp);
 			break;
 		}
@@ -104,7 +104,7 @@ void BattleEffectsController::startAction(const BattleAction* action)
 		break;
 	case EActionType::BAD_MORALE:
 		owner.appendBattleLog(stack->formatGeneralMessage(-34));
-		displayEffect(EBattleEffect::BAD_MORALE, soundBase::BADMRLE, stack->getPosition());
+		displayEffect(EBattleEffect::BAD_MORALE, "BADMRLE", stack->getPosition());
 		break;
 	}
 
@@ -113,7 +113,7 @@ void BattleEffectsController::startAction(const BattleAction* action)
 	switch(action->actionType)
 	{
 		case EActionType::STACK_HEAL:
-			displayEffect(EBattleEffect::REGENERATION, soundBase::REGENER, actionTarget.at(0).hexValue);
+			displayEffect(EBattleEffect::REGENERATION, "REGENER", actionTarget.at(0).hexValue);
 			break;
 	}
 
