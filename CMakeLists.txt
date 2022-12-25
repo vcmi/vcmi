@@ -52,6 +52,7 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
@@ -316,8 +317,12 @@ find_package(TBB REQUIRED)
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network LinguistTools)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network LinguistTools)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network OPTIONAL_COMPONENTS LinguistTools)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network OPTIONAL_COMPONENTS LinguistTools)
+
+	if (NOT DEFINED Qt5LinguistTools_DIR)
+		set(ENABLE_TRANSLATIONS OFF)
+	endif()
 endif()
 
 if(ENABLE_LUA)
