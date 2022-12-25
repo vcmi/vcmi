@@ -51,7 +51,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, std::string so
 
 	CCS->soundh->playSound( soundFile );
 
-	owner.stacksController->addNewAnim(new PointEffectAnimation(owner, customAnim, destTile));
+	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile));
 }
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)

@@ -413,8 +413,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		bool side = sc->side;
 
 		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
-			stacksController->addNewAnim(new PointEffectAnimation(*this, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-			stacksController->addNewAnim(new PointEffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 		});
 	}
 }
@@ -469,18 +469,18 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSp
 			int flags = 0;
 
 			if (isHit)
-				flags |= PointEffectAnimation::FORCE_ON_TOP;
+				flags |= EffectAnimation::FORCE_ON_TOP;
 
 			if (animation.verticalPosition == VerticalPosition::BOTTOM)
-				flags |= PointEffectAnimation::ALIGN_TO_BOTTOM;
+				flags |= EffectAnimation::ALIGN_TO_BOTTOM;
 
 			if (!destinationTile.isValid())
-				flags |= PointEffectAnimation::SCREEN_FILL;
+				flags |= EffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new PointEffectAnimation(*this, animation.resourceName, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, flags));
 			else
-				stacksController->addNewAnim(new PointEffectAnimation(*this, animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new EffectAnimation(*this, animation.resourceName, destinationTile, flags));
 		}
 	}
 }

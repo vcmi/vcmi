@@ -801,7 +801,7 @@ void CatapultAnimation::nextFrame()
 	std::string effectFilename = (catapultDamage > 0) ? "SGEXPL" : "CSGRCK";
 
 	CCS->soundh->playSound( soundFilename );
-	owner.stacksController->addNewAnim( new PointEffectAnimation(owner, effectFilename, shotTarget));
+	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
 }
 
 void CatapultAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -865,7 +865,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, int effects):
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	effectFlags(effects),
@@ -874,40 +874,40 @@ PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string 
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
-	PointEffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
+	EffectAnimation(owner, animationName, effects)
 {
 	battlehexes = hex;
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
-	PointEffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
+	EffectAnimation(owner, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
-	PointEffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
+	EffectAnimation(owner, animationName, effects)
 {
 	positions = pos;
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
-	PointEffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
+	EffectAnimation(owner, animationName, effects)
 {
 	positions.push_back(pos);
 }
 
-PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects):
-	PointEffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects):
+	EffectAnimation(owner, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 	positions.push_back(pos);
 }
 
-bool PointEffectAnimation::init()
+bool EffectAnimation::init()
 {
 	animation->preload();
 
@@ -965,7 +965,7 @@ bool PointEffectAnimation::init()
 	return true;
 }
 
-void PointEffectAnimation::nextFrame()
+void EffectAnimation::nextFrame()
 {
 	playEffect();
 
@@ -977,27 +977,27 @@ void PointEffectAnimation::nextFrame()
 	}
 }
 
-bool PointEffectAnimation::alignToBottom() const
+bool EffectAnimation::alignToBottom() const
 {
 	return effectFlags & ALIGN_TO_BOTTOM;
 }
 
-bool PointEffectAnimation::forceOnTop() const
+bool EffectAnimation::forceOnTop() const
 {
 	return effectFlags & FORCE_ON_TOP;
 }
 
-bool PointEffectAnimation::screenFill() const
+bool EffectAnimation::screenFill() const
 {
 	return effectFlags & SCREEN_FILL;
 }
 
-void PointEffectAnimation::onEffectFinished()
+void EffectAnimation::onEffectFinished()
 {
 	effectFinished = true;
 }
 
-void PointEffectAnimation::playEffect()
+void EffectAnimation::playEffect()
 {
 	if ( effectFinished )
 		return;
@@ -1018,7 +1018,7 @@ void PointEffectAnimation::playEffect()
 	}
 }
 
-void PointEffectAnimation::clearEffect()
+void EffectAnimation::clearEffect()
 {
 	auto & effects = owner.effectsController->battleEffects;
 
@@ -1027,7 +1027,7 @@ void PointEffectAnimation::clearEffect()
 	});
 }
 
-PointEffectAnimation::~PointEffectAnimation()
+EffectAnimation::~EffectAnimation()
 {
 	assert(effectFinished);
 }
