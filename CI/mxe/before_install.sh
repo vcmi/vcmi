@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# steps to upgrade MXE dependencies:
+# 1) Use Debian/Ubuntu system or install one (virtual machines will work too)
+# 2) update following script to include any new dependencies 
+# You can also run it to upgrade existing ones, but don't expect much
+# MXE repository only provides ancient versions for the sake of "stability"
+# https://github.com/vcmi/vcmi-deps-mxe/blob/master/mirror-mxe.sh
+# 3) make release in vcmi-deps-mxe repository using resulting tar archive
+# 4) update paths to tar archive in this script
+
 # Install nsis for installer creation
 sudo add-apt-repository 'deb http://security.ubuntu.com/ubuntu bionic-security main'
 sudo apt-get install -qq nsis ninja-build libssl1.0.0
