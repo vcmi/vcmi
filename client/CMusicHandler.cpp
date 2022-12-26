@@ -495,15 +495,15 @@ void CMusicHandler::musicFinishedCallback()
 	// 1) SDL thread to call this method on end of playback
 	// 2) VCMI code to call queueNext() method to queue new file
 	// this leads to:
-	// 1) SDL thread waiting to aquire music lock in this method (while keeping internal SDL mutex locked)
-	// 2) VCMI thread waiting to aquire internal SDL mutex (while keeping music mutex locked)
+	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
+	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
 	// Because of that (and lack of clear way to fix that)
 	// We will try to acquire lock here and if failed - do nothing
 	// This may break music playback till next song is enqued but won't deadlock the game
 
 	if (!mutex.try_lock())
 	{
-		logGlobal->error("Failed to aquire mutex! Unable to restart music!");
+		logGlobal->error("Failed to acquire mutex! Unable to restart music!");
 		return;
 	}
 
