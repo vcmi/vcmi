@@ -115,6 +115,19 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 			parser.isSet("d")}};
 }
 
+void MainWindow::loadTranslation()
+{
+#ifdef ENABLE_QT_TRANSLATIONS
+	std::string languageCode = settings["general"]["language"].String();
+	QString translationFile = "./mapeditor/translations/" + QString::fromStdString(languageCode) + ".qm";
+
+	if (!translator.load(translationFile))
+		logGlobal->error("Failed to load translation");
+	if (!qApp->installTranslator(&translator))
+		logGlobal->error("Failed to install translator");
+#endif
+}
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -168,6 +181,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	conf.init();
 	logGlobal->info("Loading settings");
+
+	loadTranslation();
+
+	ui->setupUi(this);
+	loadUserSettings(); //For example window size
+	setTitle();
 
 	init();
 

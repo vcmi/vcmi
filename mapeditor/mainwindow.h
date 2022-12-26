@@ -29,6 +29,10 @@ class MainWindow : public QMainWindow
 	const QString mainWindowSizeSetting = "MainWindow/Size";
 	const QString mainWindowPositionSetting = "MainWindow/Position";
 
+#ifdef ENABLE_QT_TRANSLATIONS
+	QTranslator translator;
+#endif
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -47,6 +51,8 @@ public:
 	int getMapLevel() const {return mapLevel;}
 	
 	MapController controller;
+
+	void loadTranslation();
 
 private slots:
 	void on_actionOpen_triggered();
