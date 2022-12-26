@@ -388,23 +388,25 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.w = 256;
 	pos.h = 90 + 50 * SEL->getMapInfo()->mapHeader->howManyTeams;
-
+//	std::cout <<(int) SEL->getMapInfo()->mapHeader->howManyTeams;
 	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	for(int i = 0; i < SEL->getMapInfo()->mapHeader->howManyTeams; i++)
 	{
 		std::vector<ui8> flags;
 		labelGroupTeams->add(128, 65 + 50 * i, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (i+1)));
-
-		for(int j = 0; j < PlayerColor::PLAYER_LIMIT_I; j++)
+		
+		for(int j = 0; j < /*PlayerColor::PLAYER_LIMIT_I*/(int)SEL->getMapInfo()->mapHeader->howManyTeams; j++)
 		{
+		//	std::cout << j << ' '; //ÒÓÒ ÇÀÊÐÀËÑß ÊÎÂÀÐÍÛÉ ÁÀÃ
+			//Óêàçàòü òåêóùåå êîëè÷åñòâî êîìàíä
 			if((SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
 				&& SEL->getPlayerInfo(j).team == TeamID(i))
 			{
 				flags.push_back(j);
 			}
 		}
-
+	//	std::cout <<"\n";
 		int curx = 128 - 9 * (int)flags.size();
 		for(auto & flag : flags)
 		{
