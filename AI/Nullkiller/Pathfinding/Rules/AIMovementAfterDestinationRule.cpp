@@ -157,7 +157,7 @@ namespace AIPathfinding
 
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
-				node->specialAction.reset(new QuestAction(questAction));
+				node->addSpecialAction(std::make_shared<QuestAction>(questAction));
 			});
 		}
 
@@ -279,6 +279,11 @@ namespace AIPathfinding
 
 		if(loss < actualArmyValue)
 		{
+			if(destNode->specialAction)
+			{
+				battleNode->specialAction = destNode->specialAction;
+			}
+
 			destination.node = battleNode;
 			nodeStorage->commit(destination, source);
 
@@ -288,7 +293,7 @@ namespace AIPathfinding
 
 			AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
 
-			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
+			battleNode->addSpecialAction(std::make_shared<BattleAction>(destination.coord));
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
