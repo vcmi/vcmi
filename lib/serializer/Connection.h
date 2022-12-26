@@ -21,6 +21,8 @@ namespace boost
 {
 	namespace asio
 	{
+		class streambuf;
+
 		namespace ip
 		{
 			class tcp;
@@ -69,6 +71,9 @@ class DLL_LINKAGE CConnection
 
 	bool enableBufferedWrite;
 	boost::asio::streambuf writeBuffer;
+
+	bool enableBufferedRead;
+	boost::asio::streambuf readBuffer;
 
 public:
 	BinaryDeserializer iser;
