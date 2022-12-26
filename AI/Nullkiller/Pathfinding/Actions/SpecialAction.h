@@ -36,7 +36,7 @@ public:
 		const CGHeroInstance * hero,
 		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
-		AIPathNode * dstMode,
+		AIPathNode * dstNode,
 		const AIPathNode * srcNode) const
 	{
 	}
@@ -44,6 +44,38 @@ public:
 	virtual std::string toString() const = 0;
 
 	virtual const CGObjectInstance * targetObject() const { return nullptr; }
+
+	virtual std::vector<std::shared_ptr<const SpecialAction>> getParts() const
+	{
+		return {};
+	}
+};
+
+class CompositeAction : public SpecialAction
+{
+private:
+	std::vector<std::shared_ptr<const SpecialAction>> parts;
+
+public:
+	CompositeAction(std::vector<std::shared_ptr<const SpecialAction>> parts) : parts(parts) {}
+
+	bool canAct(const AIPathNode * source) const override;
+	void execute(const CGHeroInstance * hero) const override;
+	std::string toString() const override;
+	const CGObjectInstance * targetObject() const override;
+	Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
+
+	std::vector<std::shared_ptr<const SpecialAction>> getParts() const override
+	{
+		return parts;
+	}
+
+	void applyOnDestination(
+		const CGHeroInstance * hero,
+		CDestinationNodeInfo & destination,
+		const PathNodeInfo & source,
+		AIPathNode * dstNode,
+		const AIPathNode * srcNode) const override;
 };
 
 }

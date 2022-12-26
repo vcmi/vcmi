@@ -114,7 +114,7 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 
 			if(blockerObject)
 			{
-				blockers.push_back(blockerObject);
+				blockers.insert(blockers.begin(), blockerObject);
 			}
 		}
 

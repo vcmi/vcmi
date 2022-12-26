@@ -255,7 +255,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 	{
 		auto quest = dynamic_cast<const CGKeys *>(obj);
 
-		if(quest->passableFor(playerColor))
+		if(quest->wasMyColorVisited(playerColor))
 			return true;
 	}
 
