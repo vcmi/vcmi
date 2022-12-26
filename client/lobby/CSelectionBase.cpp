@@ -394,7 +394,6 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 	{
 		std::vector<ui8> flags;
 		labelGroupTeams->add(128, 65 + 50 * i, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (i+1)));
-		
 		for(int j = 0; j < (int)SEL->getMapInfo()->mapHeader->howManyTeams; j++)
 		{
 			if((SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
