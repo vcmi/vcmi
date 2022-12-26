@@ -161,10 +161,10 @@ public:
 	std::string toString() const
 	{
 		//Performance is important here
-		std::string result = "{" +
+		std::string result = "(" +
 				std::to_string(x) + " " +
 				std::to_string(y) + " " +
-				std::to_string(z) + "}";
+				std::to_string(z) + ")";
 
 		return result;
 	}
