@@ -22,6 +22,14 @@ class Lobby : public QWidget
 public:
 	explicit Lobby(QWidget *parent = nullptr);
 	~Lobby();
+	
+signals:
+	
+	void enableMod(QString mod);
+	void disableMod(QString mod);
+	
+public slots:
+	void updateMods();
 
 private slots:
 	void on_messageEdit_returnPressed();
@@ -66,6 +74,7 @@ private:
 	QString session;
 	QString username;
 	QStringList gameArgs;
+	QMap<QString, QString> hostModsMap;
 
 	enum AuthStatus
 	{

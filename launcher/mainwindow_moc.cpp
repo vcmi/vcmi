@@ -53,6 +53,10 @@ MainWindow::MainWindow(QWidget * parent)
 	load(); // load FS before UI
 
 	ui->setupUi(this);
+	
+	connect(ui->lobbyView, &Lobby::enableMod, ui->modlistView, &CModListView::enableModByName);
+	connect(ui->lobbyView, &Lobby::disableMod, ui->modlistView, &CModListView::disableModByName);
+	connect(ui->modlistView, &CModListView::modsChanged, ui->lobbyView, &Lobby::updateMods);
 
 	//load window settings
 	QSettings s(Ui::teamName, Ui::appName);

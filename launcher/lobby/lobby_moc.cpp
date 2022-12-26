@@ -134,6 +134,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 		if(args[1] == username)
 		{
+			hostModsMap.clear();
 			ui->buttonReady->setText("Ready");
 			ui->optNewGame->setChecked(true);
 			sysMessage(joinStr.arg("you", args[0]));
@@ -155,33 +156,15 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		protocolAssert(amount * 2 == (args.size() - 1));
 
 		tagPoint = 1;
-		ui->modsList->clear();
-		auto enabledMods = buildModsMap();
 		for(int i = 0; i < amount; ++i, tagPoint += 2)
-		{
-			if(enabledMods.contains(args[tagPoint]))
-			{
-				if(enabledMods[args[tagPoint]] == args[tagPoint + 1])
-					enabledMods.remove(args[tagPoint]);
-				else
-					ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-update.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
-			}
-			else if(isModAvailable(args[tagPoint], args[tagPoint + 1]))
-				ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-enabled.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
-			else
-				ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-delete.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
-		}
-		for(auto & remainMod : enabledMods.keys())
-		{
-			ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-disabled.png"), QString("%1 (v%2)").arg(remainMod, enabledMods[remainMod])));
-		}
-		if(!ui->modsList->count())
-			ui->modsList->addItem("No issues detected");
+			hostModsMap[args[tagPoint]] = args[tagPoint + 1];
+		
+		updateMods();
 		break;
 		}
 			
 	case CLIENTMODS: {
-		protocolAssert(args.size() > 1);
+		protocolAssert(args.size() >= 1);
 		amount = args[1].toInt();
 		protocolAssert(amount * 2 == (args.size() - 2));
 
@@ -398,7 +381,84 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->serverEdit->setEnabled(true);
 		ui->userEdit->setEnabled(true);
 		ui->listUsers->clear();
+		hostModsMap.clear();
+		updateMods();
 		socketLobby.disconnectServer();
+	}
+}
+
+void Lobby::updateMods()
+{
+	ui->modsList->clear();
+	if(hostModsMap.empty())
+		return;
+	
+	auto enabledMods = buildModsMap();
+	for(auto & mod : hostModsMap.keys())
+	{
+		auto & modValue = hostModsMap[mod];
+		auto modName = QString("%1 (v%2)").arg(mod, modValue);
+		//first - mod name
+		//second.first - should mod be enabled
+		//second.second - is possible to resolve
+		QMap<QString, QVariant> modData;
+		QList<QVariant> modDataVal;
+		if(enabledMods.contains(mod))
+		{
+			if(enabledMods[mod] == modValue)
+				enabledMods.remove(mod); //mod fully matches, remove from list
+			else
+			{
+				modDataVal.append(true);
+				modDataVal.append(false);
+				modData[mod] = modDataVal;
+				auto * lw = new QListWidgetItem(QIcon("icons:mod-update.png"), modName); //mod version mismatch
+				lw->setData(Qt::UserRole, modData);
+				ui->modsList->addItem(lw);
+			}
+		}
+		else if(isModAvailable(mod, modValue))
+		{
+			modDataVal.append(true);
+			modDataVal.append(true);
+			modData[mod] = modDataVal;
+			auto * lw = new QListWidgetItem(QIcon("icons:mod-enabled.png"), modName); //mod available and needs to be enabled
+			lw->setData(Qt::UserRole, modData);
+			ui->modsList->addItem(lw);
+		}
+		else
+		{
+			modDataVal.append(true);
+			modDataVal.append(false);
+			modData[mod] = modDataVal;
+			auto * lw = new QListWidgetItem(QIcon("icons:mod-delete.png"), modName); //mod is not available and needs to be installed
+			lw->setData(Qt::UserRole, modData);
+			ui->modsList->addItem(lw);
+		}
+	}
+	for(auto & remainMod : enabledMods.keys())
+	{
+		//first - mod name
+		//second.first - should mod be enabled
+		//second.second - is possible to resolve
+		QMap<QString, QVariant> modData;
+		QList<QVariant> modDataVal;
+		modDataVal.append(false);
+		modDataVal.append(true);
+		modData[remainMod] = modDataVal;
+		auto modName = QString("%1 (v%2)").arg(remainMod, enabledMods[remainMod]);
+		auto * lw = new QListWidgetItem(QIcon("icons:mod-disabled.png"), modName); //mod needs to be disabled
+		lw->setData(Qt::UserRole, modData);
+		ui->modsList->addItem(lw);
+	}
+	if(!ui->modsList->count())
+	{
+		ui->buttonResolve->setEnabled(false);
+		ui->modsList->addItem("No issues detected");
+	}
+	else
+	{
+		ui->buttonResolve->setEnabled(true);
 	}
 }
 
@@ -456,7 +516,31 @@ void Lobby::on_kickButton_clicked()
 
 void Lobby::on_buttonResolve_clicked()
 {
-	//TODO: auto-resolve mods conflicts
+	QStringList toEnableList, toDisableList;
+	for(auto * item : ui->modsList->selectedItems())
+	{
+		auto data = item->data(Qt::UserRole);
+		if(data.isNull())
+			continue;
+		
+		auto modData = data.toMap();
+		assert(modData.size() == 1);
+		auto modDataVal = modData.begin()->toList();
+		assert(modDataVal.size() == 2);
+		if(!modDataVal[1].toBool())
+			continue;
+		
+		if(modDataVal[0].toBool())
+			toEnableList << modData.begin().key();
+		else
+			toDisableList << modData.begin().key();
+			
+	}
+	
+	for(auto & mod : toDisableList)
+		emit disableMod(mod);
+	for(auto & mod : toEnableList)
+		emit enableMod(mod);
 }
 
 void Lobby::on_optNewGame_toggled(bool checked)
