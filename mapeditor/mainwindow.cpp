@@ -141,10 +141,6 @@ MainWindow::MainWindow(QWidget* parent) :
 		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
 	
-	ui->setupUi(this);
-	loadUserSettings(); //For example window size
-	setTitle();
-
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
