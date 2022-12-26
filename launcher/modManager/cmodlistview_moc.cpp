@@ -496,7 +496,14 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 void CModListView::on_enableButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	
+	enableModByName(modName);
+	
+	checkManagerErrors();
+}
 
+void CModListView::enableModByName(QString modName)
+{
 	assert(findBlockingMods(modName).empty());
 	assert(findInvalidDependencies(modName).empty());
 
@@ -505,17 +512,24 @@ void CModListView::on_enableButton_clicked()
 		if(modModel->getMod(name).isDisabled())
 			manager->enableMod(name);
 	}
-	checkManagerErrors();
+	emit modsChanged();
 }
 
 void CModListView::on_disableButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
+	disableModByName(modName);
+	
+	checkManagerErrors();
+}
+
+void CModListView::disableModByName(QString modName)
+{
 	if(modModel->hasMod(modName) && modModel->getMod(modName).isEnabled())
 		manager->disableMod(modName);
 
-	checkManagerErrors();
+	emit modsChanged();
 }
 
 void CModListView::on_updateButton_clicked()
@@ -544,6 +558,8 @@ void CModListView::on_uninstallButton_clicked()
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
 	}
+	
+	emit modsChanged();
 	checkManagerErrors();
 }
 
@@ -631,6 +647,8 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	if(doInstallFiles)
 		installFiles(savedFiles);
+	
+	emit modsChanged();
 }
 
 void CModListView::hideProgressBar()
