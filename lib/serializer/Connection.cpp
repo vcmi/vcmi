@@ -34,6 +34,7 @@ using namespace boost::asio::ip;
 
 void CConnection::init()
 {
+	enableBufferedWrite = false;
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
     try
     {
@@ -72,6 +73,7 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name, std::str
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = std::make_shared<tcp::socket>(*io_service);
+
 	tcp::resolver resolver(*io_service);
 	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)),error);
 	if(error)
@@ -138,8 +140,37 @@ CConnection::CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<bo
 	}
 	init();
 }
+
+void CConnection::flushBuffers()
+{
+	if(!enableBufferedWrite)
+		return;
+
+	try
+	{
+		asio::write(*socket, writeBuffer);
+	}
+	catch(...)
+	{
+		//connection has been lost
+		connected = false;
+		throw;
+	}
+
+	enableBufferedWrite = false;
+}
+
 int CConnection::write(const void * data, unsigned size)
 {
+	if(enableBufferedWrite)
+	{
+		std::ostream ostream(&writeBuffer);
+		
+		ostream.write(static_cast<const char *>(data), size);
+
+		return size;
+	}
+
 	try
 	{
 		int ret;
@@ -153,6 +184,7 @@ int CConnection::write(const void * data, unsigned size)
 		throw;
 	}
 }
+
 int CConnection::read(void * data, unsigned size)
 {
 	try
@@ -167,6 +199,7 @@ int CConnection::read(void * data, unsigned size)
 		throw;
 	}
 }
+
 CConnection::~CConnection()
 {
 	if(handler)
@@ -229,7 +262,12 @@ void CConnection::sendPack(const CPack * pack)
 {
 	boost::unique_lock<boost::mutex> lock(*mutexWrite);
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
+
+	enableBufferedWrite = true;
+
 	oser & pack;
+
+	flushBuffers();
 }
 
 void CConnection::disableStackSendingByID()

@@ -63,8 +63,13 @@ class DLL_LINKAGE CConnection
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
+	void flushBuffers();
 
 	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
+
+	bool enableBufferedWrite;
+	boost::asio::streambuf writeBuffer;
+
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
