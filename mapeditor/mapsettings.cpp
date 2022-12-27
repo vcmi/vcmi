@@ -19,6 +19,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/StringConstants.h"
 #include "inspector/townbulidingswidget.h" //to convert BuildingID to string
 
 //parses date for lose condition (1m 1w 1d)
@@ -158,31 +159,6 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage));
 	
 	//victory & loss conditions
-	/*namespace EVictoryConditionType
-	{
-		enum EVictoryConditionType { ARTIFACT, GATHERTROOP, GATHERRESOURCE, BUILDCITY, BUILDGRAIL, BEATHERO,
-			CAPTURECITY, BEATMONSTER, TAKEDWELLINGS, TAKEMINES, TRANSPORTITEM, WINSTANDARD = 255 };
-	}
-
-	namespace ELossConditionType
-	{
-		enum ELossConditionType { LOSSCASTLE, LOSSHERO, TIMEEXPIRES, LOSSSTANDARD = 255 };
-	}*/
-	//internal use, deprecated
-	/*HAVE_ARTIFACT,     // type - required artifact
-	HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
-	HAVE_RESOURCES,    // type - resource ID, value - amount to collect
-	HAVE_BUILDING,     // position - town, optional, type - building to build
-	CONTROL,           // position - position of object, optional, type - type of object
-	DESTROY,           // position - position of object, optional, type - type of object
-	TRANSPORT,         // position - where artifact should be transported, type - type of artifact
-
-	//map format version pre 1.0
-	DAYS_PASSED,       // value - number of days from start of the game
-	IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
-	DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
-	STANDARD_WIN,      // normal defeat all enemies condition
-	CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true) */
 	const std::array<std::string, 8> conditionStringsWin = {
 		"No special victory",
 		"Have artifact",
@@ -260,7 +236,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							ui->victoryComboBox->setCurrentIndex(2);
 							assert(victoryTypeWidget);
 							assert(victoryValueWidget);
-							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
+							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
 							victoryTypeWidget->setCurrentIndex(idx);
 							victoryValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
@@ -270,7 +246,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							ui->victoryComboBox->setCurrentIndex(3);
 							assert(victoryTypeWidget);
 							assert(victoryValueWidget);
-							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
+							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
 							victoryTypeWidget->setCurrentIndex(idx);
 							victoryValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
@@ -280,7 +256,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							ui->victoryComboBox->setCurrentIndex(4);
 							assert(victoryTypeWidget);
 							assert(victorySelectWidget);
-							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
+							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
 							victoryTypeWidget->setCurrentIndex(idx);
 							int townIdx = getObjectByPos<CGTownInstance>(posFromJson(json["position"]));
 							if(townIdx >= 0)
@@ -409,16 +385,6 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 			}
 		}
 	}
-
-	//ui8 difficulty;
-	//ui8 levelLimit;
-
-	//std::string victoryMessage;
-	//std::string defeatMessage;
-	//ui16 victoryIconIndex;
-	//ui16 defeatIconIndex;
-
-	//std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 }
 
 MapSettings::~MapSettings()
@@ -672,7 +638,7 @@ void MapSettings::on_pushButton_clicked()
 		
 		switch(lossCondition)
 		{
-			case 0: { //EventCondition::CONTROL (Obj::TOWN)
+			case 0: {
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::TOWN;
@@ -685,7 +651,7 @@ void MapSettings::on_pushButton_clicked()
 				break;
 			}
 				
-			case 1: { //EventCondition::CONTROL (Obj::HERO)
+			case 1: {
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::HERO;
@@ -698,7 +664,7 @@ void MapSettings::on_pushButton_clicked()
 				break;
 			}
 				
-			case 2: { //EventCondition::DAYS_PASSED
+			case 2: {
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				assert(loseValueWidget);
 				cond.value = expiredDate(loseValueWidget->text());
@@ -707,7 +673,7 @@ void MapSettings::on_pushButton_clicked()
 				break;
 			}
 				
-			case 3: { //EventCondition::DAYS_WITHOUT_TOWN
+			case 3: {
 				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
 				assert(loseValueWidget);
 				cond.value = loseValueWidget->text().toInt();
@@ -782,13 +748,11 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			{
-				victoryTypeWidget->addItem("Wood", QVariant::fromValue(int(Res::WOOD)));
-				victoryTypeWidget->addItem("Ore", QVariant::fromValue(int(Res::ORE)));
-				victoryTypeWidget->addItem("Sulfur", QVariant::fromValue(int(Res::SULFUR)));
-				victoryTypeWidget->addItem("Gems", QVariant::fromValue(int(Res::GEMS)));
-				victoryTypeWidget->addItem("Crystal", QVariant::fromValue(int(Res::CRYSTAL)));
-				victoryTypeWidget->addItem("Mercury", QVariant::fromValue(int(Res::MERCURY)));
-				victoryTypeWidget->addItem("Gold", QVariant::fromValue(int(Res::GOLD)));
+				for(int resType = 0; resType < GameConstants::RESOURCE_QUANTITY; ++resType)
+				{
+					auto resName = QString::fromStdString(GameConstants::RESOURCE_NAMES[resType]);
+					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType));
+				}
 			}
 			
 			victoryValueWidget = new QLineEdit;
@@ -842,7 +806,10 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 		}
 			
 			
-		/*case 6: { //EventCondition::DESTROY (Obj::MONSTER)
+		//TODO: support this vectory type
+		// in order to do that, need to implement finding creature by position
+		// selecting from map would be the best user experience
+		/*case 7: { //EventCondition::DESTROY (Obj::MONSTER)
 			victoryTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(victoryTypeWidget);
 			for(int i : getObjectIndexes<CGCreature>())
@@ -901,8 +868,6 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 		case 3: { //EventCondition::DAYS_WITHOUT_TOWN
 			loseValueWidget = new QLineEdit;
 			ui->loseParamsLayout->addWidget(loseValueWidget);
-			
-			loseValueWidget->setInputMask("9000");
 			loseValueWidget->setText("7");
 			break;
 		}
