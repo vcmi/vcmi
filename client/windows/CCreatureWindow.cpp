@@ -377,10 +377,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	auto getSkillDescription = [this](int skillIndex) -> std::string
 	{
-		if(CGI->generaltexth->znpc00.size() == 0)
-			return "";
-
-		return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
+		return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
 	};
 
 	for(int index = ECommander::ATTACK; index <= ECommander::SPELL_POWER; ++index)
@@ -868,9 +865,9 @@ std::string CStackWindow::generateStackExpDescription()
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;
 	int number;
-	std::string expText = CGI->generaltexth->zcrexp[325];
+	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
 	boost::replace_first(expText, "%s", creature->namePl);
-	boost::replace_first(expText, "%s", CGI->generaltexth->zcrexp[rank]);
+	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));
 	number = static_cast<int>(CGI->creh->expRanks[tier][rank] - stack->experience);
@@ -905,13 +902,10 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 {
 	auto getSkillDescription = [this](int skillIndex, bool selected) -> std::string
 	{
-		if(CGI->generaltexth->znpc00.size() == 0)
-			return "";
-
 		if(selected)
-			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
+			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
 		else
-			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
+			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
 	};
 
 	auto getSkillImage = [this](int skillIndex) -> std::string

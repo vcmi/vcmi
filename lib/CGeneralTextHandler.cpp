@@ -380,6 +380,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	seerEmpty        (*this, "core.seerhut.empty"  ),
 	seerNames        (*this, "core.seerhut.names"  ),
 	capColors        (*this, "vcmi.capitalColors"  ),
+	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
 	qeModCommands    (*this, "vcmi.quickExchange" )
 {
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
@@ -506,70 +507,46 @@ CGeneralTextHandler::CGeneralTextHandler():
 		parser.endLine();
 
 		std::string text;
+		size_t campaignsCount = 0;
 		do
 		{
 			text = parser.readString();
 			if (!text.empty())
-				campaignMapNames.push_back(text);
+			{
+				registerH3String("core.camptext.names", campaignsCount, text);
+				campaignsCount += 1;
+			}
 		}
 		while (parser.endLine() && !text.empty());
 
-		for (size_t i=0; i<campaignMapNames.size(); i++)
+		for (size_t i=0; i<campaignsCount; i++)
 		{
+			size_t region = 0;
+
 			do // skip empty space and header
 			{
 				text = parser.readString();
 			}
 			while (parser.endLine() && text.empty());
 
-			campaignRegionNames.push_back(std::vector<std::string>());
 			do
 			{
 				text = parser.readString();
 				if (!text.empty())
-					campaignRegionNames.back().push_back(text);
+				{
+					registerH3String("core.camptext.regions." + std::to_string(campaignsCount), region, text);
+					region += 1;
+				}
 			}
 			while (parser.endLine() && !text.empty());
-		}
-	}
-	if (VLC->modh->modules.STACK_EXP)
-	{
-		CLegacyConfigParser parser("DATA/ZCREXP.TXT");
-		parser.endLine();//header
-		for (size_t iter=0; iter<325; iter++)
-		{
-			parser.readString(); //ignore 1st column with description
-			zcrexp.push_back(parser.readString());
-			parser.endLine();
-		}
-		// line 325 - some weird formatting here
-		zcrexp.push_back(parser.readString());
-		parser.readString();
-		parser.endLine();
 
-		do // rest of file can be read normally
-		{
-			parser.readString(); //ignore 1st column with description
-			zcrexp.push_back(parser.readString());
+			scenariosCountPerCampaign.push_back(region);
 		}
-		while (parser.endLine());
 	}
 	if (VLC->modh->modules.COMMANDERS)
 	{
-		try
-		{
-			CLegacyConfigParser parser("DATA/ZNPC00.TXT");
-			parser.endLine();//header
-
-			do
-			{
-				znpc00.push_back(parser.readString());
-			} while (parser.endLine());
-		}
-		catch (const std::runtime_error &)
-		{
-			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
-		}
+		if (CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
+			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 
 	dumpAllTexts();
@@ -597,10 +574,20 @@ void CGeneralTextHandler::dumpAllTexts()
 		boost::replace_all(cleanString, "\n", "\\n");
 		boost::replace_all(cleanString, "\r", "\\r");
 		boost::replace_all(cleanString, "\t", "\\t");
+		boost::replace_all(cleanString, "\"", "\\\"");
 
 		logGlobal->info("\"%s\" : \"%s\",", entry.first, cleanString);
 	}
 	logGlobal->info("END TEXT EXPORT");
+}
+
+size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
+{
+	assert(campaignID < scenariosCountPerCampaign.size());
+
+	if ( campaignID < scenariosCountPerCampaign.size())
+		return scenariosCountPerCampaign[campaignID];
+	return 0;
 }
 
 std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string const & prefix)

@@ -79,7 +79,7 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	ret->header = readHeaderFromMemory(reader);
 	ret->header.filename = name;
 
-	int howManyScenarios = static_cast<int>(VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size());
+	int howManyScenarios = static_cast<int>(VLC->generaltexth->getCampaignLength(ret->header.mapVersion));
 	for(int g=0; g<howManyScenarios; ++g)
 	{
 		CCampaignScenario sc = readScenarioFromMemory(reader, ret->header.version, ret->header.mapVersion);

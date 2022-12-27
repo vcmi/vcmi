@@ -141,8 +141,6 @@ void CBonusSelection::loadPositionsOfGraphics()
 
 		idx++;
 	}
-
-	assert(idx == CGI->generaltexth->campaignMapNames.size());
 }
 
 void CBonusSelection::createBonusesIcons()

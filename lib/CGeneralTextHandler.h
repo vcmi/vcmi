@@ -130,7 +130,13 @@ class DLL_LINKAGE CGeneralTextHandler
 
 	void readToVector(std::string sourceID, std::string sourceName);
 
+	/// number of scenarios in specific campaign. TODO: move to a better location
+	std::vector<size_t> scenariosCountPerCampaign;
 public:
+	// returns true if identifier with such name was registered, even if not translated to current language
+	// not required right now, can be added if necessary
+	// bool identifierExists( const std::string identifier) const;
+
 	/// returns translated version of a string that can be displayed to user
 	const std::string & translate(const std::string & identifier) const;
 
@@ -143,7 +149,7 @@ public:
 	/// converts identifier into user-readable string, may be identical to 'translate' but reserved for serialization calls
 	const std::string & deserialize(const std::string & identifier) const;
 
-	/// Debug methods, dumps all currently known texts into console using Json-like format
+	/// Debug method, dumps all currently known texts into console using Json-like format
 	void dumpAllTexts();
 
 	LegacyTextContainer allTexts;
@@ -182,17 +188,14 @@ public:
 
 	//sec skills
 	LegacyTextContainer levels;
-	std::vector<std::string> zcrexp; //more or less useful content of that file
 	//commanders
-	std::vector<std::string> znpc00; //more or less useful content of that file
-
-	//campaigns
-	std::vector<std::string> campaignMapNames;
-	std::vector<std::vector<std::string>> campaignRegionNames;
+	LegacyTextContainer znpc00; //more or less useful content of that file
 
 	std::vector<std::string> findStringsWithPrefix(std::string const & prefix);
 
 	int32_t pluralText(const int32_t textIndex, const int32_t count) const;
+
+	size_t getCampaignLength(size_t campaignID) const;
 
 	CGeneralTextHandler();
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
