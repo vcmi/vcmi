@@ -87,6 +87,11 @@ warning ()
 	warn_user=true
 }
 
+#checks whether specified directory exists. Also works with globs
+dir_exists() {
+	[ -d "$1" ]
+}
+
 # check if selected options are correct.
 
 if [[ -n "$data_dir" ]]
@@ -177,7 +182,7 @@ then
 	cd "$data_dir" && innoextract "$gog_file"
 	
 	# some versions of gog.com installer (or innoextract tool?) place game files inside /app directory
-	if [[ -d "$data_dir"/app/[Dd][Aa][Tt][Aa] ]]
+	if dir_exists "$data_dir"/app/[Dd][Aa][Tt][Aa]
 	then
 		data_dir="$data_dir"/app
 	fi
