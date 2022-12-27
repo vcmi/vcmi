@@ -1215,7 +1215,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
-				LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithTavern"].String());
+				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 		}
 		return;
 	case SDLK_i:
@@ -1247,7 +1247,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["confirmRestartGame"].String(),
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
@@ -1306,7 +1306,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				if(townWithMarket) //if any town has marketplace, open window
 					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
 				else //if not - complain
-					LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithMarket"].String());
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 			}
 			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
 			{

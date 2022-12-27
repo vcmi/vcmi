@@ -348,8 +348,8 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 				parent->redraw(); // FIXME: enable/disable don't redraw screen themselves
 			};
 
-			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[buttonIndex]];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltip(text), onSwitch);
+			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltipLocalized(tooltipText), onSwitch);
 			parent->switchButtons[buttonIndex]->addOverlay(std::make_shared<CAnimImage>("stackWindow/switchModeIcons", buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
@@ -601,13 +601,12 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
 			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
 			parent->stackArtifactHelp->type = art->artType->id;
-			const JsonNode & text =	VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
 
 			if(parent->info->owner)
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
 						Point(pos.x - 2 , pos.y + 46), "stackWindow/cancelButton",
-						CButton::tooltip(text),	[=]()
+						CButton::tooltipLocalized("vcmi.creatureWindow.returnArtifact"),	[=]()
 				{
 					parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
 				});

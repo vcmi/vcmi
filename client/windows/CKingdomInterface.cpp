@@ -594,7 +594,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for(int i=0; i<7; i++)
 	{
 		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first);
+		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->translate("core.minename", i));
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
 	}

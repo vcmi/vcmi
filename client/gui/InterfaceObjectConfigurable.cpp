@@ -92,19 +92,10 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 	
 	const std::string delimiter = "/";
 	std::string s = config.String();
+	boost::replace_all(s, "/", "." );
+
 	logGlobal->debug("Reading text from translations by key: %s", s);
-	JsonNode translated = CGI->generaltexth->localizedTexts;
-	for(size_t p = s.find(delimiter); p != std::string::npos; p = s.find(delimiter))
-	{
-		translated = translated[s.substr(0, p)];
-		s.erase(0, p + delimiter.length());
-	}
-	if(s == config.String())
-	{
-		logGlobal->warn("Reading non-translated text: %s", s);
-		return s;
-	}
-	return translated[s].String();
+	return CGI->generaltexth->translate(s);
 }
 
 Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const

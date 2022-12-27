@@ -112,11 +112,11 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == MINE_NAMES)
 	{
-		dst = VLC->generaltexth->mines[ser].first;
+		dst = VLC->generaltexth->translate("core.minename", ser);
 	}
 	else if(type == MINE_EVNTS)
 	{
-		dst = VLC->generaltexth->mines[ser].second;
+		dst = VLC->generaltexth->translate("core.mineevnt", ser);
 	}
 	else if(type == SPELL_NAME)
 	{
@@ -136,48 +136,40 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else
 	{
-		std::vector<std::string> *vec;
 		switch(type)
 		{
 		case GENERAL_TXT:
-			vec = &VLC->generaltexth->allTexts;
+			dst = VLC->generaltexth->translate("core.allTexts", ser);
 			break;
 		case XTRAINFO_TXT:
-			vec = &VLC->generaltexth->xtrainfo;
+			dst = VLC->generaltexth->translate("core.xtrainfo", ser);
 			break;
 		case RES_NAMES:
-			vec = &VLC->generaltexth->restypes;
+			dst = VLC->generaltexth->translate("core.restypes", ser);
 			break;
 		case ARRAY_TXT:
-			vec = &VLC->generaltexth->arraytxt;
+			dst = VLC->generaltexth->translate("core.arraytxt", ser);
 			break;
 		case CREGENS:
-			vec = &VLC->generaltexth->creGens;
+			dst = VLC->generaltexth->translate("core.crgen1", ser);
 			break;
 		case CREGENS4:
-			vec = &VLC->generaltexth->creGens4;
+			dst = VLC->generaltexth->translate("core.crgen4", ser);
 			break;
 		case ADVOB_TXT:
-			vec = &VLC->generaltexth->advobtxt;
+			dst = VLC->generaltexth->translate("core.advevent", ser);
 			break;
 		case COLOR:
-			vec = &VLC->generaltexth->capColors;
+			dst = VLC->generaltexth->translate("vcmi.capitalColors", ser);
 			break;
 		case JK_TXT:
-			vec = &VLC->generaltexth->jktexts;
+			dst = VLC->generaltexth->translate("core.jktext", ser);
 			break;
 		default:
 			logGlobal->error("Failed string substitution because type is %d", type);
 			dst = "#@#";
 			return;
 		}
-		if(vec->size() <= ser)
-		{
-			logGlobal->error("Failed string substitution with type %d because index %d is out of bounds!", type, ser);
-			dst = "#!#";
-		}
-		else
-			dst = (*vec)[ser];
 	}
 }
 
@@ -2182,11 +2174,10 @@ void CGameState::updateRumor()
 			FALLTHROUGH
 
 		case RumorState::TYPE_RAND:
+			auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
 			do
-			{
-				rumorId = rand.nextInt((int)VLC->generaltexth->tavernRumors.size() - 1);
-			}
-			while(!VLC->generaltexth->tavernRumors[rumorId].length());
+				rumorId = rand.nextInt((int)vector.size() - 1);
+			while(vector[rumorId].empty());
 
 			break;
 		}

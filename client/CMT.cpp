@@ -688,9 +688,9 @@ void processCommand(const std::string &message)
 			file << data.toJson();
 		};
 
-		extractVector(VLC->generaltexth->allTexts, "generalTexts");
-		extractVector(VLC->generaltexth->jktexts, "jkTexts");
-		extractVector(VLC->generaltexth->arraytxt, "arrayTexts");
+		//extractVector(VLC->generaltexth->allTexts, "generalTexts");
+		//extractVector(VLC->generaltexth->jktexts, "jkTexts");
+		//extractVector(VLC->generaltexth->arraytxt, "arrayTexts");
 
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";

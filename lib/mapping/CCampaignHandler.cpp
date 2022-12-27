@@ -546,11 +546,7 @@ std::string CCampaignHandler::prologVideoName(ui8 index)
 std::string CCampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
-
-	VLC->generaltexth->readToVector("Data/CmpMusic.txt", music);
-	if(index < music.size())
-		return music[index];
-	return "";
+	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(int(index)));
 }
 
 std::string CCampaignHandler::prologVoiceName(ui8 index)

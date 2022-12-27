@@ -1603,7 +1603,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			GH.curInt = this;
 			adventureInt->selection = nullptr;
 			adventureInt->setPlayer(playerID);
-			std::string msg = CGI->generaltexth->localizedTexts["adventureMap"]["playerAttacked"].String();
+			std::string msg = CGI->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));

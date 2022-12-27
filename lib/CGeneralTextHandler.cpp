@@ -300,58 +300,118 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::string> &dest)
+void CGeneralTextHandler::readToVector(std::string sourceID, std::string sourceName)
 {
 	CLegacyConfigParser parser(sourceName);
+	size_t index = 0;
 	do
 	{
-		dest.push_back(parser.readString());
+		registerH3String(sourceID, index, parser.readString());
+		index += 1;
 	}
 	while (parser.endLine());
 }
 
-CGeneralTextHandler::CGeneralTextHandler()
+const std::string & CGeneralTextHandler::translate(const std::string & identifier, size_t index) const
 {
-	std::vector<std::string> h3mTerrainNames;
-	readToVector("DATA/VCDESC.TXT",   victoryConditions);
-	readToVector("DATA/LCDESC.TXT",   lossCondtions);
-	readToVector("DATA/TCOMMAND.TXT", tcommands);
-	readToVector("DATA/HALLINFO.TXT", hcommands);
-	readToVector("DATA/CASTINFO.TXT", fcommands);
-	readToVector("DATA/ADVEVENT.TXT", advobtxt);
-	readToVector("DATA/XTRAINFO.TXT", xtrainfo);
-	readToVector("DATA/RESTYPES.TXT", restypes);
-	readToVector("DATA/TERRNAME.TXT", h3mTerrainNames);
-	readToVector("DATA/RANDSIGN.TXT", randsign);
-	readToVector("DATA/CRGEN1.TXT",   creGens);
-	readToVector("DATA/CRGEN4.TXT",   creGens4);
-	readToVector("DATA/OVERVIEW.TXT", overview);
-	readToVector("DATA/ARRAYTXT.TXT", arraytxt);
-	readToVector("DATA/PRISKILL.TXT", primarySkillNames);
-	readToVector("DATA/JKTEXT.TXT",   jktexts);
-	readToVector("DATA/TVRNINFO.TXT", tavernInfo);
-	readToVector("DATA/RANDTVRN.TXT", tavernRumors);
-	readToVector("DATA/TURNDUR.TXT",  turnDurations);
-	readToVector("DATA/HEROSCRN.TXT", heroscrn);
-	readToVector("DATA/TENTCOLR.TXT", tentColors);
-	readToVector("DATA/SKILLLEV.TXT", levels);
-	
-	for(int i = 0; i < h3mTerrainNames.size(); ++i)
-	{
-		terrainNames[i] = h3mTerrainNames[i];
-	}
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-	{
-		if(!terrain.terrainText.empty())
-			terrainNames[terrain.id] = terrain.terrainText;
-	}
-	
+	return translate(identifier + std::to_string(index));
+}
+
+const std::string & CGeneralTextHandler::translate(const std::string & identifier) const
+{
+	return deserialize(identifier);
+}
+
+const std::string & CGeneralTextHandler::serialize(const std::string & identifier) const
+{
+	assert(stringsIdentifiers.count(identifier));
+	return stringsIdentifiers.at(identifier);
+}
+
+const std::string & CGeneralTextHandler::deserialize(const std::string & identifier) const
+{
+	static const std::string emptyString;
+
+	if (stringsLocalizations.count(identifier))
+		return stringsLocalizations.at(identifier);
+	logGlobal->error("Unable to find localization for string '%s'", identifier);
+	return emptyString;
+}
+
+void CGeneralTextHandler::registerH3String(const std::string & file, size_t index, const std::string & localized)
+{
+	registerString(file + '.' + std::to_string(index), localized);
+}
+
+void CGeneralTextHandler::registerString(const std::string & UID, const std::string & localized)
+{
+	stringsIdentifiers[localized] = UID;
+	stringsLocalizations[UID] = localized;
+}
+
+CGeneralTextHandler::CGeneralTextHandler():
+	victoryConditions(*this, "core.vcdesc"   ),
+	lossCondtions    (*this, "core.lcdesc"   ),
+	colors           (*this, "core.plcolors" ),
+	tcommands        (*this, "core.tcommand" ),
+	hcommands        (*this, "core.hallinfo" ),
+	fcommands        (*this, "core.castinfo" ),
+	advobtxt         (*this, "core.advevent" ),
+	xtrainfo         (*this, "core.xtrainfo" ),
+	restypes         (*this, "core.restypes" ),
+	terrainNames     (*this, "core.terrname" ),
+	randsign         (*this, "core.randsign" ),
+	creGens          (*this, "core.crgen1"   ),
+	creGens4         (*this, "core.crgen4"   ),
+	overview         (*this, "core.overview" ),
+	arraytxt         (*this, "core.arraytxt" ),
+	primarySkillNames(*this, "core.priskill" ),
+	jktexts          (*this, "core.jktext"   ),
+	tavernInfo       (*this, "core.tvrninfo" ),
+	tavernRumors     (*this, "core.randtvrn" ),
+	turnDurations    (*this, "core.turndur"  ),
+	heroscrn         (*this, "core.heroscrn" ),
+	tentColors       (*this, "core.tentcolr" ),
+	levels           (*this, "core.skilllev" ),
+	zelp             (*this, "core.help"     ),
+	// pseudo-array, that don't have H3 file with same name
+	capColors        (*this, "vcmi.capitalColors"  ),
+	qeModCommands    (*this, "vcmi.quickExchange" )
+{
+	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
+	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
+	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );
+	readToVector("core.hallinfo", "DATA/HALLINFO.TXT" );
+	readToVector("core.castinfo", "DATA/CASTINFO.TXT" );
+	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
+	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
+	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
+	readToVector("core.terrname", "DATA/TERRNAME.TXT" );
+	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
+	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );
+	readToVector("core.crgen4",   "DATA/CRGEN4.TXT"   );
+	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
+	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
+	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
+	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
+	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
+	readToVector("core.randtvrn", "DATA/RANDTVRN.TXT" );
+	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
+	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
+	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
+	readToVector("core.skilllev", "DATA/SKILLLEV.TXT" );
+	readToVector("core.cmpmusic", "DATA/CMPMUSIC.TXT" );
+	readToVector("core.minename", "DATA/MINENAME.TXT" );
+	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(ResourceID(QE_MOD_COMMANDS, EResType::TEXT)))
-		readToVector(QE_MOD_COMMANDS, qeModCommands);
+		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
-	localizedTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
+	auto vcmiTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
+
+	for ( auto const & node : vcmiTexts.Struct())
+		registerString(node.first, node.second.String());
 
 	{
 		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
@@ -359,40 +419,34 @@ CGeneralTextHandler::CGeneralTextHandler()
 		do
 		{
 			allTexts.push_back(parser.readString());
+			registerH3String("core.genrltxt", allTexts.size(), allTexts.back());
 		}
 		while (parser.endLine());
 	}
 	{
 		CLegacyConfigParser parser("DATA/HELP.TXT");
+		size_t index = 0;
 		do
 		{
 			std::string first = parser.readString();
 			std::string second = parser.readString();
-			zelp.push_back(std::make_pair(first, second));
+			registerString("core.help." + std::to_string(index) + ".label", first);
+			registerString("core.help." + std::to_string(index) + ".help",  second);
+			index += 1;
 		}
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser nameParser("DATA/MINENAME.TXT");
-		CLegacyConfigParser eventParser("DATA/MINEEVNT.TXT");
-
-		do
-		{
-			std::string name  = nameParser.readString();
-			std::string event = eventParser.readString();
-			mines.push_back(std::make_pair(name, event));
-		}
-		while (nameParser.endLine() && eventParser.endLine());
-	}
-	{
 		CLegacyConfigParser parser("DATA/PLCOLORS.TXT");
+		size_t index = 0;
 		do
 		{
 			std::string color = parser.readString();
-			colors.push_back(color);
 
+			registerH3String("core.plcolors", index, color);
 			color[0] = toupper(color[0]);
-			capColors.push_back(color);
+			registerH3String("vcmi.capitalColors", index, color);
+			index += 1;
 		}
 		while (parser.endLine());
 	}
@@ -403,7 +457,10 @@ CGeneralTextHandler::CGeneralTextHandler()
 		parser.endLine();
 
 		for (int i = 0; i < 6; ++i)
+		{
 			seerEmpty.push_back(parser.readString());
+			registerH3String("core.seerhut.empty", seerEmpty.size(), seerEmpty.back());
+		}
 		parser.endLine();
 
 		quests.resize(10);
@@ -414,7 +471,11 @@ CGeneralTextHandler::CGeneralTextHandler()
 			{
 				parser.readString(); //front description
 				for (int k = 0; k < 6; ++k)
+				{
 					quests[i][j].push_back(parser.readString());
+
+					registerH3String("core.seerhut.quest." + std::to_string(i) + "." + std::to_string(j), k, quests[i][j].back());
+				}
 
 				parser.endLine();
 			}
@@ -521,5 +582,42 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 	else
 		return textIndex + 1;
 }
+
+std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string const & prefix)
+{
+	std::vector<std::string> result;
+
+	for (auto const & entry : stringsLocalizations)
+	{
+		if (boost::algorithm::starts_with(entry.first, prefix))
+			result.push_back(entry.first);
+	}
+
+	return result;
+}
+
+LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath):
+	owner(owner),
+	basePath(basePath)
+{}
+
+const std::string & LegacyTextContainer::operator[](size_t index) const
+{
+	return owner.translate(basePath + "." + std::to_string(index));
+}
+
+LegacyHelpContainer::LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath):
+	owner(owner),
+	basePath(basePath)
+{}
+
+std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index) const
+{
+	return {
+		owner.translate(basePath + "." + std::to_string(index) + ".label"),
+		owner.translate(basePath + "." + std::to_string(index) + ".help")
+	};
+}
+
 
 VCMI_LIB_NAMESPACE_END
