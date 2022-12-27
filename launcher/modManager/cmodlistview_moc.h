@@ -64,8 +64,11 @@ class CModListView : public QWidget
 	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
 
+	void changeEvent(QEvent *event) override;
 signals:
 	void extraResolutionsEnabledChanged(bool enabled);
+	
+	void modsChanged();
 
 public:
 	explicit CModListView(QWidget * parent = 0);
@@ -82,6 +85,10 @@ public:
 	bool isExtraResolutionsModEnabled() const;
 
 	const CModList & getModList() const;
+	
+public slots:
+	void enableModByName(QString modName);
+	void disableModByName(QString modName);
 
 private slots:
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);

@@ -24,6 +24,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"
+#include "../../lib/CModHandler.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -511,14 +512,14 @@ int LuaContext::loadModule()
 
 		registar->pushMetatable(L);
 	}
-	else if(scope == "core")
+	else if(scope == CModHandler::scopeBuiltin())
 	{
 
 	//	boost::algorithm::replace_all(modulePath, boost::is_any_of("\\/ "), "");
 
 		boost::algorithm::replace_all(modulePath, ".", "/");
 
-		auto loader = CResourceHandler::get("core");
+		auto loader = CResourceHandler::get(CModHandler::scopeBuiltin());
 
 		modulePath = "scripts/lib/" + modulePath;
 

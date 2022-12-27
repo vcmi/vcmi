@@ -5,6 +5,7 @@ on:
     branches:
       - features/*
       - beta
+      - master
   pull_request:
   schedule:
     - cron: '0 2 * * *'
@@ -159,6 +160,7 @@ jobs:
         fi
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GITVERSION="$VCMI_PACKAGE_GITVERSION" >> $GITHUB_ENV
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
@@ -171,8 +173,10 @@ jobs:
             ../.. -GNinja \
             ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
             -DENABLE_TEST=${{matrix.test}} \
+            -DENABLE_STRICT_COMPILATION=ON \
             -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
-            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME"
+            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME" \
+            -DENABLE_GITVERSION="$VCMI_PACKAGE_GITVERSION"
       env:
         CC: ${{ matrix.cc }}
         CXX: ${{ matrix.cxx }}
@@ -223,7 +227,7 @@ jobs:
           ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload build
-      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         source '${{github.workspace}}/CI/upload_package.sh'
@@ -241,7 +245,7 @@ jobs:
 
     - name: Trigger Android
       uses: peter-evans/repository-dispatch@v1
-      if: ${{ github.ref == 'refs/heads/develop' && matrix.platform == 'mxe' }}
+      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') && matrix.platform == 'mxe' }}
       with:
         token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
         repository: vcmi/vcmi-android

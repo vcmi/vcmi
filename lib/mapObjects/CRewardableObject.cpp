@@ -402,7 +402,7 @@ Component CRewardInfo::getDisplayedComponent(const CGHeroInstance * h) const
 }
 
 // FIXME: copy-pasted from CObjectHandler
-static std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];
@@ -861,7 +861,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 			info[0].reward.bonuses.push_back(bonus);
 			info[0].limiter.numOfGrants = 1;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
-			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
+			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getNameTranslated());
 		}
 		break;
 	case Obj::WAGON:
@@ -876,7 +876,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 				loadRandomArtifact(rand, info[0], 10, 10, 0, 0);
 				info[0].limiter.numOfGrants = 1;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
-				info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
+				info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getNameTranslated());
 			}
 			else if(hlp < 90) //2 - 5 of non-gold resource
 			{
@@ -970,22 +970,22 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			break;
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		{
+			selectMode = SELECT_FIRST;
 			onVisited.addTxt(MetaString::ADVOB_TXT, 67);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 68);
 
-			// Don't like this one but don't see any easier approach
 			CVisitInfo visit;
 			visit.reward.primary[PrimarySkill::ATTACK] = 2;
 			visit.reward.primary[PrimarySkill::DEFENSE] = 2;
 			visit.reward.primary[PrimarySkill::KNOWLEDGE] = 2;
 			visit.reward.primary[PrimarySkill::SPELL_POWER] = 2;
+			visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 
 			static_assert(SecSkillLevel::LEVELS_SIZE == 4, "Behavior of Library of Enlignment may not be correct");
 			for (int i=0; i<SecSkillLevel::LEVELS_SIZE; i++)
 			{
 				visit.limiter.minLevel = 10 - i * 2;
 				visit.limiter.secondary[SecondarySkill::DIPLOMACY] = i;
-				visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 				info.push_back(visit);
 			}
 			break;
@@ -1007,7 +1007,9 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
+			info[0].limiter.resources[Res::GOLD] = 1000;
 			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].limiter.resources[Res::GOLD] = 1000;
 			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
@@ -1157,7 +1159,7 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	auto tiles = getVisitableOffsets();
 	for (size_t i=0; i<tiles.size(); i++)
 	{
-		if (pos - tiles[i] == hero->getPosition() && info[i].numOfGrants == 0)
+		if (pos - tiles[i] == hero->visitablePos() && info[i].numOfGrants == 0)
 		{
 			return std::vector<ui32>(1, (ui32)i);
 		}

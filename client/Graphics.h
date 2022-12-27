@@ -11,7 +11,6 @@
 
 #include "gui/Fonts.h"
 #include "../lib/GameConstants.h"
-#include "gui/Geometries.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,7 +29,7 @@ struct SDL_Surface;
 struct SDL_Color;
 class CAnimation;
 
-enum EFonts
+enum EFonts : int
 {
 	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
 };

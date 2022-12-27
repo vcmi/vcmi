@@ -68,7 +68,7 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 void Catapult::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & /* eTarget */) const
 {
 	//start with all destructible parts
-	static const std::set<EWallPart::EWallPart> possibleTargets =
+	static const std::set<EWallPart> potentialTargets =
 	{
 		EWallPart::KEEP,
 		EWallPart::BOTTOM_TOWER,
@@ -80,66 +80,87 @@ void Catapult::apply(ServerCallback * server, const Mechanics * m, const EffectT
 		EWallPart::GATE
 	};
 
-	assert(possibleTargets.size() == EWallPart::PARTS_COUNT);
+	assert(potentialTargets.size() == size_t(EWallPart::PARTS_COUNT));
+
+	std::set<EWallPart> allowedTargets;
+
+	for (auto const & target : potentialTargets)
+	{
+		auto state = m->battle()->battleGetWallState(target);
+
+		if(state != EWallState::DESTROYED && state != EWallState::NONE)
+			allowedTargets.insert(target);
+	}
+	assert(!allowedTargets.empty());
+	if (allowedTargets.empty())
+		return;
 
 	CatapultAttack ca;
 	ca.attacker = -1;
 
-	BattleUnitsChanged removeUnits;
-
 	for(int i = 0; i < targetsToAttack; i++)
 	{
-		//Any destructible part can be hit regardless of its HP. Multiple hit on same target is allowed.
-		EWallPart::EWallPart target = *RandomGeneratorUtil::nextItem(possibleTargets, *server->getRNG());
+		// Hit on any existing, not destroyed targets are allowed
+		// Multiple hit on same target are allowed.
+		// Potential overshots (more hits on same targets than remaining HP) are allowed
+		EWallPart target = *RandomGeneratorUtil::nextItem(allowedTargets, *server->getRNG());
 
-		auto state = m->battle()->battleGetWallState(target);
 
-		if(state == EWallState::DESTROYED || state == EWallState::NONE)
-			continue;
+		auto attackInfo = ca.attackedParts.begin();
+		for ( ; attackInfo != ca.attackedParts.end(); ++attackInfo)
+			if ( attackInfo->attackedPart == target )
+				break;
 
-		CatapultAttack::AttackInfo attackInfo;
-
-		attackInfo.damageDealt = 1;
-		attackInfo.attackedPart = target;
-		attackInfo.destinationTile = m->battle()->wallPartToBattleHex(target);
-
-		ca.attackedParts.push_back(attackInfo);
-
-		//removing creatures in turrets / keep if one is destroyed
-		BattleHex posRemove;
-
-		switch(target)
+		if (attackInfo == ca.attackedParts.end()) // new part
 		{
-		case EWallPart::KEEP:
-			posRemove = -2;
-			break;
-		case EWallPart::BOTTOM_TOWER:
-			posRemove = -3;
-			break;
-		case EWallPart::UPPER_TOWER:
-			posRemove = -4;
-			break;
+			CatapultAttack::AttackInfo newInfo;
+			newInfo.damageDealt = 1;
+			newInfo.attackedPart = target;
+			newInfo.destinationTile = m->battle()->wallPartToBattleHex(target);
+			ca.attackedParts.push_back(newInfo);
+			attackInfo = ca.attackedParts.end() - 1;
 		}
-
-		if(posRemove != BattleHex::INVALID && state - attackInfo.damageDealt <= 0) //HP enum subtraction not intuitive, consider using SiegeInfo::applyDamage
+		else // already damaged before, update damage
 		{
-			auto all = m->battle()->battleGetUnitsIf([=](const battle::Unit * unit)
-			{
-				return !unit->isGhost();
-			});
-
-			for(auto & elem : all)
-			{
-				if(elem->getPosition() == posRemove)
-				{
-					removeUnits.changedStacks.emplace_back(elem->unitId(), UnitChanges::EOperation::REMOVE);
-					break;
-				}
-			}
+			attackInfo->damageDealt += 1;
 		}
 	}
 
 	server->apply(&ca);
+
+	BattleUnitsChanged removeUnits;
+
+	for (auto const wallPart : { EWallPart::KEEP, EWallPart::BOTTOM_TOWER, EWallPart::UPPER_TOWER })
+	{
+		//removing creatures in turrets / keep if one is destroyed
+		BattleHex posRemove;
+		auto state = m->battle()->battleGetWallState(wallPart);
+
+		switch(wallPart)
+		{
+		case EWallPart::KEEP:
+			posRemove = BattleHex::CASTLE_CENTRAL_TOWER;
+			break;
+		case EWallPart::BOTTOM_TOWER:
+			posRemove = BattleHex::CASTLE_BOTTOM_TOWER;
+			break;
+		case EWallPart::UPPER_TOWER:
+			posRemove = BattleHex::CASTLE_UPPER_TOWER;
+			break;
+		}
+
+		if(state == EWallState::DESTROYED) //HP enum subtraction not intuitive, consider using SiegeInfo::applyDamage
+		{
+			auto all = m->battle()->battleGetUnitsIf([=](const battle::Unit * unit)
+			{
+				return !unit->isGhost() && unit->getPosition() == posRemove;
+			});
+
+			assert(all.size() == 0 || all.size() == 1);
+			for(auto & elem : all)
+				removeUnits.changedStacks.emplace_back(elem->unitId(), UnitChanges::EOperation::REMOVE);
+		}
+	}
 
 	if(!removeUnits.changedStacks.empty())
 		server->apply(&removeUnits);

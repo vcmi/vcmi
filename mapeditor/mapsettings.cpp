@@ -98,7 +98,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	
 	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->skillh->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->skillh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedAbilities[i] ? Qt::Checked : Qt::Unchecked);
@@ -106,7 +106,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	}
 	for(int i = 0; i < controller.map()->allowedSpell.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedSpell[i] ? Qt::Checked : Qt::Unchecked);
@@ -114,7 +114,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	}
 	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->arth->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedArtifact[i] ? Qt::Checked : Qt::Unchecked);
@@ -122,7 +122,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	}
 	for(int i = 0; i < controller.map()->allowedHeroes.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->heroh->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->heroh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedHeroes[i] ? Qt::Checked : Qt::Unchecked);

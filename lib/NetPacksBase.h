@@ -250,27 +250,6 @@ struct ArtifactLocation
 	}
 };
 
-///custom effect (resistance, reflection, etc)
-struct CustomEffectInfo
-{
-	CustomEffectInfo()
-		:effect(0),
-		sound(0),
-		stack(0)
-	{
-	}
-	/// WoG AC format
-	ui32 effect;
-	ui32 sound;
-	ui32 stack;
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & effect;
-		h & sound;
-		h & stack;
-	}
-};
-
 class EntityChanges
 {
 public:
@@ -299,7 +278,9 @@ public:
 		ADD,
 		RESET_STATE,
 		UPDATE,
-		REMOVE
+		REMOVE,
+		ACTIVATE_AND_UPDATE,
+		ACTIVATE_AND_REMOVE
 	};
 
 	JsonNode data;

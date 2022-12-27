@@ -14,7 +14,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/rmg/ObstaclePlacer.h"
 #include "../lib/CSkillHandler.h"
@@ -129,16 +129,17 @@ void MapController::repairMap()
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
 			if(obj->ID == Obj::HERO)
+			{
 				nih->typeName = "hero";
+				nih->subTypeName = type->heroClass->getJsonKey();
+			}
 			if(obj->ID == Obj::PRISON)
+			{
 				nih->typeName = "prison";
-			nih->subTypeName = type->heroClass->identifier;
+				nih->subTypeName = "prison";
+			}
 			
 			nih->type = type;
-			if(nih->name.empty())
-				nih->name = nih->type->name;
-			if(nih->biography.empty())
-				nih->biography = nih->type->biography;
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -313,6 +314,7 @@ void MapController::commitObjectErase(int level)
 	{
 		//invalidate tiles under objects
 		_mapHandler->invalidate(_mapHandler->getTilesUnderObject(obj));
+		_scenes[level]->objectsView.setDirty(obj);
 	}
 
 	_scenes[level]->selectionObjectsView.clear();
@@ -344,12 +346,12 @@ void MapController::pasteFromClipboard(int level)
 	if(_clipboardShiftIndex == int3::getDirs().size())
 		_clipboardShiftIndex = 0;
 	
-	for(auto & objuptr : _clipboard)
+	for(auto & objUniquePtr : _clipboard)
 	{
-		auto * obj = CMemorySerializer::deepCopy(*objuptr).release();
-		auto newpos = objuptr->pos + shift;
-		if(_map->isInTheMap(newpos))
-			obj->pos = newpos;
+		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		auto newPos = objUniquePtr->pos + shift;
+		if(_map->isInTheMap(newPos))
+			obj->pos = newPos;
 		obj->pos.z = level;
 		
 		Initializer init(obj, defaultPlayer);
@@ -402,7 +404,7 @@ void MapController::commitObstacleFill(int level)
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType->id].blockedArea.add(t);
+		terrainSelected[tl.terType->getId()].blockedArea.add(t);
 	}
 	
 	for(auto & sel : terrainSelected)
@@ -415,7 +417,7 @@ void MapController::commitObstacleFill(int level)
 	
 	_scenes[level]->selectionTerrainView.clear();
 	_scenes[level]->selectionTerrainView.draw();
-	_scenes[level]->objectsView.draw();
+	_scenes[level]->objectsView.draw(false); //TODO: enable smart invalidation (setDirty)
 	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
@@ -424,8 +426,8 @@ void MapController::commitObstacleFill(int level)
 
 void MapController::commitObjectChange(int level)
 {	
-	//for( auto * o : _scenes[level]->selectionObjectsView.getSelection())
-		//_mapHandler->invalidate(o);
+	for( auto * o : _scenes[level]->selectionObjectsView.getSelection())
+		_scenes[level]->objectsView.setDirty(o);
 	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
@@ -455,6 +457,7 @@ void MapController::commitObjectShift(int level)
 			pos.x += shift.x(); pos.y += shift.y();
 			
 			auto prevPositions = _mapHandler->getTilesUnderObject(obj);
+			_scenes[level]->objectsView.setDirty(obj); //set dirty before movement
 			_map->getEditManager()->moveObject(obj, pos);
 			_mapHandler->invalidate(prevPositions);
 			_mapHandler->invalidate(obj);
@@ -494,6 +497,7 @@ void MapController::commitObjectCreate(int level)
 	
 	_map->getEditManager()->insertObject(newObj);
 	_mapHandler->invalidate(newObj);
+	_scenes[level]->objectsView.setDirty(newObj);
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
 	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
@@ -539,7 +543,7 @@ void MapController::undo()
 {
 	_map->getEditManager()->getUndoManager().undo();
 	resetMapHandler();
-	sceneForceUpdate();
+	sceneForceUpdate(); //TODO: use smart invalidation (setDirty)
 	main->mapChanged();
 }
 
@@ -547,6 +551,6 @@ void MapController::redo()
 {
 	_map->getEditManager()->getUndoManager().redo();
 	resetMapHandler();
-	sceneForceUpdate();
+	sceneForceUpdate(); //TODO: use smart invalidation (setDirty)
 	main->mapChanged();
 }

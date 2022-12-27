@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../../lib/vcmi_endian.h"
-#include "Geometries.h"
 #include "../../lib/GameConstants.h"
 
 #ifdef IN
@@ -24,12 +23,15 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
+class Rect;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
+struct SDL_Color;
 class CDefFile;
-class ColorShifter;
+class ColorFilter;
 
 /*
  * Base class for images, can be used for non-animation pictures as well
@@ -37,11 +39,11 @@ class ColorShifter;
 class IImage
 {
 public:
-	using BorderPallete = std::array<SDL_Color, 3>;
+	using SpecialPalette = std::array<SDL_Color, 7>;
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
-	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha = 255) const = 0;
+	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr) const = 0;
+	virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
 
 	virtual std::shared_ptr<IImage> scaleFast(float scale) const = 0;
 
@@ -53,22 +55,30 @@ public:
 	//set special color for flag
 	virtual void setFlagColor(PlayerColor player)=0;
 
-	virtual int width() const=0;
-	virtual int height() const=0;
+	//test transparency of specific pixel
+	virtual bool isTransparent(const Point & coords) const = 0;
+
+	virtual Point dimensions() const = 0;
+	int width() const;
+	int height() const;
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
-	virtual void adjustPalette(const ColorShifter * shifter) = 0;
+	virtual void adjustPalette(const ColorFilter & shifter) = 0;
+	virtual void resetPalette(int colorID) = 0;
 	virtual void resetPalette() = 0;
 
-	//only indexed bitmaps, colors 5,6,7 must be special
-	virtual void setBorderPallete(const BorderPallete & borderPallete) = 0;
+	//only indexed bitmaps with 7 special colors
+	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette) = 0;
 
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
 
 	IImage();
 	virtual ~IImage();
+
+	/// loads image from specified file. Returns 0-sized images on failure
+	static std::shared_ptr<IImage> createFromFile( const std::string & path );
 };
 
 /// Class for handling animation
@@ -113,9 +123,6 @@ public:
 	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
 	//and loads it if animation is preloaded
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
-
-	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
-	void shiftColor(const ColorShifter * shifter);
 
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
@@ -172,6 +179,6 @@ public:
 	~CFadeAnimation();
 	void init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd = false, float animDelta = DEFAULT_DELTA);
 	void update();
-	void draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect);
+	void draw(SDL_Surface * targetSurface, const Point & targetPoint);
 	bool isFading() const { return fading; }
 };

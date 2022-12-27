@@ -21,11 +21,6 @@ void CAndroidVMHelper::cacheVM(JNIEnv * env)
 	env->GetJavaVM(&vmCache);
 }
 
-void CAndroidVMHelper::cacheVM(JavaVM * vm)
-{
-	vmCache = vm;
-}
-
 CAndroidVMHelper::CAndroidVMHelper()
 {
 	auto res = vmCache->GetEnv((void **) &envPtr, JNI_VERSION_1_1);

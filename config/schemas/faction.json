@@ -31,7 +31,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI faction format",
 	"description": "Json format for defining new faction (aka towns) in VCMI",
-	"required" : [ "name", "alignment", "creatureBackground" ],
+	"required" : [ "name", "alignment", "creatureBackground", "nativeTerrain" ],
 	"dependencies" : {
 		"town" : [ "puzzleMap" ]
 	},

@@ -191,7 +191,7 @@ int getDwellingArmyCost(const CGObjectInstance * target)
 
 uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 {
-	if(art->artType->id == ArtifactID::SPELL_SCROLL)
+	if(art->artType->getId() == ArtifactID::SPELL_SCROLL)
 		return 1500;
 
 	auto statsValue =

@@ -69,7 +69,7 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 	}
 
 	h = H;
-	name = h->name;
+	name = h->getNameTranslated();
 	hid = H->id;
 //	infosCount[ai->playerID][hid]++;
 }

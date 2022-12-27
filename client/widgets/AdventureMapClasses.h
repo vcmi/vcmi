@@ -11,7 +11,6 @@
 
 #include "ObjectLists.h"
 #include "../../lib/FunctionList.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -412,6 +411,8 @@ private:
 	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
 	int defaultTimeout; //timeout for new texts (in ms)
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
+
+	std::weak_ptr<IStatusBar> currentStatusBar;
 public:
 	std::string enteredText;
 	void show(SDL_Surface * to) override;
@@ -422,7 +423,7 @@ public:
 	void textEdited(const SDL_TextEditingEvent & event) override;
 
 	void startEnteringText();
-	void endEnteringText(bool printEnteredText);
+	void endEnteringText(bool processEnteredText);
 	void refreshEnteredText();
 
 	CInGameConsole();

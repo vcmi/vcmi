@@ -21,7 +21,7 @@
 #include "../../lib/filesystem/CCompressedStream.h"
 
 #include "../gui/SDL_Extensions.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../CGameInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -37,7 +37,6 @@
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
 #include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../Client.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CAnimation.h"
@@ -206,7 +205,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, std::ref(CGI->generaltexth->allTexts[69]), std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
+				return std::bind(CInfoWindow::showYesNoDialog, CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
 			}
 			break;
 			case 5: //highscores
@@ -236,7 +235,11 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	return std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, (int)button["hotkey"].Float());
+	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, (int)button["hotkey"].Float());
+
+	if (button["center"].Bool())
+		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
+	return result;
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
@@ -370,13 +373,14 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
 	background = std::make_shared<CPicture>("MUPOPUP.bmp");
-	background->convertToScreenBPP(); //so we could draw without problems
-	blitAt(CPicture("MUMAP.bmp"), 16, 77, *background);
 	pos = background->center(); //center, window has size of bg graphic
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 465, 440, 18), 0)); //226, 472
-	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), *background);
+	picture = std::make_shared<CPicture>("MUMAP.bmp", 16, 77);
+
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
+	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
 	playerName->setText(settings["general"]["playerName"].String());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
 
@@ -415,17 +419,17 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 	std::string text = CGI->generaltexth->allTexts[446];
 	boost::replace_all(text, "\t", "\n");
-	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, CENTER, Colors::WHITE); //HOTSEAT	Please enter names
+	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE); //HOTSEAT	Please enter names
 
 	for(int i = 0; i < inputNames.size(); i++)
 	{
-		inputNames[i] = std::make_shared<CTextInput>(Rect(60, 85 + i * 30, 280, 16), *background);
+		inputNames[i] = std::make_shared<CTextInput>(Rect(60, 85 + i * 30, 280, 16), background->getSurface());
 		inputNames[i]->cb += std::bind(&CMultiPlayers::onChange, this, _1);
 	}
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), SDLK_RETURN);
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
 	inputNames[0]->setText(firstPlayer, true);
 #ifndef VCMI_IOS
@@ -438,7 +442,7 @@ void CMultiPlayers::onChange(std::string newText)
 	size_t namesCount = 0;
 
 	for(auto & elem : inputNames)
-		if(!elem->text.empty())
+		if(!elem->getText().empty())
 			namesCount++;
 }
 
@@ -447,8 +451,8 @@ void CMultiPlayers::enterSelectionScreen()
 	std::vector<std::string> names;
 	for(auto name : inputNames)
 	{
-		if(name->text.length())
-			names.push_back(name->text);
+		if(name->getText().length())
+			names.push_back(name->getText());
 	}
 
 	Settings name = settings.write["general"]["playerName"];
@@ -463,9 +467,9 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	background = std::make_shared<CPicture>("MUDIALOG.bmp"); // address background
 	pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
 
-	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, CENTER, Colors::WHITE);
-	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), *background.get());
-	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), *background.get());
+	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
+	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), background->getSurface());
+	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
 		textTitle->setText("Connecting...");
@@ -485,7 +489,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	inputPort->setText(boost::lexical_cast<std::string>(CSH->getHostPort()), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 186, 218, 18), 0));
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 }
 
 void CSimpleJoinScreen::connectToServer()
@@ -494,7 +498,7 @@ void CSimpleJoinScreen::connectToServer()
 	buttonOk->block(true);
 	CSDL_Ext::stopTextInput();
 
-	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->text, boost::lexical_cast<ui16>(inputPort->text));
+	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }
 
 void CSimpleJoinScreen::leaveScreen()
@@ -512,7 +516,7 @@ void CSimpleJoinScreen::leaveScreen()
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {
-	buttonOk->block(inputAddress->text.empty() || inputPort->text.empty());
+	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 }
 
 void CSimpleJoinScreen::connectThread(const std::string addr, const ui16 port)
@@ -542,8 +546,9 @@ CLoadingScreen::~CLoadingScreen()
 
 void CLoadingScreen::showAll(SDL_Surface * to)
 {
-	Rect rect(0, 0, to->w, to->h);
-	SDL_FillRect(to, &rect, 0);
+	//FIXME: filling screen with transparency? BLACK intended?
+	//Rect rect(0, 0, to->w, to->h);
+	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
 
 	CWindowObject::showAll(to);
 }

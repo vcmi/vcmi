@@ -41,7 +41,10 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	serializeRelativeShape(handler, "shape", shape);
 	serializeRelativeShape(handler, "range", range);
 
+	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
@@ -57,7 +60,6 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 		"BR",
 		"BL",
 		"L",
-		""
 	};
 
 	{
@@ -75,7 +77,9 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 
 				if(handler.saving)
 				{
-					temp = EDirMap.at(value.at(outerIndex).at(innerIndex));
+					auto index = value.at(outerIndex).at(innerIndex);
+					if (index < EDirMap.size())
+						temp = EDirMap[index];
 				}
 
 				inner.serializeString(innerIndex, temp);
@@ -252,11 +256,13 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 
 	if(cb->battleGetSiegeLevel() != 0)
 	{
-		EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
+		EWallPart part = cb->battleHexToWallPart(hex);
 
-		if(part == EWallPart::INVALID || part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+		if(part == EWallPart::INVALID)
 			return true;//no fortification here
-		else if(static_cast<int>(part) < 0)
+		else if(part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+			return true; // location accessible
+		else if(part == EWallPart::INDESTRUCTIBLE_PART)
 			return false;//indestructible part (cant be checked by battleGetWallState)
 		else if(part == EWallPart::BOTTOM_TOWER || part == EWallPart::UPPER_TOWER)
 			return false;//destructible, but should not be available
@@ -313,7 +319,10 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 
+		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
+		obstacle.triggerSound = options.triggerSound;
+		obstacle.triggerAnimation = options.triggerAnimation;
 		obstacle.animation = options.animation;
 
 		obstacle.animationYOffset = options.offsetY;

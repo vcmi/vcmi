@@ -443,7 +443,7 @@ int32_t CUnitState::creatureIndex() const
 
 CreatureID CUnitState::creatureId() const
 {
-	return unitType()->idNumber;
+	return unitType()->getId();
 }
 
 int32_t CUnitState::creatureLevel() const
@@ -545,6 +545,11 @@ bool CUnitState::alive() const
 bool CUnitState::isGhost() const
 {
 	return ghost;
+}
+
+bool CUnitState::isFrozen() const
+{
+	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
@@ -818,7 +823,7 @@ void CUnitState::damage(int64_t & amount)
 		// block ability should not kill clone (0 damage)
 		if(amount > 0)
 		{
-			amount = 1;//TODO: what should be actual damage against clone?
+			amount = 0;
 			health.reset();
 		}
 	}

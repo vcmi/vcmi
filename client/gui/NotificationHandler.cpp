@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "NotificationHandler.h"
 #include <SDL_video.h>
+#include <SDL_events.h>
 #include <SDL_syswm.h>
 
 #if defined(VCMI_WINDOWS)

@@ -29,7 +29,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "CBitmapHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
@@ -101,7 +100,7 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
+	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{
 		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))
@@ -287,7 +286,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 //FIXME: not all player colored images have player palette at last 32 indexes
 //NOTE: following code is much more correct but still not perfect (bugged with status bar)
 
-		SDL_SetColors(sur, palette, 224, 32);
+		CSDL_Ext::setColors(sur, palette, 224, 32);
 
 
 #if 0

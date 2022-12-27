@@ -24,6 +24,9 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/MapObjects.h"
 #include "../VCMI_Lib.h"
+#include "../TerrainHandler.h"
+#include "../RoadHandler.h"
+#include "../RiverHandler.h"
 #include "../NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -52,7 +55,7 @@ std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
 std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
 {
 	// Read header
-	mapHeader = make_unique<CMapHeader>();
+	mapHeader = std::make_unique<CMapHeader>();
 	readHeader();
 
 	return std::move(mapHeader);
@@ -676,7 +679,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 			// combo
 			if (artifact->constituents)
 			{
-				map->allowedArtifact[artifact->id] = false;
+				map->allowedArtifact[artifact->getId()] = false;
 			}
 		}
 		if (map->version == EMapFormat::ROE)
@@ -784,7 +787,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				bool hasCustomBio = reader.readBool();
 				if(hasCustomBio)
 				{
-					hero->biography = reader.readString();
+					hero->biographyCustom = reader.readString();
 				}
 
 				// 0xFF is default, 00 male, 01 female
@@ -822,7 +825,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	{
 		if(hero->artifactsWorn.size() ||  hero->artifactsInBackpack.size())
 		{
-			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->name, hero->pos.toString());
+			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
 			hero->artifactsInBackpack.clear();
 			while(hero->artifactsWorn.size())
 				hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
@@ -923,9 +926,6 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 void CMapLoaderH3M::readTerrain()
 {
 	map->initTerrain();
-	const auto & terrains = VLC->terrainTypeHandler->terrains();
-	const auto & rivers = VLC->terrainTypeHandler->rivers();
-	const auto & roads = VLC->terrainTypeHandler->roads();
 
 	// Read terrain
 	int3 pos;
@@ -937,15 +937,17 @@ void CMapLoaderH3M::readTerrain()
 			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
 				auto & tile = map->getTile(pos);
-				tile.terType = const_cast<TerrainType*>(&terrains[reader.readUInt8()]);
+				tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getByIndex(reader.readUInt8()));
 				tile.terView = reader.readUInt8();
-				tile.riverType = const_cast<RiverType*>(&rivers[reader.readUInt8()]);
+				tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(reader.readUInt8()));
 				tile.riverDir = reader.readUInt8();
-				tile.roadType = const_cast<RoadType*>(&roads[reader.readUInt8()]);
+				tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(reader.readUInt8()));
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
-				tile.blocked = ((!tile.terType->isPassable() || tile.terType->id == Terrain::BORDER ) ? true : false); //underground tiles are always blocked
+				tile.blocked = !tile.terType->isPassable();
 				tile.visitable = 0;
+
+				assert(tile.terType->getId() != ETerrainId::NONE);
 			}
 		}
 	}
@@ -1434,7 +1436,7 @@ void CMapLoaderH3M::readObjects()
 				}
 				else
 				{
-					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->name, objPos.toString());
+					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->getNameTranslated(), objPos.toString());
 					hp->power = 0;
 				}
 
@@ -1590,7 +1592,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	{
 		if(elem.heroId == nhi->subID)
 		{
-			nhi->name = elem.name;
+			nhi->nameCustom = elem.name;
 			nhi->portrait = elem.portrait;
 			break;
 		}
@@ -1599,7 +1601,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	bool hasName = reader.readBool();
 	if(hasName)
 	{
-		nhi->name = reader.readString();
+		nhi->nameCustom = reader.readString();
 	}
 	if(map->version > EMapFormat::AB)
 	{
@@ -1657,22 +1659,14 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	nhi->formation = reader.readUInt8();
 	loadArtifactsOfHero(nhi);
 	nhi->patrol.patrolRadius = reader.readUInt8();
-	if(nhi->patrol.patrolRadius == 0xff)
-	{
-		nhi->patrol.patrolling = false;
-	}
-	else
-	{
-		nhi->patrol.patrolling = true;
-		nhi->patrol.initialPos = CGHeroInstance::convertPosition(initialPos, false);
-	}
+	nhi->patrol.patrolling = (nhi->patrol.patrolRadius != 0xff);
 
 	if(map->version > EMapFormat::ROE)
 	{
 		bool hasCustomBiography = reader.readBool();
 		if(hasCustomBiography)
 		{
-			nhi->biography = reader.readString();
+			nhi->biographyCustom = reader.readString();
 		}
 		nhi->sex = reader.readUInt8();
 
@@ -1694,7 +1688,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 		if(nhi->spells.size())
 		{
 			nhi->clear();
-			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
+			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
 		}
 
 		if(hasCustomSpells)
@@ -1727,7 +1721,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 								.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
+				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
 				for(auto b : *ps)
 					nhi->removeBonus(b);
 			}
@@ -1948,7 +1942,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	bool hasName = reader.readBool();
 	if(hasName)
 	{
-		nt->name = reader.readString();
+		nt->setNameTranslated( reader.readString());
 	}
 
 	bool hasGarrison = reader.readBool();

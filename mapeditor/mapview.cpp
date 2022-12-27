@@ -155,6 +155,14 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 		}
 		sc->selectionTerrainView.draw();
 		break;
+			
+	case MapView::SelectionTool::Lasso:
+		if(mouseEvent->buttons() == Qt::LeftButton)
+		{
+			sc->selectionTerrainView.select(tile);
+			sc->selectionTerrainView.draw();
+		}
+		break;
 
 	case MapView::SelectionTool::None:
 		if(mouseEvent->buttons() & Qt::RightButton)
@@ -247,6 +255,7 @@ void MapView::mousePressEvent(QMouseEvent *event)
 		break;
 
 	case MapView::SelectionTool::Area:
+	case MapView::SelectionTool::Lasso:
 		if(event->button() == Qt::RightButton)
 			break;
 
@@ -269,15 +278,17 @@ void MapView::mousePressEvent(QMouseEvent *event)
 		{
 			if(event->button() == Qt::LeftButton)
 			{
-				auto * obj = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
-				auto * obj2 = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y, obj);
-				if(obj)
+				//when paste, new object could be beyond initial object so we need to test two objects in order to select new one
+				//if object is pasted at place where is multiple objects then proper selection is not guaranteed
+				auto * firstSelectedObject = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+				auto * secondSelectedObject = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y, firstSelectedObject);
+				if(firstSelectedObject)
 				{
-					if(sc->selectionObjectsView.isSelected(obj))
+					if(sc->selectionObjectsView.isSelected(firstSelectedObject))
 					{
 						if(qApp->keyboardModifiers() & Qt::ControlModifier)
 						{
-							sc->selectionObjectsView.deselectObject(obj);
+							sc->selectionObjectsView.deselectObject(firstSelectedObject);
 							sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::SELECTION;
 						}
 						else
@@ -285,11 +296,11 @@ void MapView::mousePressEvent(QMouseEvent *event)
 					}
 					else
 					{
-						if(!obj2 || !sc->selectionObjectsView.isSelected(obj2))
+						if(!secondSelectedObject || !sc->selectionObjectsView.isSelected(secondSelectedObject))
 						{
 							if(!(qApp->keyboardModifiers() & Qt::ControlModifier))
 								sc->selectionObjectsView.clear();
-							sc->selectionObjectsView.selectObject(obj);
+							sc->selectionObjectsView.selectObject(firstSelectedObject);
 						}
 						sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 					}
@@ -327,6 +338,55 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 
 	switch(selectionTool)
 	{
+	case MapView::SelectionTool::Lasso: {
+		if(event->button() == Qt::RightButton)
+			break;
+				
+		//key: y position of tile
+		//value.first: x position of left tile
+		//value.second: x postiion of right tile
+		std::map<int, std::pair<int, int>> selectionRangeMapX, selectionRangeMapY;
+		for(auto & t : sc->selectionTerrainView.selection())
+		{
+			auto pairIter = selectionRangeMapX.find(t.y);
+			if(pairIter == selectionRangeMapX.end())
+				selectionRangeMapX[t.y] = std::make_pair(t.x, t.x);
+			else
+			{
+				pairIter->second.first = std::min(pairIter->second.first, t.x);
+				pairIter->second.second = std::max(pairIter->second.second, t.x);
+			}
+			
+			pairIter = selectionRangeMapY.find(t.x);
+			if(pairIter == selectionRangeMapY.end())
+				selectionRangeMapY[t.x] = std::make_pair(t.y, t.y);
+			else
+			{
+				pairIter->second.first = std::min(pairIter->second.first, t.y);
+				pairIter->second.second = std::max(pairIter->second.second, t.y);
+			}
+		}
+		
+		std::set<int3> selectionByX, selectionByY;
+		std::vector<int3> finalSelection;
+		for(auto & selectionRange : selectionRangeMapX)
+		{
+			for(int i = selectionRange.second.first; i < selectionRange.second.second; ++i)
+				selectionByX.insert(int3(i, selectionRange.first, sc->level));
+		}
+		for(auto & selectionRange : selectionRangeMapY)
+		{
+			for(int i = selectionRange.second.first; i < selectionRange.second.second; ++i)
+				selectionByY.insert(int3(selectionRange.first, i, sc->level));
+		}
+		std::set_intersection(selectionByX.begin(), selectionByX.end(), selectionByY.begin(), selectionByY.end(), std::back_inserter(finalSelection));
+		for(auto & lassoTile : finalSelection)
+			sc->selectionTerrainView.select(lassoTile);
+		
+		sc->selectionTerrainView.draw();
+		break;
+	}
+			
 	case MapView::SelectionTool::None:
 		if(event->button() == Qt::RightButton)
 			break;
@@ -362,12 +422,10 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 	if(!sc)
 		return;
 	
-	if(event->mimeData()->hasFormat("application/vcmi.object"))
+	if(event->mimeData()->hasImage())
 	{
-		auto encodedData = event->mimeData()->data("application/vcmi.object");
-		QDataStream stream(&encodedData, QIODevice::ReadOnly);
-		QVariant vdata;
-		stream >> vdata;
+		logGlobal->info("Drag'n'drop: dispatching object");
+		QVariant vdata = event->mimeData()->imageData();
 		auto data = vdata.toJsonObject();
 		if(!data.empty())
 		{

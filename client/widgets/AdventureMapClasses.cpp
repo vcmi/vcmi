@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "AdventureMapClasses.h"
 
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "MiscWidgets.h"
 #include "CComponent.h"
@@ -31,8 +31,8 @@
 #include "../windows/CAdvmapInterface.h"
 #include "../windows/GUIClasses.h"
 
-#include "../battle/CBattleInterfaceClasses.h"
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/StartInfo.h"
@@ -41,13 +41,14 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/Terrain.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/StringConstants.h"
+#include "ClientCommandManager.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),
@@ -87,7 +88,7 @@ void CList::CListItem::clickLeft(tribool down, bool previousState)
 void CList::CListItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->setText(getHoverText());
+		GH.statusbar->write(getHoverText());
 	else
 		GH.statusbar->clear();
 }
@@ -236,12 +237,12 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, GH.current->motion);
+	CRClickPopup::createAndPush(hero, CSDL_Ext::fromSDL(GH.current->motion));
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->name % hero->type->heroClass->name);
+	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->type->heroClass->getNameTranslated());
 }
 
 std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
@@ -328,7 +329,7 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, GH.current->motion);
+	CRClickPopup::createAndPush(town, CSDL_Ext::fromSDL(GH.current->motion));
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -390,7 +391,7 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	}
 
 	// else - use terrain color (blocked version or normal)
-	const auto & colorPair = parent->colors.find(tile->terType->id)->second;
+	const auto & colorPair = parent->colors.find(tile->terType->getId())->second;
 	if (tile->blocked && (!tile->visitable))
 		return colorPair.second;
 	else
@@ -486,7 +487,7 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	std::vector <const CGHeroInstance *> heroes = LOCPLINT->cb->getHeroesInfo(false); //TODO: do we really need separate function for drawing heroes?
 	for(auto & hero : heroes)
 	{
-		int3 position = hero->getPosition(false);
+		int3 position = hero->visitablePos();
 		if(position.z == level)
 		{
 			const SDL_Color & color = graphics->playerColors[hero->getOwner().getNum()];
@@ -499,25 +500,25 @@ std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
 	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
 		SDL_Color normal =
 		{
-			ui8(terrain.minimapUnblocked[0]),
-			ui8(terrain.minimapUnblocked[1]),
-			ui8(terrain.minimapUnblocked[2]),
+			ui8(terrain->minimapUnblocked[0]),
+			ui8(terrain->minimapUnblocked[1]),
+			ui8(terrain->minimapUnblocked[2]),
 			ui8(255)
 		};
 
 		SDL_Color blocked =
 		{
-			ui8(terrain.minimapBlocked[0]),
-			ui8(terrain.minimapBlocked[1]),
-			ui8(terrain.minimapBlocked[2]),
+			ui8(terrain->minimapBlocked[0]),
+			ui8(terrain->minimapBlocked[1]),
+			ui8(terrain->minimapBlocked[2]),
 			ui8(255)
 		};
 
-		ret[terrain.id] = std::make_pair(normal, blocked);
+		ret[terrain->getId()] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }
@@ -572,7 +573,7 @@ void CMinimap::clickRight(tribool down, bool previousState)
 void CMinimap::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(CGI->generaltexth->zelp[291].first);
+		GH.statusbar->write(CGI->generaltexth->zelp[291].first);
 	else
 		GH.statusbar->clear();
 }
@@ -592,8 +593,8 @@ void CMinimap::showAll(SDL_Surface * to)
 		int3 tileCountOnScreen = adventureInt->terrain.tileCountOnScreen();
 
 		//draw radar
-		SDL_Rect oldClip;
-		SDL_Rect radar =
+		Rect oldClip;
+		Rect radar =
 		{
 			si16(adventureInt->position.x * pos.w / mapSizes.x + pos.x),
 			si16(adventureInt->position.y * pos.h / mapSizes.y + pos.y),
@@ -611,10 +612,10 @@ void CMinimap::showAll(SDL_Surface * to)
 				return; // whole map is visible at once, no point in redrawing border
 		}
 
-		SDL_GetClipRect(to, &oldClip);
-		SDL_SetClipRect(to, &pos);
-		CSDL_Ext::drawDashedBorder(to, radar, int3(255,75,125));
-		SDL_SetClipRect(to, &oldClip);
+		CSDL_Ext::getClipRect(to, oldClip);
+		CSDL_Ext::setClipRect(to, pos);
+		CSDL_Ext::drawDashedBorder(to, radar, Colors::PURPLE);
+		CSDL_Ext::setClipRect(to, oldClip);
 	}
 }
 
@@ -705,7 +706,7 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 	else
 		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
 
-	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText);
+	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, labelText);
 
 	forceRefresh.push_back(label);
 }
@@ -771,8 +772,8 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 
 	//generate widgets
 	background = std::make_shared<CPicture>("ADSTATIN");
-	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
-	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
+	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
+	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : allies)
@@ -794,7 +795,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	{
 		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * (int)i , 11));
 		if(halls[i])
-			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
+			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
 	}
 }
 
@@ -807,7 +808,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDis
 	comp = std::make_shared<CComponent>(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
 
-	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 void CInfoBar::playNewDaySound()
@@ -876,7 +877,7 @@ void CInfoBar::clickRight(tribool down, bool previousState)
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(CGI->generaltexth->zelp[292].first);
+		GH.statusbar->write(CGI->generaltexth->zelp[292].first);
 	else
 		GH.statusbar->clear();
 }
@@ -974,11 +975,8 @@ void CInGameConsole::show(SDL_Surface * to)
 	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
-		Point leftBottomCorner(0, screen->h);
-		if(LOCPLINT->battleInt)
-		{
-			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
-		}
+		Point leftBottomCorner(0, pos.h);
+
 		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
 			Point(leftBottomCorner.x + 50, leftBottomCorner.y - (int)texts.size() * 20 - 80 + number*20));
 
@@ -1126,65 +1124,66 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
+	if (!active)
+		return;
+
+	if (captureAllKeys)
+		return;
+
+	assert(GH.statusbar);
+	assert(currentStatusBar.expired());//effectively, nullptr check
+
+	currentStatusBar = GH.statusbar;
+
 	captureAllKeys = true;
-
-	CSDL_Ext::startTextInput(&GH.statusbar->pos);
-
 	enteredText = "_";
-	if(GH.topInt() == adventureInt)
-	{
-		GH.statusbar->alignment = TOPLEFT;
-		GH.statusbar->setText(enteredText);
 
-		//Prevent changes to the text from mouse interaction with the adventure map
-		GH.statusbar->lock(true);
-	}
-	else if(LOCPLINT->battleInt)
-	{
-		LOCPLINT->battleInt->console->ingcAlter = enteredText;
-	}
+	GH.statusbar->setEnteringMode(true);
+	GH.statusbar->setEnteredText(enteredText);
 }
 
-void CInGameConsole::endEnteringText(bool printEnteredText)
+void CInGameConsole::endEnteringText(bool processEnteredText)
 {
 	captureAllKeys = false;
-
-	CSDL_Ext::stopTextInput();
-
 	prevEntDisp = -1;
-	if(printEnteredText)
+	if(processEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
-		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
-		//print(txt);
+
+		if(txt.at(0) == '/')
+		{
+			//some commands like gosolo don't work when executed from GUI thread
+			auto threadFunction = [=]()
+			{
+				ClientCommandManager commandController;
+				commandController.processCommand(txt.substr(1), true);
+			};
+
+			boost::thread clientCommandThread(threadFunction);
+			clientCommandThread.detach();
+		}
+		else
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 	}
 	enteredText.clear();
-	if(GH.topInt() == adventureInt)
-	{
-		GH.statusbar->alignment = CENTER;
-		GH.statusbar->lock(false);
-		GH.statusbar->clear();
-	}
-	else if(LOCPLINT->battleInt)
-	{
-		LOCPLINT->battleInt->console->ingcAlter = "";
-	}
+
+	auto statusbar = currentStatusBar.lock();
+	assert(statusbar);
+
+	if (statusbar)
+		statusbar->setEnteringMode(false);
+
+	currentStatusBar.reset();
 }
 
 void CInGameConsole::refreshEnteredText()
 {
-	if(GH.topInt() == adventureInt)
-	{
-		GH.statusbar->lock(false);
-		GH.statusbar->clear();
-		GH.statusbar->setText(enteredText);
-		GH.statusbar->lock(true);
-	}
-	else if(LOCPLINT->battleInt)
-	{
-		LOCPLINT->battleInt->console->ingcAlter = enteredText;
-	}
+	auto statusbar = currentStatusBar.lock();
+	assert(statusbar);
+
+	if (statusbar)
+		statusbar->setEnteredText(enteredText);
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
@@ -1225,7 +1224,7 @@ void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
 void CAdvMapPanel::showAll(SDL_Surface * to)
 {
 	if(background)
-		blitAt(background, pos.x, pos.y, to);
+		CSDL_Ext::blitAt(background, pos.x, pos.y, to);
 
 	CIntObject::showAll(to);
 }

@@ -15,7 +15,6 @@
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMT.h"
@@ -78,7 +77,7 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		#if 0
 		owner->update(hero, true);
 		#else
-		UNUSED(owner);
+		MAYBE_UNUSED(owner);
 		const CGHeroInstance * buf = hero;
 		GH.popInts(1);
 		GH.pushIntT<CHeroWindow>(buf);
@@ -109,18 +108,18 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	curHero = hero;
 
 	banner = std::make_shared<CAnimImage>("CREST58", LOCPLINT->playerID.getNum(), 0, 606, 8);
-	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, EAlignment::CENTER, Colors::YELLOW);
-	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, EAlignment::CENTER, Colors::WHITE);
+	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
+	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
 
 	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
 
-	dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, TOPLEFT, Colors::WHITE);
+	dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, SDLK_d);
 
-	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, TOPLEFT, Colors::WHITE);
+	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, SDLK_q);
 
 	formations = std::make_shared<CToggleGroup>(0);
@@ -129,8 +128,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	if(hero->commander)
 	{
-		auto texts = CGI->generaltexth->localizedTexts["heroWindow"]["openCommander"];
-		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltip(texts), [&](){ commanderWindow(); }, SDLK_c);
+		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, SDLK_c);
 	}
 
 	//right list of heroes
@@ -149,7 +147,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
 		primSkillAreas.push_back(area);
 
-		auto value = std::make_shared<CLabel>(53 + 70 * v, 166, FONT_SMALL, CENTER);
+		auto value = std::make_shared<CLabel>(53 + 70 * v, 166, FONT_SMALL, ETextAlignment::CENTER);
 		primSkillValues.push_back(value);
 	}
 
@@ -184,19 +182,19 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
 
-		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, TOPLEFT));
-		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, TOPLEFT));
+		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT));
+		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT));
 	}
 
 	// various texts
-	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[1]));
-	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[2]));
-	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[3]));
-	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[4]));
+	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[1]));
+	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[2]));
+	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[3]));
+	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[4]));
 
-	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[5]));
-	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[6]));
-	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[7]));
+	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[5]));
+	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[6]));
+	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[7]));
 
 	update(hero);
 }
@@ -213,19 +211,19 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	assert(hero == curHero);
 
-	name->setText(curHero->name);
-	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->type->heroClass->name).str());
+	name->setText(curHero->getNameTranslated());
+	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->type->heroClass->getNameTranslated()).str());
 
-	specArea->text = curHero->type->specDescr;
+	specArea->text = curHero->type->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->type->imageIndex);
-	specName->setText(curHero->type->specName);
+	specName->setText(curHero->type->getSpecialtyNameTranslated());
 
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), "hsbtns8.def", std::make_pair(heroscrn[26], heroscrn[31]), 0, SDLK_b);
 	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
-	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->name % curHero->type->heroClass->name));
-	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->name % curHero->type->heroClass->name);
-	portraitArea->text = curHero->getBiography();
+	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
+	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated());
+	portraitArea->text = curHero->getBiographyTranslated();
 	portraitImage->setFrame(curHero->portrait);
 
 	{
@@ -265,12 +263,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	{
 		int skill = curHero->secSkills[g].first;
 		int	level = curHero->getSecSkillLevel(SecondarySkill(curHero->secSkills[g].first));
-		std::string skillName = CGI->skillh->skillName(skill);
+		std::string skillName = CGI->skillh->getByIndex(skill)->getNameTranslated();
 		std::string skillValue = CGI->generaltexth->levels[level-1];
 
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
-		secSkillAreas[g]->text = CGI->skillh->skillInfo(skill, level);
+		secSkillAreas[g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % skillValue % skillName);
 		secSkillImages[g]->setFrame(skill*3 + level + 2);
 		secSkillNames[g]->setText(skillName);
@@ -293,7 +291,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//printing spell points, boost::format can't be used due to locale issues
 	spellPointsArea->text = CGI->generaltexth->allTexts[205];
-	boost::replace_first(spellPointsArea->text, "%s", boost::lexical_cast<std::string>(curHero->name));
+	boost::replace_first(spellPointsArea->text, "%s", boost::lexical_cast<std::string>(curHero->getNameTranslated()));
 	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(curHero->mana));
 	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(heroWArt.manaLimit()));
 

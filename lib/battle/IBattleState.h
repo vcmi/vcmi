@@ -49,7 +49,7 @@ public:
 	virtual ObstacleCList getAllObstacles() const = 0;
 
 	virtual const CGTownInstance * getDefendedTown() const = 0;
-	virtual si8 getWallState(int partOfWall) const = 0;
+	virtual EWallState getWallState(EWallPart partOfWall) const = 0;
 	virtual EGateState getGateState() const = 0;
 
 	virtual PlayerColor getSidePlayer(ui8 side) const = 0;
@@ -87,7 +87,7 @@ public:
 	virtual void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) = 0;
 	virtual void removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) = 0;
 
-	virtual void setWallState(int partOfWall, si8 state) = 0;
+	virtual void setWallState(EWallPart partOfWall, EWallState state) = 0;
 
 	virtual void addObstacle(const ObstacleChanges & changes) = 0;
 	virtual void updateObstacle(const ObstacleChanges & changes) = 0;

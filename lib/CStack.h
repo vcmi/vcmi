@@ -14,7 +14,6 @@
 #include "CCreatureHandler.h" //todo: remove
 #include "battle/BattleHex.h"
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
-#include "Terrain.h"
 
 #include "battle/CUnitState.h"
 
@@ -129,7 +128,7 @@ public:
 			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 			{
 				base = nullptr;
-				logGlobal->warn("%s doesn't have a base stack!", type->nameSing);
+				logGlobal->warn("%s doesn't have a base stack!", type->getNameSingularTranslated());
 			}
 			else
 			{

@@ -18,6 +18,9 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
+#include "TerrainHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"
@@ -197,6 +200,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(bth, "Bonus type", pomtime);
 
+	createHandler(roadTypeHandler, "Road", pomtime);
+	createHandler(riverTypeHandler, "River", pomtime);
 	createHandler(terrainTypeHandler, "Terrain", pomtime);
 
 	createHandler(generaltexth, "General text", pomtime);

@@ -274,7 +274,8 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.blind",
-				"val" : 20
+				"val" : 20,
+				"addInfo" : [3,0]
 			}
 		},
 		"upgrades": ["warUnicorn"],
@@ -307,7 +308,8 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.blind",
-				"val" : 20
+				"val" : 20,
+				"addInfo" : [3,0]
 			}
 		},
 		"graphics" :

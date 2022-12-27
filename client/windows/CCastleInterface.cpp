@@ -44,17 +44,31 @@
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE),
-	parent(Par),
-	town(Town),
-	str(Str),
-	stateCounter(80)
+	  parent(Par),
+	  town(Town),
+	  str(Str),
+	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
+	// special animation frame manipulation for castle shipyard with and without ship
+	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
+	if(Town->town->faction->getId() == FactionID::CASTLE && Str->building &&
+		(Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
+	{
+		if(Town->hasBuilt(BuildingID::CITADEL))
+		{
+			this->first = 1;
+			this->frame = 1;
+		}
+		else
+			this->last = 0;
+	}
+
 	if(!str->borderName.empty())
-		border = BitmapHandler::loadBitmap(str->borderName, true);
+		border = BitmapHandler::loadBitmap(str->borderName);
 	else
 		border = nullptr;
 
@@ -131,8 +145,8 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		const CBuilding *bld = town->town->buildings.at(bid);
 		if (bid < BuildingID::DWELL_FIRST)
 		{
-			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
-				std::make_shared<CComponent>(CComponent::building, bld->town->faction->index, bld->bid));
+			CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
+				std::make_shared<CComponent>(CComponent::building, bld->town->faction->getIndex(), bld->bid));
 		}
 		else
 		{
@@ -154,16 +168,11 @@ SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 
 void CBuildingRect::show(SDL_Surface * to)
 {
-	const ui32 stageDelay = 16;
+	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	const ui32 S1_TRANSP  = 16; //0.5 sec building appear 0->100 transparency
-	const ui32 S2_WHITE_B = 32; //0.5 sec border glows from white to yellow
-	const ui32 S3_YELLOW_B= 48; //0.5 sec border glows from yellow to normal
-	const ui32 BUILDED    = 80; //  1 sec delay, nothing happens
-
-	if(stateCounter < S1_TRANSP)
+	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
-		setAlpha(255*stateCounter/stageDelay);
+		setAlpha(255 * stateTimeCounter / stageDelay);
 		CShowableAnim::show(to);
 	}
 	else
@@ -172,9 +181,9 @@ void CBuildingRect::show(SDL_Surface * to)
 		CShowableAnim::show(to);
 	}
 
-	if(border && stateCounter > S1_TRANSP)
+	if(border && stateTimeCounter > BUILDING_APPEAR_TIMEPOINT)
 	{
-		if(stateCounter == BUILDED)
+		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
 			if(parent->selectedBuilding == this)
 				blitAtLoc(border,0,0,to);
@@ -191,26 +200,26 @@ void CBuildingRect::show(SDL_Surface * to)
 			SDL_Color oldColor = border->format->palette->colors[colorID];
 			SDL_Color newColor;
 
-			if (stateCounter < S2_WHITE_B)
-				newColor = multiplyColors(c1, c2, static_cast<double>(stateCounter % stageDelay) / stageDelay);
+			if (stateTimeCounter < BUILDING_WHITE_BORDER_TIMEPOINT)
+				newColor = multiplyColors(c1, c2, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
 			else
-			if (stateCounter < S3_YELLOW_B)
-				newColor = multiplyColors(c2, c3, static_cast<double>(stateCounter % stageDelay) / stageDelay);
+			if (stateTimeCounter < BUILDING_YELLOW_BORDER_TIMEPOINT)
+				newColor = multiplyColors(c2, c3, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
 			else
 				newColor = oldColor;
 
-			SDL_SetColors(border, &newColor, colorID, 1);
+			CSDL_Ext::setColors(border, &newColor, colorID, 1);
 			blitAtLoc(border, 0, 0, to);
-			SDL_SetColors(border, &oldColor, colorID, 1);
+			CSDL_Ext::setColors(border, &oldColor, colorID, 1);
 		}
 	}
-	if(stateCounter < BUILDED)
-		stateCounter++;
+	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
+		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
 }
 
 void CBuildingRect::showAll(SDL_Surface * to)
 {
-	if (stateCounter == 0)
+	if (stateTimeCounter == 0)
 		return;
 
 	CShowableAnim::showAll(to);
@@ -226,14 +235,14 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	int bid = getBuilding()->bid;
 
 	if (bid<30)//non-dwellings - only buiding name
-		return town->town->buildings.at(getBuilding()->bid)->Name();
+		return town->town->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
 		auto & availableCreatures = town->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
-			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->objects.at(creaID)->namePl;
+			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->objects.at(creaID)->getNamePluralTranslated();
 		}
 		else
 		{
@@ -245,7 +254,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	if(area && isItIn(&pos,sEvent.x, sEvent.y))
+	if(area && pos.isInside(sEvent.x, sEvent.y))
 	{
 		if(CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //hovered pixel is inside this building
 		{
@@ -261,7 +270,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			  || (*parent->selectedBuilding)<(*this)) //or we are on top
 			{
 				parent->selectedBuilding = this;
-				GH.statusbar->setText(getSubtitle());
+				GH.statusbar->write(getSubtitle());
 			}
 		}
 	}
@@ -275,19 +284,19 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 	const CCreature * creature = CGI->creh->objects.at(Town->creatures.at(level).second.back());
 
-	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, CENTER, Colors::WHITE, creature->namePl);
+	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getNamePluralTranslated());
 	animation = std::make_shared<CCreaturePic>(30, 44, creature, true, true);
 
 	std::string text = boost::lexical_cast<std::string>(Town->creatures.at(level).first);
-	available = std::make_shared<CLabel>(80,190, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[217] + text);
-	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[346]);
+	available = std::make_shared<CLabel>(80,190, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[217] + text);
+	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[346]);
 
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(creature->cost[i])
 		{
 			resPicture.push_back(std::make_shared<CAnimImage>("RESOURCE", i, 0, 0, 0));
-			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(creature->cost[i])));
+			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(creature->cost[i])));
 		}
 	}
 
@@ -344,25 +353,25 @@ void CHeroGSlot::hover(bool on)
 		if(isSelected())//view NNN
 		{
 			temp = CGI->generaltexth->tcommands[4];
-			boost::algorithm::replace_first(temp,"%s",hero->name);
+			boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
 		}
 		else if(other->hero && other->isSelected())//exchange
 		{
 			temp = CGI->generaltexth->tcommands[7];
-			boost::algorithm::replace_first(temp,"%s",hero->name);
-			boost::algorithm::replace_first(temp,"%s",other->hero->name);
+			boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
+			boost::algorithm::replace_first(temp,"%s",other->hero->getNameTranslated());
 		}
 		else// select NNN (in ZZZ)
 		{
 			if(upg)//down - visiting
 			{
 				temp = CGI->generaltexth->tcommands[32];
-				boost::algorithm::replace_first(temp,"%s",hero->name);
+				boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
 			}
 			else //up - garrison
 			{
 				temp = CGI->generaltexth->tcommands[12];
-				boost::algorithm::replace_first(temp,"%s",hero->name);
+				boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
 			}
 		}
 	}
@@ -371,7 +380,7 @@ void CHeroGSlot::hover(bool on)
 		if(other->isSelected() && other->hero) //move NNNN
 		{
 			temp = CGI->generaltexth->tcommands[6];
-			boost::algorithm::replace_first(temp,"%s",other->hero->name);
+			boost::algorithm::replace_first(temp,"%s",other->hero->getNameTranslated());
 		}
 		else //empty
 		{
@@ -379,7 +388,7 @@ void CHeroGSlot::hover(bool on)
 		}
 	}
 	if(temp.size())
-		GH.statusbar->setText(temp);
+		GH.statusbar->write(temp);
 }
 
 void CHeroGSlot::clickLeft(tribool down, bool previousState)
@@ -632,9 +641,9 @@ void CCastleBuildings::addBuilding(BuildingID building)
 		{
 			//reset animation
 			if(structures.size() == 1)
-				buildingRect->stateCounter = 0; // transparency -> fully visible stage
+				buildingRect->stateTimeCounter = 0; // transparency -> fully visible stage
 			else
-				buildingRect->stateCounter = 16; // already in fully visible stage
+				buildingRect->stateTimeCounter = CBuildingRect::BUILDING_APPEAR_TIMEPOINT; // already in fully visible stage
 			break;
 		}
 	}
@@ -727,7 +736,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(town->visitingHero)
 							GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
 						else
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
@@ -738,7 +747,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(getHero())
 							GH.pushIntT<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
 						else
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::MAGIC_UNIVERSITY:
@@ -792,7 +801,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->Name()));
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
 		return;
 	}
 	auto art = artifactID.toArtifact(CGI->artifacts());
@@ -806,7 +815,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 void CCastleBuildings::enterBuilding(BuildingID building)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building, town->subID, building));
-	LOCPLINT->showInfoDialog( town->town->buildings.find(building)->second->Description(), comps);
+	LOCPLINT->showInfoDialog( town->town->buildings.find(building)->second->getDescriptionTranslated(), comps);
 }
 
 void CCastleBuildings::enterCastleGate()
@@ -822,7 +831,7 @@ void CCastleBuildings::enterCastleGate()
 	{
 		const CGTownInstance *t = Town;
 		if (t->id != this->town->id && t->visitingHero == nullptr && //another town, empty and this is
-			t->town->faction->index == town->town->faction->index && //the town of the same faction
+			t->town->faction->getId() == town->town->faction->getId() && //the town of the same faction
 			t->hasBuilt(BuildingSubID::CASTLE_GATE)) //and the town has a castle gate
 		{
 			availableTowns.push_back(t->id.getNum());//add to the list
@@ -851,27 +860,27 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	if(hasSomeoneToRecruit)
 		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
 	else
-		CInfoWindow::showInfoDialog(CGI->generaltexth->localizedTexts["townHall"]["noCreaturesToRecruit"].String(), {});
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.townHall.noCreaturesToRecruit"), {});
 }
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
-	std::string descr = town->town->buildings.find(building)->second->Description();
+	std::string descr = town->town->buildings.find(building)->second->getDescriptionTranslated();
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->index == (TFaction)ETownType::RAMPART)
+	if(this->town->town->faction->getIndex() == (TFaction)ETownType::RAMPART)
 	{
 		hasNotProduced = CGI->generaltexth->allTexts[677];
 		hasProduced = CGI->generaltexth->allTexts[678];
 	}
 	else
 	{
-		auto buildingName = town->town->getSpecialBuilding(subID)->Name();
+		auto buildingName = town->town->getSpecialBuilding(subID)->getNameTranslated();
 
-		hasNotProduced = std::string(CGI->generaltexth->localizedTexts["townHall"]["hasNotProduced"].String());
-		hasProduced = std::string(CGI->generaltexth->localizedTexts["townHall"]["hasProduced"].String());
+		hasNotProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasNotProduced"));
+		hasProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasProduced"));
 		boost::algorithm::replace_first(hasNotProduced, "%s", buildingName);
 		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
 	}
@@ -881,7 +890,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 			&& town->town->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
 
 	if(upgrades != BuildingID::NONE)
-		descr += "\n\n"+town->town->buildings.find(BuildingID(upgrades))->second->Description();
+		descr += "\n\n"+town->town->buildings.find(BuildingID(upgrades))->second->getDescriptionTranslated();
 
 	if(isMysticPondOrItsUpgrade) //for vanila Rampart like towns
 	{
@@ -996,14 +1005,14 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 
 	if(compact)
 	{
-		label = std::make_shared<CLabel>(40, 32, FONT_TINY, BOTTOMRIGHT, Colors::WHITE, value);
+		label = std::make_shared<CLabel>(40, 32, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, value);
 		pos.x += 8;
 		pos.w = 32;
 		pos.h = 32;
 	}
 	else
 	{
-		label = std::make_shared<CLabel>(24, 40, FONT_SMALL, CENTER, Colors::WHITE, value);
+		label = std::make_shared<CLabel>(24, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, value);
 		pos.w = 48;
 		pos.h = 48;
 	}
@@ -1019,7 +1028,7 @@ void CCreaInfo::update()
 		else
 			value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
 
-		if(value != label->text)
+		if(value != label->getText())
 			label->setText(value);
 	}
 }
@@ -1027,15 +1036,15 @@ void CCreaInfo::update()
 void CCreaInfo::hover(bool on)
 {
 	std::string message = CGI->generaltexth->allTexts[588];
-	boost::algorithm::replace_first(message, "%s", creature->namePl);
+	boost::algorithm::replace_first(message, "%s", creature->getNamePluralTranslated());
 
 	if(on)
 	{
-		GH.statusbar->setText(message);
+		GH.statusbar->write(message);
 	}
-	else if (message == GH.statusbar->getText())
+	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar->clearIfMatching(message);
 	}
 }
 
@@ -1055,7 +1064,7 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 std::string CCreaInfo::genGrowthText()
 {
 	GrowthInfo gi = town->getGrowthInfo(level);
-	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->nameSing % gi.totalGrowth());
+	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->getNameSingularTranslated() % gi.totalGrowth());
 
 	for(const GrowthInfo::Entry & entry : gi.entries)
 		descr +="\n" + entry.description;
@@ -1105,7 +1114,7 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if(building )
-			GH.statusbar->setText(building->Name());
+			GH.statusbar->write(building->getNameTranslated());
 	}
 	else
 	{
@@ -1117,8 +1126,8 @@ void CTownInfo::clickRight(tribool down, bool previousState)
 {
 	if(building && down)
 	{
-		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->index, building->bid);
-		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()), c);
+		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->getIndex(), building->bid);
+		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
 	}
 }
 
@@ -1143,8 +1152,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->type |= REDRAW_PARENT;
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
-	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
-	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, CENTER);
+	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
+	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, 387);
 
 	exit = std::make_shared<CButton>(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, SDLK_RETURN);
@@ -1159,7 +1168,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(*(panel.get()), barRect, 9, 555, false);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
 
@@ -1307,7 +1316,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	header = std::make_shared<CAnimImage>("TPTHBAR", panelIndex[state], 0, 1, 73);
 	if(iconIndex[state] >=0)
 		mark = std::make_shared<CAnimImage>("TPTHCHK", iconIndex[state], 0, 136, 56);
-	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, CENTER, Colors::WHITE, building->Name());
+	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->getNameTranslated());
 
 	//todo: add support for all possible states
 	if(state >= EBuildingState::BUILDING_ERROR)
@@ -1325,8 +1334,8 @@ void CHallInterface::CBuildingBox::hover(bool on)
 			toPrint = CGI->generaltexth->allTexts[223];
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
-		boost::algorithm::replace_first(toPrint,"%s",building->Name());
-		GH.statusbar->setText(toPrint);
+		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
+		GH.statusbar->write(toPrint);
 	}
 	else
 	{
@@ -1356,10 +1365,10 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	resdatabar->moveBy(pos.topLeft(), true);
 	Rect barRect(5, 556, 740, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 5, 556, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 5, 556, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->Name());
+	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1403,12 +1412,12 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	icon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, building->bid, 0, 125, 50);
-	auto statusbarBackground = std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
-	description = std::make_shared<CTextBox>(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
-	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, CENTER);
+	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->getNameTranslated()));
+	description = std::make_shared<CTextBox>(building->getDescriptionTranslated(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, ETextAlignment::CENTER);
+	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, ETextAlignment::CENTER);
 
 	//Create components for all required resources
 	std::vector<std::shared_ptr<CComponent>> components;
@@ -1423,8 +1432,8 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	if(!rightClick)
 	{	//normal window
-		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name());
-		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name());
+		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->getNameTranslated());
+		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->getNameTranslated());
 
 		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, SDLK_RETURN);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
@@ -1451,7 +1460,7 @@ std::string CBuildWindow::getTextForState(int state)
 	case EBuildingState::ALREADY_PRESENT:
 	case EBuildingState::CANT_BUILD_TODAY:
 	case EBuildingState::NO_RESOURCES:
-		ret.replace(ret.find_first_of("%s"), 2, building->Name());
+		ret.replace(ret.find_first_of("%s"), 2, building->getNameTranslated());
 		break;
 	case EBuildingState::ALLOWED:
 		return CGI->generaltexth->allTexts[219]; //all prereq. are met
@@ -1459,7 +1468,7 @@ std::string CBuildWindow::getTextForState(int state)
 		{
 			auto toStr = [&](const BuildingID build) -> std::string
 			{
-				return town->town->buildings.at(build)->Name();
+				return town->town->buildings.at(build)->getNameTranslated();
 			};
 
 			ret = CGI->generaltexth->allTexts[52];
@@ -1468,8 +1477,8 @@ std::string CBuildWindow::getTextForState(int state)
 		}
 	case EBuildingState::MISSING_BASE:
 		{
-			std::string msg = CGI->generaltexth->localizedTexts["townHall"]["missingBase"].String();
-			ret = boost::str(boost::format(msg) % town->town->buildings.at(building->upgrade)->Name());
+			std::string msg = CGI->generaltexth->translate("vcmi.townHall.missingBase");
+			ret = boost::str(boost::format(msg) % town->town->buildings.at(building->upgrade)->getNameTranslated());
 			break;
 		}
 	}
@@ -1507,15 +1516,15 @@ void LabeledValue::init(std::string nameText, std::string descr, int min, int ma
 		if(min != max)
 			valueText += '-' + boost::lexical_cast<std::string>(max);
 	}
-	name = std::make_shared<CLabel>(3, 0, FONT_SMALL, TOPLEFT, Colors::WHITE, nameText);
-	value = std::make_shared<CLabel>(pos.w-3, pos.h-2, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, valueText);
+	name = std::make_shared<CLabel>(3, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, nameText);
+	value = std::make_shared<CLabel>(pos.w-3, pos.h-2, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, valueText);
 }
 
 void LabeledValue::hover(bool on)
 {
 	if(on)
 	{
-		GH.statusbar->setText(hoverText);
+		GH.statusbar->write(hoverText);
 	}
 	else
 	{
@@ -1533,9 +1542,9 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		fortSize--;
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
-	title = std::make_shared<CLabel>(400, 12, FONT_BIG, CENTER, Colors::WHITE, fortBuilding->Name());
+	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
-	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
+	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->getNameTranslated());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1579,7 +1588,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	Rect barRect(4, 554, 740, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 4, 554, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 4, 554, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 }
 
@@ -1620,21 +1629,21 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if(getMyBuilding() != nullptr)
 	{
 		buildingIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
-		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, CENTER, Colors::WHITE, getMyBuilding()->Name());
+		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyBuilding()->getNameTranslated());
 
 		if(vstd::contains(town->builtBuildings, getMyBuilding()->bid))
 		{
 			ui32 available = town->creatures[level].first;
 			std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
-			availableCount = std::make_shared<CLabel>(78, 119, FONT_SMALL, CENTER, Colors::WHITE, availableText);
+			availableCount = std::make_shared<CLabel>(78, 119, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, availableText);
 		}
 	}
 
 	if(getMyCreature() != nullptr)
 	{
-		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->namePl);
+		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->getNamePluralTranslated());
 		new CCreaturePic(159, 4, getMyCreature(), false);
-		new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, getMyCreature()->namePl);
+		new CLabel(78,  11, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyCreature()->getNamePluralTranslated());
 
 		Rect sizes(287, 4, 96, 18);
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->getAttack(false)));
@@ -1683,7 +1692,7 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 void CFortScreen::RecruitArea::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(hoverText);
+		GH.statusbar->write(hoverText);
 	else
 		GH.statusbar->clear();
 }
@@ -1720,7 +1729,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 
 	Rect barRect(7, 556, 737, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 7, 556, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, SDLK_RETURN);
@@ -1762,19 +1771,19 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
-		LOCPLINT->showInfoDialog(spell->getLevelDescription(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
+		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		CRClickPopup::createAndPush(spell->getLevelDescription(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
+		CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(spell->name);
+		GH.statusbar->write(spell->getNameTranslated());
 	else
 		GH.statusbar->clear();
 
@@ -1787,7 +1796,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 
 	Rect barRect(8, pos.h - 26, pos.w - 16, 19);
 
-	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 8, pos.h - 26, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 8, pos.h - 26, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	animBG = std::make_shared<CPicture>("TPSMITBK", 64, 50);
@@ -1797,16 +1806,16 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	anim = std::make_shared<CCreatureAnim>(64, 50, creature->animDefName);
 	anim->clipRect(113,125,200,150);
 
-	title = std::make_shared<CLabel>(165, 28, FONT_BIG, CENTER, Colors::YELLOW,
-	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
-	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
-	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, CENTER, Colors::WHITE,
+	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
+				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->getNameSingularTranslated()));
+	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
+	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
 	                boost::lexical_cast<std::string>(aid.toArtifact(CGI->artifacts())->getPrice()));
 
-	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
+	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
 	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
 
-	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->nameSing);
+	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->getNameSingularTranslated());
 	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_ESCAPE);
 
 	if(possible)

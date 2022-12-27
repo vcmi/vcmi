@@ -994,10 +994,12 @@ struct EraseArtifact : CArtifactOperationPack
 
 struct MoveArtifact : CArtifactOperationPack
 {
-	MoveArtifact() {}
-	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst) 
-		: src(*src), dst(*dst) {}
+	MoveArtifact() 
+		: askAssemble(true) {}
+	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst, bool askAssemble = true)
+		: src(*src), dst(*dst), askAssemble(askAssemble){}
 	ArtifactLocation src, dst;
+	bool askAssemble;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -1006,6 +1008,7 @@ struct MoveArtifact : CArtifactOperationPack
 	{
 		h & src;
 		h & dst;
+		h & askAssemble;
 	}
 };
 
@@ -1545,6 +1548,7 @@ struct BattleStackMoved : public CPackForClient
 		h & stack;
 		h & tilesToMove;
 		h & distance;
+		h & teleporting;
 	}
 };
 
@@ -1557,22 +1561,23 @@ struct BattleUnitsChanged : public CPackForClient
 	void applyCl(CClient *cl);
 
 	std::vector<UnitChanges> changedStacks;
-	std::vector<CustomEffectInfo> customEffects;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & changedStacks;
-		h & customEffects;
 	}
 };
 
 struct BattleStackAttacked
 {
 	BattleStackAttacked():
-		stackAttacked(0), attackerID(0),
-		killedAmount(0), damageAmount(0),
+		stackAttacked(0),
+		attackerID(0),
+		killedAmount(0),
+		damageAmount(0),
 		newState(),
-		flags(0), effect(0), spellID(SpellID::NONE)
+		flags(0),
+		spellID(SpellID::NONE)
 	{};
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -1582,9 +1587,8 @@ struct BattleStackAttacked
 	ui32 killedAmount;
 	int64_t damageAmount;
 	UnitChanges newState;
-	enum EFlags {KILLED = 1, EFFECT = 2/*deprecated */, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16, SPELL_EFFECT = 32 /*, BONUS_EFFECT = 64 */};
+	enum EFlags {KILLED = 1, SECONDARY = 2, REBIRTH = 4, CLONE_KILLED = 8, SPELL_EFFECT = 16, FIRE_SHIELD = 32, };
 	ui32 flags; //uses EFlags (above)
-	ui32 effect; //set only if flag EFFECT is set
 	SpellID spellID; //only if flag SPELL_EFFECT is set
 
 	bool killed() const//if target stack was killed
@@ -1594,10 +1598,6 @@ struct BattleStackAttacked
 	bool cloneKilled() const
 	{
 		return flags & CLONE_KILLED;
-	}
-	bool isEffect() const//if stack has been attacked by a spell
-	{
-		return flags & EFFECT;
 	}
 	bool isSecondary() const//if stack was not a primary target (receives no spell effects)
 	{
@@ -1612,6 +1612,10 @@ struct BattleStackAttacked
 	{
 		return flags & REBIRTH;
 	}
+	bool fireShield() const
+	{
+		return flags & FIRE_SHIELD;
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stackAttacked;
@@ -1620,7 +1624,6 @@ struct BattleStackAttacked
 		h & flags;
 		h & killedAmount;
 		h & damageAmount;
-		h & effect;
 		h & spellID;
 	}
 	bool operator<(const BattleStackAttacked &b) const
@@ -1643,11 +1646,10 @@ struct BattleAttack : public CPackForClient
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
 	ui32 flags; //uses Eflags (below)
-	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64};
+	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128};
 
+	BattleHex tile;
 	SpellID spellID; //for SPELL_LIKE
-
-	std::vector<CustomEffectInfo> customEffects;
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1677,13 +1679,17 @@ struct BattleAttack : public CPackForClient
 	{
 		return flags & SPELL_LIKE;
 	}
+	bool lifeDrain() const
+	{
+		return flags & LIFE_DRAIN;
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bsa;
 		h & stackAttacking;
 		h & flags;
+		h & tile;
 		h & spellID;
-		h & customEffects;
 		h & attackerChanges;
 	}
 };
@@ -1730,8 +1736,9 @@ struct BattleSpellCast : public CPackForClient
 	SpellID spellID; //id of spell
 	ui8 manaGained; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
-	std::vector<CustomEffectInfo> customEffects;
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
+	std::set<ui32> resistedCres; // creatures that resisted the spell (e.g. Dwarves)
+	std::set<ui32> reflectedCres; // creatures that reflected the spell (e.g. Magic Mirror spell)
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
 	bool castByHero; //if true - spell has been cast by hero, otherwise by a creature
 
@@ -1741,8 +1748,9 @@ struct BattleSpellCast : public CPackForClient
 		h & spellID;
 		h & manaGained;
 		h & tile;
-		h & customEffects;
 		h & affectedCres;
+		h & resistedCres;
+		h & reflectedCres;
 		h & casterStack;
 		h & castByHero;
 		h & activeCast;
@@ -1819,7 +1827,7 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 	struct AttackInfo
 	{
 		si16 destinationTile;
-		ui8 attackedPart;
+		EWallPart attackedPart;
 		ui8 damageDealt;
 
 		template <typename Handler> void serialize(Handler & h, const int version)

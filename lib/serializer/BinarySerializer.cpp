@@ -39,7 +39,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 	fName = fname;
 	try
 	{
-		sfile = make_unique<FileStream>(fname, std::ios::out | std::ios::binary);
+		sfile = std::make_unique<FileStream>(fname, std::ios::out | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))

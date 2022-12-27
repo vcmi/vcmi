@@ -25,6 +25,9 @@
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
 #include "ScriptHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
+#include "TerrainHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
@@ -209,16 +212,15 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	// called have not specified destination mod explicitly
 	if (request.remoteScope.empty())
 	{
-		// FIXME: temporary, for queries from map loader allow access to any identifer
-		// should be changed to list of mods that are marked as required by current map
-		if (request.localScope == "map")
+		// special scope that should have access to all in-game objects
+		if (request.localScope == CModHandler::scopeGame())
 		{
 			for (auto const & modName : VLC->modh->getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
-		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
-		else if(request.localScope != "core" && !request.localScope.empty())
+		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
+		else if(request.localScope != CModHandler::scopeBuiltin() && !request.localScope.empty())
 		{
 			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
@@ -229,15 +231,19 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		}
 
 		// all mods can access built-in mod
-		allowedScopes.insert("core");
+		allowedScopes.insert(CModHandler::scopeBuiltin());
 	}
 	else
 	{
 		//if destination mod was specified explicitly, restrict lookup to this mod
-
-		if(request.remoteScope == "core" )
+		if(request.remoteScope == CModHandler::scopeBuiltin() )
 		{
-			//"core" mod is an implicit dependency for all mods, allow access into it
+			//built-in mod is an implicit dependency for all mods, allow access into it
+			allowedScopes.insert(request.remoteScope);
+		}
+		else if ( request.localScope == CModHandler::scopeGame() )
+		{
+			// allow access, this is special scope that should have access to all in-game objects
 			allowedScopes.insert(request.remoteScope);
 		}
 		else if(request.remoteScope == request.localScope )
@@ -340,7 +346,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objec
 {
 	for(auto & node : originalData)
 	{
-		node.setMeta("core");
+		node.setMeta(CModHandler::scopeBuiltin());
 	}
 }
 
@@ -401,6 +407,9 @@ bool ContentTypeHandler::loadMod(std::string modName, bool validate)
 
 		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
 		{
+			if (modName != "core")
+				logMod->warn("Mod %s is attempting to load original data! This should be reserved for built-in mod.", modName);
+
 			// try to add H3 object data
 			size_t index = static_cast<size_t>(data["index"].Float());
 
@@ -413,7 +422,7 @@ bool ContentTypeHandler::loadMod(std::string modName, bool validate)
 			}
 			else
 			{
-				logMod->warn("no original data in loadMod(%s) at index %d", name, index);
+				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
 			}
 			performValidate(data, name);
 			handler->loadObject(modName, name, data, index);
@@ -459,6 +468,9 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 #endif
 	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler, "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler, "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler, "road")));
 	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
 	//TODO: any other types of moddables?
 }
@@ -506,7 +518,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 	// print message in format [<8-symbols checksum>] <modname>
 	logMod->info("\t\t[%08x]%s", mod.checksum, mod.name);
 
-	if (validate && mod.identifier != "core")
+	if (validate && mod.identifier != CModHandler::scopeBuiltin())
 	{
 		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
 			mod.validation = CModInfo::FAILED;
@@ -576,7 +588,7 @@ CModInfo::Version CModInfo::Version::fromString(std::string from)
 				patch = std::stoi(from.substr(pointPos + 1));
 		}
 	}
-	catch(const std::invalid_argument & e)
+	catch(const std::invalid_argument &)
 	{
 		return Version();
 	}
@@ -698,13 +710,13 @@ CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
     modules.MITHRIL = false;
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		identifiers.registerObject("core", "resource", GameConstants::RESOURCE_NAMES[i], i);
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
 	}
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 	{
-		identifiers.registerObject("core", "primSkill", PrimarySkill::names[i], i);
-		identifiers.registerObject("core", "primarySkill", PrimarySkill::names[i], i);
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
 	}
 }
 
@@ -745,6 +757,14 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
 	settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS = hardcodedFeatures["NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS"].Bool();
 	logMod->debug("\tNO_RANDOM_SPECIAL_WEEKS_AND_MONTHS\t%d", static_cast<int>(settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS));
+	settings.ATTACK_POINT_DMG_MULTIPLIER = hardcodedFeatures["ATTACK_POINT_DMG_MULTIPLIER"].Float();
+	logMod->debug("\tATTACK_POINT_DMG_MULTIPLIER\t%f", settings.ATTACK_POINT_DMG_MULTIPLIER);
+	settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["ATTACK_POINTS_DMG_MULTIPLIER_CAP"].Float();
+	logMod->debug("\tATTACK_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP);
+	settings.DEFENSE_POINT_DMG_MULTIPLIER = hardcodedFeatures["DEFENSE_POINT_DMG_MULTIPLIER"].Float();
+	logMod->debug("\tDEFENSE_POINT_DMG_MULTIPLIER\t%f", settings.DEFENSE_POINT_DMG_MULTIPLIER);
+	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
+	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
 
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
@@ -905,6 +925,35 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 	return foundMods;
 }
 
+bool CModHandler::isScopeReserved(const TModID & scope)
+{
+	static const std::array<TModID, 3> reservedScopes = {
+		"core", "map", "game"
+	};
+
+	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
+}
+
+const TModID & CModHandler::scopeBuiltin()
+{
+	static const TModID scope = "core";
+	return scope;
+}
+
+const TModID & CModHandler::scopeGame()
+{
+	static const TModID scope = "game";
+	return scope;
+}
+
+const TModID & CModHandler::scopeMap()
+{
+	//TODO: implement accessing map dependencies for both H3 and VCMI maps
+	// for now, allow access to any identifiers
+	static const TModID scope = "game";
+	return scope;
+}
+
 void CModHandler::loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods)
 {
 	for(std::string modName : getModList(path))
@@ -915,6 +964,12 @@ void CModHandler::loadOneMod(std::string modName, std::string parent, const Json
 {
 	boost::to_lower(modName);
 	std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
+
+	if ( isScopeReserved(modFullName))
+	{
+		logMod->error("Can not load mod %s - this name is reserved for internal use!", modFullName);
+		return;
+	}
 
 	if(CResourceHandler::get("initial")->existsResource(ResourceID(CModInfo::getModFile(modFullName))))
 	{
@@ -944,7 +999,7 @@ void CModHandler::loadMods(bool onlyEssential)
 		loadMods("", "", modConfig["activeMods"], true);
 	}
 
-	coreMod = CModInfo("core", modConfig["core"], JsonNode(ResourceID("config/gameConfig.json")));
+	coreMod = CModInfo(CModHandler::scopeBuiltin(), modConfig[CModHandler::scopeBuiltin()], JsonNode(ResourceID("config/gameConfig.json")));
 	coreMod.name = "Original game files";
 }
 
@@ -991,7 +1046,7 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 	// second - add mod.json into checksum because filesystem does not contains this file
 	// FIXME: remove workaround for core mod
-	if (modName != "core")
+	if (modName != CModHandler::scopeBuiltin())
 	{
 		ResourceID modConfFile(CModInfo::getModFile(modName), EResType::TEXT);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
@@ -1017,7 +1072,7 @@ void CModHandler::loadModFilesystems()
 {
 	activeMods = validateAndSortDependencies(activeMods);
 
-	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::get("core")));
+	coreMod.updateChecksum(calculateModChecksum(CModHandler::scopeBuiltin(), CResourceHandler::get(CModHandler::scopeBuiltin())));
 
 	for(std::string & modName : activeMods)
 	{
@@ -1057,7 +1112,7 @@ void CModHandler::load()
 		allMods[modName].updateChecksum(calculateModChecksum(modName, CResourceHandler::get(modName)));
 	}
 
-	// first - load virtual "core" mod that contains all data
+	// first - load virtual builtin mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
 	content->preloadData(coreMod);
 	for(const TModID & modName : activeMods)
@@ -1096,7 +1151,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 		modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
 	}
-	modSettings["core"] = coreMod.saveLocalData();
+	modSettings[CModHandler::scopeBuiltin()] = coreMod.saveLocalData();
 
 	if(!onlyEssential)
 	{

@@ -14,53 +14,22 @@
 
 #include "../CStack.h"
 #include "BattleInfo.h"
+#include "DamageCalculator.h"
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
+#include "../CModHandler.h"
+#include "../Rect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
-/*
- *Here are 2 explanations how below algorithm should work in H3, looks like they are not 100% accurate as it results in one damage number, not min/max range:
- *
- *1. http://heroes.thelazy.net/wiki/Arrow_tower
- *
- *2. All towns' turrets do the same damage. If Fort, Citadel or Castle is built damage of the Middle turret is 15, and 7,5 for others.
- *Buildings increase turrets' damage, but only those buildings that are new in town view, not upgrades to the existing. So, every building save:
- *- dwellings' upgrades
- *- Mage Guild upgrades
- *- Horde buildings
- *- income upgrades
- *- some special ones
- *increases middle Turret damage by 3, and 1,5 for the other two.
- *Damage is almost always the maximum one (right click on the Turret), sometimes +1/2 points, and it does not depend on the target. Nothing can influence it, except the mentioned above (but it will be roughly double if the defender has Armorer or Air Shield).
- *Maximum damage for Castle, Conflux is 120, Necropolis, Inferno, Fortress 125, Stronghold, Turret, and Dungeon 130 (for all three Turrets).
- *Artillery allows the player to control the Turrets.
- */
-static void retrieveTurretDamageRange(const CGTownInstance * town, const battle::Unit * turret, double & outMinDmg, double & outMaxDmg)//does not match OH3 yet, but damage is somewhat close
-{
-	assert(turret->creatureIndex() == CreatureID::ARROW_TOWERS);
-	assert(town);
-	assert(turret->getPosition() >= -4 && turret->getPosition() <= -2);
-
-	const float multiplier = (turret->getPosition() == -2) ? 1.0f : 0.5f;
-
-	//Revised - Where do below values come from?
-	/*int baseMin = 6;
-	int baseMax = 10;*/
-
-	const int baseDamage = 15;
-
-	outMinDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
-	outMaxDmg = outMinDmg;
-}
 
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
 {
-	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
+	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 96, 112, 130, 147, 165, 182};
 
 	return lineToHex[line];
 }
@@ -77,7 +46,7 @@ static bool sameSideOfWall(BattleHex pos1, BattleHex pos2)
 }
 
 // parts of wall
-static const std::pair<int, EWallPart::EWallPart> wallParts[] =
+static const std::pair<int, EWallPart> wallParts[] =
 {
 	std::make_pair(50, EWallPart::KEEP),
 	std::make_pair(183, EWallPart::BOTTOM_TOWER),
@@ -95,7 +64,7 @@ static const std::pair<int, EWallPart::EWallPart> wallParts[] =
 	std::make_pair(165, EWallPart::INDESTRUCTIBLE_PART)
 };
 
-static EWallPart::EWallPart hexToWallPart(BattleHex hex)
+static EWallPart hexToWallPart(BattleHex hex)
 {
 	for(auto & elem : wallParts)
 	{
@@ -106,7 +75,7 @@ static EWallPart::EWallPart hexToWallPart(BattleHex hex)
 	return EWallPart::INVALID; //not found!
 }
 
-static BattleHex WallPartToHex(EWallPart::EWallPart part)
+static BattleHex WallPartToHex(EWallPart part)
 {
 	for(auto & elem : wallParts)
 	{
@@ -165,6 +134,49 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 
 bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
 {
+	auto isTileBlocked = [&](BattleHex tile)
+	{
+		EWallPart wallPart = battleHexToWallPart(tile);
+		if (wallPart == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+			return false; // does not blocks ranged attacks
+		if (wallPart == EWallPart::INDESTRUCTIBLE_PART)
+			return true; // always blocks ranged attacks
+
+		assert(isWallPartPotentiallyAttackable(wallPart));
+
+		EWallState state = battleGetWallState(wallPart);
+
+		return state != EWallState::DESTROYED;
+	};
+
+	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
+	{
+		// arbitrary selected cell size for virtual grid
+		// any even number can be selected (for division by two)
+		static const int cellSize = 10;
+
+		// create line that goes from center of shooter cell to center of target cell
+		Point line1{ from.getX()*cellSize+cellSize/2, from.getY()*cellSize+cellSize/2};
+		Point line2{ dest.getX()*cellSize+cellSize/2, dest.getY()*cellSize+cellSize/2};
+
+		for (int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
+		{
+			BattleHex obstacle = lineToWallHex(y);
+			if (!isTileBlocked(obstacle))
+				continue;
+
+			// create rect around cell with an obstacle
+			Rect rect {
+				Point(obstacle.getX(), obstacle.getY()) * cellSize,
+				Point( cellSize, cellSize)
+			};
+
+			if ( rect.intersectionTest(line1, line2))
+				return true;
+		}
+		return false;
+	};
+
 	RETURN_IF_NOT_BATTLE(false);
 	if(!battleGetSiegeLevel())
 		return false;
@@ -176,21 +188,9 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 		return false;
 
 	const int wallInStackLine = lineToWallHex(shooterPosition.getY());
-	const int wallInDestLine = lineToWallHex(destHex.getY());
+	const bool shooterOutsideWalls = shooterPosition < wallInStackLine;
 
-	const bool stackLeft = shooterPosition < wallInStackLine;
-	const bool destRight = destHex > wallInDestLine;
-
-	if (stackLeft && destRight) //shooting from outside to inside
-	{
-		int row = (shooterPosition + destHex) / (2 * GameConstants::BFIELD_WIDTH);
-		if (shooterPosition > destHex && ((destHex % GameConstants::BFIELD_WIDTH - shooterPosition % GameConstants::BFIELD_WIDTH) < 2)) //shooting up high
-			row -= 2;
-		const int wallPos = lineToWallHex(row);
-		if (!isWallPartPotentiallyAttackable(battleHexToWallPart(wallPos))) return true;
-	}
-
-	return false;
+	return shooterOutsideWalls && needWallPenalty(shooterPosition, destHex);
 }
 
 si8 CBattleInfoCallback::battleCanTeleportTo(const battle::Unit * stack, BattleHex destHex, int telportLevel) const
@@ -230,8 +230,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			}
 			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
-			if(stack->hasBonusOfType(Bonus::DAEMON_SUMMONING))
-				allowedActionList.push_back(PossiblePlayerBattleAction::RISE_DEMONS);
 		}
 		if(stack->canShoot())
 			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
@@ -657,7 +655,7 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	if(!battleMatchOwner(stack, target))
 		return false;
 
-	auto &id = stack->getCreature()->idNumber;
+	auto id = stack->getCreature()->getId();
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;
 
@@ -700,278 +698,43 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 		return false;
 
 	if(battleMatchOwner(attacker, defender) && defender->alive())
-		return battleCanShoot(attacker);
+	{
+		if(battleCanShoot(attacker))
+		{
+			auto limitedRangeBonus = attacker->getBonus(Selector::type()(Bonus::LIMITED_SHOOTING_RANGE));
+			if(limitedRangeBonus == nullptr)
+			{
+				return true;
+			}
+
+			int shootingRange = limitedRangeBonus->val;
+			return isEnemyUnitWithinSpecifiedRange(attacker->getPosition(), defender, shootingRange);
+		}
+	}
 
 	return false;
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
 {
-	auto battleBonusValue = [&](const IBonusBearer * bearer, CSelector selector) -> int
-	{
-		auto noLimit = Selector::effectRange()(Bonus::NO_LIMIT);
-		auto limitMatches = info.shooting
-							? Selector::effectRange()(Bonus::ONLY_DISTANCE_FIGHT)
-							: Selector::effectRange()(Bonus::ONLY_MELEE_FIGHT);
+	DamageCalculator calculator(*this, info);
 
-		//any regular bonuses or just ones for melee/ranged
-		return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
-	};
-
-	const IBonusBearer * attackerBonuses = info.attacker;
-	const IBonusBearer * defenderBonuses = info.defender;
-
-	double additiveBonus = 1.0 + info.additiveBonus;
-	double multBonus = 1.0 * info.multBonus;
-	double minDmg = 0.0;
-	double maxDmg = 0.0;
-
-	minDmg = info.attacker->getMinDamage(info.shooting);
-	maxDmg = info.attacker->getMaxDamage(info.shooting);
-
-	minDmg *= info.attacker->getCount(),
-	maxDmg *= info.attacker->getCount();
-
-	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
-	{
-		SiegeStuffThatShouldBeMovedToHandlers::retrieveTurretDamageRange(battleGetDefendedTown(), info.attacker, minDmg, maxDmg);
-		TDmgRange unmodifiableTowerDamage = std::make_pair(int64_t(minDmg), int64_t(maxDmg));
-		return unmodifiableTowerDamage;
-	}
-
-	const std::string cachingStrSiedgeWeapon = "type_SIEGE_WEAPON";
-	static const auto selectorSiedgeWeapon = Selector::type()(Bonus::SIEGE_WEAPON);
-
-	if(attackerBonuses->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
-	{ //minDmg and maxDmg are multiplied by hero attack + 1
-		auto retrieveHeroPrimSkill = [&](int skill) -> int
-		{
-			std::shared_ptr<const Bonus> b = attackerBonuses->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
-			return b ? b->val : 0; //if there is no hero or no info on his primary skill, return 0
-		};
-
-
-		minDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
-		maxDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
-	}
-
-	double attackDefenceDifference = 0.0;
-
-	double multAttackReduction = 1.0 - battleBonusValue(attackerBonuses, Selector::type()(Bonus::GENERAL_ATTACK_REDUCTION)) / 100.0;
-	attackDefenceDifference += info.attacker->getAttack(info.shooting) * multAttackReduction;
-
-	double multDefenceReduction = 1.0 - battleBonusValue(attackerBonuses, Selector::type()(Bonus::ENEMY_DEFENCE_REDUCTION)) / 100.0;
-	attackDefenceDifference -= info.defender->getDefense(info.shooting) * multDefenceReduction;
-
-	const std::string cachingStrSlayer = "type_SLAYER";
-	static const auto selectorSlayer = Selector::type()(Bonus::SLAYER);
-
-	//slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
-	auto slayerEffects = attackerBonuses->getBonuses(selectorSlayer, cachingStrSlayer);
-
-	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
-	{
-		std::vector<int32_t> affectedIds;
-		const auto spLevel = slayerEffect->val;
-		const CCreature * defenderType = info.defender->unitType();
-		bool isAffected = false;
-
-		for(const auto & b : defenderType->getBonusList())
-		{
-			if((b->type == Bonus::KING3 && spLevel >= 3) || //expert
-				(b->type == Bonus::KING2 && spLevel >= 2) || //adv +
-				(b->type == Bonus::KING1 && spLevel >= 0)) //none or basic +
-			{
-				isAffected = true;
-				break;
-			}
-		}
-
-		if(isAffected)
-		{
-			attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getLevelPower(spLevel);
-			if(info.attacker->hasBonusOfType(Bonus::SPECIAL_PECULIAR_ENCHANT, SpellID::SLAYER))
-			{
-				ui8 attackerTier = info.attacker->unitType()->level;
-				ui8 specialtyBonus = std::max(5 - attackerTier, 0);
-				attackDefenceDifference += specialtyBonus;
-	}
-		}
-	}
-
-	//bonus from attack/defense skills
-	if(attackDefenceDifference < 0) //decreasing dmg
-	{
-		const double dec = std::min(0.025 * (-attackDefenceDifference), 0.7);
-		multBonus *= 1.0 - dec;
-	}
-	else //increasing dmg
-	{
-		const double inc = std::min(0.05 * attackDefenceDifference, 4.0);
-		additiveBonus += inc;
-	}
-
-	const std::string cachingStrJousting = "type_JOUSTING";
-	static const auto selectorJousting = Selector::type()(Bonus::JOUSTING);
-
-	const std::string cachingStrChargeImmunity = "type_CHARGE_IMMUNITY";
-	static const auto selectorChargeImmunity = Selector::type()(Bonus::CHARGE_IMMUNITY);
-
-	//applying jousting bonus
-	if(info.chargedFields > 0 && attackerBonuses->hasBonus(selectorJousting, cachingStrJousting) && !defenderBonuses->hasBonus(selectorChargeImmunity, cachingStrChargeImmunity))
-		additiveBonus += info.chargedFields * 0.05;
-
-	//handling secondary abilities and artifacts giving premies to them
-	const std::string cachingStrArchery = "type_SECONDARY_SKILL_PREMYs_ARCHERY";
-	static const auto selectorArchery = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARCHERY);
-
-	const std::string cachingStrOffence = "type_SECONDARY_SKILL_PREMYs_OFFENCE";
-	static const auto selectorOffence = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::OFFENCE);
-
-	const std::string cachingStrArmorer = "type_SECONDARY_SKILL_PREMYs_ARMORER";
-	static const auto selectorArmorer = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARMORER);
-
-	if(info.shooting)
-		additiveBonus += attackerBonuses->valOfBonuses(selectorArchery, cachingStrArchery) / 100.0;
-	else
-		additiveBonus += attackerBonuses->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
-
-	multBonus *= (std::max(0, 100 - defenderBonuses->valOfBonuses(selectorArmorer, cachingStrArmorer))) / 100.0;
-
-	//handling hate effect
-	//assume that unit have only few HATE features and cache them all
-	const std::string cachingStrHate = "type_HATE";
-	static const auto selectorHate = Selector::type()(Bonus::HATE);
-
-	auto allHateEffects = attackerBonuses->getBonuses(selectorHate, cachingStrHate);
-
-	additiveBonus += allHateEffects->valOfBonuses(Selector::subtype()(info.defender->creatureIndex())) / 100.0;
-
-	const std::string cachingStrMeleeReduction = "type_GENERAL_DAMAGE_REDUCTIONs_0";
-	static const auto selectorMeleeReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, 0);
-
-	const std::string cachingStrRangedReduction = "type_GENERAL_DAMAGE_REDUCTIONs_1";
-	static const auto selectorRangedReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, 1);
-
-	//handling spell effects
-	if(!info.shooting) //eg. shield
-	{
-		multBonus *= (100 - defenderBonuses->valOfBonuses(selectorMeleeReduction, cachingStrMeleeReduction)) / 100.0;
-	}
-	else //eg. air shield
-	{
-		multBonus *= (100 - defenderBonuses->valOfBonuses(selectorRangedReduction, cachingStrRangedReduction)) / 100.0;
-	}
-
-	if(info.shooting)
-	{
-		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
-
-		//get list first, total value of 0 also counts
-		TConstBonusListPtr forgetfulList = attackerBonuses->getBonuses(Selector::type()(Bonus::FORGETFULL),"type_FORGETFULL");
-
-		if(!forgetfulList->empty())
-		{
-			int forgetful = forgetfulList->valOfBonuses(Selector::all);
-
-			//none of basic level
-			if(forgetful == 0 || forgetful == 1)
-				multBonus *= 0.5;
-			else
-				logGlobal->warn("Attempt to calculate shooting damage with adv+ FORGETFULL effect");
-		}
-	}
-
-	const std::string cachingStrForcedMinDamage = "type_ALWAYS_MINIMUM_DAMAGE";
-	static const auto selectorForcedMinDamage = Selector::type()(Bonus::ALWAYS_MINIMUM_DAMAGE);
-
-	const std::string cachingStrForcedMaxDamage = "type_ALWAYS_MAXIMUM_DAMAGE";
-	static const auto selectorForcedMaxDamage = Selector::type()(Bonus::ALWAYS_MAXIMUM_DAMAGE);
-
-	TConstBonusListPtr curseEffects = attackerBonuses->getBonuses(selectorForcedMinDamage, cachingStrForcedMinDamage);
-	TConstBonusListPtr blessEffects = attackerBonuses->getBonuses(selectorForcedMaxDamage, cachingStrForcedMaxDamage);
-
-	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
-	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo<std::shared_ptr<Bonus>>))->additionalInfo[0] : 0;
-
-	if(curseMultiplicativePenalty) //curse handling (partial, the rest is below)
-	{
-		multBonus *= 1.0 - curseMultiplicativePenalty/100;
-	}
-
-	const std::string cachingStrAdvAirShield = "isAdvancedAirShield";
-	auto isAdvancedAirShield = [](const Bonus* bonus)
-	{
-		return bonus->source == Bonus::SPELL_EFFECT
-				&& bonus->sid == SpellID::AIR_SHIELD
-				&& bonus->val >= SecSkillLevel::ADVANCED;
-	};
-
-	if(info.shooting)
-	{
-		//wall / distance penalty + advanced air shield
-		BattleHex attackerPos = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
-		BattleHex defenderPos = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
-
-		const bool distPenalty = battleHasDistancePenalty(attackerBonuses, attackerPos, defenderPos);
-		const bool obstaclePenalty = battleHasWallPenalty(attackerBonuses, attackerPos, defenderPos);
-
-		if(distPenalty || defenderBonuses->hasBonus(isAdvancedAirShield, cachingStrAdvAirShield))
-			multBonus *= 0.5;
-
-		if(obstaclePenalty)
-			multBonus *= 0.5; //cumulative
-	}
-	else
-	{
-		const std::string cachingStrNoMeleePenalty = "type_NO_MELEE_PENALTY";
-		static const auto selectorNoMeleePenalty = Selector::type()(Bonus::NO_MELEE_PENALTY);
-
-		if(info.attacker->isShooter() && !attackerBonuses->hasBonus(selectorNoMeleePenalty, cachingStrNoMeleePenalty))
-			multBonus *= 0.5;
-	}
-
-	// psychic elementals versus mind immune units 50%
-	if(info.attacker->creatureIndex() == CreatureID::PSYCHIC_ELEMENTAL)
-	{
-		const std::string cachingStrMindImmunity = "type_MIND_IMMUNITY";
-		static const auto selectorMindImmunity = Selector::type()(Bonus::MIND_IMMUNITY);
-
-		if(defenderBonuses->hasBonus(selectorMindImmunity, cachingStrMindImmunity))
-			multBonus *= 0.5;
-	}
-
-	// TODO attack on petrified unit 50%
-	// blinded unit retaliates
-
-	minDmg *= additiveBonus * multBonus;
-	maxDmg *= additiveBonus * multBonus;
-
-	if(curseEffects->size()) //curse handling (rest)
-	{
-		minDmg += curseBlessAdditiveModifier;
-		maxDmg = minDmg;
-	}
-	else if(blessEffects->size()) //bless handling
-	{
-		maxDmg += curseBlessAdditiveModifier;
-		minDmg = maxDmg;
-	}
-
-	TDmgRange returnedVal = std::make_pair(int64_t(minDmg), int64_t(maxDmg));
-
-	//damage cannot be less than 1
-	vstd::amax(returnedVal.first, 1);
-	vstd::amax(returnedVal.second, 1);
-
-	return returnedVal;
+	return calculator.calculateDmgRange();
 }
 
-TDmgRange CBattleInfoCallback::battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg) const
+TDmgRange CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, TDmgRange * retaliationDmg) const
+{
+	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
+	auto reachability = battleGetDistances(attacker, attacker->getPosition());
+	int movementDistance = reachability[attackerPosition];
+	return battleEstimateDamage(attacker, defender, movementDistance, retaliationDmg);
+}
+
+TDmgRange CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, TDmgRange * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
-	const BattleAttackInfo bai(attacker, defender, shooting);
+	const BattleAttackInfo bai(attacker, defender, movementDistance, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 
@@ -1111,13 +874,13 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			ret[hex] = EAccessibility::UNAVAILABLE;
 
 		//TODO likely duplicated logic
-		static const std::pair<int, BattleHex> lockedIfNotDestroyed[] =
+		static const std::pair<EWallPart, BattleHex> lockedIfNotDestroyed[] =
 		{
 			//which part of wall, which hex is blocked if this part of wall is not destroyed
-			std::make_pair(2, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
-			std::make_pair(3, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
-			std::make_pair(4, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
-			std::make_pair(5, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
+			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
+			std::make_pair(EWallPart::BELOW_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
+			std::make_pair(EWallPart::OVER_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
+			std::make_pair(EWallPart::UPPER_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
 		};
 
 		for(auto & elem : lockedIfNotDestroyed)
@@ -1247,7 +1010,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
 	{
-		int distanceToPred;
+		uint32_t distanceToPred;
 		BattleHex destination;
 		const battle::Unit * stack;
 	};
@@ -1373,20 +1136,19 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
-	//TODO: apply rotation to two-hex attackers
-	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
-
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	const int WN = GameConstants::BFIELD_WIDTH;
-	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
+	BattleHex attackOriginHex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 
-	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
-	bool reverse = isToReverse(hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
+	auto defender = battleGetUnitByPos(destinationTile, true);
+	if (!defender)
+		return at; // can't attack thin air
+
+	bool reverse = isToReverse(attacker, defender);
 	if(reverse && attacker->doubleWide())
 	{
-		hex = attacker->occupiedHex(hex); //the other hex stack stands on
+		attackOriginHex = attacker->occupiedHex(attackOriginHex); //the other hex stack stands on
 	}
 	if(attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
@@ -1397,7 +1159,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
 		for(BattleHex tile : hexes)
 		{
-			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
+			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
 				auto st = battleGetUnitByPos(tile, true);
 				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
@@ -1410,7 +1172,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 		std::vector<BattleHex> hexes = destinationTile.neighbouringTiles();
 		for(int i = 0; i<hexes.size(); i++)
 		{
-			if(hexes.at(i) == hex)
+			if(hexes.at(i) == attackOriginHex)
 			{
 				hexes.erase(hexes.begin() + i);
 				i = 0;
@@ -1426,34 +1188,29 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	}
 	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 	{
-		int pos = BattleHex::mutualPosition(destinationTile, hex);
-		if(pos > -1) //only adjacent hexes are subject of dragon breath calculation
+		auto direction = BattleHex::mutualPosition(attackOriginHex, destinationTile);
+		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 		{
-			std::vector<BattleHex> hexes; //only one, in fact
-			int pseudoVector = destinationTile.hex - hex;
-			switch(pseudoVector)
+			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
+
+			if ( defender->doubleWide() )
 			{
-			case 1:
-			case -1:
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
-				break;
-			case WN: //17 //left-down or right-down
-			case -WN: //-17 //left-up or right-up
-			case WN + 1: //18 //right-down
-			case -WN + 1: //-16 //right-up
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
-				break;
-			case WN - 1: //16 //left-down
-			case -WN - 1: //-18 //left-up
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
-				break;
+				auto secondHex = destinationTile == defender->getPosition() ?
+					defender->occupiedHex():
+					defender->getPosition();
+
+				// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
+				// then dragon breath should target tile on the opposite side of targeted creature
+				if (BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
+					nextHex = secondHex.cloneInDirection(direction, false);
 			}
-			for(BattleHex tile : hexes)
+
+			if (nextHex.isValid())
 			{
 				//friendly stacks can also be damaged by Dragon Breath
-				auto st = battleGetUnitByPos(tile, true);
+				auto st = battleGetUnitByPos(nextHex, true);
 				if(st != nullptr)
-					at.friendlyCreaturePositions.insert(tile);
+					at.friendlyCreaturePositions.insert(nextHex);
 			}
 		}
 	}
@@ -1537,60 +1294,51 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	return attackedCres;
 }
 
-//TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bool curDir) const
+static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side )
 {
-	int fromX = hexFrom.getX();
-	int fromY = hexFrom.getY();
-	int toX = hexTo.getX();
-	int toY = hexTo.getY();
+	static const std::set<BattleHex::EDir> rightDirs { BattleHex::BOTTOM_RIGHT, BattleHex::TOP_RIGHT, BattleHex::RIGHT };
+	static const std::set<BattleHex::EDir> leftDirs  { BattleHex::BOTTOM_LEFT, BattleHex::TOP_LEFT, BattleHex::LEFT };
 
-	if (curDir) // attacker, facing right
-	{
-		if (fromX < toX)
-			return false;
-		if (fromX > toX)
-			return true;
+	auto mutualPos = BattleHex::mutualPosition(hex, testHex);
 
-		if (fromY % 2 == 0 && toY % 2 == 1)
-
-			return true;
-		return false;
-	}
-	else // defender, facing left
-	{
-		if(fromX < toX)
-			return true;
-		if(fromX > toX)
-			return false;
-
-		if (fromY % 2 == 1 && toY % 2 == 0)
-			return true;
-		return false;
-	}
+	if (side == BattleSide::ATTACKER)
+		return rightDirs.count(mutualPos);
+	else
+		return leftDirs.count(mutualPos);
 }
 
 //TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const
+bool CBattleInfoCallback::isToReverse (const battle::Unit * attacker, const battle::Unit * defender) const
 {
-	if (hexTo < 0 || hexFrom < 0) //turret
+	BattleHex attackerHex = attacker->getPosition();
+	BattleHex defenderHex = defender->getPosition();
+
+	if (attackerHex < 0 ) //turret
 		return false;
 
-	if (toDoubleWide)
-	{
-		if (isToReverseHlp (hexFrom, hexTo, curDir))
-		{
-			if (toDir)
-				return isToReverseHlp (hexFrom, hexTo-1, curDir);
-			else
-				return isToReverseHlp (hexFrom, hexTo+1, curDir);
-		}
+	if (isHexInFront(attackerHex, defenderHex, BattleSide::Type(attacker->unitSide())))
 		return false;
-	}
-	else
+
+	if (defender->doubleWide())
 	{
-		return isToReverseHlp(hexFrom, hexTo, curDir);
+		if (isHexInFront(attackerHex,defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+			return false;
 	}
+
+	if (attacker->doubleWide())
+	{
+		if (isHexInFront(attacker->occupiedHex(), defenderHex, BattleSide::Type(attacker->unitSide())))
+			return false;
+	}
+
+	// a bit weird case since here defender is slightly behind attacker, so reversing seems preferable,
+	// but this is how H3 handles it which is important, e.g. for direction of dragon breath attacks
+	if (attacker->doubleWide() && defender->doubleWide())
+	{
+		if (isHexInFront(attacker->occupiedHex(), defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+			return false;
+	}
+	return true;
 }
 
 ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const battle::Unit * unit, BattleHex assumedPosition) const
@@ -1619,10 +1367,14 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	if(auto target = battleGetUnitByPos(destHex, true))
 	{
 		//If any hex of target creature is within range, there is no penalty
-		for(auto hex : target->getHexes())
-			if(BattleHex::getDistance(shooterPosition, hex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
-				return false;
-		//TODO what about two-hex shooters?
+		int range = GameConstants::BATTLE_PENALTY_DISTANCE;
+
+		auto bonus = shooter->getBonus(Selector::type()(Bonus::LIMITED_SHOOTING_RANGE));
+		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
+			range = bonus->additionalInfo[0];
+
+		if(isEnemyUnitWithinSpecifiedRange(shooterPosition, target, range))
+			return false;
 	}
 	else
 	{
@@ -1633,19 +1385,28 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	return true;
 }
 
-BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart::EWallPart part) const
+bool CBattleInfoCallback::isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosition, const battle::Unit * defenderUnit, unsigned int range) const
+{
+	for(auto hex : defenderUnit->getHexes())
+		if(BattleHex::getDistance(attackerPosition, hex) <= range)
+			return true;
+	
+	return false;
+}
+
+BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart part) const
 {
 	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
 	return WallPartToHex(part);
 }
 
-EWallPart::EWallPart CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
+EWallPart CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
 {
 	RETURN_IF_NOT_BATTLE(EWallPart::INVALID);
 	return hexToWallPart(hex);
 }
 
-bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart::EWallPart wallPart) const
+bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart wallPart) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	return wallPart != EWallPart::INDESTRUCTIBLE_PART && wallPart != EWallPart::INDESTRUCTIBLE_PART_OF_GATE &&
@@ -1661,8 +1422,8 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	{
 		if(isWallPartPotentiallyAttackable(wallPartPair.second))
 		{
-			auto wallState = static_cast<EWallState::EWallState>(battleGetWallState(static_cast<int>(wallPartPair.second)));
-			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			auto wallState = battleGetWallState(wallPartPair.second);
+			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
 				attackableBattleHexes.push_back(BattleHex(wallPartPair.first));
 			}

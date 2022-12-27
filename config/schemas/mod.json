@@ -4,7 +4,41 @@
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
 	"required" : [ "name", "description", "version", "author", "contact", "modType" ],
+	"definitions" : {
+		"localizable" : {
+			"type":"object",
+			"additionalProperties" : false,
+			"required" : [ "name", "description", "author", "modType" ],
+			"properties":{
+				"name": {
+					"type":"string",
+					"description": "Short name of your mod. No more than 2-3 words"
+				},
+				"description": {
+					"type":"string",
+					"description": "More lengthy description of mod. No hard limit"
+				},
 
+				"modType" : {
+					"type":"string",
+					"description": "Type of mod, e.g. Town, Artifacts, Graphical."
+				},
+				"author" : {
+					"type":"string",
+					"description": "Author of the mod. Can be nickname, real name or name of team"
+				},
+				"changelog" : {
+					"type":"object",
+					"description": "List of changes/new features in each version",
+					"additionalProperties" : {
+						"type" : "array",
+						"items" : { "type":"string" }
+					}
+				}
+			}
+		}
+	},
+	
 	"additionalProperties" : false,
 	"properties":{
 		"name": {
@@ -56,10 +90,47 @@
 			"description": "List of mods that can't be enabled in the same time as this one",
 			"items": { "type":"string" }
 		},
+		"compatibility" : {
+			"type":"object",
+			"description": "Supported versions of vcmi engine",
+			"additionalProperties" : false,
+			"properties" : {
+				"min" : {
+					"type" : "string",
+					"description" : "minimal compatible vcmi engine version in a format major.minor.patch. When specified, earlier versions won't be supported"
+					//"pattern" : "^\\d+\\.\\d+\\.\\d+$" // Not implemented in schema support
+				},
+				"max" : {
+					"type" : "string",
+					"description" : "maximum compatible vcmi engine version in a format major.minor.patch. When specified, later versions won't be supported"
+					//"pattern" : "^\\d+\\.\\d+\\.\\d+$" // Not implemented in schema support
+				}
+			}
+		},
 
 		"keepDisabled" : {
 			"type":"boolean",
 			"description": "If set to true, mod will not be enabled automatically on install"
+		},
+		
+		"english" : {
+			"$ref" : "#/definitions/localizable"
+		},
+
+		"german" : {
+			"$ref" : "#/definitions/localizable"
+		},
+
+		"polish" : {
+			"$ref" : "#/definitions/localizable"
+		},
+
+		"russian" : {
+			"$ref" : "#/definitions/localizable"
+		},
+
+		"ukrainian" : {
+			"$ref" : "#/definitions/localizable"
 		},
 
 		"artifacts": {
@@ -118,6 +189,26 @@
 			"description": "List of configuration files for battlefields",
 			"items": { "type":"string", "format" : "textFile" }
 
+		},
+		"obstacles":{
+			"type":"array",
+			"description": "List of configuration files for obstacles",
+			"items": { "type":"string", "format" : "textFile" }
+		},
+		"terrains":{
+			"type":"array",
+			"description": "List of configuration files for terrains",
+			"items": { "type":"string", "format" : "textFile" }
+		},
+		"roads":{
+			"type":"array",
+			"description": "List of configuration files for roads",
+			"items": { "type":"string", "format" : "textFile" }
+		},
+		"rivers":{
+			"type":"array",
+			"description": "List of configuration files for rivers",
+			"items": { "type":"string", "format" : "textFile" }
 		},
 
 		"changelog" : {

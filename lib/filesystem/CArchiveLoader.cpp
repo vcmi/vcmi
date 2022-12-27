@@ -91,7 +91,7 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 				extractToFolder("IMAGES", mountPoint, entry);
 			else if ((fName.find(".DEF") != std::string::npos ) || (fName.find(".MSK") != std::string::npos) || (fName.find(".FNT") != std::string::npos) || (fName.find(".PAL") != std::string::npos))
 				extractToFolder("SPRITES", mountPoint, entry);
-			else if ((fName.find(".h3c") != std::string::npos))
+			else if ((fName.find(".H3C") != std::string::npos))
 				extractToFolder("SPRITES", mountPoint, entry);
 			else
 				extractToFolder("MISC", mountPoint, entry);
@@ -152,12 +152,12 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 		char filename[40];
 		reader.read(reinterpret_cast<ui8*>(filename), 40);
 
-		//for some reason entries in snd have format NAME\0WAVRUBBISH....
-		//we need to replace first \0 with dot and take the 3 chars with extension (and drop the rest)
+		// for some reason entries in snd have format NAME\0WAVRUBBISH....
+		// and Polish version does not have extension at all
+		// we need to replace first \0 with dot and add wav extension manuall - we don't expect other types here anyway
 		ArchiveEntry entry;
 		entry.name  = filename; // till 1st \0
-		entry.name += '.';
-		entry.name += std::string(filename + entry.name.size(), 3);
+		entry.name += ".wav";
 
 		entry.offset = reader.readInt32();
 		entry.fullSize = reader.readInt32();
@@ -177,13 +177,13 @@ std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceNa
 
 	if (entry.compressedSize != 0) //compressed data
 	{
-		auto fileStream = make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
+		auto fileStream = std::make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
 
-		return make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
+		return std::make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
 	}
 	else
 	{
-		return make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
+		return std::make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
 	}
 }
 
@@ -231,6 +231,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 {
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 
+	entry.offset = 0;
 	extractToFolder(outputSubFolder, *inputStream, entry);
 }
 

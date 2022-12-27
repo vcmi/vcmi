@@ -75,7 +75,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			continue;
 		}
 
-		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->name, node.coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTranslated(), node.coord.toString());
 
 		try
 		{
@@ -111,7 +111,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 					{
 						logAi->error(
 							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
-							hero->name,
+							hero->getNameTranslated(),
 							node.coord.toString());
 
 						return;
@@ -127,7 +127,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 							continue;
 						}
 					}
-					catch(cannotFulfillGoalException)
+					catch(const cannotFulfillGoalException &)
 					{
 						if(!heroPtr.validAndSet())
 						{
@@ -143,7 +143,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->name, hero->movement, node.coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movement, node.coord.toString());
 
 								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
@@ -162,7 +162,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			{
 				logAi->error(
 					"Enable to complete chain. Expected hero %s to arive to %s but he is at %s", 
-					hero->name, 
+					hero->getNameTranslated(),
 					node.coord.toString(),
 					hero->visitablePos().toString());
 
@@ -173,7 +173,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node.parentIndex);
 		}
-		catch(goalFulfilledException)
+		catch(const goalFulfilledException &)
 		{
 			if(!heroPtr.validAndSet())
 			{
@@ -187,14 +187,14 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 std::string ExecuteHeroChain::toString() const
 {
-	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->name;
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTranslated();
 }
 
 bool ExecuteHeroChain::moveHeroToTile(const CGHeroInstance * hero, const int3 & tile)
 {
 	if(tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->name, tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
 
 		return true;
 	}

@@ -17,7 +17,7 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../CMessage.h"
 #include "../CGameInfo.h"
@@ -25,6 +25,7 @@
 
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -74,7 +75,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	for(auto & line : textLines)
 	{
 		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
-		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
+		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, ETextAlignment::CENTER, Colors::WHITE, line);
 
 		pos.h += height;
 		if(label->pos.w > pos.w)
@@ -150,7 +151,7 @@ std::string CComponent::getDescription()
 	{
 	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
 										 : CGI->generaltexth->allTexts[149]; //mana
-	case secskill:   return CGI->skillh->skillInfo(subtype, val);
+	case secskill:   return CGI->skillh->getByIndex(subtype)->getDescriptionTranslated(val);
 	case resource:   return CGI->generaltexth->allTexts[242];
 	case creature:   return "";
 	case artifact:
@@ -168,10 +169,10 @@ std::string CComponent::getDescription()
 		return art->getEffectiveDescription();
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
-	case spell:      return SpellID(subtype).toSpell(CGI->spells())->getLevelDescription(val);
+	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->Description();
+	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->getDescriptionTranslated();
 	case hero:       return "";
 	case flag:       return "";
 	}
@@ -195,10 +196,17 @@ std::string CComponent::getSubtitleInternal()
 	switch(compType)
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
-	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->skillName(subtype);
+	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->getByIndex(subtype)->getNameTranslated();
 	case resource:   return boost::lexical_cast<std::string>(val);
-	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->objects[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
-	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getName();
+	case creature:
+		{
+			auto creature = CGI->creh->getByIndex(subtype);
+			if ( val )
+				return boost::lexical_cast<std::string>(val) + " " + (val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
+			else
+				return val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated();
+		}
+	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getNameTranslated();
 	case experience:
 		{
 			if(subtype == 1) //+1 level - tree of knowledge
@@ -212,7 +220,7 @@ std::string CComponent::getSubtitleInternal()
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
 			}
 		}
-	case spell:      return CGI->spells()->getByIndex(subtype)->getName();
+	case spell:      return CGI->spells()->getByIndex(subtype)->getNameTranslated();
 	case morale:     return "";
 	case luck:       return "";
 	case building:
@@ -220,10 +228,10 @@ std::string CComponent::getSubtitleInternal()
 			auto building = (*CGI->townh)[subtype]->town->buildings[BuildingID(val)];
 			if(!building)
 			{
-				logGlobal->error("Town of faction %s has no building #%d", (*CGI->townh)[subtype]->town->faction->name, val);
+				logGlobal->error("Town of faction %s has no building #%d", (*CGI->townh)[subtype]->town->faction->getNameTranslated(), val);
 				return (boost::format("Missing building #%d") % val).str();
 			}
-			return building->Name();
+			return building->getNameTranslated();
 		}
 	case hero:       return "";
 	case flag:       return CGI->generaltexth->capColors[subtype];
@@ -288,7 +296,7 @@ void CSelectableComponent::showAll(SDL_Surface * to)
 	CComponent::showAll(to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(image->pos), int3(239,215,123));
+		CSDL_Ext::drawBorder(to, Rect::createAround(image->pos, 1), Colors::BRIGHT_YELLOW);
 	}
 }
 
@@ -424,7 +432,7 @@ void CComponentBox::placeComponents(bool selectable)
 				{
 					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp.get(), iter->get());
 
-					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]));
+					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]));
 				}
 				currentX += getDistance(prevComp.get(), iter->get());
 			}
@@ -443,7 +451,7 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _component
 	components(_components)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos = position + pos.topLeft();
 	placeComponents(false);
 }
 
@@ -452,7 +460,7 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> 
 	onSelect(_onSelect)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos = position + pos.topLeft();
 	placeComponents(true);
 
 	assert(!components.empty());

@@ -20,6 +20,7 @@
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
+#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -177,7 +178,7 @@ void CResourceHandler::initialize()
 	if (globalResourceHandler.rootLoader)
 		return;
 
-	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
+	globalResourceHandler.rootLoader = std::make_unique<CFilesystemList>();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
@@ -207,7 +208,7 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"], extractArchives));
+	addFilesystem("data", CModHandler::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
 void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)

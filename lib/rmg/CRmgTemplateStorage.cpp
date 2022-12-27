@@ -14,6 +14,7 @@
 #include "CRmgTemplate.h"
 
 #include "../serializer/JsonDeserializer.h"
+#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,9 +31,10 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	try
 	{
 		JsonDeserializer handler(nullptr, data);
-		auto fullKey = normalizeIdentifier(scope, "core", name); //actually it's not used
-		templates[fullKey].setId(name);
+		auto fullKey = scope + ":" + name; //actually it's not used
+		templates[fullKey].setId(fullKey);
 		templates[fullKey].serializeJson(handler);
+		templates[fullKey].setName(name);
 		templates[fullKey].validate();
 	}
 	catch(const std::exception & e)

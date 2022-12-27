@@ -16,6 +16,11 @@
 #include "../Graphics.h"
 #include "../CMT.h"
 
+#include <SDL_version.h>
+#include <SDL_render.h>
+#include <SDL_video.h>
+#include <SDL_events.h>
+
 #ifdef VCMI_APPLE
 #include <dispatch/dispatch.h>
 #endif
@@ -24,18 +29,83 @@
 #include "ios/utils.h"
 #endif
 
-const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
-const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
-const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
-const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
-const SDL_Color Colors::ORANGE = { 232, 184, 32, 0 };
-const SDL_Color Colors::BRIGHT_YELLOW = { 242, 226, 110, 0 };
-const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, 0};
+const SDL_Color Colors::YELLOW = { 229, 215, 123, SDL_ALPHA_OPAQUE };
+const SDL_Color Colors::WHITE = { 255, 243, 222, SDL_ALPHA_OPAQUE };
+const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, SDL_ALPHA_OPAQUE };
+const SDL_Color Colors::GREEN = { 0, 255, 0, SDL_ALPHA_OPAQUE };
+const SDL_Color Colors::ORANGE = { 232, 184, 32, SDL_ALPHA_OPAQUE };
+const SDL_Color Colors::BRIGHT_YELLOW = { 242, 226, 110, SDL_ALPHA_OPAQUE };
+const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, SDL_ALPHA_OPAQUE};
+const SDL_Color Colors::RED = {255, 0, 0, SDL_ALPHA_OPAQUE};
+const SDL_Color Colors::PURPLE = {255, 75, 125, SDL_ALPHA_OPAQUE};
+const SDL_Color Colors::BLACK = {0, 0, 0, SDL_ALPHA_OPAQUE};
+const SDL_Color Colors::TRANSPARENCY = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
 
-void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
+Rect CSDL_Ext::genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {
-	Rect rect(x,y,w,h);
-	if(0 !=SDL_UpdateTexture(screenTexture, &rect, surface->pixels, surface->pitch))
+	Rect ret;
+	ret.h=hh;
+	ret.w=ww;
+	ret.x=xx;
+	ret.y=yy;
+	return ret;
+}
+
+Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
+{
+	return Rect(Point(rect.x, rect.y), Point(rect.w, rect.h));
+}
+
+SDL_Rect CSDL_Ext::toSDL(const Rect & rect)
+{
+	SDL_Rect result;
+	result.x = rect.x;
+	result.y = rect.y;
+	result.w = rect.w;
+	result.h = rect.h;
+	return result;
+}
+
+Point CSDL_Ext::fromSDL(const SDL_MouseMotionEvent & motion)
+{
+	return { motion.x, motion.y };
+}
+
+
+void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+{
+	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
+}
+
+void CSDL_Ext::warpMouse(int x, int y)
+{
+	SDL_WarpMouseInWindow(mainWindow,x,y);
+}
+
+bool CSDL_Ext::isCtrlKeyDown()
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+}
+
+bool CSDL_Ext::isAltKeyDown()
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+}
+
+bool CSDL_Ext::isShiftKeyDown()
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+}
+
+void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
+{
+	SDL_SetSurfaceAlphaMod(bg, value);
+}
+
+void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
+{
+	SDL_Rect rectSDL = CSDL_Ext::toSDL(rect);
+	if(0 !=SDL_UpdateTexture(screenTexture, &rectSDL, surface->pixels, surface->pitch))
 		logGlobal->error("%sSDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 
 	SDL_RenderClear(mainRenderer);
@@ -76,24 +146,14 @@ SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 	return SDL_CreateRGBSurface(0, width, height, bpp * 8, rMask, gMask, bMask, aMask);
 }
 
-bool isItIn(const SDL_Rect * rect, int x, int y)
+void CSDL_Ext::blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
-	return (x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h);
+	if(!dst)
+		dst = screen;
+	CSDL_Ext::blitSurface(src, dst, Point(x, y));
 }
 
-bool isItInOrLowerBounds(const SDL_Rect * rect, int x, int y)
-{
-	return (x >= rect->x && x < rect->x + rect->w) && (y >= rect->y && y < rect->y + rect->h);
-}
-
-void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
-{
-	if(!dst) dst = screen;
-	SDL_Rect pom = genRect(src->h,src->w,x,y);
-	CSDL_Ext::blitSurface(src,nullptr,dst,&pom);
-}
-
-void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
+void CSDL_Ext::blitAt(SDL_Surface * src, const Rect & pos, SDL_Surface * dst)
 {
 	if (src)
 		blitAt(src,pos.x,pos.y,dst);
@@ -160,7 +220,7 @@ SDL_Surface * CSDL_Ext::horizontalFlip(SDL_Surface * toRot)
 	return ret;
 }
 
-Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
+Uint32 CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {
 	int bpp = surface->format->BytesPerPixel;
 	/* Here p is the address to the pixel we want to retrieve */
@@ -188,27 +248,15 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 	}
 }
 
-void CSDL_Ext::alphaTransform(SDL_Surface *src)
-{
-	assert(src->format->BitsPerPixel == 8);
-	SDL_Color colors[] =
-	{
-		{  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
-		{  0,   0,  0, 128}, {  0,   0,   0, 128}
-	};
-
-
-	for (size_t i=0; i< ARRAY_COUNT(colors); i++ )
-	{
-		SDL_Color & palColor = src->format->palette->colors[i];
-		palColor = colors[i];
-	}
-	SDL_SetColorKey(src, SDL_TRUE, 0);
-}
-
 template<int bpp>
-int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPointInput)
 {
+	SDL_Rect srcRectInstance = CSDL_Ext::toSDL(srcRectInput);
+	SDL_Rect dstRectInstance = CSDL_Ext::toSDL(Rect(dstPointInput, srcRectInput.dimensions()));
+
+	SDL_Rect * srcRect =&srcRectInstance;
+	SDL_Rect * dstRect =&dstRectInstance;
+
 	/* Make sure the surfaces aren't locked */
 	if ( ! src || ! dst )
 	{
@@ -328,13 +376,13 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * sr
 	return 0;
 }
 
-int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint)
 {
 	switch(dst->format->BytesPerPixel)
 	{
-	case 2: return blit8bppAlphaTo24bppT<2>(src, srcRect, dst, dstRect);
-	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstRect);
-	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstRect);
+	case 2: return blit8bppAlphaTo24bppT<2>(src, srcRect, dst, dstPoint);
+	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstPoint);
+	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstPoint);
 	default:
 		logGlobal->error("%d bpp is not supported!", (int)dst->format->BitsPerPixel);
 		return -1;
@@ -362,23 +410,17 @@ void CSDL_Ext::update(SDL_Surface * what)
 		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 }
 
-template<typename Int>
-Int lerp(Int a, Int b, float f)
-{
-	return a + std::round((b - a) * f);
-}
-
 static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
 	for(int x = x1; x <= x2; x++)
 	{
 		float f = float(x - x1) / float(x2 - x1);
-		int y = lerp(y1, y2, f);
+		int y = vstd::lerp(y1, y2, f);
 
-		uint8_t r = lerp(color1.r, color2.r, f);
-		uint8_t g = lerp(color1.g, color2.g, f);
-		uint8_t b = lerp(color1.b, color2.b, f);
-		uint8_t a = lerp(color1.a, color2.a, f);
+		uint8_t r = vstd::lerp(color1.r, color2.r, f);
+		uint8_t g = vstd::lerp(color1.g, color2.g, f);
+		uint8_t b = vstd::lerp(color1.b, color2.b, f);
+		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
 		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
@@ -390,12 +432,12 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	for(int y = y1; y <= y2; y++)
 	{
 		float f = float(y - y1) / float(y2 - y1);
-		int x = lerp(x1, x2, f);
+		int x = vstd::lerp(x1, x2, f);
 
-		uint8_t r = lerp(color1.r, color2.r, f);
-		uint8_t g = lerp(color1.g, color2.g, f);
-		uint8_t b = lerp(color1.b, color2.b, f);
-		uint8_t a = lerp(color1.a, color2.a, f);
+		uint8_t r = vstd::lerp(color1.r, color2.r, f);
+		uint8_t g = vstd::lerp(color1.g, color2.g, f);
+		uint8_t b = vstd::lerp(color1.b, color2.b, f);
+		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
 		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
@@ -430,26 +472,26 @@ void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const
 	}
 }
 
-void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
+void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color)
 {
 	for(int i = 0; i < w; i++)
 	{
-		SDL_PutPixelWithoutRefreshIfInSurf(sur,x+i,y,color.x,color.y,color.z);
-		SDL_PutPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1,color.x,color.y,color.z);
+		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y,color.r,color.g,color.b);
+		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1,color.r,color.g,color.b);
 	}
 	for(int i = 0; i < h; i++)
 	{
-		SDL_PutPixelWithoutRefreshIfInSurf(sur,x,y+i,color.x,color.y,color.z);
-		SDL_PutPixelWithoutRefreshIfInSurf(sur,x+w-1,y+i,color.x,color.y,color.z);
+		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x,y+i,color.r,color.g,color.b);
+		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+w-1,y+i,color.r,color.g,color.b);
 	}
 }
 
-void CSDL_Ext::drawBorder( SDL_Surface * sur, const SDL_Rect &r, const int3 &color )
+void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &color )
 {
 	drawBorder(sur, r.x, r.y, r.w, r.h, color);
 }
 
-void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color)
+void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color)
 {
 	const int y1 = r.y, y2 = r.y + r.h-1;
 	for (int i=0; i<r.w; i++)
@@ -457,8 +499,8 @@ void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &co
 		const int x = r.x + i;
 		if (i%4 || (i==0))
 		{
-			SDL_PutPixelWithoutRefreshIfInSurf(sur, x, y1, color.x, color.y, color.z);
-			SDL_PutPixelWithoutRefreshIfInSurf(sur, x, y2, color.x, color.y, color.z);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x, y1, color.r, color.g, color.b);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x, y2, color.r, color.g, color.b);
 		}
 	}
 
@@ -468,8 +510,8 @@ void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &co
 		const int y = r.y + i;
 		if ((i%4) || (i==0))
 		{
-			SDL_PutPixelWithoutRefreshIfInSurf(sur, x1, y, color.x, color.y, color.z);
-			SDL_PutPixelWithoutRefreshIfInSurf(sur, x2, y, color.x, color.y, color.z);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x1, y, color.r, color.g, color.b);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x2, y, color.r, color.g, color.b);
 		}
 	}
 }
@@ -483,13 +525,13 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, PlayerColor player)
 		SDL_Color *color = (player == PlayerColor::NEUTRAL
 							? graphics->neutralColor
 							: &graphics->playerColors[player.getNum()]);
-		SDL_SetColors(sur, color, 5, 1);
+		CSDL_Ext::setColors(sur, color, 5, 1);
 	}
 	else
 		logGlobal->warn("Warning, setPlayerColor called on not 8bpp surface!");
 }
 
-TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
+CSDL_Ext::TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
 {
 #define CASE_BPP(BytesPerPixel)							\
 case BytesPerPixel:									\
@@ -513,7 +555,7 @@ case BytesPerPixel:									\
 
 }
 
-TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int incrementing)
+CSDL_Ext::TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int incrementing)
 {
 	switch(dest->format->BytesPerPixel)
 	{
@@ -548,15 +590,12 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 
 	SDL_Color color;
 
-	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
+	SDL_GetRGBA(CSDL_Ext::getPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
 
-	// color is considered transparent here if
-	// a) image has aplha: less than 50% transparency
-	// b) no alpha: color is cyan
-	if (srf->format->Amask)
-		return color.a < 128; // almost transparent
-	else
-		return (color.r == 0 && color.g == 255 && color.b == 255);
+	bool pixelTransparent = color.a < 128;
+	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
+
+	return pixelTransparent || pixelCyan;
 }
 
 void CSDL_Ext::VflipSurf(SDL_Surface * surf)
@@ -575,7 +614,7 @@ void CSDL_Ext::VflipSurf(SDL_Surface * surf)
 	}
 }
 
-void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
+void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
 {
 	Uint8 *p = getPxPtr(ekran, x, y);
 	getPutterFor(ekran, false)(p, R, G, B);
@@ -588,17 +627,17 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, con
 	}
 }
 
-void CSDL_Ext::SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
+void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
 {
 	const SDL_Rect & rect = ekran->clip_rect;
 
 	if(x >= rect.x  &&  x < rect.w + rect.x
 	&& y >= rect.y  &&  y < rect.h + rect.y)
-		SDL_PutPixelWithoutRefresh(ekran, x, y, R, G, B, A);
+		CSDL_Ext::putPixelWithoutRefresh(ekran, x, y, R, G, B, A);
 }
 
 template<int bpp>
-void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode )
+void CSDL_Ext::applyEffectBpp(SDL_Surface * surf, const Rect & rect, int mode )
 {
 	switch(mode)
 	{
@@ -607,9 +646,9 @@ void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mo
 			const int sepiaDepth = 20;
 			const int sepiaIntensity = 30;
 
-			for(int xp = rect->x; xp < rect->x + rect->w; ++xp)
+			for(int xp = rect.x; xp < rect.x + rect.w; ++xp)
 			{
-				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
+				for(int yp = rect.y; yp < rect.y + rect.h; ++yp)
 				{
 					Uint8 * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 					int r = Channels::px<bpp>::r.get(pixel);
@@ -640,9 +679,9 @@ void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mo
 		break;
 	case 1: //grayscale
 		{
-			for(int xp = rect->x; xp < rect->x + rect->w; ++xp)
+			for(int xp = rect.x; xp < rect.x + rect.w; ++xp)
 			{
-				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
+				for(int yp = rect.y; yp < rect.y + rect.h; ++yp)
 				{
 					Uint8 * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
@@ -665,7 +704,7 @@ void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mo
 	}
 }
 
-void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode )
+void CSDL_Ext::applyEffect( SDL_Surface * surf, const Rect & rect, int mode )
 {
 	switch(surf->format->BytesPerPixel)
 	{
@@ -793,46 +832,34 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
 	return ret;
 }
 
-void CSDL_Ext::blitSurface( SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect )
+void CSDL_Ext::blitSurface(SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPoint)
 {
-	if (dst != screen)
-	{
-		SDL_UpperBlit(src, srcRect, dst, dstRect);
-	}
-	else
-	{
-		SDL_Rect betterDst;
-		if (dstRect)
-		{
-			betterDst = *dstRect;
-		}
-		else
-		{
-			betterDst = Rect(0, 0, dst->w, dst->h);
-		}
+	SDL_Rect srcRect = CSDL_Ext::toSDL(srcRectInput);
+	SDL_Rect dstRect = CSDL_Ext::toSDL(Rect(dstPoint, srcRectInput.dimensions()));
 
-		SDL_UpperBlit(src, srcRect, dst, &betterDst);
-	}
+	SDL_UpperBlit(src, &srcRect, dst, &dstRect);
 }
 
-void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
+void CSDL_Ext::blitSurface(SDL_Surface * src, SDL_Surface * dst, const Point & dest)
 {
-	SDL_Rect newRect;
-	if (dstrect)
-	{
-		newRect = *dstrect;
-	}
-	else
-	{
-		newRect = Rect(0, 0, dst->w, dst->h);
-	}
-	SDL_FillRect(dst, &newRect, color);
+	Rect allSurface( Point(0,0), Point(src->w, src->h));
+
+	blitSurface(src, allSurface, dst, dest);
 }
 
-void CSDL_Ext::fillRectBlack( SDL_Surface *dst, SDL_Rect *dstrect)
+void CSDL_Ext::fillSurface( SDL_Surface *dst, const SDL_Color & color )
 {
-	const Uint32 black = SDL_MapRGB(dst->format,0,0,0);
-	fillRect(dst,dstrect,black);
+	Rect allSurface( Point(0,0), Point(dst->w, dst->h));
+
+	fillRect(dst, allSurface, color);
+}
+
+void CSDL_Ext::fillRect( SDL_Surface *dst, const Rect & dstrect, const SDL_Color & color )
+{
+	SDL_Rect newRect = CSDL_Ext::toSDL(dstrect);
+
+	uint32_t sdlColor = SDL_MapRGBA(dst->format, color.r, color.g, color.b, color.a);
+	SDL_FillRect(dst, &newRect, sdlColor);
 }
 
 void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
@@ -849,7 +876,7 @@ void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
 		{
 			int xLeft = std::min<int>(srcRect.w, dstRect.x + dstRect.w - x);
 			int yLeft = std::min<int>(srcRect.h, dstRect.y + dstRect.h - y);
-			Rect currentDest(x, y, xLeft, yLeft);
+			SDL_Rect currentDest{x, y, xLeft, yLeft};
 			SDL_BlitSurface(src, &srcRect, dst, &currentDest);
 		}
 	}
@@ -861,15 +888,17 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 	return ret;
 }
 
-void CSDL_Ext::startTextInput(SDL_Rect * where)
+void CSDL_Ext::startTextInput(const Rect & whereInput)
 {
-	auto impl = [](SDL_Rect * where)
+	const SDL_Rect where = CSDL_Ext::toSDL(whereInput);
+
+	auto impl = [](SDL_Rect where)
 	{
 		if (SDL_IsTextInputActive() == SDL_FALSE)
 		{
 			SDL_StartTextInput();
 		}
-		SDL_SetTextInputRect(where);
+		SDL_SetTextInputRect(&where);
 	};
 
 #ifdef VCMI_APPLE
@@ -885,12 +914,12 @@ void CSDL_Ext::startTextInput(SDL_Rect * where)
 	SDL_RenderGetViewport(renderer, &viewport);
 
 	const auto nativeScale = iOS_utils::screenScale();
-	auto rectInScreenCoordinates = *where;
+	auto rectInScreenCoordinates = where;
 	rectInScreenCoordinates.x = (viewport.x + rectInScreenCoordinates.x) * scaleX / nativeScale;
 	rectInScreenCoordinates.y = (viewport.y + rectInScreenCoordinates.y) * scaleY / nativeScale;
 	rectInScreenCoordinates.w = rectInScreenCoordinates.w * scaleX / nativeScale;
 	rectInScreenCoordinates.h = rectInScreenCoordinates.h * scaleY / nativeScale;
-	impl(&rectInScreenCoordinates);
+	impl(rectInScreenCoordinates);
 #else
 	impl(where);
 #endif
@@ -945,8 +974,25 @@ void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 	}
 }
 
+void CSDL_Ext::setClipRect(SDL_Surface * src, const Rect & other)
+{
+	SDL_Rect rect = CSDL_Ext::toSDL(other);
+
+	SDL_SetClipRect(src, &rect);
+}
+
+void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
+{
+	SDL_Rect rect;
+
+	SDL_GetClipRect(src, &rect);
+
+	other = CSDL_Ext::fromSDL(rect);
+}
+
 
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<4>(int, int);
+

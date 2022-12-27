@@ -13,7 +13,7 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
 ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
-	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY_TERRAIN)
+	: QSortFilterProxyModel{parent}, terrain(ETerrainId::ANY_TERRAIN)
 {
 }
 
@@ -33,7 +33,7 @@ bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
-	if(terrain == Terrain::ANY_TERRAIN)
+	if(terrain == ETerrainId::ANY_TERRAIN)
 		return result;
 
 	auto data = item->data().toJsonObject();
@@ -86,13 +86,6 @@ Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
 	return defaultFlags;
 }
 
-QStringList ObjectBrowserProxyModel::mimeTypes() const
-{
-	QStringList types;
-	types << "application/vcmi.object";
-	return types;
-}
-
 QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) const
 {
 	assert(indexes.size() == 1);
@@ -101,18 +94,12 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 	assert(standardModel);
 	
 	QModelIndex index = indexes.front();
-	QByteArray encodedData;
-
-	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	
 	if(!index.isValid())
 		return nullptr;
-	
-	auto text = standardModel->itemFromIndex(mapToSource(index))->data();
-	stream << text;
 
 	QMimeData * mimeData = new QMimeData;
-	mimeData->setData("application/vcmi.object", encodedData);
+	mimeData->setImageData(standardModel->itemFromIndex(mapToSource(index))->data());
 	return mimeData;
 }
 
@@ -124,7 +111,7 @@ ObjectBrowser::ObjectBrowser(QWidget * parent):
 
 void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 {
-	QDrag *drag = new QDrag(this);
+	logGlobal->info("Drag'n'drop: Start dragging object from ObjectBrowser");
 	auto indexes = selectedIndexes();
 	if(indexes.isEmpty())
 		return;
@@ -133,7 +120,7 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 	if(!mimeData)
 		return;
 		
+	QDrag *drag = new QDrag(this);
 	drag->setMimeData(mimeData);
-
-	Qt::DropAction dropAction = drag->exec();
+	drag->exec(supportedActions);
 }

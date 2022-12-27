@@ -34,6 +34,8 @@ CObstacleInstance::~CObstacleInstance()
 
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
+	assert( obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE);
+
 	return *Obstacle(ID).getInfo();
 }
 
@@ -174,7 +176,10 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 
+	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("animationYOffset", animationYOffset);

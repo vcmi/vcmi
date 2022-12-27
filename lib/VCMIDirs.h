@@ -35,10 +35,13 @@ public:
 	// Paths to global system-wide data directories. First items have higher priority
 	virtual std::vector<boost::filesystem::path> dataPaths() const = 0;
 
-	// Full path to client executable, including server name (e.g. /usr/bin/vcmiclient)
+	// Full path to client executable, including name (e.g. /usr/bin/vcmiclient)
 	virtual boost::filesystem::path clientPath() const = 0;
 
-	// Full path to server executable, including server name (e.g. /usr/bin/vcmiserver)
+	// Full path to editor executable, including name (e.g. /usr/bin/vcmieditor)
+	virtual boost::filesystem::path mapEditorPath() const = 0;
+
+	// Full path to server executable, including name (e.g. /usr/bin/vcmiserver)
 	virtual boost::filesystem::path serverPath() const = 0;
 
 	// Path where vcmi libraries can be found (in AI and Scripting subdirectories)

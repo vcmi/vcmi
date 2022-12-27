@@ -10,29 +10,29 @@
 		"background" : "gamselbk",
 		//"scalable" : true, //background will be scaled to screen size
 		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" },//Floating WoG logo. Disabled due to different position in various versions of H3.
-		//"images" : [],//Optioal, contains any additional images in the same format as video
+		//"images" : [],//Optional, contains any additional images in the same format as video
 		"items" : 
 		[
 			{
 				"name" : "main",
 				"buttons":
 				[
-					{"x": 540, "y": 10,  "name":"MMENUNG", "hotkey" : 110, "help": 3, "command": "to new"},
-					{"x": 532, "y": 132, "name":"MMENULG", "hotkey" : 108, "help": 4, "command": "to load"},
-					{"x": 524, "y": 251, "name":"MMENUHS", "hotkey" : 104, "help": 5, "command": "highscores"},
-					{"x": 557, "y": 359, "name":"MMENUCR", "hotkey" : 99,  "help": 6, "command": "to credits"},
-					{"x": 586, "y": 468, "name":"MMENUQT", "hotkey" : 27,  "help": 7, "command": "exit"}
+					{"x": 644, "y":  70, "center" : true, "name":"MMENUNG", "hotkey" : 110, "help": 3, "command": "to new"},
+					{"x": 645, "y": 192, "center" : true, "name":"MMENULG", "hotkey" : 108, "help": 4, "command": "to load"},
+					{"x": 643, "y": 296, "center" : true, "name":"MMENUHS", "hotkey" : 104, "help": 5, "command": "highscores"},
+					{"x": 643, "y": 414, "center" : true, "name":"MMENUCR", "hotkey" : 99,  "help": 6, "command": "to credits"},
+					{"x": 643, "y": 520, "center" : true, "name":"MMENUQT", "hotkey" : 27,  "help": 7, "command": "exit"}
 				]
 			},
 			{
 				"name" : "new",
 				"buttons":
 				[
-					{"x": 545, "y": 4,   "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "start single"},
-					{"x": 568, "y": 120, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "start multi"},
-					{"x": 541, "y": 233, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "to campaign"},
-					{"x": 545, "y": 358, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "start tutorial"},
-					{"x": 582, "y": 464, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
+					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "start single"},
+					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "start multi"},
+					{"x": 646, "y": 298, "center" : true, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "to campaign"},
+					{"x": 647, "y": 412, "center" : true, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "start tutorial"},
+					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
 				],
 				"images": [ {"x": 114, "y": 312, "name":"NEWGAME"} ]
 			},
@@ -40,11 +40,11 @@
 				"name" : "load",
 				"buttons":
 				[
-					{"x": 545, "y": 8,   "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "load single"},
-					{"x": 568, "y": 120, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "load multi"},
-					{"x": 541, "y": 233, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "load campaign"},
-					{"x": 545, "y": 358, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "load tutorial"},
-					{"x": 582, "y": 464, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
+					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "load single"},
+					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "load multi"},
+					{"x": 646, "y": 298, "center" : true, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "load campaign"},
+					{"x": 647, "y": 412, "center" : true, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "load tutorial"},
+					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
 				],
 				"images": [ {"x": 114, "y": 312, "name":"LOADGAME"} ]
 			},
@@ -52,11 +52,11 @@
 				"name" : "campaign",
 				"buttons":
 				[
-					{"x": 535, "y": 4,   "name":"CSSSOD", "hotkey" : 119, "command": "campaigns sod"},
-					{"x": 494, "y": 117, "name":"CSSROE", "hotkey" : 114, "command": "campaigns roe"},
-					{"x": 486, "y": 241, "name":"CSSARM", "hotkey" : 97,  "command": "campaigns ab"},
-					{"x": 550, "y": 358, "name":"CSSCUS", "hotkey" : 99,  "command": "start campaign"},
-					{"x": 582, "y": 464, "name":"GTBACK", "hotkey" : 27,  "command": "to new"}
+					{"x": 634, "y":  67, "center" : true, "name":"CSSSOD", "hotkey" : 119, "command": "campaigns sod"},
+					{"x": 637, "y": 181, "center" : true, "name":"CSSROE", "hotkey" : 114, "command": "campaigns roe"},
+					{"x": 638, "y": 301, "center" : true, "name":"CSSARM", "hotkey" : 97,  "command": "campaigns ab"},
+					{"x": 638, "y": 413, "center" : true, "name":"CSSCUS", "hotkey" : 99,  "command": "start campaign"},
+					{"x": 639, "y": 518, "center" : true, "name":"CSSEXIT", "hotkey" : 27,  "command": "to new"}
 				],
 			}
 		]

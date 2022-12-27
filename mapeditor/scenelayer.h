@@ -14,10 +14,14 @@
 
 class MapSceneBase;
 class MapScene;
-class CGObjectInstance;
 class MapController;
-class CMap;
 class MapHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
+class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 
 class AbstractLayer : public QObject
 {

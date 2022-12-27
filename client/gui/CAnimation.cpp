@@ -12,6 +12,7 @@
 
 #include "SDL_Extensions.h"
 #include "SDL_Pixels.h"
+#include "ColorFilter.h"
 
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
@@ -33,6 +34,7 @@ class CDefFile
 {
 private:
 
+	PACKED_STRUCT_BEGIN
 	struct SSpriteDef
 	{
 		ui32 size;
@@ -43,7 +45,7 @@ private:
 		ui32 height;
 		si32 leftMargin;
 		si32 topMargin;
-	} PACKED_STRUCT;
+	} PACKED_STRUCT_END;
 	//offset[group][frame] - offset of frame data in file
 	std::map<size_t, std::vector <size_t> > offset;
 
@@ -92,23 +94,24 @@ public:
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
-	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
-	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr) const override;
+	void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const override;
 	std::shared_ptr<IImage> scaleFast(float scale) const override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
-	int width() const override;
-	int height() const override;
+	bool isTransparent(const Point & coords) const override;
+	Point dimensions() const override;
 
 	void horizontalFlip() override;
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
-	void adjustPalette(const ColorShifter * shifter) override;
+	void adjustPalette(const ColorFilter & shifter) override;
+	void resetPalette(int colorID) override;
 	void resetPalette() override;
 
-	void setBorderPallete(const BorderPallete & borderPallete) override;
+	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
 
 	friend class SDLImageLoader;
 
@@ -133,6 +136,11 @@ public:
 	SDLImageLoader(SDLImage * Img);
 	~SDLImageLoader();
 };
+
+std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
+{
+	return std::shared_ptr<IImage>(new SDLImage(path));
+}
 
 // Extremely simple file cache. TODO: smarter, more general solution
 class CFileCache
@@ -207,32 +215,17 @@ CDefFile::CDefFile(std::string Name):
 	data(nullptr),
 	palette(nullptr)
 {
-
-	#if 0
-	static SDL_Color H3_ORIG_PALETTE[8] =
-	{
-	   {  0, 255, 255, SDL_ALPHA_OPAQUE},
-	   {255, 150, 255, SDL_ALPHA_OPAQUE},
-	   {255, 100, 255, SDL_ALPHA_OPAQUE},
-	   {255,  50, 255, SDL_ALPHA_OPAQUE},
-	   {255,   0, 255, SDL_ALPHA_OPAQUE},
-	   {255, 255, 0,   SDL_ALPHA_OPAQUE},
-	   {180,   0, 255, SDL_ALPHA_OPAQUE},
-	   {  0, 255, 0,   SDL_ALPHA_OPAQUE}
-	};
-	#endif // 0
-
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
 	{
-		{   0,   0,   0,   0},// 100% - transparency
-		{   0,   0,   0,  32},//  75% - shadow border,
-		{   0,   0,   0,  64},// TODO: find exact value
-		{   0,   0,   0, 128},// TODO: for transparency
-		{   0,   0,   0, 128},//  50% - shadow body
-		{   0,   0,   0,   0},// 100% - selection highlight
-		{   0,   0,   0, 128},//  50% - shadow body   below selection
-		{   0,   0,   0,  64} // 75% - shadow border below selection
+		{   0,   0,   0,   0},// transparency                  ( used in most images )
+		{   0,   0,   0,  64},// shadow border                 ( used in battle, adventure map def's )
+		{   0,   0,   0,  64},// shadow border                 ( used in fog-of-war def's )
+		{   0,   0,   0, 128},// shadow body                   ( used in fog-of-war def's )
+		{   0,   0,   0, 128},// shadow body                   ( used in battle, adventure map def's )
+		{   0,   0,   0,   0},// selection                     ( used in battle def's )
+		{   0,   0,   0, 128},// shadow body   below selection ( used in battle def's )
+		{   0,   0,   0,  64} // shadow border below selection ( used in battle def's )
 	};
 	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
 
@@ -554,6 +547,15 @@ SDLImageLoader::~SDLImageLoader()
 IImage::IImage() = default;
 IImage::~IImage() = default;
 
+int IImage::width() const
+{
+	return dimensions().x;
+}
+
+int IImage::height() const
+{
+	return dimensions().y;
+}
 
 SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 	: surf(nullptr),
@@ -640,17 +642,16 @@ SDLImage::SDLImage(std::string filename)
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, const Rect *src) const
 {
 	if(!surf)
 		return;
 
 	Rect destRect(posX, posY, surf->w, surf->h);
-
 	draw(where, &destRect, src);
 }
 
-void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha) const
+void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) const
 {
 	if (!surf)
 		return;
@@ -667,28 +668,23 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 		if(src->y < margins.y)
 			destShift.y += margins.y - src->y;
 
-		sourceRect = Rect(*src) & Rect(margins.x, margins.y, surf->w, surf->h);
+		sourceRect = Rect(*src).intersect(Rect(margins.x, margins.y, surf->w, surf->h));
 
 		sourceRect -= margins;
 	}
 	else
 		destShift = margins;
 
-	Rect destRect(destShift.x, destShift.y, surf->w, surf->h);
-
 	if(dest)
-	{
-		destRect.x += dest->x;
-		destRect.y += dest->y;
-	}
+		destShift += dest->topLeft();
 
 	if(surf->format->BitsPerPixel == 8)
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
+		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
 	}
 	else
 	{
-		SDL_UpperBlit(surf, &sourceRect, where, &destRect);
+		CSDL_Ext::blitSurface(surf, sourceRect, where, destShift);
 	}
 }
 
@@ -730,14 +726,14 @@ void SDLImage::setFlagColor(PlayerColor player)
 		CSDL_Ext::setPlayerColor(surf, player);
 }
 
-int SDLImage::width() const
+bool SDLImage::isTransparent(const Point & coords) const
 {
-	return fullSize.x;
+	return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
 }
 
-int SDLImage::height() const
+Point SDLImage::dimensions() const
 {
-	return fullSize.y;
+	return fullSize;
 }
 
 void SDLImage::horizontalFlip()
@@ -786,11 +782,11 @@ void SDLImage::shiftPalette(int from, int howMany)
 		{
 			palette[(i+1)%howMany] = surf->format->palette->colors[from + i];
 		}
-		SDL_SetColors(surf, palette, from, howMany);
+		CSDL_Ext::setColors(surf, palette, from, howMany);
 	}
 }
 
-void SDLImage::adjustPalette(const ColorShifter * shifter)
+void SDLImage::adjustPalette(const ColorFilter & shifter)
 {
 	if(originalPalette == nullptr)
 		return;
@@ -800,7 +796,7 @@ void SDLImage::adjustPalette(const ColorShifter * shifter)
 	// Note: here we skip the first 8 colors in the palette that predefined in H3Palette
 	for(int i = 8; i < palette->ncolors; i++)
 	{
-		palette->colors[i] = shifter->shiftColor(originalPalette->colors[i]);
+		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
 	}
 }
 
@@ -813,11 +809,20 @@ void SDLImage::resetPalette()
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
 }
 
-void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
+void SDLImage::resetPalette( int colorID )
+{
+	if(originalPalette == nullptr)
+		return;
+
+	// Always keept the original palette not changed, copy a new palette to assign to surface
+	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
+}
+
+void SDLImage::setSpecialPallete(const IImage::SpecialPalette & SpecialPalette)
 {
 	if(surf->format->palette)
 	{
-		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
+		CSDL_Ext::setColors(surf, const_cast<SDL_Color *>(SpecialPalette.data()), 1, 7);
 	}
 }
 
@@ -1080,18 +1085,6 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		load(index, targetGroup);
 }
 
-void CAnimation::shiftColor(const ColorShifter * shifter)
-{
-	for(auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
-	{
-		for(auto frameIter = groupIter->second.begin(); frameIter != groupIter->second.end(); frameIter++)
-		{
-			std::shared_ptr<IImage> image = frameIter->second;
-			image->adjustPalette(shifter);
-		}
-	}
-}
-
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 {
 	if (source[group].size() <= frame)
@@ -1275,7 +1268,7 @@ void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurf
 	shouldFreeSurface = freeSurfaceAtEnd;
 }
 
-void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect)
+void CFadeAnimation::draw(SDL_Surface * targetSurface, const Point &targetPoint)
 {
 	if (!fading || !fadingSurface || fadingMode == EMode::NONE)
 	{
@@ -1284,6 +1277,6 @@ void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRe
 	}
 
 	CSDL_Ext::setAlpha(fadingSurface, (int)(fadingCounter * 255));
-	SDL_BlitSurface(fadingSurface, const_cast<SDL_Rect *>(sourceRect), targetSurface, destRect); //FIXME
+	CSDL_Ext::blitSurface(fadingSurface, targetSurface, targetPoint); //FIXME
 	CSDL_Ext::setAlpha(fadingSurface, 255);
 }

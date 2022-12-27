@@ -136,12 +136,14 @@ void CMapGenOptions::resetPlayersMap()
 {
 
 	std::map<PlayerColor, TFaction> rememberTownTypes;
+	std::map<PlayerColor, TeamID> rememberTeam;
 
 	for (auto p : players)
 	{
 		auto town = p.second.getStartingTown();
 		if (town != RANDOM_SIZE)
 			rememberTownTypes[p.first] = town;
+		rememberTeam[p.first] = p.second.getTeam();
 	}
 
 
@@ -169,6 +171,7 @@ void CMapGenOptions::resetPlayersMap()
 			playerType = EPlayerType::COMP_ONLY;
 		}
 		player.setPlayerType(playerType);
+		player.setTeam(rememberTeam[pc]);
 		players[pc] = player;
 
 		if (vstd::contains(rememberTownTypes, pc))
@@ -204,8 +207,50 @@ const CRmgTemplate * CMapGenOptions::getMapTemplate() const
 void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 {
 	mapTemplate = value;
-	//TODO validate & adapt options according to template
-	//assert(0);
+	//validate & adapt options according to template
+	if(mapTemplate)
+	{
+		if(!mapTemplate->matchesSize(int3(getWidth(), getHeight(), 1 + getHasTwoLevels())))
+		{
+			auto sizes = mapTemplate->getMapSizes();
+			setWidth(sizes.first.x);
+			setHeight(sizes.first.y);
+			setHasTwoLevels(sizes.first.z - 1);
+		}
+		
+		if(!mapTemplate->getPlayers().isInRange(getPlayerCount()))
+			setPlayerCount(RANDOM_SIZE);
+		if(!mapTemplate->getCpuPlayers().isInRange(getCompOnlyPlayerCount()))
+			setCompOnlyPlayerCount(RANDOM_SIZE);
+		if(!mapTemplate->getWaterContentAllowed().count(getWaterContent()))
+			setWaterContent(EWaterContent::RANDOM);
+	}
+}
+
+void CMapGenOptions::setMapTemplate(const std::string & name)
+{
+	if(!name.empty())
+		setMapTemplate(VLC->tplh->getTemplate(name));
+}
+
+void CMapGenOptions::setRoadEnabled(const std::string & roadName, bool enable)
+{
+	if(enable)
+		disabledRoads.erase(roadName);
+	else
+		disabledRoads.insert(roadName);
+}
+
+bool CMapGenOptions::isRoadEnabled(const std::string & roadName) const
+{
+	return !disabledRoads.count(roadName);
+}
+
+void CMapGenOptions::setPlayerTeam(PlayerColor color, TeamID team)
+{
+	auto it = players.find(color);
+	if(it == players.end()) assert(0);
+	it->second.setTeam(team);
 }
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)
@@ -391,7 +436,6 @@ PlayerColor CMapGenOptions::getNextPlayerColor() const
 
 bool CMapGenOptions::checkOptions() const
 {
-	assert(countHumanPlayers() > 0);
 	if(mapTemplate)
 	{
 		return true;
@@ -452,7 +496,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
-CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI)
+CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
 {
 
 }
@@ -492,6 +536,16 @@ EPlayerType::EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const
 void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType value)
 {
 	playerType = value;
+}
+
+TeamID CMapGenOptions::CPlayerSettings::getTeam() const
+{
+	return team;
+}
+
+void CMapGenOptions::CPlayerSettings::setTeam(TeamID value)
+{
+	team = value;
 }
 
 VCMI_LIB_NAMESPACE_END

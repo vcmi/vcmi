@@ -13,6 +13,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/int3.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
@@ -379,7 +380,6 @@ public:
 	const CGarrisonSlot * getSelectedSlotID() const;
 
 	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
-	~CExchangeWindow();
 };
 
 /// Here you can buy ships

@@ -60,7 +60,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 		desc = "GATHER TROOPS";
 		break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + VLC->arth->objects[aid]->getName();
+		desc = "GET ARTIFACT OF TYPE " + VLC->arth->objects[aid]->getNameTranslated();
 		break;
 	case DIG_AT_TILE:
 		desc = "DIG AT TILE " + tile.toString();
@@ -69,7 +69,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 		return boost::lexical_cast<std::string>(goalType);
 	}
 	if(hero.get(true)) //FIXME: used to crash when we lost hero and failed goal
-		desc += " (" + hero->name + ")";
+		desc += " (" + hero->getNameTranslated() + ")";
 	return desc;
 }
 

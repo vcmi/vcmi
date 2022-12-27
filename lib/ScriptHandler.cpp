@@ -17,6 +17,7 @@
 
 #include "CGameInterface.h"
 #include "CScriptingModule.h"
+#include "CModHandler.h"
 
 #include "VCMIDirs.h"
 #include "serializer/JsonDeserializer.h"
@@ -242,7 +243,7 @@ ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::str
 
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(logMod, scope, data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(logMod, scope, data, name);
 	objects[object->identifier] = object;
 }
 

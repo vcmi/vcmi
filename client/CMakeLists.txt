@@ -2,19 +2,30 @@ set(client_SRCS
 		StdInc.cpp
 		../CCallback.cpp
 
-		battle/CBattleAnimations.cpp
-		battle/CBattleInterfaceClasses.cpp
-		battle/CBattleInterface.cpp
-		battle/CCreatureAnimation.cpp
+		battle/BattleActionsController.cpp
+		battle/BattleAnimationClasses.cpp
+		battle/BattleEffectsController.cpp
+		battle/BattleFieldController.cpp
+		battle/BattleInterfaceClasses.cpp
+		battle/BattleInterface.cpp
+		battle/BattleObstacleController.cpp
+		battle/BattleProjectileController.cpp
+		battle/BattleRenderer.cpp
+		battle/BattleSiegeController.cpp
+		battle/BattleStacksController.cpp
+		battle/BattleWindow.cpp
+		battle/CreatureAnimation.cpp
 
 		gui/CAnimation.cpp
-		gui/CCursorHandler.cpp
+		gui/Canvas.cpp
+		gui/CursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
+		gui/ColorFilter.cpp
 		gui/Fonts.cpp
-		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
 		gui/NotificationHandler.cpp
+		gui/InterfaceObjectConfigurable.cpp
 
 		widgets/AdventureMapClasses.cpp
 		widgets/Buttons.cpp
@@ -70,26 +81,40 @@ set(client_SRCS
 		NetPacksClient.cpp
 		NetPacksLobbyClient.cpp
 		SDLRWwrapper.cpp
+		ClientCommandManager.cpp
 )
 
 set(client_HEADERS
 		StdInc.h
 
-		battle/CBattleAnimations.h
-		battle/CBattleInterfaceClasses.h
-		battle/CBattleInterface.h
-		battle/CCreatureAnimation.h
+		battle/BattleActionsController.h
+		battle/BattleAnimationClasses.h
+		battle/BattleEffectsController.h
+		battle/BattleFieldController.h
+		battle/BattleInterfaceClasses.h
+		battle/BattleInterface.h
+		battle/BattleObstacleController.h
+		battle/BattleProjectileController.h
+		battle/BattleRenderer.h
+		battle/BattleSiegeController.h
+		battle/BattleStacksController.h
+		battle/BattleWindow.h
+		battle/CreatureAnimation.h
+		battle/BattleConstants.h
 
 		gui/CAnimation.h
-		gui/CCursorHandler.h
+		gui/Canvas.h
+		gui/CursorHandler.h
 		gui/CGuiHandler.h
+		gui/ColorFilter.h
 		gui/CIntObject.h
 		gui/Fonts.h
-		gui/Geometries.h
+		gui/TextAlignment.h
 		gui/SDL_Compat.h
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
 		gui/NotificationHandler.h
+		gui/InterfaceObjectConfigurable.h
 
 		widgets/AdventureMapClasses.h
 		widgets/Buttons.h
@@ -143,6 +168,7 @@ set(client_HEADERS
 		mapHandler.h
 		resource.h
 		SDLRWwrapper.h
+		ClientCommandManager.h
 )
 
 if(APPLE_IOS)
@@ -177,7 +203,10 @@ else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
 
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
+if(ENABLE_NULLKILLER_AI)
+	add_dependencies(vcmiclient Nullkiller)
+endif()
 if(APPLE_IOS)
 	if(ENABLE_ERM)
 		add_dependencies(vcmiclient vcmiERM)
@@ -204,7 +233,7 @@ if(WIN32)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
 			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb12.dll tbb12.dll
 		)
 	endif()
 elseif(APPLE_IOS)
@@ -243,7 +272,7 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(BUILD_SINGLE_APP)
+if(ENABLE_SINGLE_APP_BUILD)
 	target_link_libraries(vcmiclient PRIVATE vcmiserver)
 	if(ENABLE_LAUNCHER)
 		target_link_libraries(vcmiclient PRIVATE vcmilauncher)

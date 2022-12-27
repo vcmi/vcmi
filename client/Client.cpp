@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "Client.h"
 
-#include <SDL.h>
-
 #include "CMusicHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
@@ -42,13 +40,13 @@
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CCampaignScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "battle/CBattleInterface.h"
+#include "battle/BattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
-#include "CMT.h"
 #include "CServerHandler.h"
 #include "../lib/ScriptHandler.h"
+#include "windows/CAdvmapInterface.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
@@ -380,20 +378,12 @@ void CClient::endGame()
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		logNetwork->info("Ending current game!");
-		if(GH.topInt())
-		{
-			GH.topInt()->deactivate();
-		}
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-		GH.statusbar = nullptr;
-		logNetwork->info("Removed GUI.");
+		removeGUI();
 
 		vstd::clear_pointer(const_cast<CGameInfo *>(CGI)->mh);
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
-		LOCPLINT = nullptr;
 	}
 
 	playerint.clear();
@@ -509,7 +499,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	logGlobal->trace("\tInitializing the interface for player %s", color.getStr());
 	auto cb = std::make_shared<CCallback>(gs, color, this);
 	battleCallbacks[color] = cb;
-	gameInterface->init(playerEnvironments.at(color), cb);
+	gameInterface->initGameInterface(playerEnvironments.at(color), cb);
 
 	installNewBattleInterface(gameInterface, color, battlecb);
 }
@@ -525,7 +515,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 		logGlobal->trace("\tInitializing the battle interface for player %s", color.getStr());
 		auto cbc = std::make_shared<CBattleCallback>(color, this);
 		battleCallbacks[color] = cbc;
-		battleInterface->init(playerEnvironments.at(color), cbc);
+		battleInterface->initBattleInterface(playerEnvironments.at(color), cbc);
 	}
 }
 
@@ -594,11 +584,10 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		Rect battleIntRect((screen->w - 800)/2, (screen->h - 600)/2, 800, 600);
 		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
@@ -606,7 +595,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->setBattle(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
 
@@ -764,14 +753,35 @@ scripting::Pool * CClient::getContextPool() const
 
 void CClient::reinitScripting()
 {
-	clientEventBus = make_unique<events::EventBus>();
+	clientEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
 	clientScripts.reset(new scripting::PoolImpl(this));
 #endif
 }
 
+void CClient::removeGUI()
+{
+	// CClient::endGame
+	GH.curInt = nullptr;
+	if(GH.topInt())
+		GH.topInt()->deactivate();
+	adventureInt.reset();
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+	GH.statusbar.reset();
+	logGlobal->info("Removed GUI.");
+
+	LOCPLINT = nullptr;
+}
 
 #ifdef VCMI_ANDROID
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jobject cls)
+{
+	logNetwork->info("Received clientSetupJNI");
+
+	CAndroidVMHelper::cacheVM(env);
+}
+
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jobject cls)
 {
 	logNetwork->info("Received server closed signal");

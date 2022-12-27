@@ -25,12 +25,15 @@
 #include "../lib/CAndroidVMHelper.h"
 #elif defined(VCMI_IOS)
 #include "ios/utils.h"
-#include "../server/CVCMIServer.h"
-
 #include <dispatch/dispatch.h>
 #else
 #include "../lib/Interprocess.h"
 #endif
+
+#ifdef SINGLE_PROCESS_APP
+#include "../server/CVCMIServer.h"
+#endif
+
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
@@ -129,7 +132,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
-	th = make_unique<CStopWatch>();
+	th = std::make_unique<CStopWatch>();
 	packsForLobbyScreen.clear();
 	c.reset();
 	si = std::make_shared<StartInfo>();
@@ -142,7 +145,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	shm.reset();
 
 	if(!settings["session"]["disable-shm"].Bool())
@@ -173,7 +176,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 	
-	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
+	auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.existingProcess");
 	try
 	{
 		CConnection testConnection(localhostAddress, getDefaultPort(), NAME, uuid);
@@ -715,7 +718,7 @@ void CServerHandler::restoreLastSession()
 		saveSession->Bool() = false;
 	};
 	
-	CInfoWindow::showYesNoDialog(VLC->generaltexth->localizedTexts["server"]["confirmReconnect"].String(), {}, loadSession, cleanUpSession);
+	CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.server.confirmReconnect"), {}, loadSession, cleanUpSession);
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)

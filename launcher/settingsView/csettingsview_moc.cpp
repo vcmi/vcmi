@@ -11,6 +11,8 @@
 #include "csettingsview_moc.h"
 #include "ui_csettingsview_moc.h"
 
+#include "mainwindow_moc.h"
+
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
 #include "../updatedialog_moc.h"
@@ -33,6 +35,8 @@ QString resolutionToString(const QSize & resolution)
 /// Note that it is possible to specify enconding manually in settings.json
 static const std::string knownEncodingsList[] = //TODO: remove hardcode
 {
+	// Asks vcmi to automatically detect encoding
+	"auto",
 	// European Windows-125X encodings
 	"CP1250", // West European, covers mostly Slavic languages that use latin script
 	"CP1251", // Covers languages that use cyrillic scrypt
@@ -42,6 +46,23 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
 	"GB2312", // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
 	// Korean encodings
 	"CP949" // extension of EUC-KR.
+};
+
+/// List of tags of languages that can be selected from Launcher (and have translation for Launcher)
+static const std::string languageTagList[] =
+{
+	"english",
+	"german",
+	"polish",
+	"russian",
+	"ukrainian",
+};
+
+static const std::string cursorTypesList[] =
+{
+	"auto",
+	"hardware",
+	"software"
 };
 
 void CSettingsView::setDisplayList()
@@ -72,12 +93,11 @@ void CSettingsView::loadSettings()
 
 #ifdef Q_OS_IOS
 	ui->comboBoxFullScreen->setCurrentIndex(true);
-	ui->checkBoxFullScreen->setChecked(false);
-	for (auto widget : std::initializer_list<QWidget *>{ui->comboBoxFullScreen, ui->checkBoxFullScreen})
-		widget->setDisabled(true);
+	ui->comboBoxFullScreen->setDisabled(true);
 #else
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
-	ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
+	if (settings["video"]["realFullscreen"].Bool())
+		ui->comboBoxFullScreen->setCurrentIndex(2);
 #endif
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -104,6 +124,15 @@ void CSettingsView::loadSettings()
 	if(encodingIndex < ui->comboBoxEncoding->count())
 		ui->comboBoxEncoding->setCurrentIndex((int)encodingIndex);
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
+
+	std::string language = settings["general"]["language"].String();
+	size_t languageIndex = boost::range::find(languageTagList, language) - languageTagList;
+	if(languageIndex < ui->comboBoxLanguage->count())
+		ui->comboBoxLanguage->setCurrentIndex((int)languageIndex);
+
+	std::string cursorType = settings["video"]["cursor"].String();
+	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
+	ui->comboBoxCursorType->setCurrentIndex((int)cursorTypeIndex);
 }
 
 void CSettingsView::fillValidResolutions(bool isExtraResolutionsModEnabled)
@@ -135,6 +164,8 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	const auto screens = qGuiApp->screens();
 	const auto currentScreen = screenIndex < screens.size() ? screens[screenIndex] : qGuiApp->primaryScreen();
 	const auto screenSize = currentScreen->size();
+	MAYBE_UNUSED(screenSize);
+
 	for(const auto & entry : resolutions)
 	{
 		const auto resolutionMap = entry.toMap().value(QLatin1String{"resolution"}).toMap();
@@ -192,14 +223,10 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 
 void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 {
-	Settings node = settings.write["video"]["fullscreen"];
-	node->Bool() = index;
-}
-
-void CSettingsView::on_checkBoxFullScreen_stateChanged(int state)
-{
-	Settings node = settings.write["video"]["realFullscreen"];
-	node->Bool() = state;
+	Settings nodeFullscreen     = settings.write["video"]["fullscreen"];
+	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
+	nodeFullscreen->Bool() = (index != 0);
+	nodeRealFullscreen->Bool() = (index == 2);
 }
 
 void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
@@ -305,5 +332,30 @@ void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
 void CSettingsView::on_updatesButton_clicked()
 {
 	UpdateDialog::showUpdateDialog(true);
+}
+
+
+void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
+{
+	Settings node = settings.write["general"]["language"];
+	node->String() = languageTagList[index];
+
+	if ( auto mainWindow = dynamic_cast<MainWindow*>(qApp->activeWindow()) )
+		mainWindow->updateTranslation();
+}
+
+void CSettingsView::changeEvent(QEvent *event)
+{
+	if(event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+	QWidget::changeEvent(event);
+}
+
+void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["cursor"];
+	node->String() = cursorTypesList[index];
 }
 

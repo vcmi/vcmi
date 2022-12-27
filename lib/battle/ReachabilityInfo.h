@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 // startPosition and perpective.
 struct DLL_LINKAGE ReachabilityInfo
 {
-	typedef std::array<int, GameConstants::BFIELD_SIZE> TDistances;
+	typedef std::array<uint32_t, GameConstants::BFIELD_SIZE> TDistances;
 	typedef std::array<BattleHex, GameConstants::BFIELD_SIZE> TPredecessors;
 
 	enum { INFINITE_DIST = 1000000 };
@@ -46,16 +46,14 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	bool isReachable(BattleHex hex) const;
 
-	int distToNearestNeighbour(
+	uint32_t distToNearestNeighbour(
 		const std::vector<BattleHex> & targetHexes,
 		BattleHex * chosenHex = nullptr) const;
 
-	int distToNearestNeighbour(
+	uint32_t distToNearestNeighbour(
 		const battle::Unit * attacker,
 		const battle::Unit * defender,
 		BattleHex * chosenHex = nullptr) const;
 };
-
-
 
 VCMI_LIB_NAMESPACE_END

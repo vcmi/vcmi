@@ -50,14 +50,14 @@ Goals::TGoalVec DefenceBehavior::decompose() const
 
 void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const
 {
-	logAi->trace("Evaluating defence for %s", town->name);
+	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
 
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
 	auto treats = { treatNode.fastestDanger, treatNode.maximumDanger };
 
 	if(!treatNode.fastestDanger.hero)
 	{
-		logAi->trace("No treat found for town %s", town->name);
+		logAi->trace("No treat found for town %s", town->getNameTranslated());
 
 		return;
 	}
@@ -78,8 +78,8 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		logAi->trace(
 			"Hero %s in garrison of town %s is suposed to defend the town",
-			town->garrisonHero->name,
-			town->name);
+			town->garrisonHero->getNameTranslated(),
+			town->getNameTranslated());
 
 		return;
 	}
@@ -88,7 +88,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	if(reinforcement)
 	{
-		logAi->trace("Town %s can buy defence army %lld", town->name, reinforcement);
+		logAi->trace("Town %s can buy defence army %lld", town->getNameTranslated(), reinforcement);
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
 	}
 
@@ -98,10 +98,10 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	{
 		logAi->trace(
 			"Town %s has treat %lld in %s turns, hero: %s",
-			town->name,
+			town->getNameTranslated(),
 			treat.danger,
 			std::to_string(treat.turn),
-			treat.hero->name);
+			treat.hero->getNameTranslated());
 
 		bool treatIsUnderControl = false;
 
@@ -187,7 +187,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		if(paths.empty())
 		{
-			logAi->trace("No ways to defend town %s", town->name);
+			logAi->trace("No ways to defend town %s", town->getNameTranslated());
 
 			continue;
 		}

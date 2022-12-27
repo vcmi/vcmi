@@ -102,7 +102,7 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 		TExpType expVal = h->calculateXp(gainedExp);
 		//getText(iw,afterBattle,175,h); //wtf?
 		iw.text.addTxt(MetaString::ADVOB_TXT, 175); //%s learns something
-		iw.text.addReplacement(h->name);
+		iw.text.addReplacement(h->getNameTranslated());
 
 		if(expVal)
 			iw.components.push_back(Component(Component::EXPERIENCE,0,static_cast<si32>(expVal),0));
@@ -183,7 +183,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 				{
 					iw.text.addTxt(MetaString::ADVOB_TXT, 184); //%s learns a spell
 				}
-				iw.text.addReplacement(h->name);
+				iw.text.addReplacement(h->getNameTranslated());
 				cb->changeSpells(h, true, spellsToGive);
 				cb->showInfoDialog(&iw);
 			}
@@ -249,7 +249,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	iw.components.clear();
 	// 	getText(iw,afterBattle,183,h);
 	iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
-	iw.text.addReplacement(h->name);
+	iw.text.addReplacement(h->getNameTranslated());
 	for(auto & elem : artifacts)
 	{
 		iw.components.push_back(Component(Component::ARTIFACT,elem,0,0));
@@ -258,7 +258,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 			cb->showInfoDialog(&iw);
 			iw.components.clear();
 			iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure - once more?
-			iw.text.addReplacement(h->name);
+			iw.text.addReplacement(h->getNameTranslated());
 		}
 	}
 	if(iw.components.size())
@@ -290,7 +290,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 			iw.text.addTxt(MetaString::ADVOB_TXT, 186);
 
 		iw.text.addReplacement(loot.buildList());
-		iw.text.addReplacement(h->name);
+		iw.text.addReplacement(h->getNameTranslated());
 
 		cb->showInfoDialog(&iw);
 		cb->giveCreatures(this, h, creatures, false);
@@ -307,7 +307,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const C
 	if(afterBattle || !message.size())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,text);//%s has lost treasure.
-		iw.text.addReplacement(h->name);
+		iw.text.addReplacement(h->getNameTranslated());
 	}
 	else
 	{
@@ -323,7 +323,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 	if(afterBattle || !message.size())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,val < 0 ? negative : positive); //%s's luck takes a turn for the worse / %s's luck increases
-		iw.text.addReplacement(h->name);
+		iw.text.addReplacement(h->getNameTranslated());
 	}
 	else
 	{

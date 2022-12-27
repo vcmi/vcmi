@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "lib/CModHandler.h"
 
 #include "ScriptFixture.h"
 
@@ -29,7 +30,7 @@ void ScriptFixture::loadScriptFromFile(const std::string & path)
 
 void ScriptFixture::loadScript(const JsonNode & scriptConfig)
 {
-	subject = VLC->scriptHandler->loadFromJson(&loggerMock, "core", scriptConfig, "test");
+	subject = VLC->scriptHandler->loadFromJson(&loggerMock, CModHandler::scopeBuiltin(), scriptConfig, "test");
 
 	GTEST_ASSERT_NE(subject, nullptr);
 

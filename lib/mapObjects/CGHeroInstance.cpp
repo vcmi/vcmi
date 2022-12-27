@@ -17,6 +17,8 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
+#include "../RoadHandler.h"
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
@@ -63,7 +65,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 			return chi->commander->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
 		}
 
-		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->name);
+		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->getNameTranslated());
 		return 20;
 	}
 
@@ -81,16 +83,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType->id && from.roadType->id)
+	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
 	{
 		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
-	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
-			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
+	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
+			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->getIndex())) //no special movement bonus
 	{
 
-		ret = VLC->heroh->terrCosts[from.terType->id];
+		ret = VLC->heroh->terrCosts[from.terType->getId()];
 		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
@@ -104,53 +106,28 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	// This is clearly bug in H3 however intended behaviour is not clear.
 	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
 	// will always have best penalty without any influence from player-defined stacks order
+	// and army that consist solely from neutral will always be considered to be on native terrain
 
-	// TODO: What should we do if all hero stacks are neutral creatures?
-	TerrainId nativeTerrain = Terrain::BORDER;
+	TerrainId nativeTerrain = ETerrainId::ANY_TERRAIN;
 
 	for(auto stack : stacks)
 	{
 		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
+		if(stackNativeTerrain == ETerrainId::NONE)
 			continue;
-		if(nativeTerrain == Terrain::BORDER)
+
+		if(nativeTerrain == ETerrainId::ANY_TERRAIN)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return Terrain::BORDER;
+			return ETerrainId::NONE;
 	}
 	return nativeTerrain;
-}
-
-int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
-{
-	if (toh3m)
-	{
-		src.x+=1;
-		return src;
-	}
-	else
-	{
-		src.x-=1;
-		return src;
-	}
 }
 
 BattleField CGHeroInstance::getBattlefield() const
 {
 	return BattleField::NONE;
-}
-
-int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
-{
-	if (h3m)
-	{
-		return pos;
-	}
-	else
-	{
-		return convertPosition(pos,false);
-	}
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
@@ -188,6 +165,16 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 			}
 		}
 	}
+}
+
+int3 CGHeroInstance::convertToVisitablePos(const int3 & position) const
+{
+	return position - getVisitableOffset();
+}
+
+int3 CGHeroInstance::convertFromVisitablePos(const int3 & position) const
+{
+	return position + getVisitableOffset();
 }
 
 bool CGHeroInstance::canLearnSkill() const
@@ -322,8 +309,6 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
-	if (!name.length())
-		name = type->name;
 
 	if (sex == 0xFF)//sex is default
 		sex = type->sex;
@@ -334,6 +319,9 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		initArmy(rand);
 	}
 	assert(validTypes());
+
+	if (patrol.patrolling)
+		patrol.initialPos = visitablePos();
 
 	if(exp == 0xffffffff)
 	{
@@ -383,7 +371,7 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 
 		if(creature == nullptr)
 		{
-			logGlobal->error("Hero %s has invalid creature with id %d in initial army", name, stack.creature.toEnum());
+			logGlobal->error("Hero %s has invalid creature with id %d in initial army", getNameTranslated(), stack.creature.toEnum());
 			continue;
 		}
 
@@ -404,11 +392,11 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 				if(!getArt(slot))
 					putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
 				else
-					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", name, slot.toEnum(), aid.toEnum());
+					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTranslated(), slot.toEnum(), aid.toEnum());
 			}
 			else
 			{
-				logGlobal->error("Hero %s has invalid war machine in initial army", name);
+				logGlobal->error("Hero %s has invalid war machine in initial army", getNameTranslated());
 			}
 		}
 		else
@@ -479,19 +467,12 @@ std::string CGHeroInstance::getObjectName() const
 	if(ID != Obj::PRISON)
 	{
 		std::string hoverName = VLC->generaltexth->allTexts[15];
-		boost::algorithm::replace_first(hoverName,"%s",name);
-		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
+		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->getNameTranslated());
 		return hoverName;
 	}
 	else
 		return CGObjectInstance::getObjectName();
-}
-
-const std::string & CGHeroInstance::getBiography() const
-{
-	if (biography.length())
-		return biography;
-	return type->biography;
 }
 
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
@@ -532,7 +513,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+		auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
 		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
 		if (customApp)
 			appearance = customApp;
@@ -546,14 +527,13 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 		for(std::shared_ptr<Bonus> b : sb.bonuses)
 			addNewBonus(b);
 	for(SSpecialtyInfo & spec : type->specDeprecated)
-		for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, type->ID.getNum()))
+		for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, type->getIndex()))
 			addNewBonus(b);
 
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
-	type->name = name;
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -696,7 +676,7 @@ PlayerColor CGHeroInstance::getCasterOwner() const
 void CGHeroInstance::getCasterName(MetaString & text) const
 {
 	//FIXME: use local name, MetaString need access to gamestate as hero name is part of map object
-	text.addReplacement(name);
+	text.addReplacement(getNameTranslated());
 }
 
 void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
@@ -747,7 +727,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 	{
 		if(inSpellBook)
 		{//hero has this spell in spellbook
-			logGlobal->error("Special spell %s in spellbook.", spell->getName());
+			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
 		}
 		return specificBonus;
 	}
@@ -757,7 +737,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{
 			//hero has this spell in spellbook
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
-			logGlobal->trace("Banned spell %s in spellbook.", spell->getName());
+			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
 		}
 		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
@@ -780,19 +760,19 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
 
 	if(spell->isSpecial())
 	{
-		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getName());
+		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getNameTranslated());
 		return false;//special spells can not be learned
 	}
 
 	if(spell->isCreatureAbility())
 	{
-		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getName());
+		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getNameTranslated());
 		return false;//creature abilities can not be learned
 	}
 
 	if(!IObjectInterface::cb->isAllowed(0, spell->getIndex()))
 	{
-		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getName());
+		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
 	}
 
@@ -1005,7 +985,39 @@ void CGHeroInstance::initExp(CRandomGenerator & rand)
 
 std::string CGHeroInstance::nodeName() const
 {
-	return "Hero " + name;
+	return "Hero " + getNameTextID();
+}
+
+std::string CGHeroInstance::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CGHeroInstance::getNameTextID() const
+{
+	if (!nameCustom.empty())
+		return nameCustom;
+	if (type)
+		return type->getNameTextID();
+
+	assert(0);
+	return "";
+}
+
+std::string CGHeroInstance::getBiographyTranslated() const
+{
+	return VLC->generaltexth->translate(getBiographyTextID());
+}
+
+std::string CGHeroInstance::getBiographyTextID() const
+{
+	if (!biographyCustom.empty())
+		return biographyCustom;
+	if (type)
+		return type->getBiographyTextID();
+
+	assert(0);
+	return "";
 }
 
 void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
@@ -1121,7 +1133,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	if((int)movement < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 
-	return cb->getTile(getPosition(false))->getDiggingStatus();
+	return cb->getTile(visitablePos())->getDiggingStatus();
 }
 
 ArtBearer::ArtBearer CGHeroInstance::bearerType() const
@@ -1240,7 +1252,7 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
 	{
 		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
-		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->identifier);
+		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->getNameTranslated());
 		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
 	}
 	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
@@ -1375,7 +1387,7 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
 
-	const int distance = static_cast<int>(target->pos.dist2d(getPosition(false)));
+	const int distance = static_cast<int>(target->pos.dist2d(visitablePos()));
 
 	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
@@ -1388,11 +1400,11 @@ std::string CGHeroInstance::getHeroTypeName() const
 	{
 		if(type)
 		{
-			return type->identifier;
+			return type->getJsonKey();
 		}
 		else
 		{
-			return VLC->heroh->objects[subID]->identifier;
+			return VLC->heroh->objects[subID]->getJsonKey();
 		}
 	}
 	return "";
@@ -1413,7 +1425,7 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+		auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 
 		if(rawId)
 			subID = rawId.get();
@@ -1431,10 +1443,10 @@ void CGHeroInstance::updateFrom(const JsonNode & data)
 
 void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeString("biography", biography);
+	handler.serializeString("biography", biographyCustom);
 	handler.serializeInt("experience", exp, 0);
 
-	if (!handler.saving)
+	if(!handler.saving && exp != 0xffffffff) //do not gain levels if experience is not initialized
 	{
 		while (gainsLevel())
 		{
@@ -1442,7 +1454,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		}
 	}
 
-	handler.serializeString("name", name);
+	handler.serializeString("name", nameCustom);
 	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
 
 	{
@@ -1532,7 +1544,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 				if(rawId < 0 || rawId >= VLC->skillh->size())
 					logGlobal->error("Invalid secondary skill %d", rawId);
 
-				handler.serializeEnum((*VLC->skillh)[SecondarySkill(rawId)]->identifier, p.second, 0, NSecondarySkill::levels);
+				handler.serializeEnum((*VLC->skillh)[SecondarySkill(rawId)]->getJsonKey(), p.second, 0, NSecondarySkill::levels);
 			}
 		}
 	}
@@ -1611,7 +1623,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!handler.saving)
 		{
 			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
-			patrol.initialPos = convertPosition(pos, false);
+			patrol.initialPos = visitablePos();
 			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
 		}
 	}

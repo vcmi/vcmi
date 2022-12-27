@@ -141,12 +141,15 @@ public:
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
 	void artifactRemoved(const ArtifactLocation &al);
 	void artifactUpdateSlots(const ArtifactLocation &al);
-	ArtPlacePtr getArtPlace(int slot);//may return null
+	ArtPlacePtr getArtPlace(ArtifactPosition slot);//may return null
 
 	void setHero(const CGHeroInstance * hero);
 	const CGHeroInstance *getHero() const;
 	void dispose(); //free resources not needed after closing windows and reset state
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
+
+	void activate() override;
+	void deactivate() override;
 
 	void safeRedraw();
 	void markPossibleSlots(const CArtifactInstance* art);

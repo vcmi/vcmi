@@ -12,6 +12,7 @@
 #include "WaterProxy.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
@@ -42,8 +43,9 @@ void WaterProxy::process()
 	//check terrain type
 	for(auto & t : zone.area().getTilesVector())
 	{
+		MAYBE_UNUSED(t);
 		assert(map.isOnMap(t));
-		assert(map.map().getTile(t).terType->id == zone.getTerrainType());
+		assert(map.map().getTile(t).terType->getId() == zone.getTerrainType());
 	}
 	
 	for(auto z : map.getZones())
@@ -53,7 +55,7 @@ void WaterProxy::process()
 		
 		for(auto & t : z.second->area().getTilesVector())
 		{
-			if(map.map().getTile(t).terType->id == zone.getTerrainType())
+			if(map.map().getTile(t).terType->getId() == zone.getTerrainType())
 			{
 				z.second->areaPossible().erase(t);
 				z.second->area().erase(t);

@@ -16,12 +16,16 @@
 #include "RmgMap.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "../CModHandler.h"
 #include "RmgPath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void RoadPlacer::process()
 {
+	if(generator.getConfig().defaultRoadType.empty() && generator.getConfig().secondaryRoadType.empty())
+		return; //do not generate roads at all
+	
 	connectRoads();
 }
 
@@ -68,11 +72,16 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads(bool secondary)
 {
+	if((secondary && generator.getConfig().secondaryRoadType.empty())
+	   || (!secondary && generator.getConfig().defaultRoadType.empty()))
+		return;
+	
 	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
-	std::string roadCode = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	RoadId roadType = VLC->terrainTypeHandler->getRoadByCode(roadCode)->id;
+
+	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
+	RoadId roadType(*VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "road", roadName));
 	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 

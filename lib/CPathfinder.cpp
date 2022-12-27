@@ -141,7 +141,7 @@ NodeStorage::NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
 	:out(pathsInfo)
 {
 	out.hero = hero;
-	out.hpos = hero->getPosition(false);
+	out.hpos = hero->visitablePos();
 }
 
 void NodeStorage::resetTile(
@@ -254,16 +254,6 @@ PathfinderConfig::PathfinderConfig(
 {
 }
 
-CPathfinder::CPathfinder(
-	CPathsInfo & _out,
-	CGameState * _gs,
-	const CGHeroInstance * _hero)
-	: CPathfinder(
-		_gs,
-		std::make_shared<SingleHeroPathfinderConfig>(_out, _gs, _hero))
-{
-}
-
 std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::buildRuleSet()
 {
 	return std::vector<std::shared_ptr<IPathfindingRule>>{
@@ -289,7 +279,7 @@ CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(cons
 CPathfinder::CPathfinder(
 	CGameState * _gs,
 	std::shared_ptr<PathfinderConfig> config)
-	: CGameInfoCallback(_gs, boost::optional<PlayerColor>())
+	: gamestate(_gs)
 	, config(config)
 	, source()
 	, destination()
@@ -329,14 +319,14 @@ void CPathfinder::calculatePaths()
 
 	for(auto initialNode : initialNodes)
 	{
-		if(!isInTheMap(initialNode->coord)/* || !gs->map->isInTheMap(dest)*/) //check input
+		if(!gamestate->isInTheMap(initialNode->coord)/* || !gs->map->isInTheMap(dest)*/) //check input
 		{
 			logGlobal->error("CGameState::calculatePaths: Hero outside the gs->map? How dare you...");
 			throw std::runtime_error("Wrong checksum");
 		}
 
-		source.setNode(gs, initialNode);
-		auto hlp = config->getOrCreatePathfinderHelper(source, gs);
+		source.setNode(gamestate, initialNode);
+		auto hlp = config->getOrCreatePathfinderHelper(source, gamestate);
 
 		if(hlp->isHeroPatrolLocked())
 			continue;
@@ -349,14 +339,14 @@ void CPathfinder::calculatePaths()
 		counter++;
 		auto node = topAndPop();
 
-		source.setNode(gs, node);
+		source.setNode(gamestate, node);
 		source.node->locked = true;
 
 		int movement = source.node->moveRemains;
 		uint8_t turn = source.node->turns;
 		float cost = source.node->getCost();
 
-		auto hlp = config->getOrCreatePathfinderHelper(source, gs);
+		auto hlp = config->getOrCreatePathfinderHelper(source, gamestate);
 
 		hlp->updateTurnInfo(turn);
 		if(!movement)
@@ -368,7 +358,7 @@ void CPathfinder::calculatePaths()
 		}
 
 		source.isInitialPosition = source.nodeHero == hlp->hero;
-		source.updateInfo(hlp, gs);
+		source.updateInfo(hlp, gamestate);
 
 		//add accessible neighbouring nodes to the queue
 		auto neighbourNodes = config->nodeStorage->calculateNeighbours(source, config.get(), hlp);
@@ -380,8 +370,8 @@ void CPathfinder::calculatePaths()
 			if(!hlp->isLayerAvailable(neighbour->layer))
 				continue;
 
-			destination.setNode(gs, neighbour);
-			hlp = config->getOrCreatePathfinderHelper(destination, gs);
+			destination.setNode(gamestate, neighbour);
+			hlp = config->getOrCreatePathfinderHelper(destination, gamestate);
 
 			if(!hlp->isPatrolMovementAllowed(neighbour->coord))
 				continue;
@@ -393,7 +383,7 @@ void CPathfinder::calculatePaths()
 			destination.turn = turn;
 			destination.movementLeft = movement;
 			destination.cost = cost;
-			destination.updateInfo(hlp, gs);
+			destination.updateInfo(hlp, gamestate);
 			destination.isGuardianTile = destination.guarded && isDestinationGuardian();
 
 			for(auto rule : config->rules)
@@ -410,7 +400,7 @@ void CPathfinder::calculatePaths()
 		} //neighbours loop
 
 		//just add all passable teleport exits
-		hlp = config->getOrCreatePathfinderHelper(source, gs);
+		hlp = config->getOrCreatePathfinderHelper(source, gamestate);
 
 		/// For now we disable teleports usage for patrol movement
 		/// VCAI not aware about patrol and may stuck while attempt to use teleport
@@ -430,7 +420,7 @@ void CPathfinder::calculatePaths()
 			if(teleportNode->accessible == CGPathNode::BLOCKED)
 				continue;
 
-			destination.setNode(gs, teleportNode);
+			destination.setNode(gamestate, teleportNode);
 			destination.turn = turn;
 			destination.movementLeft = movement;
 			destination.cost = cost;
@@ -625,7 +615,7 @@ void LayerTransitionRule::process(
 		else if(destination.node->accessible != CGPathNode::ACCESSIBLE)
 		{
 			/// Hero that fly can only land on accessible tiles
-			if(!destination.isGuardianTile && destination.nodeObject)
+			if(destination.nodeObject)
 				destination.blocked = true;
 		}
 
@@ -903,7 +893,7 @@ CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return gs->guardingCreaturePosition(destination.node->coord) == destination.node->coord;
+	return gamestate->guardingCreaturePosition(destination.node->coord) == destination.node->coord;
 }
 
 void CPathfinderHelper::initializePatrol()
@@ -927,7 +917,7 @@ void CPathfinderHelper::initializePatrol()
 void CPathfinder::initializeGraph()
 {
 	INodeStorage * nodeStorage = config->nodeStorage.get();
-	nodeStorage->initialize(config->options, gs);
+	nodeStorage->initialize(config->options, gamestate);
 }
 
 bool CPathfinderHelper::canMoveBetween(const int3 & a, const int3 & b) const
@@ -1010,10 +1000,10 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 
 TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 {
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
 		noTerrainPenalty.push_back(static_cast<bool>(
-				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(terrain.id)))));
+				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(terrain->getIndex())))));
 	}
 
 	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
@@ -1028,7 +1018,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 	: hero(Hero), maxMovePointsLand(-1), maxMovePointsWater(-1)
 {
 	bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, nullptr, "");
-	bonusCache = make_unique<BonusCache>(bonuses);
+	bonusCache = std::make_unique<BonusCache>(bonuses);
 	nativeTerrain = hero->getNativeTerrain();
 }
 
@@ -1230,7 +1220,7 @@ int CPathfinderHelper::getMovementCost(
 	/// TODO: by the original game rules hero shouldn't be affected by terrain penalty while flying.
 	/// Also flying movement only has penalty when player moving over blocked tiles.
 	/// So if you only have base flying with 40% penalty you can still ignore terrain penalty while having zero flying penalty.
-	ui32 ret = hero->getTileCost(*dt, *ct, ti);
+	int ret = hero->getTileCost(*dt, *ct, ti);
 	/// Unfortunately this can't be implemented yet as server don't know when player flying and when he's not.
 	/// Difference in cost calculation on client and server is much worse than incorrect cost.
 	/// So this one is waiting till server going to use pathfinder rules for path validation.
@@ -1290,17 +1280,6 @@ int3 CGPath::startPos() const
 int3 CGPath::endPos() const
 {
 	return nodes[0].coord;
-}
-
-void CGPath::convert(ui8 mode)
-{
-	if(mode==0)
-	{
-		for(auto & elem : nodes)
-		{
-			elem.coord = CGHeroInstance::convertPosition(elem.coord,true);
-		}
-	}
 }
 
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)

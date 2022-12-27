@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include <SDL.h>
 #include "CVideoHandler.h"
 
 #include "gui/CGuiHandler.h"
@@ -67,8 +66,8 @@ CVideoPlayer::CVideoPlayer()
 	context = nullptr;
 	texture = nullptr;
 	dest = nullptr;
-	destRect = genRect(0,0,0,0);
-	pos = genRect(0,0,0,0);
+	destRect = CSDL_Ext::genRect(0,0,0,0);
+	pos = CSDL_Ext::genRect(0,0,0,0);
 	refreshWait = 0;
 	refreshCount = 0;
 	doLoop = false;
@@ -339,10 +338,10 @@ void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
 
 	pos.x = x;
 	pos.y = y;
-	CSDL_Ext::blitSurface(dest, &destRect, dst, &pos);
+	CSDL_Ext::blitSurface(dest, destRect, dst, pos.topLeft());
 
 	if (update)
-		SDL_UpdateRect(dst, pos.x, pos.y, pos.w, pos.h);
+		CSDL_Ext::updateRect(dst, pos);
 }
 
 void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
@@ -442,7 +441,9 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 		if(stopOnKey && keyDown())
 			return false;
 
-		SDL_RenderCopy(mainRenderer, texture, nullptr, &pos);
+		SDL_Rect rect = CSDL_Ext::toSDL(pos);
+
+		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
 		SDL_RenderPresent(mainRenderer);
 
 		// Wait 3 frames

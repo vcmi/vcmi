@@ -16,7 +16,6 @@
 #include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
-#include "Terrain.h"
 #include "StringConstants.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
@@ -34,14 +33,9 @@ int32_t CCreature::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & CCreature::getName() const
+std::string CCreature::getJsonKey() const
 {
-	return nameSing;//???
-}
-
-const std::string & CCreature::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 void CCreature::registerIcons(const IconRegistar & cb) const
@@ -63,16 +57,6 @@ const IBonusBearer * CCreature::accessBonuses() const
 uint32_t CCreature::getMaxHealth() const
 {
 	return CBonusSystemNode::MaxHealth();
-}
-
-const std::string & CCreature::getPluralName() const
-{
-	return namePl;
-}
-
-const std::string & CCreature::getSingularName() const
-{
-	return nameSing;
 }
 
 int32_t CCreature::getAdvMapAmountMin() const
@@ -169,6 +153,36 @@ int32_t CCreature::getCost(int32_t resIndex) const
 		return cost[resIndex];
 	else
 		return 0;
+}
+
+std::string CCreature::getNameTranslated() const
+{
+	return getNameSingularTranslated();
+}
+
+std::string CCreature::getNamePluralTranslated() const
+{
+	return VLC->generaltexth->translate(getNamePluralTextID());
+}
+
+std::string CCreature::getNameSingularTranslated() const
+{
+	return VLC->generaltexth->translate(getNameSingularTextID());
+}
+
+std::string CCreature::getNameTextID() const
+{
+	return getNameSingularTextID();
+}
+
+std::string CCreature::getNamePluralTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "name", "plural" ).get();
+}
+
+std::string CCreature::getNameSingularTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "name", "singular" ).get();
 }
 
 int CCreature::getQuantityID(const int & quantity)
@@ -282,13 +296,13 @@ bool CCreature::valid() const
 
 std::string CCreature::nodeName() const
 {
-	return "\"" + namePl + "\"";
+	return "\"" + getNamePluralTextID() + "\"";
 }
 
 bool CCreature::isItNativeTerrain(TerrainId terrain) const
 {
 	auto native = getNativeTerrain();
-	return native == terrain || native == Terrain::ANY_TERRAIN;
+	return native == terrain || native == ETerrainId::ANY_TERRAIN;
 }
 
 TerrainId CCreature::getNativeTerrain() const
@@ -299,7 +313,7 @@ TerrainId CCreature::getNativeTerrain() const
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
 	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
-		? Terrain::ANY_TERRAIN
+		? TerrainId(ETerrainId::ANY_TERRAIN)
 		: (*VLC->townh)[faction]->nativeTerrain;
 }
 
@@ -345,12 +359,6 @@ void CCreature::updateFrom(const JsonNode & data)
 
 void CCreature::serializeJson(JsonSerializeFormat & handler)
 {
-	{
-		auto nameNode = handler.enterStruct("name");
-		handler.serializeString("singular", nameSing);
-		handler.serializeString("plural", namePl);
-	}
-
 	handler.serializeInt("fightValue", fightValue);
 	handler.serializeInt("aiValue", AIValue);
 	handler.serializeInt("growth", growth);
@@ -425,7 +433,7 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 void CCreatureHandler::loadCommanders()
 {
 	JsonNode data(ResourceID("config/commanders.json"));
-	data.setMeta("core"); // assume that commanders are in core mod (for proper bonuses resolution)
+	data.setMeta(CModHandler::scopeBuiltin()); // assume that commanders are in core mod (for proper bonuses resolution)
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -585,6 +593,9 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	auto cre = new CCreature();
 
 	if(node["hasDoubleWeek"].Bool())
@@ -594,11 +605,15 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->idNumber = CreatureID(index);
 	cre->iconIndex = cre->getIndex() + 2;
 	cre->identifier = identifier;
+	cre->modScope = scope;
 
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
 	cre->cost = Res::ResourceSet(node["cost"]);
+
+	VLC->generaltexth->registerString(cre->getNameSingularTextID(), node["name"]["singular"].String());
+	VLC->generaltexth->registerString(cre->getNamePluralTextID(), node["name"]["plural"].String());
 
 	cre->addBonus(node["hitPoints"].Integer(), Bonus::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), Bonus::STACKS_SPEED);

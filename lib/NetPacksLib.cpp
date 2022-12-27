@@ -27,6 +27,7 @@
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
 #include "CPlayerState.h"
+#include "TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -418,7 +419,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
-			return asi.artifact->artType->id == ArtifactID::GRAIL;
+			return asi.artifact->artType->getId() == ArtifactID::GRAIL;
 		});
 
 		if(beatenHero->visitedTown)
@@ -550,7 +551,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
-		const TerrainTile &tt = gs->map->getTile(CGHeroInstance::convertPosition(end, false));
+		const TerrainTile &tt = gs->map->getTile(h->convertToVisitablePos(end));
 		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
 		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
 
@@ -703,35 +704,39 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	//bonus system
 	h->detachFrom(gs->globalEffects);
 	h->attachTo(*gs->getPlayerState(player));
+
+	auto oldVisitablePos = h->visitablePos();
+	gs->map->removeBlockVisTiles(h,true);
 	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
 
-	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
+	h->pos = h->convertFromVisitablePos(oldVisitablePos);
 	gs->map->heroesOnMap.push_back(h);
 	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
+
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
 }
 
 DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 {
-	TerrainId terrainType = Terrain::BORDER;
+	TerrainId terrainType = ETerrainId::NONE;
 
 	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain::WATER).front();
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
-		UNUSED(previousXAxisTile);
+		MAYBE_UNUSED(previousXAxisTile);
 	}
 	else
 	{
 		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType->id;
+		terrainType = t.terType->getId();
 	}
 
 	CGObjectInstance *o = nullptr;
@@ -739,7 +744,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 	case Obj::BOAT:
 		o = new CGBoat();
-		terrainType = Terrain::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
+		terrainType = ETerrainId::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
 	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();
@@ -952,7 +957,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			UNUSED(c);
+			MAYBE_UNUSED(c);
 			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto artHere = alHere.getArt();
@@ -1003,7 +1008,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
-			UNUSED(c);
+			MAYBE_UNUSED(c);
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -1056,7 +1061,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	auto slot = al.getSlot();
 	if(slot->locked)
 	{
-		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getName());
+		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		auto aset = al.getHolderArtSet();
@@ -1076,12 +1081,12 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 			}
 		}
 		assert(found && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->getName());
+		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->getNameTranslated());
 		dis.applyGs(gs);
 	}
 	else
 	{
-		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getName());
+		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
 	}
 	al.removeArtifact();
 }
@@ -1171,16 +1176,19 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
-	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet, combineEquipped), builtArt));
-	UNUSED(transformedArt);
+	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
+		{
+			return art->getId() == builtArt->getId();
+		}));
+	MAYBE_UNUSED(transformedArt);
 
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
 	{
-		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->id, true, false) :
-			artSet->getArtBackpackPos(constituent->id);
+		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->getId(), true, false) :
+			artSet->getArtBackpackPos(constituent->getId());
 		assert(pos >= 0);
 		CArtifactInstance * constituentInstance = artSet->getArt(pos);
 
@@ -1663,6 +1671,7 @@ DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 		case BattleChanges::EOperation::ADD:
 			battleState->addObstacle(change);
 			break;
+		case BattleChanges::EOperation::ACTIVATE_AND_UPDATE:
 		case BattleChanges::EOperation::UPDATE:
 			battleState->updateObstacle(change);
 			break;
@@ -1699,7 +1708,7 @@ DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
 
 	for(const auto & part : attackedParts)
 	{
-		auto newWallState = SiegeInfo::applyDamage(EWallState::EWallState(battleState->getWallState(part.attackedPart)), part.damageDealt);
+		auto newWallState = SiegeInfo::applyDamage(battleState->getWallState(part.attackedPart), part.damageDealt);
 		battleState->setWallState(part.attackedPart, newWallState);
 	}
 }

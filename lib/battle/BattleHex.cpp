@@ -140,15 +140,26 @@ std::vector<BattleHex> BattleHex::neighbouringTiles() const
 	return ret;
 }
 
-signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
+std::vector<BattleHex> BattleHex::allNeighbouringTiles() const
+{
+	std::vector<BattleHex> ret;
+	ret.resize(6);
+
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+		ret[dir] = cloneInDirection(dir, false);
+
+	return ret;
+}
+
+BattleHex::EDir BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
 	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
 		if(hex2 == hex1.cloneInDirection(dir,false))
 			return dir;
-	return INVALID;
+	return NONE;
 }
 
-char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
+uint8_t BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 {
 	int y1 = hex1.getY(), y2 = hex2.getY();
 

@@ -14,6 +14,12 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 
+#ifdef __UCLIBC__
+#undef major
+#undef minor
+#undef patch
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;
@@ -277,7 +283,19 @@ class DLL_LINKAGE CModHandler
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 public:
-	
+
+	/// returns true if scope is reserved for internal use and can not be used by mods
+	static bool isScopeReserved(const TModID & scope);
+
+	/// reserved scope name for referencing built-in (e.g. H3) objects
+	static const TModID & scopeBuiltin();
+
+	/// reserved scope name for accessing objects from any loaded mod
+	static const TModID & scopeGame();
+
+	/// reserved scope name for accessing object for map loading
+	static const TModID & scopeMap();
+
 	class DLL_LINKAGE Incompatibility: public std::exception
 	{
 	public:
@@ -340,6 +358,10 @@ public:
 		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 		bool NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
+		double ATTACK_POINT_DMG_MULTIPLIER;
+		double ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+		double DEFENSE_POINT_DMG_MULTIPLIER;
+		double DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -355,6 +377,10 @@ public:
 			h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 			h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 			h & NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
+			h & ATTACK_POINT_DMG_MULTIPLIER;
+			h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+			h & DEFENSE_POINT_DMG_MULTIPLIER;
+			h & DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
 		}
 	} settings;
 

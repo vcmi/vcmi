@@ -214,8 +214,6 @@
 			"siege" :
 			{
 				"shooter" : "lich",
-				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
-				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGNC",
 				"gate" :
 				{
@@ -224,7 +222,7 @@
 				},
 				"moat" :
 				{
-					"bank" : { "x" : -1, "y" : -1 },
+					"bank" : { "x" : -1, "y" : -1 }, // Should not be present
 					"moat" : { "x" : 406, "y" : 77 }
 				},
 				"static" :

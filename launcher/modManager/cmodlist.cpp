@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "cmodlist.h"
 
+#include "../lib/CConfigHandler.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
@@ -18,7 +19,6 @@ namespace
 {
 bool isCompatible(const QString & verMin, const QString & verMax)
 {
-	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
 	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
 							   VCMI_VERSION_MINOR,
 							   VCMI_VERSION_PATCH);
@@ -26,12 +26,14 @@ bool isCompatible(const QString & verMin, const QString & verMax)
 	auto versionMin = QVersionNumber::fromString(verMin);
 	auto versionMax = QVersionNumber::fromString(verMax);
 	
-	auto buildVersion = [maxSections](QVersionNumber & ver)
+	auto buildVersion = [](QVersionNumber & ver)
 	{
+		const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
+
 		if(ver.segmentCount() < maxSections)
 		{
 			auto segments = ver.segments();
-			for(int i = segments.size() - 1; i < maxSections; ++i)
+			for(int i = segments.size(); i < maxSections; ++i)
 				segments.append(0);
 			ver = QVersionNumber(segments);
 		}
@@ -124,7 +126,7 @@ bool CModEntry::isCompatible() const
 
 bool CModEntry::isEssential() const
 {
-	return getValue("storedLocaly").toBool();
+	return getName() == "vcmi";
 }
 
 bool CModEntry::isInstalled() const
@@ -157,23 +159,34 @@ QString CModEntry::getName() const
 
 QVariant CModEntry::getValue(QString value) const
 {
+	QString langValue = QString::fromStdString(settings["general"]["language"].String());
+
+	// Priorities
+	// 1) data from newest version
+	// 2) data from preferred language
+
+	bool useRepositoryData = repository.contains(value);
+
 	if(repository.contains(value) && localData.contains(value))
 	{
 		// value is present in both repo and locally installed. Select one from latest version
 		QString installedVer = localData["installedVersion"].toString();
 		QString availableVer = repository["latestVersion"].toString();
 
-		if(compareVersions(installedVer, availableVer))
-			return repository[value];
-		else
-			return localData[value];
+		useRepositoryData = compareVersions(installedVer, availableVer);
 	}
 
-	if(repository.contains(value))
-		return repository[value];
+	auto & storage = useRepositoryData ? repository : localData;
 
-	if(localData.contains(value))
-		return localData[value];
+	if(storage.contains(langValue))
+	{
+		auto langStorage = storage[langValue].toMap();
+		if (langStorage.contains(value))
+			return langStorage[value];
+	}
+
+	if(storage.contains(value))
+		return storage[value];
 
 	return QVariant();
 }

@@ -71,7 +71,7 @@ void CMessage::init()
 {
 	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = make_unique<CAnimation>("DIALGBOX");
+		dialogBorders[i] = std::make_unique<CAnimation>("DIALGBOX");
 		dialogBorders[i]->preload();
 
 		for(int j=0; j < dialogBorders[i]->size(0); j++)
@@ -102,9 +102,7 @@ SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 	{
 		for (int j=0; j<h; j+=background->h)
 		{
-			Rect srcR(0,0,background->w, background->h);
-			Rect dstR(i,j,w,h);
-			CSDL_Ext::blitSurface(background, &srcR, ret, &dstR);
+			CSDL_Ext::blitSurface(background, ret, Point(i,j));
 		}
 	}
 	drawBorder(playerColor, ret, w, h);

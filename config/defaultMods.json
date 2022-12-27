@@ -10,6 +10,9 @@
 		"hero"       : 156,
 		"spell"      : 81,
 		"object"     : 256,
+		"terrain"    : 10,
+		"river"      : 5,
+		"road"       : 4,
 		"mapVersion" : 28 // max supported version, SoD
 	},
 
@@ -26,7 +29,11 @@
 		"MAX_HEROES_ON_MAP_PER_PLAYER" : 8,
 		"WINNING_HERO_WITH_NO_TROOPS_RETREATS": true,
 		"BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE": true,
-		"NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS": false
+		"NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS": false,
+		"ATTACK_POINT_DMG_MULTIPLIER": 0.05, //every 1 attack point damage influence in battle when attack points > defense points during creature attack
+		"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0, //limit of damage increase that can be achieved by overpowering attack points
+		"DEFENSE_POINT_DMG_MULTIPLIER": 0.025, //every 1 defense point damage influence in battle when defense points > attack points during creature attack
+		"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7 //limit of damage reduction that can be achieved by overpowering defense points
 	},
 	"modules":
 	{

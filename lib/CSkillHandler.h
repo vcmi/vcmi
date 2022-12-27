@@ -25,7 +25,6 @@ class DLL_LINKAGE CSkill : public Skill
 public:
 	struct LevelInfo
 	{
-		std::string description; //descriptions of spell for skill level
 		std::string iconSmall;
 		std::string iconMedium;
 		std::string iconLarge;
@@ -36,7 +35,6 @@ public:
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & description;
 			h & iconSmall;
 			h & iconMedium;
 			h & iconLarge;
@@ -48,25 +46,31 @@ private:
 	std::vector<LevelInfo> levels; // bonuses provided by basic, advanced and expert level
 	void addNewBonus(const std::shared_ptr<Bonus> & b, int level);
 
+	SecondarySkill id;
+	std::string modScope;
+	std::string identifier;
+
 public:
 	CSkill(SecondarySkill id = SecondarySkill::DEFAULT, std::string identifier = "default");
 	~CSkill();
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	SecondarySkill getId() const override;
+
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
+
+	std::string getDescriptionTextID(int level) const;
+	std::string getDescriptionTranslated(int level) const;
 
 	const LevelInfo & at(int level) const;
 	LevelInfo & at(int level);
 
 	std::string toString() const;
 
-	SecondarySkill id;
-	std::string identifier;
-	std::string name; //as displayed in GUI
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 
 	void updateFrom(const JsonNode & data);
@@ -76,7 +80,6 @@ public:
 	{
 		h & id;
 		h & identifier;
-		h & name;
 		h & gainChance;
 		h & levels;
 	}
@@ -86,7 +89,7 @@ public:
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
 };
 
-class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSkill, SkillService>
+class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill, CSkill, SkillService>
 {
 public:
 	CSkillHandler();
@@ -98,9 +101,6 @@ public:
 	void beforeValidate(JsonNode & object) override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-
-	const std::string & skillInfo(int skill, int level) const;
-	const std::string & skillName(int skill) const;
 
 	///json serialization helpers
 	static si32 decodeSkill(const std::string & identifier);

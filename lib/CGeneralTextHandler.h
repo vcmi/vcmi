@@ -91,61 +91,137 @@ public:
 	CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
 };
 
-class DLL_LINKAGE CGeneralTextHandler //Handles general texts
+class CGeneralTextHandler;
+
+/// Small wrapper that provides text access API compatible with old code
+class DLL_LINKAGE LegacyTextContainer
 {
+	CGeneralTextHandler & owner;
+	std::string basePath;
+
 public:
-	JsonNode localizedTexts;
+	LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath);
+	std::string operator [](size_t index) const;
+};
 
-	std::vector<std::string> allTexts;
+/// Small wrapper that provides help text access API compatible with old code
+class DLL_LINKAGE LegacyHelpContainer
+{
+	CGeneralTextHandler & owner;
+	std::string basePath;
 
-	std::vector<std::string> arraytxt;
-	std::vector<std::string> primarySkillNames;
-	std::vector<std::string> jktexts;
-	std::vector<std::string> heroscrn;
-	std::vector<std::string> overview;//text for Kingdom Overview window
-	std::vector<std::string> colors; //names of player colors ("red",...)
-	std::vector<std::string> capColors; //names of player colors with first letter capitalized ("Red",...)
-	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
+public:
+	LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath);
+	std::pair<std::string, std::string> operator[](size_t index) const;
+};
+
+class TextIdentifier
+{
+	std::string identifier;
+public:
+	std::string const & get() const
+	{
+		return identifier;
+	}
+
+	TextIdentifier(const char * id):
+		identifier(id)
+	{}
+
+	TextIdentifier(std::string const & id):
+		identifier(id)
+	{}
+
+	template<typename ... T>
+	TextIdentifier(std::string const & id, size_t index, T ... rest):
+		TextIdentifier(id + '.' + std::to_string(index), rest ... )
+	{}
+
+	template<typename ... T>
+	TextIdentifier(std::string const & id, std::string const & id2, T ... rest):
+		TextIdentifier(id + '.' + id2, rest ... )
+	{}
+};
+
+/// Handles all text-related data in game
+class DLL_LINKAGE CGeneralTextHandler
+{
+	/// map identifier -> localization
+	std::unordered_map<std::string, std::string> stringsLocalizations;
+
+	/// map localization -> identifier
+	std::unordered_map<std::string, std::string> stringsIdentifiers;
+
+	void readToVector(const std::string & sourceID, const std::string & sourceName);
+
+	/// number of scenarios in specific campaign. TODO: move to a better location
+	std::vector<size_t> scenariosCountPerCampaign;
+public:
+	/// add selected string to internal storage
+	void registerString(const TextIdentifier & UID, const std::string & localized);
+
+	// returns true if identifier with such name was registered, even if not translated to current language
+	// not required right now, can be added if necessary
+	// bool identifierExists( const std::string identifier) const;
+
+	/// returns translated version of a string that can be displayed to user
+	template<typename  ... Args>
+	std::string translate(std::string arg1, Args ... args) const
+	{
+		TextIdentifier id(arg1, args ...);
+		return deserialize(id);
+	}
+
+	/// converts translated string into locale-independent text that can be sent to another client
+	const std::string & serialize(const std::string & identifier) const;
+
+	/// converts identifier into user-readable string
+	const std::string & deserialize(const TextIdentifier & identifier) const;
+
+	/// Debug method, dumps all currently known texts into console using Json-like format
+	void dumpAllTexts();
+
+	LegacyTextContainer allTexts;
+
+	LegacyTextContainer arraytxt;
+	LegacyTextContainer primarySkillNames;
+	LegacyTextContainer jktexts;
+	LegacyTextContainer heroscrn;
+	LegacyTextContainer overview;//text for Kingdom Overview window
+	LegacyTextContainer colors; //names of player colors ("red",...)
+	LegacyTextContainer capColors; //names of player colors with first letter capitalized ("Red",...)
+	LegacyTextContainer turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
 
 	//towns
-	std::vector<std::string> tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
-	std::vector<std::string> tavernInfo;
-	std::vector<std::string> tavernRumors;
+	LegacyTextContainer tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
+	LegacyTextContainer tavernInfo;
+	LegacyTextContainer tavernRumors;
 
-	std::vector<std::string> qeModCommands;
+	LegacyTextContainer qeModCommands;
 
-	std::vector<std::pair<std::string,std::string>> zelp;
-	std::vector<std::string> lossCondtions;
-	std::vector<std::string> victoryConditions;
+	LegacyHelpContainer zelp;
+	LegacyTextContainer lossCondtions;
+	LegacyTextContainer victoryConditions;
 
 	//objects
-	std::vector<std::string> creGens; //names of creatures' generators
-	std::vector<std::string> creGens4; //names of multiple creatures' generators
-	std::vector<std::string> advobtxt;
-	std::vector<std::string> xtrainfo;
-	std::vector<std::string> restypes; //names of resources
-	std::map<TerrainId, std::string> terrainNames;
-	std::vector<std::string> randsign;
-	std::vector<std::pair<std::string,std::string>> mines; //first - name; second - event description
-	std::vector<std::string> seerEmpty;
-	std::vector<std::vector<std::vector<std::string>>>  quests; //[quest][type][index]
-	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
-	std::vector<std::string> seerNames;
-	std::vector<std::string> tentColors;
+	LegacyTextContainer advobtxt;
+	LegacyTextContainer xtrainfo;
+	LegacyTextContainer restypes; //names of resources
+	LegacyTextContainer randsign;
+	LegacyTextContainer seerEmpty;
+	LegacyTextContainer seerNames;
+	LegacyTextContainer tentColors;
 
 	//sec skills
-	std::vector<std::string> levels;
-	std::vector<std::string> zcrexp; //more or less useful content of that file
+	LegacyTextContainer levels;
 	//commanders
-	std::vector<std::string> znpc00; //more or less useful content of that file
+	LegacyTextContainer znpc00; //more or less useful content of that file
 
-	//campaigns
-	std::vector<std::string> campaignMapNames;
-	std::vector<std::vector<std::string>> campaignRegionNames;
-
-	static void readToVector(std::string sourceName, std::vector<std::string> &dest);
+	std::vector<std::string> findStringsWithPrefix(std::string const & prefix);
 
 	int32_t pluralText(const int32_t textIndex, const int32_t count) const;
+
+	size_t getCampaignLength(size_t campaignID) const;
 
 	CGeneralTextHandler();
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;

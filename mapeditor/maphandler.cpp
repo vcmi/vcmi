@@ -12,6 +12,9 @@
 #include "StdInc.h"
 #include "maphandler.h"
 #include "graphics.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
@@ -65,7 +68,7 @@ void MapHandler::initTerrainGraphics()
 	{
 		for(auto & type : files)
 		{
-			animation[type.first] = make_unique<Animation>(type.second);
+			animation[type.first] = std::make_unique<Animation>(type.second);
 			animation[type.first]->preload();
 			const size_t views = animation[type.first]->size(0);
 			cache[type.first].resize(views);
@@ -78,17 +81,17 @@ void MapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> roadFiles;
 	std::map<std::string, std::string> riverFiles;
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain.name] = terrain.tilesFilename;
+		terrainFiles[terrain->getJsonKey()] = terrain->tilesFilename;
 	}
-	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river.fileName] = river.fileName;
+		riverFiles[river->getJsonKey()] = river->tilesFilename;
 	}
-	for(const auto & road : VLC->terrainTypeHandler->roads())
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road.fileName] = road.fileName;
+		roadFiles[road->getJsonKey()] = road->tilesFilename;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -101,8 +104,7 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	//TODO: use ui8 instead of string key
-	auto terrainName = tinfo.terType->name;
+	auto terrainName = tinfo.terType->getJsonKey();
 	
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
@@ -116,9 +118,9 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
 	
-	if(tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
+	if(tinfoUpper && tinfoUpper->roadType->getId() != Road::NO_ROAD)
 	{
-		auto roadName = tinfoUpper->roadType->fileName;
+		auto roadName = tinfoUpper->roadType->getJsonKey();
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -128,9 +130,9 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		}
 	}
 	
-	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
+	if(tinfo.roadType->getId() != Road::NO_ROAD) //print road from this tile
 	{
-		auto roadName = tinfo.roadType->fileName;
+		auto roadName = tinfo.roadType->getJsonKey();;
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -145,11 +147,11 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 {
 	auto & tinfo = map->getTile(int3(x, y, z));
 
-	if(tinfo.riverType->id == River::NO_RIVER)
+	if(tinfo.riverType->getId() == River::NO_RIVER)
 		return;
 	
 	//TODO: use ui8 instead of string key
-	auto riverName = tinfo.riverType->fileName;
+	auto riverName = tinfo.riverType->getJsonKey();
 
 	if(riverImages.at(riverName).size() <= tinfo.riverDir)
 		return;

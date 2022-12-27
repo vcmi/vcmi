@@ -19,6 +19,8 @@ boost::mutex CConsoleHandler::smx;
 
 DLL_LINKAGE CConsoleHandler * console = nullptr;
 
+VCMI_LIB_NAMESPACE_END
+
 #ifndef VCMI_WINDOWS
 	typedef std::string TColor;
 	#define CONSOLE_GREEN "\x1b[1;32m"
@@ -50,6 +52,8 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 #endif
 
 static TColor defColor;
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 #ifdef VCMI_WINDOWS
 
@@ -226,7 +230,7 @@ int CConsoleHandler::run()
 		{
 			if ( getline(std::cin, buffer).good() )
 				if ( cb && *cb )
-					(*cb)(buffer);
+					(*cb)(buffer, false);
 		}
 		else
 			boost::this_thread::sleep(boost::posix_time::millisec(100));
@@ -235,7 +239,7 @@ int CConsoleHandler::run()
 #else
 		std::getline(std::cin, buffer);
 		if ( cb && *cb )
-			(*cb)(buffer);
+			(*cb)(buffer, false);
 #endif
 	}
 	return -1;
@@ -259,7 +263,7 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 #else
 	defColor = "\x1b[0m";
 #endif
-	cb = new std::function<void(const std::string &)>;
+	cb = new std::function<void(const std::string &, bool)>;
 }
 CConsoleHandler::~CConsoleHandler()
 {

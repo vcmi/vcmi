@@ -23,6 +23,7 @@ namespace NKAI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
+boost::mutex AISharedStorage::locker;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
 
@@ -117,18 +118,6 @@ void AINodeStorage::clear()
 	heroChainMaxTurns = 1;
 	turnDistanceLimit[HeroRole::MAIN] = 255;
 	turnDistanceLimit[HeroRole::SCOUT] = 255;
-}
-
-const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
-{
-	return static_cast<const AIPathNode *>(node);
-}
-
-void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNode *)> updater)
-{
-	auto aiNode = static_cast<AIPathNode *>(node);
-
-	updater(aiNode);
 }
 
 boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
@@ -412,6 +401,9 @@ public:
 
 	void execute(const blocked_range<size_t>& r)
 	{
+		std::random_device randomDevice;
+		std::mt19937 randomEngine(randomDevice());
+
 		for(int i = r.begin(); i != r.end(); i++)
 		{
 			auto & pos = tiles[i];
@@ -433,7 +425,7 @@ public:
 						existingChains.push_back(&node);
 				}
 
-				std::random_shuffle(existingChains.begin(), existingChains.end());
+				std::shuffle(existingChains.begin(), existingChains.end(), randomEngine);
 
 				for(AIPathNode * node : existingChains)
 				{
@@ -491,6 +483,9 @@ public:
 
 bool AINodeStorage::calculateHeroChain()
 {
+	std::random_device randomDevice;
+	std::mt19937 randomEngine(randomDevice());
+
 	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.clear();
 
@@ -500,7 +495,7 @@ bool AINodeStorage::calculateHeroChain()
 	{
 		boost::mutex resultMutex;
 
-		std::random_shuffle(data.begin(), data.end());
+		std::shuffle(data.begin(), data.end(), randomEngine);
 
 		parallel_for(blocked_range<size_t>(0, data.size()), [&](const blocked_range<size_t>& r)
 		{
@@ -821,13 +816,6 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	}
 
 	return candidate;
-}
-
-const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
-{
-	auto aiNode = getAINode(node);
-
-	return aiNode->actor->hero;
 }
 
 const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
@@ -1449,10 +1437,10 @@ std::string AIPath::toString() const
 {
 	std::stringstream str;
 
-	str << targetHero->name << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
+	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
 
 	for(auto node : nodes)
-		str << node.targetHero->name << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
+		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();
 }

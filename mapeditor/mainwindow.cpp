@@ -21,12 +21,15 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
-#include "../lib/Terrain.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
 
@@ -115,23 +118,44 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 			parser.isSet("d")}};
 }
 
+void MainWindow::loadTranslation()
+{
+#ifdef ENABLE_QT_TRANSLATIONS
+	std::string translationFile = settings["general"]["language"].String() + ".qm";
+
+	QVector<QString> searchPaths;
+
+	for(auto const & string : VCMIDirs::get().dataPaths())
+		searchPaths.push_back(pathToQString(string / "mapeditor" / "translation" / translationFile));
+	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "translation" / translationFile));
+
+	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	{
+		if (translator.load(string))
+		{
+			if (!qApp->installTranslator(&translator))
+				logGlobal->error("Failed to install translator");
+			return;
+		}
+	}
+
+	logGlobal->error("Failed to find translation");
+#endif
+}
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	controller(this)
 {
+	// Set current working dir to executable folder.
+	// This is important on Mac for relative paths to work inside DMG.
+	QDir::setCurrent(QApplication::applicationDirPath());
+	
 	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
 	
-	ui->setupUi(this);
-	loadUserSettings(); //For example window size
-	setTitle();
-
-	// Set current working dir to executable folder.
-	// This is important on Mac for relative paths to work inside DMG.
-	QDir::setCurrent(QApplication::applicationDirPath());
-
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
@@ -168,6 +192,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	conf.init();
 	logGlobal->info("Loading settings");
+
+	loadTranslation();
+
+	ui->setupUi(this);
+	loadUserSettings(); //For example window size
+	setTitle();
 
 	init();
 
@@ -515,32 +545,32 @@ void MainWindow::loadObjectsTree()
 	{
 	ui->terrainFilterCombo->addItem("");
 	//adding terrains
-	for(auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain.name));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain.id); });
+		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
 		//filter
-		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain));
+		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->getNameTranslated()));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
-	for(auto & road : VLC->terrainTypeHandler->roads())
+	for(auto & road : VLC->roadTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(road.fileName));
+		QPushButton *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road.id, true); });
+		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->getIndex(), true); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding rivers
-	for(auto & river : VLC->terrainTypeHandler->rivers())
+	for(auto & river : VLC->riverTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(river.fileName));
+		QPushButton *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river.id, false); });
+		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->getIndex(), false); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->riverLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -698,7 +728,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBSTACLES", true);
 	addGroupIntoCatalog("OTHER", false);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception &)
 	{
 		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
 	}
@@ -839,6 +869,22 @@ void MainWindow::on_toolArea_clicked(bool checked)
 	ui->tabWidget->setCurrentIndex(0);
 }
 
+void MainWindow::on_toolLasso_clicked(bool checked)
+{
+	ui->toolBrush->setChecked(false);
+	ui->toolBrush2->setChecked(false);
+	ui->toolBrush4->setChecked(false);
+	ui->toolArea->setChecked(false);
+	//ui->toolLasso->setChecked(false);
+	
+	if(checked)
+		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
+	else
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	
+	ui->tabWidget->setCurrentIndex(0);
+}
+
 void MainWindow::on_actionErase_triggered()
 {
 	on_toolErase_clicked();
@@ -887,7 +933,13 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY_TERRAIN : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
+	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
+	if (!arg1.isEmpty())
+	{
+		for (auto const & terrain : VLC->terrainTypeHandler->objects)
+			if (terrain->getJsonKey() == arg1.toStdString())
+				objectBrowser->terrain = terrain->getId();
+	}
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }
@@ -1079,7 +1131,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
-			if(obj->appearance->canBePlacedAt(terrain->id))
+			if(obj->appearance->canBePlacedAt(terrain->getId()))
 			{
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
@@ -1090,13 +1142,13 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		}
 		else
 		{
-			auto app = handler->getOverride(terrain->id, obj);
+			auto app = handler->getOverride(terrain->getId(), obj);
 			if(!app)
 			{
-				if(obj->appearance->canBePlacedAt(terrain->id))
+				if(obj->appearance->canBePlacedAt(terrain->getId()))
 					continue;
 				
-				auto templates = handler->getTemplates(terrain->id);
+				auto templates = handler->getTemplates(terrain->getId());
 				if(templates.empty())
 				{
 					++errors;

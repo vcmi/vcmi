@@ -14,6 +14,8 @@
 #include "SDL_Extensions.h"
 #include "../CMessage.h"
 
+#include <SDL_pixels.h>
+
 IShowActivatable::IShowActivatable()
 {
 	type = 0;
@@ -176,7 +178,7 @@ void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFon
 
 void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
 {
-	blitAt(src, pos.x + x, pos.y + y, dst);
+	CSDL_Ext::blitAt(src, pos.x + x, pos.y + y, dst);
 }
 
 void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
@@ -219,16 +221,6 @@ void CIntObject::enable()
 	recActions = 255;
 }
 
-bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
-{
-	return isItIn(&rect, x - pos.x, y - pos.y);
-}
-
-bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
-{
-	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
-}
-
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
 	Point newPos = pos.topLeft();
@@ -267,7 +259,7 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	children.push_back(child);
 	child->parent_m = this;
 	if(adjustPosition)
-		child->pos += pos;
+		child->pos += pos.topLeft();
 
 	if (!active && child->active)
 		child->deactivate();
@@ -289,7 +281,7 @@ void CIntObject::removeChild(CIntObject * child, bool adjustPosition)
 	children -= child;
 	child->parent_m = nullptr;
 	if(adjustPosition)
-		child->pos -= pos;
+		child->pos -= pos.topLeft();
 }
 
 void CIntObject::redraw()
@@ -373,3 +365,6 @@ void WindowBase::close()
 		logGlobal->error("Only top interface must be closed");
 	GH.popInts(1);
 }
+
+IStatusBar::~IStatusBar()
+{}

@@ -9,9 +9,9 @@
  */
 #pragma once
 
-//#include "../../lib/CStopWatch.h"
-#include "Geometries.h"
-#include "SDL_Extensions.h"
+#include "../../lib/Point.h"
+
+#include <SDL_events.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,8 +19,10 @@ template <typename T> struct CondSh;
 
 VCMI_LIB_NAMESPACE_END
 
+union SDL_Event;
+
 class CFramerateManager;
-class CGStatusBar;
+class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
@@ -65,7 +67,7 @@ class CGuiHandler
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
 	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	std::shared_ptr<CGStatusBar> statusbar;
+	std::shared_ptr<IStatusBar> statusbar;
 
 private:
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
@@ -165,6 +167,7 @@ struct SSetCaptureState
 };
 
 #define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
+#define OBJ_CONSTRUCTION_TARGETED(obj) SObjectConstruction obj__i(obj)
 #define OBJECT_CONSTRUCTION_CAPTURING(actions) defActions = actions; SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 #define OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 

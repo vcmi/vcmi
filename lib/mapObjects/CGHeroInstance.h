@@ -45,11 +45,13 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;
 	friend class CMapLoaderH3M;
+	friend class CMapFormatJson;
 
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 
 public:
+
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -62,13 +64,15 @@ public:
 	ConstTransitivePtr<CHero> type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
-	std::string name; //may be custom
-	std::string biography; //if custom
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
+
+	std::string nameCustom;
+	std::string biographyCustom;
+
 	bool inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	ConstTransitivePtr<CCommanderInstance> commander;
@@ -145,6 +149,12 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+	std::string getNameTranslated() const;
+	std::string getNameTextID() const;
+
+	std::string getBiographyTranslated() const;
+	std::string getBiographyTextID() const;
+
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
 	void addSpellToSpellbook(SpellID spell);
@@ -153,13 +163,11 @@ public:
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
-	const std::string &getBiography() const;
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	TerrainId getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
-	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
 	int getCurrentLuck(int stack=-1, bool town=false) const;
@@ -168,6 +176,9 @@ public:
 	bool canLearnSpell(const spells::Spell * spell) const;
 	bool canCastThisSpell(const spells::Spell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 
+	/// convert given position between map position (CGObjectInstance::pos) and visitable position used for hero interactions
+	int3 convertToVisitablePos(const int3 & position) const;
+	int3 convertFromVisitablePos(const int3 & position) const;
 
 	// ----- primary and secondary skill, experience, level handling -----
 
@@ -199,7 +210,6 @@ public:
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
-	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
@@ -298,8 +308,8 @@ public:
 		h & static_cast<CArtifactSet&>(*this);
 		h & exp;
 		h & level;
-		h & name;
-		h & biography;
+		h & nameCustom;
+		h & biographyCustom;
 		h & portrait;
 		h & mana;
 		h & secSkills;

@@ -24,7 +24,7 @@
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
 
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterface.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -42,7 +42,7 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CSpellWindow::InteractiveArea::InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
+CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos = myRect;
@@ -66,7 +66,7 @@ void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
 void CSpellWindow::InteractiveArea::hover(bool on)
 {
 	if(on)
-		owner->statusBar->setText(hoverText);
+		owner->statusBar->write(hoverText);
 	else
 		owner->statusBar->clear();
 }
@@ -90,7 +90,7 @@ public:
 				return false;
 		}
 
-		return A->name < B->name;
+		return A->getNameTranslated() < B->getNameTranslated();
 	}
 } spellsorter;
 
@@ -183,32 +183,32 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
+	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
 	statusBar = CGStatusBar::create(7, 569, "Spelroll.bmp");
 
-	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
+	Rect temp_rect = CSDL_Ext::genRect(45, 35, 479 + pos.x, 405 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this));
-	temp_rect = genRect(45, 35, 221 + pos.x, 405 + pos.y);
+	temp_rect = CSDL_Ext::genRect(45, 35, 221 + pos.x, 405 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this));
-	temp_rect = genRect(45, 35, 355 + pos.x, 405 + pos.y);
+	temp_rect = CSDL_Ext::genRect(45, 35, 355 + pos.x, 405 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this));
-	temp_rect = genRect(45, 35, 418 + pos.x, 405 + pos.y);
+	temp_rect = CSDL_Ext::genRect(45, 35, 418 + pos.x, 405 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this));
 
-	temp_rect = genRect(36, 56, 549 + pos.x, 94 + pos.y);
+	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 94 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this));
-	temp_rect = genRect(36, 56, 549 + pos.x, 151 + pos.y);
+	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 151 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this));
-	temp_rect = genRect(36, 56, 549 + pos.x, 210 + pos.y);
+	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 210 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this));
-	temp_rect = genRect(36, 56, 549 + pos.x, 270 + pos.y);
+	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 270 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this));
-	temp_rect = genRect(36, 56, 549 + pos.x, 330 + pos.y);
+	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 330 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this));
 
-	temp_rect = genRect(leftCorner->bg->h, leftCorner->bg->w, 97 + pos.x, 77 + pos.y);
+	temp_rect = CSDL_Ext::genRect(leftCorner->bg->h, leftCorner->bg->w, 97 + pos.x, 77 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this));
-	temp_rect = genRect(rightCorner->bg->h, rightCorner->bg->w, 487 + pos.x, 72 + pos.y);
+	temp_rect = CSDL_Ext::genRect(rightCorner->bg->h, rightCorner->bg->w, 487 + pos.x, 72 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells
@@ -216,7 +216,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(int v=0; v<12; ++v)
 	{
-		temp_rect = genRect(65, 78, xpos, ypos);
+		temp_rect = CSDL_Ext::genRect(65, 78, xpos, ypos);
 		spellAreas[v] = std::make_shared<SpellArea>(temp_rect, this);
 
 		if(v == 5) //to right page
@@ -494,7 +494,7 @@ int CSpellWindow::pagesWithinCurrentTab()
 	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
 
-CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
+CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
@@ -508,12 +508,12 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	image = std::make_shared<CAnimImage>(owner->spellIcons, 0, 0);
 	image->visible = false;
 
-	name = std::make_shared<CLabel>(39, 70, FONT_TINY, CENTER);
-	level = std::make_shared<CLabel>(39, 82, FONT_TINY, CENTER);
-	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, CENTER);
+	name = std::make_shared<CLabel>(39, 70, FONT_TINY, ETextAlignment::CENTER);
+	level = std::make_shared<CLabel>(39, 82, FONT_TINY, ETextAlignment::CENTER);
+	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, ETextAlignment::CENTER);
 
 	for(auto l : {name, level, cost})
-		l->autoRedraw = false;
+		l->setAutoRedraw(false);
 }
 
 CSpellWindow::SpellArea::~SpellArea() = default;
@@ -545,7 +545,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((combatSpell ^ inCombat) || inCastle)
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getLevelDescription(schoolLevel), hlp);
+			owner->myInt->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -562,7 +562,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				if(!texts.empty())
 					owner->myInt->showInfoDialog(texts.front());
 				else
-					owner->myInt->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["spellUnknownProblem"].String());
+					owner->myInt->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 		else //adventure spell
@@ -600,7 +600,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getLevelDescription(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
 	}
 }
 
@@ -609,7 +609,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->setText(boost::to_string(boost::format("%s (%s)") % mySpell->name % CGI->generaltexth->allTexts[171+mySpell->level]));
+			owner->statusBar->write(boost::to_string(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->level]));
 		else
 			owner->statusBar->clear();
 	}
@@ -651,14 +651,14 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		}
 
 		name->color = firstLineColor;
-		name->setText(mySpell->name);
+		name->setText(mySpell->getNameTranslated());
 
 		level->color = secondLineColor;
 		if(schoolLevel > 0)
 		{
 			boost::format fmt("%s/%s");
 			fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
-			fmt % CGI->generaltexth->levels.at(3+(schoolLevel-1));//lines 4-6
+			fmt % CGI->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
 			level->setText(fmt.str());
 		}
 		else

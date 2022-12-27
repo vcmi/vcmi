@@ -11,17 +11,18 @@
 #include "CGuiHandler.h"
 #include "../lib/CondSh.h"
 
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "CIntObject.h"
-#include "CCursorHandler.h"
+#include "CursorHandler.h"
+#include "SDL_Extensions.h"
 
 #include "../CGameInfo.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterface.h"
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
@@ -121,7 +122,7 @@ void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	if(!listInt.empty())
 		listInt.front()->deactivate();
 	listInt.push_front(newInt);
-	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+	CCS->curh->set(Cursor::Map::POINTER);
 	newInt->activate();
 	objsToBlit.push_back(newInt);
 	totalRedraw();
@@ -167,7 +168,7 @@ void CGuiHandler::totalRedraw()
 #endif
 	for(auto & elem : objsToBlit)
 		elem->showAll(screen2);
-	blitAt(screen2,0,0,screen);
+	CSDL_Ext::blitAt(screen2,0,0,screen);
 }
 
 void CGuiHandler::updateTime()
@@ -238,7 +239,7 @@ void CGuiHandler::handleCurrentEvent()
 				break;
 
 			case SDLK_F9:
-				//not working yet since CClient::run remain locked after CBattleInterface removal
+				//not working yet since CClient::run remain locked after BattleInterface removal
 //				if(LOCPLINT->battleInt)
 //				{
 //					GH.popInts(1);
@@ -289,7 +290,7 @@ void CGuiHandler::handleCurrentEvent()
 				for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 				{
 					if(!vstd::contains(doubleClickInterested, *i)) continue;
-					if(isItIn(&(*i)->pos, current->motion.x, current->motion.y))
+					if((*i)->pos.isInside(current->motion.x, current->motion.y))
 					{
 						(*i)->onDoubleClick();
 					}
@@ -321,7 +322,7 @@ void CGuiHandler::handleCurrentEvent()
 			// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
 			int x = 0, y = 0;
 			SDL_GetMouseState(&x, &y);
-			(*i)->wheelScrolled(current->wheel.y < 0, isItIn(&(*i)->pos, x, y));
+			(*i)->wheelScrolled(current->wheel.y < 0, (*i)->pos.isInside(x, y));
 		}
 	}
 	else if(current->type == SDL_TEXTINPUT)
@@ -367,7 +368,7 @@ void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntOb
 		auto prev = (*i)->mouseState(btn);
 		if(!isPressed)
 			(*i)->updateMouseState(btn, isPressed);
-		if(isItIn(&(*i)->pos, current->motion.x, current->motion.y))
+		if((*i)->pos.isInside(current->motion.x, current->motion.y))
 		{
 			if(isPressed)
 				(*i)->updateMouseState(btn, isPressed);
@@ -384,7 +385,7 @@ void CGuiHandler::handleMouseMotion()
 	std::vector<CIntObject*> hlp;
 	for(auto & elem : hoverable)
 	{
-		if(isItIn(&(elem)->pos, current->motion.x, current->motion.y))
+		if(elem->pos.isInside(current->motion.x, current->motion.y))
 		{
 			if (!(elem)->hovered)
 				hlp.push_back((elem));
@@ -408,7 +409,7 @@ void CGuiHandler::simpleRedraw()
 {
 	//update only top interface and draw background
 	if(objsToBlit.size() > 1)
-		blitAt(screen2,0,0,screen); //blit background
+		CSDL_Ext::blitAt(screen2,0,0,screen); //blit background
 	if(!objsToBlit.empty())
 		objsToBlit.back()->show(screen); //blit active interface/window
 }
@@ -419,7 +420,7 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 	std::list<CIntObject*> miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
-		if(elem->strongInterest || isItInOrLowerBounds(&elem->pos, motion.x, motion.y)) //checking lower bounds fixes bug #2476
+		if(elem->strongInterest || Rect::createAround(elem->pos, 1).isInside( motion.x, motion.y)) //checking bounds including border fixes bug #2476
 		{
 			(elem)->mouseMoved(motion);
 		}
@@ -451,7 +452,7 @@ void CGuiHandler::renderFrame()
 
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
 	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 	if(acquiredTheLockOnPim)
 	{
@@ -489,7 +490,7 @@ CGuiHandler::CGuiHandler()
 	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
-	mainFPSmng = new CFramerateManager(48);
+	mainFPSmng = new CFramerateManager(60);
 	//do not init CFramerateManager here --AVS
 
 	terminate_cond = new CondSh<bool>(false);
@@ -623,8 +624,8 @@ void CFramerateManager::framerateDelay()
 
 	currentTicks = SDL_GetTicks();
 	// recalculate timeElapsed for external calls via getElapsed()
-	// limit it to 1000 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
-	timeElapsed = std::min<ui32>(currentTicks - lastticks, 1000);
+	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
+	timeElapsed = std::min<ui32>(currentTicks - lastticks, 100);
 
 	lastticks = SDL_GetTicks();
 
