@@ -398,7 +398,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
 	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
 	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
-	readToVector("core.randtvrn", "DATA/RANDTVRN.TXT" );
 	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
 	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
 	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
@@ -416,6 +415,21 @@ CGeneralTextHandler::CGeneralTextHandler():
 	for ( auto const & node : vcmiTexts.Struct())
 		registerString(node.first, node.second.String());
 
+	{
+		CLegacyConfigParser parser("DATA/RANDTVRN.TXT");
+		parser.endLine();
+		size_t index = 0;
+		do
+		{
+			std::string line = parser.readString();
+			if (!line.empty())
+			{
+				registerH3String("core.randtvrn", index, line);
+				index += 1;
+			}
+		}
+		while (parser.endLine());
+	}
 	{
 		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
 		parser.endLine();

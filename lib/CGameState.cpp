@@ -2175,9 +2175,7 @@ void CGameState::updateRumor()
 
 		case RumorState::TYPE_RAND:
 			auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
-			do
-				rumorId = rand.nextInt((int)vector.size() - 1);
-			while(vector[rumorId].empty());
+			rumorId = rand.nextInt((int)vector.size() - 1);
 
 			break;
 		}
