@@ -241,8 +241,6 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if (button["center"].Bool())
 		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
 	return result;
-
-
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
