@@ -49,6 +49,9 @@ public:
 	void commitObjectCreate(int level);
 	void commitObjectChange(int level);
 	
+	void copyToClipboard(int level);
+	void pasteFromClipboard(int level);
+	
 	bool discardObject(int level) const;
 	void createObject(int level, CGObjectInstance * obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
@@ -64,6 +67,8 @@ private:
 	MainWindow * main;
 	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
 	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
+	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;
+	int _clipboardShiftIndex = 0;
 
 	void connectScenes();
 };

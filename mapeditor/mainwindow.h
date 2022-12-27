@@ -102,6 +102,12 @@ private slots:
 	
 	void switchDefaultPlayer(const PlayerColor &);
 
+	void on_actionCut_triggered();
+
+	void on_actionCopy_triggered();
+
+	void on_actionPaste_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
