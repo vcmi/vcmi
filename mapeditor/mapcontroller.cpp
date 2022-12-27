@@ -344,12 +344,12 @@ void MapController::pasteFromClipboard(int level)
 	if(_clipboardShiftIndex == int3::getDirs().size())
 		_clipboardShiftIndex = 0;
 	
-	for(auto & objuptr : _clipboard)
+	for(auto & objUniquePtr : _clipboard)
 	{
-		auto * obj = CMemorySerializer::deepCopy(*objuptr).release();
-		auto newpos = objuptr->pos + shift;
-		if(_map->isInTheMap(newpos))
-			obj->pos = newpos;
+		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		auto newPos = objUniquePtr->pos + shift;
+		if(_map->isInTheMap(newPos))
+			obj->pos = newPos;
 		obj->pos.z = level;
 		
 		Initializer init(obj, defaultPlayer);

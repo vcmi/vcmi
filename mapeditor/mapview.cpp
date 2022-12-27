@@ -269,15 +269,17 @@ void MapView::mousePressEvent(QMouseEvent *event)
 		{
 			if(event->button() == Qt::LeftButton)
 			{
-				auto * obj = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
-				auto * obj2 = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y, obj);
-				if(obj)
+				//when paste, new object could be beyond initial object so we need to test two objects in order to select new one
+				//if object is pasted at place where is multiple objects then proper selection is not guaranteed
+				auto * firstSelectedObject = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+				auto * secondSelectedObject = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y, firstSelectedObject);
+				if(firstSelectedObject)
 				{
-					if(sc->selectionObjectsView.isSelected(obj))
+					if(sc->selectionObjectsView.isSelected(firstSelectedObject))
 					{
 						if(qApp->keyboardModifiers() & Qt::ControlModifier)
 						{
-							sc->selectionObjectsView.deselectObject(obj);
+							sc->selectionObjectsView.deselectObject(firstSelectedObject);
 							sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::SELECTION;
 						}
 						else
@@ -285,11 +287,11 @@ void MapView::mousePressEvent(QMouseEvent *event)
 					}
 					else
 					{
-						if(!obj2 || !sc->selectionObjectsView.isSelected(obj2))
+						if(!secondSelectedObject || !sc->selectionObjectsView.isSelected(secondSelectedObject))
 						{
 							if(!(qApp->keyboardModifiers() & Qt::ControlModifier))
 								sc->selectionObjectsView.clear();
-							sc->selectionObjectsView.selectObject(obj);
+							sc->selectionObjectsView.selectObject(firstSelectedObject);
 						}
 						sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 					}
