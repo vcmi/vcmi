@@ -31,10 +31,18 @@ using namespace boost::asio::ip;
 #define LIL_ENDIAN
 #endif
 
+struct ConnectionBuffers
+{
+	boost::asio::streambuf readBuffer;
+	boost::asio::streambuf writeBuffer;
+};
 
 void CConnection::init()
 {
 	enableBufferedWrite = false;
+	enableBufferedRead = false;
+	connectionBuffers = std::make_unique<ConnectionBuffers>();
+
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
     try
     {
@@ -148,7 +156,7 @@ void CConnection::flushBuffers()
 
 	try
 	{
-		asio::write(*socket, writeBuffer);
+		asio::write(*socket, connectionBuffers->writeBuffer);
 	}
 	catch(...)
 	{
@@ -166,7 +174,7 @@ int CConnection::write(const void * data, unsigned size)
 	{
 		if(enableBufferedWrite)
 		{
-			std::ostream ostream(&writeBuffer);
+			std::ostream ostream(&connectionBuffers->writeBuffer);
 		
 			ostream.write(static_cast<const char *>(data), size);
 
@@ -191,16 +199,16 @@ int CConnection::read(void * data, unsigned size)
 	{
 		if(enableBufferedRead)
 		{
-			auto available = readBuffer.size();
+			auto available = connectionBuffers->readBuffer.size();
 
 			while(available < size)
 			{
-				auto bytesRead = socket->read_some(readBuffer.prepare(1024));
-				readBuffer.commit(bytesRead);
-				available = readBuffer.size();
+				auto bytesRead = socket->read_some(connectionBuffers->readBuffer.prepare(1024));
+				connectionBuffers->readBuffer.commit(bytesRead);
+				available = connectionBuffers->readBuffer.size();
 			}
 
-			std::istream istream(&readBuffer);
+			std::istream istream(&connectionBuffers->readBuffer);
 
 			istream.read(static_cast<char *>(data), size);
 

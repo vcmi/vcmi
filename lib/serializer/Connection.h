@@ -21,8 +21,6 @@ namespace boost
 {
 	namespace asio
 	{
-		class streambuf;
-
 		namespace ip
 		{
 			class tcp;
@@ -54,6 +52,7 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
+struct ConnectionBuffers;
 
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write
@@ -70,10 +69,8 @@ class DLL_LINKAGE CConnection
 	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
 
 	bool enableBufferedWrite;
-	boost::asio::streambuf writeBuffer;
-
 	bool enableBufferedRead;
-	boost::asio::streambuf readBuffer;
+	std::unique_ptr<ConnectionBuffers> connectionBuffers;
 
 public:
 	BinaryDeserializer iser;
