@@ -177,7 +177,7 @@ then
 	cd "$data_dir" && innoextract "$gog_file"
 	
 	# some versions of gog.com installer (or innoextract tool?) place game files inside /app directory
-	if [[ -d "$data_dir"/app ]]
+	if [[ -d "$data_dir"/app/[Dd][Aa][Tt][Aa] ]]
 	then
 		data_dir="$data_dir"/app
 	fi
