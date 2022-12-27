@@ -546,8 +546,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 		if (CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
 			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
-
-	dumpAllTexts();
 }
 
 int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
@@ -564,7 +562,7 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 
 void CGeneralTextHandler::dumpAllTexts()
 {
-	logGlobal->trace("BEGIN TEXT EXPORT");
+	logGlobal->info("BEGIN TEXT EXPORT");
 	for ( auto const & entry : stringsLocalizations)
 	{
 		auto cleanString = entry.second;
@@ -574,9 +572,9 @@ void CGeneralTextHandler::dumpAllTexts()
 		boost::replace_all(cleanString, "\t", "\\t");
 		boost::replace_all(cleanString, "\"", "\\\"");
 
-		logGlobal->trace("\"%s\" : \"%s\",", entry.first, cleanString);
+		logGlobal->info("\"%s\" : \"%s\",", entry.first, cleanString);
 	}
-	logGlobal->trace("END TEXT EXPORT");
+	logGlobal->info("END TEXT EXPORT");
 }
 
 size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
