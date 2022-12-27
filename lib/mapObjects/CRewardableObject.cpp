@@ -402,7 +402,7 @@ Component CRewardInfo::getDisplayedComponent(const CGHeroInstance * h) const
 }
 
 // FIXME: copy-pasted from CObjectHandler
-static std::string & visitedTxt(const bool visited)
+static const std::string & visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];

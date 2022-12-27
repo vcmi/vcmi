@@ -16,6 +16,7 @@
 #include "CConfigHandler.h"
 #include "CModHandler.h"
 #include "GameConstants.h"
+#include "mapObjects/CQuest.h"
 #include "VCMI_Lib.h"
 #include "Terrain.h"
 
@@ -374,7 +375,10 @@ CGeneralTextHandler::CGeneralTextHandler():
 	tentColors       (*this, "core.tentcolr" ),
 	levels           (*this, "core.skilllev" ),
 	zelp             (*this, "core.help"     ),
+	allTexts         (*this, "core.genrltxt" ),
 	// pseudo-array, that don't have H3 file with same name
+	seerEmpty        (*this, "core.seerhut.empty"  ),
+	seerNames        (*this, "core.seerhut.names"  ),
 	capColors        (*this, "vcmi.capitalColors"  ),
 	qeModCommands    (*this, "vcmi.quickExchange" )
 {
@@ -416,10 +420,11 @@ CGeneralTextHandler::CGeneralTextHandler():
 	{
 		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
 		parser.endLine();
+		size_t index = 0;
 		do
 		{
-			allTexts.push_back(parser.readString());
-			registerH3String("core.genrltxt", allTexts.size(), allTexts.back());
+			registerH3String("core.genrltxt", index, parser.readString());
+			index += 1;
 		}
 		while (parser.endLine());
 	}
@@ -458,33 +463,30 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 		for (int i = 0; i < 6; ++i)
 		{
-			seerEmpty.push_back(parser.readString());
-			registerH3String("core.seerhut.empty", seerEmpty.size(), seerEmpty.back());
+			registerH3String("core.seerhut.empty", i, parser.readString());
 		}
 		parser.endLine();
 
-		quests.resize(10);
 		for (int i = 0; i < 9; ++i) //9 types of quests
 		{
-			quests[i].resize(5);
+			std::string questName = CQuest::missionName(CQuest::Emission(1+i));
+
 			for (int j = 0; j < 5; ++j)
 			{
+				std::string questState = CQuest::missionState(j);
+
 				parser.readString(); //front description
 				for (int k = 0; k < 6; ++k)
 				{
-					quests[i][j].push_back(parser.readString());
-
-					registerH3String("core.seerhut.quest." + std::to_string(i) + "." + std::to_string(j), k, quests[i][j].back());
+					registerH3String("core.seerhut.quest." + questName + "." + questState, k, parser.readString());
 				}
-
 				parser.endLine();
 			}
 		}
-		quests[9].resize(1);
 
 		for (int k = 0; k < 6; ++k) //Time limit
 		{
-			quests[9][0].push_back(parser.readString());
+			registerH3String("core.seerhut.time", k, parser.readString());
 		}
 		parser.endLine();
 
@@ -493,7 +495,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 		for (int i = 0; i < 48; ++i)
 		{
-			seerNames.push_back(parser.readString());
+			registerH3String("core.seerhut.names", i, parser.readString());
 			parser.endLine();
 		}
 	}
@@ -569,6 +571,8 @@ CGeneralTextHandler::CGeneralTextHandler():
 			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
 		}
 	}
+
+	dumpAllTexts();
 }
 
 int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
@@ -581,6 +585,22 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 		return textIndex;
 	else
 		return textIndex + 1;
+}
+
+void CGeneralTextHandler::dumpAllTexts()
+{
+	logGlobal->info("BEGIN TEXT EXPORT");
+	for ( auto const & entry : stringsLocalizations)
+	{
+		auto cleanString = entry.second;
+		boost::replace_all(cleanString, "\\", "\\\\");
+		boost::replace_all(cleanString, "\n", "\\n");
+		boost::replace_all(cleanString, "\r", "\\r");
+		boost::replace_all(cleanString, "\t", "\\t");
+
+		logGlobal->info("\"%s\" : \"%s\",", entry.first, cleanString);
+	}
+	logGlobal->info("END TEXT EXPORT");
 }
 
 std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string const & prefix)

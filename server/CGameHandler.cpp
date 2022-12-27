@@ -1300,7 +1300,7 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 	if(killed > 0)
 	{
 		const int32_t txtIndex = (killed > 1) ? 379 : 378;
-		std::string formatString = VLC->generaltexth->allTexts.at(txtIndex);
+		std::string formatString = VLC->generaltexth->allTexts[txtIndex];
 
 		// these default h3 texts have unnecessary new lines, so get rid of them before displaying (and trim just in case, trimming newlines does not works for some reason)
 		formatString.erase(std::remove(formatString.begin(), formatString.end(), '\n'), formatString.end());
@@ -5209,7 +5209,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 	if (cheated)
 	{
-		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
+		SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
 		sendAndApply(&temp_message);
 
 		if(!player.isSpectator())

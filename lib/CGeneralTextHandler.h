@@ -93,6 +93,7 @@ public:
 
 class CGeneralTextHandler;
 
+/// Small wrapper that provides text access API compatible with old code
 class DLL_LINKAGE LegacyTextContainer
 {
 	CGeneralTextHandler & owner;
@@ -103,6 +104,7 @@ public:
 	const std::string & operator[](size_t index) const;
 };
 
+/// Small wrapper that provides help text access API compatible with old code
 class DLL_LINKAGE LegacyHelpContainer
 {
 	CGeneralTextHandler & owner;
@@ -141,7 +143,10 @@ public:
 	/// converts identifier into user-readable string, may be identical to 'translate' but reserved for serialization calls
 	const std::string & deserialize(const std::string & identifier) const;
 
-	std::vector<std::string> allTexts;
+	/// Debug methods, dumps all currently known texts into console using Json-like format
+	void dumpAllTexts();
+
+	LegacyTextContainer allTexts;
 
 	LegacyTextContainer arraytxt;
 	LegacyTextContainer primarySkillNames;
@@ -171,10 +176,8 @@ public:
 	LegacyTextContainer restypes; //names of resources
 	LegacyTextContainer terrainNames;
 	LegacyTextContainer randsign;
-	std::vector<std::string> seerEmpty;
-	std::vector<std::vector<std::vector<std::string>>>  quests; //[quest][type][index]
-	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
-	std::vector<std::string> seerNames;
+	LegacyTextContainer seerEmpty;
+	LegacyTextContainer seerNames;
 	LegacyTextContainer tentColors;
 
 	//sec skills
