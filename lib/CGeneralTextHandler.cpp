@@ -331,12 +331,10 @@ const std::string & CGeneralTextHandler::serialize(const std::string & identifie
 
 const std::string & CGeneralTextHandler::deserialize(const std::string & identifier) const
 {
-	static const std::string emptyString;
-
 	if (stringsLocalizations.count(identifier))
 		return stringsLocalizations.at(identifier);
 	logGlobal->error("Unable to find localization for string '%s'", identifier);
-	return emptyString;
+	return identifier;
 }
 
 void CGeneralTextHandler::registerH3String(const std::string & file, size_t index, const std::string & localized)
@@ -519,7 +517,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		}
 		while (parser.endLine() && !text.empty());
 
-		for (size_t i=0; i<campaignsCount; i++)
+		for (size_t campaign=0; campaign<campaignsCount; campaign++)
 		{
 			size_t region = 0;
 
@@ -534,7 +532,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 				text = parser.readString();
 				if (!text.empty())
 				{
-					registerH3String("core.camptext.regions." + std::to_string(campaignsCount), region, text);
+					registerH3String("core.camptext.regions." + std::to_string(campaign), region, text);
 					region += 1;
 				}
 			}
@@ -566,7 +564,7 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 
 void CGeneralTextHandler::dumpAllTexts()
 {
-	logGlobal->info("BEGIN TEXT EXPORT");
+	logGlobal->trace("BEGIN TEXT EXPORT");
 	for ( auto const & entry : stringsLocalizations)
 	{
 		auto cleanString = entry.second;
@@ -576,9 +574,9 @@ void CGeneralTextHandler::dumpAllTexts()
 		boost::replace_all(cleanString, "\t", "\\t");
 		boost::replace_all(cleanString, "\"", "\\\"");
 
-		logGlobal->info("\"%s\" : \"%s\",", entry.first, cleanString);
+		logGlobal->trace("\"%s\" : \"%s\",", entry.first, cleanString);
 	}
-	logGlobal->info("END TEXT EXPORT");
+	logGlobal->trace("END TEXT EXPORT");
 }
 
 size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
