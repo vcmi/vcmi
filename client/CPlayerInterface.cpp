@@ -2273,6 +2273,8 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 		if (artWin)
 			artWin->artifactRemoved(al);
 	}
+
+	waitWhileDialog();
 }
 
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
@@ -2287,6 +2289,8 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	if(!GH.objsToBlit.empty())
 		GH.objsToBlit.back()->redraw();
+
+	waitWhileDialog();
 }
 
 void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
