@@ -152,12 +152,12 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 		char filename[40];
 		reader.read(reinterpret_cast<ui8*>(filename), 40);
 
-		//for some reason entries in snd have format NAME\0WAVRUBBISH....
-		//we need to replace first \0 with dot and take the 3 chars with extension (and drop the rest)
+		// for some reason entries in snd have format NAME\0WAVRUBBISH....
+		// and Polish version does not have extension at all
+		// we need to replace first \0 with dot and add wav extension manuall - we don't expect other types here anyway
 		ArchiveEntry entry;
 		entry.name  = filename; // till 1st \0
-		entry.name += '.';
-		entry.name += std::string(filename + entry.name.size(), 3);
+		entry.name += ".wav";
 
 		entry.offset = reader.readInt32();
 		entry.fullSize = reader.readInt32();
