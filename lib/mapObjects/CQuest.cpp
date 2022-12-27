@@ -75,7 +75,7 @@ const std::string & CQuest::missionName(CQuest::Emission mission)
 		"bringResources",
 		"bringHero",
 		"bringPlayer",
-		"keymaster,"
+		"keymaster"
 	};
 
 	if (static_cast<size_t>(mission) < names.size())
