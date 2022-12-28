@@ -1007,7 +1007,9 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
+			info[0].limiter.resources[Res::GOLD] = 1000;
 			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].limiter.resources[Res::GOLD] = 1000;
 			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
