@@ -73,7 +73,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="228"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="288"/>
         <source>Description</source>
         <translation>Опис</translation>
     </message>
@@ -128,114 +128,114 @@
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
         <source>Mod name</source>
         <translation>Назва модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <source>Installed version</source>
         <translation>Встановлена версія</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
         <source>Latest version</source>
         <translation>Найновіша версія</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <source>Download size</source>
         <translation>Розмір для завантаження</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="252"/>
         <source>Authors</source>
         <translation>Автори</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
         <source>License</source>
         <translation>Ліцензія</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="258"/>
         <source>Home</source>
         <translation>Домашня сторінка</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="268"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="269"/>
         <source>Compatibility</source>
         <translation>Сумісність</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
         <source>Required VCMI version</source>
         <translation>Необхідна версія VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="277"/>
         <source>Supported VCMI version</source>
         <translation>Підтримувана версія VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
         <source>Supported VCMI versions</source>
         <translation>Підтримувані версії VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <source>Required mods</source>
         <translation>Необхідні модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
         <source>Conflicting mods</source>
         <translation>Конфліктуючі модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <source>This mod can not be installed or enabled because following dependencies are not present</source>
         <translation>Цю модифікацію не можна встановити чи активувати, оскільки відсутні наступні залежності</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <source>This mod can not be enabled because following mods are incompatible with this mod</source>
         <translation>Цю модифікацію не можна ввімкнути, оскільки наступні модифікації несумісні з цією модифікацією</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <source>This mod can not be disabled because it is required to run following mods</source>
         <translation>Цю модифікацію не можна відключити, оскільки вона необхідна для запуску наступних модифікацій</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
         <translation>Цю модифікацію не можна видалити або оновити, оскільки вона необхідна для запуску наступних модифікацій</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
         <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
         <translation>Це вкладена модифікація, і її не можна встановити або видалити окремо від батьківської модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Notes</source>
         <translation>Примітки</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="828"/>
         <source>Screenshot %1</source>
         <translation>Знімок екрану %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
         <source>Mod is compatible</source>
         <translation>Модифікація сумісна</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="241"/>
         <source>Mod is incompatible</source>
         <translation>Модифікація несумісна</translation>
     </message>
@@ -558,27 +558,31 @@
         <translation>VCMI Launcher</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="235"/>
+        <location filename="../mainwindow_moc.ui" line="51"/>
         <source>Mods</source>
         <translation>Модифікації</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="298"/>
         <source>Editor</source>
-        <translation>Редактор</translation>
+        <translation type="vanished">Редактор</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="65"/>
+        <location filename="../mainwindow_moc.ui" line="95"/>
         <source>Settings</source>
         <translation>Налаштування</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="191"/>
+        <location filename="../mainwindow_moc.ui" line="139"/>
         <source>Lobby</source>
         <translation>Лобі</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="103"/>
+        <location filename="../mainwindow_moc.ui" line="189"/>
+        <source>Map Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.ui" line="236"/>
         <source>Start game</source>
         <translation>Грати</translation>
     </message>

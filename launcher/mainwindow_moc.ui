@@ -186,7 +186,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Editor</string>
+         <string>Map Editor</string>
         </property>
         <property name="icon">
          <iconset>

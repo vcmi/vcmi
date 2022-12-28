@@ -73,7 +73,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="228"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="288"/>
         <source>Description</source>
         <translation>Opis</translation>
     </message>
@@ -128,114 +128,114 @@
         <translation>Przerwij</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
         <source>Mod name</source>
         <translation>Nazwa moda</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <source>Installed version</source>
         <translation>Zainstalowana wersja</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
         <source>Latest version</source>
         <translation>Najnowsza wersja</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <source>Download size</source>
         <translation>Rozmiar pobierania</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="252"/>
         <source>Authors</source>
         <translation>Autorzy</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
         <source>License</source>
         <translation>Licencja</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="258"/>
         <source>Home</source>
         <translation>Źródło</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="268"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="269"/>
         <source>Compatibility</source>
         <translation>Kompatybilność</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
         <source>Required VCMI version</source>
         <translation>Wymagana wersja VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="277"/>
         <source>Supported VCMI version</source>
         <translation>Wspierana wersja VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
         <source>Supported VCMI versions</source>
         <translation>Wspierane wersje VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
         <source>Required mods</source>
         <translation>Wymagane mody</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
         <source>Conflicting mods</source>
         <translation>Konfliktujące mody</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <source>This mod can not be installed or enabled because following dependencies are not present</source>
         <translation>Ten mod nie może zostać zainstalowany lub włączony ponieważ następujące zależności nie zostały spełnione</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <source>This mod can not be enabled because following mods are incompatible with this mod</source>
         <translation>Ten mod nie może zostać włączony ponieważ następujące mody są z nim niekompatybilne</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <source>This mod can not be disabled because it is required to run following mods</source>
         <translation>Ten mod nie może zostać wyłączony ponieważ jest wymagany by do uruchomienia następujących modów</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
         <translation>Ten mod nie może zostać odinstalowany lub zaktualizowany ponieważ jest wymagany do uruchomienia następujących modów</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
         <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
         <translation>To jest moduł składowy innego moda i nie może być zainstalowany lub odinstalowany oddzielnie od moda nadrzędnego</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Notes</source>
         <translation>Uwagi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="828"/>
         <source>Screenshot %1</source>
         <translation>Zrzut ekranu %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
         <source>Mod is compatible</source>
         <translation>Mod jest kompatybilny</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="241"/>
         <source>Mod is incompatible</source>
         <translation>Mod jest niekompatybilny</translation>
     </message>
@@ -558,29 +558,33 @@
         <translation>VCMI Launcher (program startowy)</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="65"/>
+        <location filename="../mainwindow_moc.ui" line="95"/>
         <source>Settings</source>
         <translation>Ustawienia</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="103"/>
+        <location filename="../mainwindow_moc.ui" line="189"/>
+        <source>Map Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.ui" line="236"/>
         <source>Start game</source>
         <translation>Uruchom grę</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="191"/>
+        <location filename="../mainwindow_moc.ui" line="139"/>
         <source>Lobby</source>
         <translation>Lobby</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="235"/>
+        <location filename="../mainwindow_moc.ui" line="51"/>
         <source>Mods</source>
         <translation>Mody</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="298"/>
         <source>Editor</source>
-        <translation>Edytor</translation>
+        <translation type="vanished">Edytor</translation>
     </message>
 </context>
 <context>
