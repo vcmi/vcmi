@@ -177,14 +177,14 @@ QVariant CModEntry::getValue(QString value) const
 
 	auto & storage = useRepositoryData ? repository : localData;
 
-	if (storage.contains(langValue))
+	if(storage.contains(langValue))
 	{
 		auto langStorage = storage[langValue].toMap();
 		if (langStorage.contains(value))
 			return langStorage[value];
 	}
 
-	if (storage.contains(value))
+	if(storage.contains(value))
 		return storage[value];
 
 	return QVariant();
