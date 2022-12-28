@@ -131,7 +131,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="920"/>
-        <location filename="../mainwindow.cpp" line="716"/>
+        <location filename="../mainwindow.cpp" line="731"/>
         <source>View underground</source>
         <translation>Дивитись підземелля</translation>
     </message>
@@ -262,34 +262,34 @@
         <translation>Гравець 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="316"/>
+        <location filename="../mainwindow.cpp" line="331"/>
         <source>Open map</source>
         <translation>Відкрити мапу</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="318"/>
+        <location filename="../mainwindow.cpp" line="333"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Всі підтримувані мапи (*.vmap *.h3m);;Мапи VCMI (*.vmap);;Мапи HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="367"/>
-        <location filename="../mainwindow.cpp" line="394"/>
+        <location filename="../mainwindow.cpp" line="382"/>
+        <location filename="../mainwindow.cpp" line="409"/>
         <source>Save map</source>
         <translation>Зберегти мапу</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="367"/>
-        <location filename="../mainwindow.cpp" line="394"/>
+        <location filename="../mainwindow.cpp" line="382"/>
+        <location filename="../mainwindow.cpp" line="409"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Мапи VCMI</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="552"/>
+        <location filename="../mainwindow.cpp" line="567"/>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="720"/>
+        <location filename="../mainwindow.cpp" line="735"/>
         <source>View surface</source>
         <translation>Дивитись поверхню</translation>
     </message>
