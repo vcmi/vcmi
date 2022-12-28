@@ -448,7 +448,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		{
 			std::string first = parser.readString();
 			std::string second = parser.readString();
-			registerString("core.help." + std::to_string(index) + ".label", first);
+			registerString("core.help." + std::to_string(index) + ".hover", first);
 			registerString("core.help." + std::to_string(index) + ".help",  second);
 			index += 1;
 		}
@@ -631,7 +631,7 @@ LegacyHelpContainer::LegacyHelpContainer(CGeneralTextHandler & owner, std::strin
 std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index) const
 {
 	return {
-		owner.translate(basePath + "." + std::to_string(index) + ".label"),
+		owner.translate(basePath + "." + std::to_string(index) + ".hover"),
 		owner.translate(basePath + "." + std::to_string(index) + ".help")
 	};
 }

@@ -289,7 +289,7 @@ std::pair<std::string, std::string> CButton::tooltip()
 std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
 	return std::make_pair(
-		CGI->generaltexth->translate(key + ".label"),
+		CGI->generaltexth->translate(key + ".hover"),
 		CGI->generaltexth->translate(key + ".help")
 	);
 }

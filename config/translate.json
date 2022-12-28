@@ -23,11 +23,11 @@
 	"vcmi.server.errors.modsIncompatibility" : "Required mods to load game:",
 	"vcmi.server.confirmReconnect"          : "Connect to the last session?",
 
-	"vcmi.systemOptions.fullscreenButton.label" : "Fullscreen",
+	"vcmi.systemOptions.fullscreenButton.hover" : "Fullscreen",
 	"vcmi.systemOptions.fullscreenButton.help"  : "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window",
-	"vcmi.systemOptions.resolutionButton.label" : "Resolution",
+	"vcmi.systemOptions.resolutionButton.hover" : "Resolution",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Select resolution}\n\n Change in-game screen resolution. Game restart required to apply new resolution.",
-	"vcmi.systemOptions.resolutionMenu.label"   : "Select resolution",
+	"vcmi.systemOptions.resolutionMenu.hover"   : "Select resolution",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Change in-game screen resolution.",
 
 	"vcmi.townHall.missingBase"             : "Base building %s must be built first",
@@ -48,19 +48,19 @@
 	"vcmi.logicalExpressions.allOf"  : "All of the following:",
 	"vcmi.logicalExpressions.noneOf" : "None of the following:",
 
-	"vcmi.heroWindow.openCommander.label" : "Open commander window",
+	"vcmi.heroWindow.openCommander.hover" : "Open commander window",
 	"vcmi.heroWindow.openCommander.help"  : "Displays information about commander of this hero",
 
 	"vcmi.commanderWindow.artifactMessage" : "Do you want to give this artifact back to hero?",
 
-	"vcmi.creatureWindow.showBonuses.label"    : "Switch to bonuses view",
+	"vcmi.creatureWindow.showBonuses.hover"    : "Switch to bonuses view",
 	"vcmi.creatureWindow.showBonuses.help"     : "Displays all active bonuses of the commander",
-	"vcmi.creatureWindow.showSkills.label"     : "Switch to skills view",
+	"vcmi.creatureWindow.showSkills.hover"     : "Switch to skills view",
 	"vcmi.creatureWindow.showSkills.help"      : "Displays all learned skills of the commander",
-	"vcmi.creatureWindow.returnArtifact.label" : "Give back artifact",
+	"vcmi.creatureWindow.returnArtifact.hover" : "Give back artifact",
 	"vcmi.creatureWindow.returnArtifact.help"  : "Use this button to return stack artifact back into hero backpack",
 
-	"vcmi.questLog.hideComplete.label" : "Hide complete quests",
+	"vcmi.questLog.hideComplete.hover" : "Hide complete quests",
 	"vcmi.questLog.hideComplete.help"  : "Hide all quests that already completed",
 
 	"vcmi.randomMapTab.widgets.defaultTemplate"      : "default",
