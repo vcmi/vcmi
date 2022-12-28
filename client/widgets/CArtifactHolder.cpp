@@ -716,31 +716,40 @@ void CArtifactsOfHero::realizeCurrentTransaction()
 								ArtifactLocation(commonInfo->dst.AOH->curHero, commonInfo->dst.slotID));
 }
 
-void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
+void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst)
 {
 	bool isCurHeroSrc = src.isHolder(curHero),
 		isCurHeroDst = dst.isHolder(curHero);
-	if(isCurHeroSrc && src.slot >= GameConstants::BACKPACK_START)
+	if(isCurHeroSrc && ArtifactUtils::isSlotBackpack(src.slot))
 		updateSlot(src.slot);
-	if(isCurHeroDst && dst.slot >= GameConstants::BACKPACK_START)
+	if(isCurHeroDst && ArtifactUtils::isSlotBackpack(dst.slot))
 		updateSlot(dst.slot);
-	if(isCurHeroSrc  ||  isCurHeroDst) //we need to update all slots, artifact might be combined and affect more slots
+	// We need to update all slots, artifact might be combined and affect more slots
+	if(isCurHeroSrc  ||  isCurHeroDst)
 		updateWornSlots(false);
 
-	if (!src.isHolder(curHero) && !isCurHeroDst)
+	if(!src.isHolder(curHero) && !isCurHeroDst)
 		return;
 
-	if(commonInfo->src == src) //artifact was taken from us
+	// When moving one artifact onto another it leads to two art movements: dst->TRANSITION_POS; src->dst
+	// however after first movement we pick the art from TRANSITION_POS and the second movement coming when
+	// we have a different artifact may look surprising... but it's valid.
+
+	// Artifact was taken from us
+	if(commonInfo->src == src)
 	{
-		assert(commonInfo->dst == dst  //expected movement from slot ot slot
-			||  dst.slot == dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START //artifact moved back to backpack (eg. to make place for art we are moving)
+		// Expected movement from slot ot slot
+		assert(commonInfo->dst == dst
+			// Artifact moved back to backpack (eg. to make place for art we are moving)
+			||  dst.slot == dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START
 			|| dst.getHolderArtSet()->bearerType() != ArtBearer::HERO);
 		commonInfo->reset();
 		unmarkSlots();
 	}
-	else if(commonInfo->dst == src) //the dest artifact was moved -> we are picking it
+	// The dest artifact was moved -> we are picking it
+	else if(commonInfo->dst == src)
 	{
-		assert(ArtifactUtils::isSlotBackpack(dst.slot));
+		assert(dst.slot == ArtifactPosition::TRANSITION_POS);
 		commonInfo->reset();
 
 		CArtifactsOfHero::ArtPlacePtr ap;
@@ -749,52 +758,28 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			if(dst.isHolder(aoh->curHero))
 			{
 				commonInfo->src.AOH = aoh;
-				if((ap = aoh->getArtPlace(dst.slot)))//getArtPlace may return null
-					break;
+				break;
 			}
 		}
 
-		if(ap)
-		{
-			ap->select();
-		}
-		else
-		{
-			commonInfo->src.art = dst.getArt();
-			commonInfo->src.slotID = dst.slot;
-			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
-			markPossibleSlots(dst.getArt());
-		}
-	}
-	else if(src.slot >= GameConstants::BACKPACK_START &&
-	        src.slot <  commonInfo->src.slotID &&
-			    src.isHolder(commonInfo->src.AOH->curHero)) //artifact taken from before currently picked one
-	{
-		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
-		vstd::advance(commonInfo->src.slotID, -1);
-		assert(commonInfo->src.valid());
-	}
-	else
-	{
-		//when moving one artifact onto another it leads to two art movements: dst->backapck; src->dst
-		// however after first movement we pick the art from backpack and the second movement coming when
-		// we have a different artifact may look surprising... but it's valid.
+		commonInfo->src.art = dst.getArt();
+		commonInfo->src.slotID = dst.slot;
+		assert(commonInfo->src.AOH);
+		CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
+		markPossibleSlots(dst.getArt());
 	}
 
 	updateParentWindow();
 	int shift = 0;
-// 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
-// 		shift++;
-//
-	if(src.slot < GameConstants::BACKPACK_START  &&  dst.slot - GameConstants::BACKPACK_START < backpackPos)
+	if(!ArtifactUtils::isSlotBackpack(src.slot) && dst.slot - GameConstants::BACKPACK_START < backpackPos)
 		shift++;
-	if(dst.slot < GameConstants::BACKPACK_START  &&  src.slot - GameConstants::BACKPACK_START < backpackPos)
+	if(!ArtifactUtils::isSlotBackpack(dst.slot) && src.slot - GameConstants::BACKPACK_START < backpackPos)
 		shift--;
 
-	if( (isCurHeroSrc && src.slot >= GameConstants::BACKPACK_START)
-	 || (isCurHeroDst && dst.slot >= GameConstants::BACKPACK_START) )
-		scrollBackpack(shift); //update backpack slots
+	// If backpack is changed, update it
+	if((isCurHeroSrc && ArtifactUtils::isSlotBackpack(src.slot))
+	 || (isCurHeroDst && ArtifactUtils::isSlotBackpack(dst.slot)))
+		scrollBackpack(shift);
 }
 
 void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
