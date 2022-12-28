@@ -158,7 +158,7 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		std::vector<bfs::path> dataPaths() const override;
 
 		bfs::path clientPath() const override;
-		bfs::path editorPath() const override;
+		bfs::path mapEditorPath() const override;
 		bfs::path serverPath() const override;
 
 		bfs::path libraryPath() const override;
@@ -349,7 +349,7 @@ std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 }
 
 bfs::path VCMIDirsWIN32::clientPath() const { return binaryPath() / "VCMI_client.exe"; }
-bfs::path VCMIDirsWIN32::editorPath() const { return binaryPath() / "VCMI_editor.exe"; }
+bfs::path VCMIDirsWIN32::mapEditorPath() const { return binaryPath() / "VCMI_editor.exe"; }
 bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
 
 bfs::path VCMIDirsWIN32::libraryPath() const { return "."; }
@@ -361,7 +361,7 @@ class IVCMIDirsUNIX : public IVCMIDirs
 {
 	public:
 		bfs::path clientPath() const override;
-		bfs::path editorPath() const override;
+		bfs::path mapEditorPath() const override;
 		bfs::path serverPath() const override;
 
 		virtual bool developmentMode() const;
@@ -374,7 +374,7 @@ bool IVCMIDirsUNIX::developmentMode() const
 }
 
 bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
-bfs::path IVCMIDirsUNIX::editorPath() const { return binaryPath() / "vcmieditor"; }
+bfs::path IVCMIDirsUNIX::mapEditorPath() const { return binaryPath() / "vcmieditor"; }
 bfs::path IVCMIDirsUNIX::serverPath() const { return binaryPath() / "vcmiserver"; }
 
 #ifdef VCMI_APPLE

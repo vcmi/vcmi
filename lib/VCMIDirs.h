@@ -39,7 +39,7 @@ public:
 	virtual boost::filesystem::path clientPath() const = 0;
 
 	// Full path to editor executable, including name (e.g. /usr/bin/vcmieditor)
-	virtual boost::filesystem::path editorPath() const = 0;
+	virtual boost::filesystem::path mapEditorPath() const = 0;
 
 	// Full path to server executable, including name (e.g. /usr/bin/vcmiserver)
 	virtual boost::filesystem::path serverPath() const = 0;
