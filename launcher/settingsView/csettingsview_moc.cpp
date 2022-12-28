@@ -334,4 +334,5 @@ void CSettingsView::changeEvent(QEvent *event)
 	{
 		ui->retranslateUi(this);
 	}
+	QWidget::changeEvent(event);
 }

@@ -41,6 +41,7 @@ void CModListView::changeEvent(QEvent *event)
 		ui->retranslateUi(this);
 		modModel->reloadRepositories();
 	}
+	QWidget::changeEvent(event);
 }
 
 void CModListView::setupFilterModel()

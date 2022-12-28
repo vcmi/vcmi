@@ -90,6 +90,7 @@ void MainWindow::changeEvent(QEvent *event)
 	{
 		ui->retranslateUi(this);
 	}
+	QMainWindow::changeEvent(event);
 }
 
 MainWindow::~MainWindow()

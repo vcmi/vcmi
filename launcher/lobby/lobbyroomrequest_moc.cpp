@@ -29,10 +29,11 @@ LobbyRoomRequest::LobbyRoomRequest(SocketLobby & socket, const QString & room, c
 
 void LobbyRoomRequest::changeEvent(QEvent *event)
 {
-	if ( event->type() == QEvent::LanguageChange)
+	if (event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
 	}
+	QDialog::changeEvent(event);
 }
 
 LobbyRoomRequest::~LobbyRoomRequest()

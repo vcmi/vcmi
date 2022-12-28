@@ -41,6 +41,7 @@ void Lobby::changeEvent(QEvent *event)
 	{
 		ui->retranslateUi(this);
 	}
+	QWidget::changeEvent(event);
 }
 
 Lobby::~Lobby()

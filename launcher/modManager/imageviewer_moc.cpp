@@ -26,6 +26,7 @@ void ImageViewer::changeEvent(QEvent *event)
 	{
 		ui->retranslateUi(this);
 	}
+	QDialog::changeEvent(event);
 }
 
 ImageViewer::~ImageViewer()
