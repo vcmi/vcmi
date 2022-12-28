@@ -104,12 +104,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		if(LOCPLINT->battleInt)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			CCS->musich->playMusicFromSet("battle", true, true);
-			setAnimationCondition(EAnimationEvents::OPENING, false);
-			if(tacticsMode)
-				tacticNextStack(nullptr);
-			activateStack();
-			battleIntroSoundChannel = -1;
+			onIntroSoundPlayed();
 		}
 	};
 
@@ -118,6 +113,16 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	GH.pushInt(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
+}
+
+void BattleInterface::onIntroSoundPlayed()
+{
+	setAnimationCondition(EAnimationEvents::OPENING, false);
+	CCS->musich->playMusicFromSet("battle", true, true);
+	if(tacticsMode)
+		tacticNextStack(nullptr);
+	activateStack();
+	battleIntroSoundChannel = -1;
 }
 
 BattleInterface::~BattleInterface()
@@ -223,6 +228,11 @@ void BattleInterface::stackAttacking( const StackAttackInfo & attackInfo )
 
 void BattleInterface::newRoundFirst( int round )
 {
+	if (battleIntroSoundChannel == -1 &&
+		getAnimationCondition(EAnimationEvents::OPENING) == true)
+	{
+		onIntroSoundPlayed();
+	}
 	waitForAnimationCondition(EAnimationEvents::OPENING, false);
 }
 
