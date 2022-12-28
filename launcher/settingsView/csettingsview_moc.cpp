@@ -87,7 +87,6 @@ void CSettingsView::loadSettings()
 	ui->comboBoxFullScreen->setDisabled(true);
 #else
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
-	//ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
 #endif
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -209,8 +208,8 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 {
 	Settings nodeFullscreen     = settings.write["video"]["fullscreen"];
 	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
-	nodeFullscreen->Bool() = index != 0;
-	nodeFullscreen->Bool() = index == 2;
+	nodeFullscreen->Bool() = (index != 0);
+	nodeRealFullscreen->Bool() = (index == 2);
 }
 
 void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
