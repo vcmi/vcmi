@@ -3907,17 +3907,17 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	if (src.slot == ArtifactPosition::MACH4 || dst.slot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
 
-	if (dst.slot >= GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(dst.slot))
 		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + (si32)dst.getHolderArtSet()->artifactsInBackpack.size()));
 
-	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
+	if(src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
 
-	if (dst.slot < GameConstants::BACKPACK_START  &&  destArtifact) //moving art to another slot
+	// Check if dst slot is occupied
+	if(!ArtifactUtils::isSlotBackpack(dst.slot) && destArtifact)
 	{
-		//old artifact must be removed first
-		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
-			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
+		// Previous artifact must be removed first
+		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition::TRANSITION_POS));
 	}
 	auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
 	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))

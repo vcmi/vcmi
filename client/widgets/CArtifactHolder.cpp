@@ -740,11 +740,11 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	else if(commonInfo->dst == src) //the dest artifact was moved -> we are picking it
 	{
-		assert(dst.slot >= GameConstants::BACKPACK_START);
+		assert(ArtifactUtils::isSlotBackpack(dst.slot));
 		commonInfo->reset();
 
 		CArtifactsOfHero::ArtPlacePtr ap;
-		for(CArtifactsOfHero *aoh : commonInfo->participants)
+		for(CArtifactsOfHero * aoh : commonInfo->participants)
 		{
 			if(dst.isHolder(aoh->curHero))
 			{

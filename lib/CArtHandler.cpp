@@ -824,7 +824,12 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestR
 
 bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
-	if(slot >= GameConstants::BACKPACK_START)
+	if(slot == ArtifactPosition::TRANSITION_POS)
+	{
+		return true;
+	}
+
+	if(ArtifactUtils::isSlotBackpack(slot))
 	{
 		if(artType->isBig())
 			return false;
@@ -851,7 +856,7 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 	assert(canBePutAt(al));
 
 	al.getHolderArtSet()->setNewArtSlot(al.slot, this, false);
-	if(!ArtifactUtils::isSlotBackpack(al.slot))
+	if(!ArtifactUtils::isSlotBackpack(al.slot) && (al.slot != ArtifactPosition::TRANSITION_POS))
 		al.getHolderNode()->attachTo(*this);
 }
 
@@ -1329,6 +1334,8 @@ const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(Artifact
 
 const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 {
+	if(pos == ArtifactPosition::TRANSITION_POS)
+		return &artifactTransitionPos;
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn.at(pos);
 	if(pos >= ArtifactPosition::AFTER_LAST )
@@ -1355,7 +1362,9 @@ ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
 
-	if (!ArtifactUtils::isSlotBackpack(slot))
+	if(slot == ArtifactPosition::TRANSITION_POS)
+		return artifactTransitionPos;
+	if(!ArtifactUtils::isSlotBackpack(slot))
 		return artifactsWorn[slot];
 
 	ArtSlotInfo newSlot;
