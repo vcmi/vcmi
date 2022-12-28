@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget * parent)
 		move(position);
 	}
 
-#ifdef Q_OS_IOS
+#ifndef ENABLE_EDITOR
 	ui->startEditorButton->hide();
 #endif
 
