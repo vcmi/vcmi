@@ -402,7 +402,7 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 bool CGameInfoCallback::isVisible(int3 pos, boost::optional<PlayerColor> Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->isVisible(pos, *Player);
+	return gs->isVisible(pos, Player);
 }
 
 bool CGameInfoCallback::isVisible(int3 pos) const
