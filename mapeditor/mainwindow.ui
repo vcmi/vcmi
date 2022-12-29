@@ -79,6 +79,9 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
     <addaction name="actionErase"/>
    </widget>
    <widget class="QMenu" name="menuView">

@@ -126,7 +126,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 	object->canRefuse = parameters["canRefuse"].Bool();
 	
 	auto visitMode = parameters["visitMode"].String();
-	for(int i = 0; Rewardable::VisitModeString.size(); ++i)
+	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{
 		if(Rewardable::VisitModeString[i] == visitMode)
 		{
@@ -136,7 +136,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 	}
 	
 	auto selectMode = parameters["selectMode"].String();
-	for(int i = 0; Rewardable::SelectModeString.size(); ++i)
+	for(int i = 0; i < Rewardable::SelectModeString.size(); ++i)
 	{
 		if(Rewardable::SelectModeString[i] == selectMode)
 		{

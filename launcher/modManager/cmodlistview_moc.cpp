@@ -28,7 +28,7 @@
 void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
-	manager = vstd::make_unique<CModManager>(modModel);
+	manager = std::make_unique<CModManager>(modModel);
 
 	connect(manager.get(), &CModManager::extraResolutionsEnabledChanged,
 		this, &CModListView::extraResolutionsEnabledChanged);

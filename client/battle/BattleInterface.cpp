@@ -320,6 +320,8 @@ void BattleInterface::battleFinished(const BattleResult& br)
 	stacksController->setActiveStack(nullptr);
 
 	CCS->curh->set(Cursor::Map::POINTER);
+	curInt->waitWhileDialog();
+
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
 		windowObject->close();
@@ -680,7 +682,7 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 
 	boost::thread aiThread([&]()
 	{
-		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(stacksController->getActiveStack()));
+		auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(stacksController->getActiveStack()));
 
 		if(curInt->cb->battleIsFinished())
 		{

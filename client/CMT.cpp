@@ -878,7 +878,7 @@ void processCommand(const std::string &message)
 	{
 		std::string URI;
 		readed >> URI;
-		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
+		std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
 		anim->preload();
 		anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 	}
@@ -1079,7 +1079,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		if (displayIndex < 0)
 			displayIndex = 0;
 	}
-#ifdef VCMI_IOS
+
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	SDL_GetWindowSize(mainWindow, &w, &h);
 #else
 	if(!checkVideoMode(displayIndex, w, h))

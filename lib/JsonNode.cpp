@@ -1028,6 +1028,12 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 	bool destNumeric = dest.getType() == JsonNode::JsonType::DATA_FLOAT || dest.getType() == JsonNode::JsonType::DATA_INTEGER;
 	bool bothNumeric = sourceNumeric && destNumeric;
 
+	MAYBE_UNUSED(hasNull);
+	MAYBE_UNUSED(sameType);
+	MAYBE_UNUSED(sourceNumeric);
+	MAYBE_UNUSED(destNumeric);
+	MAYBE_UNUSED(bothNumeric);
+
 	assert( hasNull || sameType || bothNumeric );
 
 	switch (source.getType())

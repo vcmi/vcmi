@@ -594,6 +594,11 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 	}
 }
 
+void CTextInput::setText(const std::string & nText)
+{
+	setText(nText, false);
+}
+
 void CTextInput::setText(const std::string & nText, bool callCb)
 {
 	CLabel::setText(nText);

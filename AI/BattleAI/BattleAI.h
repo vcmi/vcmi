@@ -65,7 +65,7 @@ public:
 	CBattleAI();
 	~CBattleAI();
 
-	void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
+	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
 	void attemptCastingSpell();
 
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only

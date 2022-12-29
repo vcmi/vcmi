@@ -149,7 +149,7 @@ CPlayerInterface::~CPlayerInterface()
 	if (LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
-void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	env = ENV;
@@ -267,8 +267,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
 				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
 
-				if((nodesIt)->coord == CGHeroInstance::convertPosition(details.start, false)
-					&& (nodesIt - 1)->coord == CGHeroInstance::convertPosition(details.end, false))
+				if((nodesIt)->coord == hero->convertToVisitablePos(details.start)
+					&& (nodesIt - 1)->coord == hero->convertToVisitablePos(details.end))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
 					removeLastNodeFromPath(hero);
@@ -692,7 +692,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if (settings["adventure"]["quickCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		autofightingAI->init(env, cb);
+		autofightingAI->initBattleInterface(env, cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
@@ -1492,7 +1492,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	//we might have built a boat in shipyard in opened town screen
 	if (obj->ID == Obj::BOAT
 		&& LOCPLINT->castleInt
-		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
+		&&  obj->visitablePos() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CCS->soundh->playSound(soundBase::newBuilding);
 		LOCPLINT->castleInt->addBuilding(BuildingID::SHIP);
@@ -1927,7 +1927,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		}
 		else
 		{
-			assert(h->getPosition(false) == path.startPos());
+			assert(h->visitablePos() == path.startPos());
 			//update the hero path in case of something has changed on map
 			if (LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
 				return &path;
@@ -2031,7 +2031,7 @@ void CPlayerInterface::acceptTurn()
 void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
-	const bool isBlocked = CGI->mh->hasObjectHole(h->getPosition(false)); // Don't dig in the pit.
+	const bool isBlocked = CGI->mh->hasObjectHole(h->visitablePos()); // Don't dig in the pit.
 
 	const auto diggingStatus = isBlocked
 		? EDiggingStatus::TILE_OCCUPIED
@@ -2192,6 +2192,8 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 		if (artWin)
 			artWin->artifactRemoved(al);
 	}
+
+	waitWhileDialog();
 }
 
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
@@ -2206,6 +2208,8 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	if(!GH.objsToBlit.empty())
 		GH.objsToBlit.back()->redraw();
+
+	waitWhileDialog();
 }
 
 void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
@@ -2324,7 +2328,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	int i = 1;
 	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
-		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
+		return cb->getTile(h->convertToVisitablePos(coord))->topVisitableObj(ignoreHero);
 	};
 
 	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
@@ -2363,7 +2367,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	};
 
 	{
-		path.convert(0);
+		for (auto & elem : path.nodes)
+			elem.coord = h->convertFromVisitablePos(elem.coord);
+
 		TerrainId currentTerrain = Terrain::BORDER; // not init yet
 		TerrainId newTerrain;
 		int sh = -1;
@@ -2420,7 +2426,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType->id;
+				newTerrain = cb->getTile(h->convertToVisitablePos(currentCoord))->terType->id;
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);

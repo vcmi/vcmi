@@ -54,10 +54,10 @@ CCursorHandler::CCursorHandler()
 
 	cursors =
 	{
-		make_unique<CAnimImage>("CRADVNTR", 0),
-		make_unique<CAnimImage>("CRCOMBAT", 0),
-		make_unique<CAnimImage>("CRDEFLT",  0),
-		make_unique<CAnimImage>("CRSPELL",  0)
+		std::make_unique<CAnimImage>("CRADVNTR", 0),
+		std::make_unique<CAnimImage>("CRCOMBAT", 0),
+		std::make_unique<CAnimImage>("CRDEFLT",  0),
+		std::make_unique<CAnimImage>("CRSPELL",  0)
 	};
 
 	currentCursor = cursors.at(static_cast<size_t>(Cursor::Type::DEFAULT)).get();

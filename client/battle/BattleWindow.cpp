@@ -294,7 +294,7 @@ void BattleWindow::bAutofightf()
 		blockUI(true);
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		ai->init(owner.curInt->env, owner.curInt->cb);
+		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb);
 		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide());
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);

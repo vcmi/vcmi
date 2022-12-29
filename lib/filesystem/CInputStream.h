@@ -45,7 +45,7 @@ public:
 		seek(0);
 		auto readSize = read(data.get(), getSize());
 		assert(readSize == getSize());
-		UNUSED(readSize);
+		MAYBE_UNUSED(readSize);
 
 		return std::make_pair(std::move(data), getSize());
 	}

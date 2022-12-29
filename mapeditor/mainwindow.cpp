@@ -698,7 +698,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBSTACLES", true);
 	addGroupIntoCatalog("OTHER", false);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception &)
 	{
 		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
 	}
@@ -887,7 +887,7 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY_TERRAIN : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
+	objectBrowser->terrain = arg1.isEmpty() ? TerrainId(Terrain::ANY_TERRAIN) : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }
@@ -1124,5 +1124,33 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 void MainWindow::on_actionRecreate_obstacles_triggered()
 {
 
+}
+
+
+void MainWindow::on_actionCut_triggered()
+{
+	if(controller.map())
+	{
+		controller.copyToClipboard(mapLevel);
+		controller.commitObjectErase(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionCopy_triggered()
+{
+	if(controller.map())
+	{
+		controller.copyToClipboard(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionPaste_triggered()
+{
+	if(controller.map())
+	{
+		controller.pasteFromClipboard(mapLevel);
+	}
 }
 

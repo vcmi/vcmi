@@ -486,7 +486,7 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	std::vector <const CGHeroInstance *> heroes = LOCPLINT->cb->getHeroesInfo(false); //TODO: do we really need separate function for drawing heroes?
 	for(auto & hero : heroes)
 	{
-		int3 position = hero->getPosition(false);
+		int3 position = hero->visitablePos();
 		if(position.z == level)
 		{
 			const SDL_Color & color = graphics->playerColors[hero->getOwner().getNum()];

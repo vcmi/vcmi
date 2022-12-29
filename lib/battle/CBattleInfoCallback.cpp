@@ -1245,7 +1245,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
 	{
-		int distanceToPred;
+		uint32_t distanceToPred;
 		BattleHex destination;
 		const battle::Unit * stack;
 	};

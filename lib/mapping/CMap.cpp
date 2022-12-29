@@ -712,7 +712,7 @@ void CMap::initTerrain()
 
 CMapEditManager * CMap::getEditManager()
 {
-	if(!editManager) editManager = make_unique<CMapEditManager>(this);
+	if(!editManager) editManager = std::make_unique<CMapEditManager>(this);
 	return editManager.get();
 }
 

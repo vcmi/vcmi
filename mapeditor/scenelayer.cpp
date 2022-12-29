@@ -410,7 +410,7 @@ void SelectionObjectsLayer::draw()
 	redraw();
 }
 
-CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y) const
+CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGObjectInstance * ignore) const
 {
 	if(!map || !map->isInTheMap(int3(x, y, scene->level)))
 		return nullptr;
@@ -420,7 +420,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y) const
 	//visitable is most important
 	for(auto & object : objects)
 	{
-		if(!object.obj)
+		if(!object.obj || object.obj == ignore)
 			continue;
 		
 		if(object.obj->visitableAt(x, y))
@@ -432,7 +432,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y) const
 	//if not visitable tile - try to get blocked
 	for(auto & object : objects)
 	{
-		if(!object.obj)
+		if(!object.obj || object.obj == ignore)
 			continue;
 		
 		if(object.obj->blockingAt(x, y))
@@ -444,7 +444,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y) const
 	//finally, we can take any object
 	for(auto & object : objects)
 	{
-		if(!object.obj)
+		if(!object.obj || object.obj == ignore)
 			continue;
 		
 		if(object.obj->coveringAt(x, y))

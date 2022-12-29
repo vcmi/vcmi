@@ -16,13 +16,6 @@
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 /* ---------------------------------------------------------------------------- */
-/* Suppress some compiler warnings */
-/* ---------------------------------------------------------------------------- */
-#ifdef _MSC_VER
-#  pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
-#endif
-
-/* ---------------------------------------------------------------------------- */
 /* System detection. */
 /* ---------------------------------------------------------------------------- */
 // Based on: http://sourceforge.net/p/predef/wiki/OperatingSystems/
@@ -71,6 +64,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 // Each compiler uses own way to supress fall through warning. Try to find it.
+// TODO: replace with c++17 [[fallthrough]]
 #ifdef __has_cpp_attribute
 #  if __has_cpp_attribute(fallthrough)
 #    define FALLTHROUGH [[fallthrough]];
@@ -89,9 +83,15 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
 #ifdef VCMI_WINDOWS
-#  define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
-#  define NOMINMAX					// Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
-#  define _NO_W32_PSEUDO_MODIFIERS  // Exclude more macros for compiling with MinGW on Linux.
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN		 // Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
+#  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
+#  endif
+#  ifndef _NO_W32_PSEUDO_MODIFIERS
+#    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
+#  endif
 #endif
 
 #ifdef VCMI_ANDROID
@@ -249,7 +249,8 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 
 // should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
-#define UNUSED(VAR) ((void)VAR)
+// TODO: replace with c++17 [[maybe_unused]]
+#define MAYBE_UNUSED(VAR) ((void)VAR)
 
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
@@ -490,32 +491,6 @@ namespace vstd
 		ptr = nullptr;
 	}
 
-	template<typename T>
-	std::unique_ptr<T> make_unique()
-	{
-		return std::unique_ptr<T>(new T());
-	}
-	template<typename T, typename Arg1>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1)));
-	}
-	template<typename T, typename Arg1, typename Arg2>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2)));
-	}
-	template<typename T, typename Arg1, typename Arg2, typename Arg3>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2, Arg3 &&arg3)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2), std::forward<Arg3>(arg3)));
-	}
-	template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2, Arg3 &&arg3, Arg4 &&arg4)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2), std::forward<Arg3>(arg3), std::forward<Arg4>(arg4)));
-	}
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{
@@ -753,7 +728,6 @@ namespace vstd
 	using boost::math::round;
 }
 using vstd::operator-=;
-using vstd::make_unique;
 
 #ifdef NO_STD_TOSTRING
 namespace std
