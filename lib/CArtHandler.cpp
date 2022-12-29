@@ -864,7 +864,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
-	if(!ArtifactUtils::isSlotBackpack(al.slot))
+	if(!ArtifactUtils::isSlotBackpack(al.slot) && (al.slot != ArtifactPosition::TRANSITION_POS))
 		al.getHolderNode()->detachFrom(*this);
 }
 
@@ -1335,7 +1335,11 @@ const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(Artifact
 const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 {
 	if(pos == ArtifactPosition::TRANSITION_POS)
-		return &artifactTransitionPos;
+	{
+		// Always add to the end. Always take from the beginning.
+		assert(!artifactsTransitionPos.empty());
+		return &(*artifactsTransitionPos.begin());
+	}
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn.at(pos);
 	if(pos >= ArtifactPosition::AFTER_LAST )
@@ -1363,7 +1367,11 @@ ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 	assert(!vstd::contains(artifactsWorn, slot));
 
 	if(slot == ArtifactPosition::TRANSITION_POS)
-		return artifactTransitionPos;
+	{
+		// Always add to the end. Always take from the beginning.
+		artifactsTransitionPos.push_back(ArtSlotInfo());
+		return artifactsTransitionPos.back();
+	}
 	if(!ArtifactUtils::isSlotBackpack(slot))
 		return artifactsWorn[slot];
 
@@ -1384,7 +1392,12 @@ void CArtifactSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, 
 
 void CArtifactSet::eraseArtSlot(ArtifactPosition slot)
 {
-	if(ArtifactUtils::isSlotBackpack(slot))
+	if(slot == ArtifactPosition::TRANSITION_POS)
+	{
+		assert(!artifactsTransitionPos.empty());
+		artifactsTransitionPos.erase(artifactsTransitionPos.begin());
+	}
+	else if(ArtifactUtils::isSlotBackpack(slot))
 	{
 		auto backpackSlot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
 

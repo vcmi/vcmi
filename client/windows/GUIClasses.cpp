@@ -1249,8 +1249,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 CExchangeWindow::~CExchangeWindow()
 {
-	artifs[0]->commonInfo = nullptr;
-	artifs[1]->commonInfo = nullptr;
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const

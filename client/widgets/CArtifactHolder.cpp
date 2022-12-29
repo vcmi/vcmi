@@ -670,6 +670,16 @@ CArtifactsOfHero::CArtifactsOfHero(const Point & position, bool createCommonPart
 CArtifactsOfHero::~CArtifactsOfHero()
 {
 	dispose();
+	// Artifact located in artifactsTransitionPos should be returned
+	if(!curHero->artifactsTransitionPos.empty())
+	{
+		auto artPlace = getArtPlace(
+			ArtifactUtils::getArtifactDstPosition(curHero->artifactsTransitionPos.begin()->artifact, curHero, curHero->bearerType()));
+		assert(artPlace);
+		assert(artPlace->ourOwner);
+		artPlace->setMeAsDest();
+		artPlace->ourOwner->realizeCurrentTransaction();
+	}
 }
 
 void CArtifactsOfHero::updateParentWindow()
@@ -735,8 +745,21 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 	// however after first movement we pick the art from TRANSITION_POS and the second movement coming when
 	// we have a different artifact may look surprising... but it's valid.
 
+	// Used when doing dragAndDrop and artifact swap multiple times
+	if(src.slot == ArtifactPosition::TRANSITION_POS && 
+		commonInfo->src.slotID == ArtifactPosition::TRANSITION_POS &&
+		commonInfo->dst.slotID == ArtifactPosition::PRE_FIRST)
+	{
+		auto art = curHero->getArt(ArtifactPosition::TRANSITION_POS);
+		assert(art);
+		CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", art->artType->getIconIndex()));
+		markPossibleSlots(art);
+
+		commonInfo->src.art = art;
+		commonInfo->src.slotID = src.slot;
+	}
 	// Artifact was taken from us
-	if(commonInfo->src == src)
+	else if(commonInfo->src == src)
 	{
 		// Expected movement from slot ot slot
 		assert(commonInfo->dst == dst
@@ -746,13 +769,12 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 		commonInfo->reset();
 		unmarkSlots();
 	}
-	// The dest artifact was moved -> we are picking it
+	// The dest artifact was moved after the swap -> we are picking it
 	else if(commonInfo->dst == src)
 	{
 		assert(dst.slot == ArtifactPosition::TRANSITION_POS);
 		commonInfo->reset();
 
-		CArtifactsOfHero::ArtPlacePtr ap;
 		for(CArtifactsOfHero * aoh : commonInfo->participants)
 		{
 			if(dst.isHolder(aoh->curHero))
@@ -795,6 +817,10 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 
 CArtifactsOfHero::ArtPlacePtr CArtifactsOfHero::getArtPlace(int slot)
 {
+	if(slot == ArtifactPosition::TRANSITION_POS)
+	{
+		return nullptr;
+	}
 	if(slot < GameConstants::BACKPACK_START)
 	{
 		if(artWorn.find(ArtifactPosition(slot)) == artWorn.end())

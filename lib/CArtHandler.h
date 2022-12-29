@@ -317,7 +317,7 @@ class DLL_LINKAGE CArtifactSet
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
 	std::map<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	ArtSlotInfo artifactTransitionPos; // Used as transition position for manual artifact exchange
+	std::vector<ArtSlotInfo> artifactsTransitionPos; // Used as transition position for dragAndDrop artifact exchange
 
 	ArtSlotInfo & retrieveNewArtSlot(ArtifactPosition slot);
 	void setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, bool locked);
