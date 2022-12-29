@@ -139,14 +139,25 @@ void MainWindow::on_lobbyButton_clicked()
 void MainWindow::updateTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	std::string languageCode = settings["general"]["language"].String();
+	std::string translationFile = settings["general"]["language"].String()+ ".qm";
 
-	QString translationFile = "./launcher/translations/" + QString::fromStdString(languageCode) + ".qm";
+	QVector<QString> searchPaths;
 
-	qApp->removeTranslator(&translator);
-	if (!translator.load(translationFile))
-		logGlobal->error("Failed to load translation");
-	if (!qApp->installTranslator(&translator))
-		logGlobal->error("Failed to install translator");
+	for(auto const & string : VCMIDirs::get().dataPaths())
+		searchPaths.push_back(pathToQString(string / "launcher" / "translation" / translationFile));
+	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "translation" / translationFile));
+
+	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	{
+		if (translator.load(string))
+		{
+			if (!qApp->installTranslator(&translator))
+				logGlobal->error("Failed to install translator");
+			return;
+		}
+	}
+
+	logGlobal->error("Failed to find translation");
+
 #endif
 }
