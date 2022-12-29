@@ -118,13 +118,25 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 void MainWindow::loadTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	std::string languageCode = settings["general"]["language"].String();
-	QString translationFile = "./mapeditor/translations/" + QString::fromStdString(languageCode) + ".qm";
+	std::string translationFile = settings["general"]["language"].String()+ ".qm";
 
-	if (!translator.load(translationFile))
-		logGlobal->error("Failed to load translation");
-	if (!qApp->installTranslator(&translator))
-		logGlobal->error("Failed to install translator");
+	QVector<QString> searchPaths;
+
+	for(auto const & string : VCMIDirs::get().dataPaths())
+		searchPaths.push_back(pathToQString(string / "mapeditor" / "translation" / translationFile));
+	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "translation" / translationFile));
+
+	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	{
+		if (translator.load(string))
+		{
+			if (!qApp->installTranslator(&translator))
+				logGlobal->error("Failed to install translator");
+			return;
+		}
+	}
+
+	logGlobal->error("Failed to find translation");
 #endif
 }
 
