@@ -22,7 +22,7 @@ ImageViewer::ImageViewer(QWidget * parent)
 
 void ImageViewer::changeEvent(QEvent *event)
 {
-	if ( event->type() == QEvent::LanguageChange)
+	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
 	}

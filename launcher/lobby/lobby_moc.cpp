@@ -37,7 +37,7 @@ Lobby::Lobby(QWidget *parent) :
 
 void Lobby::changeEvent(QEvent *event)
 {
-	if ( event->type() == QEvent::LanguageChange)
+	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
 	}

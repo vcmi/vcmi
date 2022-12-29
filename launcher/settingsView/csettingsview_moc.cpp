@@ -329,7 +329,7 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 
 void CSettingsView::changeEvent(QEvent *event)
 {
-	if ( event->type() == QEvent::LanguageChange)
+	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
 	}
