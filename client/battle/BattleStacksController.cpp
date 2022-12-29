@@ -348,7 +348,11 @@ void BattleStacksController::update()
 
 void BattleStacksController::updateBattleAnimations()
 {
-	for (auto & elem : currentAnimations)
+	// operate on copy - to prevent potential iterator invalidation due to push_back's
+	// FIXME? : remove remaining calls to addNewAnim from BattleAnimation::nextFrame (only Catapult explosion at the time of writing)
+	auto copiedVector = currentAnimations;
+
+	for (auto & elem : copiedVector)
 	{
 		if (!elem)
 			continue;
