@@ -62,10 +62,10 @@ public:
 		h & identifier;
 		h & animation;
 		h & appearAnimation;
+		h & triggerAnimation;
 		if (version > 805)
 		{
 			h & appearSound;
-			h & triggerAnimation;
 			h & triggerSound;
 		}
 		h & allowedTerrains;
