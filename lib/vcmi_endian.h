@@ -20,11 +20,18 @@ VCMI_LIB_NAMESPACE_BEGIN
  *    memory. On big endian machines, the value will be byteswapped.
  */
 
-#if (defined(linux) || defined(__linux) || defined(__linux__)) && (defined(sparc) || defined(__arm__))
-/* SPARC does not support unaligned memory access. Let gcc know when
- * to emit the right code. */
-struct unaligned_Uint16 { ui16 val __attribute__(( packed )); };
-struct unaligned_Uint32 { ui32 val __attribute__(( packed )); };
+#if defined(__clang__) || defined(__GNUC__) || defined(_MSC_VER)
+
+#if defined(_MSC_VER)
+#define PACKED_STRUCT_BEGIN __pragma( pack(push, 1) )
+#define PACKED_STRUCT_END   __pragma( pack(pop) )
+#else
+#define PACKED_STRUCT_BEGIN
+#define PACKED_STRUCT_END __attribute__(( packed ))
+#endif
+
+PACKED_STRUCT_BEGIN struct unaligned_Uint16 { ui16 val; } PACKED_STRUCT_END;
+PACKED_STRUCT_BEGIN struct unaligned_Uint32 { ui32 val; } PACKED_STRUCT_END;
 
 static inline ui16 read_unaligned_u16(const void *p)
 {
@@ -41,14 +48,15 @@ static inline ui32 read_unaligned_u32(const void *p)
 #define read_le_u16(p) (SDL_SwapLE16(read_unaligned_u16(p)))
 #define read_le_u32(p) (SDL_SwapLE32(read_unaligned_u32(p)))
 
-#define PACKED_STRUCT __attribute__(( packed ))
-
 #else
+
+#warning UB: unaligned memory access
 
 #define read_le_u16(p) (SDL_SwapLE16(* reinterpret_cast<const ui16 *>(p)))
 #define read_le_u32(p) (SDL_SwapLE32(* reinterpret_cast<const ui32 *>(p)))
 
-#define PACKED_STRUCT
+#define PACKED_STRUCT_BEGIN
+#define PACKED_STRUCT_END
 
 #endif
 
