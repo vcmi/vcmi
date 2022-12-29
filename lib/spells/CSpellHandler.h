@@ -85,7 +85,7 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName;
-			if (version > 805)
+			if (version > 806)
 				h & effectName;
 			h & verticalPosition;
 			h & pause;

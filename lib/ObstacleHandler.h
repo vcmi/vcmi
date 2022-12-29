@@ -63,7 +63,7 @@ public:
 		h & animation;
 		h & appearAnimation;
 		h & triggerAnimation;
-		if (version > 805)
+		if (version > 806)
 		{
 			h & appearSound;
 			h & triggerSound;
