@@ -46,6 +46,7 @@ public:
 	const CModList & getModList() const;
 
 	void updateTranslation();
+	void computeSidePanelSizes();
 	
 public slots:
 	void on_startGameButton_clicked();

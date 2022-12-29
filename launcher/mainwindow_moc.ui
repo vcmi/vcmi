@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>508</height>
+    <height>410</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,6 +45,12 @@
          <size>
           <width>0</width>
           <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
@@ -91,6 +97,12 @@
           <height>0</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>Settings</string>
         </property>
@@ -135,6 +147,12 @@
           <height>0</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>Lobby</string>
         </property>
@@ -166,6 +184,19 @@
        </widget>
       </item>
       <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QToolButton" name="startEditorButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -177,6 +208,12 @@
          <size>
           <width>0</width>
           <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="font">
@@ -224,6 +261,12 @@
          <size>
           <width>0</width>
           <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="font">

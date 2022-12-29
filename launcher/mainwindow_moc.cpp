@@ -47,6 +47,29 @@ void MainWindow::load()
 	settings.init();
 }
 
+void MainWindow::computeSidePanelSizes()
+{
+	QVector<QToolButton*> widgets = {
+		ui->modslistButton,
+		ui->settingsButton,
+		ui->lobbyButton,
+		ui->startEditorButton,
+		ui->startGameButton
+	};
+
+	for(auto & widget : widgets)
+	{
+		QFontMetrics metrics(widget->font());
+		QSize iconSize = widget->iconSize();
+
+		// this is minimal space that is needed for our button to avoid text clipping
+		int buttonHeight = iconSize.height() + metrics.height() + 4;
+
+		widget->setMinimumHeight(buttonHeight);
+		widget->setMaximumHeight(buttonHeight * 1.2);
+	}
+}
+
 MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -72,6 +95,8 @@ MainWindow::MainWindow(QWidget * parent)
 #ifndef ENABLE_EDITOR
 	ui->startEditorButton->hide();
 #endif
+
+	computeSidePanelSizes();
 
 	ui->tabListWidget->setCurrentIndex(0);
 
