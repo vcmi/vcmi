@@ -170,7 +170,6 @@ struct DLL_LINKAGE CGPath
 
 	int3 startPos() const; // start point
 	int3 endPos() const; //destination point
-	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
 struct DLL_LINKAGE CPathsInfo
@@ -472,12 +471,11 @@ public:
 	static std::vector<std::shared_ptr<IPathfindingRule>> buildRuleSet();
 };
 
-class CPathfinder : private CGameInfoCallback
+class CPathfinder
 {
 public:
 	friend class CPathfinderHelper;
 
-	CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero);
 	CPathfinder(
 		CGameState * _gs,
 		std::shared_ptr<PathfinderConfig> config);
@@ -485,6 +483,8 @@ public:
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
+	CGameState * gamestate;
+
 	typedef EPathfindingLayer ELayer;
 
 	std::shared_ptr<PathfinderConfig> config;

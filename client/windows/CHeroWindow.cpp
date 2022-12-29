@@ -77,7 +77,7 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		#if 0
 		owner->update(hero, true);
 		#else
-		UNUSED(owner);
+		MAYBE_UNUSED(owner);
 		const CGHeroInstance * buf = hero;
 		GH.popInts(1);
 		GH.pushIntT<CHeroWindow>(buf);

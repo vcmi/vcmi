@@ -175,7 +175,7 @@ private:
 #define RAII_TRACE(logger, onEntry, onLeave)			\
 	std::unique_ptr<vstd::CTraceLogger> ctl00;						\
 	if(logger->isTraceEnabled())						\
-		ctl00 = make_unique<vstd::CTraceLogger>(logger, onEntry, onLeave);
+		ctl00 = std::make_unique<vstd::CTraceLogger>(logger, onEntry, onLeave);
 
 #define LOG_TRACE(logger) RAII_TRACE(logger,								\
 		boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION),	\

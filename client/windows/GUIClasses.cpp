@@ -917,7 +917,7 @@ std::function<void()> CExchangeController::onSwapArmy()
 	{
 		GsThread::run([=]
 		{
-			if(right->tempOwner != cb->getMyColor()
+			if(left->tempOwner != cb->getMyColor()
 				|| right->tempOwner != cb->getMyColor())
 			{
 				return;
@@ -1763,7 +1763,7 @@ void CHillFortWindow::updateGarrisons()
 		if(newState != -1)
 		{
 			UpgradeInfo info;
-			LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 			if(info.newID.size())//we have upgrades here - update costs
 			{
 				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
@@ -1868,7 +1868,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 				if(slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ))//this is activated slot or "upgrade all"
 				{
 					UpgradeInfo info;
-					LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
 				}
 			}
@@ -1899,7 +1899,7 @@ int CHillFortWindow::getState(SlotID slot)
 		return -1;
 
 	UpgradeInfo info;
-	LOCPLINT->cb->getUpgradeInfo(hero, slot, info);
+	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
 	if(!info.newID.size())//already upgraded
 		return 1;
 

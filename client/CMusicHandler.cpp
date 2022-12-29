@@ -456,7 +456,7 @@ void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName,
 {
 	try
 	{
-		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
+		queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 	}
 	catch(std::exception &e)
 	{

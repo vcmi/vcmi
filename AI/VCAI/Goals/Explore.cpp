@@ -50,7 +50,7 @@ namespace Goals
 			sightRadius = hero->getSightRadius();
 			bestGoal = sptr(Goals::Invalid());
 			bestValue = 0;
-			ourPos = h->convertPosition(h->pos, false);
+			ourPos = h->visitablePos();
 			allowDeadEndCancellation = true;
 			allowGatherArmy = gatherArmy;
 		}

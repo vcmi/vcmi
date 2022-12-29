@@ -340,7 +340,7 @@ const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
 
 CMapFormatJson::CMapFormatJson():
 	fileVersionMajor(0), fileVersionMinor(0),
-	mapObjectResolver(make_unique<MapObjectResolver>(this)),
+	mapObjectResolver(std::make_unique<MapObjectResolver>(this)),
 	map(nullptr), mapHeader(nullptr)
 {
 
@@ -981,14 +981,14 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			{
 				tile.roadType = const_cast<RoadType*>(VLC->terrainTypeHandler->getRoadByCode(typeCode));
 			}
-			catch (const std::exception& e) //it's not a road, it's a river
+			catch (const std::exception&) //it's not a road, it's a river
 			{
 				try
 				{
 					tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
 					hasRoad = false;
 				}
-				catch (const std::exception& e)
+				catch (const std::exception&)
 				{
 					throw std::runtime_error("Invalid river type in " + src);
 				}
@@ -1042,7 +1042,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 				tile.extTileFlags |= (flip << 2);
 		}
 	}
-	catch (const std::exception & e)
+	catch (const std::exception &)
 	{
 		logGlobal->error("Failed to read terrain tile: %s");
 	}
@@ -1191,7 +1191,7 @@ void CMapLoaderJson::readObjects()
 
 	//get raw data
 	for(auto & p : data.Struct())
-		loaders.push_back(vstd::make_unique<MapObjectLoader>(this, p));
+		loaders.push_back(std::make_unique<MapObjectLoader>(this, p));
 
 	for(auto & ptr : loaders)
 		ptr->construct();

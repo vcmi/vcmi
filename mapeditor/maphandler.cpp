@@ -65,7 +65,7 @@ void MapHandler::initTerrainGraphics()
 	{
 		for(auto & type : files)
 		{
-			animation[type.first] = make_unique<Animation>(type.second);
+			animation[type.first] = std::make_unique<Animation>(type.second);
 			animation[type.first]->preload();
 			const size_t views = animation[type.first]->size(0);
 			cache[type.first].resize(views);

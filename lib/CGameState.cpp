@@ -1768,7 +1768,7 @@ void CGameState::initTowns()
 		for(auto building : vti->builtBuildings)
 		{
 			assert(vti->town->buildings.at(building) != nullptr);
-			UNUSED(building);
+			MAYBE_UNUSED(building);
 		}
 
 		//town events
@@ -1880,8 +1880,7 @@ void CGameState::placeHeroesInTowns()
 				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
 				if (heroOnTownBlockableTile)
 				{
-					int3 townVisitablePos = t->visitablePos();
-					int3 correctedPos = townVisitablePos + h->getVisitableOffset();
+					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
 
 					map->removeBlockVisTiles(h);
 					h->pos = correctedPos;
@@ -1957,7 +1956,16 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
-UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
+
+void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
+{
+	assert(obj);
+	assert(obj->hasStackAtSlot(stackPos));
+
+	out = fillUpgradeInfo(obj->getStack(stackPos));
+}
+
+UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 {
 	UpgradeInfo ret;
 	const CCreature *base = stack.type;
@@ -2021,7 +2029,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	return ret;
 }
 
-PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 )
+PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
 	if ( color1 == color2 )
 		return PlayerRelations::SAME_PLAYER;
@@ -2042,8 +2050,7 @@ void CGameState::apply(CPack *pack)
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 {
-	CPathfinder pathfinder(out, this, hero);
-	pathfinder.calculatePaths();
+	calculatePaths(std::make_shared<SingleHeroPathfinderConfig>(out, this, hero));
 }
 
 void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config)
@@ -2187,17 +2194,21 @@ void CGameState::updateRumor()
 	while(!rumor.update(rumorId, rumorExtra));
 }
 
-bool CGameState::isVisible(int3 pos, PlayerColor player)
+bool CGameState::isVisible(int3 pos, boost::optional<PlayerColor> player) const
 {
+	if (!map->isInTheMap(pos))
+		return false;
+	if (!player)
+		return true;
 	if(player == PlayerColor::NEUTRAL)
 		return false;
-	if(player.isSpectator())
+	if(player->isSpectator())
 		return true;
 
-	return (*getPlayerTeam(player)->fogOfWarMap)[pos.z][pos.x][pos.y];
+	return (*getPlayerTeam(*player)->fogOfWarMap)[pos.z][pos.x][pos.y];
 }
 
-bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )
+bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player ) const
 {
 	if(!player)
 		return true;

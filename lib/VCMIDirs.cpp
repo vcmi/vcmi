@@ -46,8 +46,8 @@ std::string IVCMIDirs::genHelpString() const
 		"  user cache:		" + userCachePath().string() + "\n"
 		"  user config:		" + userConfigPath().string() + "\n"
 		"  user logs:		" + userLogsPath().string() + "\n"
-		"  user saves:		" + userSavePath().string() + "\n";
-		"  user extracted:	" + userExtractedPath().string() + "\n"; // Should end without new-line?
+		"  user saves:		" + userSavePath().string() + "\n"
+		"  user extracted:	" + userExtractedPath().string() + "\n";
 }
 
 void IVCMIDirs::init()

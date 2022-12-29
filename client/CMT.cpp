@@ -878,7 +878,7 @@ void processCommand(const std::string &message)
 	{
 		std::string URI;
 		readed >> URI;
-		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
+		std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
 		anim->preload();
 		anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 	}
