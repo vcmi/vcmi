@@ -482,8 +482,7 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
-	InterfaceObjectConfigurable(),
-	randomMapTab(randomMapTab)
+	InterfaceObjectConfigurable()
 {
 	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
