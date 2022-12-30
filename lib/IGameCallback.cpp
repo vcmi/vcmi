@@ -98,8 +98,6 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 		logGlobal->error("Illegal call to getAllTiles !");
 		return;
 	}
-//	bool water = surface == 0 || surface == 2,
-//		land = surface == 0 || surface == 1;
 
 	std::vector<int> floors;
 	if(level == -1)
