@@ -442,12 +442,12 @@ bool TerrainType::isUnderground() const
 
 bool TerrainType::isSurfaceCartographerCompatible() const
 {
-	return isLand() && isPassable() && id != Terrain::SUBTERRANEAN;
+	return isSurface();
 }
 
 bool TerrainType::isUndergroundCartographerCompatible() const
 {
-	return isLand() && isPassable() && id == Terrain::SUBTERRANEAN;
+	return isLand() && isPassable() && !isSurface();
 }
 
 bool TerrainType::isTransitionRequired() const
