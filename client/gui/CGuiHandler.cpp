@@ -451,7 +451,7 @@ void CGuiHandler::renderFrame()
 
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
 	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 	if(acquiredTheLockOnPim)
 	{
@@ -623,8 +623,8 @@ void CFramerateManager::framerateDelay()
 
 	currentTicks = SDL_GetTicks();
 	// recalculate timeElapsed for external calls via getElapsed()
-	// limit it to 1000 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
-	timeElapsed = std::min<ui32>(currentTicks - lastticks, 1000);
+	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
+	timeElapsed = std::min<ui32>(currentTicks - lastticks, 100);
 
 	lastticks = SDL_GetTicks();
 
