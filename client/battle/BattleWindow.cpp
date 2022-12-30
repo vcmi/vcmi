@@ -139,6 +139,7 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::activate()
 {
+	GH.statusbar = console;
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
 }
