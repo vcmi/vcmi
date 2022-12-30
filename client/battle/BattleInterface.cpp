@@ -108,11 +108,14 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		}
 	};
 
-	CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
-
 	GH.pushInt(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
+
+	if (battleIntroSoundChannel != -1)
+		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
+	else
+		onIntroSoundPlayed();
 }
 
 void BattleInterface::onIntroSoundPlayed()
@@ -228,11 +231,6 @@ void BattleInterface::stackAttacking( const StackAttackInfo & attackInfo )
 
 void BattleInterface::newRoundFirst( int round )
 {
-	if (battleIntroSoundChannel == -1 &&
-		getAnimationCondition(EAnimationEvents::OPENING) == true)
-	{
-		onIntroSoundPlayed();
-	}
 	waitForAnimationCondition(EAnimationEvents::OPENING, false);
 }
 
