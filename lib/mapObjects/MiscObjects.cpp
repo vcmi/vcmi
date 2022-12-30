@@ -2077,7 +2077,23 @@ void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 
 		//subIDs of different types of cartographers:
 		//water = 0; land = 1; underground = 2;
-		cb->getAllTiles (fw.tiles, hero->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
+
+        IGameCallback::MapTerrainFilterMode tileFilterMode = IGameCallback::MapTerrainFilterMode::NONE;
+
+        switch(subID)
+        {
+            case 0:
+                tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::WATER;
+                break;
+            case 1:
+                tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::LAND_CARTOGRAPHER;
+                break;
+            case 2:
+                tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER;
+                break;
+        }
+
+		cb->getAllTiles (fw.tiles, hero->tempOwner, -1, tileFilterMode); //reveal appropriate tiles
 		cb->sendAndApply (&fw);
 		cb->setObjProperty (id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
 	}

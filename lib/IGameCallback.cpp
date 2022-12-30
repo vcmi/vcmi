@@ -67,7 +67,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 		return;
 	}
 	if(radious == CBuilding::HEIGHT_SKYSHIP) //reveal entire map
-		getAllTiles (tiles, player, -1, 0);
+		getAllTiles (tiles, player, -1, MapTerrainFilterMode::NONE);
 	else
 	{
 		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
@@ -91,15 +91,15 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 	}
 }
 
-void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, boost::optional<PlayerColor> Player, int level, int surface) const
+void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, boost::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
 		logGlobal->error("Illegal call to getAllTiles !");
 		return;
 	}
-	bool water = surface == 0 || surface == 2,
-		land = surface == 0 || surface == 1;
+//	bool water = surface == 0 || surface == 2,
+//		land = surface == 0 || surface == 1;
 
 	std::vector<int> floors;
 	if(level == -1)
@@ -114,13 +114,32 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 
 	for (auto zd : floors)
 	{
-
 		for (int xd = 0; xd < gs->map->width; xd++)
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,zd))->terType->isWater() && water)
-					|| (getTile (int3 (xd,yd,zd))->terType->isLand() && land))
+                bool isTileEligible = false;
+
+                switch(tileFilterMode)
+                {
+                    case MapTerrainFilterMode::NONE:
+                        isTileEligible = true;
+                        break;
+                    case MapTerrainFilterMode::WATER:
+                        isTileEligible = getTile (int3 (xd,yd,zd))->terType->isWater();
+                        break;
+                    case MapTerrainFilterMode::LAND:
+                        isTileEligible = getTile (int3 (xd,yd,zd))->terType->isLand();
+                        break;
+                    case MapTerrainFilterMode::LAND_CARTOGRAPHER:
+                        isTileEligible = getTile(int3 (xd,yd,zd))->terType->isSurfaceCartographerCompatible();
+                        break;
+                    case MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER:
+                        isTileEligible = getTile(int3 (xd,yd,zd))->terType->isUndergroundCartographerCompatible();
+                        break;
+                }
+
+				if (isTileEligible)
 					tiles.insert(int3(xd,yd,zd));
 			}
 		}

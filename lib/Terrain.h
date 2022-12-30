@@ -60,6 +60,8 @@ public:
 	bool isSurface() const;
 	bool isUnderground() const;
 	bool isTransitionRequired() const;
+    bool isSurfaceCartographerCompatible() const;
+    bool isUndergroundCartographerCompatible() const;
 		
 	operator std::string() const;
 	
