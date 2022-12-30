@@ -234,11 +234,19 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 {
 	/// Small internal structure that contains information on specific group of objects
 	/// (creating separate entity is overcomplicating at least at this point)
-	struct ObjectContainter
+	class DLL_LINKAGE ObjectContainter
 	{
-		si32 id;
 		std::string identifier;
-		std::string name; // human-readable name
+		std::string modScope;
+
+	public:
+		ObjectContainter() = default;
+		ObjectContainter(const std::string & modScope, const std::string & identifier):
+			identifier(identifier),
+			modScope(modScope)
+		{}
+
+		si32 id;
 		std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
 
 		JsonNode base;
@@ -249,13 +257,17 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 		boost::optional<si32> groupDefaultAiValue;
 
+		std::string getIdentifier() const;
+		std::string getNameTextID() const; // {scope, "objects", name, "name"}
+		std::string getNameTranslated() const;
+
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & name;
 			h & handlerName;
 			h & base;
 			h & subObjects;
 			h & identifier;
+			h & modScope;
 			h & subIds;
 			h & sounds;
 			h & groupDefaultAiValue;

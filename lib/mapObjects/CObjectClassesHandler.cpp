@@ -177,7 +177,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 
 	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->setType(obj->id, id);
-	handler->setTypeName(obj->identifier, convertedId);
+	handler->setTypeName(obj->getIdentifier(), convertedId);
 
 	if (customNames.count(obj->id) && customNames.at(obj->id).size() > id)
 		handler->init(entry, customNames.at(obj->id).at(id));
@@ -194,7 +194,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		legacyTemplates.erase(range.first, range.second);
 	}
 
-	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->identifier, obj->id, convertedId, id);
+	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->getIdentifier(), obj->id, convertedId, id);
 
 	//some mods redefine content handlers in the decoration.json in such way:
 	//"core:sign" : { "types" : { "forgeSign" : { ...
@@ -219,22 +219,37 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	else if(isExistingKey) //It's supposed that fan mods handlers are not overridden by default handlers
 	{
 		logGlobal->trace("Handler '%s' has not been overridden with handler '%s' in object %s(%d)::%s(%d)",
-			obj->subObjects[id]->subTypeName, obj->handlerName, obj->identifier, obj->id, convertedId, id);
+			obj->subObjects[id]->subTypeName, obj->handlerName, obj->getIdentifier(), obj->id, convertedId, id);
 	}
 	else
 	{
 		logGlobal->warn("Handler '%s' for object %s(%d)::%s(%d) has not been activated as RMG breaker",
-			obj->handlerName, obj->identifier, obj->id, convertedId, id);
+			obj->handlerName, obj->getIdentifier(), obj->id, convertedId, id);
 	}
+}
+
+std::string CObjectClassesHandler::ObjectContainter::getIdentifier() const
+{
+	return modScope + ":" + identifier;
+}
+
+std::string CObjectClassesHandler::ObjectContainter::getNameTextID() const
+{
+	return TextIdentifier ("object", modScope, identifier, "name").get();
+}
+
+std::string CObjectClassesHandler::ObjectContainter::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name)
 {
-	auto obj = new ObjectContainter();
+	auto obj = new ObjectContainter(scope, name);
 	static const si32 fixedObjectsBound = 256; //Legacy value for backward compatibility
 
-	obj->identifier = name;
-	obj->name = json["name"].String();
+	VLC->generaltexth->registerString( obj->getNameTextID(), json["name"].String());
+
 	obj->handlerName = json["handler"].String();
 	obj->base = json["base"];
 	obj->id = selectNextID(json["index"], objects, fixedObjectsBound);
@@ -387,7 +402,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 std::string CObjectClassesHandler::getObjectName(si32 type) const
 {
 	if (objects.count(type))
-		return objects.at(type)->name;
+		return  objects.at(type)->getNameTranslated();
 	logGlobal->error("Access to non existing object of type %d", type);
 	return "";
 }
