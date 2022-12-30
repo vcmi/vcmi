@@ -393,6 +393,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
 	DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot);
+	DLL_LINKAGE bool isSlotEquipment(ArtifactPosition slot);
 }
 
 VCMI_LIB_NAMESPACE_END

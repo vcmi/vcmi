@@ -1247,10 +1247,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	updateWidgets();
 }
 
-CExchangeWindow::~CExchangeWindow()
-{
-}
-
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
 {
 	return garr->getSelection();

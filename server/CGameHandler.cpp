@@ -3892,7 +3892,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if ((!srcArtifact || dst.slot < GameConstants::BACKPACK_START)
+	if ((!srcArtifact || !ArtifactUtils::isSlotBackpack(dst.slot))
 		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
@@ -3926,6 +3926,8 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		MoveArtifact ma(&src, &dst);
+		if(dst.slot == ArtifactPosition::TRANSITION_POS)
+			ma.askAssemble = false;
 		sendAndApply(&ma);
 	}
 	return true;

@@ -856,7 +856,7 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 	assert(canBePutAt(al));
 
 	al.getHolderArtSet()->setNewArtSlot(al.slot, this, false);
-	if(!ArtifactUtils::isSlotBackpack(al.slot) && (al.slot != ArtifactPosition::TRANSITION_POS))
+	if(ArtifactUtils::isSlotEquipment(al.slot))
 		al.getHolderNode()->attachTo(*this);
 }
 
@@ -864,7 +864,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
-	if(!ArtifactUtils::isSlotBackpack(al.slot) && (al.slot != ArtifactPosition::TRANSITION_POS))
+	if(ArtifactUtils::isSlotEquipment(al.slot))
 		al.getHolderNode()->detachFrom(*this);
 }
 
@@ -1003,6 +1003,8 @@ bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 
 bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
+	if(slot == ArtifactPosition::TRANSITION_POS)
+		return true;
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved);
 	if(!canMainArtifactBePlaced)
 		return false; //no is no...
@@ -1075,7 +1077,11 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, Artifac
 
 void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 {
-	if(ArtifactUtils::isSlotBackpack(al.slot))
+	if(al.slot == ArtifactPosition::TRANSITION_POS)
+	{
+		CArtifactInstance::putAt(al);
+	}
+	else if(ArtifactUtils::isSlotBackpack(al.slot))
 	{
 		CArtifactInstance::putAt(al);
 		for(ConstituentInfo &ci : constituentsInfo)
@@ -1113,7 +1119,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 
 void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 {
-	if(ArtifactUtils::isSlotBackpack(al.slot))
+	if(ArtifactUtils::isSlotBackpack(al.slot) || al.slot == ArtifactPosition::TRANSITION_POS)
 	{
 		CArtifactInstance::removeFrom(al);
 	}
@@ -1632,6 +1638,11 @@ DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * he
 DLL_LINKAGE bool ArtifactUtils::isSlotBackpack(ArtifactPosition slot)
 {
 	return slot >= GameConstants::BACKPACK_START;
+}
+
+DLL_LINKAGE bool ArtifactUtils::isSlotEquipment(ArtifactPosition slot)
+{
+	return slot < GameConstants::BACKPACK_START && slot >= 0;
 }
 
 VCMI_LIB_NAMESPACE_END
