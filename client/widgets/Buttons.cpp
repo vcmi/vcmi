@@ -289,8 +289,8 @@ std::pair<std::string, std::string> CButton::tooltip()
 std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
 	return std::make_pair(
-		CGI->generaltexth->translate(key + ".hover"),
-		CGI->generaltexth->translate(key + ".help")
+		CGI->generaltexth->translate(key, "hover"),
+		CGI->generaltexth->translate(key, "help")
 	);
 }
 
@@ -523,7 +523,7 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 		int index = static_cast<int>(px / static_cast<double>(pos.w) * animImage->size());
 
 		size_t helpIndex = index + (mode == MUSIC ? 326 : 336);
-		std::string helpBox = CGI->generaltexth->translate("core.help." + std::to_string(helpIndex) + ".help" );
+		std::string helpBox = CGI->generaltexth->translate("core.help", helpIndex, "help" );
 
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);

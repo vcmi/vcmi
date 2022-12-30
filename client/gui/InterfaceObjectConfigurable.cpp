@@ -180,8 +180,8 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 		if(config.getType() == JsonNode::JsonType::DATA_STRING)
 		{
 			logGlobal->debug("Reading hint text (help) from generaltext handler:%sd", config.String());
-			result.first  = CGI->generaltexth->translate( config.String() + ".hover");
-			result.second = CGI->generaltexth->translate( config.String() + ".help");
+			result.first  = CGI->generaltexth->translate( config.String(), "hover");
+			result.second = CGI->generaltexth->translate( config.String(), "help");
 		}
 	}
 	return result;

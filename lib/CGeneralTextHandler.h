@@ -115,6 +115,34 @@ public:
 	std::pair<std::string, std::string> operator[](size_t index) const;
 };
 
+class TextIdentifier
+{
+	std::string identifier;
+public:
+	std::string const & get() const
+	{
+		return identifier;
+	}
+
+	TextIdentifier(const char * id):
+		identifier(id)
+	{}
+
+	TextIdentifier(std::string const & id):
+		identifier(id)
+	{}
+
+	template<typename ... T>
+	TextIdentifier(std::string const & id, size_t index, T ... rest):
+		TextIdentifier(id + '.' + std::to_string(index), rest ... )
+	{}
+
+	template<typename ... T>
+	TextIdentifier(std::string const & id, std::string const & id2, T ... rest):
+		TextIdentifier(id + '.' + id2, rest ... )
+	{}
+};
+
 /// Handles all text-related data in game
 class DLL_LINKAGE CGeneralTextHandler
 {
@@ -124,30 +152,31 @@ class DLL_LINKAGE CGeneralTextHandler
 	/// map localization -> identifier
 	std::unordered_map<std::string, std::string> stringsIdentifiers;
 
-	/// add selected string to internal storage
-	void registerString(const std::string & UID, const std::string & localized);
-	void registerH3String(const std::string & file, size_t index, const std::string & localized);
-
-	void readToVector(std::string sourceID, std::string sourceName);
+	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
 	/// number of scenarios in specific campaign. TODO: move to a better location
 	std::vector<size_t> scenariosCountPerCampaign;
 public:
+	/// add selected string to internal storage
+	void registerString(const TextIdentifier & UID, const std::string & localized);
+
 	// returns true if identifier with such name was registered, even if not translated to current language
 	// not required right now, can be added if necessary
 	// bool identifierExists( const std::string identifier) const;
 
 	/// returns translated version of a string that can be displayed to user
-	const std::string & translate(const std::string & identifier) const;
-
-	/// returns translated version of a string that can be displayed to user, H3-array compatibility version
-	const std::string & translate(const std::string & identifier, size_t index) const;
+	template<typename  ... Args>
+	const std::string & translate(std::string arg1, Args ... args) const
+	{
+		TextIdentifier id(arg1, args ...);
+		return deserialize(id);
+	}
 
 	/// converts translated string into locale-independent text that can be sent to another client
 	const std::string & serialize(const std::string & identifier) const;
 
-	/// converts identifier into user-readable string, may be identical to 'translate' but reserved for serialization calls
-	const std::string & deserialize(const std::string & identifier) const;
+	/// converts identifier into user-readable string
+	const std::string & deserialize(const TextIdentifier & identifier) const;
 
 	/// Debug method, dumps all currently known texts into console using Json-like format
 	void dumpAllTexts();

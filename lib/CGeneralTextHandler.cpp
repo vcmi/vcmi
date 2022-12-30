@@ -301,26 +301,16 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(std::string sourceID, std::string sourceName)
+void CGeneralTextHandler::readToVector(std::string const & sourceID, std::string const & sourceName)
 {
 	CLegacyConfigParser parser(sourceName);
 	size_t index = 0;
 	do
 	{
-		registerH3String(sourceID, index, parser.readString());
+		registerString({sourceID, index}, parser.readString());
 		index += 1;
 	}
 	while (parser.endLine());
-}
-
-const std::string & CGeneralTextHandler::translate(const std::string & identifier, size_t index) const
-{
-	return translate(identifier + std::to_string(index));
-}
-
-const std::string & CGeneralTextHandler::translate(const std::string & identifier) const
-{
-	return deserialize(identifier);
 }
 
 const std::string & CGeneralTextHandler::serialize(const std::string & identifier) const
@@ -329,23 +319,18 @@ const std::string & CGeneralTextHandler::serialize(const std::string & identifie
 	return stringsIdentifiers.at(identifier);
 }
 
-const std::string & CGeneralTextHandler::deserialize(const std::string & identifier) const
+const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & identifier) const
 {
-	if (stringsLocalizations.count(identifier))
-		return stringsLocalizations.at(identifier);
-	logGlobal->error("Unable to find localization for string '%s'", identifier);
-	return identifier;
+	if (stringsLocalizations.count(identifier.get()))
+		return stringsLocalizations.at(identifier.get());
+	logGlobal->error("Unable to find localization for string '%s'", identifier.get());
+	return identifier.get();
 }
 
-void CGeneralTextHandler::registerH3String(const std::string & file, size_t index, const std::string & localized)
+void CGeneralTextHandler::registerString(const TextIdentifier & UID, const std::string & localized)
 {
-	registerString(file + '.' + std::to_string(index), localized);
-}
-
-void CGeneralTextHandler::registerString(const std::string & UID, const std::string & localized)
-{
-	stringsIdentifiers[localized] = UID;
-	stringsLocalizations[UID] = localized;
+	stringsIdentifiers[localized] = UID.get();
+	stringsLocalizations[UID.get()] = localized;
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
@@ -424,7 +409,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 			std::string line = parser.readString();
 			if (!line.empty())
 			{
-				registerH3String("core.randtvrn", index, line);
+				registerString({"core.randtvrn", index}, line);
 				index += 1;
 			}
 		}
@@ -436,7 +421,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		size_t index = 0;
 		do
 		{
-			registerH3String("core.genrltxt", index, parser.readString());
+			registerString({"core.genrltxt", index}, parser.readString());
 			index += 1;
 		}
 		while (parser.endLine());
@@ -461,9 +446,9 @@ CGeneralTextHandler::CGeneralTextHandler():
 		{
 			std::string color = parser.readString();
 
-			registerH3String("core.plcolors", index, color);
+			registerString({"core.plcolors", index}, color);
 			color[0] = toupper(color[0]);
-			registerH3String("vcmi.capitalColors", index, color);
+			registerString({"vcmi.capitalColors", index}, color);
 			index += 1;
 		}
 		while (parser.endLine());
@@ -474,41 +459,41 @@ CGeneralTextHandler::CGeneralTextHandler():
 		//skip header
 		parser.endLine();
 
-		for (int i = 0; i < 6; ++i)
+		for (size_t i = 0; i < 6; ++i)
 		{
-			registerH3String("core.seerhut.empty", i, parser.readString());
+			registerString({"core.seerhut.empty", i}, parser.readString());
 		}
 		parser.endLine();
 
-		for (int i = 0; i < 9; ++i) //9 types of quests
+		for (size_t i = 0; i < 9; ++i) //9 types of quests
 		{
 			std::string questName = CQuest::missionName(CQuest::Emission(1+i));
 
-			for (int j = 0; j < 5; ++j)
+			for (size_t j = 0; j < 5; ++j)
 			{
 				std::string questState = CQuest::missionState(j);
 
 				parser.readString(); //front description
-				for (int k = 0; k < 6; ++k)
+				for (size_t k = 0; k < 6; ++k)
 				{
-					registerH3String("core.seerhut.quest." + questName + "." + questState, k, parser.readString());
+					registerString({"core.seerhut.quest", questName, questState, k}, parser.readString());
 				}
 				parser.endLine();
 			}
 		}
 
-		for (int k = 0; k < 6; ++k) //Time limit
+		for (size_t k = 0; k < 6; ++k) //Time limit
 		{
-			registerH3String("core.seerhut.time", k, parser.readString());
+			registerString({"core.seerhut.time", k}, parser.readString());
 		}
 		parser.endLine();
 
 		parser.endLine(); // empty line
 		parser.endLine(); // header
 
-		for (int i = 0; i < 48; ++i)
+		for (size_t i = 0; i < 48; ++i)
 		{
-			registerH3String("core.seerhut.names", i, parser.readString());
+			registerString({"core.seerhut.names", i}, parser.readString());
 			parser.endLine();
 		}
 	}
@@ -525,7 +510,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 			text = parser.readString();
 			if (!text.empty())
 			{
-				registerH3String("core.camptext.names", campaignsCount, text);
+				registerString({"core.camptext.names", campaignsCount}, text);
 				campaignsCount += 1;
 			}
 		}
@@ -546,7 +531,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 				text = parser.readString();
 				if (!text.empty())
 				{
-					registerH3String("core.camptext.regions." + std::to_string(campaign), region, text);
+					registerString({"core.camptext.regions", std::to_string(campaign), region}, text);
 					region += 1;
 				}
 			}
@@ -620,7 +605,7 @@ LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::strin
 
 const std::string & LegacyTextContainer::operator[](size_t index) const
 {
-	return owner.translate(basePath + "." + std::to_string(index));
+	return owner.translate(basePath, index);
 }
 
 LegacyHelpContainer::LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath):

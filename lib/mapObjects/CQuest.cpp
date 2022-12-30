@@ -303,7 +303,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	std::string questName  = missionName(Emission(missionType-1));
 	std::string questState = missionState(onHover ? 3 : 4);
 
-	ms << VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + questState,textOption);
+	ms << VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption);
 
 	switch(missionType)
 	{
