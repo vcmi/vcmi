@@ -18,6 +18,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
+#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -802,12 +803,18 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	//bonus from attack/defense skills
 	if(attackDefenceDifference < 0) //decreasing dmg
 	{
-		const double dec = std::min(0.025 * (-attackDefenceDifference), 0.7);
+		double defenseMultiplier = VLC->modh->settings.DEFENSE_POINT_DMG_MULTIPLIER;
+		double defenseMultiplierCap = VLC->modh->settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+
+		const double dec = std::min(defenseMultiplier * (-attackDefenceDifference), defenseMultiplierCap);
 		multBonus *= 1.0 - dec;
 	}
 	else //increasing dmg
 	{
-		const double inc = std::min(0.05 * attackDefenceDifference, 4.0);
+		double attackMultiplier = VLC->modh->settings.ATTACK_POINT_DMG_MULTIPLIER;
+		double attackMultiplierCap = VLC->modh->settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+
+		const double inc = std::min(attackMultiplier * attackDefenceDifference, attackMultiplierCap);
 		additiveBonus += inc;
 	}
 
