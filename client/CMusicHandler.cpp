@@ -89,7 +89,7 @@ CSoundHandler::CSoundHandler():
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
-	
+
 	//predefine terrain set
 	//TODO: support custom sounds for new terrains and load from json
 	horseSounds =
@@ -542,6 +542,20 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
+	if (playing)
+	{
+		assert(0);
+		logGlobal->error("Attempt to delete music while playing!");
+		Mix_HaltMusic();
+	}
+
+	if (loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
+	{
+		assert(0);
+		logGlobal->error("Attempt to delete music while fading out!");
+		Mix_HaltMusic();
+	}
+
 	logGlobal->trace("Del-ing music file %s", currentName);
 	if (music)
 		Mix_FreeMusic(music);
@@ -619,7 +633,7 @@ bool MusicEntry::play()
 
 bool MusicEntry::stop(int fade_ms)
 {
-	if (playing)
+	if (Mix_PlayingMusic())
 	{
 		playing = false;
 		loop = 0;
