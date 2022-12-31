@@ -1371,7 +1371,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 
 	if(t.hasFavorableWinds())
 	{
-		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
+		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
 		return;
 	}
 	const TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];

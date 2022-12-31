@@ -230,6 +230,7 @@
 	"subterraneanGate" : {
 		"index" :103,
 		"handler" : "subterraneanGate",
+		"lastReservedIndex" : 1,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPGATE"],
@@ -559,6 +560,7 @@
 	"witchHut" : {
 		"index" :113,
 		"handler" : "witch",
+		"lastReservedIndex" : 1,
 		"base" : {
 			"sounds" : {
 				"visit" : ["GAZEBO"]

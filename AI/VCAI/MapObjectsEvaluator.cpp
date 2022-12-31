@@ -32,10 +32,6 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 				{
 					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getAiValue().get();
 				}
-				else if(VLC->objtypeh->getObjGroupAiValue(primaryID) != boost::none) //if value is not initialized - fallback to default value for this object family if it exists
-				{
-					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = VLC->objtypeh->getObjGroupAiValue(primaryID).get();
-				}
 				else //some default handling when aiValue not found, objects that require advanced properties (unavailable from handler) get their value calculated in getObjectValue
 				{
 					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0;

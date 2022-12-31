@@ -129,7 +129,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == OBJ_NAMES)
 	{
-		dst = VLC->objtypeh->getObjectName(ser);
+		dst = VLC->objtypeh->getObjectName(ser, 0);
 	}
 	else if(type == SEC_SKILL_NAME)
 	{
