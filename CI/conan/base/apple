@@ -4,4 +4,5 @@ compiler.version=13
 compiler.libcxx=libc++
 build_type=Release
 [conf]
+tools.apple:enable_bitcode = False
 tools.cmake.cmaketoolchain:generator = Ninja
