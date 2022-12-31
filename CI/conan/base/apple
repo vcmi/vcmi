@@ -1,0 +1,7 @@
+[settings]
+compiler=apple-clang
+compiler.version=13
+compiler.libcxx=libc++
+build_type=Release
+[conf]
+tools.cmake.cmaketoolchain:generator = Ninja
