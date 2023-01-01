@@ -345,8 +345,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	restypes         (*this, "core.restypes" ),
 	terrainNames     (*this, "core.terrname" ),
 	randsign         (*this, "core.randsign" ),
-	creGens          (*this, "core.crgen1"   ),
-	creGens4         (*this, "core.crgen4"   ),
 	overview         (*this, "core.overview" ),
 	arraytxt         (*this, "core.arraytxt" ),
 	primarySkillNames(*this, "core.priskill" ),
@@ -376,8 +374,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
 	readToVector("core.terrname", "DATA/TERRNAME.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
-	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );
-	readToVector("core.crgen4",   "DATA/CRGEN4.TXT"   );
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
 	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );

@@ -204,8 +204,6 @@ public:
 	LegacyTextContainer victoryConditions;
 
 	//objects
-	LegacyTextContainer creGens; //names of creatures' generators
-	LegacyTextContainer creGens4; //names of multiple creatures' generators
 	LegacyTextContainer advobtxt;
 	LegacyTextContainer xtrainfo;
 	LegacyTextContainer restypes; //names of resources
