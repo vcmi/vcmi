@@ -205,7 +205,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, std::ref(CGI->generaltexth->allTexts[69]), std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
+				return std::bind(CInfoWindow::showYesNoDialog, CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
 			}
 			break;
 			case 5: //highscores

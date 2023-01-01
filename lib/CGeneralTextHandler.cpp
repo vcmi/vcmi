@@ -603,7 +603,7 @@ LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::strin
 	basePath(basePath)
 {}
 
-const std::string & LegacyTextContainer::operator[](size_t index) const
+std::string LegacyTextContainer::operator[](size_t index) const
 {
 	return owner.translate(basePath, index);
 }

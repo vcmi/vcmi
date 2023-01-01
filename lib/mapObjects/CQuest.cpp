@@ -56,7 +56,7 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
-static const std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];

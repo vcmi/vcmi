@@ -101,7 +101,7 @@ class DLL_LINKAGE LegacyTextContainer
 
 public:
 	LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath);
-	const std::string & operator[](size_t index) const;
+	std::string operator [](size_t index) const;
 };
 
 /// Small wrapper that provides help text access API compatible with old code
@@ -166,7 +166,7 @@ public:
 
 	/// returns translated version of a string that can be displayed to user
 	template<typename  ... Args>
-	const std::string & translate(std::string arg1, Args ... args) const
+	std::string translate(std::string arg1, Args ... args) const
 	{
 		TextIdentifier id(arg1, args ...);
 		return deserialize(id);

@@ -454,7 +454,7 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
-	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.label"));
+	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
 	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
@@ -464,8 +464,8 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
 	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
-	//rightGroup->add(282, 185, CGI->generaltexth->translate("vcmi.systemOptions.creatureWindowButton.label"));
-	rightGroup->add(282, 217, CGI->generaltexth->translate("vcmi.systemOptions.fullscreenButton.label"));
+	//rightGroup->add(282, 185, CGI->generaltexth->translate("vcmi.systemOptions.creatureWindowButton.hover"));
+	rightGroup->add(282, 217, CGI->generaltexth->translate("vcmi.systemOptions.fullscreenButton.hover"));
 
 	//setting up buttons
 	load = std::make_shared<CButton>(Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
@@ -583,7 +583,7 @@ void CSystemOptionsWindow::selectGameRes()
 	}
 
 	GH.pushIntT<CObjectListWindow>(items, nullptr,
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.label"),
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   std::bind(&CSystemOptionsWindow::setGameRes, this, _1),
 								   currentResolutionIndex);

@@ -139,7 +139,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 		switch(type)
 		{
 		case GENERAL_TXT:
-			dst = VLC->generaltexth->translate("core.allTexts", ser);
+			dst = VLC->generaltexth->translate("core.genrltxt", ser);
 			break;
 		case XTRAINFO_TXT:
 			dst = VLC->generaltexth->translate("core.xtrainfo", ser);
