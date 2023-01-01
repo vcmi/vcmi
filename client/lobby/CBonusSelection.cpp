@@ -92,7 +92,8 @@ CBonusSelection::CBonusSelection()
 	flagbox = std::make_shared<CFlagBox>(Rect(486, 407, 335, 23));
 
 	std::vector<std::string> difficulty;
-	boost::split(difficulty, CGI->generaltexth->allTexts[492], boost::is_any_of(" "));
+	std::string difficultyString = CGI->generaltexth->allTexts[492];
+	boost::split(difficulty, difficultyString, boost::is_any_of(" "));
 	labelDifficulty = std::make_shared<CLabel>(689, 432, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, difficulty.back());
 
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
