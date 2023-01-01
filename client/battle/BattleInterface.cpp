@@ -137,7 +137,7 @@ BattleInterface::~BattleInterface()
 	{
 		//FIXME: this should be moved to adventureInt which should restore correct track based on selection/active player
 		const auto * terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
-		CCS->musich->playMusicFromSet("terrain", terrain->getName(), true, false);
+		CCS->musich->playMusicFromSet("terrain", terrain->getJsonKey(), true, false);
 	}
 
 	// may happen if user decided to close game while in battle

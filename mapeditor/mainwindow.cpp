@@ -545,12 +545,12 @@ void MainWindow::loadObjectsTree()
 	//adding terrains
 	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getName()));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
 		//filter
-		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->getName()));
+		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->getNameTranslated()));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -919,7 +919,7 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if (!arg1.isEmpty())
 	{
 		for (auto const & terrain : VLC->terrainTypeHandler->objects)
-			if (terrain->getName() == arg1.toStdString())
+			if (terrain->getJsonKey() == arg1.toStdString())
 				objectBrowser->terrain = terrain->getId();
 	}
 	objectBrowser->invalidate();

@@ -177,15 +177,15 @@ void CMapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> roadFiles;
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain->getName()] = terrain->tilesFilename;
+		terrainFiles[terrain->getJsonKey()] = terrain->tilesFilename;
 	}
 	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river->tilesFilename] = river->tilesFilename;
+		riverFiles[river->getJsonKey()] = river->tilesFilename;
 	}
 	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road->tilesFilename] = road->tilesFilename;
+		roadFiles[road->getJsonKey()] = road->tilesFilename;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -606,7 +606,7 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
 	//TODO: use ui8 instead of string key
-	auto terrainName = tinfo.terType->getName();
+	auto terrainName = tinfo.terType->getJsonKey();
 
 	if(parent->terrainImages[terrainName].size()<=tinfo.terView)
 		return;
@@ -791,7 +791,7 @@ void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainT
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		Rect source(0, tileSize / 2, tileSize, tileSize / 2);
 		Rect dest(realPos.x, realPos.y, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType->tilesFilename][tinfoUpper->roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType->getJsonKey()][tinfoUpper->roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 
@@ -800,7 +800,7 @@ void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainT
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		Rect source(0, 0, tileSize, halfTileSizeCeil);
 		Rect dest(realPos.x, realPos.y + tileSize / 2, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType->tilesFilename][tinfo.roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType->getJsonKey()][tinfo.roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 }
@@ -809,7 +809,7 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 {
 	Rect destRect(realTileRect);
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType->tilesFilename][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType->getJsonKey()][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const

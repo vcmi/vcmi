@@ -27,10 +27,10 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	TerrainId id;
 	ui8 passabilityType;
 
+	const std::string & getName() const override { return identifier;}
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getName() const override { return identifier;}
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
@@ -104,10 +104,10 @@ class DLL_LINKAGE RiverType : public EntityT<RiverId>
 	std::string identifier;
 	RiverId id;
 
+	const std::string & getName() const override { return identifier;}
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getName() const override { return identifier;}
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
@@ -136,10 +136,10 @@ class DLL_LINKAGE RoadType : public EntityT<RoadId>
 	std::string identifier;
 	RoadId id;
 
+	const std::string & getName() const override { return identifier;}
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getName() const override { return identifier;}
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RoadId getId() const override { return id;}

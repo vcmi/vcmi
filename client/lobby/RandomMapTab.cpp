@@ -110,10 +110,10 @@ RandomMapTab::RandomMapTab():
 	
 	for(auto road : VLC->roadTypeHandler->objects)
 	{
-		std::string cbRoadType = "selectRoad_" + road->getName();
+		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, road](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road->getName(), on);
+			mapGenOptions->setRoadEnabled(road->getJsonKey(), on);
 			updateMapInfoByHost();
 		});
 	}
@@ -285,9 +285,9 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
-		if(auto w = widget<CToggleButton>(r->getName()))
+		if(auto w = widget<CToggleButton>(r->getJsonKey()))
 		{
-			w->setSelected(opts->isRoadEnabled(r->getName()));
+			w->setSelected(opts->isRoadEnabled(r->getJsonKey()));
 		}
 	}
 }

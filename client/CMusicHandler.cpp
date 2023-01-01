@@ -340,7 +340,7 @@ void CMusicHandler::loadTerrainMusicThemes()
 {
 	for (const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain_" + terrain->getName(), "Music/" + terrain->musicFilename);
+		addEntryToSet("terrain_" + terrain->getJsonKey(), "Music/" + terrain->musicFilename);
 	}
 }
 

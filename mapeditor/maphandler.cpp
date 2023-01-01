@@ -80,15 +80,15 @@ void MapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> riverFiles;
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain->getName()] = terrain->tilesFilename;
+		terrainFiles[terrain->getJsonKey()] = terrain->tilesFilename;
 	}
 	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river->tilesFilename] = river->tilesFilename;
+		riverFiles[river->getJsonKey()] = river->tilesFilename;
 	}
 	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road->tilesFilename] = road->tilesFilename;
+		roadFiles[road->getJsonKey()] = road->tilesFilename;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -101,7 +101,7 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	auto terrainName = tinfo.terType->getName();
+	auto terrainName = tinfo.terType->getJsonKey();
 	
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
@@ -117,7 +117,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	
 	if(tinfoUpper && tinfoUpper->roadType->getId() != Road::NO_ROAD)
 	{
-		auto roadName = tinfoUpper->roadType->tilesFilename;
+		auto roadName = tinfoUpper->roadType->getJsonKey();
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -129,7 +129,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	
 	if(tinfo.roadType->getId() != Road::NO_ROAD) //print road from this tile
 	{
-		auto roadName = tinfo.roadType->tilesFilename;
+		auto roadName = tinfo.roadType->getJsonKey();;
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -148,7 +148,7 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 		return;
 	
 	//TODO: use ui8 instead of string key
-	auto riverName = tinfo.riverType->tilesFilename;
+	auto riverName = tinfo.riverType->getJsonKey();
 
 	if(riverImages.at(riverName).size() <= tinfo.riverDir)
 		return;
