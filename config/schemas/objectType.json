@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object type format",
 	"description" : "Description of map object type, used only as sub-schema of object",
-	"required": [ ],
+	"required": [ "name" ],
 	"additionalProperties" : true, // may have type-dependant properties
 
 	"properties":{
@@ -16,7 +16,6 @@
 		"aiValue": {
 			"type":"number"
 		},
-
 		"sounds": {
 			"type":"object",
 			"additionalProperties" : false,

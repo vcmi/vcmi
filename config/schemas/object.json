@@ -3,12 +3,19 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object format",
 	"description" : "Description of map object class",
-	"required": [ "handler", "name" ],
+	"required": [ "handler" ],
 	"additionalProperties" : false,
 
 	"properties":{
 		"index": {
 			"type":"number"
+		},
+		"lastReservedIndex" : {
+			"type":"number"
+		},
+		"subObjects" : {
+			"type" : "array",
+			"additionalItems" : true
 		},
 		"handler": {
 			"type":"string"

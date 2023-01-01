@@ -112,6 +112,8 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
 	}
 
+	objects.resize(256);
+
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
 
@@ -251,6 +253,9 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 	assert(ID < objects.size());
 	assert(objects[ID]);
 
+	if ( subID >= objects[ID]->objects.size())
+		objects[ID]->objects.resize(subID+1);
+
 	JsonUtils::inherit(config, objects.at(ID)->base);
 	loadSubObject(config.meta, identifier, config, objects[ID], subID);
 }
@@ -343,6 +348,9 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 		for(auto obj : entry->objects)
 		{
+			if (!obj)
+				continue;
+
 			obj->afterLoadFinalization();
 			if(obj->getTemplates().empty())
 				logGlobal->warn("No templates found for %s:%s", entry->getIdentifier(), obj->getIdentifier());
@@ -352,12 +360,9 @@ void CObjectClassesHandler::afterLoadFinalization()
 	//duplicate existing two-way portals to make reserve for RMG
 	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
 	size_t portalCount = portalVec.size();
-	size_t currentIndex = portalCount;
-	while(portalVec.size() < 100)
-	{
-		portalVec[(si32)currentIndex] = portalVec[static_cast<si32>(currentIndex % portalCount)];
-		currentIndex++;
-	}
+
+	for (size_t i = portalCount; i < 100; ++i)
+		portalVec.push_back(portalVec[static_cast<si32>(i % portalCount)]);
 }
 
 std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
@@ -367,6 +372,9 @@ std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) const
 {
+	if(type == Obj::PRISON || type == Obj::HERO)
+		subtype = 0;
+
 	assert(type < objects.size());
 	assert(objects[type]);
 	assert(subtype < objects[type]->objects.size());

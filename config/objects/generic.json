@@ -230,7 +230,6 @@
 	"subterraneanGate" : {
 		"index" :103,
 		"handler" : "subterraneanGate",
-		"lastReservedIndex" : 1,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPGATE"],
@@ -239,8 +238,8 @@
 		},
 		"types" : {
 			"object" : {
-				"index" : 0 },
-			"objectWoG" : { "index" : 1 } // WoG object? Present on VCMI Test 2011b
+				"index" : 0 
+			}
 		}
 	},
 
@@ -342,9 +341,6 @@
 					"value"		: 3000,
 					"rarity"	: 100
 				}
-			},
-			"object1":{ //WoG?
-				"index" :1
 			}
 		}
 	},
@@ -560,7 +556,6 @@
 	"witchHut" : {
 		"index" :113,
 		"handler" : "witch",
-		"lastReservedIndex" : 1,
 		"base" : {
 			"sounds" : {
 				"visit" : ["GAZEBO"]
@@ -575,9 +570,6 @@
 					"value"		: 1500,
 					"rarity"	: 80
 				}
-			},
-			"object1" : { //WoG?
-				"index" : 1
 			}
 		}
 	},
@@ -1044,10 +1036,10 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } }
 
 	//These are WoG objects? They are not available in H3
-	"frozenLakeDUPLICATE"			: { "index" :172, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"oakTreesDUPLICATE"				: { "index" :186, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"plant"							: { "index" :189, "handler": "static", "types" : { "object" : { "index" : 0} } }
+	//"frozenLakeDUPLICATE"			: { "index" :172, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	//"oakTreesDUPLICATE"				: { "index" :186, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	//"plant"							: { "index" :189, "handler": "static", "types" : { "object" : { "index" : 0} } }
 }
