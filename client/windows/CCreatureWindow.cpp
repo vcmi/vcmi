@@ -206,7 +206,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 		if (hasGraphics)
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-			boost::replace_first(spellText, "%s", spell->getName());
+			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first(spellText, "%d", boost::lexical_cast<std::string>(duration));

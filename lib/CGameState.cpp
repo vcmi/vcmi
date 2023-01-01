@@ -123,7 +123,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto spell = SpellID(ser).toSpell(VLC->spells());
 		if(spell)
-			dst = spell->getName();
+			dst = spell->getNameTranslated();
 		else
 			dst = "#!#";
 	}

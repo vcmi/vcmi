@@ -687,7 +687,7 @@ void CBattleAI::attemptCastingSpell()
 
 	if(castToPerform.value > 0)
 	{
-		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->name % castToPerform.value);
+		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
 		spellcast.actionType = EActionType::HERO_SPELL;
 		spellcast.actionSubtype = castToPerform.spell->id;
@@ -698,7 +698,7 @@ void CBattleAI::attemptCastingSpell()
 	}
 	else
 	{
-		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->name % castToPerform.value);
+		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->getNameTranslated() % castToPerform.value);
 	}
 }
 

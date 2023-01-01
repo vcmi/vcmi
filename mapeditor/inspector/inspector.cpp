@@ -288,9 +288,9 @@ void Inspector::updateProperties(CGArtifact * o)
 			for(auto spell : VLC->spellh->objects)
 			{
 				//if(map->isAllowedSpell(spell->id))
-				delegate->options << QObject::tr(spell->name.c_str());
+				delegate->options << QObject::tr(spell->getJsonKey().c_str());
 			}
-			addProperty("Spell", VLC->spellh->objects[spellId]->name, delegate, false);
+			addProperty("Spell", VLC->spellh->objects[spellId]->getJsonKey(), delegate, false);
 		}
 	}
 }
@@ -524,7 +524,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	{
 		for(auto spell : VLC->spellh->objects)
 		{
-			if(spell->name == value.toString().toStdString())
+			if(spell->getJsonKey() == value.toString().toStdString())
 			{
 				o->storedArtifact = CArtifactInstance::createScroll(spell->getId());
 				break;

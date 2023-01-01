@@ -484,7 +484,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 				currentSpell = CGI->spellh->objects[creatureCasting ? owner.stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % currentSpell->name % shere->getName()); //Cast %s on %s
+				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % currentSpell->getNameTranslated() % shere->getName()); //Cast %s on %s
 				switch (currentSpell->id)
 				{
 					case SpellID::SACRIFICE:
@@ -497,7 +497,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::ANY_LOCATION:
 				currentSpell = CGI->spellh->objects[creatureCasting ? owner.stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
+				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->getNameTranslated()); //Cast %s
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
@@ -522,7 +522,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
+				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->getNameTranslated()); //Cast %s
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::HEAL:
@@ -561,7 +561,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
 				cursorFrame = Cursor::Combat::BLOCKED;
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % currentSpell->name); //No room to place %s here
+				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % currentSpell->getNameTranslated()); //No room to place %s here
 				break;
 			default:
 				if (myNumber == -1)
@@ -582,7 +582,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			default:
 				spellcastingCursor = true;
 				if (newConsoleMsg.empty() && currentSpell)
-					newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
+					newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->getNameTranslated()); //Cast %s
 				break;
 		}
 

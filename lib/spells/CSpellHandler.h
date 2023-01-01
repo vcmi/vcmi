@@ -126,7 +126,6 @@ public:
 public:
 	struct LevelInfo
 	{
-		std::string description; //descriptions of spell for skill level
 		si32 cost;
 		si32 power;
 		si32 AIValue;
@@ -147,7 +146,6 @@ public:
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & description;
 			h & cost;
 			h & power;
 			h & AIValue;
@@ -168,6 +166,11 @@ public:
 	 *
 	 */
 	const CSpell::LevelInfo & getLevelInfo(const int32_t level) const;
+
+	SpellID id;
+	std::string identifier;
+	std::string modScope;
+	const std::string & getName() const override;
 public:
 	enum ESpellPositiveness
 	{
@@ -188,10 +191,6 @@ public:
 	};
 
 	using BTVector = std::vector<Bonus::BonusType>;
-
-	SpellID id;
-	std::string identifier;
-	std::string name;
 
 	si32 level;
 
@@ -237,13 +236,16 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	SpellID getId() const override;
 
-	int32_t getLevel() const override;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 
-	const std::string & getLevelDescription(const int32_t skillLevel) const override;
+	std::string getDescriptionTextID(int32_t level) const override;
+	std::string getDescriptionTranslated(int32_t level) const override;
+
+	int32_t getLevel() const override;
 
 	boost::logic::tribool getPositiveness() const override;
 
@@ -277,7 +279,6 @@ public:
 	{
 		h & identifier;
 		h & id;
-		h & name;
 		h & level;
 		h & power;
 		h & probabilities;

@@ -737,7 +737,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 	{
 		if(inSpellBook)
 		{//hero has this spell in spellbook
-			logGlobal->error("Special spell %s in spellbook.", spell->getName());
+			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
 		}
 		return specificBonus;
 	}
@@ -747,7 +747,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{
 			//hero has this spell in spellbook
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
-			logGlobal->trace("Banned spell %s in spellbook.", spell->getName());
+			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
 		}
 		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
@@ -770,19 +770,19 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
 
 	if(spell->isSpecial())
 	{
-		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getName());
+		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getNameTranslated());
 		return false;//special spells can not be learned
 	}
 
 	if(spell->isCreatureAbility())
 	{
-		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getName());
+		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getNameTranslated());
 		return false;//creature abilities can not be learned
 	}
 
 	if(!IObjectInterface::cb->isAllowed(0, spell->getIndex()))
 	{
-		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getName());
+		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
 	}
 
