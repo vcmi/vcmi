@@ -84,7 +84,7 @@ CGObjectInstance * CTownInstanceConstructor::create(std::shared_ptr<const Object
 
 void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->id, object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
 		object->appearance = templ;
 }

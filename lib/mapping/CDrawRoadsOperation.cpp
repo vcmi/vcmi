@@ -358,22 +358,22 @@ bool CDrawRiversOperation::canApplyPattern(const LinePattern & pattern) const
 
 bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.roadType->id != Road::NO_ROAD;
+	return tile.roadType->getId() != Road::NO_ROAD;
 }
 
 bool CDrawRiversOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.riverType->id != River::NO_RIVER;
+	return tile.riverType->getId() != River::NO_RIVER;
 }
 
 bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).roadType->id != Road::NO_ROAD;
+	return map->getTile(pos).roadType->getId() != Road::NO_ROAD;
 }
 
 bool CDrawRiversOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).riverType->id != River::NO_RIVER;
+	return map->getTile(pos).riverType->getId() != River::NO_RIVER;
 }
 
 void CDrawRoadsOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)

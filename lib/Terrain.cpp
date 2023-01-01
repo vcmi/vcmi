@@ -47,7 +47,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->horseSoundPenalty = json["horseSoundPenalty"].String();
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
-	info->nameTranslated = json["nameTranslated"].String();
+	//info->nameTranslated = json["nameTranslated"].String();
 
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =

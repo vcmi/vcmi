@@ -2242,7 +2242,7 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	battleResult.set(nullptr);
 
 	const auto & t = *getTile(tile);
-	TerrainId terrain = t.terType->id;
+	TerrainId terrain = t.terType->getId();
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainId::SAND;
 

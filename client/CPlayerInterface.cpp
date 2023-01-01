@@ -259,7 +259,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->identifier, true, false);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->getName(), true, false);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -2436,7 +2436,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(h->convertToVisitablePos(prevCoord))->terType->id;
+				newTerrain = cb->getTile(h->convertToVisitablePos(prevCoord))->terType->getId();
 				if(newTerrain != currentTerrain || wasOnRoad != movingOnRoad)
 				{
 					CCS->soundh->stopSound(sh);

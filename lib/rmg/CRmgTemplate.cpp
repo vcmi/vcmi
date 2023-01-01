@@ -75,7 +75,7 @@ public:
 
 	static std::string encode(const si32 index)
 	{
-		return VLC->terrainTypeHandler->getByIndex(index)->identifier;
+		return VLC->terrainTypeHandler->getByIndex(index)->getName();
 	}
 };
 
@@ -154,7 +154,7 @@ ZoneOptions::ZoneOptions()
 {
 	for(const auto & terr : VLC->terrainTypeHandler->objects)
 		if(terr->isLand() && terr->isPassable())
-			terrainTypes.insert(terr->id);
+			terrainTypes.insert(terr->getId());
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
@@ -365,7 +365,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			for(auto & ttype : terrainTypes)
 			{
 				JsonNode n;
-				n.String() = VLC->terrainTypeHandler->getById(ttype)->identifier;
+				n.String() = VLC->terrainTypeHandler->getById(ttype)->getName();
 				node.Vector().push_back(n);
 			}
 		}

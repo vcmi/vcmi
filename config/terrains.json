@@ -132,7 +132,7 @@
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "water",
 		"horseSound" : "horse08",
-		"horseSoundPenalty" : "horse28"
+		"horseSoundPenalty" : "horse28",
 		"sounds": {
 			"ambient": ["LOOPOCEA"]
 		}

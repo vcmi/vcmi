@@ -735,7 +735,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	else
 	{
 		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType->id;
+		terrainType = t.terType->getId();
 	}
 
 	CGObjectInstance *o = nullptr;

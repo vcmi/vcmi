@@ -323,7 +323,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 {
 	auto riverType = VLC->terrainTypeHandler->getById(zone.getTerrainType())->river;
 	const auto * river = VLC->riverTypeHandler->getById(riverType);
-	if(river->id == River::NO_RIVER)
+	if(river->getId() == River::NO_RIVER)
 		return;
 	
 	rmg::Area roads;

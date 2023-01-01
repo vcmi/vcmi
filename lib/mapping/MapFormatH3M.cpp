@@ -941,7 +941,7 @@ void CMapLoaderH3M::readTerrain()
 				tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(reader.readUInt8()));
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
-				tile.blocked = ((!tile.terType->isPassable() || tile.terType->id == ETerrainId::BORDER ) ? true : false); //underground tiles are always blocked
+				tile.blocked = ((!tile.terType->isPassable() || tile.terType->getId() == ETerrainId::BORDER ) ? true : false); //underground tiles are always blocked
 				tile.visitable = 0;
 			}
 		}

@@ -408,7 +408,7 @@ void MapController::commitObstacleFill(int level)
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType->id].blockedArea.add(t);
+		terrainSelected[tl.terType->getId()].blockedArea.add(t);
 	}
 	
 	for(auto & sel : terrainSelected)

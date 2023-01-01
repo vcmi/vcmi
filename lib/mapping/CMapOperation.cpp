@@ -154,7 +154,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 			rect.forEach([&](const int3& posToTest)
 				{
 					auto & terrainTile = map->getTile(posToTest);
-					if(centerTile.terType->id != terrainTile.terType->id)
+					if(centerTile.terType->getId() != terrainTile.terType->getId())
 					{
 						auto formerTerType = terrainTile.terType;
 						terrainTile.terType = centerTile.terType;
@@ -257,7 +257,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 {
 	for(const auto & pos : invalidatedTerViews)
 	{
-		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).terType->id);
+		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).terType->getId());
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -393,9 +393,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			{
 				if(recDepth == 0 && map->isInTheMap(currentPos))
 				{
-					if(terType->id == centerTerType->id)
+					if(terType->getId() == centerTerType->getId())
 					{
-						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType->id, rule.name);
+						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(*p), 1);
@@ -422,14 +422,14 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			bool nativeTestOk, nativeTestStrongOk;
 			nativeTestOk = nativeTestStrongOk = (rule.isNativeStrong() || rule.isNativeRule()) && !isAlien;
 
-			if(centerTerType->id == ETerrainId::DIRT)
+			if(centerTerType->getId() == ETerrainId::DIRT)
 			{
 				nativeTestOk = rule.isNativeRule() && !terType->isTransitionRequired();
 				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
 					&& terType->isTransitionRequired();
 				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk || nativeTestStrongOk);
 			}
-			else if(centerTerType->id == ETerrainId::SAND)
+			else if(centerTerType->getId() == ETerrainId::SAND)
 			{
 				applyValidationRslt(true);
 			}

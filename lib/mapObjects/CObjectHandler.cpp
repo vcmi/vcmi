@@ -207,13 +207,13 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 		logGlobal->error("Unknown object type %d:%d at %s", ID, subID, visitablePos().toString());
 		return;
 	}
-	if(!handler->getTemplates(tile.terType->id).empty())
+	if(!handler->getTemplates(tile.terType->getId()).empty())
 	{
-		appearance = handler->getTemplates(tile.terType->id)[0];
+		appearance = handler->getTemplates(tile.terType->getId())[0];
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", ID, subID, visitablePos().toString(), tile.terType->identifier);
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", ID, subID, visitablePos().toString(), tile.terType->getName());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 

@@ -545,12 +545,12 @@ void MainWindow::loadObjectsTree()
 	//adding terrains
 	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain->identifier));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getName()));
 		ui->terrainLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->id); });
+		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
 		//filter
-		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->identifier));
+		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->getName()));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -559,7 +559,7 @@ void MainWindow::loadObjectsTree()
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(road->tilesFilename));
 		ui->roadLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->id.getNum(), true); });
+		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->getIndex(), true); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -568,7 +568,7 @@ void MainWindow::loadObjectsTree()
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(river->tilesFilename));
 		ui->riverLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->id.getNum(), false); });
+		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->getIndex(), false); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->riverLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -919,8 +919,8 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if (!arg1.isEmpty())
 	{
 		for (auto const & terrain : VLC->terrainTypeHandler->objects)
-			if (terrain->identifier == arg1.toStdString())
-				objectBrowser->terrain = terrain->id;
+			if (terrain->getName() == arg1.toStdString())
+				objectBrowser->terrain = terrain->getId();
 	}
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
@@ -1113,7 +1113,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
-			if(obj->appearance->canBePlacedAt(terrain->id))
+			if(obj->appearance->canBePlacedAt(terrain->getId()))
 			{
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
@@ -1124,13 +1124,13 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		}
 		else
 		{
-			auto app = handler->getOverride(terrain->id, obj);
+			auto app = handler->getOverride(terrain->getId(), obj);
 			if(!app)
 			{
-				if(obj->appearance->canBePlacedAt(terrain->id))
+				if(obj->appearance->canBePlacedAt(terrain->getId()))
 					continue;
 				
-				auto templates = handler->getTemplates(terrain->id);
+				auto templates = handler->getTemplates(terrain->getId());
 				if(templates.empty())
 				{
 					++errors;

@@ -21,6 +21,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 {
+	friend class TerrainTypeHandler;
+	std::string identifier;
+	TerrainId id;
+	ui8 passabilityType;
+
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
@@ -28,6 +33,9 @@ public:
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
+
+	std::string getNameTextID() const;
+	std::string getNameTranslated() const;
 
 	enum PassabilityType : ui8
 	{
@@ -42,20 +50,16 @@ public:
 	std::vector<TerrainId> prohibitTransitions;
 	std::array<int, 3> minimapBlocked;
 	std::array<int, 3> minimapUnblocked;
-	std::string identifier;
 	std::string shortIdentifier;
 	std::string musicFilename;
 	std::string tilesFilename;
-	std::string nameTranslated;
 	std::string terrainViewPatterns;
 	std::string horseSound;
 	std::string horseSoundPenalty;
 
-	TerrainId id;
 	TerrainId rockTerrain;
 	RiverId river;
 	int moveCost;
-	ui8 passabilityType;
 	bool transitionRequired;
 	
 	TerrainType();
@@ -78,7 +82,6 @@ public:
 		h & identifier;
 		h & musicFilename;
 		h & tilesFilename;
-		h & nameTranslated;
 		h & shortIdentifier;
 		h & terrainViewPatterns;
 		h & rockTerrain;
@@ -95,6 +98,10 @@ public:
 
 class DLL_LINKAGE RiverType : public EntityT<RiverId>
 {
+	friend class RiverTypeHandler;
+	std::string identifier;
+	RiverId id;
+
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
@@ -103,11 +110,12 @@ public:
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
 
+	std::string getNameTextID() const;
+	std::string getNameTranslated() const;
+
 	std::string tilesFilename;
-	std::string identifier;
 	std::string shortIdentifier;
 	std::string deltaName;
-	RiverId id;
 
 	RiverType();
 
@@ -122,6 +130,10 @@ public:
 
 class DLL_LINKAGE RoadType : public EntityT<RoadId>
 {
+	friend class RoadTypeHandler;
+	std::string identifier;
+	RoadId id;
+
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
@@ -131,9 +143,7 @@ public:
 	RoadId getId() const override { return id;}
 
 	std::string tilesFilename;
-	std::string identifier;
 	std::string shortIdentifier;
-	RoadId id;
 	ui8 movementCost;
 
 	RoadType();

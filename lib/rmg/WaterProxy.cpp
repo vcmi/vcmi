@@ -44,7 +44,7 @@ void WaterProxy::process()
 	{
 		MAYBE_UNUSED(t);
 		assert(map.isOnMap(t));
-		assert(map.map().getTile(t).terType->id == zone.getTerrainType());
+		assert(map.map().getTile(t).terType->getId() == zone.getTerrainType());
 	}
 	
 	for(auto z : map.getZones())
@@ -54,7 +54,7 @@ void WaterProxy::process()
 		
 		for(auto & t : z.second->area().getTilesVector())
 		{
-			if(map.map().getTile(t).terType->id == zone.getTerrainType())
+			if(map.map().getTile(t).terType->getId() == zone.getTerrainType())
 			{
 				z.second->areaPossible().erase(t);
 				z.second->area().erase(t);

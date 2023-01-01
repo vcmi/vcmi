@@ -80,7 +80,7 @@ void MapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> riverFiles;
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain->identifier] = terrain->tilesFilename;
+		terrainFiles[terrain->getName()] = terrain->tilesFilename;
 	}
 	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
@@ -101,7 +101,7 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	auto terrainName = tinfo.terType->identifier;
+	auto terrainName = tinfo.terType->getName();
 	
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
@@ -115,7 +115,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
 	
-	if(tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
+	if(tinfoUpper && tinfoUpper->roadType->getId() != Road::NO_ROAD)
 	{
 		auto roadName = tinfoUpper->roadType->tilesFilename;
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
@@ -127,7 +127,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		}
 	}
 	
-	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
+	if(tinfo.roadType->getId() != Road::NO_ROAD) //print road from this tile
 	{
 		auto roadName = tinfo.roadType->tilesFilename;
 		QRect source(0, 0, tileSize, tileSize / 2);
@@ -144,7 +144,7 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 {
 	auto & tinfo = map->getTile(int3(x, y, z));
 
-	if(tinfo.riverType->id == River::NO_RIVER)
+	if(tinfo.riverType->getId() == River::NO_RIVER)
 		return;
 	
 	//TODO: use ui8 instead of string key

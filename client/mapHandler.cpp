@@ -177,7 +177,7 @@ void CMapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> roadFiles;
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain->identifier] = terrain->tilesFilename;
+		terrainFiles[terrain->getName()] = terrain->tilesFilename;
 	}
 	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
@@ -606,7 +606,7 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
 	//TODO: use ui8 instead of string key
-	auto terrainName = tinfo.terType->identifier;
+	auto terrainName = tinfo.terType->getName();
 
 	if(parent->terrainImages[terrainName].size()<=tinfo.terView)
 		return;
@@ -786,7 +786,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 
 void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const
 {
-	if (tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
+	if (tinfoUpper && tinfoUpper->roadType->getId() != Road::NO_ROAD)
 	{
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		Rect source(0, tileSize / 2, tileSize, tileSize / 2);
@@ -795,7 +795,7 @@ void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainT
 				&source, targetSurf, &dest);
 	}
 
-	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
+	if(tinfo.roadType->getId() != Road::NO_ROAD) //print road from this tile
 	{
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		Rect source(0, 0, tileSize, halfTileSizeCeil);
@@ -860,7 +860,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			if(isVisible || info->showAllTerrain)
 			{
 				drawTileTerrain(targetSurf, tinfo, tile);
-				if(tinfo.riverType->id != River::NO_RIVER)
+				if(tinfo.riverType->getId() != River::NO_RIVER)
 					drawRiver(targetSurf, tinfo);
 				drawRoad(targetSurf, tinfo, tinfoUpper);
 			}
@@ -1390,7 +1390,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 	}
 
 	if(!isTile2Terrain || out.empty())
-		out = VLC->terrainTypeHandler->getById(t.terType->id)->nameTranslated;
+		out = t.terType->getName();
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{

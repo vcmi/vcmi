@@ -81,16 +81,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType->id != Road::NO_ROAD && from.roadType->id != Road::NO_ROAD)
+	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
 	{
 		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
-	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
+	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
 			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id.getNum())) //no special movement bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->getId().getNum())) //no special movement bonus
 	{
 
-		ret = VLC->heroh->terrCosts[from.terType->id];
+		ret = VLC->heroh->terrCosts[from.terType->getId()];
 		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
@@ -519,7 +519,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+		auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
 		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
 		if (customApp)
 			appearance = customApp;

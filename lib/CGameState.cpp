@@ -2134,7 +2134,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType->id.getNum();
+				rumorExtra = getTile(map->grailPos)->terType->getIndex();
 				break;
 			}
 

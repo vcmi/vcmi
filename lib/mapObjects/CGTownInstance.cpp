@@ -1132,7 +1132,7 @@ void CGTownInstance::setType(si32 ID, si32 subID)
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
 	//FIXME: not the best way to do this
 	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(terrain, this);
 	if (app)

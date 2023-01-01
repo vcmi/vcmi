@@ -121,7 +121,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		std::vector<TerrainId> waterTerrains;
 		for(const auto & terrain : VLC->terrainTypeHandler->objects)
 			if(terrain->isWater())
-				waterTerrains.push_back(terrain->id);
+				waterTerrains.push_back(terrain->getId());
 		
 		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
