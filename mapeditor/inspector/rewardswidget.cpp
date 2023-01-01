@@ -74,7 +74,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedAbilities.size(); ++i)
 			{
 				if(map.allowedAbilities[i])
-					result.append(QString::fromStdString(VLC->skillh->objects.at(i)->getName()));
+					result.append(QString::fromStdString(VLC->skillh->objects.at(i)->getNameTranslated()));
 			}
 			break;
 			

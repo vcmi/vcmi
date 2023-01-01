@@ -166,7 +166,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 		return CGI->heroh->objects[getSubID()]->specName;
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
-			return CGI->skillh->skillName(getSubID());
+			return CGI->skillh->getByIndex(getSubID())->getNameTranslated();
 		else
 			return "";
 	default:
@@ -274,7 +274,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 			int  subID = getSubID();
 			if(value)
 			{
-				text = CGI->skillh->skillInfo(subID, (int)value);
+				text = CGI->skillh->getByIndex(subID)->getDescriptionTranslated((int)value);
 				comp = std::make_shared<CComponent>(CComponent::secskill, subID, (int)value);
 			}
 			break;
@@ -355,7 +355,7 @@ std::string InfoBoxHeroData::getHoverText()
 		if (hero->secSkills.size() > index)
 		{
 			std::string level = CGI->generaltexth->levels[hero->secSkills[index].second-1];
-			std::string skill = CGI->skillh->skillName(hero->secSkills[index].first);
+			std::string skill = CGI->skillh->getByIndex(hero->secSkills[index].first)->getNameTranslated();
 			return boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % level % skill);
 		}
 		else

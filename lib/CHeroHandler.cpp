@@ -316,7 +316,7 @@ void CHeroClassHandler::afterLoadFinalization()
 			if(heroClass->secSkillProbability[skillID] < 0)
 			{
 				const CSkill * skill = (*VLC->skillh)[SecondarySkill(skillID)];
-				logMod->trace("%s: no probability for %s, using default", heroClass->identifier, skill->identifier);
+				logMod->trace("%s: no probability for %s, using default", heroClass->identifier, skill->getJsonKey());
 				heroClass->secSkillProbability[skillID] = skill->gainChance[heroClass->affinity];
 			}
 		}

@@ -1166,11 +1166,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 			secSkillAreas[b][g]->type = skill;
 			secSkillAreas[b][g]->bonusValue = level;
-			secSkillAreas[b][g]->text = CGI->skillh->skillInfo(skill, level);
+			secSkillAreas[b][g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 
 			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->skillName(skill));
+			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->getByIndex(skill)->getNameTranslated());
 		}
 
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
@@ -1516,7 +1516,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 
 	icon = std::make_shared<CAnimImage>("SECSKILL", _ID * 3 + 3, 0);
 
-	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->skillName(ID));
+	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->getByIndex(ID)->getNameTranslated());
 	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
 
 	pos.h = icon->pos.h;
@@ -1536,14 +1536,14 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
+		CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 	}
 }
 
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->skillh->skillName(ID));
+		GH.statusbar->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
 	else
 		GH.statusbar->clear();
 }
@@ -1625,12 +1625,12 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 
 	std::string text = CGI->generaltexth->allTexts[608];
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
+	boost::replace_first(text, "%s", CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	clerkSpeech = std::make_shared<CTextBox>(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->skillName(SKILL));
+	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	icon = std::make_shared<CAnimImage>("SECSKILL", SKILL*3+3, 0, 211, 51);
 	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);
 
@@ -1638,11 +1638,11 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "2000");
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->skillh->skillName(SKILL));
+	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 
 	text = CGI->generaltexth->zelp[633].second;
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
+	boost::replace_first(text, "%s", CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	confirm = std::make_shared<CButton>(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, SDLK_RETURN);

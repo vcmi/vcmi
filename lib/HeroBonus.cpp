@@ -1594,7 +1594,7 @@ std::string Bonus::Description() const
 				str << VLC->creh->objects[sid]->namePl;
 				break;
 			case SECONDARY_SKILL:
-				str << VLC->skillh->skillName(sid);
+				str << VLC->skillh->getByIndex(sid)->getNameTranslated();
 				break;
 			case HERO_SPECIAL:
 				str << VLC->heroh->objects[sid]->name;

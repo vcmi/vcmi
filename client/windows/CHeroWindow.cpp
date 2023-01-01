@@ -263,12 +263,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	{
 		int skill = curHero->secSkills[g].first;
 		int	level = curHero->getSecSkillLevel(SecondarySkill(curHero->secSkills[g].first));
-		std::string skillName = CGI->skillh->skillName(skill);
+		std::string skillName = CGI->skillh->getByIndex(skill)->getNameTranslated();
 		std::string skillValue = CGI->generaltexth->levels[level-1];
 
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
-		secSkillAreas[g]->text = CGI->skillh->skillInfo(skill, level);
+		secSkillAreas[g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % skillValue % skillName);
 		secSkillImages[g]->setFrame(skill*3 + level + 2);
 		secSkillNames[g]->setText(skillName);
