@@ -54,7 +54,7 @@
 	"resource" : {
 		"index" :79,
 		"handler": "resource",
-		"lastReservedIndex" : 7,
+		"lastReservedIndex" : 6,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -68,8 +68,7 @@
 			"sulfur" :  { "index" : 3, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
 			"crystal" : { "index" : 4, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
 			"gems" :    { "index" : 5, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
-			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
-			"mithril" : { "index" : 7, "aiValue" : 3500 } // TODO: move to WoG?
+			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } }
 		}
 	},
 	
@@ -245,8 +244,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPLUMB"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"alchemistLab" : {
 				"index" : 1,
@@ -256,8 +254,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSTAR"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"orePit" : {
 				"index" : 2,
@@ -267,8 +264,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"sulfurDune" : {
 				"index" : 3,
@@ -278,8 +274,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"crystalCavern" : {
 				"index" : 4,
@@ -300,8 +295,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPGEMP"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"goldMine" : {
 				"index" : 6,
@@ -328,6 +322,7 @@
 	"abandonedMine" : {
 		"index" :220,
 		"handler": "mine",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"aiValue" : 3500,
 			"sounds" : {
