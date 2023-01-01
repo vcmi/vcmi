@@ -133,7 +133,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == SEC_SKILL_NAME)
 	{
-		dst = VLC->skillh->skillName(ser);
+		dst = VLC->skillh->getByIndex(ser)->getNameTranslated();
 	}
 	else
 	{

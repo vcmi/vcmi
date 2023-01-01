@@ -151,7 +151,7 @@ std::string CComponent::getDescription()
 	{
 	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
 										 : CGI->generaltexth->allTexts[149]; //mana
-	case secskill:   return CGI->skillh->skillInfo(subtype, val);
+	case secskill:   return CGI->skillh->getByIndex(subtype)->getDescriptionTranslated(val);
 	case resource:   return CGI->generaltexth->allTexts[242];
 	case creature:   return "";
 	case artifact:
@@ -196,7 +196,7 @@ std::string CComponent::getSubtitleInternal()
 	switch(compType)
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
-	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->skillName(subtype);
+	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->getByIndex(subtype)->getNameTranslated();
 	case resource:   return boost::lexical_cast<std::string>(val);
 	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->objects[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getName();

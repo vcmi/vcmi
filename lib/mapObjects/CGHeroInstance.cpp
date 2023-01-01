@@ -1522,7 +1522,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 				if(rawId < 0 || rawId >= VLC->skillh->size())
 					logGlobal->error("Invalid secondary skill %d", rawId);
 
-				handler.serializeEnum((*VLC->skillh)[SecondarySkill(rawId)]->identifier, p.second, 0, NSecondarySkill::levels);
+				handler.serializeEnum((*VLC->skillh)[SecondarySkill(rawId)]->getJsonKey(), p.second, 0, NSecondarySkill::levels);
 			}
 		}
 	}

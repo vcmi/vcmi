@@ -252,7 +252,7 @@ void CBonusSelection::createBonusesIcons()
 			desc = CGI->generaltexth->allTexts[718];
 
 			boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3 - 1]); //skill level
-			boost::algorithm::replace_first(desc, "%s", CGI->skillh->skillName(bonDescs[i].info2)); //skill name
+			boost::algorithm::replace_first(desc, "%s", CGI->skillh->getByIndex(bonDescs[i].info2)->getNameTranslated()); //skill name
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 
 			break;
