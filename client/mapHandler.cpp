@@ -1390,7 +1390,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 	}
 
 	if(!isTile2Terrain || out.empty())
-		out = t.terType->getName();
+		out = t.terType->getNameTranslated();
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{
@@ -1486,4 +1486,3 @@ TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, SDL_Rect rec
 TerrainTileObject::~TerrainTileObject()
 {
 }
-

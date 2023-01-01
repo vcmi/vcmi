@@ -20,25 +20,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 //("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
 //\1"rock"\2
 
-/*
-TerrainTypeHandler::TerrainTypeHandler()
-{
-	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
-
-	initRivers(allConfigs);
-	recreateRiverMaps();
-	initRoads(allConfigs);
-	recreateRoadMaps();
-	initTerrains(allConfigs); //maps will be populated inside
-}*/
-
 TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	TerrainType * info = new TerrainType;
 
 	info->id = TerrainId(index);
 	info->identifier = identifier;
+	info->modScope = scope;
 
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
 	info->musicFilename = json["music"].String();
@@ -47,7 +35,8 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->horseSoundPenalty = json["horseSoundPenalty"].String();
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
-	//info->nameTranslated = json["nameTranslated"].String();
+
+	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
 
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =
@@ -264,6 +253,17 @@ bool TerrainType::isUndergroundCartographerCompatible() const
 bool TerrainType::isTransitionRequired() const
 {
 	return transitionRequired;
+}
+
+std::string TerrainType::getNameTextID() const
+{
+	TextIdentifier id{ "terrain", modScope, identifier,  "name" };
+	return id.get();
+}
+
+std::string TerrainType::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
 }
 
 TerrainType::TerrainType()
