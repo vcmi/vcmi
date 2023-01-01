@@ -769,7 +769,7 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 		if(spellID.getNum() >= 0)
 		{
 			if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
-				text = text.replace(nameStart, nameEnd - nameStart + 1, spellID.toSpell(VLC->spells())->getName());
+				text = text.replace(nameStart, nameEnd - nameStart + 1, spellID.toSpell(VLC->spells())->getNameTranslated());
 		}
 	}
 	else if(hero && artType->constituentOf.size()) //display info about set

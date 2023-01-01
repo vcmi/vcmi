@@ -23,6 +23,8 @@ class Caster;
 
 class DLL_LINKAGE Spell: public EntityT<SpellID>
 {
+	using EntityT<SpellID>::getName;
+
 public:
 	using SchoolCallback = std::function<void(const SchoolInfo &, bool &)>;
 
@@ -51,7 +53,12 @@ public:
 	 * Returns spell level power, base power ignored
 	 */
 	virtual int32_t getLevelPower(const int32_t skillLevel) const = 0;
-	virtual const std::string & getLevelDescription(const int32_t skillLevel) const = 0;
+
+	virtual std::string getNameTextID() const = 0;
+	virtual std::string getNameTranslated() const  = 0;
+
+	virtual std::string getDescriptionTextID(int32_t level) const  = 0;
+	virtual std::string getDescriptionTranslated(int32_t level) const  = 0;
 
 };
 

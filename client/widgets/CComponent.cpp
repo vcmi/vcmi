@@ -25,6 +25,7 @@
 
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -168,7 +169,7 @@ std::string CComponent::getDescription()
 		return art->getEffectiveDescription();
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
-	case spell:      return SpellID(subtype).toSpell(CGI->spells())->getLevelDescription(val);
+	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
 	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->Description();
@@ -212,7 +213,7 @@ std::string CComponent::getSubtitleInternal()
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
 			}
 		}
-	case spell:      return CGI->spells()->getByIndex(subtype)->getName();
+	case spell:      return CGI->spells()->getByIndex(subtype)->getNameTranslated();
 	case morale:     return "";
 	case luck:       return "";
 	case building:

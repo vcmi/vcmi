@@ -90,7 +90,7 @@ public:
 				return false;
 		}
 
-		return A->name < B->name;
+		return A->getNameTranslated() < B->getNameTranslated();
 	}
 } spellsorter;
 
@@ -545,7 +545,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((combatSpell ^ inCombat) || inCastle)
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getLevelDescription(schoolLevel), hlp);
+			owner->myInt->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -600,7 +600,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getLevelDescription(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
 	}
 }
 
@@ -609,7 +609,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->write(boost::to_string(boost::format("%s (%s)") % mySpell->name % CGI->generaltexth->allTexts[171+mySpell->level]));
+			owner->statusBar->write(boost::to_string(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->level]));
 		else
 			owner->statusBar->clear();
 	}
@@ -651,7 +651,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		}
 
 		name->color = firstLineColor;
-		name->setText(mySpell->name);
+		name->setText(mySpell->getNameTranslated());
 
 		level->color = secondLineColor;
 		if(schoolLevel > 0)

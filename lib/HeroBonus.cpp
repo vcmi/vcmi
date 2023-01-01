@@ -1588,7 +1588,7 @@ std::string Bonus::Description() const
 				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getName();
 				break;
 			case SPELL_EFFECT:
-				str << SpellID(sid).toSpell(VLC->spells())->getName();
+				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();
 				break;
 			case CREATURE_ABILITY:
 				str << VLC->creh->objects[sid]->namePl;

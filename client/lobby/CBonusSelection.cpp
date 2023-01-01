@@ -176,7 +176,7 @@ void CBonusSelection::createBonusesIcons()
 		{
 		case CScenarioTravel::STravelBonus::SPELL:
 			desc = CGI->generaltexth->allTexts[715];
-			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getName());
+			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
@@ -213,7 +213,7 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			desc = CGI->generaltexth->allTexts[716];
-			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getName());
+			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
 		{
