@@ -321,7 +321,7 @@ const std::string & CGeneralTextHandler::serialize(const std::string & identifie
 
 const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & identifier) const
 {
-	if (stringsLocalizations.count(identifier.get()))
+	if(stringsLocalizations.count(identifier.get()))
 		return stringsLocalizations.at(identifier.get());
 	logGlobal->error("Unable to find localization for string '%s'", identifier.get());
 	return identifier.get();
@@ -403,7 +403,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		do
 		{
 			std::string line = parser.readString();
-			if (!line.empty())
+			if(!line.empty())
 			{
 				registerString({"core.randtvrn", index}, line);
 				index += 1;
@@ -538,7 +538,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	}
 	if (VLC->modh->modules.COMMANDERS)
 	{
-		if (CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
+		if(CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
 			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 }
@@ -576,7 +576,7 @@ size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
 {
 	assert(campaignID < scenariosCountPerCampaign.size());
 
-	if ( campaignID < scenariosCountPerCampaign.size())
+	if(campaignID < scenariosCountPerCampaign.size())
 		return scenariosCountPerCampaign[campaignID];
 	return 0;
 }
@@ -587,7 +587,7 @@ std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string 
 
 	for (auto const & entry : stringsLocalizations)
 	{
-		if (boost::algorithm::starts_with(entry.first, prefix))
+		if(boost::algorithm::starts_with(entry.first, prefix))
 			result.push_back(entry.first);
 	}
 

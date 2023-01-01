@@ -78,7 +78,7 @@ const std::string & CQuest::missionName(CQuest::Emission mission)
 		"keymaster"
 	};
 
-	if (static_cast<size_t>(mission) < names.size())
+	if(static_cast<size_t>(mission) < names.size())
 		return names[static_cast<size_t>(mission)];
 	return names[0];
 }
@@ -93,7 +93,7 @@ const std::string & CQuest::missionState(int state)
 		"description",
 	};
 
-	if (state < states.size())
+	if(state < states.size())
 		return states[state];
 	return states[0];
 }

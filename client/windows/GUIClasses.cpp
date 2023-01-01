@@ -464,7 +464,6 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
 	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
-	//rightGroup->add(282, 185, CGI->generaltexth->translate("vcmi.systemOptions.creatureWindowButton.hover"));
 	rightGroup->add(282, 217, CGI->generaltexth->translate("vcmi.systemOptions.fullscreenButton.hover"));
 
 	//setting up buttons
@@ -1218,7 +1217,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 
-	if (qeLayout )
+	if(qeLayout)
 	{
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToRight());
 		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[2]), controller.onSwapArmy());
