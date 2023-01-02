@@ -756,7 +756,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
 			arts.push_back(art);
-			ma->dst = ArtifactLocation(finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
+			auto slot = art->firstAvailableSlot(finishingBattle->winnerHero);
+			ma->dst = ArtifactLocation(finishingBattle->winnerHero, slot);
+			if(ArtifactUtils::isSlotBackpack(slot))
+				ma->askAssemble = false;
 			sendAndApply(ma);
 		};
 
