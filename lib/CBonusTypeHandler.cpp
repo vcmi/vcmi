@@ -145,7 +145,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		else if(name == "subtype.creature")
 		{
 			 const CreatureID cre(bonus->subtype);
-			 return cre.toCreature()->namePl;
+			 return cre.toCreature()->getNamePluralTranslated();
 		}
 		else if(name == "subtype.spell")
 		{

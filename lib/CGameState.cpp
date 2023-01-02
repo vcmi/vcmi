@@ -99,7 +99,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto cre = CreatureID(ser).toCreature(VLC->creatures());
 		if(cre)
-			dst = cre->getPluralName();
+			dst = cre->getNamePluralTranslated();
 		else
 			dst = "#!#";
 	}
@@ -107,7 +107,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto cre = CreatureID(ser).toCreature(VLC->creatures());
 		if(cre)
-			dst = cre->getSingularName();
+			dst = cre->getNameSingularTranslated();
 		else
 			dst = "#!#";
 	}

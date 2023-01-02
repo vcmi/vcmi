@@ -384,7 +384,7 @@ std::string CCreatureSet::getArmyDescription() const
 	std::vector<std::string> guards;
 	for(auto & elem : stacks)
 	{
-		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->namePl);
+		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->getNamePluralTranslated());
 		guards.push_back(str);
 	}
 	if(guards.size())
@@ -843,7 +843,7 @@ std::string CStackInstance::nodeName() const
 	std::ostringstream oss;
 	oss << "Stack of " << count << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getNamePluralTextID();
 	else if(idRand >= 0)
 		oss << "[no type, idRand=" << idRand << "]";
 	else
@@ -875,7 +875,7 @@ CreatureID CStackInstance::getCreatureID() const
 
 std::string CStackInstance::getName() const
 {
-	return (count > 1) ? type->namePl : type->nameSing;
+	return (count > 1) ? type->getNamePluralTranslated() : type->getNameSingularTranslated();
 }
 
 ui64 CStackInstance::getPower() const
@@ -1044,7 +1044,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	{
 		if(type)
 		{
-			std::string typeName = type->identifier;
+			std::string typeName = type->getJsonKey();
 			handler.serializeString("type", typeName);
 		}
 	}

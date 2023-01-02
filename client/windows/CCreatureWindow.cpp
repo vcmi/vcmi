@@ -86,9 +86,9 @@ public:
 	std::string getName() const
 	{
 		if(commander)
-			return commander->type->nameSing;
+			return commander->type->getNameSingularTranslated();
 		else
-			return creature->namePl;
+			return creature->getNamePluralTranslated();
 	}
 private:
 
@@ -866,7 +866,7 @@ std::string CStackWindow::generateStackExpDescription()
 		tier = 0;
 	int number;
 	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
-	boost::replace_first(expText, "%s", creature->namePl);
+	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
 	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));

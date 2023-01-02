@@ -551,7 +551,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			if(best != stacks.end()) //should be always but to be safe...
 			{
 				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->type->getIconIndex(), 0, xs[i], 38));
-				sideNames[i] = (*best)->type->getPluralName();
+				sideNames[i] = (*best)->type->getNamePluralTranslated();
 			}
 		}
 	}

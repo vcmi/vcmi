@@ -97,7 +97,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 		case RewardType::CREATURE:
 			for(auto creature : VLC->creh->objects)
 			{
-				result.append(QString::fromStdString(creature->getName()));
+				result.append(QString::fromStdString(creature->getNameSingularTranslated()));
 			}
 			break;
 	}

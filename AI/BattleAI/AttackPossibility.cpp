@@ -211,8 +211,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, state);
 
 	logAi->debug("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
-		attackInfo.attacker->unitType()->identifier,
-		attackInfo.defender->unitType()->identifier,
+		attackInfo.attacker->unitType()->getJsonKey(),
+		attackInfo.defender->unitType()->getJsonKey(),
 		(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
 		bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
 

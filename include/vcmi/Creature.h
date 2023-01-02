@@ -18,9 +18,18 @@ class CreatureID;
 
 class DLL_LINKAGE Creature : public EntityWithBonuses<CreatureID>
 {
+protected:
+	using EntityWithBonuses<CreatureID>::getName;
+
+	virtual std::string getNameTranslated() const = 0;
+	virtual std::string getNameTextID() const = 0;
 public:
-	virtual const std::string & getPluralName() const = 0;
-	virtual const std::string & getSingularName() const = 0;
+	virtual std::string getNamePluralTranslated() const = 0;
+	virtual std::string getNameSingularTranslated() const = 0;
+
+	virtual std::string getNamePluralTextID() const = 0;
+	virtual std::string getNameSingularTextID() const = 0;
+
 	virtual uint32_t getMaxHealth() const = 0;
 
 	virtual int32_t getAdvMapAmountMin() const = 0;

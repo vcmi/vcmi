@@ -207,8 +207,8 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				}
 
 				logAi->debug("BattleAI: %s -> %s x %d, %s, from %d curpos %d dist %d speed %d: +%lld -%lld = %lld",
-					bestAttack.attackerState->unitType()->identifier,
-					bestAttack.affectedUnits[0]->unitType()->identifier,
+					bestAttack.attackerState->unitType()->getJsonKey(),
+					bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
 					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
 					bestAttack.defenderDamageReduce, bestAttack.attackerDamageReduce, bestAttack.attackValue()

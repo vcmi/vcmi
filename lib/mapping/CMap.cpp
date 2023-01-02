@@ -543,7 +543,7 @@ void CMap::checkForObjectives()
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->nameSing);
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->getNameSingularTranslated());
 					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
 					break;
 

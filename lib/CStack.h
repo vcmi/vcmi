@@ -128,7 +128,7 @@ public:
 			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 			{
 				base = nullptr;
-				logGlobal->warn("%s doesn't have a base stack!", type->nameSing);
+				logGlobal->warn("%s doesn't have a base stack!", type->getNameSingularTranslated());
 			}
 			else
 			{

@@ -1591,7 +1591,7 @@ std::string Bonus::Description() const
 				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();
 				break;
 			case CREATURE_ABILITY:
-				str << VLC->creh->objects[sid]->namePl;
+				str << VLC->creh->objects[sid]->getNamePluralTranslated();
 				break;
 			case SECONDARY_SKILL:
 				str << VLC->skillh->getByIndex(sid)->getNameTranslated();
@@ -1997,7 +1997,7 @@ void CCreatureTypeLimiter::setCreature (CreatureID id)
 std::string CCreatureTypeLimiter::toString() const
 {
 	boost::format fmt("CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)");
-	fmt % creature->identifier % (includeUpgrades ? "true" : "false");
+	fmt % creature->getJsonKey() % (includeUpgrades ? "true" : "false");
 	return fmt.str();
 }
 
@@ -2006,7 +2006,7 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TYPE_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->identifier));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->getJsonKey()));
 	root["parameters"].Vector().push_back(JsonUtils::boolNode(includeUpgrades));
 
 	return root;

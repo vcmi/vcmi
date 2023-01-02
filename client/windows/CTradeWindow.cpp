@@ -244,7 +244,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
+		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
@@ -285,9 +285,9 @@ std::string CTradeWindow::CTradeableItem::getName(int number) const
 		return CGI->generaltexth->restypes[id];
 	case CREATURE:
 		if(number == 1)
-			return CGI->creh->objects[id]->nameSing;
+			return CGI->creh->objects[id]->getNameSingularTranslated();
 		else
-			return CGI->creh->objects[id]->namePl;
+			return CGI->creh->objects[id]->getNamePluralTranslated();
 	case ARTIFACT_TYPE:
 	case ARTIFACT_INSTANCE:
 		return CGI->artifacts()->getByIndex(id)->getName();

@@ -38,8 +38,8 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 		for(int c = 0; c < VLC->creh->objects.size(); ++c)
 		{
 			auto creature = VLC->creh->objects[c];
-			uiSlots[i]->insertItem(c + 1, tr(creature->getPluralName().c_str()));
-			uiSlots[i]->setItemData(c + 1, creature->getId().getNum());
+			uiSlots[i]->insertItem(c + 1, creature->getNamePluralTranslated().c_str());
+			uiSlots[i]->setItemData(c + 1, creature->getIndex());
 		}
 	}
 	

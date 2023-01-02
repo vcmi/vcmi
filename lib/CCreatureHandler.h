@@ -29,16 +29,21 @@ class JsonSerializeFormat;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
-public:
+	friend class CCreatureHandler;
+	std::string modScope;
 	std::string identifier;
 
-	std::string nameRef; // reference name, stringID
-	std::string nameSing;// singular name, e.g. Centaur
-	std::string namePl;  // plural name, e.g. Centaurs
+//	std::string nameRef; // reference name, stringID
+//	std::string nameSing;// singular name, e.g. Centaur
+//	std::string namePl;  // plural name, e.g. Centaurs
 
-	std::string abilityText; //description of abilities
+	const std::string & getName() const override;
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 
+public:
 	CreatureID idNumber;
+
 	TFaction faction;
 	ui8 level; // 0 - unknown; 1-7 for "usual" creatures
 
@@ -132,6 +137,12 @@ public:
 
 	ArtifactID warMachine;
 
+	std::string getNamePluralTranslated() const override;
+	std::string getNameSingularTranslated() const override;
+
+	std::string getNamePluralTextID() const override;
+	std::string getNameSingularTextID() const override;
+
 	bool isItNativeTerrain(TerrainId terrain) const;
 	/**
 	Returns creature native terrain considering some terrain bonuses.
@@ -142,13 +153,10 @@ public:
 	TerrainId getNativeTerrain() const;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
 	virtual const IBonusBearer * accessBonuses() const override;
-	const std::string & getPluralName() const override;
-	const std::string & getSingularName() const override;
 	uint32_t getMaxHealth() const override;
 
 	int32_t getAdvMapAmountMin() const override;
@@ -199,9 +207,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & namePl;
-		h & nameSing;
-		h & nameRef;
 		h & cost;
 		h & upgrades;
 		h & fightValue;
@@ -211,7 +216,6 @@ public:
 		h & ammMin;
 		h & ammMax;
 		h & level;
-		h & abilityText;
 		h & animDefName;
 		h & advMapDef;
 		h & iconIndex;
@@ -226,6 +230,7 @@ public:
 		h & doubleWide;
 		h & special;
 		h & identifier;
+		h & modScope;
 		h & warMachine;
 	}
 

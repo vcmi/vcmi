@@ -205,7 +205,7 @@ std::string StackWithBonuses::getDescription() const
 	oss << unitOwner().getStr();
 	oss << " battle stack [" << unitId() << "]: " << getCount() << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getJsonKey();
 	else
 		oss << "[UNDEFINED TYPE]";
 

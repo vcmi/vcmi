@@ -758,7 +758,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 		if(!(*VLC->creh)[crId]->animation.missleFrameAngles.size())
 			logMod->error("Mod '%s' error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Siege will not work properly!"
 				, town.faction->name
-				, (*VLC->creh)[crId]->nameSing);
+				, (*VLC->creh)[crId]->getNameSingularTranslated());
 
 		town.clientInfo.siegeShooter = crId;
 	});

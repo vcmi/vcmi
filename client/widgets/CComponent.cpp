@@ -198,7 +198,14 @@ std::string CComponent::getSubtitleInternal()
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->getByIndex(subtype)->getNameTranslated();
 	case resource:   return boost::lexical_cast<std::string>(val);
-	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->objects[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
+	case creature:
+		{
+			auto creature = CGI->creh->getByIndex(subtype);
+			if ( val )
+				return boost::lexical_cast<std::string>(val) + " " + (val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
+			else
+				return val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated();
+		}
 	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getName();
 	case experience:
 		{
