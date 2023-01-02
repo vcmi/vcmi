@@ -353,25 +353,25 @@ void CHeroGSlot::hover(bool on)
 		if(isSelected())//view NNN
 		{
 			temp = CGI->generaltexth->tcommands[4];
-			boost::algorithm::replace_first(temp,"%s",hero->name);
+			boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
 		}
 		else if(other->hero && other->isSelected())//exchange
 		{
 			temp = CGI->generaltexth->tcommands[7];
-			boost::algorithm::replace_first(temp,"%s",hero->name);
-			boost::algorithm::replace_first(temp,"%s",other->hero->name);
+			boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
+			boost::algorithm::replace_first(temp,"%s",other->hero->getNameTranslated());
 		}
 		else// select NNN (in ZZZ)
 		{
 			if(upg)//down - visiting
 			{
 				temp = CGI->generaltexth->tcommands[32];
-				boost::algorithm::replace_first(temp,"%s",hero->name);
+				boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
 			}
 			else //up - garrison
 			{
 				temp = CGI->generaltexth->tcommands[12];
-				boost::algorithm::replace_first(temp,"%s",hero->name);
+				boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
 			}
 		}
 	}
@@ -380,7 +380,7 @@ void CHeroGSlot::hover(bool on)
 		if(other->isSelected() && other->hero) //move NNNN
 		{
 			temp = CGI->generaltexth->tcommands[6];
-			boost::algorithm::replace_first(temp,"%s",other->hero->name);
+			boost::algorithm::replace_first(temp,"%s",other->hero->getNameTranslated());
 		}
 		else //empty
 		{

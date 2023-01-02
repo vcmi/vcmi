@@ -80,7 +80,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 
 std::string ChainActor::toString() const
 {
-	return hero->name;
+	return hero->getNameTranslated();
 }
 
 ObjectActor::ObjectActor(const CGObjectInstance * obj, const CCreatureSet * army, uint64_t chainMask, int initialTurn)

@@ -56,7 +56,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	{
 		if(getCreaturesCount(hero) >= this->value)
 		{
-			logAi->trace("Completing GATHER_TROOPS by hero %s", hero->name);
+			logAi->trace("Completing GATHER_TROOPS by hero %s", hero->getNameTranslated());
 
 			throw goalFulfilledException(sptr(*this));
 		}

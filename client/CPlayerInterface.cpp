@@ -410,7 +410,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->name % playerID);
+	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
 
 	const CArmedInstance *newSelection = nullptr;
 	if (makingTurn)
@@ -1268,7 +1268,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 			if (p.second.nodes.size())
 				pathsMap[p.first] = p.second.endPos();
 			else
-				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->name);
+				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
 		}
 		h & pathsMap;
 	}

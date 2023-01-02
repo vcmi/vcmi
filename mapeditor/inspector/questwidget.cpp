@@ -95,7 +95,7 @@ void QuestWidget::obtainData()
 		case CQuest::Emission::MISSION_HERO:
 			activeId = true;
 			for(int i = 0; i < map.allowedHeroes.size(); ++i)
-				ui->targetId->addItem(QString::fromStdString(VLC->heroh->objects.at(i)->getName()));
+				ui->targetId->addItem(QString::fromStdString(VLC->heroh->objects.at(i)->getNameTranslated()));
 			ui->targetId->setCurrentIndex(seerhut.quest->m13489val);
 			break;
 		case CQuest::Emission::MISSION_PLAYER:

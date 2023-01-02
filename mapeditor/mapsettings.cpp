@@ -58,7 +58,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	}
 	for(int i = 0; i < controller.map()->allowedHeroes.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->heroh->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->heroh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedHeroes[i] ? Qt::Checked : Qt::Unchecked);

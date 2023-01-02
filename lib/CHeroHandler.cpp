@@ -43,7 +43,7 @@ int32_t CHero::getIconIndex() const
 
 const std::string & CHero::getName() const
 {
-	return name;
+	return identifier;
 }
 
 const std::string & CHero::getJsonKey() const
@@ -54,6 +54,56 @@ const std::string & CHero::getJsonKey() const
 HeroTypeID CHero::getId() const
 {
 	return ID;
+}
+
+std::string CHero::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CHero::getBiographyTranslated() const
+{
+	return VLC->generaltexth->translate(getBiographyTextID());
+}
+
+std::string CHero::getSpecialtyNameTranslated() const
+{
+	return VLC->generaltexth->translate(getSpecialtyNameTextID());
+}
+
+std::string CHero::getSpecialtyDescriptionTranslated() const
+{
+	return VLC->generaltexth->translate(getSpecialtyDescriptionTextID());
+}
+
+std::string CHero::getSpecialtyTooltipTranslated() const
+{
+	return VLC->generaltexth->translate(getSpecialtyTooltipTextID());
+}
+
+std::string CHero::getNameTextID() const
+{
+	return TextIdentifier("hero", modScope, identifier, "name").get();
+}
+
+std::string CHero::getBiographyTextID() const
+{
+	return TextIdentifier("hero", modScope, identifier, "biography").get();
+}
+
+std::string CHero::getSpecialtyNameTextID() const
+{
+	return TextIdentifier("hero", modScope, identifier, "specialty", "name").get();
+}
+
+std::string CHero::getSpecialtyDescriptionTextID() const
+{
+	return TextIdentifier("hero", modScope, identifier, "specialty", "description").get();
+}
+
+std::string CHero::getSpecialtyTooltipTextID() const
+{
+	return TextIdentifier("hero", modScope, identifier, "specialty", "tooltip").get();
 }
 
 void CHero::registerIcons(const IconRegistar & cb) const
@@ -120,7 +170,7 @@ int32_t CHeroClass::getIconIndex() const
 
 const std::string & CHeroClass::getName() const
 {
-	return name;
+	return identifier;
 }
 
 const std::string & CHeroClass::getJsonKey() const
@@ -136,6 +186,16 @@ HeroClassID CHeroClass::getId() const
 void CHeroClass::registerIcons(const IconRegistar & cb) const
 {
 
+}
+
+std::string CHeroClass::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CHeroClass::getNameTextID() const
+{
+	return TextIdentifier("heroClass", modScope, identifier, "specialty", "name").get();
 }
 
 void CHeroClass::updateFrom(const JsonNode & data)
@@ -164,7 +224,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
 		logMod->error("Hero class '%s' has incorrect initial value '%d' for skill '%s'. Value '%d' will be used instead.",
-			heroClass->identifier, currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
+			heroClass->getName(), currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
 		currentPrimarySkillValue = primarySkillLegalMinimum;
 	}
 	heroClass->primarySkillInitial.push_back(currentPrimarySkillValue);
@@ -192,7 +252,8 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
-	heroClass->name = node["name"].String();
+	VLC->generaltexth->registerString( heroClass->getNameTextID(), node["name"].String());
+
 	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
 
 	fillPrimarySkillData(node, heroClass, PrimarySkill::ATTACK);
@@ -362,11 +423,11 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
 
-	hero->name        = node["texts"]["name"].String();
-	hero->biography   = node["texts"]["biography"].String();
-	hero->specName    = node["texts"]["specialty"]["name"].String();
-	hero->specTooltip = node["texts"]["specialty"]["tooltip"].String();
-	hero->specDescr   = node["texts"]["specialty"]["description"].String();
+	VLC->generaltexth->registerString( hero->getNameTextID(), node["texts"]["name"].String());
+	VLC->generaltexth->registerString( hero->getBiographyTextID(), node["texts"]["biography"].String());
+	VLC->generaltexth->registerString( hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"].String());
+	VLC->generaltexth->registerString( hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"].String());
+	VLC->generaltexth->registerString( hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"].String());
 
 	hero->iconSpecSmall = node["images"]["specialtySmall"].String();
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
@@ -703,7 +764,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	const JsonNode & specialtiesNode = node["specialties"];
 	if (!specialtiesNode.isNull())
 	{
-		logMod->warn("Hero %s has deprecated specialties format.", hero->identifier);
+		logMod->warn("Hero %s has deprecated specialties format.", hero->getNameTranslated());
 		for(const JsonNode &specialty : specialtiesNode.Vector())
 		{
 			SSpecialtyInfo spec;
@@ -892,7 +953,7 @@ void CHeroHandler::afterLoadFinalization()
 
 		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
 		{
-			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, FactionID::encode(hero->heroClass->faction));
+			logMod->debug("Converting specialty format for hero %s(%s)", hero->getNameTranslated(), FactionID::encode(hero->heroClass->faction));
 			std::vector<std::shared_ptr<Bonus>> convertedBonuses;
 			for(const SSpecialtyInfo & spec : hero->specDeprecated)
 			{

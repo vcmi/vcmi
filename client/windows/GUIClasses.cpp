@@ -404,11 +404,11 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 	ok = std::make_shared<CButton>(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->getNameTranslated()));
 
 	//%s is now a level %d %s.
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
+		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->getNameTranslated() % hero->level % hero->type->heroClass->getNameTranslated()));
 
 	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
 
@@ -743,7 +743,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			oldSelected = selected;
 
 			//Recruit %s the %s
-			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->name % sel->h->type->heroClass->name));
+			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
 		}
 
 		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
@@ -777,7 +777,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 	if(H)
 	{
 		hoverName = CGI->generaltexth->tavernInfo[4];
-		boost::algorithm::replace_first(hoverName,"%s",H->name);
+		boost::algorithm::replace_first(hoverName,"%s",H->getNameTranslated());
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
@@ -785,9 +785,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 				artifs--;
 
 		description = CGI->generaltexth->allTexts[215];
-		boost::algorithm::replace_first(description, "%s", h->name);
+		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(h->level));
-		boost::algorithm::replace_first(description, "%s", h->type->heroClass->name);
+		boost::algorithm::replace_first(description, "%s", h->type->heroClass->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(artifs));
 
 		portrait = std::make_shared<CAnimImage>("portraitsLarge", h->portrait);
@@ -1078,7 +1078,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	auto genTitle = [](const CGHeroInstance * h)
 	{
 		boost::format fmt(CGI->generaltexth->allTexts[138]);
-		fmt % h->name % h->level % h->type->heroClass->name;
+		fmt % h->getNameTranslated() % h->level % h->type->heroClass->getNameTranslated();
 		return boost::str(fmt);
 	};
 
@@ -1178,7 +1178,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
 		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
-		specialtyAreas[b]->text = hero->type->specDescr;
+		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
@@ -1192,7 +1192,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->name);
+		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
 

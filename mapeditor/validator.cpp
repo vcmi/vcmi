@@ -119,7 +119,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				if(ins->type)
 				{
 					if(!map->allowedHeroes[ins->type->getId().getNum()])
-						issues.emplace_back(QString("Hero %1 is prohibited by map settings").arg(ins->type->getName().c_str()), false);
+						issues.emplace_back(QString("Hero %1 is prohibited by map settings").arg(ins->type->getNameTranslated().c_str()), false);
 				}
 				else
 					issues.emplace_back(QString("Hero %1 has an empty type and must be removed").arg(ins->instanceName.c_str()), true);

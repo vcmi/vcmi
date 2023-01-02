@@ -65,7 +65,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 			return chi->commander->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
 		}
 
-		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->name);
+		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->getNameTranslated());
 		return 20;
 	}
 
@@ -309,8 +309,6 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
-	if (!name.length())
-		name = type->name;
 
 	if (sex == 0xFF)//sex is default
 		sex = type->sex;
@@ -373,7 +371,7 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 
 		if(creature == nullptr)
 		{
-			logGlobal->error("Hero %s has invalid creature with id %d in initial army", name, stack.creature.toEnum());
+			logGlobal->error("Hero %s has invalid creature with id %d in initial army", getNameTranslated(), stack.creature.toEnum());
 			continue;
 		}
 
@@ -394,11 +392,11 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 				if(!getArt(slot))
 					putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
 				else
-					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", name, slot.toEnum(), aid.toEnum());
+					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTranslated(), slot.toEnum(), aid.toEnum());
 			}
 			else
 			{
-				logGlobal->error("Hero %s has invalid war machine in initial army", name);
+				logGlobal->error("Hero %s has invalid war machine in initial army", getNameTranslated());
 			}
 		}
 		else
@@ -469,19 +467,12 @@ std::string CGHeroInstance::getObjectName() const
 	if(ID != Obj::PRISON)
 	{
 		std::string hoverName = VLC->generaltexth->allTexts[15];
-		boost::algorithm::replace_first(hoverName,"%s",name);
-		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
+		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->getNameTranslated());
 		return hoverName;
 	}
 	else
 		return CGObjectInstance::getObjectName();
-}
-
-const std::string & CGHeroInstance::getBiography() const
-{
-	if (biography.length())
-		return biography;
-	return type->biography;
 }
 
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
@@ -536,14 +527,13 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 		for(std::shared_ptr<Bonus> b : sb.bonuses)
 			addNewBonus(b);
 	for(SSpecialtyInfo & spec : type->specDeprecated)
-		for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, type->ID.getNum()))
+		for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, type->getIndex()))
 			addNewBonus(b);
 
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
-	type->name = name;
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -686,7 +676,7 @@ PlayerColor CGHeroInstance::getCasterOwner() const
 void CGHeroInstance::getCasterName(MetaString & text) const
 {
 	//FIXME: use local name, MetaString need access to gamestate as hero name is part of map object
-	text.addReplacement(name);
+	text.addReplacement(getNameTranslated());
 }
 
 void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
@@ -995,7 +985,39 @@ void CGHeroInstance::initExp(CRandomGenerator & rand)
 
 std::string CGHeroInstance::nodeName() const
 {
-	return "Hero " + name;
+	return "Hero " + getNameTextID();
+}
+
+std::string CGHeroInstance::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CGHeroInstance::getNameTextID() const
+{
+	if (!nameCustom.empty())
+		return nameCustom;
+	if (type)
+		return type->getNameTextID();
+
+	assert(0);
+	return "";
+}
+
+std::string CGHeroInstance::getBiographyTranslated() const
+{
+	return VLC->generaltexth->translate(getBiographyTextID());
+}
+
+std::string CGHeroInstance::getBiographyTextID() const
+{
+	if (!biographyCustom.empty())
+		return biographyCustom;
+	if (type)
+		return type->getBiographyTextID();
+
+	assert(0);
+	return "";
 }
 
 void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
@@ -1230,7 +1252,7 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
 	{
 		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
-		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->identifier);
+		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->getNameTranslated());
 		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
 	}
 	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
@@ -1378,11 +1400,11 @@ std::string CGHeroInstance::getHeroTypeName() const
 	{
 		if(type)
 		{
-			return type->identifier;
+			return type->getJsonKey();
 		}
 		else
 		{
-			return VLC->heroh->objects[subID]->identifier;
+			return VLC->heroh->objects[subID]->getJsonKey();
 		}
 	}
 	return "";
@@ -1421,7 +1443,7 @@ void CGHeroInstance::updateFrom(const JsonNode & data)
 
 void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeString("biography", biography);
+	handler.serializeString("biography", biographyCustom);
 	handler.serializeInt("experience", exp, 0);
 
 	if(!handler.saving && exp != 0xffffffff) //do not gain levels if experience is not initialized
@@ -1432,7 +1454,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		}
 	}
 
-	handler.serializeString("name", name);
+	handler.serializeString("name", nameCustom);
 	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
 
 	{

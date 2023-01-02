@@ -423,7 +423,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 
 	// give primary skill
-	logGlobal->trace("%s got level %d", hero->name, hero->level);
+	logGlobal->trace("%s got level %d", hero->getNameTranslated(), hero->level);
 	auto primarySkill = hero->nextPrimarySkill(getRandomGenerator());
 
 	SetPrimSkill sps;
@@ -633,7 +633,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 				InfoWindow iw;
 				iw.player = hero->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 1); //can gain no more XP
-				iw.text.addReplacement(hero->name);
+				iw.text.addReplacement(hero->getNameTextID());
 				sendAndApply(&iw);
 			}
 		}
@@ -856,7 +856,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
-		iw.text.addReplacement(finishingBattle->winnerHero->name);
+		iw.text.addReplacement(finishingBattle->winnerHero->getNameTextID());
 
 		std::ostringstream names;
 		for (int i = 0; i < cs.spells.size(); i++)
@@ -2401,7 +2401,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards,
 								EVisitDest visitDest, ELEaveTile leavingTile) -> bool
 	{
-		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->name % tmh.start.toString() % tmh.end.toString());
+		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->getNameTranslated() % tmh.start.toString() % tmh.end.toString());
 
 		auto moveQuery = std::make_shared<CHeroMovementQuery>(this, tmh, h);
 		queries.addQuery(moveQuery);
@@ -2431,7 +2431,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		}
 
 		queries.popIfTop(moveQuery);
-		logGlobal->trace("Hero %s ends movement", h->name);
+		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;
 	};
 
@@ -2831,7 +2831,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.components.push_back(Component(Component::SEC_SKILL, 18, ScholarSkillLevel, 0));
 
 		iw.text.addTxt(MetaString::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
-		iw.text.addReplacement(h1->name);
+		iw.text.addReplacement(h1->getNameTextID());
 
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
@@ -2849,7 +2849,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				}
 			}
 			iw.text.addTxt(MetaString::GENERAL_TXT, 142);//from %s
-			iw.text.addReplacement(h2->name);
+			iw.text.addReplacement(h2->getNameTextID());
 			sendAndApply(&cs2);
 		}
 
@@ -2873,7 +2873,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 					default:	iw.text << ", ";
 				}			}
 			iw.text.addTxt(MetaString::GENERAL_TXT, 148);//from %s
-			iw.text.addReplacement(h2->name);
+			iw.text.addReplacement(h2->getNameTextID());
 			sendAndApply(&cs1);
 		}
 		sendAndApply(&iw);

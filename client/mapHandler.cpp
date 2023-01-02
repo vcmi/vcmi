@@ -960,7 +960,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 	{
 		if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 		{
-			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->name, hero->pos.toString());
+			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->getNameTranslated(), hero->pos.toString());
 			return CMapHandler::AnimBitmapHolder();
 		}
 

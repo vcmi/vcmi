@@ -201,7 +201,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 			if(!settings.heroName.empty())
 				return settings.heroName;
 			auto index = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
-			return (*CGI->heroh)[index]->name;
+			return (*CGI->heroh)[index]->getNameTranslated();
 		}
 		}
 	}
@@ -257,7 +257,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 	case HERO:
 	{
 		if(settings.hero >= 0)
-			return getName() + " - " + (*CGI->heroh)[heroIndex]->heroClass->name;
+			return getName() + " - " + (*CGI->heroh)[heroIndex]->heroClass->getNameTranslated();
 		return getName();
 	}
 
@@ -398,7 +398,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
 
 	imageSpeciality = std::make_shared<CAnimImage>("UN44", (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
-	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->specName);
+	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyNameTranslated());
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()

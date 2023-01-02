@@ -596,7 +596,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	if(iw.components.size())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT, 183); // % has found treasure
-		iw.text.addReplacement(h->name);
+		iw.text.addReplacement(h->getNameTranslated());
 		cb->showInfoDialog(&iw);
 	}
 }
@@ -1347,7 +1347,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					else //fix for mod artifacts with no event text
 					{
 						iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
-						iw.text.addReplacement(h->name);
+						iw.text.addReplacement(h->getNameTranslated());
 					}
 				}
 			}

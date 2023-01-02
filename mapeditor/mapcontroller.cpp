@@ -131,7 +131,7 @@ void MapController::repairMap()
 			if(obj->ID == Obj::HERO)
 			{
 				nih->typeName = "hero";
-				nih->subTypeName = type->heroClass->identifier;
+				nih->subTypeName = type->heroClass->getJsonKey();
 			}
 			if(obj->ID == Obj::PRISON)
 			{
@@ -140,10 +140,6 @@ void MapController::repairMap()
 			}
 			
 			nih->type = type;
-			if(nih->name.empty())
-				nih->name = nih->type->name;
-			if(nih->biography.empty())
-				nih->biography = nih->type->biography;
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();

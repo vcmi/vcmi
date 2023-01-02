@@ -787,7 +787,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				bool hasCustomBio = reader.readBool();
 				if(hasCustomBio)
 				{
-					hero->biography = reader.readString();
+					hero->biographyCustom = reader.readString();
 				}
 
 				// 0xFF is default, 00 male, 01 female
@@ -825,7 +825,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	{
 		if(hero->artifactsWorn.size() ||  hero->artifactsInBackpack.size())
 		{
-			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->name, hero->pos.toString());
+			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
 			hero->artifactsInBackpack.clear();
 			while(hero->artifactsWorn.size())
 				hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
@@ -1436,7 +1436,7 @@ void CMapLoaderH3M::readObjects()
 				}
 				else
 				{
-					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->name, objPos.toString());
+					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->getNameTranslated(), objPos.toString());
 					hp->power = 0;
 				}
 
@@ -1592,7 +1592,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	{
 		if(elem.heroId == nhi->subID)
 		{
-			nhi->name = elem.name;
+			nhi->nameCustom = elem.name;
 			nhi->portrait = elem.portrait;
 			break;
 		}
@@ -1601,7 +1601,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	bool hasName = reader.readBool();
 	if(hasName)
 	{
-		nhi->name = reader.readString();
+		nhi->nameCustom = reader.readString();
 	}
 	if(map->version > EMapFormat::AB)
 	{
@@ -1666,7 +1666,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 		bool hasCustomBiography = reader.readBool();
 		if(hasCustomBiography)
 		{
-			nhi->biography = reader.readString();
+			nhi->biographyCustom = reader.readString();
 		}
 		nhi->sex = reader.readUInt8();
 
@@ -1688,7 +1688,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 		if(nhi->spells.size())
 		{
 			nhi->clear();
-			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
+			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
 		}
 
 		if(hasCustomSpells)
@@ -1721,7 +1721,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 								.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
+				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
 				for(auto b : *ps)
 					nhi->removeBonus(b);
 			}

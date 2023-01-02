@@ -327,7 +327,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				iw.text.addTxt(MetaString::ADVOB_TXT, 186);
 
 			iw.text.addReplacement(loot.buildList());
-			iw.text.addReplacement(hero->name);
+			iw.text.addReplacement(hero->getNameTranslated());
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}

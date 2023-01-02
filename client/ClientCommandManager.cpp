@@ -317,7 +317,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 		if(what == "hs")
 		{
 			for(const CGHeroInstance *h : LOCPLINT->cb->getHeroesInfo())
-				if(h->type->ID.getNum() == id1)
+				if(h->type->getIndex() == id1)
 					if(const CArtifactInstance *a = h->getArt(ArtifactPosition(id2)))
 						printCommandMessage(a->nodeName());
 		}

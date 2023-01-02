@@ -1451,7 +1451,7 @@ void CGameState::initHeroes()
 
 		hero->initHero(getRandomGenerator());
 		getPlayerState(hero->getOwner())->heroes.push_back(hero);
-		map->allHeroes[hero->type->ID.getNum()] = hero;
+		map->allHeroes[hero->type->getIndex()] = hero;
 	}
 
 	for(auto obj : map->objects) //prisons
@@ -1468,7 +1468,7 @@ void CGameState::initHeroes()
 		ph->initHero(getRandomGenerator());
 		hpool.heroesPool[ph->subID] = ph;
 		hpool.pavailable[ph->subID] = 0xff;
-		heroesToCreate.erase(ph->type->ID);
+		heroesToCreate.erase(ph->type->getId());
 
 		map->allHeroes[ph->subID] = ph;
 	}
@@ -2796,7 +2796,7 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
 		if(hero->type)
-			ret -= hero->type->ID;
+			ret -= hero->type->getId();
 		else
 			ret -= HeroTypeID(hero->subID);
 	}
@@ -2918,7 +2918,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 {
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
-		if(hero->type && hero->type->ID == hid)
+		if(hero->type && hero->type->getId() == hid)
 		{
 			return hero;
 		}
@@ -2930,7 +2930,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 		{
 			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
 			assert(hero);
-			if ( hero->type && hero->type->ID == hid )
+			if ( hero->type && hero->type->getId() == hid )
 				return hero;
 		}
 	}
@@ -3024,7 +3024,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 	initFromArmy(h, detailed);
 
 	hclass = h->type->heroClass;
-	name = h->name;
+	name = h->getNameTranslated();
 	portrait = h->portrait;
 
 	if(detailed)

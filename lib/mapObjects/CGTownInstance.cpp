@@ -720,7 +720,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		logGlobal->error("%s visits allied town of %s from different pos?", h->name, name);
+		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), name);
 	}
 }
 
@@ -730,10 +730,10 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 	if(visitingHero == h)
 	{
 		cb->stopHeroVisitCastle(this, h);
-		logGlobal->trace("%s correctly left town %s", h->name, name);
+		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), name);
 	}
 	else
-		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->name, name);
+		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), name);
 }
 
 std::string CGTownInstance::getObjectName() const
@@ -1415,7 +1415,7 @@ void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 st
 	else
 	{
 		//should never ever happen
-		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->name, structureInstanceID);
+		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTranslated(), structureInstanceID);
 		throw std::runtime_error("internal error");
 	}
 }

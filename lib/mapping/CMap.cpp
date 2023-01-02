@@ -568,7 +568,7 @@ void CMap::checkForObjectives()
 							boost::algorithm::replace_first(event.onFulfill, "%s", town->name);
 						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
-							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
+							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
 					break;
 
@@ -580,7 +580,7 @@ void CMap::checkForObjectives()
 					{
 						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
-							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
+							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
 					break;
 				case EventCondition::TRANSPORT:

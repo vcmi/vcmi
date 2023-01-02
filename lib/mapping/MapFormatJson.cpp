@@ -524,18 +524,18 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 					if(hero)
 					{
 						auto heroData = handler.enterStruct(hero->instanceName);
-						heroData->serializeString("name", hero->name);
+						heroData->serializeString("name", hero->nameCustom);
 
 						if(hero->ID == Obj::HERO)
 						{
 							std::string temp;
 							if(hero->type)
 							{
-								temp = hero->type->identifier;
+								temp = hero->type->getJsonKey();
 							}
 							else
 							{
-								temp = VLC->heroh->objects[hero->subID]->identifier;
+								temp = VLC->heroh->objects[hero->subID]->getJsonKey();
 							}
 							handler.serializeString("type", temp);
 						}

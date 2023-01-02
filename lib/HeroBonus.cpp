@@ -1597,7 +1597,7 @@ std::string Bonus::Description() const
 				str << VLC->skillh->getByIndex(sid)->getNameTranslated();
 				break;
 			case HERO_SPECIAL:
-				str << VLC->heroh->objects[sid]->name;
+				str << VLC->heroh->objects[sid]->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
