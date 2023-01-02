@@ -125,13 +125,13 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 	// If clicked on spellbook, open it only if no artifact is held at the moment.
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
-		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
-			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt.get());
+		if(ourArt->artType->getId() == ArtifactID::SPELLBOOK)
+				GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt.get());
 	}
 
 	if (!down && previousState)
 	{
-		if(ourArt && ourArt->artType->id == ArtifactID::SPELLBOOK)
+		if(ourArt && ourArt->artType->getId() == ArtifactID::SPELLBOOK)
 			return; //this is handled separately
 
 		if(!ourOwner->commonInfo->src.AOH) //nothing has been clicked
@@ -139,7 +139,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 			if(ourArt  //to prevent selecting empty slots (bugfix to what GrayFace reported)
 				&&  ourOwner->curHero->tempOwner == LOCPLINT->playerID)//can't take art from another player
 			{
-				if(ourArt->artType->id == ArtifactID::CATAPULT) //catapult cannot be highlighted
+				if(ourArt->artType->getId() == ArtifactID::CATAPULT) //catapult cannot be highlighted
 				{
 					std::vector<std::shared_ptr<CComponent>> catapult(1, std::make_shared<CComponent>(CComponent::artifact, 3, 0));
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult); //The Catapult must be equipped.
@@ -164,7 +164,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 				{
 					const CArtifact * const cur = ourOwner->commonInfo->src.art->artType;
 
-					if(cur->id == ArtifactID::CATAPULT)
+					if(cur->getId() == ArtifactID::CATAPULT)
 					{
 						//should not happen, catapult cannot be selected
 						logGlobal->error("Attempt to move Catapult");
@@ -172,7 +172,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 					else if(cur->isBig())
 					{
 						//war machines cannot go to backpack
-						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->getName()));
+						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->getNameTranslated()));
 					}
 					else
 					{
@@ -217,10 +217,10 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 		LOCPLINT->showArtifactAssemblyDialog(
 			art->artType,
 			combination,
-			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id));
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->getId()));
 
 		if(assemblyPossibilities.size() > 2)
-			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getName());
+			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getNameTranslated());
 		return true;
 	}
 	return false;
@@ -388,7 +388,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 
 	text = art->getEffectiveDescription(ourOwner->curHero);
 
-	if(art->artType->id == ArtifactID::SPELL_SCROLL)
+	if(art->artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
 		int spellID = art->getGivenSpellID();
 		if(spellID >= 0)
@@ -402,14 +402,14 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	else
 	{
 		baseType = CComponent::artifact;
-		type = art->artType->id;
+		type = art->artType->getId();
 		bonusValue = 0;
 	}
 
 	if (locked) // Locks should appear as empty.
 		hoverText = CGI->generaltexth->allTexts[507];
 	else
-		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->getName());
+		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->getNameTranslated());
 }
 
 void CArtifactsOfHero::SCommonPart::reset()
@@ -1066,7 +1066,7 @@ void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
 
 	text = art->getEffectiveDescription();
 
-	if (art->artType->id == ArtifactID::SPELL_SCROLL)
+	if (art->artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
 		int spellID = art->getGivenSpellID();
 		if (spellID >= 0)
@@ -1080,7 +1080,7 @@ void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
 	else
 	{
 		baseType = CComponent::artifact;
-		type = art->artType->id;
+		type = art->artType->getId();
 		bonusValue = 0;
 	}
 }

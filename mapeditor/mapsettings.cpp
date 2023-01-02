@@ -50,7 +50,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	}
 	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->arth->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedArtifact[i] ? Qt::Checked : Qt::Unchecked);

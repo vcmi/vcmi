@@ -250,7 +250,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 		if(id < 0)
 			GH.statusbar->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getName());
+			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	}
 }
@@ -269,7 +269,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_PLACEHOLDER:
 			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->artifacts()->getByIndex(id)->getDescription(), down);
+				adventureInt->handleRightClick(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated(), down);
 			break;
 		}
 	}
@@ -290,7 +290,7 @@ std::string CTradeWindow::CTradeableItem::getName(int number) const
 			return CGI->creh->objects[id]->getNamePluralTranslated();
 	case ARTIFACT_TYPE:
 	case ARTIFACT_INSTANCE:
-		return CGI->artifacts()->getByIndex(id)->getName();
+		return CGI->artifacts()->getByIndex(id)->getNameTranslated();
 	}
 	logGlobal->error("Invalid trade item type: %d", (int)type);
 	return "";
@@ -313,7 +313,7 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 	assert(type == ARTIFACT_PLACEHOLDER || type == ARTIFACT_INSTANCE);
 	hlp = art;
 	if(art)
-		setID(art->artType->id);
+		setID(art->artType->getId());
 	else
 		setID(-1);
 }
@@ -1397,7 +1397,7 @@ void CAltarWindow::calcTotalExp()
 		for(const CArtifactInstance *art : arts->artifactsOnAltar)
 		{
 			int dmp, valOfArt;
-			market->getOffer(art->artType->id, 0, dmp, valOfArt, mode);
+			market->getOffer(art->artType->getId(), 0, dmp, valOfArt, mode);
 			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
@@ -1470,7 +1470,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 		artIcon->showAll(to);
 
 		int dmp, val;
-		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+		market->getOffer(arts->commonInfo->src.art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 		val = static_cast<int>(hero->calculateXp(val));
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
@@ -1496,7 +1496,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	}
 
 	int dmp, val;
-	market->getOffer(art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+	market->getOffer(art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 	val = static_cast<int>(hero->calculateXp(val));
 
 	arts->artifactsOnAltar.insert(art);

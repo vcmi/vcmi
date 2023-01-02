@@ -1594,7 +1594,7 @@ std::string Bonus::Description() const
 			switch(source)
 			{
 			case ARTIFACT:
-				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getName();
+				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getNameTranslated();
 				break;
 			case SPELL_EFFECT:
 				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();

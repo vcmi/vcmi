@@ -419,7 +419,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
-			return asi.artifact->artType->id == ArtifactID::GRAIL;
+			return asi.artifact->artType->getId() == ArtifactID::GRAIL;
 		});
 
 		if(beatenHero->visitedTown)
@@ -1061,7 +1061,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	auto slot = al.getSlot();
 	if(slot->locked)
 	{
-		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getName());
+		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		auto aset = al.getHolderArtSet();
@@ -1081,12 +1081,12 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 			}
 		}
 		assert(found && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->getName());
+		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->getNameTranslated());
 		dis.applyGs(gs);
 	}
 	else
 	{
-		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getName());
+		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
 	}
 	al.removeArtifact();
 }
@@ -1178,7 +1178,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
 	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
 		{
-			return art->id == builtArt->id;
+			return art->getId() == builtArt->getId();
 		}));
 	MAYBE_UNUSED(transformedArt);
 
@@ -1187,8 +1187,8 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
 	{
-		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->id, true, false) :
-			artSet->getArtBackpackPos(constituent->id);
+		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->getId(), true, false) :
+			artSet->getArtBackpackPos(constituent->getId());
 		assert(pos >= 0);
 		CArtifactInstance * constituentInstance = artSet->getArt(pos);
 

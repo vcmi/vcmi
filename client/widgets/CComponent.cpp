@@ -206,7 +206,7 @@ std::string CComponent::getSubtitleInternal()
 			else
 				return val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated();
 		}
-	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getName();
+	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getNameTranslated();
 	case experience:
 		{
 			if(subtype == 1) //+1 level - tree of knowledge

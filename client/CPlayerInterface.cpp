@@ -1363,14 +1363,14 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  */
 void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes)
 {
-	std::string text = artifact->getDescription();
+	std::string text = artifact->getDescriptionTranslated();
 	text += "\n\n";
 	std::vector<std::shared_ptr<CComponent>> scs;
 
 	if(assembledArtifact)
 	{
 		// You possess all of the components to...
-		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getName());
+		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getNameTranslated());
 
 		// Picture of assembled artifact at bottom.
 		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
