@@ -994,10 +994,12 @@ struct EraseArtifact : CArtifactOperationPack
 
 struct MoveArtifact : CArtifactOperationPack
 {
-	MoveArtifact() {}
-	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst) 
-		: src(*src), dst(*dst) {}
+	MoveArtifact() 
+		: askAssemble(true) {}
+	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst, bool askAssemble = true)
+		: src(*src), dst(*dst), askAssemble(askAssemble){}
 	ArtifactLocation src, dst;
+	bool askAssemble;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -1006,6 +1008,7 @@ struct MoveArtifact : CArtifactOperationPack
 	{
 		h & src;
 		h & dst;
+		h & askAssemble;
 	}
 };
 

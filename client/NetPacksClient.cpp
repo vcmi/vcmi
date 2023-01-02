@@ -272,15 +272,18 @@ void EraseArtifact::applyCl(CClient *cl)
 	callInterfaceIfPresent(cl, al.owningPlayer(), &IGameEventsReceiver::artifactRemoved, al);
 }
 
-void MoveArtifact::applyCl(CClient *cl)
+void MoveArtifact::applyCl(CClient * cl)
 {
-	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
-	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
-	if(src.owningPlayer() != dst.owningPlayer())
+	auto moveArtifact = [this, cl](PlayerColor player) -> void
 	{
-		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
-		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
-	}
+		callInterfaceIfPresent(cl, player, &IGameEventsReceiver::artifactMoved, src, dst);
+		if(askAssemble)
+			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::artifactPossibleAssembling, dst);
+	};
+
+	moveArtifact(src.owningPlayer());
+	if(src.owningPlayer() != dst.owningPlayer())
+		moveArtifact(dst.owningPlayer());
 }
 
 void BulkMoveArtifacts::applyCl(CClient * cl)
