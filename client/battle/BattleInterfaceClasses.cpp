@@ -613,7 +613,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		if (ourHero)
 		{
 			str += CGI->generaltexth->allTexts[305];
-			boost::algorithm::replace_first(str, "%s", ourHero->name);
+			boost::algorithm::replace_first(str, "%s", ourHero->getNameTranslated());
 			boost::algorithm::replace_first(str, "%d", boost::lexical_cast<std::string>(br.exp[weAreAttacker ? 0 : 1]));
 		}
 

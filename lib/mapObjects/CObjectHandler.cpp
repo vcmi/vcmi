@@ -494,7 +494,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 		if(visitor)
 		{
 			out.addTxt(MetaString::GENERAL_TXT, 134);
-			out.addReplacement(visitor->name);
+			out.addReplacement(visitor->getNameTranslated());
 		}
 		else
 			out.addTxt(MetaString::ADVOB_TXT, 189);

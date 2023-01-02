@@ -78,7 +78,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		logAi->trace(
 			"Hero %s in garrison of town %s is suposed to defend the town",
-			town->garrisonHero->name,
+			town->garrisonHero->getNameTranslated(),
 			town->name);
 
 		return;
@@ -101,7 +101,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			town->name,
 			treat.danger,
 			std::to_string(treat.turn),
-			treat.hero->name);
+			treat.hero->getNameTranslated());
 
 		bool treatIsUnderControl = false;
 

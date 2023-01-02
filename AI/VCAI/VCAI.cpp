@@ -303,7 +303,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->name % firstHero->tempOwner % secondHero->name % secondHero->tempOwner));
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
 	requestActionASAP([=]()
 	{
@@ -617,7 +617,7 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill 
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
-	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
+	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
@@ -814,7 +814,7 @@ void VCAI::makeTurn()
 		for (auto h : cb->getHeroesInfo())
 		{
 			if (h->movement)
-				logAi->warn("Hero %s has %d MP left", h->name, h->movement);
+				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movement);
 		}
 	}
 	catch (boost::thread_interrupted & e)
@@ -1034,7 +1034,7 @@ void VCAI::mainLoop()
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
 	case Obj::CREATURE_GENERATOR1:
@@ -1427,7 +1427,7 @@ void VCAI::wander(HeroPtr h)
 			{
 				//TODO pick the truly best
 				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
-				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->name, t->name, t->visitablePos().toString());
+				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->getNameTranslated(), t->name, t->visitablePos().toString());
 				int3 pos1 = h->pos;
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h))); //TODO: drop "strive", add to mainLoop
 				//if out hero is stuck, we may need to request another hero to clear the way we see
@@ -1581,7 +1581,7 @@ void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, i
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -1667,7 +1667,7 @@ void VCAI::validateVisitableObjs()
 	});
 	for(auto & p : reservedHeroesMap)
 	{
-		errorMsg = " shouldn't be on list for hero " + p.first->name + "!";
+		errorMsg = " shouldn't be on list for hero " + p.first->getNameTranslated() + "!";
 		vstd::erase_if(p.second, shouldBeErased);
 	}
 
@@ -1808,7 +1808,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 	};
 
-	logAi->debug("Moving hero %s to tile %s", h->name, dst.toString());
+	logAi->debug("Moving hero %s to tile %s", h->getNameTranslated(), dst.toString());
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1828,7 +1828,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", h->name, dst.toString());
+			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());
 			throw goalFulfilledException(sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 		int i = (int)path.nodes.size() - 1;
@@ -1990,7 +1990,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 		evaluateGoal(h); //new hero position means new game situation
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->getNameTranslated(), startHpos.toString(), h->visitablePos().toString(), ret);
 	}
 	return ret;
 }
@@ -2027,7 +2027,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->getNameTranslated(), g.tile.toString());
 		throw goalFulfilledException(sptr(g));
 	}
 	if(ai->moveHeroToTile(g.tile, g.hero.get()))
@@ -2043,7 +2043,7 @@ void VCAI::tryRealize(Goals::VisitObj & g)
 		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
 	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->getNameTranslated(), g.tile.toString());
 		throw goalFulfilledException(sptr(g));
 	}
 	if(ai->moveHeroToTile(position, g.hero.get()))
@@ -2404,7 +2404,7 @@ void VCAI::performTypicalActions()
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
 			continue;
 
-		logAi->debug("Hero %s started wandering, MP=%d", h->name.c_str(), h->movement);
+		logAi->debug("Hero %s started wandering, MP=%d", h->getNameTranslated(), h->movement);
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try

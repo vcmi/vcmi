@@ -123,7 +123,7 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 
 	auto heroTest = [&](const HeroTypeID & id)
 	{
-		return hero->type->ID == id;
+		return hero->type->getId() == id;
 	};
 
 	if(filters.count(templ->stringID))

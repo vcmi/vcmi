@@ -54,13 +54,13 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 
 		if(currentGarrisonHero.get() != town->visitingHero.get())
 		{
-			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->name);
+			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->getNameTranslated());
 			return;
 		}
 
 		ai->buildArmyIn(town);
 		ai->nullkiller->unlockHero(currentGarrisonHero.get());
-		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->name, town->name);
+		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTranslated(), town->name);
 
 		return;
 	}
@@ -91,7 +91,7 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 		ai->makePossibleUpgrades(town->visitingHero);
 	}
 
-	logAi->debug("Put hero %s to garrison of %s", garrisonHero->name, town->name);
+	logAi->debug("Put hero %s to garrison of %s", garrisonHero->getNameTranslated(), town->name);
 }
 
 }

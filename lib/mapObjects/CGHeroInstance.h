@@ -45,11 +45,13 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;
 	friend class CMapLoaderH3M;
+	friend class CMapFormatJson;
 
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 
 public:
+
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -62,13 +64,15 @@ public:
 	ConstTransitivePtr<CHero> type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
-	std::string name; //may be custom
-	std::string biography; //if custom
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
+
+	std::string nameCustom;
+	std::string biographyCustom;
+
 	bool inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	ConstTransitivePtr<CCommanderInstance> commander;
@@ -145,6 +149,12 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+	std::string getNameTranslated() const;
+	std::string getNameTextID() const;
+
+	std::string getBiographyTranslated() const;
+	std::string getBiographyTextID() const;
+
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
 	void addSpellToSpellbook(SpellID spell);
@@ -153,7 +163,6 @@ public:
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
-	const std::string &getBiography() const;
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
@@ -299,8 +308,8 @@ public:
 		h & static_cast<CArtifactSet&>(*this);
 		h & exp;
 		h & level;
-		h & name;
-		h & biography;
+		h & nameCustom;
+		h & biographyCustom;
 		h & portrait;
 		h & mana;
 		h & secSkills;

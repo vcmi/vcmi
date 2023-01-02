@@ -33,7 +33,7 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 
 	auto spell = getSpell();
 
-	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getName(), hero->name);
+	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getName(), hero->getNameTranslated());
 
 	if(!spell->isAdventure())
 		throw cannotFulfillGoalException(spell->getName() + " is not an adventure spell.");
@@ -45,7 +45,7 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getName());
 
 	if(spellID == SpellID::TOWN_PORTAL && town && town->visitingHero)
-		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->name);
+		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
 
 	return iAmElementar();
 }

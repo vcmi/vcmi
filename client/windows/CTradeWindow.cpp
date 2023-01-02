@@ -738,11 +738,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		//%s's Creatures
-		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		//%s's Artifacts
-		labels.push_back(std::make_shared<CLabel>(152, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name)));
+		labels.push_back(std::make_shared<CLabel>(152, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
 		break;
 	}
 
@@ -1099,7 +1099,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	{
 		//%s's Creatures
 		labels.push_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
-				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 
 		//Altar of Sacrifice
 		labels.push_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));

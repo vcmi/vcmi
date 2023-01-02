@@ -283,7 +283,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->name % firstHero->tempOwner % secondHero->name % secondHero->tempOwner));
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
 	requestActionASAP([=]()
 	{
@@ -544,7 +544,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimaryS
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 
-	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
+	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
 	HeroPtr hPtr = hero;
 
 	requestActionASAP([=]()
@@ -787,7 +787,7 @@ void AIGateway::makeTurn()
 		for (auto h : cb->getHeroesInfo())
 		{
 			if (h->movement)
-				logAi->warn("Hero %s has %d MP left", h->name, h->movement);
+				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movement);
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}
@@ -808,7 +808,7 @@ void AIGateway::makeTurn()
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
 	case Obj::CREATURE_GENERATOR1:
@@ -1070,7 +1070,7 @@ void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * arm
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -1172,7 +1172,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 	};
 
-	logAi->debug("Moving hero %s to tile %s", h->name, dst.toString());
+	logAi->debug("Moving hero %s to tile %s", h->getNameTranslated(), dst.toString());
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1192,7 +1192,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", h->name, dst.toString());
+			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());
 			return true;
 		}
 		int i = (int)path.nodes.size() - 1;
@@ -1344,7 +1344,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->getNameTranslated(), startHpos.toString(), h->visitablePos().toString(), ret);
 	}
 	return ret;
 }

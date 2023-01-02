@@ -242,7 +242,7 @@ void CHeroList::CHeroItem::showTooltip()
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->name % hero->type->heroClass->name);
+	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->type->heroClass->getNameTranslated());
 }
 
 std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)

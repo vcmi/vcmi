@@ -274,10 +274,10 @@ void BattleWindow::bFleef()
 		//calculating fleeing hero's name
 		if (owner.attackingHeroInstance)
 			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
-				heroName = owner.attackingHeroInstance->name;
+				heroName = owner.attackingHeroInstance->getNameTranslated();
 		if (owner.defendingHeroInstance)
 			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
-				heroName = owner.defendingHeroInstance->name;
+				heroName = owner.defendingHeroInstance->getNameTranslated();
 		//calculating text
 		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
 
@@ -416,7 +416,7 @@ void BattleWindow::bSpellf()
 			const auto artID = ArtifactID(blockingBonus->sid);
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID) ? myHero->name : owner.enemyHero().name;
+			std::string heroName = myHero->hasArt(artID) ? myHero->getNameTranslated() : owner.enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
 			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])

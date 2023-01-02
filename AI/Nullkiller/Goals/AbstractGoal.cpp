@@ -69,7 +69,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 		return boost::lexical_cast<std::string>(goalType);
 	}
 	if(hero.get(true)) //FIXME: used to crash when we lost hero and failed goal
-		desc += " (" + hero->name + ")";
+		desc += " (" + hero->getNameTranslated() + ")";
 	return desc;
 }
 

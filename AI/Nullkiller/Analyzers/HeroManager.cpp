@@ -70,7 +70,7 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
-	auto heroSpecial = Selector::source(Bonus::HERO_SPECIAL, hero->type->ID.getNum());
+	auto heroSpecial = Selector::source(Bonus::HERO_SPECIAL, hero->type->getIndex());
 	auto secondarySkillBonus = Selector::type()(Bonus::SECONDARY_SKILL_PREMY);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus));
 	float specialityScore = 0.0f;
@@ -172,7 +172,7 @@ void HeroManager::update()
 
 	for(auto hero : myHeroes)
 	{
-		logAi->trace("Hero %s has role %s", hero->name, heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
+		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
 	}
 }
 

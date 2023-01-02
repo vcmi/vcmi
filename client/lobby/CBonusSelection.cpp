@@ -318,7 +318,7 @@ void CBonusSelection::createBonusesIcons()
 			}
 			else
 			{
-				boost::algorithm::replace_first(desc, "%s", CGI->heroh->objects[bonDescs[i].info2]->name);
+				boost::algorithm::replace_first(desc, "%s", CGI->heroh->objects[bonDescs[i].info2]->getNameTranslated());
 			}
 			break;
 		}

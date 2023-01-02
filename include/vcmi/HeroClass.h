@@ -18,7 +18,11 @@ class HeroClassID;
 
 class DLL_LINKAGE HeroClass : public EntityT<HeroClassID>
 {
+	using EntityT<HeroClassID>::getName;
 public:
+	virtual std::string getNameTranslated() const = 0;
+	virtual std::string getNameTextID() const = 0;
+
 
 };
 
