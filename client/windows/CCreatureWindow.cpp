@@ -597,7 +597,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		{
 			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
 			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
-			parent->stackArtifactHelp->type = art->artType->id;
+			parent->stackArtifactHelp->type = art->artType->getId();
 
 			if(parent->info->owner)
 			{

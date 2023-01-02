@@ -774,7 +774,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 				ma.src = ArtifactLocation(finishingBattle->loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art && !art->artType->isBig() &&
-				    art->artType->id != ArtifactID::SPELLBOOK)
+					art->artType->getId() != ArtifactID::SPELLBOOK)
 						// don't move war machines or locked arts (spellbook)
 				{
 					sendMoveArtifact(art, &ma);
@@ -787,7 +787,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 				ma.src = ArtifactLocation(finishingBattle->loserHero,
 					ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art->artType->id != ArtifactID::GRAIL) //grail may not be won
+				if (art->artType->getId() != ArtifactID::GRAIL) //grail may not be won
 				{
 					sendMoveArtifact(art, &ma);
 				}
@@ -834,8 +834,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		for (auto art : arts) //TODO; separate function to display loot for various ojects?
 		{
 			iw.components.push_back(Component(
-				Component::ARTIFACT, art->artType->id,
-				art->artType->id == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0));
+				Component::ARTIFACT, art->artType->getId(),
+				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0));
 			if (iw.components.size() >= 14)
 			{
 				sendAndApply(&iw);
@@ -3926,7 +3926,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		try
 		{
 			auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
-			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dst.slot))
 				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 		catch (boost::bad_get const &)
@@ -3973,7 +3973,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 
 				auto art = artifact.second.getArt();
 				assert(art);
-				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, art->artType->id, artifact.first))
+				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, art->artType->getId(), artifact.first))
 					giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 			}
 		};
@@ -4010,7 +4010,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
-			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->getId(), dstSlot))
 				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		};
 
@@ -4153,7 +4153,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 	bool found = false;
 	for (const CArtifact *&art : saa.arts)
 	{
-		if (art && art->id == aid)
+		if (art && art->getId() == aid)
 		{
 			art = nullptr;
 			found = true;
@@ -4178,7 +4178,7 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, Artif
 	COMPLAIN_RET_FALSE_IF((!art->artType->isTradable()), "Cannot sell a war machine or spellbook!");
 
 	int resVal = 0, dump = 1;
-	m->getOffer(art->artType->id, rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
+	m->getOffer(art->artType->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
 
 	removeArtifact(ArtifactLocation(h, h->getArtPos(art)));
 	giveResource(h->tempOwner, rid, resVal);
@@ -6336,7 +6336,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 			COMPLAIN_RET("No artifact at position to sacrifice!");
 		}
 
-		si32 typId = art->artType->id;
+		si32 typId = art->artType->getId();
 		int dmp, expToGive;
 
 		m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);

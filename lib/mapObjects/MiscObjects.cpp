@@ -1320,7 +1320,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getByIndex(subID)->getName();
+	return VLC->artifacts()->getByIndex(subID)->getNameTranslated();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
@@ -1337,19 +1337,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				if(message.length())
 					iw.text << message;
 				else
-				{
-					auto artifact = ArtifactID(subID).toArtifact(VLC->artifacts());
-
-					if((artifact != nullptr) && (!artifact->getEventText().empty()))
-					{
-						iw.text.addTxt(MetaString::ART_EVNTS, subID);
-					}
-					else //fix for mod artifacts with no event text
-					{
-						iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
-						iw.text.addReplacement(h->getNameTranslated());
-					}
-				}
+					iw.text.addTxt(MetaString::ART_EVNTS, subID);
 			}
 			break;
 		case Obj::SPELL_SCROLL:

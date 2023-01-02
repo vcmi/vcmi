@@ -75,7 +75,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
-			dst = art->getName();
+			dst = art->getNameTranslated();
 		else
 			dst = "#!#";
 	}
@@ -83,7 +83,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
-			dst = art->getDescription();
+			dst = art->getDescriptionTranslated();
 		else
 			dst = "#!#";
 	}
@@ -91,7 +91,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
-			dst = art->getEventText();
+			dst = art->getEventTranslated();
 		else
 			dst = "#!#";
 	}
@@ -1304,7 +1304,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				if(!art)
 					continue;
 
-				int id  = art->artType->id;
+				int id  = art->artType->getId();
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
 
@@ -2891,7 +2891,7 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 
 		auto fixArtifact = [&](CArtifactInstance * art)
 		{
-			art->artType = VLC->arth->objects[art->artType->id];
+			art->artType = VLC->arth->objects[art->artType->getId()];
 			gs->map->artInstances.push_back(art);
 			art->id = ArtifactInstanceID((si32)gs->map->artInstances.size() - 1);
 		};

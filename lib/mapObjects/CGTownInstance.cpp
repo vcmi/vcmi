@@ -1109,7 +1109,7 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 		std::vector<int> ret;
 		for(const CArtifact *a : merchantArtifacts)
 			if(a)
-				ret.push_back(a->id);
+				ret.push_back(a->getId());
 			else
 				ret.push_back(-1);
 		return ret;

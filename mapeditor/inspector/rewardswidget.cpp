@@ -82,7 +82,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedArtifact.size(); ++i)
 			{
 				if(map.allowedArtifact[i])
-					result.append(QString::fromStdString(VLC->arth->objects.at(i)->getName()));
+					result.append(QString::fromStdString(VLC->arth->objects.at(i)->getNameTranslated()));
 			}
 			break;
 			

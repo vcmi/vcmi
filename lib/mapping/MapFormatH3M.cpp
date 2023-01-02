@@ -679,7 +679,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 			// combo
 			if (artifact->constituents)
 			{
-				map->allowedArtifact[artifact->id] = false;
+				map->allowedArtifact[artifact->getId()] = false;
 			}
 		}
 		if (map->version == EMapFormat::ROE)

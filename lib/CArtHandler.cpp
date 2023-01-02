@@ -62,7 +62,7 @@ int32_t CArtifact::getIconIndex() const
 
 const std::string & CArtifact::getName() const
 {
-	return name;
+	return identifier;
 }
 
 const std::string & CArtifact::getJsonKey() const
@@ -86,13 +86,34 @@ const IBonusBearer * CArtifact::accessBonuses() const
 	return this;
 }
 
-const std::string & CArtifact::getDescription() const
+std::string CArtifact::getDescriptionTranslated() const
 {
-	return description;
+	return VLC->generaltexth->translate(getDescriptionTextID());
 }
-const std::string & CArtifact::getEventText() const
+
+std::string CArtifact::getEventTranslated() const
 {
-	return eventText;
+	return VLC->generaltexth->translate(getEventTextID());
+}
+
+std::string CArtifact::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CArtifact::getDescriptionTextID() const
+{
+	return TextIdentifier("object", modScope, identifier, "description").get();
+}
+
+std::string CArtifact::getEventTextID() const
+{
+	return TextIdentifier("object", modScope, identifier, "event").get();
+}
+
+std::string CArtifact::getNameTextID() const
+{
+	return TextIdentifier("object", modScope, identifier, "name").get();
 }
 
 uint32_t CArtifact::getPrice() const
@@ -167,7 +188,7 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	b->source = Bonus::ARTIFACT;
 	b->duration = Bonus::PERMANENT;
-	b->description = name;
+	b->description = getNameTranslated();
 	CBonusSystemNode::addNewBonus(b);
 }
 
@@ -323,10 +344,13 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	}
 	art->id = ArtifactID(index);
 	art->identifier = identifier;
+	art->modScope = scope;
+
 	const JsonNode & text = node["text"];
-	art->name        = text["name"].String();
-	art->description = text["description"].String();
-	art->eventText   = text["event"].String();
+
+	VLC->generaltexth->registerString(art->getNameTextID(), text["name"].String());
+	VLC->generaltexth->registerString(art->getDescriptionTextID(), text["description"].String());
+	VLC->generaltexth->registerString(art->getEventTextID(), text["event"].String());
 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
@@ -734,7 +758,7 @@ void CArtifactInstance::setType( CArtifact *Art )
 
 std::string CArtifactInstance::nodeName() const
 {
-	return "Artifact instance of " + (artType ? artType->getName() : std::string("uninitialized")) + " type";
+	return "Artifact instance of " + (artType ? artType->getJsonKey() : std::string("uninitialized")) + " type";
 }
 
 CArtifactInstance *CArtifactInstance::createScroll(SpellID sid)
@@ -756,9 +780,9 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 {
 	std::string text = artType->getDescription();
 	if (!vstd::contains(text, '{'))
-		text = '{' + artType->getName() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
+		text = '{' + artType->getNameTranslated() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
 
-	if(artType->id == ArtifactID::SPELL_SCROLL)
+	if(artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
 		// so we want to replace text in [...] with a spell name
@@ -777,12 +801,12 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 		std::string artList;
 		auto combinedArt = artType->constituentOf[0];
 		text += "\n\n";
-		text += "{" + combinedArt->getName() + "}";
+		text += "{" + combinedArt->getNameTranslated() + "}";
 		int wornArtifacts = 0;
 		for(auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
 		{
-			artList += "\n" + a->getName();
-			if (hero->hasArt(a->id, true))
+			artList += "\n" + a->getNameTranslated();
+			if (hero->hasArt(a->getId(), true))
 				wornArtifacts++;
 		}
 		text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
@@ -841,7 +865,7 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition 
  	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
  	if(possibleSlots == artType->possibleSlots.end())
  	{
-		logMod->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", artType->getName(), artSet->bearerType());
+		logMod->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", artType->getNameTranslated(), artSet->bearerType());
 		return false;
 	}
 
@@ -889,7 +913,7 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 			if(equipped)
 			{
 				// Search for equipped arts
-				if (!h->hasArt(constituent->id, true, false, false))
+				if (!h->hasArt(constituent->getId(), true, false, false))
 				{
 					possible = false;
 					break;
@@ -898,7 +922,7 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 			else
 			{
 				// Search in backpack
-				if(!h->hasArtBackpack(constituent->id))
+				if(!h->hasArtBackpack(constituent->getId()))
 				{
 					possible = false;
 					break;
@@ -1061,14 +1085,14 @@ void CCombinedArtifactInstance::createConstituents()
 
 	for(const CArtifact * art : *artType->constituents)
 	{
-		addAsConstituent(CArtifactInstance::createNewArtifactInstance(art->id), ArtifactPosition::PRE_FIRST);
+		addAsConstituent(CArtifactInstance::createNewArtifactInstance(art->getId()), ArtifactPosition::PRE_FIRST);
 	}
 }
 
 void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, ArtifactPosition slot)
 {
 	assert(vstd::contains_if(*artType->constituents, [=](const CArtifact * constituent){
-		return constituent->id == art->artType->id;
+		return constituent->getId() == art->artType->getId();
 	}));
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	constituentsInfo.push_back(ConstituentInfo(art, slot));
@@ -1227,7 +1251,7 @@ std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(ArtifactID aid, b
 {
 	std::vector<ArtifactPosition> result;
 	for(auto & slotInfo : artifactsWorn)
-		if(slotInfo.second.artifact->artType->id == aid && (allowLocked || !slotInfo.second.locked))
+		if(slotInfo.second.artifact->artType->getId() == aid && (allowLocked || !slotInfo.second.locked))
 			result.push_back(slotInfo.first);
 
 	if(onlyWorn)
@@ -1248,7 +1272,7 @@ std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(ArtifactID a
 	for(auto & artInfo : artifactsInBackpack)
 	{
 		auto * art = artInfo.getArt();
-		if(art && art->artType->id == aid)
+		if(art && art->artType->getId() == aid)
 			result.emplace_back(backpackPosition);
 		backpackPosition++;
 	}
@@ -1318,7 +1342,7 @@ CArtifactSet::searchForConstituent(ArtifactID aid) const
 			auto ass = static_cast<CCombinedArtifactInstance *>(art.get());
 			for(auto& ci : ass->constituentsInfo)
 			{
-				if(ci.art->artType->id == aid)
+				if(ci.art->artType->getId() == aid)
 				{
 					return {ass, ci.art};
 				}
@@ -1468,12 +1492,12 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	{
 		backpackTemp.reserve(artifactsInBackpack.size());
 		for(const ArtSlotInfo & info : artifactsInBackpack)
-			backpackTemp.push_back(info.artifact->artType->id);
+			backpackTemp.push_back(info.artifact->artType->getId());
 	}
 	handler.serializeIdArray(NArtifactPosition::backpack, backpackTemp);
 	if(!handler.saving)
 	{
-        for(const ArtifactID & artifactID : backpackTemp)
+		for(const ArtifactID & artifactID : backpackTemp)
 		{
 			auto artifact = CArtifactInstance::createArtifact(map, artifactID.toEnum());
 			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + (si32)artifactsInBackpack.size());
@@ -1503,7 +1527,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 		if(info != nullptr && !info->locked)
 		{
-			artifactID = info->artifact->artType->id;
+			artifactID = info->artifact->artType->getId();
 			handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
 		}
 	}

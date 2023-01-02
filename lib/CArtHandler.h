@@ -45,13 +45,16 @@ namespace ArtBearer
 
 class DLL_LINKAGE CArtifact : public Artifact, public CBonusSystemNode //container for artifacts
 {
-protected:
-	std::string name, description; //set if custom
-	std::string eventText; //short story displayed upon picking
+	ArtifactID id;
+
+	std::string modScope;
+	std::string identifier;
+
+	const std::string & getName() const override;
+
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
-	std::string identifier;
 	std::string image;
 	std::string large; // big image for custom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
@@ -61,19 +64,23 @@ public:
 	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
 	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass;
-	ArtifactID id;
 	CreatureID warMachine;
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
 	virtual const IBonusBearer * accessBonuses() const override;
 
-	const std::string & getEventText() const override;
-	const std::string & getDescription() const override;
+	std::string getDescriptionTranslated() const override;
+	std::string getEventTranslated() const override;
+	std::string getNameTranslated() const override;
+
+	std::string getDescriptionTextID() const override;
+	std::string getEventTextID() const override;
+	std::string getNameTextID() const override;
+
 	uint32_t getPrice() const override;
 	CreatureID getWarMachine() const override;
 	bool isBig() const override;
@@ -91,9 +98,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & name;
-		h & description;
-		h & eventText;
 		h & image;
 		h & large;
 		h & advMapDef;
@@ -104,6 +108,7 @@ public:
 		h & constituentOf;
 		h & aClass;
 		h & id;
+		h & modScope;
 		h & identifier;
 		h & warMachine;
 	}

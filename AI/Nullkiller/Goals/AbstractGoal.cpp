@@ -60,7 +60,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 		desc = "GATHER TROOPS";
 		break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + VLC->arth->objects[aid]->getName();
+		desc = "GET ARTIFACT OF TYPE " + VLC->arth->objects[aid]->getNameTranslated();
 		break;
 	case DIG_AT_TILE:
 		desc = "DIG AT TILE " + tile.toString();

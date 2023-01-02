@@ -420,7 +420,7 @@ void BattleWindow::bSpellf()
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
 			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
-										% heroName % CGI->artifacts()->getByIndex(artID)->getName()));
+										% heroName % CGI->artifacts()->getByIndex(artID)->getNameTranslated()));
 		}
 	}
 }

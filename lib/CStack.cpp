@@ -365,7 +365,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	auto ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->id == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->getId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}

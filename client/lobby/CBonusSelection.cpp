@@ -209,7 +209,7 @@ void CBonusSelection::createBonusesIcons()
 		}
 		case CScenarioTravel::STravelBonus::ARTIFACT:
 			desc = CGI->generaltexth->allTexts[715];
-			boost::algorithm::replace_first(desc, "%s", CGI->artifacts()->getByIndex(bonDescs[i].info2)->getName());
+			boost::algorithm::replace_first(desc, "%s", CGI->artifacts()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			desc = CGI->generaltexth->allTexts[716];

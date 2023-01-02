@@ -539,7 +539,7 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->objects[cond.objectType]->getName());
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->objects[cond.objectType]->getNameTranslated());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
