@@ -120,12 +120,18 @@ extern std::string NAME;
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
+	enetClient = enet_host_create(NULL, 8, 2, 0, 0);
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	//read from file to restore last session
 	if(!settings["server"]["uuid"].isNull() && !settings["server"]["uuid"].String().empty())
 		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
+}
+
+CServerHandler::~CServerHandler()
+{
+	enet_host_destroy(enetClient);
 }
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
@@ -171,15 +177,10 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 
 void CServerHandler::startLocalServerAndConnect()
 {
-	if(threadRunLocalServer)
-		threadRunLocalServer->join();
-
-	th->update();
-	
-	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
+	/*auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
 	try
 	{
-		CConnection testConnection(localhostAddress, getDefaultPort(), NAME, uuid);
+		CConnection testConnection(enetClient, localhostAddress, getDefaultPort(), NAME, uuid);
 		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
@@ -187,7 +188,12 @@ void CServerHandler::startLocalServerAndConnect()
 	catch(...)
 	{
 		//no connection means that port is not busy and we can start local server
-	}
+	}*/
+	
+	if(threadRunLocalServer)
+		threadRunLocalServer->join();
+
+	th->update();
 	
 #ifdef VCMI_ANDROID
 	{
@@ -272,7 +278,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		try
 		{
 			logNetwork->info("Establishing connection...");
-			c = std::make_shared<CConnection>(
+			c = std::make_shared<CConnection>(enetClient,
 					addr.size() ? addr : getHostAddress(),
 					port ? port : getHostPort(),
 					NAME, uuid);

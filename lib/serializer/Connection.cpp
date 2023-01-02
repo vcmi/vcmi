@@ -14,12 +14,9 @@
 #include "../mapping/CMap.h"
 #include "../CGameState.h"
 
-#include <boost/asio.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-using namespace boost;
-using namespace boost::asio::ip;
 
 #if defined(__hppa__) || \
 	defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
@@ -34,17 +31,8 @@ using namespace boost::asio::ip;
 
 void CConnection::init()
 {
-	socket->set_option(boost::asio::ip::tcp::no_delay(true));
-    try
-    {
-        socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
-        socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
-    }
-    catch (const boost::system::system_error & e)
-    {
-        logNetwork->error("error setting socket option: %s", e.what());
-    }
-
+	buffer = new char[4096];
+	bufferSize = 0;
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
 	registerTypes(iser);
@@ -66,109 +54,84 @@ void CConnection::init()
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
-CConnection::CConnection(std::string host, ui16 port, std::string Name, std::string UUID)
-	: io_service(std::make_shared<asio::io_service>()), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
-{
-	int i;
-	boost::system::error_code error = asio::error::host_not_found;
-	socket = std::make_shared<tcp::socket>(*io_service);
-	tcp::resolver resolver(*io_service);
-	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)),error);
-	if(error)
-	{
-		logNetwork->error("Problem with resolving: \n%s", error.message());
-		goto connerror1;
-	}
-	pom = endpoint_iterator;
-	if(pom != end)
-		logNetwork->info("Found endpoints:");
-	else
-	{
-		logNetwork->error("Critical problem: No endpoints found!");
-		goto connerror1;
-	}
-	i=0;
-	while(pom != end)
-	{
-		logNetwork->info("\t%d:%s", i, (boost::asio::ip::tcp::endpoint&)*pom);
-		pom++;
-	}
-	i=0;
-	while(endpoint_iterator != end)
-	{
-		logNetwork->info("Trying connection to %s(%d)", (boost::asio::ip::tcp::endpoint&)*endpoint_iterator, i++);
-		socket->connect(*endpoint_iterator, error);
-		if(!error)
-		{
-			init();
-			return;
-		}
-		else
-		{
-			logNetwork->error("Problem with connecting: %s", error.message());
-		}
-		endpoint_iterator++;
-	}
-
-	//we shouldn't be here - error handling
-connerror1:
-	logNetwork->error("Something went wrong... checking for error info");
-	if(error)
-		logNetwork->error(error.message());
-	else
-		logNetwork->error("No error info. ");
-	throw std::runtime_error("Can't establish connection :(");
-}
-CConnection::CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID)
-	: iser(this), oser(this), socket(Socket), name(Name), uuid(UUID), connectionID(0)
-{
+CConnection::CConnection(ENetHost * _client, ENetPeer * _peer, std::string Name, std::string UUID)
+	: client(_client), peer(_peer), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
+{	
 	init();
 }
-CConnection::CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> io_service, std::string Name, std::string UUID)
-	: io_service(io_service), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
+
+CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::string Name, std::string UUID)
+	: client(_client), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
 {
-	boost::system::error_code error = asio::error::host_not_found;
-	socket = std::make_shared<tcp::socket>(*io_service);
-	acceptor->accept(*socket,error);
-	if (error)
+	ENetAddress address;
+	enet_address_set_host(&address, host.c_str());
+	address.port = port;
+	
+	peer = enet_host_connect(client, &address, 2, 0);
+	if(peer == NULL)
 	{
-		logNetwork->error("Error on accepting: %s", error.message());
-		socket.reset();
 		throw std::runtime_error("Can't establish connection :(");
 	}
+	
+	ENetEvent event;
+	if(enet_host_service(client, &event, 10000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
+	{
+		logNetwork->info("Connection succeded");
+	}
+	else
+	{
+		enet_peer_reset(peer);
+		throw std::runtime_error("Connection refused by server");
+	}
+	
 	init();
 }
+
 int CConnection::write(const void * data, unsigned size)
 {
-	try
-	{
-		int ret;
-		ret = static_cast<int>(asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size))));
-		return ret;
-	}
-	catch(...)
-	{
-		//connection has been lost
-		connected = false;
-		throw;
-	}
+	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(peer, 0, packet);
+	enet_host_flush(client);
+	return size;
 }
 int CConnection::read(void * data, unsigned size)
 {
-	try
+	ENetEvent event;
+	while(bufferSize < size)
 	{
-		int ret = static_cast<int>(asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size))));
-		return ret;
+		if(enet_host_service(client, &event, 100) <= 0)
+			continue;
+		
+		if(event.type == ENET_EVENT_TYPE_CONNECT)
+			throw std::runtime_error("Connectin event receieved while package expected");
+		
+		if(event.type == ENET_EVENT_TYPE_RECEIVE)
+		{
+			if(event.packet->dataLength > 0)
+			{
+				memcpy(buffer + bufferSize, event.packet->data, event.packet->dataLength);
+				bufferSize += event.packet->dataLength;
+			}
+		}
+		
+		enet_packet_destroy(event.packet);
 	}
-	catch(...)
-	{
-		//connection has been lost
-		connected = false;
-		throw;
-	}
+	
+	assert(bufferSize == size);
+	
+	unsigned ret = std::min(size, bufferSize);
+	memcpy(data, buffer, ret);
+	if(ret < bufferSize)
+		memcpy(buffer, buffer + ret, bufferSize);
+	bufferSize -= ret;
+
+	return ret;
 }
+
 CConnection::~CConnection()
 {
+	delete[] buffer;
+	
 	if(handler)
 		handler->join();
 
@@ -186,26 +149,38 @@ CConnection & CConnection::operator&(const T &t) {
 
 void CConnection::close()
 {
-	if(socket)
+	ENetEvent event;
+	enet_peer_disconnect(peer, 0);
+
+	while(enet_host_service(client, & event, 100) > 0)
 	{
-		socket->close();
-		socket.reset();
+		switch (event.type)
+		{
+		case ENET_EVENT_TYPE_RECEIVE:
+			enet_packet_destroy(event.packet);
+			break;
+		case ENET_EVENT_TYPE_DISCONNECT:
+			return;
+		}
 	}
+	/* We've arrived here, so the disconnect attempt didn't */
+	/* succeed yet.  Force the connection down.             */
+	enet_peer_reset(peer);
 }
 
 bool CConnection::isOpen() const
 {
-	return socket && connected;
+	return connected;
 }
 
 void CConnection::reportState(vstd::CLoggerBase * out)
 {
 	out->debug("CConnection");
-	if(socket && socket->is_open())
+	/*if(socket && socket->is_open())
 	{
 		out->debug("\tWe have an open and valid socket");
 		out->debug("\t %d bytes awaiting", socket->available());
-	}
+	}*/
 }
 
 CPack * CConnection::retrievePack()

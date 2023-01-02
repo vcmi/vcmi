@@ -275,7 +275,7 @@ if(ENABLE_SINGLE_APP_BUILD)
 	endif()
 endif()
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF ${ENET_LIBRARIES}
 )
 
 if(ffmpeg_LIBRARIES)

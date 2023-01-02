@@ -9,45 +9,10 @@
  */
 #pragma once
 
+#include <enet/enet.h>
+
 #include "BinaryDeserializer.h"
 #include "BinarySerializer.h"
-
-#if BOOST_VERSION >= 107000  // Boost version >= 1.70
-#include <boost/asio.hpp>
-typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp > TSocket;
-typedef boost::asio::basic_socket_acceptor < boost::asio::ip::tcp > TAcceptor;
-#else
-namespace boost
-{
-	namespace asio
-	{
-		namespace ip
-		{
-			class tcp;
-		}
-
-#if BOOST_VERSION >= 106600  // Boost version >= 1.66
-		class io_context;
-		typedef io_context io_service;
-#else
-		class io_service;
-#endif
-
-		template <typename Protocol> class stream_socket_service;
-		template <typename Protocol,typename StreamSocketService>
-		class basic_stream_socket;
-
-		template <typename Protocol> class socket_acceptor_service;
-		template <typename Protocol,typename SocketAcceptorService>
-		class basic_socket_acceptor;
-	}
-	class mutex;
-}
-
-typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
-typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
-#endif
-
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -63,15 +28,18 @@ class DLL_LINKAGE CConnection
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
+	
+	ENetPeer * peer = nullptr;
+	ENetHost * client = nullptr;
+	char * buffer;
+	unsigned bufferSize;
 
-	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
 
 	std::shared_ptr<boost::mutex> mutexRead;
 	std::shared_ptr<boost::mutex> mutexWrite;
-	std::shared_ptr<TSocket> socket;
 	bool connected;
 	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
 	std::string contactUuid;
@@ -81,9 +49,8 @@ public:
 	int connectionID;
 	std::shared_ptr<boost::thread> handler;
 
-	CConnection(std::string host, ui16 port, std::string Name, std::string UUID);
-	CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> Io_service, std::string Name, std::string UUID);
-	CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID); //use immediately after accepting connection into socket
+	CConnection(ENetHost * client, ENetPeer * peer, std::string Name, std::string UUID);
+	CConnection(ENetHost * client, std::string host, ui16 port, std::string Name, std::string UUID);
 
 	void close();
 	bool isOpen() const;

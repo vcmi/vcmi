@@ -290,6 +290,7 @@ endif()
 ############################################
 
 find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time filesystem locale program_options system thread)
+find_package(enet REQUIRED)
 
 find_package(ZLIB REQUIRED)
 # Conan compatibility

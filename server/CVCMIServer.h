@@ -11,6 +11,7 @@
 
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
+#include <enet/enet.h>
 
 #include <boost/program_options.hpp>
 
@@ -46,13 +47,13 @@ enum class EServerState : ui8
 class CVCMIServer : public LobbyInfo
 {
 	std::atomic<bool> restartGameplay; // FIXME: this is just a hack
-	std::shared_ptr<boost::asio::io_service> io;
-	std::shared_ptr<TAcceptor> acceptor;
-	std::shared_ptr<TSocket> upcomingConnection;
+	
 	std::list<std::unique_ptr<CPackForLobby>> announceQueue;
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
-	std::unique_ptr<boost::thread> announceLobbyThread, remoteConnectionsThread;
+	std::unique_ptr<boost::thread> announceLobbyThread, lobbyConnectionsThread, remoteConnectionsThread;
+	
+	ENetHost * server;
 
 public:
 	std::shared_ptr<CGameHandler> gh;
@@ -77,7 +78,7 @@ public:
 	void establishRemoteConnections();
 	void connectToRemote(const std::string & addr, int port);
 	void startAsyncAccept();
-	void connectionAccepted(const boost::system::error_code & ec);
+	//void connectionAccepted();
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 	void threadAnnounceLobby();
 	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);

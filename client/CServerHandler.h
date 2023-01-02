@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <enet/enet.h>
+
 #include "../lib/CStopWatch.h"
 
 #include "../lib/StartInfo.h"
@@ -80,6 +82,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
 
 	std::vector<std::string> myNames;
+	ENetHost * enetClient;
 
 	void threadHandleConnection();
 	void threadRunServer();
@@ -109,6 +112,7 @@ public:
 	static const std::string localhostAddress;
 
 	CServerHandler();
+	~CServerHandler();
 	
 	std::string getHostAddress() const;
 	ui16 getHostPort() const;

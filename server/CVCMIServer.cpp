@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include <boost/asio.hpp>
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CCampaignHandler.h"
@@ -116,7 +115,7 @@ std::string SERVER_NAME_AFFIX = "server";
 std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
 
 CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
-	: port(3030), io(std::make_shared<boost::asio::io_service>()), state(EServerState::LOBBY), cmdLineOptions(opts), currentClientId(1), currentPlayerId(1), restartGameplay(false)
+	: port(3030), state(EServerState::LOBBY), cmdLineOptions(opts), currentClientId(1), currentPlayerId(1), restartGameplay(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
@@ -126,21 +125,20 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 	if(cmdLineOptions.count("port"))
 		port = cmdLineOptions["port"].as<ui16>();
 	logNetwork->info("Port %d will be used", port);
-	try
+	
+	const int maxConnections = 8;
+	const int maxChannels = 2;
+	
+	ENetAddress address;
+	address.host = ENET_HOST_ANY;
+	address.port = port;
+	server = enet_host_create(&address, maxConnections, maxChannels, 0, 0);
+	if(!server)
 	{
-		acceptor = std::make_shared<TAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+		logNetwork->error("Can't create host at port %d", port);
+		exit(0);
 	}
-	catch(...)
-	{
-		logNetwork->info("Port %d is busy, trying to use random port instead", port);
-		if(cmdLineOptions.count("run-by-client") && !cmdLineOptions.count("enable-shm"))
-		{
-			logNetwork->error("Cant pass port number to client without shared memory!", port);
-			exit(0);
-		}
-		acceptor = std::make_shared<TAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
-		port = acceptor->local_endpoint().port();
-	}
+	
 	logNetwork->info("Listening for connections at port %d", port);
 }
 
@@ -150,6 +148,10 @@ CVCMIServer::~CVCMIServer()
 
 	if(announceLobbyThread)
 		announceLobbyThread->join();
+	if(lobbyConnectionsThread)
+		lobbyConnectionsThread->join();
+	
+	enet_host_destroy(server);
 }
 
 void CVCMIServer::run()
@@ -168,8 +170,10 @@ void CVCMIServer::run()
 			shm = std::make_shared<SharedMemory>(sharedMemoryName);
 		}
 #endif
-
-		startAsyncAccept();
+		
+		if(!lobbyConnectionsThread)
+			lobbyConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::startAsyncAccept, this);
+		
 		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
 			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
@@ -217,7 +221,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 	try
 	{
 		logNetwork->info("Establishing connection...");
-		c = std::make_shared<CConnection>(addr, port, SERVER_NAME, uuid);
+		c = std::make_shared<CConnection>(server, addr, port, SERVER_NAME, uuid);
 	}
 	catch(...)
 	{
@@ -243,11 +247,11 @@ void CVCMIServer::threadAnnounceLobby()
 				announceQueue.pop_front();
 			}
 
-			if(acceptor)
+			/*if(acceptor)
 			{
 				io->reset();
 				io->poll();
-			}
+			}*/
 		}
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
@@ -317,18 +321,31 @@ void CVCMIServer::startGameImmidiately()
 
 void CVCMIServer::startAsyncAccept()
 {
-	assert(!upcomingConnection);
-	assert(acceptor);
-
-#if BOOST_VERSION >= 107000  // Boost version >= 1.70
-	upcomingConnection = std::make_shared<TSocket>(acceptor->get_executor());
-#else
-	upcomingConnection = std::make_shared<TSocket>(acceptor->get_io_service());
-#endif
-	acceptor->async_accept(*upcomingConnection, std::bind(&CVCMIServer::connectionAccepted, this, _1));
+	ENetEvent event;
+	ENetHost * client = enet_host_create(NULL, 8, 2, 0, 0);
+	while(true)
+	{
+		if(enet_host_service(server, &event, 1000) > 0)
+		{
+			switch(event.type)
+			{
+				case ENET_EVENT_TYPE_CONNECT: {
+					auto c = std::make_shared<CConnection>(server, event.peer, SERVER_NAME, uuid);
+					connections.insert(c);
+					c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+					enet_packet_destroy(event.packet);
+					break;
+				}
+					
+				case ENET_EVENT_TYPE_RECEIVE:
+					break;
+			}
+		}
+	}
+	enet_host_destroy(client);
 }
 
-void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
+/*void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 {
 	if(ec)
 	{
@@ -355,7 +372,7 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	}
 
 	startAsyncAccept();
-}
+}*/
 
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
@@ -1048,6 +1065,10 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 int main(int argc, char * argv[])
 {
 #if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
+	if(enet_initialize() != 0)
+	{
+		return EXIT_FAILURE;
+	}
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
@@ -1078,42 +1099,26 @@ int main(int argc, char * argv[])
 	cond->notify_one();
 #endif
 
+	CVCMIServer server(opts);
 	try
 	{
-		boost::asio::io_service io_service;
-		CVCMIServer server(opts);
-
-		try
+		while(server.state != EServerState::SHUTDOWN)
 		{
-			while(server.state != EServerState::SHUTDOWN)
-			{
-				server.run();
-			}
-			io_service.run();
-		}
-		catch(boost::system::system_error & e) //for boost errors just log, not crash - probably client shut down connection
-		{
-			logNetwork->error(e.what());
-			server.state = EServerState::SHUTDOWN;
-		}
-		catch(...)
-		{
-			handleException();
+			server.run();
 		}
 	}
-	catch(boost::system::system_error & e)
+	catch(...)
 	{
-		logNetwork->error(e.what());
-		//catch any startup errors (e.g. can't access port) errors
-		//and return non-zero status so client can detect error
-		throw;
+		handleException();
 	}
+	
 #ifdef VCMI_ANDROID
 	CAndroidVMHelper envHelper;
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
 	logConfig.deconfigure();
 	vstd::clear_pointer(VLC);
+	enet_deinitialize();
 	return 0;
 }
 
