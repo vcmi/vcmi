@@ -737,7 +737,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 			{
 				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 				upgraded = true;
-				logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->namePl, ui.newID[0].toCreature()->namePl);
+				logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->getNamePluralTranslated(), ui.newID[0].toCreature()->getNamePluralTranslated());
 			}
 		}
 	}

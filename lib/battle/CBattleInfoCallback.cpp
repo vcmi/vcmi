@@ -701,7 +701,7 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	if(!battleMatchOwner(stack, target))
 		return false;
 
-	auto &id = stack->getCreature()->idNumber;
+	auto id = stack->getCreature()->getId();
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;
 

@@ -181,7 +181,7 @@ std::string CStack::nodeName() const
 	oss << owner.getStr();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getNamePluralTextID();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -320,7 +320,7 @@ bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? type->nameSing : type->namePl; //War machines can't use base
+	return (getCount() == 1) ? type->getNameSingularTranslated() : type->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const

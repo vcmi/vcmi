@@ -1305,11 +1305,11 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 		boost::format txt(formatString);
 		if(killed > 1)
 		{
-			txt % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
+			txt % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->getCreature()->getNamePluralTranslated()); // creatures perish
 		}
 		else //killed == 1
 		{
-			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
+			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->getNameSingularTranslated()); // creature perishes
 		}
 		MetaString line;
 		line << txt.str();
@@ -6423,7 +6423,7 @@ bool CGameHandler::addToSlot(const StackLocation &sl, const CCreature *c, TQuant
 		changeStackCount(sl, count);
 	else
 	{
-		COMPLAIN_RET("Cannot add " + c->namePl + " to slot " + boost::lexical_cast<std::string>(sl.slot) + "!");
+		COMPLAIN_RET("Cannot add " + c->getNamePluralTranslated() + " to slot " + boost::lexical_cast<std::string>(sl.slot) + "!");
 	}
 	return true;
 }

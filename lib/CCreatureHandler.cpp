@@ -35,7 +35,7 @@ int32_t CCreature::getIconIndex() const
 
 const std::string & CCreature::getName() const
 {
-	return nameSing;//???
+	return identifier;
 }
 
 const std::string & CCreature::getJsonKey() const
@@ -62,16 +62,6 @@ const IBonusBearer * CCreature::accessBonuses() const
 uint32_t CCreature::getMaxHealth() const
 {
 	return CBonusSystemNode::MaxHealth();
-}
-
-const std::string & CCreature::getPluralName() const
-{
-	return namePl;
-}
-
-const std::string & CCreature::getSingularName() const
-{
-	return nameSing;
 }
 
 int32_t CCreature::getAdvMapAmountMin() const
@@ -168,6 +158,36 @@ int32_t CCreature::getCost(int32_t resIndex) const
 		return cost[resIndex];
 	else
 		return 0;
+}
+
+std::string CCreature::getNameTranslated() const
+{
+	return getNameSingularTranslated();
+}
+
+std::string CCreature::getNamePluralTranslated() const
+{
+	return VLC->generaltexth->translate(getNamePluralTextID());
+}
+
+std::string CCreature::getNameSingularTranslated() const
+{
+	return VLC->generaltexth->translate(getNameSingularTextID());
+}
+
+std::string CCreature::getNameTextID() const
+{
+	return getNameSingularTextID();
+}
+
+std::string CCreature::getNamePluralTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "name", "plural" ).get();
+}
+
+std::string CCreature::getNameSingularTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "name", "singular" ).get();
 }
 
 int CCreature::getQuantityID(const int & quantity)
@@ -281,7 +301,7 @@ bool CCreature::valid() const
 
 std::string CCreature::nodeName() const
 {
-	return "\"" + namePl + "\"";
+	return "\"" + getNamePluralTextID() + "\"";
 }
 
 bool CCreature::isItNativeTerrain(TerrainId terrain) const
@@ -344,12 +364,6 @@ void CCreature::updateFrom(const JsonNode & data)
 
 void CCreature::serializeJson(JsonSerializeFormat & handler)
 {
-	{
-		auto nameNode = handler.enterStruct("name");
-		handler.serializeString("singular", nameSing);
-		handler.serializeString("plural", namePl);
-	}
-
 	handler.serializeInt("fightValue", fightValue);
 	handler.serializeInt("aiValue", AIValue);
 	handler.serializeInt("growth", growth);
@@ -598,6 +612,9 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->serializeJson(handler);
 
 	cre->cost = Res::ResourceSet(node["cost"]);
+
+	VLC->generaltexth->registerString(cre->getNameSingularTextID(), node["name"]["singular"].String());
+	VLC->generaltexth->registerString(cre->getNamePluralTextID(), node["name"]["plural"].String());
 
 	cre->addBonus(node["hitPoints"].Integer(), Bonus::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), Bonus::STACKS_SPEED);

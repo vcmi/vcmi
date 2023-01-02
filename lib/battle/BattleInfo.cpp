@@ -52,7 +52,7 @@ void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 		const CStack * const st = elem;
 		si32 killed = st->getKilled();
 		if(killed > 0)
-			casualties[st->side][st->getCreature()->idNumber] += killed;
+			casualties[st->side][st->getCreature()->getId()] += killed;
 	}
 }
 

@@ -182,7 +182,7 @@ void CBonusSelection::createBonusesIcons()
 			picNumber = bonDescs[i].info2 + 2;
 			desc = CGI->generaltexth->allTexts[717];
 			boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info3));
-			boost::algorithm::replace_first(desc, "%s", CGI->creatures()->getByIndex(bonDescs[i].info2)->getPluralName());
+			boost::algorithm::replace_first(desc, "%s", CGI->creatures()->getByIndex(bonDescs[i].info2)->getNamePluralTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::BUILDING:
 		{

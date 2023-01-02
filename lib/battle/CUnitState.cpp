@@ -443,7 +443,7 @@ int32_t CUnitState::creatureIndex() const
 
 CreatureID CUnitState::creatureId() const
 {
-	return unitType()->idNumber;
+	return unitType()->getId();
 }
 
 int32_t CUnitState::creatureLevel() const

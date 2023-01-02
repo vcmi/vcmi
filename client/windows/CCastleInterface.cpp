@@ -242,7 +242,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
-			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->objects.at(creaID)->namePl;
+			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->objects.at(creaID)->getNamePluralTranslated();
 		}
 		else
 		{
@@ -284,7 +284,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 	const CCreature * creature = CGI->creh->objects.at(Town->creatures.at(level).second.back());
 
-	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->namePl);
+	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getNamePluralTranslated());
 	animation = std::make_shared<CCreaturePic>(30, 44, creature, true, true);
 
 	std::string text = boost::lexical_cast<std::string>(Town->creatures.at(level).first);
@@ -1036,7 +1036,7 @@ void CCreaInfo::update()
 void CCreaInfo::hover(bool on)
 {
 	std::string message = CGI->generaltexth->allTexts[588];
-	boost::algorithm::replace_first(message, "%s", creature->namePl);
+	boost::algorithm::replace_first(message, "%s", creature->getNamePluralTranslated());
 
 	if(on)
 	{
@@ -1064,7 +1064,7 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 std::string CCreaInfo::genGrowthText()
 {
 	GrowthInfo gi = town->getGrowthInfo(level);
-	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->nameSing % gi.totalGrowth());
+	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->getNameSingularTranslated() % gi.totalGrowth());
 
 	for(const GrowthInfo::Entry & entry : gi.entries)
 		descr +="\n" + entry.description;
@@ -1641,9 +1641,9 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 
 	if(getMyCreature() != nullptr)
 	{
-		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->namePl);
+		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->getNamePluralTranslated());
 		new CCreaturePic(159, 4, getMyCreature(), false);
-		new CLabel(78,  11, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyCreature()->namePl);
+		new CLabel(78,  11, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyCreature()->getNamePluralTranslated());
 
 		Rect sizes(287, 4, 96, 18);
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->getAttack(false)));
@@ -1807,15 +1807,15 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	anim->clipRect(113,125,200,150);
 
 	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
+				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->getNameSingularTranslated()));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
 	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
 	                boost::lexical_cast<std::string>(aid.toArtifact(CGI->artifacts())->getPrice()));
 
-	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
+	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
 	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
 
-	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->nameSing);
+	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->getNameSingularTranslated());
 	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_ESCAPE);
 
 	if(possible)

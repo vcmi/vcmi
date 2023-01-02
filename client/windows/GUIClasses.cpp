@@ -140,7 +140,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		totalCostValue->set(card->creature->cost * maxAmount);
 
 		//Recruit %s
-		title->setText(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->namePl));
+		title->setText(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->getNamePluralTranslated()));
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);
@@ -158,7 +158,7 @@ void CRecruitmentWindow::buy()
 		if(dst->ID == Obj::HERO)
 		{
 			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->namePl : CGI->creh->objects[crid]->nameSing);
+			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->getNamePluralTranslated() : CGI->creh->objects[crid]->getNameSingularTranslated());
 		}
 		else
 		{
@@ -332,7 +332,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	slider = std::make_shared<CSlider>(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPosition, rightAmount - rightMin, true);
 
 	std::string titleStr = CGI->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(titleStr,"%s", creature->namePl);
+	boost::algorithm::replace_first(titleStr,"%s", creature->getNamePluralTranslated());
 	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 }
 
@@ -1681,7 +1681,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		if(up->Slots().size() > 0)
 		{
 			titleText = CGI->generaltexth->allTexts[35];
-			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->namePl);
+			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->getNamePluralTranslated());
 		}
 		else
 		{
@@ -1878,9 +1878,9 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	std::string str = CGI->generaltexth->allTexts[318];
 	int amount = hero->getStackCount(slot);
 	if(amount == 1)
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
+		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNameSingularTranslated());
 	else
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->namePl);
+		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNamePluralTranslated());
 
 	return str;
 }
