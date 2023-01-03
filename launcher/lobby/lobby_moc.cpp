@@ -407,7 +407,7 @@ void Lobby::updateMods()
 	
 	auto createModListWidget = [](const QIcon & icon, const QString & label, const QString & name, bool enableFlag, bool resolveFlag)
 	{
-		auto * lw = new QListWidgetItem(icon, label); //mod version mismatch
+		auto * lw = new QListWidgetItem(icon, label);
 		lw->setData(ModResolutionRoles::ModNameRole, name);
 		lw->setData(ModResolutionRoles::ModEnableRole, enableFlag);
 		lw->setData(ModResolutionRoles::ModResolvableRole, resolveFlag);
