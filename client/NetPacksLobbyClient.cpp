@@ -63,7 +63,7 @@ void LobbyClientDisconnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHa
 
 void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	if(lobby)
+	if(lobby && lobby->card)
 	{
 		lobby->card->chat->addNewMessage(playerName + ": " + message);
 		lobby->card->setChat(true);
