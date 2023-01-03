@@ -209,7 +209,7 @@ int main(int argc, char * argv[])
 		("lobby-uuid", po::value<std::string>(), "uuid to the server")
 		("lobby-connections", po::value<ui16>(), "connections of server")
 		("lobby-username", po::value<std::string>(), "player name")
-		("lobby-gamemode", po::value<bool>(), "use 0 for new game and 1 for load game")
+		("lobby-gamemode", po::value<ui16>(), "use 0 for new game and 1 for load game")
 		("uuid", po::value<std::string>(), "uuid for the client");
 
 	if(argc > 1)
