@@ -201,6 +201,10 @@ void CVCMIServer::run()
 
 void CVCMIServer::establishRemoteConnections()
 {
+	//wait for host connection
+	while(connections.empty())
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
 	auto address = cmdLineOptions["lobby"].as<std::string>();
