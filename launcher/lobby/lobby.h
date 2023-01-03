@@ -163,7 +163,7 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	
 	//game mode (new game or load game) set by host
 	//arg[0]: game mode
-	{GAMEMODE, "GAMEMODE"}
+	{GAMEMODE, "GAMEMODE"},
 };
 
 class ServerCommand
