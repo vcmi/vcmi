@@ -1713,7 +1713,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 	const PlayerState * p = getPlayerState(town->tempOwner);
 	if (!p)
 	{
-		logGlobal->warn("There is no player owner of town %s at %s", town->name, town->pos.toString());
+		logGlobal->warn("There is no player owner of town %s at %s", town->getNameTranslated(), town->pos.toString());
 		return;
 	}
 
@@ -2521,7 +2521,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
 
-	|| (from->town->faction->index != t->town->faction->index
+	|| (from->town->faction->getId() != t->town->faction->getId()
 		&& complain("Source town and destination town should belong to the same faction"))
 
 	|| ((!from || !from->hasBuilt(BuildingSubID::CASTLE_GATE))
@@ -3446,9 +3446,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!t)
 		COMPLAIN_RETF("No such town (ID=%s)!", tid);
 	if(!t->town->buildings.count(requestedID))
-		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->town->faction->name % requestedID);
+		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->town->faction->getNameTranslated() % requestedID);
 	if(t->hasBuilt(requestedID))
-		COMPLAIN_RETF("Building %s is already built in %s", t->town->buildings.at(requestedID)->Name() % t->name);
+		COMPLAIN_RETF("Building %s is already built in %s", t->town->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
 
 	const CBuilding * requestedBuilding = t->town->buildings.at(requestedID);
 
@@ -7075,7 +7075,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		for (auto & build : town->town->buildings)
 		{
 			if (!town->hasBuilt(build.first)
-				&& !build.second->Name().empty()
+				&& !build.second->getNameTranslated().empty()
 				&& build.first != BuildingID::SHIP)
 			{
 				buildStructure(town->id, build.first, true);

@@ -804,7 +804,7 @@ void StackQueue::update()
 
 int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner.siegeController->getSiegedTown()->town->faction->index;
+	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):

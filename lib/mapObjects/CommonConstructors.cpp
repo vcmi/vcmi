@@ -58,7 +58,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
-			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->identifier, node.Vector()[0]).get());
+			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).get());
 		});
 	}
 }

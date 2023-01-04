@@ -388,11 +388,11 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 	temp.resize(VLC->townh->size(), false);
 	auto standard = VLC->townh->getDefaultAllowed();
 
-    if(handler.saving)
+	if(handler.saving)
 	{
 		for(auto faction : VLC->townh->objects)
-			if(faction->town && vstd::contains(value, faction->index))
-				temp[std::size_t(faction->index)] = true;
+			if(faction->town && vstd::contains(value, faction->getIndex()))
+				temp[std::size_t(faction->getIndex())] = true;
 	}
 
 	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, standard, temp);

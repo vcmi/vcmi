@@ -38,9 +38,8 @@ class JsonSerializeFormat;
 
 class DLL_LINKAGE CBuilding
 {
-
-	std::string name;
-	std::string description;
+	std::string modScope;
+	std::string identifier;
 
 public:
 	typedef LogicalExpression<BuildingID> TRequired;
@@ -49,7 +48,6 @@ public:
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
-	std::string identifier;
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
@@ -80,8 +78,13 @@ public:
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 
-	const std::string &Name() const;
-	const std::string &Description() const;
+	std::string getJsonKey() const;
+
+	std::string getNameTranslated() const;
+	std::string getDescriptionTranslated() const;
+
+	std::string getNameTextID() const;
+	std::string getDescriptionTextID() const;
 
 	//return base of upgrade(s) or this
 	BuildingID getBase() const;
@@ -116,13 +119,12 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & modScope;
 		h & identifier;
 		h & town;
 		h & bid;
 		h & resources;
 		h & produce;
-		h & name;
-		h & description;
 		h & requirements;
 		h & upgrade;
 		h & mode;
@@ -180,12 +182,15 @@ struct DLL_LINKAGE SPuzzleInfo
 
 class DLL_LINKAGE CFaction : public Faction
 {
-public:
-	std::string name; //town name, by default - from TownName.txt
+	friend class CTownHandler;
+	std::string modScope; //town name, by default - from TownName.txt
 	std::string identifier;
 
 	TFaction index;
 
+	const std::string & getName() const override;
+
+public:
 	TerrainId nativeTerrain;
 	EAlignment::EAlignment alignment;
 	bool preferUndergroundPlacement;
@@ -202,10 +207,12 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	FactionID getId() const override;
+
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 
 	bool hasTown() const override;
 
@@ -214,7 +221,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name;
+		h & modScope;
 		h & identifier;
 		h & index;
 		h & nativeTerrain;
@@ -228,11 +235,13 @@ public:
 
 class DLL_LINKAGE CTown
 {
+	friend class CTownHandler;
+	size_t namesCount;
+
 public:
 	CTown();
 	~CTown();
 
-	std::string getLocalizedFactionName() const;
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
@@ -240,9 +249,11 @@ public:
 	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string message) const; //may affect only mutable field
 	BuildingID::EBuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
-	CFaction * faction;
+	std::string getRandomNameTranslated(size_t index) const;
+	std::string getRandomNameTextID(size_t index) const;
+	size_t getRandomNamesCount() const;
 
-	std::vector<std::string> names; //names of the town instances
+	CFaction * faction;
 
 	/// level -> list of creatures on this tier
 	// TODO: replace with pointers to CCreature
@@ -327,7 +338,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & names;
+		h & namesCount;
 		h & faction;
 		h & creatures;
 		h & dwellings;
@@ -400,6 +411,7 @@ public:
 	static R getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required = true);
 
 	CTown * randomTown;
+	CFaction * randomFaction;
 
 	CTownHandler();
 	~CTownHandler();

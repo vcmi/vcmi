@@ -1586,7 +1586,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 		if(town)
 		{
-			auto faction = town->town->faction->index;
+			auto faction = town->town->faction->getId();
 			auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
 			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
 		}

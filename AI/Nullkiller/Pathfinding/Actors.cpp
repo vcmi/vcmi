@@ -463,5 +463,5 @@ TownGarrisonActor::TownGarrisonActor(const CGTownInstance * town, uint64_t chain
 
 std::string TownGarrisonActor::toString() const
 {
-	return town->name;
+	return town->getNameTranslated();
 }
