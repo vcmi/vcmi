@@ -850,7 +850,7 @@ void BattleStacksController::updateHoveredStacks()
 			continue;
 
 		stackAnimation[stack->ID]->setBorderColor(AnimationControls::getBlueBorder());
-		if (stackAnimation[stack->ID]->framesInGroup(ECreatureAnimType::MOUSEON) > 0 && stack->alive())
+		if (stackAnimation[stack->ID]->framesInGroup(ECreatureAnimType::MOUSEON) > 0 && stack->alive() && !stack->isFrozen())
 			stackAnimation[stack->ID]->playOnce(ECreatureAnimType::MOUSEON);
 
 	}
