@@ -19,7 +19,7 @@ using namespace ::testing;
 class CSkillTest : public Test
 {
 public:
-	MOCK_METHOD3(registarCb, void(int32_t, const std::string &, const std::string &));
+	MOCK_METHOD4(registarCb, void(int32_t, int32_t, const std::string &, const std::string &));
 
 protected:
 	std::shared_ptr<CSkill> subject;
@@ -41,15 +41,15 @@ TEST_F(CSkillTest, RegistersIcons)
 		skillAtLevel.iconLarge = "TestL"+std::to_string(level);
 	}
 
-	auto cb = std::bind(&CSkillTest::registarCb, this, _1, _2, _3);
+	auto cb = std::bind(&CSkillTest::registarCb, this, _1, _2, _3, _4);
 
 	for(int level = 1; level <= 3; level++)
 	{
 		int frame = 2 + level + 3 * 42;
 
-		EXPECT_CALL(*this, registarCb(Eq(frame), "SECSK32", "TestS"+std::to_string(level)));
-		EXPECT_CALL(*this, registarCb(Eq(frame), "SECSKILL", "TestM"+std::to_string(level)));
-		EXPECT_CALL(*this, registarCb(Eq(frame), "SECSK82", "TestL"+std::to_string(level)));
+		EXPECT_CALL(*this, registarCb(Eq(frame), Eq(0), "SECSK32", "TestS"+std::to_string(level)));
+		EXPECT_CALL(*this, registarCb(Eq(frame), Eq(0), "SECSKILL", "TestM"+std::to_string(level)));
+		EXPECT_CALL(*this, registarCb(Eq(frame), Eq(0), "SECSK82", "TestL"+std::to_string(level)));
 	}
 
 	subject->registerIcons(cb);

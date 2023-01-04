@@ -12,6 +12,7 @@
 #include "EffectFixture.h"
 
 #include <vstd/RNG.h>
+#include "lib/CModHandler.h"
 
 namespace test
 {
