@@ -864,6 +864,9 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	if (!activeStack)
 		return {};
 
+	if(owner.getAnimationCondition(EAnimationEvents::ACTION) == true)
+		return {};
+
 	auto hoveredHex = owner.fieldController->getHoveredHex();
 
 	if (!hoveredHex.isValid())
