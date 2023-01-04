@@ -40,11 +40,31 @@ namespace scripting
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
-	CGameState * gameState();
-	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
-	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0, int3::EDistanceFormula formula = int3::DIST_2D) const; //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
-	void getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
-	void pickAllowedArtsSet(std::vector<const CArtifact*> &out, CRandomGenerator & rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	enum class MapTerrainFilterMode
+	{
+		NONE = 0,
+		LAND = 1,
+		WATER = 2,
+		LAND_CARTOGRAPHER = 3,
+		UNDERGROUND_CARTOGRAPHER = 4
+	};
+
+	CGameState *gameState();
+
+	//used for random spawns
+	void getFreeTiles(std::vector<int3> &tiles) const;
+
+	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
+	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious,
+						 boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0,
+						 int3::EDistanceFormula formula = int3::DIST_2D) const;
+
+	//returns all tiles on given level (-1 - both levels, otherwise number of level)
+	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
+
+	void pickAllowedArtsSet(std::vector<const CArtifact *> &out,
+							CRandomGenerator &rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
 
 	template<typename Saver>

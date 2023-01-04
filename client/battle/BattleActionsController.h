@@ -92,5 +92,12 @@ public:
 
 	/// returns true if UI is currently in target selection mode
 	bool spellcastingModeActive() const;
+	
+	/// methods to work with array of possible actions, needed to control special creatures abilities
+	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
+	void removePossibleAction(PossiblePlayerBattleAction);
+	
+	/// inserts possible action in the beggining in order to prioritize it
+	void pushFrontPossibleAction(PossiblePlayerBattleAction);
 
 };

@@ -119,7 +119,7 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	
-	init(config);
+	build(config);
 	
 	updateMapInfoByHost();
 }
@@ -338,7 +338,7 @@ TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox &
 {
 	OBJ_CONSTRUCTION;
 	
-	init(config);
+	build(config);
 	
 	if(auto w = widget<CPicture>("hoverImage"))
 	{
@@ -412,7 +412,7 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	OBJ_CONSTRUCTION;
 	pos = randomMapTab.pos;
 	
-	init(config);
+	build(config);
 	
 	if(auto w = widget<CSlider>("slider"))
 	{
@@ -522,7 +522,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		GH.popInt(GH.topInt());
 	});
 	
-	init(config);
+	build(config);
 	
 	center(pos);
 	

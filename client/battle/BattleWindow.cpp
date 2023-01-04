@@ -23,6 +23,7 @@
 #include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CAnimation.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
@@ -33,6 +34,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/filesystem/ResourceID.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
@@ -42,31 +44,27 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	pos.h = 600;
 	pos = center();
 
-	// create background for panel/ribbon at the bottom
-	menuTactics = std::make_shared<CPicture>("COPLACBR.BMP", 0, 556);
-	menuBattle = std::make_shared<CPicture>("CBAR.BMP", 0, 556);
-	menuTactics->colorize(owner.curInt->playerID);
-	menuBattle->colorize(owner.curInt->playerID);
+	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
+	
+	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
+	
+	addCallback("options", std::bind(&BattleWindow::bOptionsf, this));
+	addCallback("surrender", std::bind(&BattleWindow::bSurrenderf, this));
+	addCallback("flee", std::bind(&BattleWindow::bFleef, this));
+	addCallback("autofight", std::bind(&BattleWindow::bAutofightf, this));
+	addCallback("spellbook", std::bind(&BattleWindow::bSpellf, this));
+	addCallback("wait", std::bind(&BattleWindow::bWaitf, this));
+	addCallback("defence", std::bind(&BattleWindow::bDefencef, this));
+	addCallback("consoleUp", std::bind(&BattleWindow::bConsoleUpf, this));
+	addCallback("consoleDown", std::bind(&BattleWindow::bConsoleDownf, this));
+	addCallback("tacticNext", std::bind(&BattleWindow::bTacticNextStack, this));
+	addCallback("tacticEnd", std::bind(&BattleWindow::bTacticPhaseEnd, this));
+	addCallback("alternativeAction", std::bind(&BattleWindow::bSwitchActionf, this));
+	
+	build(config);
+	
+	console = widget<BattleConsole>("console");
 
-	//preparing buttons and console
-	bOptions = std::make_shared<CButton>    (Point(  3,  5 + 556), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleWindow::bOptionsf,this), SDLK_o);
-	bSurrender = std::make_shared<CButton>  (Point( 54,  5 + 556), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleWindow::bSurrenderf,this), SDLK_s);
-	bFlee = std::make_shared<CButton>       (Point(105,  5 + 556), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleWindow::bFleef,this), SDLK_r);
-	bAutofight = std::make_shared<CButton>  (Point(158,  5 + 556), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleWindow::bAutofightf,this), SDLK_a);
-	bSpell = std::make_shared<CButton>      (Point(645,  5 + 556), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleWindow::bSpellf,this), SDLK_c);
-	bWait = std::make_shared<CButton>       (Point(696,  5 + 556), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleWindow::bWaitf,this), SDLK_w);
-	bDefence = std::make_shared<CButton>    (Point(747,  5 + 556), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleWindow::bDefencef,this), SDLK_d);
-	bConsoleUp = std::make_shared<CButton>  (Point(624,  5 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleWindow::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = std::make_shared<CButton>(Point(624, 24 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleWindow::bConsoleDownf,this), SDLK_DOWN);
-
-	bDefence->assignedKeys.insert(SDLK_SPACE);
-	bConsoleUp->setImageOrder(0, 1, 0, 0);
-	bConsoleDown->setImageOrder(2, 3, 2, 2);
-
-	btactNext = std::make_shared<CButton>(Point(213, 4 + 556), "icm011.def", std::make_pair("", ""), [&]() { bTacticNextStack();}, SDLK_SPACE);
-	btactEnd = std::make_shared<CButton>(Point(419,  4 + 556), "icm012.def", std::make_pair("", ""),  [&](){ bTacticPhaseEnd();}, SDLK_RETURN);
-
-	console = std::make_shared<BattleConsole>(menuBattle, Point(211, 4 + 556), Point(211, 4), Point(406,38));
 	GH.statusbar = console;
 	owner.console = console;
 
@@ -102,6 +100,14 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 BattleWindow::~BattleWindow()
 {
 	CPlayerInterface::battleInt = nullptr;
+}
+
+std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode & config) const
+{
+	auto rect = readRect(config["rect"]);
+	auto offset = readPosition(config["imagePosition"]);
+	auto background = widget<CPicture>("menuBattle");
+	return std::make_shared<BattleConsole>(background, rect.topLeft(), offset, rect.dimensions() );
 }
 
 void BattleWindow::hideQueue()
@@ -181,22 +187,34 @@ void BattleWindow::clickRight(tribool down, bool previousState)
 
 void BattleWindow::tacticPhaseStarted()
 {
+	auto menuBattle = widget<CIntObject>("menuBattle");
+	auto console = widget<CIntObject>("console");
+	auto menuTactics = widget<CIntObject>("menuTactics");
+	auto tacticNext = widget<CIntObject>("tacticNext");
+	auto tacticEnd = widget<CIntObject>("tacticEnd");
+
 	menuBattle->disable();
 	console->disable();
 
 	menuTactics->enable();
-	btactNext->enable();
-	btactEnd->enable();
+	tacticNext->enable();
+	tacticEnd->enable();
 }
 
 void BattleWindow::tacticPhaseEnded()
 {
+	auto menuBattle = widget<CIntObject>("menuBattle");
+	auto console = widget<CIntObject>("console");
+	auto menuTactics = widget<CIntObject>("menuTactics");
+	auto tacticNext = widget<CIntObject>("tacticNext");
+	auto tacticEnd = widget<CIntObject>("tacticEnd");
+
 	menuBattle->enable();
 	console->enable();
 
 	menuTactics->disable();
-	btactNext->disable();
-	btactEnd->disable();
+	tacticNext->disable();
+	tacticEnd->disable();
 }
 
 void BattleWindow::bOptionsf()
@@ -277,6 +295,57 @@ void BattleWindow::reallySurrender()
 	}
 }
 
+void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
+{
+	auto w = widget<CButton>("alternativeAction");
+	if(!w)
+		return;
+	
+	std::string iconName = variables["actionIconDefault"].String();
+	switch(action)
+	{
+		case PossiblePlayerBattleAction::ATTACK:
+			iconName = variables["actionIconAttack"].String();
+			break;
+			
+		case PossiblePlayerBattleAction::SHOOT:
+			iconName = variables["actionIconShoot"].String();
+			break;
+			
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+			iconName = variables["actionIconSpell"].String();
+			break;
+			
+		//TODO: figure out purpose of this icon
+		//case PossiblePlayerBattleAction::???:
+			//iconName = variables["actionIconWalk"].String();
+			//break;
+			
+		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+			iconName = variables["actionIconReturn"].String();
+			break;
+			
+		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+			iconName = variables["actionIconNoReturn"].String();
+			break;
+	}
+		
+	auto anim = std::make_shared<CAnimation>(iconName);
+	w->setImage(anim, false);
+}
+
+void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
+{
+	alternativeActions = actions;
+	defaultAction = PossiblePlayerBattleAction::INVALID;
+	if(alternativeActions.size() > 1)
+		defaultAction = alternativeActions.back();
+	if(!alternativeActions.empty())
+		showAlternativeActionIcon(alternativeActions.front());
+	else
+		showAlternativeActionIcon(defaultAction);
+}
+
 void BattleWindow::bAutofightf()
 {
 	if (owner.actionsController->spellcastingModeActive())
@@ -346,6 +415,33 @@ void BattleWindow::bSpellf()
 	}
 }
 
+void BattleWindow::bSwitchActionf()
+{
+	if(alternativeActions.empty())
+		return;
+	
+	if(alternativeActions.front() == defaultAction)
+	{
+		alternativeActions.push_back(alternativeActions.front());
+		alternativeActions.pop_front();
+	}
+	
+	auto actions = owner.actionsController->getPossibleActions();
+	if(!actions.empty() && actions.front() == alternativeActions.front())
+	{
+		owner.actionsController->removePossibleAction(alternativeActions.front());
+		showAlternativeActionIcon(defaultAction);
+	}
+	else
+	{
+		owner.actionsController->pushFrontPossibleAction(alternativeActions.front());
+		showAlternativeActionIcon(alternativeActions.front());
+	}
+	
+	alternativeActions.push_back(alternativeActions.front());
+	alternativeActions.pop_front();
+}
+
 void BattleWindow::bWaitf()
 {
 	if (owner.actionsController->spellcastingModeActive())
@@ -405,29 +501,43 @@ void BattleWindow::blockUI(bool on)
 
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
-	bOptions->block(on);
-	bFlee->block(on || !owner.curInt->cb->battleCanFlee());
-	bSurrender->block(on || owner.curInt->cb->battleGetSurrenderCost() < 0);
+	if(auto w = widget<CButton>("options"))
+		w->block(on);
+	if(auto w = widget<CButton>("flee"))
+		w->block(on || !owner.curInt->cb->battleCanFlee());
+	if(auto w = widget<CButton>("surrender"))
+		w->block(on || owner.curInt->cb->battleGetSurrenderCost() < 0);
+	if(auto w = widget<CButton>("cast"))
+		w->block(on || owner.tacticsMode || !canCastSpells);
+	if(auto w = widget<CButton>("wait"))
+		w->block(on || owner.tacticsMode || !canWait);
+	if(auto w = widget<CButton>("defence"))
+		w->block(on || owner.tacticsMode);
+	if(auto w = widget<CButton>("alternativeAction"))
+		w->block(on || owner.tacticsMode);
 
 	// block only if during enemy turn and auto-fight is off
 	// otherwise - crash on accessing non-exisiting active stack
-	bAutofight->block(!owner.curInt->isAutoFightOn && !owner.stacksController->getActiveStack());
+	if(auto w = widget<CButton>("options"))
+		w->block(!owner.curInt->isAutoFightOn && !owner.stacksController->getActiveStack());
 
-	if (owner.tacticsMode && btactEnd && btactNext)
+	auto btactEnd = widget<CButton>("tacticEnd");
+	auto btactNext = widget<CButton>("tacticNext");
+	if(owner.tacticsMode && btactEnd && btactNext)
 	{
 		btactNext->block(on);
 		btactEnd->block(on);
 	}
 	else
 	{
-		bConsoleUp->block(on);
-		bConsoleDown->block(on);
+		auto bConsoleUp = widget<CButton>("consoleUp");
+		auto bConsoleDown = widget<CButton>("consoleDown");
+		if(bConsoleUp && bConsoleDown)
+		{
+			bConsoleUp->block(on);
+			bConsoleDown->block(on);
+		}
 	}
-
-
-	bSpell->block(on || owner.tacticsMode || !canCastSpells);
-	bWait->block(on || owner.tacticsMode || !canWait);
-	bDefence->block(on || owner.tacticsMode);
 }
 
 void BattleWindow::showAll(SDL_Surface *to)
@@ -442,4 +552,11 @@ void BattleWindow::show(SDL_Surface *to)
 {
 	CIntObject::show(to);
 	LOCPLINT->cingconsole->show(to);
+}
+
+void BattleWindow::close()
+{
+	if(GH.topInt().get() != this)
+		logGlobal->error("Only top interface must be closed");
+	GH.popInts(1);
 }

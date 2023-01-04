@@ -440,6 +440,16 @@ bool TerrainType::isUnderground() const
 	return passabilityType & PassabilityType::SUBTERRANEAN;
 }
 
+bool TerrainType::isSurfaceCartographerCompatible() const
+{
+	return isSurface();
+}
+
+bool TerrainType::isUndergroundCartographerCompatible() const
+{
+	return isLand() && isPassable() && !isSurface();
+}
+
 bool TerrainType::isTransitionRequired() const
 {
 	return transitionRequired;

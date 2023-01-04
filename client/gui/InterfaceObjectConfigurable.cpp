@@ -25,11 +25,20 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 
+static std::map<std::string, int> KeycodeMap{
+	{"up", SDLK_UP},
+	{"down", SDLK_DOWN},
+	{"left", SDLK_LEFT},
+	{"right", SDLK_RIGHT},
+	{"space", SDLK_SPACE},
+	{"enter", SDLK_RETURN}
+};
+
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
 {
-	init(config);
+	build(config);
 }
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset):
@@ -57,19 +66,32 @@ void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, 
 	callbacks[callbackName] = callback;
 }
 
-void InterfaceObjectConfigurable::init(const JsonNode &config)
+void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
+{
+	auto iter = widgets.find(name);
+	if(iter != widgets.end())
+		widgets.erase(iter);
+}
+
+void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
 	logGlobal->debug("Building configurable interface object");
-	for(auto & item : config["variables"].Struct())
+	auto * items = &config;
+	
+	if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
-		logGlobal->debug("Read variable named %s", item.first);
-		variables[item.first] = item.second;
+		for(auto & item : config["variables"].Struct())
+		{
+			logGlobal->debug("Read variable named %s", item.first);
+			variables[item.first] = item.second;
+		}
+		
+		items = &config["items"];
 	}
 	
-	int unnamedObjectId = 0;
 	const std::string unnamedObjectPrefix = "__widget_";
-	for(const auto & item : config["items"].Vector())
+	for(const auto & item : items->Vector())
 	{
 		std::string name = item["name"].isNull()
 						? unnamedObjectPrefix + std::to_string(unnamedObjectId++)
@@ -210,6 +232,23 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 	return result;
 }
 
+int InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
+{
+	logGlobal->debug("Reading keycode");
+	if(config.getType() == JsonNode::JsonType::DATA_INTEGER)
+		return config.Integer();
+	
+	if(config.getType() == JsonNode::JsonType::DATA_STRING)
+	{
+		auto s = config.String();
+		if(s.size() == 1) //keyboard symbol
+			return s[0];
+		return KeycodeMap[s];
+	}
+	
+	return 0;
+}
+
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CPicture");
@@ -289,8 +328,24 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 			button->addOverlay(buildWidget(item));
 		}
 	}
+	if(!config["imageOrder"].isNull())
+	{
+		auto imgOrder = config["imageOrder"].Vector();
+		assert(imgOrder.size() >= 4);
+		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
+	}
 	if(!config["callback"].isNull())
 		button->addCallback(std::bind(callbacks.at(config["callback"].String()), 0));
+	if(!config["hotkey"].isNull())
+	{
+		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_VECTOR)
+		{
+			for(auto k : config["hotkey"].Vector())
+				button->assignedKeys.insert(readKeycode(k));
+		}
+		else
+			button->assignedKeys.insert(readKeycode(config["hotkey"]));
+	}
 	return button;
 }
 

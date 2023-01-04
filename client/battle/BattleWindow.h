@@ -10,6 +10,8 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../gui/InterfaceObjectConfigurable.h"
+#include "../../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
@@ -23,28 +25,12 @@ class BattleRenderer;
 class StackQueue;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
-class BattleWindow : public WindowBase
+class BattleWindow : public InterfaceObjectConfigurable
 {
 	BattleInterface & owner;
 
 	std::shared_ptr<StackQueue> queue;
-
 	std::shared_ptr<BattleConsole> console;
-
-	std::shared_ptr<CPicture> menuTactics;
-	std::shared_ptr<CPicture> menuBattle;
-
-	std::shared_ptr<CButton> bOptions;
-	std::shared_ptr<CButton> bSurrender;
-	std::shared_ptr<CButton> bFlee;
-	std::shared_ptr<CButton> bAutofight;
-	std::shared_ptr<CButton> bSpell;
-	std::shared_ptr<CButton> bWait;
-	std::shared_ptr<CButton> bDefence;
-	std::shared_ptr<CButton> bConsoleUp;
-	std::shared_ptr<CButton> bConsoleDown;
-	std::shared_ptr<CButton> btactNext;
-	std::shared_ptr<CButton> btactEnd;
 
 	/// button press handling functions
 	void bOptionsf();
@@ -53,6 +39,7 @@ class BattleWindow : public WindowBase
 	void bAutofightf();
 	void bSpellf();
 	void bWaitf();
+	void bSwitchActionf();
 	void bDefencef();
 	void bConsoleUpf();
 	void bConsoleDownf();
@@ -62,17 +49,24 @@ class BattleWindow : public WindowBase
 	/// functions for handling actions after they were confirmed by popup window
 	void reallyFlee();
 	void reallySurrender();
+	
+	/// management of alternative actions
+	std::list<PossiblePlayerBattleAction> alternativeActions;
+	PossiblePlayerBattleAction defaultAction;
+	void showAlternativeActionIcon(PossiblePlayerBattleAction);
 
 	/// Toggle StackQueue visibility
 	void hideQueue();
 	void showQueue();
 
+	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
+
 public:
 	BattleWindow(BattleInterface & owner );
 	~BattleWindow();
 
-	/// Closes window once battle finished (explicit declaration to move into public visibility)
-	using WindowBase::close;
+	/// Closes window once battle finished
+	void close();
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
@@ -92,5 +86,9 @@ public:
 
 	/// Toggle UI to displaying battle log in place of tactics UI
 	void tacticPhaseEnded();
+
+	/// Set possible alternative options. If more than 1 - the last will be considered as default option
+	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
+
 };
 
