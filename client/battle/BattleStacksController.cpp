@@ -439,7 +439,14 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, "FIRESHIE", attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
-				owner.displaySpellEffect(attackedInfo.spellEffect.toSpell(), attackedInfo.defender->getPosition());
+			{
+				auto spell = attackedInfo.spellEffect.toSpell();
+				if (!spell->getCastSound().empty())
+					CCS->soundh->playSound(spell->getCastSound());
+
+
+				owner.displaySpellEffect(spell, attackedInfo.defender->getPosition());
+			}
 		});
 	}
 
