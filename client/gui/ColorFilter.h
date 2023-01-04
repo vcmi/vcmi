@@ -35,6 +35,7 @@ public:
 	SDL_Color shiftColor(const SDL_Color & in) const;
 
 	bool operator == (const ColorFilter & other) const;
+	bool operator != (const ColorFilter & other) const;
 
 	/// Generates empty object that has no effect on image
 	static ColorFilter genEmptyShifter();

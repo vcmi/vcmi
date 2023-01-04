@@ -34,6 +34,11 @@ SDL_Color ColorFilter::shiftColor(const SDL_Color & in) const
 	};
 }
 
+bool ColorFilter::operator != (const ColorFilter & other) const
+{
+	return !(this->operator==(other));
+}
+
 bool ColorFilter::operator == (const ColorFilter & other) const
 {
 	return

@@ -225,7 +225,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 		{
 			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeIn", nullptr));
 			if (stack->isClone())
-				addNewAnim(new ColorTransformAnimation(owner, stack, "cloning", nullptr));
+				addNewAnim(new ColorTransformAnimation(owner, stack, "cloning", SpellID(SpellID::CLONE).toSpell() ));
 		});
 	}
 }
@@ -816,7 +816,7 @@ void BattleStacksController::removeExpiredColorFilters()
 	{
 		if (filter.persistent)
 			return false;
-		if (filter.effect == ColorFilter::genEmptyShifter())
+		if (filter.effect != ColorFilter::genEmptyShifter())
 			return false;
 		if (filter.source && filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id), Selector::all))
 			return false;
