@@ -540,7 +540,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C0ACID"]
+			"affect":["C17SPW0"]
 		},
 		"sounds": {
 			"cast": "WEAKNESS"
