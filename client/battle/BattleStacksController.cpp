@@ -350,27 +350,22 @@ void BattleStacksController::updateBattleAnimations()
 {
 	// operate on copy - to prevent potential iterator invalidation due to push_back's
 	// FIXME? : remove remaining calls to addNewAnim from BattleAnimation::nextFrame (only Catapult explosion at the time of writing)
+
 	auto copiedVector = currentAnimations;
 
 	for (auto & elem : copiedVector)
-	{
-		if (!elem)
-			continue;
-
-		if (elem->isInitialized())
+		if (elem && elem->isInitialized())
 			elem->nextFrame();
-		else
+
+	for (auto & elem : copiedVector)
+		if (elem && !elem->isInitialized())
 			elem->tryInitialize();
-	}
 
 	bool hadAnimations = !currentAnimations.empty();
 	vstd::erase(currentAnimations, nullptr);
 
 	if (hadAnimations && currentAnimations.empty())
-	{
-		//anims ended
 		owner.setAnimationCondition(EAnimationEvents::ACTION, false);
-	}
 }
 
 void BattleStacksController::addNewAnim(BattleAnimation *anim)
