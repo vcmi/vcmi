@@ -119,7 +119,10 @@ void BattleWindow::hideQueue()
 
 	if (!queue->embedded)
 	{
-		moveBy(Point(0, -queue->pos.h / 2));
+		//re-center, taking into account stack queue position
+		pos.y += queue->pos.h;
+		pos.h -= queue->pos.h;
+		pos = center();
 		GH.totalRedraw();
 	}
 }
@@ -133,7 +136,10 @@ void BattleWindow::showQueue()
 
 	if (!queue->embedded)
 	{
-		moveBy(Point(0, +queue->pos.h / 2));
+		//re-center, taking into account stack queue position
+		pos.y -= queue->pos.h;
+		pos.h += queue->pos.h;
+		pos = center();
 		GH.totalRedraw();
 	}
 }
