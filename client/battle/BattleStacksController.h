@@ -95,6 +95,9 @@ class BattleStacksController
 	void executeAttackAnimations();
 	void removeExpiredColorFilters();
 
+	void initializeBattleAnimations();
+	void stepFrameBattleAnimations();
+
 	void updateBattleAnimations();
 	void updateHoveredStacks();
 

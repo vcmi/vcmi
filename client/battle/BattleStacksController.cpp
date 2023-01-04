@@ -346,26 +346,35 @@ void BattleStacksController::update()
 	updateBattleAnimations();
 }
 
-void BattleStacksController::updateBattleAnimations()
+void BattleStacksController::initializeBattleAnimations()
 {
-	// operate on copy - to prevent potential iterator invalidation due to push_back's
-	// FIXME? : remove remaining calls to addNewAnim from BattleAnimation::nextFrame (only Catapult explosion at the time of writing)
-
 	auto copiedVector = currentAnimations;
-
-	for (auto & elem : copiedVector)
-		if (elem && elem->isInitialized())
-			elem->nextFrame();
-
 	for (auto & elem : copiedVector)
 		if (elem && !elem->isInitialized())
 			elem->tryInitialize();
+}
 
+void BattleStacksController::stepFrameBattleAnimations()
+{
+	// operate on copy - to prevent potential iterator invalidation due to push_back's
+	// FIXME? : remove remaining calls to addNewAnim from BattleAnimation::nextFrame (only Catapult explosion at the time of writing)
+	auto copiedVector = currentAnimations;
+	for (auto & elem : copiedVector)
+		if (elem && elem->isInitialized())
+			elem->nextFrame();
+}
+
+void BattleStacksController::updateBattleAnimations()
+{
 	bool hadAnimations = !currentAnimations.empty();
+	initializeBattleAnimations();
+	stepFrameBattleAnimations();
 	vstd::erase(currentAnimations, nullptr);
 
 	if (hadAnimations && currentAnimations.empty())
 		owner.setAnimationCondition(EAnimationEvents::ACTION, false);
+
+	initializeBattleAnimations();
 }
 
 void BattleStacksController::addNewAnim(BattleAnimation *anim)
@@ -493,24 +502,40 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 	assert(destHex.size() > 0);
 	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
 
+	bool stackTeleports = stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1));
+	owner.setAnimationCondition(EAnimationEvents::MOVEMENT, true);
+
+	auto enqueMoveEnd = [&](){
+		addNewAnim(new MovementEndAnimation(owner, stack, destHex.back()));
+		owner.executeOnAnimationCondition(EAnimationEvents::ACTION, false, [&](){
+			owner.setAnimationCondition(EAnimationEvents::MOVEMENT, false);
+		});
+	};
+
+	auto enqueMove = [&](){
+		if (!stackTeleports)
+		{
+			addNewAnim(new MovementAnimation(owner, stack, destHex, distance));
+			owner.executeOnAnimationCondition(EAnimationEvents::ACTION, false, enqueMoveEnd);
+		}
+		else
+			enqueMoveEnd();
+	};
+
+	auto enqueMoveStart = [&](){
+		addNewAnim(new MovementStartAnimation(owner, stack));
+		owner.executeOnAnimationCondition(EAnimationEvents::ACTION, false, enqueMove);
+	};
+
 	if(shouldRotate(stack, stack->getPosition(), destHex[0]))
 	{
 		addNewAnim(new ReverseAnimation(owner, stack, stack->getPosition()));
-		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+		owner.executeOnAnimationCondition(EAnimationEvents::ACTION, false, enqueMoveStart);
 	}
+	else
+		enqueMoveStart();
 
-	addNewAnim(new MovementStartAnimation(owner, stack));
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
-
-	// if creature can teleport, e.g Devils - skip movement animation
-	if (!stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)) )
-	{
-		addNewAnim(new MovementAnimation(owner, stack, destHex, distance));
-		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
-	}
-
-	addNewAnim(new MovementEndAnimation(owner, stack, destHex.back()));
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	owner.waitForAnimationCondition(EAnimationEvents::MOVEMENT, false);
 }
 
 bool BattleStacksController::shouldAttackFacingRight(const CStack * attacker, const CStack * defender)

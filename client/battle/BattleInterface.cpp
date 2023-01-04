@@ -725,16 +725,21 @@ void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
 	size_t index = static_cast<size_t>(event);
 	animationEvents[index].setn(state);
 
+	decltype(awaitingEvents) executingEvents;
+
 	for (auto it = awaitingEvents.begin(); it != awaitingEvents.end();)
 	{
 		if (it->event == event && it->eventState == state)
 		{
-			it->action();
+			executingEvents.push_back(*it);
 			it = awaitingEvents.erase(it);
 		}
 		else
 			++it;
 	}
+
+	for (auto const & event : executingEvents)
+		event.action();
 }
 
 bool BattleInterface::getAnimationCondition( EAnimationEvents event)
