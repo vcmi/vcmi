@@ -1180,27 +1180,30 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			//FIXME: add custom effect on actor
 		}
 
-		BattleStackAttacked bsa;
-
-		bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
-		bsa.stackAttacked = attacker->ID; //invert
-		bsa.attackerID = defender->ID;
-		bsa.damageAmount = totalDamage;
-		attacker->prepareAttacked(bsa, getRandomGenerator());
-
-		StacksInjured pack;
-		pack.stacks.push_back(bsa);
-		sendAndApply(&pack);
-
-		// TODO: this is already implemented in Damage::describeEffect()
+		if (totalDamage > 0)
 		{
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 376);
-			text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
-			text.addReplacement(totalDamage);
-			blm.lines.push_back(std::move(text));
+			BattleStackAttacked bsa;
+
+			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
+			bsa.stackAttacked = attacker->ID; //invert
+			bsa.attackerID = defender->ID;
+			bsa.damageAmount = totalDamage;
+			attacker->prepareAttacked(bsa, getRandomGenerator());
+
+			StacksInjured pack;
+			pack.stacks.push_back(bsa);
+			sendAndApply(&pack);
+
+			// TODO: this is already implemented in Damage::describeEffect()
+			{
+				MetaString text;
+				text.addTxt(MetaString::GENERAL_TXT, 376);
+				text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
+				text.addReplacement(totalDamage);
+				blm.lines.push_back(std::move(text));
+			}
+			addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 		}
-		addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 	}
 
 	sendAndApply(&blm);
