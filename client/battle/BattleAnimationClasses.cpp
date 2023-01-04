@@ -810,14 +810,19 @@ void CatapultAnimation::createProjectile(const Point & from, const Point & dest)
 	owner.projectilesController->createCatapultProjectile(attackingStack, from, dest);
 }
 
-CastAnimation::CastAnimation(BattleInterface & owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell)
-	: RangedAttackAnimation(owner_, attacker, dest_, defender),
+CastAnimation::CastAnimation(BattleInterface & owner_, const CStack * attacker, BattleHex dest, const CStack * defender, const CSpell * spell)
+	: RangedAttackAnimation(owner_, attacker, dest, defender),
 	  spell(spell)
 {
-	assert(dest.isValid());// FIXME: when?
+	if(!dest.isValid())
+	{
+		assert(spell->animationInfo.projectile.empty());
 
-	if(!dest_.isValid() && defender)
-		dest = defender->getPosition();
+		if (defender)
+			dest = defender->getPosition();
+		else
+			dest = attacker->getPosition();
+	}
 }
 
 ECreatureAnimType CastAnimation::getUpwardsGroup() const

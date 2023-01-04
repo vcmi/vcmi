@@ -572,11 +572,6 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	massive = levelInfo.range == "X";
 	clearAffected = levelInfo.clearAffected;
 	clearTarget = levelInfo.clearTarget;
-
-	if(mode == spells::Mode::CREATURE_ACTIVE)
-	{
-		massive = false;//FIXME: find better solution for Commander spells
-	}
 }
 
 bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
