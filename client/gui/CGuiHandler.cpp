@@ -489,7 +489,7 @@ CGuiHandler::CGuiHandler()
 	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
-	mainFPSmng = new CFramerateManager(48);
+	mainFPSmng = new CFramerateManager(60);
 	//do not init CFramerateManager here --AVS
 
 	terminate_cond = new CondSh<bool>(false);

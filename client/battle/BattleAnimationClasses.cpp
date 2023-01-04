@@ -368,7 +368,7 @@ bool MovementAnimation::init()
 
 	begX = begPosition.x;
 	begY = begPosition.y;
-	progress = 0;
+	//progress = 0;
 	distanceX = endPosition.x - begPosition.x;
 	distanceY = endPosition.y - begPosition.y;
 
@@ -394,6 +394,7 @@ void MovementAnimation::nextFrame()
 
 	if(progress >= 1.0)
 	{
+		progress -= 1.0;
 		// Sets the position of the creature animation sprites
 		Point coords = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 		myAnim->pos.moveTo(coords);
