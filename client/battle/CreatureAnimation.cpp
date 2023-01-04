@@ -145,7 +145,7 @@ float AnimationControls::getFadeInDuration()
 
 float AnimationControls::getObstaclesSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 30);
+	return 10.0;// does not seems to be affected by animaiton speed settings
 }
 
 ECreatureAnimType CreatureAnimation::getType() const
