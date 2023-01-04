@@ -4,12 +4,14 @@
 		{
 			"type": "picture",
 			"name": "menuTactics",
+			"playerColored" : true,
 			"position": {"x": 0, "y": 556},
 			"image": "COPLACBR.bmp"
 		},
 		{
 			"type": "picture",
 			"name": "menuBattle",
+			"playerColored" : true,
 			"position": {"x": 0, "y": 556},
 			"image": "CBAR.bmp"
 		},
