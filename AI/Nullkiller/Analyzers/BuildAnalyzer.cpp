@@ -130,7 +130,7 @@ void BuildAnalyzer::update()
 
 	for(const CGTownInstance* town : towns)
 	{
-		logAi->trace("Checking town %s", town->name);
+		logAi->trace("Checking town %s", town->getNameTranslated());
 
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
@@ -351,7 +351,7 @@ BuildingInfo::BuildingInfo(
 	dailyIncome = building->produce;
 	exists = town->hasBuilt(id);
 	prerequisitesCount = 1;
-	name = building->Name();
+	name = building->getNameTranslated();
 
 	if(creature)
 	{

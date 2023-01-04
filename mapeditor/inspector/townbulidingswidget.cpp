@@ -95,7 +95,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 		return nullptr;
 	}
 	
-	QString name = tr(building->Name().c_str());
+	QString name = tr(building->getNameTranslated().c_str());
 	
 	if(name.isEmpty())
 		name = QString::fromStdString(defaultBuildingIdConversion(buildingId));

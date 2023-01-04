@@ -65,7 +65,7 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 	{
 	case EWallVisual::BACKGROUND_WALL:
 		{
-			switch(town->town->faction->index)
+			switch(town->town->faction->getIndex())
 			{
 			case ETownType::RAMPART:
 			case ETownType::NECROPOLIS:
@@ -135,8 +135,8 @@ bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what)
 
 	switch (what)
 	{
-	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
-	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER && town->town->faction->index != ETownType::NECROPOLIS;
+	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->getIndex() != ETownType::TOWER;
+	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->getIndex() != ETownType::TOWER && town->town->faction->getIndex() != ETownType::NECROPOLIS;
 	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.curInt->cb->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
 	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
 	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;

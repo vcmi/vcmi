@@ -175,7 +175,7 @@ std::string CMapGenerator::getMapDescription() const
 		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
-			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->name;
+			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();
 		}
 	}
 

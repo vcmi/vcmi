@@ -145,8 +145,8 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		const CBuilding *bld = town->town->buildings.at(bid);
 		if (bid < BuildingID::DWELL_FIRST)
 		{
-			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
-				std::make_shared<CComponent>(CComponent::building, bld->town->faction->index, bld->bid));
+			CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
+				std::make_shared<CComponent>(CComponent::building, bld->town->faction->getIndex(), bld->bid));
 		}
 		else
 		{
@@ -235,7 +235,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	int bid = getBuilding()->bid;
 
 	if (bid<30)//non-dwellings - only buiding name
-		return town->town->buildings.at(getBuilding()->bid)->Name();
+		return town->town->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
 		auto & availableCreatures = town->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
@@ -736,7 +736,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(town->visitingHero)
 							GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
 						else
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
@@ -747,7 +747,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(getHero())
 							GH.pushIntT<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
 						else
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::MAGIC_UNIVERSITY:
@@ -801,7 +801,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->Name()));
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
 		return;
 	}
 	auto art = artifactID.toArtifact(CGI->artifacts());
@@ -815,7 +815,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 void CCastleBuildings::enterBuilding(BuildingID building)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building, town->subID, building));
-	LOCPLINT->showInfoDialog( town->town->buildings.find(building)->second->Description(), comps);
+	LOCPLINT->showInfoDialog( town->town->buildings.find(building)->second->getDescriptionTranslated(), comps);
 }
 
 void CCastleBuildings::enterCastleGate()
@@ -831,7 +831,7 @@ void CCastleBuildings::enterCastleGate()
 	{
 		const CGTownInstance *t = Town;
 		if (t->id != this->town->id && t->visitingHero == nullptr && //another town, empty and this is
-			t->town->faction->index == town->town->faction->index && //the town of the same faction
+			t->town->faction->getId() == town->town->faction->getId() && //the town of the same faction
 			t->hasBuilt(BuildingSubID::CASTLE_GATE)) //and the town has a castle gate
 		{
 			availableTowns.push_back(t->id.getNum());//add to the list
@@ -866,18 +866,18 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
-	std::string descr = town->town->buildings.find(building)->second->Description();
+	std::string descr = town->town->buildings.find(building)->second->getDescriptionTranslated();
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->index == (TFaction)ETownType::RAMPART)
+	if(this->town->town->faction->getIndex() == (TFaction)ETownType::RAMPART)
 	{
 		hasNotProduced = CGI->generaltexth->allTexts[677];
 		hasProduced = CGI->generaltexth->allTexts[678];
 	}
 	else
 	{
-		auto buildingName = town->town->getSpecialBuilding(subID)->Name();
+		auto buildingName = town->town->getSpecialBuilding(subID)->getNameTranslated();
 
 		hasNotProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasNotProduced"));
 		hasProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasProduced"));
@@ -890,7 +890,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 			&& town->town->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
 
 	if(upgrades != BuildingID::NONE)
-		descr += "\n\n"+town->town->buildings.find(BuildingID(upgrades))->second->Description();
+		descr += "\n\n"+town->town->buildings.find(BuildingID(upgrades))->second->getDescriptionTranslated();
 
 	if(isMysticPondOrItsUpgrade) //for vanila Rampart like towns
 	{
@@ -1114,7 +1114,7 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if(building )
-			GH.statusbar->write(building->Name());
+			GH.statusbar->write(building->getNameTranslated());
 	}
 	else
 	{
@@ -1126,8 +1126,8 @@ void CTownInfo::clickRight(tribool down, bool previousState)
 {
 	if(building && down)
 	{
-		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->index, building->bid);
-		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()), c);
+		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->getIndex(), building->bid);
+		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
 	}
 }
 
@@ -1152,7 +1152,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->type |= REDRAW_PARENT;
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
-	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->name);
+	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, 387);
 
@@ -1316,7 +1316,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	header = std::make_shared<CAnimImage>("TPTHBAR", panelIndex[state], 0, 1, 73);
 	if(iconIndex[state] >=0)
 		mark = std::make_shared<CAnimImage>("TPTHCHK", iconIndex[state], 0, 136, 56);
-	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->Name());
+	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->getNameTranslated());
 
 	//todo: add support for all possible states
 	if(state >= EBuildingState::BUILDING_ERROR)
@@ -1334,7 +1334,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 			toPrint = CGI->generaltexth->allTexts[223];
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
-		boost::algorithm::replace_first(toPrint,"%s",building->Name());
+		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
 		GH.statusbar->write(toPrint);
 	}
 	else
@@ -1368,7 +1368,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 5, 556, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->Name());
+	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1415,8 +1415,8 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
-	description = std::make_shared<CTextBox>(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, ETextAlignment::CENTER);
+	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->getNameTranslated()));
+	description = std::make_shared<CTextBox>(building->getDescriptionTranslated(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, ETextAlignment::CENTER);
 	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, ETextAlignment::CENTER);
 
 	//Create components for all required resources
@@ -1432,8 +1432,8 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	if(!rightClick)
 	{	//normal window
-		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name());
-		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name());
+		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->getNameTranslated());
+		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->getNameTranslated());
 
 		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, SDLK_RETURN);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
@@ -1460,7 +1460,7 @@ std::string CBuildWindow::getTextForState(int state)
 	case EBuildingState::ALREADY_PRESENT:
 	case EBuildingState::CANT_BUILD_TODAY:
 	case EBuildingState::NO_RESOURCES:
-		ret.replace(ret.find_first_of("%s"), 2, building->Name());
+		ret.replace(ret.find_first_of("%s"), 2, building->getNameTranslated());
 		break;
 	case EBuildingState::ALLOWED:
 		return CGI->generaltexth->allTexts[219]; //all prereq. are met
@@ -1468,7 +1468,7 @@ std::string CBuildWindow::getTextForState(int state)
 		{
 			auto toStr = [&](const BuildingID build) -> std::string
 			{
-				return town->town->buildings.at(build)->Name();
+				return town->town->buildings.at(build)->getNameTranslated();
 			};
 
 			ret = CGI->generaltexth->allTexts[52];
@@ -1478,7 +1478,7 @@ std::string CBuildWindow::getTextForState(int state)
 	case EBuildingState::MISSING_BASE:
 		{
 			std::string msg = CGI->generaltexth->translate("vcmi.townHall.missingBase");
-			ret = boost::str(boost::format(msg) % town->town->buildings.at(building->upgrade)->Name());
+			ret = boost::str(boost::format(msg) % town->town->buildings.at(building->upgrade)->getNameTranslated());
 			break;
 		}
 	}
@@ -1542,9 +1542,9 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		fortSize--;
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
-	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->Name());
+	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
-	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
+	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->getNameTranslated());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1629,7 +1629,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if(getMyBuilding() != nullptr)
 	{
 		buildingIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
-		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyBuilding()->Name());
+		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyBuilding()->getNameTranslated());
 
 		if(vstd::contains(town->builtBuildings, getMyBuilding()->bid))
 		{

@@ -172,7 +172,7 @@ std::string CComponent::getDescription()
 	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->Description();
+	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->getDescriptionTranslated();
 	case hero:       return "";
 	case flag:       return "";
 	}
@@ -228,10 +228,10 @@ std::string CComponent::getSubtitleInternal()
 			auto building = (*CGI->townh)[subtype]->town->buildings[BuildingID(val)];
 			if(!building)
 			{
-				logGlobal->error("Town of faction %s has no building #%d", (*CGI->townh)[subtype]->town->faction->name, val);
+				logGlobal->error("Town of faction %s has no building #%d", (*CGI->townh)[subtype]->town->faction->getNameTranslated(), val);
 				return (boost::format("Missing building #%d") % val).str();
 			}
-			return building->Name();
+			return building->getNameTranslated();
 		}
 	case hero:       return "";
 	case flag:       return CGI->generaltexth->capColors[subtype];

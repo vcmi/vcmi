@@ -364,11 +364,11 @@ void CHeroClassHandler::afterLoadFinalization()
 		{
 			if (!faction->town)
 				continue;
-			if (heroClass->selectionProbability.count(faction->index))
+			if (heroClass->selectionProbability.count(faction->getIndex()))
 				continue;
 
 			float chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
-			heroClass->selectionProbability[faction->index] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
+			heroClass->selectionProbability[faction->getIndex()] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 		// set default probabilities for gaining secondary skills where not loaded previously
 		heroClass->secSkillProbability.resize(VLC->skillh->size(), -1);

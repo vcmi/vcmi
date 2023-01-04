@@ -328,7 +328,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
-		logGlobal->error("Cannot pick hero for faction %d. Wrong owner!", town->faction->index);
+		logGlobal->error("Cannot pick hero for faction %s. Wrong owner!", town->faction->getJsonKey());
 		return nullptr;
 	}
 
@@ -339,7 +339,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		for(auto & elem : available)
 		{
 			if(pavailable.find(elem.first)->second & 1<<player.getNum()
-				&& elem.second->type->heroClass->faction == town->faction->index)
+				&& elem.second->type->heroClass->faction == town->faction->getIndex())
 			{
 				pool.push_back(elem.second); //get all available heroes
 			}
@@ -364,7 +364,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 			    ( !bannedClass || elem.second->type->heroClass != bannedClass) ) // and his class is not same as other hero
 			{
 				pool.push_back(elem.second);
-				sum += elem.second->type->heroClass->selectionProbability[town->faction->index]; //total weight
+				sum += elem.second->type->heroClass->selectionProbability[town->faction->getIndex()]; //total weight
 			}
 		}
 		if(!pool.size() || sum == 0)
@@ -376,7 +376,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		r = rand.nextInt(sum - 1);
 		for (auto & elem : pool)
 		{
-			r -= elem->type->heroClass->selectionProbability[town->faction->index];
+			r -= elem->type->heroClass->selectionProbability[town->faction->getIndex()];
 			if(r < 0)
 			{
 				ret = elem;
@@ -623,7 +623,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 
 			if (result.first == Obj::NO_OBJ)
 			{
-				logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->name, int(level));
+				logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->getNameTranslated(), int(level));
 				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), getRandomGenerator()));
 			}
 
@@ -1711,9 +1711,10 @@ void CGameState::initTowns()
 		{
 			vti->town = (*VLC->townh)[vti->subID]->town;
 		}
-		if(vti->name.empty())
+		if(vti->getNameTranslated().empty())
 		{
-			vti->name = *RandomGeneratorUtil::nextItem(vti->town->names, getRandomGenerator());
+			size_t nameID = getRandomGenerator().nextInt(vti->town->getRandomNamesCount());
+			vti->setNameTranslated(vti->town->getRandomNameTranslated(nameID));
 		}
 
 		//init buildings
@@ -3076,7 +3077,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	army = ArmyDescriptor(t->getUpperArmy(), detailed);
 	built = t->builded;
 	fortLevel = t->fortLevel();
-	name = t->name;
+	name = t->getNameTranslated();
 	tType = t->town;
 
 	vstd::clear_pointer(details);

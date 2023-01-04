@@ -264,7 +264,7 @@ void Inspector::updateProperties(CGTownInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Town name", o->name, false);
+	addProperty("Town name", o->getNameTranslated(), false);
 	
 	auto * delegate = new TownBuildingsDelegate(*o);
 	addProperty("Buildings", PropertyEditorPlaceholder(), delegate, false);
@@ -492,7 +492,7 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 	if(!o) return;
 	
 	if(key == "Town name")
-		o->name = value.toString().toStdString();
+		o->setNameTranslated(value.toString().toStdString());
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)

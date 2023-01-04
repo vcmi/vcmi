@@ -1942,7 +1942,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	bool hasName = reader.readBool();
 	if(hasName)
 	{
-		nt->name = reader.readString();
+		nt->setNameTranslated( reader.readString());
 	}
 
 	bool hasGarrison = reader.readBool();

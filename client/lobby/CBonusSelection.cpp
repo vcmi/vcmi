@@ -203,7 +203,7 @@ void CBonusSelection::createBonusesIcons()
 			picNumber = -1;
 
 			if(vstd::contains((*CGI->townh)[faction]->town->buildings, buildID))
-				desc = (*CGI->townh)[faction]->town->buildings.find(buildID)->second->Name();
+				desc = (*CGI->townh)[faction]->town->buildings.find(buildID)->second->getNameTranslated();
 
 			break;
 		}

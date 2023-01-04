@@ -184,7 +184,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 		default:
 		{
 			auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
-			return (*CGI->townh)[factionIndex]->name;
+			return (*CGI->townh)[factionIndex]->getNameTranslated();
 		}
 	}
 	}

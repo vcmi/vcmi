@@ -1427,7 +1427,7 @@ void VCAI::wander(HeroPtr h)
 			{
 				//TODO pick the truly best
 				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
-				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->getNameTranslated(), t->name, t->visitablePos().toString());
+				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->getNameTranslated(), t->getNameTranslated(), t->visitablePos().toString());
 				int3 pos1 = h->pos;
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h))); //TODO: drop "strive", add to mainLoop
 				//if out hero is stuck, we may need to request another hero to clear the way we see
@@ -1997,8 +1997,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
 {
-	auto name = t->town->buildings.at(building)->Name();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->name, t->pos.toString());
+	auto name = t->town->buildings.at(building)->getNameTranslated();
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->pos.toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 
@@ -2081,7 +2081,7 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 		if (cb->canBuildStructure(t, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
-				playerID, t->town->buildings.at(b)->Name(), t->name, t->pos.toString());
+				playerID, t->town->buildings.at(b)->getNameTranslated(), t->getNameTranslated(), t->pos.toString());
 			cb->buildBuilding(t, b);
 			throw goalFulfilledException(sptr(g));
 		}
@@ -2439,7 +2439,7 @@ void VCAI::checkHeroArmy(HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
+	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTranslated(), t->visitablePos().toString());
 
 	auto heroes = cb->getAvailableHeroes(t);
 	if(heroes.size())

@@ -26,7 +26,7 @@ using namespace Goals;
 
 std::string RecruitHero::toString() const
 {
-	return "Recruit hero at " + town->name;
+	return "Recruit hero at " + town->getNameTranslated();
 }
 
 void RecruitHero::accept(AIGateway * ai)
@@ -40,7 +40,7 @@ void RecruitHero::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("No town to recruit hero!");
 	}
 
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
+	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTranslated(), t->visitablePos().toString());
 
 	auto heroes = cb->getAvailableHeroes(t);
 

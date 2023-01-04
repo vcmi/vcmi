@@ -668,14 +668,14 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		switch (mode)
 		{
 		case EMarketMode::CREATURE_RESOURCE:
-			title = (*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->Name();
+			title = (*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->getNameTranslated();
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 			sliderNeeded = false;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 
 			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing

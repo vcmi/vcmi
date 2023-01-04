@@ -738,7 +738,7 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 
 std::string CGTownInstance::getObjectName() const
 {
-	return name + ", " + town->faction->name;
+	return name + ", " + town->faction->getNameTranslated();
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
@@ -894,7 +894,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 
 bool CGTownInstance::hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const
 {
-	return (this->town->faction != nullptr && this->town->faction->index == type && hasBuilt(bid));
+	return (this->town->faction != nullptr && this->town->faction->getIndex() == type && hasBuilt(bid));
 }
 
 void CGTownInstance::newTurn(CRandomGenerator & rand) const
@@ -1178,7 +1178,7 @@ void CGTownInstance::updateAppearance()
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + (town ? town->faction->name : "unknown") + ") of " +  name;
+	return "Town (" + (town ? town->faction->getNameTranslated() : "unknown") + ") of " +  name;
 }
 
 void CGTownInstance::deserializationFix()
@@ -1332,6 +1332,16 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 	return townAndVis;
 }
 
+std::string CGTownInstance::getNameTranslated() const
+{
+	return name;
+}
+
+void CGTownInstance::setNameTranslated( const std::string & newName )
+{
+	name = newName;
+}
+
 const CArmedInstance * CGTownInstance::getUpperArmy() const
 {
 	if(garrisonHero)
@@ -1377,7 +1387,7 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 
 bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 {
-	if (townID == town->faction->index || townID == ETownType::ANY)
+	if (townID == town->faction->getIndex() || townID == ETownType::ANY)
 		return hasBuilt(buildingID);
 	return false;
 }
@@ -1513,7 +1523,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		auto encodeBuilding = [this](si32 index) -> std::string
 		{
-			return getTown()->buildings.at(BuildingID(index))->identifier;
+			return getTown()->buildings.at(BuildingID(index))->getJsonKey();
 		};
 
 		const std::set<si32> standard = getTown()->getAllBuildings();//by default all buildings are allowed
@@ -1760,7 +1770,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->town->buildings.at(bID);
-			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->index, building->bid)))
+			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
@@ -1819,7 +1829,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 	: count(_count)
 {
-	description = boost::str(boost::format("%s %+d") % (*VLC->townh)[subID]->town->buildings.at(building)->Name() % count);
+	description = boost::str(boost::format("%s %+d") % (*VLC->townh)[subID]->town->buildings.at(building)->getNameTranslated() % count);
 }
 
 GrowthInfo::Entry::Entry(int _count, const std::string &fullDescription)
@@ -1870,12 +1880,12 @@ const std::string CGTownBuilding::getVisitingBonusGreeting() const
 		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingDefence"));
 		break;
 	}
-	auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+	auto buildingName = town->town->getSpecialBuilding(bType)->getNameTranslated();
 
 	if(bonusGreeting.empty())
 	{
 		bonusGreeting = "Error: Bonus greeting for '%s' is not localized.";
-		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->town->getLocalizedFactionName());
+		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->town->faction->getNameTranslated());
 	}
 	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 	town->town->setGreeting(bType, bonusGreeting);
@@ -1887,7 +1897,7 @@ const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) co
 	if(bonus.type == Bonus::TOWN_MAGIC_WELL)
 	{
 		auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingInTownMagicWell"));
-		auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+		auto buildingName = town->town->getSpecialBuilding(bType)->getNameTranslated();
 		boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 		return bonusGreeting;
 	}

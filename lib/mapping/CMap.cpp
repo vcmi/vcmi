@@ -565,7 +565,7 @@ void CMap::checkForObjectives()
 					{
 						const CGTownInstance *town = dynamic_cast<const CGTownInstance*>(cond.object);
 						if (town)
-							boost::algorithm::replace_first(event.onFulfill, "%s", town->name);
+							boost::algorithm::replace_first(event.onFulfill, "%s", town->getNameTranslated());
 						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
