@@ -60,7 +60,6 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 		"BR",
 		"BL",
 		"L",
-		""
 	};
 
 	{
@@ -78,7 +77,9 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 
 				if(handler.saving)
 				{
-					temp = EDirMap.at(value.at(outerIndex).at(innerIndex));
+					auto index = value.at(outerIndex).at(innerIndex);
+					if (index < EDirMap.size())
+						temp = EDirMap[index];
 				}
 
 				inner.serializeString(innerIndex, temp);
