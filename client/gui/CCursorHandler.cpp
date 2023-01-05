@@ -44,11 +44,11 @@ CCursorHandler::CCursorHandler()
 	, cursorLayer(nullptr)
 	, frameTime(0.f)
 	, showing(false)
+	, pos(0,0)
 {
 	cursorLayer = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 40, 40);
 	SDL_SetTextureBlendMode(cursorLayer, SDL_BLENDMODE_BLEND);
 
-	xpos = ypos = 0;
 	type = Cursor::Type::DEFAULT;
 	dndObject = nullptr;
 
@@ -72,7 +72,7 @@ CCursorHandler::CCursorHandler()
 
 Point CCursorHandler::position() const
 {
-	return Point(xpos, ypos);
+	return pos;
 }
 
 void CCursorHandler::changeGraphic(Cursor::Type type, size_t index)
@@ -127,127 +127,151 @@ void CCursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
 
 void CCursorHandler::cursorMove(const int & x, const int & y)
 {
-	xpos = x;
-	ypos = y;
+	pos.x = x;
+	pos.y = y;
 }
 
-void CCursorHandler::shiftPos( int &x, int &y )
+Point CCursorHandler::getPivotOffsetDefault(size_t index)
 {
-	if(( type == Cursor::Type::COMBAT && frame != static_cast<size_t>(Cursor::Combat::POINTER)) || type == Cursor::Type::SPELLBOOK)
-	{
-		x-=16;
-		y-=16;
+	return {0, 0};
+}
 
-		// Properly align the melee attack cursors.
-		if (type == Cursor::Type::COMBAT)
-		{
-			switch (static_cast<Cursor::Combat>(frame))
-			{
-			case Cursor::Combat::HIT_NORTHEAST:
-				x -= 6;
-				y += 16;
-				break;
-			case Cursor::Combat::HIT_EAST:
-				x -= 16;
-				y += 10;
-				break;
-			case Cursor::Combat::HIT_SOUTHEAST:
-				x -= 6;
-				y -= 6;
-				break;
-			case Cursor::Combat::HIT_SOUTHWEST:
-				x += 16;
-				y -= 6;
-				break;
-			case Cursor::Combat::HIT_WEST:
-				x += 16;
-				y += 11;
-				break;
-			case Cursor::Combat::HIT_NORTHWEST:
-				x += 16;
-				y += 16;
-				break;
-			case Cursor::Combat::HIT_NORTH:
-				x += 9;
-				y += 16;
-				break;
-			case Cursor::Combat::HIT_SOUTH:
-				x += 9;
-				y -= 15;
-				break;
-			}
-		}
-	}
-	else if(type == Cursor::Type::ADVENTURE)
-	{
-		if (frame == 0)
-		{
-			//no-op
-		}
-		else if(frame == 2)
-		{
-			x -= 12;
-			y -= 10;
-		}
-		else if(frame == 3)
-		{
-			x -= 12;
-			y -= 12;
-		}
-		else if(frame < 27)
-		{
-			int hlpNum = (frame - 4)%6;
-			if(hlpNum == 0)
-			{
-				x -= 15;
-				y -= 13;
-			}
-			else if(hlpNum == 1)
-			{
-				x -= 13;
-				y -= 13;
-			}
-			else if(hlpNum == 2)
-			{
-				x -= 20;
-				y -= 20;
-			}
-			else if(hlpNum == 3)
-			{
-				x -= 13;
-				y -= 16;
-			}
-			else if(hlpNum == 4)
-			{
-				x -= 8;
-				y -= 9;
-			}
-			else if(hlpNum == 5)
-			{
-				x -= 14;
-				y -= 16;
-			}
-		}
-		else if(frame == 41)
-		{
-			x -= 14;
-			y -= 16;
-		}
-		else if(frame < 31 || frame == 42)
-		{
-			x -= 20;
-			y -= 20;
-		}
-	}
+Point CCursorHandler::getPivotOffsetMap(size_t index)
+{
+	static const std::array<Point, 43> offsets = {{
+		{  0,  0}, // POINTER          =  0,
+		{  0,  0}, // HOURGLASS        =  1,
+		{ 12, 10}, // HERO             =  2,
+		{ 12, 12}, // TOWN             =  3,
+
+		{ 15, 13}, // T1_MOVE          =  4,
+		{ 13, 13}, // T1_ATTACK        =  5,
+		{ 20, 20}, // T1_SAIL          =  6,
+		{ 13, 16}, // T1_DISEMBARK     =  7,
+		{  8,  9}, // T1_EXCHANGE      =  8,
+		{ 14, 16}, // T1_VISIT         =  9,
+
+		{ 15, 13}, // T2_MOVE          = 10,
+		{ 13, 13}, // T2_ATTACK        = 11,
+		{ 20, 20}, // T2_SAIL          = 12,
+		{ 13, 16}, // T2_DISEMBARK     = 13,
+		{  8,  9}, // T2_EXCHANGE      = 14,
+		{ 14, 16}, // T2_VISIT         = 15,
+
+		{ 15, 13}, // T3_MOVE          = 16,
+		{ 13, 13}, // T3_ATTACK        = 17,
+		{ 20, 20}, // T3_SAIL          = 18,
+		{ 13, 16}, // T3_DISEMBARK     = 19,
+		{  8,  9}, // T3_EXCHANGE      = 20,
+		{ 14, 16}, // T3_VISIT         = 21,
+
+		{ 15, 13}, // T4_MOVE          = 22,
+		{ 13, 13}, // T4_ATTACK        = 23,
+		{ 20, 20}, // T4_SAIL          = 24,
+		{ 13, 16}, // T4_DISEMBARK     = 25,
+		{  8,  9}, // T4_EXCHANGE      = 26,
+		{ 14, 16}, // T4_VISIT         = 27,
+
+		{ 20, 20}, // T1_SAIL_VISIT    = 28,
+		{ 20, 20}, // T2_SAIL_VISIT    = 29,
+		{ 20, 20}, // T3_SAIL_VISIT    = 30,
+		{ 20, 20}, // T4_SAIL_VISIT    = 31,
+
+		{  6,  1}, // SCROLL_NORTH     = 32,
+		{ 16,  2}, // SCROLL_NORTHEAST = 33,
+		{ 21,  6}, // SCROLL_EAST      = 34,
+		{ 16, 16}, // SCROLL_SOUTHEAST = 35,
+		{  6, 21}, // SCROLL_SOUTH     = 36,
+		{  1, 16}, // SCROLL_SOUTHWEST = 37,
+		{  1,  5}, // SCROLL_WEST      = 38,
+		{  2,  1}, // SCROLL_NORTHWEST = 39,
+
+		{  0,  0}, // POINTER_COPY     = 40,
+		{ 14, 16}, // TELEPORT         = 41,
+		{ 20, 20}, // SCUTTLE_BOAT     = 42
+	}};
+
+	static_assert (offsets.size() == size_t(Cursor::Map::COUNT), "Invalid number of pivot offsets for cursor" );
+	assert(index < offsets.size());
+	return offsets[index];
+}
+
+Point CCursorHandler::getPivotOffsetCombat(size_t index)
+{
+	static const std::array<Point, 20> offsets = {{
+		{ 12, 12 }, // BLOCKED        = 0,
+		{ 10, 14 }, // MOVE           = 1,
+		{ 14, 14 }, // FLY            = 2,
+		{ 12, 12 }, // SHOOT          = 3,
+		{ 12, 12 }, // HERO           = 4,
+		{  8, 12 }, // QUERY          = 5,
+		{  0,  0 }, // POINTER        = 6,
+		{ 21,  0 }, // HIT_NORTHEAST  = 7,
+		{ 31,  5 }, // HIT_EAST       = 8,
+		{ 21, 21 }, // HIT_SOUTHEAST  = 9,
+		{  0, 21 }, // HIT_SOUTHWEST  = 10,
+		{  0,  5 }, // HIT_WEST       = 11,
+		{  0,  0 }, // HIT_NORTHWEST  = 12,
+		{  6,  0 }, // HIT_NORTH      = 13,
+		{  6, 31 }, // HIT_SOUTH      = 14,
+		{ 14,  0 }, // SHOOT_PENALTY  = 15,
+		{ 12, 12 }, // SHOOT_CATAPULT = 16,
+		{ 12, 12 }, // HEAL           = 17,
+		{ 12, 12 }, // SACRIFICE      = 18,
+		{ 14, 20 }, // TELEPORT       = 19
+	}};
+
+	static_assert (offsets.size() == size_t(Cursor::Combat::COUNT), "Invalid number of pivot offsets for cursor" );
+	assert(index < offsets.size());
+	return offsets[index];
+}
+
+Point CCursorHandler::getPivotOffsetSpellcast()
+{
+	return { 18, 28};
+}
+
+Point CCursorHandler::getPivotOffset()
+{
+	switch (type) {
+	case Cursor::Type::ADVENTURE: return getPivotOffsetMap(frame);
+	case Cursor::Type::COMBAT:    return getPivotOffsetCombat(frame);
+	case Cursor::Type::DEFAULT:   return getPivotOffsetDefault(frame);
+	case Cursor::Type::SPELLBOOK: return getPivotOffsetSpellcast();
+	};
+
+	assert(0);
+	return {0, 0};
 }
 
 void CCursorHandler::centerCursor()
 {
-	this->xpos = static_cast<int>((screen->w / 2.) - (currentCursor->pos.w / 2.));
-	this->ypos = static_cast<int>((screen->h / 2.) - (currentCursor->pos.h / 2.));
+	pos.x = static_cast<int>((screen->w / 2.) - (currentCursor->pos.w / 2.));
+	pos.y = static_cast<int>((screen->h / 2.) - (currentCursor->pos.h / 2.));
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	SDL_WarpMouse(this->xpos, this->ypos);
+	SDL_WarpMouse(pos.x, pos.y);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+}
+
+void CCursorHandler::updateSpellcastCursor()
+{
+	static const float frameDisplayDuration = 0.1f;
+
+	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	size_t newFrame = frame;
+
+	while (frameTime > frameDisplayDuration)
+	{
+		frameTime -= frameDisplayDuration;
+		newFrame++;
+	}
+
+	auto & animation = cursors.at(static_cast<size_t>(type));
+
+	while (newFrame > animation->size())
+		newFrame -= animation->size();
+
+	changeGraphic(Cursor::Type::SPELLBOOK, newFrame);
 }
 
 void CCursorHandler::render()
@@ -256,42 +280,22 @@ void CCursorHandler::render()
 		return;
 
 	if (type == Cursor::Type::SPELLBOOK)
-	{
-		static const float frameDisplayDuration = 0.1f;
+		updateSpellcastCursor();
 
-		frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
-		size_t newFrame = frame;
-
-		while (frameTime > frameDisplayDuration)
-		{
-			frameTime -= frameDisplayDuration;
-			newFrame++;
-		}
-
-		auto & animation = cursors.at(static_cast<size_t>(type));
-
-		while (newFrame > animation->size())
-			newFrame -= animation->size();
-
-		changeGraphic(Cursor::Type::SPELLBOOK, newFrame);
-	}
 
 	//the must update texture in the main (renderer) thread, but changes to cursor type may come from other threads
 	updateTexture();
 
-	int x = xpos;
-	int y = ypos;
-	shiftPos(x, y);
+	Point renderPos = pos;
 
 	if(dndObject)
-	{
-		x -= dndObject->pos.w/2;
-		y -= dndObject->pos.h/2;
-	}
+		renderPos -= dndObject->pos.dimensions() / 2;
+	else
+		renderPos -= getPivotOffset();
 
 	SDL_Rect destRect;
-	destRect.x = x;
-	destRect.y = y;
+	destRect.x = renderPos.x;
+	destRect.y = renderPos.y;
 	destRect.w = 40;
 	destRect.h = 40;
 
