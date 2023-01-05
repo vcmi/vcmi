@@ -171,7 +171,7 @@ Point CursorHandler::getPivotOffsetMap(size_t index)
 		{ 20, 20}, // SCUTTLE_BOAT     = 42
 	}};
 
-	static_assert (offsets.size() == size_t(Cursor::Map::COUNT), "Invalid number of pivot offsets for cursor" );
+	assert(offsets.size() == size_t(Cursor::Map::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
 	return offsets[index];
 }
@@ -201,7 +201,7 @@ Point CursorHandler::getPivotOffsetCombat(size_t index)
 		{ 14, 20 }, // TELEPORT       = 19
 	}};
 
-	static_assert (offsets.size() == size_t(Cursor::Combat::COUNT), "Invalid number of pivot offsets for cursor" );
+	assert(offsets.size() == size_t(Cursor::Combat::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
 	return offsets[index];
 }
