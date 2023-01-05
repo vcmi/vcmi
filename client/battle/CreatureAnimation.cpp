@@ -115,12 +115,12 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 float AnimationControls::getProjectileSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 100);
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 4000);
 }
 
 float AnimationControls::getCatapultSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 20);
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 1000);
 }
 
 float AnimationControls::getSpellEffectSpeed()

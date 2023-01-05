@@ -33,10 +33,10 @@ struct ProjectileBase
 	Point from; // initial position on the screen
 	Point dest; // target position on the screen
 
-	int step;      // current step counter
-	int steps;     // total number of steps/frames to show
-	int shooterID; // ID of shooter stack
-	bool playing;  // if set to true, projectile animation is playing, e.g. flying to target
+	float progress; // current position of projectile on from->dest line
+	float speed;    // how much progress is gained per second
+	int shooterID;  // ID of shooter stack
+	bool playing;   // if set to true, projectile animation is playing, e.g. flying to target
 };
 
 /// Projectile for most shooters - render pre-selected frame moving in straight line from origin to destination
@@ -97,7 +97,7 @@ class BattleProjectileController
 	const CCreature & getShooter(const CStack * stack) const;
 
 	int computeProjectileFrameID( Point from, Point dest, const CStack * stack);
-	int computeProjectileFlightTime( Point from, Point dest, double speed);
+	float computeProjectileFlightTime( Point from, Point dest, double speed);
 
 public:
 	BattleProjectileController(BattleInterface & owner);

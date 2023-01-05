@@ -31,11 +31,10 @@ namespace AnimationControls
 	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
 	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType groupID);
 
-	/// returns how far projectile should move each frame
-	/// TODO: make it time-based
+	/// returns how far projectile should move per second
 	float getProjectileSpeed();
 
-	/// returns speed of catapult projectile
+	/// returns speed of catapult projectile, in pixels per second (horizontal axis only)
 	float getCatapultSpeed();
 
 	/// returns speed of any spell effects, including any special effects like morale (in frames per second)
