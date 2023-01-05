@@ -755,6 +755,13 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	}
 }
 
+void StackQueue::show(SDL_Surface * to)
+{
+	if (embedded)
+		showAll(to);
+	CIntObject::show(to);
+}
+
 void StackQueue::update()
 {
 	std::vector<battle::Units> queueData;

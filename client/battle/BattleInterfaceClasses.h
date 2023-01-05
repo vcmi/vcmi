@@ -214,4 +214,6 @@ public:
 
 	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
+
+	void show(SDL_Surface * to) override;
 };
