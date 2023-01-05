@@ -373,6 +373,9 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 {
 	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
 
+	Uint32 fillColor = SDL_MapRGBA(cursorSurface->format, 0, 0, 0, 0);
+	CSDL_Ext::fillRect(cursorSurface, nullptr, fillColor);
+
 	image->draw(cursorSurface);
 
 	auto oldCursor = cursor;
