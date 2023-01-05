@@ -27,10 +27,10 @@
 		"WINNING_HERO_WITH_NO_TROOPS_RETREATS": true,
 		"BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE": true,
 		"NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS": false,
-		"ATTACK_POINT_DMG_MULTIPLIER": 0.05,
-		"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0,
-		"DEFENSE_POINT_DMG_MULTIPLIER": 0.025,
-		"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7
+		"ATTACK_POINT_DMG_MULTIPLIER": 0.05, //every 1 attack point damage influence in battle when attack points > defense points during creature attack
+		"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0, //limit of damage increase that can be achieved by overpowering attack points
+		"DEFENSE_POINT_DMG_MULTIPLIER": 0.025, //every 1 defense point damage influence in battle when defense points > attack points during creature attack
+		"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7 //limit of damage reduction that can be achieved by overpowering defense points
 	},
 	"modules":
 	{
