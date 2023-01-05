@@ -9,8 +9,8 @@
  */
 #pragma once
 
-class CIntObject;
-class CAnimImage;
+class CAnimation;
+class IImage;
 struct SDL_Surface;
 struct SDL_Texture;
 
@@ -111,36 +111,51 @@ namespace Cursor
 	};
 }
 
+class CursorHardware
+{
+	//TODO
+};
+
+class CursorSoftware
+{
+	std::shared_ptr<IImage> cursorImage;
+
+	SDL_Texture * cursorTexture;
+	SDL_Surface * cursorSurface;
+
+	Point pos;
+	Point pivot;
+	bool needUpdate;
+
+	void createTexture(const Point & dimensions);
+	void updateTexture();
+public:
+	CursorSoftware();
+	~CursorSoftware();
+
+	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset);
+	void setCursorPosition( const Point & newPos );
+
+	void render();
+	void setVisible(bool on);
+};
+
 /// handles mouse cursor
 class CursorHandler final
 {
-	bool needUpdate;
-	SDL_Texture * cursorLayer;
+	std::shared_ptr<IImage> dndObject; //if set, overrides currentCursor
 
-	SDL_Surface * buffer;
-	CAnimImage * currentCursor;
-
-	std::unique_ptr<CAnimImage> dndObject; //if set, overrides currentCursor
-
-	std::array<std::unique_ptr<CAnimImage>, 4> cursors;
+	std::array<std::unique_ptr<CAnimation>, 4> cursors;
 
 	bool showing;
-
-	void clearBuffer();
-	void updateBuffer(CIntObject * payload);
-	void replaceBuffer(CIntObject * payload);
-
-	void updateTexture();
 
 	/// Current cursor
 	Cursor::Type type;
 	size_t frame;
 	float frameTime;
+	Point pos;
 
 	void changeGraphic(Cursor::Type type, size_t index);
-
-	/// position of cursor
-	Point pos;
 
 	Point getPivotOffsetDefault(size_t index);
 	Point getPivotOffsetMap(size_t index);
@@ -149,17 +164,19 @@ class CursorHandler final
 	Point getPivotOffset();
 
 	void updateSpellcastCursor();
+
+	std::shared_ptr<IImage> getCurrentImage();
+
+	std::unique_ptr<CursorSoftware> cursorSW;
 public:
 	CursorHandler();
 	~CursorHandler();
 
-	/**
-	 * Replaces the cursor with a custom image.
-	 *
-	 * @param image Image to replace cursor with or nullptr to use the normal
-	 * cursor. CursorHandler takes ownership of object
-	 */
-	void dragAndDropCursor (std::unique_ptr<CAnimImage> image);
+	/// Replaces the cursor with a custom image.
+	/// @param image Image to replace cursor with or nullptr to use the normal cursor.
+	void dragAndDropCursor(std::shared_ptr<IImage> image);
+
+	void dragAndDropCursor(std::string path, size_t index);
 
 	/// Returns current position of the cursor
 	Point position() const;

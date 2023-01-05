@@ -12,60 +12,33 @@
 
 #include <SDL.h>
 
+
 #include "SDL_Extensions.h"
 #include "CGuiHandler.h"
-#include "../widgets/Images.h"
+#include "CAnimation.h"
 
 #include "../CMT.h"
 
-void CursorHandler::clearBuffer()
-{
-	Uint32 fillColor = SDL_MapRGBA(buffer->format, 0, 0, 0, 0);
-	CSDL_Ext::fillRect(buffer, nullptr, fillColor);
-}
-
-void CursorHandler::updateBuffer(CIntObject * payload)
-{
-	payload->moveTo(Point(0,0));
-	payload->showAll(buffer);
-
-	needUpdate = true;
-}
-
-void CursorHandler::replaceBuffer(CIntObject * payload)
-{
-	clearBuffer();
-	updateBuffer(payload);
-}
-
 CursorHandler::CursorHandler()
-	: needUpdate(true)
-	, buffer(nullptr)
-	, cursorLayer(nullptr)
+	: cursorSW(new CursorSoftware())
 	, frameTime(0.f)
 	, showing(false)
 	, pos(0,0)
 {
-	cursorLayer = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 40, 40);
-	SDL_SetTextureBlendMode(cursorLayer, SDL_BLENDMODE_BLEND);
 
 	type = Cursor::Type::DEFAULT;
 	dndObject = nullptr;
 
 	cursors =
 	{
-		std::make_unique<CAnimImage>("CRADVNTR", 0),
-		std::make_unique<CAnimImage>("CRCOMBAT", 0),
-		std::make_unique<CAnimImage>("CRDEFLT",  0),
-		std::make_unique<CAnimImage>("CRSPELL",  0)
+		std::make_unique<CAnimation>("CRADVNTR"),
+		std::make_unique<CAnimation>("CRCOMBAT"),
+		std::make_unique<CAnimation>("CRDEFLT"),
+		std::make_unique<CAnimation>("CRSPELL")
 	};
 
-	currentCursor = cursors.at(static_cast<size_t>(Cursor::Type::DEFAULT)).get();
-
-	buffer = CSDL_Ext::newSurface(40,40);
-
-	SDL_SetSurfaceBlendMode(buffer, SDL_BLENDMODE_NONE);
-	SDL_ShowCursor(SDL_DISABLE);
+	for (auto & cursor : cursors)
+		cursor->preload();
 
 	set(Cursor::Map::POINTER);
 }
@@ -79,20 +52,10 @@ void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {
 	assert(dndObject == nullptr);
 
-	if(type != this->type)
-	{
-		this->type = type;
-		this->frame = index;
-		currentCursor = cursors.at(static_cast<size_t>(type)).get();
-		currentCursor->setFrame(index);
-	}
-	else if(index != this->frame)
-	{
-		this->frame = index;
-		currentCursor->setFrame(index);
-	}
+	this->type = type;
+	this->frame = index;
 
-	replaceBuffer(currentCursor);
+	cursorSW->setImage(getCurrentImage(), getPivotOffset());
 }
 
 void CursorHandler::set(Cursor::Default index)
@@ -116,19 +79,25 @@ void CursorHandler::set(Cursor::Spellcast index)
 	changeGraphic(Cursor::Type::SPELLBOOK, frame);
 }
 
-void CursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
+void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 {
-	dndObject = std::move(object);
-	if(dndObject)
-		replaceBuffer(dndObject.get());
-	else
-		replaceBuffer(currentCursor);
+	dndObject = image;
+	cursorSW->setImage(getCurrentImage(), getPivotOffset());
+}
+
+void CursorHandler::dragAndDropCursor (std::string path, size_t index)
+{
+	CAnimation anim(path);
+	anim.load(index);
+	dragAndDropCursor(anim.getImage(index));
 }
 
 void CursorHandler::cursorMove(const int & x, const int & y)
 {
 	pos.x = x;
 	pos.y = y;
+
+	cursorSW->setCursorPosition(pos);
 }
 
 Point CursorHandler::getPivotOffsetDefault(size_t index)
@@ -233,6 +202,9 @@ Point CursorHandler::getPivotOffsetSpellcast()
 
 Point CursorHandler::getPivotOffset()
 {
+	if (dndObject)
+		return dndObject->dimensions();
+
 	switch (type) {
 	case Cursor::Type::ADVENTURE: return getPivotOffsetMap(frame);
 	case Cursor::Type::COMBAT:    return getPivotOffsetCombat(frame);
@@ -244,13 +216,24 @@ Point CursorHandler::getPivotOffset()
 	return {0, 0};
 }
 
+std::shared_ptr<IImage> CursorHandler::getCurrentImage()
+{
+	if (dndObject)
+		return dndObject;
+
+	return cursors[static_cast<size_t>(type)]->getImage(frame);
+}
+
 void CursorHandler::centerCursor()
 {
-	pos.x = static_cast<int>((screen->w / 2.) - (currentCursor->pos.w / 2.));
-	pos.y = static_cast<int>((screen->h / 2.) - (currentCursor->pos.h / 2.));
+	Point screenSize {screen->w, screen->h};
+	pos = screenSize / 2 - getPivotOffset();
+
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 	SDL_WarpMouse(pos.x, pos.y);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+
+	cursorSW->setCursorPosition(pos);
 }
 
 void CursorHandler::updateSpellcastCursor()
@@ -260,7 +243,7 @@ void CursorHandler::updateSpellcastCursor()
 	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
 	size_t newFrame = frame;
 
-	while (frameTime > frameDisplayDuration)
+	while (frameTime >= frameDisplayDuration)
 	{
 		frameTime -= frameDisplayDuration;
 		newFrame++;
@@ -268,7 +251,7 @@ void CursorHandler::updateSpellcastCursor()
 
 	auto & animation = cursors.at(static_cast<size_t>(type));
 
-	while (newFrame > animation->size())
+	while (newFrame >= animation->size())
 		newFrame -= animation->size();
 
 	changeGraphic(Cursor::Type::SPELLBOOK, newFrame);
@@ -282,16 +265,16 @@ void CursorHandler::render()
 	if (type == Cursor::Type::SPELLBOOK)
 		updateSpellcastCursor();
 
+	cursorSW->render();
+}
 
-	//the must update texture in the main (renderer) thread, but changes to cursor type may come from other threads
-	updateTexture();
+void CursorSoftware::render()
+{
+	//texture must be updated in the main (renderer) thread, but changes to cursor type may come from other threads
+	if (needUpdate)
+		updateTexture();
 
-	Point renderPos = pos;
-
-	if(dndObject)
-		renderPos -= dndObject->pos.dimensions() / 2;
-	else
-		renderPos -= getPivotOffset();
+	Point renderPos = pos - pivot;
 
 	SDL_Rect destRect;
 	destRect.x = renderPos.x;
@@ -299,23 +282,67 @@ void CursorHandler::render()
 	destRect.w = 40;
 	destRect.h = 40;
 
-	SDL_RenderCopy(mainRenderer, cursorLayer, nullptr, &destRect);
+	SDL_RenderCopy(mainRenderer, cursorTexture, nullptr, &destRect);
 }
 
-void CursorHandler::updateTexture()
+void CursorSoftware::createTexture(const Point & dimensions)
 {
-	if(needUpdate)
-	{
-		SDL_UpdateTexture(cursorLayer, nullptr, buffer->pixels, buffer->pitch);
-		needUpdate = false;
-	}
+	if(cursorTexture)
+		SDL_DestroyTexture(cursorTexture);
+
+	if (cursorSurface)
+		SDL_FreeSurface(cursorSurface);
+
+	cursorSurface = CSDL_Ext::newSurface(dimensions.x, dimensions.y);
+	cursorTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
+
+	SDL_SetSurfaceBlendMode(cursorSurface, SDL_BLENDMODE_NONE);
+	SDL_SetTextureBlendMode(cursorTexture, SDL_BLENDMODE_BLEND);
 }
 
-CursorHandler::~CursorHandler()
+void CursorSoftware::updateTexture()
 {
-	if(buffer)
-		SDL_FreeSurface(buffer);
+	Point dimensions(-1, -1);
 
-	if(cursorLayer)
-		SDL_DestroyTexture(cursorLayer);
+	if (!cursorSurface ||  Point(cursorSurface->w, cursorSurface->h) != cursorImage->dimensions())
+		createTexture(cursorImage->dimensions());
+
+	Uint32 fillColor = SDL_MapRGBA(cursorSurface->format, 0, 0, 0, 0);
+	CSDL_Ext::fillRect(cursorSurface, nullptr, fillColor);
+
+	cursorImage->draw(cursorSurface);
+	SDL_UpdateTexture(cursorTexture, NULL, cursorSurface->pixels, cursorSurface->pitch);
+	needUpdate = false;
+}
+
+void CursorSoftware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
+{
+	assert(image != nullptr);
+	cursorImage = image;
+	pivot = pivotOffset;
+	needUpdate = true;
+}
+
+void CursorSoftware::setCursorPosition( const Point & newPos )
+{
+	pos = newPos;
+}
+
+CursorSoftware::CursorSoftware():
+	cursorTexture(nullptr),
+	cursorSurface(nullptr),
+	needUpdate(false),
+	pivot(0,0)
+{
+	SDL_ShowCursor(SDL_DISABLE);
+}
+
+CursorSoftware::~CursorSoftware()
+{
+	if(cursorTexture)
+		SDL_DestroyTexture(cursorTexture);
+
+	if (cursorSurface)
+		SDL_FreeSurface(cursorSurface);
+
 }
