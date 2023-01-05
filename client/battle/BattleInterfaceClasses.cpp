@@ -147,6 +147,7 @@ void BattleConsole::setEnteringMode(bool on)
 		CSDL_Ext::stopTextInput();
 	}
 	enteringText = on;
+	redraw();
 }
 
 void BattleConsole::setEnteredText(const std::string & text)
