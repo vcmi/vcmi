@@ -14,7 +14,7 @@
 #include <SDL.h>
 
 #include "CIntObject.h"
-#include "CCursorHandler.h"
+#include "CursorHandler.h"
 
 #include "../CGameInfo.h"
 #include "../../lib/CThreadHelper.h"

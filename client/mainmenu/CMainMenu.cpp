@@ -21,7 +21,7 @@
 #include "../../lib/filesystem/CCompressedStream.h"
 
 #include "../gui/SDL_Extensions.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../CGameInfo.h"
 #include "../../lib/CGeneralTextHandler.h"

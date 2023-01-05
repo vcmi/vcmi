@@ -19,7 +19,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CIntObject.h"
 #include "../windows/CCreatureWindow.h"

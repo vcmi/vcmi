@@ -19,7 +19,7 @@
 #include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "windows/CHeroWindow.h"

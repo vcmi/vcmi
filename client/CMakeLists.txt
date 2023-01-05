@@ -18,7 +18,7 @@ set(client_SRCS
 
 		gui/CAnimation.cpp
 		gui/Canvas.cpp
-		gui/CCursorHandler.cpp
+		gui/CursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
 		gui/ColorFilter.cpp
@@ -104,7 +104,7 @@ set(client_HEADERS
 
 		gui/CAnimation.h
 		gui/Canvas.h
-		gui/CCursorHandler.h
+		gui/CursorHandler.h
 		gui/CGuiHandler.h
 		gui/ColorFilter.h
 		gui/CIntObject.h

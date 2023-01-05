@@ -112,7 +112,7 @@ namespace Cursor
 }
 
 /// handles mouse cursor
-class CCursorHandler final
+class CursorHandler final
 {
 	bool needUpdate;
 	SDL_Texture * cursorLayer;
@@ -150,8 +150,8 @@ class CCursorHandler final
 
 	void updateSpellcastCursor();
 public:
-	CCursorHandler();
-	~CCursorHandler();
+	CursorHandler();
+	~CursorHandler();
 
 	/**
 	 * Replaces the cursor with a custom image.

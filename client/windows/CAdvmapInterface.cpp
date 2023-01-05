@@ -32,7 +32,7 @@
 #include "../mapHandler.h"
 
 #include "../gui/CAnimation.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
