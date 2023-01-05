@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CCursorHandler.h"
+#include "CursorHandler.h"
 
 #include <SDL.h>
 
@@ -18,13 +18,13 @@
 
 #include "../CMT.h"
 
-void CCursorHandler::clearBuffer()
+void CursorHandler::clearBuffer()
 {
 	Uint32 fillColor = SDL_MapRGBA(buffer->format, 0, 0, 0, 0);
 	CSDL_Ext::fillRect(buffer, nullptr, fillColor);
 }
 
-void CCursorHandler::updateBuffer(CIntObject * payload)
+void CursorHandler::updateBuffer(CIntObject * payload)
 {
 	payload->moveTo(Point(0,0));
 	payload->showAll(buffer);
@@ -32,13 +32,13 @@ void CCursorHandler::updateBuffer(CIntObject * payload)
 	needUpdate = true;
 }
 
-void CCursorHandler::replaceBuffer(CIntObject * payload)
+void CursorHandler::replaceBuffer(CIntObject * payload)
 {
 	clearBuffer();
 	updateBuffer(payload);
 }
 
-CCursorHandler::CCursorHandler()
+CursorHandler::CursorHandler()
 	: needUpdate(true)
 	, buffer(nullptr)
 	, cursorLayer(nullptr)
@@ -70,12 +70,12 @@ CCursorHandler::CCursorHandler()
 	set(Cursor::Map::POINTER);
 }
 
-Point CCursorHandler::position() const
+Point CursorHandler::position() const
 {
 	return pos;
 }
 
-void CCursorHandler::changeGraphic(Cursor::Type type, size_t index)
+void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {
 	assert(dndObject == nullptr);
 
@@ -95,28 +95,28 @@ void CCursorHandler::changeGraphic(Cursor::Type type, size_t index)
 	replaceBuffer(currentCursor);
 }
 
-void CCursorHandler::set(Cursor::Default index)
+void CursorHandler::set(Cursor::Default index)
 {
 	changeGraphic(Cursor::Type::DEFAULT, static_cast<size_t>(index));
 }
 
-void CCursorHandler::set(Cursor::Map index)
+void CursorHandler::set(Cursor::Map index)
 {
 	changeGraphic(Cursor::Type::ADVENTURE, static_cast<size_t>(index));
 }
 
-void CCursorHandler::set(Cursor::Combat index)
+void CursorHandler::set(Cursor::Combat index)
 {
 	changeGraphic(Cursor::Type::COMBAT, static_cast<size_t>(index));
 }
 
-void CCursorHandler::set(Cursor::Spellcast index)
+void CursorHandler::set(Cursor::Spellcast index)
 {
 	//Note: this is animated cursor, ignore specified frame and only change type
 	changeGraphic(Cursor::Type::SPELLBOOK, frame);
 }
 
-void CCursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
+void CursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
 {
 	dndObject = std::move(object);
 	if(dndObject)
@@ -125,18 +125,18 @@ void CCursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
 		replaceBuffer(currentCursor);
 }
 
-void CCursorHandler::cursorMove(const int & x, const int & y)
+void CursorHandler::cursorMove(const int & x, const int & y)
 {
 	pos.x = x;
 	pos.y = y;
 }
 
-Point CCursorHandler::getPivotOffsetDefault(size_t index)
+Point CursorHandler::getPivotOffsetDefault(size_t index)
 {
 	return {0, 0};
 }
 
-Point CCursorHandler::getPivotOffsetMap(size_t index)
+Point CursorHandler::getPivotOffsetMap(size_t index)
 {
 	static const std::array<Point, 43> offsets = {{
 		{  0,  0}, // POINTER          =  0,
@@ -196,7 +196,7 @@ Point CCursorHandler::getPivotOffsetMap(size_t index)
 	return offsets[index];
 }
 
-Point CCursorHandler::getPivotOffsetCombat(size_t index)
+Point CursorHandler::getPivotOffsetCombat(size_t index)
 {
 	static const std::array<Point, 20> offsets = {{
 		{ 12, 12 }, // BLOCKED        = 0,
@@ -226,12 +226,12 @@ Point CCursorHandler::getPivotOffsetCombat(size_t index)
 	return offsets[index];
 }
 
-Point CCursorHandler::getPivotOffsetSpellcast()
+Point CursorHandler::getPivotOffsetSpellcast()
 {
 	return { 18, 28};
 }
 
-Point CCursorHandler::getPivotOffset()
+Point CursorHandler::getPivotOffset()
 {
 	switch (type) {
 	case Cursor::Type::ADVENTURE: return getPivotOffsetMap(frame);
@@ -244,7 +244,7 @@ Point CCursorHandler::getPivotOffset()
 	return {0, 0};
 }
 
-void CCursorHandler::centerCursor()
+void CursorHandler::centerCursor()
 {
 	pos.x = static_cast<int>((screen->w / 2.) - (currentCursor->pos.w / 2.));
 	pos.y = static_cast<int>((screen->h / 2.) - (currentCursor->pos.h / 2.));
@@ -253,7 +253,7 @@ void CCursorHandler::centerCursor()
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 }
 
-void CCursorHandler::updateSpellcastCursor()
+void CursorHandler::updateSpellcastCursor()
 {
 	static const float frameDisplayDuration = 0.1f;
 
@@ -274,7 +274,7 @@ void CCursorHandler::updateSpellcastCursor()
 	changeGraphic(Cursor::Type::SPELLBOOK, newFrame);
 }
 
-void CCursorHandler::render()
+void CursorHandler::render()
 {
 	if(!showing)
 		return;
@@ -302,7 +302,7 @@ void CCursorHandler::render()
 	SDL_RenderCopy(mainRenderer, cursorLayer, nullptr, &destRect);
 }
 
-void CCursorHandler::updateTexture()
+void CursorHandler::updateTexture()
 {
 	if(needUpdate)
 	{
@@ -311,7 +311,7 @@ void CCursorHandler::updateTexture()
 	}
 }
 
-CCursorHandler::~CCursorHandler()
+CursorHandler::~CursorHandler()
 {
 	if(buffer)
 		SDL_FreeSurface(buffer);

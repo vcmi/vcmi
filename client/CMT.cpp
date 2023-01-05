@@ -25,7 +25,7 @@
 #include "lobby/CSelectionBase.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
@@ -470,7 +470,7 @@ int main(int argc, char * argv[])
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
 
-		CCS->curh = new CCursorHandler();
+		CCS->curh = new CursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
 		pomtime.getDiff();
 
