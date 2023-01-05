@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../gui/Geometries.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -29,11 +30,11 @@ class EffectAnimation;
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
 struct BattleEffect
 {
-	int x, y; //position on the screen
+	Point pos; //position on the screen
 	float currentFrame;
 	std::shared_ptr<CAnimation> animation;
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
-	BattleHex position; //Indicates if effect which hex the effect is drawn on
+	BattleHex tile; //Indicates if effect which hex the effect is drawn on
 };
 
 /// Controls rendering of effects in battle, e.g. from spells, abilities and various other actions like morale

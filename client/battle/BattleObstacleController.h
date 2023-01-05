@@ -53,7 +53,7 @@ public:
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
 
 	/// renders all "absolute" obstacles
-	void showAbsoluteObstacles(Canvas & canvas, const Point & offset);
+	void showAbsoluteObstacles(Canvas & canvas);
 
 	/// adds all non-"absolute" visible obstacles for rendering
 	void collectRenderableObjects(BattleRenderer & renderer);

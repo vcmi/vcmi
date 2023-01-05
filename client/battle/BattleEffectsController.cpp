@@ -126,14 +126,14 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 {
 	for (auto & elem : battleEffects)
 	{
-		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](BattleRenderer::RendererRef canvas)
+		renderer.insert( EBattleFieldLayer::EFFECTS, elem.tile, [&elem](BattleRenderer::RendererRef canvas)
 		{
 			int currentFrame = static_cast<int>(floor(elem.currentFrame));
 			currentFrame %= elem.animation->size();
 
 			auto img = elem.animation->getImage(currentFrame);
 
-			canvas.draw(img, Point(elem.x, elem.y));
+			canvas.draw(img, elem.pos);
 		});
 	}
 }

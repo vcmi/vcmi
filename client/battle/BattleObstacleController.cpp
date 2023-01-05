@@ -107,7 +107,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 	}
 }
 
-void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Point & offset)
+void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 {
 	//Blit absolute obstacles
 	for(auto & oi : owner.curInt->cb->battleGetAllObstacles())
@@ -116,7 +116,7 @@ void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Poin
 		{
 			auto img = getObstacleImage(*oi);
 			if(img)
-				canvas.draw(img, Point(offset.x + oi->getInfo().width, offset.y + oi->getInfo().height));
+				canvas.draw(img, Point(oi->getInfo().width, oi->getInfo().height));
 		}
 	}
 }
@@ -171,7 +171,7 @@ Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> imag
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 
-	Rect r = owner.fieldController->hexPositionAbsolute(obstacle.pos);
+	Rect r = owner.fieldController->hexPositionLocal(obstacle.pos);
 	r.y += 42 - image->height() + offset;
 
 	return r.topLeft();

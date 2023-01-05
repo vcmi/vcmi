@@ -186,8 +186,8 @@ void BattleHero::render(Canvas & canvas)
 	auto flagFrame = flagAnimation->getImage(flagCurrentFrame, 0, true);
 	auto heroFrame = animation->getImage(currentFrame, groupIndex, true);
 
-	Point heroPosition = pos.center() - heroFrame->dimensions() / 2;
-	Point flagPosition = pos.center() - flagFrame->dimensions() / 2;
+	Point heroPosition = pos.center() - parent->pos.topLeft() - heroFrame->dimensions() / 2;
+	Point flagPosition = pos.center() - parent->pos.topLeft() - flagFrame->dimensions() / 2;
 
 	if(defender)
 		flagPosition += Point(-4, -41);

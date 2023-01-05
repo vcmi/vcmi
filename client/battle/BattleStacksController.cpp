@@ -825,7 +825,7 @@ Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CSta
 		}
 	}
 	//returning
-	return ret + owner.fieldController->pos.topLeft();
+	return ret;
 }
 
 void BattleStacksController::setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell * source, bool persistent)

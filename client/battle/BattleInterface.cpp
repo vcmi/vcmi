@@ -418,8 +418,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	//mana absorption
 	if (sc->manaGained > 0)
 	{
-		Point leftHero = Point(15, 30) + fieldController->pos;
-		Point rightHero = Point(755, 30) + fieldController->pos;
+		Point leftHero = Point(15, 30);
+		Point rightHero = Point(755, 30);
 		bool side = sc->side;
 
 		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){

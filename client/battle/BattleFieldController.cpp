@@ -115,13 +115,15 @@ void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
-	showBackground(canvas);
+	Canvas clippedCanvas(canvas, pos);
+
+	showBackground(clippedCanvas);
 
 	BattleRenderer renderer(owner);
 
-	renderer.execute(canvas);
+	renderer.execute(clippedCanvas);
 
-	owner.projectilesController->showProjectiles(canvas);
+	owner.projectilesController->showProjectiles(clippedCanvas);
 }
 
 void BattleFieldController::showBackground(Canvas & canvas)
@@ -137,19 +139,19 @@ void BattleFieldController::showBackground(Canvas & canvas)
 
 void BattleFieldController::showBackgroundImage(Canvas & canvas)
 {
-	canvas.draw(background, pos.topLeft());
+	canvas.draw(background, Point(0, 0));
 
-	owner.obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
+	owner.obstacleController->showAbsoluteObstacles(canvas);
 	if ( owner.siegeController )
-		owner.siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
+		owner.siegeController->showAbsoluteObstacles(canvas);
 
 	if (settings["battle"]["cellBorders"].Bool())
-		canvas.draw(*cellBorders, pos.topLeft());
+		canvas.draw(*cellBorders, Point(0, 0));
 }
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas.draw(*backgroundWithHexes.get(), pos.topLeft());
+	canvas.draw(*backgroundWithHexes.get(), Point(0, 0));
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
@@ -166,9 +168,9 @@ void BattleFieldController::redrawBackgroundWithHexes()
 
 	//prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
-	owner.obstacleController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
+	owner.obstacleController->showAbsoluteObstacles(*backgroundWithHexes);
 	if ( owner.siegeController )
-		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
+		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes);
 
 	if (settings["battle"]["stackRange"].Bool())
 	{
@@ -186,7 +188,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 
 void BattleFieldController::showHighlightedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
 {
-	Point hexPos = hexPositionAbsolute(hex).topLeft();
+	Point hexPos = hexPositionLocal(hex).topLeft();
 
 	canvas.draw(cellShade, hexPos);
 	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
@@ -548,11 +550,7 @@ void BattleFieldController::show(SDL_Surface * to)
 	owner.stacksController->update();
 	owner.obstacleController->update();
 
-	SDL_Rect buf;
-
 	Canvas canvas(to);
-	SDL_GetClipRect(to, &buf);
-	SDL_SetClipRect(to, &pos);
+
 	renderBattlefield(canvas);
-	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 }

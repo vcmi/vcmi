@@ -928,7 +928,7 @@ bool EffectAnimation::init()
 	{
 		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
 			for(int j=0; j * first->height() < owner.fieldController->pos.h ; ++j)
-				positions.push_back(Point( owner.fieldController->pos.x + i * first->width(), owner.fieldController->pos.y + j * first->height()));
+				positions.push_back(Point( i * first->width(), j * first->height()));
 	}
 
 	BattleEffect be;
@@ -942,29 +942,29 @@ bool EffectAnimation::init()
 		bool hasPosition = i < positions.size();
 
 		if (hasTile && !forceOnTop())
-			be.position = battlehexes[i];
+			be.tile = battlehexes[i];
 		else
-			be.position = BattleHex::INVALID;
+			be.tile = BattleHex::INVALID;
 
 		if (hasPosition)
 		{
-			be.x = positions[i].x;
-			be.y = positions[i].y;
+			be.pos.x = positions[i].x;
+			be.pos.y = positions[i].y;
 		}
 		else
 		{
 			const CStack * destStack = owner.getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
-			Rect tilePos = owner.fieldController->hexPositionAbsolute(battlehexes[i]);
+			Rect tilePos = owner.fieldController->hexPositionLocal(battlehexes[i]);
 
-			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
+			be.pos.x = tilePos.x + tilePos.w/2 - first->width()/2;
 
 			if(destStack && destStack->doubleWide()) // Correction for 2-hex creatures.
-				be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+				be.pos.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
 			if (alignToBottom())
-				be.y = tilePos.y + tilePos.h - first->height();
+				be.pos.y = tilePos.y + tilePos.h - first->height();
 			else
-				be.y = tilePos.y - first->height()/2;
+				be.pos.y = tilePos.y - first->height()/2;
 		}
 		owner.effectsController->battleEffects.push_back(be);
 	}
@@ -1071,7 +1071,7 @@ void HeroCastAnimation::initializeProjectile()
 	// targeted spells should have well, target
 	assert(tile.isValid());
 
-	Point srccoord = hero->pos.center();
+	Point srccoord = hero->pos.center() - hero->parent->pos.topLeft();
 	Point destcoord = owner.stacksController->getStackPositionAtHex(tile, target); //position attacked by projectile
 
 	destcoord += Point(222, 265); // FIXME: what are these constants?
