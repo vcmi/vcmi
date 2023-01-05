@@ -12,15 +12,23 @@
 
 #include <SDL.h>
 
-
 #include "SDL_Extensions.h"
 #include "CGuiHandler.h"
 #include "CAnimation.h"
+#include "../../lib/CConfigHandler.h"
 
-#include "../CMT.h"
+//#include "../CMT.h"
+
+std::unique_ptr<ICursor> CursorHandler::createCursor()
+{
+	if (settings["video"]["softwareCursor"].Bool())
+		return std::make_unique<CursorSoftware>();
+	else
+		return std::make_unique<CursorHardware>();
+}
 
 CursorHandler::CursorHandler()
-	: cursorSW(new CursorHardware())
+	: cursor(createCursor())
 	, frameTime(0.f)
 	, showing(false)
 	, pos(0,0)
@@ -58,7 +66,7 @@ void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 	this->type = type;
 	this->frame = index;
 
-	cursorSW->setImage(getCurrentImage(), getPivotOffset());
+	cursor->setImage(getCurrentImage(), getPivotOffset());
 }
 
 void CursorHandler::set(Cursor::Default index)
@@ -85,7 +93,7 @@ void CursorHandler::set(Cursor::Spellcast index)
 void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 {
 	dndObject = image;
-	cursorSW->setImage(getCurrentImage(), getPivotOffset());
+	cursor->setImage(getCurrentImage(), getPivotOffset());
 }
 
 void CursorHandler::dragAndDropCursor (std::string path, size_t index)
@@ -100,7 +108,7 @@ void CursorHandler::cursorMove(const int & x, const int & y)
 	pos.x = x;
 	pos.y = y;
 
-	cursorSW->setCursorPosition(pos);
+	cursor->setCursorPosition(pos);
 }
 
 Point CursorHandler::getPivotOffsetDefault(size_t index)
@@ -206,7 +214,7 @@ Point CursorHandler::getPivotOffsetSpellcast()
 Point CursorHandler::getPivotOffset()
 {
 	if (dndObject)
-		return dndObject->dimensions();
+		return dndObject->dimensions() / 2;
 
 	switch (type) {
 	case Cursor::Type::ADVENTURE: return getPivotOffsetMap(frame);
@@ -236,7 +244,7 @@ void CursorHandler::centerCursor()
 	SDL_WarpMouse(pos.x, pos.y);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 
-	cursorSW->setCursorPosition(pos);
+	cursor->setCursorPosition(pos);
 }
 
 void CursorHandler::updateSpellcastCursor()
@@ -268,7 +276,7 @@ void CursorHandler::render()
 	if (type == Cursor::Type::SPELLBOOK)
 		updateSpellcastCursor();
 
-	cursorSW->render();
+	cursor->render();
 }
 
 void CursorSoftware::render()
@@ -367,6 +375,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 
 	image->draw(cursorSurface);
 
+	auto oldCursor = cursor;
 	cursor = SDL_CreateColorCursor(cursorSurface, pivotOffset.x, pivotOffset.y);
 
 	if (!cursor)
@@ -374,6 +383,9 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 
 	SDL_FreeSurface(cursorSurface);
 	SDL_SetCursor(cursor);
+
+	if (oldCursor)
+		SDL_FreeCursor(oldCursor);
 }
 
 void CursorHardware::setCursorPosition( const Point & newPos )

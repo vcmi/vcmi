@@ -81,7 +81,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "softwareCursor", "spellbookAnimation", "driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -102,6 +102,10 @@
 					"default": false
 				},
 				"realFullscreen" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"softwareCursor" :  {
 					"type" : "boolean",
 					"default" : false
 				},

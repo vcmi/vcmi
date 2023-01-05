@@ -112,7 +112,17 @@ namespace Cursor
 	};
 }
 
-class CursorHardware
+class ICursor
+{
+public:
+	virtual ~ICursor() = default;
+
+	virtual void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) = 0;
+	virtual void setCursorPosition( const Point & newPos ) = 0;
+	virtual void render() = 0;
+};
+
+class CursorHardware : public ICursor
 {
 	std::shared_ptr<IImage> cursorImage;
 
@@ -122,13 +132,12 @@ public:
 	CursorHardware();
 	~CursorHardware();
 
-	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset);
-	void setCursorPosition( const Point & newPos );
-
-	void render();
+	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
+	void setCursorPosition( const Point & newPos ) override;
+	void render() override;
 };
 
-class CursorSoftware
+class CursorSoftware : public ICursor
 {
 	std::shared_ptr<IImage> cursorImage;
 
@@ -145,10 +154,9 @@ public:
 	CursorSoftware();
 	~CursorSoftware();
 
-	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset);
-	void setCursorPosition( const Point & newPos );
-
-	void render();
+	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
+	void setCursorPosition( const Point & newPos ) override;
+	void render() override;
 };
 
 /// handles mouse cursor
@@ -178,7 +186,9 @@ class CursorHandler final
 
 	std::shared_ptr<IImage> getCurrentImage();
 
-	std::unique_ptr<CursorHardware> cursorSW;
+	std::unique_ptr<ICursor> cursor;
+
+	static std::unique_ptr<ICursor> createCursor();
 public:
 	CursorHandler();
 	~CursorHandler();
