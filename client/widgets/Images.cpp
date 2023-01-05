@@ -15,7 +15,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/SDL_Pixels.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
