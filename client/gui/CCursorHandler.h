@@ -8,11 +8,13 @@
  *
  */
 #pragma once
+
 class CIntObject;
 class CAnimImage;
 struct SDL_Surface;
 struct SDL_Texture;
-struct Point;
+
+#include "Geometries.h"
 
 namespace Cursor
 {
@@ -51,7 +53,9 @@ namespace Cursor
 		SHOOT_CATAPULT = 16,
 		HEAL           = 17,
 		SACRIFICE      = 18,
-		TELEPORT       = 19
+		TELEPORT       = 19,
+
+		COUNT
 	};
 
 	enum class Map {
@@ -97,7 +101,9 @@ namespace Cursor
 		SCROLL_NORTHWEST = 39,
 		//POINTER_COPY       = 40, // probably unused
 		TELEPORT         = 41,
-		SCUTTLE_BOAT     = 42
+		SCUTTLE_BOAT     = 42,
+
+		COUNT
 	};
 
 	enum class Spellcast {
@@ -123,7 +129,6 @@ class CCursorHandler final
 	void clearBuffer();
 	void updateBuffer(CIntObject * payload);
 	void replaceBuffer(CIntObject * payload);
-	void shiftPos( int &x, int &y );
 
 	void updateTexture();
 
@@ -135,8 +140,15 @@ class CCursorHandler final
 	void changeGraphic(Cursor::Type type, size_t index);
 
 	/// position of cursor
-	int xpos, ypos;
+	Point pos;
 
+	Point getPivotOffsetDefault(size_t index);
+	Point getPivotOffsetMap(size_t index);
+	Point getPivotOffsetCombat(size_t index);
+	Point getPivotOffsetSpellcast();
+	Point getPivotOffset();
+
+	void updateSpellcastCursor();
 public:
 	CCursorHandler();
 	~CCursorHandler();
