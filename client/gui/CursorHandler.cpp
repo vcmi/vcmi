@@ -20,7 +20,7 @@
 #include "../CMT.h"
 
 CursorHandler::CursorHandler()
-	: cursorSW(new CursorSoftware())
+	: cursorSW(new CursorHardware())
 	, frameTime(0.f)
 	, showing(false)
 	, pos(0,0)
@@ -51,6 +51,9 @@ Point CursorHandler::position() const
 void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {
 	assert(dndObject == nullptr);
+
+	if (type == this->type && index == this->frame)
+		return;
 
 	this->type = type;
 	this->frame = index;
@@ -345,4 +348,40 @@ CursorSoftware::~CursorSoftware()
 	if (cursorSurface)
 		SDL_FreeSurface(cursorSurface);
 
+}
+
+CursorHardware::CursorHardware():
+	cursor(nullptr)
+{
+}
+
+CursorHardware::~CursorHardware()
+{
+	if(cursor)
+		SDL_FreeCursor(cursor);
+}
+
+void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
+{
+	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
+
+	image->draw(cursorSurface);
+
+	cursor = SDL_CreateColorCursor(cursorSurface, pivotOffset.x, pivotOffset.y);
+
+	if (!cursor)
+		logGlobal->error("Failed to set cursor! SDL says %s", SDL_GetError());
+
+	SDL_FreeSurface(cursorSurface);
+	SDL_SetCursor(cursor);
+}
+
+void CursorHardware::setCursorPosition( const Point & newPos )
+{
+	//no-op
+}
+
+void CursorHardware::render()
+{
+	//no-op
 }

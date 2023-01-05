@@ -13,6 +13,7 @@ class CAnimation;
 class IImage;
 struct SDL_Surface;
 struct SDL_Texture;
+struct SDL_Cursor;
 
 #include "Geometries.h"
 
@@ -113,7 +114,18 @@ namespace Cursor
 
 class CursorHardware
 {
-	//TODO
+	std::shared_ptr<IImage> cursorImage;
+
+	SDL_Cursor * cursor;
+
+public:
+	CursorHardware();
+	~CursorHardware();
+
+	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset);
+	void setCursorPosition( const Point & newPos );
+
+	void render();
 };
 
 class CursorSoftware
@@ -137,7 +149,6 @@ public:
 	void setCursorPosition( const Point & newPos );
 
 	void render();
-	void setVisible(bool on);
 };
 
 /// handles mouse cursor
@@ -167,7 +178,7 @@ class CursorHandler final
 
 	std::shared_ptr<IImage> getCurrentImage();
 
-	std::unique_ptr<CursorSoftware> cursorSW;
+	std::unique_ptr<CursorHardware> cursorSW;
 public:
 	CursorHandler();
 	~CursorHandler();
