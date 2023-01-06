@@ -1155,6 +1155,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
 
+		//some commands like gosolo don't work when executed from GUI thread
 		boost::thread clientCommandThread(ClientCommandManager::processCommand, txt, true);
 		clientCommandThread.join();
 	}

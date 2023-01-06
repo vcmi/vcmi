@@ -541,36 +541,6 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
-void printInfoAboutIntObject(const CIntObject *obj, int level)
-{
-	std::stringstream sbuffer;
-	sbuffer << std::string(level, '\t');
-
-	sbuffer << typeid(*obj).name() << " *** ";
-	if (obj->active)
-	{
-#define PRINT(check, text) if (obj->active & CIntObject::check) sbuffer << text
-		PRINT(LCLICK, 'L');
-		PRINT(RCLICK, 'R');
-		PRINT(HOVER, 'H');
-		PRINT(MOVE, 'M');
-		PRINT(KEYBOARD, 'K');
-		PRINT(TIME, 'T');
-		PRINT(GENERAL, 'A');
-		PRINT(WHEEL, 'W');
-		PRINT(DOUBLECLICK, 'D');
-#undef  PRINT
-	}
-	else
-		sbuffer << "inactive";
-	sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
-	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-	logGlobal->info(sbuffer.str());
-
-	for(const CIntObject *child : obj->children)
-		printInfoAboutIntObject(child, level+1);
-}
-
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
