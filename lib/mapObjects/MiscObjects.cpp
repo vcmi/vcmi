@@ -1956,7 +1956,13 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
-			TQuantity drown = static_cast<TQuantity>(i->second->count * 0.3);
+			// 1-sized stacks are not affected by sirens
+			if (i->second->count == 1)
+				continue;
+
+			// tested H3 behavior: 30% (rounded up) of stack drowns
+			TQuantity drown = std::ceil(i->second->count * 0.3);
+
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
