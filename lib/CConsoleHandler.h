@@ -76,7 +76,7 @@ public:
 #endif
 	}
 
-    std::function<void(const std::string &)> *cb; //function to be called when message is received
+    std::function<void(const std::string &, bool)> *cb; //function to be called when message is received
 
 private:
     int run();

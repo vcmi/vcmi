@@ -424,7 +424,7 @@ public:
 	void textEdited(const SDL_TextEditingEvent & event) override;
 
 	void startEnteringText();
-	void endEnteringText(bool printEnteredText);
+	void endEnteringText(bool processEnteredText);
 	void refreshEnteredText();
 
 	CInGameConsole();

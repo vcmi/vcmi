@@ -48,6 +48,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/StringConstants.h"
+#include "ClientCommandManager.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),
@@ -1144,15 +1145,18 @@ void CInGameConsole::startEnteringText()
 	GH.statusbar->setEnteredText(enteredText);
 }
 
-void CInGameConsole::endEnteringText(bool printEnteredText)
+void CInGameConsole::endEnteringText(bool processEnteredText)
 {
 	captureAllKeys = false;
 	prevEntDisp = -1;
-	if(printEnteredText)
+	if(processEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
 		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
+
+		boost::thread clientCommandThread(ClientCommandManager::processCommand, txt, true);
+		clientCommandThread.join();
 	}
 	enteredText.clear();
 

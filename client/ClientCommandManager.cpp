@@ -32,6 +32,7 @@
 #include "../lib/ScriptHandler.h"
 #endif
 
+bool ClientCommandManager::currentCallFromIngameConsole;
 
 void ClientCommandManager::handleGoSolo()
 {
@@ -40,7 +41,7 @@ void ClientCommandManager::handleGoSolo()
 	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 	if(!CSH->client)
 	{
-		std::cout << "Game is not in playing state";
+		printCommandMessage("Game is not in playing state");
 		return;
 	}
 	PlayerColor color;
@@ -61,7 +62,7 @@ void ClientCommandManager::handleGoSolo()
 			if(elem.second.human)
 			{
 				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(elem.first), false);
-				logNetwork->info("Player %s will be lead by %s", elem.first, AiToGive);
+				printCommandMessage("Player " + elem.first.getStr() + " will be lead by " + AiToGive, ELogLevel::INFO);
 				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
 			}
 		}
@@ -76,7 +77,7 @@ void ClientCommandManager::handleControlAi(const std::string &colorName)
 	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 	if(!CSH->client)
 	{
-		std::cout << "Game is not in playing state";
+		printCommandMessage("Game is not in playing state");
 		return;
 	}
 	PlayerColor color;
@@ -98,17 +99,18 @@ void ClientCommandManager::handleControlAi(const std::string &colorName)
 		giveTurn(color);
 }
 
-#ifndef VCMI_IOS
-void ClientCommandManager::processCommand(const std::string &message)
+void ClientCommandManager::processCommand(const std::string &message, bool calledFromIngameConsole)
 {
 	std::istringstream readed;
 	readed.str(message);
 	std::string commandName;
 	readed >> commandName;
+	currentCallFromIngameConsole = calledFromIngameConsole;
 
 // Check mantis issue 2292 for details
 //	if(LOCPLINT && LOCPLINT->cingconsole)
 //		LOCPLINT->cingconsole->print(message);
+
 
 	if(message==std::string("die, fool"))
 	{
@@ -130,7 +132,7 @@ void ClientCommandManager::processCommand(const std::string &message)
 				LOCPLINT->castleInt->activate();
 				break;
 			default:
-				logGlobal->error("Wrong argument specified!");
+				printCommandMessage("Wrong argument specified!", ELogLevel::ERROR);
 		}
 	}
 	else if(commandName == "redraw")
@@ -139,14 +141,14 @@ void ClientCommandManager::processCommand(const std::string &message)
 	}
 	else if(commandName == "screen")
 	{
-		std::cout << "Screenbuf points to ";
+		printCommandMessage("Screenbuf points to ");
 
 		if(screenBuf == screen)
-			logGlobal->error("screen");
+			printCommandMessage("screen", ELogLevel::ERROR);
 		else if(screenBuf == screen2)
-			logGlobal->error("screen2");
+			printCommandMessage("screen2", ELogLevel::ERROR);
 		else
-			logGlobal->error("?!?");
+			printCommandMessage("?!?", ELogLevel::ERROR);
 
 		SDL_SaveBMP(screen, "Screen_c.bmp");
 		SDL_SaveBMP(screen2, "Screen2_c.bmp");
@@ -155,7 +157,7 @@ void ClientCommandManager::processCommand(const std::string &message)
 	{
 		if(!CSH->client)
 		{
-			std::cout << "Game is not in playing state";
+			printCommandMessage("Game is not in playing state");
 			return;
 		}
 		std::string fname;
@@ -173,7 +175,7 @@ void ClientCommandManager::processCommand(const std::string &message)
 	{
 		//TODO: to be replaced with "VLC->generaltexth->dumpAllTexts();" due to https://github.com/vcmi/vcmi/pull/1329 merge:
 
-		std::cout << "Command accepted.\t";
+		printCommandMessage("Command accepted.\t");
 
 		const boost::filesystem::path outPath =
 				VCMIDirs::get().userExtractedPath();
@@ -201,12 +203,12 @@ void ClientCommandManager::processCommand(const std::string &message)
 		extractVector(VLC->generaltexth->jktexts, "jkTexts");
 		extractVector(VLC->generaltexth->arraytxt, "arrayTexts");
 
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+		printCommandMessage("\rExtracting done :)\n");
+		printCommandMessage("Extracted files can be found in" + outPath.string() + " directory\n");
 	}
 	else if(message=="get config")
 	{
-		std::cout << "Command accepted.\t";
+		printCommandMessage("Command accepted.\t");
 
 		const boost::filesystem::path outPath =
 				VCMIDirs::get().userExtractedPath() / "configuration";
@@ -241,13 +243,13 @@ void ClientCommandManager::processCommand(const std::string &message)
 			}
 		}
 
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+		printCommandMessage("\rExtracting done :)\n");
+		printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 	}
 #if SCRIPTING_ENABLED
 		else if(message=="get scripts")
 	{
-		std::cout << "Command accepted.\t";
+		printCommandMessage("Command accepted.\t");
 
 		const boost::filesystem::path outPath =
 			VCMIDirs::get().userExtractedPath() / "scripts";
@@ -264,13 +266,13 @@ void ClientCommandManager::processCommand(const std::string &message)
 			boost::filesystem::ofstream file(filePath);
 			file << script->getSource();
 		}
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+		printCommandMessage("\rExtracting done :)\n");
+		printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 	}
 #endif
 	else if(message=="get txt")
 	{
-		std::cout << "Command accepted.\t";
+		printCommandMessage("Command accepted.\t");
 
 		const boost::filesystem::path outPath =
 				VCMIDirs::get().userExtractedPath();
@@ -293,8 +295,8 @@ void ClientCommandManager::processCommand(const std::string &message)
 			file.write((char*)text.first.get(), text.second);
 		}
 
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+		printCommandMessage("\rExtracting done :)\n");
+		printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 	}
 	else if(commandName == "crash")
 	{
@@ -305,7 +307,7 @@ void ClientCommandManager::processCommand(const std::string &message)
 	else if(commandName == "mp" && adventureInt)
 	{
 		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
-			std::cout << h->movement << "; max: " << h->maxMovePoints(true) << "/" << h->maxMovePoints(false) << std::endl;
+			printCommandMessage(std::to_string(h->movement) + "; max: " + std::to_string(h->maxMovePoints(true)) + "/" + std::to_string(h->maxMovePoints(false)) + "\n");
 	}
 	else if(commandName == "bonuses")
 	{
@@ -318,15 +320,15 @@ void ClientCommandManager::processCommand(const std::string &message)
 			ss << b;
 			return ss.str();
 		};
-		std::cout << "Bonuses of " << adventureInt->selection->getObjectName() << std::endl
-				  << format(adventureInt->selection->getBonusList()) << std::endl;
+		printCommandMessage("Bonuses of " + adventureInt->selection->getObjectName() + "\n");
+		printCommandMessage(format(adventureInt->selection->getBonusList()) + "\n");
 
-		std::cout << "\nInherited bonuses:\n";
+		printCommandMessage("\nInherited bonuses:\n");
 		TCNodes parents;
 		adventureInt->selection->getParents(parents);
 		for(const CBonusSystemNode *parent : parents)
 		{
-			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << format(*parent->getAllBonuses(Selector::all, Selector::all)) << std::endl;
+			printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
 		}
 	}
 	else if(commandName == "not dialog")
@@ -341,7 +343,7 @@ void ClientCommandManager::processCommand(const std::string &message)
 			if(const CIntObject * obj = dynamic_cast<const CIntObject *>(childPtr))
 				printInfoAboutInterfaceObject(obj, 0);
 			else
-				std::cout << typeid(childPtr).name() << std::endl;
+				printCommandMessage(std::string(typeid(childPtr).name()) + "\n");
 		}
 	}
 	else if(commandName == "tell")
@@ -354,7 +356,7 @@ void ClientCommandManager::processCommand(const std::string &message)
 			for(const CGHeroInstance *h : LOCPLINT->cb->getHeroesInfo())
 				if(h->type->ID.getNum() == id1)
 					if(const CArtifactInstance *a = h->getArt(ArtifactPosition(id2)))
-						std::cout << a->nodeName();
+						printCommandMessage(a->nodeName());
 		}
 	}
 	else if (commandName == "set")
@@ -369,12 +371,12 @@ void ClientCommandManager::processCommand(const std::string &message)
 		if (value == "on")
 		{
 			config->Bool() = true;
-			logGlobal->info("Option %s enabled!", what);
+			printCommandMessage("Option " + what + " enabled!", ELogLevel::INFO);
 		}
 		else if (value == "off")
 		{
 			config->Bool() = false;
-			logGlobal->info("Option %s disabled!", what);
+			printCommandMessage("Option " + what + " disabled!", ELogLevel::INFO);
 		}
 	}
 	else if(commandName == "unlock")
@@ -408,26 +410,26 @@ void ClientCommandManager::processCommand(const std::string &message)
 			outFile.write((char*)data.first.get(), data.second);
 		}
 		else
-			logGlobal->error("File not found!");
+			printCommandMessage("File not found!", ELogLevel::ERROR);
 	}
 	else if(commandName == "setBattleAI")
 	{
 		std::string fname;
 		readed >> fname;
-		std::cout << "Will try loading that AI to see if it is correct name...\n";
+		printCommandMessage("Will try loading that AI to see if it is correct name...\n");
 		try
 		{
 			if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 			{
 				Settings neutralAI = settings.write["server"]["neutralAI"];
 				neutralAI->String() = fname;
-				std::cout << "Setting changed, from now the battle ai will be " << fname << "!\n";
+				printCommandMessage("Setting changed, from now the battle ai will be " + fname + "!\n");
 			}
 		}
 		catch(std::exception &e)
 		{
-			logGlobal->warn("Failed opening %s: %s", fname, e.what());
-			logGlobal->warn("Setting not changed, AI not found or invalid!");
+			printCommandMessage("Failed opening " + fname + ": " + e.what(), ELogLevel::WARN);
+			printCommandMessage("Setting not changed, AI not found or invalid!", ELogLevel::WARN);
 		}
 	}
 
@@ -455,7 +457,6 @@ void ClientCommandManager::processCommand(const std::string &message)
 		LOCPLINT->cb->sendMessage(message);
 	}*/
 }
-#endif
 
 void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
@@ -474,7 +475,7 @@ void ClientCommandManager::removeGUI()
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
 	GH.statusbar = nullptr;
-	logGlobal->info("Removed GUI.");
+	printCommandMessage("Removed GUI.", ELogLevel::INFO);
 
 	LOCPLINT = nullptr;
 }
@@ -503,8 +504,44 @@ void ClientCommandManager::printInfoAboutInterfaceObject(const CIntObject *obj, 
 		sbuffer << "inactive";
 	sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
 	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-	logGlobal->info(sbuffer.str());
+	printCommandMessage(sbuffer.str(), ELogLevel::INFO);
 
 	for(const CIntObject *child : obj->children)
 		printInfoAboutInterfaceObject(child, level+1);
+}
+
+void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
+{
+	switch(messageType)
+	{
+		case ELogLevel::NOT_SET:
+			std::cout << commandMessage;
+			break;
+		case ELogLevel::TRACE:
+			logGlobal->trace(commandMessage);
+			break;
+		case ELogLevel::DEBUG:
+			logGlobal->debug(commandMessage);
+			break;
+		case ELogLevel::INFO:
+			logGlobal->info(commandMessage);
+			break;
+		case ELogLevel::WARN:
+			logGlobal->warn(commandMessage);
+			break;
+		case ELogLevel::ERROR:
+			logGlobal->error(commandMessage);
+			break;
+		default:
+			std::cout << commandMessage;
+			break;
+	}
+
+	if(currentCallFromIngameConsole)
+	{
+		if(LOCPLINT && LOCPLINT->cingconsole)
+		{
+			LOCPLINT->cingconsole->print(commandMessage);
+		}
+	}
 }

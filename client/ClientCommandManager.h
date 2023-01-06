@@ -15,13 +15,16 @@ class CIntObject;
 
 class ClientCommandManager
 {
+	static bool currentCallFromIngameConsole;
+
 	static void giveTurn(const PlayerColor &color);
 	static void removeGUI();
 	static void printInfoAboutInterfaceObject(const CIntObject *obj, int level);
-public:
-#ifndef VCMI_IOS
-	static void processCommand(const std::string &message);
-#endif
+	static void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);
 	static void handleGoSolo();
 	static void handleControlAi(const std::string &colorName);
+
+public:
+	ClientCommandManager() = delete;
+	static void processCommand(const std::string &message, bool calledFromIngameConsole);
 };
