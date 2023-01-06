@@ -1657,15 +1657,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	nhi->formation = reader.readUInt8();
 	loadArtifactsOfHero(nhi);
 	nhi->patrol.patrolRadius = reader.readUInt8();
-	if(nhi->patrol.patrolRadius == 0xff)
-	{
-		nhi->patrol.patrolling = false;
-	}
-	else
-	{
-		nhi->patrol.patrolling = true;
-		nhi->patrol.initialPos = nhi->convertToVisitablePos(initialPos);
-	}
+	nhi->patrol.patrolling = (nhi->patrol.patrolRadius != 0xff);
 
 	if(map->version > EMapFormat::ROE)
 	{

@@ -319,6 +319,9 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	}
 	assert(validTypes());
 
+	if (patrol.patrolling)
+		patrol.initialPos = visitablePos();
+
 	if(exp == 0xffffffff)
 	{
 		initExp(rand);
