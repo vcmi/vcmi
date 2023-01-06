@@ -31,6 +31,7 @@
 	"vcmi.systemOptions.resolutionButton.help"  : "{Select resolution}\n\n Change in-game screen resolution. Game restart required to apply new resolution.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Select resolution",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Change in-game screen resolution.",
+	"vcmi.systemOptions.fullscreenFailed"       : "{Fullscreen}\n\n Failed to switch to fullscreen mode! Current resolution is not supported by display!",
 
 	"vcmi.townHall.missingBase"             : "Base building %s must be built first",
 	"vcmi.townHall.noCreaturesToRecruit"    : "There are no creatures to recruit!",

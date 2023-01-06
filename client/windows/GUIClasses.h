@@ -226,6 +226,9 @@ private:
 
 	SettingsListener onFullscreenChanged;
 
+	std::vector<Point> supportedResolutions;
+	std::vector<Point> selectableResolutions;
+
 	//functions bound to buttons
 	void bloadf(); //load game
 	void bsavef(); //save game
@@ -233,6 +236,12 @@ private:
 	void breturnf(); //return to game
 	void brestartf(); //restart game
 	void bmainmenuf(); //return to main menu
+
+	void setFullscreenMode( bool on);
+	void fillSupportedResolutions();
+	void fillSelectableResolutions();
+	bool isResolutionSupported(const Point & resolution);
+	bool isResolutionSupported(const Point & resolution, bool fullscreen);
 
 	void selectGameRes();
 	void setGameRes(int index);
