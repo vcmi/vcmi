@@ -182,32 +182,32 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, 376);
+			line.addTxt(MetaString::GENERAL_TXT, 376); // Spell %s does %d damage
 			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
 			line.addReplacement((int)damage);
 
 			log.push_back(line);
 		}
 
+		if (kills > 0)
 		{
 			MetaString line;
-			const int textId = (kills > 1) ? 379 : 378;
-			line.addTxt(MetaString::GENERAL_TXT, textId);
-
-			if(kills > 1)
-				line.addReplacement(kills);
 
 			if(kills > 1)
 			{
+				line.addTxt(MetaString::GENERAL_TXT, 379); // %d %s perishes
+				line.addReplacement(kills);
+
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 43);
+					line.addReplacement(MetaString::GENERAL_TXT, 43); // creatures
 				else
 					firstTarget->addNameReplacement(line, true);
 			}
-			else
+			else // single creature killed
 			{
+				line.addTxt(MetaString::GENERAL_TXT, 378); // one %s perishes
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 42);
+					line.addReplacement(MetaString::GENERAL_TXT, 42); // creature
 				else
 					firstTarget->addNameReplacement(line, false);
 			}
