@@ -406,6 +406,13 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		});
 	}
 
+	if (!sc->resistedCres.empty())
+	{
+		executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+			CCS->soundh->playSound("MAGICRES");
+		});
+	}
+
 	for(auto & elem : sc->resistedCres)
 	{
 		auto stack = curInt->cb->battleGetStackByID(elem, false);
