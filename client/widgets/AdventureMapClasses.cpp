@@ -1159,7 +1159,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 		{
 			//some commands like gosolo don't work when executed from GUI thread
 			boost::thread clientCommandThread(ClientCommandManager::processCommand, txt.substr(1), true);
-			clientCommandThread.join();
+			clientCommandThread.detach();
 		}
 	}
 	enteredText.clear();
