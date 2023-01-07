@@ -128,14 +128,22 @@ else()
 endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-if(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 )
+	set(ENABLE_PCH OFF) # broken
+endif()
+
+if( ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	set(ENABLE_PCH OFF) #not supported
+endif()
+
+if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
 	endmacro(enable_pch)
-else(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+else()
 	macro(enable_pch ignore)
 	endmacro(enable_pch)
-endif(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+endif()
 
 ############################################
 #        Documentation section             #
