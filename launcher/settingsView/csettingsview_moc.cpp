@@ -323,8 +323,8 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 	Settings node = settings.write["general"]["language"];
 	node->String() = languageTagList[index];
 
-	if ( qApp->activeWindow() && dynamic_cast<MainWindow*>(qApp->activeWindow()) )
-		dynamic_cast<MainWindow*>(qApp->activeWindow())->updateTranslation();
+	if ( auto mainWindow = dynamic_cast<MainWindow*>(qApp->activeWindow()) )
+		mainWindow->updateTranslation();
 }
 
 void CSettingsView::changeEvent(QEvent *event)

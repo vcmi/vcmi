@@ -5,7 +5,7 @@
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
 	"required" : [ "name", "description", "version", "author", "contact", "modType" ],
 	"definitions" : {
-		"localizeable" : {
+		"localizable" : {
 			"type":"object",
 			"additionalProperties" : false,
 			"required" : [ "name", "description", "author", "modType" ],
@@ -114,23 +114,23 @@
 		},
 		
 		"english" : {
-			"$ref" : "#/definitions/localizeable"
+			"$ref" : "#/definitions/localizable"
 		},
 
 		"german" : {
-			"$ref" : "#/definitions/localizeable"
+			"$ref" : "#/definitions/localizable"
 		},
 
 		"polish" : {
-			"$ref" : "#/definitions/localizeable"
+			"$ref" : "#/definitions/localizable"
 		},
 
 		"russian" : {
-			"$ref" : "#/definitions/localizeable"
+			"$ref" : "#/definitions/localizable"
 		},
 
 		"ukrainian" : {
-			"$ref" : "#/definitions/localizeable"
+			"$ref" : "#/definitions/localizable"
 		},
 
 		"artifacts": {
