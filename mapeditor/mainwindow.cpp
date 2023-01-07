@@ -118,7 +118,7 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 void MainWindow::loadTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	std::string translationFile = settings["general"]["language"].String()+ ".qm";
+	std::string translationFile = settings["general"]["language"].String() + ".qm";
 
 	QVector<QString> searchPaths;
 
