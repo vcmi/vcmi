@@ -164,7 +164,7 @@ void MainWindow::on_lobbyButton_clicked()
 void MainWindow::updateTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	std::string translationFile = settings["general"]["language"].String()+ ".qm";
+	std::string translationFile = settings["general"]["language"].String() + ".qm";
 
 	QVector<QString> searchPaths;
 
