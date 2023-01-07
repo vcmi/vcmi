@@ -206,6 +206,24 @@ void CGuiHandler::handleEvents()
 	}
 }
 
+bool multifinger = false;
+int lastFingerCount;
+
+void convertTouch(SDL_Event * current)
+{
+	int rLogicalWidth, rLogicalHeight;
+
+	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
+
+	int adjustedMouseY = (int)(current->tfinger.y * rLogicalHeight);
+	int adjustedMouseX = (int)(current->tfinger.x * rLogicalWidth);
+
+	current->button.x = adjustedMouseX;
+	current->motion.x = adjustedMouseX;
+	current->button.y = adjustedMouseY;
+	current->motion.y = adjustedMouseY;
+}
+
 void CGuiHandler::handleCurrentEvent()
 {
 	if(current->type == SDL_KEYDOWN || current->type == SDL_KEYUP)
@@ -338,22 +356,54 @@ void CGuiHandler::handleCurrentEvent()
 			it->textEdited(current->edit);
 		}
 	}
-	//todo: muiltitouch
 	else if(current->type == SDL_MOUSEBUTTONUP)
 	{
-		switch(current->button.button)
+		if(multifinger && lastFingerCount >= 1)
 		{
-		case SDL_BUTTON_LEFT:
-			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
-			break;
-		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
-			break;
-		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
-			break;
+			multifinger = false;
+		}
+		else
+		{
+			switch(current->button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
+				break;
+			case SDL_BUTTON_RIGHT:
+				handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+				break;
+			case SDL_BUTTON_MIDDLE:
+				handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
+				break;
+			}
 		}
 	}
+	else if(current->type == SDL_FINGERDOWN)
+	{
+		lastFingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
+
+		multifinger = lastFingerCount > 1;
+
+		if(lastFingerCount == 2)
+		{
+			convertTouch(current);
+			handleMouseMotion();
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+		}
+	}
+	else if(current->type == SDL_FINGERUP)
+	{
+		lastFingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
+
+		if(multifinger)
+		{
+			multifinger = false;
+			convertTouch(current);
+			handleMouseMotion();
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+		}
+	}
+
 	current = nullptr;
 } //event end
 
