@@ -10,7 +10,9 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
+VCMI_LIB_NAMESPACE_END
 class CIntObject;
 
 class ClientCommandManager
