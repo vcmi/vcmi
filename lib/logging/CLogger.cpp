@@ -146,7 +146,7 @@ void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 	}
 	catch(...)
 	{
-        log(ELogLevel::ERROR, "Invalid log format!");
+		log(ELogLevel::ERROR, "Invalid log format!");
 	}
 }
 
@@ -349,9 +349,9 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) :
 #ifndef VCMI_IOS
-    console(console),
+	console(console),
 #endif
-    threshold(ELogLevel::INFO), coloredOutputEnabled(true)
+	threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
 	formatter.setPattern("%m");
 }
@@ -364,7 +364,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-    __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
+	__android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
 #elif defined(VCMI_IOS)
 	os_log_type_t type;
 	switch (record.level)
