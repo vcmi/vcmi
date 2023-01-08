@@ -1152,7 +1152,6 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 	if(processEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
-		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
 
 		if(txt.at(0) == '/')
@@ -1161,6 +1160,8 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			boost::thread clientCommandThread(ClientCommandManager::processCommand, txt.substr(1), true);
 			clientCommandThread.detach();
 		}
+		else
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 	}
 	enteredText.clear();
 

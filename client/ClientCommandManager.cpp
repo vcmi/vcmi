@@ -102,16 +102,11 @@ void ClientCommandManager::handleControlAi(const std::string &colorName)
 
 void ClientCommandManager::processCommand(const std::string &message, bool calledFromIngameConsole)
 {
-	std::istringstream readed;
-	readed.str(message);
+	std::istringstream singleWordBuffer;
+	singleWordBuffer.str(message);
 	std::string commandName;
-	readed >> commandName;
+	singleWordBuffer >> commandName;
 	currentCallFromIngameConsole = calledFromIngameConsole;
-
-// Check mantis issue 2292 for details
-//	if(LOCPLINT && LOCPLINT->cingconsole)
-//		LOCPLINT->cingconsole->print(message);
-
 
 	if(message==std::string("die, fool"))
 	{
@@ -120,7 +115,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if(commandName == std::string("activate"))
 	{
 		int what;
-		readed >> what;
+		singleWordBuffer >> what;
 		switch (what)
 		{
 			case 0:
@@ -162,14 +157,14 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 			return;
 		}
 		std::string fname;
-		readed >> fname;
+		singleWordBuffer >> fname;
 		CSH->client->save(fname);
 	}
 //	else if(commandName=="load")
 //	{
 //		// TODO: this code should end the running game and manage to call startGame instead
 //		std::string fname;
-//		readed >> fname;
+//		singleWordBuffer >> fname;
 //		CSH->client->loadGame(fname);
 //	}
 	else if(message=="convert txt")
@@ -351,7 +346,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	{
 		std::string what;
 		int id1, id2;
-		readed >> what >> id1 >> id2;
+		singleWordBuffer >> what >> id1 >> id2;
 		if(what == "hs")
 		{
 			for(const CGHeroInstance *h : LOCPLINT->cb->getHeroesInfo())
@@ -363,11 +358,11 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if (commandName == "set")
 	{
 		std::string what, value;
-		readed >> what;
+		singleWordBuffer >> what;
 
 		Settings config = settings.write["session"][what];
 
-		readed >> value;
+		singleWordBuffer >> value;
 
 		if (value == "on")
 		{
@@ -383,14 +378,14 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if(commandName == "unlock")
 	{
 		std::string mxname;
-		readed >> mxname;
+		singleWordBuffer >> mxname;
 		if(mxname == "pim" && LOCPLINT)
 			LOCPLINT->pim->unlock();
 	}
 	else if(commandName == "def2bmp")
 	{
 		std::string URI;
-		readed >> URI;
+		singleWordBuffer >> URI;
 		std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
 		anim->preload();
 		anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
@@ -398,7 +393,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if(commandName == "extract")
 	{
 		std::string URI;
-		readed >> URI;
+		singleWordBuffer >> URI;
 
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
@@ -416,7 +411,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if(commandName == "setBattleAI")
 	{
 		std::string fname;
-		readed >> fname;
+		singleWordBuffer >> fname;
 		printCommandMessage("Will try loading that AI to see if it is correct name...\n");
 		try
 		{
@@ -433,10 +428,9 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 			printCommandMessage("Setting not changed, AI not found or invalid!", ELogLevel::WARN);
 		}
 	}
-
-	Settings session = settings.write["session"];
-	if(commandName == "autoskip")
+	else if(commandName == "autoskip")
 	{
+		Settings session = settings.write["session"];
 		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
 	}
 	else if(commandName == "gosolo")
@@ -446,17 +440,15 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if(commandName == "controlai")
 	{
 		std::string colorName;
-		readed >> colorName;
+		singleWordBuffer >> colorName;
 		boost::to_lower(colorName);
 
 		ClientCommandManager::handleControlAi(colorName);
 	}
-	// Check mantis issue 2292 for details
-/* 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
+	else
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		LOCPLINT->cb->sendMessage(message);
-	}*/
+		printCommandMessage("Command not found :(", ELogLevel::ERROR);
+	}
 }
 
 void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)

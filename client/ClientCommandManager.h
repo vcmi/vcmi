@@ -15,7 +15,7 @@ class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 class CIntObject;
 
-class ClientCommandManager
+class ClientCommandManager //take mantis #2292 issue about account if thinking about handling cheats from command-line
 {
 	static bool currentCallFromIngameConsole;
 
