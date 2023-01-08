@@ -2,6 +2,7 @@
     "dirtRoad":
     {
         "index": 1,
+        "text" : "Dirt road",
         "shortIdentifier": "pd", //must be 2 characters
         "tilesFilename": "dirtrd",
         "moveCost": 75
@@ -9,6 +10,7 @@
     "gravelRoad":
     {
         "index": 2,
+        "text" : "Gravel road",
         "shortIdentifier": "pg",
         "tilesFilename": "gravrd",
         "moveCost": 65
@@ -16,6 +18,7 @@
     "cobblestoneRoad":
     {
         "index": 3,
+        "text" : "Cobblestone road",
         "shortIdentifier": "pc",
         "tilesFilename": "cobbrd",
         "moveCost": 50

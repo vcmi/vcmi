@@ -13,7 +13,6 @@
 #include "maphandler.h"
 #include "mapview.h"
 #include "../lib/mapping/CMap.h"
-//#include "../lib/TerrainHandler.h"
 
 class MainWindow;
 class MapController

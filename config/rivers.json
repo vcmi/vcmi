@@ -2,6 +2,7 @@
     "waterRiver":
     {
         "index": 1,
+        "text" : "Water river",
         "shortIdentifier": "rw", //must be 2 characters
         "tilesFilename": "clrrvr",
         "delta": "clrdelt"
@@ -9,6 +10,7 @@
     "iceRiver":
     {
         "index": 2,
+        "text" : "Ice river",
         "shortIdentifier": "ri",
         "tilesFilename": "icyrvr",
         "delta": "icedelt"
@@ -16,6 +18,7 @@
     "mudRiver":
     {
         "index": 3,
+        "text" : "Mud river",
         "shortIdentifier": "rm",
         "tilesFilename": "mudrvr",
         "delta": "muddelt"
@@ -23,6 +26,7 @@
     "lavaRiver":
     {
         "index": 4,
+        "text" : "Lava river",
         "shortIdentifier": "rl",
         "tilesFilename": "lavrvr",
         "delta": "lavdelt"
