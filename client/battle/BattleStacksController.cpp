@@ -47,11 +47,11 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnima
 
 	if (animation->isIdle())
 	{
-		if (stack->isFrozen())
-			animation->setType(ECreatureAnimType::FROZEN);
-
 		const CCreature *creature = stack->getCreature();
 
+		if (stack->isFrozen())
+			animation->setType(ECreatureAnimType::FROZEN);
+		else
 		if (animation->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
 		{
 			if (CRandomGenerator::getDefault().nextDouble(99.0) < creature->animation.timeBetweenFidgets *10)
@@ -419,7 +419,9 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		// defender need to face in direction opposited to out attacker
 		bool needsReverse = shouldAttackFacingRight(attackedInfo.attacker, attackedInfo.defender) == facingRight(attackedInfo.defender);
 
-		if (needsReverse && !attackedInfo.defender->isFrozen())
+		// FIXME: this check is better, however not usable since stacksAreAttacked is called after net pack is applyed - petrification is already removed
+		// if (needsReverse && !attackedInfo.defender->isFrozen())
+		if (needsReverse && stackAnimation[attackedInfo.defender->ID]->getType() != ECreatureAnimType::FROZEN)
 		{
 			owner.executeOnAnimationCondition(EAnimationEvents::MOVEMENT, true, [=]()
 			{
@@ -846,13 +848,14 @@ void BattleStacksController::removeExpiredColorFilters()
 {
 	vstd::erase_if(stackFilterEffects, [&](const BattleStackFilterEffect & filter)
 	{
-		if (filter.persistent)
-			return false;
-		if (filter.effect != ColorFilter::genEmptyShifter())
-			return false;
-		if (filter.source && filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id), Selector::all))
-			return false;
-		return true;
+		if (!filter.persistent)
+		{
+			if (filter.source && !filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id), Selector::all))
+				return true;
+			if (filter.effect == ColorFilter::genEmptyShifter())
+				return true;
+		}
+		return false;
 	});
 }
 
