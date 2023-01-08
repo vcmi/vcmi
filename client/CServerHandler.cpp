@@ -55,6 +55,7 @@
 #include "../lib/serializer/Cast.h"
 
 #include <vcmi/events/EventBus.h>
+#include <enet/enet.h>
 
 #ifdef VCMI_WINDOWS
 #include <windows.h>
@@ -120,13 +121,16 @@ extern std::string NAME;
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
-	enetClient = enet_host_create(NULL, 8, 2, 0, 0);
+	enetClient = enet_host_create(NULL, 1, 2, 0, 0);
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	//read from file to restore last session
 	if(!settings["server"]["uuid"].isNull() && !settings["server"]["uuid"].String().empty())
 		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
+	
+	threadPollClient = std::make_shared<boost::thread>(&CServerHandler::threadPoll, this);
+	threadPollClient->detach();
 }
 
 CServerHandler::~CServerHandler()
@@ -173,6 +177,49 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		}
 	}
 #endif
+}
+
+void CServerHandler::threadPoll()
+{
+	ENetEvent event;
+	while(true)
+	{
+		if(enet_host_service(enetClient, &event, 100) > 0)
+		{
+			switch(event.type)
+			{
+				case ENET_EVENT_TYPE_CONNECT: {
+					enet_packet_destroy(event.packet);
+					if(c && c->getPeer() == event.peer)
+					{
+						state = EClientState::CONNECTING;
+					}
+					break;
+				}
+					
+				case ENET_EVENT_TYPE_RECEIVE: {
+					if(c && c->getPeer() == event.peer)
+					{
+						c->dispatch(event.packet);
+					}
+					else
+					{
+						enet_packet_destroy(event.packet);
+					}
+					break;
+				}
+					
+				case ENET_EVENT_TYPE_DISCONNECT:
+				{
+					if(c && c->getPeer() == event.peer)
+					{
+						c.reset();
+					}
+					break;
+				}
+			}
+		}
+	}
 }
 
 void CServerHandler::startLocalServerAndConnect()
@@ -272,7 +319,6 @@ void CServerHandler::startLocalServerAndConnect()
 
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
-	state = EClientState::CONNECTING;
 	while(!c && state != EClientState::CONNECTION_CANCELLED)
 	{
 		try
@@ -295,6 +341,11 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		logNetwork->info("Connection aborted by player!");
 		return;
 	}
+	
+	while(state != EClientState::CONNECTING)
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	
+	c->init();
 
 	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
@@ -781,9 +832,11 @@ void CServerHandler::threadHandleConnection()
 {
 	setThreadName("CServerHandler::threadHandleConnection");
 	c->enterLobbyConnectionMode();
-
 	try
 	{
+		while(!c->isOpen())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			
 		sendClientConnecting();
 		while(c->connected)
 		{

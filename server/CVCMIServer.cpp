@@ -174,10 +174,10 @@ void CVCMIServer::run()
 		if(!lobbyConnectionsThread)
 			lobbyConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::startAsyncAccept, this);
 		
-		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
+		/*if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
 			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
-		}
+		}*/
 
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
@@ -322,27 +322,45 @@ void CVCMIServer::startGameImmidiately()
 void CVCMIServer::startAsyncAccept()
 {
 	ENetEvent event;
-	ENetHost * client = enet_host_create(NULL, 8, 2, 0, 0);
 	while(true)
 	{
-		if(enet_host_service(server, &event, 1000) > 0)
+		if(enet_host_service(server, &event, 100) > 0)
 		{
 			switch(event.type)
 			{
 				case ENET_EVENT_TYPE_CONNECT: {
-					auto c = std::make_shared<CConnection>(server, event.peer, SERVER_NAME, uuid);
-					connections.insert(c);
-					c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+					if(state == EServerState::LOBBY)
+					{
+						auto c = std::make_shared<CConnection>(server, event.peer, SERVER_NAME, uuid);
+						c->init();
+						connections.insert(c);
+						c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+					}
 					enet_packet_destroy(event.packet);
 					break;
 				}
 					
-				case ENET_EVENT_TYPE_RECEIVE:
+				case ENET_EVENT_TYPE_RECEIVE: {
+					
+					bool receiverFound = false;
+					for(auto & c : connections)
+					{
+						if(c->getPeer() == event.peer)
+						{
+							c->dispatch(event.packet);
+							receiverFound = true;
+							break;
+						}
+					}
+					
+					if(!receiverFound)
+						enet_packet_destroy(event.packet);
+					
 					break;
+				}
 			}
 		}
 	}
-	enet_host_destroy(client);
 }
 
 /*void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)

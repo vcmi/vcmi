@@ -46,6 +46,8 @@ void CConnection::init()
 	std::string pom;
 	//we got connection
 	oser & std::string("Aiya!\n") & name & uuid & myEndianess; //identify ourselves
+	enet_host_flush(client);
+	
 	iser & pom & pom & contactUuid & contactEndianess;
 	logNetwork->info("Established connection with %s. UUID: %s", pom, contactUuid);
 	mutexRead = std::make_shared<boost::mutex>();
@@ -55,13 +57,13 @@ void CConnection::init()
 }
 
 CConnection::CConnection(ENetHost * _client, ENetPeer * _peer, std::string Name, std::string UUID)
-	: client(_client), peer(_peer), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
+	: client(_client), peer(_peer), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false)
 {	
-	init();
+	//init();
 }
 
 CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::string Name, std::string UUID)
-	: client(_client), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
+	: client(_client), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false)
 {
 	ENetAddress address;
 	enet_address_set_host(&address, host.c_str());
@@ -73,7 +75,7 @@ CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::s
 		throw std::runtime_error("Can't establish connection :(");
 	}
 	
-	ENetEvent event;
+	/*ENetEvent event;
 	if(enet_host_service(client, &event, 10000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
 	{
 		logNetwork->info("Connection succeded");
@@ -82,39 +84,47 @@ CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::s
 	{
 		enet_peer_reset(peer);
 		throw std::runtime_error("Connection refused by server");
-	}
+	}*/
 	
-	init();
+	//init();
+}
+
+void CConnection::dispatch(ENetPacket * packet)
+{
+	packets.push_back(packet);
+}
+
+const ENetPeer * CConnection::getPeer() const
+{
+	return peer;
 }
 
 int CConnection::write(const void * data, unsigned size)
 {
 	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, packet);
-	enet_host_flush(client);
 	return size;
 }
 int CConnection::read(void * data, unsigned size)
 {
-	ENetEvent event;
 	while(bufferSize < size)
 	{
-		if(enet_host_service(client, &event, 100) <= 0)
-			continue;
-		
-		if(event.type == ENET_EVENT_TYPE_CONNECT)
-			throw std::runtime_error("Connectin event receieved while package expected");
-		
-		if(event.type == ENET_EVENT_TYPE_RECEIVE)
+		if(packets.empty())
 		{
-			if(event.packet->dataLength > 0)
-			{
-				memcpy(buffer + bufferSize, event.packet->data, event.packet->dataLength);
-				bufferSize += event.packet->dataLength;
-			}
+			boost::this_thread::sleep(boost::posix_time::milliseconds(20));
+			continue;
 		}
 		
-		enet_packet_destroy(event.packet);
+		auto * packet = packets.front();
+		packets.pop_front();
+		
+		if(packet->dataLength > 0)
+		{
+			memcpy(buffer + bufferSize, packet->data, packet->dataLength);
+			bufferSize += packet->dataLength;
+		}
+		
+		enet_packet_destroy(packet);
 	}
 	
 	assert(bufferSize == size);
@@ -122,7 +132,7 @@ int CConnection::read(void * data, unsigned size)
 	unsigned ret = std::min(size, bufferSize);
 	memcpy(data, buffer, ret);
 	if(ret < bufferSize)
-		memcpy(buffer, buffer + ret, bufferSize);
+		memcpy(buffer, buffer + ret, bufferSize - ret);
 	bufferSize -= ret;
 
 	return ret;
@@ -134,6 +144,9 @@ CConnection::~CConnection()
 	
 	if(handler)
 		handler->join();
+	
+	for(auto * packet : packets)
+		enet_packet_destroy(packet);
 
 	close();
 }
@@ -149,22 +162,7 @@ CConnection & CConnection::operator&(const T &t) {
 
 void CConnection::close()
 {
-	ENetEvent event;
 	enet_peer_disconnect(peer, 0);
-
-	while(enet_host_service(client, & event, 100) > 0)
-	{
-		switch (event.type)
-		{
-		case ENET_EVENT_TYPE_RECEIVE:
-			enet_packet_destroy(event.packet);
-			break;
-		case ENET_EVENT_TYPE_DISCONNECT:
-			return;
-		}
-	}
-	/* We've arrived here, so the disconnect attempt didn't */
-	/* succeed yet.  Force the connection down.             */
 	enet_peer_reset(peer);
 }
 
@@ -205,6 +203,7 @@ void CConnection::sendPack(const CPack * pack)
 	boost::unique_lock<boost::mutex> lock(*mutexWrite);
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
 	oser & pack;
+	enet_host_flush(client);
 }
 
 void CConnection::disableStackSendingByID()

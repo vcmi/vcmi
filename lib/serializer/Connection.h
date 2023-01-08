@@ -23,12 +23,12 @@ struct CPack;
 class DLL_LINKAGE CConnection
 	: public IBinaryReader, public IBinaryWriter, public std::enable_shared_from_this<CConnection>
 {
-	void init();
 	void reportState(vstd::CLoggerBase * out) override;
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
 	
+	std::list<ENetPacket*> packets;
 	ENetPeer * peer = nullptr;
 	ENetHost * client = nullptr;
 	char * buffer;
@@ -51,6 +51,9 @@ public:
 
 	CConnection(ENetHost * client, ENetPeer * peer, std::string Name, std::string UUID);
 	CConnection(ENetHost * client, std::string host, ui16 port, std::string Name, std::string UUID);
+	void init(); //must be called from outside after connection message received
+	void dispatch(ENetPacket * packet);
+	const ENetPeer * getPeer() const;
 
 	void close();
 	bool isOpen() const;

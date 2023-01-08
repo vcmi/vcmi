@@ -86,6 +86,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	void threadHandleConnection();
 	void threadRunServer();
+	void threadPoll();
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
@@ -103,6 +104,7 @@ public:
 
 	std::unique_ptr<CStopWatch> th;
 	std::shared_ptr<boost::thread> threadRunLocalServer;
+	std::shared_ptr<boost::thread> threadPollClient;
 
 	std::shared_ptr<CConnection> c;
 	CClient * client;
