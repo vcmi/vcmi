@@ -40,8 +40,8 @@ public:
 	using SpecialPalette = std::array<SDL_Color, 7>;
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr, ui8 alpha = 255) const=0;
-	virtual void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src, ui8 alpha = 255) const = 0;
+	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr, ui8 alpha = 255) = 0;
+	virtual void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src, ui8 alpha = 255) = 0;
 
 	virtual std::shared_ptr<IImage> scaleFast(float scale) const = 0;
 
