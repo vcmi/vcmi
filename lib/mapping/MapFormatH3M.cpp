@@ -24,6 +24,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/MapObjects.h"
 #include "../VCMI_Lib.h"
+#include "../TerrainHandler.h"
 #include "../NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

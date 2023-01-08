@@ -20,6 +20,7 @@
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../HeroBonus.h"
 

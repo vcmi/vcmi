@@ -12,6 +12,8 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
+#include "../TerrainHandler.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 const std::vector<CDrawLinesOperation::LinePattern> CDrawLinesOperation::patterns =

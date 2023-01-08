@@ -12,7 +12,7 @@
 
 #include "../int3.h"
 #include "../CRandomGenerator.h"
-#include "Terrain.h"
+#include "../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

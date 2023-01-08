@@ -38,6 +38,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/ScopeGuard.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/TerrainHandler.h"
 #include "CGameHandler.h"
 #include "CVCMIServer.h"
 #include "../lib/CCreatureSet.h"

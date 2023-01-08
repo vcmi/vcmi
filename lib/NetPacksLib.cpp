@@ -27,6 +27,7 @@
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
 #include "CPlayerState.h"
+#include "TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

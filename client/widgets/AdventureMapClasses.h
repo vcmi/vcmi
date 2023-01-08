@@ -11,7 +11,6 @@
 
 #include "ObjectLists.h"
 #include "../../lib/FunctionList.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

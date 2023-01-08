@@ -12,6 +12,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class TerrainType;
+class RiverType;
+class RoadType;
+
 /// The map event is an event which e.g. gives or takes resources of a specific
 /// amount to/from players and can appear regularly or once a time.
 class DLL_LINKAGE CMapEvent

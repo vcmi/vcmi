@@ -17,6 +17,7 @@
 #include "RmgMap.h"
 #include "CMapGenerator.h"
 #include "Functions.h"
+#include "../TerrainHandler.h"
 #include "../CRandomGenerator.h"
 #include "../mapping/CMapEditManager.h"
 

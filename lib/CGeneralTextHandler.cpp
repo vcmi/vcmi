@@ -18,7 +18,7 @@
 #include "GameConstants.h"
 #include "mapObjects/CQuest.h"
 #include "VCMI_Lib.h"
-#include "Terrain.h"
+#include "TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

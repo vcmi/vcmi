@@ -1,5 +1,5 @@
 /*
- * Terrain.h, part of VCMI engine
+ * TerrainHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -143,6 +143,9 @@ public:
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RoadId getId() const override { return id;}
+
+	std::string getNameTextID() const;
+	std::string getNameTranslated() const;
 
 	std::string tilesFilename;
 	std::string shortIdentifier;

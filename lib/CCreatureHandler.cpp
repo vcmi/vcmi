@@ -16,7 +16,7 @@
 #include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
-#include "Terrain.h"
+#include "TerrainHandler.h"
 #include "StringConstants.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"

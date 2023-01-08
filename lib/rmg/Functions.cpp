@@ -21,6 +21,7 @@
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
+#include "../TerrainHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"

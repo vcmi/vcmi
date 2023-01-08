@@ -19,7 +19,7 @@
 #include "CObjectHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
-#include "../Terrain.h"
+#include "../TerrainHandler.h"
 
 #include "CRewardableConstructor.h"
 

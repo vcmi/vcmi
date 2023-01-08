@@ -13,7 +13,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
-#include "../Terrain.h"
+//#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

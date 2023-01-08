@@ -19,7 +19,6 @@
 #include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

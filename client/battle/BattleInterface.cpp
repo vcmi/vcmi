@@ -41,6 +41,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/TerrainHandler.h"
 
 CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
 

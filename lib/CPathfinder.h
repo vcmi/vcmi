@@ -13,7 +13,6 @@
 #include "IGameCallback.h"
 #include "HeroBonus.h"
 #include "int3.h"
-#include "Terrain.h"
 
 #include <boost/heap/fibonacci_heap.hpp>
 

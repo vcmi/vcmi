@@ -25,6 +25,7 @@
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
 #include "ScriptHandler.h"
+#include "TerrainHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
@@ -526,7 +527,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 
 void CContentHandler::load(CModInfo & mod)
 {
-	bool validate = false;//(mod.validation != CModInfo::PASSED);
+	bool validate = (mod.validation != CModInfo::PASSED);
 
 	if (!loadMod(mod.identifier, validate))
 		mod.validation = CModInfo::FAILED;

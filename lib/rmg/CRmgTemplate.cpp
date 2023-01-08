@@ -17,7 +17,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h"
-#include "../Terrain.h"
+#include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
 

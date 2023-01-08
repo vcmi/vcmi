@@ -14,7 +14,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/rmg/ObstaclePlacer.h"
 #include "../lib/CSkillHandler.h"

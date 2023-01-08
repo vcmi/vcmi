@@ -32,6 +32,7 @@
 #include "CPlayerState.h"
 #include "CSkillHandler.h"
 #include "ScriptHandler.h"
+#include "TerrainHandler.h"
 
 #include "serializer/Connection.h"
 

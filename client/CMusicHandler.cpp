@@ -20,7 +20,7 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,

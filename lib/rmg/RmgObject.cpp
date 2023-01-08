@@ -18,6 +18,7 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "Functions.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

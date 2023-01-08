@@ -12,6 +12,7 @@
 #include "CMapOperation.h"
 
 #include "../VCMI_Lib.h"
+#include "../TerrainHandler.h"
 #include "CMap.h"
 #include "MapEditUtils.h"
 

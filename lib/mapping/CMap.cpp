@@ -15,6 +15,7 @@
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CGeneralTextHandler.h"

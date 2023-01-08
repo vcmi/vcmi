@@ -30,7 +30,7 @@
 #include "CMT.h"
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/filesystem/ResourceID.h"
 #include "../lib/JsonDetail.h"
 

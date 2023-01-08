@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "CMapGenOptions.h"

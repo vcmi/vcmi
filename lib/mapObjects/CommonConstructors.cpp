@@ -13,6 +13,7 @@
 #include "CGTownInstance.h"
 #include "CGHeroInstance.h"
 #include "CBank.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
 #include "../CCreatureHandler.h"

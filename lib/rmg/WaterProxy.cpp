@@ -12,6 +12,7 @@
 #include "WaterProxy.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"

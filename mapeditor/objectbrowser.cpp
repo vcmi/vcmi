@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "objectbrowser.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/TerrainHandler.h"
 
 ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
 	: QSortFilterProxyModel{parent}, terrain(ETerrainId::ANY_TERRAIN)

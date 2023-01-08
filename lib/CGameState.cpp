@@ -20,6 +20,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
+#include "TerrainHandler.h"
 #include "CSkillHandler.h"
 #include "mapping/CMap.h"
 #include "mapping/CMapService.h"

@@ -18,6 +18,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "TerrainHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"

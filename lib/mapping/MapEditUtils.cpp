@@ -13,6 +13,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../JsonNode.h"
+#include "../TerrainHandler.h"
 #include "CMap.h"
 #include "CMapOperation.h"
 

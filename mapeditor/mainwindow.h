@@ -4,7 +4,7 @@
 #include <QGraphicsScene>
 #include <QStandardItemModel>
 #include "mapcontroller.h"
-#include "../lib/Terrain.h"
+//#include "../lib/TerrainHandler.h"
 #include "resourceExtractor/ResourceConverter.h"
 
 class ObjectBrowser;

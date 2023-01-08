@@ -18,7 +18,6 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

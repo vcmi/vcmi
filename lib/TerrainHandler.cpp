@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "Terrain.h"
+#include "TerrainHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
@@ -156,6 +156,8 @@ RiverType * RiverTypeHandler::loadFromJson(
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->deltaName       = json["delta"].String();
 
+	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
+
 	return info;
 }
 
@@ -194,6 +196,8 @@ RoadType * RoadTypeHandler::loadFromJson(
 	info->tilesFilename   = json["tilesFilename"].String();
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
+
+	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
 
 	return info;
 }
@@ -257,8 +261,7 @@ bool TerrainType::isTransitionRequired() const
 
 std::string TerrainType::getNameTextID() const
 {
-	TextIdentifier id{ "terrain", modScope, identifier,  "name" };
-	return id.get();
+	return TextIdentifier( "terrain", modScope, identifier,  "name" ).get();
 }
 
 std::string TerrainType::getNameTranslated() const
@@ -268,6 +271,26 @@ std::string TerrainType::getNameTranslated() const
 
 TerrainType::TerrainType()
 {}
+
+std::string RoadType::getNameTextID() const
+{
+	return TextIdentifier( "terrain", identifier,  "name" ).get();
+}
+
+std::string RoadType::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string RiverType::getNameTextID() const
+{
+	return TextIdentifier( "terrain", identifier,  "name" ).get();
+}
+
+std::string RiverType::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
 
 RiverType::RiverType():
 	id(River::NO_RIVER)

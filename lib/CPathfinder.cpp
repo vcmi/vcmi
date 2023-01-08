@@ -18,6 +18,7 @@
 #include "CStopWatch.h"
 #include "CConfigHandler.h"
 #include "CPlayerState.h"
+#include "TerrainHandler.h"
 #include "PathfinderUtil.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

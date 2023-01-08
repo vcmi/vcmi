@@ -20,6 +20,7 @@
 #include "../CGameState.h"
 #include "../StringConstants.h"
 #include "../mapping/CMap.h"
+#include "../TerrainHandler.h"
 
 #include "CObjectClassesHandler.h"
 #include "CGTownInstance.h"
