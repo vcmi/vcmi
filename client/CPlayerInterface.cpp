@@ -2550,6 +2550,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
+
+		// ugly workaround to force instant update of adventure map
+		adventureInt->animValHitCount = 8;
 	}
 
 	setMovementStatus(false);
