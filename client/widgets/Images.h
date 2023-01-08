@@ -141,7 +141,7 @@ public:
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0);
+	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0, uint8_t alpha = 255);
 	~CShowableAnim();
 
 	//set animation to group or part of group

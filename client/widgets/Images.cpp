@@ -339,7 +339,7 @@ void CAnimImage::playerColored(PlayerColor currPlayer)
 			anim->getImage(0, group)->playerColored(player);
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group):
+CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group, uint8_t alpha):
 	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
@@ -349,7 +349,7 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Del
 	flags(Flags),
 	xOffset(0),
 	yOffset(0),
-	alpha(255)
+	alpha(alpha)
 {
 	anim->loadGroup(group);
 	last = anim->size(group);
