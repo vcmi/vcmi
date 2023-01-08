@@ -356,7 +356,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "%l %n [%t] - %m"
+							"default" : "[%c] %l %n - %m"
 						}
 					}
 				},

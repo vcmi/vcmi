@@ -295,6 +295,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	boost::algorithm::replace_first(message, "%n", record.domain.getName());
 	boost::algorithm::replace_first(message, "%t", record.threadId);
 	boost::algorithm::replace_first(message, "%m", record.message);
+	boost::algorithm::replace_first(message, "%c", boost::posix_time::to_simple_string(record.timeStamp));
 
 	//return boost::to_string (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
