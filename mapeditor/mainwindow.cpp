@@ -468,6 +468,9 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 		itemGroup = itms.front();
 	}
 
+	if (VLC->objtypeh->knownObjects().count(ID) == 0)
+		return;
+
 	auto knownSubObjects = VLC->objtypeh->knownSubObjects(ID);
 	for(auto secondaryID : knownSubObjects)
 	{

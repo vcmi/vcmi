@@ -372,7 +372,7 @@ std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) const
 {
-	if(type == Obj::PRISON || type == Obj::HERO)
+	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
 	assert(type < objects.size());
