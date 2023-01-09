@@ -14,7 +14,7 @@
 			"font": "big",
 			"alignment": "center",
 			"color": "yellow",
-			"text": 738,
+			"text": "core.genrltxt.738",
 			"position": {"x": 222, "y": 36}
 		},
 
@@ -24,7 +24,7 @@
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
-			"text": 739,
+			"text": "core.genrltxt.739",
 			"position": {"x": 222, "y": 56}
 		},
 
@@ -34,7 +34,7 @@
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
-			"text": 752,
+			"text": "core.genrltxt.752",
 			"position": {"x": 104, "y": 97}
 		},
 
@@ -48,7 +48,7 @@
 					"index": 0,
 					"type": "toggleButton",
 					"image": "RANSIZS",
-					"zelp": 198,
+					"help": "core.help.198",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0},
 				},
@@ -56,7 +56,7 @@
 				{
 					"type": "toggleButton",
 					"image": "RANSIZM",
-					"zelp": 199,
+					"help": "core.help.199",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 47, "y": 0},
 				},
@@ -64,7 +64,7 @@
 				{
 					"type": "toggleButton",
 					"image": "RANSIZL",
-					"zelp": 200,
+					"help": "core.help.200",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 94, "y": 0},
 				},
@@ -72,7 +72,7 @@
 				{
 					"type": "toggleButton",
 					"image": "RANSIZX",
-					"zelp": 201,
+					"help": "core.help.201",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 141, "y": 0}
 				}
@@ -100,56 +100,56 @@
 					"index": 1,
 					"type": "toggleButton",
 					"image": "RANNUM1",
-					"zelp": 204,
+					"help": "core.help.204",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM2",
-					"zelp": 205,
+					"help": "core.help.205",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 32, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM3",
-					"zelp": 206,
+					"help": "core.help.206",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 64, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM4",
-					"zelp": 207,
+					"help": "core.help.207",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 96, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM5",
-					"zelp": 208,
+					"help": "core.help.208",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 128, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM6",
-					"zelp": 209,
+					"help": "core.help.209",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 160, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM7",
-					"zelp": 210,
+					"help": "core.help.210",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 192, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM8",
-					"zelp": 211,
+					"help": "core.help.211",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 224, "y": 0}
 				},
@@ -157,7 +157,7 @@
 					"index": -1,
 					"type": "toggleButton",
 					"image": "RANRAND",
-					"zelp": 212,
+					"help": "core.help.212",
 					"position": {"x": 256, "y": 0},
 				}
 			],
@@ -175,56 +175,56 @@
 					"index": 0,
 					"type": "toggleButton",
 					"image": "RANNUM0",
-					"zelp": 214,
+					"help": "core.help.214",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM1",
-					"zelp": 215,
+					"help": "core.help.215",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 32, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM2",
-					"zelp": 216,
+					"help": "core.help.216",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 64, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM3",
-					"zelp": 217,
+					"help": "core.help.217",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 96, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM4",
-					"zelp": 218,
+					"help": "core.help.218",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 128, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM5",
-					"zelp": 219,
+					"help": "core.help.219",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 160, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM6",
-					"zelp": 220,
+					"help": "core.help.220",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 192, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM7",
-					"zelp": 221,
+					"help": "core.help.221",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 224, "y": 0}
 				},
@@ -232,7 +232,7 @@
 					"index": -1,
 					"type": "toggleButton",
 					"image": "RANRAND",
-					"zelp": 222,
+					"help": "core.help.222",
 					"position": {"x": 256, "y": 0},
 				}
 			],
@@ -250,56 +250,56 @@
 					"index": 0,
 					"type": "toggleButton",
 					"image": "RANNUM0",
-					"zelp": 224,
+					"help": "core.help.224",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM1",
-					"zelp": 225,
+					"help": "core.help.225",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 32, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM2",
-					"zelp": 226,
+					"help": "core.help.226",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 64, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM3",
-					"zelp": 227,
+					"help": "core.help.227",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 96, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM4",
-					"zelp": 228,
+					"help": "core.help.228",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 128, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM5",
-					"zelp": 229,
+					"help": "core.help.229",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 160, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM6",
-					"zelp": 230,
+					"help": "core.help.230",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 192, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM7",
-					"zelp": 231,
+					"help": "core.help.231",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 224, "y": 0}
 				},
@@ -307,7 +307,7 @@
 					"index": -1,
 					"type": "toggleButton",
 					"image": "RANRAND",
-					"zelp": 232,
+					"help": "core.help.232",
 					"position": {"x": 256, "y": 0},
 				}
 			],
@@ -325,49 +325,49 @@
 					"index": 0,
 					"type": "toggleButton",
 					"image": "RANNUM0",
-					"zelp": 234,
+					"help": 234,
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM1",
-					"zelp": 235,
+					"help": "core.help.235",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 32, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM2",
-					"zelp": 236,
+					"help": "core.help.236",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 64, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM3",
-					"zelp": 237,
+					"help": "core.help.237",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 96, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM4",
-					"zelp": 238,
+					"help": "core.help.238",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 128, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM5",
-					"zelp": 239,
+					"help": "core.help.239",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 160, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNUM6",
-					"zelp": 240,
+					"help": "core.help.240",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 192, "y": 0}
 				},
@@ -375,7 +375,7 @@
 					"index": -1,
 					"type": "toggleButton",
 					"image": "RANRAND",
-					"zelp": 241,
+					"help": "core.help.241",
 					"position": {"x": 256, "y": 0},
 				}
 			],
@@ -393,21 +393,21 @@
 					"index": 0,
 					"type": "toggleButton",
 					"image": "RANNONE",
-					"zelp": 243,
+					"help": "core.help.243",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANNORM",
-					"zelp": 244,
+					"help": "core.help.244",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 85, "y": 0}
 				},
 				{
 					"type": "toggleButton",
 					"image": "RANISLD",
-					"zelp": 245,
+					"help": "core.help.245",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 170, "y": 0}
 				},
@@ -415,7 +415,7 @@
 					"index": -1,
 					"type": "toggleButton",
 					"image": "RANRAND",
-					"zelp": 246,
+					"help": "core.help.246",
 					"position": {"x": 256, "y": 0},
 				}
 			],
@@ -433,7 +433,7 @@
 					"index": 2,
 					"type": "toggleButton",
 					"image": "RANWEAK",
-					"zelp": 248,
+					"help": "core.help.248",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 0, "y": 0}
 				},
@@ -441,7 +441,7 @@
 					"index": 3,
 					"type": "toggleButton",
 					"image": "RANNORM",
-					"zelp": 249,
+					"help": "core.help.249",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 85, "y": 0}
 				},
@@ -449,7 +449,7 @@
 					"index": 4,
 					"type": "toggleButton",
 					"image": "RANSTRG",
-					"zelp": 250,
+					"help": "core.help.250",
 					"imageOrder": [0, 1, 1, 3],
 					"position": {"x": 170, "y": 0}
 				},
@@ -457,7 +457,7 @@
 					"index": -2,
 					"type": "toggleButton",
 					"image": "RANRAND",
-					"zelp": 251,
+					"help": "core.help.251",
 					"position": {"x": 256, "y": 0},
 				}
 			],
@@ -470,7 +470,7 @@
 			"type": "button",
 			"position": {"x": 54, "y": 535},
 			"image": "RANSHOW",
-			"zelp": 252
+			"help": "core.help.252"
 		},
 
 		{
@@ -482,27 +482,27 @@
 			[
 				{
 					"position": {"x": 68, "y": 133},
-					"text": 753
+					"text": "core.genrltxt.753"
 				},
 				{
 					"position": {"x": 68, "y": 199},
-					"text": 754
+					"text": "core.genrltxt.754"
 				},
 				{
 					"position": {"x": 68, "y": 265},
-					"text": 755
+					"text": "core.genrltxt.755"
 				},
 				{
 					"position": {"x": 68, "y": 331},
-					"text": 756
+					"text": "core.genrltxt.756"
 				},
 				{
 					"position": {"x": 68, "y": 398},
-					"text": 757
+					"text": "core.genrltxt.757"
 				},
 				{
 					"position": {"x": 68, "y": 465},
-					"text": 758
+					"text": "core.genrltxt.758"
 				}
 			]
 		}

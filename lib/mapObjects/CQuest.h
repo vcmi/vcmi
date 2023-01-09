@@ -24,9 +24,28 @@ class DLL_LINKAGE CQuest final
 	mutable std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
 
 public:
-	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
-		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9, MISSION_KEYMASTER = 10};
-	enum Eprogress {NOT_ACTIVE, IN_PROGRESS, COMPLETE};
+	enum Emission {
+		MISSION_NONE = 0,
+		MISSION_LEVEL = 1,
+		MISSION_PRIMARY_STAT = 2,
+		MISSION_KILL_HERO = 3,
+		MISSION_KILL_CREATURE = 4,
+		MISSION_ART = 5,
+		MISSION_ARMY = 6,
+		MISSION_RESOURCES = 7,
+		MISSION_HERO = 8,
+		MISSION_PLAYER = 9,
+		MISSION_KEYMASTER = 10
+	};
+
+	enum Eprogress {
+		NOT_ACTIVE,
+		IN_PROGRESS,
+		COMPLETE
+	};
+
+	static const std::string  & missionName(Emission mission);
+	static const std::string  & missionState(int index);
 
 	si32 qid; //unique quest id for serialization / identification
 

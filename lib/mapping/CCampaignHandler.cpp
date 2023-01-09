@@ -79,7 +79,7 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	ret->header = readHeaderFromMemory(reader);
 	ret->header.filename = name;
 
-	int howManyScenarios = static_cast<int>(VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size());
+	int howManyScenarios = static_cast<int>(VLC->generaltexth->getCampaignLength(ret->header.mapVersion));
 	for(int g=0; g<howManyScenarios; ++g)
 	{
 		CCampaignScenario sc = readScenarioFromMemory(reader, ret->header.version, ret->header.mapVersion);
@@ -546,11 +546,7 @@ std::string CCampaignHandler::prologVideoName(ui8 index)
 std::string CCampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
-
-	VLC->generaltexth->readToVector("Data/CmpMusic.txt", music);
-	if(index < music.size())
-		return music[index];
-	return "";
+	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(int(index)));
 }
 
 std::string CCampaignHandler::prologVoiceName(ui8 index)
