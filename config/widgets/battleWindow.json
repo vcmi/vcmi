@@ -20,7 +20,7 @@
 			"name": "options",
 			"position": {"x": 4, "y": 560},
 			"image": "icm003",
-			"zelp": 381,
+			"help": "core.help.381",
 			"callback": "options",
 			"hotkey": "o"
 		},
@@ -30,7 +30,7 @@
 			"name": "surrender",
 			"position": {"x": 55, "y": 560},
 			"image": "icm001",
-			"zelp": 379,
+			"help": "core.help.379",
 			"callback": "surrender",
 			"hotkey": "s"
 		},
@@ -40,7 +40,7 @@
 			"name": "flee",
 			"position": {"x": 106, "y": 560},
 			"image": "icm002",
-			"zelp": 380,
+			"help": "core.help.380",
 			"callback": "flee",
 			"hotkey": "r"
 		},
@@ -50,7 +50,7 @@
 			"name": "autofight",
 			"position": {"x": 157, "y": 560},
 			"image": "icm004",
-			"zelp": 382,
+			"help": "core.help.382",
 			"callback": "autofight",
 			"hotkey": "a"
 		},
@@ -60,7 +60,7 @@
 			"name": "cast",
 			"position": {"x": 646, "y": 560},
 			"image": "icm005",
-			"zelp": 385,
+			"help": "core.help.385",
 			"callback": "spellbook",
 			"hotkey": "c"
 		},
@@ -70,7 +70,7 @@
 			"name": "wait",
 			"position": {"x": 697, "y": 560},
 			"image": "icm006",
-			"zelp": 386,
+			"help": "core.help.386",
 			"callback": "wait",
 			"hotkey": "w"
 		},
@@ -80,7 +80,7 @@
 			"name": "defence",
 			"position": {"x": 748, "y": 560},
 			"image": "icm007",
-			"zelp": 387,
+			"help": "core.help.387",
 			"callback": "defence",
 			"hotkey": ["d", "space"]
 		},
@@ -90,7 +90,6 @@
 			"name": "consoleUp",
 			"position": {"x": 625, "y": 560},
 			"image": "ComSlide",
-			"zelp": "",
 			"callback": "consoleUp",
 			"imageOrder": [0, 1, 0, 0],
 			"hotkey": "up"
@@ -101,7 +100,6 @@
 			"name": "consoleDown",
 			"position": {"x": 625, "y": 579},
 			"image": "ComSlide",
-			"zelp": "",
 			"callback": "consoleDown",
 			"imageOrder": [2, 3, 2, 2],
 			"hotkey": "down"
@@ -117,9 +115,8 @@
 		{
 			"type": "button",
 			"name": "tacticNext",
-			"position": {"x": 213, "y": 560},
+			"position": {"x": 213, "y": 4},
 			"image": "icm011",
-			"zelp": "",
 			"callback": "tacticNext",
 			"hotkey": "space"
 		},
@@ -127,9 +124,8 @@
 		{
 			"type": "button",
 			"name": "tacticEnd",
-			"position": {"x": 419, "y": 560},
+			"position": {"x": 419, "y": 4},
 			"image": "icm012",
-			"zelp": "",
 			"callback": "tacticEnd",
 			"hotkey": "enter"
 		}
