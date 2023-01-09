@@ -205,6 +205,8 @@ void BattleWindow::tacticPhaseStarted()
 	menuTactics->enable();
 	tacticNext->enable();
 	tacticEnd->enable();
+
+	redraw();
 }
 
 void BattleWindow::tacticPhaseEnded()
@@ -221,6 +223,8 @@ void BattleWindow::tacticPhaseEnded()
 	menuTactics->disable();
 	tacticNext->disable();
 	tacticEnd->disable();
+
+	redraw();
 }
 
 void BattleWindow::bOptionsf()
