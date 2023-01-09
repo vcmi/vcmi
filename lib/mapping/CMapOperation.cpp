@@ -346,7 +346,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		int cy = pos.y + (i / 3) - 1;
 		int3 currentPos(cx, cy, pos.z);
 		bool isAlien = false;
-		TerrainType * terType = nullptr;
+		const TerrainType * terType = nullptr;
 		if(!map->isInTheMap(currentPos))
 		{
 			// position is not in the map, so take the ter type from the neighbor tile

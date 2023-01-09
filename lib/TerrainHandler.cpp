@@ -204,7 +204,7 @@ RoadType * RoadTypeHandler::loadFromJson(
 
 const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
 {
-	static const std::vector<std::string> typeNames = { "river" };
+	static const std::vector<std::string> typeNames = { "road" };
 	return typeNames;
 }
 
@@ -274,7 +274,7 @@ TerrainType::TerrainType()
 
 std::string RoadType::getNameTextID() const
 {
-	return TextIdentifier( "terrain", identifier,  "name" ).get();
+	return TextIdentifier( "road", identifier,  "name" ).get();
 }
 
 std::string RoadType::getNameTranslated() const
@@ -284,7 +284,7 @@ std::string RoadType::getNameTranslated() const
 
 std::string RiverType::getNameTextID() const
 {
-	return TextIdentifier( "terrain", identifier,  "name" ).get();
+	return TextIdentifier( "river", identifier,  "name" ).get();
 }
 
 std::string RiverType::getNameTranslated() const
@@ -293,11 +293,13 @@ std::string RiverType::getNameTranslated() const
 }
 
 RiverType::RiverType():
-	id(River::NO_RIVER)
+	id(River::NO_RIVER),
+	identifier("empty")
 {}
 
 RoadType::RoadType():
 	id(Road::NO_ROAD),
+	identifier("empty"),
 	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {}
 VCMI_LIB_NAMESPACE_END
