@@ -52,48 +52,69 @@ void BattleConsole::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	Point consolePos(pos.x + 10,      pos.y + 19);
-	Point textPos   (pos.x + pos.w/2, pos.y + 19);
+	Point line1 (pos.x + pos.w/2, pos.y +  8);
+	Point line2 (pos.x + pos.w/2, pos.y + 24);
 
-	if (!consoleText.empty())
+	auto visibleText = getVisibleText();
+
+	if(visibleText.size() > 0)
+		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[0], Colors::WHITE, line1);
+
+	if(visibleText.size() > 1)
+		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[1], Colors::WHITE, line2);
+}
+
+std::vector<std::string> BattleConsole::getVisibleText()
+{
+	// high priority texts that hide battle log entries
+	for (auto const & text : {consoleText, hoverText} )
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesLeft(to, CMessage::breakText(consoleText, pos.w, FONT_SMALL), Colors::WHITE, consolePos);
+		if (text.empty())
+			continue;
+
+		auto result = CMessage::breakText(consoleText, pos.w, FONT_SMALL);
+
+		if(result.size() > 2)
+			result.resize(2);
+		return result;
 	}
-	else if(!hoverText.empty())
+
+	// log is small enough to fit entirely - display it as such
+	if (logEntries.size() < 3)
+		return logEntries;
+
+	return { logEntries[scrollPosition - 1], logEntries[scrollPosition] };
+}
+
+std::vector<std::string> BattleConsole::splitText(const std::string &text)
+{
+	std::vector<std::string> lines;
+	std::vector<std::string> output;
+
+	boost::split(lines, text, boost::is_any_of("\n"));
+
+	for (auto const & line : lines)
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(hoverText, pos.w, FONT_SMALL), Colors::WHITE, textPos);
-	}
-	else if(logEntries.size())
-	{
-		if(logEntries.size()==1)
+		if (graphics->fonts[FONT_SMALL]->getStringWidth(text) < pos.w)
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			output.push_back(line);
 		}
 		else
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
-			textPos.y += 16;
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			std::vector<std::string> substrings = CMessage::breakText(line, pos.w, FONT_SMALL);
+			output.insert(output.end(), substrings.begin(), substrings.end());
 		}
 	}
+	return output;
 }
 
 bool BattleConsole::addText(const std::string & text)
 {
 	logGlobal->trace("CBattleConsole message: %s", text);
-	if(text.size()>70)
-		return false; //text too long!
-	int firstInToken = 0;
-	for(size_t i = 0; i < text.size(); ++i) //tokenize
-	{
-		if(text[i] == 10)
-		{
-			logEntries.push_back( text.substr(firstInToken, i-firstInToken) );
-			firstInToken = (int)i+1;
-		}
-	}
 
-	logEntries.push_back( text.substr(firstInToken, text.size()) );
+	auto newLines = splitText(text);
+
+	logEntries.insert(logEntries.end(), newLines.begin(), newLines.end());
 	scrollPosition = (int)logEntries.size()-1;
 	redraw();
 	return true;
