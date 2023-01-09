@@ -72,7 +72,7 @@ std::vector<std::string> BattleConsole::getVisibleText()
 		if (text.empty())
 			continue;
 
-		auto result = CMessage::breakText(consoleText, pos.w, FONT_SMALL);
+		auto result = CMessage::breakText(text, pos.w, FONT_SMALL);
 
 		if(result.size() > 2)
 			result.resize(2);
