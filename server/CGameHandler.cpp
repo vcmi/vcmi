@@ -3916,9 +3916,17 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
 			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
-	auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
-	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
-		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+
+	try
+	{
+		auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+		if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+	}
+	catch (boost::bad_get const &)
+	{
+		// object other than hero received an art - ignore
+	}
 
 	MoveArtifact ma(&src, &dst);
 	sendAndApply(&ma);
