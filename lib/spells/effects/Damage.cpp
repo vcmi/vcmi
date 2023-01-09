@@ -33,7 +33,6 @@ VCMI_REGISTER_SPELL_EFFECT(Damage, EFFECT_NAME);
 
 Damage::Damage()
 	: UnitEffect(),
-	customEffectId(-1),
 	killByPercentage(false),
 	killByCount(false)
 {
@@ -74,12 +73,6 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 				damageToDisplay += bsa.damageAmount;
 				killed += bsa.killedAmount;
 			}
-			if(customEffectId >= 0)
-			{
-				bsa.effect = 82;
-				bsa.flags |= BattleStackAttacked::EFFECT;
-			}
-
 			stacksInjured.stacks.push_back(bsa);
 		}
 		targetIndex++;
@@ -116,7 +109,6 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 
 void Damage::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
-	handler.serializeInt("customEffectId", customEffectId, -1);
 	handler.serializeBool("killByPercentage", killByPercentage);
 	handler.serializeBool("killByCount", killByCount);
 }
@@ -190,32 +182,32 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, 376);
+			line.addTxt(MetaString::GENERAL_TXT, 376); // Spell %s does %d damage
 			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
 			line.addReplacement((int)damage);
 
 			log.push_back(line);
 		}
 
+		if (kills > 0)
 		{
 			MetaString line;
-			const int textId = (kills > 1) ? 379 : 378;
-			line.addTxt(MetaString::GENERAL_TXT, textId);
-
-			if(kills > 1)
-				line.addReplacement(kills);
 
 			if(kills > 1)
 			{
+				line.addTxt(MetaString::GENERAL_TXT, 379); // %d %s perishes
+				line.addReplacement(kills);
+
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 43);
+					line.addReplacement(MetaString::GENERAL_TXT, 43); // creatures
 				else
 					firstTarget->addNameReplacement(line, true);
 			}
-			else
+			else // single creature killed
 			{
+				line.addTxt(MetaString::GENERAL_TXT, 378); // one %s perishes
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 42);
+					line.addReplacement(MetaString::GENERAL_TXT, 42); // creature
 				else
 					firstTarget->addNameReplacement(line, false);
 			}

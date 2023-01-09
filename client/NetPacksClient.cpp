@@ -741,7 +741,7 @@ void BattleResult::applyFirstCl(CClient *cl)
 void BattleStackMoved::applyFirstCl(CClient *cl)
 {
 	const CStack * movedStack = GS(cl)->curB->battleGetStackByID(stack);
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStackMoved, movedStack, tilesToMove, distance);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStackMoved, movedStack, tilesToMove, distance, teleporting);
 }
 
 void BattleAttack::applyFirstCl(CClient *cl)
@@ -751,7 +751,7 @@ void BattleAttack::applyFirstCl(CClient *cl)
 
 void BattleAttack::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa, shot());
 }
 
 void StartAction::applyFirstCl(CClient *cl)
@@ -773,7 +773,7 @@ void SetStackEffect::applyCl(CClient *cl)
 
 void StacksInjured::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks, false);
 }
 
 void BattleResultsApplied::applyCl(CClient *cl)
@@ -785,7 +785,7 @@ void BattleResultsApplied::applyCl(CClient *cl)
 
 void BattleUnitsChanged::applyCl(CClient * cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks, customEffects);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks);
 }
 
 void BattleObstaclesChanged::applyCl(CClient *cl)

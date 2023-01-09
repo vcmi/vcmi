@@ -1,5 +1,5 @@
 /*
- * Damage.h, part of VCMI engine
+ * DemonSummon.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,36 +11,31 @@
 #pragma once
 
 #include "UnitEffect.h"
+#include "../../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-struct StacksInjured;
 
 namespace spells
 {
 namespace effects
 {
 
-class Damage : public UnitEffect
+class DemonSummon : public UnitEffect
 {
 public:
-	Damage();
-	virtual ~Damage();
+	DemonSummon();
+	virtual ~DemonSummon();
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
-
 protected:
-	bool isReceptive(const Mechanics * m, const battle::Unit * unit) const override;
+	bool isValidTarget(const Mechanics * m, const battle::Unit * s) const override;
 
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override final;
 
-	int64_t damageForTarget(size_t targetIndex, const Mechanics * m, const battle::Unit * target) const;
-
-	virtual void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const battle::Unit * firstTarget, uint32_t kills, int64_t damage, bool multiple) const;
-
 private:
-	bool killByPercentage;
-	bool killByCount;
+	CreatureID creature;
+
+	bool permanent;
 };
 
 }

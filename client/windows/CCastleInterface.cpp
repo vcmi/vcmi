@@ -54,7 +54,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	pos.y += str->pos.y;
 
 	if(!str->borderName.empty())
-		border = BitmapHandler::loadBitmap(str->borderName, true);
+		border = BitmapHandler::loadBitmap(str->borderName);
 	else
 		border = nullptr;
 

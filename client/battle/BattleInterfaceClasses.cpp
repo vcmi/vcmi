@@ -12,10 +12,11 @@
 
 #include "BattleInterface.h"
 #include "BattleActionsController.h"
+#include "BattleRenderer.h"
 #include "BattleSiegeController.h"
 #include "BattleFieldController.h"
 #include "BattleStacksController.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
@@ -41,6 +42,7 @@
 #include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
@@ -48,70 +50,99 @@
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
-	Point consolePos(pos.x + 10,      pos.y + 17);
-	Point textPos   (pos.x + pos.w/2, pos.y + 17);
+	CIntObject::showAll(to);
 
-	if (!consoleText.empty())
+	Point line1 (pos.x + pos.w/2, pos.y +  8);
+	Point line2 (pos.x + pos.w/2, pos.y + 24);
+
+	auto visibleText = getVisibleText();
+
+	if(visibleText.size() > 0)
+		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[0], Colors::WHITE, line1);
+
+	if(visibleText.size() > 1)
+		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[1], Colors::WHITE, line2);
+}
+
+std::vector<std::string> BattleConsole::getVisibleText()
+{
+	// high priority texts that hide battle log entries
+	for (auto const & text : {consoleText, hoverText} )
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesLeft(to, CMessage::breakText(consoleText, pos.w, FONT_SMALL), Colors::WHITE, consolePos);
+		if (text.empty())
+			continue;
+
+		auto result = CMessage::breakText(text, pos.w, FONT_SMALL);
+
+		if(result.size() > 2)
+			result.resize(2);
+		return result;
 	}
-	else if(!hoverText.empty())
+
+	// log is small enough to fit entirely - display it as such
+	if (logEntries.size() < 3)
+		return logEntries;
+
+	return { logEntries[scrollPosition - 1], logEntries[scrollPosition] };
+}
+
+std::vector<std::string> BattleConsole::splitText(const std::string &text)
+{
+	std::vector<std::string> lines;
+	std::vector<std::string> output;
+
+	boost::split(lines, text, boost::is_any_of("\n"));
+
+	for (auto const & line : lines)
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(hoverText, pos.w, FONT_SMALL), Colors::WHITE, textPos);
-	}
-	else if(logEntries.size())
-	{
-		if(logEntries.size()==1)
+		if (graphics->fonts[FONT_SMALL]->getStringWidth(text) < pos.w)
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			output.push_back(line);
 		}
 		else
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
-			textPos.y += 16;
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			std::vector<std::string> substrings = CMessage::breakText(line, pos.w, FONT_SMALL);
+			output.insert(output.end(), substrings.begin(), substrings.end());
 		}
 	}
+	return output;
 }
 
 bool BattleConsole::addText(const std::string & text)
 {
 	logGlobal->trace("CBattleConsole message: %s", text);
-	if(text.size()>70)
-		return false; //text too long!
-	int firstInToken = 0;
-	for(size_t i = 0; i < text.size(); ++i) //tokenize
-	{
-		if(text[i] == 10)
-		{
-			logEntries.push_back( text.substr(firstInToken, i-firstInToken) );
-			firstInToken = (int)i+1;
-		}
-	}
 
-	logEntries.push_back( text.substr(firstInToken, text.size()) );
+	auto newLines = splitText(text);
+
+	logEntries.insert(logEntries.end(), newLines.begin(), newLines.end());
 	scrollPosition = (int)logEntries.size()-1;
+	redraw();
 	return true;
 }
 void BattleConsole::scrollUp(ui32 by)
 {
 	if(scrollPosition > static_cast<int>(by))
 		scrollPosition -= by;
+	redraw();
 }
 
 void BattleConsole::scrollDown(ui32 by)
 {
 	if(scrollPosition + by < logEntries.size())
 		scrollPosition += by;
+	redraw();
 }
 
-BattleConsole::BattleConsole(const Rect & position)
+BattleConsole::BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size)
 	: scrollPosition(-1)
 	, enteringText(false)
 {
-	pos += position.topLeft();
-	pos.w = position.w;
-	pos.h = position.h;
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pos += objectPos;
+	pos.w = size.x;
+	pos.h = size.y;
+
+	background = std::make_shared<CPicture>(backgroundSource->getSurface(), Rect(imagePos, size), 0, 0 );
 }
 
 void BattleConsole::deactivate()
@@ -137,17 +168,20 @@ void BattleConsole::setEnteringMode(bool on)
 		CSDL_Ext::stopTextInput();
 	}
 	enteringText = on;
+	redraw();
 }
 
 void BattleConsole::setEnteredText(const std::string & text)
 {
 	assert(enteringText == true);
 	consoleText = text;
+	redraw();
 }
 
 void BattleConsole::write(const std::string & Text)
 {
 	hoverText = Text;
+	redraw();
 }
 
 void BattleConsole::clearIfMatching(const std::string & Text)
@@ -161,75 +195,110 @@ void BattleConsole::clear()
 	write({});
 }
 
+const CGHeroInstance * BattleHero::instance()
+{
+	return hero;
+}
+
 void BattleHero::render(Canvas & canvas)
 {
-	auto flagFrame = flagAnimation->getImage(flagAnim, 0, true);
+	size_t groupIndex = static_cast<size_t>(phase);
 
-	if(!flagFrame)
-		return;
+	auto flagFrame = flagAnimation->getImage(flagCurrentFrame, 0, true);
+	auto heroFrame = animation->getImage(currentFrame, groupIndex, true);
 
-	//animation of flag
-	Point flagPosition = pos.topLeft();
+	Point heroPosition = pos.center() - parent->pos.topLeft() - heroFrame->dimensions() / 2;
+	Point flagPosition = pos.center() - parent->pos.topLeft() - flagFrame->dimensions() / 2;
 
-	if(flip)
-		flagPosition += Point(61, 39);
+	if(defender)
+		flagPosition += Point(-4, -41);
 	else
-		flagPosition += Point(72, 39);
-
-
-	auto heroFrame = animation->getImage(currentFrame, phase, true);
+		flagPosition += Point(4, -41);
 
 	canvas.draw(flagFrame, flagPosition);
-	canvas.draw(heroFrame, pos.topLeft());
+	canvas.draw(heroFrame, heroPosition);
 
-	if(++animCount >= 4)
+	flagCurrentFrame += currentSpeed;
+	currentFrame += currentSpeed;
+
+	if(flagCurrentFrame >= flagAnimation->size(0))
+		flagCurrentFrame -= flagAnimation->size(0);
+
+	if(currentFrame >= animation->size(groupIndex))
 	{
-		animCount = 0;
-		if(++flagAnim >= flagAnimation->size(0))
-			flagAnim = 0;
-
-		if(++currentFrame >= lastFrame)
-			switchToNextPhase();
+		currentFrame -= animation->size(groupIndex);
+		switchToNextPhase();
 	}
 }
 
-void BattleHero::setPhase(int newPhase)
+void BattleHero::pause()
+{
+	currentSpeed = 0.f;
+}
+
+void BattleHero::play()
+{
+	//FIXME: un-hardcode speed
+	currentSpeed = 0.25f;
+}
+
+float BattleHero::getFrame() const
+{
+	return currentFrame;
+}
+
+void BattleHero::collectRenderableObjects(BattleRenderer & renderer)
+{
+	auto hex = defender ? BattleHex(GameConstants::BFIELD_WIDTH-1) : BattleHex(0);
+
+	renderer.insert(EBattleFieldLayer::HEROES, hex, [this](BattleRenderer::RendererRef canvas)
+	{
+		render(canvas);
+	});
+}
+
+void BattleHero::onPhaseFinished(const std::function<void()> & callback)
+{
+	phaseFinishedCallback = callback;
+}
+
+void BattleHero::setPhase(EHeroAnimType newPhase)
 {
 	nextPhase = newPhase;
 	switchToNextPhase(); //immediately switch to next phase and then restore idling phase
-	nextPhase = 0;
+	nextPhase = EHeroAnimType::HOLDING;
 }
 
 void BattleHero::hover(bool on)
 {
-	//TODO: Make lines below work properly
+	//TODO: BROKEN CODE
 	if (on)
-		CCS->curh->changeGraphic(ECursor::COMBAT, 5);
+		CCS->curh->set(Cursor::Combat::HERO);
 	else
-		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
+		CCS->curh->set(Cursor::Combat::POINTER);
 }
 
 void BattleHero::clickLeft(tribool down, bool previousState)
 {
-	if(myOwner->actionsController->spellcastingModeActive()) //we are casting a spell
+	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(boost::logic::indeterminate(down))
 		return;
 
-	if(!myHero || down || !myOwner->myTurn)
+	if(!hero || down || !owner.myTurn)
 		return;
 
-	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
+	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		BattleHex hoveredHex = myOwner->fieldController->getHoveredHex();
+		BattleHex hoveredHex = owner.fieldController->getHoveredHex();
 		//do nothing when any hex is hovered - hero's animation overlaps battlefield
 		if ( hoveredHex != BattleHex::INVALID )
 			return;
 
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 
-		GH.pushIntT<CSpellWindow>(myHero, myOwner->getCurrentPlayerInterface());
+		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -239,13 +308,13 @@ void BattleHero::clickRight(tribool down, bool previousState)
 		return;
 
 	Point windowPosition;
-	windowPosition.x = (!flip) ? myOwner->pos.topLeft().x + 1 : myOwner->pos.topRight().x - 79;
-	windowPosition.y = myOwner->pos.y + 135;
+	windowPosition.x = (!defender) ? owner.fieldController->pos.topLeft().x + 1 : owner.fieldController->pos.topRight().x - 79;
+	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
-	if(down && (myOwner->myTurn || settings["session"]["spectate"].Bool()))
+	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
 	{
-		auto h = flip ? myOwner->defendingHeroInstance : myOwner->attackingHeroInstance;
+		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
 		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
 	}
@@ -253,43 +322,57 @@ void BattleHero::clickRight(tribool down, bool previousState)
 
 void BattleHero::switchToNextPhase()
 {
-	if(phase != nextPhase)
-	{
-		phase = nextPhase;
+	phase = nextPhase;
+	currentFrame = 0.f;
 
-		firstFrame = 0;
-
-		lastFrame = static_cast<int>(animation->size(phase));
-	}
-
-	currentFrame = firstFrame;
+	auto copy = phaseFinishedCallback;
+	phaseFinishedCallback.clear();
+	copy();
 }
 
-BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner):
-    flip(flipG),
-    myHero(hero),
-	myOwner(&owner),
-    phase(1),
-    nextPhase(0),
-    flagAnim(0),
-    animCount(0)
+BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender):
+	defender(defender),
+	hero(hero),
+	owner(owner),
+	phase(EHeroAnimType::HOLDING),
+	nextPhase(EHeroAnimType::HOLDING),
+	currentSpeed(0.f),
+	currentFrame(0.f),
+	flagCurrentFrame(0.f)
 {
+	std::string animationPath;
+
+	if(!hero->type->battleImage.empty())
+		animationPath = hero->type->battleImage;
+	else
+	if(hero->sex)
+		animationPath = hero->type->heroClass->imageBattleFemale;
+	else
+		animationPath = hero->type->heroClass->imageBattleMale;
+
 	animation = std::make_shared<CAnimation>(animationPath);
 	animation->preload();
-	if(flipG)
+
+	pos.w = 64;
+	pos.h = 136;
+	pos.x = owner.fieldController->pos.x + (defender ? (owner.fieldController->pos.w - pos.w) : 0);
+	pos.y = owner.fieldController->pos.y;
+
+	if(defender)
 		animation->verticalFlip();
 
-	if(flip)
+	if(defender)
 		flagAnimation = std::make_shared<CAnimation>("CMFLAGR");
 	else
 		flagAnimation = std::make_shared<CAnimation>("CMFLAGL");
 
 	flagAnimation->preload();
-	flagAnimation->playerColored(player);
+	flagAnimation->playerColored(hero->tempOwner);
 
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	switchToNextPhase();
+	play();
 }
 
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
@@ -584,7 +667,7 @@ void BattleResultWindow::bExitf()
 
 	close();
 
-	if(dynamic_cast<BattleInterface*>(GH.topInt().get()))
+	if(dynamic_cast<BattleWindow*>(GH.topInt().get()))
 		GH.popInts(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
@@ -599,7 +682,7 @@ void ClickableHex::hover(bool on)
 	//Hoverable::hover(on);
 	if(!on && setAlterText)
 	{
-		myInterface->controlPanel->console->clear();
+		GH.statusbar->clear();
 		setAlterText = false;
 	}
 }
@@ -623,13 +706,13 @@ void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			MetaString text;
 			text.addTxt(MetaString::GENERAL_TXT, 220);
 			attackedStack->addNameReplacement(text);
-			myInterface->controlPanel->console->write(text.toString());
+			GH.statusbar->write(text.toString());
 			setAlterText = true;
 		}
 	}
 	else if(setAlterText)
 	{
-		myInterface->controlPanel->console->clear();
+		GH.statusbar->clear();
 		setAlterText = false;
 	}
 }
@@ -638,7 +721,7 @@ void ClickableHex::clickLeft(tribool down, bool previousState)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
-		myInterface->hexLclicked(myNumber);
+		myInterface->actionsController->handleHex(myNumber, LCLICK);
 	}
 }
 
@@ -662,10 +745,10 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if(embedded)
 	{
-		pos.w = QUEUE_SIZE * 37;
-		pos.h = 46;
-		pos.x = screen->w/2 - pos.w/2;
-		pos.y = (screen->h - 600)/2 + 10;
+		pos.w = QUEUE_SIZE * 41;
+		pos.h = 49;
+		pos.x += parent->pos.w/2 - pos.w/2;
+		pos.y += 10;
 
 		icons = std::make_shared<CAnimation>("CPRSMALL");
 		stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESSMALL");
@@ -674,6 +757,8 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	{
 		pos.w = 800;
 		pos.h = 85;
+		pos.x += 0;
+		pos.y -= pos.h;
 
 		background = std::make_shared<CFilledTexture>("DIBOXBCK", Rect(0, 0, pos.w, pos.h));
 
@@ -688,8 +773,15 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	for (int i = 0; i < stackBoxes.size(); i++)
 	{
 		stackBoxes[i] = std::make_shared<StackBox>(this);
-		stackBoxes[i]->moveBy(Point(1 + (embedded ? 36 : 80) * i, 0));
+		stackBoxes[i]->moveBy(Point(1 + (embedded ? 41 : 80) * i, 0));
 	}
+}
+
+void StackQueue::show(SDL_Surface * to)
+{
+	if (embedded)
+		showAll(to);
+	CIntObject::show(to);
 }
 
 void StackQueue::update()

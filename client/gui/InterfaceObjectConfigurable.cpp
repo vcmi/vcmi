@@ -13,6 +13,7 @@
 #include "InterfaceObjectConfigurable.h"
 
 #include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
@@ -234,6 +235,9 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 	if(!config["visible"].isNull())
 		pic->visible = config["visible"].Bool();
+
+	if ( config["playerColored"].Bool() && LOCPLINT)
+		pic->colorize(LOCPLINT->playerID);
 	return pic;
 }
 

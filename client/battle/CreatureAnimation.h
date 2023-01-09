@@ -29,13 +29,12 @@ namespace AnimationControls
 	std::shared_ptr<CreatureAnimation> getAnimation(const CCreature * creature);
 
 	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
-	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t groupID);
+	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType groupID);
 
-	/// returns how far projectile should move each frame
-	/// TODO: make it time-based
+	/// returns how far projectile should move per second
 	float getProjectileSpeed();
 
-	/// returns speed of catapult projectile
+	/// returns speed of catapult projectile, in pixels per second (horizontal axis only)
 	float getCatapultSpeed();
 
 	/// returns speed of any spell effects, including any special effects like morale (in frames per second)
@@ -46,6 +45,12 @@ namespace AnimationControls
 
 	/// Returns distance on which flying creatures should during one animation loop
 	float getFlightDistance(const CCreature * creature);
+
+	/// Returns total time for full fade-in effect on newly summoned creatures, in seconds
+	float getFadeInDuration();
+
+	/// Returns animation speed for obstacles, in frames per second
+	float getObstaclesSpeed();
 }
 
 /// Class which manages animations of creatures/units inside battles
@@ -53,7 +58,7 @@ namespace AnimationControls
 class CreatureAnimation : public CIntObject
 {
 public:
-	typedef std::function<float(CreatureAnimation *, size_t)> TSpeedController;
+	typedef std::function<float(CreatureAnimation *, ECreatureAnimType)> TSpeedController;
 
 private:
 	std::string name;
@@ -78,7 +83,10 @@ private:
 	float elapsedTime;
 
 	///type of animation being displayed
-	CCreatureAnim::EAnimType type;
+	ECreatureAnimType type;
+
+	/// current value of shadow transparency
+	uint8_t shadowAlpha;
 
 	/// border color, disabled if alpha = 0
 	SDL_Color border;
@@ -90,7 +98,7 @@ private:
 
 	void endAnimation();
 
-	void genBorderPalette(IImage::BorderPallete & target);
+	void genSpecialPalette(IImage::SpecialPalette & target);
 public:
 
 	/// function(s) that will be called when animation ends, after reset to 1st frame
@@ -107,29 +115,26 @@ public:
 	CreatureAnimation(const std::string & name_, TSpeedController speedController);
 
 	/// sets type of animation and resets framecount
-	void setType(CCreatureAnim::EAnimType type);
+	void setType(ECreatureAnimType type);
 
 	/// returns currently rendered type of animation
-	CCreatureAnim::EAnimType getType() const;
+	ECreatureAnimType getType() const;
 
-	void nextFrame(Canvas & canvas, bool facingRight);
+	void nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight);
 
 	/// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);
 
 	void setBorderColor(SDL_Color palette);
 
-	/// apply color tint effect
-	void shiftColor(const ColorShifter * shifter);
-
 	/// Gets the current frame ID within current group.
 	float getCurrentFrame() const;
 
 	/// plays once given type of animation, then resets to idle
-	void playOnce(CCreatureAnim::EAnimType type);
+	void playOnce(ECreatureAnimType type);
 
 	/// returns number of frames in selected animation type
-	int framesInGroup(CCreatureAnim::EAnimType type) const;
+	int framesInGroup(ECreatureAnimType group) const;
 
 	void pause();
 	void play();

@@ -21,11 +21,13 @@
 						"attacker" :{
 							"animation" : "C17SPE1",
 							"appearAnimation" : "C17SPE0",
+							"appearSound" : "QUIKSAND",
 							"offsetY" : -42
 						},
 						"defender" :{
 							"animation" : "C17SPE1",
 							"appearAnimation" : "C17SPE0",
+							"appearSound" : "QUIKSAND",
 							"offsetY" : -42
 						}
 					}
@@ -72,11 +74,17 @@
 						"turnsRemaining" : -1,
 						"attacker" :{
 							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"appearAnimation" : "C09SPF0",
+							"appearSound" : "LANDMINE",
+							"triggerAnimation" : "C09SPF3",
+							"triggerSound" : "LANDKILL"
 						},
 						"defender" :{
 							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"appearAnimation" : "C09SPF0",
+							"appearSound" : "LANDMINE",
+							"triggerAnimation" : "C09SPF3",
+							"triggerSound" : "LANDKILL"
 						}
 					},
 					"damage":{
@@ -588,7 +596,6 @@
 		"index" : 65,
 		"targetType" : "CREATURE",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "CLONE"
@@ -632,7 +639,6 @@
 		"index" : 66,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -658,7 +664,6 @@
 		"index" : 67,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -684,7 +689,6 @@
 		"index" : 68,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -710,7 +714,6 @@
 		"index" : 69,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
