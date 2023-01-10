@@ -158,7 +158,6 @@ protected:
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
-	std::string modName;
 	std::string typeName;
 	std::string subTypeName;
 public:
@@ -171,18 +170,14 @@ public:
 	void setType(si32 type, si32 subtype);
 	void setTypeName(std::string type, std::string subtype);
 
-	std::string getTypeName();
-	std::string getSubTypeName();
+	std::string getTypeName() const;
+	std::string getSubTypeName() const;
 
 	/// loads generic data from Json structure and passes it towards type-specific constructors
 	void init(const JsonNode & input);
 
 	/// returns full form of identifier of this object in form of modName:objectName
-	std::string getIdentifier() const;
-
-	/// returns objet's name in form of translatable text ID
-	std::string getNameTextID() const;
-	std::string getNameTranslated() const;
+	std::string getJsonKey() const;
 
 	/// Returns object-specific name, if set
 	SObjectSounds getSounds() const;
@@ -203,6 +198,15 @@ public:
 	const RandomMapInfo & getRMGInfo();
 
 	boost::optional<si32> getAiValue() const;
+
+	/// returns true if this class provides custom text ID's instead of generic per-object name
+	virtual bool hasNameTextID() const;
+
+	/// returns object's name in form of translatable text ID
+	virtual std::string getNameTextID() const;
+
+	/// returns object's name in form of human-readable text
+	std::string getNameTranslated() const;
 
 	virtual bool isStaticObject();
 
@@ -225,7 +229,6 @@ public:
 		h & subtype;
 		h & templates;
 		h & rmgInfo;
-		h & modName;
 		h & typeName;
 		h & subTypeName;
 		h & sounds;
@@ -239,15 +242,18 @@ typedef std::shared_ptr<AObjectTypeHandler> TObjectTypeHandler;
 /// Class responsible for creation of adventure map objects of specific type
 class DLL_LINKAGE ObjectClass
 {
-	std::string modScope;
 	std::string identifier;
 
 public:
 	ObjectClass() = default;
-	ObjectClass(const std::string & modScope, const std::string & identifier):
-		identifier(identifier),
-		modScope(modScope)
-	{}
+	ObjectClass(const std::string & modScope, const std::string & identifier)
+	{
+		if (identifier.find(':') == std::string::npos)
+			this->identifier = modScope + ":" + identifier;
+		else
+			this->identifier = identifier;
+
+	}
 
 	si32 id;
 	std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
@@ -255,7 +261,9 @@ public:
 	JsonNode base;
 	std::vector<TObjectTypeHandler> objects;
 
-	std::string getIdentifier() const;
+	std::string getJsonKey() const;
+	std::string getNameTextID() const;
+	std::string getNameTranslated() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -263,7 +271,6 @@ public:
 		h & base;
 		h & objects;
 		h & identifier;
-		h & modScope;
 	}
 };
 

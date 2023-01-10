@@ -120,7 +120,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 	CLegacyConfigParser namesParser("Data/ObjNames.txt");
 	for (size_t i=0; i<256; i++)
 	{
-		ret[i]["base"]["name"].String() = namesParser.readString();
+		ret[i]["name"].String() = namesParser.readString();
 		namesParser.endLine();
 	}
 
@@ -148,6 +148,9 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 	ret[Obj::CREATURE_GENERATOR1]["subObjects"] = cregen1;
 	ret[Obj::CREATURE_GENERATOR4]["subObjects"] = cregen4;
 
+	ret[Obj::REFUGEE_CAMP]["subObjects"].Vector().push_back(ret[Obj::REFUGEE_CAMP]);
+	ret[Obj::WAR_MACHINE_FACTORY]["subObjects"].Vector().push_back(ret[Obj::WAR_MACHINE_FACTORY]);
+
 	return ret;
 }
 
@@ -158,7 +161,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(object);
 	obj->objects.push_back(object);
 
-	registerObject(scope, obj->getIdentifier(), identifier, object->subtype);
+	registerObject(scope, "mapObject", obj->getJsonKey() + "." + object->getSubTypeName(), object->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
@@ -170,7 +173,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(obj->objects[index] == nullptr); // ensure that this id was not loaded before
 	obj->objects[index] = object;
 
-	registerObject(scope, obj->getIdentifier(), identifier, object->subtype);
+	registerObject(scope, "mapObject", obj->getJsonKey() + "." + object->getSubTypeName(), object->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
@@ -182,9 +185,13 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	}
 
 	auto createdObject = handlerConstructors.at(obj->handlerName)();
-	createdObject->modName = scope;
+
+	if (identifier.find(':') == std::string::npos)
+		createdObject->setTypeName(obj->getJsonKey(), scope + ":" + identifier);
+	else
+		createdObject->setTypeName(obj->getJsonKey(), identifier);
+
 	createdObject->setType(obj->id, index);
-	createdObject->setTypeName(obj->getIdentifier(), identifier);
 	createdObject->init(entry);
 
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
@@ -194,14 +201,24 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	}
 	legacyTemplates.erase(range.first, range.second);
 
-	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->getIdentifier(), obj->id, identifier, index);
+	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->getJsonKey(), obj->id, identifier, index);
 
 	return createdObject;
 }
 
-std::string ObjectClass::getIdentifier() const
+std::string ObjectClass::getJsonKey() const
 {
-	return identifier + "Object";
+	return identifier;
+}
+
+std::string ObjectClass::getNameTextID() const
+{
+	return TextIdentifier("object", identifier, "name").get();
+}
+
+std::string ObjectClass::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
 }
 
 ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
@@ -212,14 +229,18 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 	obj->base = json["base"];
 	obj->id = index;
 
+	VLC->generaltexth->registerString(obj->getNameTextID(), json["name"].String());
+
 	obj->objects.resize(json["lastReservedIndex"].Float() + 1);
 
 	for (auto subData : json["types"].Struct())
 	{
 		if (!subData.second["index"].isNull())
 		{
-			if (subData.second["index"].meta != "core")
-				logMod->warn("Object %s:%s from mod %s - attempt to load object with preset index!", name, subData.first, scope);
+			std::string const & subMeta = subData.second["index"].meta;
+
+			if ( subMeta != "core")
+				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
 			size_t subIndex = subData.second["index"].Integer();
 			loadSubObject(scope, subData.first, subData.second, obj, subIndex);
 		}
@@ -285,7 +306,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::
 	if(id)
 	{
 		auto object = objects[id.get()];
-		boost::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getIdentifier(), subtype, false);
+		boost::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype, false);
 
 		if (subID)
 			return object->objects[subID.get()];
@@ -364,7 +385,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 			obj->afterLoadFinalization();
 			if(obj->getTemplates().empty())
-				logGlobal->warn("No templates found for %s:%s", entry->getIdentifier(), obj->getIdentifier());
+				logGlobal->warn("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
 
@@ -378,11 +399,19 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 {
-	return getHandlerFor(type, subtype)->getNameTranslated();
+	auto const handler = getHandlerFor(type, subtype);
+	if (handler->hasNameTextID())
+		return handler->getNameTranslated();
+	else
+		return objects[type]->getNameTranslated();
 }
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) const
 {
+	// TODO: these objects may have subID's that does not have associated handler:
+	// Prison: uses hero type as subID
+	// Hero: uses hero type as subID, but registers hero classes as subtypes
+	// Spell scroll: uses spell ID as subID
 	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
@@ -420,17 +449,17 @@ void AObjectTypeHandler::setTypeName(std::string type, std::string subtype)
 	this->subTypeName = subtype;
 }
 
-std::string AObjectTypeHandler::getIdentifier() const
+std::string AObjectTypeHandler::getJsonKey() const
 {
-	return modName + ":" + subTypeName;
+	return subTypeName;
 }
 
-std::string AObjectTypeHandler::getTypeName()
+std::string AObjectTypeHandler::getTypeName() const
 {
 	return typeName;
 }
 
-std::string AObjectTypeHandler::getSubTypeName()
+std::string AObjectTypeHandler::getSubTypeName() const
 {
 	return subTypeName;
 }
@@ -475,8 +504,6 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		}
 	}
 
-	VLC->generaltexth->registerString(getNameTextID(), input["name"].String());
-
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
 		sounds.ambient.push_back(node.String());
 
@@ -517,9 +544,14 @@ void AObjectTypeHandler::initTypeData(const JsonNode & input)
 	// empty implementation for overrides
 }
 
+bool AObjectTypeHandler::hasNameTextID() const
+{
+	return false;
+}
+
 std::string AObjectTypeHandler::getNameTextID() const
 {
-	return TextIdentifier( typeName, modName, subTypeName, "name" ).get();
+	return TextIdentifier("mapObject", getTypeName(), getJsonKey(), "name").get();
 }
 
 std::string AObjectTypeHandler::getNameTranslated() const
