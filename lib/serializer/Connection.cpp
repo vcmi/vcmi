@@ -28,6 +28,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 #define LIL_ENDIAN
 #endif
 
+struct ConnectionBuffers
+{
+	boost::asio::streambuf readBuffer;
+	boost::asio::streambuf writeBuffer;
+};
 
 void CConnection::init()
 {
@@ -90,8 +95,8 @@ int CConnection::write(const void * data, unsigned size)
 	boost::unique_lock<boost::mutex> lock(mutexWrite);
 	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, channel, packet);
-	return size;
 }
+
 int CConnection::read(void * data, unsigned size)
 {
 	const int timout = 1000;
@@ -158,6 +163,8 @@ void CConnection::reportState(vstd::CLoggerBase * out)
 
 CPack * CConnection::retrievePack()
 {
+	enableBufferedRead = true;
+
 	CPack * pack = nullptr;
 	iser & pack;
 	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
@@ -169,13 +176,21 @@ CPack * CConnection::retrievePack()
 	{
 		pack->c = this->shared_from_this();
 	}
+
+	enableBufferedRead = false;
+
 	return pack;
 }
 
 void CConnection::sendPack(const CPack * pack)
 {
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
+
+	enableBufferedWrite = true;
+
 	oser & pack;
+
+	flushBuffers();
 }
 
 void CConnection::disableStackSendingByID()

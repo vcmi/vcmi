@@ -142,7 +142,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
-	th = make_unique<CStopWatch>();
+	th = std::make_unique<CStopWatch>();
 	packsForLobbyScreen.clear();
 	c.reset();
 	si = std::make_shared<StartInfo>();
@@ -776,7 +776,7 @@ void CServerHandler::restoreLastSession()
 		saveSession->Bool() = false;
 	};
 	
-	CInfoWindow::showYesNoDialog(VLC->generaltexth->localizedTexts["server"]["confirmReconnect"].String(), {}, loadSession, cleanUpSession);
+	CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.server.confirmReconnect"), {}, loadSession, cleanUpSession);
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)

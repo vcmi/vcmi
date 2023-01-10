@@ -173,6 +173,7 @@ jobs:
             ../.. -GNinja \
             ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
             -DENABLE_TEST=${{matrix.test}} \
+            -DENABLE_STRICT_COMPILATION=ON \
             -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
             -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME" \
             -DENABLE_GITVERSION="$VCMI_PACKAGE_GITVERSION"

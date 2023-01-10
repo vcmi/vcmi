@@ -146,7 +146,7 @@ void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 	}
 	catch(...)
 	{
-        log(ELogLevel::ERROR, "Invalid log format!");
+		log(ELogLevel::ERROR, "Invalid log format!");
 	}
 }
 
@@ -295,6 +295,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	boost::algorithm::replace_first(message, "%n", record.domain.getName());
 	boost::algorithm::replace_first(message, "%t", record.threadId);
 	boost::algorithm::replace_first(message, "%m", record.message);
+	boost::algorithm::replace_first(message, "%c", boost::posix_time::to_simple_string(record.timeStamp));
 
 	//return boost::to_string (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
@@ -348,9 +349,9 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) :
 #ifndef VCMI_IOS
-    console(console),
+	console(console),
 #endif
-    threshold(ELogLevel::INFO), coloredOutputEnabled(true)
+	threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
 	formatter.setPattern("%m");
 }
@@ -363,7 +364,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-    __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
+	__android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
 #elif defined(VCMI_IOS)
 	os_log_type_t type;
 	switch (record.level)

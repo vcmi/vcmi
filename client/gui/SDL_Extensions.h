@@ -49,12 +49,6 @@ inline bool isShiftKeyDown()
 }
 namespace CSDL_Ext
 {
-	template<typename Int>
-	Int lerp(Int a, Int b, float f)
-	{
-		return a + std::round((b - a) * f);
-	}
-
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{
@@ -157,57 +151,6 @@ struct ColorPutter
 };
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
-
-/// Base class for applying palette transformation on images
-class ColorShifter
-{
-public:
-	~ColorShifter() = default;
-	virtual SDL_Color shiftColor(SDL_Color input) const = 0;
-};
-
-/// Generic class for palette transformation
-/// formula:
-/// result = input * factor + added
-class ColorShifterMultiplyAndAdd : public ColorShifter
-{
-	SDL_Color added;
-	SDL_Color factor;
-
-public:
-	ColorShifterMultiplyAndAdd(SDL_Color factor, SDL_Color added) :
-		factor(factor),
-		added(added)
-	{}
-
-	SDL_Color shiftColor(SDL_Color input) const override
-	{
-		return {
-			uint8_t(std::min(255.f, std::round(input.r * float(factor.r) / 255.f + added.r))),
-			uint8_t(std::min(255.f, std::round(input.g * float(factor.g) / 255.f + added.g))),
-			uint8_t(std::min(255.f, std::round(input.b * float(factor.b) / 255.f + added.b))),
-			uint8_t(std::min(255.f, std::round(input.a * float(factor.a) / 255.f + added.a)))
-		};
-	}
-};
-
-/// Color shifter that allows to specify color to be excempt from changes
-class ColorShifterMultiplyAndAddExcept : public ColorShifterMultiplyAndAdd
-{
-	SDL_Color ignored;
-public:
-	ColorShifterMultiplyAndAddExcept(SDL_Color factor, SDL_Color added, SDL_Color ignored) :
-		ColorShifterMultiplyAndAdd(factor, added),
-		ignored(ignored)
-	{}
-
-	SDL_Color shiftColor(SDL_Color input) const override
-	{
-		if ( input.r == ignored.r && input.g == ignored.g && input.b == ignored.b && input.a == ignored.a)
-			return input;
-		return ColorShifterMultiplyAndAdd::shiftColor(input);
-	}
-};
 
 namespace CSDL_Ext
 {

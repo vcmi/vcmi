@@ -112,7 +112,6 @@ ObjectBrowser::ObjectBrowser(QWidget * parent):
 void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 {
 	logGlobal->info("Drag'n'drop: Start dragging object from ObjectBrowser");
-	QDrag *drag = new QDrag(this);
 	auto indexes = selectedIndexes();
 	if(indexes.isEmpty())
 		return;
@@ -121,7 +120,7 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 	if(!mimeData)
 		return;
 		
+	QDrag *drag = new QDrag(this);
 	drag->setMimeData(mimeData);
-
-	Qt::DropAction dropAction = drag->exec(supportedActions);
+	drag->exec(supportedActions);
 }

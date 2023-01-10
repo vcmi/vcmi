@@ -19,7 +19,14 @@ enum EFonts : int;
 /// Class that represents surface for drawing on
 class Canvas
 {
+	/// Target surface
 	SDL_Surface * surface;
+
+	/// Clip rect that was in use on surface originally and needs to be restored on destruction
+	boost::optional<Rect> clipRect;
+
+	/// Current rendering area offset, all rendering operations will be moved into selected area
+	Point renderOffset;
 
 	Canvas & operator = (Canvas & other) = delete;
 public:
@@ -29,6 +36,9 @@ public:
 
 	/// copy contructor
 	Canvas(Canvas & other);
+
+	/// creates canvas that only covers specified subsection of a surface
+	Canvas(Canvas & other, const Rect & clipRect);
 
 	/// constructs canvas of specified size
 	Canvas(const Point & size);
@@ -40,6 +50,10 @@ public:
 
 	/// renders section of image bounded by sourceRect at specified position
 	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect);
+
+	/// renders section of image bounded by sourceRect at specified position at specific transparency value
+	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha);
+
 
 	/// renders another canvas onto this canvas
 	void draw(Canvas & image, const Point & pos);

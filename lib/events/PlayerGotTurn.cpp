@@ -20,7 +20,7 @@ namespace events
 
 SubscriptionRegistry<PlayerGotTurn> * PlayerGotTurn::getRegistry()
 {
-	static std::unique_ptr<SubscriptionRegistry<PlayerGotTurn>> Instance = make_unique<SubscriptionRegistry<PlayerGotTurn>>();
+	static std::unique_ptr<SubscriptionRegistry<PlayerGotTurn>> Instance = std::make_unique<SubscriptionRegistry<PlayerGotTurn>>();
 	return Instance.get();
 }
 

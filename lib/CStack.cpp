@@ -201,6 +201,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::s
 {
 	auto initialCount = customState->getCount();
 
+	// compute damage and update bsa.damageAmount
 	customState->damage(bsa.damageAmount);
 
 	bsa.killedAmount = initialCount - customState->getCount();
@@ -307,7 +308,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 			res.push_back(otherDefenderPos);
 		}
 	}
-	UNUSED(mask);
+	MAYBE_UNUSED(mask);
 
 	return res;
 }

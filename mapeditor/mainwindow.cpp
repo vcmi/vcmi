@@ -115,6 +115,31 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 			parser.isSet("d")}};
 }
 
+void MainWindow::loadTranslation()
+{
+#ifdef ENABLE_QT_TRANSLATIONS
+	std::string translationFile = settings["general"]["language"].String() + ".qm";
+
+	QVector<QString> searchPaths;
+
+	for(auto const & string : VCMIDirs::get().dataPaths())
+		searchPaths.push_back(pathToQString(string / "mapeditor" / "translation" / translationFile));
+	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "translation" / translationFile));
+
+	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	{
+		if (translator.load(string))
+		{
+			if (!qApp->installTranslator(&translator))
+				logGlobal->error("Failed to install translator");
+			return;
+		}
+	}
+
+	logGlobal->error("Failed to find translation");
+#endif
+}
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -128,10 +153,6 @@ MainWindow::MainWindow(QWidget* parent) :
 		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
 	
-	ui->setupUi(this);
-	loadUserSettings(); //For example window size
-	setTitle();
-
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
@@ -168,6 +189,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	conf.init();
 	logGlobal->info("Loading settings");
+
+	loadTranslation();
+
+	ui->setupUi(this);
+	loadUserSettings(); //For example window size
+	setTitle();
 
 	init();
 
@@ -698,7 +725,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBSTACLES", true);
 	addGroupIntoCatalog("OTHER", false);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception &)
 	{
 		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
 	}
@@ -887,7 +914,7 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY_TERRAIN : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
+	objectBrowser->terrain = arg1.isEmpty() ? TerrainId(Terrain::ANY_TERRAIN) : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }

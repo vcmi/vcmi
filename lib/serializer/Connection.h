@@ -17,6 +17,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
+struct ConnectionBuffers;
 
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write

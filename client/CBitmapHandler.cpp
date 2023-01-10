@@ -20,7 +20,7 @@ namespace BitmapHandler
 {
 	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
 
-	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname, bool setKey=true);
+	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname);
 }
 
 bool isPCX(const ui8 *header)//check whether file can be PCX according to header
@@ -102,7 +102,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 	return ret;
 }
 
-SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fname, bool setKey)
+SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fname)
 {
 	if(!fname.size())
 	{
@@ -121,14 +121,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	if (isPCX(readFile.first.get()))
 	{//H3-style PCX
 		ret = loadH3PCX(readFile.first.get(), readFile.second);
-		if (ret)
-		{
-			if(ret->format->BytesPerPixel == 1  &&  setKey)
-			{
-				CSDL_Ext::setColorKey(ret,ret->format->palette->colors[0]);
-			}
-		}
-		else
+		if (!ret)
 		{
 			logGlobal->error("Failed to open %s as H3 PCX!", fname);
 			return nullptr;
@@ -144,7 +137,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		{
 			if (ret->format->palette)
 			{
-				//set correct value for alpha\unused channel
+				// set correct value for alpha\unused channel
+				// NOTE: might be unnecessary with SDL2
 				for (int i=0; i < ret->format->palette->ncolors; i++)
 					ret->format->palette->colors[i].a = SDL_ALPHA_OPAQUE;
 			}
@@ -196,12 +190,12 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	return ret;
 }
 
-SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
+SDL_Surface * BitmapHandler::loadBitmap(std::string fname)
 {
 	SDL_Surface * bitmap = nullptr;
 
-	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
-		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
+	if (!(bitmap = loadBitmapFromDir("DATA/", fname)) &&
+		!(bitmap = loadBitmapFromDir("SPRITES/", fname)))
 	{
 		logGlobal->error("Error: Failed to find file %s", fname);
 	}

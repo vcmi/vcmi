@@ -15,7 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace BattleSide
 {
-	enum
+	enum Type
 	{
 		ATTACKER = 0,
 		DEFENDER = 1
@@ -47,13 +47,18 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static const si16 INVALID = -1;
 	enum EDir
 	{
+		NONE = -1,
+
 		TOP_LEFT,
 		TOP_RIGHT,
 		RIGHT,
 		BOTTOM_RIGHT,
 		BOTTOM_LEFT,
 		LEFT,
-		NONE
+
+		//Note: unused by BattleHex class, used by other code
+		TOP,
+		BOTTOM
 	};
 
 	BattleHex();
@@ -74,8 +79,15 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	BattleHex& operator+=(EDir dir);
 	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const;
 	BattleHex operator+(EDir dir) const;
+
+	/// returns all valid neighbouring tiles
 	std::vector<BattleHex> neighbouringTiles() const;
-	static signed char mutualPosition(BattleHex hex1, BattleHex hex2);
+
+	/// returns all tiles, unavailable tiles will be set as invalid
+	/// order of returned tiles matches EDir enim
+	std::vector<BattleHex> allNeighbouringTiles() const;
+
+	static EDir mutualPosition(BattleHex hex1, BattleHex hex2);
 	static char getDistance(BattleHex hex1, BattleHex hex2);
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
 	static BattleHex getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad

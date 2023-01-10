@@ -23,6 +23,7 @@ class DLL_LINKAGE CTeamVisited: public CGObjectInstance
 public:
 	std::set<PlayerColor> players; //players that visited this object
 
+	bool wasVisited (const CGHeroInstance * h) const override;
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(TeamID team) const;
 	void setPropertyDer(ui8 what, ui32 val) override;

@@ -119,7 +119,7 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	
-	init(config);
+	build(config);
 	
 	updateMapInfoByHost();
 }
@@ -132,7 +132,7 @@ void RandomMapTab::updateMapInfoByHost()
 	// Generate header info
 	mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->isRandomMap = true;
-	mapInfo->mapHeader = make_unique<CMapHeader>();
+	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::SOD;
 	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
 	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
@@ -338,7 +338,7 @@ TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox &
 {
 	OBJ_CONSTRUCTION;
 	
-	init(config);
+	build(config);
 	
 	if(auto w = widget<CPicture>("hoverImage"))
 	{
@@ -410,11 +410,9 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	addCallback("sliderMove", std::bind(&TemplatesDropBox::sliderMove, this, std::placeholders::_1));
 	
 	OBJ_CONSTRUCTION;
-	pos = randomMapTab.pos.topLeft();
-	pos.w = randomMapTab.pos.w;
-	pos.h = randomMapTab.pos.h;
+	pos = randomMapTab.pos;
 	
-	init(config);
+	build(config);
 	
 	if(auto w = widget<CSlider>("slider"))
 	{
@@ -482,8 +480,7 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
-	InterfaceObjectConfigurable(),
-	randomMapTab(randomMapTab)
+	InterfaceObjectConfigurable()
 {
 	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
@@ -524,7 +521,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		GH.popInt(GH.topInt());
 	});
 	
-	init(config);
+	build(config);
 	
 	center(pos);
 	

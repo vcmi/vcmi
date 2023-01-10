@@ -344,12 +344,12 @@ void CMapGenerator::findZonesForQuestArts()
 		if (zoneA->getId() > zoneB->getId())
 		{
 			if(auto * m = zoneB->getModificator<TreasurePlacer>())
-				zoneB->getModificator<TreasurePlacer>()->setQuestArtZone(zoneA.get());
+				m->setQuestArtZone(zoneA.get());
 		}
 		else if (zoneA->getId() < zoneB->getId())
 		{
 			if(auto * m = zoneA->getModificator<TreasurePlacer>())
-				zoneA->getModificator<TreasurePlacer>()->setQuestArtZone(zoneB.get());
+				m->setQuestArtZone(zoneB.get());
 		}
 	}
 }

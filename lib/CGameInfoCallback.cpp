@@ -166,13 +166,13 @@ const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 		return nullptr;
 }
 
-void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
+void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
-	out = gs->getUpgradeInfo(obj->getStack(stackPos));
-	//return gs->getUpgradeInfo(obj->getStack(stackPos));
+	gs->fillUpgradeInfo(obj, stackPos, out);
+	//return gs->fillUpgradeInfo(obj->getStack(stackPos));
 }
 
 const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) const
@@ -294,7 +294,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 		if(gs->curB && gs->curB->playerHasAccessToHeroInfo(*player, h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
-			ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
+			ERROR_RET_VAL_IF(!isVisible(h->visitablePos()), "That hero is not visible!", false);
 	}
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
@@ -402,7 +402,7 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 bool CGameInfoCallback::isVisible(int3 pos, boost::optional<PlayerColor> Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->map->isInTheMap(pos) && (!Player || gs->isVisible(pos, *Player));
+	return gs->isVisible(pos, Player);
 }
 
 bool CGameInfoCallback::isVisible(int3 pos) const
@@ -734,7 +734,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	{
 		// !player || // - why would we even get access to hero not owned by any player?
 		if((hero->tempOwner == *player) ||
-			(isVisible(hero->getPosition(false), player) && !onlyOur)	)
+			(isVisible(hero->visitablePos(), player) && !onlyOur)	)
 		{
 			ret.push_back(hero);
 		}
@@ -932,6 +932,12 @@ void CGameInfoCallback::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
 	gs->calculatePaths(config);
 }
+
+void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
+{
+	gs->calculatePaths(hero, out);
+}
+
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {

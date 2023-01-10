@@ -69,11 +69,8 @@
 			"affect":["C05SPF0"]
 		},
 		"sounds": {
-			"cast": "FIRESHIE"
+			"cast": "FIRESHLD"
 		},
-		// It looks that fireshield has two separate sounds
-		//			"soundfile":"FIRESHLD.wav"
-		//
 		"levels" : {
 			"base":{
 				"range" : "0",
@@ -440,7 +437,9 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["SP12_"] //???
+			"affect":[ {
+				"effectName" : "bloodlust"
+			} ]
 		},
 		"sounds": {
 			"cast": "BLOODLUS"
@@ -541,7 +540,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C0ACID"]
+			"affect":["C17SPW0"]
 		},
 		"sounds": {
 			"cast": "WEAKNESS"
@@ -1200,7 +1199,7 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "STACK_GETS_TURN"
+						"duration" : "UNTIL_ATTACK"
 					}
 				}
 			},

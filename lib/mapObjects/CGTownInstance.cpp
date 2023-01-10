@@ -1815,22 +1815,22 @@ const std::string CGTownBuilding::getVisitingBonusGreeting() const
 	switch(bType)
 	{
 	case BuildingSubID::MANA_VORTEX:
-		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingManaVortex"].String());
+		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingManaVortex"));
 		break;
 	case BuildingSubID::KNOWLEDGE_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingKnowledge"].String());
+		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingKnowledge"));
 		break;
 	case BuildingSubID::SPELL_POWER_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingSpellPower"].String());
+		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingSpellPower"));
 		break;
 	case BuildingSubID::ATTACK_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingAttack"].String());
+		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingAttack"));
 		break;
 	case BuildingSubID::EXPERIENCE_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingExperience"].String());
+		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingExperience"));
 		break;
 	case BuildingSubID::DEFENSE_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingDefence"].String());
+		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingDefence"));
 		break;
 	}
 	auto buildingName = town->town->getSpecialBuilding(bType)->Name();
@@ -1849,12 +1849,12 @@ const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) co
 {
 	if(bonus.type == Bonus::TOWN_MAGIC_WELL)
 	{
-		auto bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingInTownMagicWell"].String());
+		auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingInTownMagicWell"));
 		auto buildingName = town->town->getSpecialBuilding(bType)->Name();
 		boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 		return bonusGreeting;
 	}
-	auto bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingCustomBonus"].String()); //"%s gives you +%d %s%s"
+	auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingCustomBonus")); //"%s gives you +%d %s%s"
 	std::string param = "";
 	std::string until = "";
 
@@ -1864,7 +1864,7 @@ const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) co
 		param = VLC->generaltexth->allTexts[385];
 
 	until = bonus.duration == (ui16)Bonus::ONE_BATTLE
-		? VLC->generaltexth->localizedTexts["townHall"]["greetingCustomUntil"].String() : ".";
+		? VLC->generaltexth->translate("vcmi.townHall.greetingCustomUntil") : ".";
 
 	boost::format fmt = boost::format(bonusGreeting) % bonus.description % bonus.val % param % until;
 	std::string greeting = fmt.str();

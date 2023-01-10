@@ -22,6 +22,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CGeneralTextHandler.h"
 
 void CButton::update()
 {
@@ -285,9 +286,12 @@ std::pair<std::string, std::string> CButton::tooltip()
 	return std::pair<std::string, std::string>();
 }
 
-std::pair<std::string, std::string> CButton::tooltip(const JsonNode & localizedTexts)
+std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
-	return std::make_pair(localizedTexts["label"].String(), localizedTexts["help"].String());
+	return std::make_pair(
+		CGI->generaltexth->translate(key, "hover"),
+		CGI->generaltexth->translate(key, "help")
+	);
 }
 
 std::pair<std::string, std::string> CButton::tooltip(const std::string & hover, const std::string & help)
@@ -457,10 +461,10 @@ int CToggleGroup::getSelected() const
 	return selectedID;
 }
 
-CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
+CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, ETooltipMode mode)
 	: CIntObject(LCLICK | RCLICK | WHEEL),
 	value(value),
-	helpHandlers(help)
+	mode(mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	animImage = std::make_shared<CAnimImage>(std::make_shared<CAnimation>(defName), 0, 0, position.x, position.y),
@@ -517,8 +521,10 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 	{
 		double px = GH.current->motion.x - pos.x;
 		int index = static_cast<int>(px / static_cast<double>(pos.w) * animImage->size());
-		std::string hoverText = helpHandlers[index].first;
-		std::string helpBox = helpHandlers[index].second;
+
+		size_t helpIndex = index + (mode == MUSIC ? 326 : 336);
+		std::string helpBox = CGI->generaltexth->translate("core.help", helpIndex, "help" );
+
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
 		if(GH.statusbar)

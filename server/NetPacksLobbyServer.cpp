@@ -154,7 +154,7 @@ void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 	}
 	else if(c == srv->hostClient)
 	{
-		auto ph = vstd::make_unique<LobbyChangeHost>();
+		auto ph = std::make_unique<LobbyChangeHost>();
 		auto newHost = *RandomGeneratorUtil::nextItem(srv->connections, CRandomGenerator::getDefault());
 		ph->newHostConnectionId = newHost->connectionID;
 		srv->addToAnnounceQueue(std::move(ph));

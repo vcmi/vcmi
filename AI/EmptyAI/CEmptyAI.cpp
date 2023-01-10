@@ -20,7 +20,7 @@ void CEmptyAI::loadGame(BinaryDeserializer & h, const int version)
 {
 }
 
-void CEmptyAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	env = ENV;

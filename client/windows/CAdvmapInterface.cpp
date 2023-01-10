@@ -54,10 +54,6 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
 
-#ifdef _MSC_VER
-#pragma warning (disable : 4355)
-#endif
-
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
 
@@ -68,25 +64,25 @@ static void setScrollingCursor(ui8 direction)
 	if(direction & CAdvMapInt::RIGHT)
 	{
 		if(direction & CAdvMapInt::UP)
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 33);
+			CCS->curh->set(Cursor::Map::SCROLL_NORTHEAST);
 		else if(direction & CAdvMapInt::DOWN)
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 35);
+			CCS->curh->set(Cursor::Map::SCROLL_SOUTHEAST);
 		else
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 34);
+			CCS->curh->set(Cursor::Map::SCROLL_EAST);
 	}
 	else if(direction & CAdvMapInt::LEFT)
 	{
 		if(direction & CAdvMapInt::UP)
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 39);
+			CCS->curh->set(Cursor::Map::SCROLL_NORTHWEST);
 		else if(direction & CAdvMapInt::DOWN)
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 37);
+			CCS->curh->set(Cursor::Map::SCROLL_SOUTHWEST);
 		else
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 38);
+			CCS->curh->set(Cursor::Map::SCROLL_WEST);
 	}
 	else if(direction & CAdvMapInt::UP)
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 32);
+		CCS->curh->set(Cursor::Map::SCROLL_NORTH);
 	else if(direction & CAdvMapInt::DOWN)
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 36);
+		CCS->curh->set(Cursor::Map::SCROLL_SOUTH);
 }
 
 CTerrainRect::CTerrainRect()
@@ -231,7 +227,7 @@ void CTerrainRect::handleHover(const SDL_MouseMotionEvent &sEvent)
 
 	if(tHovered != pom) //tile outside the map
 	{
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 		return;
 	}
 
@@ -247,7 +243,7 @@ void CTerrainRect::hover(bool on)
 	if (!on)
 	{
 		adventureInt->statusbar->clear();
-		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+		CCS->curh->set(Cursor::Map::POINTER);
 	}
 	//Hoverable::hover(on);
 }
@@ -936,7 +932,10 @@ void CAdvMapInt::activate()
 	GH.statusbar = statusbar;
 	
 	if(LOCPLINT)
+	{
 		LOCPLINT->cingconsole->activate();
+		LOCPLINT->cingconsole->pos = this->pos;
+	}
 	
 	if(!duringAITurn)
 	{
@@ -963,7 +962,7 @@ void CAdvMapInt::deactivate()
 	{
 		scrollingDir = 0;
 
-		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+		CCS->curh->set(Cursor::Map::POINTER);
 		activeMapPanel->deactivate();
 		if (mode == EAdvMapMode::NORMAL)
 		{
@@ -1121,7 +1120,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 		}
 		else if(scrollingState)
 		{
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+			CCS->curh->set(Cursor::Map::POINTER);
 			scrollingState = false;
 		}
 	}
@@ -1134,7 +1133,7 @@ void CAdvMapInt::handleSwipeUpdate()
 		auto fixedPos = LOCPLINT->repairScreenPos(swipeTargetPosition);
 		position.x = fixedPos.x;
 		position.y = fixedPos.y;
-		CCS->curh->changeGraphic(ECursor::DEFAULT, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 		updateScreen = true;
 		minimap.redraw();
 		swipeMovementRequested = false;
@@ -1219,7 +1218,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
-				LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithTavern"].String());
+				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 		}
 		return;
 	case SDLK_i:
@@ -1251,7 +1250,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["confirmRestartGame"].String(),
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
@@ -1310,7 +1309,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				if(townWithMarket) //if any town has marketplace, open window
 					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
 				else //if not - complain
-					LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithMarket"].String());
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 			}
 			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
 			{
@@ -1358,7 +1357,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
-			int3 dst = h->getPosition(false) + dir;
+			int3 dst = h->visitablePos() + dir;
 			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(path, dst))
 			{
 				terrain.currentPath = nullptr;
@@ -1652,7 +1651,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		return;
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 		statusbar->clear();
 		return;
 	}
@@ -1678,18 +1677,18 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		{
 		case SpellID::SCUTTLE_BOAT:
 			if(objAtTile && objAtTile->ID == Obj::BOAT)
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 42);
+				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
 			else
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+				CCS->curh->set(Cursor::Map::POINTER);
 			return;
 		case SpellID::DIMENSION_DOOR:
 			{
 				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
 				int3 hpos = selection->getSightCenter();
 				if((!t || t->isClear(LOCPLINT->cb->getTile(hpos))) && isInScreenRange(hpos, mapPos))
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 41);
+					CCS->curh->set(Cursor::Map::TELEPORT);
 				else
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+					CCS->curh->set(Cursor::Map::POINTER);
 				return;
 			}
 		}
@@ -1700,17 +1699,25 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		if(objAtTile)
 		{
 			if(objAtTile->ID == Obj::TOWN && objRelations != PlayerRelations::ENEMIES)
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
+				CCS->curh->set(Cursor::Map::TOWN);
 			else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
+				CCS->curh->set(Cursor::Map::HERO);
 			else
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+				CCS->curh->set(Cursor::Map::POINTER);
 		}
 		else
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+			CCS->curh->set(Cursor::Map::POINTER);
 	}
 	else if(const CGHeroInstance * h = curHero())
 	{
+		std::array<Cursor::Map, 4> cursorMove      = { Cursor::Map::T1_MOVE,       Cursor::Map::T2_MOVE,       Cursor::Map::T3_MOVE,       Cursor::Map::T4_MOVE,       };
+		std::array<Cursor::Map, 4> cursorAttack    = { Cursor::Map::T1_ATTACK,     Cursor::Map::T2_ATTACK,     Cursor::Map::T3_ATTACK,     Cursor::Map::T4_ATTACK,     };
+		std::array<Cursor::Map, 4> cursorSail      = { Cursor::Map::T1_SAIL,       Cursor::Map::T2_SAIL,       Cursor::Map::T3_SAIL,       Cursor::Map::T4_SAIL,       };
+		std::array<Cursor::Map, 4> cursorDisembark = { Cursor::Map::T1_DISEMBARK,  Cursor::Map::T2_DISEMBARK,  Cursor::Map::T3_DISEMBARK,  Cursor::Map::T4_DISEMBARK,  };
+		std::array<Cursor::Map, 4> cursorExchange  = { Cursor::Map::T1_EXCHANGE,   Cursor::Map::T2_EXCHANGE,   Cursor::Map::T3_EXCHANGE,   Cursor::Map::T4_EXCHANGE,   };
+		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
+		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
+
 		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
 		assert(pnode);
 
@@ -1721,9 +1728,9 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		case CGPathNode::NORMAL:
 		case CGPathNode::TELEPORT_NORMAL:
 			if(pnode->layer == EPathfindingLayer::LAND)
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 4 + turns*6);
+				CCS->curh->set(cursorMove[turns]);
 			else
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 28 + turns);
+				CCS->curh->set(cursorSailVisit[turns]);
 			break;
 
 		case CGPathNode::VISIT:
@@ -1732,48 +1739,48 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
 				if(selection == objAtTile)
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
+					CCS->curh->set(Cursor::Map::HERO);
 				else
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 8 + turns*6);
+					CCS->curh->set(cursorExchange[turns]);
 			}
 			else if(pnode->layer == EPathfindingLayer::LAND)
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
+				CCS->curh->set(cursorVisit[turns]);
 			else
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 28 + turns);
+				CCS->curh->set(cursorSailVisit[turns]);
 			break;
 
 		case CGPathNode::BATTLE:
 		case CGPathNode::TELEPORT_BATTLE:
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
+			CCS->curh->set(cursorAttack[turns]);
 			break;
 
 		case CGPathNode::EMBARK:
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 6 + turns*6);
+			CCS->curh->set(cursorSail[turns]);
 			break;
 
 		case CGPathNode::DISEMBARK:
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 7 + turns*6);
+			CCS->curh->set(cursorDisembark[turns]);
 			break;
 
 		default:
 			if(objAtTile && objRelations != PlayerRelations::ENEMIES)
 			{
 				if(objAtTile->ID == Obj::TOWN)
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
+					CCS->curh->set(Cursor::Map::TOWN);
 				else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
+					CCS->curh->set(Cursor::Map::HERO);
 				else
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+					CCS->curh->set(Cursor::Map::POINTER);
 			}
 			else
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+				CCS->curh->set(Cursor::Map::POINTER);
 			break;
 		}
 	}
 
 	if(ourInaccessibleShipyard(objAtTile))
 	{
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 6);
+		CCS->curh->set(Cursor::Map::T1_SAIL);
 	}
 }
 
@@ -1806,7 +1813,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, GH.current->motion, ETextAlignment::CENTER);
+	CRClickPopup::createAndPush(obj, Point(GH.current->motion), ETextAlignment::CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)
@@ -1853,7 +1860,9 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 {
 	const IShipyard *ret = IShipyard::castFrom(obj);
 
-	if(!ret || obj->tempOwner != player || CCS->curh->type || (CCS->curh->frame != 6 && CCS->curh->frame != 0))
+	if(!ret ||
+		obj->tempOwner != player ||
+		(CCS->curh->get<Cursor::Map>() != Cursor::Map::T1_SAIL && CCS->curh->get<Cursor::Map>() != Cursor::Map::POINTER))
 		return nullptr;
 
 	return ret;

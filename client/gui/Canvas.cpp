@@ -17,24 +17,42 @@
 #include "../Graphics.h"
 
 Canvas::Canvas(SDL_Surface * surface):
-	surface(surface)
+	surface(surface),
+	renderOffset(0,0)
 {
 	surface->refcount++;
 }
 
 Canvas::Canvas(Canvas & other):
-	surface(other.surface)
+	surface(other.surface),
+	renderOffset(other.renderOffset)
 {
 	surface->refcount++;
 }
 
-Canvas::Canvas(const Point & size)
+Canvas::Canvas(Canvas & other, const Rect & newClipRect):
+	Canvas(other)
+{
+	clipRect.emplace();
+	SDL_GetClipRect(surface, clipRect.get_ptr());
+
+	Rect currClipRect = newClipRect + renderOffset;
+	SDL_SetClipRect(surface, &currClipRect);
+
+	renderOffset += newClipRect.topLeft();
+}
+
+Canvas::Canvas(const Point & size):
+	renderOffset(0,0)
 {
 	surface = CSDL_Ext::newSurface(size.x, size.y);
 }
 
 Canvas::~Canvas()
 {
+	if (clipRect)
+		SDL_SetClipRect(surface, clipRect.get_ptr());
+
 	SDL_FreeSurface(surface);
 }
 
@@ -42,33 +60,40 @@ void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, pos.x, pos.y);
+		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y);
 }
 
 void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, pos.x, pos.y, &sourceRect);
+		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y, &sourceRect);
+}
+
+void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha)
+{
+	assert(image);
+	if (image)
+		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y, &sourceRect, alpha);
 }
 
 void Canvas::draw(Canvas & image, const Point & pos)
 {
-	blitAt(image.surface, pos.x, pos.y, surface);
+	blitAt(image.surface, renderOffset.x + pos.x, renderOffset.y + pos.y, surface);
 }
 
 void Canvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)
 {
-	CSDL_Ext::drawLine(surface, from.x, from.y, dest.x, dest.y, colorFrom, colorDest);
+	CSDL_Ext::drawLine(surface, renderOffset.x + from.x, renderOffset.y + from.y, renderOffset.x + dest.x, renderOffset.y + dest.y, colorFrom, colorDest);
 }
 
 void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )
 {
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, position);
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, position);
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, position);
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, renderOffset + position);
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderOffset + position);
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, renderOffset + position);
 	}
 }
 
@@ -76,9 +101,9 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 {
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, position);
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, position);
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, position);
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, renderOffset + position);
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderOffset + position);
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, renderOffset + position);
 	}
 }
 
