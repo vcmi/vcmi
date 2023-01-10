@@ -11,7 +11,6 @@
 #pragma once
 
 #include "../GameConstants.h"
-//#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
