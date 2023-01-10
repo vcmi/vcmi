@@ -149,10 +149,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			dst = VLC->generaltexth->translate("core.arraytxt", ser);
 			break;
 		case CREGENS:
-			dst = VLC->generaltexth->translate("core.crgen1", ser);
+			dst = VLC->objtypeh->getObjectName(Obj::CREATURE_GENERATOR1, ser);
 			break;
 		case CREGENS4:
-			dst = VLC->generaltexth->translate("core.crgen4", ser);
+			dst = VLC->objtypeh->getObjectName(Obj::CREATURE_GENERATOR4, ser);
 			break;
 		case ADVOB_TXT:
 			dst = VLC->generaltexth->translate("core.advevent", ser);
