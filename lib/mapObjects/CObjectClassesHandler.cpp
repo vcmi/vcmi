@@ -182,6 +182,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	}
 
 	auto createdObject = handlerConstructors.at(obj->handlerName)();
+	createdObject->modName = scope;
 	createdObject->setType(obj->id, index);
 	createdObject->setTypeName(obj->getIdentifier(), identifier);
 	createdObject->init(entry);
@@ -212,18 +213,14 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 	obj->id = index;
 
 	obj->objects.resize(json["lastReservedIndex"].Float() + 1);
-	auto originalData = json["subObjects"].Vector();
 
 	for (auto subData : json["types"].Struct())
 	{
 		if (!subData.second["index"].isNull())
 		{
+			if (subData.second["index"].meta != "core")
+				logMod->warn("Object %s:%s from mod %s - attempt to load object with preset index!", name, subData.first, scope);
 			size_t subIndex = subData.second["index"].Integer();
-			if (subIndex < originalData.size())
-			{
-				JsonUtils::merge(originalData[subIndex], subData.second);
-				std::swap(originalData[subIndex], subData.second);
-			}
 			loadSubObject(scope, subData.first, subData.second, obj, subIndex);
 		}
 		else
@@ -333,10 +330,24 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
 	for (auto & entry : object["types"].Struct())
 	{
+		if (object.Struct().count("subObjects"))
+		{
+			auto const & vector = object["subObjects"].Vector();
+
+			if (!entry.second.Struct().count("index"))
+				continue;
+
+			size_t index = entry.second["index"].Integer();
+
+			if (index < vector.size())
+				JsonUtils::inherit(entry.second, vector[index]);
+		}
+
 		JsonUtils::inherit(entry.second, object["base"]);
 		for (auto & templ : entry.second["templates"].Struct())
 			JsonUtils::inherit(templ.second, entry.second["base"]);
 	}
+	object.Struct().erase("subObjects");
 }
 
 void CObjectClassesHandler::afterLoadFinalization()

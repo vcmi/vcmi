@@ -13,10 +13,6 @@
 		"lastReservedIndex" : {
 			"type":"number"
 		},
-		"subObjects" : {
-			"type" : "array",
-			"additionalItems" : true
-		},
 		"handler": {
 			"type":"string"
 		},

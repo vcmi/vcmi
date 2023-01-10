@@ -139,10 +139,9 @@ class CGObjectInstance;
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 {
-	RandomMapInfo rmgInfo;
+	friend class CObjectClassesHandler;
 
-	/// Text ID for human-readable name of this object, used for objects like banks and dwellings, if set
-	boost::optional<std::string> nameTextID;
+	RandomMapInfo rmgInfo;
 
 	JsonNode base; /// describes base template
 
@@ -226,7 +225,6 @@ public:
 		h & subtype;
 		h & templates;
 		h & rmgInfo;
-		h & nameTextID;
 		h & modName;
 		h & typeName;
 		h & subTypeName;
