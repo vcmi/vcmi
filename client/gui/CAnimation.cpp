@@ -34,7 +34,6 @@ class CDefFile
 {
 private:
 
-	PACKED_STRUCT_BEGIN
 	struct SSpriteDef
 	{
 		ui32 size;
@@ -45,7 +44,7 @@ private:
 		ui32 height;
 		si32 leftMargin;
 		si32 topMargin;
-	} PACKED_STRUCT_END;
+	} PACKED_STRUCT;
 	//offset[group][frame] - offset of frame data in file
 	std::map<size_t, std::vector <size_t> > offset;
 
