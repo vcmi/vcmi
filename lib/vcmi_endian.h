@@ -9,7 +9,7 @@
  */
 #pragma once
 
-//FIXME:library file depends on SDL - may cause troubles
+//FIXME:library file depends on SDL - make cause troubles
 #include <SDL_endian.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
