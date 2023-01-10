@@ -363,10 +363,6 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
-	const static TerrainId defaultGoodTerrain;
-	const static TerrainId defaultEvilTerrain;
-	const static TerrainId defaultNeutralTerrain;
-
 	static TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
@@ -396,7 +392,6 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	TerrainId getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 	void loadRandomFaction();
 
 

@@ -28,10 +28,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const TerrainId CTownHandler::defaultGoodTerrain(ETerrainId::GRASS);
-const TerrainId CTownHandler::defaultEvilTerrain(ETerrainId::LAVA);
-const TerrainId CTownHandler::defaultNeutralTerrain(ETerrainId::ROUGH);
-
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
 	{ "normal", CBuilding::BUILD_NORMAL },
@@ -951,22 +947,6 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-TerrainId CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
-{
-	TerrainId terrain = defaultGoodTerrain;
-
-	switch(alignment)
-	{
-	case EAlignment::EAlignment::EVIL:
-		terrain = defaultEvilTerrain;
-		break;
-	case EAlignment::EAlignment::NEUTRAL:
-		terrain = defaultNeutralTerrain;
-		break;
-	}
-	return terrain;
-}
-
 CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
 {
 	auto faction = new CFaction();
@@ -987,16 +967,10 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
 
-	//Contructor is not called here, but operator=
-	auto nativeTerrain = source["nativeTerrain"];
-
-	if ( nativeTerrain.isNull())
+	faction->nativeTerrain = ETerrainId::NONE;
+	if ( !source["nativeTerrain"].isNull())
 	{
-		faction->nativeTerrain = getDefaultTerrainForAlignment(faction->alignment);
-	}
-	else
-	{
-		VLC->modh->identifiers.requestIdentifier("terrain", nativeTerrain, [=](int32_t index){
+		VLC->modh->identifiers.requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);
 		});
 	}
