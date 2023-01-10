@@ -31,8 +31,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void CConnection::init()
 {
-	buffer = new char[4096];
-	bufferSize = 0;
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
 	registerTypes(iser);
@@ -42,28 +40,26 @@ void CConnection::init()
 #else
 	myEndianess = false;
 #endif
-	connected = true;
 	std::string pom;
+
 	//we got connection
 	oser & std::string("Aiya!\n") & name & uuid & myEndianess; //identify ourselves
-	enet_host_flush(client);
 	
 	iser & pom & pom & contactUuid & contactEndianess;
 	logNetwork->info("Established connection with %s. UUID: %s", pom, contactUuid);
-	mutexRead = std::make_shared<boost::mutex>();
-	mutexWrite = std::make_shared<boost::mutex>();
 
+	connected = true;
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
 CConnection::CConnection(ENetHost * _client, ENetPeer * _peer, std::string Name, std::string UUID)
-	: client(_client), peer(_peer), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false)
+	: client(_client), peer(_peer), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false), channel(1)
 {	
 	//init();
 }
 
 CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::string Name, std::string UUID)
-	: client(_client), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false)
+	: client(_client), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false), channel(0)
 {
 	ENetAddress address;
 	enet_address_set_host(&address, host.c_str());
@@ -74,23 +70,11 @@ CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::s
 	{
 		throw std::runtime_error("Can't establish connection :(");
 	}
-	
-	/*ENetEvent event;
-	if(enet_host_service(client, &event, 10000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
-	{
-		logNetwork->info("Connection succeded");
-	}
-	else
-	{
-		enet_peer_reset(peer);
-		throw std::runtime_error("Connection refused by server");
-	}*/
-	
-	//init();
 }
 
 void CConnection::dispatch(ENetPacket * packet)
 {
+	boost::unique_lock<boost::mutex> lock(mutexRead);
 	packets.push_back(packet);
 }
 
@@ -101,47 +85,37 @@ const ENetPeer * CConnection::getPeer() const
 
 int CConnection::write(const void * data, unsigned size)
 {
+	if(size == 0)
+		return 0;
+	boost::unique_lock<boost::mutex> lock(mutexWrite);
 	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
-	enet_peer_send(peer, 0, packet);
+	enet_peer_send(peer, channel, packet);
 	return size;
 }
 int CConnection::read(void * data, unsigned size)
 {
-	while(bufferSize < size)
+	const int timout = 1000;
+	if(size == 0)
+		return 0;
+	for(int i = 0; packets.empty() && (i < timout || connected); ++i)
 	{
-		if(packets.empty())
-		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(20));
-			continue;
-		}
-		
-		auto * packet = packets.front();
-		packets.pop_front();
-		
-		if(packet->dataLength > 0)
-		{
-			memcpy(buffer + bufferSize, packet->data, packet->dataLength);
-			bufferSize += packet->dataLength;
-		}
-		
-		enet_packet_destroy(packet);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
+	boost::unique_lock<boost::mutex> lock(mutexRead);
+	auto * packet = packets.front();
+	packets.pop_front();
 	
-	assert(bufferSize == size);
-	
-	unsigned ret = std::min(size, bufferSize);
-	memcpy(data, buffer, ret);
-	if(ret < bufferSize)
-		memcpy(buffer, buffer + ret, bufferSize - ret);
-	bufferSize -= ret;
+	if(packet->dataLength > 0)
+		memcpy(data, packet->data, packet->dataLength);
+	int ret = packet->dataLength;
+	assert(ret == size);
+	enet_packet_destroy(packet);
 
 	return ret;
 }
 
 CConnection::~CConnection()
 {
-	delete[] buffer;
-	
 	if(handler)
 		handler->join();
 	
@@ -162,6 +136,7 @@ CConnection & CConnection::operator&(const T &t) {
 
 void CConnection::close()
 {
+	boost::unique_lock<boost::mutex> lock(mutexWrite);
 	enet_peer_disconnect(peer, 0);
 	enet_peer_reset(peer);
 }
@@ -184,7 +159,6 @@ void CConnection::reportState(vstd::CLoggerBase * out)
 CPack * CConnection::retrievePack()
 {
 	CPack * pack = nullptr;
-	boost::unique_lock<boost::mutex> lock(*mutexRead);
 	iser & pack;
 	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
 	if(pack == nullptr)
@@ -200,10 +174,8 @@ CPack * CConnection::retrievePack()
 
 void CConnection::sendPack(const CPack * pack)
 {
-	boost::unique_lock<boost::mutex> lock(*mutexWrite);
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
 	oser & pack;
-	enet_host_flush(client);
 }
 
 void CConnection::disableStackSendingByID()

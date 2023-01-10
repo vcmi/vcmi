@@ -191,14 +191,16 @@ void CVCMIServer::run()
 	}
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
+	{
+		connectionAccepted();
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-
-	logNetwork->info("Thread handling connections ended");
+	}
 
 	if(state == EServerState::GAMEPLAY)
 	{
 		gh->run(si->mode == StartInfo::LOAD_GAME);
 	}
+	
 	while(state == EServerState::GAMEPLAY_ENDED)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 }
@@ -246,12 +248,6 @@ void CVCMIServer::threadAnnounceLobby()
 				announcePack(std::move(announceQueue.front()));
 				announceQueue.pop_front();
 			}
-
-			/*if(acceptor)
-			{
-				io->reset();
-				io->poll();
-			}*/
 		}
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
@@ -322,19 +318,17 @@ void CVCMIServer::startGameImmidiately()
 void CVCMIServer::startAsyncAccept()
 {
 	ENetEvent event;
-	while(true)
+	while(state != EServerState::SHUTDOWN)
 	{
-		if(enet_host_service(server, &event, 100) > 0)
+		if(enet_host_service(server, &event, 10) > 0)
 		{
 			switch(event.type)
 			{
 				case ENET_EVENT_TYPE_CONNECT: {
 					if(state == EServerState::LOBBY)
 					{
-						auto c = std::make_shared<CConnection>(server, event.peer, SERVER_NAME, uuid);
-						c->init();
-						connections.insert(c);
-						c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+						upcomingConnection = std::make_shared<CConnection>(server, event.peer, SERVER_NAME, uuid);
+						connections.insert(upcomingConnection);
 					}
 					enet_packet_destroy(event.packet);
 					break;
@@ -358,39 +352,34 @@ void CVCMIServer::startAsyncAccept()
 					
 					break;
 				}
+					
+				case ENET_EVENT_TYPE_DISCONNECT: {
+					enet_packet_destroy(event.packet);
+					for(auto & c : connections)
+					{
+						if(c->getPeer() == event.peer)
+						{
+							clientDisconnected(c);
+							break;
+						}
+					}
+					break;
+					
+				}
 			}
 		}
 	}
 }
 
-/*void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
+void CVCMIServer::connectionAccepted()
 {
-	if(ec)
+	if(upcomingConnection)
 	{
-		if(state != EServerState::SHUTDOWN)
-			logNetwork->info("Something wrong during accepting: %s", ec.message());
-		return;
-	}
-
-	try
-	{
-		if(state == EServerState::LOBBY || !hangingConnections.empty())
-		{
-			logNetwork->info("We got a new connection! :)");
-			auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
-			upcomingConnection.reset();
-			connections.insert(c);
-			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
-		}
-	}
-	catch(std::exception & e)
-	{
-		logNetwork->error("Failure processing new connection! %s", e.what());
+		upcomingConnection->init();
+		upcomingConnection->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, upcomingConnection);
 		upcomingConnection.reset();
 	}
-
-	startAsyncAccept();
-}*/
+}
 
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
@@ -401,7 +390,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	try
 	{
 #endif
-		while(c->connected)
+		while(c->isOpen())
 		{
 			CPack * pack;
 			
@@ -451,7 +440,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 //	if(state != ENDING_AND_STARTING_GAME)
-	if(c->connected)
+	if(c->isOpen())
 	{
 		auto lcd = vstd::make_unique<LobbyClientDisconnected>();
 		lcd->c = c;

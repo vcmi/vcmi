@@ -29,18 +29,19 @@ class DLL_LINKAGE CConnection
 	int read(void * data, unsigned size) override;
 	
 	std::list<ENetPacket*> packets;
+	int channel;
 	ENetPeer * peer = nullptr;
 	ENetHost * client = nullptr;
-	char * buffer;
-	unsigned bufferSize;
 
-public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
-
-	std::shared_ptr<boost::mutex> mutexRead;
-	std::shared_ptr<boost::mutex> mutexWrite;
+	
 	bool connected;
+	boost::mutex mutexRead;
+	boost::mutex mutexWrite;
+	
+public:
+
 	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
 	std::string contactUuid;
 	std::string name; //who uses this connection

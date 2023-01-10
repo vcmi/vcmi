@@ -53,7 +53,6 @@ bool LobbyClientConnected::checkClientPermissions(CVCMIServer * srv) const
 	if(c && c->isOpen())
 	{
 		c->close();
-		c->connected = false;
 	}
 	return false;
 }
@@ -132,7 +131,6 @@ bool LobbyClientDisconnected::applyOnServer(CVCMIServer * srv)
 {
 	srv->clientDisconnected(c);
 	c->close();
-	c->connected = false;
 	return true;
 }
 
@@ -140,9 +138,7 @@ void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 {
 	if(c && c->isOpen())
 	{
-		boost::unique_lock<boost::mutex> lock(*c->mutexWrite);
 		c->close();
-		c->connected = false;
 	}
 
 	if(shutdownServer)

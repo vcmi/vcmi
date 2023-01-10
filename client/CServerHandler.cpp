@@ -184,7 +184,7 @@ void CServerHandler::threadPoll()
 	ENetEvent event;
 	while(true)
 	{
-		if(enet_host_service(enetClient, &event, 100) > 0)
+		if(enet_host_service(enetClient, &event, 10) > 0)
 		{
 			switch(event.type)
 			{
@@ -211,6 +211,7 @@ void CServerHandler::threadPoll()
 					
 				case ENET_EVENT_TYPE_DISCONNECT:
 				{
+					enet_packet_destroy(event.packet);
 					if(c && c->getPeer() == event.peer)
 					{
 						c.reset();
@@ -335,18 +336,18 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 			boost::this_thread::sleep(boost::posix_time::seconds(1));
 		}
 	}
-
-	if(state == EClientState::CONNECTION_CANCELLED)
-	{
-		logNetwork->info("Connection aborted by player!");
-		return;
-	}
 	
 	while(state != EClientState::CONNECTING)
+	{
+		if(state == EClientState::CONNECTION_CANCELLED)
+		{
+			logNetwork->info("Connection aborted by player!");
+			return;
+		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 	
 	c->init();
-
 	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
 	if(!addr.empty() && addr != getHostAddress())
@@ -831,14 +832,15 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 void CServerHandler::threadHandleConnection()
 {
 	setThreadName("CServerHandler::threadHandleConnection");
-	c->enterLobbyConnectionMode();
 	try
 	{
 		while(!c->isOpen())
 			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-			
+		
+		c->enterLobbyConnectionMode();
 		sendClientConnecting();
-		while(c->connected)
+		
+		while(c->isOpen())
 		{
 			while(state == EClientState::STARTING)
 				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
@@ -963,6 +965,7 @@ void CServerHandler::onServerFinished()
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
+	boost::unique_lock<boost::recursive_mutex> lock(*mx);
 	if(state != EClientState::STARTING)
 		c->sendPack(&pack);
 }

@@ -67,6 +67,7 @@ public:
 	std::atomic<int> currentClientId;
 	std::atomic<ui8> currentPlayerId;
 	std::shared_ptr<CConnection> hostClient;
+	std::shared_ptr<CConnection> upcomingConnection;
 
 	CVCMIServer(boost::program_options::variables_map & opts);
 	~CVCMIServer();
@@ -78,7 +79,7 @@ public:
 	void establishRemoteConnections();
 	void connectToRemote(const std::string & addr, int port);
 	void startAsyncAccept();
-	//void connectionAccepted();
+	void connectionAccepted();
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 	void threadAnnounceLobby();
 	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);

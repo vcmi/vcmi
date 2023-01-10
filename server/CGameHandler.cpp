@@ -2743,7 +2743,6 @@ void CGameHandler::sendMessageTo(std::shared_ptr<CConnection> c, const std::stri
 {
 	SystemMessage sm;
 	sm.text = message;
-	boost::unique_lock<boost::mutex> lock(*c->mutexWrite);
 	*(c.get()) << &sm;
 }
 
