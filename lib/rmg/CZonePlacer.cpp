@@ -195,7 +195,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 				else
 				{
 					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
-					if(tt == ETerrainId::DIRT)
+					if(tt == ETerrainId::NONE)
 					{
 						//any / random
 						zonesToPlace.push_back(zone);

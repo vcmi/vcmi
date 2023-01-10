@@ -2372,7 +2372,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		for (auto & elem : path.nodes)
 			elem.coord = h->convertFromVisitablePos(elem.coord);
 
-		TerrainId currentTerrain = ETerrainId::BORDER; // not init yet
+		TerrainId currentTerrain = ETerrainId::NONE;
 		TerrainId newTerrain;
 		bool wasOnRoad = true;
 		int sh = -1;

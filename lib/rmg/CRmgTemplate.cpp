@@ -224,7 +224,7 @@ const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
+	//assert(value.find(ETerrainType::NONE) == value.end() &&
 	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }

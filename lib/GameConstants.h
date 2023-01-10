@@ -1222,8 +1222,7 @@ class BattleField : public BaseForID<BattleField, si32>
 enum class ETerrainId {
 	NATIVE_TERRAIN = -4,
 	ANY_TERRAIN = -3,
-	WRONG = -2,
-	BORDER = -1,
+	NONE = -1,
 	FIRST_REGULAR_TERRAIN = 0,
 	DIRT = 0,
 	SAND,

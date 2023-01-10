@@ -88,7 +88,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	}
 	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
 			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->getId().getNum())) //no special movement bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->getIndex())) //no special movement bonus
 	{
 
 		ret = VLC->heroh->terrCosts[from.terType->getId()];
@@ -105,20 +105,21 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	// This is clearly bug in H3 however intended behaviour is not clear.
 	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
 	// will always have best penalty without any influence from player-defined stacks order
+	// and army that consist solely from neutral will always be considered to be on native terrain
 
-	// TODO: What should we do if all hero stacks are neutral creatures?
-	TerrainId nativeTerrain = ETerrainId::BORDER;
+	TerrainId nativeTerrain = ETerrainId::ANY_TERRAIN;
 
 	for(auto stack : stacks)
 	{
 		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == ETerrainId::BORDER) //where does this value come from?
+		if(stackNativeTerrain == ETerrainId::NONE)
 			continue;
-		if(nativeTerrain == ETerrainId::BORDER)
+
+		if(nativeTerrain == ETerrainId::ANY_TERRAIN)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return ETerrainId::BORDER;
+			return ETerrainId::NONE;
 	}
 	return nativeTerrain;
 }
