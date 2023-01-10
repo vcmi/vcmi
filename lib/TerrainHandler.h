@@ -22,7 +22,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 {
 	friend class TerrainTypeHandler;
-	std::string modScope;
 	std::string identifier;
 	TerrainId id;
 	ui8 passabilityType;
@@ -80,7 +79,6 @@ public:
 		h & prohibitTransitions;
 		h & minimapBlocked;
 		h & minimapUnblocked;
-		h & modScope;
 		h & identifier;
 		h & musicFilename;
 		h & tilesFilename;

@@ -25,8 +25,11 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	TerrainType * info = new TerrainType;
 
 	info->id = TerrainId(index);
-	info->identifier = identifier;
-	info->modScope = scope;
+
+	if (identifier.find(':') == std::string::npos)
+		info->identifier = scope + ":" + identifier;
+	else
+		info->identifier = identifier;
 
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
 	info->musicFilename = json["music"].String();
@@ -151,7 +154,11 @@ RiverType * RiverTypeHandler::loadFromJson(
 	RiverType * info = new RiverType;
 
 	info->id              = RiverId(index);
-	info->identifier      = identifier;
+	if (identifier.find(':') == std::string::npos)
+		info->identifier = scope + ":" + identifier;
+	else
+		info->identifier = identifier;
+
 	info->tilesFilename   = json["tilesFilename"].String();
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->deltaName       = json["delta"].String();
@@ -192,7 +199,11 @@ RoadType * RoadTypeHandler::loadFromJson(
 	RoadType * info = new RoadType;
 
 	info->id              = RoadId(index);
-	info->identifier      = identifier;
+	if (identifier.find(':') == std::string::npos)
+		info->identifier = scope + ":" + identifier;
+	else
+		info->identifier = identifier;
+
 	info->tilesFilename   = json["tilesFilename"].String();
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
@@ -261,7 +272,7 @@ bool TerrainType::isTransitionRequired() const
 
 std::string TerrainType::getNameTextID() const
 {
-	return TextIdentifier( "terrain", modScope, identifier,  "name" ).get();
+	return TextIdentifier( "terrain", identifier,  "name" ).get();
 }
 
 std::string TerrainType::getNameTranslated() const
@@ -294,12 +305,12 @@ std::string RiverType::getNameTranslated() const
 
 RiverType::RiverType():
 	id(River::NO_RIVER),
-	identifier("empty")
+	identifier("core:empty")
 {}
 
 RoadType::RoadType():
 	id(Road::NO_ROAD),
-	identifier("empty"),
+	identifier("core:empty"),
 	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {}
 VCMI_LIB_NAMESPACE_END
