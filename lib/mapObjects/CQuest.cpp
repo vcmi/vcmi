@@ -588,7 +588,7 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	quest->progress = CQuest::NOT_ACTIVE;
 	if(quest->missionType)
 	{
-		std::string questName  = quest->missionName(CQuest::Emission(quest->missionType-1));
+		std::string questName  = quest->missionName(quest->missionType);
 
 		if(!quest->isCustomFirst)
 			quest->firstVisitText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(0), quest->textOption);
