@@ -33,6 +33,7 @@ public:
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
+	void updateFrom(const JsonNode & data) {};
 
 	std::string getNameTextID() const;
 	std::string getNameTranslated() const;
@@ -109,6 +110,7 @@ public:
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
+	void updateFrom(const JsonNode & data) {};
 
 	std::string getNameTextID() const;
 	std::string getNameTranslated() const;
@@ -141,6 +143,7 @@ public:
 	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RoadId getId() const override { return id;}
+	void updateFrom(const JsonNode & data) {};
 
 	std::string getNameTextID() const;
 	std::string getNameTranslated() const;
