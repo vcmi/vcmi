@@ -52,7 +52,8 @@ public:
 	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect);
 
 	/// renders section of image bounded by sourceRect at specified position at specific transparency value
-	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha);
+	/// disabled for now as never used in code with alpha support
+//	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha);
 
 
 	/// renders another canvas onto this canvas

@@ -16,6 +16,7 @@
 #include "../gui/SDL_Pixels.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
+#include "../gui/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -454,7 +455,15 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	auto img = anim->getImage(frame, group);
 	if(img)
-		img->draw(to, pos.x, pos.y, &src, alpha);
+	{
+		if(alpha != UINT8_MAX)
+		{
+			const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
+			img->adjustPalette(alphaFilter);
+		}
+
+		img->draw(to, pos.x, pos.y, &src);
+	}
 }
 
 void CShowableAnim::rotate(bool on, bool vertical)

@@ -70,12 +70,12 @@ void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect &
 		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y, &sourceRect);
 }
 
-void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha)
-{
-	assert(image);
-	if (image)
-		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y, &sourceRect, alpha);
-}
+//void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha)
+//{
+//	assert(image);
+//	if (image)
+//		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y, &sourceRect, alpha);
+//}
 
 void Canvas::draw(Canvas & image, const Point & pos)
 {
