@@ -57,7 +57,7 @@ void ClientCommandManager::handleGoSolo()
 	else
 	{
 		color = LOCPLINT->playerID;
-		removeGUI();
+		CSH->client->removeGUI();
 		for(auto & elem : CSH->client->gameState()->players)
 		{
 			if(elem.second.human)
@@ -92,7 +92,7 @@ void ClientCommandManager::handleControlAi(const std::string &colorName)
 			continue;
 		}
 
-		removeGUI();
+		CSH->client->removeGUI();
 		CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 	}
 	GH.totalRedraw();
@@ -169,38 +169,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 //	}
 	else if(message=="convert txt")
 	{
-		//TODO: to be replaced with "VLC->generaltexth->dumpAllTexts();" due to https://github.com/vcmi/vcmi/pull/1329 merge:
-
-		printCommandMessage("Command accepted.\t");
-
-		const boost::filesystem::path outPath =
-				VCMIDirs::get().userExtractedPath();
-
-		boost::filesystem::create_directories(outPath);
-
-		auto extractVector = [=](const std::vector<std::string> & source, const std::string & name)
-		{
-			JsonNode data(JsonNode::JsonType::DATA_VECTOR);
-			int64_t index = 0;
-			for(auto & line : source)
-			{
-				JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
-				lineNode["text"].String() = line;
-				lineNode["index"].Integer() = index++;
-				data.Vector().push_back(lineNode);
-			}
-
-			const boost::filesystem::path filePath = outPath / (name + ".json");
-			boost::filesystem::ofstream file(filePath);
-			file << data.toJson();
-		};
-
-		extractVector(VLC->generaltexth->allTexts, "generalTexts");
-		extractVector(VLC->generaltexth->jktexts, "jkTexts");
-		extractVector(VLC->generaltexth->arraytxt, "arrayTexts");
-
-		printCommandMessage("\rExtracting done :)\n");
-		printCommandMessage("Extracted files can be found in" + outPath.string() + " directory\n");
+		VLC->generaltexth->dumpAllTexts();
 	}
 	else if(message=="get config")
 	{
@@ -457,20 +426,6 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 	yt.player = colorIdentifier;
 	yt.daysWithoutCastle = CSH->client->getPlayerState(colorIdentifier)->daysWithoutCastle;
 	yt.applyCl(CSH->client);
-}
-
-void ClientCommandManager::removeGUI()
-{
-	// CClient::endGame
-	GH.curInt = nullptr;
-	if(GH.topInt())
-		GH.topInt()->deactivate();
-	GH.listInt.clear();
-	GH.objsToBlit.clear();
-	GH.statusbar = nullptr;
-	printCommandMessage("Removed GUI.", ELogLevel::INFO);
-
-	LOCPLINT = nullptr;
 }
 
 void ClientCommandManager::printInfoAboutInterfaceObject(const CIntObject *obj, int level)

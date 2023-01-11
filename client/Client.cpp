@@ -46,9 +46,9 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
-#include "CMT.h"
 #include "CServerHandler.h"
 #include "../lib/ScriptHandler.h"
+#include "windows/CAdvmapInterface.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
@@ -761,6 +761,20 @@ void CClient::reinitScripting()
 #endif
 }
 
+void CClient::removeGUI()
+{
+	// CClient::endGame
+	GH.curInt = nullptr;
+	if(GH.topInt())
+		GH.topInt()->deactivate();
+	adventureInt = nullptr;
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+	GH.statusbar = nullptr;
+	logGlobal->info("Removed GUI.");
+
+	LOCPLINT = nullptr;
+}
 
 #ifdef VCMI_ANDROID
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jobject cls)

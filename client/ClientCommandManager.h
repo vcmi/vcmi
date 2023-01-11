@@ -20,7 +20,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	static bool currentCallFromIngameConsole;
 
 	static void giveTurn(const PlayerColor &color);
-	static void removeGUI();
 	static void printInfoAboutInterfaceObject(const CIntObject *obj, int level);
 	static void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);
 	static void handleGoSolo();
