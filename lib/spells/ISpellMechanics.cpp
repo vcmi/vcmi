@@ -701,9 +701,9 @@ PlayerColor BaseMechanics::getCasterColor() const
 std::vector<AimType> BaseMechanics::getTargetTypes() const
 {
 	std::vector<AimType> ret;
-	detail::ProblemImpl ingored;
+	detail::ProblemImpl ignored;
 
-	if(canBeCast(ingored))
+	if(canBeCast(ignored))
 	{
 		auto spellTargetType = owner->getTargetType();
 

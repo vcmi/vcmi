@@ -12,6 +12,7 @@
 
 #include "SDL_Extensions.h"
 #include "SDL_Pixels.h"
+#include "ColorFilter.h"
 
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
@@ -106,10 +107,11 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
-	void adjustPalette(const ColorShifter * shifter) override;
+	void adjustPalette(const ColorFilter & shifter) override;
+	void resetPalette(int colorID) override;
 	void resetPalette() override;
 
-	void setBorderPallete(const BorderPallete & borderPallete) override;
+	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
 
 	friend class SDLImageLoader;
 
@@ -213,32 +215,17 @@ CDefFile::CDefFile(std::string Name):
 	data(nullptr),
 	palette(nullptr)
 {
-
-	#if 0
-	static SDL_Color H3_ORIG_PALETTE[8] =
-	{
-	   {  0, 255, 255, SDL_ALPHA_OPAQUE},
-	   {255, 150, 255, SDL_ALPHA_OPAQUE},
-	   {255, 100, 255, SDL_ALPHA_OPAQUE},
-	   {255,  50, 255, SDL_ALPHA_OPAQUE},
-	   {255,   0, 255, SDL_ALPHA_OPAQUE},
-	   {255, 255, 0,   SDL_ALPHA_OPAQUE},
-	   {180,   0, 255, SDL_ALPHA_OPAQUE},
-	   {  0, 255, 0,   SDL_ALPHA_OPAQUE}
-	};
-	#endif // 0
-
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
 	{
-		{   0,   0,   0,   0},// 100% - transparency
-		{   0,   0,   0,  32},//  75% - shadow border,
-		{   0,   0,   0,  64},// TODO: find exact value
-		{   0,   0,   0, 128},// TODO: for transparency
-		{   0,   0,   0, 128},//  50% - shadow body
-		{   0,   0,   0,   0},// 100% - selection highlight
-		{   0,   0,   0, 128},//  50% - shadow body   below selection
-		{   0,   0,   0,  64} // 75% - shadow border below selection
+		{   0,   0,   0,   0},// transparency                  ( used in most images )
+		{   0,   0,   0,  64},// shadow border                 ( used in battle, adventure map def's )
+		{   0,   0,   0,  64},// shadow border                 ( used in fog-of-war def's )
+		{   0,   0,   0, 128},// shadow body                   ( used in fog-of-war def's )
+		{   0,   0,   0, 128},// shadow body                   ( used in battle, adventure map def's )
+		{   0,   0,   0,   0},// selection                     ( used in battle def's )
+		{   0,   0,   0, 128},// shadow body   below selection ( used in battle def's )
+		{   0,   0,   0,  64} // shadow border below selection ( used in battle def's )
 	};
 	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
 
@@ -811,7 +798,7 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
-void SDLImage::adjustPalette(const ColorShifter * shifter)
+void SDLImage::adjustPalette(const ColorFilter & shifter)
 {
 	if(originalPalette == nullptr)
 		return;
@@ -821,7 +808,7 @@ void SDLImage::adjustPalette(const ColorShifter * shifter)
 	// Note: here we skip the first 8 colors in the palette that predefined in H3Palette
 	for(int i = 8; i < palette->ncolors; i++)
 	{
-		palette->colors[i] = shifter->shiftColor(originalPalette->colors[i]);
+		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
 	}
 }
 
@@ -834,11 +821,20 @@ void SDLImage::resetPalette()
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
 }
 
-void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
+void SDLImage::resetPalette( int colorID )
+{
+	if(originalPalette == nullptr)
+		return;
+
+	// Always keept the original palette not changed, copy a new palette to assign to surface
+	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
+}
+
+void SDLImage::setSpecialPallete(const IImage::SpecialPalette & SpecialPalette)
 {
 	if(surf->format->palette)
 	{
-		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
+		SDL_SetColors(surf, const_cast<SDL_Color *>(SpecialPalette.data()), 1, 7);
 	}
 }
 
@@ -1099,18 +1095,6 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	if(preloaded)
 		load(index, targetGroup);
-}
-
-void CAnimation::shiftColor(const ColorShifter * shifter)
-{
-	for(auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
-	{
-		for(auto frameIter = groupIter->second.begin(); frameIter != groupIter->second.end(); frameIter++)
-		{
-			std::shared_ptr<IImage> image = frameIter->second;
-			image->adjustPalette(shifter);
-		}
-	}
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)

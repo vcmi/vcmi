@@ -1,5 +1,5 @@
 /*
- * BattleControlPanel.cpp, part of VCMI engine
+ * BattleWindow.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,19 +8,24 @@
  *
  */
 #include "StdInc.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 
 #include "BattleInterface.h"
 #include "BattleInterfaceClasses.h"
+#include "BattleFieldController.h"
 #include "BattleStacksController.h"
 #include "BattleActionsController.h"
 
 #include "../CGameInfo.h"
+#include "../CMessage.h"
 #include "../CPlayerInterface.h"
+#include "../CMusicHandler.h"
+#include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CAnimation.h"
 #include "../windows/CSpellWindow.h"
+#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 
@@ -31,97 +36,208 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
 
-BattleControlPanel::BattleControlPanel(BattleInterface & owner, const Point & position):
+BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	REGISTER_BUILDER("battleConsole", &BattleControlPanel::buildBattleConsole);
+	pos.w = 800;
+	pos.h = 600;
+	pos = center();
+
+	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	pos += position;
+	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
 	
-	const JsonNode config(ResourceID("config/widgets/battleControlPanel.json"));
-	
-	addCallback("options", std::bind(&BattleControlPanel::bOptionsf, this));
-	addCallback("surrender", std::bind(&BattleControlPanel::bSurrenderf, this));
-	addCallback("flee", std::bind(&BattleControlPanel::bFleef, this));
-	addCallback("autofight", std::bind(&BattleControlPanel::bAutofightf, this));
-	addCallback("spellbook", std::bind(&BattleControlPanel::bSpellf, this));
-	addCallback("wait", std::bind(&BattleControlPanel::bWaitf, this));
-	addCallback("defence", std::bind(&BattleControlPanel::bDefencef, this));
-	addCallback("consoleUp", std::bind(&BattleControlPanel::bConsoleUpf, this));
-	addCallback("consoleDown", std::bind(&BattleControlPanel::bConsoleDownf, this));
-	addCallback("tacticNext", std::bind(&BattleControlPanel::bTacticNextStack, this));
-	addCallback("tacticEnd", std::bind(&BattleControlPanel::bTacticPhaseEnd, this));
-	addCallback("alternativeAction", std::bind(&BattleControlPanel::bSwitchActionf, this));
+	addCallback("options", std::bind(&BattleWindow::bOptionsf, this));
+	addCallback("surrender", std::bind(&BattleWindow::bSurrenderf, this));
+	addCallback("flee", std::bind(&BattleWindow::bFleef, this));
+	addCallback("autofight", std::bind(&BattleWindow::bAutofightf, this));
+	addCallback("spellbook", std::bind(&BattleWindow::bSpellf, this));
+	addCallback("wait", std::bind(&BattleWindow::bWaitf, this));
+	addCallback("defence", std::bind(&BattleWindow::bDefencef, this));
+	addCallback("consoleUp", std::bind(&BattleWindow::bConsoleUpf, this));
+	addCallback("consoleDown", std::bind(&BattleWindow::bConsoleDownf, this));
+	addCallback("tacticNext", std::bind(&BattleWindow::bTacticNextStack, this));
+	addCallback("tacticEnd", std::bind(&BattleWindow::bTacticPhaseEnd, this));
+	addCallback("alternativeAction", std::bind(&BattleWindow::bSwitchActionf, this));
 	
 	build(config);
 	
 	console = widget<BattleConsole>("console");
+
 	GH.statusbar = console;
+	owner.console = console;
+
+	owner.fieldController.reset( new BattleFieldController(owner));
+	owner.fieldController->createHeroes();
+
+	//create stack queue and adjust our own position
+	bool embedQueue;
+	std::string queueSize = settings["battle"]["queueSize"].String();
+
+	if(queueSize == "auto")
+		embedQueue = screen->h < 700;
+	else
+		embedQueue = screen->h < 700 || queueSize == "small";
+
+	queue = std::make_shared<StackQueue>(embedQueue, owner);
+	if(!embedQueue && settings["battle"]["showQueue"].Bool())
+	{
+		//re-center, taking into account stack queue position
+		pos.y -= queue->pos.h;
+		pos.h += queue->pos.h;
+		pos = center();
+	}
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();
 	else
 		tacticPhaseEnded();
+
+	addUsedEvents(RCLICK | KEYBOARD);
 }
 
-std::shared_ptr<BattleConsole> BattleControlPanel::buildBattleConsole(const JsonNode & config) const
+BattleWindow::~BattleWindow()
 {
-	return std::make_shared<BattleConsole>(readRect(config["rect"]));
+	CPlayerInterface::battleInt = nullptr;
 }
 
-void BattleControlPanel::show(SDL_Surface * to)
+std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode & config) const
 {
-	//show menu before all other elements to keep it in background
-	if(auto w = widget<CPicture>("menu"))
-		w->show(to);
-	CIntObject::show(to);
+	auto rect = readRect(config["rect"]);
+	auto offset = readPosition(config["imagePosition"]);
+	auto background = widget<CPicture>("menuBattle");
+	return std::make_shared<BattleConsole>(background, rect.topLeft(), offset, rect.dimensions() );
 }
 
-void BattleControlPanel::showAll(SDL_Surface * to)
+void BattleWindow::hideQueue()
 {
-	//show menu before all other elements to keep it in background
-	if(auto w = widget<CPicture>("menu"))
-		w->showAll(to);
-	CIntObject::showAll(to);
-}
+	Settings showQueue = settings.write["battle"]["showQueue"];
+	showQueue->Bool() = false;
 
+	queue->disable();
 
-void BattleControlPanel::tacticPhaseStarted()
-{
-	build(variables["tacticItems"]);
-
-	if(auto w = widget<CPicture>("menu"))
+	if (!queue->embedded)
 	{
-		w->colorize(owner.curInt->playerID);
-		w->recActions &= ~(SHOWALL | UPDATE);
-	}
-}
-void BattleControlPanel::tacticPhaseEnded()
-{
-	deleteWidget("tacticNext");
-	deleteWidget("tacticEnd");
-
-	build(variables["battleItems"]);
-
-	if(auto w = widget<CPicture>("menu"))
-	{
-		w->colorize(owner.curInt->playerID);
-		w->recActions &= ~(SHOWALL | UPDATE);
+		//re-center, taking into account stack queue position
+		pos.y += queue->pos.h;
+		pos.h -= queue->pos.h;
+		pos = center();
+		GH.totalRedraw();
 	}
 }
 
-void BattleControlPanel::bOptionsf()
+void BattleWindow::showQueue()
+{
+	Settings showQueue = settings.write["battle"]["showQueue"];
+	showQueue->Bool() = true;
+
+	queue->enable();
+
+	if (!queue->embedded)
+	{
+		//re-center, taking into account stack queue position
+		pos.y -= queue->pos.h;
+		pos.h += queue->pos.h;
+		pos = center();
+		GH.totalRedraw();
+	}
+}
+
+void BattleWindow::updateQueue()
+{
+	queue->update();
+}
+
+void BattleWindow::activate()
+{
+	GH.statusbar = console;
+	CIntObject::activate();
+	LOCPLINT->cingconsole->activate();
+}
+
+void BattleWindow::deactivate()
+{
+	CIntObject::deactivate();
+	LOCPLINT->cingconsole->deactivate();
+}
+
+void BattleWindow::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
+	{
+		if(settings["battle"]["showQueue"].Bool()) //hide queue
+			hideQueue();
+		else
+			showQueue();
+
+	}
+	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	{
+		owner.actionsController->enterCreatureCastingMode();
+	}
+	else if(key.keysym.sym == SDLK_ESCAPE)
+	{
+		if(owner.getAnimationCondition(EAnimationEvents::OPENING) == true)
+			CCS->soundh->stopSound(owner.battleIntroSoundChannel);
+		else
+			owner.actionsController->endCastingSpell();
+	}
+}
+
+void BattleWindow::clickRight(tribool down, bool previousState)
+{
+	if (!down)
+		owner.actionsController->endCastingSpell();
+}
+
+void BattleWindow::tacticPhaseStarted()
+{
+	auto menuBattle = widget<CIntObject>("menuBattle");
+	auto console = widget<CIntObject>("console");
+	auto menuTactics = widget<CIntObject>("menuTactics");
+	auto tacticNext = widget<CIntObject>("tacticNext");
+	auto tacticEnd = widget<CIntObject>("tacticEnd");
+
+	menuBattle->disable();
+	console->disable();
+
+	menuTactics->enable();
+	tacticNext->enable();
+	tacticEnd->enable();
+
+	redraw();
+}
+
+void BattleWindow::tacticPhaseEnded()
+{
+	auto menuBattle = widget<CIntObject>("menuBattle");
+	auto console = widget<CIntObject>("console");
+	auto menuTactics = widget<CIntObject>("menuTactics");
+	auto tacticNext = widget<CIntObject>("tacticNext");
+	auto tacticEnd = widget<CIntObject>("tacticEnd");
+
+	menuBattle->enable();
+	console->enable();
+
+	menuTactics->disable();
+	tacticNext->disable();
+	tacticEnd->disable();
+
+	redraw();
+}
+
+void BattleWindow::bOptionsf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+	CCS->curh->set(Cursor::Map::POINTER);
 
 	GH.pushIntT<BattleOptionsWindow>(owner);
 }
 
-void BattleControlPanel::bSurrenderf()
+void BattleWindow::bSurrenderf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -141,14 +257,14 @@ void BattleControlPanel::bSurrenderf()
 	}
 }
 
-void BattleControlPanel::bFleef()
+void BattleWindow::bFleef()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
 	if ( owner.curInt->cb->battleCanFlee() )
 	{
-		CFunctionList<void()> ony = std::bind(&BattleControlPanel::reallyFlee,this);
+		CFunctionList<void()> ony = std::bind(&BattleWindow::reallyFlee,this);
 		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
@@ -170,13 +286,13 @@ void BattleControlPanel::bFleef()
 	}
 }
 
-void BattleControlPanel::reallyFlee()
+void BattleWindow::reallyFlee()
 {
 	owner.giveCommand(EActionType::RETREAT);
-	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+	CCS->curh->set(Cursor::Map::POINTER);
 }
 
-void BattleControlPanel::reallySurrender()
+void BattleWindow::reallySurrender()
 {
 	if (owner.curInt->cb->getResourceAmount(Res::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
 	{
@@ -185,11 +301,11 @@ void BattleControlPanel::reallySurrender()
 	else
 	{
 		owner.giveCommand(EActionType::SURRENDER);
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 	}
 }
 
-void BattleControlPanel::showAlternativeActionIcon(PossiblePlayerBattleAction action)
+void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 {
 	auto w = widget<CButton>("alternativeAction");
 	if(!w)
@@ -228,7 +344,7 @@ void BattleControlPanel::showAlternativeActionIcon(PossiblePlayerBattleAction ac
 	w->setImage(anim, false);
 }
 
-void BattleControlPanel::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
+void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
 {
 	alternativeActions = actions;
 	defaultAction = PossiblePlayerBattleAction::INVALID;
@@ -240,7 +356,7 @@ void BattleControlPanel::setAlternativeActions(const std::list<PossiblePlayerBat
 		showAlternativeActionIcon(defaultAction);
 }
 
-void BattleControlPanel::bAutofightf()
+void BattleWindow::bAutofightf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -267,7 +383,7 @@ void BattleControlPanel::bAutofightf()
 	}
 }
 
-void BattleControlPanel::bSpellf()
+void BattleWindow::bSpellf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -279,7 +395,7 @@ void BattleControlPanel::bSpellf()
 	if(!myHero)
 		return;
 
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+	CCS->curh->set(Cursor::Map::POINTER);
 
 	ESpellCastProblem::ESpellCastProblem spellCastProblem = owner.curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
 
@@ -309,7 +425,7 @@ void BattleControlPanel::bSpellf()
 	}
 }
 
-void BattleControlPanel::bSwitchActionf()
+void BattleWindow::bSwitchActionf()
 {
 	if(alternativeActions.empty())
 		return;
@@ -336,7 +452,7 @@ void BattleControlPanel::bSwitchActionf()
 	alternativeActions.pop_front();
 }
 
-void BattleControlPanel::bWaitf()
+void BattleWindow::bWaitf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -345,7 +461,7 @@ void BattleControlPanel::bWaitf()
 		owner.giveCommand(EActionType::WAIT);
 }
 
-void BattleControlPanel::bDefencef()
+void BattleWindow::bDefencef()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -354,7 +470,7 @@ void BattleControlPanel::bDefencef()
 		owner.giveCommand(EActionType::DEFEND);
 }
 
-void BattleControlPanel::bConsoleUpf()
+void BattleWindow::bConsoleUpf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -362,7 +478,7 @@ void BattleControlPanel::bConsoleUpf()
 	console->scrollUp();
 }
 
-void BattleControlPanel::bConsoleDownf()
+void BattleWindow::bConsoleDownf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -370,17 +486,17 @@ void BattleControlPanel::bConsoleDownf()
 	console->scrollDown();
 }
 
-void BattleControlPanel::bTacticNextStack()
+void BattleWindow::bTacticNextStack()
 {
 	owner.tacticNextStack(nullptr);
 }
 
-void BattleControlPanel::bTacticPhaseEnd()
+void BattleWindow::bTacticPhaseEnd()
 {
 	owner.tacticPhaseEnd();
 }
 
-void BattleControlPanel::blockUI(bool on)
+void BattleWindow::blockUI(bool on)
 {
 	bool canCastSpells = false;
 	auto hero = owner.curInt->cb->battleGetMyHero();
@@ -432,4 +548,25 @@ void BattleControlPanel::blockUI(bool on)
 			bConsoleDown->block(on);
 		}
 	}
+}
+
+void BattleWindow::showAll(SDL_Surface *to)
+{
+	CIntObject::showAll(to);
+
+	if (screen->w != 800 || screen->h !=600)
+		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+}
+
+void BattleWindow::show(SDL_Surface *to)
+{
+	CIntObject::show(to);
+	LOCPLINT->cingconsole->show(to);
+}
+
+void BattleWindow::close()
+{
+	if(GH.topInt().get() != this)
+		logGlobal->error("Only top interface must be closed");
+	GH.popInts(1);
 }

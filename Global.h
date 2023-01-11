@@ -718,6 +718,13 @@ namespace vstd
 		return v;
 	}
 
+	//c++20 feature
+	template<typename Arithmetic, typename Floating>
+	Arithmetic lerp(const Arithmetic & a, const Arithmetic & b, const Floating & f)
+	{
+		return a + (b - a) * f;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;

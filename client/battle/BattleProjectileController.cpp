@@ -48,22 +48,21 @@ static double calculateCatapultParabolaY(const Point & from, const Point & dest,
 
 void ProjectileMissile::show(Canvas & canvas)
 {
-	logAnim->info("Projectile rendering, %d / %d", step, steps);
 	size_t group = reverse ? 1 : 0;
 	auto image = animation->getImage(frameNum, group, true);
 
 	if(image)
 	{
-		float progress = float(step) / steps;
-
 		Point pos {
-			CSDL_Ext::lerp(from.x, dest.x, progress) - image->width() / 2,
-			CSDL_Ext::lerp(from.y, dest.y, progress) - image->height() / 2,
+			vstd::lerp(from.x, dest.x, progress) - image->width() / 2,
+			vstd::lerp(from.y, dest.y, progress) - image->height() / 2,
 		};
 
 		canvas.draw(image, pos);
 	}
-	++step;
+
+	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	progress += timePassed * speed;
 }
 
 void ProjectileAnimatedMissile::show(Canvas & canvas)
@@ -83,9 +82,7 @@ void ProjectileCatapult::show(Canvas & canvas)
 
 	if(image)
 	{
-		float progress = float(step) / steps;
-
-		int posX = CSDL_Ext::lerp(from.x, dest.x, progress);
+		int posX = vstd::lerp(from.x, dest.x, progress);
 		int posY = calculateCatapultParabolaY(from, dest, posX);
 		Point pos(posX, posY);
 
@@ -93,16 +90,16 @@ void ProjectileCatapult::show(Canvas & canvas)
 
 		frameNum = (frameNum + 1) % animation->size(0);
 	}
-	++step;
+
+	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	progress += timePassed * speed;
 }
 
 void ProjectileRay::show(Canvas & canvas)
 {
-	float progress = float(step) / steps;
-
 	Point curr {
-		CSDL_Ext::lerp(from.x, dest.x, progress),
-		CSDL_Ext::lerp(from.y, dest.y, progress),
+		vstd::lerp(from.x, dest.x, progress),
+		vstd::lerp(from.y, dest.y, progress),
 	};
 
 	Point length = curr - from;
@@ -143,7 +140,9 @@ void ProjectileRay::show(Canvas & canvas)
 			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), beginColor, endColor);
 		}
 	}
-	++step;
+
+	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	progress += timePassed * speed;
 }
 
 BattleProjectileController::BattleProjectileController(BattleInterface & owner):
@@ -232,17 +231,17 @@ void BattleProjectileController::showProjectiles(Canvas & canvas)
 	}
 
 	vstd::erase_if(projectiles, [&](const std::shared_ptr<ProjectileBase> & projectile){
-		return projectile->step > projectile->steps;
+		return projectile->progress > 1.0f;
 	});
 }
 
-bool BattleProjectileController::hasActiveProjectile(const CStack * stack) const
+bool BattleProjectileController::hasActiveProjectile(const CStack * stack, bool emittedOnly) const
 {
 	int stackID = stack ? stack->ID : -1;
 
 	for(auto const & instance : projectiles)
 	{
-		if(instance->shooterID == stackID)
+		if(instance->shooterID == stackID && (instance->playing || !emittedOnly))
 		{
 			return true;
 		}
@@ -250,15 +249,14 @@ bool BattleProjectileController::hasActiveProjectile(const CStack * stack) const
 	return false;
 }
 
-int BattleProjectileController::computeProjectileFlightTime( Point from, Point dest, double animSpeed)
+float BattleProjectileController::computeProjectileFlightTime( Point from, Point dest, double animSpeed)
 {
-	double distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
-	double distance = sqrt(distanceSquared);
-	int steps = std::round(distance / animSpeed);
+	float distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
+	float distance = sqrt(distanceSquared);
 
-	if (steps > 0)
-		return steps;
-	return 1;
+	assert(distance > 1.f);
+
+	return animSpeed / std::max( 1.f, distance);
 }
 
 int BattleProjectileController::computeProjectileFrameID( Point from, Point dest, const CStack * stack)
@@ -298,12 +296,11 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 
 	catapultProjectile->animation = getProjectileImage(shooter);
 	catapultProjectile->frameNum  = 0;
-	catapultProjectile->step      = 0;
-	catapultProjectile->steps     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
+	catapultProjectile->progress  = 0;
+	catapultProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
 	catapultProjectile->from      = from;
 	catapultProjectile->dest      = dest;
 	catapultProjectile->shooterID = shooter->ID;
-	catapultProjectile->step      = 0;
 	catapultProjectile->playing   = false;
 
 	projectiles.push_back(std::shared_ptr<ProjectileBase>(catapultProjectile));
@@ -336,11 +333,11 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		missileProjectile->frameNum = computeProjectileFrameID(from, dest, shooter);
 	}
 
-	projectile->steps     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
+	projectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 	projectile->from      = from;
 	projectile->dest      = dest;
 	projectile->shooterID = shooter->ID;
-	projectile->step      = 0;
+	projectile->progress  = 0;
 	projectile->playing   = false;
 
 	projectiles.push_back(projectile);
@@ -364,8 +361,8 @@ void BattleProjectileController::createSpellProjectile(const CStack * shooter, P
 		projectile->from          = from;
 		projectile->dest          = dest;
 		projectile->shooterID     = shooter ? shooter->ID : -1;
-		projectile->step          = 0;
-		projectile->steps         = computeProjectileFlightTime(from, dest, AnimationControls::getSpellEffectSpeed());
+		projectile->progress      = 0;
+		projectile->speed         = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 		projectile->playing       = false;
 
 		projectiles.push_back(std::shared_ptr<ProjectileBase>(projectile));

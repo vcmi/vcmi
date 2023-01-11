@@ -1,5 +1,5 @@
 /*
- * BattleControlPanel.h, part of VCMI engine
+ * BattleWindow.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -21,13 +21,16 @@ VCMI_LIB_NAMESPACE_END
 class CButton;
 class BattleInterface;
 class BattleConsole;
+class BattleRenderer;
+class StackQueue;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
-class BattleControlPanel : public InterfaceObjectConfigurable
-{	
+class BattleWindow : public InterfaceObjectConfigurable
+{
 	BattleInterface & owner;
-	
-	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
+
+	std::shared_ptr<StackQueue> queue;
+	std::shared_ptr<BattleConsole> console;
 
 	/// button press handling functions
 	void bOptionsf();
@@ -52,24 +55,40 @@ class BattleControlPanel : public InterfaceObjectConfigurable
 	PossiblePlayerBattleAction defaultAction;
 	void showAlternativeActionIcon(PossiblePlayerBattleAction);
 
+	/// Toggle StackQueue visibility
+	void hideQueue();
+	void showQueue();
+
+	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
+
 public:
-	std::shared_ptr<BattleConsole> console;
+	BattleWindow(BattleInterface & owner );
+	~BattleWindow();
+
+	/// Closes window once battle finished
+	void close();
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
 
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	/// Refresh queue after turn order changes
+	void updateQueue();
+
+	void activate() override;
+	void deactivate() override;
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void clickRight(tribool down, bool previousState) override;
+	void show(SDL_Surface *to) override;
+	void showAll(SDL_Surface *to) override;
 
 	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();
 
 	/// Toggle UI to displaying battle log in place of tactics UI
 	void tacticPhaseEnded();
-	
+
 	/// Set possible alternative options. If more than 1 - the last will be considered as default option
 	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
 
-	BattleControlPanel(BattleInterface & owner, const Point & position);
 };
 

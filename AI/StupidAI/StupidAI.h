@@ -31,12 +31,12 @@ public:
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
 
 	void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override; //called when stack receives damage (after battleAttack())
+	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override; //called when stack receives damage (after battleAttack())
 	void battleEnd(const BattleResult *br) override;
 	//void battleResultsApplied() override; //called when all effects of last battle are applied
 	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied;
 	void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
+	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	void battleSpellCast(const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const SetStackEffect & sse) override;//called when a specific effect is set to stacks
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;

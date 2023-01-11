@@ -29,7 +29,7 @@ VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 class CDefFile;
-class ColorShifter;
+class ColorFilter;
 
 /*
  * Base class for images, can be used for non-animation pictures as well
@@ -37,7 +37,7 @@ class ColorShifter;
 class IImage
 {
 public:
-	using BorderPallete = std::array<SDL_Color, 3>;
+	using SpecialPalette = std::array<SDL_Color, 7>;
 
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr, ui8 alpha = 255) = 0;
@@ -62,11 +62,12 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
-	virtual void adjustPalette(const ColorShifter * shifter) = 0;
+	virtual void adjustPalette(const ColorFilter & shifter) = 0;
+	virtual void resetPalette(int colorID) = 0;
 	virtual void resetPalette() = 0;
 
-	//only indexed bitmaps, colors 5,6,7 must be special
-	virtual void setBorderPallete(const BorderPallete & borderPallete) = 0;
+	//only indexed bitmaps with 7 special colors
+	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette) = 0;
 
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
@@ -120,9 +121,6 @@ public:
 	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
 	//and loads it if animation is preloaded
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
-
-	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
-	void shiftColor(const ColorShifter * shifter);
 
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);

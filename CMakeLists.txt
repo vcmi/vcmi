@@ -48,7 +48,9 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
+
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
@@ -127,14 +129,22 @@ else()
 endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-if(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 )
+	set(ENABLE_PCH OFF) # broken
+endif()
+
+if( ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	set(ENABLE_PCH OFF) #not supported
+endif()
+
+if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
 	endmacro(enable_pch)
-else(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+else()
 	macro(enable_pch ignore)
 	endmacro(enable_pch)
-endif(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+endif()
 
 ############################################
 #        Documentation section             #
@@ -349,6 +359,15 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+
+	find_package(QT NAMES Qt6 Qt5 COMPONENTS LinguistTools)
+	find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LinguistTools)
+	if(NOT Qt${QT_VERSION_MAJOR}LinguistTools_DIR)
+		set(ENABLE_TRANSLATIONS OFF)
+	endif()
+	if(ENABLE_TRANSLATIONS)
+		add_definitions(-DENABLE_QT_TRANSLATIONS)
+	endif()
 endif()
 
 if(ENABLE_NULLKILLER_AI)

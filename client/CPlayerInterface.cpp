@@ -16,7 +16,7 @@
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
 #include "battle/BattleInterfaceClasses.h"
-#include "battle/BattleControlPanel.h"
+#include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"
@@ -93,7 +93,7 @@ boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
-BattleInterface * CPlayerInterface::battleInt;
+std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
@@ -142,7 +142,9 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
-	if(CCS->soundh) CCS->soundh->ambientStopAllChannels();
+	if(CCS && CCS->soundh)
+		CCS->soundh->ambientStopAllChannels();
+
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	delete showingDialog;
 	delete cingconsole;
@@ -707,7 +709,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
-void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
+void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -747,8 +749,6 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 			break;
 		}
 	}
-
-	battleInt->effectsController->displayCustomEffects(customEffects);
 }
 
 void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
@@ -838,9 +838,9 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		autofightingAI.reset();
 	}
 
-	BattleInterface *b = battleInt;
+	assert(battleInt);
 
-	if(!b)
+	if(!battleInt)
 	{
 		return BattleAction::makeDefend(stack); // probably battle is finished already
 	}
@@ -853,7 +853,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		b->stackActivated(stack);
+		battleInt->stackActivated(stack);
 		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command
@@ -915,12 +915,12 @@ void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
 	battleInt->displayBattleLog(lines);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->stackMoved(stack, dest, distance);
+	battleInt->stackMoved(stack, dest, distance, teleport);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
@@ -944,7 +944,7 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
 }
-void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -954,24 +954,25 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	{
 		const CStack * defender = cb->battleGetStackByID(elem.stackAttacked, false);
 		const CStack * attacker = cb->battleGetStackByID(elem.attackerID, false);
-		if(elem.isEffect())
-		{
-			if(defender && !elem.isSecondary())
-				battleInt->effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), defender->getPosition());
-		}
-		if(elem.isSpell())
-		{
-			if(defender)
-				battleInt->displaySpellEffect(elem.spellID, defender->getPosition());
-		}
-		//FIXME: why action is deleted during enchanter cast?
-		bool remoteAttack = false;
 
-		if(LOCPLINT->curAction)
-			remoteAttack |= LOCPLINT->curAction->actionType != EActionType::WALK_AND_ATTACK;
+		assert(defender);
 
-		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
-		arg.push_back(to_put);
+		StackAttackedInfo     info;
+		info.defender       = defender;
+		info.attacker       = attacker;
+		info.damageDealt    = elem.damageAmount;
+		info.amountKilled   = elem.killedAmount;
+		info.spellEffect    = SpellID::NONE;
+		info.indirectAttack = ranged;
+		info.killed         = elem.killed();
+		info.rebirth        = elem.willRebirth();
+		info.cloneKilled    = elem.cloneKilled();
+		info.fireShield     = elem.fireShield();
+
+		if (elem.isSpell())
+			info.spellEffect = elem.spellID;
+
+		arg.push_back(info);
 	}
 	battleInt->stacksAreAttacked(arg);
 }
@@ -982,94 +983,36 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 	assert(curAction);
 
-	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+	StackAttackInfo info;
+	info.attacker = cb->battleGetStackByID(ba->stackAttacking);
+	info.defender = nullptr;
+	info.indirectAttack = ba->shot();
+	info.lucky = ba->lucky();
+	info.unlucky = ba->unlucky();
+	info.deathBlow = ba->deathBlow();
+	info.lifeDrain = ba->lifeDrain();
+	info.tile = ba->tile;
+	info.spellEffect = SpellID::NONE;
 
-	if(!attacker)
-	{
-		logGlobal->error("Attacking stack not found");
-		return;
-	}
+	if (ba->spellLike())
+		info.spellEffect = ba->spellID;
 
-	if(ba->lucky()) //lucky hit
+	for(auto & elem : ba->bsa)
 	{
-		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-45));
-		battleInt->effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
-	}
-	if(ba->unlucky()) //unlucky hit
-	{
-		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-44));
-		battleInt->effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
-	}
-	if(ba->deathBlow())
-	{
-		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(365));
-		for(auto & elem : ba->bsa)
+		if(!elem.isSecondary())
 		{
-			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-			battleInt->effectsController->displayEffect(EBattleEffect::DEATH_BLOW, attacked->getPosition());
+			assert(info.defender == nullptr);
+			info.defender = cb->battleGetStackByID(elem.stackAttacked);
 		}
-		CCS->soundh->playSound(soundBase::deathBlow);
-	}
-
-	battleInt->effectsController->displayCustomEffects(ba->customEffects);
-
-	battleInt->waitForAnims();
-
-	auto actionTarget = curAction->getTarget(cb.get());
-
-	if(actionTarget.empty() || (actionTarget.size() < 2 && !ba->shot()))
-	{
-		logNetwork->error("Invalid current action: no destination.");
-		return;
-	}
-
-	if(ba->shot())
-	{
-		for(auto & elem : ba->bsa)
+		else
 		{
-			if(!elem.isSecondary()) //display projectile only for primary target
-			{
-				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-				battleInt->stackAttacking(attacker, attacked->getPosition(), attacked, true);
-			}
+			info.secondaryDefender.push_back(cb->battleGetStackByID(elem.stackAttacked));
 		}
 	}
-	else
-	{
-		auto attackTarget = actionTarget.at(1).hexValue;
+	assert(info.defender != nullptr);
+	assert(info.attacker != nullptr);
 
-		//TODO: use information from BattleAttack but not curAction
-
-		int shift = 0;
-		if(ba->counter() && BattleHex::mutualPosition(attackTarget, attacker->getPosition()) < 0)
-		{
-			int distp = BattleHex::getDistance(attackTarget + 1, attacker->getPosition());
-			int distm = BattleHex::getDistance(attackTarget - 1, attacker->getPosition());
-
-			if(distp < distm)
-				shift = 1;
-			else
-				shift = -1;
-		}
-
-		if(!ba->bsa.empty())
-		{
-			const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-			battleInt->stackAttacking(attacker, ba->counter() ? BattleHex(attackTarget + shift) : attackTarget, attacked, false);
-		}
-	}
-
-	//battleInt->waitForAnims(); //FIXME: freeze
-
-	if(ba->spellLike())
-	{
-		//TODO: use information from BattleAttack but not curAction
-
-		auto destination = actionTarget.at(0).hexValue;
-		//display hit animation
-		SpellID spellID = ba->spellID;
-		battleInt->displaySpellHit(spellID, destination);
-	}
+	battleInt->stackAttacking(info);
 }
 
 void CPlayerInterface::battleGateStateChanged(const EGateState state)
@@ -1603,7 +1546,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			GH.curInt = this;
 			adventureInt->selection = nullptr;
 			adventureInt->setPlayer(playerID);
-			std::string msg = CGI->generaltexth->localizedTexts["adventureMap"]["playerAttacked"].String();
+			std::string msg = CGI->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
