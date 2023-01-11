@@ -16,10 +16,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//regular expression to change id for string at config
-//("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
-//\1"rock"\2
-
 TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	TerrainType * info = new TerrainType;
