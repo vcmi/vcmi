@@ -456,11 +456,8 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
-		if(alpha != UINT8_MAX)
-		{
-			const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
-			img->adjustPalette(alphaFilter);
-		}
+		const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
+		img->adjustPalette(alphaFilter);
 
 		img->draw(to, pos.x, pos.y, &src);
 	}
