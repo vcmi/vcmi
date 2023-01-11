@@ -94,8 +94,8 @@ public:
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
-	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr, ui8 alpha=255) override;
-	void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src, ui8 alpha=255) override;
+	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr) const override;
+	void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src) const override;
 	std::shared_ptr<IImage> scaleFast(float scale) const override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
@@ -642,17 +642,16 @@ SDLImage::SDLImage(std::string filename)
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, const Rect *src, ui8 alpha)
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, const Rect *src) const
 {
 	if(!surf)
 		return;
 
 	Rect destRect(posX, posY, surf->w, surf->h);
-
-	draw(where, &destRect, src, alpha);
+	draw(where, &destRect, src);
 }
 
-void SDLImage::draw(SDL_Surface* where, const SDL_Rect* dest, const SDL_Rect* src, ui8 alpha)
+void SDLImage::draw(SDL_Surface* where, const SDL_Rect* dest, const SDL_Rect* src) const
 {
 	if (!surf)
 		return;
@@ -663,12 +662,6 @@ void SDLImage::draw(SDL_Surface* where, const SDL_Rect* dest, const SDL_Rect* sr
 
 	if(src)
 	{
-		if(alpha != UINT8_MAX)
-		{
-			const ColorShifterMultiplyAndAdd alphaShifter ({255, 255, 255, alpha}, {0, 0, 0, 0});
-			adjustPalette(&alphaShifter);
-		}
-
 		if(src->x < margins.x)
 			destShift.x += margins.x - src->x;
 
