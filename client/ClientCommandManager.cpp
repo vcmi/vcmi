@@ -487,6 +487,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 	if(currentCallFromIngameConsole)
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		if(LOCPLINT && LOCPLINT->cingconsole)
 		{
 			LOCPLINT->cingconsole->print(commandMessage);
