@@ -72,12 +72,6 @@
 		"description": "Immune to Champion charge"
 	},
 
-	"DAEMON_SUMMONING":
-	{
-		"name": "Summoner (${subtype.creature})",
-		"description": "Can rise creatures from corpses"
-	},
-
 	"DARKNESS":
 	{
 		"name": "Darkness cover",

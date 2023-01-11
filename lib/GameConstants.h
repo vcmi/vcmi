@@ -911,7 +911,8 @@ enum class EActionType : int32_t
 	INVALID = -1,
 	NO_ACTION = 0,
 	HERO_SPELL,
-	WALK, DEFEND,
+	WALK,
+	DEFEND,
 	RETREAT,
 	SURRENDER,
 	WALK_AND_ATTACK,
@@ -921,7 +922,6 @@ enum class EActionType : int32_t
 	MONSTER_SPELL,
 	BAD_MORALE,
 	STACK_HEAL,
-	DAEMON_SUMMONING
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);

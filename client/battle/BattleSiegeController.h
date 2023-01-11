@@ -84,7 +84,7 @@ class BattleSiegeController
 	/// returns true if chosen wall piece should be present in current battle
 	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
 
-	void showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what, const Point & offset);
+	void showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what);
 
 	BattleHex getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const;
 	const CStack * getTurretStack(EWallVisual::EWallVisual wallPiece) const;
@@ -97,7 +97,7 @@ public:
 	void stackIsCatapulting(const CatapultAttack & ca);
 
 	/// call-ins from other battle controllers
-	void showAbsoluteObstacles(Canvas & canvas, const Point & offset);
+	void showAbsoluteObstacles(Canvas & canvas);
 	void collectRenderableObjects(BattleRenderer & renderer);
 
 	/// queries from other battle controllers

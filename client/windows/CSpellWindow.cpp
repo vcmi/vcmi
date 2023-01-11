@@ -562,7 +562,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				if(!texts.empty())
 					owner->myInt->showInfoDialog(texts.front());
 				else
-					owner->myInt->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["spellUnknownProblem"].String());
+					owner->myInt->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 		else //adventure spell
@@ -658,7 +658,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		{
 			boost::format fmt("%s/%s");
 			fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
-			fmt % CGI->generaltexth->levels.at(3+(schoolLevel-1));//lines 4-6
+			fmt % CGI->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
 			level->setText(fmt.str());
 		}
 		else

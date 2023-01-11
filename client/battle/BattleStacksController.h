@@ -10,25 +10,37 @@
 #pragma once
 
 #include "../gui/Geometries.h"
+#include "../gui/ColorFilter.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleHex;
 class BattleAction;
 class CStack;
+class CSpell;
 class SpellID;
 
 VCMI_LIB_NAMESPACE_END
 
 struct StackAttackedInfo;
+struct StackAttackInfo;
 
+class ColorFilter;
 class Canvas;
 class BattleInterface;
-class CBattleAnimation;
+class BattleAnimation;
 class CreatureAnimation;
-class CBattleAnimation;
+class BattleAnimation;
 class BattleRenderer;
 class IImage;
+
+struct BattleStackFilterEffect
+{
+	ColorFilter effect;
+	const CStack * target;
+	const CSpell * source;
+	bool persistent;
+};
 
 /// Class responsible for handling stacks in battle
 /// Handles ordering of stacks animation
@@ -44,7 +56,10 @@ class BattleStacksController
 	std::shared_ptr<IImage> amountEffNeutral;
 
 	/// currently displayed animations <anim, initialized>
-	std::vector<CBattleAnimation *> currentAnimations;
+	std::vector<BattleAnimation *> currentAnimations;
+
+	/// currently active color effects on stacks, in order of their addition (which corresponds to their apply order)
+	std::vector<BattleStackFilterEffect> stackFilterEffects;
 
 	/// animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation;
@@ -52,11 +67,11 @@ class BattleStacksController
 	/// <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	std::map<int, bool> stackFacingRight;
 
-	/// number of active stack; nullptr - no one
+	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
-	/// stack below mouse pointer, used for border animation
-	const CStack *mouseHoveredStack;
+	/// stacks below mouse pointer (multiple stacks possible while spellcasting), used for border animation
+	std::vector<const CStack *> mouseHoveredStacks;
 
 	///when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack *stackToActivate;
@@ -77,6 +92,19 @@ class BattleStacksController
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
+	void executeAttackAnimations();
+	void removeExpiredColorFilters();
+
+	void initializeBattleAnimations();
+	void stepFrameBattleAnimations();
+
+	void updateBattleAnimations();
+	void updateHoveredStacks();
+
+	std::vector<const CStack *> selectHoveredStacks();
+
+	bool shouldAttackFacingRight(const CStack * attacker, const CStack * defender);
+
 public:
 	BattleStacksController(BattleInterface & owner);
 
@@ -84,12 +112,13 @@ public:
 	bool facingRight(const CStack * stack) const;
 
 	void stackReset(const CStack * stack);
-	void stackAdded(const CStack * stack); //new stack appeared on battlefield
+	void stackAdded(const CStack * stack, bool instant); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
+	void stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
+	void stackAttacking(const StackAttackInfo & info); //called when stack with id ID is attacking something on hex dest
 
 	void startAction(const BattleAction* action);
 	void endAction(const BattleAction* action);
@@ -100,7 +129,6 @@ public:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 
 	void setActiveStack(const CStack *stack);
-	void setHoveredStack(const CStack *stack);
 	void setSelectedStack(const CStack *stack);
 
 	void showAliveStack(Canvas & canvas, const CStack * stack);
@@ -108,14 +136,19 @@ public:
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 
-	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
-	void updateBattleAnimations();
+	/// Adds new color filter effect targeting stack
+	/// Effect will last as long as stack is affected by specified spell (unless effect is persistent)
+	/// If effect from same (target, source) already exists, it will be updated
+	void setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell *source, bool persistent);
+	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
 
 	const CStack* getActiveStack() const;
 	const CStack* getSelectedStack() const;
 
+	void update();
+
 	/// returns position of animation needed to place stack in specific hex
 	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;
 
-	friend class CBattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
+	friend class BattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
 };

@@ -522,8 +522,9 @@ void CSpell::serializeJson(JsonSerializeFormat & handler)
 }
 
 ///CSpell::AnimationInfo
-CSpell::AnimationItem::AnimationItem()
-	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
+CSpell::AnimationItem::AnimationItem() :
+	verticalPosition(VerticalPosition::TOP),
+	pause(0)
 {
 
 }
@@ -571,11 +572,6 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	massive = levelInfo.range == "X";
 	clearAffected = levelInfo.clearAffected;
 	clearTarget = levelInfo.clearTarget;
-
-	if(mode == spells::Mode::CREATURE_ACTIVE)
-	{
-		massive = false;//FIXME: find better solution for Commander spells
-	}
 }
 
 bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
@@ -890,6 +886,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			else if(item.getType() == JsonNode::JsonType::DATA_STRUCT)
 			{
 				newItem.resourceName = item["defName"].String();
+				newItem.effectName   = item["effectName"].String();
 
 				auto vPosStr = item["verticalPosition"].String();
 				if("bottom" == vPosStr)

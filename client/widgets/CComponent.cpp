@@ -443,7 +443,7 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _component
 	components(_components)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos = position + pos.topLeft();
 	placeComponents(false);
 }
 
@@ -452,7 +452,7 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> 
 	onSelect(_onSelect)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos = position + pos.topLeft();
 	placeComponents(true);
 
 	assert(!components.empty());

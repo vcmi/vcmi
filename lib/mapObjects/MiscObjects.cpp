@@ -58,7 +58,7 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
-static std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];
@@ -147,9 +147,8 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		hoverName = getHoverText(hero->tempOwner);
 	}
 
-	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
+	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
-	hoverName += texts["title"].String();
 	int choice;
 	double ratio = ((double)getArmyStrength() / hero->getTotalStrength());
 		 if (ratio < 0.1)  choice = 0;
@@ -164,7 +163,8 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	else if (ratio < 8)    choice = 9;
 	else if (ratio < 20)   choice = 10;
 	else                   choice = 11;
-	hoverName += texts["levels"].Vector()[choice].String();
+
+	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
 	return hoverName;
 }
 
@@ -710,7 +710,7 @@ bool CGMine::isAbandoned() const
 
 std::string CGMine::getObjectName() const
 {
-	return VLC->generaltexth->mines.at(subID).first;
+	return VLC->generaltexth->translate("core.minename", subID);
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -1686,7 +1686,9 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
-		message = *RandomGeneratorUtil::nextItem(VLC->generaltexth->randsign, rand);
+		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
+		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
+		message = VLC->generaltexth->translate(messageIdentifier);
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)

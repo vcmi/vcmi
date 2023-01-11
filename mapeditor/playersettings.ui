@@ -33,8 +33,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>628</width>
-        <height>187</height>
+        <width>634</width>
+        <height>201</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -66,39 +66,42 @@
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="playersCount">
+     <property name="currentText">
+      <string notr="true">2</string>
+     </property>
      <item>
       <property name="text">
-       <string>2</string>
+       <string notr="true">2</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>3</string>
+       <string notr="true">3</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>4</string>
+       <string notr="true">4</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>5</string>
+       <string notr="true">5</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>6</string>
+       <string notr="true">6</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>7</string>
+       <string notr="true">7</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>8</string>
+       <string notr="true">8</string>
       </property>
      </item>
     </widget>

@@ -115,7 +115,7 @@ public:
 
 	/// generates tooltip that can be passed into constructor
 	static std::pair<std::string, std::string> tooltip();
-	static std::pair<std::string, std::string> tooltip(const JsonNode & localizedTexts);
+	static std::pair<std::string, std::string> tooltipLocalized(const std::string & key);
 	static std::pair<std::string, std::string> tooltip(const std::string & hover, const std::string & help = "");
 };
 
@@ -191,19 +191,25 @@ public:
 /// A typical slider for volume with an animated indicator
 class CVolumeSlider : public CIntObject
 {
+public:
+	enum ETooltipMode
+	{
+		MUSIC,
+		SOUND
+	};
+
+private:
 	int value;
 	CFunctionList<void(int)> onChange;
 	std::shared_ptr<CAnimImage> animImage;
-	const std::pair<std::string, std::string> * const helpHandlers;
+	ETooltipMode mode;
 	void setVolume(const int v);
 public:
-
 	/// @param position coordinates of slider
 	/// @param defName name of def animation for slider
 	/// @param value initial value for volume
-	/// @param help pointer to first helptext of slider
-	CVolumeSlider(const Point & position, const std::string & defName, const int value,
-	              const std::pair<std::string, std::string> * const help);
+	/// @param mode that determines tooltip texts
+	CVolumeSlider(const Point & position, const std::string & defName, const int value, ETooltipMode mode);
 
 	void moveTo(int id);
 	void addCallback(std::function<void(int)> callback);

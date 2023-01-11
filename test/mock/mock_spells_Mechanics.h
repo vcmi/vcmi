@@ -21,7 +21,7 @@ public:
 	MOCK_CONST_METHOD2(adaptProblem, bool(ESpellCastProblem::ESpellCastProblem, Problem &));
 	MOCK_CONST_METHOD1(adaptGenericProblem, bool(Problem &));
 
-	MOCK_CONST_METHOD2(rangeInHexes, std::vector<BattleHex>(BattleHex, bool *));
+	MOCK_CONST_METHOD1(rangeInHexes, std::vector<BattleHex>(BattleHex));
 	MOCK_CONST_METHOD1(getAffectedStacks, std::vector<const CStack *>(const Target &));
 
 	MOCK_CONST_METHOD1(canBeCast, bool(Problem &));

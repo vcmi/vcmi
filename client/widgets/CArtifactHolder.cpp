@@ -126,7 +126,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
 		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
-			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
+			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt.get());
 	}
 
 	if (!down && previousState)
@@ -1008,7 +1008,7 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
 	if (ourArt && text.size() && down)
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this](){ returnArtToHeroCallback(); }, [](){});
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this](){ returnArtToHeroCallback(); }, [](){});
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)

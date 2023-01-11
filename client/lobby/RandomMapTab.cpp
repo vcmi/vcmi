@@ -410,9 +410,7 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	addCallback("sliderMove", std::bind(&TemplatesDropBox::sliderMove, this, std::placeholders::_1));
 	
 	OBJ_CONSTRUCTION;
-	pos = randomMapTab.pos.topLeft();
-	pos.w = randomMapTab.pos.w;
-	pos.h = randomMapTab.pos.h;
+	pos = randomMapTab.pos;
 	
 	build(config);
 	

@@ -14,10 +14,16 @@
 #include "../../lib/CCreatureHandler.h"
 
 #include "../gui/Canvas.h"
+#include "../gui/ColorFilter.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
 static const SDL_Color creatureNoBorder  =  { 0, 0, 0, 0 };
+
+static SDL_Color genShadow(ui8 alpha)
+{
+	return CSDL_Ext::makeColor(0, 0, 0, alpha);
+}
 
 SDL_Color AnimationControls::getBlueBorder()
 {
@@ -40,10 +46,8 @@ std::shared_ptr<CreatureAnimation> AnimationControls::getAnimation(const CCreatu
 	return std::make_shared<CreatureAnimation>(creature->animDefName, func);
 }
 
-float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t group)
+float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType type)
 {
-	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
-
 	assert(creature->animation.walkAnimationTime != 0);
 	assert(creature->animation.attackAnimationTime != 0);
 	assert(anim->framesInGroup(type) != 0);
@@ -58,49 +62,50 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 	switch (type)
 	{
-	case CCreatureAnim::MOVING:
+	case ECreatureAnimType::MOVING:
 		return static_cast<float>(speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type));
 
-	case CCreatureAnim::MOUSEON:
+	case ECreatureAnimType::MOUSEON:
 		return baseSpeed;
-	case CCreatureAnim::HOLDING:
+	case ECreatureAnimType::HOLDING:
 		return static_cast<float>(baseSpeed * creature->animation.idleAnimationTime / anim->framesInGroup(type));
 
-	case CCreatureAnim::SHOOT_UP:
-	case CCreatureAnim::SHOOT_FRONT:
-	case CCreatureAnim::SHOOT_DOWN:
-	case CCreatureAnim::CAST_UP:
-	case CCreatureAnim::CAST_FRONT:
-	case CCreatureAnim::CAST_DOWN:
-	case CCreatureAnim::VCMI_CAST_DOWN:
-	case CCreatureAnim::VCMI_CAST_FRONT:
-	case CCreatureAnim::VCMI_CAST_UP:
+	case ECreatureAnimType::SHOOT_UP:
+	case ECreatureAnimType::SHOOT_FRONT:
+	case ECreatureAnimType::SHOOT_DOWN:
+	case ECreatureAnimType::SPECIAL_UP:
+	case ECreatureAnimType::SPECIAL_FRONT:
+	case ECreatureAnimType::SPECIAL_DOWN:
+	case ECreatureAnimType::CAST_DOWN:
+	case ECreatureAnimType::CAST_FRONT:
+	case ECreatureAnimType::CAST_UP:
 		return static_cast<float>(speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type));
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
 	// necessary because length of these animations must be same for all creatures for synchronization
-	case CCreatureAnim::ATTACK_UP:
-	case CCreatureAnim::ATTACK_FRONT:
-	case CCreatureAnim::ATTACK_DOWN:
-	case CCreatureAnim::HITTED:
-	case CCreatureAnim::DEFENCE:
-	case CCreatureAnim::DEATH:
-	case CCreatureAnim::DEATH_RANGED:
-	case CCreatureAnim::VCMI_2HEX_DOWN:
-	case CCreatureAnim::VCMI_2HEX_FRONT:
-	case CCreatureAnim::VCMI_2HEX_UP:
+	case ECreatureAnimType::ATTACK_UP:
+	case ECreatureAnimType::ATTACK_FRONT:
+	case ECreatureAnimType::ATTACK_DOWN:
+	case ECreatureAnimType::HITTED:
+	case ECreatureAnimType::DEFENCE:
+	case ECreatureAnimType::DEATH:
+	case ECreatureAnimType::DEATH_RANGED:
+	case ECreatureAnimType::RESURRECTION:
+	case ECreatureAnimType::GROUP_ATTACK_DOWN:
+	case ECreatureAnimType::GROUP_ATTACK_FRONT:
+	case ECreatureAnimType::GROUP_ATTACK_UP:
 		return speed * 3 / anim->framesInGroup(type);
 
-	case CCreatureAnim::TURN_L:
-	case CCreatureAnim::TURN_R:
+	case ECreatureAnimType::TURN_L:
+	case ECreatureAnimType::TURN_R:
 		return speed / 3;
 
-	case CCreatureAnim::MOVE_START:
-	case CCreatureAnim::MOVE_END:
+	case ECreatureAnimType::MOVE_START:
+	case ECreatureAnimType::MOVE_END:
 		return speed / 3;
 
-	case CCreatureAnim::DEAD:
-	case CCreatureAnim::DEAD_RANGED:
+	case ECreatureAnimType::DEAD:
+	case ECreatureAnimType::DEAD_RANGED:
 		return speed;
 
 	default:
@@ -110,12 +115,12 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 float AnimationControls::getProjectileSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 100);
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 4000);
 }
 
 float AnimationControls::getCatapultSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 20);
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 1000);
 }
 
 float AnimationControls::getSpellEffectSpeed()
@@ -133,12 +138,22 @@ float AnimationControls::getFlightDistance(const CCreature * creature)
 	return static_cast<float>(creature->animation.flightAnimationDistance * 200);
 }
 
-CCreatureAnim::EAnimType CreatureAnimation::getType() const
+float AnimationControls::getFadeInDuration()
+{
+	return 1.0f / settings["battle"]["animationSpeed"].Float();
+}
+
+float AnimationControls::getObstaclesSpeed()
+{
+	return 10.0;// does not seems to be affected by animaiton speed settings
+}
+
+ECreatureAnimType CreatureAnimation::getType() const
 {
 	return type;
 }
 
-void CreatureAnimation::setType(CCreatureAnim::EAnimType type)
+void CreatureAnimation::setType(ECreatureAnimType type)
 {
 	this->type = type;
 	currentFrame = 0;
@@ -147,21 +162,13 @@ void CreatureAnimation::setType(CCreatureAnim::EAnimType type)
 	play();
 }
 
-void CreatureAnimation::shiftColor(const ColorShifter* shifter)
-{
-	if(forward)
-		forward->shiftColor(shifter);
-
-	if(reverse)
-		reverse->shiftColor(shifter);
-}
-
 CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
 	: name(name_),
 	  speed(0.1f),
+	  shadowAlpha(128),
 	  currentFrame(0),
 	  elapsedTime(0),
-	  type(CCreatureAnim::HOLDING),
+	  type(ECreatureAnimType::HOLDING),
 	  border(CSDL_Ext::makeColor(0, 0, 0, 0)),
 	  speedController(controller),
 	  once(false)
@@ -174,20 +181,37 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	reverse->preload();
 
 	// if necessary, add one frame into vcmi-only group DEAD
-	if(forward->size(CCreatureAnim::DEAD) == 0)
+	if(forward->size(size_t(ECreatureAnimType::DEAD)) == 0)
 	{
-		forward->duplicateImage(CCreatureAnim::DEATH, forward->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
-		reverse->duplicateImage(CCreatureAnim::DEATH, reverse->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
+		forward->duplicateImage(size_t(ECreatureAnimType::DEATH), forward->size(size_t(ECreatureAnimType::DEATH))-1, size_t(ECreatureAnimType::DEAD));
+		reverse->duplicateImage(size_t(ECreatureAnimType::DEATH), reverse->size(size_t(ECreatureAnimType::DEATH))-1, size_t(ECreatureAnimType::DEAD));
 	}
 
-	if(forward->size(CCreatureAnim::DEAD_RANGED) == 0 && forward->size(CCreatureAnim::DEATH_RANGED) != 0)
+	if(forward->size(size_t(ECreatureAnimType::DEAD_RANGED)) == 0 && forward->size(size_t(ECreatureAnimType::DEATH_RANGED)) != 0)
 	{
-		forward->duplicateImage(CCreatureAnim::DEATH_RANGED, forward->size(CCreatureAnim::DEATH_RANGED)-1, CCreatureAnim::DEAD_RANGED);
-		reverse->duplicateImage(CCreatureAnim::DEATH_RANGED, reverse->size(CCreatureAnim::DEATH_RANGED)-1, CCreatureAnim::DEAD_RANGED);
+		forward->duplicateImage(size_t(ECreatureAnimType::DEATH_RANGED), forward->size(size_t(ECreatureAnimType::DEATH_RANGED))-1, size_t(ECreatureAnimType::DEAD_RANGED));
+		reverse->duplicateImage(size_t(ECreatureAnimType::DEATH_RANGED), reverse->size(size_t(ECreatureAnimType::DEATH_RANGED))-1, size_t(ECreatureAnimType::DEAD_RANGED));
+	}
+
+	if(forward->size(size_t(ECreatureAnimType::FROZEN)) == 0)
+	{
+		forward->duplicateImage(size_t(ECreatureAnimType::HOLDING), 0, size_t(ECreatureAnimType::FROZEN));
+		reverse->duplicateImage(size_t(ECreatureAnimType::HOLDING), 0, size_t(ECreatureAnimType::FROZEN));
+	}
+
+	if(forward->size(size_t(ECreatureAnimType::RESURRECTION)) == 0)
+	{
+		for (size_t i = 0; i < forward->size(size_t(ECreatureAnimType::DEATH)); ++i)
+		{
+			size_t current = forward->size(size_t(ECreatureAnimType::DEATH)) - 1 - i;
+
+			forward->duplicateImage(size_t(ECreatureAnimType::DEATH), current, size_t(ECreatureAnimType::RESURRECTION));
+			reverse->duplicateImage(size_t(ECreatureAnimType::DEATH), current, size_t(ECreatureAnimType::RESURRECTION));
+		}
 	}
 
 	//TODO: get dimensions form CAnimation
-	auto first = forward->getImage(0, type, true);
+	auto first = forward->getImage(0, size_t(type), true);
 
 	if(!first)
 	{
@@ -228,7 +252,7 @@ bool CreatureAnimation::incrementFrame(float timePassed)
 			currentFrame -= framesNumber;
 
 		if(once)
-			setType(CCreatureAnim::HOLDING);
+			setType(ECreatureAnimType::HOLDING);
 
 		endAnimation();
 		return true;
@@ -256,7 +280,7 @@ float CreatureAnimation::getCurrentFrame() const
 	return currentFrame;
 }
 
-void CreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
+void CreatureAnimation::playOnce( ECreatureAnimType type )
 {
 	setType(type);
 	once = true;
@@ -267,11 +291,6 @@ inline int getBorderStrength(float time)
 	float borderStrength = fabs(vstd::round(time) - time) * 2; // generate value in range 0-1
 
 	return static_cast<int>(borderStrength * 155 + 100); // scale to 0-255
-}
-
-static SDL_Color genShadow(ui8 alpha)
-{
-	return CSDL_Ext::makeColor(0, 0, 0, alpha);
 }
 
 static SDL_Color genBorderColor(ui8 alpha, const SDL_Color & base)
@@ -294,80 +313,89 @@ static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 			);
 }
 
-void CreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
+void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 {
-	target[0] = genBorderColor(getBorderStrength(elapsedTime), border);
-	target[1] = addColors(genShadow(128), genBorderColor(getBorderStrength(elapsedTime), border));
-	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
+	target[0] = genShadow(shadowAlpha / 2);
+	target[1] = genShadow(shadowAlpha / 2);
+	target[2] = genShadow(shadowAlpha);
+	target[3] = genShadow(shadowAlpha);
+	target[4] = genBorderColor(getBorderStrength(elapsedTime), border);
+	target[5] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
+	target[6] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
+void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight)
 {
+	SDL_Color shadowTest = shifter.shiftColor(genShadow(128));
+	shadowAlpha = shadowTest.a;
+
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
 	std::shared_ptr<IImage> image;
 
 	if(facingRight)
-		image = forward->getImage(frame, type);
+		image = forward->getImage(frame, size_t(type));
 	else
-		image = reverse->getImage(frame, type);
+		image = reverse->getImage(frame, size_t(type));
 
 	if(image)
 	{
-		IImage::BorderPallete borderPallete;
-		genBorderPalette(borderPallete);
+		IImage::SpecialPalette SpecialPalette;
+		genSpecialPalette(SpecialPalette);
 
-		image->setBorderPallete(borderPallete);
+		image->setSpecialPallete(SpecialPalette);
+		image->adjustPalette(shifter);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
+
 	}
 }
 
-int CreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
+int CreatureAnimation::framesInGroup(ECreatureAnimType group) const
 {
-	return static_cast<int>(forward->size(group));
+	return static_cast<int>(forward->size(size_t(group)));
 }
 
 bool CreatureAnimation::isDead() const
 {
-	return getType() == CCreatureAnim::DEAD
-		|| getType() == CCreatureAnim::DEAD_RANGED;
+	return getType() == ECreatureAnimType::DEAD
+		|| getType() == ECreatureAnimType::DEAD_RANGED;
 }
 
 bool CreatureAnimation::isDying() const
 {
-	return getType() == CCreatureAnim::DEATH
-		|| getType() == CCreatureAnim::DEATH_RANGED;
+	return getType() == ECreatureAnimType::DEATH
+		|| getType() == ECreatureAnimType::DEATH_RANGED;
 }
 
 bool CreatureAnimation::isDeadOrDying() const
 {
-	return getType() == CCreatureAnim::DEAD
-		|| getType() == CCreatureAnim::DEATH
-		|| getType() == CCreatureAnim::DEAD_RANGED
-		|| getType() == CCreatureAnim::DEATH_RANGED;
+	return getType() == ECreatureAnimType::DEAD
+		|| getType() == ECreatureAnimType::DEATH
+		|| getType() == ECreatureAnimType::DEAD_RANGED
+		|| getType() == ECreatureAnimType::DEATH_RANGED;
 }
 
 bool CreatureAnimation::isIdle() const
 {
-	return getType() == CCreatureAnim::HOLDING
-	    || getType() == CCreatureAnim::MOUSEON;
+	return getType() == ECreatureAnimType::HOLDING
+		|| getType() == ECreatureAnimType::MOUSEON;
 }
 
 bool CreatureAnimation::isMoving() const
 {
-	return getType() == CCreatureAnim::MOVE_START
-	    || getType() == CCreatureAnim::MOVING
-		|| getType() == CCreatureAnim::MOVE_END
-		|| getType() == CCreatureAnim::TURN_L
-		|| getType() == CCreatureAnim::TURN_R;
+	return getType() == ECreatureAnimType::MOVE_START
+		|| getType() == ECreatureAnimType::MOVING
+		|| getType() == ECreatureAnimType::MOVE_END
+		|| getType() == ECreatureAnimType::TURN_L
+		|| getType() == ECreatureAnimType::TURN_R;
 }
 
 bool CreatureAnimation::isShooting() const
 {
-	return getType() == CCreatureAnim::SHOOT_UP
-	    || getType() == CCreatureAnim::SHOOT_FRONT
-	    || getType() == CCreatureAnim::SHOOT_DOWN;
+	return getType() == ECreatureAnimType::SHOOT_UP
+		|| getType() == ECreatureAnimType::SHOOT_FRONT
+		|| getType() == ECreatureAnimType::SHOOT_DOWN;
 }
 
 void CreatureAnimation::pause()
@@ -379,6 +407,6 @@ void CreatureAnimation::play()
 {
 	//logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
     speed = 0;
-    if(speedController(this, type) != 0)
-        speed = 1 / speedController(this, type);
+	if(speedController(this, type) != 0)
+		speed = 1 / speedController(this, type);
 }

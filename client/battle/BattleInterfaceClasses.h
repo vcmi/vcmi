@@ -9,7 +9,9 @@
  */
 #pragma once
 
+#include "BattleConstants.h"
 #include "../gui/CIntObject.h"
+#include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
 
@@ -38,11 +40,14 @@ class CLabel;
 class CTextBox;
 class CAnimImage;
 class CPlayerInterface;
+class BattleRenderer;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
 {
 private:
+	std::shared_ptr<CPicture> background;
+
 	/// List of all texts added during battle, essentially - log of entire battle
 	std::vector< std::string > logEntries;
 
@@ -57,8 +62,14 @@ private:
 
 	/// if true then we are currently entering console text
 	bool enteringText;
+
+	/// splits text into individual strings for battle log
+	std::vector<std::string> splitText(const std::string &text);
+
+	/// select line(s) that will be visible in UI
+	std::vector<std::string> getVisibleText();
 public:
-	BattleConsole(const Rect & position);
+	BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
 
 	void showAll(SDL_Surface * to) override;
 	void deactivate() override;
@@ -78,27 +89,43 @@ public:
 /// Hero battle animation
 class BattleHero : public CIntObject
 {
-	void switchToNextPhase();
-public:
-	bool flip; //false if it's attacking hero, true otherwise
+	bool defender;
+
+	CFunctionList<void()> phaseFinishedCallback;
 
 	std::shared_ptr<CAnimation> animation;
 	std::shared_ptr<CAnimation> flagAnimation;
 
-	const CGHeroInstance * myHero; //this animation's hero instance
-	const BattleInterface * myOwner; //battle interface to which this animation is assigned
-	int phase; //stage of animation
-	int nextPhase; //stage of animation to be set after current phase is fully displayed
-	int currentFrame, firstFrame, lastFrame; //frame of animation
+	const CGHeroInstance * hero; //this animation's hero instance
+	const BattleInterface & owner; //battle interface to which this animation is assigned
 
-	size_t flagAnim;
-	ui8 animCount; //for flag animation
+	EHeroAnimType phase; //stage of animation
+	EHeroAnimType nextPhase; //stage of animation to be set after current phase is fully displayed
+
+	float currentSpeed;
+	float currentFrame; //frame of animation
+	float flagCurrentFrame;
+
+	void switchToNextPhase();
+
 	void render(Canvas & canvas); //prints next frame of animation to to
-	void setPhase(int newPhase); //sets phase of hero animation
+public:
+	const CGHeroInstance * instance();
+
+	void setPhase(EHeroAnimType newPhase); //sets phase of hero animation
+
+	void collectRenderableObjects(BattleRenderer & renderer);
+
+	float getFrame() const;
+	void onPhaseFinished(const std::function<void()> &);
+
+	void pause();
+	void play();
+
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	BattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner);
+	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
 class HeroInfoWindow : public CWindowObject
@@ -193,4 +220,6 @@ public:
 
 	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
+
+	void show(SDL_Surface * to) override;
 };
