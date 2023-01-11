@@ -39,7 +39,7 @@ protected:
 	void registerBuilder(const std::string &, BuilderFunction);
 	
 	//must be called after adding callbacks
-	void init(const JsonNode & config);
+	void build(const JsonNode & config);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
 	JsonNode variables;
@@ -52,6 +52,8 @@ protected:
 			return nullptr;
 		return std::dynamic_pointer_cast<T>(iter->second);
 	}
+	
+	void deleteWidget(const std::string & name);
 		
 	//basic serializers
 	Point readPosition(const JsonNode &) const;
@@ -61,6 +63,7 @@ protected:
 	EFonts readFont(const JsonNode &) const;
 	std::string readText(const JsonNode &) const;
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
+	int readKeycode(const JsonNode &) const;
 	
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;
@@ -79,6 +82,7 @@ protected:
 	
 private:
 	
+	int unnamedObjectId = 0;
 	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;

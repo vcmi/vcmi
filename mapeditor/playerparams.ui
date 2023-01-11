@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -47,7 +47,7 @@
       </size>
      </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="3" column="0">

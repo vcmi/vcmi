@@ -19,7 +19,7 @@ using namespace ::testing;
 class CHeroClassTest : public Test
 {
 public:
-	MOCK_METHOD3(registarCb, void(int32_t, const std::string &, const std::string &));
+	MOCK_METHOD4(registarCb, void(int32_t, int32_t, const std::string &, const std::string &));
 
 protected:
 	std::shared_ptr<CHeroClass> subject;
@@ -32,7 +32,7 @@ protected:
 
 TEST_F(CHeroClassTest, RegistersIconsDoesNothing)
 {
-	auto cb = std::bind(&CHeroClassTest::registarCb, this, _1, _2, _3);
+	auto cb = std::bind(&CHeroClassTest::registarCb, this, _1, _2, _3, _4);
 	subject->registerIcons(cb);
 }
 

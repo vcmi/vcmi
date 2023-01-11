@@ -126,7 +126,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
 		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
-			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
+			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt.get());
 	}
 
 	if (!down && previousState)
@@ -257,7 +257,7 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 void CArtifactsOfHero::activate()
 {
 	if (commonInfo->src.AOH == this && commonInfo->src.art)
-		CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", commonInfo->src.art->artType->getIconIndex()));
+		CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", commonInfo->src.art->artType->getIconIndex()));
 
 	CIntObject::activate();
 }
@@ -290,7 +290,7 @@ void CHeroArtPlace::select ()
 		}
 	}
 
-	CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", ourArt->artType->getIconIndex()));
+	CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", ourArt->artType->getIconIndex()));
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
 
@@ -763,7 +763,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			commonInfo->src.art = dst.getArt();
 			commonInfo->src.slotID = dst.slot;
 			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
+			CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
 			markPossibleSlots(dst.getArt());
 		}
 	}
@@ -1008,7 +1008,7 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
 	if (ourArt && text.size() && down)
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this](){ returnArtToHeroCallback(); }, [](){});
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this](){ returnArtToHeroCallback(); }, [](){});
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)

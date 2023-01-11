@@ -205,7 +205,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, std::ref(CGI->generaltexth->allTexts[69]), std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
+				return std::bind(CInfoWindow::showYesNoDialog, CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
 			}
 			break;
 			case 5: //highscores
@@ -235,7 +235,11 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	return std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, (int)button["hotkey"].Float());
+	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, (int)button["hotkey"].Float());
+
+	if (button["center"].Bool())
+		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
+	return result;
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)

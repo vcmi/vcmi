@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "BattleActionsController.h"
 
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 #include "BattleStacksController.h"
 #include "BattleInterface.h"
 #include "BattleFieldController.h"
@@ -60,7 +60,7 @@ void BattleActionsController::endCastingSpell()
 
 		currentSpell = nullptr;
 		spellDestSelectMode = false;
-		CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+		CCS->curh->set(Cursor::Combat::POINTER);
 
 		if(owner.stacksController->getActiveStack())
 		{
@@ -122,7 +122,7 @@ void BattleActionsController::enterCreatureCastingMode()
 			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, owner.stacksController->activeStackSpellToCast());
 			owner.stacksController->setSelectedStack(nullptr);
 
-			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+			CCS->curh->set(Cursor::Combat::POINTER);
 		}
 	}
 	else
@@ -171,8 +171,6 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			break;
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return 2; break;
-		case PossiblePlayerBattleAction::RISE_DEMONS:
-			return 3; break;
 		case PossiblePlayerBattleAction::SHOOT:
 			return 4; break;
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
@@ -233,7 +231,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 
 void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 {
-	if (!owner.myTurn || !owner.battleActionsStarted) //we are not permit to do anything
+	if (!owner.myTurn) //we are not permit to do anything
 		return;
 
 	// This function handles mouse move over hexes and l-clicking on them.
@@ -245,8 +243,8 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 	std::string newConsoleMsg;
 	//used when hovering -> tooltip message and cursor to be set
 	bool setCursor = true; //if we want to suppress setting cursor
-	ECursor::ECursorTypes cursorType = ECursor::COMBAT;
-	int cursorFrame = ECursor::COMBAT_POINTER; //TODO: is this line used?
+	bool spellcastingCursor = false;
+	auto cursorFrame = Cursor::Combat::POINTER;
 
 	//used when l-clicking -> action to be called upon the click
 	std::function<void()> realizeAction;
@@ -262,9 +260,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 	bool ourStack = false;
 	if (shere)
 		ourStack = shere->owner == owner.curInt->playerID;
-
-	//stack may have changed, update selection border
-	owner.stacksController->setHoveredStack(shere);
 
 	localActions.clear();
 	illegalActions.clear();
@@ -301,7 +296,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				{
 					if (owner.fieldController->isTileAttackable(myNumber)) // move isTileAttackable to be part of battleCanAttack?
 					{
-						owner.fieldController->setBattleCursor(myNumber); // temporary - needed for following function :(
 						BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(myNumber);
 
 						if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
@@ -378,19 +372,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				if (shere && ourStack && shere->canBeHealed())
 					legalAction = true;
 				break;
-			case PossiblePlayerBattleAction::RISE_DEMONS:
-				if (shere && ourStack && !shere->alive())
-				{
-					if (!(shere->hasBonusOfType(Bonus::UNDEAD)
-						|| shere->hasBonusOfType(Bonus::NON_LIVING)
-						|| shere->hasBonusOfType(Bonus::GARGOYLE)
-						|| shere->summoned
-						|| shere->isClone()
-						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
-						))
-						legalAction = true;
-				}
-				break;
 		}
 		if (legalAction)
 			localActions.push_back (action);
@@ -434,12 +415,12 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::MOVE_STACK:
 				if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
 				{
-					cursorFrame = ECursor::COMBAT_FLY;
+					cursorFrame = Cursor::Combat::FLY;
 					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
 				}
 				else
 				{
-					cursorFrame = ECursor::COMBAT_MOVE;
+					cursorFrame = Cursor::Combat::MOVE;
 					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
 				}
 
@@ -464,7 +445,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 			case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 				{
-					owner.fieldController->setBattleCursor(myNumber); //handle direction of cursor and attackable tile
+					owner.fieldController->setBattleCursor(myNumber); //handle direction of cursor
 					setCursor = false; //don't overwrite settings from the call above //TODO: what does it mean?
 
 					bool returnAfterAttack = currentAction == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
@@ -487,9 +468,9 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::SHOOT:
 			{
 				if (owner.curInt->cb->battleHasShootingPenalty(owner.stacksController->getActiveStack(), myNumber))
-					cursorFrame = ECursor::COMBAT_SHOOT_PENALTY;
+					cursorFrame = Cursor::Combat::SHOOT_PENALTY;
 				else
-					cursorFrame = ECursor::COMBAT_SHOOT;
+					cursorFrame = Cursor::Combat::SHOOT;
 
 				realizeAction = [=](){owner.giveCommand(EActionType::SHOOT, myNumber);};
 				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), shere);
@@ -524,7 +505,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::TELEPORT:
 				newConsoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
-				cursorFrame = ECursor::COMBAT_TELEPORT;
+				cursorFrame = Cursor::Combat::TELEPORT;
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::OBSTACLE:
@@ -534,7 +515,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::SACRIFICE:
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
-				cursorFrame = ECursor::COMBAT_SACRIFICE;
+				cursorFrame = Cursor::Combat::SACRIFICE;
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
@@ -542,24 +523,17 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::HEAL:
-				cursorFrame = ECursor::COMBAT_HEAL;
+				cursorFrame = Cursor::Combat::HEAL;
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
 				realizeAction = [=](){ owner.giveCommand(EActionType::STACK_HEAL, myNumber); }; //command healing
 				break;
-			case PossiblePlayerBattleAction::RISE_DEMONS:
-				cursorType = ECursor::SPELLBOOK;
-				realizeAction = [=]()
-				{
-					owner.giveCommand(EActionType::DAEMON_SUMMONING, myNumber);
-				};
-				break;
 			case PossiblePlayerBattleAction::CATAPULT:
-				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
+				cursorFrame = Cursor::Combat::SHOOT_CATAPULT;
 				realizeAction = [=](){ owner.giveCommand(EActionType::CATAPULT, myNumber); };
 				break;
 			case PossiblePlayerBattleAction::CREATURE_INFO:
 			{
-				cursorFrame = ECursor::COMBAT_QUERY;
+				cursorFrame = Cursor::Combat::QUERY;
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
 				realizeAction = [=](){ GH.pushIntT<CStackWindow>(shere, false); };
 				break;
@@ -572,25 +546,25 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 		{
 			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				cursorFrame = Cursor::Combat::BLOCKED;
 				newConsoleMsg = CGI->generaltexth->allTexts[23];
 				break;
 			case PossiblePlayerBattleAction::TELEPORT:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				cursorFrame = Cursor::Combat::BLOCKED;
 				newConsoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
 				break;
 			case PossiblePlayerBattleAction::SACRIFICE:
 				newConsoleMsg = CGI->generaltexth->allTexts[543]; //choose army to sacrifice
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				cursorFrame = Cursor::Combat::BLOCKED;
 				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % currentSpell->name); //No room to place %s here
 				break;
 			default:
 				if (myNumber == -1)
-					CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER); //set neutral cursor over menu etc.
+					CCS->curh->set(Cursor::Combat::POINTER);
 				else
-					cursorFrame = ECursor::COMBAT_BLOCKED;
+					cursorFrame = Cursor::Combat::BLOCKED;
 				break;
 		}
 	}
@@ -603,8 +577,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::SACRIFICE:
 				break;
 			default:
-				cursorType = ECursor::SPELLBOOK;
-				cursorFrame = 0;
+				spellcastingCursor = true;
 				if (newConsoleMsg.empty() && currentSpell)
 					newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
 				break;
@@ -665,12 +638,17 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 		if (eventType == CIntObject::MOVE)
 		{
 			if (setCursor)
-				CCS->curh->changeGraphic(cursorType, cursorFrame);
+			{
+				if (spellcastingCursor)
+					CCS->curh->set(Cursor::Spellcast::SPELL);
+				else
+					CCS->curh->set(cursorFrame);
+			}
 
 			if (!currentConsoleMsg.empty())
-				owner.controlPanel->console->clearIfMatching(currentConsoleMsg);
+				GH.statusbar->clearIfMatching(currentConsoleMsg);
 			if (!newConsoleMsg.empty())
-				owner.controlPanel->console->write(newConsoleMsg);
+				GH.statusbar->write(newConsoleMsg);
 
 			currentConsoleMsg = newConsoleMsg;
 		}
@@ -683,8 +661,8 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			}
 			realizeAction();
 			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
-				CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
-			owner.controlPanel->console->clear();
+				CCS->curh->set(Cursor::Combat::POINTER);
+			GH.statusbar->clear();
 		}
 	}
 }
@@ -759,7 +737,30 @@ void BattleActionsController::activateStack()
 {
 	const CStack * s = owner.stacksController->getActiveStack();
 	if(s)
+	{
 		possibleActions = getPossibleActionsForStack(s);
+		std::list<PossiblePlayerBattleAction> actionsToSelect;
+		if(!possibleActions.empty())
+		{
+			switch(possibleActions.front())
+			{
+				case PossiblePlayerBattleAction::SHOOT:
+					actionsToSelect.push_back(possibleActions.front());
+					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
+					break;
+					
+				case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+					actionsToSelect.push_back(possibleActions.front());
+					actionsToSelect.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
+					break;
+					
+				case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+					actionsToSelect.push_back(possibleActions.front());
+					break;
+			}
+		}
+		owner.windowObject->setAlternativeActions(actionsToSelect);
+	}
 }
 
 bool BattleActionsController::spellcastingModeActive() const
@@ -772,4 +773,19 @@ SpellID BattleActionsController::selectedSpell() const
 	if (!spellToCast)
 		return SpellID::NONE;
 	return SpellID(spellToCast->actionSubtype);
+}
+
+const std::vector<PossiblePlayerBattleAction> & BattleActionsController::getPossibleActions() const
+{
+	return possibleActions;
+}
+
+void BattleActionsController::removePossibleAction(PossiblePlayerBattleAction action)
+{
+	vstd::erase(possibleActions, action);
+}
+
+void BattleActionsController::pushFrontPossibleAction(PossiblePlayerBattleAction action)
+{
+	possibleActions.insert(possibleActions.begin(), action);
 }

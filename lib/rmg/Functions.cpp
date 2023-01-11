@@ -58,7 +58,7 @@ void createModificators(RmgMap & map)
 
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
-	int distanceSq = distance * distance;
+	uint32_t distanceSq = distance * distance;
 	auto subarea = zone.getArea().getSubarea([&zone, distanceSq](const int3 & t)
 	{
 		return t.dist2dSQ(zone.getPos()) > distanceSq;

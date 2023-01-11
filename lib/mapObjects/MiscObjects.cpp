@@ -58,7 +58,7 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
-static std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];
@@ -73,6 +73,11 @@ void CTeamVisited::setPropertyDer(ui8 what, ui32 val)
 bool CTeamVisited::wasVisited(PlayerColor player) const
 {
 	return wasVisited(cb->getPlayerState(player)->team);
+}
+
+bool CTeamVisited::wasVisited(const CGHeroInstance * h) const
+{
+	return wasVisited(h->tempOwner);
 }
 
 bool CTeamVisited::wasVisited(TeamID team) const
@@ -142,9 +147,8 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		hoverName = getHoverText(hero->tempOwner);
 	}
 
-	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
+	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
-	hoverName += texts["title"].String();
 	int choice;
 	double ratio = ((double)getArmyStrength() / hero->getTotalStrength());
 		 if (ratio < 0.1)  choice = 0;
@@ -159,7 +163,8 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	else if (ratio < 8)    choice = 9;
 	else if (ratio < 20)   choice = 10;
 	else                   choice = 11;
-	hoverName += texts["levels"].Vector()[choice].String();
+
+	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
 	return hoverName;
 }
 
@@ -705,7 +710,7 @@ bool CGMine::isAbandoned() const
 
 std::string CGMine::getObjectName() const
 {
-	return VLC->generaltexth->mines.at(subID).first;
+	return VLC->generaltexth->translate("core.minename", subID);
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -1069,7 +1074,7 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 			auto exits = cb->getTeleportChannelExits(channel);
 			for(auto exit : exits)
 			{
-				td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(cb->getObj(exit)->visitablePos(), true)));
+				td.exits.push_back(std::make_pair(exit, h->convertFromVisitablePos(cb->getObj(exit)->visitablePos())));
 			}
 		}
 
@@ -1101,7 +1106,7 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	else if(vstd::isValidIndex(exits, answer))
 		dPos = exits[answer].second;
 	else
-		dPos = CGHeroInstance::convertPosition(cb->getObj(randomExit)->visitablePos(), true);
+		dPos = hero->convertFromVisitablePos(cb->getObj(randomExit)->visitablePos());
 
 	cb->moveHero(hero->id, dPos, true);
 }
@@ -1145,7 +1150,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		auto exit = getRandomExit(h);
-		td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(cb->getObj(exit)->visitablePos(), true)));
+		td.exits.push_back(std::make_pair(exit, h->convertFromVisitablePos(cb->getObj(exit)->visitablePos())));
 	}
 
 	cb->showTeleportDialog(&td);
@@ -1254,7 +1259,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			auto blockedPosList = cb->getObj(exit)->getBlockedPos();
 			for(auto bPos : blockedPosList)
-				td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(bPos, true)));
+				td.exits.push_back(std::make_pair(exit, h->convertFromVisitablePos(bPos)));
 		}
 	}
 
@@ -1278,7 +1283,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 		auto obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = CGHeroInstance::convertPosition(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()), true);
+		dPos = hero->convertFromVisitablePos(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()));
 	}
 
 	cb->moveHero(hero->id, dPos, true);
@@ -1681,7 +1686,9 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
-		message = *RandomGeneratorUtil::nextItem(VLC->generaltexth->randsign, rand);
+		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
+		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
+		message = VLC->generaltexth->translate(messageIdentifier);
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)
@@ -1915,7 +1922,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 				cb->sendAndApply(&cv);
 			}
-			cv.pos = h->getPosition(false);
+			cv.pos = h->visitablePos();
 			cv.focusTime = 0;
 			cb->sendAndApply(&cv);
 		}
@@ -2063,18 +2070,34 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 
 void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
-	if (answer) //if hero wants to buy map
+	if(answer) //if hero wants to buy map
 	{
-		cb->giveResource (hero->tempOwner, Res::GOLD, -1000);
+		cb->giveResource(hero->tempOwner, Res::GOLD, -1000);
 		FoWChange fw;
 		fw.mode = 1;
 		fw.player = hero->tempOwner;
 
 		//subIDs of different types of cartographers:
 		//water = 0; land = 1; underground = 2;
-		cb->getAllTiles (fw.tiles, hero->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
-		cb->sendAndApply (&fw);
-		cb->setObjProperty (id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
+
+		IGameCallback::MapTerrainFilterMode tileFilterMode = IGameCallback::MapTerrainFilterMode::NONE;
+
+		switch(subID)
+		{
+			case 0:
+				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::WATER;
+				break;
+			case 1:
+				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::LAND_CARTOGRAPHER;
+				break;
+			case 2:
+				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER;
+				break;
+		}
+
+		cb->getAllTiles(fw.tiles, hero->tempOwner, -1, tileFilterMode); //reveal appropriate tiles
+		cb->sendAndApply(&fw);
+		cb->setObjProperty(id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
 	}
 }
 

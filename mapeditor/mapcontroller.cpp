@@ -20,6 +20,7 @@
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/serializer/CMemorySerializer.h"
 #include "mapview.h"
 #include "scenelayer.h"
 #include "maphandler.h"
@@ -324,6 +325,48 @@ void MapController::commitObjectErase(int level)
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
 	_scenes[level]->passabilityView.update();
+	
+	_miniscenes[level]->updateViews();
+	main->mapChanged();
+}
+
+void MapController::copyToClipboard(int level)
+{
+	_clipboard.clear();
+	_clipboardShiftIndex = 0;
+	auto selectedObjects = _scenes[level]->selectionObjectsView.getSelection();
+	for(auto * obj : selectedObjects)
+	{
+		assert(obj->pos.z == level);
+		_clipboard.push_back(CMemorySerializer::deepCopy(*obj));
+	}
+}
+
+void MapController::pasteFromClipboard(int level)
+{
+	_scenes[level]->selectionObjectsView.clear();
+	
+	auto shift = int3::getDirs()[_clipboardShiftIndex++];
+	if(_clipboardShiftIndex == int3::getDirs().size())
+		_clipboardShiftIndex = 0;
+	
+	for(auto & objUniquePtr : _clipboard)
+	{
+		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		auto newPos = objUniquePtr->pos + shift;
+		if(_map->isInTheMap(newPos))
+			obj->pos = newPos;
+		obj->pos.z = level;
+		
+		Initializer init(obj, defaultPlayer);
+		_map->getEditManager()->insertObject(obj);
+		_scenes[level]->selectionObjectsView.selectObject(obj);
+		_mapHandler->invalidate(obj);
+	}
+	
+	_scenes[level]->objectsView.draw();
+	_scenes[level]->passabilityView.update();
+	_scenes[level]->selectionObjectsView.draw();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();

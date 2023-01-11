@@ -28,7 +28,7 @@ CStupidAI::~CStupidAI()
 	print("destroyed");
 }
 
-void CStupidAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
+void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
 	env = ENV;
@@ -177,7 +177,7 @@ void CStupidAI::battleAttack(const BattleAttack *ba)
 	print("battleAttack called");
 }
 
-void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
 	print("battleStacksAttacked called");
 }
@@ -202,7 +202,7 @@ void CStupidAI::battleNewRound(int round)
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	print("battleStackMoved called");
 }

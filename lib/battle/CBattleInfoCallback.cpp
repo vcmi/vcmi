@@ -18,6 +18,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
+#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -230,8 +231,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			}
 			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
-			if(stack->hasBonusOfType(Bonus::DAEMON_SUMMONING))
-				allowedActionList.push_back(PossiblePlayerBattleAction::RISE_DEMONS);
 		}
 		if(stack->canShoot())
 			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
@@ -802,12 +801,18 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	//bonus from attack/defense skills
 	if(attackDefenceDifference < 0) //decreasing dmg
 	{
-		const double dec = std::min(0.025 * (-attackDefenceDifference), 0.7);
+		const double defenseMultiplier = VLC->modh->settings.DEFENSE_POINT_DMG_MULTIPLIER;
+		const double defenseMultiplierCap = VLC->modh->settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+
+		const double dec = std::min(defenseMultiplier * (-attackDefenceDifference), defenseMultiplierCap);
 		multBonus *= 1.0 - dec;
 	}
 	else //increasing dmg
 	{
-		const double inc = std::min(0.05 * attackDefenceDifference, 4.0);
+		const double attackMultiplier = VLC->modh->settings.ATTACK_POINT_DMG_MULTIPLIER;
+		const double attackMultiplierCap = VLC->modh->settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+
+		const double inc = std::min(attackMultiplier * attackDefenceDifference, attackMultiplierCap);
 		additiveBonus += inc;
 	}
 
@@ -1247,7 +1252,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
 	{
-		int distanceToPred;
+		uint32_t distanceToPred;
 		BattleHex destination;
 		const battle::Unit * stack;
 	};
@@ -1373,17 +1378,17 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
-	//TODO: apply rotation to two-hex attackers
-	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
-
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	const int WN = GameConstants::BFIELD_WIDTH;
 	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 
+	auto defender = battleGetUnitByPos(destinationTile, true);
+	if (!defender)
+		return at; // can't attack thin air
+
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
-	bool reverse = isToReverse(hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
+	bool reverse = isToReverse(destinationTile, attacker, defender);
 	if(reverse && attacker->doubleWide())
 	{
 		hex = attacker->occupiedHex(hex); //the other hex stack stands on
@@ -1426,34 +1431,17 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	}
 	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 	{
-		int pos = BattleHex::mutualPosition(destinationTile, hex);
-		if(pos > -1) //only adjacent hexes are subject of dragon breath calculation
+		auto direction = BattleHex::mutualPosition(hex, destinationTile);
+		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 		{
-			std::vector<BattleHex> hexes; //only one, in fact
-			int pseudoVector = destinationTile.hex - hex;
-			switch(pseudoVector)
-			{
-			case 1:
-			case -1:
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
-				break;
-			case WN: //17 //left-down or right-down
-			case -WN: //-17 //left-up or right-up
-			case WN + 1: //18 //right-down
-			case -WN + 1: //-16 //right-up
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
-				break;
-			case WN - 1: //16 //left-down
-			case -WN - 1: //-18 //left-up
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
-				break;
-			}
-			for(BattleHex tile : hexes)
+			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
+
+			if (nextHex.isValid())
 			{
 				//friendly stacks can also be damaged by Dragon Breath
-				auto st = battleGetUnitByPos(tile, true);
+				auto st = battleGetUnitByPos(nextHex, true);
 				if(st != nullptr)
-					at.friendlyCreaturePositions.insert(tile);
+					at.friendlyCreaturePositions.insert(nextHex);
 			}
 		}
 	}
@@ -1537,60 +1525,50 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	return attackedCres;
 }
 
-//TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bool curDir) const
+static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side )
 {
-	int fromX = hexFrom.getX();
-	int fromY = hexFrom.getY();
-	int toX = hexTo.getX();
-	int toY = hexTo.getY();
+	static const std::set<BattleHex::EDir> rightDirs { BattleHex::BOTTOM_RIGHT, BattleHex::TOP_RIGHT, BattleHex::RIGHT };
+	static const std::set<BattleHex::EDir> leftDirs  { BattleHex::BOTTOM_LEFT, BattleHex::TOP_LEFT, BattleHex::LEFT };
 
-	if (curDir) // attacker, facing right
-	{
-		if (fromX < toX)
-			return false;
-		if (fromX > toX)
-			return true;
+	auto mutualPos = BattleHex::mutualPosition(hex, testHex);
 
-		if (fromY % 2 == 0 && toY % 2 == 1)
-
-			return true;
-		return false;
-	}
-	else // defender, facing left
-	{
-		if(fromX < toX)
-			return true;
-		if(fromX > toX)
-			return false;
-
-		if (fromY % 2 == 1 && toY % 2 == 0)
-			return true;
-		return false;
-	}
+	if (side == BattleSide::ATTACKER)
+		return rightDirs.count(mutualPos);
+	else
+		return leftDirs.count(mutualPos);
 }
 
 //TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const
+bool CBattleInfoCallback::isToReverse (BattleHex attackerHex, const battle::Unit * attacker, const battle::Unit * defender) const
 {
-	if (hexTo < 0 || hexFrom < 0) //turret
+	if (attackerHex < 0 ) //turret
 		return false;
 
-	if (toDoubleWide)
-	{
-		if (isToReverseHlp (hexFrom, hexTo, curDir))
-		{
-			if (toDir)
-				return isToReverseHlp (hexFrom, hexTo-1, curDir);
-			else
-				return isToReverseHlp (hexFrom, hexTo+1, curDir);
-		}
+	BattleHex defenderHex = defender->getPosition();
+
+	if (isHexInFront(attackerHex, defenderHex, BattleSide::Type(attacker->unitSide())))
 		return false;
-	}
-	else
+
+	if (defender->doubleWide())
 	{
-		return isToReverseHlp(hexFrom, hexTo, curDir);
+		if (isHexInFront(attackerHex,defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+			return false;
 	}
+
+	if (attacker->doubleWide())
+	{
+		if (isHexInFront(attacker->occupiedHex(), defenderHex, BattleSide::Type(attacker->unitSide())))
+			return false;
+	}
+
+	// a bit weird case since here defender is slightly behind attacker, so reversing seems preferable,
+	// but this is how H3 handles it which is important, e.g. for direction of dragon breath attacks
+	if (attacker->doubleWide() && defender->doubleWide())
+	{
+		if (isHexInFront(attacker->occupiedHex(), defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+			return false;
+	}
+	return true;
 }
 
 ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const battle::Unit * unit, BattleHex assumedPosition) const

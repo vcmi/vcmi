@@ -98,11 +98,13 @@ void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	validateObject(details.id); //enemy hero may have left visible area
+	//enemy hero may have left visible area
+	validateObject(details.id);
 	auto hero = cb->getHero(details.id);
 
-	const int3 from = CGHeroInstance::convertPosition(details.start, false);
-	const int3 to = CGHeroInstance::convertPosition(details.end, false);
+	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
+	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
+
 	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
 	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
@@ -583,7 +585,7 @@ void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	env = ENV;
@@ -608,7 +610,7 @@ void VCAI::yourTurn()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
-	makingTurn = make_unique<boost::thread>(&VCAI::makeTurn, this);
+	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -756,7 +758,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
 			UpgradeInfo ui;
-			cb->getUpgradeInfo(obj, SlotID(i), ui);
+			cb->fillUpgradeInfo(obj, SlotID(i), ui);
 			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
@@ -1813,7 +1815,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+		cb->moveHero(*h, h->convertFromVisitablePos(dst));
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1867,14 +1869,14 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doMovement = [&](int3 dst, bool transit)
 		{
-			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
+			cb->moveHero(*h, h->convertFromVisitablePos(dst), transit);
 		};
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
 			if(exitPos.valid())
-				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
 			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
@@ -1883,7 +1885,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentPos = CGHeroInstance::convertPosition(h->pos, false);
+			auto currentPos = h->visitablePos();
 			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
@@ -1900,7 +1902,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i - 1].coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == CGHeroInstance::convertPosition(h->pos, false));
+			auto currentObject = getObj(currentCoord, currentCoord == h->visitablePos());
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);

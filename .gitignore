@@ -60,3 +60,6 @@ CMakeUserPresets.json
 /AI/FuzzyLite.lib
 /deps
 .vs/
+
+# CLion
+.idea/

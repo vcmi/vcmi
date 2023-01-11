@@ -211,10 +211,12 @@ void Lobby::serverCommand(const ServerCommand & command) try
 				ui->playersList->addItem(new QListWidgetItem(QIcon("icons:mod-disabled.png"), args[tagPoint]));
 			
 			if(args[tagPoint] == username)
+			{
 				if(args[tagPoint + 1] == "True")
 					ui->buttonReady->setText("Not ready");
 				else
 					ui->buttonReady->setText("Ready");
+			}
 		}
 		break;
 

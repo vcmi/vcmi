@@ -24,6 +24,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"
+#include "../../lib/CModHandler.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN

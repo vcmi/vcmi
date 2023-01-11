@@ -29,15 +29,14 @@ class BattleObstacleController
 {
 	BattleInterface & owner;
 
+	/// total time, in seconds, since start of battle. Used for animating obstacles
+	float timePassed;
+
 	/// cached animations of all obstacles in current battle
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
 
 	/// list of all obstacles that are currently being rendered
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
-
-	/// semi-debug member, contains obstacles that should not yet be visible due to ongoing placement animation
-	/// used only for sanity checks to ensure that there are no invisible obstacles
-	std::vector<si32> obstaclesBeingPlaced;
 
 	void loadObstacleImage(const CObstacleInstance & oi);
 
@@ -47,11 +46,14 @@ class BattleObstacleController
 public:
 	BattleObstacleController(BattleInterface & owner);
 
+	/// called every frame
+	void update();
+
 	/// call-in from network pack, add newly placed obstacles with any required animations
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
 
 	/// renders all "absolute" obstacles
-	void showAbsoluteObstacles(Canvas & canvas, const Point & offset);
+	void showAbsoluteObstacles(Canvas & canvas);
 
 	/// adds all non-"absolute" visible obstacles for rendering
 	void collectRenderableObjects(BattleRenderer & renderer);

@@ -478,7 +478,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB)
 	:cb(CB), 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	pos += Pos;
+	pos += Pos.topLeft();
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
@@ -495,7 +495,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	pos += Pos;
+	pos += Pos.topLeft();
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(Pos, 0, true);
@@ -592,6 +592,11 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 		notifyAndroidTextInputChanged(text);
 #endif
 	}
+}
+
+void CTextInput::setText(const std::string & nText)
+{
+	setText(nText, false);
 }
 
 void CTextInput::setText(const std::string & nText, bool callCb)

@@ -2241,12 +2241,6 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "creature.vampireLord",
-				"type" : "DAEMON_SUMMONING",
-				"val" : 10,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
 				"addInfo" : 2,
 				"subtype" : "spell.lightningBolt",
 				"type" : "ENCHANTER",

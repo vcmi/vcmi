@@ -22,7 +22,7 @@ namespace events
 
 SubscriptionRegistry<ApplyDamage> * ApplyDamage::getRegistry()
 {
-	static std::unique_ptr<SubscriptionRegistry<ApplyDamage>> Instance = make_unique<SubscriptionRegistry<ApplyDamage>>();
+	static std::unique_ptr<SubscriptionRegistry<ApplyDamage>> Instance = std::make_unique<SubscriptionRegistry<ApplyDamage>>();
 	return Instance.get();
 }
 

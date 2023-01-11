@@ -56,10 +56,46 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
-static std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];
+}
+
+const std::string & CQuest::missionName(CQuest::Emission mission)
+{
+	static const std::array<std::string, 11> names = {
+		"empty",
+		"heroLevel",
+		"primarySkill",
+		"killHero",
+		"killCreature",
+		"bringArt",
+		"bringCreature",
+		"bringResources",
+		"bringHero",
+		"bringPlayer",
+		"keymaster"
+	};
+
+	if(static_cast<size_t>(mission) < names.size())
+		return names[static_cast<size_t>(mission)];
+	return names[0];
+}
+
+const std::string & CQuest::missionState(int state)
+{
+	static const std::array<std::string, 5> states = {
+		"receive",
+		"visit",
+		"complete",
+		"hover",
+		"description",
+	};
+
+	if(state < states.size())
+		return states[state];
+	return states[0];
 }
 
 bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
@@ -264,7 +300,10 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	if(onHover)
 		ms << "\n\n";
 
-	ms << VLC->generaltexth->quests[missionType-1][onHover ? 3 : 4][textOption];
+	std::string questName  = missionName(Emission(missionType-1));
+	std::string questState = missionState(onHover ? 3 : 4);
+
+	ms << VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption);
 
 	switch(missionType)
 	{
@@ -535,7 +574,9 @@ void CGSeerHut::setObjToKill()
 
 void CGSeerHut::init(CRandomGenerator & rand)
 {
-	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, rand);
+	auto names = VLC->generaltexth->findStringsWithPrefix("core.seerhut.names");
+
+	seerName = *RandomGeneratorUtil::nextItem(names, rand);
 	quest->textOption = rand.nextInt(2);
 	quest->completedOption = rand.nextInt(1, 3);
 }
@@ -547,12 +588,14 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	quest->progress = CQuest::NOT_ACTIVE;
 	if(quest->missionType)
 	{
+		std::string questName  = quest->missionName(CQuest::Emission(quest->missionType-1));
+
 		if(!quest->isCustomFirst)
-			quest->firstVisitText = VLC->generaltexth->quests[quest->missionType-1][0][quest->textOption];
+			quest->firstVisitText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(0), quest->textOption);
 		if(!quest->isCustomNext)
-			quest->nextVisitText = VLC->generaltexth->quests[quest->missionType-1][1][quest->textOption];
+			quest->nextVisitText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(1), quest->textOption);
 		if(!quest->isCustomComplete)
-			quest->completedText = VLC->generaltexth->quests[quest->missionType-1][2][quest->textOption];
+			quest->completedText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(2), quest->textOption);
 	}
 	else
 	{

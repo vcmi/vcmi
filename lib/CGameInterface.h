@@ -52,7 +52,6 @@ struct StackLocation;
 class CStackInstance;
 class CCommanderInstance;
 class CStack;
-struct CPathsInfo;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
@@ -78,7 +77,7 @@ public:
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};
-	virtual void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
+	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
 
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
@@ -90,7 +89,7 @@ class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEven
 {
 public:
 	virtual ~CGameInterface() = default;
-	virtual void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
+	virtual void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
 	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
@@ -154,17 +153,17 @@ public:
 	virtual void battleNewRound(int round) override;
 	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	virtual void actionStarted(const BattleAction &action) override;
 	virtual void battleNewRoundFirst(int round) override;
 	virtual void actionFinished(const BattleAction &action) override;
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse) override;
 	virtual void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
 	virtual void battleEnd(const BattleResult *br) override;
-	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
+	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override;
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;

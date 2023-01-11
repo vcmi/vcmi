@@ -84,14 +84,6 @@
 		}
 	},
 
-	"DAEMON_SUMMONING":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/RiseDemons"
-		}
-	},
-
 	"DARKNESS":
 	{
 	},

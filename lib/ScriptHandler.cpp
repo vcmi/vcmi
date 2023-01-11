@@ -17,6 +17,7 @@
 
 #include "CGameInterface.h"
 #include "CScriptingModule.h"
+#include "CModHandler.h"
 
 #include "VCMIDirs.h"
 #include "serializer/JsonDeserializer.h"
