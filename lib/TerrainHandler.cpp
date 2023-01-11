@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include "TerrainHandler.h"
-#include "VCMI_Lib.h"
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 
@@ -136,96 +135,6 @@ std::vector<bool> TerrainTypeHandler::getDefaultAllowed() const
 	return {};
 }
 
-RiverTypeHandler::RiverTypeHandler()
-{
-	objects.push_back(new RiverType);
-}
-
-RiverType * RiverTypeHandler::loadFromJson(
-	const std::string & scope,
-	const JsonNode & json,
-	const std::string & identifier,
-	size_t index)
-{
-	RiverType * info = new RiverType;
-
-	info->id              = RiverId(index);
-	if (identifier.find(':') == std::string::npos)
-		info->identifier = scope + ":" + identifier;
-	else
-		info->identifier = identifier;
-
-	info->tilesFilename   = json["tilesFilename"].String();
-	info->shortIdentifier = json["shortIdentifier"].String();
-	info->deltaName       = json["delta"].String();
-
-	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
-
-	return info;
-}
-
-const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
-{
-	static const std::vector<std::string> typeNames = { "river" };
-	return typeNames;
-}
-
-std::vector<JsonNode> RiverTypeHandler::loadLegacyData(size_t dataSize)
-{
-	objects.resize(dataSize);
-	return {};
-}
-
-std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
-RoadTypeHandler::RoadTypeHandler()
-{
-	objects.push_back(new RoadType);
-}
-
-RoadType * RoadTypeHandler::loadFromJson(
-	const std::string & scope,
-	const JsonNode & json,
-	const std::string & identifier,
-	size_t index)
-{
-	RoadType * info = new RoadType;
-
-	info->id              = RoadId(index);
-	if (identifier.find(':') == std::string::npos)
-		info->identifier = scope + ":" + identifier;
-	else
-		info->identifier = identifier;
-
-	info->tilesFilename   = json["tilesFilename"].String();
-	info->shortIdentifier = json["shortIdentifier"].String();
-	info->movementCost    = json["moveCost"].Integer();
-
-	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
-
-	return info;
-}
-
-const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
-{
-	static const std::vector<std::string> typeNames = { "road" };
-	return typeNames;
-}
-
-std::vector<JsonNode> RoadTypeHandler::loadLegacyData(size_t dataSize)
-{
-	objects.resize(dataSize);
-	return {};
-}
-
-std::vector<bool> RoadTypeHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
 bool TerrainType::isLand() const
 {
 	return !isWater();
@@ -279,34 +188,4 @@ std::string TerrainType::getNameTranslated() const
 TerrainType::TerrainType()
 {}
 
-std::string RoadType::getNameTextID() const
-{
-	return TextIdentifier( "road", identifier,  "name" ).get();
-}
-
-std::string RoadType::getNameTranslated() const
-{
-	return VLC->generaltexth->translate(getNameTextID());
-}
-
-std::string RiverType::getNameTextID() const
-{
-	return TextIdentifier( "river", identifier,  "name" ).get();
-}
-
-std::string RiverType::getNameTranslated() const
-{
-	return VLC->generaltexth->translate(getNameTextID());
-}
-
-RiverType::RiverType():
-	id(River::NO_RIVER),
-	identifier("core:empty")
-{}
-
-RoadType::RoadType():
-	id(Road::NO_ROAD),
-	identifier("core:empty"),
-	movementCost(GameConstants::BASE_MOVEMENT_COST)
-{}
 VCMI_LIB_NAMESPACE_END

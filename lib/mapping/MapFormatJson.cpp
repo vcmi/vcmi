@@ -19,6 +19,8 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
+#include "../RiverHandler.h"
+#include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CObjectHandler.h"

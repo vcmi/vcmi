@@ -18,6 +18,8 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"

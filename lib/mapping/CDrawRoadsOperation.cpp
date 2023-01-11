@@ -12,7 +12,8 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
-#include "../TerrainHandler.h"
+#include "../RoadHandler.h"
+#include "../RiverHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

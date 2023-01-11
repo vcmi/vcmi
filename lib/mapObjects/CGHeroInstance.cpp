@@ -18,6 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
+#include "../RoadHandler.h"
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"

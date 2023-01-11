@@ -191,6 +191,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
 		${MAIN_LIB_DIR}/ResourceSet.cpp
+		${MAIN_LIB_DIR}/RiverHandler.cpp
+		${MAIN_LIB_DIR}/RoadHandler.cpp
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
 		${MAIN_LIB_DIR}/TerrainHandler.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
@@ -439,6 +441,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ObstacleHandler.h
 		${MAIN_LIB_DIR}/PathfinderUtil.h
 		${MAIN_LIB_DIR}/ResourceSet.h
+		${MAIN_LIB_DIR}/RiverHandler.h
+		${MAIN_LIB_DIR}/RoadHandler.h
 		${MAIN_LIB_DIR}/ScriptHandler.h
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h

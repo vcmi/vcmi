@@ -12,6 +12,8 @@
 #include "StdInc.h"
 #include "maphandler.h"
 #include "graphics.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"

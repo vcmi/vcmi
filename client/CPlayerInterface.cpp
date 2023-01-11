@@ -61,6 +61,7 @@
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"
+#include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
 #include <SDL.h>
 #include "CServerHandler.h"

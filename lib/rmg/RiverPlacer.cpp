@@ -13,6 +13,7 @@
 #include "Functions.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
+#include "../RiverHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"

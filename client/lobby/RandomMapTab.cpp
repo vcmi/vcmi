@@ -29,7 +29,7 @@
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
-#include "../../lib/TerrainHandler.h"
+#include "../../lib/RoadHandler.h"
 
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable()
