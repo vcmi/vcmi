@@ -11,11 +11,11 @@
 
 #include "BattleSpellMechanics.h"
 
-#include "Problem.h"
 #include "CSpellHandler.h"
+#include "Problem.h"
 
-#include "../battle/IBattleState.h"
 #include "../battle/CBattleInfoCallback.h"
+#include "../battle/IBattleState.h"
 
 #include "../CStack.h"
 #include "../NetPacks.h"
@@ -27,112 +27,114 @@ namespace spells
 
 namespace SRSLPraserHelpers
 {
-	static int XYToHex(int x, int y)
+static int XYToHex(int x, int y)
+{
+	return x + GameConstants::BFIELD_WIDTH * y;
+}
+
+static int XYToHex(std::pair<int, int> xy)
+{
+	return XYToHex(xy.first, xy.second);
+}
+
+static int hexToY(int battleFieldPosition)
+{
+	return battleFieldPosition / GameConstants::BFIELD_WIDTH;
+}
+
+static int hexToX(int battleFieldPosition)
+{
+	int pos = battleFieldPosition - hexToY(battleFieldPosition) * GameConstants::BFIELD_WIDTH;
+	return pos;
+}
+
+static std::pair<int, int> hexToPair(int battleFieldPosition)
+{
+	return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
+}
+
+//moves hex by one hex in given direction
+//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
+static std::pair<int, int> gotoDir(int x, int y, int direction)
+{
+	switch(direction)
 	{
-		return x + GameConstants::BFIELD_WIDTH * y;
-	}
-
-	static int XYToHex(std::pair<int, int> xy)
-	{
-		return XYToHex(xy.first, xy.second);
-	}
-
-	static int hexToY(int battleFieldPosition)
-	{
-		return battleFieldPosition/GameConstants::BFIELD_WIDTH;
-	}
-
-	static int hexToX(int battleFieldPosition)
-	{
-		int pos = battleFieldPosition - hexToY(battleFieldPosition) * GameConstants::BFIELD_WIDTH;
-		return pos;
-	}
-
-	static std::pair<int, int> hexToPair(int battleFieldPosition)
-	{
-		return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
-	}
-
-	//moves hex by one hex in given direction
-	//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
-	static std::pair<int, int> gotoDir(int x, int y, int direction)
-	{
-		switch(direction)
-		{
-		case 0: //top left
-			return std::make_pair((y%2) ? x-1 : x, y-1);
-		case 1: //top right
-			return std::make_pair((y%2) ? x : x+1, y-1);
-		case 2:  //right
-			return std::make_pair(x+1, y);
-		case 3: //right bottom
-			return std::make_pair((y%2) ? x : x+1, y+1);
-		case 4: //left bottom
-			return std::make_pair((y%2) ? x-1 : x, y+1);
-		case 5: //left
-			return std::make_pair(x-1, y);
-		default:
-			throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
-		}
-	}
-
-	static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
-	{
-		return gotoDir(xy.first, xy.second, direction);
-	}
-
-	static bool isGoodHex(std::pair<int, int> xy)
-	{
-		return xy.first >=0 && xy.first < GameConstants::BFIELD_WIDTH && xy.second >= 0 && xy.second < GameConstants::BFIELD_HEIGHT;
-	}
-
-	//helper function for rangeInHexes
-	static std::set<ui16> getInRange(unsigned int center, int low, int high)
-	{
-		std::set<ui16> ret;
-		if(low == 0)
-		{
-			ret.insert(center);
-		}
-
-		std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
-		for(auto & elem : mainPointForLayer)
-			elem = hexToPair(center);
-
-		for(int it=1; it<=high; ++it) //it - distance to the center
-		{
-			for(int b=0; b<6; ++b)
-				mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
-
-			if(it>=low)
-			{
-				std::pair<int, int> curHex;
-
-				//adding lines (A-b, B-c, C-d, etc)
-				for(int v=0; v<6; ++v)
-				{
-					curHex = mainPointForLayer[v];
-					for(int h=0; h<it; ++h)
-					{
-						if(isGoodHex(curHex))
-							ret.insert(XYToHex(curHex));
-						curHex = gotoDir(curHex, (v+2)%6);
-					}
-				}
-
-			} //if(it>=low)
-		}
-
-		return ret;
+	case 0: //top left
+		return std::make_pair((y % 2) ? x - 1 : x, y - 1);
+	case 1: //top right
+		return std::make_pair((y % 2) ? x : x + 1, y - 1);
+	case 2: //right
+		return std::make_pair(x + 1, y);
+	case 3: //right bottom
+		return std::make_pair((y % 2) ? x : x + 1, y + 1);
+	case 4: //left bottom
+		return std::make_pair((y % 2) ? x - 1 : x, y + 1);
+	case 5: //left
+		return std::make_pair(x - 1, y);
+	default:
+		throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
 	}
 }
 
+static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
+{
+	return gotoDir(xy.first, xy.second, direction);
+}
 
-BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_)
-	: BaseMechanics(event),
-	effects(effects_),
-	targetCondition(targetCondition_)
-{}
+static bool isGoodHex(std::pair<int, int> xy)
+{
+	return xy.first >= 0 && xy.first < GameConstants::BFIELD_WIDTH && xy.second >= 0 && xy.second < GameConstants::BFIELD_HEIGHT;
+}
+
+//helper function for rangeInHexes
+static std::set<ui16> getInRange(unsigned int center, int low, int high)
+{
+	std::set<ui16> ret;
+	if(low == 0)
+	{
+		ret.insert(center);
+	}
+
+	std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
+	for(auto & elem : mainPointForLayer)
+		elem = hexToPair(center);
+
+	for(int it = 1; it <= high; ++it) //it - distance to the center
+	{
+		for(int b = 0; b < 6; ++b)
+			mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
+
+		if(it >= low)
+		{
+			std::pair<int, int> curHex;
+
+			//adding lines (A-b, B-c, C-d, etc)
+			for(int v = 0; v < 6; ++v)
+			{
+				curHex = mainPointForLayer[v];
+				for(int h = 0; h < it; ++h)
+				{
+					if(isGoodHex(curHex))
+						ret.insert(XYToHex(curHex));
+					curHex = gotoDir(curHex, (v + 2) % 6);
+				}
+			}
+
+		} //if(it>=low)
+	}
+
+	return ret;
+}
+}
+
+BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event,
+										   std::shared_ptr<effects::Effects> effects_,
+										   std::shared_ptr<IReceptiveCheck> targetCondition_)
+	: BaseMechanics(event)
+	, effects(effects_)
+	, targetCondition(targetCondition_)
+{
+}
 
 BattleSpellMechanics::~BattleSpellMechanics() = default;
 
@@ -166,21 +168,21 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	switch(mode)
 	{
 	case Mode::HERO:
+	{
+		const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster); //todo: unify hero|creature spell cost
+		if(!castingHero)
 		{
-			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
-			if(!castingHero)
-			{
-				logGlobal->debug("CSpell::canBeCast: invalid caster");
-				genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-			}
-			else if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
-				genProblem = ESpellCastProblem::NO_SPELLBOOK;
-			else if(!castingHero->canCastThisSpell(owner))
-				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			else if(castingHero->mana < battle()->battleGetSpellCost(owner, castingHero)) //not enough mana
-				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
+			logGlobal->debug("CSpell::canBeCast: invalid caster");
+			genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 		}
-		break;
+		else if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+			genProblem = ESpellCastProblem::NO_SPELLBOOK;
+		else if(!castingHero->canCastThisSpell(owner))
+			genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
+		else if(castingHero->mana < battle()->battleGetSpellCost(owner, castingHero)) //not enough mana
+			genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
+	}
+	break;
 	}
 
 	if(genProblem != ESpellCastProblem::OK)
@@ -212,7 +214,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 
 	Target spellTarget = transformSpellTarget(target);
 
-    return effects->applicable(problem, this, target, spellTarget);
+	return effects->applicable(problem, this, target, spellTarget);
 }
 
 std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target & target) const
@@ -221,11 +223,12 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 
 	EffectTarget all;
 
-	effects->forEachEffect(getEffectLevel(), [&all, &target, &spellTarget, this](const effects::Effect * e, bool & stop)
-	{
-		EffectTarget one = e->transformTarget(this, target, spellTarget);
-		vstd::concatenate(all, one);
-	});
+	effects->forEachEffect(getEffectLevel(),
+						   [&all, &target, &spellTarget, this](const effects::Effect * e, bool & stop)
+						   {
+							   EffectTarget one = e->transformTarget(this, target, spellTarget);
+							   vstd::concatenate(all, one);
+						   });
 
 	std::set<const CStack *> stacks;
 
@@ -299,19 +302,19 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 
 	BattleLogMessage castDescription;
 
-	switch (mode)
+	switch(mode)
 	{
 	case Mode::CREATURE_ACTIVE:
 	case Mode::ENCHANTER:
 	case Mode::HERO:
 	case Mode::PASSIVE:
-		{
-			MetaString line;
-			caster->getCastDescription(owner, affectedUnits, line);
-			if(!line.message.empty())
-				castDescription.lines.push_back(line);
-		}
-		break;
+	{
+		MetaString line;
+		caster->getCastDescription(owner, affectedUnits, line);
+		if(!line.message.empty())
+			castDescription.lines.push_back(line);
+	}
+	break;
 
 	default:
 		break;
@@ -353,7 +356,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	Target spellTarget = transformSpellTarget(target);
 
-	std::vector <const battle::Unit *> resisted;
+	std::vector<const battle::Unit *> resisted;
 
 	auto rangeGen = rng.getInt64Range(0, 99);
 
@@ -389,12 +392,13 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 	//and update targets
 	for(auto & p : effectsToApply)
 	{
-		vstd::erase_if(p.second, [&](const Destination & d)
-		{
-			if(!d.unitValue)
-				return false;
-			return vstd::contains(resisted, d.unitValue);
-		});
+		vstd::erase_if(p.second,
+					   [&](const Destination & d)
+					   {
+						   if(!d.unitValue)
+							   return false;
+						   return vstd::contains(resisted, d.unitValue);
+					   });
 	}
 
 	if(mode == Mode::MAGIC_MIRROR)
@@ -492,7 +496,7 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 		bool readingFirst = true;
 		for(auto & elem : rng)
 		{
-			if(std::isdigit(elem) ) //reading number
+			if(std::isdigit(elem)) //reading number
 			{
 				if(readingFirst)
 					number1 += elem;
@@ -528,7 +532,6 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 				{
 					ret.insert(curLayer_it);
 				}
-
 			}
 			else if(elem == '-') //dash
 			{
@@ -577,11 +580,12 @@ std::vector<AimType> BattleSpellMechanics::getTargetTypes() const
 
 	if(!ret.empty())
 	{
-		effects->forEachEffect(getEffectLevel(), [&](const effects::Effect * e, bool & stop)
-		{
-			e->adjustTargetTypes(ret);
-			stop = ret.empty();
-		});
+		effects->forEachEffect(getEffectLevel(),
+							   [&](const effects::Effect * e, bool & stop)
+							   {
+								   e->adjustTargetTypes(ret);
+								   stop = ret.empty();
+							   });
 	}
 
 	return ret;
@@ -642,13 +646,14 @@ std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) 
 
 	std::set<BattleHex> effectRange;
 
-	effects->forEachEffect(getEffectLevel(), [&](const effects::Effect * effect, bool & stop)
-	{
-		if(!effect->indirect)
-		{
-			effect->adjustAffectedHexes(effectRange, this, spellTarget);
-		}
-	});
+	effects->forEachEffect(getEffectLevel(),
+						   [&](const effects::Effect * effect, bool & stop)
+						   {
+							   if(!effect->indirect)
+							   {
+								   effect->adjustAffectedHexes(effectRange, this, spellTarget);
+							   }
+						   });
 
 	std::vector<BattleHex> ret;
 	ret.reserve(effectRange.size());
@@ -663,8 +668,6 @@ const Spell * BattleSpellMechanics::getSpell() const
 	return owner;
 }
 
-
 }
-
 
 VCMI_LIB_NAMESPACE_END

@@ -13,7 +13,7 @@
 #include "StdInc.h"
 
 #ifndef VCMI_NO_EXTRA_VERSION
-#include "../Version.h"
+#	include "../Version.h"
 #endif
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>
@@ -22,20 +22,20 @@
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroTypeService.h>
 
-#include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
 
-#include "VCMI_Lib.h"
-#include "mapObjects/CObjectClassesHandler.h"//todo: remove
-#include "CArtHandler.h"//todo: remove
-#include "CCreatureHandler.h"//todo: remove
-#include "spells/CSpellHandler.h" //todo: remove
-#include "CSkillHandler.h"//todo: remove
-#include "StringConstants.h"
-#include "CGeneralTextHandler.h"
-#include "CModHandler.h"//todo: remove
 #include "BattleFieldHandler.h"
+#include "CArtHandler.h" //todo: remove
+#include "CCreatureHandler.h" //todo: remove
+#include "CGeneralTextHandler.h"
+#include "CModHandler.h" //todo: remove
+#include "CSkillHandler.h" //todo: remove
 #include "ObstacleHandler.h"
+#include "StringConstants.h"
+#include "VCMI_Lib.h"
+#include "mapObjects/CObjectClassesHandler.h" //todo: remove
+#include "spells/CSpellHandler.h" //todo: remove
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -54,9 +54,9 @@ const TeamID TeamID::NO_TEAM = TeamID(255);
 namespace GameConstants
 {
 #ifdef VCMI_NO_EXTRA_VERSION
-	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING;
+const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING;
 #else
-	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING "." + std::string{GIT_SHA1};
+const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING "." + std::string{GIT_SHA1};
 #endif
 }
 
@@ -215,35 +215,35 @@ std::string FactionID::encode(const si32 index)
 
 std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 {
-	static const std::map<EActionType, std::string> actionTypeToString =
-	{
+	static const std::map<EActionType, std::string> actionTypeToString = {
 		{EActionType::END_TACTIC_PHASE, "End tactic phase"},
-		{EActionType::INVALID, "Invalid"},
-		{EActionType::NO_ACTION, "No action"},
-		{EActionType::HERO_SPELL, "Hero spell"},
-		{EActionType::WALK, "Walk"},
-		{EActionType::DEFEND, "Defend"},
-		{EActionType::RETREAT, "Retreat"},
-		{EActionType::SURRENDER, "Surrender"},
-		{EActionType::WALK_AND_ATTACK, "Walk and attack"},
-		{EActionType::SHOOT, "Shoot"},
-		{EActionType::WAIT, "Wait"},
-		{EActionType::CATAPULT, "Catapult"},
-		{EActionType::MONSTER_SPELL, "Monster spell"},
-		{EActionType::BAD_MORALE, "Bad morale"},
-		{EActionType::STACK_HEAL, "Stack heal"},
+		{EActionType::INVALID,          "Invalid"         },
+		{EActionType::NO_ACTION,        "No action"       },
+		{EActionType::HERO_SPELL,       "Hero spell"      },
+		{EActionType::WALK,             "Walk"            },
+		{EActionType::DEFEND,           "Defend"          },
+		{EActionType::RETREAT,          "Retreat"         },
+		{EActionType::SURRENDER,        "Surrender"       },
+		{EActionType::WALK_AND_ATTACK,  "Walk and attack" },
+		{EActionType::SHOOT,            "Shoot"           },
+		{EActionType::WAIT,             "Wait"            },
+		{EActionType::CATAPULT,         "Catapult"        },
+		{EActionType::MONSTER_SPELL,    "Monster spell"   },
+		{EActionType::BAD_MORALE,       "Bad morale"      },
+		{EActionType::STACK_HEAL,       "Stack heal"      },
 	};
 
 	auto it = actionTypeToString.find(actionType);
-	if (it == actionTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
+	if(it == actionTypeToString.end())
+		return os << "<Unknown type>";
+	else
+		return os << it->second;
 }
 
 std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer)
 {
-	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
-	{
-	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
+	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString{
+#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
 		DEFINE_ELEMENT(WRONG),
 		DEFINE_ELEMENT(AUTO),
 		DEFINE_ELEMENT(LAND),
@@ -251,12 +251,14 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfinding
 		DEFINE_ELEMENT(WATER),
 		DEFINE_ELEMENT(AIR),
 		DEFINE_ELEMENT(NUM_LAYERS)
-	#undef DEFINE_ELEMENT
+#undef DEFINE_ELEMENT
 	};
 
 	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
-	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
+	if(it == pathfinderLayerToString.end())
+		return os << "<Unknown type>";
+	else
+		return os << it->second;
 }
 
 const BattleField BattleField::NONE;
@@ -295,7 +297,7 @@ BattleField BattleField::fromString(std::string identifier)
 	else
 		return BattleField::NONE;
 }
-		
+
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return VLC->obstacles()->getById(*this);
