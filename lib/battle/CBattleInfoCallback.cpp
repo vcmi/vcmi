@@ -709,16 +709,7 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 			}
 
 			int shootingRange = limitedRangeBonus->val;
-			int distanceBetweenHexes = BattleHex::getDistance(attacker->getPosition(), dest);
-
-			if(distanceBetweenHexes <= shootingRange)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return isEnemyUnitWithinSpecifiedRange(attacker->getPosition(), defender, shootingRange);
 		}
 	}
 
@@ -1618,10 +1609,8 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	if(auto target = battleGetUnitByPos(destHex, true))
 	{
 		//If any hex of target creature is within range, there is no penalty
-		for(auto hex : target->getHexes())
-			if(BattleHex::getDistance(shooterPosition, hex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
-				return false;
-		//TODO what about two-hex shooters?
+		if(isEnemyUnitWithinSpecifiedRange(shooterPosition, target, GameConstants::BATTLE_PENALTY_DISTANCE))
+			return false;
 	}
 	else
 	{
@@ -1630,6 +1619,16 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	}
 
 	return true;
+}
+
+bool CBattleInfoCallback::isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosition, const battle::Unit * defenderUnit, unsigned int range) const
+{
+	for(auto hex : defenderUnit->getHexes())
+		if(BattleHex::getDistance(attackerPosition, hex) <= range)
+			return true;
+
+	//TODO what about shooting distance calculation for two-hex shooters? Is it correct?
+	return false;
 }
 
 BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart::EWallPart part) const
