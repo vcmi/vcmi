@@ -32,18 +32,25 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 {
 	auto getImageIndex = [&]() -> int
 	{
+		bool isTower = (what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER);
+
 		switch (state)
 		{
-		case EWallState::INTACT :
+		case EWallState::REINFORCED :
 			return 1;
+		case EWallState::INTACT :
+			if (town->hasBuilt(BuildingID::CASTLE))
+				return 2; // reinforced walls were damaged
+			else
+				return 1;
 		case EWallState::DAMAGED :
 			// towers don't have separate image here - INTACT and DAMAGED is 1, DESTROYED is 2
-			if(what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER)
+			if (isTower)
 				return 1;
 			else
 				return 2;
 		case EWallState::DESTROYED :
-			if (what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER)
+			if (isTower)
 				return 2;
 			else
 				return 3;
@@ -130,9 +137,9 @@ bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what)
 	{
 	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
 	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER && town->town->faction->index != ETownType::NECROPOLIS;
-	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && EWallState(owner.curInt->cb->battleGetWallState(EWallPart::KEEP)) != EWallState::DESTROYED;
-	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && EWallState(owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER)) != EWallState::DESTROYED;
-	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && EWallState(owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER)) != EWallState::DESTROYED;
+	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.curInt->cb->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
+	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
+	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
 	default:                             return true;
 	}
 }
@@ -177,7 +184,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistance(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::INTACT));
+		wallPieceImages[g] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
 	}
 }
 

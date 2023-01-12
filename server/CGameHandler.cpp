@@ -4831,7 +4831,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			auto isWallPartAttackable = [this] (EWallPart part)
 			{
-				return (gs->curB->si.wallState[part] == EWallState::INTACT || gs->curB->si.wallState[part] == EWallState::DAMAGED);
+				return (gs->curB->si.wallState[part] == EWallState::REINFORCED || gs->curB->si.wallState[part] == EWallState::INTACT || gs->curB->si.wallState[part] == EWallState::DAMAGED);
 			};
 
 			CHeroHandler::SBallisticsLevelInfo stackBallisticsParameters = getBallisticsInfo(stack);

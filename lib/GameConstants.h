@@ -627,7 +627,8 @@ enum class EWallState : int8_t
 	NONE = -1, //no wall
 	DESTROYED,
 	DAMAGED,
-	INTACT
+	INTACT,
+	REINFORCED, // walls in towns with castle
 };
 
 enum class EGateState : uint8_t

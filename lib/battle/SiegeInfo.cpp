@@ -29,6 +29,8 @@ EWallState SiegeInfo::applyDamage(EWallState state, unsigned int value)
 
 	switch(applyDamage(state, value - 1))
 	{
+	case EWallState::REINFORCED:
+		return EWallState::INTACT;
 	case EWallState::INTACT:
 		return EWallState::DAMAGED;
 	case EWallState::DAMAGED:

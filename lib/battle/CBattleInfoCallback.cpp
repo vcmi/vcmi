@@ -1632,8 +1632,8 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	{
 		if(isWallPartPotentiallyAttackable(wallPartPair.second))
 		{
-			auto wallState = static_cast<EWallState>(battleGetWallState(wallPartPair.second));
-			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			auto wallState = battleGetWallState(wallPartPair.second);
+			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
 				attackableBattleHexes.push_back(BattleHex(wallPartPair.first));
 			}
