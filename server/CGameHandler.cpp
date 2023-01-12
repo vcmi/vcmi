@@ -4790,7 +4790,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	case EActionType::CATAPULT:
 		{
 			//TODO: unify with spells::effects:Catapult
-			auto getCatapultHitChance = [](EWallPart::EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
+			auto getCatapultHitChance = [](EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
 			{
 				switch(part)
 				{
@@ -4829,7 +4829,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				}
 			};
 
-			auto isWallPartAttackable = [this] (EWallPart::EWallPart part)
+			auto isWallPartAttackable = [this] (EWallPart part)
 			{
 				return (gs->curB->si.wallState[part] == EWallState::INTACT || gs->curB->si.wallState[part] == EWallState::DAMAGED);
 			};
@@ -4851,13 +4851,13 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				}
 				else
 				{
-					static const std::array<EWallPart::EWallPart, 4> walls = { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL };
-					static const std::array<EWallPart::EWallPart, 3> towers= { EWallPart::BOTTOM_TOWER, EWallPart::KEEP, EWallPart::UPPER_TOWER };
-					static const EWallPart::EWallPart gates = EWallPart::GATE;
+					static const std::array<EWallPart, 4> walls = { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL };
+					static const std::array<EWallPart, 3> towers= { EWallPart::BOTTOM_TOWER, EWallPart::KEEP, EWallPart::UPPER_TOWER };
+					static const EWallPart gates = EWallPart::GATE;
 
 					// in H3, catapult under automatic control will attack objects in following order:
 					// walls, gates, towers
-					std::vector<EWallPart::EWallPart> potentialTargets;
+					std::vector<EWallPart> potentialTargets;
 					for (auto & part : walls )
 						if (isWallPartAttackable(part))
 							potentialTargets.push_back(part);
@@ -4906,7 +4906,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
 
 				//removing creatures in turrets / keep if one is destroyed
-				if (gs->curB->si.wallState[actualTarget] <= 0 && (actualTarget == EWallPart::KEEP || actualTarget == EWallPart::BOTTOM_TOWER || actualTarget == EWallPart::UPPER_TOWER))
+				if (gs->curB->si.wallState[actualTarget] == EWallState::DESTROYED && (actualTarget == EWallPart::KEEP || actualTarget == EWallPart::BOTTOM_TOWER || actualTarget == EWallPart::UPPER_TOWER))
 				{
 					int posRemove = -1;
 					switch(actualTarget)

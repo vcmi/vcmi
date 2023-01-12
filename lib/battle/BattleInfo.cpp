@@ -225,7 +225,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 		for (int b = 0; b < curB->si.wallState.size(); ++b)
 		{
-			curB->si.wallState[b] = EWallState::INTACT;
+			curB->si.wallState[EWallPart(b)] = EWallState::INTACT;
 		}
 
 		if (!town->hasBuilt(BuildingID::CITADEL))
@@ -610,7 +610,7 @@ const CGTownInstance * BattleInfo::getDefendedTown() const
 	return town;
 }
 
-si8 BattleInfo::getWallState(int partOfWall) const
+EWallState BattleInfo::getWallState(EWallPart partOfWall) const
 {
 	return si.wallState.at(partOfWall);
 }
@@ -913,9 +913,9 @@ void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool fo
 	}
 }
 
-void BattleInfo::setWallState(int partOfWall, si8 state)
+void BattleInfo::setWallState(EWallPart partOfWall, EWallState state)
 {
-	si.wallState.at(partOfWall) = state;
+	si.wallState[partOfWall] = state;
 }
 
 void BattleInfo::addObstacle(const ObstacleChanges & changes)

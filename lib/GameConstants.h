@@ -615,28 +615,22 @@ namespace ECommander
 	const int MAX_SKILL_LEVEL = 5;
 }
 
-namespace EWallPart
+enum class EWallPart : int8_t
 {
-	enum EWallPart
-	{
-		INDESTRUCTIBLE_PART_OF_GATE = -3, INDESTRUCTIBLE_PART = -2, INVALID = -1,
-		KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WALL, UPPER_TOWER, GATE,
-		PARTS_COUNT /* This constant SHOULD always stay as the last item in the enum. */
-	};
-}
+	INDESTRUCTIBLE_PART_OF_GATE = -3, INDESTRUCTIBLE_PART = -2, INVALID = -1,
+	KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WALL, UPPER_TOWER, GATE,
+	PARTS_COUNT /* This constant SHOULD always stay as the last item in the enum. */
+};
 
-namespace EWallState
+enum class EWallState : int8_t
 {
-	enum EWallState
-	{
-		NONE = -1, //no wall
-		DESTROYED,
-		DAMAGED,
-		INTACT
-	};
-}
+	NONE = -1, //no wall
+	DESTROYED,
+	DAMAGED,
+	INTACT
+};
 
-enum class EGateState : ui8
+enum class EGateState : uint8_t
 {
 	NONE,
 	CLOSED,

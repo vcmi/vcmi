@@ -256,7 +256,7 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 
 	if(cb->battleGetSiegeLevel() != 0)
 	{
-		EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
+		EWallPart part = cb->battleHexToWallPart(hex);
 
 		if(part == EWallPart::INVALID || part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
 			return true;//no fortification here

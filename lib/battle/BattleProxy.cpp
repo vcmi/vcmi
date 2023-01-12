@@ -89,7 +89,7 @@ const CGTownInstance * BattleProxy::getDefendedTown() const
 	return subject->battleGetDefendedTown();
 }
 
-si8 BattleProxy::getWallState(int partOfWall) const
+EWallState BattleProxy::getWallState(EWallPart partOfWall) const
 {
 	return subject->battleGetWallState(partOfWall);
 }

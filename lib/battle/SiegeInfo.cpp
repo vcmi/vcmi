@@ -15,14 +15,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 SiegeInfo::SiegeInfo()
 {
-	for(int i = 0; i < wallState.size(); ++i)
+	for(int i = 0; i < int(EWallPart::PARTS_COUNT); ++i)
 	{
-		wallState[i] = EWallState::NONE;
+		wallState[EWallPart(i)] = EWallState::NONE;
 	}
 	gateState = EGateState::NONE;
 }
 
-EWallState::EWallState SiegeInfo::applyDamage(EWallState::EWallState state, unsigned int value)
+EWallState SiegeInfo::applyDamage(EWallState state, unsigned int value)
 {
 	if(value == 0)
 		return state;

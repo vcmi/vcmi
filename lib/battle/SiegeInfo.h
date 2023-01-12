@@ -15,13 +15,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 //only for use in BattleInfo
 struct DLL_LINKAGE SiegeInfo
 {
-	std::array<si8, EWallPart::PARTS_COUNT> wallState;
+	std::map<EWallPart, EWallState> wallState;
 	EGateState gateState;
 
 	SiegeInfo();
 
 	// return EWallState decreased by value of damage points
-	static EWallState::EWallState applyDamage(EWallState::EWallState state, unsigned int value);
+	static EWallState applyDamage(EWallState state, unsigned int value);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

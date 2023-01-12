@@ -71,7 +71,7 @@ static bool sameSideOfWall(BattleHex pos1, BattleHex pos2)
 }
 
 // parts of wall
-static const std::pair<int, EWallPart::EWallPart> wallParts[] =
+static const std::pair<int, EWallPart> wallParts[] =
 {
 	std::make_pair(50, EWallPart::KEEP),
 	std::make_pair(183, EWallPart::BOTTOM_TOWER),
@@ -89,7 +89,7 @@ static const std::pair<int, EWallPart::EWallPart> wallParts[] =
 	std::make_pair(165, EWallPart::INDESTRUCTIBLE_PART)
 };
 
-static EWallPart::EWallPart hexToWallPart(BattleHex hex)
+static EWallPart hexToWallPart(BattleHex hex)
 {
 	for(auto & elem : wallParts)
 	{
@@ -100,7 +100,7 @@ static EWallPart::EWallPart hexToWallPart(BattleHex hex)
 	return EWallPart::INVALID; //not found!
 }
 
-static BattleHex WallPartToHex(EWallPart::EWallPart part)
+static BattleHex WallPartToHex(EWallPart part)
 {
 	for(auto & elem : wallParts)
 	{
@@ -1109,13 +1109,13 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			ret[hex] = EAccessibility::UNAVAILABLE;
 
 		//TODO likely duplicated logic
-		static const std::pair<int, BattleHex> lockedIfNotDestroyed[] =
+		static const std::pair<EWallPart, BattleHex> lockedIfNotDestroyed[] =
 		{
 			//which part of wall, which hex is blocked if this part of wall is not destroyed
-			std::make_pair(2, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
-			std::make_pair(3, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
-			std::make_pair(4, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
-			std::make_pair(5, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
+			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
+			std::make_pair(EWallPart::BELOW_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
+			std::make_pair(EWallPart::OVER_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
+			std::make_pair(EWallPart::UPPER_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
 		};
 
 		for(auto & elem : lockedIfNotDestroyed)
@@ -1604,19 +1604,19 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	return true;
 }
 
-BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart::EWallPart part) const
+BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart part) const
 {
 	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
 	return WallPartToHex(part);
 }
 
-EWallPart::EWallPart CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
+EWallPart CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
 {
 	RETURN_IF_NOT_BATTLE(EWallPart::INVALID);
 	return hexToWallPart(hex);
 }
 
-bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart::EWallPart wallPart) const
+bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart wallPart) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	return wallPart != EWallPart::INDESTRUCTIBLE_PART && wallPart != EWallPart::INDESTRUCTIBLE_PART_OF_GATE &&
@@ -1632,7 +1632,7 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	{
 		if(isWallPartPotentiallyAttackable(wallPartPair.second))
 		{
-			auto wallState = static_cast<EWallState::EWallState>(battleGetWallState(static_cast<int>(wallPartPair.second)));
+			auto wallState = static_cast<EWallState>(battleGetWallState(wallPartPair.second));
 			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
 				attackableBattleHexes.push_back(BattleHex(wallPartPair.first));
