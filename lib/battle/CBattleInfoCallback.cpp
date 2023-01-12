@@ -54,7 +54,7 @@ static void retrieveTurretDamageRange(const CGTownInstance * town, const battle:
 
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
 {
-	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
+	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 96, 112, 130, 147, 165, 182};
 
 	return lineToHex[line];
 }
@@ -157,8 +157,89 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	return ESpellCastProblem::OK;
 }
 
+struct Point
+{
+	int x,y;
+};
+
+/// Algorithm to test whether line segment between points line1-line2 will intersect with
+/// AABB (Axis-Aligned Bounding Box) defined by points aabb1 & aabb2
+/// Note that in order to avoid floating point rounding errors algorithm uses integers with no divisions
+static bool intersectionTestSegmentAABB(Point line1, Point line2, Point aabb1, Point aabb2)
+{
+	// check whether segment is located to the left of our AABB
+	if (line1.x < aabb1.x && line2.x < aabb1.x)
+		return false;
+
+	// check whether segment is located to the right of our AABB
+	if (line1.x > aabb2.x && line2.x > aabb2.x)
+		return false;
+
+	// check whether segment is located on top of our AABB
+	if (line1.y < aabb1.y && line2.y < aabb1.y)
+		return false;
+
+	// check whether segment is located below of our AABB
+	if (line1.y > aabb2.y && line2.y > aabb2.y)
+		return false;
+
+	Point vector { line2.x - line1.x, line2.y - line1.y};
+
+	// compute position of AABB corners relative to our line
+	int tlTest = vector.y*aabb1.x - vector.x*aabb1.y + (line2.x*line1.y-line1.x*line2.y);
+	int trTest = vector.y*aabb2.x - vector.x*aabb1.y + (line2.x*line1.y-line1.x*line2.y);
+	int blTest = vector.y*aabb1.x - vector.x*aabb2.y + (line2.x*line1.y-line1.x*line2.y);
+	int brTest = vector.y*aabb2.x - vector.x*aabb2.y + (line2.x*line1.y-line1.x*line2.y);
+
+	// if all points are on the left of our line then there is no intersection
+	if ( tlTest > 0 && trTest > 0 && blTest > 0 && brTest > 0 )
+		return false;
+
+	// if all points are on the right of our line then there is no intersection
+	if ( tlTest < 0 && trTest < 0 && blTest < 0 && brTest < 0 )
+		return false;
+
+	// if all previous checks failed, this means that there is an intersection between line and AABB
+	return true;
+}
+
 bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
 {
+	auto isTileBlocked = [&](BattleHex tile)
+	{
+		EWallPart wallPart = battleHexToWallPart(tile);
+		if (wallPart == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+			return false; // does not blocks ranged attacks
+		if (wallPart == EWallPart::INDESTRUCTIBLE_PART)
+			return true; // always blocks ranged attacks
+
+		assert(isWallPartPotentiallyAttackable(wallPart));
+
+		EWallState state = battleGetWallState(wallPart);
+
+		return state != EWallState::DESTROYED;
+	};
+
+	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
+	{
+		Point line1{ from.getX()*10+5, from.getY()*10+5};
+		Point line2{ dest.getX()*10+5, dest.getY()*10+5};
+
+		for (int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
+		{
+			BattleHex obstacle = lineToWallHex(y);
+			if (!isTileBlocked(obstacle))
+				continue;
+
+			Point aabb1{ obstacle.getX()*10, obstacle.getY()*10 };
+			Point aabb2{ aabb1.x + 10, aabb1.y + 10 };
+
+			if ( intersectionTestSegmentAABB(line1, line2, aabb1, aabb2))
+				return true;
+		}
+		return false;
+	};
+
 	RETURN_IF_NOT_BATTLE(false);
 	if(!battleGetSiegeLevel())
 		return false;
@@ -170,21 +251,9 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 		return false;
 
 	const int wallInStackLine = lineToWallHex(shooterPosition.getY());
-	const int wallInDestLine = lineToWallHex(destHex.getY());
+	const bool shooterOutsideWalls = shooterPosition < wallInStackLine;
 
-	const bool stackLeft = shooterPosition < wallInStackLine;
-	const bool destRight = destHex > wallInDestLine;
-
-	if (stackLeft && destRight) //shooting from outside to inside
-	{
-		int row = (shooterPosition + destHex) / (2 * GameConstants::BFIELD_WIDTH);
-		if (shooterPosition > destHex && ((destHex % GameConstants::BFIELD_WIDTH - shooterPosition % GameConstants::BFIELD_WIDTH) < 2)) //shooting up high
-			row -= 2;
-		const int wallPos = lineToWallHex(row);
-		if (!isWallPartPotentiallyAttackable(battleHexToWallPart(wallPos))) return true;
-	}
-
-	return false;
+	return shooterOutsideWalls && needWallPenalty(shooterPosition, destHex);
 }
 
 si8 CBattleInfoCallback::battleCanTeleportTo(const battle::Unit * stack, BattleHex destHex, int telportLevel) const
