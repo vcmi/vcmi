@@ -24,39 +24,32 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
-/*
- *Here are 2 explanations how below algorithm should work in H3, looks like they are not 100% accurate as it results in one damage number, not min/max range:
- *
- *1. http://heroes.thelazy.net/wiki/Arrow_tower
- *
- *2. All towns' turrets do the same damage. If Fort, Citadel or Castle is built damage of the Middle turret is 15, and 7,5 for others.
- *Buildings increase turrets' damage, but only those buildings that are new in town view, not upgrades to the existing. So, every building save:
- *- dwellings' upgrades
- *- Mage Guild upgrades
- *- Horde buildings
- *- income upgrades
- *- some special ones
- *increases middle Turret damage by 3, and 1,5 for the other two.
- *Damage is almost always the maximum one (right click on the Turret), sometimes +1/2 points, and it does not depend on the target. Nothing can influence it, except the mentioned above (but it will be roughly double if the defender has Armorer or Air Shield).
- *Maximum damage for Castle, Conflux is 120, Necropolis, Inferno, Fortress 125, Stronghold, Turret, and Dungeon 130 (for all three Turrets).
- *Artillery allows the player to control the Turrets.
- */
+
 static void retrieveTurretDamageRange(const CGTownInstance * town, const battle::Unit * turret, double & outMinDmg, double & outMaxDmg)//does not match OH3 yet, but damage is somewhat close
 {
+	// http://heroes.thelazy.net/wiki/Arrow_tower
 	assert(turret->creatureIndex() == CreatureID::ARROW_TOWERS);
 	assert(town);
 	assert(turret->getPosition() >= -4 && turret->getPosition() <= -2);
 
-	const float multiplier = (turret->getPosition() == -2) ? 1.0f : 0.5f;
+	// base damage, irregardless of town level
+	static const int baseDamageKeep = 10;
+	static const int baseDamageTower = 6;
 
-	//Revised - Where do below values come from?
-	/*int baseMin = 6;
-	int baseMax = 10;*/
+	// extra damage, for each building in town
+	static const int extraDamage = 2;
 
-	const int baseDamage = 15;
+	const int townLevel = town->getTownLevel();
 
-	outMinDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
-	outMaxDmg = outMinDmg;
+	int minDamage;
+
+	if (turret->getPosition() == BattleHex::CASTLE_CENTRAL_TOWER)
+		minDamage = baseDamageKeep + townLevel * extraDamage;
+	else
+		minDamage = baseDamageTower + townLevel / 2 * extraDamage;
+
+	outMinDmg = minDamage;
+	outMaxDmg = minDamage * 2;
 }
 
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
