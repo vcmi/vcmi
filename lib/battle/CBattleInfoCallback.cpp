@@ -699,7 +699,28 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 		return false;
 
 	if(battleMatchOwner(attacker, defender) && defender->alive())
-		return battleCanShoot(attacker);
+	{
+		if(battleCanShoot(attacker))
+		{
+			auto shooterBonus = attacker->getBonus(Selector::type()(Bonus::SHOOTER));
+			if(shooterBonus->additionalInfo == CAddInfo::NONE)
+			{
+				return true;
+			}
+
+			int shootingRange = shooterBonus->additionalInfo[0];
+			int distanceBetweenHexes = BattleHex::getDistance(attacker->getPosition(), dest);
+
+			if(distanceBetweenHexes <= shootingRange)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
 
 	return false;
 }
