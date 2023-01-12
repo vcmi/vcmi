@@ -702,13 +702,13 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 	{
 		if(battleCanShoot(attacker))
 		{
-			auto shooterBonus = attacker->getBonus(Selector::type()(Bonus::SHOOTER));
-			if(shooterBonus->additionalInfo == CAddInfo::NONE)
+			auto limitedRangeBonus = attacker->getBonus(Selector::type()(Bonus::LIMITED_SHOOTING_RANGE));
+			if(limitedRangeBonus == nullptr)
 			{
 				return true;
 			}
 
-			int shootingRange = shooterBonus->additionalInfo[0];
+			int shootingRange = limitedRangeBonus->val;
 			int distanceBetweenHexes = BattleHex::getDistance(attacker->getPosition(), dest);
 
 			if(distanceBetweenHexes <= shootingRange)
