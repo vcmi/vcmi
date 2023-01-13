@@ -177,12 +177,6 @@ CTown::~CTown()
 		str.dellNull();
 }
 
-std::vector<BattleHex> CTown::defaultMoatHexes()
-{
-	static const std::vector<BattleHex> moatHexes = {11, 28, 44, 61, 77, 111, 129, 146, 164, 181};
-	return moatHexes;
-}
-
 std::string CTown::getLocalizedFactionName() const
 {
 	if(faction == nullptr)
@@ -855,12 +849,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	warMachinesToLoad[town] = source["warMachine"];
 
 	town->moatDamage = static_cast<si32>(source["moatDamage"].Float());
-
-	// Compatibility for <= 0.98f mods
-	if(source["moatHexes"].isNull())
-		town->moatHexes = CTown::defaultMoatHexes();
-	else
-		town->moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
+	town->moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 
 	town->mageLevel = static_cast<ui32>(source["mageGuild"].Float());
 	town->names = source["names"].convertTo<std::vector<std::string> >();

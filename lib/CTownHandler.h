@@ -232,8 +232,6 @@ class DLL_LINKAGE CTown
 public:
 	CTown();
 	~CTown();
-	// TODO: remove once save and mod compatability not needed
-	static std::vector<BattleHex> defaultMoatHexes();
 
 	std::string getLocalizedFactionName() const;
 	std::string getBuildingScope() const;
