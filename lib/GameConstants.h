@@ -635,7 +635,7 @@ enum class EGateState : uint8_t
 {
 	NONE,
 	CLOSED,
-	BLOCKED, //dead or alive stack blocking from outside
+	BLOCKED, // gate is blocked in closed state, e.g. by creature
 	OPENED,
 	DESTROYED
 };

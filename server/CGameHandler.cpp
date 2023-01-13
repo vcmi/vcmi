@@ -4426,6 +4426,26 @@ static EndAction end_action;
 
 void CGameHandler::updateGateState()
 {
+	// GATE_BRIDGE - leftmost tile, located over moat
+	// GATE_OUTER - central tile, mostly covered by gate image
+	// GATE_INNER - rightmost tile, inside the walls
+
+	// GATE_OUTER or GATE_INNER:
+	// - if defender moves unit on these tiles, bridge will open
+	// - if there is a creature (dead or alive) on these tiles, bridge will always remain open
+	// - blocked to attacker if bridge is closed
+
+	// GATE_BRIDGE
+	// - if there is a unit or corpse here, bridge can't open (and can't close in fortress)
+	// - if Force Field is cast here, bridge can't open (but can close, in any town)
+	// - deals moat damage to attacker if bridge is closed (fortress only)
+
+	bool hasForceFieldOnBridge = !battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), true).empty();
+	bool hasStackAtGateInner   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
+	bool hasStackAtGateOuter   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
+	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
+	bool hasLongBridge         = gs->curB->town->subID == ETownType::FORTRESS;
+
 	BattleUpdateGateState db;
 	db.state = gs->curB->si.gateState;
 	if (gs->curB->si.wallState[EWallPart::GATE] == EWallState::DESTROYED)
@@ -4434,24 +4454,23 @@ void CGameHandler::updateGateState()
 	}
 	else if (db.state == EGateState::OPENED)
 	{
-		if (!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) &&
-			!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false))
-		{
-			if (gs->curB->town->subID == ETownType::FORTRESS)
-			{
-				if (!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
-					db.state = EGateState::CLOSED;
-			}
-			else if (gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE)))
-				db.state = EGateState::BLOCKED;
-			else
-				db.state = EGateState::CLOSED;
-		}
+		bool hasStackOnLongBridge = hasStackAtGateBridge && hasLongBridge;
+		bool gateCanClose = !hasStackAtGateInner && !hasStackAtGateOuter && !hasStackOnLongBridge;
+
+		if (gateCanClose)
+			db.state = EGateState::CLOSED;
+		else
+			db.state = EGateState::OPENED;
 	}
-	else if (gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
-		db.state = EGateState::BLOCKED;
-	else
-		db.state = EGateState::CLOSED;
+	else // CLOSED or BLOCKED
+	{
+		bool gateBlocked = hasForceFieldOnBridge || hasStackAtGateBridge;
+
+		if (gateBlocked)
+			db.state = EGateState::BLOCKED;
+		else
+			db.state = EGateState::CLOSED;
+	}
 
 	if (db.state != gs->curB->si.gateState)
 		sendAndApply(&db);

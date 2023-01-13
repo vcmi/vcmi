@@ -261,7 +261,7 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 		if(part == EWallPart::INVALID)
 			return true;//no fortification here
 		else if(part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
-			return false; // location accessible to units, but not targetable by spells
+			return true; // location accessible
 		else if(part == EWallPart::INDESTRUCTIBLE_PART)
 			return false;//indestructible part (cant be checked by battleGetWallState)
 		else if(part == EWallPart::BOTTOM_TOWER || part == EWallPart::UPPER_TOWER)
