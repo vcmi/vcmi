@@ -508,9 +508,22 @@ void HeroSlots::update()
 
 void HeroSlots::splitClicked()
 {
-	if(!!town->visitingHero && town->garrisonHero && (visitingHero->isSelected() || garrisonedHero->isSelected()))
+	openHeroExchangeWindow(true);
+}
+
+void HeroSlots::heroMeetClicked()
+{
+	openHeroExchangeWindow(false);
+}
+
+void HeroSlots::openHeroExchangeWindow(bool heroSelectionRequired)
+{
+	if(!!town->visitingHero && town->garrisonHero)
 	{
-		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id, QueryID(-1));
+		if(!heroSelectionRequired || (visitingHero->isSelected() || garrisonedHero->isSelected()))
+		{
+			LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id, QueryID(-1));
+		}
 	}
 }
 
@@ -1157,6 +1170,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 		heroes->splitClicked();
 	});
 	garr->addSplitBtn(split);
+
+	heroMeet = std::make_shared<CButton>(Point(246, 453), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&](){heroes->heroMeetClicked();});
 
 	Rect barRect(9, 182, 732, 18);
 	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555, false);

@@ -121,8 +121,11 @@ public:
 	~HeroSlots();
 
 	void splitClicked(); //for hero meeting only (splitting stacks is handled by garrison int)
+	void heroMeetClicked();
 	void update();
 	void swapArmies(); //exchange garrisoned and visiting heroes or move hero to\from garrison
+private:
+	void openHeroExchangeWindow(bool heroSelectionRequired);
 };
 
 /// Class for town screen management (town background and structures)
@@ -214,6 +217,7 @@ class CCastleInterface : public CStatusbarWindow, public CGarrisonHolder
 
 	std::shared_ptr<CButton> exit;
 	std::shared_ptr<CButton> split;
+	std::shared_ptr<CButton> heroMeet;
 	std::shared_ptr<CButton> fastArmyPurchase;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
