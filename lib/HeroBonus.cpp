@@ -1974,7 +1974,7 @@ int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
 		return true;
-	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
+	return c->getId() != creature->getId() && (!includeUpgrades || !creature->isMyUpgrade(c));
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
