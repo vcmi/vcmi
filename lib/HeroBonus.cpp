@@ -977,12 +977,21 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 
 	for(const auto & b : beforeUpdate)
 	{
-		auto updated = b->updater 
-			? getUpdatedBonus(b, b->updater) 
+		auto updated = b->updater
+			? getUpdatedBonus(b, b->updater)
 			: b;
 
-		//do not add bonus with same pointer
-		if(!vstd::contains(out, updated))
+		//do not add bonus with updater
+		bool bonusExists = false;
+		for (auto const & bonus : out )
+		{
+			if (bonus == updated)
+				bonusExists = true;
+			if (bonus->updater && bonus->updater == updated->updater)
+				bonusExists = true;
+		}
+
+		if (!bonusExists)
 			out.push_back(updated);
 	}
 }
