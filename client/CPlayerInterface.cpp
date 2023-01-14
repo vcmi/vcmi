@@ -1623,7 +1623,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	else
 	for (directory_iterator dir(gamesDir); dir != enddir; ++dir)
 	{
-		if (is_regular(dir->status()))
+		if (is_regular_file(dir->status()))
 		{
 			std::string name = dir->path().filename().string();
 			if (starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
