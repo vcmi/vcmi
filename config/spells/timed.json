@@ -373,8 +373,20 @@
 					}
 				}
 			},
+			"advanced":{ 
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 1
+					}
+				}
+			},
 			"expert":{
-				"range" : "X"
+				"range" : "X",
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 1
+					}
+				}
 			}
 		},
 		"counters" : {
@@ -415,8 +427,20 @@
 					}
 				}
 			},
+			"advanced":{ 
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"val" : 1
+					}
+				}
+			},
 			"expert":{
-				"range" : "X"
+				"range" : "X",
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"val" : 1
+					}
+				}
 			}
 		},
 		"counters" : {
