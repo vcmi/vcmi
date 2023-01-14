@@ -172,7 +172,7 @@ void CVCMIServer::run()
 #endif
 		
 		if(!lobbyConnectionsThread)
-			lobbyConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::startAsyncAccept, this);
+			lobbyConnectionsThread = std::make_unique<boost::thread>(&CVCMIServer::startAsyncAccept, this);
 		
 		/*if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{

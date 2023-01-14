@@ -28,12 +28,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 #define LIL_ENDIAN
 #endif
 
-struct ConnectionBuffers
-{
-	boost::asio::streambuf readBuffer;
-	boost::asio::streambuf writeBuffer;
-};
-
 void CConnection::init()
 {
 	enableSmartPointerSerialization();
@@ -163,7 +157,6 @@ void CConnection::reportState(vstd::CLoggerBase * out)
 
 CPack * CConnection::retrievePack()
 {
-	enableBufferedRead = true;
 
 	CPack * pack = nullptr;
 	iser & pack;
@@ -177,7 +170,6 @@ CPack * CConnection::retrievePack()
 		pack->c = this->shared_from_this();
 	}
 
-	enableBufferedRead = false;
 
 	return pack;
 }
@@ -186,11 +178,9 @@ void CConnection::sendPack(const CPack * pack)
 {
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
 
-	enableBufferedWrite = true;
 
 	oser & pack;
 
-	flushBuffers();
 }
 
 void CConnection::disableStackSendingByID()
