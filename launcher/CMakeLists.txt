@@ -128,6 +128,11 @@ enable_pch(vcmilauncher)
 if(APPLE_IOS)
 	set(ICONS_DESTINATION ${DATA_DIR})
 
+	# TODO: remove after fixing Conan's Qt recipe
+	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
+		target_link_libraries(vcmilauncher "-framework IOKit")
+	endif()
+
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)
 		file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/QIOSIntegrationPlugin.h
