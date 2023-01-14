@@ -46,10 +46,8 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 
 		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
 		{
-			auto bai = BattleAttackInfo(attackerInfo, defender, shooting);
-
-			if(hex.isValid() && !shooting)
-				bai.chargedFields = reachability.distances[hex];
+			int distance = hex.isValid() ? reachability.distances[hex] : 0;
+			auto bai = BattleAttackInfo(attackerInfo, defender, distance, shooting);
 
 			return AttackPossibility::evaluate(bai, hex, state);
 		};

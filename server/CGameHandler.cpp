@@ -1224,21 +1224,12 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 	bsa.attackerID = attackerState->unitId();
 	bsa.stackAttacked = def->unitId();
 	{
-		BattleAttackInfo bai(attackerState.get(), def, bat.shot());
-		bai.chargedFields = distance;
+		BattleAttackInfo bai(attackerState.get(), def, distance, bat.shot());
 
-		if(bat.deathBlow())
-			bai.additiveBonus += 1.0;
-
-		if(bat.ballistaDoubleDmg())
-			bai.additiveBonus += 1.0;
-
-		if(bat.lucky())
-			bai.additiveBonus += 1.0;
-
-		//unlucky hit, used only if negative luck is enabled
-		if(bat.unlucky())
-			bai.additiveBonus -= 0.5; // FIXME: how bad (and luck in general) should work with following bonuses?
+		bai.deathBlow = bat.deathBlow();
+		bai.doubleDamage = bat.ballistaDoubleDmg();
+		bai.luckyStrike  = bat.lucky();
+		bai.unluckyStrike  = bat.unlucky();
 
 		auto range = gs->curB->calculateDmgRange(bai);
 		bsa.damageAmount = gs->curB->getActualDamage(range, attackerState->getCount(), getRandomGenerator());
