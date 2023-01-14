@@ -85,7 +85,8 @@ conan install . \
   --no-imports \
   --build=never \
   --profile:build=default \
-  --profile:host=CI/conan/macos-intel
+  --profile:host=CI/conan/macos-intel \
+  -o with_apple_system_libs=True
 
 cmake -S . -B build -G Xcode \
   --toolchain conan-generated/conan_toolchain.cmake
@@ -116,7 +117,8 @@ conan install . \
   --no-imports \
   --build=never \
   --profile:build=default \
-  --profile:host=CI/conan/ios-arm64
+  --profile:host=CI/conan/ios-arm64 \
+  -o with_apple_system_libs=True
 
 cmake --preset ios-conan
 ```
