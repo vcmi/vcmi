@@ -163,33 +163,36 @@ struct Point
 };
 
 /// Algorithm to test whether line segment between points line1-line2 will intersect with
-/// AABB (Axis-Aligned Bounding Box) defined by points aabb1 & aabb2
+/// rectangle specified by top-left and bottom-right points
 /// Note that in order to avoid floating point rounding errors algorithm uses integers with no divisions
-static bool intersectionTestSegmentAABB(Point line1, Point line2, Point aabb1, Point aabb2)
+static bool intersectionSegmentRect(Point line1, Point line2, Point rectTL, Point rectBR)
 {
+	assert(rectTL.x < rectBR.x);
+	assert(rectTL.y < rectBR.y);
+
 	// check whether segment is located to the left of our AABB
-	if (line1.x < aabb1.x && line2.x < aabb1.x)
+	if (line1.x < rectTL.x && line2.x < rectTL.x)
 		return false;
 
 	// check whether segment is located to the right of our AABB
-	if (line1.x > aabb2.x && line2.x > aabb2.x)
+	if (line1.x > rectBR.x && line2.x > rectBR.x)
 		return false;
 
 	// check whether segment is located on top of our AABB
-	if (line1.y < aabb1.y && line2.y < aabb1.y)
+	if (line1.y < rectTL.y && line2.y < rectTL.y)
 		return false;
 
 	// check whether segment is located below of our AABB
-	if (line1.y > aabb2.y && line2.y > aabb2.y)
+	if (line1.y > rectBR.y && line2.y > rectBR.y)
 		return false;
 
 	Point vector { line2.x - line1.x, line2.y - line1.y};
 
 	// compute position of AABB corners relative to our line
-	int tlTest = vector.y*aabb1.x - vector.x*aabb1.y + (line2.x*line1.y-line1.x*line2.y);
-	int trTest = vector.y*aabb2.x - vector.x*aabb1.y + (line2.x*line1.y-line1.x*line2.y);
-	int blTest = vector.y*aabb1.x - vector.x*aabb2.y + (line2.x*line1.y-line1.x*line2.y);
-	int brTest = vector.y*aabb2.x - vector.x*aabb2.y + (line2.x*line1.y-line1.x*line2.y);
+	int tlTest = vector.y*rectTL.x - vector.x*rectTL.y + (line2.x*line1.y-line1.x*line2.y);
+	int trTest = vector.y*rectBR.x - vector.x*rectTL.y + (line2.x*line1.y-line1.x*line2.y);
+	int blTest = vector.y*rectTL.x - vector.x*rectBR.y + (line2.x*line1.y-line1.x*line2.y);
+	int brTest = vector.y*rectBR.x - vector.x*rectBR.y + (line2.x*line1.y-line1.x*line2.y);
 
 	// if all points are on the left of our line then there is no intersection
 	if ( tlTest > 0 && trTest > 0 && blTest > 0 && brTest > 0 )
@@ -222,8 +225,13 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 
 	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
 	{
-		Point line1{ from.getX()*10+5, from.getY()*10+5};
-		Point line2{ dest.getX()*10+5, dest.getY()*10+5};
+		// arbitrary selected cell size for virtual grid
+		// any even number can be selected (for division by two)
+		static const int cellSize = 10;
+
+		// create line that goes from center of shooter cell to center of target cell
+		Point line1{ from.getX()*cellSize+cellSize/2, from.getY()*cellSize+cellSize/2};
+		Point line2{ dest.getX()*cellSize+cellSize/2, dest.getY()*cellSize+cellSize/2};
 
 		for (int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
 		{
@@ -231,10 +239,11 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 			if (!isTileBlocked(obstacle))
 				continue;
 
-			Point aabb1{ obstacle.getX()*10, obstacle.getY()*10 };
-			Point aabb2{ aabb1.x + 10, aabb1.y + 10 };
+			// create rect around cell with an obstacle
+			Point rectTL{ obstacle.getX()*cellSize, obstacle.getY()*cellSize };
+			Point recrBR{ obstacle.getX()*(cellSize+1), obstacle.getY()*(cellSize+1) };
 
-			if ( intersectionTestSegmentAABB(line1, line2, aabb1, aabb2))
+			if ( intersectionSegmentRect(line1, line2, rectTL, recrBR))
 				return true;
 		}
 		return false;
