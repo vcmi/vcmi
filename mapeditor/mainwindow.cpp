@@ -1181,3 +1181,13 @@ void MainWindow::on_actionPaste_triggered()
 	}
 }
 
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+	switch (event->key()) 
+	{
+	case Qt::Key_Delete: 
+			on_actionErase_triggered();
+			break;
+	}
+}
+
