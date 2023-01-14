@@ -32,11 +32,9 @@
 							"N_TURNS"
 						]
 					},
-					"defenceBoost" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
 						"val" : 50,
-						"valueType" : "PERCENT_TO_ALL",
 						"duration" : [
 						    "UNTIL_BEING_ATTACKED",
 						    "N_TURNS"
@@ -189,9 +187,9 @@
 							"N_TURNS"
 						]
 					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
+					"generalAttackReduction" : {
+						"val" : 75,
+						"type" : "GENERAL_ATTACK_REDUCTION",
 						"duration" : [
 							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
