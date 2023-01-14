@@ -39,7 +39,7 @@ static void retrieveTurretDamageRange(const CGTownInstance * town, const battle:
 
 	int minDamage;
 
-	if (turret->getPosition() == BattleHex::CASTLE_CENTRAL_TOWER)
+	if(turret->getPosition() == BattleHex::CASTLE_CENTRAL_TOWER)
 		minDamage = baseDamageKeep + townLevel * extraDamage;
 	else
 		minDamage = baseDamageTower + townLevel / 2 * extraDamage;
@@ -97,7 +97,7 @@ TDmgRange DamageCalculator::getBaseDamageBlessCurse() const
 		std::max( int64_t(1), baseDamage.second + curseBlessAdditiveModifier)
 	};
 
-	if ( curseEffects->size() && blessEffects->size() )
+	if(curseEffects->size() && blessEffects->size() )
 	{
 		logGlobal->warn("Stack has both curse and bless! Effects will negate each other!");
 		return modifiedDamage;
@@ -201,7 +201,6 @@ int DamageCalculator::getTargetDefenseIgnored() const
 		int reduction = std::floor(multDefenceReduction * getTargetDefenseBase()) + 1;
 		return -std::min(reduction,getTargetDefenseBase());
 	}
-
 	return 0;
 }
 
@@ -209,7 +208,7 @@ double DamageCalculator::getAttackSkillFactor() const
 {
 	int attackAdvantage = getActorAttackEffective() - getTargetDefenseEffective();
 
-	if (attackAdvantage > 0)
+	if(attackAdvantage > 0)
 	{
 		const double attackMultiplier = VLC->modh->settings.ATTACK_POINT_DMG_MULTIPLIER;
 		const double attackMultiplierCap = VLC->modh->settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP;
@@ -245,21 +244,21 @@ double DamageCalculator::getAttackOffenseArcheryFactor() const
 
 double DamageCalculator::getAttackLuckFactor() const
 {
-	if (info.luckyStrike)
+	if(info.luckyStrike)
 		return 1.0;
 	return 0.0;
 }
 
 double DamageCalculator::getAttackDeathBlowFactor() const
 {
-	if (info.deathBlow)
+	if(info.deathBlow)
 		return 1.0;
 	return 0.0;
 }
 
 double DamageCalculator::getAttackDoubleDamageFactor() const
 {
-	if (info.doubleDamage)
+	if(info.doubleDamage)
 		return 1.0;
 	return 0.0;
 }
@@ -376,16 +375,14 @@ double DamageCalculator::getDefenseObstacleFactor() const
 
 double DamageCalculator::getDefenseUnluckyFactor() const
 {
-	if (info.unluckyStrike)
+	if(info.unluckyStrike)
 		return 0.5;
 	return 0.0;
 }
 
 double DamageCalculator::getDefenseBlindParalysisFactor() const
 {
-
 	double multAttackReduction = battleBonusValue(info.attacker, Selector::type()(Bonus::GENERAL_ATTACK_REDUCTION)) / 100.0;
-
 	return multAttackReduction;
 }
 
