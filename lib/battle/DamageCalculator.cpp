@@ -18,6 +18,8 @@
 #include "../spells/CSpellHandler.h"
 #include "../CModHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
 
@@ -516,3 +518,5 @@ TDmgRange DamageCalculator::calculateDmgRange() const
 		std::max( 1.0, std::floor(result.second * resultingFactor))
 	};
 }
+
+VCMI_LIB_NAMESPACE_END
