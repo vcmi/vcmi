@@ -56,6 +56,7 @@
 
 #if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 #include <execinfo.h>
+#include <signal.h>
 #endif
 
 template<typename T> class CApplyOnServer;
