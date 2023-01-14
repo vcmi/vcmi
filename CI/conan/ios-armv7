@@ -3,3 +3,6 @@ include(base/ios)
 [settings]
 os.version=10.0
 arch=armv7
+
+# Xcode 13.x is the last version that can build for armv7
+compiler.version=13
