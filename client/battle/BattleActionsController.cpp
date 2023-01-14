@@ -460,23 +460,26 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 						}
 					};
 
-					TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), shere);
+					BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(myNumber);
+					TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), shere, attackFromHex);
 					std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
 					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[36]) % shere->getName() % estDmgText).str(); //Attack %s (%s damage)
 				}
 				break;
 			case PossiblePlayerBattleAction::SHOOT:
 			{
-				if (owner.curInt->cb->battleHasShootingPenalty(owner.stacksController->getActiveStack(), myNumber))
+				auto const * shooter = owner.stacksController->getActiveStack();
+
+				if (owner.curInt->cb->battleHasShootingPenalty(shooter, myNumber))
 					cursorFrame = Cursor::Combat::SHOOT_PENALTY;
 				else
 					cursorFrame = Cursor::Combat::SHOOT;
 
 				realizeAction = [=](){owner.giveCommand(EActionType::SHOOT, myNumber);};
-				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), shere);
+				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(shooter, shere, shooter->getPosition());
 				std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
-				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % owner.stacksController->getActiveStack()->shots.available() % estDmgText).str();
+				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % shooter->shots.available() % estDmgText).str();
 			}
 				break;
 			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
