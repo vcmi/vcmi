@@ -1,6 +1,6 @@
 [settings]
 compiler=apple-clang
-compiler.version=13
+compiler.version=14
 compiler.libcxx=libc++
 build_type=Release
 
