@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCreatureSet.h"
 
+#include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
@@ -372,9 +373,15 @@ std::string CCreatureSet::getRoughAmount(SlotID slot, int mode) const
 {
 	/// Mode represent return string format
 	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
-	int quantity = CCreature::getQuantityID(getStackCount(slot));
-	if(quantity)
-		return VLC->generaltexth->arraytxt[(174 + mode) + 3*CCreature::getQuantityID(getStackCount(slot))];
+	CCreature::CreatureQuantityId quantity = CCreature::getQuantityID(getStackCount(slot));
+
+	if((int)quantity)
+	{
+		if(settings["adventure"]["numericStackQuantities"].Bool())
+			return CCreature::getQuantityRangeStringForId(quantity);
+
+		return VLC->generaltexth->arraytxt[(174 + mode) + 3*(int)quantity];
+	}
 	return "";
 }
 
@@ -700,7 +707,7 @@ void CStackInstance::init()
 	setNodeType(STACK_INSTANCE);
 }
 
-int CStackInstance::getQuantityID() const
+CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 {
 	return CCreature::getQuantityID(count);
 }
@@ -814,10 +821,15 @@ void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
 
 std::string CStackInstance::getQuantityTXT(bool capitalized) const
 {
-	int quantity = getQuantityID();
+	CCreature::CreatureQuantityId quantity = getQuantityID();
 
-	if (quantity)
-		return VLC->generaltexth->arraytxt[174 + quantity*3 - 1 - capitalized];
+	if ((int)quantity)
+	{
+		if(settings["adventure"]["numericStackQuantities"].Bool())
+			return CCreature::getQuantityRangeStringForId(quantity);
+
+		return VLC->generaltexth->arraytxt[174 + (int)quantity*3 - 1 - capitalized];
+	}
 	else
 		return "";
 }

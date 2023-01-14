@@ -15,6 +15,7 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
+#include "../CConfigHandler.h"
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
@@ -101,9 +102,12 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 
 	std::string hoverName;
 	MetaString ms;
-	int pom = stacks.begin()->second->getQuantityID();
-	pom = 172 + 3*pom;
-	ms.addTxt(MetaString::ARRAY_TXT,pom);
+	CCreature::CreatureQuantityId monsterQuantityId = stacks.begin()->second->getQuantityID();
+	int quantityTextIndex = 172 + 3 * (int)monsterQuantityId;
+	if(settings["adventure"]["numericStackQuantities"].Bool())
+		ms << CCreature::getQuantityRangeStringForId(monsterQuantityId);
+	else
+		ms.addTxt(MetaString::ARRAY_TXT, quantityTextIndex);
 	ms << " " ;
 	ms.addTxt(MetaString::CRE_PL_NAMES,subID);
 	ms.toString(hoverName);

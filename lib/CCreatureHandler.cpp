@@ -171,25 +171,53 @@ int32_t CCreature::getCost(int32_t resIndex) const
 		return 0;
 }
 
-int CCreature::getQuantityID(const int & quantity)
+CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
-		return 1;
+		return CCreature::CreatureQuantityId::FEW;
 	if (quantity<10)
-		return 2;
+		return CCreature::CreatureQuantityId::SEVERAL;
 	if (quantity<20)
-		return 3;
+		return CCreature::CreatureQuantityId::PACK;
 	if (quantity<50)
-		return 4;
+		return CCreature::CreatureQuantityId::LOTS;
 	if (quantity<100)
-		return 5;
+		return CCreature::CreatureQuantityId::HORDE;
 	if (quantity<250)
-		return 6;
+		return CCreature::CreatureQuantityId::THRONG;
 	if (quantity<500)
-		return 7;
+		return CCreature::CreatureQuantityId::SWARM;
 	if (quantity<1000)
-		return 8;
-	return 9;
+		return CCreature::CreatureQuantityId::ZOUNDS;
+
+	return CCreature::CreatureQuantityId::LEGION;
+}
+
+std::string CCreature::getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId)
+{
+	switch(quantityId)
+	{
+		case CCreature::CreatureQuantityId::FEW:
+			return "1-4";
+		case CCreature::CreatureQuantityId::SEVERAL:
+			return "5-9";
+		case CCreature::CreatureQuantityId::PACK:
+			return "10-19";
+		case CCreature::CreatureQuantityId::LOTS:
+			return "20-49";
+		case CCreature::CreatureQuantityId::HORDE:
+			return "50-99";
+		case CCreature::CreatureQuantityId::THRONG:
+			return "100-249";
+		case CCreature::CreatureQuantityId::SWARM:
+			return "250-499";
+		case CCreature::CreatureQuantityId::ZOUNDS:
+			return "500-999";
+		case CCreature::CreatureQuantityId::LEGION:
+			return "1000+";
+		default:
+			return "[ERROR]";
+	}
 }
 
 int CCreature::estimateCreatureCount(ui32 countID)

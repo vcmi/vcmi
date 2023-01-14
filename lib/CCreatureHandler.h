@@ -61,6 +61,19 @@ public:
 	std::string smallIconName;
 	std::string largeIconName;
 
+	enum class CreatureQuantityId
+	{
+		FEW = 1,
+		SEVERAL,
+		PACK,
+		LOTS,
+		HORDE,
+		THRONG,
+		SWARM,
+		ZOUNDS,
+		LEGION
+	};
+
 	struct CreatureAnimation
 	{
 		struct RayColor {
@@ -176,7 +189,8 @@ public:
 	bool isGood () const;
 	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
-	static int getQuantityID(const int & quantity); //1 - a few, 2 - several, 3 - pack, 4 - lots, 5 - horde, 6 - throng, 7 - swarm, 8 - zounds, 9 - legion
+	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
+	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
