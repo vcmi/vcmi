@@ -19,6 +19,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.cpp
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.cpp
 		${MAIN_LIB_DIR}/battle/CUnitState.cpp
+		${MAIN_LIB_DIR}/battle/DamageCalculator.cpp
 		${MAIN_LIB_DIR}/battle/Destination.cpp
 		${MAIN_LIB_DIR}/battle/IBattleState.cpp
 		${MAIN_LIB_DIR}/battle/ReachabilityInfo.cpp
@@ -253,6 +254,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.h
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.h
 		${MAIN_LIB_DIR}/battle/CUnitState.h
+		${MAIN_LIB_DIR}/battle/DamageCalculator.h
 		${MAIN_LIB_DIR}/battle/Destination.h
 		${MAIN_LIB_DIR}/battle/IBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/IBattleState.h

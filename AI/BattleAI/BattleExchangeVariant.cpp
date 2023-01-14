@@ -69,7 +69,8 @@ int64_t BattleExchangeVariant::trackAttack(
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
 	TDmgRange retaliation;
-	BattleAttackInfo bai(attacker.get(), defender.get(), shooting);
+	// FIXME: provide distance info for Jousting bonus
+	BattleAttackInfo bai(attacker.get(), defender.get(), 0, shooting);
 
 	if(shooting)
 	{
@@ -234,7 +235,8 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 
 		for(auto hex : hexes)
 		{
-			auto bai = BattleAttackInfo(activeStack, closestStack, cb->battleCanShoot(activeStack));
+			// FIXME: provide distance info for Jousting bonus
+			auto bai = BattleAttackInfo(activeStack, closestStack, 0, cb->battleCanShoot(activeStack));
 			auto attack = AttackPossibility::evaluate(bai, hex, hb);
 
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
