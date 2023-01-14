@@ -89,6 +89,7 @@ int CConnection::write(const void * data, unsigned size)
 	boost::unique_lock<boost::mutex> lock(mutexWrite);
 	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, channel, packet);
+	return size;
 }
 
 int CConnection::read(void * data, unsigned size)
