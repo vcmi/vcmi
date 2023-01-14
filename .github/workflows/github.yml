@@ -84,29 +84,6 @@ jobs:
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
             artifact_platform: intel
-          - platform: mac-arm
-            os: macos-12
-            test: 0
-            pack: 1
-            extension: dmg
-            preset: macos-arm-conan-ninja-release
-            conan_profile: macos-arm
-            artifact_platform: arm
-          - platform: ios
-            os: macos-12
-            test: 0
-            pack: 1
-            extension: ipa
-            preset: ios-release-conan
-            conan_profile: ios-arm64
-          - platform: mxe
-            os: ubuntu-20.04
-            mxe: i686-w64-mingw32.shared
-            test: 0
-            pack: 1
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
-            extension: exe
-            cmake_args: -G Ninja
           - platform: msvc
             os: windows-latest
             test: 0
