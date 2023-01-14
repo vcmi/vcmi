@@ -454,7 +454,8 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
-	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
+	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.vcmiSettingsButton.hover"));
+	//leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
 	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
@@ -549,63 +550,14 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
 
-	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltipLocalized("vcmi.systemOptions.resolutionButton"), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
-
-	const auto & screenRes = settings["video"]["screenRes"];
-	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
+	vcmiSettingsButton = std::make_shared<CButton>(Point(28, 275),"buttons/vcmisettings", CButton::tooltipLocalized("vcmi.systemOptions.vcmiSettingsButton"), std::bind(&CSystemOptionsWindow::openVcmiSettings, this));
 }
 
-void CSystemOptionsWindow::selectGameRes()
+void CSystemOptionsWindow::openVcmiSettings()
 {
-	std::vector<std::string> items;
-
-#ifndef VCMI_IOS
-	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
-#endif
-
-	size_t currentResolutionIndex = 0;
-	size_t i = 0;
-	for(const auto & it : conf.guiOptions)
-	{
-		const auto & resolution = it.first;
-#ifndef VCMI_IOS
-		if(displayBounds.w < resolution.first || displayBounds.h < resolution.second)
-			continue;
-#endif
-
-		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
-		if(gameResLabel->getText() == resolutionStr)
-			currentResolutionIndex = i;
-		items.push_back(std::move(resolutionStr));
-		++i;
-	}
-
-	GH.pushIntT<CObjectListWindow>(items, nullptr,
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
-								   std::bind(&CSystemOptionsWindow::setGameRes, this, _1),
-								   currentResolutionIndex);
+	GH.pushIntT<CVcmiSettingsWindow>();
 }
 
-void CSystemOptionsWindow::setGameRes(int index)
-{
-	auto iter = conf.guiOptions.begin();
-	std::advance(iter, index);
-
-	//do not set resolution to illegal one (0x0)
-	assert(iter!=conf.guiOptions.end() && iter->first.first > 0 && iter->first.second > 0);
-
-	Settings gameRes = settings.write["video"]["screenRes"];
-	gameRes["width"].Float() = iter->first.first;
-	gameRes["height"].Float() = iter->first.second;
-
-	std::string resText;
-	resText += boost::lexical_cast<std::string>(iter->first.first);
-	resText += "x";
-	resText += boost::lexical_cast<std::string>(iter->first.second);
-	gameResLabel->setText(resText);
-}
 
 void CSystemOptionsWindow::bquitf()
 {
@@ -643,6 +595,76 @@ void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
 {
 	close();
 	GH.pushSDLEvent(eventType, code);
+}
+
+CVcmiSettingsWindow::CVcmiSettingsWindow()
+		: CWindowObject(PLAYER_COLORED, "vcmiSettingsWindow")
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	closeButton = std::make_shared<CButton>( Point(357, 415), "IOKAY.DEF", CGI->generaltexth->zelp[325], [&](){ onCloseButtonPressed(); }, SDLK_RETURN);
+
+	gameResTitleLabel = std::make_shared<CLabel>(122, 262, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
+	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltipLocalized("vcmi.systemOptions.resolutionButton"), std::bind(&CVcmiSettingsWindow::selectGameRes, this), SDLK_g);
+
+	const auto & screenRes = settings["video"]["screenRes"];
+	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
+}
+
+void CVcmiSettingsWindow::onCloseButtonPressed()
+{
+	close();
+}
+
+void CVcmiSettingsWindow::selectGameRes()
+{
+	std::vector<std::string> items;
+
+#ifndef VCMI_IOS
+	SDL_Rect displayBounds;
+	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+#endif
+
+	size_t currentResolutionIndex = 0;
+	size_t i = 0;
+	for(const auto & it : conf.guiOptions)
+	{
+		const auto & resolution = it.first;
+#ifndef VCMI_IOS
+		if(displayBounds.w < resolution.first || displayBounds.h < resolution.second)
+			continue;
+#endif
+
+		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
+		if(gameResLabel->getText() == resolutionStr)
+			currentResolutionIndex = i;
+		items.push_back(std::move(resolutionStr));
+		++i;
+	}
+
+	GH.pushIntT<CObjectListWindow>(items, nullptr,
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
+								   std::bind(&CVcmiSettingsWindow::setGameRes, this, _1),
+								   currentResolutionIndex);
+}
+
+void CVcmiSettingsWindow::setGameRes(int index)
+{
+	auto iter = conf.guiOptions.begin();
+	std::advance(iter, index);
+
+	//do not set resolution to illegal one (0x0)
+	assert(iter!=conf.guiOptions.end() && iter->first.first > 0 && iter->first.second > 0);
+
+	Settings gameRes = settings.write["video"]["screenRes"];
+	gameRes["width"].Float() = iter->first.first;
+	gameRes["height"].Float() = iter->first.second;
+
+	std::string resText;
+	resText += boost::lexical_cast<std::string>(iter->first.first);
+	resText += "x";
+	resText += boost::lexical_cast<std::string>(iter->first.second);
+	gameResLabel->setText(resText);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)

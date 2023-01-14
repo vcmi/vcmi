@@ -217,8 +217,7 @@ private:
 	std::shared_ptr<CToggleButton> spellbookAnim;
 	std::shared_ptr<CToggleButton> fullscreen;
 
-	std::shared_ptr<CButton> gameResButton;
-	std::shared_ptr<CLabel> gameResLabel;
+	std::shared_ptr<CButton> vcmiSettingsButton;
 
 	SettingsListener onFullscreenChanged;
 
@@ -230,12 +229,26 @@ private:
 	void brestartf(); //restart game
 	void bmainmenuf(); //return to main menu
 
-	void selectGameRes();
-	void setGameRes(int index);
+	void openVcmiSettings();
 	void closeAndPushEvent(int eventType, int code = 0);
 
 public:
 	CSystemOptionsWindow();
+};
+
+class CVcmiSettingsWindow : public CWindowObject //CSystemOptionsWindow submenu for vcmi-specific stuff
+{
+	std::shared_ptr<CButton> closeButton;
+
+	std::shared_ptr<CLabel> gameResTitleLabel;
+	std::shared_ptr<CButton> gameResButton;
+	std::shared_ptr<CLabel> gameResLabel;
+
+	void selectGameRes();
+	void setGameRes(int index);
+	void onCloseButtonPressed();
+public:
+	CVcmiSettingsWindow();
 };
 
 class CTavernWindow : public CStatusbarWindow
