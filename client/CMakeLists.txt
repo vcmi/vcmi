@@ -82,7 +82,7 @@ set(client_SRCS
 		NetPacksClient.cpp
 		NetPacksLobbyClient.cpp
 		SDLRWwrapper.cpp
-        ClientCommandManager.cpp
+		ClientCommandManager.cpp
 )
 
 set(client_HEADERS
