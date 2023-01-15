@@ -1632,8 +1632,7 @@ bool CBattleInfoCallback::isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosi
 	for(auto hex : defenderUnit->getHexes())
 		if(BattleHex::getDistance(attackerPosition, hex) <= range)
 			return true;
-
-	//TODO what about shooting distance calculation for two-hex shooters? Is it correct?
+	
 	return false;
 }
 
