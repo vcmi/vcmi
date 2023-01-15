@@ -1186,8 +1186,8 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) 
 	{
 	case Qt::Key_Delete: 
-			on_actionErase_triggered();
-			break;
+		on_actionErase_triggered();
+		break;
 	}
 }
 
