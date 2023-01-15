@@ -83,10 +83,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP");
 	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP");
 
-	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0,0,0, 0.6, 0.2, 1.0 );
-	static const auto shifterPositive = ColorFilter::genRangeShifter( 0,0,0, 0.2, 1.0, 0.2 );
-	static const auto shifterNegative = ColorFilter::genRangeShifter( 0,0,0, 1.0, 0.2, 0.2 );
-	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0,0,0, 1.0, 1.0, 0.2 );
+	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
+	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
+	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
+	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
 
 	amountNormal->adjustPalette(shifterNormal);
 	amountPositive->adjustPalette(shifterPositive);

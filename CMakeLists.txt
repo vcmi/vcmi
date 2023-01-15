@@ -235,9 +235,9 @@ if(MINGW OR MSVC)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # Treats all compiler warnings as errors
 		endif()
 
-		if(ENABLE_MULTI_PROCESS_BUILDS)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-		endif()
+		#if(ENABLE_MULTI_PROCESS_BUILDS)
+		#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+		#endif()
 
 		# Workaround: Visual Studio has issues with exports of classes that inherit templates
 		# https://stackoverflow.com/questions/44960760/msvc-dll-exporting-class-that-inherits-from-template-cause-lnk2005-already-defin
