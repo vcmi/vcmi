@@ -154,14 +154,9 @@ SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 
 void CBuildingRect::show(SDL_Surface * to)
 {
-	const ui32 stageDelay = 500;
+	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	const ui32 S1_TRANSP  = 500; //500 msec building appear 0->100 transparency
-	const ui32 S2_WHITE_B = 1000; //500 msec border glows from white to yellow
-	const ui32 S3_YELLOW_B= 1500; //500 msec border glows from yellow to normal
-	const ui32 BUILDED    = 2500; //1000 msec delay, nothing happens
-
-	if(stateTimeCounter < S1_TRANSP)
+	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
 		setAlpha(255 * stateTimeCounter / stageDelay);
 		CShowableAnim::show(to);
@@ -172,9 +167,9 @@ void CBuildingRect::show(SDL_Surface * to)
 		CShowableAnim::show(to);
 	}
 
-	if(border && stateTimeCounter > S1_TRANSP)
+	if(border && stateTimeCounter > BUILDING_APPEAR_TIMEPOINT)
 	{
-		if(stateTimeCounter >= BUILDED)
+		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
 			if(parent->selectedBuilding == this)
 				blitAtLoc(border,0,0,to);
@@ -191,10 +186,10 @@ void CBuildingRect::show(SDL_Surface * to)
 			SDL_Color oldColor = border->format->palette->colors[colorID];
 			SDL_Color newColor;
 
-			if (stateTimeCounter < S2_WHITE_B)
+			if (stateTimeCounter < BUILDING_WHITE_BORDER_TIMEPOINT)
 				newColor = multiplyColors(c1, c2, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
 			else
-			if (stateTimeCounter < S3_YELLOW_B)
+			if (stateTimeCounter < BUILDING_YELLOW_BORDER_TIMEPOINT)
 				newColor = multiplyColors(c2, c3, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
 			else
 				newColor = oldColor;
@@ -204,7 +199,7 @@ void CBuildingRect::show(SDL_Surface * to)
 			SDL_SetColors(border, &oldColor, colorID, 1);
 		}
 	}
-	if(stateTimeCounter < BUILDED)
+	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
 }
 
@@ -634,7 +629,7 @@ void CCastleBuildings::addBuilding(BuildingID building)
 			if(structures.size() == 1)
 				buildingRect->stateTimeCounter = 0; // transparency -> fully visible stage
 			else
-				buildingRect->stateTimeCounter = 500; // already in fully visible stage
+				buildingRect->stateTimeCounter = CBuildingRect::BUILDING_APPEAR_TIMEPOINT; // already in fully visible stage
 			break;
 		}
 	}

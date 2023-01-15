@@ -42,6 +42,14 @@ class CBuildingRect : public CShowableAnim
 {
 	std::string getSubtitle();
 public:
+	enum EBuildingCreationAnimationPhases : uint32_t
+	{
+		BUILDING_APPEAR_TIMEPOINT = 500, //500 msec building appears: 0->100% transparency
+		BUILDING_WHITE_BORDER_TIMEPOINT = 1000, //500 msec border glows from white to yellow
+		BUILDING_YELLOW_BORDER_TIMEPOINT = 1500, //500 msec border glows from yellow to normal
+		BUILD_ANIMATION_FINISHED_TIMEPOINT = 2500 //1000 msec delay, nothing happens
+	};
+
 	/// returns building associated with this structure
 	const CBuilding * getBuilding();
 
