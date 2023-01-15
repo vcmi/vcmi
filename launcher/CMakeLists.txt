@@ -107,7 +107,7 @@ if(WIN32)
 endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
-	add_library(vcmilauncher STATIC ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
+	add_library(vcmilauncher STATIC ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
 endif()
