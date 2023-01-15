@@ -51,7 +51,7 @@ public:
 	SDL_Surface* border;
 	SDL_Surface* area;
 
-	ui32 stateCounter;//For building construction - current stage in animation
+	ui32 stateTimeCounter;//For building construction - current stage in animation
 
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str);
 	~CBuildingRect();

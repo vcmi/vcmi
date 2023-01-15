@@ -44,10 +44,10 @@
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE),
-	parent(Par),
-	town(Town),
-	str(Str),
-	stateCounter(150)
+	  parent(Par),
+	  town(Town),
+	  str(Str),
+	  stateTimeCounter(2500)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += str->pos.x;
@@ -154,16 +154,16 @@ SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 
 void CBuildingRect::show(SDL_Surface * to)
 {
-	const ui32 stageDelay = 30;
+	const ui32 stageDelay = 500;
 
-	const ui32 S1_TRANSP  = 30; //0.5 sec building appear 0->100 transparency
-	const ui32 S2_WHITE_B = 60; //0.5 sec border glows from white to yellow
-	const ui32 S3_YELLOW_B= 90; //0.5 sec border glows from yellow to normal
-	const ui32 BUILDED    = 150; //  1 sec delay, nothing happens
+	const ui32 S1_TRANSP  = 500; //500 msec building appear 0->100 transparency
+	const ui32 S2_WHITE_B = 1000; //500 msec border glows from white to yellow
+	const ui32 S3_YELLOW_B= 1500; //500 msec border glows from yellow to normal
+	const ui32 BUILDED    = 2500; //1000 msec delay, nothing happens
 
-	if(stateCounter < S1_TRANSP)
+	if(stateTimeCounter < S1_TRANSP)
 	{
-		setAlpha(255*stateCounter/stageDelay);
+		setAlpha(255 * stateTimeCounter / stageDelay);
 		CShowableAnim::show(to);
 	}
 	else
@@ -172,9 +172,9 @@ void CBuildingRect::show(SDL_Surface * to)
 		CShowableAnim::show(to);
 	}
 
-	if(border && stateCounter > S1_TRANSP)
+	if(border && stateTimeCounter > S1_TRANSP)
 	{
-		if(stateCounter == BUILDED)
+		if(stateTimeCounter >= BUILDED)
 		{
 			if(parent->selectedBuilding == this)
 				blitAtLoc(border,0,0,to);
@@ -191,11 +191,11 @@ void CBuildingRect::show(SDL_Surface * to)
 			SDL_Color oldColor = border->format->palette->colors[colorID];
 			SDL_Color newColor;
 
-			if (stateCounter < S2_WHITE_B)
-				newColor = multiplyColors(c1, c2, static_cast<double>(stateCounter % stageDelay) / stageDelay);
+			if (stateTimeCounter < S2_WHITE_B)
+				newColor = multiplyColors(c1, c2, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
 			else
-			if (stateCounter < S3_YELLOW_B)
-				newColor = multiplyColors(c2, c3, static_cast<double>(stateCounter % stageDelay) / stageDelay);
+			if (stateTimeCounter < S3_YELLOW_B)
+				newColor = multiplyColors(c2, c3, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
 			else
 				newColor = oldColor;
 
@@ -204,13 +204,13 @@ void CBuildingRect::show(SDL_Surface * to)
 			SDL_SetColors(border, &oldColor, colorID, 1);
 		}
 	}
-	if(stateCounter < BUILDED)
-		stateCounter++;
+	if(stateTimeCounter < BUILDED)
+		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
 }
 
 void CBuildingRect::showAll(SDL_Surface * to)
 {
-	if (stateCounter == 0)
+	if (stateTimeCounter == 0)
 		return;
 
 	CShowableAnim::showAll(to);
@@ -632,9 +632,9 @@ void CCastleBuildings::addBuilding(BuildingID building)
 		{
 			//reset animation
 			if(structures.size() == 1)
-				buildingRect->stateCounter = 0; // transparency -> fully visible stage
+				buildingRect->stateTimeCounter = 0; // transparency -> fully visible stage
 			else
-				buildingRect->stateCounter = 16; // already in fully visible stage
+				buildingRect->stateTimeCounter = 500; // already in fully visible stage
 			break;
 		}
 	}
