@@ -115,7 +115,7 @@ public:
 
 	/// generates tooltip that can be passed into constructor
 	static std::pair<std::string, std::string> tooltip();
-	static std::pair<std::string, std::string> tooltip(const JsonNode & localizedTexts);
+	static std::pair<std::string, std::string> tooltipLocalized(const std::string & key);
 	static std::pair<std::string, std::string> tooltip(const std::string & hover, const std::string & help = "");
 };
 
@@ -185,24 +185,31 @@ public:
 	/// in some cases, e.g. LoadGame difficulty selection, after refreshing the UI, the ToggleGroup should 
 	/// reset all of it's child buttons to BLOCK state, then make selection again
 	void setSelectedOnly(int id);
+	int getSelected() const;
 };
 
 /// A typical slider for volume with an animated indicator
 class CVolumeSlider : public CIntObject
 {
+public:
+	enum ETooltipMode
+	{
+		MUSIC,
+		SOUND
+	};
+
+private:
 	int value;
 	CFunctionList<void(int)> onChange;
 	std::shared_ptr<CAnimImage> animImage;
-	const std::pair<std::string, std::string> * const helpHandlers;
+	ETooltipMode mode;
 	void setVolume(const int v);
 public:
-
 	/// @param position coordinates of slider
 	/// @param defName name of def animation for slider
 	/// @param value initial value for volume
-	/// @param help pointer to first helptext of slider
-	CVolumeSlider(const Point & position, const std::string & defName, const int value,
-	              const std::pair<std::string, std::string> * const help);
+	/// @param mode that determines tooltip texts
+	CVolumeSlider(const Point & position, const std::string & defName, const int value, ETooltipMode mode);
 
 	void moveTo(int id);
 	void addCallback(std::function<void(int)> callback);
@@ -256,8 +263,9 @@ public:
 	void setAmount(int to);
 
 	/// Accessors
-	int getAmount();
-	int getValue();
+	int getAmount() const;
+	int getValue() const;
+	int getCapacity() const;
 
 	void addCallback(std::function<void(int)> callback);
 

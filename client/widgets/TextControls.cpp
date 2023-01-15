@@ -14,7 +14,9 @@
 #include "Images.h"
 
 #include "../CMessage.h"
+#include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../widgets/AdventureMapClasses.h"
 
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
@@ -36,7 +38,7 @@ void CLabel::showAll(SDL_Surface * to)
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text)
+CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text)
 	: CTextContainer(Align, Font, Color), text(Text)
 {
 	type |= REDRAW_PARENT;
@@ -45,7 +47,7 @@ CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color & Co
 	pos.y += y;
 	pos.w = pos.h = 0;
 
-	if(alignment == TOPLEFT) // causes issues for MIDDLE
+	if(alignment == ETextAlignment::TOPLEFT) // causes issues for MIDDLE
 	{
 		pos.w = (int)graphics->fonts[font]->getStringWidth(visibleText().c_str());
 		pos.h = (int)graphics->fonts[font]->getLineHeight();
@@ -96,7 +98,7 @@ size_t CLabel::getWidth()
 	return graphics->fonts[font]->getStringWidth(visibleText());;
 }
 
-CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text) :
+CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text) :
 	CLabel(position.x, position.y, Font, Align, Color, Text),
 	visibleSize(0, 0, position.w, position.h)
 {
@@ -137,19 +139,19 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
-	if(alignment == TOPLEFT)
+	if(alignment == ETextAlignment::TOPLEFT)
 	{
 		where.x += getBorderSize().x;
 		where.y += getBorderSize().y;
 	}
 
-	if(alignment == CENTER)
+	if(alignment == ETextAlignment::CENTER)
 	{
 		where.x += (int(destRect.w) - int(f->getStringWidth(what))) / 2;
 		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
 	}
 
-	if(alignment == BOTTOMRIGHT)
+	if(alignment == ETextAlignment::BOTTOMRIGHT)
 	{
 		where.x += getBorderSize().x + destRect.w - (int)f->getStringWidth(what);
 		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
@@ -178,7 +180,7 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 	} while(begin++ != std::string::npos);
 }
 
-CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color) :
+CTextContainer::CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color color) :
 	alignment(alignment),
 	font(font),
 	color(color)
@@ -252,15 +254,15 @@ Rect CMultiLineLabel::getTextLocation()
 
 	switch(alignment)
 	{
-	case TOPLEFT:     return Rect(pos.topLeft(), textSize);
-	case CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
-	case BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
+	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSize);
+	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
+	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
 	}
 	assert(0);
 	return Rect();
 }
 
-CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color & Color)
+CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: font(Font), align(Align), color(Color)
 {
 	defActions = 255 - DISPOSE;
@@ -277,7 +279,7 @@ size_t CLabelGroup::currentSize() const
 	return labels.size();
 }
 
-CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color & Color) :
+CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, ETextAlignment Align, const SDL_Color & Color) :
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
@@ -339,30 +341,67 @@ void CTextBox::setText(const std::string & text)
 	}
 }
 
-void CGStatusBar::setText(const std::string & Text)
+void CGStatusBar::setEnteringMode(bool on)
 {
-	if(!textLock)
-		CLabel::setText(Text);
+	consoleText.clear();
+
+	if (on)
+	{
+		assert(enteringText == false);
+		alignment = ETextAlignment::TOPLEFT;
+		CSDL_Ext::startTextInput(&pos);
+		setText(consoleText);
+	}
+	else
+	{
+		assert(enteringText == true);
+		alignment = ETextAlignment::CENTER;
+		CSDL_Ext::stopTextInput();
+		setText(hoverText);
+	}
+	enteringText = on;
+}
+
+void CGStatusBar::setEnteredText(const std::string & text)
+{
+	assert(enteringText == true);
+	consoleText = text;
+	setText(text);
+}
+
+void CGStatusBar::write(const std::string & Text)
+{
+	hoverText = Text;
+
+	if (enteringText == false)
+		setText(hoverText);
+}
+
+void CGStatusBar::clearIfMatching(const std::string & Text)
+{
+	if (hoverText == Text)
+		clear();
 }
 
 void CGStatusBar::clear()
 {
-	setText("");
+	write({});
 }
 
-CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, EAlignment Align, const SDL_Color & Color)
+CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
+	, enteringText(false)
 {
 	background = background_;
 	addChild(background.get());
 	pos = background->pos;
 	getBorderSize();
-	textLock = false;
 	autoRedraw = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
-	: CLabel(x, y, FONT_SMALL, CENTER)
+	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
+	, enteringText(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	background = std::make_shared<CPicture>(name);
@@ -374,7 +413,6 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 		vstd::amin(pos.w, maxw);
 		background->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
-	textLock = false;
 	autoRedraw = false;
 }
 
@@ -392,14 +430,17 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
 	if(!down && onClick)
 	{
-		onClick();
+		if(LOCPLINT && LOCPLINT->cingconsole->active)
+			LOCPLINT->cingconsole->startEnteringText();
 	}
 }
 
-void CGStatusBar::setOnClick(std::function<void()> handler)
+void CGStatusBar::deactivate()
 {
-	onClick = handler;
-	addUsedEvents(LCLICK);
+	if (enteringText)
+		LOCPLINT->cingconsole->endEnteringText(false);
+
+	CIntObject::deactivate();
 }
 
 Point CGStatusBar::getBorderSize()
@@ -409,21 +450,16 @@ Point CGStatusBar::getBorderSize()
 
 	switch(alignment)
 	{
-	case TOPLEFT:     return Point(borderSize.x, borderSize.y);
-	case CENTER:      return Point(pos.w / 2, pos.h / 2);
-	case BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
+	case ETextAlignment::TOPLEFT:     return Point(borderSize.x, borderSize.y);
+	case ETextAlignment::CENTER:      return Point(pos.w / 2, pos.h / 2);
+	case ETextAlignment::BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
 	}
 	assert(0);
 	return Point();
 }
 
-void CGStatusBar::lock(bool shouldLock)
-{
-	textLock = shouldLock;
-}
-
 CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)
-	: CLabel(Pos.x, Pos.y, font, CENTER),
+	: CLabel(Pos.x, Pos.y, font, ETextAlignment::CENTER),
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
@@ -442,7 +478,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB)
 	:cb(CB), 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	pos += Pos;
+	pos += Pos.topLeft();
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
@@ -459,15 +495,15 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	pos += Pos;
+	pos += Pos.topLeft();
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(Pos, 0, true);
 	Rect hlp = Pos;
 	if(srf)
-		CSDL_Ext::blitSurface(srf, &hlp, *background.get(), nullptr);
+		CSDL_Ext::blitSurface(srf, &hlp, background->getSurface(), nullptr);
 	else
-		SDL_FillRect(*background.get(), nullptr, 0);
+		SDL_FillRect(background->getSurface(), nullptr, 0);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 	background->pos = pos;
@@ -550,6 +586,11 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 		redraw();
 		cb(text);
 	}
+}
+
+void CTextInput::setText(const std::string & nText)
+{
+	setText(nText, false);
 }
 
 void CTextInput::setText(const std::string & nText, bool callCb)

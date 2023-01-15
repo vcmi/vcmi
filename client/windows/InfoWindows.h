@@ -83,7 +83,7 @@ public:
 	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
-	static void createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment = BOTTOMRIGHT);
+	static void createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment = ETextAlignment::BOTTOMRIGHT);
 };
 
 /// popup displayed on R-click
@@ -103,7 +103,7 @@ public:
 	void close() override;
 	void show(SDL_Surface * to) override;
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
-	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false);
+	CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free=false);
 	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false);
 
 	void init(int x, int y);

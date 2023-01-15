@@ -239,8 +239,8 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		{
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
 			icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
-			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_SMALL, TOPLEFT, Colors::WHITE, bi.name);
-			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, TOPLEFT, Colors::WHITE, bi.description);
+			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name);
+			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 		}
 	}
 }
@@ -348,8 +348,8 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 				parent->redraw(); // FIXME: enable/disable don't redraw screen themselves
 			};
 
-			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[buttonIndex]];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltip(text), onSwitch);
+			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltipLocalized(tooltipText), onSwitch);
 			parent->switchButtons[buttonIndex]->addOverlay(std::make_shared<CAnimImage>("stackWindow/switchModeIcons", buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
@@ -377,10 +377,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	auto getSkillDescription = [this](int skillIndex) -> std::string
 	{
-		if(CGI->generaltexth->znpc00.size() == 0)
-			return "";
-
-		return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
+		return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
 	};
 
 	for(int index = ECommander::ATTACK; index <= ECommander::SPELL_POWER; ++index)
@@ -511,7 +508,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		animation->setAmount(parent->info->creatureCount);
 	}
 
-	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, CENTER, Colors::YELLOW, parent->info->getName());
+	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
 	int dmgMultiply = 1;
 	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
@@ -585,7 +582,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			expArea->text = parent->generateStackExpDescription();
 		}
 		expLabel = std::make_shared<CLabel>(
-				pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE,
+				pos.x + 21, pos.y + 52, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 				makeNumberShort<TExpType>(stack->experience, 6));
 	}
 
@@ -601,13 +598,12 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
 			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
 			parent->stackArtifactHelp->type = art->artType->id;
-			const JsonNode & text =	VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
 
 			if(parent->info->owner)
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
 						Point(pos.x - 2 , pos.y + 46), "stackWindow/cancelButton",
-						CButton::tooltip(text),	[=]()
+						CButton::tooltipLocalized("vcmi.creatureWindow.returnArtifact"),	[=]()
 				{
 					parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
 				});
@@ -630,7 +626,7 @@ std::string CStackWindow::MainSection::getBackgroundName(bool showExp, bool show
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_t value2)
 {
 	const auto title = statNames.at(static_cast<size_t>(index));
-	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, TOPLEFT, Colors::WHITE, title));
+	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, title));
 
 	const bool useRange = value1 != value2;
 	std::string formatStr = useRange ? statFormats.at(static_cast<size_t>(index)) : "%d";
@@ -640,7 +636,7 @@ void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_
 	if(useRange)
 		fmt % value2;
 
-	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, fmt.str()));
+	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, fmt.str()));
 }
 
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value)
@@ -869,9 +865,9 @@ std::string CStackWindow::generateStackExpDescription()
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;
 	int number;
-	std::string expText = CGI->generaltexth->zcrexp[325];
+	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
 	boost::replace_first(expText, "%s", creature->namePl);
-	boost::replace_first(expText, "%s", CGI->generaltexth->zcrexp[rank]);
+	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));
 	number = static_cast<int>(CGI->creh->expRanks[tier][rank] - stack->experience);
@@ -906,13 +902,10 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 {
 	auto getSkillDescription = [this](int skillIndex, bool selected) -> std::string
 	{
-		if(CGI->generaltexth->znpc00.size() == 0)
-			return "";
-
 		if(selected)
-			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
+			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
 		else
-			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
+			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
 	};
 
 	auto getSkillImage = [this](int skillIndex) -> std::string

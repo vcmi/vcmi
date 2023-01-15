@@ -49,7 +49,7 @@ void CMapInfo::saveInit(ResourceID file)
 	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 	lf.checkMagicBytes(SAVEGAME_MAGIC);
 
-	mapHeader = make_unique<CMapHeader>();
+	mapHeader = std::make_unique<CMapHeader>();
 	lf >> *(mapHeader.get()) >> scenarioOptionsOfSave;
 	fileURI = file.getName();
 	countPlayers();
@@ -134,6 +134,12 @@ int CMapInfo::getMapSizeIconId() const
 		return 2;
 	case CMapHeader::MAP_SIZE_XLARGE:
 		return 3;
+	case CMapHeader::MAP_SIZE_HUGE:
+		return 4;
+	case CMapHeader::MAP_SIZE_XHUGE:
+		return 5;
+	case CMapHeader::MAP_SIZE_GIANT:
+		return 6;
 	default:
 		return 4;
 	}
@@ -180,6 +186,12 @@ std::string CMapInfo::getMapSizeName() const
 		return "L";
 	case CMapHeader::MAP_SIZE_XLARGE:
 		return "XL";
+	case CMapHeader::MAP_SIZE_HUGE:
+		return "H";
+	case CMapHeader::MAP_SIZE_XHUGE:
+		return "XH";
+	case CMapHeader::MAP_SIZE_GIANT:
+		return "G";
 	default:
 		return "C";
 	}

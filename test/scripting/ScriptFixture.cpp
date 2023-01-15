@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "lib/CModHandler.h"
 
 #include "ScriptFixture.h"
 

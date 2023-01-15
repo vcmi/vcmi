@@ -152,43 +152,6 @@ struct ColorPutter
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
 
-class ColorShifter
-{
-public:
-	virtual ~ColorShifter() = default;
-	virtual SDL_Color shiftColor(SDL_Color clr) const = 0;
-};
-
-class ColorShifterLightBlue : public ColorShifter
-{
-public:
-	SDL_Color shiftColor(SDL_Color clr) const override
-	{
-		clr.b = clr.b + (255 - clr.b) / 2;
-		return clr;
-	}
-};
-
-class ColorShifterDeepBlue : public ColorShifter
-{
-public:
-	SDL_Color shiftColor(SDL_Color clr) const override
-	{
-		clr.b = 255;
-		return clr;
-	}
-};
-
-class ColorShifterDeepRed : public ColorShifter
-{
-public:
-	SDL_Color shiftColor(SDL_Color clr) const override
-	{
-		clr.r = 255;
-		return clr;
-	}
-};
-
 namespace CSDL_Ext
 {
 	/// helper that will safely set and un-set ClipRect for SDL_Surface
@@ -222,7 +185,6 @@ namespace CSDL_Ext
 	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
 	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
 	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
-	void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);

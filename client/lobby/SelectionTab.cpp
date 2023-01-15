@@ -15,7 +15,6 @@
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CAnimation.h"
@@ -100,8 +99,8 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 		switch(sortBy)
 		{
 		case _numOfMaps: //by number of maps in campaign
-			return CGI->generaltexth->campaignRegionNames[aaa->campaignHeader->mapVersion].size() <
-				   CGI->generaltexth->campaignRegionNames[bbb->campaignHeader->mapVersion].size();
+			return CGI->generaltexth->getCampaignLength(aaa->campaignHeader->mapVersion) <
+				   CGI->generaltexth->getCampaignLength(bbb->campaignHeader->mapVersion);
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
@@ -142,7 +141,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), "GSSTRIP.bmp", 0);
 		inputName->filters += CTextInput::filenameFilter;
-		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
+		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
 		int sizes[] = {36, 72, 108, 144, 0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
@@ -200,7 +199,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
 
-	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, EAlignment::CENTER, Colors::YELLOW, tabTitle);
+	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, tabTitle);
 	slider = std::make_shared<CSlider>(Point(372, 86), tabType != ESelectionScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
 	filter(0);
 }
@@ -623,13 +622,13 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	: CIntObject(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
+	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelName->setAutoRedraw(false);
-	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
+	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelAmountOfPlayers->setAutoRedraw(false);
-	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8, 0, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
+	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelNumberOfCampaignMaps->setAutoRedraw(false);
-	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
+	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFormat = std::make_shared<CAnimImage>(iconsFormats, 0, 0, 59, -12);
@@ -661,7 +660,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << CGI->generaltexth->campaignRegionNames[info->campaignHeader->mapVersion].size();
+		ostr << CGI->generaltexth->getCampaignLength(info->campaignHeader->mapVersion);
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 	}

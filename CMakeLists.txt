@@ -33,10 +33,6 @@ if(APPLE)
 	endif()
 endif()
 
-if(APPLE_IOS)
-	set(BUILD_SINGLE_APP 1)
-endif()
-
 ############################################
 #        User-provided options             #
 ############################################
@@ -52,6 +48,9 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
+option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
+
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
@@ -63,7 +62,10 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
+option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" OFF)
+option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS)
@@ -74,9 +76,18 @@ endif()
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
+if(APPLE_IOS AND NOT ENABLE_SINGLE_APP_BUILD)
+	set(ENABLE_SINGLE_APP_BUILD ON)
+endif()
+
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
+endif()
+
+# We don't want to deploy assets into build directory for iOS build
+if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
+	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
 ############################################
@@ -118,14 +129,22 @@ else()
 endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-if(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 )
+	set(ENABLE_PCH OFF) # broken
+endif()
+
+if( ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	set(ENABLE_PCH OFF) #not supported
+endif()
+
+if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
 	endmacro(enable_pch)
-else(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+else()
 	macro(enable_pch ignore)
 	endmacro(enable_pch)
-endif(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+endif()
 
 ############################################
 #        Documentation section             #
@@ -162,8 +181,8 @@ set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
 
-if(BUILD_SINGLE_APP)
-	add_compile_definitions(SINGLE_PROCESS_APP=1)
+if(ENABLE_SINGLE_APP_BUILD)
+	add_definitions(-DSINGLE_PROCESS_APP=1)
 endif()
 
 if(APPLE_IOS)
@@ -203,10 +222,18 @@ if(MINGW OR MSVC)
 		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-		# 4250: 'class1' : inherits 'class2::member' via dominance
-		# 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
-		# 4275: non dll-interface class 'xxx' used as base for dll-interface class
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4250 /wd4251 /wd4275")
+
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244") # 4244: conversion from 'xxx' to 'yyy', possible loss of data
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267") # 4267: conversion from 'xxx' to 'yyy', possible loss of data
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800") # 4800: implicit conversion from 'xxx' to bool. Possible information loss
+
+		if(ENABLE_STRICT_COMPILATION)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wx") # Treats all compiler warnings as errors
+		endif()
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -241,15 +268,30 @@ if(MINGW OR MSVC)
 	endif(MINGW)
 endif(MINGW OR MSVC)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpointer-arith -Wuninitialized")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs") # fuzzylite - Operation.h
+if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuninitialized")
 
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags -Wno-unknown-warning-option -Wno-missing-braces")
+	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 10.0 OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmismatched-tags")
+	endif()
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")   # low chance of valid reports, a lot of emitted warnings
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch")             # large number of false-positives, disabled
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # large number of noise, low chance of any significant issues
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
+
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
+	endif()
+
+	if(ENABLE_STRICT_COMPILATION)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
 	endif()
 
 	if(UNIX)
@@ -270,7 +312,7 @@ if(NOT WIN32 AND NOT APPLE_IOS)
 endif()
 
 if(ENABLE_LUA)
-	add_compile_definitions(SCRIPTING_ENABLED=1)
+	add_definitions(-DSCRIPTING_ENABLED=1)
 endif()
 
 ############################################
@@ -312,12 +354,24 @@ find_package(SDL2_ttf REQUIRED)
 if(TARGET SDL2_ttf::SDL2_ttf)
 	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
 endif()
-find_package(TBB REQUIRED)
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+
+	find_package(QT NAMES Qt6 Qt5 COMPONENTS LinguistTools)
+	find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LinguistTools)
+	if(NOT Qt${QT_VERSION_MAJOR}LinguistTools_DIR)
+		set(ENABLE_TRANSLATIONS OFF)
+	endif()
+	if(ENABLE_TRANSLATIONS)
+		add_definitions(-DENABLE_QT_TRANSLATIONS)
+	endif()
+endif()
+
+if(ENABLE_NULLKILLER_AI)
+	find_package(TBB REQUIRED)
 endif()
 
 if(ENABLE_LUA)
@@ -385,6 +439,12 @@ else()
 		set(BIN_DIR "." CACHE STRING "Where to install binaries")
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
+
+		# following constants only used for platforms using XDG (Linux, BSD, etc)
+		add_definitions(-DM_DATA_DIR="${DATA_DIR}")
+		add_definitions(-DM_BIN_DIR="${BIN_DIR}")
+		add_definitions(-DM_LIB_DIR="${LIB_DIR}")
+
 		set(CMAKE_INSTALL_RPATH "$ORIGIN/")
 	else()
 		if(NOT BIN_DIR)
@@ -396,14 +456,14 @@ else()
 		if(NOT DATA_DIR)
 			set(DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/vcmi" CACHE STRING "Where to install data files")
 		endif()
+
+		# following constants only used for platforms using XDG (Linux, BSD, etc)
+		add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
+		add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
+		add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
+
 		set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 	endif()
-
-
-	# following constants only used for platforms using XDG (Linux, BSD, etc)
-	add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
-	add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
-	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
 # iOS has flat libs directory structure
@@ -424,13 +484,10 @@ if(APPLE_IOS)
 endif()
 
 include(VCMI_lib)
-if(BUILD_SINGLE_APP)
-	add_subdirectory(lib_client)
+add_subdirectory(lib)
+set(VCMI_LIB_TARGET vcmi)
+if(ENABLE_SINGLE_APP_BUILD)
 	add_subdirectory(lib_server)
-	set(VCMI_LIB_TARGET vcmi_lib_client)
-else()
-	add_subdirectory(lib)
-	set(VCMI_LIB_TARGET vcmi)
 endif()
 
 if(ENABLE_ERM)

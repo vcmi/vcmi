@@ -14,10 +14,14 @@
 
 class MapSceneBase;
 class MapScene;
-class CGObjectInstance;
 class MapController;
-class CMap;
 class MapHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
+class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 
 class AbstractLayer : public QObject
 {
@@ -138,7 +142,7 @@ public:
 	
 	void draw();
 	
-	CGObjectInstance * selectObjectAt(int x, int y) const;
+	CGObjectInstance * selectObjectAt(int x, int y, const CGObjectInstance * ignore = nullptr) const;
 	void selectObjects(int x1, int y1, int x2, int y2);
 	void selectObject(CGObjectInstance *, bool inform = true);
 	void deselectObject(CGObjectInstance *);

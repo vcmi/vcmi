@@ -122,35 +122,9 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	return nativeTerrain;
 }
 
-int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
-{
-	if (toh3m)
-	{
-		src.x+=1;
-		return src;
-	}
-	else
-	{
-		src.x-=1;
-		return src;
-	}
-}
-
 BattleField CGHeroInstance::getBattlefield() const
 {
 	return BattleField::NONE;
-}
-
-int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
-{
-	if (h3m)
-	{
-		return pos;
-	}
-	else
-	{
-		return convertPosition(pos,false);
-	}
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
@@ -188,6 +162,16 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 			}
 		}
 	}
+}
+
+int3 CGHeroInstance::convertToVisitablePos(const int3 & position) const
+{
+	return position - getVisitableOffset();
+}
+
+int3 CGHeroInstance::convertFromVisitablePos(const int3 & position) const
+{
+	return position + getVisitableOffset();
 }
 
 bool CGHeroInstance::canLearnSkill() const
@@ -334,6 +318,9 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		initArmy(rand);
 	}
 	assert(validTypes());
+
+	if (patrol.patrolling)
+		patrol.initialPos = visitablePos();
 
 	if(exp == 0xffffffff)
 	{
@@ -1121,7 +1108,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	if((int)movement < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 
-	return cb->getTile(getPosition(false))->getDiggingStatus();
+	return cb->getTile(visitablePos())->getDiggingStatus();
 }
 
 ArtBearer::ArtBearer CGHeroInstance::bearerType() const
@@ -1375,7 +1362,7 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
 
-	const int distance = static_cast<int>(target->pos.dist2d(getPosition(false)));
+	const int distance = static_cast<int>(target->pos.dist2d(visitablePos()));
 
 	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
@@ -1611,7 +1598,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!handler.saving)
 		{
 			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
-			patrol.initialPos = convertPosition(pos, false);
+			patrol.initialPos = visitablePos();
 			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
 		}
 	}

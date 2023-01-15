@@ -15,7 +15,6 @@
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMT.h"
@@ -78,7 +77,7 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		#if 0
 		owner->update(hero, true);
 		#else
-		UNUSED(owner);
+		MAYBE_UNUSED(owner);
 		const CGHeroInstance * buf = hero;
 		GH.popInts(1);
 		GH.pushIntT<CHeroWindow>(buf);
@@ -109,18 +108,18 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	curHero = hero;
 
 	banner = std::make_shared<CAnimImage>("CREST58", LOCPLINT->playerID.getNum(), 0, 606, 8);
-	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, EAlignment::CENTER, Colors::YELLOW);
-	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, EAlignment::CENTER, Colors::WHITE);
+	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
+	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
 
 	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
 
-	dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, TOPLEFT, Colors::WHITE);
+	dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, SDLK_d);
 
-	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, TOPLEFT, Colors::WHITE);
+	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, SDLK_q);
 
 	formations = std::make_shared<CToggleGroup>(0);
@@ -129,8 +128,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	if(hero->commander)
 	{
-		auto texts = CGI->generaltexth->localizedTexts["heroWindow"]["openCommander"];
-		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltip(texts), [&](){ commanderWindow(); }, SDLK_c);
+		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, SDLK_c);
 	}
 
 	//right list of heroes
@@ -149,7 +147,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
 		primSkillAreas.push_back(area);
 
-		auto value = std::make_shared<CLabel>(53 + 70 * v, 166, FONT_SMALL, CENTER);
+		auto value = std::make_shared<CLabel>(53 + 70 * v, 166, FONT_SMALL, ETextAlignment::CENTER);
 		primSkillValues.push_back(value);
 	}
 
@@ -184,19 +182,19 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
 
-		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, TOPLEFT));
-		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, TOPLEFT));
+		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT));
+		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT));
 	}
 
 	// various texts
-	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[1]));
-	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[2]));
-	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[3]));
-	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[4]));
+	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[1]));
+	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[2]));
+	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[3]));
+	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[4]));
 
-	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[5]));
-	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[6]));
-	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[7]));
+	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[5]));
+	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[6]));
+	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[7]));
 
 	update(hero);
 }

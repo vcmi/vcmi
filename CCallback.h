@@ -133,8 +133,6 @@ public:
 	virtual int3 getGuardingCreaturePosition(int3 tile);
 	virtual std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 
-	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
-
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
 	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);

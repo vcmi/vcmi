@@ -1022,14 +1022,6 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 		return;
 	}
 
-	bool hasNull = dest.isNull() || source.isNull();
-	bool sameType = dest.getType() == source.getType();
-	bool sourceNumeric = source.getType() == JsonNode::JsonType::DATA_FLOAT || source.getType() == JsonNode::JsonType::DATA_INTEGER;
-	bool destNumeric = dest.getType() == JsonNode::JsonType::DATA_FLOAT || dest.getType() == JsonNode::JsonType::DATA_INTEGER;
-	bool bothNumeric = sourceNumeric && destNumeric;
-
-	assert( hasNull || sameType || bothNumeric );
-
 	switch (source.getType())
 	{
 		case JsonNode::JsonType::DATA_NULL:

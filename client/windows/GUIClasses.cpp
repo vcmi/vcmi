@@ -17,7 +17,6 @@
 #include "CreatureCostBox.h"
 #include "InfoWindows.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
@@ -27,10 +26,10 @@
 #include "../mapHandler.h"
 #include "../CServerHandler.h"
 
-#include "../battle/CBattleInterfaceClasses.h"
-#include "../battle/CBattleInterface.h"
-#include "../battle/CCreatureAnimation.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
 
+#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CCursorHandler.h"
@@ -205,7 +204,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	slider = std::make_shared<CSlider>(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
@@ -213,15 +212,15 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 	buyButton = std::make_shared<CButton>(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), SDLK_RETURN);
 	cancelButton = std::make_shared<CButton>(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), SDLK_ESCAPE);
 
-	title = std::make_shared<CLabel>(243, 32, FONT_BIG, CENTER, Colors::YELLOW);
-	availableValue = std::make_shared<CLabel>(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
-	toRecruitValue = std::make_shared<CLabel>(279, 253, FONT_SMALL, CENTER, Colors::WHITE);
+	title = std::make_shared<CLabel>(243, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
+	availableValue = std::make_shared<CLabel>(205, 253, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	toRecruitValue = std::make_shared<CLabel>(279, 253, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	costPerTroopValue = std::make_shared<CreatureCostBox>(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
 	totalCostValue = std::make_shared<CreatureCostBox>(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
 
-	availableTitle = std::make_shared<CLabel>(205, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]);
-	toRecruitTitle = std::make_shared<CLabel>(279, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[16]);
+	availableTitle = std::make_shared<CLabel>(205, 233, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]);
+	toRecruitTitle = std::make_shared<CLabel>(279, 233, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[16]);
 
 	availableCreaturesChanged();
 }
@@ -334,7 +333,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	std::string titleStr = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(titleStr,"%s", creature->namePl);
-	title = std::make_shared<CLabel>(150, 34, FONT_BIG, CENTER, Colors::YELLOW, titleStr);
+	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 }
 
 void CSplitWindow::setAmountText(std::string text, bool left)
@@ -405,15 +404,15 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 	ok = std::make_shared<CButton>(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
 
 	//%s is now a level %d %s.
-	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, CENTER, Colors::WHITE,
+	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
 		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
 
 	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
 
-	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->primarySkillNames[pskill] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->primarySkillNames[pskill] + " +1");
 }
 
 
@@ -448,27 +447,24 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	title = std::make_shared<CLabel>(242, 32, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
-
-	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"];
+	title = std::make_shared<CLabel>(242, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
 
 	//left window section
-	leftGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, CENTER, Colors::YELLOW);
+	leftGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
-	leftGroup->add(122, 262, texts["resolutionButton"]["label"].String());
+	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
 	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
 	//right section
-	rightGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	rightGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
 	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
-	rightGroup->add(282, 185, texts["creatureWindowButton"]["label"].String());
-	rightGroup->add(282, 217, texts["fullscreenButton"]["label"].String());
+	rightGroup->add(282, 217, CGI->generaltexth->translate("vcmi.systemOptions.fullscreenButton.hover"));
 
 	//setting up buttons
 	load = std::make_shared<CButton>(Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
@@ -521,10 +517,10 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	mapScrollSpeed->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
 	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
-	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
+	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), CVolumeSlider::MUSIC);
 	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
 
-	effectsVolume = std::make_shared<CVolumeSlider>(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), &CGI->generaltexth->zelp[336]);
+	effectsVolume = std::make_shared<CVolumeSlider>(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), CVolumeSlider::SOUND);
 	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
 	showReminder = std::make_shared<CToggleButton>(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361], [&](bool value)
@@ -545,7 +541,7 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	});
 	spellbookAnim->setSelected(settings["video"]["spellbookAnimation"].Bool());
 
-	fullscreen = std::make_shared<CToggleButton>(Point(246, 215), "sysopchk.def", CButton::tooltip(texts["fullscreenButton"]), [&](bool value)
+	fullscreen = std::make_shared<CToggleButton>(Point(246, 215), "sysopchk.def", CButton::tooltipLocalized("vcmi.systemOptions.fullscreenButton"), [&](bool value)
 	{
 		setBoolSetting("video", "fullscreen", value);
 	});
@@ -553,16 +549,15 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
 
-	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
+	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltipLocalized("vcmi.systemOptions.resolutionButton"), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
 	const auto & screenRes = settings["video"]["screenRes"];
-	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
+	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
 }
 
 void CSystemOptionsWindow::selectGameRes()
 {
 	std::vector<std::string> items;
-	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
 #ifndef VCMI_IOS
 	SDL_Rect displayBounds;
@@ -580,13 +575,17 @@ void CSystemOptionsWindow::selectGameRes()
 #endif
 
 		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
-		if(gameResLabel->text == resolutionStr)
+		if(gameResLabel->getText() == resolutionStr)
 			currentResolutionIndex = i;
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
 
-	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1), currentResolutionIndex);
+	GH.pushIntT<CObjectListWindow>(items, nullptr,
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
+								   std::bind(&CSystemOptionsWindow::setGameRes, this, _1),
+								   currentResolutionIndex);
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -667,13 +666,13 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0]);
 	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1]);
 
-	title = std::make_shared<CLabel>(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
-	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
+	title = std::make_shared<CLabel>(200, 35, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
+	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
 
 	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
-	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = std::make_shared<CButton>(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
 	recruit = std::make_shared<CButton>(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
 	thiefGuild = std::make_shared<CButton>(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
@@ -799,7 +798,7 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
-		GH.statusbar->setText(hoverName);
+		GH.statusbar->write(hoverName);
 	else
 		GH.statusbar->clear();
 }
@@ -918,7 +917,7 @@ std::function<void()> CExchangeController::onSwapArmy()
 	{
 		GsThread::run([=]
 		{
-			if(right->tempOwner != cb->getMyColor()
+			if(left->tempOwner != cb->getMyColor()
 				|| right->tempOwner != cb->getMyColor())
 			{
 				return;
@@ -1083,8 +1082,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		return boost::str(fmt);
 	};
 
-	titles[0] = std::make_shared<CLabel>(147, 25, FONT_SMALL, CENTER, Colors::WHITE, genTitle(heroInst[0]));
-	titles[1] = std::make_shared<CLabel>(653, 25, FONT_SMALL, CENTER, Colors::WHITE, genTitle(heroInst[1]));
+	titles[0] = std::make_shared<CLabel>(147, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));
+	titles[1] = std::make_shared<CLabel>(653, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[1]));
 
 	auto PSKIL32 = std::make_shared<CAnimation>("PSKIL32");
 	PSKIL32->preload();
@@ -1106,7 +1105,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		herosWArt[leftRight] = std::make_shared<CHeroWithMaybePickedArtifact>(this, hero);
 
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
-			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (qeLayout ? 96 : 93) * leftRight, (qeLayout ? 22 : 35) + (qeLayout ? 26 : 36) * m, FONT_SMALL, CENTER, Colors::WHITE));
+			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (qeLayout ? 96 : 93) * leftRight, (qeLayout ? 22 : 35) + (qeLayout ? 26 : 36) * m, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE));
 
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
@@ -1115,10 +1114,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		specImages[leftRight] = std::make_shared<CAnimImage>("UN32", hero->type->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
 
 		expImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 4, 0, 103 + 490 * leftRight, qeLayout ? 41 : 45);
-		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, CENTER, Colors::WHITE);
+		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 		manaImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 5, 0, 139 + 490 * leftRight, qeLayout ? 41 : 45);
-		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, CENTER, Colors::WHITE);
+		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
 	portraits[0] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[0]->portrait, 0, 257, 13);
@@ -1209,7 +1208,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, barRect, 5, 578, false));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578, false));
 
 	//garrison interface
 
@@ -1218,7 +1217,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 
-	if (qeLayout && (CGI->generaltexth->qeModCommands.size() >= 5))
+	if(qeLayout)
 	{
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToRight());
 		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[2]), controller.onSwapArmy());
@@ -1246,12 +1245,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	updateWidgets();
-}
-
-CExchangeWindow::~CExchangeWindow()
-{
-	artifs[0]->commonInfo = nullptr;
-	artifs[1]->commonInfo = nullptr;
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
@@ -1317,8 +1310,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 	std::string goldValue = boost::lexical_cast<std::string>(cost[Res::GOLD]);
 	std::string woodValue = boost::lexical_cast<std::string>(cost[Res::WOOD]);
 
-	goldCost = std::make_shared<CLabel>(118, 294, FONT_SMALL, CENTER, Colors::WHITE, goldValue);
-	woodCost = std::make_shared<CLabel>(212, 294, FONT_SMALL, CENTER, Colors::WHITE, woodValue);
+	goldCost = std::make_shared<CLabel>(118, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, goldValue);
+	woodCost = std::make_shared<CLabel>(212, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, woodValue);
 
 	goldPic = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = std::make_shared<CAnimImage>("RESOURCE", Res::WOOD, 0, 196, 244);
@@ -1336,10 +1329,10 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 		}
 	}
 
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
-	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[14]);
+	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
+	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[14]);
 }
 
 CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
@@ -1356,7 +1349,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
 
 	logo = std::make_shared<CPicture>("PUZZLOGO", 607, 3);
-	title = std::make_shared<CLabel>(700, 95, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
+	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
 	resDataBar = std::make_shared<CResDataBar>("ARESBAR.bmp", 3, 575, 32, 2, 85, 85);
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
@@ -1453,7 +1446,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
 	icon = std::make_shared<CAnimImage>("TWCRPORT", parent->army->getCreature(SlotID(id))->idNumber + 2);
-	count = std::make_shared<CLabel>(28, 76,FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size));
+	count = std::make_shared<CLabel>(28, 76,FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size));
 }
 
 void CTransformerWindow::makeDeal()
@@ -1501,12 +1494,12 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	all = std::make_shared<CButton>(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, SDLK_a);
 	convert = std::make_shared<CButton>(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&](){ makeDeal(); }, SDLK_RETURN);
 	cancel = std::make_shared<CButton>(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&](){ close(); },SDLK_ESCAPE);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	titleLeft = std::make_shared<CLabel>(153, 29,FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]);//holding area
-	titleRight = std::make_shared<CLabel>(153+295, 29, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]);//transformer
-	helpLeft = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW);//move creatures to create skeletons
-	helpRight = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW);//creatures here will become skeletons
+	titleLeft = std::make_shared<CLabel>(153, 29,FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]);//holding area
+	titleRight = std::make_shared<CLabel>(153+295, 29, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]);//transformer
+	helpLeft = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//move creatures to create skeletons
+	helpRight = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//creatures here will become skeletons
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
@@ -1523,8 +1516,8 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 
 	icon = std::make_shared<CAnimImage>("SECSKILL", _ID * 3 + 3, 0);
 
-	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, CENTER, Colors::WHITE, CGI->skillh->skillName(ID));
-	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
+	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->skillName(ID));
+	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
 
 	pos.h = icon->pos.h;
 	pos.w = icon->pos.w;
@@ -1550,7 +1543,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(CGI->skillh->skillName(ID));
+		GH.statusbar->write(CGI->skillh->skillName(ID));
 	else
 		GH.statusbar->clear();
 }
@@ -1605,8 +1598,8 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 	titlePic->center(Point(232 + pos.x, 76 + pos.y));
 
-	clerkSpeech = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);
-	title = std::make_shared<CLabel>(231, 26, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[602]);
+	clerkSpeech = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	title = std::make_shared<CLabel>(231, 26, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[602]);
 
 	std::vector<int> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
 	assert(goods.size() == 4);
@@ -1615,7 +1608,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 		items.push_back(std::make_shared<CItem>(this, goods[i], 54+i*104, 234));
 
 	cancel = std::make_shared<CButton>(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&](){ close(); }, SDLK_RETURN);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CUniversityWindow::makeDeal(int skill)
@@ -1635,14 +1628,14 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
 	boost::replace_first(text, "%d", "2000");
 
-	clerkSpeech = std::make_shared<CTextBox>(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	clerkSpeech = std::make_shared<CTextBox>(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, CENTER, Colors::WHITE, CGI->skillh->skillName(SKILL));
+	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->skillName(SKILL));
 	icon = std::make_shared<CAnimImage>("SECSKILL", SKILL*3+3, 0, 211, 51);
-	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);
+	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);
 
 	costIcon = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 210, 210);
-	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, CENTER, Colors::WHITE, "2000");
+	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "2000");
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
 	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->skillh->skillName(SKILL));
@@ -1656,7 +1649,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	confirm->block(!available);
 
 	cancel = std::make_shared<CButton>(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, SDLK_ESCAPE);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CUnivConfirmWindow::makeDeal(int skill)
@@ -1695,7 +1688,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 			logGlobal->error("Invalid armed instance for garrison window.");
 		}
 	}
-	title = std::make_shared<CLabel>(275, 30, FONT_BIG, CENTER, Colors::YELLOW, titleText);
+	title = std::make_shared<CLabel>(275, 30, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleText);
 
 	banner = std::make_shared<CAnimImage>("CREST58", up->getOwner().getNum(), 0, 28, 124);
 	portrait = std::make_shared<CAnimImage>("PortraitsLarge", down->portrait, 0, 29, 222);
@@ -1713,14 +1706,14 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	title = std::make_shared<CLabel>(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->getObjectName());
+	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName());
 
 	heroPic = std::make_shared<CHeroArea>(30, 60, hero);
 
 	for(int i=0; i < resCount; i++)
 	{
 		totalIcons[i] = std::make_shared<CAnimImage>("SMALRES", i, 0, 104 + 76 * i, 237);
-		totalLabels[i] = std::make_shared<CLabel>(166 + 76 * i, 253, FONT_SMALL, BOTTOMRIGHT);
+		totalLabels[i] = std::make_shared<CLabel>(166 + 76 * i, 253, FONT_SMALL, ETextAlignment::BOTTOMRIGHT);
 	}
 
 	for(int i = 0; i < slotsCount; i++)
@@ -1732,7 +1725,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		for(int j : {0,1})
 		{
 			slotIcons[i][j] = std::make_shared<CAnimImage>("SMALRES", 0, 0, 104 + 76 * i, 128 + 20 * j);
-			slotLabels[i][j] = std::make_shared<CLabel>(168 + 76 * i, 144 + 20 * j, FONT_SMALL, BOTTOMRIGHT);
+			slotLabels[i][j] = std::make_shared<CLabel>(168 + 76 * i, 144 + 20 * j, FONT_SMALL, ETextAlignment::BOTTOMRIGHT);
 		}
 	}
 
@@ -1741,7 +1734,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		upgradeAll->addImage(image);
 
 	quit = std::make_shared<CButton>(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), SDLK_RETURN);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(108, 60, 18, Point(), hero, nullptr);
 	updateGarrisons();
@@ -1764,7 +1757,7 @@ void CHillFortWindow::updateGarrisons()
 		if(newState != -1)
 		{
 			UpgradeInfo info;
-			LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 			if(info.newID.size())//we have upgrades here - update costs
 			{
 				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
@@ -1869,7 +1862,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 				if(slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ))//this is activated slot or "upgrade all"
 				{
 					UpgradeInfo info;
-					LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
 				}
 			}
@@ -1900,7 +1893,7 @@ int CHillFortWindow::getState(SlotID slot)
 		return -1;
 
 	UpgradeInfo info;
-	LOCPLINT->cb->getUpgradeInfo(hero, slot, info);
+	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
 	if(!info.newID.size())//already upgraded
 		return 1;
 
@@ -1945,7 +1938,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 		std::string text = CGI->generaltexth->jktexts[24+g];
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
-		rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, CENTER, Colors::YELLOW, text));
+		rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text));
 	}
 
 	auto PRSTRIPS = std::make_shared<CAnimation>("PRSTRIPS");
@@ -1955,7 +1948,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		columnBackgrounds.push_back(std::make_shared<CAnimImage>(PRSTRIPS, g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 24, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
+		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 24, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
 
 	auto itgflags = std::make_shared<CAnimation>("itgflags");
 	itgflags->preload();
@@ -2004,11 +1997,11 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			if(iter.second.details)
 			{
 				primSkillHeaders.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[184], Rect(260 + 66*counter, 396, 52, 64),
-					0, FONT_TINY, TOPLEFT, Colors::WHITE));
+					0, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE));
 
 				for(int i=0; i<iter.second.details->primskills.size(); ++i)
 				{
-					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11*i, FONT_TINY, BOTTOMRIGHT, Colors::WHITE,
+					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11*i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
 							   boost::lexical_cast<std::string>(iter.second.details->primskills[i])));
 				}
 			}
@@ -2039,7 +2032,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			text = CGI->generaltexth->arraytxt[168 + it.second];
 		}
 
-		personalities.push_back(std::make_shared<CLabel>(283 + 66*counter, 459, FONT_SMALL, CENTER, Colors::WHITE, text));
+		personalities.push_back(std::make_shared<CLabel>(283 + 66*counter, 459, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text));
 
 		counter++;
 	}
@@ -2056,7 +2049,7 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 
 	type |= REDRAW_PARENT;
 
-	text = std::make_shared<CLabel>(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::WHITE, _text);
+	text = std::make_shared<CLabel>(pos.w/2, pos.h/2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _text);
 	select(index == parent->selected);
 }
 
@@ -2109,8 +2102,8 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 {
 	titleWidget = titleWidget_;
 
-	title = std::make_shared<CLabel>(152, 27, FONT_BIG, CENTER, Colors::YELLOW, _title);
-	descr = std::make_shared<CLabel>(145, 133, FONT_SMALL, CENTER, Colors::WHITE, _descr);
+	title = std::make_shared<CLabel>(152, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, _title);
+	descr = std::make_shared<CLabel>(145, 133, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _descr);
 	exit = std::make_shared<CButton>( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), SDLK_ESCAPE);
 
 	if(titleWidget)

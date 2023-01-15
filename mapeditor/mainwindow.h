@@ -7,9 +7,13 @@
 #include "../lib/Terrain.h"
 #include "resourceExtractor/ResourceConverter.h"
 
-class CMap;
+class ObjectBrowser;
 class ObjectBrowserProxyModel;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
 class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
 
 namespace Ui
 {
@@ -24,6 +28,10 @@ class MainWindow : public QMainWindow
 
 	const QString mainWindowSizeSetting = "MainWindow/Size";
 	const QString mainWindowPositionSetting = "MainWindow/Position";
+
+#ifdef ENABLE_QT_TRANSLATIONS
+	QTranslator translator;
+#endif
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -43,6 +51,8 @@ public:
 	int getMapLevel() const {return mapLevel;}
 	
 	MapController controller;
+
+	void loadTranslation();
 
 private slots:
 	void on_actionOpen_triggered();
@@ -97,6 +107,12 @@ private slots:
 	void on_actionRecreate_obstacles_triggered();
 	
 	void switchDefaultPlayer(const PlayerColor &);
+
+	void on_actionCut_triggered();
+
+	void on_actionCopy_triggered();
+
+	void on_actionPaste_triggered();
 
 public slots:
 

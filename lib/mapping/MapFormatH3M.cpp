@@ -52,7 +52,7 @@ std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
 std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
 {
 	// Read header
-	mapHeader = make_unique<CMapHeader>();
+	mapHeader = std::make_unique<CMapHeader>();
 	readHeader();
 
 	return std::move(mapHeader);
@@ -1657,15 +1657,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	nhi->formation = reader.readUInt8();
 	loadArtifactsOfHero(nhi);
 	nhi->patrol.patrolRadius = reader.readUInt8();
-	if(nhi->patrol.patrolRadius == 0xff)
-	{
-		nhi->patrol.patrolling = false;
-	}
-	else
-	{
-		nhi->patrol.patrolling = true;
-		nhi->patrol.initialPos = CGHeroInstance::convertPosition(initialPos, false);
-	}
+	nhi->patrol.patrolling = (nhi->patrol.patrolRadius != 0xff);
 
 	if(map->version > EMapFormat::ROE)
 	{

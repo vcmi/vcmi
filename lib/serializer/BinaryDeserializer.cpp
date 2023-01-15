@@ -42,7 +42,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 	try
 	{
 		fName = fname.string();
-		sfile = make_unique<FileStream>(fname, std::ios::in | std::ios::binary);
+		sfile = std::make_unique<FileStream>(fname, std::ios::in | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))

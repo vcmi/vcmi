@@ -220,6 +220,7 @@ void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 		{
 			RiverType info;
 
+			info.name = river.first;
 			info.fileName = river.second["animation"].String();
 			info.code = river.second["code"].String();
 			info.deltaName = river.second["delta"].String();
@@ -255,6 +256,7 @@ void TerrainTypeHandler::initRoads(const std::vector<std::string> & allConfigs)
 		{
 			RoadType info;
 
+			info.name = road.first;
 			info.fileName = road.second["animation"].String();
 			info.code = road.second["code"].String();
 			info.movementCost = static_cast<ui8>(road.second["moveCost"].Float());
@@ -295,7 +297,7 @@ void TerrainTypeHandler::recreateRiverMaps()
 	{
 		const auto * riverInfo = &riverTypes[i];
 
-		riverInfoByName[riverInfo->fileName] = riverInfo;
+		riverInfoByName[riverInfo->name] = riverInfo;
 		riverInfoByCode[riverInfo->code] = riverInfo;
 		riverInfoById[riverInfo->id] = riverInfo;
 	}
@@ -307,7 +309,7 @@ void TerrainTypeHandler::recreateRoadMaps()
 	{
 		const auto * roadInfo = &roadTypes[i];
 
-		roadInfoByName[roadInfo->fileName] = roadInfo;
+		roadInfoByName[roadInfo->name] = roadInfo;
 		roadInfoByCode[roadInfo->code] = roadInfo;
 		roadInfoById[roadInfo->id] = roadInfo;
 	}
@@ -436,6 +438,16 @@ bool TerrainType::isSurface() const
 bool TerrainType::isUnderground() const
 {
 	return passabilityType & PassabilityType::SUBTERRANEAN;
+}
+
+bool TerrainType::isSurfaceCartographerCompatible() const
+{
+	return isSurface();
+}
+
+bool TerrainType::isUndergroundCartographerCompatible() const
+{
+	return isLand() && isPassable() && !isSurface();
 }
 
 bool TerrainType::isTransitionRequired() const

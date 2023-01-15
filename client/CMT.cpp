@@ -468,10 +468,9 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
-		CCS->curh = new CCursorHandler();
-		graphics = new Graphics(); // should be before curh->init()
+		graphics = new Graphics(); // should be before curh
 
-		CCS->curh->initCursor();
+		CCS->curh = new CCursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
 		pomtime.getDiff();
 
@@ -585,6 +584,7 @@ void removeGUI()
 	GH.curInt = nullptr;
 	if(GH.topInt())
 		GH.topInt()->deactivate();
+	adventureInt = nullptr;
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
 	GH.statusbar = nullptr;
@@ -664,36 +664,7 @@ void processCommand(const std::string &message)
 //	}
 	else if(message=="convert txt")
 	{
-		std::cout << "Command accepted.\t";
-
-		const bfs::path outPath =
-			VCMIDirs::get().userExtractedPath();
-
-		bfs::create_directories(outPath);
-
-		auto extractVector = [=](const std::vector<std::string> & source, const std::string & name)
-		{
-			JsonNode data(JsonNode::JsonType::DATA_VECTOR);
-			size_t index = 0;
-			for(auto & line : source)
-			{
-				JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
-				lineNode["text"].String() = line;
-				lineNode["index"].Integer() = index++;
-				data.Vector().push_back(lineNode);
-			}
-
-			const bfs::path filePath = outPath / (name + ".json");
-			bfs::ofstream file(filePath);
-			file << data.toJson();
-		};
-
-		extractVector(VLC->generaltexth->allTexts, "generalTexts");
-		extractVector(VLC->generaltexth->jktexts, "jkTexts");
-		extractVector(VLC->generaltexth->arraytxt, "arrayTexts");
-
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+		VLC->generaltexth->dumpAllTexts();
 	}
 	else if(message=="get config")
 	{
@@ -878,7 +849,7 @@ void processCommand(const std::string &message)
 	{
 		std::string URI;
 		readed >> URI;
-		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
+		std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
 		anim->preload();
 		anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 	}
@@ -1086,7 +1057,6 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
-		return false;
 	}
 #endif
 
@@ -1508,80 +1478,89 @@ static void mainLoop()
 	}
 }
 
+static void quitApplication()
+{
+	if(!settings["session"]["headless"].Bool())
+	{
+		if(CSH->client)
+			CSH->endGameplay();
+	}
+
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+
+	CMM.reset();
+
+	if(!settings["session"]["headless"].Bool())
+	{
+		// cleanup, mostly to remove false leaks from analyzer
+		if(CCS)
+		{
+			CCS->musich->release();
+			CCS->soundh->release();
+
+			vstd::clear_pointer(CCS);
+		}
+		CMessage::dispose();
+
+		vstd::clear_pointer(graphics);
+	}
+
+	vstd::clear_pointer(VLC);
+
+	vstd::clear_pointer(console);// should be removed after everything else since used by logging
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
+	if(!settings["session"]["headless"].Bool())
+	{
+		if(settings["general"]["notifications"].Bool())
+		{
+			NotificationHandler::destroy();
+		}
+
+		cleanupRenderer();
+
+		if(nullptr != mainRenderer)
+		{
+			SDL_DestroyRenderer(mainRenderer);
+			mainRenderer = nullptr;
+		}
+
+		if(nullptr != mainWindow)
+		{
+			SDL_DestroyWindow(mainWindow);
+			mainWindow = nullptr;
+		}
+
+		SDL_Quit();
+	}
+
+	if(logConfig != nullptr)
+	{
+		logConfig->deconfigure();
+		delete logConfig;
+		logConfig = nullptr;
+	}
+
+	std::cout << "Ending...\n";
+	exit(0);
+}
+
 void handleQuit(bool ask)
 {
-	auto quitApplication = []()
-	{
-		if(!settings["session"]["headless"].Bool())
-		{
-			if(CSH->client)
-				CSH->endGameplay();
-		}
-
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-
-		CMM.reset();
-
-		if(!settings["session"]["headless"].Bool())
-		{
-			// cleanup, mostly to remove false leaks from analyzer
-			if(CCS)
-			{
-				CCS->musich->release();
-				CCS->soundh->release();
-
-				vstd::clear_pointer(CCS);
-			}
-			CMessage::dispose();
-
-			vstd::clear_pointer(graphics);
-		}
-
-		vstd::clear_pointer(VLC);
-
-		vstd::clear_pointer(console);// should be removed after everything else since used by logging
-
-		boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
-		if(!settings["session"]["headless"].Bool())
-		{
-			if(settings["general"]["notifications"].Bool())
-			{
-				NotificationHandler::destroy();
-			}
-
-			cleanupRenderer();
-
-			if(nullptr != mainRenderer)
-			{
-				SDL_DestroyRenderer(mainRenderer);
-				mainRenderer = nullptr;
-			}
-
-			if(nullptr != mainWindow)
-			{
-				SDL_DestroyWindow(mainWindow);
-				mainWindow = nullptr;
-			}
-
-			SDL_Quit();
-		}
-
-		if(logConfig != nullptr)
-		{
-			logConfig->deconfigure();
-			delete logConfig;
-			logConfig = nullptr;
-		}
-
-		std::cout << "Ending...\n";
-		exit(0);
-	};
 
 	if(CSH->client && LOCPLINT && ask)
 	{
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+		CCS->curh->set(Cursor::Map::POINTER);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], [](){
+			// Workaround for assertion failure on exit:
+			// handleQuit() is alway called during SDL event processing
+			// during which, eventsM is kept locked
+			// this leads to assertion failure if boost::mutex is in locked state
+			eventsM.unlock();
+
+			quitApplication();
+		}, nullptr);
 	}
 	else
 	{

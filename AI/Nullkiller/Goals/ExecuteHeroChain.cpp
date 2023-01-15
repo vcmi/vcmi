@@ -127,7 +127,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 							continue;
 						}
 					}
-					catch(cannotFulfillGoalException)
+					catch(const cannotFulfillGoalException &)
 					{
 						if(!heroPtr.validAndSet())
 						{
@@ -173,7 +173,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node.parentIndex);
 		}
-		catch(goalFulfilledException)
+		catch(const goalFulfilledException &)
 		{
 			if(!heroPtr.validAndSet())
 			{

@@ -60,6 +60,8 @@ public:
 	bool isSurface() const;
 	bool isUnderground() const;
 	bool isTransitionRequired() const;
+	bool isSurfaceCartographerCompatible() const;
+	bool isUndergroundCartographerCompatible() const;
 		
 	operator std::string() const;
 	
@@ -89,7 +91,7 @@ public:
 class DLL_LINKAGE RiverType
 {
 public:
-
+	std::string name;
 	std::string fileName;
 	std::string code;
 	std::string deltaName;
@@ -99,6 +101,10 @@ public:
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
+		if(version >= 806)
+		{
+			h & name;
+		}
 		h & fileName;
 		h & code;
 		h & deltaName;
@@ -109,6 +115,7 @@ public:
 class DLL_LINKAGE RoadType
 {
 public:
+	std::string name;
 	std::string fileName;
 	std::string code;
 	RoadId id;
@@ -118,6 +125,10 @@ public:
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
+		if(version >= 806)
+		{
+			h & name;
+		}
 		h & fileName;
 		h & code;
 		h & id;

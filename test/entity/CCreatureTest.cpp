@@ -19,7 +19,7 @@ using namespace ::testing;
 class CCreatureTest : public Test
 {
 public:
-	MOCK_METHOD3(registarCb, void(int32_t, const std::string &, const std::string &));
+	MOCK_METHOD4(registarCb, void(int32_t, int32_t, const std::string &, const std::string &));
 protected:
 	std::shared_ptr<CCreature> subject;
 
@@ -35,10 +35,10 @@ TEST_F(CCreatureTest, RegistersIcons)
 	subject->smallIconName = "Test1";
 	subject->largeIconName = "Test2";
 
-	auto cb = std::bind(&CCreatureTest::registarCb, this, _1, _2, _3);
+	auto cb = std::bind(&CCreatureTest::registarCb, this, _1, _2, _3, _4);
 
-	EXPECT_CALL(*this, registarCb(Eq(4242), "CPRSMALL", "Test1"));
-	EXPECT_CALL(*this, registarCb(Eq(4242), "TWCRPORT", "Test2"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "CPRSMALL", "Test1"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "TWCRPORT", "Test2"));
 
 	subject->registerIcons(cb);
 }

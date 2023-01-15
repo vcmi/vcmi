@@ -731,7 +731,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
-	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
+	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
@@ -756,7 +756,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
 			arts.push_back(art);
-			ma->dst = ArtifactLocation(finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
+			auto slot = art->firstAvailableSlot(finishingBattle->winnerHero);
+			ma->dst = ArtifactLocation(finishingBattle->winnerHero, slot);
+			if(ArtifactUtils::isSlotBackpack(slot))
+				ma->askAssemble = false;
 			sendAndApply(ma);
 		};
 
@@ -950,7 +953,7 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 	if (visitObjectAfterVictory && result.winner==0 && !finishingBattle->winnerHero->stacks.empty())
 	{
 		logGlobal->trace("post-victory visit");
-		visitObjectOnTile(*getTile(finishingBattle->winnerHero->getPosition()), finishingBattle->winnerHero);
+		visitObjectOnTile(*getTile(finishingBattle->winnerHero->visitablePos()), finishingBattle->winnerHero);
 	}
 	visitObjectAfterVictory = false;
 
@@ -1009,6 +1012,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	BattleAttack bat;
 	BattleLogMessage blm;
 	bat.stackAttacking = attacker->unitId();
+	bat.tile = targetHex;
 
 	std::shared_ptr<battle::CUnitState> attackerState = attacker->acquireState();
 
@@ -1114,6 +1118,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
+	if (drainedLife > 0)
+		bat.flags |= BattleAttack::LIFE_DRAIN;
+
 	sendAndApply(&bat);
 
 	{
@@ -1142,17 +1149,6 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	// drain life effect (as well as log entry) must be applied after the attack
 	if(drainedLife > 0)
 	{
-		BattleAttack bat;
-		bat.stackAttacking = attacker->unitId();
-		{
-			CustomEffectInfo customEffect;
-			customEffect.sound = soundBase::DRAINLIF;
-			customEffect.effect = 52;
-			customEffect.stack = attackerState->unitId();
-			bat.customEffects.push_back(std::move(customEffect));
-		}
-		sendAndApply(&bat);
-
 		MetaString text;
 		attackerState->addText(text, MetaString::GENERAL_TXT, 361);
 		attackerState->addNameReplacement(text, false);
@@ -1187,28 +1183,30 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			//FIXME: add custom effect on actor
 		}
 
-		BattleStackAttacked bsa;
-
-		bsa.stackAttacked = attacker->ID; //invert
-		bsa.attackerID = uint32_t(-1);
-		bsa.flags |= BattleStackAttacked::EFFECT;
-		bsa.effect = 11;
-		bsa.damageAmount = totalDamage;
-		attacker->prepareAttacked(bsa, getRandomGenerator());
-
-		StacksInjured pack;
-		pack.stacks.push_back(bsa);
-		sendAndApply(&pack);
-
-		// TODO: this is already implemented in Damage::describeEffect()
+		if (totalDamage > 0)
 		{
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 376);
-			text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
-			text.addReplacement(totalDamage);
-			blm.lines.push_back(std::move(text));
+			BattleStackAttacked bsa;
+
+			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
+			bsa.stackAttacked = attacker->ID; //invert
+			bsa.attackerID = defender->ID;
+			bsa.damageAmount = totalDamage;
+			attacker->prepareAttacked(bsa, getRandomGenerator());
+
+			StacksInjured pack;
+			pack.stacks.push_back(bsa);
+			sendAndApply(&pack);
+
+			// TODO: this is already implemented in Damage::describeEffect()
+			{
+				MetaString text;
+				text.addTxt(MetaString::GENERAL_TXT, 376);
+				text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
+				text.addReplacement(totalDamage);
+				blm.lines.push_back(std::move(text));
+			}
+			addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 		}
-		addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 	}
 
 	sendAndApply(&blm);
@@ -1221,6 +1219,7 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 	BattleStackAttacked bsa;
 	if(secondary)
 		bsa.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
+
 	bsa.attackerID = attackerState->unitId();
 	bsa.stackAttacked = def->unitId();
 	{
@@ -1274,8 +1273,12 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling
-	if(!bat.shot() && !def->isClone() &&
-		def->hasBonusOfType(Bonus::FIRE_SHIELD) && !attackerState->hasBonusOfType(Bonus::FIRE_IMMUNITY))
+	if(!bat.shot() &&
+		!def->isClone() &&
+		def->hasBonusOfType(Bonus::FIRE_SHIELD) &&
+		!attackerState->hasBonusOfType(Bonus::FIRE_IMMUNITY) &&
+		CStack::isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
+			)
 	{
 		//TODO: use damage with bonus but without penalties
 		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
@@ -1300,7 +1303,7 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 	if(killed > 0)
 	{
 		const int32_t txtIndex = (killed > 1) ? 379 : 378;
-		std::string formatString = VLC->generaltexth->allTexts.at(txtIndex);
+		std::string formatString = VLC->generaltexth->allTexts[txtIndex];
 
 		// these default h3 texts have unnecessary new lines, so get rid of them before displaying (and trim just in case, trimming newlines does not works for some reason)
 		formatString.erase(std::remove(formatString.begin(), formatString.end(), '\n'), formatString.end());
@@ -1669,7 +1672,7 @@ CGameHandler::~CGameHandler()
 
 void CGameHandler::reinitScripting()
 {
-	serverEventBus = make_unique<events::EventBus>();
+	serverEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
 	serverScripts.reset(new scripting::PoolImpl(this, spellEnv));
 #endif
@@ -1929,9 +1932,9 @@ void CGameHandler::newTurn()
 
 			NewTurn::Hero hth;
 			hth.id = h->id;
-			auto ti = make_unique<TurnInfo>(h, 1);
+			auto ti = std::make_unique<TurnInfo>(h, 1);
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->maxMovePointsCached(gs->map->getTile(h->getPosition(false)).terType->isLand(), ti.get());
+			hth.move = h->maxMovePointsCached(gs->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
 			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
@@ -2326,7 +2329,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	}
 
 	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos.toString(), dst.toString());
-	const int3 hmpos = CGHeroInstance::convertPosition(dst, false);
+	const int3 hmpos = h->convertToVisitablePos(dst);
 
 	if (!gs->map->isInTheMap(hmpos))
 	{
@@ -2349,14 +2352,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
-	auto pathfinderHelper = make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
 
 	pathfinderHelper->updateTurnInfo(0);
 	auto ti = pathfinderHelper->getTurnInfo();
 
 	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING);
-	const int cost = pathfinderHelper->getMovementCost(h->getPosition(), hmpos, nullptr, nullptr, h->movement);
+	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movement);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -2526,8 +2529,8 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	|| (!t->hasBuilt(BuildingSubID::CASTLE_GATE)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
-	int3 pos = t->visitablePos();
-	pos += h->getVisitableOffset();
+
+	int3 pos = h->convertFromVisitablePos(t->visitablePos());
 	moveHero(hid,pos,1);
 	return true;
 }
@@ -2987,7 +2990,7 @@ bool CGameHandler::load(const std::string & filename)
 	catch(const CModHandler::Incompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
-		auto errorMsg = VLC->generaltexth->localizedTexts["server"]["errors"]["modsIncompatibility"].String() + '\n';
+		auto errorMsg = VLC->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
 		errorMsg += e.what();
 		lobby->announceMessage(errorMsg);
 		return false;
@@ -3717,7 +3720,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
 	}
 	UpgradeInfo ui;
-	getUpgradeInfo(obj, pos, ui);
+	fillUpgradeInfo(obj, pos, ui);
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayerState(player);
 	int crQuantity = obj->stacks.at(pos)->count;
@@ -3889,7 +3892,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if ((!srcArtifact || dst.slot < GameConstants::BACKPACK_START)
+	if ((!srcArtifact || !ArtifactUtils::isSlotBackpack(dst.slot))
 		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
@@ -3904,32 +3907,37 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	if (src.slot == ArtifactPosition::MACH4 || dst.slot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
 
-	if (dst.slot >= GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(dst.slot))
 		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + (si32)dst.getHolderArtSet()->artifactsInBackpack.size()));
 
-	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
-		COMPLAIN_RET("Won't move artifact: Dest same as source!");
-
-	if (dst.slot < GameConstants::BACKPACK_START  &&  destArtifact) //moving art to another slot
+	if(!(src.slot == ArtifactPosition::TRANSITION_POS && dst.slot == ArtifactPosition::TRANSITION_POS))
 	{
-		//old artifact must be removed first
-		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
-			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
-	}
+		if(src.slot == dst.slot && src.artHolder == dst.artHolder)
+			COMPLAIN_RET("Won't move artifact: Dest same as source!");
 
-	try
-	{
-		auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
-		if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
-	}
-	catch (boost::bad_get const &)
-	{
-		// object other than hero received an art - ignore
-	}
+		// Check if dst slot is occupied
+		if(!ArtifactUtils::isSlotBackpack(dst.slot) && destArtifact)
+		{
+			// Previous artifact must be removed first
+			moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition::TRANSITION_POS));
+		}
 
-	MoveArtifact ma(&src, &dst);
-	sendAndApply(&ma);
+		try
+		{
+			auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		}
+		catch (boost::bad_get const &)
+		{
+			// object other than hero received an art - ignore
+		}
+
+		MoveArtifact ma(&src, &dst);
+		if(dst.slot == ArtifactPosition::TRANSITION_POS)
+			ma.askAssemble = false;
+		sendAndApply(&ma);
+	}
 	return true;
 }
 
@@ -4361,7 +4369,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	hr.tid = obj->id;
 	hr.hid = nh->subID;
 	hr.player = player;
-	hr.tile = obj->visitablePos() + nh->getVisitableOffset();
+	hr.tile = nh->convertFromVisitablePos(obj->visitablePos());
 	sendAndApply(&hr);
 
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
@@ -4483,7 +4491,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	case EActionType::SHOOT: //shoot
 	case EActionType::CATAPULT: //catapult
 	case EActionType::STACK_HEAL: //healing with First Aid Tent
-	case EActionType::DAEMON_SUMMONING:
 	case EActionType::MONSTER_SPELL:
 
 		if (!stack)
@@ -4653,12 +4660,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
-			if(stack->getPosition() != attackPos //we wasn't able to reach destination tile
-				&& !(stack->doubleWide() && (stack->getPosition() == attackPos.cloneInDirection(stack->destShiftDir(), false))) //nor occupy specified hex
+			if(stack->getPosition() != attackPos
+				&& !(stack->doubleWide() && (stack->getPosition() == attackPos.cloneInDirection(stack->destShiftDir(), false)))
 				)
 			{
-				complain("We cannot move this stack to its destination " + stack->getCreature()->namePl);
-				ok = false;
+				// we were not able to reach destination tile, nor occupy specified hex
+				// abort attack attempt, but treat this case as legal - we may have stepped onto a quicksands/mine
 				break;
 			}
 
@@ -4694,8 +4701,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					makeAttack(destinationStack, stack, 0, stack->getPosition(), true, false, true);
 				}
 
-				//move can cause death, eg. by walking into the moat, first strike can cause death as well
-				if(stack->alive() && destinationStack->alive())
+				//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
+				if(stack->alive() && !stack->hasBonusOfType(Bonus::NOT_ACTIVE) && destinationStack->alive())
 				{
 					makeAttack(stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
 				}
@@ -4928,13 +4935,13 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					switch(attackedPart)
 					{
 					case EWallPart::KEEP:
-						posRemove = -2;
+						posRemove = BattleHex::CASTLE_CENTRAL_TOWER;
 						break;
 					case EWallPart::BOTTOM_TOWER:
-						posRemove = -3;
+						posRemove = BattleHex::CASTLE_BOTTOM_TOWER;
 						break;
 					case EWallPart::UPPER_TOWER:
-						posRemove = -4;
+						posRemove = BattleHex::CASTLE_UPPER_TOWER;
 						break;
 					}
 
@@ -5017,58 +5024,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 			break;
 		}
-		case EActionType::DAEMON_SUMMONING:
-			//TODO: From Strategija:
-			//Summon Demon is a level 2 spell.
-		{
-			if(target.size() < 1)
-			{
-				complain("Destination required for summon action.");
-				ok = false;
-				break;
-			}
-
-			const CStack * summoner = gs->curB->battleGetStackByID(ba.stackNumber);
-			const CStack * destStack = gs->curB->battleGetStackByPos(target.at(0).hexValue, false);
-
-			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type()(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
-
-			ui64 risedHp = summoner->getCount() * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, summonedType.toEnum());
-			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
-
-			ui64 canRiseHp = std::min(targetHealth, risedHp);
-			ui32 canRiseAmount = static_cast<ui32>(canRiseHp / summonedType.toCreature()->MaxHealth());
-
-			battle::UnitInfo info;
-			info.id = gs->curB->battleNextUnitId();
-			info.count = std::min(canRiseAmount, destStack->baseAmount);
-			info.type = summonedType;
-			info.side = summoner->side;
-			info.position = gs->curB->getAvaliableHex(summonedType, summoner->side, destStack->getPosition());
-			info.summoned = false;
-
-			BattleUnitsChanged addUnits;
-			addUnits.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
-			info.save(addUnits.changedStacks.back().data);
-
-			if(info.count > 0) //there's rare possibility single creature cannot rise desired type
-			{
-				auto wrapper = wrapAction(ba);
-
-				BattleUnitsChanged removeUnits;
-				removeUnits.changedStacks.emplace_back(destStack->unitId(), UnitChanges::EOperation::REMOVE);
-				sendAndApply(&removeUnits);
-				sendAndApply(&addUnits);
-
-				BattleSetStackProperty ssp;
-				ssp.stackID = ba.stackNumber;
-				ssp.which = BattleSetStackProperty::CASTS; //reduce number of casts
-				ssp.val = -1;
-				ssp.absolute = false;
-				sendAndApply(&ssp);
-			}
-			break;
-		}
 		case EActionType::MONSTER_SPELL:
 		{
 			auto wrapper = wrapAction(ba);
@@ -5100,7 +5055,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			break;
 		}
 	}
-	if(ba.actionType == EActionType::DAEMON_SUMMONING || ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND
+	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND
 			|| ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		handleDamageFromObstacle(stack);
 	if(ba.stackNumber == gs->curB->activeStack || battleResult.get()) //active stack has moved or battle has finished
@@ -5217,7 +5172,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 	if (cheated)
 	{
-		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
+		SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
 		sendAndApply(&temp_message);
 
 		if(!player.isSpectator())
@@ -5474,33 +5429,29 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 					if(!sp)
 						COMPLAIN_RET("Invalid obstacle instance");
 
+					// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+					ObstacleChanges changeInfo;
+					changeInfo.id = spellObstacle->uniqueID;
+					if (oneTimeObstacle)
+						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_REMOVE;
+					else
+						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_UPDATE;
+
+					SpellCreatedObstacle changedObstacle;
+					changedObstacle.uniqueID = spellObstacle->uniqueID;
+					changedObstacle.revealed = true;
+
+					changeInfo.data.clear();
+					JsonSerializer ser(nullptr, changeInfo.data);
+					ser.serializeStruct("obstacle", changedObstacle);
+
+					BattleObstaclesChanged bocp;
+					bocp.changes.emplace_back(changeInfo);
+					sendAndApply(&bocp);
+
 					spells::BattleCast battleCast(gs->curB, &caster, spells::Mode::HERO, sp);
 					battleCast.applyEffects(spellEnv, spells::Target(1, spells::Destination(curStack)), true);
-
-					if(oneTimeObstacle)
-					{
-						removeObstacle(*obstacle);
 				}
-					else
-					{
-						// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-						ObstacleChanges changeInfo;
-						changeInfo.id = spellObstacle->uniqueID;
-						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
-
-						SpellCreatedObstacle changedObstacle;
-						changedObstacle.uniqueID = spellObstacle->uniqueID;
-						changedObstacle.revealed = true;
-
-						changeInfo.data.clear();
-						JsonSerializer ser(nullptr, changeInfo.data);
-						ser.serializeStruct("obstacle", changedObstacle);
-
-						BattleObstaclesChanged bocp;
-						bocp.changes.emplace_back(changeInfo);
-						sendAndApply(&bocp);
-			}
-		}
 			}
 		}
 		else if(obstacle->obstacleType == CObstacleInstance::MOAT)
@@ -6021,7 +5972,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 {
 	for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
 	{
-		if (*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->getPosition())
+		if (*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->visitablePos())
 		{
 			complain("Cannot dig - there is already a hole under the hero!");
 			return false;
@@ -6034,7 +5985,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	//create a hole
 	NewObject no;
 	no.ID = Obj::HOLE;
-	no.pos = h->getPosition();
+	no.pos = h->visitablePos();
 	no.subID = 0;
 	sendAndApply(&no);
 
@@ -6046,7 +5997,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	if (gs->map->grailPos == h->getPosition())
+	if (gs->map->grailPos == h->visitablePos())
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
 		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
@@ -7242,7 +7193,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 void CGameHandler::removeObstacle(const CObstacleInstance & obstacle)
 {
 	BattleObstaclesChanged obsRem;
-	obsRem.changes.emplace_back(obstacle.uniqueID, BattleChanges::EOperation::REMOVE);
+	obsRem.changes.emplace_back(obstacle.uniqueID, ObstacleChanges::EOperation::REMOVE);
 	sendAndApply(&obsRem);
 }
 

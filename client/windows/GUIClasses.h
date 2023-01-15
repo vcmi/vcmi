@@ -379,7 +379,6 @@ public:
 	const CGarrisonSlot * getSelectedSlotID() const;
 
 	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
-	~CExchangeWindow();
 };
 
 /// Here you can buy ships

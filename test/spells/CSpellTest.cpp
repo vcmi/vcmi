@@ -19,7 +19,7 @@ using namespace ::testing;
 class CSpellTest : public Test
 {
 public:
-	MOCK_METHOD3(registarCb, void(int32_t, const std::string &, const std::string &));
+	MOCK_METHOD4(registarCb, void(int32_t, int32_t, const std::string &, const std::string &));
 	std::shared_ptr<CSpell> subject;
 protected:
 	void SetUp() override
@@ -36,12 +36,12 @@ TEST_F(CSpellTest, RegistersIcons)
 {
 	subject->id = SpellID(42);
 
-	auto cb = std::bind(&CSpellTest::registarCb, this, _1, _2, _3);
+	auto cb = std::bind(&CSpellTest::registarCb, this, _1, _2, _3, _4);
 
-	EXPECT_CALL(*this, registarCb(Eq(42), "SPELLS", "Test1"));
-	EXPECT_CALL(*this, registarCb(Eq(43), "SPELLINT", "Test2"));
-	EXPECT_CALL(*this, registarCb(Eq(42), "SPELLBON", "Test3"));
-	EXPECT_CALL(*this, registarCb(Eq(42), "SPELLSCR", "Test4"));
+	EXPECT_CALL(*this, registarCb(Eq(42), Eq(0), "SPELLS", "Test1"));
+	EXPECT_CALL(*this, registarCb(Eq(43), Eq(0), "SPELLINT", "Test2"));
+	EXPECT_CALL(*this, registarCb(Eq(42), Eq(0), "SPELLBON", "Test3"));
+	EXPECT_CALL(*this, registarCb(Eq(42), Eq(0), "SPELLSCR", "Test4"));
 
 	subject->registerIcons(cb);
 }

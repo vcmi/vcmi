@@ -14,5 +14,5 @@ struct SDL_Surface;
 namespace BitmapHandler
 {
 	//Load file from /DATA or /SPRITES
-	SDL_Surface * loadBitmap(std::string fname, bool setKey=true);
+	SDL_Surface * loadBitmap(std::string fname);
 }

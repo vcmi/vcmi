@@ -50,7 +50,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 		new SharedPool<PriorityEvaluator>(
 			[&]()->std::unique_ptr<PriorityEvaluator>
 			{
-				return make_unique<PriorityEvaluator>(this);
+				return std::make_unique<PriorityEvaluator>(this);
 			}));
 
 	dangerHitMap.reset(new DangerHitMapAnalyzer(this));

@@ -67,7 +67,7 @@ void ResourceConverter::splitDefFile(const std::string & fileName, const bfs::pa
 {
 	if(CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
 	{
-		std::unique_ptr<Animation> anim = make_unique<Animation>(fileName);
+		std::unique_ptr<Animation> anim = std::make_unique<Animation>(fileName);
 		anim->preload();
 		anim->exportBitmaps(pathToQString(VCMIDirs::get().userExtractedPath()));
 

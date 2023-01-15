@@ -55,7 +55,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 #include <execinfo.h>
 #endif
 
@@ -156,7 +156,7 @@ void CVCMIServer::run()
 {
 	if(!restartGameplay)
 	{
-		this->announceLobbyThread = vstd::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
+		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
 #if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 		if(cmdLineOptions.count("enable-shm"))
 		{
@@ -172,7 +172,7 @@ void CVCMIServer::run()
 		startAsyncAccept();
 		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
-			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
+			remoteConnectionsThread = std::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
 		}
 
 #if defined(VCMI_ANDROID)
@@ -418,7 +418,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 //	if(state != ENDING_AND_STARTING_GAME)
 	if(c->connected)
 	{
-		auto lcd = vstd::make_unique<LobbyClientDisconnected>();
+		auto lcd = std::make_unique<LobbyClientDisconnected>();
 		lcd->c = c;
 		lcd->clientId = c->connectionID;
 		handleReceivedPack(std::move(lcd));
@@ -453,7 +453,7 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 void CVCMIServer::announceMessage(const std::string & txt)
 {
 	logNetwork->info("Show message: %s", txt);
-	auto cm = vstd::make_unique<LobbyShowMessage>();
+	auto cm = std::make_unique<LobbyShowMessage>();
 	cm->message = txt;
 	addToAnnounceQueue(std::move(cm));
 }
@@ -461,7 +461,7 @@ void CVCMIServer::announceMessage(const std::string & txt)
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt);
-	auto cm = vstd::make_unique<LobbyChatMessage>();
+	auto cm = std::make_unique<LobbyChatMessage>();
 	cm->playerName = playerName;
 	cm->message = txt;
 	addToAnnounceQueue(std::move(cm));
@@ -709,7 +709,7 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		}
 	}
 
-	auto lus = vstd::make_unique<LobbyUpdateState>();
+	auto lus = std::make_unique<LobbyUpdateState>();
 	lus->state = *this;
 	addToAnnounceQueue(std::move(lus));
 }
@@ -958,7 +958,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -1047,13 +1047,13 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #endif
 int main(int argc, char * argv[])
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 

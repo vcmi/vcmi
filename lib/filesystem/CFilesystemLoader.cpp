@@ -31,7 +31,7 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourc
 	assert(fileList.count(resourceName));
 	bfs::path file = baseDirectory / fileList.at(resourceName);
 	logGlobal->trace("loading %s", file.string());
-	return make_unique<CFileInputStream>(file);
+	return std::make_unique<CFileInputStream>(file);
 }
 
 bool CFilesystemLoader::existsResource(const ResourceID & resourceName) const

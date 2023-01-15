@@ -9,10 +9,15 @@
  */
 #pragma once
 
-#include <SDL_video.h>
-#include "../../lib/int3.h"
+#include <SDL2/SDL_rect.h>
+
+enum class ETextAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 
 struct SDL_MouseMotionEvent;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class int3;
+VCMI_LIB_NAMESPACE_END
 
 // A point with x/y coordinate, used mostly for graphic rendering
 struct Point
@@ -24,13 +29,14 @@ struct Point
 	{
 		x = y = 0;
 	};
+
 	Point(int X, int Y)
 		:x(X),y(Y)
 	{};
-	Point(const int3 &a)
-		:x(a.x),y(a.y)
-	{}
-	Point(const SDL_MouseMotionEvent &a);
+
+	Point(const int3 &a);
+
+	explicit Point(const SDL_MouseMotionEvent &a);
 
 	template<typename T>
 	Point operator+(const T &b) const
@@ -71,10 +77,7 @@ struct Point
 		y -= b.y;
 		return *this;
 	}
-	bool operator<(const Point &b) const //product order
-	{
-		return x < b.x   &&   y < b.y;
-	}
+
 	template<typename T> Point& operator=(const T &t)
 	{
 		x = t.x;
@@ -94,7 +97,7 @@ struct Point
 /// Rectangle class, which have a position and a size
 struct Rect : public SDL_Rect
 {
-	Rect()//default c-tor
+	Rect()
 	{
 		x = y = w = h = -1;
 	}
@@ -119,60 +122,59 @@ struct Rect : public SDL_Rect
 		w = r.w;
 		h = r.h;
 	}
-	Rect(const Rect& r) : Rect(static_cast<const SDL_Rect&>(r))
-	{}
-	explicit Rect(const SDL_Surface * const &surf)
-	{
-		x = y = 0;
-		w = surf->w;
-		h = surf->h;
-	}
+	Rect(const Rect& r) = default;
 
 	Rect centerIn(const Rect &r);
 	static Rect createCentered(int w, int h);
-	static Rect around(const Rect &r, int width = 1); //creates rect around another
+	static Rect around(const Rect &r, int width = 1);
 
-	bool isIn(int qx, int qy) const //determines if given point lies inside rect
+	bool isIn(int qx, int qy) const
 	{
 		if (qx > x   &&   qx<x+w   &&   qy>y   &&   qy<y+h)
 			return true;
 		return false;
 	}
-	bool isIn(const Point & q) const //determines if given point lies inside rect
+	bool isIn(const Point & q) const
 	{
 		return isIn(q.x,q.y);
 	}
-	Point topLeft() const //top left corner of this rect
+	Point topLeft() const
 	{
 		return Point(x,y);
 	}
-	Point topRight() const //top right corner of this rect
+	Point topRight() const
 	{
 		return Point(x+w,y);
 	}
-	Point bottomLeft() const //bottom left corner of this rect
+	Point bottomLeft() const
 	{
 		return Point(x,y+h);
 	}
-	Point bottomRight() const //bottom right corner of this rect
+	Point bottomRight() const
 	{
 		return Point(x+w,y+h);
 	}
-	Rect operator+(const Rect &p) const //moves this rect by p's rect position
+	Point center() const
+	{
+		return Point(x+w/2,y+h/2);
+	}
+	Point dimensions() const
+	{
+		return Point(w,h);
+	}
+
+	void moveTo(const Point & dest)
+	{
+		x = dest.x;
+		y = dest.y;
+	}
+
+	Rect operator+(const Point &p) const
 	{
 		return Rect(x+p.x,y+p.y,w,h);
 	}
-	Rect operator+(const Point &p) const //moves this rect by p's point position
-	{
-		return Rect(x+p.x,y+p.y,w,h);
-	}
-	Rect& operator=(const Point &p) //assignment operator
-	{
-		x = p.x;
-		y = p.y;
-		return *this;
-	}
-	Rect& operator=(const Rect &p) //assignment operator
+
+	Rect& operator=(const Rect &p)
 	{
 		x = p.x;
 		y = p.y;
@@ -180,34 +182,21 @@ struct Rect : public SDL_Rect
 		h = p.h;
 		return *this;
 	}
-	Rect& operator+=(const Rect &p) //works as operator+
+
+	Rect& operator+=(const Point &p)
 	{
 		x += p.x;
 		y += p.y;
 		return *this;
 	}
-	Rect& operator+=(const Point &p) //works as operator+
-	{
-		x += p.x;
-		y += p.y;
-		return *this;
-	}
-	Rect& operator-=(const Rect &p) //works as operator+
+
+	Rect& operator-=(const Point &p)
 	{
 		x -= p.x;
 		y -= p.y;
 		return *this;
 	}
-	Rect& operator-=(const Point &p) //works as operator+
-	{
-		x -= p.x;
-		y -= p.y;
-		return *this;
-	}
-	template<typename T> Rect operator-(const T &t)
-	{
-		return Rect(x - t.x, y - t.y, w, h);
-	}
+
 	Rect operator&(const Rect &p) const //rect intersection
 	{
 		bool intersect = true;

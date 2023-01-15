@@ -16,6 +16,7 @@
 #include "CConfigHandler.h"
 #include "CModHandler.h"
 #include "GameConstants.h"
+#include "mapObjects/CQuest.h"
 #include "VCMI_Lib.h"
 #include "Terrain.h"
 
@@ -105,7 +106,84 @@ bool Unicode::isValidString(const char * data, size_t size)
 
 static std::string getSelectedEncoding()
 {
-	return settings["general"]["encoding"].String();
+	auto explicitSetting = settings["general"]["encoding"].String();
+	if (explicitSetting != "auto")
+		return explicitSetting;
+	return settings["session"]["encoding"].String();
+}
+
+/// Detects encoding of H3 text files based on matching against pregenerated footprints of H3 file
+/// Can also detect language of H3 install, however right now this is not necessary
+static void detectEncoding()
+{
+	static const size_t knownCount = 6;
+
+	// "footprints" of data collected from known versions of H3
+	static const std::array<std::array<double, 16>, knownCount> knownFootprints =
+	{ {
+		{ { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } },
+		{ { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } },
+		{ { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } },
+		{ { 0.0534, 0.0000, 0.1701, 0.0067, 0.0157, 0.0133, 0.4328, 0.2540, 0.0001, 0.0043, 0.0000, 0.0244, 0.0000, 0.0000, 0.0181, 0.0071 } },
+		{ { 0.0548, 0.0000, 0.1744, 0.0061, 0.0031, 0.0009, 0.0046, 0.0136, 0.0000, 0.0004, 0.0000, 0.0000, 0.0227, 0.0061, 0.4882, 0.2252 } },
+		{ { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } }
+	} };
+
+	// languages of known footprints
+	static const std::array<std::string, knownCount> knownLanguages =
+	{ {
+		  "English", "French", "German", "Polish", "Russian", "Ukrainian"
+	} };
+
+	// encoding that should be used for known footprints
+	static const std::array<std::string, knownCount> knownEncodings =
+	{ {
+		  "CP1252", "CP1252", "CP1252", "CP1250", "CP1251", "CP1251"
+	} };
+
+	// load file that will be used for footprint generation
+	// this is one of the most text-heavy files in game and consists solely from translated texts
+	auto resource = CResourceHandler::get()->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
+
+	std::array<size_t, 256> charCount;
+	std::array<double, 16> footprint;
+	std::array<double, knownCount> deviations;
+
+	boost::range::fill(charCount, 0);
+	boost::range::fill(footprint, 0.0);
+	boost::range::fill(deviations, 0.0);
+
+	auto data = resource->readAll();
+
+	// compute how often each character occurs in input file
+	for (size_t i = 0; i < data.second; ++i)
+		charCount[data.first[i]] += 1;
+
+	// and convert computed data into weights
+	// to reduce amount of data, group footprint data into 16-char blocks.
+	// While this will reduce precision, it should not affect output
+	// since we expect only tiny differences compared to reference footprints
+	for (size_t i = 0; i < 256; ++i)
+		footprint[i/16] += double(charCount[i]) / data.second;
+
+	logGlobal->debug("Language footprint: %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+			footprint[0], footprint[1], footprint[2],  footprint[3],  footprint[4],  footprint[5],  footprint[6],  footprint[7],
+			footprint[8], footprint[9], footprint[10], footprint[11], footprint[12], footprint[13], footprint[14], footprint[15]
+		);
+
+	for (size_t i = 0; i < deviations.size(); ++i)
+	{
+		for (size_t j = 0; j < footprint.size(); ++j)
+			deviations[i] += std::abs((footprint[j] - knownFootprints[i][j]));
+	}
+
+	size_t bestIndex = boost::range::min_element(deviations) - deviations.begin();
+
+	for (size_t i = 0; i < deviations.size(); ++i)
+		logGlobal->debug("Comparing to %s: %f", knownLanguages[i], deviations[i]);
+
+	Settings s = settings.write["session"]["encoding"];
+	s->String() = knownEncodings[bestIndex];
 }
 
 std::string Unicode::toUnicode(const std::string &text)
@@ -300,99 +378,156 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::string> &dest)
+void CGeneralTextHandler::readToVector(std::string const & sourceID, std::string const & sourceName)
 {
 	CLegacyConfigParser parser(sourceName);
+	size_t index = 0;
 	do
 	{
-		dest.push_back(parser.readString());
+		registerString({sourceID, index}, parser.readString());
+		index += 1;
 	}
 	while (parser.endLine());
 }
 
-CGeneralTextHandler::CGeneralTextHandler()
+const std::string & CGeneralTextHandler::serialize(const std::string & identifier) const
 {
-	std::vector<std::string> h3mTerrainNames;
-	readToVector("DATA/VCDESC.TXT",   victoryConditions);
-	readToVector("DATA/LCDESC.TXT",   lossCondtions);
-	readToVector("DATA/TCOMMAND.TXT", tcommands);
-	readToVector("DATA/HALLINFO.TXT", hcommands);
-	readToVector("DATA/CASTINFO.TXT", fcommands);
-	readToVector("DATA/ADVEVENT.TXT", advobtxt);
-	readToVector("DATA/XTRAINFO.TXT", xtrainfo);
-	readToVector("DATA/RESTYPES.TXT", restypes);
-	readToVector("DATA/TERRNAME.TXT", h3mTerrainNames);
-	readToVector("DATA/RANDSIGN.TXT", randsign);
-	readToVector("DATA/CRGEN1.TXT",   creGens);
-	readToVector("DATA/CRGEN4.TXT",   creGens4);
-	readToVector("DATA/OVERVIEW.TXT", overview);
-	readToVector("DATA/ARRAYTXT.TXT", arraytxt);
-	readToVector("DATA/PRISKILL.TXT", primarySkillNames);
-	readToVector("DATA/JKTEXT.TXT",   jktexts);
-	readToVector("DATA/TVRNINFO.TXT", tavernInfo);
-	readToVector("DATA/RANDTVRN.TXT", tavernRumors);
-	readToVector("DATA/TURNDUR.TXT",  turnDurations);
-	readToVector("DATA/HEROSCRN.TXT", heroscrn);
-	readToVector("DATA/TENTCOLR.TXT", tentColors);
-	readToVector("DATA/SKILLLEV.TXT", levels);
-	
-	for(int i = 0; i < h3mTerrainNames.size(); ++i)
-	{
-		terrainNames[i] = h3mTerrainNames[i];
-	}
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-	{
-		if(!terrain.terrainText.empty())
-			terrainNames[terrain.id] = terrain.terrainText;
-	}
-	
+	assert(stringsIdentifiers.count(identifier));
+	return stringsIdentifiers.at(identifier);
+}
+
+const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & identifier) const
+{
+	if(stringsLocalizations.count(identifier.get()))
+		return stringsLocalizations.at(identifier.get());
+	logGlobal->error("Unable to find localization for string '%s'", identifier.get());
+	return identifier.get();
+}
+
+void CGeneralTextHandler::registerString(const TextIdentifier & UID, const std::string & localized)
+{
+	stringsIdentifiers[localized] = UID.get();
+	stringsLocalizations[UID.get()] = localized;
+}
+
+CGeneralTextHandler::CGeneralTextHandler():
+	victoryConditions(*this, "core.vcdesc"   ),
+	lossCondtions    (*this, "core.lcdesc"   ),
+	colors           (*this, "core.plcolors" ),
+	tcommands        (*this, "core.tcommand" ),
+	hcommands        (*this, "core.hallinfo" ),
+	fcommands        (*this, "core.castinfo" ),
+	advobtxt         (*this, "core.advevent" ),
+	xtrainfo         (*this, "core.xtrainfo" ),
+	restypes         (*this, "core.restypes" ),
+	terrainNames     (*this, "core.terrname" ),
+	randsign         (*this, "core.randsign" ),
+	overview         (*this, "core.overview" ),
+	arraytxt         (*this, "core.arraytxt" ),
+	primarySkillNames(*this, "core.priskill" ),
+	jktexts          (*this, "core.jktext"   ),
+	tavernInfo       (*this, "core.tvrninfo" ),
+	tavernRumors     (*this, "core.randtvrn" ),
+	turnDurations    (*this, "core.turndur"  ),
+	heroscrn         (*this, "core.heroscrn" ),
+	tentColors       (*this, "core.tentcolr" ),
+	levels           (*this, "core.skilllev" ),
+	zelp             (*this, "core.help"     ),
+	allTexts         (*this, "core.genrltxt" ),
+	// pseudo-array, that don't have H3 file with same name
+	seerEmpty        (*this, "core.seerhut.empty"  ),
+	seerNames        (*this, "core.seerhut.names"  ),
+	capColors        (*this, "vcmi.capitalColors"  ),
+	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
+	qeModCommands    (*this, "vcmi.quickExchange" )
+{
+	if (getSelectedEncoding().empty())
+		detectEncoding();
+
+	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
+	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
+	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );
+	readToVector("core.hallinfo", "DATA/HALLINFO.TXT" );
+	readToVector("core.castinfo", "DATA/CASTINFO.TXT" );
+	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
+	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
+	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
+	readToVector("core.terrname", "DATA/TERRNAME.TXT" );
+	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
+	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );
+	readToVector("core.crgen4",   "DATA/CRGEN4.TXT"   );
+	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
+	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
+	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
+	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
+	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
+	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
+	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
+	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
+	readToVector("core.skilllev", "DATA/SKILLLEV.TXT" );
+	readToVector("core.cmpmusic", "DATA/CMPMUSIC.TXT" );
+	readToVector("core.minename", "DATA/MINENAME.TXT" );
+	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(ResourceID(QE_MOD_COMMANDS, EResType::TEXT)))
-		readToVector(QE_MOD_COMMANDS, qeModCommands);
+		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
-	localizedTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
+	auto vcmiTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
 
+	for ( auto const & node : vcmiTexts.Struct())
+		registerString(node.first, node.second.String());
+
+	{
+		CLegacyConfigParser parser("DATA/RANDTVRN.TXT");
+		parser.endLine();
+		size_t index = 0;
+		do
+		{
+			std::string line = parser.readString();
+			if(!line.empty())
+			{
+				registerString({"core.randtvrn", index}, line);
+				index += 1;
+			}
+		}
+		while (parser.endLine());
+	}
 	{
 		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
 		parser.endLine();
+		size_t index = 0;
 		do
 		{
-			allTexts.push_back(parser.readString());
+			registerString({"core.genrltxt", index}, parser.readString());
+			index += 1;
 		}
 		while (parser.endLine());
 	}
 	{
 		CLegacyConfigParser parser("DATA/HELP.TXT");
+		size_t index = 0;
 		do
 		{
 			std::string first = parser.readString();
 			std::string second = parser.readString();
-			zelp.push_back(std::make_pair(first, second));
+			registerString("core.help." + std::to_string(index) + ".hover", first);
+			registerString("core.help." + std::to_string(index) + ".help",  second);
+			index += 1;
 		}
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser nameParser("DATA/MINENAME.TXT");
-		CLegacyConfigParser eventParser("DATA/MINEEVNT.TXT");
-
-		do
-		{
-			std::string name  = nameParser.readString();
-			std::string event = eventParser.readString();
-			mines.push_back(std::make_pair(name, event));
-		}
-		while (nameParser.endLine() && eventParser.endLine());
-	}
-	{
 		CLegacyConfigParser parser("DATA/PLCOLORS.TXT");
+		size_t index = 0;
 		do
 		{
 			std::string color = parser.readString();
-			colors.push_back(color);
 
+			registerString({"core.plcolors", index}, color);
 			color[0] = toupper(color[0]);
-			capColors.push_back(color);
+			registerString({"vcmi.capitalColors", index}, color);
+			index += 1;
 		}
 		while (parser.endLine());
 	}
@@ -402,37 +537,41 @@ CGeneralTextHandler::CGeneralTextHandler()
 		//skip header
 		parser.endLine();
 
-		for (int i = 0; i < 6; ++i)
-			seerEmpty.push_back(parser.readString());
+		for (size_t i = 0; i < 6; ++i)
+		{
+			registerString({"core.seerhut.empty", i}, parser.readString());
+		}
 		parser.endLine();
 
-		quests.resize(10);
-		for (int i = 0; i < 9; ++i) //9 types of quests
+		for (size_t i = 0; i < 9; ++i) //9 types of quests
 		{
-			quests[i].resize(5);
-			for (int j = 0; j < 5; ++j)
-			{
-				parser.readString(); //front description
-				for (int k = 0; k < 6; ++k)
-					quests[i][j].push_back(parser.readString());
+			std::string questName = CQuest::missionName(CQuest::Emission(1+i));
 
+			for (size_t j = 0; j < 5; ++j)
+			{
+				std::string questState = CQuest::missionState(j);
+
+				parser.readString(); //front description
+				for (size_t k = 0; k < 6; ++k)
+				{
+					registerString({"core.seerhut.quest", questName, questState, k}, parser.readString());
+				}
 				parser.endLine();
 			}
 		}
-		quests[9].resize(1);
 
-		for (int k = 0; k < 6; ++k) //Time limit
+		for (size_t k = 0; k < 6; ++k) //Time limit
 		{
-			quests[9][0].push_back(parser.readString());
+			registerString({"core.seerhut.time", k}, parser.readString());
 		}
 		parser.endLine();
 
 		parser.endLine(); // empty line
 		parser.endLine(); // header
 
-		for (int i = 0; i < 48; ++i)
+		for (size_t i = 0; i < 48; ++i)
 		{
-			seerNames.push_back(parser.readString());
+			registerString({"core.seerhut.names", i}, parser.readString());
 			parser.endLine();
 		}
 	}
@@ -443,70 +582,46 @@ CGeneralTextHandler::CGeneralTextHandler()
 		parser.endLine();
 
 		std::string text;
+		size_t campaignsCount = 0;
 		do
 		{
 			text = parser.readString();
 			if (!text.empty())
-				campaignMapNames.push_back(text);
+			{
+				registerString({"core.camptext.names", campaignsCount}, text);
+				campaignsCount += 1;
+			}
 		}
 		while (parser.endLine() && !text.empty());
 
-		for (size_t i=0; i<campaignMapNames.size(); i++)
+		for (size_t campaign=0; campaign<campaignsCount; campaign++)
 		{
+			size_t region = 0;
+
 			do // skip empty space and header
 			{
 				text = parser.readString();
 			}
 			while (parser.endLine() && text.empty());
 
-			campaignRegionNames.push_back(std::vector<std::string>());
 			do
 			{
 				text = parser.readString();
 				if (!text.empty())
-					campaignRegionNames.back().push_back(text);
+				{
+					registerString({"core.camptext.regions", std::to_string(campaign), region}, text);
+					region += 1;
+				}
 			}
 			while (parser.endLine() && !text.empty());
-		}
-	}
-	if (VLC->modh->modules.STACK_EXP)
-	{
-		CLegacyConfigParser parser("DATA/ZCREXP.TXT");
-		parser.endLine();//header
-		for (size_t iter=0; iter<325; iter++)
-		{
-			parser.readString(); //ignore 1st column with description
-			zcrexp.push_back(parser.readString());
-			parser.endLine();
-		}
-		// line 325 - some weird formatting here
-		zcrexp.push_back(parser.readString());
-		parser.readString();
-		parser.endLine();
 
-		do // rest of file can be read normally
-		{
-			parser.readString(); //ignore 1st column with description
-			zcrexp.push_back(parser.readString());
+			scenariosCountPerCampaign.push_back(region);
 		}
-		while (parser.endLine());
 	}
 	if (VLC->modh->modules.COMMANDERS)
 	{
-		try
-		{
-			CLegacyConfigParser parser("DATA/ZNPC00.TXT");
-			parser.endLine();//header
-
-			do
-			{
-				znpc00.push_back(parser.readString());
-			} while (parser.endLine());
-		}
-		catch (const std::runtime_error &)
-		{
-			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
-		}
+		if(CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
+			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 }
 
@@ -521,5 +636,68 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 	else
 		return textIndex + 1;
 }
+
+void CGeneralTextHandler::dumpAllTexts()
+{
+	logGlobal->info("BEGIN TEXT EXPORT");
+	for ( auto const & entry : stringsLocalizations)
+	{
+		auto cleanString = entry.second;
+		boost::replace_all(cleanString, "\\", "\\\\");
+		boost::replace_all(cleanString, "\n", "\\n");
+		boost::replace_all(cleanString, "\r", "\\r");
+		boost::replace_all(cleanString, "\t", "\\t");
+		boost::replace_all(cleanString, "\"", "\\\"");
+
+		logGlobal->info("\"%s\" : \"%s\",", entry.first, cleanString);
+	}
+	logGlobal->info("END TEXT EXPORT");
+}
+
+size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
+{
+	assert(campaignID < scenariosCountPerCampaign.size());
+
+	if(campaignID < scenariosCountPerCampaign.size())
+		return scenariosCountPerCampaign[campaignID];
+	return 0;
+}
+
+std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string const & prefix)
+{
+	std::vector<std::string> result;
+
+	for (auto const & entry : stringsLocalizations)
+	{
+		if(boost::algorithm::starts_with(entry.first, prefix))
+			result.push_back(entry.first);
+	}
+
+	return result;
+}
+
+LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath):
+	owner(owner),
+	basePath(basePath)
+{}
+
+std::string LegacyTextContainer::operator[](size_t index) const
+{
+	return owner.translate(basePath, index);
+}
+
+LegacyHelpContainer::LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath):
+	owner(owner),
+	basePath(basePath)
+{}
+
+std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index) const
+{
+	return {
+		owner.translate(basePath + "." + std::to_string(index) + ".hover"),
+		owner.translate(basePath + "." + std::to_string(index) + ".help")
+	};
+}
+
 
 VCMI_LIB_NAMESPACE_END

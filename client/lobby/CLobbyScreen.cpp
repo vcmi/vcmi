@@ -136,10 +136,10 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 		logGlobal->error("Exception during startScenario: %s", e.what());
 		
 		if(std::string(e.what()) == "ExceptionNoHuman")
-			CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), PlayerColor(1));
+			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[530], CInfoWindow::TCompsInfo(), PlayerColor(1));
 		
 		if(std::string(e.what()) == "ExceptionNoTemplate")
-			CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[751]), CInfoWindow::TCompsInfo(), PlayerColor(1));
+			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[751], CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
 	catch(...)
 	{
