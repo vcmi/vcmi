@@ -767,10 +767,10 @@ void CClient::removeGUI()
 	GH.curInt = nullptr;
 	if(GH.topInt())
 		GH.topInt()->deactivate();
-	adventureInt = nullptr;
+	adventureInt.reset();
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
-	GH.statusbar = nullptr;
+	GH.statusbar.reset();
 	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
