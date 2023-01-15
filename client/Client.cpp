@@ -770,8 +770,14 @@ void CClient::reinitScripting()
 #endif
 }
 
-
 #ifdef VCMI_ANDROID
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jobject cls)
+{
+	logNetwork->info("Received clientSetupJNI");
+
+	CAndroidVMHelper::cacheVM(env);
+}
+
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jobject cls)
 {
 	logNetwork->info("Received server closed signal");
