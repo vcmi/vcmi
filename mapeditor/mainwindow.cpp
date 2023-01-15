@@ -1181,7 +1181,7 @@ void MainWindow::on_actionPaste_triggered()
 	}
 }
 
-void MainWindow::keyPressEvent(QKeyEvent* event)
+void MainWindow::keyPressEvent(QKeyEvent * event)
 {
 	switch (event->key()) 
 	{
