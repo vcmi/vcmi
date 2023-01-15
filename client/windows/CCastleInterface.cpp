@@ -47,7 +47,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	parent(Par),
 	town(Town),
 	str(Str),
-	stateCounter(80)
+	stateCounter(150)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += str->pos.x;
@@ -154,12 +154,12 @@ SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 
 void CBuildingRect::show(SDL_Surface * to)
 {
-	const ui32 stageDelay = 16;
+	const ui32 stageDelay = 30;
 
-	const ui32 S1_TRANSP  = 16; //0.5 sec building appear 0->100 transparency
-	const ui32 S2_WHITE_B = 32; //0.5 sec border glows from white to yellow
-	const ui32 S3_YELLOW_B= 48; //0.5 sec border glows from yellow to normal
-	const ui32 BUILDED    = 80; //  1 sec delay, nothing happens
+	const ui32 S1_TRANSP  = 30; //0.5 sec building appear 0->100 transparency
+	const ui32 S2_WHITE_B = 60; //0.5 sec border glows from white to yellow
+	const ui32 S3_YELLOW_B= 90; //0.5 sec border glows from yellow to normal
+	const ui32 BUILDED    = 150; //  1 sec delay, nothing happens
 
 	if(stateCounter < S1_TRANSP)
 	{
