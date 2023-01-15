@@ -24,6 +24,19 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const std::map<CCreature::CreatureQuantityId, std::string> CCreature::creatureQuantityRanges =
+{
+		{CCreature::CreatureQuantityId::FEW, "1-4"},
+		{CCreature::CreatureQuantityId::SEVERAL, "5-9"},
+		{CCreature::CreatureQuantityId::PACK, "10-19"},
+		{CCreature::CreatureQuantityId::LOTS, "20-49"},
+		{CCreature::CreatureQuantityId::HORDE, "50-99"},
+		{CCreature::CreatureQuantityId::THRONG, "100-249"},
+		{CCreature::CreatureQuantityId::SWARM, "250-499"},
+		{CCreature::CreatureQuantityId::ZOUNDS, "500-999"},
+		{CCreature::CreatureQuantityId::LEGION, "1000+"}
+};
+
 int32_t CCreature::getIndex() const
 {
 	return idNumber.toEnum();
@@ -195,29 +208,12 @@ CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 
 std::string CCreature::getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId)
 {
-	switch(quantityId)
-	{
-		case CCreature::CreatureQuantityId::FEW:
-			return "1-4";
-		case CCreature::CreatureQuantityId::SEVERAL:
-			return "5-9";
-		case CCreature::CreatureQuantityId::PACK:
-			return "10-19";
-		case CCreature::CreatureQuantityId::LOTS:
-			return "20-49";
-		case CCreature::CreatureQuantityId::HORDE:
-			return "50-99";
-		case CCreature::CreatureQuantityId::THRONG:
-			return "100-249";
-		case CCreature::CreatureQuantityId::SWARM:
-			return "250-499";
-		case CCreature::CreatureQuantityId::ZOUNDS:
-			return "500-999";
-		case CCreature::CreatureQuantityId::LEGION:
-			return "1000+";
-		default:
-			return "[ERROR]";
-	}
+	if(creatureQuantityRanges.find(quantityId) != creatureQuantityRanges.end())
+		return creatureQuantityRanges.at(quantityId);
+
+	logGlobal->error("Wrong quantityId: %d", (int)quantityId);
+	assert(0);
+	return "[ERROR]";
 }
 
 int CCreature::estimateCreatureCount(ui32 countID)

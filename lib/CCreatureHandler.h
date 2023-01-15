@@ -248,6 +248,7 @@ public:
 
 private:
 	void fillWarMachine();
+	static const std::map<CreatureQuantityId, std::string> creatureQuantityRanges;
 };
 
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>
