@@ -165,6 +165,7 @@ void MainWindow::updateTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
 	std::string translationFile = settings["general"]["language"].String() + ".qm";
+	logGlobal->info("Loading translation '%s'", translationFile);
 
 	QVector<QString> searchPaths;
 
@@ -174,8 +175,10 @@ void MainWindow::updateTranslation()
 
 	for(auto const & string : boost::adaptors::reverse(searchPaths))
 	{
+		logGlobal->info("Searching for translation at '%s'", string.toStdString());
 		if (translator.load(string))
 		{
+			logGlobal->info("Translation found");
 			if (!qApp->installTranslator(&translator))
 				logGlobal->error("Failed to install translator");
 			return;
