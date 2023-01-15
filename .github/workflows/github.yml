@@ -84,6 +84,12 @@ jobs:
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
             artifact_platform: intel
+          - platform: msvc
+            os: windows-latest
+            test: 0
+            pack: 1
+            extension: exe
+            preset: windows-msvc-release
     runs-on: ${{ matrix.os }}
     defaults:
       run:
