@@ -169,7 +169,7 @@ set(client_HEADERS
 		mapHandler.h
 		resource.h
 		SDLRWwrapper.h
-        ClientCommandManager.h
+		ClientCommandManager.h
 )
 
 if(APPLE_IOS)
