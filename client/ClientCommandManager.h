@@ -17,15 +17,15 @@ class CIntObject;
 
 class ClientCommandManager //take mantis #2292 issue about account if thinking about handling cheats from command-line
 {
-	static bool currentCallFromIngameConsole;
+	bool currentCallFromIngameConsole;
 
-	static void giveTurn(const PlayerColor &color);
-	static void printInfoAboutInterfaceObject(const CIntObject *obj, int level);
-	static void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);
-	static void handleGoSolo();
-	static void handleControlAi(const std::string &colorName);
+	void giveTurn(const PlayerColor &color);
+	void printInfoAboutInterfaceObject(const CIntObject *obj, int level);
+	void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);
+	void handleGoSolo();
+	void handleControlAi(const std::string &colorName);
 
 public:
-	ClientCommandManager() = delete;
-	static void processCommand(const std::string &message, bool calledFromIngameConsole);
+	ClientCommandManager() = default;
+	void processCommand(const std::string &message, bool calledFromIngameConsole);
 };

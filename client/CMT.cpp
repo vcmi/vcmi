@@ -239,7 +239,14 @@ int main(int argc, char * argv[])
 	std::cout.flags(std::ios::unitbuf);
 #ifndef VCMI_IOS
 	console = new CConsoleHandler();
-	*console->cb = ClientCommandManager::processCommand;
+
+	auto callbackFunction = [](std::string buffer, bool calledFromIngameConsole)
+	{
+		ClientCommandManager commandController;
+		commandController.processCommand(buffer, calledFromIngameConsole);
+	};
+
+	*console->cb = callbackFunction;
 	console->start();
 #endif
 

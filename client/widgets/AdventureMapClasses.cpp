@@ -1154,7 +1154,13 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 		if(txt.at(0) == '/')
 		{
 			//some commands like gosolo don't work when executed from GUI thread
-			boost::thread clientCommandThread(ClientCommandManager::processCommand, txt.substr(1), true);
+			auto threadFunction = [=]()
+			{
+				ClientCommandManager commandController;
+				commandController.processCommand(txt.substr(1), true);
+			};
+
+			boost::thread clientCommandThread(threadFunction);
 			clientCommandThread.detach();
 		}
 		else

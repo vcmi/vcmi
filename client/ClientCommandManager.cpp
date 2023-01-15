@@ -33,8 +33,6 @@
 #include "../lib/ScriptHandler.h"
 #endif
 
-bool ClientCommandManager::currentCallFromIngameConsole;
-
 void ClientCommandManager::handleGoSolo()
 {
 	Settings session = settings.write["session"];
