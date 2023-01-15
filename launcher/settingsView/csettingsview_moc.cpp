@@ -35,6 +35,8 @@ QString resolutionToString(const QSize & resolution)
 /// Note that it is possible to specify enconding manually in settings.json
 static const std::string knownEncodingsList[] = //TODO: remove hardcode
 {
+	// Asks vcmi to automatically detect encoding
+	"auto",
 	// European Windows-125X encodings
 	"CP1250", // West European, covers mostly Slavic languages that use latin script
 	"CP1251", // Covers languages that use cyrillic scrypt

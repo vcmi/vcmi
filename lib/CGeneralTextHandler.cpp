@@ -106,7 +106,84 @@ bool Unicode::isValidString(const char * data, size_t size)
 
 static std::string getSelectedEncoding()
 {
-	return settings["general"]["encoding"].String();
+	auto explicitSetting = settings["general"]["encoding"].String();
+	if (explicitSetting != "auto")
+		return explicitSetting;
+	return settings["session"]["encoding"].String();
+}
+
+/// Detects encoding of H3 text files based on matching against pregenerated footprints of H3 file
+/// Can also detect language of H3 install, however right now this is not necessary
+static void detectEncoding()
+{
+	static const size_t knownCount = 6;
+
+	// "footprints" of data collected from known versions of H3
+	static const std::array<std::array<double, 16>, knownCount> knownFootprints =
+	{ {
+		{ { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } },
+		{ { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } },
+		{ { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } },
+		{ { 0.0534, 0.0000, 0.1701, 0.0067, 0.0157, 0.0133, 0.4328, 0.2540, 0.0001, 0.0043, 0.0000, 0.0244, 0.0000, 0.0000, 0.0181, 0.0071 } },
+		{ { 0.0548, 0.0000, 0.1744, 0.0061, 0.0031, 0.0009, 0.0046, 0.0136, 0.0000, 0.0004, 0.0000, 0.0000, 0.0227, 0.0061, 0.4882, 0.2252 } },
+		{ { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } }
+	} };
+
+	// languages of known footprints
+	static const std::array<std::string, knownCount> knownLanguages =
+	{ {
+		  "English", "French", "German", "Polish", "Russian", "Ukrainian"
+	} };
+
+	// encoding that should be used for known footprints
+	static const std::array<std::string, knownCount> knownEncodings =
+	{ {
+		  "CP1252", "CP1252", "CP1252", "CP1250", "CP1251", "CP1251"
+	} };
+
+	// load file that will be used for footprint generation
+	// this is one of the most text-heavy files in game and consists solely from translated texts
+	auto resource = CResourceHandler::get()->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
+
+	std::array<size_t, 256> charCount;
+	std::array<double, 16> footprint;
+	std::array<double, knownCount> deviations;
+
+	boost::range::fill(charCount, 0);
+	boost::range::fill(footprint, 0.0);
+	boost::range::fill(deviations, 0.0);
+
+	auto data = resource->readAll();
+
+	// compute how often each character occurs in input file
+	for (si64 i = 0; i < data.second; ++i)
+		charCount[data.first[i]] += 1;
+
+	// and convert computed data into weights
+	// to reduce amount of data, group footprint data into 16-char blocks.
+	// While this will reduce precision, it should not affect output
+	// since we expect only tiny differences compared to reference footprints
+	for (size_t i = 0; i < 256; ++i)
+		footprint[i/16] += double(charCount[i]) / data.second;
+
+	logGlobal->debug("Language footprint: %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+			footprint[0], footprint[1], footprint[2],  footprint[3],  footprint[4],  footprint[5],  footprint[6],  footprint[7],
+			footprint[8], footprint[9], footprint[10], footprint[11], footprint[12], footprint[13], footprint[14], footprint[15]
+		);
+
+	for (size_t i = 0; i < deviations.size(); ++i)
+	{
+		for (size_t j = 0; j < footprint.size(); ++j)
+			deviations[i] += std::abs((footprint[j] - knownFootprints[i][j]));
+	}
+
+	size_t bestIndex = boost::range::min_element(deviations) - deviations.begin();
+
+	for (size_t i = 0; i < deviations.size(); ++i)
+		logGlobal->debug("Comparing to %s: %f", knownLanguages[i], deviations[i]);
+
+	Settings s = settings.write["session"]["encoding"];
+	s->String() = knownEncodings[bestIndex];
 }
 
 std::string Unicode::toUnicode(const std::string &text)
@@ -364,6 +441,9 @@ CGeneralTextHandler::CGeneralTextHandler():
 	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
 	qeModCommands    (*this, "vcmi.quickExchange" )
 {
+	if (getSelectedEncoding().empty())
+		detectEncoding();
+
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
 	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );

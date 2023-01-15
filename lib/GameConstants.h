@@ -983,6 +983,7 @@ class ArtifactPosition
 public:
 	enum EArtifactPosition
 	{
+		TRANSITION_POS = -3,
 		FIRST_AVAILABLE = -2,
 		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
 		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, //5

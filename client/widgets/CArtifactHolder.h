@@ -141,7 +141,7 @@ public:
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
 	void artifactRemoved(const ArtifactLocation &al);
 	void artifactUpdateSlots(const ArtifactLocation &al);
-	ArtPlacePtr getArtPlace(int slot);//may return null
+	ArtPlacePtr getArtPlace(ArtifactPosition slot);//may return null
 
 	void setHero(const CGHeroInstance * hero);
 	const CGHeroInstance *getHero() const;

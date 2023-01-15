@@ -32,7 +32,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
@@ -1245,12 +1245,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	updateWidgets();
-}
-
-CExchangeWindow::~CExchangeWindow()
-{
-	artifs[0]->commonInfo = nullptr;
-	artifs[1]->commonInfo = nullptr;
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const

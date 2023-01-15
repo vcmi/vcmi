@@ -484,6 +484,11 @@
     <widget class="QComboBox" name="comboBoxEncoding">
      <item>
       <property name="text">
+       <string>Automatic detection</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Central European (Windows 1250)</string>
       </property>
      </item>
