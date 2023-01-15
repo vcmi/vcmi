@@ -161,6 +161,7 @@ private:
 
 	// command line options
 	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
+
 protected:
-	virtual void keyPressEvent(QKeyEvent* event);
+	virtual void keyPressEvent(QKeyEvent * event) override;
 };
