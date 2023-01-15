@@ -1609,7 +1609,13 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	if(auto target = battleGetUnitByPos(destHex, true))
 	{
 		//If any hex of target creature is within range, there is no penalty
-		if(isEnemyUnitWithinSpecifiedRange(shooterPosition, target, GameConstants::BATTLE_PENALTY_DISTANCE))
+		int range = GameConstants::BATTLE_PENALTY_DISTANCE;
+
+		auto bonus = shooter->getBonus(Selector::type()(Bonus::LIMITED_SHOOTING_RANGE));
+		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
+			range = bonus->additionalInfo[0];
+
+		if(isEnemyUnitWithinSpecifiedRange(shooterPosition, target, range))
 			return false;
 	}
 	else
