@@ -156,7 +156,7 @@ static void detectEncoding()
 	auto data = resource->readAll();
 
 	// compute how often each character occurs in input file
-	for (size_t i = 0; i < data.second; ++i)
+	for (si64 i = 0; i < data.second; ++i)
 		charCount[data.first[i]] += 1;
 
 	// and convert computed data into weights
