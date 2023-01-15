@@ -233,6 +233,10 @@ MainWindow::MainWindow(QWidget* parent) :
 	//Load map from command line
 	if(!mapFilePath.isEmpty())
 		openMap(mapFilePath);
+
+	keyBackspace = new QShortcut(this);
+	keyBackspace->setKey(Qt::Key_Backspace);
+	connect(keyBackspace, &QShortcut::activated, this, &MainWindow::backSpaceAction);
 }
 
 MainWindow::~MainWindow()
@@ -1179,6 +1183,11 @@ void MainWindow::on_actionPaste_triggered()
 	{
 		controller.pasteFromClipboard(mapLevel);
 	}
+}
+
+void MainWindow::backSpaceAction()
+{
+	on_actionErase_triggered();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent * event)

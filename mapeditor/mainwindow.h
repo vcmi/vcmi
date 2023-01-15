@@ -114,6 +114,8 @@ private slots:
 
 	void on_actionPaste_triggered();
 
+	void backSpaceAction();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
@@ -161,6 +163,8 @@ private:
 
 	// command line options
 	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
+
+	QShortcut * keyBackspace;
 
 protected:
 	virtual void keyPressEvent(QKeyEvent * event) override;
