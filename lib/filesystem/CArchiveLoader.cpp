@@ -91,7 +91,7 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 				extractToFolder("IMAGES", mountPoint, entry);
 			else if ((fName.find(".DEF") != std::string::npos ) || (fName.find(".MSK") != std::string::npos) || (fName.find(".FNT") != std::string::npos) || (fName.find(".PAL") != std::string::npos))
 				extractToFolder("SPRITES", mountPoint, entry);
-			else if ((fName.find(".h3c") != std::string::npos))
+			else if ((fName.find(".H3C") != std::string::npos))
 				extractToFolder("SPRITES", mountPoint, entry);
 			else
 				extractToFolder("MISC", mountPoint, entry);
