@@ -374,7 +374,8 @@ int main(int argc, char * argv[])
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 		#endif // VCMI_ANDROID
 
-		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
+		//(!)init here AFTER SDL_Init() while using SDL for FPS management
+		GH.init();
 
 		SDL_LogSetOutputFunction(&SDLLogCallback, nullptr);
 
@@ -430,10 +431,17 @@ int main(int argc, char * argv[])
 		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
+
 #ifdef VCMI_MAC
 	// Ctrl+click should be treated as a right click on Mac OS X
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif
+
+	if(GH.isPointerRelativeMode)
+	{
+		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+	}
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread

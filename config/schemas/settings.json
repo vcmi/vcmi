@@ -17,7 +17,20 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
+			"required" : [
+				"playerName",
+				"showfps",
+				"music",
+				"sound",
+				"encoding",
+				"swipe",
+				"saveRandomMaps",
+				"saveFrequency",
+				"notifications",
+				"extraDump",
+				"userRelativePointer",
+				"relativePointerSpeedMultiplier"
+			],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -70,6 +83,14 @@
 				"extraDump" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"userRelativePointer" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"relativePointerSpeedMultiplier" : {
+					"type" : "number",
+					"default" : 1
 				}
 			}
 		},
