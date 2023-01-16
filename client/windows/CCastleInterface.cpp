@@ -53,6 +53,20 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
+	// special animation frame manipulation for castle shipyard with and without ship
+	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
+	if(Town->town->faction->getId() == FactionID::CASTLE && Str->building &&
+		(Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
+	{
+		if(Town->hasBuilt(BuildingID::CITADEL))
+		{
+			this->first = 1;
+			this->frame = 1;
+		}
+		else
+			this->last = 0;
+	}
+
 	if(!str->borderName.empty())
 		border = BitmapHandler::loadBitmap(str->borderName);
 	else
