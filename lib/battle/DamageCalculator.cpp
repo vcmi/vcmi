@@ -20,38 +20,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
-{
-
-static void retrieveTurretDamageRange(const CGTownInstance * town, const battle::Unit * turret, double & outMinDmg, double & outMaxDmg)
-{
-	// http://heroes.thelazy.net/wiki/Arrow_tower
-	assert(turret->creatureIndex() == CreatureID::ARROW_TOWERS);
-	assert(town);
-	assert(turret->getPosition() >= -4 && turret->getPosition() <= -2);
-
-	// base damage, irregardless of town level
-	static const int baseDamageKeep = 10;
-	static const int baseDamageTower = 6;
-
-	// extra damage, for each building in town
-	static const int extraDamage = 2;
-
-	const int townLevel = town->getTownLevel();
-
-	int minDamage;
-
-	if(turret->getPosition() == BattleHex::CASTLE_CENTRAL_TOWER)
-		minDamage = baseDamageKeep + townLevel * extraDamage;
-	else
-		minDamage = baseDamageTower + townLevel / 2 * extraDamage;
-
-	outMinDmg = minDamage;
-	outMaxDmg = minDamage * 2;
-}
-
-}
-
 TDmgRange DamageCalculator::getBaseDamageSingle() const
 {
 	double minDmg = 0.0;
@@ -61,19 +29,34 @@ TDmgRange DamageCalculator::getBaseDamageSingle() const
 	maxDmg = info.attacker->getMaxDamage(info.shooting);
 
 	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
-		SiegeStuffThatShouldBeMovedToHandlers::retrieveTurretDamageRange(callback.battleGetDefendedTown(), info.attacker, minDmg, maxDmg);
+	{
+		auto town = callback.battleGetDefendedTown();
+		assert(town);
+
+		switch(info.attacker->getPosition())
+		{
+		case BattleHex::CASTLE_CENTRAL_TOWER:
+			return town->getKeepDamageRange();
+		case BattleHex::CASTLE_BOTTOM_TOWER:
+		case BattleHex::CASTLE_UPPER_TOWER:
+			return town->getTowerDamageRange();
+		default:
+			assert(0);
+		}
+	}
 
 	const std::string cachingStrSiedgeWeapon = "type_SIEGE_WEAPON";
 	static const auto selectorSiedgeWeapon = Selector::type()(Bonus::SIEGE_WEAPON);
 
-	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
-	{ //minDmg and maxDmg are multiplied by hero attack + 1
+	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
+	{
 		auto retrieveHeroPrimSkill = [&](int skill) -> int
 		{
 			std::shared_ptr<const Bonus> b = info.attacker->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
-			return b ? b->val : 0; //if there is no hero or no info on his primary skill, return 0
+			return b ? b->val : 0;
 		};
 
+		//minDmg and maxDmg are multiplied by hero attack + 1
 		minDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
 		maxDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
 	}
