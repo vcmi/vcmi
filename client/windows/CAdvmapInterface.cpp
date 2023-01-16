@@ -1038,7 +1038,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		++heroAnim;
 	}
-	if(animValHitCount == 8)
+	if(animValHitCount >= 8)
 	{
 		CGI->mh->updateWater();
 		animValHitCount = 0;

@@ -1,0 +1,12 @@
+[settings]
+compiler=apple-clang
+compiler.version=14
+compiler.libcxx=libc++
+build_type=Release
+
+# required for Boost.Locale in versions >= 1.81
+compiler.cppstd=11
+
+[conf]
+tools.apple:enable_bitcode = False
+tools.cmake.cmaketoolchain:generator = Ninja

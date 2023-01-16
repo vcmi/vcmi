@@ -16,6 +16,7 @@
 #include "../gui/SDL_Pixels.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
+#include "../gui/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -339,7 +340,7 @@ void CAnimImage::playerColored(PlayerColor currPlayer)
 			anim->getImage(0, group)->playerColored(player);
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group):
+CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group, uint8_t alpha):
 	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
@@ -349,7 +350,7 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Del
 	flags(Flags),
 	xOffset(0),
 	yOffset(0),
-	alpha(255)
+	alpha(alpha)
 {
 	anim->loadGroup(group);
 	last = anim->size(group);
@@ -454,7 +455,12 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	auto img = anim->getImage(frame, group);
 	if(img)
-		img->draw(to, pos.x, pos.y, &src, alpha);
+	{
+		const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
+		img->adjustPalette(alphaFilter);
+
+		img->draw(to, pos.x, pos.y, &src);
+	}
 }
 
 void CShowableAnim::rotate(bool on, bool vertical)

@@ -563,6 +563,9 @@ if(WIN32)
 				FILES ${integration_loc}
 				DESTINATION ${BIN_DIR}/platforms
 			)
+			install(
+				FILES "$<TARGET_FILE:Qt${QT_VERSION_MAJOR}::QWindowsVistaStylePlugin>" 
+				DESTINATION ${BIN_DIR}/styles) 
 		endif()
 	endif()
 

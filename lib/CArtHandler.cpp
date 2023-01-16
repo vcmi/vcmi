@@ -824,7 +824,12 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestR
 
 bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
-	if(slot >= GameConstants::BACKPACK_START)
+	if(slot == ArtifactPosition::TRANSITION_POS)
+	{
+		return true;
+	}
+
+	if(ArtifactUtils::isSlotBackpack(slot))
 	{
 		if(artType->isBig())
 			return false;
@@ -851,7 +856,7 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 	assert(canBePutAt(al));
 
 	al.getHolderArtSet()->setNewArtSlot(al.slot, this, false);
-	if(!ArtifactUtils::isSlotBackpack(al.slot))
+	if(ArtifactUtils::isSlotEquipment(al.slot))
 		al.getHolderNode()->attachTo(*this);
 }
 
@@ -859,7 +864,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
-	if(!ArtifactUtils::isSlotBackpack(al.slot))
+	if(ArtifactUtils::isSlotEquipment(al.slot))
 		al.getHolderNode()->detachFrom(*this);
 }
 
@@ -998,6 +1003,8 @@ bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 
 bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
+	if(slot == ArtifactPosition::TRANSITION_POS)
+		return true;
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved);
 	if(!canMainArtifactBePlaced)
 		return false; //no is no...
@@ -1070,7 +1077,11 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, Artifac
 
 void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 {
-	if(ArtifactUtils::isSlotBackpack(al.slot))
+	if(al.slot == ArtifactPosition::TRANSITION_POS)
+	{
+		CArtifactInstance::putAt(al);
+	}
+	else if(ArtifactUtils::isSlotBackpack(al.slot))
 	{
 		CArtifactInstance::putAt(al);
 		for(ConstituentInfo &ci : constituentsInfo)
@@ -1108,7 +1119,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 
 void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 {
-	if(ArtifactUtils::isSlotBackpack(al.slot))
+	if(ArtifactUtils::isSlotBackpack(al.slot) || al.slot == ArtifactPosition::TRANSITION_POS)
 	{
 		CArtifactInstance::removeFrom(al);
 	}
@@ -1329,6 +1340,12 @@ const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(Artifact
 
 const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 {
+	if(pos == ArtifactPosition::TRANSITION_POS)
+	{
+		// Always add to the end. Always take from the beginning.
+		assert(!artifactsTransitionPos.empty());
+		return &(*artifactsTransitionPos.begin());
+	}
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn.at(pos);
 	if(pos >= ArtifactPosition::AFTER_LAST )
@@ -1355,7 +1372,13 @@ ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
 
-	if (!ArtifactUtils::isSlotBackpack(slot))
+	if(slot == ArtifactPosition::TRANSITION_POS)
+	{
+		// Always add to the end. Always take from the beginning.
+		artifactsTransitionPos.push_back(ArtSlotInfo());
+		return artifactsTransitionPos.back();
+	}
+	if(!ArtifactUtils::isSlotBackpack(slot))
 		return artifactsWorn[slot];
 
 	ArtSlotInfo newSlot;
@@ -1375,7 +1398,12 @@ void CArtifactSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, 
 
 void CArtifactSet::eraseArtSlot(ArtifactPosition slot)
 {
-	if(ArtifactUtils::isSlotBackpack(slot))
+	if(slot == ArtifactPosition::TRANSITION_POS)
+	{
+		assert(!artifactsTransitionPos.empty());
+		artifactsTransitionPos.erase(artifactsTransitionPos.begin());
+	}
+	else if(ArtifactUtils::isSlotBackpack(slot))
 	{
 		auto backpackSlot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
 
@@ -1610,6 +1638,11 @@ DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * he
 DLL_LINKAGE bool ArtifactUtils::isSlotBackpack(ArtifactPosition slot)
 {
 	return slot >= GameConstants::BACKPACK_START;
+}
+
+DLL_LINKAGE bool ArtifactUtils::isSlotEquipment(ArtifactPosition slot)
+{
+	return slot < GameConstants::BACKPACK_START && slot >= 0;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -37,7 +37,7 @@
 				},
 				"encoding" : {
 					"type" : "string",
-					"default" : "CP1252"
+					"default" : "auto"
 				},
 				"swipe" : {
 					"type" : "boolean",
