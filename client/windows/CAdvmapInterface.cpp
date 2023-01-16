@@ -1721,6 +1721,18 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
 		assert(pnode);
 
+		if(LOCPLINT->altPressed() && pnode->reachable()) //overwrite status bar text with movement info
+		{
+			const int maxMovementPointsForDestinationLastTurn = pnode->turns > 0 ? h->maxMovePoints(pnode->layer == EPathfindingLayer::LAND) : h->movement;
+			const int movementPointsLastTurnCost = maxMovementPointsForDestinationLastTurn - pnode->moveRemains;
+			const int remainingPointsAfterMove = pnode->turns == 0 ? pnode->moveRemains : 0;
+
+			const std::string costWord = VLC->generaltexth->allTexts[346];
+			const std::string leftWord = VLC->generaltexth->allTexts[200];
+			const std::string turnsCount = pnode->turns > 0 ? std::to_string(pnode->turns) + "T + " : "";
+			statusbar->write(costWord + ": " + turnsCount + std::to_string(movementPointsLastTurnCost) + ", " + leftWord + ": " + std::to_string(remainingPointsAfterMove));
+		}
+
 		int turns = pnode->turns;
 		vstd::amin(turns, 3);
 		switch(pnode->action)
