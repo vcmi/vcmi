@@ -18,7 +18,6 @@ namespace
 {
 bool isCompatible(const QString & verMin, const QString & verMax)
 {
-	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
 	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
 							   VCMI_VERSION_MINOR,
 							   VCMI_VERSION_PATCH);
@@ -26,8 +25,10 @@ bool isCompatible(const QString & verMin, const QString & verMax)
 	auto versionMin = QVersionNumber::fromString(verMin);
 	auto versionMax = QVersionNumber::fromString(verMax);
 	
-	auto buildVersion = [maxSections](QVersionNumber & ver)
+	auto buildVersion = [](QVersionNumber & ver)
 	{
+		const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
+
 		if(ver.segmentCount() < maxSections)
 		{
 			auto segments = ver.segments();
@@ -124,7 +125,7 @@ bool CModEntry::isCompatible() const
 
 bool CModEntry::isEssential() const
 {
-	return getValue("storedLocaly").toBool();
+	return getName() == "vcmi";
 }
 
 bool CModEntry::isInstalled() const

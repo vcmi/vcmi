@@ -402,7 +402,7 @@ Component CRewardInfo::getDisplayedComponent(const CGHeroInstance * h) const
 }
 
 // FIXME: copy-pasted from CObjectHandler
-static std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];
@@ -1007,7 +1007,9 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
+			info[0].limiter.resources[Res::GOLD] = 1000;
 			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].limiter.resources[Res::GOLD] = 1000;
 			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
@@ -1157,7 +1159,7 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	auto tiles = getVisitableOffsets();
 	for (size_t i=0; i<tiles.size(); i++)
 	{
-		if (pos - tiles[i] == hero->getPosition() && info[i].numOfGrants == 0)
+		if (pos - tiles[i] == hero->visitablePos() && info[i].numOfGrants == 0)
 		{
 			return std::vector<ui32>(1, (ui32)i);
 		}

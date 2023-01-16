@@ -267,7 +267,7 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	children.push_back(child);
 	child->parent_m = this;
 	if(adjustPosition)
-		child->pos += pos;
+		child->pos += pos.topLeft();
 
 	if (!active && child->active)
 		child->deactivate();
@@ -289,7 +289,7 @@ void CIntObject::removeChild(CIntObject * child, bool adjustPosition)
 	children -= child;
 	child->parent_m = nullptr;
 	if(adjustPosition)
-		child->pos -= pos;
+		child->pos -= pos.topLeft();
 }
 
 void CIntObject::redraw()

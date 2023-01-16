@@ -329,7 +329,7 @@ public:
 
 		if(!poolIsEmpty) pool.pop_back();
 
-		return std::move(tmp);
+		return tmp;
 	}
 
 	bool empty() const

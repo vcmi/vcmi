@@ -53,8 +53,22 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
+	// special animation frame manipulation for castle shipyard with and without ship
+	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
+	if(Town->town->faction->getId() == FactionID::CASTLE && Str->building &&
+		(Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
+	{
+		if(Town->hasBuilt(BuildingID::CITADEL))
+		{
+			this->first = 1;
+			this->frame = 1;
+		}
+		else
+			this->last = 0;
+	}
+
 	if(!str->borderName.empty())
-		border = BitmapHandler::loadBitmap(str->borderName, true);
+		border = BitmapHandler::loadBitmap(str->borderName);
 	else
 		border = nullptr;
 
@@ -851,7 +865,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	if(hasSomeoneToRecruit)
 		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
 	else
-		CInfoWindow::showInfoDialog(CGI->generaltexth->localizedTexts["townHall"]["noCreaturesToRecruit"].String(), {});
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.townHall.noCreaturesToRecruit"), {});
 }
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
@@ -870,8 +884,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	{
 		auto buildingName = town->town->getSpecialBuilding(subID)->Name();
 
-		hasNotProduced = std::string(CGI->generaltexth->localizedTexts["townHall"]["hasNotProduced"].String());
-		hasProduced = std::string(CGI->generaltexth->localizedTexts["townHall"]["hasProduced"].String());
+		hasNotProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasNotProduced"));
+		hasProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasProduced"));
 		boost::algorithm::replace_first(hasNotProduced, "%s", buildingName);
 		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
 	}
@@ -1468,7 +1482,7 @@ std::string CBuildWindow::getTextForState(int state)
 		}
 	case EBuildingState::MISSING_BASE:
 		{
-			std::string msg = CGI->generaltexth->localizedTexts["townHall"]["missingBase"].String();
+			std::string msg = CGI->generaltexth->translate("vcmi.townHall.missingBase");
 			ret = boost::str(boost::format(msg) % town->town->buildings.at(building->upgrade)->Name());
 			break;
 		}

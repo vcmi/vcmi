@@ -195,6 +195,7 @@ public:
 	bool ableToRetaliate() const override;
 	bool alive() const override;
 	bool isGhost() const override;
+	bool isFrozen() const override;
 	bool isValidTarget(bool allowDead = false) const override;
 
 	bool isClone() const override;

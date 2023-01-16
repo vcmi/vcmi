@@ -4,7 +4,6 @@ set(client_SRCS
 
 		battle/BattleActionsController.cpp
 		battle/BattleAnimationClasses.cpp
-		battle/BattleControlPanel.cpp
 		battle/BattleEffectsController.cpp
 		battle/BattleFieldController.cpp
 		battle/BattleInterfaceClasses.cpp
@@ -14,13 +13,15 @@ set(client_SRCS
 		battle/BattleRenderer.cpp
 		battle/BattleSiegeController.cpp
 		battle/BattleStacksController.cpp
+		battle/BattleWindow.cpp
 		battle/CreatureAnimation.cpp
 
 		gui/CAnimation.cpp
 		gui/Canvas.cpp
-		gui/CCursorHandler.cpp
+		gui/CursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
+		gui/ColorFilter.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
@@ -88,7 +89,6 @@ set(client_HEADERS
 
 		battle/BattleActionsController.h
 		battle/BattleAnimationClasses.h
-		battle/BattleControlPanel.h
 		battle/BattleEffectsController.h
 		battle/BattleFieldController.h
 		battle/BattleInterfaceClasses.h
@@ -98,12 +98,15 @@ set(client_HEADERS
 		battle/BattleRenderer.h
 		battle/BattleSiegeController.h
 		battle/BattleStacksController.h
+		battle/BattleWindow.h
 		battle/CreatureAnimation.h
+		battle/BattleConstants.h
 
 		gui/CAnimation.h
 		gui/Canvas.h
-		gui/CCursorHandler.h
+		gui/CursorHandler.h
 		gui/CGuiHandler.h
+		gui/ColorFilter.h
 		gui/CIntObject.h
 		gui/Fonts.h
 		gui/Geometries.h
@@ -229,7 +232,7 @@ if(WIN32)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
 			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb12.dll tbb12.dll
 		)
 	endif()
 elseif(APPLE_IOS)

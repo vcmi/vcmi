@@ -49,6 +49,7 @@ public:
 	MOCK_CONST_METHOD0(ableToRetaliate, bool());
 	MOCK_CONST_METHOD0(alive, bool());
 	MOCK_CONST_METHOD0(isGhost, bool());
+	MOCK_CONST_METHOD0(isFrozen, bool());
 	MOCK_CONST_METHOD1(isValidTarget, bool(bool));
 
 	MOCK_CONST_METHOD0(isClone, bool());

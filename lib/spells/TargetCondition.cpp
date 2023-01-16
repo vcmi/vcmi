@@ -400,7 +400,7 @@ const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
 	static std::unique_ptr<TargetConditionItemFactory> singleton;
 
 	if(!singleton)
-		singleton = make_unique<DefaultTargetConditionItemFactory>();
+		singleton = std::make_unique<DefaultTargetConditionItemFactory>();
 	return singleton.get();
 }
 

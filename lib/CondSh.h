@@ -18,6 +18,8 @@ template <typename T> struct CondSh
 	boost::condition_variable cond;
 	boost::mutex mx;
 
+	CondSh() : data(T()) {}
+
 	CondSh(T t) : data(t) {}
 
 	// set data

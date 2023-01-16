@@ -176,7 +176,10 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 
+	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("animationYOffset", animationYOffset);

@@ -13,7 +13,7 @@
 #include "CComponent.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../CPlayerInterface.h"
 #include "../CMessage.h"
@@ -68,7 +68,7 @@ LRClickableAreaWText::LRClickableAreaWText()
 LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText, const std::string &ClickText)
 {
 	init();
-	pos = Pos + pos;
+	pos = Pos + pos.topLeft();
 	hoverText = HoverText;
 	text = ClickText;
 }
@@ -430,7 +430,7 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 	small(Small)
 {
 	bonusValue = 0;
-	pos = r + pos;
+	pos = r + pos.topLeft();
 	defActions = 255-DISPOSE;
 }
 

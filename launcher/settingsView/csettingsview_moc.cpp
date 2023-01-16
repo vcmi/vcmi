@@ -33,6 +33,8 @@ QString resolutionToString(const QSize & resolution)
 /// Note that it is possible to specify enconding manually in settings.json
 static const std::string knownEncodingsList[] = //TODO: remove hardcode
 {
+	// Asks vcmi to automatically detect encoding
+	"auto",
 	// European Windows-125X encodings
 	"CP1250", // West European, covers mostly Slavic languages that use latin script
 	"CP1251", // Covers languages that use cyrillic scrypt
@@ -135,6 +137,8 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	const auto screens = qGuiApp->screens();
 	const auto currentScreen = screenIndex < screens.size() ? screens[screenIndex] : qGuiApp->primaryScreen();
 	const auto screenSize = currentScreen->size();
+	MAYBE_UNUSED(screenSize);
+
 	for(const auto & entry : resolutions)
 	{
 		const auto resolutionMap = entry.toMap().value(QLatin1String{"resolution"}).toMap();

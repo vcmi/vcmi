@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
+			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "language", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -37,7 +37,7 @@
 				},
 				"encoding" : {
 					"type" : "string",
-					"default" : "CP1252"
+					"default" : "auto"
 				},
 				"swipe" : {
 					"type" : "boolean",
@@ -50,6 +50,10 @@
 				"lastMap" : {
 					"type":"string",
 					"default" : "Maps/Arrogance"
+				},
+				"language" : {
+					"type":"string",
+					"default" : "english"
 				},
 				"lastSave" : {
 					"type":"string",
@@ -77,7 +81,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "softwareCursor", "spellbookAnimation", "driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -98,6 +102,10 @@
 					"default": false
 				},
 				"realFullscreen" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"softwareCursor" :  {
 					"type" : "boolean",
 					"default" : false
 				},
@@ -356,7 +364,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "%l %n [%t] - %m"
+							"default" : "[%c] %l %n - %m"
 						}
 					}
 				},

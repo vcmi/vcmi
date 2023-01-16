@@ -15,17 +15,22 @@
 #include "BattleAnimationClasses.h"
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
+#include "CreatureAnimation.h"
 
+#include "../CMusicHandler.h"
+#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
-	owner(owner)
+	owner(owner),
+	timePassed(0.f)
 {
 	auto obst = owner.curInt->cb->battleGetAllObstacles();
 	for(auto & elem : obst)
@@ -72,10 +77,6 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 
 void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
 {
-	assert(obstaclesBeingPlaced.empty());
-	for (auto const & oi : obstacles)
-		obstaclesBeingPlaced.push_back(oi->uniqueID);
-
 	for (auto const & oi : obstacles)
 	{
 		auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(oi.get());
@@ -83,7 +84,6 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		if (!spellObstacle)
 		{
 			logGlobal->error("I don't know how to animate appearing obstacle of type %d", (int)oi->obstacleType);
-			obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 			continue;
 		}
 
@@ -92,29 +92,22 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 
 		auto first = animation->getImage(0, 0);
 		if(!first)
-		{
-			obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 			continue;
-		}
-
-		//TODO: sound
-		//soundBase::QUIKSAND
-		//soundBase::LANDMINE
 
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::invalid, spellObstacle->appearAnimation, whereTo, oi->pos, CPointEffectAnimation::WAIT_FOR_SOUND));
+		CCS->soundh->playSound( spellObstacle->appearSound );
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, spellObstacle->appearAnimation, whereTo, oi->pos));
 
 		//so when multiple obstacles are added, they show up one after another
-		owner.waitForAnims();
+		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
-		obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 		loadObstacleImage(*spellObstacle);
 	}
 }
 
-void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Point & offset)
+void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 {
 	//Blit absolute obstacles
 	for(auto & oi : owner.curInt->cb->battleGetAllObstacles())
@@ -123,7 +116,7 @@ void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Poin
 		{
 			auto img = getObstacleImage(*oi);
 			if(img)
-				canvas.draw(img, Point(offset.x + oi->getInfo().width, offset.y + oi->getInfo().height));
+				canvas.draw(img, Point(oi->getInfo().width, oi->getInfo().height));
 		}
 	}
 }
@@ -149,31 +142,26 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 	}
 }
 
+void BattleObstacleController::update()
+{
+	timePassed += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+}
+
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
 {
-	int frameIndex = (owner.animCount+1) *25 / owner.getAnimSpeed();
+	int framesCount = timePassed * AnimationControls::getObstaclesSpeed();
 	std::shared_ptr<CAnimation> animation;
 
+	// obstacle is not loaded yet, don't show anything
 	if (obstacleAnimations.count(oi.uniqueID) == 0)
-	{
-		if (boost::range::find(obstaclesBeingPlaced, oi.uniqueID) != obstaclesBeingPlaced.end())
-		{
-			// obstacle is not loaded yet, don't show anything
-			return nullptr;
-		}
-		else
-		{
-			assert(0); // how?
-			loadObstacleImage(oi);
-		}
-	}
+		return nullptr;
 
 	animation = obstacleAnimations[oi.uniqueID];
 	assert(animation);
 
 	if(animation)
 	{
-		frameIndex %= animation->size(0);
+		int frameIndex = framesCount % animation->size(0);
 		return animation->getImage(frameIndex, 0);
 	}
 	return nullptr;
@@ -183,7 +171,7 @@ Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> imag
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 
-	Rect r = owner.fieldController->hexPositionAbsolute(obstacle.pos);
+	Rect r = owner.fieldController->hexPositionLocal(obstacle.pos);
 	r.y += 42 - image->height() + offset;
 
 	return r.topLeft();

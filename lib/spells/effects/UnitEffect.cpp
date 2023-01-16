@@ -114,10 +114,11 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 	Target spellTargetCopy(spellTarget);
 
-	//make sure that we have valid target with valid aim, even if spell have invalid range configured
-	//TODO: check than spell range is actually not valid
-	//also hackfix for banned creature massive spells
-	if(!aimPoint.empty())
+	// make sure that we have valid target with valid aim, even if spell have invalid range configured
+	// TODO: check than spell range is actually not valid
+	// also hackfix for banned creature massive spells
+	// FIXME: potentially breaking change: aimPoint may NOT be in Target - example: frost ring
+	if(!aimPoint.empty() && spellTarget.empty())
 		spellTargetCopy.insert(spellTargetCopy.begin(), Destination(aimPoint.front()));
 
 	std::set<const battle::Unit *> targets;

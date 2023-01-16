@@ -478,7 +478,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB)
 	:cb(CB), 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	pos += Pos;
+	pos += Pos.topLeft();
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
@@ -495,7 +495,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	pos += Pos;
+	pos += Pos.topLeft();
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(Pos, 0, true);
@@ -524,9 +524,6 @@ CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
 void CKeyboardFocusListener::focusGot()
 {
 	CSDL_Ext::startTextInput(&textInput->pos);
-#ifdef VCMI_ANDROID
-	textInput->notifyAndroidTextInputChanged(textInput->text);
-#endif
 	usageIndex++;
 }
 
@@ -588,10 +585,12 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 	{
 		redraw();
 		cb(text);
-#ifdef VCMI_ANDROID
-		notifyAndroidTextInputChanged(text);
-#endif
 	}
+}
+
+void CTextInput::setText(const std::string & nText)
+{
+	setText(nText, false);
 }
 
 void CTextInput::setText(const std::string & nText, bool callCb)
@@ -599,10 +598,6 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
-
-#ifdef VCMI_ANDROID
-	notifyAndroidTextInputChanged(text);
-#endif
 }
 
 bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
@@ -628,10 +623,6 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 		cb(text);
 	}
 	newText.clear();
-
-#ifdef VCMI_ANDROID
-	notifyAndroidTextInputChanged(text);
-#endif
 }
 
 void CTextInput::textEdited(const SDL_TextEditingEvent & event)
@@ -642,11 +633,6 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 	newText = event.text;
 	redraw();
 	cb(text + newText);
-
-#ifdef VCMI_ANDROID
-	auto editedText = text + newText;
-	notifyAndroidTextInputChanged(editedText);
-#endif
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
@@ -692,24 +678,6 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 		text = oldText;
 	}
 }
-
-#ifdef VCMI_ANDROID
-void CTextInput::notifyAndroidTextInputChanged(std::string & text)
-{
-	if(!focus)
-		return;
-
-	auto fun = [&text](JNIEnv * env, jclass cls, jmethodID method)
-	{
-		auto jtext = env->NewStringUTF(text.c_str());
-		env->CallStaticVoidMethod(cls, method, jtext);
-		env->DeleteLocalRef(jtext);
-	};
-	CAndroidVMHelper vmHelper;
-	vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "notifyTextInputChanged",
-		"(Ljava/lang/String;)V", fun, true);
-}
-#endif //VCMI_ANDROID
 
 CFocusable::CFocusable()
 	:CFocusable(std::make_shared<IFocusListener>())

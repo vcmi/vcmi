@@ -547,6 +547,11 @@ bool CUnitState::isGhost() const
 	return ghost;
 }
 
+bool CUnitState::isFrozen() const
+{
+	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
+}
+
 bool CUnitState::isValidTarget(bool allowDead) const
 {
 	return (alive() || (allowDead && isDead())) && getPosition().isValid() && !isTurret();
@@ -818,7 +823,7 @@ void CUnitState::damage(int64_t & amount)
 		// block ability should not kill clone (0 damage)
 		if(amount > 0)
 		{
-			amount = 1;//TODO: what should be actual damage against clone?
+			amount = 0;
 			health.reset();
 		}
 	}

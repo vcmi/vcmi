@@ -20,8 +20,8 @@ The following platforms are supported and known to work, others might require ch
 
 1. Check if your build environment can use the prebuilt binaries: basically, that your compiler version (or Xcode major version) matches the information below. If you're unsure, simply advance to the next step.
 
-    - macOS: libraries are built with Apple clang 13 (Xcode 13.4.1), should be consumable by Xcode and Xcode CLT 13.x
-    - iOS: libraries are built with Apple clang 13 (Xcode 13.4.1), should be consumable by Xcode 13.x
+    - macOS: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode and Xcode CLT 14.x (older library versions are also available for Xcode 13, see Releases in the respective repo)
+    - iOS: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode 14.x (older library versions are also available for Xcode 13, see Releases in the respective repo)
 
 2. Download the binaries archive and unpack it to `~/.conan` directory:
 
@@ -85,7 +85,8 @@ conan install . \
   --no-imports \
   --build=never \
   --profile:build=default \
-  --profile:host=CI/conan/macos-intel
+  --profile:host=CI/conan/macos-intel \
+  -o with_apple_system_libs=True
 
 cmake -S . -B build -G Xcode \
   --toolchain conan-generated/conan_toolchain.cmake
@@ -116,7 +117,8 @@ conan install . \
   --no-imports \
   --build=never \
   --profile:build=default \
-  --profile:host=CI/conan/ios-arm64
+  --profile:host=CI/conan/ios-arm64 \
+  -o with_apple_system_libs=True
 
 cmake --preset ios-conan
 ```

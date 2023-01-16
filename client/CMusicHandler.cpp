@@ -89,7 +89,7 @@ CSoundHandler::CSoundHandler():
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
-	
+
 	//predefine terrain set
 	//TODO: support custom sounds for new terrains and load from json
 	horseSounds =
@@ -409,6 +409,8 @@ void CMusicHandler::release()
 
 void CMusicHandler::playMusic(const std::string & musicURI, bool loop, bool fromStart)
 {
+	boost::mutex::scoped_lock guard(mutex);
+
 	if (current && current->isPlaying() && current->isTrack(musicURI))
 		return;
 
@@ -422,6 +424,8 @@ void CMusicHandler::playMusicFromSet(const std::string & musicSet, const std::st
 
 void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
 {
+	boost::mutex::scoped_lock guard(mutex);
+
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
@@ -441,8 +445,6 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	if (!initialized)
 		return;
 
-	boost::mutex::scoped_lock guard(mutex);
-
 	next = std::move(queued);
 
 	if (current.get() == nullptr || !current->stop(1000))
@@ -456,7 +458,7 @@ void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName,
 {
 	try
 	{
-		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
+		queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 	}
 	catch(std::exception &e)
 	{
@@ -487,13 +489,32 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback()
 {
-	boost::mutex::scoped_lock guard(mutex);
+	// boost::mutex::scoped_lock guard(mutex);
+	// FIXME: WORKAROUND FOR A POTENTIAL DEADLOCK
+	// It is possible for:
+	// 1) SDL thread to call this method on end of playback
+	// 2) VCMI code to call queueNext() method to queue new file
+	// this leads to:
+	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
+	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
+	// Because of that (and lack of clear way to fix that)
+	// We will try to acquire lock here and if failed - do nothing
+	// This may break music playback till next song is enqued but won't deadlock the game
+
+	if (!mutex.try_lock())
+	{
+		logGlobal->error("Failed to acquire mutex! Unable to restart music!");
+		return;
+	}
 
 	if (current.get() != nullptr)
 	{
 		// if music is looped, play it again
 		if (current->play())
+		{
+			mutex.unlock();
 			return;
+		}
 		else
 			current.reset();
 	}
@@ -503,6 +524,7 @@ void CMusicHandler::musicFinishedCallback()
 		current.reset(next.release());
 		current->play();
 	}
+	mutex.unlock();
 }
 
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart):
@@ -520,6 +542,20 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
+	if (playing)
+	{
+		assert(0);
+		logGlobal->error("Attempt to delete music while playing!");
+		Mix_HaltMusic();
+	}
+
+	if (loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
+	{
+		assert(0);
+		logGlobal->error("Attempt to delete music while fading out!");
+		Mix_HaltMusic();
+	}
+
 	logGlobal->trace("Del-ing music file %s", currentName);
 	if (music)
 		Mix_FreeMusic(music);

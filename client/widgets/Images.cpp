@@ -15,7 +15,8 @@
 #include "../gui/CAnimation.h"
 #include "../gui/SDL_Pixels.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
+#include "../gui/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -167,7 +168,7 @@ void CPicture::scaleTo(Point size)
 
 void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 {
-	pos += r;
+	pos += r.topLeft();
 	pos.w = r.w;
 	pos.h = r.h;
 	if(screenFormat)
@@ -339,7 +340,7 @@ void CAnimImage::playerColored(PlayerColor currPlayer)
 			anim->getImage(0, group)->playerColored(player);
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group):
+CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group, uint8_t alpha):
 	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
@@ -349,7 +350,7 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Del
 	flags(Flags),
 	xOffset(0),
 	yOffset(0),
-	alpha(255)
+	alpha(alpha)
 {
 	anim->loadGroup(group);
 	last = anim->size(group);
@@ -454,7 +455,12 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	auto img = anim->getImage(frame, group);
 	if(img)
-		img->draw(to, pos.x, pos.y, &src, alpha);
+	{
+		const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
+		img->adjustPalette(alphaFilter);
+
+		img->draw(to, pos.x, pos.y, &src);
+	}
 }
 
 void CShowableAnim::rotate(bool on, bool vertical)
@@ -466,8 +472,8 @@ void CShowableAnim::rotate(bool on, bool vertical)
 		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, EAnimType type):
-	CShowableAnim(x,y,name,flags,4,type)
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType type):
+	CShowableAnim(x,y,name,flags,4,size_t(type))
 {
 	xOffset = 0;
 	yOffset = 0;
@@ -475,45 +481,60 @@ CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, EAnimTyp
 
 void CCreatureAnim::loopPreview(bool warMachine)
 {
-	std::vector<EAnimType> available;
+	std::vector<ECreatureAnimType> available;
 
-	static const EAnimType creaPreviewList[] = {HOLDING, HITTED, DEFENCE, ATTACK_FRONT, CAST_FRONT};
-	static const EAnimType machPreviewList[] = {HOLDING, MOVING, SHOOT_UP, SHOOT_FRONT, SHOOT_DOWN};
+	static const ECreatureAnimType creaPreviewList[] = {
+		ECreatureAnimType::HOLDING,
+		ECreatureAnimType::HITTED,
+		ECreatureAnimType::DEFENCE,
+		ECreatureAnimType::ATTACK_FRONT,
+		ECreatureAnimType::SPECIAL_FRONT
+	};
+	static const ECreatureAnimType machPreviewList[] = {
+		ECreatureAnimType::HOLDING,
+		ECreatureAnimType::MOVING,
+		ECreatureAnimType::SHOOT_UP,
+		ECreatureAnimType::SHOOT_FRONT,
+		ECreatureAnimType::SHOOT_DOWN
+	};
+
 	auto & previewList = warMachine ? machPreviewList : creaPreviewList;
 
 	for (auto & elem : previewList)
-		if (anim->size(elem))
+		if (anim->size(size_t(elem)))
 			available.push_back(elem);
 
 	size_t rnd = CRandomGenerator::getDefault().nextInt((int)available.size() * 2 - 1);
 
 	if (rnd >= available.size())
 	{
-		EAnimType type;
-		if ( anim->size(MOVING) == 0 )//no moving animation present
-			type = HOLDING;
+		ECreatureAnimType type;
+		if ( anim->size(size_t(ECreatureAnimType::MOVING)) == 0 )//no moving animation present
+			type = ECreatureAnimType::HOLDING;
 		else
-			type = MOVING;
+			type = ECreatureAnimType::MOVING;
 
 		//display this anim for ~1 second (time is random, but it looks good)
-		for (size_t i=0; i< 12/anim->size(type) + 1; i++)
+		for (size_t i=0; i< 12/anim->size(size_t(type)) + 1; i++)
 			addLast(type);
 	}
 	else
 		addLast(available[rnd]);
 }
 
-void CCreatureAnim::addLast(EAnimType newType)
+void CCreatureAnim::addLast(ECreatureAnimType newType)
 {
-	if (type != MOVING && newType == MOVING)//starting moving - play init sequence
+	auto currType = ECreatureAnimType(group);
+
+	if (currType != ECreatureAnimType::MOVING && newType == ECreatureAnimType::MOVING)//starting moving - play init sequence
 	{
-		queue.push( MOVE_START );
+		queue.push( ECreatureAnimType::MOVE_START );
 	}
-	else if (type == MOVING && newType != MOVING )//previous anim was moving - finish it
+	else if (currType == ECreatureAnimType::MOVING && newType != ECreatureAnimType::MOVING )//previous anim was moving - finish it
 	{
-		queue.push( MOVE_END );
+		queue.push( ECreatureAnimType::MOVE_END );
 	}
-	if (newType == TURN_L || newType == TURN_R)
+	if (newType == ECreatureAnimType::TURN_L || newType == ECreatureAnimType::TURN_R)
 		queue.push(newType);
 
 	queue.push(newType);
@@ -522,28 +543,28 @@ void CCreatureAnim::addLast(EAnimType newType)
 void CCreatureAnim::reset()
 {
 	//if we are in the middle of rotation - set flag
-	if (type == TURN_L && !queue.empty() && queue.front() == TURN_L)
+	if (group == size_t(ECreatureAnimType::TURN_L) && !queue.empty() && queue.front() == ECreatureAnimType::TURN_L)
 		rotate(true);
-	if (type == TURN_R && !queue.empty() && queue.front() == TURN_R)
+	if (group == size_t(ECreatureAnimType::TURN_R) && !queue.empty() && queue.front() == ECreatureAnimType::TURN_R)
 		rotate(false);
 
 	while (!queue.empty())
 	{
-		EAnimType at = queue.front();
+		ECreatureAnimType at = queue.front();
 		queue.pop();
-		if (set(at))
+		if (set(size_t(at)))
 			return;
 	}
 	if  (callback)
 		callback();
 	while (!queue.empty())
 	{
-		EAnimType at = queue.front();
+		ECreatureAnimType at = queue.front();
 		queue.pop();
-		if (set(at))
+		if (set(size_t(at)))
 			return;
 	}
-	set(HOLDING);
+	set(size_t(ECreatureAnimType::HOLDING));
 }
 
 void CCreatureAnim::startPreview(bool warMachine)
@@ -551,9 +572,9 @@ void CCreatureAnim::startPreview(bool warMachine)
 	callback = std::bind(&CCreatureAnim::loopPreview, this, warMachine);
 }
 
-void CCreatureAnim::clearAndSet(EAnimType type)
+void CCreatureAnim::clearAndSet(ECreatureAnimType type)
 {
 	while (!queue.empty())
 		queue.pop();
-	set(type);
+	set(size_t(type));
 }

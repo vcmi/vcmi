@@ -106,13 +106,13 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 	}
 }
 
-void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what, const Point & offset)
+void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what)
 {
 	auto & ci = town->town->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
 	if ( wallPieceImages[what])
-		canvas.draw(wallPieceImages[what], offset + Point(pos.x, pos.y));
+		canvas.draw(wallPieceImages[what], Point(pos.x, pos.y));
 }
 
 std::string BattleSiegeController::getBattleBackgroundName() const
@@ -146,7 +146,7 @@ BattleHex BattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual w
 		BattleHex::HEX_AFTER_ALL,  // BOTTOM_TOWER,
 		182,                       // BOTTOM_WALL,
 		130,                       // WALL_BELLOW_GATE,
-		78,                        // WALL_OVER_GATE,
+		62,                        // WALL_OVER_GATE,
 		12,                        // UPPER_WALL,
 		BattleHex::HEX_BEFORE_ALL, // UPPER_TOWER,
 		BattleHex::HEX_BEFORE_ALL, // GATE,               // 94
@@ -205,10 +205,10 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 
 	if (posID != 0)
 	{
-		Point result = owner.pos.topLeft();
-		result.x += town->town->clientInfo.siegePositions[posID].x;
-		result.y += town->town->clientInfo.siegePositions[posID].y;
-		return result;
+		return {
+			town->town->clientInfo.siegePositions[posID].x,
+			town->town->clientInfo.siegePositions[posID].y
+		};
 	}
 
 	assert(0);
@@ -249,13 +249,13 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
 }
 
-void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas, const Point & offset)
+void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas)
 {
 	if (getWallPieceExistance(EWallVisual::MOAT))
-		showWallPiece(canvas, EWallVisual::MOAT, offset);
+		showWallPiece(canvas, EWallVisual::MOAT);
 
 	if (getWallPieceExistance(EWallVisual::MOAT_BANK))
-		showWallPiece(canvas, EWallVisual::MOAT_BANK, offset);
+		showWallPiece(canvas, EWallVisual::MOAT_BANK);
 }
 
 BattleHex BattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const
@@ -301,11 +301,11 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
 			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
-				showWallPiece(canvas, wallPiece, owner.pos.topLeft());
+				showWallPiece(canvas, wallPiece);
 			});
 		}
 		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
-			showWallPiece(canvas, wallPiece, owner.pos.topLeft());
+			showWallPiece(canvas, wallPiece);
 		});
 
 
@@ -327,12 +327,14 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);
 		for (auto attackInfo : ca.attackedParts)
 		{
-			owner.stacksController->addNewAnim(new CCatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
+			owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
 		}
 	}
 	else
@@ -343,11 +345,12 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		for (auto attackInfo : ca.attackedParts)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
-
-		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", positions));
+		CCS->soundh->playSound( "WALLHIT" );
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, "SGEXPL.DEF", positions));
 	}
 
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	owner.setAnimationCondition(EAnimationEvents::HIT, false);
 
 	for (auto attackInfo : ca.attackedParts)
 	{

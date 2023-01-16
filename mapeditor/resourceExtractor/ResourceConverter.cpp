@@ -33,36 +33,32 @@ void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversi
 
 void ResourceConverter::doConvertPcxToPng(bool deleteOriginals)
 {
-	std::string filename;
-
 	bfs::path imagesPath = VCMIDirs::get().userExtractedPath() / "IMAGES";
 	bfs::directory_iterator end_iter;
 
 	for(bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr)
 	{
+		const auto filename = dir_itr->path().filename();
 		try
 		{
 			if (!bfs::is_regular_file(dir_itr->status()))
 				return;
 
-			std::string filePath = dir_itr->path().string();
-			std::string fileStem = dir_itr->path().stem().string();
-			filename = dir_itr->path().filename().string();
-			std::string filenameLowerCase = boost::algorithm::to_lower_copy(filename);
+			std::string filenameLowerCase = boost::algorithm::to_lower_copy(filename.string());
 
-			if(bfs::extension(filenameLowerCase) == ".pcx")
+			if(boost::algorithm::to_lower_copy(filename.extension().string()) == ".pcx")
 			{
 				auto img = BitmapHandler::loadBitmap(filenameLowerCase);
-				bfs::path pngFilePath = imagesPath / (fileStem + ".png");
+				bfs::path pngFilePath = imagesPath / (dir_itr->path().stem().string() + ".png");
 				img.save(pathToQString(pngFilePath), "PNG");
 
 				if(deleteOriginals)
-					bfs::remove(filePath);
+					bfs::remove(dir_itr->path());
 			}
 		}
 		catch(const std::exception & ex)
 		{
-			logGlobal->info(filename + " " + ex.what() + "\n");
+			logGlobal->info(filename.string() + " " + ex.what() + "\n");
 		}
 	}
 }
@@ -71,7 +67,7 @@ void ResourceConverter::splitDefFile(const std::string & fileName, const bfs::pa
 {
 	if(CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
 	{
-		std::unique_ptr<Animation> anim = make_unique<Animation>(fileName);
+		std::unique_ptr<Animation> anim = std::make_unique<Animation>(fileName);
 		anim->preload();
 		anim->exportBitmaps(pathToQString(VCMIDirs::get().userExtractedPath()));
 

@@ -32,7 +32,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
@@ -449,14 +449,12 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CLabel>(242, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
 
-	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"];
-
 	//left window section
 	leftGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
-	leftGroup->add(122, 262, texts["resolutionButton"]["label"].String());
+	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
 	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
@@ -466,8 +464,7 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
 	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
-	rightGroup->add(282, 185, texts["creatureWindowButton"]["label"].String());
-	rightGroup->add(282, 217, texts["fullscreenButton"]["label"].String());
+	rightGroup->add(282, 217, CGI->generaltexth->translate("vcmi.systemOptions.fullscreenButton.hover"));
 
 	//setting up buttons
 	load = std::make_shared<CButton>(Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
@@ -520,10 +517,10 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	mapScrollSpeed->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
 	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
-	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
+	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), CVolumeSlider::MUSIC);
 	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
 
-	effectsVolume = std::make_shared<CVolumeSlider>(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), &CGI->generaltexth->zelp[336]);
+	effectsVolume = std::make_shared<CVolumeSlider>(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), CVolumeSlider::SOUND);
 	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
 	showReminder = std::make_shared<CToggleButton>(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361], [&](bool value)
@@ -544,7 +541,7 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	});
 	spellbookAnim->setSelected(settings["video"]["spellbookAnimation"].Bool());
 
-	fullscreen = std::make_shared<CToggleButton>(Point(246, 215), "sysopchk.def", CButton::tooltip(texts["fullscreenButton"]), [&](bool value)
+	fullscreen = std::make_shared<CToggleButton>(Point(246, 215), "sysopchk.def", CButton::tooltipLocalized("vcmi.systemOptions.fullscreenButton"), [&](bool value)
 	{
 		setBoolSetting("video", "fullscreen", value);
 	});
@@ -552,7 +549,7 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
 
-	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
+	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltipLocalized("vcmi.systemOptions.resolutionButton"), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
 	const auto & screenRes = settings["video"]["screenRes"];
 	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
@@ -561,7 +558,6 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 void CSystemOptionsWindow::selectGameRes()
 {
 	std::vector<std::string> items;
-	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
 #ifndef VCMI_IOS
 	SDL_Rect displayBounds;
@@ -585,7 +581,11 @@ void CSystemOptionsWindow::selectGameRes()
 		++i;
 	}
 
-	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1), currentResolutionIndex);
+	GH.pushIntT<CObjectListWindow>(items, nullptr,
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
+								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
+								   std::bind(&CSystemOptionsWindow::setGameRes, this, _1),
+								   currentResolutionIndex);
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -917,7 +917,7 @@ std::function<void()> CExchangeController::onSwapArmy()
 	{
 		GsThread::run([=]
 		{
-			if(right->tempOwner != cb->getMyColor()
+			if(left->tempOwner != cb->getMyColor()
 				|| right->tempOwner != cb->getMyColor())
 			{
 				return;
@@ -1217,7 +1217,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 
-	if (qeLayout && (CGI->generaltexth->qeModCommands.size() >= 5))
+	if(qeLayout)
 	{
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToRight());
 		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[2]), controller.onSwapArmy());
@@ -1245,12 +1245,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	updateWidgets();
-}
-
-CExchangeWindow::~CExchangeWindow()
-{
-	artifs[0]->commonInfo = nullptr;
-	artifs[1]->commonInfo = nullptr;
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
@@ -1763,7 +1757,7 @@ void CHillFortWindow::updateGarrisons()
 		if(newState != -1)
 		{
 			UpgradeInfo info;
-			LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 			if(info.newID.size())//we have upgrades here - update costs
 			{
 				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
@@ -1868,7 +1862,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 				if(slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ))//this is activated slot or "upgrade all"
 				{
 					UpgradeInfo info;
-					LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
 				}
 			}
@@ -1899,7 +1893,7 @@ int CHillFortWindow::getState(SlotID slot)
 		return -1;
 
 	UpgradeInfo info;
-	LOCPLINT->cb->getUpgradeInfo(hero, slot, info);
+	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
 	if(!info.newID.size())//already upgraded
 		return 1;
 

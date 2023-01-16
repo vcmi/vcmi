@@ -13,7 +13,7 @@
 #include "CAdvmapInterface.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
 
 #include "../CGameInfo.h"
@@ -188,7 +188,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				aw->arts->markPossibleSlots(art);
 
 				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", art->artType->iconIndex));
+				CCS->curh->dragAndDropCursor("artifact", art->artType->iconIndex);
 
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);

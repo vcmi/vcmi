@@ -14,7 +14,7 @@
 #include <SDL.h>
 
 #include "CIntObject.h"
-#include "CCursorHandler.h"
+#include "CursorHandler.h"
 
 #include "../CGameInfo.h"
 #include "../../lib/CThreadHelper.h"
@@ -121,7 +121,7 @@ void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	if(!listInt.empty())
 		listInt.front()->deactivate();
 	listInt.push_front(newInt);
-	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+	CCS->curh->set(Cursor::Map::POINTER);
 	newInt->activate();
 	objsToBlit.push_back(newInt);
 	totalRedraw();
@@ -238,7 +238,7 @@ void CGuiHandler::handleCurrentEvent()
 				break;
 
 			case SDLK_F9:
-				//not working yet since CClient::run remain locked after CBattleInterface removal
+				//not working yet since CClient::run remain locked after BattleInterface removal
 //				if(LOCPLINT->battleInt)
 //				{
 //					GH.popInts(1);
@@ -451,7 +451,7 @@ void CGuiHandler::renderFrame()
 
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
 	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 	if(acquiredTheLockOnPim)
 	{
@@ -489,7 +489,7 @@ CGuiHandler::CGuiHandler()
 	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
-	mainFPSmng = new CFramerateManager(48);
+	mainFPSmng = new CFramerateManager(60);
 	//do not init CFramerateManager here --AVS
 
 	terminate_cond = new CondSh<bool>(false);
@@ -623,8 +623,8 @@ void CFramerateManager::framerateDelay()
 
 	currentTicks = SDL_GetTicks();
 	// recalculate timeElapsed for external calls via getElapsed()
-	// limit it to 1000 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
-	timeElapsed = std::min<ui32>(currentTicks - lastticks, 1000);
+	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
+	timeElapsed = std::min<ui32>(currentTicks - lastticks, 100);
 
 	lastticks = SDL_GetTicks();
 

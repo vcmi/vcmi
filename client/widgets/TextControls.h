@@ -212,13 +212,11 @@ class CTextInput : public CLabel, public CFocusable
 protected:
 	std::string visibleText() override;
 
-#ifdef VCMI_ANDROID
-	void notifyAndroidTextInputChanged(std::string & text);
-#endif
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
-	void setText(const std::string & nText, bool callCb = false);
+	void setText(const std::string & nText) override;
+	void setText(const std::string & nText, bool callCb);
 
 	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);

@@ -335,11 +335,6 @@ int3 CCallback::getGuardingCreaturePosition(int3 tile)
 	return gs->map->guardingCreaturePositions[tile.z][tile.x][tile.y];
 }
 
-void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
-{
-	gs->calculatePaths(hero, out);
-}
-
 void CCallback::dig( const CGObjectInstance *hero )
 {
 	DigWithHero dwh;

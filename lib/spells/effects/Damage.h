@@ -39,7 +39,6 @@ protected:
 	virtual void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const battle::Unit * firstTarget, uint32_t kills, int64_t damage, bool multiple) const;
 
 private:
-	int32_t customEffectId;
 	bool killByPercentage;
 	bool killByCount;
 };

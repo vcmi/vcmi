@@ -41,7 +41,10 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	serializeRelativeShape(handler, "shape", shape);
 	serializeRelativeShape(handler, "range", range);
 
+	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
@@ -57,7 +60,6 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 		"BR",
 		"BL",
 		"L",
-		""
 	};
 
 	{
@@ -75,7 +77,9 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 
 				if(handler.saving)
 				{
-					temp = EDirMap.at(value.at(outerIndex).at(innerIndex));
+					auto index = value.at(outerIndex).at(innerIndex);
+					if (index < EDirMap.size())
+						temp = EDirMap[index];
 				}
 
 				inner.serializeString(innerIndex, temp);
@@ -313,7 +317,10 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 
+		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
+		obstacle.triggerSound = options.triggerSound;
+		obstacle.triggerAnimation = options.triggerAnimation;
 		obstacle.animation = options.animation;
 
 		obstacle.animationYOffset = options.offsetY;
