@@ -358,11 +358,7 @@ void CGuiHandler::handleCurrentEvent()
 	}
 	else if(current->type == SDL_MOUSEBUTTONUP)
 	{
-		if(multifinger && lastFingerCount >= 1)
-		{
-			multifinger = false;
-		}
-		else
+		if(!multifinger || lastFingerCount < 1)
 		{
 			switch(current->button.button)
 			{
