@@ -90,6 +90,11 @@ if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
 	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
+# No QT Linguist on MXE
+if(${CMAKE_CROSSCOMPILING})
+	set(ENABLE_TRANSLATIONS OFF)
+endif()
+
 ############################################
 #        Miscellaneous options             #
 ############################################
@@ -368,12 +373,8 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
-	find_package(QT NAMES Qt6 Qt5 COMPONENTS LinguistTools)
-	find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LinguistTools)
-	if(NOT Qt${QT_VERSION_MAJOR}LinguistTools_DIR)
-		set(ENABLE_TRANSLATIONS OFF)
-	endif()
 	if(ENABLE_TRANSLATIONS)
+		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
 		add_definitions(-DENABLE_QT_TRANSLATIONS)
 	endif()
 endif()

@@ -96,7 +96,7 @@ if(TARGET Qt6::Core)
 else()
 	qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation)
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
 		qt5_add_translation( launcher_QM ${launcher_TS} )
 	endif()
 endif()
@@ -164,8 +164,10 @@ else()
 
 	# Copy to build directory for easier debugging
 	add_custom_command(TARGET vcmilauncher POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher
+		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
+
 	)
 
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
@@ -179,5 +181,5 @@ endif()
 
 install(DIRECTORY icons DESTINATION ${RESOURCES_DESTINATION})
 if(ENABLE_TRANSLATIONS)
-	install(DIRECTORY translation DESTINATION ${RESOURCES_DESTINATION})
+	install(FILES ${launcher_QM} DESTINATION ${RESOURCES_DESTINATION}/translation)
 endif()
