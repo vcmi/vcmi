@@ -184,7 +184,7 @@ void CServerHandler::threadPoll()
 	ENetEvent event;
 	while(true)
 	{
-		if(enet_host_service(enetClient, &event, 10) > 0)
+		if(enet_host_service(enetClient, &event, 2) > 0)
 		{
 			switch(event.type)
 			{

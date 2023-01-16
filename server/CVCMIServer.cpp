@@ -321,7 +321,7 @@ void CVCMIServer::startAsyncAccept()
 	ENetEvent event;
 	while(state != EServerState::SHUTDOWN)
 	{
-		if(enet_host_service(server, &event, 10) > 0)
+		if(enet_host_service(server, &event, 2) > 0)
 		{
 			switch(event.type)
 			{
