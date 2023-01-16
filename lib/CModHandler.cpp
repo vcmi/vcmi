@@ -24,6 +24,7 @@
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
+#include "CGeneralTextHandler.h"
 #include "ScriptHandler.h"
 #include "RoadHandler.h"
 #include "RiverHandler.h"
@@ -455,7 +456,7 @@ CContentHandler::CContentHandler()
 
 void CContentHandler::init()
 {
- 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
@@ -687,7 +688,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 		validated = data["validated"].Bool();
 		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
 	}
-	
+
 	//check compatibility
 	bool wasEnabled = enabled;
 	enabled = enabled && (vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin));
@@ -704,10 +705,10 @@ void CModInfo::loadLocalData(const JsonNode & data)
 
 CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 {
-    modules.COMMANDERS = false;
-    modules.STACK_ARTIFACT = false;
-    modules.STACK_EXP = false;
-    modules.MITHRIL = false;
+	modules.COMMANDERS = false;
+	modules.STACK_ARTIFACT = false;
+	modules.STACK_EXP = false;
+	modules.MITHRIL = false;
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -841,7 +842,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	// Topological sort algorithm.
 	// TODO: Investigate possible ways to improve performance.
 	boost::range::sort(modsToResolve); // Sort mods per name
-	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO) 
+	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO)
 	sortedValidMods.reserve(modsToResolve.size()); // push_back calls won't cause memory reallocation
 	std::set <TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
 
@@ -876,7 +877,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		if(resolvedOnCurrentTreeLevel.size())
 		{
 			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
-		            continue;
+					continue;
 		}
 		// If there're no valid mods on the current mods tree level, no more mod can be resolved, should be end.
 		break;
@@ -1098,6 +1099,18 @@ void CModHandler::initializeConfig()
 	loadConfigFromFile("defaultMods.json");
 }
 
+void CModHandler::loadTranslation(TModID modName)
+{
+	auto const & mod = allMods[modName];
+	std::string language = VLC->generaltexth->getInstalledLanguage();
+
+	for (auto const & config : mod.config["translations"].Vector())
+		VLC->generaltexth->loadTranslationOverrides(JsonNode(ResourceID(config.String(), EResType::TEXT)));
+
+	for (auto const & config : mod.config[language]["translations"].Vector())
+		VLC->generaltexth->loadTranslationOverrides(JsonNode(ResourceID(config.String(), EResType::TEXT)));
+}
+
 void CModHandler::load()
 {
 	CStopWatch totalTime, timer;
@@ -1122,6 +1135,9 @@ void CModHandler::load()
 	content->load(coreMod);
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
+
+	for(const TModID & modName : activeMods)
+		loadTranslation(modName);
 
 #if SCRIPTING_ENABLED
 	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
