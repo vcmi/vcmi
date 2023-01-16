@@ -169,9 +169,13 @@ void MainWindow::updateTranslation()
 
 	QVector<QString> searchPaths;
 
+#ifdef Q_OS_IOS
+	searchPaths.push_back(pathToQString(VCMIDirs::get().binaryPath() / "translation" / translationFile));
+#else
 	for(auto const & string : VCMIDirs::get().dataPaths())
 		searchPaths.push_back(pathToQString(string / "launcher" / "translation" / translationFile));
 	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "translation" / translationFile));
+#endif
 
 	for(auto const & string : boost::adaptors::reverse(searchPaths))
 	{
