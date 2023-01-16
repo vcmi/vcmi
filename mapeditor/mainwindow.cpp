@@ -866,6 +866,22 @@ void MainWindow::on_toolArea_clicked(bool checked)
 	ui->tabWidget->setCurrentIndex(0);
 }
 
+void MainWindow::on_toolLasso_clicked(bool checked)
+{
+	ui->toolBrush->setChecked(false);
+	ui->toolBrush2->setChecked(false);
+	ui->toolBrush4->setChecked(false);
+	ui->toolArea->setChecked(false);
+	//ui->toolLasso->setChecked(false);
+	
+	if(checked)
+		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
+	else
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	
+	ui->tabWidget->setCurrentIndex(0);
+}
+
 void MainWindow::on_actionErase_triggered()
 {
 	on_toolErase_clicked();

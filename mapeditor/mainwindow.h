@@ -93,6 +93,8 @@ private slots:
 	void on_toolBrush2_clicked(bool checked);
 
 	void on_toolBrush4_clicked(bool checked);
+	
+	void on_toolLasso_clicked(bool checked);
 
 	void on_inspectorWidget_itemChanged(QTableWidgetItem *item);
 
