@@ -24,64 +24,69 @@
 
 void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversionOptions)
 {
-	if (conversionOptions.splitDefs)
-		splitDefFiles(conversionOptions.deleteOriginals);
+	bfs::path spritesPath = VCMIDirs::get().userExtractedPath() / "SPRITES";
+	bfs::path imagesPath = VCMIDirs::get().userExtractedPath() / "IMAGES";
+	std::vector<std::string> defFiles = { "TwCrPort.def", "CPRSMALL.def", "FlagPort.def", "ITPA.def", "ITPt.def", "Un32.def", "Un44.def" };
 
-	if (conversionOptions.convertPcxToPng)
-		doConvertPcxToPng(conversionOptions.deleteOriginals);
+	if(conversionOptions.splitDefs)
+		splitDefFiles(spritesPath, defFiles, conversionOptions.deleteOriginals);
+
+	if(conversionOptions.convertPcxToPng)
+		doConvertPcxToPng(imagesPath, conversionOptions.deleteOriginals);
 }
 
-void ResourceConverter::doConvertPcxToPng(bool deleteOriginals)
+void ResourceConverter::doConvertPcxToPng(const bfs::path & sourceFolder, bool deleteOriginals)
 {
-	bfs::path imagesPath = VCMIDirs::get().userExtractedPath() / "IMAGES";
-	bfs::directory_iterator end_iter;
+	logGlobal->info("Converting .pcx to .png from folder: %s ...\n", sourceFolder);
 
-	for(bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr)
+	for(bfs::directory_entry & directoryEntry : bfs::directory_iterator(sourceFolder))
 	{
-		const auto filename = dir_itr->path().filename();
+		const auto filename = directoryEntry.path().filename();
 		try
 		{
-			if (!bfs::is_regular_file(dir_itr->status()))
+			if(!bfs::is_regular_file(directoryEntry))
 				return;
 
+			std::string filePath = directoryEntry.path().string();
+			std::string fileStem = directoryEntry.path().stem().string();
 			std::string filenameLowerCase = boost::algorithm::to_lower_copy(filename.string());
 
 			if(boost::algorithm::to_lower_copy(filename.extension().string()) == ".pcx")
 			{
 				auto img = BitmapHandler::loadBitmap(filenameLowerCase);
-				bfs::path pngFilePath = imagesPath / (dir_itr->path().stem().string() + ".png");
+				bfs::path pngFilePath = sourceFolder / (fileStem + ".png");
 				img.save(pathToQString(pngFilePath), "PNG");
 
 				if(deleteOriginals)
-					bfs::remove(dir_itr->path());
+					bfs::remove(directoryEntry.path());
 			}
 		}
-		catch(const std::exception & ex)
+		catch(const std::exception& ex)
 		{
 			logGlobal->info(filename.string() + " " + ex.what() + "\n");
 		}
 	}
 }
 
-void ResourceConverter::splitDefFile(const std::string & fileName, const bfs::path & spritesPath, bool deleteOriginals)
+void ResourceConverter::splitDefFile(const std::string & fileName, const bfs::path & sourceFolder, bool deleteOriginals)
 {
 	if(CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
 	{
 		std::unique_ptr<Animation> anim = std::make_unique<Animation>(fileName);
 		anim->preload();
-		anim->exportBitmaps(pathToQString(VCMIDirs::get().userExtractedPath()));
+		anim->exportBitmaps(pathToQString(sourceFolder));
 
 		if(deleteOriginals)
-			bfs::remove(spritesPath / fileName);
+			bfs::remove(sourceFolder / fileName);
 	}
 	else
 		logGlobal->error("Def File Split error! " + fileName);
 }
 
-void ResourceConverter::splitDefFiles(bool deleteOriginals)
+void ResourceConverter::splitDefFiles(const bfs::path & sourceFolder, std::vector<std::string> defFileNames, bool deleteOriginals)
 {
-	bfs::path spritesPath = VCMIDirs::get().userExtractedPath() / "SPRITES";
+	logGlobal->info("Splitting Def Files from folder: %s ...\n", sourceFolder);
 
-	for(std::string defFilename : {"TwCrPort.def", "CPRSMALL.def", "FlagPort.def", "ITPA.def", "ITPt.def", "Un32.def", "Un44.def"})
-		splitDefFile(defFilename, spritesPath, deleteOriginals);
+	for(std::string defFilename : defFileNames)
+		splitDefFile(defFilename, sourceFolder, deleteOriginals);
 }

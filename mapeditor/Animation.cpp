@@ -694,7 +694,7 @@ void Animation::exportBitmaps(const QDir & path) const
 		return;
 	}
 
-	QString actualPath = path.absolutePath() + "/SPRITES/" + QString::fromStdString(name);
+	QString actualPath = path.absolutePath() + "/" + QString::fromStdString(name);
 	QDir().mkdir(actualPath);
 
 	size_t counter = 0;
