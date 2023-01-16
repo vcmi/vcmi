@@ -45,7 +45,7 @@ void ResourceConverter::doConvertPcxToPng(const bfs::path & sourceFolder, bool d
 		try
 		{
 			if(!bfs::is_regular_file(directoryEntry))
-				return;
+				continue;
 
 			std::string filePath = directoryEntry.path().string();
 			std::string fileStem = directoryEntry.path().stem().string();
