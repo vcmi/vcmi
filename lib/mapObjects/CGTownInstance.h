@@ -330,6 +330,12 @@ public:
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID::EBuildingID bid);
 
+	/// Returns damage range for secondary towers of this town
+	TDmgRange getTowerDamageRange() const;
+
+	/// Returns damage range for central tower(keep) of this town
+	TDmgRange getKeepDamageRange() const;
+
 	const CTown * getTown() const ;
 
 	CGTownInstance();

@@ -799,6 +799,42 @@ void CGTownInstance::addTownBonuses()
 	}
 }
 
+TDmgRange CGTownInstance::getTowerDamageRange() const
+{
+	assert(hasBuilt(BuildingID::CASTLE));
+
+	// http://heroes.thelazy.net/wiki/Arrow_tower
+	// base damage, irregardless of town level
+	static const int baseDamage = 6;
+	// extra damage, for each building in town
+	static const int extraDamage = 1;
+
+	const int minDamage = baseDamage + extraDamage * getTownLevel();
+
+	return {
+		minDamage,
+		minDamage * 2
+	};
+}
+
+TDmgRange CGTownInstance::getKeepDamageRange() const
+{
+	assert(hasBuilt(BuildingID::CITADEL));
+
+	// http://heroes.thelazy.net/wiki/Arrow_tower
+	// base damage, irregardless of town level
+	static const int baseDamage = 10;
+	// extra damage, for each building in town
+	static const int extraDamage = 2;
+
+	const int minDamage = baseDamage + extraDamage * getTownLevel();
+
+	return {
+		minDamage,
+		minDamage * 2
+	};
+}
+
 void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
 {
 	size_t i = 0;
