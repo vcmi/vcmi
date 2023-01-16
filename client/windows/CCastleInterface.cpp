@@ -47,7 +47,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  parent(Par),
 	  town(Town),
 	  str(Str),
-	  stateTimeCounter(2500)
+	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += str->pos.x;
