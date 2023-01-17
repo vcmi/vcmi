@@ -75,8 +75,8 @@ public:
 		funlockfile(stdout);
 #endif
 	}
-
-    std::function<void(const std::string &)> *cb; //function to be called when message is received
+	//function to be called when message is received - string: message, bool: whether call was made from in-game console
+	std::function<void(const std::string &, bool)> *cb;
 
 private:
     int run();

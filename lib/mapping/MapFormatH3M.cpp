@@ -24,6 +24,9 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/MapObjects.h"
 #include "../VCMI_Lib.h"
+#include "../TerrainHandler.h"
+#include "../RoadHandler.h"
+#include "../RiverHandler.h"
 #include "../NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -923,9 +926,6 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 void CMapLoaderH3M::readTerrain()
 {
 	map->initTerrain();
-	const auto & terrains = VLC->terrainTypeHandler->terrains();
-	const auto & rivers = VLC->terrainTypeHandler->rivers();
-	const auto & roads = VLC->terrainTypeHandler->roads();
 
 	// Read terrain
 	int3 pos;
@@ -937,15 +937,17 @@ void CMapLoaderH3M::readTerrain()
 			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
 				auto & tile = map->getTile(pos);
-				tile.terType = const_cast<TerrainType*>(&terrains[reader.readUInt8()]);
+				tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getByIndex(reader.readUInt8()));
 				tile.terView = reader.readUInt8();
-				tile.riverType = const_cast<RiverType*>(&rivers[reader.readUInt8()]);
+				tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(reader.readUInt8()));
 				tile.riverDir = reader.readUInt8();
-				tile.roadType = const_cast<RoadType*>(&roads[reader.readUInt8()]);
+				tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(reader.readUInt8()));
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
-				tile.blocked = ((!tile.terType->isPassable() || tile.terType->id == Terrain::BORDER ) ? true : false); //underground tiles are always blocked
+				tile.blocked = !tile.terType->isPassable();
 				tile.visitable = 0;
+
+				assert(tile.terType->getId() != ETerrainId::NONE);
 			}
 		}
 	}

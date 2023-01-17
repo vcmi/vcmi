@@ -13,6 +13,7 @@
 #include "CGTownInstance.h"
 #include "CGHeroInstance.h"
 #include "CBank.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
 #include "../CCreatureHandler.h"
@@ -84,7 +85,7 @@ CGObjectInstance * CTownInstanceConstructor::create(std::shared_ptr<const Object
 
 void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->id, object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
 		object->appearance = templ;
 }

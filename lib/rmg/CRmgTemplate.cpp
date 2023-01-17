@@ -16,7 +16,8 @@
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
-#include "../Terrain.h"
+#include "../CModHandler.h"
+#include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
 
@@ -69,13 +70,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return VLC->terrainTypeHandler->getInfoByCode(identifier)->id;
+		return *VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "terrain", identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		const auto& terrains = VLC->terrainTypeHandler->terrains();
-		return (index >=0 && index < terrains.size()) ? terrains[index].name : "<INVALID TERRAIN>";
+		return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 	}
 };
 
@@ -152,9 +152,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto & terr : VLC->terrainTypeHandler->terrains())
-		if(terr.isLand() && terr.isPassable())
-			terrainTypes.insert(terr.id);
+	for(const auto & terr : VLC->terrainTypeHandler->objects)
+		if(terr->isLand() && terr->isPassable())
+			terrainTypes.insert(terr->getId());
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
@@ -224,7 +224,7 @@ const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
+	//assert(value.find(ETerrainType::NONE) == value.end() &&
 	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
@@ -365,7 +365,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			for(auto & ttype : terrainTypes)
 			{
 				JsonNode n;
-				n.String() = ttype;
+				n.String() = VLC->terrainTypeHandler->getById(ttype)->getJsonKey();
 				node.Vector().push_back(n);
 			}
 		}
@@ -377,7 +377,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 				terrainTypes.clear();
 				for(auto ttype : node.Vector())
 				{
-					terrainTypes.emplace(VLC->terrainTypeHandler->getInfoByName(ttype.String())->id);
+					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
+					{
+						terrainTypes.emplace(identifier);
+					});
 				}
 			}
 		}

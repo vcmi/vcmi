@@ -21,6 +21,7 @@ class ImageViewer : public QDialog
 {
 	Q_OBJECT
 
+	void changeEvent(QEvent *event) override;
 public:
 	explicit ImageViewer(QWidget * parent = 0);
 	~ImageViewer();

@@ -19,6 +19,9 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
+#include "../RiverHandler.h"
+#include "../RoadHandler.h"
+#include "../TerrainHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../mapObjects/CObjectClassesHandler.h"
@@ -345,6 +348,37 @@ CMapFormatJson::CMapFormatJson():
 {
 
 }
+
+TerrainType * CMapFormatJson::getTerrainByCode( std::string code)
+{
+	for ( auto const & object : VLC->terrainTypeHandler->objects)
+	{
+		if (object->shortIdentifier == code)
+			return const_cast<TerrainType *>(object.get());
+	}
+	return nullptr;
+}
+
+RiverType * CMapFormatJson::getRiverByCode( std::string code)
+{
+	for ( auto const & object : VLC->riverTypeHandler->objects)
+	{
+		if (object->shortIdentifier == code)
+			return const_cast<RiverType *>(object.get());
+	}
+	return nullptr;
+}
+
+RoadType * CMapFormatJson::getRoadByCode( std::string code)
+{
+	for ( auto const & object : VLC->roadTypeHandler->objects)
+	{
+		if (object->shortIdentifier == code)
+			return const_cast<RoadType *>(object.get());
+	}
+	return nullptr;
+}
+
 
 void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value)
 {
@@ -949,7 +983,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		using namespace TerrainDetail;
 		{//terrain type
 			const std::string typeCode = src.substr(0, 2);
-			tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getInfoByCode(typeCode));
+			tile.terType = getTerrainByCode(typeCode);
 		}
 		int startPos = 2; //0+typeCode fixed length
 		{//terrain view
@@ -979,13 +1013,13 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			startPos += 2;
 			try
 			{
-				tile.roadType = const_cast<RoadType*>(VLC->terrainTypeHandler->getRoadByCode(typeCode));
+				tile.roadType = getRoadByCode(typeCode);
 			}
 			catch (const std::exception&) //it's not a road, it's a river
 			{
 				try
 				{
-					tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+					tile.riverType = getRiverByCode(typeCode);
 					hasRoad = false;
 				}
 				catch (const std::exception&)
@@ -1021,7 +1055,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		{//river type
 			const std::string typeCode = src.substr(startPos, 2);
 			startPos += 2;
-			tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+			tile.riverType = getRiverByCode(typeCode);
 		}
 		{//river dir
 			int pos = startPos;
@@ -1289,12 +1323,12 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << tile.terType->typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << tile.terType->shortIdentifier << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
-	if(tile.roadType->id != Road::NO_ROAD)
+	if(tile.roadType->getId() != Road::NO_ROAD)
 		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
 
-	if(tile.riverType->id != River::NO_RIVER)
+	if(tile.riverType->getId() != River::NO_RIVER)
 		out << tile.riverType << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
 
 	return out.str();

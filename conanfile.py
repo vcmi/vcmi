@@ -13,7 +13,7 @@ class VCMI(ConanFile):
         "minizip/[~1.2.12]",
         "onetbb/[^2021.3]", # Nullkiller AI
         "qt/[~5.15.2]", # launcher
-        "sdl/[~2.24.0]",
+        "sdl/[~2.26.1 || >=2.0.20 <=2.22.0]", # versions in between have broken sound
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",

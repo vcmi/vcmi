@@ -11,7 +11,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
-#include "../lib/Terrain.h"
 
 struct _Mix_Music;
 struct SDL_RWops;
@@ -61,7 +60,6 @@ public:
 	CSoundHandler();
 
 	void init() override;
-	void loadHorseSounds();
 	void release() override;
 
 	void setVolume(ui32 percent) override;
@@ -84,7 +82,6 @@ public:
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
-	std::map<TerrainId, soundBase::soundID> horseSounds;
 };
 
 // Helper //now it looks somewhat useless

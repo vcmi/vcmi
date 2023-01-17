@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "BattleProxy.h"
 #include "Unit.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

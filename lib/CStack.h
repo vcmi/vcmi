@@ -14,7 +14,6 @@
 #include "CCreatureHandler.h" //todo: remove
 #include "battle/BattleHex.h"
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
-#include "Terrain.h"
 
 #include "battle/CUnitState.h"
 

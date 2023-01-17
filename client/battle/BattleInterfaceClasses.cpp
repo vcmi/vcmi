@@ -26,7 +26,7 @@
 #include "../Graphics.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
