@@ -46,15 +46,15 @@ public:
 	DLL_LINKAGE static Rect createCentered( const Rect  & target, const Point & size );
 	DLL_LINKAGE static Rect createAround(const Rect &r, int borderWidth);
 
-	bool isIn(int qx, int qy) const
+	bool isInside(int qx, int qy) const
 	{
 		if (qx > x && qx<x+w && qy>y && qy<y+h)
 			return true;
 		return false;
 	}
-	bool isIn(const Point & q) const
+	bool isInside(const Point & q) const
 	{
-		return isIn(q.x,q.y);
+		return isInside(q.x,q.y);
 	}
 	int top() const
 	{

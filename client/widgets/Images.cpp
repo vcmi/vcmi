@@ -129,16 +129,9 @@ void CPicture::showAll(SDL_Surface * to)
 	if(bg && visible)
 	{
 		if(srcRect)
-		{
-			SDL_Rect srcRectCpy = *srcRect;
-			SDL_Rect dstRect = srcRectCpy;
-			dstRect.x = pos.x;
-			dstRect.y = pos.y;
-
-			CSDL_Ext::blitSurface(bg, &srcRectCpy, to, &dstRect);
-		}
+			CSDL_Ext::blitSurface(bg, *srcRect, to, pos.topLeft());
 		else
-			blitAt(bg, pos, to);
+			CSDL_Ext::blitAt(bg, pos, to);
 	}
 }
 

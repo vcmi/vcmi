@@ -237,7 +237,7 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, Point(GH.current->motion));
+	CRClickPopup::createAndPush(hero, Geometry::fromSDL(GH.current->motion));
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -329,7 +329,7 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, Point(GH.current->motion));
+	CRClickPopup::createAndPush(town, Geometry::fromSDL(GH.current->motion));
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -593,8 +593,8 @@ void CMinimap::showAll(SDL_Surface * to)
 		int3 tileCountOnScreen = adventureInt->terrain.tileCountOnScreen();
 
 		//draw radar
-		SDL_Rect oldClip;
-		SDL_Rect radar =
+		Rect oldClip;
+		Rect radar =
 		{
 			si16(adventureInt->position.x * pos.w / mapSizes.x + pos.x),
 			si16(adventureInt->position.y * pos.h / mapSizes.y + pos.y),
@@ -612,10 +612,10 @@ void CMinimap::showAll(SDL_Surface * to)
 				return; // whole map is visible at once, no point in redrawing border
 		}
 
-		SDL_GetClipRect(to, &oldClip);
-		SDL_SetClipRect(to, &pos);
-		CSDL_Ext::drawDashedBorder(to, radar, int3(255,75,125));
-		SDL_SetClipRect(to, &oldClip);
+		CSDL_Ext::getClipRect(to, oldClip);
+		CSDL_Ext::setClipRect(to, pos);
+		CSDL_Ext::drawDashedBorder(to, radar, Colors::PURPLE);
+		CSDL_Ext::setClipRect(to, oldClip);
 	}
 }
 
@@ -1224,7 +1224,7 @@ void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
 void CAdvMapPanel::showAll(SDL_Surface * to)
 {
 	if(background)
-		blitAt(background, pos.x, pos.y, to);
+		CSDL_Ext::blitAt(background, pos.x, pos.y, to);
 
 	CIntObject::showAll(to);
 }

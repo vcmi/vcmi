@@ -546,8 +546,9 @@ CLoadingScreen::~CLoadingScreen()
 
 void CLoadingScreen::showAll(SDL_Surface * to)
 {
-	Rect rect(0, 0, to->w, to->h);
-	SDL_FillRect(to, &rect, 0);
+	//FIXME: filling screen with transparency? BLACK intended?
+	//Rect rect(0, 0, to->w, to->h);
+	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
 
 	CWindowObject::showAll(to);
 }

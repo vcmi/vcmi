@@ -95,7 +95,7 @@ public:
 	void savePalette();
 
 	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr) const override;
-	void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src) const override;
+	void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const override;
 	std::shared_ptr<IImage> scaleFast(float scale) const override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
@@ -651,7 +651,7 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, const Rect *src) con
 	draw(where, &destRect, src);
 }
 
-void SDLImage::draw(SDL_Surface* where, const SDL_Rect* dest, const SDL_Rect* src) const
+void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) const
 {
 	if (!surf)
 		return;
@@ -668,28 +668,23 @@ void SDLImage::draw(SDL_Surface* where, const SDL_Rect* dest, const SDL_Rect* sr
 		if(src->y < margins.y)
 			destShift.y += margins.y - src->y;
 
-		sourceRect = Rect(*src) & Rect(margins.x, margins.y, surf->w, surf->h);
+		sourceRect = Rect(*src).intersect(Rect(margins.x, margins.y, surf->w, surf->h));
 
 		sourceRect -= margins;
 	}
 	else
 		destShift = margins;
 
-	Rect destRect(destShift.x, destShift.y, surf->w, surf->h);
-
 	if(dest)
-	{
-		destRect.x += dest->x;
-		destRect.y += dest->y;
-	}
+		destShift += dest->topLeft();
 
 	if(surf->format->BitsPerPixel == 8)
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
+		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
 	}
 	else
 	{
-		SDL_UpperBlit(surf, &sourceRect, where, &destRect);
+		CSDL_Ext::blitSurface(surf, sourceRect, where, destShift);
 	}
 }
 
@@ -787,7 +782,7 @@ void SDLImage::shiftPalette(int from, int howMany)
 		{
 			palette[(i+1)%howMany] = surf->format->palette->colors[from + i];
 		}
-		SDL_SetColors(surf, palette, from, howMany);
+		CSDL_Ext::setColors(surf, palette, from, howMany);
 	}
 }
 
@@ -827,7 +822,7 @@ void SDLImage::setSpecialPallete(const IImage::SpecialPalette & SpecialPalette)
 {
 	if(surf->format->palette)
 	{
-		SDL_SetColors(surf, const_cast<SDL_Color *>(SpecialPalette.data()), 1, 7);
+		CSDL_Ext::setColors(surf, const_cast<SDL_Color *>(SpecialPalette.data()), 1, 7);
 	}
 }
 
@@ -1273,7 +1268,7 @@ void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurf
 	shouldFreeSurface = freeSurfaceAtEnd;
 }
 
-void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect)
+void CFadeAnimation::draw(SDL_Surface * targetSurface, const Point &targetPoint)
 {
 	if (!fading || !fadingSurface || fadingMode == EMode::NONE)
 	{
@@ -1282,6 +1277,6 @@ void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRe
 	}
 
 	CSDL_Ext::setAlpha(fadingSurface, (int)(fadingCounter * 255));
-	SDL_BlitSurface(fadingSurface, const_cast<SDL_Rect *>(sourceRect), targetSurface, destRect); //FIXME
+	CSDL_Ext::blitSurface(fadingSurface, targetSurface, targetPoint); //FIXME
 	CSDL_Ext::setAlpha(fadingSurface, 255);
 }

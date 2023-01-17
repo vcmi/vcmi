@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include <SDL_events.h>
 #include "Geometries.h"
 #include "../Graphics.h"
 
@@ -18,6 +17,8 @@ class CGuiHandler;
 class CPicture;
 
 struct SDL_KeyboardEvent;
+struct SDL_TextInputEvent;
+struct SDL_TextEditingEvent;
 
 using boost::logic::tribool;
 
@@ -165,8 +166,6 @@ public:
 	//request complete redraw of this object
 	void redraw() override;
 
-	bool isItInLoc(const SDL_Rect &rect, int x, int y);
-	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position

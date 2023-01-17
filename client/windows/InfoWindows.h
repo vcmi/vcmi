@@ -19,7 +19,7 @@ class CGGarrison;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct Rect;
+class Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;

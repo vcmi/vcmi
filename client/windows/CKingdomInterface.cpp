@@ -72,9 +72,9 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 	}
 
 	if(name)
-		pos = pos | name->pos;
+		pos = pos.include(name->pos);
 	if(value)
-		pos = pos | value->pos;
+		pos = pos.include(value->pos);
 
 	hover = std::make_shared<CHoverableArea>();
 	hover->hoverText = data->getHoverText();

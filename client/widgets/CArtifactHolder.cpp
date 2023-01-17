@@ -340,15 +340,15 @@ void CHeroArtPlace::showAll(SDL_Surface * to)
 		// Draw vertical bars.
 		for (int i = 0; i < pos.h; ++i)
 		{
-			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x,             pos.y + i, 240, 220, 120);
-			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + pos.w - 1, pos.y + i, 240, 220, 120);
+			CSDL_Ext::putPixelWithoutRefresh(to, pos.x,             pos.y + i, 240, 220, 120);
+			CSDL_Ext::putPixelWithoutRefresh(to, pos.x + pos.w - 1, pos.y + i, 240, 220, 120);
 		}
 
 		// Draw horizontal bars.
 		for (int i = 0; i < pos.w; ++i)
 		{
-			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + i, pos.y,             240, 220, 120);
-			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + i, pos.y + pos.h - 1, 240, 220, 120);
+			CSDL_Ext::putPixelWithoutRefresh(to, pos.x + i, pos.y,             240, 220, 120);
+			CSDL_Ext::putPixelWithoutRefresh(to, pos.x + i, pos.y + pos.h - 1, 240, 220, 120);
 		}
 	}
 }

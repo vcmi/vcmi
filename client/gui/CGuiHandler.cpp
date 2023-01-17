@@ -15,6 +15,7 @@
 
 #include "CIntObject.h"
 #include "CursorHandler.h"
+#include "SDL_Extensions.h"
 
 #include "../CGameInfo.h"
 #include "../../lib/CThreadHelper.h"
@@ -167,7 +168,7 @@ void CGuiHandler::totalRedraw()
 #endif
 	for(auto & elem : objsToBlit)
 		elem->showAll(screen2);
-	blitAt(screen2,0,0,screen);
+	CSDL_Ext::blitAt(screen2,0,0,screen);
 }
 
 void CGuiHandler::updateTime()
@@ -289,7 +290,7 @@ void CGuiHandler::handleCurrentEvent()
 				for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 				{
 					if(!vstd::contains(doubleClickInterested, *i)) continue;
-					if(isItIn(&(*i)->pos, current->motion.x, current->motion.y))
+					if((*i)->pos.isInside(current->motion.x, current->motion.y))
 					{
 						(*i)->onDoubleClick();
 					}
@@ -321,7 +322,7 @@ void CGuiHandler::handleCurrentEvent()
 			// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
 			int x = 0, y = 0;
 			SDL_GetMouseState(&x, &y);
-			(*i)->wheelScrolled(current->wheel.y < 0, isItIn(&(*i)->pos, x, y));
+			(*i)->wheelScrolled(current->wheel.y < 0, (*i)->pos.isInside(x, y));
 		}
 	}
 	else if(current->type == SDL_TEXTINPUT)
@@ -367,7 +368,7 @@ void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntOb
 		auto prev = (*i)->mouseState(btn);
 		if(!isPressed)
 			(*i)->updateMouseState(btn, isPressed);
-		if(isItIn(&(*i)->pos, current->motion.x, current->motion.y))
+		if((*i)->pos.isInside(current->motion.x, current->motion.y))
 		{
 			if(isPressed)
 				(*i)->updateMouseState(btn, isPressed);
@@ -384,7 +385,7 @@ void CGuiHandler::handleMouseMotion()
 	std::vector<CIntObject*> hlp;
 	for(auto & elem : hoverable)
 	{
-		if(isItIn(&(elem)->pos, current->motion.x, current->motion.y))
+		if(elem->pos.isInside(current->motion.x, current->motion.y))
 		{
 			if (!(elem)->hovered)
 				hlp.push_back((elem));
@@ -408,7 +409,7 @@ void CGuiHandler::simpleRedraw()
 {
 	//update only top interface and draw background
 	if(objsToBlit.size() > 1)
-		blitAt(screen2,0,0,screen); //blit background
+		CSDL_Ext::blitAt(screen2,0,0,screen); //blit background
 	if(!objsToBlit.empty())
 		objsToBlit.back()->show(screen); //blit active interface/window
 }
@@ -419,7 +420,7 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 	std::list<CIntObject*> miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
-		if(elem->strongInterest || isItInOrLowerBounds(&elem->pos, motion.x, motion.y)) //checking lower bounds fixes bug #2476
+		if(elem->strongInterest || Rect::createAround(elem->pos, 1).isInside( motion.x, motion.y)) //checking bounds including border fixes bug #2476
 		{
 			(elem)->mouseMoved(motion);
 		}

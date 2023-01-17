@@ -11,7 +11,6 @@
 
 #include "../gui/CIntObject.h"
 #include "../gui/SDL_Extensions.h"
-
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -24,7 +23,7 @@ struct ButtonInfo;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct Rect;
+class Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;

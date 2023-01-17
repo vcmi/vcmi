@@ -91,7 +91,7 @@ public:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void showAnim(SDL_Surface * to);
-	void showPath(const SDL_Rect * extRect, SDL_Surface * to);
+	void showPath(const Rect &extRect, SDL_Surface * to);
 	int3 whichTileIsIt(const int x, const int y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 	/// @returns number of visible tiles on screen respecting current map scaling

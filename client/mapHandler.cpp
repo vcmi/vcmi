@@ -288,7 +288,7 @@ void CMapHandler::initObjectRects()
 			for(int fy=0; fy < obj->getHeight(); ++fy)
 			{
 				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-				SDL_Rect cr;
+				Rect cr;
 				cr.w = 32;
 				cr.h = 32;
 				cr.x = image->width() - fx * 32 - 32;
@@ -374,7 +374,7 @@ CMapHandler::CMapBlitter *CMapHandler::resolveBlitter(const MapDrawingInfo * inf
 	return normalBlitter;
 }
 
-void CMapHandler::CMapNormalBlitter::drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
+void CMapHandler::CMapNormalBlitter::drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, Rect * sourceRect, SDL_Surface * targetSurf, Rect * destRect) const
 {
 	source->draw(targetSurf, destRect, sourceRect);
 }
@@ -387,8 +387,8 @@ void CMapHandler::CMapNormalBlitter::init(const MapDrawingInfo * drawingInfo)
 	tileCount.y = parent->tilesH;
 
 	topTile = info->topTile;
-	initPos.x = parent->offsetX + info->drawBounds->x;
-	initPos.y = parent->offsetY + info->drawBounds->y;
+	initPos.x = parent->offsetX + info->drawBounds.x;
+	initPos.y = parent->offsetY + info->drawBounds.y;
 
 	realTileRect = Rect(initPos.x, initPos.y, tileSize, tileSize);
 
@@ -430,11 +430,11 @@ void CMapHandler::CMapNormalBlitter::init(const MapDrawingInfo * drawingInfo)
 		tileCount.y = parent->sizes.y + parent->frameH - topTile.y;
 }
 
-SDL_Rect CMapHandler::CMapNormalBlitter::clip(SDL_Surface * targetSurf) const
+Rect CMapHandler::CMapNormalBlitter::clip(SDL_Surface * targetSurf) const
 {
-	SDL_Rect prevClip;
-	SDL_GetClipRect(targetSurf, &prevClip);
-	SDL_SetClipRect(targetSurf, info->drawBounds);
+	Rect prevClip;
+	CSDL_Ext::getClipRect(targetSurf, prevClip);
+	CSDL_Ext::setClipRect(targetSurf, info->drawBounds);
 	return prevClip;
 }
 
@@ -512,7 +512,7 @@ void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
 		topTile.y = parent->sizes.y - tileCount.y;
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
+void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, Rect * sourceRect, SDL_Surface * targetSurf, Rect * destRect) const
 {
 	auto scaled = parent->cache.requestWorldViewCacheOrCreate(cacheType, source);
 
@@ -584,7 +584,7 @@ void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 	}
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
+void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, Rect * destRect, bool moving) const
 {
 	if (moving)
 		return;
@@ -592,7 +592,7 @@ void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, s
 	CMapBlitter::drawHeroFlag(targetSurf, source, sourceRect, destRect, false);
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const
+void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, bool moving) const
 {
 	if (moving)
 		return;
@@ -625,11 +625,11 @@ void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
 	tileSize = (int) floorf(32.0f * info->scale);
 	halfTileSizeCeil = (int)ceilf(tileSize / 2.0f);
 
-	tileCount.x = (int) ceilf((float)info->drawBounds->w / tileSize);
-	tileCount.y = (int) ceilf((float)info->drawBounds->h / tileSize);
+	tileCount.x = (int) ceilf((float)info->drawBounds.w / tileSize);
+	tileCount.y = (int) ceilf((float)info->drawBounds.h / tileSize);
 
-	initPos.x = info->drawBounds->x;
-	initPos.y = info->drawBounds->y;
+	initPos.x = info->drawBounds.x;
+	initPos.y = info->drawBounds.y;
 
 	realTileRect = Rect(initPos.x, initPos.y, tileSize, tileSize);
 	defaultTileRect = Rect(0, 0, tileSize, tileSize);
@@ -637,19 +637,19 @@ void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
 	calculateWorldViewCameraPos();
 }
 
-SDL_Rect CMapHandler::CMapWorldViewBlitter::clip(SDL_Surface * targetSurf) const
+Rect CMapHandler::CMapWorldViewBlitter::clip(SDL_Surface * targetSurf) const
 {
-	SDL_Rect prevClip;
+	Rect prevClip;
 
-	SDL_FillRect(targetSurf, info->drawBounds, SDL_MapRGB(targetSurf->format, 0, 0, 0));
+	CSDL_Ext::fillRect(targetSurf, info->drawBounds, Colors::BLACK);
 	// makes the clip area smaller if the map is smaller than the screen frame
 	// (actually, it could be made 1 tile bigger so that overlay icons on edge tiles could be drawn partly outside)
-	Rect clipRect(std::max<int>(info->drawBounds->x, info->drawBounds->x - topTile.x * tileSize),
-				  std::max<int>(info->drawBounds->y, info->drawBounds->y - topTile.y * tileSize),
-				  std::min<int>(info->drawBounds->w, parent->sizes.x * tileSize),
-				  std::min<int>(info->drawBounds->h, parent->sizes.y * tileSize));
-	SDL_GetClipRect(targetSurf, &prevClip);
-	SDL_SetClipRect(targetSurf, &clipRect); //preventing blitting outside of that rect
+	Rect clipRect(std::max<int>(info->drawBounds.x, info->drawBounds.x - topTile.x * tileSize),
+				  std::max<int>(info->drawBounds.y, info->drawBounds.y - topTile.y * tileSize),
+				  std::min<int>(info->drawBounds.w, parent->sizes.x * tileSize),
+				  std::min<int>(info->drawBounds.h, parent->sizes.y * tileSize));
+	CSDL_Ext::getClipRect(targetSurf, prevClip);
+	CSDL_Ext::setClipRect(targetSurf, clipRect); //preventing blitting outside of that rect
 	return prevClip;
 }
 
@@ -715,12 +715,12 @@ void CMapHandler::CMapBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 //nothing to do here
 }
 
-void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
+void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, Rect * destRect, bool moving) const
 {
 	drawElement(EMapCacheType::HERO_FLAGS, source, sourceRect, targetSurf, destRect);
 }
 
-void CMapHandler::CMapBlitter::drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const
+void CMapHandler::CMapBlitter::drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, bool moving) const
 {
 	Rect dstRect(realTileRect);
 	drawElement(EMapCacheType::OBJECTS, source, sourceRect, targetSurf, &dstRect);
@@ -739,7 +739,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 				// this object is currently fading, so skip normal drawing
 				Rect r2(realTileRect);
 				CFadeAnimation * fade = (*fadeIter).second.second;
-				fade->draw(targetSurf, nullptr, &r2);
+				fade->draw(targetSurf, r2.topLeft());
 				continue;
 			}
 			logGlobal->error("Fading map object with missing fade anim : %d", object.fadeAnimKey);
@@ -903,7 +903,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 						if (!block)
 							block = BitmapHandler::loadBitmap("blocked");
 
-						CSDL_Ext::blitSurface(block, nullptr, targetSurf, &realTileRect);
+						CSDL_Ext::blitSurface(block, targetSurf, realTileRect.topLeft());
 					}
 				}
 				if (settings["session"]["showVisit"].Bool())
@@ -914,7 +914,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 						if (!visit)
 							visit = BitmapHandler::loadBitmap("visitable");
 
-						CSDL_Ext::blitSurface(visit, nullptr, targetSurf, &realTileRect);
+						CSDL_Ext::blitSurface(visit, targetSurf, realTileRect.topLeft());
 					}
 				}
 			}
@@ -932,26 +932,26 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			{
 				const int3 color(0x555555, 0x555555, 0x555555);
 
-				if (realPos.y >= info->drawBounds->y &&
-					realPos.y < info->drawBounds->y + info->drawBounds->h)
+				if (realPos.y >= info->drawBounds.y &&
+					realPos.y < info->drawBounds.y + info->drawBounds.h)
 					for(int i = 0; i < tileSize; i++)
-						if (realPos.x + i >= info->drawBounds->x &&
-							realPos.x + i < info->drawBounds->x + info->drawBounds->w)
-							CSDL_Ext::SDL_PutPixelWithoutRefresh(targetSurf, realPos.x + i, realPos.y, color.x, color.y, color.z);
+						if (realPos.x + i >= info->drawBounds.x &&
+							realPos.x + i < info->drawBounds.x + info->drawBounds.w)
+							CSDL_Ext::putPixelWithoutRefresh(targetSurf, realPos.x + i, realPos.y, color.x, color.y, color.z);
 
-				if (realPos.x >= info->drawBounds->x &&
-					realPos.x < info->drawBounds->x + info->drawBounds->w)
+				if (realPos.x >= info->drawBounds.x &&
+					realPos.x < info->drawBounds.x + info->drawBounds.w)
 					for(int i = 0; i < tileSize; i++)
-						if (realPos.y + i >= info->drawBounds->y &&
-							realPos.y + i < info->drawBounds->y + info->drawBounds->h)
-							CSDL_Ext::SDL_PutPixelWithoutRefresh(targetSurf, realPos.x, realPos.y + i, color.x, color.y, color.z);
+						if (realPos.y + i >= info->drawBounds.y &&
+							realPos.y + i < info->drawBounds.y + info->drawBounds.h)
+							CSDL_Ext::putPixelWithoutRefresh(targetSurf, realPos.x, realPos.y + i, color.x, color.y, color.z);
 			}
 		}
 	}
 
 	postProcessing(targetSurf);
 
-	SDL_SetClipRect(targetSurf, &prevClip);
+	CSDL_Ext::setClipRect(targetSurf, prevClip);
 }
 
 CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGHeroInstance * hero, int anim) const
@@ -1207,7 +1207,7 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 	{
 		for(int fy=0; fy<tilesH; ++fy)
 		{
-			SDL_Rect cr;
+			Rect cr;
 			cr.w = 32;
 			cr.h = 32;
 			cr.x = fx*32;
@@ -1470,7 +1470,7 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 	return false;
 }
 
-TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, SDL_Rect rect_, bool visitablePos)
+TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, Rect rect_, bool visitablePos)
 	: obj(obj_),
 	  rect(rect_),
 	  fadeAnimKey(-1)

@@ -208,9 +208,9 @@ void CBuildingRect::show(SDL_Surface * to)
 			else
 				newColor = oldColor;
 
-			SDL_SetColors(border, &newColor, colorID, 1);
+			CSDL_Ext::setColors(border, &newColor, colorID, 1);
 			blitAtLoc(border, 0, 0, to);
-			SDL_SetColors(border, &oldColor, colorID, 1);
+			CSDL_Ext::setColors(border, &oldColor, colorID, 1);
 		}
 	}
 	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
@@ -254,7 +254,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	if(area && isItIn(&pos,sEvent.x, sEvent.y))
+	if(area && pos.isInside(sEvent.x, sEvent.y))
 	{
 		if(CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //hovered pixel is inside this building
 		{

@@ -250,7 +250,7 @@ void CursorHandler::centerCursor()
 	pos = screenSize / 2 - getPivotOffset();
 
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	SDL_WarpMouse(pos.x, pos.y);
+	CSDL_Ext::warpMouse(pos.x, pos.y);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 
 	cursor->setCursorPosition(pos);
@@ -345,8 +345,7 @@ void CursorSoftware::updateTexture()
 	if (!cursorSurface ||  Point(cursorSurface->w, cursorSurface->h) != cursorImage->dimensions())
 		createTexture(cursorImage->dimensions());
 
-	Uint32 fillColor = SDL_MapRGBA(cursorSurface->format, 0, 0, 0, 0);
-	CSDL_Ext::fillRect(cursorSurface, nullptr, fillColor);
+	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENT);
 
 	cursorImage->draw(cursorSurface);
 	SDL_UpdateTexture(cursorTexture, NULL, cursorSurface->pixels, cursorSurface->pitch);
@@ -414,8 +413,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 {
 	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
 
-	Uint32 fillColor = SDL_MapRGBA(cursorSurface->format, 0, 0, 0, 0);
-	CSDL_Ext::fillRect(cursorSurface, nullptr, fillColor);
+	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENT);
 
 	image->draw(cursorSurface);
 

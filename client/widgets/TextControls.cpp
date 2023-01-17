@@ -349,7 +349,7 @@ void CGStatusBar::setEnteringMode(bool on)
 	{
 		assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
-		CSDL_Ext::startTextInput(&pos);
+		CSDL_Ext::startTextInput(pos);
 		setText(consoleText);
 	}
 	else
@@ -505,7 +505,7 @@ CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	background = std::make_shared<CPicture>(Pos, 0, true);
 	Rect hlp = Pos;
 	if(srf)
-		CSDL_Ext::blitSurface(srf, &hlp, background->getSurface(), nullptr);
+		CSDL_Ext::blitSurface(srf, hlp, background->getSurface(), Point(0,0));
 	else
 		SDL_FillRect(background->getSurface(), nullptr, 0);
 	pos.w = background->pos.w;
@@ -527,7 +527,7 @@ CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
 
 void CKeyboardFocusListener::focusGot()
 {
-	CSDL_Ext::startTextInput(&textInput->pos);
+	CSDL_Ext::startTextInput(textInput->pos);
 	usageIndex++;
 }
 

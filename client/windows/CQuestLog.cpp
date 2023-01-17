@@ -208,10 +208,10 @@ void CQuestLog::showAll(SDL_Surface * to)
 	if(questIndex >= 0 && questIndex < labels.size())
 	{
 		//TODO: use child object to selection rect
-		Rect rect = Rect::around(labels[questIndex]->pos);
+		Rect rect = Rect::createAround(labels[questIndex]->pos, 1);
 		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
 		rect.w += 2;
-		CSDL_Ext::drawBorder(to, rect, int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
+		CSDL_Ext::drawBorder(to, rect, Colors::METALLIC_GOLD);
 	}
 }
 

@@ -10,7 +10,8 @@
 
 #pragma once
 
-#include <SDL_events.h>
+struct SDL_Window;
+union SDL_Event;
 
 class NotificationHandler
 {

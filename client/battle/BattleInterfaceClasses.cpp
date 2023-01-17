@@ -160,7 +160,7 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		CSDL_Ext::startTextInput(&pos);
+		CSDL_Ext::startTextInput(pos);
 	}
 	else
 	{
@@ -494,7 +494,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	pos = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
+	pos = CSDL_Ext::genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	background = std::make_shared<CPicture>("CPRESULT");
 	background->colorize(owner.playerID);
 
@@ -850,7 +850,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
-		amount->setText(makeNumberShort(unit->getCount()));
+		amount->setText(CSDL_Ext::makeNumberShort(unit->getCount()));
 
 		if(stateIcon)
 		{

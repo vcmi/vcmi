@@ -248,7 +248,7 @@ void CTerrainRect::hover(bool on)
 	}
 	//Hoverable::hover(on);
 }
-void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
+void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
 {
 	const static int pns[9][9] = {
 				{16, 17, 18,  7, -1, 19,  6,  5, -1},
@@ -319,9 +319,9 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			int hvx = (x + arrow->width())  - (pos.x + pos.w),
 				hvy = (y + arrow->height()) - (pos.y + pos.h);
 
-			SDL_Rect prevClip;
-			SDL_GetClipRect(to, &prevClip);
-			SDL_SetClipRect(to, extRect); //preventing blitting outside of that rect
+			Rect prevClip;
+			CSDL_Ext::getClipRect(to, prevClip);
+			CSDL_Ext::setClipRect(to, extRect); //preventing blitting outside of that rect
 
 			if(ADVOPT.smoothMove) //version for smooth hero move, with pos shifts
 			{
@@ -367,7 +367,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 					arrow->draw(to, x, y, &srcRect);
 				}
 			}
-			SDL_SetClipRect(to, &prevClip);
+			CSDL_Ext::setClipRect(to, prevClip);
 
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
@@ -377,7 +377,7 @@ void CTerrainRect::show(SDL_Surface * to)
 {
 	if (adventureInt->mode == EAdvMapMode::NORMAL)
 	{
-		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), &pos);
+		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), pos);
 		info.otherheroAnim = true;
 		info.anim = adventureInt->anim;
 		info.heroAnim = adventureInt->heroAnim;
@@ -389,12 +389,12 @@ void CTerrainRect::show(SDL_Surface * to)
 		{
 			Rect r(pos);
 			fadeAnim->update();
-			fadeAnim->draw(to, nullptr, &r);
+			fadeAnim->draw(to, r.topLeft());
 		}
 
 		if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
 		{
-			showPath(&pos, to);
+			showPath(pos, to);
 		}
 	}
 }
@@ -404,7 +404,7 @@ void CTerrainRect::showAll(SDL_Surface * to)
 	// world view map is static and doesn't need redraw every frame
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 	{
-		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIcons);
+		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), pos, adventureInt->worldViewIcons);
 		info.scaled = true;
 		info.scale = adventureInt->worldViewScale;
 		adventureInt->worldViewOptions.adjustDrawingInfo(info);
@@ -460,7 +460,7 @@ void CTerrainRect::fadeFromCurrentView()
 
 	if (!fadeSurface)
 		fadeSurface = CSDL_Ext::newSurface(pos.w, pos.h);
-	SDL_BlitSurface(screen, &pos, fadeSurface, nullptr);
+	CSDL_Ext::blitSurface(screen, fadeSurface, Point(0,0));
 	fadeAnim->init(CFadeAnimation::EMode::OUT, fadeSurface);
 }
 
@@ -1814,7 +1814,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, Point(GH.current->motion), ETextAlignment::CENTER);
+	CRClickPopup::createAndPush(obj, Geometry::fromSDL(GH.current->motion), ETextAlignment::CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

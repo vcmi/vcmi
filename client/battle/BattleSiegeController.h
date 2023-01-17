@@ -21,7 +21,7 @@ class CGTownInstance;
 
 VCMI_LIB_NAMESPACE_END
 
-struct Point;
+class Point;
 class Canvas;
 class BattleInterface;
 class BattleRenderer;

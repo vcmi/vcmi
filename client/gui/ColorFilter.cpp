@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ColorFilter.h"
 
-#include <SDL2/SDL_pixels.h>
+#include <SDL_pixels.h>
 
 #include "../../lib/JsonNode.h"
 

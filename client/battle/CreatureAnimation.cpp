@@ -15,6 +15,7 @@
 
 #include "../gui/Canvas.h"
 #include "../gui/ColorFilter.h"
+#include "../gui/SDL_Extensions.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
