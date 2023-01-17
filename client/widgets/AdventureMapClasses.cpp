@@ -48,6 +48,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/StringConstants.h"
+#include "ClientCommandManager.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),
@@ -1141,15 +1142,29 @@ void CInGameConsole::startEnteringText()
 	GH.statusbar->setEnteredText(enteredText);
 }
 
-void CInGameConsole::endEnteringText(bool printEnteredText)
+void CInGameConsole::endEnteringText(bool processEnteredText)
 {
 	captureAllKeys = false;
 	prevEntDisp = -1;
-	if(printEnteredText)
+	if(processEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
-		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
+
+		if(txt.at(0) == '/')
+		{
+			//some commands like gosolo don't work when executed from GUI thread
+			auto threadFunction = [=]()
+			{
+				ClientCommandManager commandController;
+				commandController.processCommand(txt.substr(1), true);
+			};
+
+			boost::thread clientCommandThread(threadFunction);
+			clientCommandThread.detach();
+		}
+		else
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 	}
 	enteredText.clear();
 

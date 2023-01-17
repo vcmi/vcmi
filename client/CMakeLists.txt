@@ -82,6 +82,7 @@ set(client_SRCS
 		NetPacksClient.cpp
 		NetPacksLobbyClient.cpp
 		SDLRWwrapper.cpp
+		ClientCommandManager.cpp
 )
 
 set(client_HEADERS
@@ -168,6 +169,7 @@ set(client_HEADERS
 		mapHandler.h
 		resource.h
 		SDLRWwrapper.h
+		ClientCommandManager.h
 )
 
 if(APPLE_IOS)
