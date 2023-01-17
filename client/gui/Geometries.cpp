@@ -1,4 +1,5 @@
 /*
+ *
  * Geometries.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -7,32 +8,29 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
 #include "Geometries.h"
-#include "../CMT.h"
+
+#include <SDL_rect.h>
 #include <SDL_events.h>
-#include "../../lib/int3.h"
 
-Point::Point(const int3 &a)
-	:x(a.x),y(a.y)
-{}
-
-Point::Point(const SDL_MouseMotionEvent &a)
-	:x(a.x),y(a.y)
-{}
-
-Rect Rect::createCentered( int w, int h )
+Rect Geometry::fromSDL(const SDL_Rect & rect)
 {
-	return Rect(screen->w/2 - w/2, screen->h/2 - h/2, w, h);
+	return Rect(Point(rect.x, rect.y), Point(rect.w, rect.h));
 }
 
-Rect Rect::around(const Rect &r, int width)
+SDL_Rect Geometry::toSDL(const Rect & rect)
 {
-	return Rect(r.x - width, r.y - width, r.w + width * 2, r.h + width * 2);
+	SDL_Rect result;
+	result.x = rect.x;
+	result.y = rect.y;
+	result.w = rect.w;
+	result.h = rect.h;
+	return result;
 }
 
-Rect Rect::centerIn(const Rect &r)
+Point Geometry::fromSDL(const SDL_MouseMotionEvent & motion)
 {
-	return Rect(r.x + (r.w - w) / 2, r.y + (r.h - h) / 2, w, h);
+	return { motion.x, motion.y };
 }
-

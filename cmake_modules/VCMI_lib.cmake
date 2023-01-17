@@ -442,6 +442,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/NetPacksLobby.h
 		${MAIN_LIB_DIR}/ObstacleHandler.h
 		${MAIN_LIB_DIR}/PathfinderUtil.h
+		${MAIN_LIB_DIR}/Point.h
+		${MAIN_LIB_DIR}/Rect.h
+		${MAIN_LIB_DIR}/Rect.cpp
 		${MAIN_LIB_DIR}/ResourceSet.h
 		${MAIN_LIB_DIR}/RiverHandler.h
 		${MAIN_LIB_DIR}/RoadHandler.h
