@@ -206,9 +206,6 @@ void CGuiHandler::handleEvents()
 	}
 }
 
-bool multifinger = false;
-int lastFingerCount;
-
 void convertTouch(SDL_Event * current)
 {
 	int rLogicalWidth, rLogicalHeight;
@@ -358,7 +355,7 @@ void CGuiHandler::handleCurrentEvent()
 	}
 	else if(current->type == SDL_MOUSEBUTTONUP)
 	{
-		if(!multifinger || lastFingerCount < 1)
+		if(!multifinger)
 		{
 			switch(current->button.button)
 			{
@@ -374,13 +371,14 @@ void CGuiHandler::handleCurrentEvent()
 			}
 		}
 	}
+#ifndef VCMI_IOS
 	else if(current->type == SDL_FINGERDOWN)
 	{
-		lastFingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
+		auto fingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
 
-		multifinger = lastFingerCount > 1;
+		multifinger = fingerCount > 1;
 
-		if(lastFingerCount == 2)
+		if(fingerCount == 2)
 		{
 			convertTouch(current);
 			handleMouseMotion();
@@ -389,16 +387,17 @@ void CGuiHandler::handleCurrentEvent()
 	}
 	else if(current->type == SDL_FINGERUP)
 	{
-		lastFingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
+		auto fingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
 
 		if(multifinger)
 		{
-			multifinger = false;
 			convertTouch(current);
 			handleMouseMotion();
 			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+			multifinger = fingerCount != 0;
 		}
 	}
+#endif //VCMI_IOS
 
 	current = nullptr;
 } //event end
@@ -527,7 +526,8 @@ void CGuiHandler::renderFrame()
 
 
 CGuiHandler::CGuiHandler()
-	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false)
+	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false),
+    multifinger(false)
 {
 	continueEventHandling = true;
 	curInt = nullptr;
