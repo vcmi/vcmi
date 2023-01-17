@@ -206,6 +206,21 @@ void CGuiHandler::handleEvents()
 	}
 }
 
+void convertTouch(SDL_Event * current)
+{
+	int rLogicalWidth, rLogicalHeight;
+
+	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
+
+	int adjustedMouseY = (int)(current->tfinger.y * rLogicalHeight);
+	int adjustedMouseX = (int)(current->tfinger.x * rLogicalWidth);
+
+	current->button.x = adjustedMouseX;
+	current->motion.x = adjustedMouseX;
+	current->button.y = adjustedMouseY;
+	current->motion.y = adjustedMouseY;
+}
+
 void CGuiHandler::handleCurrentEvent()
 {
 	if(current->type == SDL_KEYDOWN || current->type == SDL_KEYUP)
@@ -338,22 +353,52 @@ void CGuiHandler::handleCurrentEvent()
 			it->textEdited(current->edit);
 		}
 	}
-	//todo: muiltitouch
 	else if(current->type == SDL_MOUSEBUTTONUP)
 	{
-		switch(current->button.button)
+		if(!multifinger)
 		{
-		case SDL_BUTTON_LEFT:
-			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
-			break;
-		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
-			break;
-		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
-			break;
+			switch(current->button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
+				break;
+			case SDL_BUTTON_RIGHT:
+				handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+				break;
+			case SDL_BUTTON_MIDDLE:
+				handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
+				break;
+			}
 		}
 	}
+#ifndef VCMI_IOS
+	else if(current->type == SDL_FINGERDOWN)
+	{
+		auto fingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
+
+		multifinger = fingerCount > 1;
+
+		if(fingerCount == 2)
+		{
+			convertTouch(current);
+			handleMouseMotion();
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+		}
+	}
+	else if(current->type == SDL_FINGERUP)
+	{
+		auto fingerCount = SDL_GetNumTouchFingers(current->tfinger.touchId);
+
+		if(multifinger)
+		{
+			convertTouch(current);
+			handleMouseMotion();
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+			multifinger = fingerCount != 0;
+		}
+	}
+#endif //VCMI_IOS
+
 	current = nullptr;
 } //event end
 
@@ -481,7 +526,8 @@ void CGuiHandler::renderFrame()
 
 
 CGuiHandler::CGuiHandler()
-	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false)
+	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false),
+    multifinger(false)
 {
 	continueEventHandling = true;
 	curInt = nullptr;

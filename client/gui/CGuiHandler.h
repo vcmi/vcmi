@@ -101,6 +101,7 @@ public:
 
 	Point lastClick;
 	unsigned lastClickTime;
+	bool multifinger;
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
