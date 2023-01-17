@@ -159,7 +159,7 @@ BattleHex::EDir BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 	return NONE;
 }
 
-char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
+uint8_t BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 {
 	int y1 = hex1.getY(), y2 = hex2.getY();
 
