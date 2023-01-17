@@ -1,0 +1,70 @@
+{
+	"vcmi.adventureMap.monsterThreat.title"     : "\n\n Poziom zagrożenia: ",
+	"vcmi.adventureMap.monsterThreat.levels.0"  : "Zerowy",
+	"vcmi.adventureMap.monsterThreat.levels.1"  : "Bardzo słaby",
+	"vcmi.adventureMap.monsterThreat.levels.2"  : "Słaby",
+	"vcmi.adventureMap.monsterThreat.levels.3"  : "Nieco słabszy",
+	"vcmi.adventureMap.monsterThreat.levels.4"  : "Równie silny",
+	"vcmi.adventureMap.monsterThreat.levels.5"  : "Nieco silniejszy",
+	"vcmi.adventureMap.monsterThreat.levels.6"  : "Silny",
+	"vcmi.adventureMap.monsterThreat.levels.7"  : "Bardzo silny",
+	"vcmi.adventureMap.monsterThreat.levels.8"  : "Wyzwanie",
+	"vcmi.adventureMap.monsterThreat.levels.9"  : "Przytłaczający",
+	"vcmi.adventureMap.monsterThreat.levels.10" : "Śmiertelny",
+	"vcmi.adventureMap.monsterThreat.levels.11" : "Nie do pokonania",
+
+	"vcmi.adventureMap.confirmRestartGame"  : "Czy na pewno chcesz zrestartować grę?",
+	"vcmi.adventureMap.noTownWithMarket"    : "Brak dostępnego targowiska!",
+	"vcmi.adventureMap.noTownWithTavern"    : "Brak dostępnego miasta z karczmą!",
+	"vcmi.adventureMap.spellUnknownProblem" : "Nieznany problem z zaklęciem, brak dodatkowych informacji.",
+	"vcmi.adventureMap.playerAttacked"      : "Gracz został zaatakowany: %s",
+
+	"vcmi.server.errors.existingProcess"     : "Inny proces vcmiserver został już uruchomiony, zakończ go nim przejdziesz dalej",
+	"vcmi.server.errors.modsIncompatibility" : "Mody wymagane do wczytania gry:",
+	"vcmi.server.confirmReconnect"           : "Połączyć z ostatnią sesją?",
+
+	"vcmi.systemOptions.fullscreenButton.hover" : "Pełny ekran",
+	"vcmi.systemOptions.fullscreenButton.help"  : "{Fullscreen}\n\n Po wybraniu VCMI uruchomi się w trybie pełnoekranowym, w przeciwnym wypadku uruchomi się w oknie",
+	"vcmi.systemOptions.resolutionButton.hover" : "Rozdzielczość",
+	"vcmi.systemOptions.resolutionButton.help"  : "{Select resolution}\n\n Zmień rozdzielczość ekranu w grze. Restart gry jest wymagany, by zmiany zostały uwzględnione.",
+	"vcmi.systemOptions.resolutionMenu.hover"   : "Wybierz rozdzielczość",
+	"vcmi.systemOptions.resolutionMenu.help"    : "Zmień rozdzielczość ekranu w grze.",
+
+	"vcmi.townHall.missingBase"             : "Podstawowy budynek %s musi zostać najpierw wybudowany",
+	"vcmi.townHall.noCreaturesToRecruit"    : "Brak stworzeń do rekrutacji!",
+	"vcmi.townHall.greetingManaVortex"      : "Zbliżając się do %s czujesz jak twoje ciało wypełnia energia. Ilość pkt. magii, które posiadasz, zwiększa się dwukrotnie.",
+	"vcmi.townHall.greetingKnowledge"       : "Studiując napisy na %s odkrywasz nowe aspekty stosowania magii (wiedza +1).",
+	"vcmi.townHall.greetingSpellPower"      : "Odwiedzając %s dowiadujesz się, jak zwiększyć potęgę swojej mocy magicznej (moc +1).",
+	"vcmi.townHall.greetingExperience"      : "Wizyta w %s zwiększa twoje doświadczenie (doświadczenie +1000).",
+	"vcmi.townHall.greetingAttack"          : "Krótka wizyka w %s umożliwia ci polepszenie technik walki (atak +1).",
+	"vcmi.townHall.greetingDefence"         : "Odwiedzasz %s. Doświadczeni żołnierze, którzy tam przebywają, uczą cię sztuki skutecznej obrony (obrona +1).",
+	"vcmi.townHall.hasNotProduced"          : "%s nic jeszcze nie wyprodukował.",
+	"vcmi.townHall.hasProduced"             : "%s wyprodukował w tym tygodniu: %d %s.",
+	"vcmi.townHall.greetingCustomBonus"     : "%s daje tobie +%d %s%s",
+	"vcmi.townHall.greetingCustomUntil"     : " do następnej bitwy.",
+	"vcmi.townHall.greetingInTownMagicWell" : "%s przywraca ci wszystkie punkty magii.",
+
+	"vcmi.logicalExpressions.anyOf"  :  "Dowolne spośród:",
+	"vcmi.logicalExpressions.allOf"  :  "Wszystkie spośród:",
+	"vcmi.logicalExpressions.noneOf" : "Żadne spośród:",
+
+	"vcmi.heroWindow.openCommander.hover" : "Otwórz okno dowódcy",
+	"vcmi.heroWindow.openCommander.help"  : "Wyświetla informacje o dowódcy przynależącym do tego bohatera",
+
+	"vcmi.commanderWindow.artifactMessage" : "Czy chcesz zwrócić ten artefakt bohaterowi?",
+
+	"vcmi.creatureWindow.showBonuses.hover"    : "Przełącz do widoku bonusów",
+	"vcmi.creatureWindow.showBonuses.help"     : "Wyświetla wszystkie aktywne bonusy dowódcy",
+	"vcmi.creatureWindow.showSkills.hover"     : "Przełącz do widoku umiejętności",
+	"vcmi.creatureWindow.showSkills.help"      : "Wyświetla wszystkie nauczone umiejętności dowódcy",
+	"vcmi.creatureWindow.returnArtifact.hover" : "Zwróć artefakt",
+	"vcmi.creatureWindow.returnArtifact.help"  : "Użyj tego przycisku by zwrócić artefakt do sakwy bohatera",
+
+	"vcmi.questLog.hideComplete.hover" : "Ukryj ukończone misje",
+	"vcmi.questLog.hideComplete.help"  : "Ukrywa wszystkie misje, które zostały zakończone",
+
+	"vcmi.randomMapTab.widgets.defaultTemplate"      : "domyślny",
+	"vcmi.randomMapTab.widgets.templateLabel"        : "Szablon",
+	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Ustaw...",
+	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Sojusze"
+}
