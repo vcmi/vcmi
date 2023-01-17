@@ -308,7 +308,7 @@ void BattleHero::clickRight(tribool down, bool previousState)
 		return;
 
 	Point windowPosition;
-	windowPosition.x = (!defender) ? owner.fieldController->pos.topLeft().x + 1 : owner.fieldController->pos.topRight().x - 79;
+	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;

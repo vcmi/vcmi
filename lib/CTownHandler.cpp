@@ -776,9 +776,9 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 	}
 }
 
-CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
+Point JsonToPoint(const JsonNode & node)
 {
-	CTown::ClientInfo::Point ret;
+	Point ret;
 	ret.x = static_cast<si32>(node["x"].Float());
 	ret.y = static_cast<si32>(node["y"].Float());
 	return ret;
