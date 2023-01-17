@@ -90,6 +90,11 @@ if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
 	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
+# No QT Linguist on MXE
+if((MINGW) AND (${CMAKE_CROSSCOMPILING}))
+	set(ENABLE_TRANSLATIONS OFF)
+endif()
+
 ############################################
 #        Miscellaneous options             #
 ############################################
@@ -180,6 +185,14 @@ set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
 set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
+
+if(ENABLE_LAUNCHER)
+	add_definitions(-DENABLE_LAUNCHER)
+endif()
+
+if(ENABLE_EDITOR)
+	add_definitions(-DENABLE_EDITOR)
+endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
 	add_definitions(-DSINGLE_PROCESS_APP=1)
@@ -360,12 +373,8 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
-	find_package(QT NAMES Qt6 Qt5 COMPONENTS LinguistTools)
-	find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LinguistTools)
-	if(NOT Qt${QT_VERSION_MAJOR}LinguistTools_DIR)
-		set(ENABLE_TRANSLATIONS OFF)
-	endif()
 	if(ENABLE_TRANSLATIONS)
+		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
 		add_definitions(-DENABLE_QT_TRANSLATIONS)
 	endif()
 endif()

@@ -62,6 +62,13 @@ set(launcher_FORMS
 		lobby/lobbyroomrequest_moc.ui
 )
 
+set(launcher_TS
+	translation/english.ts
+	translation/german.ts
+	translation/polish.ts
+	translation/russian.ts
+	translation/ukrainian.ts)
+
 if(APPLE_IOS)
 	list(APPEND launcher_SRCS
 		ios/main.m
@@ -83,18 +90,28 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(TARGET Qt6::Core)
 	qt_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		# TODO: consider using qt_add_translations: https://doc.qt.io/qt-6/qtlinguist-cmake-qt-add-translations.html
+		qt_add_translation( launcher_QM ${launcher_TS} )
+	endif()
 else()
 	qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt5_add_translation( launcher_QM ${launcher_TS} )
+	endif()
 endif()
+
 
 if(WIN32)
 	set(launcher_ICON VCMI_launcher.rc)
 endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
-	add_library(vcmilauncher STATIC ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
+	add_library(vcmilauncher STATIC ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
 else()
-	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
+	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
 endif()
 
 if(WIN32)
@@ -126,7 +143,7 @@ vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
 if(APPLE_IOS)
-	set(ICONS_DESTINATION ${DATA_DIR})
+	set(RESOURCES_DESTINATION ${DATA_DIR})
 
 	# TODO: remove after fixing Conan's Qt recipe
 	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
@@ -145,12 +162,14 @@ if(APPLE_IOS)
 		)
 	endif()
 else()
-	set(ICONS_DESTINATION ${DATA_DIR}/launcher)
+	set(RESOURCES_DESTINATION ${DATA_DIR}/launcher)
 
 	# Copy to build directory for easier debugging
 	add_custom_command(TARGET vcmilauncher POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher
+		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
+
 	)
 
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
@@ -161,4 +180,8 @@ else()
 		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
 endif()
-install(DIRECTORY icons DESTINATION ${ICONS_DESTINATION})
+
+install(DIRECTORY icons DESTINATION ${RESOURCES_DESTINATION})
+if(ENABLE_TRANSLATIONS)
+	install(FILES ${launcher_QM} DESTINATION ${RESOURCES_DESTINATION}/translation)
+endif()

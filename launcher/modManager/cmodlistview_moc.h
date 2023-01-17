@@ -64,6 +64,7 @@ class CModListView : public QWidget
 	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
 
+	void changeEvent(QEvent *event) override;
 signals:
 	void extraResolutionsEnabledChanged(bool enabled);
 	
