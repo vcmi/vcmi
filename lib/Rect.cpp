@@ -17,17 +17,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 Rect Rect::include(const Rect & other) const
 {
 	Point topLeft{
-		std::min(this->topLeft().x, other.topLeft().x),
-		std::min(this->topLeft().y, other.topLeft().y)
+		std::min(this->left(), other.left()),
+		std::min(this->top(), other.top())
 	};
 
 	Point bottomRight{
-		std::max(this->bottomRight().x, other.bottomRight().x),
-		std::max(this->bottomRight().y, other.bottomRight().y)
+		std::max(this->right(), other.right()),
+		std::max(this->bottom(), other.bottom())
 	};
 
 	return Rect(topLeft, bottomRight - topLeft);
-
 }
 
 Rect Rect::createCentered( const Point & around, const Point & dimensions )
@@ -48,19 +47,19 @@ Rect Rect::createCentered( const Rect & rect, const Point & dimensions)
 bool Rect::intersectionTest(const Rect & other) const
 {
 	// this rect is above other rect
-	if(this->bottomLeft().y < other.topLeft().y)
+	if(this->bottom() < other.top())
 		return false;
 
 	// this rect is below other rect
-	if(this->topLeft().y > other.bottomLeft().y )
+	if(this->top() > other.bottom() )
 		return false;
 
 	// this rect is to the left of other rect
-	if(this->topRight().x < other.topLeft().x)
+	if(this->right() < other.left())
 		return false;
 
 	// this rect is to the right of other rect
-	if(this->topLeft().x > other.topRight().x)
+	if(this->left() > other.right())
 		return false;
 
 	return true;
@@ -72,19 +71,19 @@ bool Rect::intersectionTest(const Rect & other) const
 bool Rect::intersectionTest(const Point & line1, const Point & line2) const
 {
 	// check whether segment is located to the left of our rect
-	if (line1.x < topLeft().x && line2.x < topLeft().x)
+	if (line1.x < left() && line2.x < left())
 		return false;
 
 	// check whether segment is located to the right of our rect
-	if (line1.x > bottomRight().x && line2.x > bottomRight().x)
+	if (line1.x > right() && line2.x > right())
 		return false;
 
 	// check whether segment is located on top of our rect
-	if (line1.y < topLeft().y && line2.y < topLeft().y)
+	if (line1.y < top() && line2.y < top())
 		return false;
 
 	// check whether segment is located below of our rect
-	if (line1.y > bottomRight().y && line2.y > bottomRight().y)
+	if (line1.y > bottom() && line2.y > bottom())
 		return false;
 
 	Point vector { line2.x - line1.x, line2.y - line1.y};
@@ -113,13 +112,13 @@ Rect Rect::intersect(const Rect & other) const
 	if(intersectionTest(other))
 	{
 		Point topLeft{
-			std::max(this->topLeft().x, other.topLeft().x),
-			std::max(this->topLeft().y, other.topLeft().y)
+			std::max(this->left(), other.left()),
+			std::max(this->top(), other.top())
 		};
 
 		Point bottomRight{
-			std::min(this->bottomRight().x, other.bottomRight().x),
-			std::min(this->bottomRight().y, other.bottomRight().y)
+			std::min(this->right(), other.right()),
+			std::min(this->bottom(), other.bottom())
 		};
 
 		return Rect(topLeft, bottomRight - topLeft);

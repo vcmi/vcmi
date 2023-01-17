@@ -20,6 +20,7 @@
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
 #include "HeroBonus.h"
+#include "Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -279,18 +280,6 @@ public:
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
 	{
-		struct Point
-		{
-			si32 x;
-			si32 y;
-
-			template <typename Handler> void serialize(Handler &h, const int version)
-			{
-				h & x;
-				h & y;
-			}
-		};
-
 		//icons [fort is present?][build limit reached?] -> index of icon in def files
 		int icons[2][2];
 		std::string iconSmall[2][2]; /// icon names used during loading
