@@ -967,8 +967,12 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
 
+	// NOTE: semi-workaround - normally, towns are supposed to have native terrains.
+	// Towns without one are exceptions. So, vcmi requires nativeTerrain to be defined
+	// But allows it to be defined with explicit value of "none" if town should not have native terrain
+	// This is better than allowing such terrain-less towns silently, leading to issues with RMG
 	faction->nativeTerrain = ETerrainId::NONE;
-	if ( !source["nativeTerrain"].isNull())
+	if ( !source["nativeTerrain"].isNull() && source["nativeTerrain"].String() != "none")
 	{
 		VLC->modh->identifiers.requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);

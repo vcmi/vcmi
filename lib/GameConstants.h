@@ -1234,7 +1234,7 @@ enum class ETerrainId {
 	LAVA,
 	WATER,
 	ROCK,
-	ORIGINAL_TERRAIN_COUNT
+	ORIGINAL_REGULAR_TERRAIN_COUNT = ROCK
 };
 
 using TerrainId = Identifier<ETerrainId>;

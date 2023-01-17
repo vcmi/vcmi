@@ -158,7 +158,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
 	assert(terrStr.size() == TerrainId(ETerrainId::ROCK).getNum()); // all terrains but rock - counting from 0
-	for(TerrainId i = TerrainId(0); i < ETerrainId::ROCK; ++i)
+	for(TerrainId i = TerrainId(0); i < ETerrainId::ORIGINAL_REGULAR_TERRAIN_COUNT; ++i)
 	{
 		if (terrStr[8-i.getNum()] == '1')
 			allowedTerrains.insert(i);
@@ -224,7 +224,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for(TerrainId i = ETerrainId::FIRST_REGULAR_TERRAIN; i < ETerrainId::ORIGINAL_TERRAIN_COUNT; ++i)
+	for(TerrainId i = ETerrainId::FIRST_REGULAR_TERRAIN; i < ETerrainId::ORIGINAL_REGULAR_TERRAIN_COUNT; ++i)
 	{
 		if (((terrMask >> i.getNum()) & 1 ) != 0)
 			allowedTerrains.insert(i);
