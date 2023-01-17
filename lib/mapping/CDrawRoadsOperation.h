@@ -80,7 +80,7 @@ private:
 class CDrawRiversOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen);
+	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId roadType, CRandomGenerator * gen);
 	std::string getLabel() const override;
 	
 protected:

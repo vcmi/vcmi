@@ -90,6 +90,11 @@ if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
 	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
+# No QT Linguist on MXE
+if((MINGW) AND (${CMAKE_CROSSCOMPILING}))
+	set(ENABLE_TRANSLATIONS OFF)
+endif()
+
 ############################################
 #        Miscellaneous options             #
 ############################################
@@ -181,6 +186,14 @@ set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
 
+if(ENABLE_LAUNCHER)
+	add_definitions(-DENABLE_LAUNCHER)
+endif()
+
+if(ENABLE_EDITOR)
+	add_definitions(-DENABLE_EDITOR)
+endif()
+
 if(ENABLE_SINGLE_APP_BUILD)
 	add_definitions(-DSINGLE_PROCESS_APP=1)
 endif()
@@ -232,7 +245,7 @@ if(MINGW OR MSVC)
 		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800") # 4800: implicit conversion from 'xxx' to bool. Possible information loss
 
 		if(ENABLE_STRICT_COMPILATION)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wx") # Treats all compiler warnings as errors
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # Treats all compiler warnings as errors
 		endif()
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
@@ -361,12 +374,8 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
-	find_package(QT NAMES Qt6 Qt5 COMPONENTS LinguistTools)
-	find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LinguistTools)
-	if(NOT Qt${QT_VERSION_MAJOR}LinguistTools_DIR)
-		set(ENABLE_TRANSLATIONS OFF)
-	endif()
 	if(ENABLE_TRANSLATIONS)
+		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
 		add_definitions(-DENABLE_QT_TRANSLATIONS)
 	endif()
 endif()
@@ -564,6 +573,9 @@ if(WIN32)
 				FILES ${integration_loc}
 				DESTINATION ${BIN_DIR}/platforms
 			)
+			install(
+				FILES "$<TARGET_FILE:Qt${QT_VERSION_MAJOR}::QWindowsVistaStylePlugin>" 
+				DESTINATION ${BIN_DIR}/styles) 
 		endif()
 	endif()
 

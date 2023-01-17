@@ -18,7 +18,7 @@ set(client_SRCS
 
 		gui/CAnimation.cpp
 		gui/Canvas.cpp
-		gui/CCursorHandler.cpp
+		gui/CursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
 		gui/ColorFilter.cpp
@@ -82,6 +82,7 @@ set(client_SRCS
 		NetPacksClient.cpp
 		NetPacksLobbyClient.cpp
 		SDLRWwrapper.cpp
+		ClientCommandManager.cpp
 )
 
 set(client_HEADERS
@@ -104,7 +105,7 @@ set(client_HEADERS
 
 		gui/CAnimation.h
 		gui/Canvas.h
-		gui/CCursorHandler.h
+		gui/CursorHandler.h
 		gui/CGuiHandler.h
 		gui/ColorFilter.h
 		gui/CIntObject.h
@@ -168,6 +169,7 @@ set(client_HEADERS
 		mapHandler.h
 		resource.h
 		SDLRWwrapper.h
+		ClientCommandManager.h
 )
 
 if(APPLE_IOS)
@@ -232,7 +234,7 @@ if(WIN32)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
 			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb12.dll tbb12.dll
 		)
 	endif()
 elseif(APPLE_IOS)

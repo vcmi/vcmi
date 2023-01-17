@@ -18,6 +18,7 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "Functions.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -121,7 +122,7 @@ void Object::Instance::setTemplate(TerrainId terrain)
 	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
 	if (templates.empty())
 	{
-		auto terrainName = VLC->terrainTypeHandler->terrains()[terrain].name;
+		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
 		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
 	}
 	dObject.appearance = templates.front();
@@ -293,14 +294,14 @@ void Object::Instance::finalize(RmgMap & map)
 	if (!dObject.appearance)
 	{
 		auto terrainType = map.map().getTile(getPosition(true)).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->id);
+		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
 		}
 		else
 		{
-			setTemplate(terrainType->id);
+			setTemplate(terrainType->getId());
 		}
 	}
 

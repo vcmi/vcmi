@@ -17,6 +17,8 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
+#include "../RoadHandler.h"
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
@@ -81,16 +83,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType->id && from.roadType->id)
+	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
 	{
 		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
-	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
-			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
+	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
+			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->getIndex())) //no special movement bonus
 	{
 
-		ret = VLC->heroh->terrCosts[from.terType->id];
+		ret = VLC->heroh->terrCosts[from.terType->getId()];
 		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
@@ -104,20 +106,21 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	// This is clearly bug in H3 however intended behaviour is not clear.
 	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
 	// will always have best penalty without any influence from player-defined stacks order
+	// and army that consist solely from neutral will always be considered to be on native terrain
 
-	// TODO: What should we do if all hero stacks are neutral creatures?
-	TerrainId nativeTerrain = Terrain::BORDER;
+	TerrainId nativeTerrain = ETerrainId::ANY_TERRAIN;
 
 	for(auto stack : stacks)
 	{
 		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
+		if(stackNativeTerrain == ETerrainId::NONE)
 			continue;
-		if(nativeTerrain == Terrain::BORDER)
+
+		if(nativeTerrain == ETerrainId::ANY_TERRAIN)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return Terrain::BORDER;
+			return ETerrainId::NONE;
 	}
 	return nativeTerrain;
 }
@@ -519,7 +522,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+		auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
 		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
 		if (customApp)
 			appearance = customApp;

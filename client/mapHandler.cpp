@@ -30,7 +30,9 @@
 #include "CMT.h"
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/Terrain.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/filesystem/ResourceID.h"
 #include "../lib/JsonDetail.h"
 
@@ -175,17 +177,17 @@ void CMapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> riverFiles;
 	std::map<std::string, std::string> roadFiles;
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain.name] = terrain.tilesFilename;
+		terrainFiles[terrain->getJsonKey()] = terrain->tilesFilename;
 	}
-	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river.fileName] = river.fileName;
+		riverFiles[river->getJsonKey()] = river->tilesFilename;
 	}
-	for(const auto & road : VLC->terrainTypeHandler->roads())
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road.fileName] = road.fileName;
+		roadFiles[road->getJsonKey()] = road->tilesFilename;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -606,7 +608,7 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
 	//TODO: use ui8 instead of string key
-	auto terrainName = tinfo.terType->name;
+	auto terrainName = tinfo.terType->getJsonKey();
 
 	if(parent->terrainImages[terrainName].size()<=tinfo.terView)
 		return;
@@ -786,21 +788,21 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 
 void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const
 {
-	if (tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
+	if (tinfoUpper && tinfoUpper->roadType->getId() != Road::NO_ROAD)
 	{
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		Rect source(0, tileSize / 2, tileSize, tileSize / 2);
 		Rect dest(realPos.x, realPos.y, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType->fileName][tinfoUpper->roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType->getJsonKey()][tinfoUpper->roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 
-	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
+	if(tinfo.roadType->getId() != Road::NO_ROAD) //print road from this tile
 	{
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		Rect source(0, 0, tileSize, halfTileSizeCeil);
 		Rect dest(realPos.x, realPos.y + tileSize / 2, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType->fileName][tinfo.roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType->getJsonKey()][tinfo.roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 }
@@ -809,7 +811,7 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 {
 	Rect destRect(realTileRect);
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType->fileName][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType->getJsonKey()][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
@@ -860,7 +862,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			if(isVisible || info->showAllTerrain)
 			{
 				drawTileTerrain(targetSurf, tinfo, tile);
-				if(tinfo.riverType->id != River::NO_RIVER)
+				if(tinfo.riverType->getId() != River::NO_RIVER)
 					drawRiver(targetSurf, tinfo);
 				drawRoad(targetSurf, tinfo, tinfoUpper);
 			}
@@ -1388,8 +1390,9 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 			break;
 		}
 	}
+
 	if(!isTile2Terrain || out.empty())
-		out = CGI->generaltexth->terrainNames[t.terType->id];
+		out = t.terType->getNameTranslated();
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{
@@ -1485,4 +1488,3 @@ TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, SDL_Rect rec
 TerrainTileObject::~TerrainTileObject()
 {
 }
-

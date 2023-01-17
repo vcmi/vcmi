@@ -38,6 +38,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/ScopeGuard.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/TerrainHandler.h"
 #include "CGameHandler.h"
 #include "CVCMIServer.h"
 #include "../lib/CCreatureSet.h"
@@ -2242,9 +2243,9 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	battleResult.set(nullptr);
 
 	const auto & t = *getTile(tile);
-	TerrainId terrain = t.terType->id;
+	TerrainId terrain = t.terType->getId();
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = Terrain::SAND;
+		terrain = ETerrainId::SAND;
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
@@ -3891,7 +3892,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if ((!srcArtifact || dst.slot < GameConstants::BACKPACK_START)
+	if ((!srcArtifact || !ArtifactUtils::isSlotBackpack(dst.slot))
 		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
@@ -3906,24 +3907,37 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	if (src.slot == ArtifactPosition::MACH4 || dst.slot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
 
-	if (dst.slot >= GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(dst.slot))
 		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + (si32)dst.getHolderArtSet()->artifactsInBackpack.size()));
 
-	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
-		COMPLAIN_RET("Won't move artifact: Dest same as source!");
-
-	if (dst.slot < GameConstants::BACKPACK_START  &&  destArtifact) //moving art to another slot
+	if(!(src.slot == ArtifactPosition::TRANSITION_POS && dst.slot == ArtifactPosition::TRANSITION_POS))
 	{
-		//old artifact must be removed first
-		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
-			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
-	}
-	auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
-	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
-		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		if(src.slot == dst.slot && src.artHolder == dst.artHolder)
+			COMPLAIN_RET("Won't move artifact: Dest same as source!");
 
-	MoveArtifact ma(&src, &dst);
-	sendAndApply(&ma);
+		// Check if dst slot is occupied
+		if(!ArtifactUtils::isSlotBackpack(dst.slot) && destArtifact)
+		{
+			// Previous artifact must be removed first
+			moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition::TRANSITION_POS));
+		}
+
+		try
+		{
+			auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		}
+		catch (boost::bad_get const &)
+		{
+			// object other than hero received an art - ignore
+		}
+
+		MoveArtifact ma(&src, &dst);
+		if(dst.slot == ArtifactPosition::TRANSITION_POS)
+			ma.askAssemble = false;
+		sendAndApply(&ma);
+	}
 	return true;
 }
 

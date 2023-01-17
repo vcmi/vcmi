@@ -32,7 +32,7 @@
 #include "../mapHandler.h"
 
 #include "../gui/CAnimation.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
@@ -53,6 +53,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/TerrainHandler.h"
 
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
@@ -1038,7 +1039,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		++heroAnim;
 	}
-	if(animValHitCount == 8)
+	if(animValHitCount >= 8)
 	{
 		CGI->mh->updateWater();
 		animValHitCount = 0;
@@ -1414,7 +1415,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType->name, true, false);
+			CCS->musich->playMusicFromSet("terrain", tile->terType->getJsonKey(), true, false);
 	}
 	if(centerView)
 		centerOn(sel);

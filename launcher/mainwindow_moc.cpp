@@ -47,12 +47,40 @@ void MainWindow::load()
 	settings.init();
 }
 
+void MainWindow::computeSidePanelSizes()
+{
+	QVector<QToolButton*> widgets = {
+		ui->modslistButton,
+		ui->settingsButton,
+		ui->lobbyButton,
+		ui->startEditorButton,
+		ui->startGameButton
+	};
+
+	for(auto & widget : widgets)
+	{
+		QFontMetrics metrics(widget->font());
+		QSize iconSize = widget->iconSize();
+
+		// this is minimal space that is needed for our button to avoid text clipping
+		int buttonHeight = iconSize.height() + metrics.height() + 4;
+
+		widget->setMinimumHeight(buttonHeight);
+		widget->setMaximumHeight(buttonHeight * 1.2);
+	}
+}
+
 MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
+	updateTranslation(); // load translation
 
 	ui->setupUi(this);
+	
+	connect(ui->lobbyView, &Lobby::enableMod, ui->modlistView, &CModListView::enableModByName);
+	connect(ui->lobbyView, &Lobby::disableMod, ui->modlistView, &CModListView::disableModByName);
+	connect(ui->modlistView, &CModListView::modsChanged, ui->lobbyView, &Lobby::updateMods);
 
 	//load window settings
 	QSettings s(Ui::teamName, Ui::appName);
@@ -68,43 +96,30 @@ MainWindow::MainWindow(QWidget * parent)
 		move(position);
 	}
 
-	//set default margins
+#ifndef ENABLE_EDITOR
+	ui->startEditorButton->hide();
+#endif
 
-	auto width = ui->startGameTitle->fontMetrics().boundingRect(ui->startGameTitle->text()).width();
-	if(ui->startGameButton->iconSize().width() < width)
-	{
-		ui->startGameButton->setIconSize(QSize(width, width));
-	}
-	auto tab_icon_size = ui->tabSelectList->iconSize();
-	if(tab_icon_size.width() < width)
-	{
-		ui->tabSelectList->setIconSize(QSize(width, width + tab_icon_size.height() - tab_icon_size.width()));
-		ui->tabSelectList->setGridSize(QSize(width, width));
-		// 4 is a dirty hack to make it look right
-		ui->tabSelectList->setMaximumWidth(width + 4);
-	}
+	computeSidePanelSizes();
+
 	ui->tabListWidget->setCurrentIndex(0);
 
 	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
 	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);
-
-	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
-#ifdef Q_OS_IOS
-		if(auto widget = qApp->focusWidget())
-			widget->clearFocus();
-#endif
-		ui->tabListWidget->setCurrentIndex(i);
-	});
 	
-#ifdef Q_OS_IOS
-	QScroller::grabGesture(ui->tabSelectList, QScroller::LeftMouseButtonGesture);
-	ui->tabSelectList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
-
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+	if(event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+	QMainWindow::changeEvent(event);
 }
 
 MainWindow::~MainWindow()
@@ -122,12 +137,63 @@ void MainWindow::on_startGameButton_clicked()
 	startGame({});
 }
 
-void MainWindow::on_tabSelectList_currentRowChanged(int currentRow)
+void MainWindow::on_startEditorButton_clicked()
 {
-	ui->startGameButton->setEnabled(currentRow != TabRows::LOBBY);
+	startEditor({});
 }
 
 const CModList & MainWindow::getModList() const
 {
 	return ui->modlistView->getModList();
+}
+
+void MainWindow::on_modslistButton_clicked()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+}
+
+void MainWindow::on_settingsButton_clicked()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::SETTINGS);
+}
+
+void MainWindow::on_lobbyButton_clicked()
+{
+	ui->startGameButton->setEnabled(false);
+	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
+}
+
+void MainWindow::updateTranslation()
+{
+#ifdef ENABLE_QT_TRANSLATIONS
+	std::string translationFile = settings["general"]["language"].String() + ".qm";
+	logGlobal->info("Loading translation '%s'", translationFile);
+
+	QVector<QString> searchPaths;
+
+#ifdef Q_OS_IOS
+	searchPaths.push_back(pathToQString(VCMIDirs::get().binaryPath() / "translation" / translationFile));
+#else
+	for(auto const & string : VCMIDirs::get().dataPaths())
+		searchPaths.push_back(pathToQString(string / "launcher" / "translation" / translationFile));
+	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "translation" / translationFile));
+#endif
+
+	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	{
+		logGlobal->info("Searching for translation at '%s'", string.toStdString());
+		if (translator.load(string))
+		{
+			logGlobal->info("Translation found");
+			if (!qApp->installTranslator(&translator))
+				logGlobal->error("Failed to install translator");
+			return;
+		}
+	}
+
+	logGlobal->error("Failed to find translation");
+
+#endif
 }

@@ -26,6 +26,9 @@ struct TerrainTile;
 struct PlayerInfo;
 class CGObjectInstance;
 class AObjectTypeHandler;
+class TerrainType;
+class RoadType;
+class RiverType;
 
 class JsonSerializeFormat;
 class JsonDeserializer;
@@ -56,6 +59,10 @@ protected:
 	CMapHeader * mapHeader;
 
 	CMapFormatJson();
+
+	static TerrainType * getTerrainByCode( std::string code);
+	static RiverType * getRiverByCode( std::string code);
+	static RoadType * getRoadByCode( std::string code);
 
 	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value);
 

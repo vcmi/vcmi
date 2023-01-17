@@ -1,146 +1,162 @@
 {
 	"dirt" :
 	{
-		"originalTerrainId": 0,
+		"index": 0,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 82, 56, 8 ],
 		"minimapBlocked"   : [ 57, 40, 8 ],
 		"music" : "Dirt.mp3",
 		"tiles" : "DIRTTL",
-		"code" : "dt",
-		"river" : "rm",
+		"type" : ["SURFACE"],
+		"shortIdentifier" : "dt",
+		"river" : "mudRiver",
 		"battleFields" : ["dirt_birches", "dirt_hills", "dirt_pines"],
 		"terrainViewPatterns" : "dirt",
-		"horseSoundId" : 0
+		"horseSound" : "horse00",
+		"horseSoundPenalty" : "horse20"
 	},
 	"sand" :
 	{
-		"originalTerrainId": 1,
+		"index": 1,
 		"moveCost" : 150,
 		"minimapUnblocked" : [ 222, 207, 140 ],
 		"minimapBlocked"   : [ 165, 158, 107 ],
 		"music" : "Sand.mp3",
 		"tiles" : "SANDTL",
-		"code" : "sa",
-		"river" : "rm",
+		"type" : ["SURFACE"],
+		"shortIdentifier" : "sa",
+		"river" : "mudRiver",
 		"battleFields" : ["sand_mesas"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "sand",
-		"horseSoundId" : 1
+		"horseSound" : "horse01",
+		"horseSoundPenalty" : "horse21"
 	},
 	"grass" :
 	{
-		"originalTerrainId": 2,
+		"index": 2,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 0, 65, 0 ],
 		"minimapBlocked"   : [ 0, 48, 0 ],
 		"music" : "Grass.mp3",
 		"tiles" : "GRASTL",
-		"code" : "gr",
-		"river" : "rw",
+		"type" : ["SURFACE"],
+		"shortIdentifier" : "gr",
+		"river" : "waterRiver",
 		"battleFields" : ["grass_hills", "grass_pines"],
-		"horseSoundId" : 2
+		"horseSound" : "horse02",
+		"horseSoundPenalty" : "horse22"
 	},
 	"snow" :
 	{
-		"originalTerrainId": 3,
+		"index": 3,
 		"moveCost" : 150,
 		"minimapUnblocked" : [ 181, 199, 198 ],
 		"minimapBlocked"   : [ 140, 158, 156 ],
 		"music" : "Snow.mp3",
 		"tiles" : "SNOWTL",
-		"code" : "sn",
-		"river" : "ri",
+		"type" : ["SURFACE"],
+		"shortIdentifier" : "sn",
+		"river" : "iceRiver",
 		"battleFields" : ["snow_mountains", "snow_trees"],
-		"horseSoundId" : 3
+		"horseSound" : "horse03",
+		"horseSoundPenalty" : "horse23"
 	},
 	"swamp" :
 	{
-		"originalTerrainId": 4,
+		"index": 4,
 		"moveCost" : 175,
 		"minimapUnblocked" : [ 74, 134, 107 ],
 		"minimapBlocked"   : [ 33,  89,  66 ],
 		"music" : "Swamp.mp3",
 		"tiles" : "SWMPTL",
-		"code" : "sw",
-		"river" : "rw",
+		"type" : ["SURFACE"],
+		"shortIdentifier" : "sw",
+		"river" : "waterRiver",
 		"battleFields" : ["swamp_trees"],
-		"horseSoundId" : 4
+		"horseSound" : "horse04",
+		"horseSoundPenalty" : "horse24"
 	},
 	"rough" :
 	{
-		"originalTerrainId": 5,
+		"index": 5,
 		"moveCost" : 125,
 		"minimapUnblocked" : [ 132, 113, 49 ],
 		"minimapBlocked"   : [  99,  81, 33 ],
 		"music" : "Rough.mp3",
 		"tiles" : "ROUGTL",
-		"code" : "rg",
-		"river" : "rm",
+		"type" : ["SURFACE"],
+		"shortIdentifier" : "rg",
+		"river" : "mudRiver",
 		"battleFields" : ["rough"],
-		"horseSoundId" : 5
+		"horseSound" : "horse05",
+		"horseSoundPenalty" : "horse25"
 	},
 	"subterra" :
 	{
-		"originalTerrainId": 6,
+		"index": 6,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 132, 48, 0 ],
 		"minimapBlocked"   : [  90,  8, 0 ],
 		"music" : "Underground.mp3",
 		"tiles" : "SUBBTL",
-		"type" : "SUB",
-		"code" : "sb",
-		"river" : "rw",
+		"type" : [ "SUB" ],
+		"shortIdentifier" : "sb",
+		"river" : "waterRiver",
 		"battleFields" : ["subterranean"],
 		"rockTerrain" : "rock",
-		"horseSoundId" : 6
+		"horseSound" : "horse06",
+		"horseSoundPenalty" : "horse26"
 	},
 	"lava" :
 	{
-		"originalTerrainId": 7,
+		"index": 7,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 74, 73, 74 ],
 		"minimapBlocked"   : [ 41, 40, 41 ],
 		"music" : "Lava.mp3",
 		"tiles" : "LAVATL",
 		"type" : ["SUB", "SURFACE"],
-		"code" : "lv",
-		"river" : "rl",
+		"shortIdentifier" : "lv",
+		"river" : "lavaRiver",
 		"battleFields" : ["lava"],
 		"rockTerrain" : "rock",
-		"horseSoundId" : 7
+		"horseSound" : "horse07",
+		"horseSoundPenalty" : "horse27"
 	},
 	"water" :
 	{
-		"originalTerrainId": 8,
+		"index": 8,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 8, 81, 148 ],
 		"minimapBlocked"   : [ 8, 81, 148 ],
 		"music" : "Water.mp3",
 		"tiles" : "WATRTL",
-		"type" : "WATER",
-		"code" : "wt",
+		"type" : [ "WATER" ],
+		"shortIdentifier" : "wt",
 		"battleFields" : ["ship"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "water",
-		"horseSoundId" : 8,
+		"horseSound" : "horse08",
+		"horseSoundPenalty" : "horse28",
 		"sounds": {
 			"ambient": ["LOOPOCEA"]
 		}
 	},
 	"rock" :
 	{
-		"originalTerrainId": 9,
+		"index": 9,
 		"moveCost" : -1,
 		"minimapUnblocked" : [ 0, 0, 0 ],
 		"minimapBlocked"   : [ 0, 0, 0 ],
 		"music" : "Underground.mp3", // Impossible in H3
 		"tiles" : "ROCKTL",
-		"type" : "ROCK",
-		"code" : "rc",
+		"type" : [ "ROCK" ],
+		"shortIdentifier" : "rc",
 		"battleFields" : ["rocklands"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "rock",
-		"horseSoundId" : 9
+		"horseSound" : "horse09",
+		"horseSoundPenalty" : "horse29"
 	}
 }

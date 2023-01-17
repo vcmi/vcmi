@@ -16,6 +16,18 @@
 #include "../modManager/cmodlist.h"
 #include "../../lib/CConfigHandler.h"
 
+enum GameMode
+{
+	NEW_GAME = 0, LOAD_GAME = 1
+};
+
+enum ModResolutionRoles
+{
+	ModNameRole = Qt::UserRole + 1,
+	ModEnableRole,
+	ModResolvableRole
+};
+
 Lobby::Lobby(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::Lobby)
@@ -33,6 +45,15 @@ Lobby::Lobby(QWidget *parent) :
 	ui->serverEdit->setText(hostString);
 	ui->userEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUsername"].String()));
 	ui->kickButton->setVisible(false);
+}
+
+void Lobby::changeEvent(QEvent *event)
+{
+	if(event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+	}
+	QWidget::changeEvent(event);
 }
 
 Lobby::~Lobby()
@@ -134,10 +155,14 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 		if(args[1] == username)
 		{
+			hostModsMap.clear();
 			ui->buttonReady->setText("Ready");
-			ui->chat->clear(); //cleanup the chat
+			ui->optNewGame->setChecked(true);
 			sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
+			bool isHost = command.command == JOINED && hostSession == session;
+			ui->optNewGame->setEnabled(isHost);
+			ui->optLoadGame->setEnabled(isHost);
 			ui->stackedWidget->setCurrentWidget(command.command == JOINED ? ui->roomPage : ui->sessionsPage);
 		}
 		else
@@ -152,33 +177,15 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		protocolAssert(amount * 2 == (args.size() - 1));
 
 		tagPoint = 1;
-		ui->modsList->clear();
-		auto enabledMods = buildModsMap();
 		for(int i = 0; i < amount; ++i, tagPoint += 2)
-		{
-			if(enabledMods.contains(args[tagPoint]))
-			{
-				if(enabledMods[args[tagPoint]] == args[tagPoint + 1])
-					enabledMods.remove(args[tagPoint]);
-				else
-					ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-update.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
-			}
-			else if(isModAvailable(args[tagPoint], args[tagPoint + 1]))
-				ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-enabled.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
-			else
-				ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-delete.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
-		}
-		for(auto & remainMod : enabledMods.keys())
-		{
-			ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-disabled.png"), QString("%1 (v%2)").arg(remainMod, enabledMods[remainMod])));
-		}
-		if(!ui->modsList->count())
-			ui->modsList->addItem("No issues detected");
+			hostModsMap[args[tagPoint]] = args[tagPoint + 1];
+		
+		updateMods();
 		break;
 		}
 			
 	case CLIENTMODS: {
-		protocolAssert(args.size() > 1);
+		protocolAssert(args.size() >= 1);
 		amount = args[1].toInt();
 		protocolAssert(amount * 2 == (args.size() - 2));
 
@@ -217,6 +224,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		gameArgs << "--lobby";
 		gameArgs << "--lobby-address" << serverUrl;
 		gameArgs << "--lobby-port" << QString::number(serverPort);
+		gameArgs << "--lobby-username" << username;
+		gameArgs << "--lobby-gamemode" << QString::number(isLoadGameMode);
 		gameArgs << "--uuid" << args[0];
 		startGame(gameArgs);		
 		break;
@@ -238,6 +247,34 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		chatMessage(args[0], msg);
 		break;
 		}
+			
+	case HEALTH: {
+		socketLobby.send(ProtocolStrings[ALIVE]);
+		break;
+	}
+			
+	case USERS: {
+		protocolAssert(args.size() > 0);
+		amount = args[0].toInt();
+		
+		protocolAssert(amount == (args.size() - 1));
+		ui->listUsers->clear();
+		for(int i = 0; i < amount; ++i)
+		{
+			ui->listUsers->addItem(new QListWidgetItem(args[i + 1]));
+		}
+		break;
+	}
+			
+	case GAMEMODE: {
+		protocolAssert(args.size() == 1);
+		isLoadGameMode = args[0].toInt();
+		if(isLoadGameMode)
+			ui->optLoadGame->setChecked(true);
+		else
+			ui->optNewGame->setChecked(true);
+		break;
+	}
 
 	default:
 		sysMessage("Unknown server command");
@@ -291,7 +328,7 @@ void Lobby::onDisconnected()
 	ui->userEdit->setEnabled(true);
 	ui->newButton->setEnabled(false);
 	ui->joinButton->setEnabled(false);
-	ui->sessionsTable->clear();
+	ui->sessionsTable->setRowCount(0);
 }
 
 void Lobby::chatMessage(QString title, QString body, bool isSystem)
@@ -329,6 +366,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 {
 	if(checked)
 	{
+		ui->connectButton->setText(tr("Disconnect"));
 		authentificationStatus = AuthStatus::AUTH_NONE;
 		username = ui->userEdit->text();
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
@@ -360,9 +398,71 @@ void Lobby::on_connectButton_toggled(bool checked)
 	}
 	else
 	{
+		ui->connectButton->setText(tr("Connect"));
 		ui->serverEdit->setEnabled(true);
 		ui->userEdit->setEnabled(true);
+		ui->listUsers->clear();
+		hostModsMap.clear();
+		updateMods();
 		socketLobby.disconnectServer();
+	}
+}
+
+void Lobby::updateMods()
+{
+	ui->modsList->clear();
+	if(hostModsMap.empty())
+		return;
+	
+	auto createModListWidget = [](const QIcon & icon, const QString & label, const QString & name, bool enableFlag, bool resolveFlag)
+	{
+		auto * lw = new QListWidgetItem(icon, label);
+		lw->setData(ModResolutionRoles::ModNameRole, name);
+		lw->setData(ModResolutionRoles::ModEnableRole, enableFlag);
+		lw->setData(ModResolutionRoles::ModResolvableRole, resolveFlag);
+		return lw;
+	};
+	
+	auto enabledMods = buildModsMap();
+	for(const auto & mod : hostModsMap.keys())
+	{
+		auto & modValue = hostModsMap[mod];
+		auto modName = QString("%1 (v%2)").arg(mod, modValue);
+		if(enabledMods.contains(mod))
+		{
+			if(enabledMods[mod] == modValue)
+				enabledMods.remove(mod); //mod fully matches, remove from list
+			else
+			{
+				//mod version mismatch
+				ui->modsList->addItem(createModListWidget(QIcon("icons:mod-update.png"), modName, mod, true, false));
+			}
+		}
+		else if(isModAvailable(mod, modValue))
+		{
+			//mod is available and needs to be enabled
+			ui->modsList->addItem(createModListWidget(QIcon("icons:mod-enabled.png"), modName, mod, true, true));
+		}
+		else
+		{
+			//mod is not available and needs to be installed
+			ui->modsList->addItem(createModListWidget(QIcon("icons:mod-delete.png"), modName, mod, true, false));
+		}
+	}
+	for(const auto & remainMod : enabledMods.keys())
+	{
+		auto modName = QString("%1 (v%2)").arg(remainMod, enabledMods[remainMod]);
+		//mod needs to be disabled
+		ui->modsList->addItem(createModListWidget(QIcon("icons:mod-disabled.png"), modName, remainMod, false, true));
+	}
+	if(!ui->modsList->count())
+	{
+		ui->buttonResolve->setEnabled(false);
+		ui->modsList->addItem(tr("No issues detected"));
+	}
+	else
+	{
+		ui->buttonResolve->setEnabled(true);
 	}
 }
 
@@ -415,5 +515,52 @@ void Lobby::on_kickButton_clicked()
 {
 	if(ui->playersList->currentItem() && ui->playersList->currentItem()->text() != username)
 		socketLobby.send(ProtocolStrings[KICK].arg(ui->playersList->currentItem()->text()));
+}
+
+
+void Lobby::on_buttonResolve_clicked()
+{
+	QStringList toEnableList, toDisableList;
+	for(auto * item : ui->modsList->selectedItems())
+	{
+		auto modName = item->data(ModResolutionRoles::ModNameRole);
+		if(modName.isNull())
+			continue;
+		
+		bool modToEnable = item->data(ModResolutionRoles::ModEnableRole).toBool();
+		bool modToResolve = item->data(ModResolutionRoles::ModResolvableRole).toBool();
+		
+		if(!modToResolve)
+			continue;
+		
+		if(modToEnable)
+			toEnableList << modName.toString();
+		else
+			toDisableList << modName.toString();
+	}
+	
+	//disabling first, then enabling
+	for(auto & mod : toDisableList)
+		emit disableMod(mod);
+	for(auto & mod : toEnableList)
+		emit enableMod(mod);
+}
+
+void Lobby::on_optNewGame_toggled(bool checked)
+{
+	if(checked)
+	{
+		if(isLoadGameMode)
+			socketLobby.send(ProtocolStrings[HOSTMODE].arg(GameMode::NEW_GAME));
+	}
+}
+
+void Lobby::on_optLoadGame_toggled(bool checked)
+{
+	if(checked)
+	{
+		if(!isLoadGameMode)
+			socketLobby.send(ProtocolStrings[HOSTMODE].arg(GameMode::LOAD_GAME));
+	}
 }
 

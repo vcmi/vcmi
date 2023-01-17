@@ -32,6 +32,7 @@ int main(int argc, char * argv[])
 	{
 #endif
 	QApplication vcmilauncher(argc, argv);
+
 	MainWindow mainWindow;
 	mainWindow.show();
 	result = vcmilauncher.exec();
@@ -62,6 +63,13 @@ void startGame(const QStringList & args)
 	qApp->quit();
 #else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
+#endif
+}
+
+void startEditor(const QStringList & args)
+{
+#ifdef ENABLE_EDITOR
+	startExecutable(pathToQString(VCMIDirs::get().mapEditorPath()), args);
 #endif
 }
 

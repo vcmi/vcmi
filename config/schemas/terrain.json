@@ -3,10 +3,20 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI terrain format",
 	"description" : "Format used to define new terrains in VCMI",
-	"required" : [ "tiles", "code", "moveCost" ],
+	"required" : [ "text", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
 
 	"additionalProperties" : false,
 	"properties":{
+		"index" :
+		{
+			"type": "number",
+			"description": "Internal, do not use"
+		},
+		"text":
+		{
+			"type": "string",
+			"description": "Human-readable name of this terrain"
+		},
 		"moveCost":
 		{
 			"type": "number",
@@ -47,35 +57,38 @@
 		},
 		"type":
 		{
-			"type": "string",
+			"type": "array",
 			"description": "Type of this terrain. Can be land, water, subterranean or rock",
-			"enum": ["LAND", "WATER", "SUB", "ROCK"]
+			"items":
+			{
+				"enum": ["LAND", "WATER", "SUB", "ROCK", "SURFACE"],
+				"type": "string"
+			}
 		},
 		"rockTerrain":
 		{
 			"type": "string",
-			"description": "The name of tock type terrain which will be used as borders in the underground"
+			"description": "The name of rock type terrain which will be used as borders in the underground"
 		},
 		"river":
 		{
 			"type": "string",
-			"description": "River type which should be used for that terrain",
-			"enum": ["", "rw", "ri", "rm", "rl"]
+			"description": "River type which should be used for that terrain"
 		},
-		"horseSoundId":
-		{
-			"type": "number",
-			"description": "Id of horse sound to be played when hero is moving across terrain"
-		},
-		"text":
+		"horseSound":
 		{
 			"type": "string",
-			"description": "Text to be shown when mouse if over terrain"
+			"description": "Hero movement sound for this terrain, version for moving on tiles with road"
 		},
-		"code":
+		"horseSoundPenalty":
 		{
 			"type": "string",
-			"description": "Two-letters unique indentifier for this terrain. Used for terrain serializaion"
+			"description": "Hero movement sound for this terrain, version for moving on tiles without road"
+		},
+		"shortIdentifier":
+		{
+			"type": "string",
+			"description": "Two-letters unique indentifier for this terrain. Used for map format"
 		},
 		"battleFields":
 		{
@@ -84,6 +97,24 @@
 			"items":
 			{
 				"type": "string"
+			}
+		},
+		"sounds":
+		{
+			"type": "object",
+			"description": "list of sounds for this terrain",
+			"additionalProperties" : false,
+			"properties":
+			{
+				"ambient" : 
+				{
+					"type": "array",
+					"description": "list of ambient sounds for this terrain",
+					"items":
+					{
+						"type": "string"
+					}
+				}
 			}
 		},
 		"prohibitTransitions":

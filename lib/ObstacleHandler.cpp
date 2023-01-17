@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
+#include "CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -86,8 +87,13 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();
 	for(auto & t : json["allowedTerrains"].Vector())
-		info->allowedTerrains.emplace_back(VLC->terrainTypeHandler->getInfoByName(t.String())->id);
+	{
+		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier){
+			info->allowedTerrains.emplace_back(identifier);
+		});
+	}
 	for(auto & t : json["specialBattlefields"].Vector())
+
 		info->allowedSpecialBfields.emplace_back(t.String());
 	info->blockedTiles = json["blockedTiles"].convertTo<std::vector<si16>>();
 	info->isAbsoluteObstacle = json["absolute"].Bool();

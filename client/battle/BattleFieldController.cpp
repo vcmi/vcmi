@@ -26,7 +26,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
