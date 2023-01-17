@@ -17,6 +17,7 @@ class VCMI(ConanFile):
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",
+        "enet/[~1.3.17]"
     ]
     options = {
         "default_options_of_requirements": [True, False],
