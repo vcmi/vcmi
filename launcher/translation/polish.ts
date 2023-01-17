@@ -265,7 +265,7 @@
         <location filename="../settingsView/csettingsview_moc.ui" line="312"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>Off</source>
-        <translation>Włączony</translation>
+        <translation>Wyłączony</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="96"/>
@@ -273,7 +273,7 @@
         <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="339"/>
         <source>On</source>
-        <translation>Wyłączony</translation>
+        <translation>Włączony</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="118"/>
@@ -357,8 +357,8 @@
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="531"/>
-        <source>Polska (Polish)</source>
-        <translation>Polska</translation>
+        <source>Polski (Polish)</source>
+        <translation>Polski</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
