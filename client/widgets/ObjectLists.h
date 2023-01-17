@@ -12,7 +12,7 @@
 #include "../gui/CIntObject.h"
 
 struct SDL_Surface;
-struct Rect;
+class Rect;
 class CAnimImage;
 class CSlider;
 class CLabel;

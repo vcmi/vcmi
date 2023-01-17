@@ -15,7 +15,7 @@ class JsonNode;
 
 VCMI_LIB_NAMESPACE_END
 
-struct Point;
+class Point;
 struct SDL_Surface;
 struct SDL_Color;
 

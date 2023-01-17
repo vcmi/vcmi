@@ -10,11 +10,12 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
 #include "../battle/BattleConstants.h"
 
+#include <SDL_render.h>
+
 struct SDL_Surface;
-struct Rect;
+class Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;

@@ -296,7 +296,7 @@ void CSelectableComponent::showAll(SDL_Surface * to)
 	CComponent::showAll(to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(image->pos), int3(239,215,123));
+		CSDL_Ext::drawBorder(to, Rect::createAround(image->pos, 1), Colors::BRIGHT_YELLOW);
 	}
 }
 

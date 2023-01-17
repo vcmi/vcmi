@@ -102,9 +102,9 @@ void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	if(selected)
-		drawBorder(to, pos, int3(248, 0, 0));
+		drawBorder(to, pos, Colors::RED);
 	else
-		drawBorder(to, pos, int3(232, 212, 120));
+		drawBorder(to, pos, Colors::YELLOW);
 }
 
 void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
@@ -179,17 +179,17 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 
 	// recruit\total values
-	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, int3(239,215,123));
-	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, int3(239,215,123));
+	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, Colors::YELLOW);
+	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, Colors::YELLOW);
 
 	//cost boxes
-	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, int3(239,215,123));
-	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, int3(239,215,123));
+	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, Colors::YELLOW);
+	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, Colors::YELLOW);
 
 	//buttons borders
-	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, int3(173,142,66));
-	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, int3(173,142,66));
-	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
+	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
@@ -747,7 +747,7 @@ void CTavernWindow::show(SDL_Surface * to)
 		}
 
 		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
-		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,Colors::BRIGHT_YELLOW);
 	}
 }
 
@@ -1383,7 +1383,7 @@ void CPuzzleWindow::showAll(SDL_Surface * to)
 	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 	int3 topTile = grailPos - moveInt;
 
-	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), &mapRect);
+	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);
 	info.puzzleMode = true;
 	info.grailPos = grailPos;
 	CGI->mh->drawTerrainRectNew(to, &info);

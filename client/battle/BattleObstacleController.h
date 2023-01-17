@@ -21,7 +21,7 @@ class Canvas;
 class CAnimation;
 class BattleInterface;
 class BattleRenderer;
-struct Point;
+class Point;
 
 /// Controls all currently active projectiles on the battlefield
 /// (with exception of moat, which is apparently handled by siege controller)

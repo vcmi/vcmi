@@ -28,6 +28,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Canvas.h"
+#include "../gui/SDL_Extensions.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
 #include "../../CCallback.h"
@@ -317,7 +318,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, CSDL_Ext::makeNumberShort(stack->getCount()));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)

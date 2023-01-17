@@ -14,6 +14,8 @@
 #include "SDL_Extensions.h"
 #include "../CMessage.h"
 
+#include <SDL_pixels.h>
+
 IShowActivatable::IShowActivatable()
 {
 	type = 0;
@@ -176,7 +178,7 @@ void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFon
 
 void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
 {
-	blitAt(src, pos.x + x, pos.y + y, dst);
+	CSDL_Ext::blitAt(src, pos.x + x, pos.y + y, dst);
 }
 
 void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
@@ -217,16 +219,6 @@ void CIntObject::enable()
 		activate();
 
 	recActions = 255;
-}
-
-bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
-{
-	return isItIn(&rect, x - pos.x, y - pos.y);
-}
-
-bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
-{
-	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
 }
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)

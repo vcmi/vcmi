@@ -18,8 +18,8 @@ class CStack;
 
 VCMI_LIB_NAMESPACE_END
 
-struct Rect;
-struct Point;
+class Rect;
+class Point;
 
 class ClickableHex;
 class BattleHero;

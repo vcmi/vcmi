@@ -16,6 +16,8 @@
 
 #include "../Graphics.h"
 
+#include <SDL_surface.h>
+
 Canvas::Canvas(SDL_Surface * surface):
 	surface(surface),
 	renderOffset(0,0)
@@ -34,10 +36,10 @@ Canvas::Canvas(Canvas & other, const Rect & newClipRect):
 	Canvas(other)
 {
 	clipRect.emplace();
-	SDL_GetClipRect(surface, clipRect.get_ptr());
+	CSDL_Ext::getClipRect(surface, clipRect.get());
 
 	Rect currClipRect = newClipRect + renderOffset;
-	SDL_SetClipRect(surface, &currClipRect);
+	CSDL_Ext::setClipRect(surface, currClipRect);
 
 	renderOffset += newClipRect.topLeft();
 }
@@ -51,7 +53,7 @@ Canvas::Canvas(const Point & size):
 Canvas::~Canvas()
 {
 	if (clipRect)
-		SDL_SetClipRect(surface, clipRect.get_ptr());
+		CSDL_Ext::setClipRect(surface, clipRect.get());
 
 	SDL_FreeSurface(surface);
 }
@@ -72,7 +74,7 @@ void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect &
 
 void Canvas::draw(Canvas & image, const Point & pos)
 {
-	blitAt(image.surface, renderOffset.x + pos.x, renderOffset.y + pos.y, surface);
+	CSDL_Ext::blitAt(image.surface, renderOffset.x + pos.x, renderOffset.y + pos.y, surface);
 }
 
 void Canvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)

@@ -286,7 +286,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 //FIXME: not all player colored images have player palette at last 32 indexes
 //NOTE: following code is much more correct but still not perfect (bugged with status bar)
 
-		SDL_SetColors(sur, palette, 224, 32);
+		CSDL_Ext::setColors(sur, palette, 224, 32);
 
 
 #if 0

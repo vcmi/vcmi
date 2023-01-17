@@ -501,9 +501,9 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 		const std::vector<Rect> tmp =
 		{
-			genRect(h, w, x, y), genRect(h, w, x + dx, y), genRect(h, w, x + 2*dx, y),
-			genRect(h, w, x, y + dy), genRect(h, w, x + dx, y + dy), genRect(h, w, x + 2*dx, y + dy),
-			genRect(h, w, x + dx, y + 2*dy)
+			CSDL_Ext::genRect(h, w, x, y), CSDL_Ext::genRect(h, w, x + dx, y), CSDL_Ext::genRect(h, w, x + 2*dx, y),
+			CSDL_Ext::genRect(h, w, x, y + dy), CSDL_Ext::genRect(h, w, x + dx, y + dy), CSDL_Ext::genRect(h, w, x + 2*dx, y + dy),
+			CSDL_Ext::genRect(h, w, x + dx, y + 2*dy)
 		};
 
 		vstd::concatenate(poss, tmp);
@@ -564,9 +564,9 @@ void CTradeWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 
 	if(hRight)
-		CSDL_Ext::drawBorder(to, hRight->pos.x-1, hRight->pos.y-1, hRight->pos.w+2, hRight->pos.h+2, int3(255,231,148));
+		CSDL_Ext::drawBorder(to, hRight->pos.x-1, hRight->pos.y-1, hRight->pos.w+2, hRight->pos.h+2, Colors::BRIGHT_YELLOW);
 	if(hLeft && hLeft->type != ARTIFACT_INSTANCE)
-		CSDL_Ext::drawBorder(to, hLeft->pos.x-1, hLeft->pos.y-1, hLeft->pos.w+2, hLeft->pos.h+2, int3(255,231,148));
+		CSDL_Ext::drawBorder(to, hLeft->pos.x-1, hLeft->pos.y-1, hLeft->pos.w+2, hLeft->pos.h+2, Colors::BRIGHT_YELLOW);
 
 	if(readyToTrade)
 	{

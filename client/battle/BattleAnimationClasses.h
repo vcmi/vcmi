@@ -28,7 +28,7 @@ class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
 struct StackAttackedInfo;
-struct Point;
+class Point;
 
 /// Base class of battle animations
 class BattleAnimation

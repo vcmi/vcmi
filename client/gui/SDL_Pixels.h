@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include <SDL_endian.h>
-
 #include "SDL_Extensions.h"
+
+#include <SDL_endian.h>
 
 // for accessing channels from pixel in format-independent way
 //should be as fast as accessing via pointer at least for 3-4 bytes per pixel
@@ -119,6 +119,16 @@ namespace Channels
 	};
 }
 
+template<int bpp, int incrementPtr>
+struct ColorPutter
+{
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count);
+};
 
 template <int incrementPtr>
 struct ColorPutter<2, incrementPtr>

@@ -8,7 +8,11 @@
  *
  */
 #pragma once
-#include <SDL_render.h>
+
+struct SDL_Texture;
+struct SDL_Window;
+struct SDL_Renderer;
+struct SDL_Surface;
 
 extern SDL_Texture * screenTexture;
 
