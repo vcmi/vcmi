@@ -68,7 +68,7 @@
 		"rockTerrain":
 		{
 			"type": "string",
-			"description": "The name of tock type terrain which will be used as borders in the underground"
+			"description": "The name of rock type terrain which will be used as borders in the underground"
 		},
 		"river":
 		{

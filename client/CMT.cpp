@@ -25,7 +25,7 @@
 #include "lobby/CSelectionBase.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
@@ -208,6 +208,8 @@ int main(int argc, char * argv[])
 		("lobby-host", "if this client hosts session")
 		("lobby-uuid", po::value<std::string>(), "uuid to the server")
 		("lobby-connections", po::value<ui16>(), "connections of server")
+		("lobby-username", po::value<std::string>(), "player name")
+		("lobby-gamemode", po::value<ui16>(), "use 0 for new game and 1 for load game")
 		("uuid", po::value<std::string>(), "uuid for the client");
 
 	if(argc > 1)
@@ -470,7 +472,7 @@ int main(int argc, char * argv[])
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
 
-		CCS->curh = new CCursorHandler();
+		CCS->curh = new CursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
 		pomtime.getDiff();
 
@@ -489,29 +491,8 @@ int main(int argc, char * argv[])
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
+	std::shared_ptr<CMainMenu> mmenu;
 	
-	session["lobby"].Bool() = false;
-	if(vm.count("lobby"))
-	{
-		session["lobby"].Bool() = true;
-		session["host"].Bool() = false;
-		session["address"].String() = vm["lobby-address"].as<std::string>();
-		CSH->uuid = vm["uuid"].as<std::string>();
-		session["port"].Integer() = vm["lobby-port"].as<ui16>();
-		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
-		if(vm.count("lobby-host"))
-		{
-			session["host"].Bool() = true;
-			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
-			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
-			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
-		}
-		
-		//we should not reconnect to previous game in online mode
-		Settings saveSession = settings.write["server"]["reconnect"];
-		saveSession->Bool() = false;
-	}
-
 	if(vm.count("testmap"))
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
@@ -526,7 +507,44 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		GH.curInt = CMainMenu::create().get();
+		mmenu = CMainMenu::create();
+		GH.curInt = mmenu.get();
+	}
+	
+	std::vector<std::string> names;
+	session["lobby"].Bool() = false;
+	if(vm.count("lobby"))
+	{
+		session["lobby"].Bool() = true;
+		session["host"].Bool() = false;
+		session["address"].String() = vm["lobby-address"].as<std::string>();
+		if(vm.count("lobby-username"))
+			session["username"].String() = vm["lobby-username"].as<std::string>();
+		else
+			session["username"].String() = settings["launcher"]["lobbyUsername"].String();
+		if(vm.count("lobby-gamemode"))
+			session["gamemode"].Integer() = vm["lobby-gamemode"].as<ui16>();
+		else
+			session["gamemode"].Integer() = 0;
+		CSH->uuid = vm["uuid"].as<std::string>();
+		session["port"].Integer() = vm["lobby-port"].as<ui16>();
+		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
+		if(vm.count("lobby-host"))
+		{
+			session["host"].Bool() = true;
+			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
+			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
+			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
+		}
+		
+		//we should not reconnect to previous game in online mode
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = false;
+		
+		//start lobby immediately
+		names.push_back(session["username"].String());
+		ESelectionScreen sscreen = session["gamemode"].Integer() == 0 ? ESelectionScreen::newGame : ESelectionScreen::loadGame;
+		mmenu->openLobby(sscreen, session["host"].Bool(), &names, ELoadMode::MULTI);
 	}
 	
 	// Restore remote session - start game immediately

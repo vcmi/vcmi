@@ -112,18 +112,31 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 	std::vector<bfs::path> path; //vector holding relative path to our file
 
 	bfs::recursive_directory_iterator enddir;
+#if BOOST_VERSION >= 107200 // 1.72
+	bfs::recursive_directory_iterator it(baseDirectory, bfs::directory_options::follow_directory_symlink);
+#else
 	bfs::recursive_directory_iterator it(baseDirectory, bfs::symlink_option::recurse);
+#endif
 
 	for(; it != enddir; ++it)
 	{
 		EResType::Type type;
+#if BOOST_VERSION >= 107200
+		const auto currentDepth = it.depth();
+#else
+		const auto currentDepth = it.level();
+#endif
 
 		if (bfs::is_directory(it->status()))
 		{
-			path.resize(it.level() + 1);
+			path.resize(currentDepth + 1);
 			path.back() = it->path().filename();
 			// don't iterate into directory if depth limit reached
-			it.no_push(depth <= it.level());
+#if BOOST_VERSION >= 107200
+			it.disable_recursion_pending(depth <= currentDepth);
+#else
+			it.no_push(depth <= currentDepth);
+#endif
 
 			type = EResType::DIRECTORY;
 		}
@@ -134,7 +147,7 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 		{
 			//reconstruct relative filename (not possible via boost AFAIK)
 			bfs::path filename;
-			const size_t iterations = std::min((size_t)it.level(), path.size());
+			const size_t iterations = std::min(static_cast<size_t>(currentDepth), path.size());
 			if (iterations)
 			{
 				filename = path.front();

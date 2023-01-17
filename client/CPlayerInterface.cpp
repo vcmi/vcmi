@@ -19,7 +19,7 @@
 #include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "windows/CHeroWindow.h"
@@ -1624,7 +1624,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	else
 	for (directory_iterator dir(gamesDir); dir != enddir; ++dir)
 	{
-		if (is_regular(dir->status()))
+		if (is_regular_file(dir->status()))
 		{
 			std::string name = dir->path().filename().string();
 			if (starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
@@ -2487,6 +2487,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
+
+		// ugly workaround to force instant update of adventure map
+		adventureInt->animValHitCount = 8;
 	}
 
 	setMovementStatus(false);

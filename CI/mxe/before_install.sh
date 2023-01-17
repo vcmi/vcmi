@@ -14,8 +14,8 @@ sudo add-apt-repository 'deb http://security.ubuntu.com/ubuntu bionic-security m
 sudo apt-get install -qq nsis ninja-build libssl1.0.0
 
 # MXE repository was too slow for Travis far too often
-wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2022-12-26/mxe-i686-w64-mingw32.shared-2022-12-26.tar
-tar -xvf mxe-i686-w64-mingw32.shared-2022-12-26.tar
+wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2021-02-20/mxe-i686-w64-mingw32.shared-2021-01-22.tar
+tar -xvf mxe-i686-w64-mingw32.shared-2021-01-22.tar
 sudo dpkg -i mxe-*.deb
 sudo apt-get install -f --yes
 

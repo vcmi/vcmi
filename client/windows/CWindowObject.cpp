@@ -18,7 +18,7 @@
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"

@@ -21,7 +21,7 @@
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 #include "../gui/Canvas.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CAnimation.h"
 #include "../windows/CSpellWindow.h"

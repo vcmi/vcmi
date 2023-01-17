@@ -642,7 +642,7 @@
         <item row="2" column="0">
          <widget class="QPushButton" name="toolLasso">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -663,7 +663,11 @@
            </size>
           </property>
           <property name="text">
-           <string notr="true">O</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons:brush-3.png</normaloff>icons:brush-3.png</iconset>
           </property>
           <property name="checkable">
            <bool>true</bool>

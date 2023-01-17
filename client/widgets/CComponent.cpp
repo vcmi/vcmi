@@ -17,7 +17,7 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../CMessage.h"
 #include "../CGameInfo.h"

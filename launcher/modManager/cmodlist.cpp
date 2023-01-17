@@ -125,7 +125,7 @@ bool CModEntry::isCompatible() const
 
 bool CModEntry::isEssential() const
 {
-	return getValue("storedLocaly").toBool();
+	return getName() == "vcmi";
 }
 
 bool CModEntry::isInstalled() const

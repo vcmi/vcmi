@@ -22,7 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 
 #include "../../CCallback.h"
