@@ -11,7 +11,7 @@
 #pragma once
 
 #include <QSortFilterProxyModel>
-#include "../lib/Terrain.h"
+#include "../lib/GameConstants.h"
 
 class ObjectBrowserProxyModel : public QSortFilterProxyModel
 {

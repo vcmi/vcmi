@@ -18,7 +18,6 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -260,7 +259,6 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 
 	void loadExperience();
 	void loadBallistics();
-	void loadTerrains();
 
 public:
 	CHeroClassHandler classes;

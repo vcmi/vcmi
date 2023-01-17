@@ -19,7 +19,6 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
-#include "Terrain.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include "CSkillHandler.h"
 #include <math.h>
@@ -345,11 +344,6 @@ CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	loadTerrains();
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-	{
-		VLC->modh->identifiers.registerObject(CModHandler::scopeBuiltin(), "terrain", terrain.name, terrain.id);
-	}
 	loadBallistics();
 	loadExperience();
 }
@@ -969,14 +963,6 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 	{
 		logGlobal->warn("A hero has reached unsupported amount of experience");
 		return expPerLevel[expPerLevel.size()-1];
-	}
-}
-
-void CHeroHandler::loadTerrains()
-{
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-	{
-		terrCosts[terrain.id] = terrain.moveCost;
 	}
 }
 

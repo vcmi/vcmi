@@ -29,6 +29,7 @@
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
+#include "../../lib/RoadHandler.h"
 
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable()
@@ -108,12 +109,12 @@ RandomMapTab::RandomMapTab():
 		GH.pushIntT<TeamAlignmentsWidget>(*this);
 	});
 	
-	for(auto road : VLC->terrainTypeHandler->roads())
+	for(auto road : VLC->roadTypeHandler->objects)
 	{
-		std::string cbRoadType = "selectRoad_" + road.name;
+		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, road](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road.name, on);
+			mapGenOptions->setRoadEnabled(road->getJsonKey(), on);
 			updateMapInfoByHost();
 		});
 	}
@@ -283,11 +284,11 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->addTextOverlay(readText(variables["defaultTemplate"]), EFonts::FONT_SMALL);
 	}
-	for(auto r : VLC->terrainTypeHandler->roads())
+	for(auto r : VLC->roadTypeHandler->objects)
 	{
-		if(auto w = widget<CToggleButton>(r.name))
+		if(auto w = widget<CToggleButton>(r->getJsonKey()))
 		{
-			w->setSelected(opts->isRoadEnabled(r.name));
+			w->setSelected(opts->isRoadEnabled(r->getJsonKey()));
 		}
 	}
 }

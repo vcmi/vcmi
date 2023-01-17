@@ -38,6 +38,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/ScopeGuard.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/TerrainHandler.h"
 #include "CGameHandler.h"
 #include "CVCMIServer.h"
 #include "../lib/CCreatureSet.h"
@@ -2242,9 +2243,9 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	battleResult.set(nullptr);
 
 	const auto & t = *getTile(tile);
-	TerrainId terrain = t.terType->id;
+	TerrainId terrain = t.terType->getId();
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = Terrain::SAND;
+		terrain = ETerrainId::SAND;
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)

@@ -15,7 +15,6 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
-#include "../Terrain.h"
 #include "../BattleFieldHandler.h"
 #include "../ObstacleHandler.h"
 

@@ -17,6 +17,7 @@
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
 #include "CModHandler.h"
+#include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"

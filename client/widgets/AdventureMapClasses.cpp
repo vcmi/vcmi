@@ -41,7 +41,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/Terrain.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -391,7 +391,7 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	}
 
 	// else - use terrain color (blocked version or normal)
-	const auto & colorPair = parent->colors.find(tile->terType->id)->second;
+	const auto & colorPair = parent->colors.find(tile->terType->getId())->second;
 	if (tile->blocked && (!tile->visitable))
 		return colorPair.second;
 	else
@@ -500,25 +500,25 @@ std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
 	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
 		SDL_Color normal =
 		{
-			ui8(terrain.minimapUnblocked[0]),
-			ui8(terrain.minimapUnblocked[1]),
-			ui8(terrain.minimapUnblocked[2]),
+			ui8(terrain->minimapUnblocked[0]),
+			ui8(terrain->minimapUnblocked[1]),
+			ui8(terrain->minimapUnblocked[2]),
 			ui8(255)
 		};
 
 		SDL_Color blocked =
 		{
-			ui8(terrain.minimapBlocked[0]),
-			ui8(terrain.minimapBlocked[1]),
-			ui8(terrain.minimapBlocked[2]),
+			ui8(terrain->minimapBlocked[0]),
+			ui8(terrain->minimapBlocked[1]),
+			ui8(terrain->minimapBlocked[2]),
 			ui8(255)
 		};
 
-		ret[terrain.id] = std::make_pair(normal, blocked);
+		ret[terrain->getId()] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }

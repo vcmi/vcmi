@@ -28,7 +28,7 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
-					terrainType(Terrain::GRASS),
+					terrainType(ETerrainId::GRASS),
 					map(map),
 					generator(generator)
 {

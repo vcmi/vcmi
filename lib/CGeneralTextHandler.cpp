@@ -18,7 +18,6 @@
 #include "GameConstants.h"
 #include "mapObjects/CQuest.h"
 #include "VCMI_Lib.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -420,7 +419,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	advobtxt         (*this, "core.advevent" ),
 	xtrainfo         (*this, "core.xtrainfo" ),
 	restypes         (*this, "core.restypes" ),
-	terrainNames     (*this, "core.terrname" ),
 	randsign         (*this, "core.randsign" ),
 	overview         (*this, "core.overview" ),
 	arraytxt         (*this, "core.arraytxt" ),
@@ -452,7 +450,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
-	readToVector("core.terrname", "DATA/TERRNAME.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
 	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );
 	readToVector("core.crgen4",   "DATA/CRGEN4.TXT"   );

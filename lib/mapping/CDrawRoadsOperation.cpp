@@ -12,6 +12,9 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
+#include "../RoadHandler.h"
+#include "../RiverHandler.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 const std::vector<CDrawLinesOperation::LinePattern> CDrawLinesOperation::patterns =
@@ -338,12 +341,12 @@ std::string CDrawRiversOperation::getLabel() const
 
 void CDrawRoadsOperation::executeTile(TerrainTile & tile)
 {
-	tile.roadType = const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[roadType]);
+	tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(roadType.getNum()));
 }
 
 void CDrawRiversOperation::executeTile(TerrainTile & tile)
 {
-	tile.riverType = const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[riverType]);
+	tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(riverType.getNum()));
 }
 
 bool CDrawRoadsOperation::canApplyPattern(const LinePattern & pattern) const
@@ -358,22 +361,22 @@ bool CDrawRiversOperation::canApplyPattern(const LinePattern & pattern) const
 
 bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.roadType->id != Road::NO_ROAD;
+	return tile.roadType->getId() != Road::NO_ROAD;
 }
 
 bool CDrawRiversOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.riverType->id != River::NO_RIVER;
+	return tile.riverType->getId() != River::NO_RIVER;
 }
 
 bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).roadType->id != Road::NO_ROAD;
+	return map->getTile(pos).roadType->getId() != Road::NO_ROAD;
 }
 
 bool CDrawRiversOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).riverType->id != River::NO_RIVER;
+	return map->getTile(pos).riverType->getId() != River::NO_RIVER;
 }
 
 void CDrawRoadsOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)

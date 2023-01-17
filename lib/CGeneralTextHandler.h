@@ -207,7 +207,6 @@ public:
 	LegacyTextContainer advobtxt;
 	LegacyTextContainer xtrainfo;
 	LegacyTextContainer restypes; //names of resources
-	LegacyTextContainer terrainNames;
 	LegacyTextContainer randsign;
 	LegacyTextContainer seerEmpty;
 	LegacyTextContainer seerNames;

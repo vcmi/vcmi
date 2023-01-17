@@ -41,6 +41,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/TerrainHandler.h"
 
 CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
 
@@ -136,8 +137,8 @@ BattleInterface::~BattleInterface()
 	if (adventureInt && adventureInt->selection)
 	{
 		//FIXME: this should be moved to adventureInt which should restore correct track based on selection/active player
-		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
-		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
+		const auto * terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
+		CCS->musich->playMusicFromSet("terrain", terrain->getJsonKey(), true, false);
 	}
 
 	// may happen if user decided to close game while in battle

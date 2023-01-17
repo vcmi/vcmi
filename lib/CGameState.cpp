@@ -20,6 +20,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
+#include "TerrainHandler.h"
 #include "CSkillHandler.h"
 #include "mapping/CMap.h"
 #include "mapping/CMapService.h"
@@ -1944,8 +1945,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField::fromString("sand_shore");
 	
-	return BattleField::fromString(
-		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
+	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
 
@@ -2135,7 +2135,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType->id;
+				rumorExtra = getTile(map->grailPos)->terType->getIndex();
 				break;
 			}
 

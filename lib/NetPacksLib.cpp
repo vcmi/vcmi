@@ -27,6 +27,7 @@
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
 #include "CPlayerState.h"
+#include "TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -720,13 +721,13 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 
 DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 {
-	TerrainId terrainType = Terrain::BORDER;
+	TerrainId terrainType = ETerrainId::NONE;
 
 	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain::WATER).front();
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
@@ -735,7 +736,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	else
 	{
 		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType->id;
+		terrainType = t.terType->getId();
 	}
 
 	CGObjectInstance *o = nullptr;
@@ -743,7 +744,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 	case Obj::BOAT:
 		o = new CGBoat();
-		terrainType = Terrain::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
+		terrainType = ETerrainId::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
 	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();

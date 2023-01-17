@@ -20,7 +20,7 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -89,36 +89,6 @@ CSoundHandler::CSoundHandler():
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
-
-	//predefine terrain set
-	//TODO: support custom sounds for new terrains and load from json
-	horseSounds =
-	{
-		{Terrain::DIRT, soundBase::horseDirt},
-		{Terrain::SAND, soundBase::horseSand},
-		{Terrain::GRASS, soundBase::horseGrass},
-		{Terrain::SNOW, soundBase::horseSnow},
-		{Terrain::SWAMP, soundBase::horseSwamp},
-		{Terrain::ROUGH, soundBase::horseRough},
-		{Terrain::SUBTERRANEAN, soundBase::horseSubterranean},
-		{Terrain::LAVA, soundBase::horseLava},
-		{Terrain::WATER, soundBase::horseWater},
-		{Terrain::ROCK, soundBase::horseRock}
-	};
-}
-
-void CSoundHandler::loadHorseSounds()
-{
-	const auto & terrains = CGI->terrainTypeHandler->terrains();
-	for(const auto & terrain : terrains)
-	{
-		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain.id))
-			continue;
-
-		//Use already existing horse sound
-		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
-	}
 }
 
 void CSoundHandler::init()
@@ -368,9 +338,9 @@ CMusicHandler::CMusicHandler():
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for (const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain_" + terrain.name, "Music/" + terrain.musicFilename);
+		addEntryToSet("terrain_" + terrain->getJsonKey(), "Music/" + terrain->musicFilename);
 	}
 }
 

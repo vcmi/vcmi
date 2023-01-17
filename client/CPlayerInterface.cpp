@@ -61,6 +61,8 @@
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/TerrainHandler.h"
 #include <SDL.h>
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
@@ -156,7 +158,6 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	cb = CB;
 	env = ENV;
 
-	CCS->soundh->loadHorseSounds();
 	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
@@ -260,7 +261,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true, false);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->getJsonKey(), true, false);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -436,7 +437,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 		adventureInt->select(newSelection, true);
 	else if (adventureInt->selection == hero)
 		adventureInt->selection = nullptr;
-	
+
 	if (vstd::contains(paths, hero))
 		paths.erase(hero);
 }
@@ -2372,8 +2373,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		for (auto & elem : path.nodes)
 			elem.coord = h->convertFromVisitablePos(elem.coord);
 
-		TerrainId currentTerrain = Terrain::BORDER; // not init yet
+		TerrainId currentTerrain = ETerrainId::NONE;
 		TerrainId newTerrain;
+		bool wasOnRoad = true;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2389,13 +2391,18 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
-			int3 currentCoord = path.nodes[i].coord;
+			int3 prevCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == h->pos);
+			auto prevRoad = cb->getTile(h->convertToVisitablePos(prevCoord))->roadType;
+			auto nextRoad = cb->getTile(h->convertToVisitablePos(nextCoord))->roadType;
+
+			bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
+
+			auto prevObject = getObj(prevCoord, prevCoord == h->pos);
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
-			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			auto destTeleportObj = getDestTeleportObj(prevObject, nextObjectTop, nextObject);
 			if (isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{
 				CCS->soundh->stopSound(sh);
@@ -2410,7 +2417,10 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+					if (movingOnRoad)
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSound, -1);
+					else
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSoundPenalty, -1);
 				}
 				continue;
 			}
@@ -2428,12 +2438,16 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(h->convertToVisitablePos(currentCoord))->terType->id;
-				if(newTerrain != currentTerrain)
+				newTerrain = cb->getTile(h->convertToVisitablePos(prevCoord))->terType->getId();
+				if(newTerrain != currentTerrain || wasOnRoad != movingOnRoad)
 				{
 					CCS->soundh->stopSound(sh);
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+					if (movingOnRoad)
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSound, -1);
+					else
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSoundPenalty, -1);
 					currentTerrain = newTerrain;
+					wasOnRoad = movingOnRoad;
 				}
 			}
 

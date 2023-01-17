@@ -14,7 +14,6 @@
 #include "HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 #include "battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
