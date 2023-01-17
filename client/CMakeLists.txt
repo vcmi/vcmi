@@ -278,7 +278,7 @@ if(ENABLE_SINGLE_APP_BUILD)
 	endif()
 endif()
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF ${ENET_LIBRARIES}
+		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)
@@ -290,8 +290,7 @@ else()
 endif()
 
 target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
-	${ENET_INCLUDE_DIRS})
+	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)

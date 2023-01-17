@@ -457,7 +457,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	add_library(${TARGET_NAME} ${LIBRARY_TYPE} ${lib_SRCS} ${lib_HEADERS})
 	set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 	target_link_libraries(${TARGET_NAME} PUBLIC
-		minizip::minizip ZLIB::ZLIB
+		minizip::minizip ZLIB::ZLIB 
+		${ENET_LIBRARIES}
 		${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 	)
 	if(APPLE_IOS)
@@ -469,6 +470,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		PUBLIC ${MAIN_LIB_DIR}/..
 		PUBLIC ${MAIN_LIB_DIR}/../include
 		PUBLIC ${MAIN_LIB_DIR}
+		PRIVATE ${ENET_INCLUDE_DIRS}
 		PRIVATE ${SDL2_INCLUDE_DIR}
 	)
 

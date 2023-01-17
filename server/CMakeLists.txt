@@ -34,11 +34,10 @@ endif()
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 endif()
-target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip ${ENET_LIBRARIES})
+target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
 
 target_include_directories(vcmiserver
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-	${ENET_INCLUDE_DIRS}
 )
 
 if(WIN32)
