@@ -11,7 +11,7 @@
 
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
-#include <enet/enet.h>
+#include "../lib/EnetService.h"
 
 #include <boost/program_options.hpp>
 
@@ -44,7 +44,7 @@ enum class EServerState : ui8
 	SHUTDOWN
 };
 
-class CVCMIServer : public LobbyInfo
+class CVCMIServer : public LobbyInfo, public EnetService
 {
 	std::atomic<bool> restartGameplay; // FIXME: this is just a hack
 	
@@ -53,9 +53,10 @@ class CVCMIServer : public LobbyInfo
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	std::unique_ptr<boost::thread> announceLobbyThread, lobbyConnectionsThread, remoteConnectionsThread;
 	
-	ENetHost * server;
-
 public:
+	void handleDisconnection(std::shared_ptr<EnetConnection>) override;
+	void handleConnection(std::shared_ptr<EnetConnection>) override;
+	
 	std::shared_ptr<CGameHandler> gh;
 	std::atomic<EServerState> state;
 	ui16 port;
@@ -67,7 +68,6 @@ public:
 	std::atomic<int> currentClientId;
 	std::atomic<ui8> currentPlayerId;
 	std::shared_ptr<CConnection> hostClient;
-	std::shared_ptr<CConnection> upcomingConnection;
 
 	CVCMIServer(boost::program_options::variables_map & opts);
 	~CVCMIServer();
@@ -78,8 +78,6 @@ public:
 
 	void establishRemoteConnections();
 	void connectToRemote(const std::string & addr, int port);
-	void startAsyncAccept();
-	void connectionAccepted();
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 	void threadAnnounceLobby();
 	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
@@ -95,7 +93,6 @@ public:
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
 	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
-	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
 
 	void updateAndPropagateLobbyState();

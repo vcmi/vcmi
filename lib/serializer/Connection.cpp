@@ -51,76 +51,30 @@ void CConnection::init()
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
-CConnection::CConnection(ENetHost * _client, ENetPeer * _peer, std::string Name, std::string UUID)
-	: client(_client), peer(_peer), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false), channel(1)
+CConnection::CConnection(std::shared_ptr<EnetConnection> _c, std::string Name, std::string UUID)
+	: enetConnection(_c), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false)
 {	
-	//init();
-}
-
-CConnection::CConnection(ENetHost * _client, std::string host, ui16 port, std::string Name, std::string UUID)
-	: client(_client), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0), connected(false), channel(0)
-{
-	ENetAddress address;
-	enet_address_set_host(&address, host.c_str());
-	address.port = port;
-	
-	peer = enet_host_connect(client, &address, 2, 0);
-	if(peer == NULL)
-	{
-		throw std::runtime_error("Can't establish connection :(");
-	}
-}
-
-void CConnection::dispatch(ENetPacket * packet)
-{
-	boost::unique_lock<boost::mutex> lock(mutexRead);
-	packets.push_back(packet);
-}
-
-const ENetPeer * CConnection::getPeer() const
-{
-	return peer;
+	init();
 }
 
 int CConnection::write(const void * data, unsigned size)
 {
-	if(size == 0)
-		return 0;
-	boost::unique_lock<boost::mutex> lock(mutexWrite);
-	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
-	enet_peer_send(peer, channel, packet);
+	if(connected)
+		enetConnection->write(data, size);
 	return size;
 }
 
 int CConnection::read(void * data, unsigned size)
 {
-	const int timout = 1000;
-	if(size == 0)
-		return 0;
-	for(int i = 0; packets.empty() && (i < timout || connected); ++i)
-	{
-		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-	}
-	boost::unique_lock<boost::mutex> lock(mutexRead);
-	auto * packet = packets.front();
-	packets.pop_front();
-	
-	if(packet->dataLength > 0)
-		memcpy(data, packet->data, packet->dataLength);
-	int ret = packet->dataLength;
-	assert(ret == size);
-	enet_packet_destroy(packet);
-
-	return ret;
+	if(connected)
+		enetConnection->read(data, size);
+	return size;
 }
 
 CConnection::~CConnection()
 {
 	if(handler)
 		handler->join();
-	
-	for(auto * packet : packets)
-		enet_packet_destroy(packet);
 
 	close();
 }
@@ -134,11 +88,18 @@ CConnection & CConnection::operator&(const T &t) {
 	return *this;
 }
 
+const std::shared_ptr<EnetConnection> CConnection::getEnetConnection() const
+{
+	return enetConnection;
+}
+
 void CConnection::close()
 {
-	boost::unique_lock<boost::mutex> lock(mutexWrite);
-	enet_peer_disconnect(peer, 0);
-	enet_peer_reset(peer);
+	connected = false;
+	if(enetConnection->isOpen())
+		enetConnection->close();
+	else
+		enetConnection->kill();
 }
 
 bool CConnection::isOpen() const
@@ -179,9 +140,7 @@ void CConnection::sendPack(const CPack * pack)
 {
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
 
-
 	oser & pack;
-
 }
 
 void CConnection::disableStackSendingByID()

@@ -129,7 +129,6 @@ bool LobbyClientDisconnected::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbyClientDisconnected::applyOnServer(CVCMIServer * srv)
 {
-	srv->clientDisconnected(c);
 	c->close();
 	return true;
 }

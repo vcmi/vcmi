@@ -9,10 +9,9 @@
  */
 #pragma once
 
-#include <enet/enet.h>
-
 #include "BinaryDeserializer.h"
 #include "BinarySerializer.h"
+#include "../EnetService.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,16 +23,13 @@ struct ConnectionBuffers;
 class DLL_LINKAGE CConnection
 	: public IBinaryReader, public IBinaryWriter, public std::enable_shared_from_this<CConnection>
 {
+	std::shared_ptr<EnetConnection> enetConnection;
+	
 	void reportState(vstd::CLoggerBase * out) override;
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
 	
-	std::list<ENetPacket*> packets;
-	int channel;
-	ENetPeer * peer = nullptr;
-	ENetHost * client = nullptr;
-
 	BinaryDeserializer iser;
 	BinarySerializer oser;
 	
@@ -51,12 +47,11 @@ public:
 	int connectionID;
 	std::shared_ptr<boost::thread> handler;
 
-	CConnection(ENetHost * client, ENetPeer * peer, std::string Name, std::string UUID);
-	CConnection(ENetHost * client, std::string host, ui16 port, std::string Name, std::string UUID);
-	void init(); //must be called from outside after connection message received
-	void dispatch(ENetPacket * packet);
-	const ENetPeer * getPeer() const;
+	CConnection(std::shared_ptr<EnetConnection>, std::string Name, std::string UUID);
+	
+	const std::shared_ptr<EnetConnection> getEnetConnection() const;
 
+	void init();
 	void close();
 	bool isOpen() const;
 	template<class T>

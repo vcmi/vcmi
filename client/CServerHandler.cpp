@@ -55,7 +55,6 @@
 #include "../lib/serializer/Cast.h"
 
 #include <vcmi/events/EventBus.h>
-#include <enet/enet.h>
 
 #ifdef VCMI_WINDOWS
 #include <windows.h>
@@ -121,21 +120,27 @@ extern std::string NAME;
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
-	enetClient = enet_host_create(NULL, 1, 2, 0, 0);
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	//read from file to restore last session
 	if(!settings["server"]["uuid"].isNull() && !settings["server"]["uuid"].String().empty())
 		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
-	
-	threadPollClient = std::make_shared<boost::thread>(&CServerHandler::threadPoll, this);
-	threadPollClient->detach();
 }
 
 CServerHandler::~CServerHandler()
 {
-	enet_host_destroy(enetClient);
+}
+
+void CServerHandler::handleConnection(std::shared_ptr<EnetConnection> _c)
+{
+	c = std::make_shared<CConnection>(_c, NAME, uuid);
+	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+}
+
+void CServerHandler::handleDisconnection(std::shared_ptr<EnetConnection> _c)
+{
+	state = EClientState::DISCONNECTING;
 }
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
@@ -177,50 +182,6 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		}
 	}
 #endif
-}
-
-void CServerHandler::threadPoll()
-{
-	ENetEvent event;
-	while(true)
-	{
-		if(enet_host_service(enetClient, &event, 2) > 0)
-		{
-			switch(event.type)
-			{
-				case ENET_EVENT_TYPE_CONNECT: {
-					enet_packet_destroy(event.packet);
-					if(c && c->getPeer() == event.peer)
-					{
-						state = EClientState::CONNECTING;
-					}
-					break;
-				}
-					
-				case ENET_EVENT_TYPE_RECEIVE: {
-					if(c && c->getPeer() == event.peer)
-					{
-						c->dispatch(event.packet);
-					}
-					else
-					{
-						enet_packet_destroy(event.packet);
-					}
-					break;
-				}
-					
-				case ENET_EVENT_TYPE_DISCONNECT:
-				{
-					enet_packet_destroy(event.packet);
-					if(c && c->getPeer() == event.peer)
-					{
-						c.reset();
-					}
-					break;
-				}
-			}
-		}
-	}
 }
 
 void CServerHandler::startLocalServerAndConnect()
@@ -320,21 +281,11 @@ void CServerHandler::startLocalServerAndConnect()
 
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
-	while(!c && state != EClientState::CONNECTION_CANCELLED)
+	while(!valid() && state != EClientState::CONNECTION_CANCELLED)
 	{
-		try
-		{
-			logNetwork->info("Establishing connection...");
-			c = std::make_shared<CConnection>(enetClient,
-					addr.size() ? addr : getHostAddress(),
-					port ? port : getHostPort(),
-					NAME, uuid);
-		}
-		catch(...)
-		{
-			logNetwork->error("\nCannot establish connection! Retrying within 1 second");
-			boost::this_thread::sleep(boost::posix_time::seconds(1));
-		}
+		logNetwork->info("Establishing connection...");
+		init(port ? port : getHostPort(), addr.size() ? addr : getHostAddress());
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 	}
 	
 	while(state != EClientState::CONNECTING)
@@ -346,9 +297,6 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	}
-	
-	c->init();
-	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
 	if(!addr.empty() && addr != getHostAddress())
 	{

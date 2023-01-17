@@ -179,6 +179,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CStack.cpp
 		${MAIN_LIB_DIR}/CThreadHelper.cpp
 		${MAIN_LIB_DIR}/CTownHandler.cpp
+		${MAIN_LIB_DIR}/EnetService.cpp
 		${MAIN_LIB_DIR}/GameConstants.cpp
 		${MAIN_LIB_DIR}/HeroBonus.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
@@ -420,6 +421,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CStopWatch.h
 		${MAIN_LIB_DIR}/CThreadHelper.h
 		${MAIN_LIB_DIR}/CTownHandler.h
+		${MAIN_LIB_DIR}/EnetService.h
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameConstants.h
 		${MAIN_LIB_DIR}/HeroBonus.h

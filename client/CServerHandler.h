@@ -9,12 +9,11 @@
  */
 #pragma once
 
-#include <enet/enet.h>
-
 #include "../lib/CStopWatch.h"
 
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
+#include "../lib/EnetService.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -74,7 +73,7 @@ public:
 };
 
 /// structure to handle running server and connecting to it
-class CServerHandler : public IServerAPI, public LobbyInfo
+class CServerHandler : public IServerAPI, public LobbyInfo, public EnetService
 {
 	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
 
@@ -82,15 +81,17 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
 
 	std::vector<std::string> myNames;
-	ENetHost * enetClient;
 
 	void threadHandleConnection();
 	void threadRunServer();
-	void threadPoll();
+
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
 public:
+	void handleDisconnection(std::shared_ptr<EnetConnection>) override;
+	void handleConnection(std::shared_ptr<EnetConnection>) override;
+	
 	std::atomic<EClientState> state;
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together
@@ -104,8 +105,6 @@ public:
 
 	std::unique_ptr<CStopWatch> th;
 	std::shared_ptr<boost::thread> threadRunLocalServer;
-	std::shared_ptr<boost::thread> threadPollClient;
-
 	std::shared_ptr<CConnection> c;
 	CClient * client;
 

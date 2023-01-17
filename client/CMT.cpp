@@ -11,7 +11,6 @@
 //
 #include "StdInc.h"
 
-#include <enet/enet.h>
 #include <boost/program_options.hpp>
 
 #include <vcmi/scripting/Service.h>
@@ -251,11 +250,6 @@ int main(int argc, char * argv[])
 	*console->cb = processCommand;
 	console->start();
 #endif
-	
-	if(enet_initialize() != 0)
-	{
-		return EXIT_FAILURE;
-	}
 
 	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);

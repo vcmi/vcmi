@@ -127,18 +127,9 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 		port = cmdLineOptions["port"].as<ui16>();
 	logNetwork->info("Port %d will be used", port);
 	
-	const int maxConnections = 8;
-	const int maxChannels = 2;
-	
-	ENetAddress address;
-	address.host = ENET_HOST_ANY;
-	address.port = port;
-	server = enet_host_create(&address, maxConnections, maxChannels, 0, 0);
-	if(!server)
-	{
-		logNetwork->error("Can't create host at port %d", port);
-		exit(0);
-	}
+	init(port);
+	if(!valid())
+		state = EServerState::SHUTDOWN;
 	
 	logNetwork->info("Listening for connections at port %d", port);
 }
@@ -151,8 +142,68 @@ CVCMIServer::~CVCMIServer()
 		announceLobbyThread->join();
 	if(lobbyConnectionsThread)
 		lobbyConnectionsThread->join();
+}
+
+void CVCMIServer::handleConnection(std::shared_ptr<EnetConnection> _c)
+{
+	auto c = *connections.insert(std::make_shared<CConnection>(_c, SERVER_NAME, uuid)).first;
+	c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+}
+
+void CVCMIServer::handleDisconnection(std::shared_ptr<EnetConnection> _c)
+{
+	std::shared_ptr<CConnection> c;
+	for(auto cc : connections)
+	{
+		if(cc->getEnetConnection() == _c)
+		{
+			c = cc;
+			break;
+		}
+	}
+	assert(c);
+	c->close();
+	connections -= c;
+	if(connections.empty() || hostClient == c)
+	{
+		state = EServerState::SHUTDOWN;
+		return;
+	}
 	
-	enet_host_destroy(server);
+	PlayerReinitInterface startAiPack;
+	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
+	
+	for(auto it = playerNames.begin(); it != playerNames.end();)
+	{
+		if(it->second.connection != c->connectionID)
+		{
+			++it;
+			continue;
+		}
+
+		int id = it->first;
+		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
+		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
+		auto * playerSettings = si->getPlayersSettings(id);
+		if(!playerSettings)
+		{
+			++it;
+			continue;
+		}
+		
+		it = playerNames.erase(it);
+		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
+		
+		if(gh && si && state == EServerState::GAMEPLAY)
+		{
+			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
+			gh->connections[playerSettings->color].insert(hostClient);
+			startAiPack.players.push_back(playerSettings->color);
+		}
+	}
+	
+	if(!startAiPack.players.empty())
+		gh->sendAndApply(&startAiPack);
 }
 
 void CVCMIServer::run()
@@ -172,9 +223,6 @@ void CVCMIServer::run()
 		}
 #endif
 		
-		if(!lobbyConnectionsThread)
-			lobbyConnectionsThread = std::make_unique<boost::thread>(&CVCMIServer::startAsyncAccept, this);
-		
 		/*if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
 			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
@@ -193,7 +241,6 @@ void CVCMIServer::run()
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
 	{
-		connectionAccepted();
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
@@ -224,7 +271,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 	try
 	{
 		logNetwork->info("Establishing connection...");
-		c = std::make_shared<CConnection>(server, addr, port, SERVER_NAME, uuid);
+		//c = std::make_shared<CConnection>(server, addr, port, SERVER_NAME, uuid);
 	}
 	catch(...)
 	{
@@ -314,72 +361,6 @@ void CVCMIServer::startGameImmidiately()
 		c->enterGameplayConnectionMode(gh->gs);
 
 	state = EServerState::GAMEPLAY;
-}
-
-void CVCMIServer::startAsyncAccept()
-{
-	ENetEvent event;
-	while(state != EServerState::SHUTDOWN)
-	{
-		if(enet_host_service(server, &event, 2) > 0)
-		{
-			switch(event.type)
-			{
-				case ENET_EVENT_TYPE_CONNECT: {
-					if(state == EServerState::LOBBY)
-					{
-						upcomingConnection = std::make_shared<CConnection>(server, event.peer, SERVER_NAME, uuid);
-						connections.insert(upcomingConnection);
-					}
-					enet_packet_destroy(event.packet);
-					break;
-				}
-					
-				case ENET_EVENT_TYPE_RECEIVE: {
-					
-					bool receiverFound = false;
-					for(auto & c : connections)
-					{
-						if(c->getPeer() == event.peer)
-						{
-							c->dispatch(event.packet);
-							receiverFound = true;
-							break;
-						}
-					}
-					
-					if(!receiverFound)
-						enet_packet_destroy(event.packet);
-					
-					break;
-				}
-					
-				case ENET_EVENT_TYPE_DISCONNECT: {
-					enet_packet_destroy(event.packet);
-					for(auto & c : connections)
-					{
-						if(c->getPeer() == event.peer)
-						{
-							clientDisconnected(c);
-							break;
-						}
-					}
-					break;
-					
-				}
-			}
-		}
-	}
-}
-
-void CVCMIServer::connectionAccepted()
-{
-	if(upcomingConnection)
-	{
-		upcomingConnection->init();
-		upcomingConnection->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, upcomingConnection);
-		upcomingConnection.reset();
-	}
 }
 
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
@@ -553,51 +534,6 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 			}
 		}
 	}
-}
-
-void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
-{
-	connections -= c;
-	if(connections.empty() || hostClient == c)
-	{
-		state = EServerState::SHUTDOWN;
-		return;
-	}
-	
-	PlayerReinitInterface startAiPack;
-	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
-	
-	for(auto it = playerNames.begin(); it != playerNames.end();)
-	{
-		if(it->second.connection != c->connectionID)
-		{
-			++it;
-			continue;
-		}
-
-		int id = it->first;
-		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
-		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
-		auto * playerSettings = si->getPlayersSettings(id);
-		if(!playerSettings)
-		{
-			++it;
-			continue;
-		}
-		
-		it = playerNames.erase(it);
-		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
-		
-		if(gh && si && state == EServerState::GAMEPLAY)
-		{
-			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
-			gh->connections[playerSettings->color].insert(hostClient);
-			startAiPack.players.push_back(playerSettings->color);
-		}
-	}
-	
-	if(!startAiPack.players.empty())
-		gh->sendAndApply(&startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)
@@ -1073,10 +1009,6 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 int main(int argc, char * argv[])
 {
 #if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
-	if(enet_initialize() != 0)
-	{
-		return EXIT_FAILURE;
-	}
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
@@ -1126,7 +1058,6 @@ int main(int argc, char * argv[])
 #endif
 	logConfig.deconfigure();
 	vstd::clear_pointer(VLC);
-	enet_deinitialize();
 	return 0;
 }
 
