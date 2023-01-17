@@ -20,6 +20,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
 #include "../CModHandler.h"
+#include "../Rect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -131,55 +132,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	return ESpellCastProblem::OK;
 }
 
-struct Point
-{
-	int x,y;
-};
-
-/// Algorithm to test whether line segment between points line1-line2 will intersect with
-/// rectangle specified by top-left and bottom-right points
-/// Note that in order to avoid floating point rounding errors algorithm uses integers with no divisions
-static bool intersectionSegmentRect(Point line1, Point line2, Point rectTL, Point rectBR)
-{
-	assert(rectTL.x < rectBR.x);
-	assert(rectTL.y < rectBR.y);
-
-	// check whether segment is located to the left of our AABB
-	if (line1.x < rectTL.x && line2.x < rectTL.x)
-		return false;
-
-	// check whether segment is located to the right of our AABB
-	if (line1.x > rectBR.x && line2.x > rectBR.x)
-		return false;
-
-	// check whether segment is located on top of our AABB
-	if (line1.y < rectTL.y && line2.y < rectTL.y)
-		return false;
-
-	// check whether segment is located below of our AABB
-	if (line1.y > rectBR.y && line2.y > rectBR.y)
-		return false;
-
-	Point vector { line2.x - line1.x, line2.y - line1.y};
-
-	// compute position of AABB corners relative to our line
-	int tlTest = vector.y*rectTL.x - vector.x*rectTL.y + (line2.x*line1.y-line1.x*line2.y);
-	int trTest = vector.y*rectBR.x - vector.x*rectTL.y + (line2.x*line1.y-line1.x*line2.y);
-	int blTest = vector.y*rectTL.x - vector.x*rectBR.y + (line2.x*line1.y-line1.x*line2.y);
-	int brTest = vector.y*rectBR.x - vector.x*rectBR.y + (line2.x*line1.y-line1.x*line2.y);
-
-	// if all points are on the left of our line then there is no intersection
-	if ( tlTest > 0 && trTest > 0 && blTest > 0 && brTest > 0 )
-		return false;
-
-	// if all points are on the right of our line then there is no intersection
-	if ( tlTest < 0 && trTest < 0 && blTest < 0 && brTest < 0 )
-		return false;
-
-	// if all previous checks failed, this means that there is an intersection between line and AABB
-	return true;
-}
-
 bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
 {
 	auto isTileBlocked = [&](BattleHex tile)
@@ -214,10 +166,12 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 				continue;
 
 			// create rect around cell with an obstacle
-			Point rectTL{ obstacle.getX()*cellSize, obstacle.getY()*cellSize };
-			Point recrBR{ obstacle.getX()*(cellSize+1), obstacle.getY()*(cellSize+1) };
+			Rect rect {
+				Point(obstacle.getX(), obstacle.getY()) * cellSize,
+				Point( cellSize, cellSize)
+			};
 
-			if ( intersectionSegmentRect(line1, line2, rectTL, recrBR))
+			if ( rect.intersectionTest(line1, line2))
 				return true;
 		}
 		return false;
