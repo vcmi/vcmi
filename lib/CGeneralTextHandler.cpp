@@ -164,9 +164,6 @@ void CGeneralTextHandler::detectInstallParameters() const
 	for (size_t i = 0; i < deviations.size(); ++i)
 		logGlobal->debug("Comparing to %s: %f", knownFootprints[i].language, deviations[i]);
 
-	Settings language = settings.write["session"]["language"];
-	language->String() = knownFootprints[bestIndex].language;
-
 	Settings encoding = settings.write["session"]["encoding"];
 	encoding->String() = knownFootprints[bestIndex].encoding;
 }
@@ -658,10 +655,7 @@ size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
 
 std::string CGeneralTextHandler::getInstalledLanguage()
 {
-	auto explicitSetting = settings["general"]["language"].String();
-	if (explicitSetting != "auto")
-		return explicitSetting;
-	return settings["session"]["language"].String();
+	return settings["general"]["language"].String();
 }
 
 std::string CGeneralTextHandler::getInstalledEncoding()
