@@ -66,8 +66,7 @@
 
 	"bonuses" :
 	[
-		"config/bonuses.json",
-		"config/bonuses_texts.json"
+		"config/bonuses.json"
 	],
 	"spells" :
 	[
