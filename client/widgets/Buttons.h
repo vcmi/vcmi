@@ -19,11 +19,11 @@ namespace config
 {
 struct ButtonInfo;
 }
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-class Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;

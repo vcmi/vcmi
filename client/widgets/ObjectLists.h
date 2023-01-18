@@ -11,8 +11,11 @@
 
 #include "../gui/CIntObject.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class CAnimImage;
 class CSlider;
 class CLabel;

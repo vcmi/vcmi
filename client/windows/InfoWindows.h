@@ -16,11 +16,11 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGGarrison;
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-class Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;

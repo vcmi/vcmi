@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class CCreature;
 class CSpell;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -27,7 +28,6 @@ class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
 struct StackAttackedInfo;
-class Point;
 
 /// Base class of battle animations
 class BattleAnimation

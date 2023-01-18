@@ -18,6 +18,7 @@ class BattleAction;
 class CStack;
 class CSpell;
 class SpellID;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -32,7 +33,6 @@ class CreatureAnimation;
 class BattleAnimation;
 class BattleRenderer;
 class IImage;
-class Point;
 
 struct BattleStackFilterEffect
 {
