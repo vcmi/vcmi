@@ -152,23 +152,26 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	boost::optional<si32> aiValue;
 	boost::optional<std::string> battlefield;
 
+	std::string modScope;
+	std::string typeName;
+	std::string subTypeName;
+
+	si32 type;
+	si32 subtype;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const;
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
-	std::string typeName;
-	std::string subTypeName;
 public:
 
-	si32 type;
-	si32 subtype;
 	AObjectTypeHandler();
 	virtual ~AObjectTypeHandler();
 
-	void setType(si32 type, si32 subtype);
-	void setTypeName(std::string type, std::string subtype);
+	si32 getIndex() const;
+	si32 getSubIndex() const;
 
 	std::string getTypeName() const;
 	std::string getSubTypeName() const;
@@ -229,6 +232,7 @@ public:
 		h & subtype;
 		h & templates;
 		h & rmgInfo;
+		h & modScope;
 		h & typeName;
 		h & subTypeName;
 		h & sounds;
@@ -242,24 +246,17 @@ typedef std::shared_ptr<AObjectTypeHandler> TObjectTypeHandler;
 /// Class responsible for creation of adventure map objects of specific type
 class DLL_LINKAGE ObjectClass
 {
-	std::string identifier;
-
 public:
-	ObjectClass() = default;
-	ObjectClass(const std::string & modScope, const std::string & identifier)
-	{
-		if (identifier.find(':') == std::string::npos)
-			this->identifier = modScope + ":" + identifier;
-		else
-			this->identifier = identifier;
-
-	}
+	std::string modScope;
+	std::string identifier;
 
 	si32 id;
 	std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
 
 	JsonNode base;
 	std::vector<TObjectTypeHandler> objects;
+
+	ObjectClass() = default;
 
 	std::string getJsonKey() const;
 	std::string getNameTextID() const;
@@ -271,6 +268,7 @@ public:
 		h & base;
 		h & objects;
 		h & identifier;
+		h & modScope;
 	}
 };
 

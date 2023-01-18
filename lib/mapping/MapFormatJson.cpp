@@ -1159,8 +1159,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto appearance = new ObjectTemplate;
 
-	appearance->id = Obj(handler->type);
-	appearance->subid = handler->subtype;
+	appearance->id = Obj(handler->getIndex());
+	appearance->subid = handler->getSubIndex();
 	appearance->readJson(configuration["template"], false);
 
 	// Will be destroyed soon and replaced with shared template

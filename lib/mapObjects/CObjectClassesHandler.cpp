@@ -156,7 +156,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj)
 {
-	auto object = loadSubObjectFromJson(scope, VLC->modh->normalizeIdentifier(scope, CModHandler::scopeBuiltin(), identifier), entry, obj, obj->objects.size());
+	auto object = loadSubObjectFromJson(scope, identifier, entry, obj, obj->objects.size());
 
 	assert(object);
 	obj->objects.push_back(object);
@@ -166,8 +166,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
 {
-	//TODO: load name for subobjects
-	auto object = loadSubObjectFromJson(scope, VLC->modh->normalizeIdentifier(scope, CModHandler::scopeBuiltin(), identifier), entry, obj, index);
+	auto object = loadSubObjectFromJson(scope, identifier, entry, obj, index);
 
 	assert(object);
 	assert(obj->objects[index] == nullptr); // ensure that this id was not loaded before
@@ -178,6 +177,9 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	if(!handlerConstructors.count(obj->handlerName))
 	{
 		logGlobal->error("Handler with name %s was not found!", obj->handlerName);
@@ -186,12 +188,12 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 
 	auto createdObject = handlerConstructors.at(obj->handlerName)();
 
-	if (identifier.find(':') == std::string::npos)
-		createdObject->setTypeName(obj->getJsonKey(), scope + ":" + identifier);
-	else
-		createdObject->setTypeName(obj->getJsonKey(), identifier);
+	createdObject->modScope = scope;
+	createdObject->typeName = obj->identifier;;
+	createdObject->subTypeName = identifier;
 
-	createdObject->setType(obj->id, index);
+	createdObject->type = obj->id;
+	createdObject->subtype = index;
 	createdObject->init(entry);
 
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
@@ -208,7 +210,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 
 std::string ObjectClass::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 std::string ObjectClass::getNameTextID() const
@@ -223,8 +225,10 @@ std::string ObjectClass::getNameTranslated() const
 
 ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
-	auto obj = new ObjectClass(scope, name);
+	auto obj = new ObjectClass();
 
+	obj->modScope = scope;
+	obj->identifier = name;
 	obj->handlerName = json["handler"].String();
 	obj->base = json["base"];
 	obj->id = index;
@@ -252,14 +256,14 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, VLC->modh->normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
+	auto object = loadFromJson(scope, data, name, objects.size());
 	objects.push_back(object);
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, VLC->modh->normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
+	auto object = loadFromJson(scope, data, name, index);
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[(si32)index] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
@@ -437,21 +441,19 @@ AObjectTypeHandler::~AObjectTypeHandler()
 {
 }
 
-void AObjectTypeHandler::setType(si32 type, si32 subtype)
-{
-	this->type = type;
-	this->subtype = subtype;
-}
-
-void AObjectTypeHandler::setTypeName(std::string type, std::string subtype)
-{
-	this->typeName = type;
-	this->subTypeName = subtype;
-}
-
 std::string AObjectTypeHandler::getJsonKey() const
 {
-	return subTypeName;
+	return modScope + ':' + subTypeName;
+}
+
+si32 AObjectTypeHandler::getIndex() const
+{
+	return type;
+}
+
+si32 AObjectTypeHandler::getSubIndex() const
+{
+	return subtype;
 }
 
 std::string AObjectTypeHandler::getTypeName() const
