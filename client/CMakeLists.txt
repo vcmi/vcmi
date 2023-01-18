@@ -292,7 +292,8 @@ else()
 endif()
 
 target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
+	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
+	${ENET_INCLUDE_DIRS})
 
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)
