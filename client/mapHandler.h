@@ -13,7 +13,6 @@
 #include "../lib/int3.h"
 #include "../lib/spells/ViewSpellInt.h"
 #include "../lib/Rect.h"
-#include "SDL.h"
 
 #ifdef IN
 #undef IN

@@ -63,7 +63,7 @@
 #include "../lib/CPathfinder.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
-#include <SDL.h>
+#include <SDL_timer.h>
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"

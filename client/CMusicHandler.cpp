@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include <SDL_mixer.h>
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"

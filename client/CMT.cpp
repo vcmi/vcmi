@@ -56,6 +56,7 @@
 
 #include "mainmenu/CPrologEpilogVideo.h"
 #include <vstd/StringUtils.h>
+#include <SDL.h>
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
