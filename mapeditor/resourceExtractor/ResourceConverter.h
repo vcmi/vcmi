@@ -53,5 +53,5 @@ private:
 	/** Splits the given .def files into individual images.
 	* For each .def file, the resulting images will be output in the same folder, in a subfolder (named just like the .def file)
 	*/
-	static void splitDefFiles(const bfs::path & sourceFolder, std::vector<std::string> defFileNames, bool deleteOriginals);
+	static void splitDefFiles(const std::vector<std::string> & defFileNames, const bfs::path & sourceFolder, bool deleteOriginals);
 };
