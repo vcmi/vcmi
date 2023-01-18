@@ -39,7 +39,7 @@ const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, SDL_ALPHA_OPAQUE};
 const SDL_Color Colors::RED = {255, 0, 0, SDL_ALPHA_OPAQUE};
 const SDL_Color Colors::PURPLE = {255, 75, 125, SDL_ALPHA_OPAQUE};
 const SDL_Color Colors::BLACK = {0, 0, 0, SDL_ALPHA_OPAQUE};
-const SDL_Color Colors::TRANSPARENT = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
+const SDL_Color Colors::TRANSPARENCY = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
 
 Rect CSDL_Ext::genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {

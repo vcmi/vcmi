@@ -63,7 +63,7 @@ public:
 
 	static const SDL_Color BLACK;
 
-	static const SDL_Color TRANSPARENT;
+	static const SDL_Color TRANSPARENCY;
 };
 
 namespace CSDL_Ext

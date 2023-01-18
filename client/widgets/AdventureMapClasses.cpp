@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "AdventureMapClasses.h"
 
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "MiscWidgets.h"
 #include "CComponent.h"

@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include <SDL.h>
 #include "CVideoHandler.h"
 
 #include "gui/CGuiHandler.h"

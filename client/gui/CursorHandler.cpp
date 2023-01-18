@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CursorHandler.h"
 
-#include <SDL.h>
-
 #include "SDL_Extensions.h"
 #include "CGuiHandler.h"
 #include "CAnimation.h"
@@ -345,7 +343,7 @@ void CursorSoftware::updateTexture()
 	if (!cursorSurface ||  Point(cursorSurface->w, cursorSurface->h) != cursorImage->dimensions())
 		createTexture(cursorImage->dimensions());
 
-	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENT);
+	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENCY);
 
 	cursorImage->draw(cursorSurface);
 	SDL_UpdateTexture(cursorTexture, NULL, cursorSurface->pixels, cursorSurface->pitch);
@@ -413,7 +411,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 {
 	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
 
-	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENT);
+	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENCY);
 
 	image->draw(cursorSurface);
 

@@ -11,7 +11,7 @@
 #include "CGuiHandler.h"
 #include "../lib/CondSh.h"
 
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "CIntObject.h"
 #include "CursorHandler.h"

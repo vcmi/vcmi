@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "Client.h"
 
-#include <SDL.h>
-
 #include "CMusicHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
