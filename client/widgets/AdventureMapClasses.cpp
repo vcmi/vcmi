@@ -237,7 +237,7 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, Geometry::fromSDL(GH.current->motion));
+	CRClickPopup::createAndPush(hero, CSDL_Ext::fromSDL(GH.current->motion));
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -329,7 +329,7 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, Geometry::fromSDL(GH.current->motion));
+	CRClickPopup::createAndPush(town, CSDL_Ext::fromSDL(GH.current->motion));
 }
 
 std::string CTownList::CTownItem::getHoverText()

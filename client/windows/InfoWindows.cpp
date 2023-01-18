@@ -306,7 +306,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(Geometry::fromSDL(GH.current->motion)); //center on mouse
+	temp->center(CSDL_Ext::fromSDL(GH.current->motion)); //center on mouse
 #ifdef VCMI_IOS
     // TODO: enable also for android?
     temp->moveBy({0, -temp->pos.h / 2});

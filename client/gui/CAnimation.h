@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../../lib/vcmi_endian.h"
-#include "Geometries.h"
 #include "../../lib/GameConstants.h"
 
 #ifdef IN
@@ -31,6 +30,8 @@ struct SDL_Surface;
 struct SDL_Color;
 class CDefFile;
 class ColorFilter;
+class Rect;
+class Point;
 
 /*
  * Base class for images, can be used for non-animation pictures as well

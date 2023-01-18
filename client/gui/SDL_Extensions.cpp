@@ -41,6 +41,37 @@ const SDL_Color Colors::PURPLE = {255, 75, 125, SDL_ALPHA_OPAQUE};
 const SDL_Color Colors::BLACK = {0, 0, 0, SDL_ALPHA_OPAQUE};
 const SDL_Color Colors::TRANSPARENT = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
 
+Rect CSDL_Ext::genRect(const int & hh, const int & ww, const int & xx, const int & yy)
+{
+	Rect ret;
+	ret.h=hh;
+	ret.w=ww;
+	ret.x=xx;
+	ret.y=yy;
+	return ret;
+}
+
+Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
+{
+	return Rect(Point(rect.x, rect.y), Point(rect.w, rect.h));
+}
+
+SDL_Rect CSDL_Ext::toSDL(const Rect & rect)
+{
+	SDL_Rect result;
+	result.x = rect.x;
+	result.y = rect.y;
+	result.w = rect.w;
+	result.h = rect.h;
+	return result;
+}
+
+Point CSDL_Ext::fromSDL(const SDL_MouseMotionEvent & motion)
+{
+	return { motion.x, motion.y };
+}
+
+
 void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
 	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
@@ -73,7 +104,7 @@ void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
 
 void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
 {
-	SDL_Rect rectSDL = Geometry::toSDL(rect);
+	SDL_Rect rectSDL = CSDL_Ext::toSDL(rect);
 	if(0 !=SDL_UpdateTexture(screenTexture, &rectSDL, surface->pixels, surface->pitch))
 		logGlobal->error("%sSDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 
@@ -220,8 +251,8 @@ Uint32 CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, bo
 template<int bpp>
 int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPointInput)
 {
-	SDL_Rect srcRectInstance = Geometry::toSDL(srcRectInput);
-	SDL_Rect dstRectInstance = Geometry::toSDL(Rect(dstPointInput, srcRectInput.dimensions()));
+	SDL_Rect srcRectInstance = CSDL_Ext::toSDL(srcRectInput);
+	SDL_Rect dstRectInstance = CSDL_Ext::toSDL(Rect(dstPointInput, srcRectInput.dimensions()));
 
 	SDL_Rect * srcRect =&srcRectInstance;
 	SDL_Rect * dstRect =&dstRectInstance;
@@ -803,8 +834,8 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
 
 void CSDL_Ext::blitSurface(SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPoint)
 {
-	SDL_Rect srcRect = Geometry::toSDL(srcRectInput);
-	SDL_Rect dstRect = Geometry::toSDL(Rect(dstPoint, srcRectInput.dimensions()));
+	SDL_Rect srcRect = CSDL_Ext::toSDL(srcRectInput);
+	SDL_Rect dstRect = CSDL_Ext::toSDL(Rect(dstPoint, srcRectInput.dimensions()));
 
 	SDL_UpperBlit(src, &srcRect, dst, &dstRect);
 }
@@ -825,7 +856,7 @@ void CSDL_Ext::fillSurface( SDL_Surface *dst, const SDL_Color & color )
 
 void CSDL_Ext::fillRect( SDL_Surface *dst, const Rect & dstrect, const SDL_Color & color )
 {
-	SDL_Rect newRect = Geometry::toSDL(dstrect);
+	SDL_Rect newRect = CSDL_Ext::toSDL(dstrect);
 
 	uint32_t sdlColor = SDL_MapRGBA(dst->format, color.r, color.g, color.b, color.a);
 	SDL_FillRect(dst, &newRect, sdlColor);
@@ -859,9 +890,9 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(const Rect & whereInput)
 {
-	SDL_Rect where = Geometry::toSDL(whereInput);
+	const SDL_Rect where = CSDL_Ext::toSDL(whereInput);
 
-	auto impl = [](SDL_Rect & where)
+	auto impl = [](SDL_Rect where)
 	{
 		if (SDL_IsTextInputActive() == SDL_FALSE)
 		{
@@ -945,7 +976,7 @@ void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 
 void CSDL_Ext::setClipRect(SDL_Surface * src, const Rect & other)
 {
-	SDL_Rect rect = Geometry::toSDL(other);
+	SDL_Rect rect = CSDL_Ext::toSDL(other);
 
 	SDL_SetClipRect(src, &rect);
 }
@@ -956,7 +987,7 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 
 	SDL_GetClipRect(src, &rect);
 
-	other = Geometry::fromSDL(rect);
+	other = CSDL_Ext::fromSDL(rect);
 }
 
 

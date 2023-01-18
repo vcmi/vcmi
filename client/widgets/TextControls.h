@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../gui/TextAlignment.h"
 #include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 

@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../gui/Geometries.h"
 #include "../gui/ColorFilter.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,6 +32,7 @@ class CreatureAnimation;
 class BattleAnimation;
 class BattleRenderer;
 class IImage;
+class Point;
 
 struct BattleStackFilterEffect
 {

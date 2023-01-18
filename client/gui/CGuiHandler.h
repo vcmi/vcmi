@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "Geometries.h"
+#include "../../lib/Point.h"
 
 #include <SDL_events.h>
 

@@ -23,7 +23,6 @@ set(client_SRCS
 		gui/CIntObject.cpp
 		gui/ColorFilter.cpp
 		gui/Fonts.cpp
-		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
 		gui/NotificationHandler.cpp
 		gui/InterfaceObjectConfigurable.cpp
@@ -110,7 +109,7 @@ set(client_HEADERS
 		gui/ColorFilter.h
 		gui/CIntObject.h
 		gui/Fonts.h
-		gui/Geometries.h
+		gui/TextAlignment.h
 		gui/SDL_Compat.h
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h

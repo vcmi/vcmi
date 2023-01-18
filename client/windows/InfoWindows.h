@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CWindowObject.h"
+#include "../gui/TextAlignment.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

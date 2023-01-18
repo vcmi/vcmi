@@ -11,8 +11,8 @@
 #pragma once
 #include <SDL_render.h>
 #include <SDL_events.h>
-#include "Geometries.h"
 #include "../../lib/GameConstants.h"
+#include "../../lib/Rect.h"
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -26,6 +26,7 @@ extern SDL_Texture * screenTexture;
 extern SDL_Surface * screen, *screen2, *screenBuf;
 
 class Rect;
+class Point;
 
 /**
  * The colors class defines color constants of type SDL_Color.
@@ -68,6 +69,15 @@ public:
 namespace CSDL_Ext
 {
 
+/// creates Point using provided event
+Point fromSDL(const SDL_MouseMotionEvent & motion);
+
+/// creates Rect using provided rect
+Rect fromSDL(const SDL_Rect & rect);
+
+/// creates SDL_Rect using provided rect
+SDL_Rect toSDL(const Rect & rect);
+
 void setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 void warpMouse(int x, int y);
 bool isCtrlKeyDown();
@@ -95,15 +105,7 @@ std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output 
 	return boost::lexical_cast<std::string>(number) + *iter;
 }
 
-inline Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
-{
-	Rect ret;
-	ret.h=hh;
-	ret.w=ww;
-	ret.x=xx;
-	ret.y=yy;
-	return ret;
-}
+Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
 
 typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
 typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);

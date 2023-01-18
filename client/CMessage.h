@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Graphics.h"
-#include "gui/Geometries.h"
 
 struct SDL_Surface;
 class CInfoWindow;

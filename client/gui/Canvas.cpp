@@ -11,7 +11,6 @@
 #include "Canvas.h"
 
 #include "SDL_Extensions.h"
-#include "Geometries.h"
 #include "CAnimation.h"
 
 #include "../Graphics.h"
