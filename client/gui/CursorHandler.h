@@ -15,7 +15,7 @@ struct SDL_Surface;
 struct SDL_Texture;
 struct SDL_Cursor;
 
-#include "Geometries.h"
+#include "../../lib/Point.h"
 
 namespace Cursor
 {

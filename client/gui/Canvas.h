@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "Geometries.h"
+#include "TextAlignment.h"
+#include "../../lib/Rect.h"
 
 struct SDL_Color;
 struct SDL_Surface;

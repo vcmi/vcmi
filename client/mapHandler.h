@@ -12,7 +12,7 @@
 
 #include "../lib/int3.h"
 #include "../lib/spells/ViewSpellInt.h"
-#include "gui/Geometries.h"
+#include "../lib/Rect.h"
 #include "SDL.h"
 
 #ifdef IN

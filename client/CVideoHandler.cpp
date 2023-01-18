@@ -442,7 +442,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 		if(stopOnKey && keyDown())
 			return false;
 
-		SDL_Rect rect = Geometry::toSDL(pos);
+		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 
 		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
 		SDL_RenderPresent(mainRenderer);

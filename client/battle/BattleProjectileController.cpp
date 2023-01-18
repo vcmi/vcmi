@@ -15,7 +15,6 @@
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
-#include "../gui/Geometries.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"

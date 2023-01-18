@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CIntObject.h"
+#include "TextAlignment.h"
 
 #include "../../lib/JsonNode.h"
 

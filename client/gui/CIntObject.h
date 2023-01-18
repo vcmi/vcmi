@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "Geometries.h"
+#include "../../lib/Rect.h"
 #include "../Graphics.h"
 
 struct SDL_Surface;
@@ -19,6 +19,7 @@ class CPicture;
 struct SDL_KeyboardEvent;
 struct SDL_TextInputEvent;
 struct SDL_TextEditingEvent;
+struct SDL_MouseMotionEvent;
 
 using boost::logic::tribool;
 
