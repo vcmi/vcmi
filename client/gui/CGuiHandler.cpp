@@ -268,12 +268,17 @@ void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 	sme.x = CCS->curh->xpos;
 	sme.y = CCS->curh->ypos;
 
-	int windowX, windowY;
+	float xScale, yScale;
+	int w, h, rLogicalWidth, rLogicalHeight;
 
-	SDL_RenderLogicalToWindow(mainRenderer, sme.x, sme.y, &windowX, &windowY);
+	SDL_GetWindowSize(mainWindow, &w, &h);
+	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
+	SDL_RenderGetScale(mainRenderer, &xScale, &yScale);
 
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	SDL_WarpMouse(windowX, windowY);
+	SDL_WarpMouse(
+		(int)(sme.x * xScale) + (w - rLogicalWidth * xScale) / 2,
+		(int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2));
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 
 	event.button = sme;
@@ -430,7 +435,6 @@ void CGuiHandler::handleCurrentEvent()
 			}
 		}
 	}
-#ifndef VCMI_IOS
 	else if(current->type == SDL_FINGERMOTION)
 	{
 		if(isPointerRelativeMode)
@@ -453,12 +457,14 @@ void CGuiHandler::handleCurrentEvent()
 				fakeMouseButtonEventRelativeMode(true, isRightClick);
 			}
 		}
+#ifndef VCMI_IOS
 		else if(fingerCount == 2)
 		{
 			convertTouchToMouse(current);
 			handleMouseMotion();
 			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
 		}
+#endif //VCMI_IOS
 	}
 	else if(current->type == SDL_FINGERUP)
 	{
@@ -473,6 +479,7 @@ void CGuiHandler::handleCurrentEvent()
 				fakeMouseButtonEventRelativeMode(false, isRightClick);
 			}
 		}
+#ifndef VCMI_IOS
 		else if(multifinger)
 		{
 			convertTouchToMouse(current);
@@ -480,8 +487,8 @@ void CGuiHandler::handleCurrentEvent()
 			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
 			multifinger = fingerCount != 0;
 		}
-	}
 #endif //VCMI_IOS
+	}
 
 	current = nullptr;
 } //event end

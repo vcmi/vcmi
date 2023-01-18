@@ -437,11 +437,13 @@ int main(int argc, char * argv[])
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif
 
+#ifdef SDL_HINT_MOUSE_TOUCH_EVENTS
 	if(GH.isPointerRelativeMode)
 	{
 		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 	}
+#endif
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
