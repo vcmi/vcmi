@@ -19,9 +19,7 @@ private:
 	std::list<ENetPacket*> packets;
 	int channel = 0;
 	ENetPeer * peer = nullptr;
-	std::atomic<bool> connected;
-	
-	std::mutex mutexRead, mutexWrite;
+	std::atomic<bool> connected, locked;
 	
 public:
 	EnetConnection(ENetPeer * peer);
@@ -32,11 +30,14 @@ public:
 	void open();
 	void close();
 	void kill();
+
 	const ENetPeer * getPeer() const;
 	void dispatch(ENetPacket * packet);
 	
 	void write(const void * data, unsigned size);
 	void read(void * data, unsigned size);
+	
+	std::mutex mutexRead, mutexWrite;
 };
 
 class DLL_LINKAGE EnetService

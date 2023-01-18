@@ -134,13 +134,17 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::handleConnection(std::shared_ptr<EnetConnection> _c)
 {
-	c = std::make_shared<CConnection>(_c, NAME, uuid);
-	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+	if(!c)
+	{
+		c = std::make_shared<CConnection>(_c, NAME, uuid);
+		c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+	}
 }
 
 void CServerHandler::handleDisconnection(std::shared_ptr<EnetConnection> _c)
 {
-	state = EClientState::DISCONNECTING;
+	if(c && c->getEnetConnection() == _c)
+		state = EClientState::DISCONNECTING;
 }
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
@@ -818,7 +822,7 @@ void CServerHandler::threadHandleConnection()
 		}
 	}
 	//catch only asio exceptions
-	catch(const boost::system::system_error & e)
+	catch(const std::logic_error & e)
 	{
 		if(state == EClientState::DISCONNECTING)
 		{

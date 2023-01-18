@@ -13,7 +13,7 @@
 
 using namespace Load;
 
-Progress::Progress(): _progress(std::numeric_limits<Type>::min())
+Progress::Progress(): _progress(std::numeric_limits<Type>::min()), _step(std::numeric_limits<int>::min()), _maxSteps(std::numeric_limits<int>::min())
 {
 	setupSteps(100);
 }
@@ -45,8 +45,8 @@ void Progress::reset(int s)
 void Progress::finish()
 {
 	_progress = _target = std::numeric_limits<Type>::max();
-	_step = std::numeric_limits<Type>::min();
-	_maxSteps = std::numeric_limits<Type>::min();
+	_step = std::numeric_limits<int>::min();
+	_maxSteps = std::numeric_limits<int>::min();
 }
 
 void Progress::setupSteps(int s)
@@ -59,10 +59,10 @@ void Progress::setupStepsTill(int s, Type p)
 	if(finished())
 		return;
 	
-	if(_step > std::numeric_limits<Type>::min())
+	if(_step > std::numeric_limits<int>::min())
 		_progress = get();
 	
-	_step = std::numeric_limits<Type>::min();
+	_step = std::numeric_limits<int>::min();
 	_maxSteps = s;
 	
 	_target = p;

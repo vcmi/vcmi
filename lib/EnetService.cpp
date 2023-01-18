@@ -32,7 +32,8 @@ EnetConnection::EnetConnection(ENetHost * client, const std::string & host, ui16
 
 EnetConnection::~EnetConnection()
 {
-	close();
+	if(isOpen())
+		close();
 	kill();
 }
 
@@ -178,8 +179,6 @@ void EnetService::monitor()
 			handleConnection(connecting.front());
 			connecting.pop_front();
 		}
-		if(service)
-			enet_host_flush(service);
 		std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_INTERVAL));
 	}
 }
@@ -200,9 +199,9 @@ bool EnetService::valid() const
 void EnetService::poll()
 {
 	setThreadName("EnetService::poll");
-	ENetEvent event;
 	while(doPolling)
 	{
+		ENetEvent event;			
 		if(enet_host_service(service, &event, POLL_INTERVAL) > 0)
 		{
 			switch(event.type)

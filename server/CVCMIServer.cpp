@@ -162,8 +162,11 @@ void CVCMIServer::handleDisconnection(std::shared_ptr<EnetConnection> _c)
 		}
 	}
 	assert(c);
-	c->close();
-	connections -= c;
+	{
+		boost::unique_lock<boost::recursive_mutex> myLock(mx);
+		c->close();
+		connections -= c;
+	}
 	if(connections.empty() || hostClient == c)
 	{
 		state = EServerState::SHUTDOWN;
@@ -384,7 +387,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 			{
 				pack = c->retrievePack();
 			}
-			catch(boost::system::system_error & e)
+			catch(const std::logic_error & e)
 			{
 				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
 				hangingConnections.insert(c);

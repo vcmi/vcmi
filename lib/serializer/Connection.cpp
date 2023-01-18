@@ -59,15 +59,19 @@ CConnection::CConnection(std::shared_ptr<EnetConnection> _c, std::string Name, s
 
 int CConnection::write(const void * data, unsigned size)
 {
-	if(connected)
-		enetConnection->write(data, size);
+	if(!enetConnection->isOpen())
+		throw std::logic_error("Write in closed connection");
+	
+	enetConnection->write(data, size);
 	return size;
 }
 
 int CConnection::read(void * data, unsigned size)
 {
-	if(connected)
-		enetConnection->read(data, size);
+	if(!enetConnection->isOpen())
+		throw std::logic_error("Read from closed connection");
+	
+	enetConnection->read(data, size);
 	return size;
 }
 
