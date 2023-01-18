@@ -33,14 +33,9 @@ int32_t CCreature::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & CCreature::getName() const
+std::string CCreature::getJsonKey() const
 {
-	return identifier;
-}
-
-const std::string & CCreature::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 void CCreature::registerIcons(const IconRegistar & cb) const
@@ -598,6 +593,9 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	auto cre = new CCreature();
 
 	if(node["hasDoubleWeek"].Bool())
@@ -607,6 +605,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->idNumber = CreatureID(index);
 	cre->iconIndex = cre->getIndex() + 2;
 	cre->identifier = identifier;
+	cre->modScope = scope;
 
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);

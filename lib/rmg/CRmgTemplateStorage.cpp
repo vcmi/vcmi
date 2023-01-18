@@ -31,7 +31,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	try
 	{
 		JsonDeserializer handler(nullptr, data);
-		auto fullKey = normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name); //actually it's not used
+		auto fullKey = scope + ":" + name; //actually it's not used
 		templates[fullKey].setId(fullKey);
 		templates[fullKey].serializeJson(handler);
 		templates[fullKey].setName(name);

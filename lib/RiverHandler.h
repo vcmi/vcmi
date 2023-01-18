@@ -23,17 +23,16 @@ class DLL_LINKAGE RiverType : public EntityT<RiverId>
 	std::string identifier;
 	RiverId id;
 
-	const std::string & getName() const override { return identifier;}
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getJsonKey() const override { return identifier;}
+	std::string getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
 	void updateFrom(const JsonNode & data) {};
 
-	std::string getNameTextID() const;
-	std::string getNameTranslated() const;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 
 	std::string tilesFilename;
 	std::string shortIdentifier;

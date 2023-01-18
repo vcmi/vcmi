@@ -170,7 +170,6 @@ public:
 	SpellID id;
 	std::string identifier;
 	std::string modScope;
-	const std::string & getName() const override;
 public:
 	enum ESpellPositiveness
 	{
@@ -236,7 +235,7 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	SpellID getId() const override;
 
 	std::string getNameTextID() const override;

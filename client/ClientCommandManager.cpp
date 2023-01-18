@@ -195,7 +195,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 				{
 					const JsonNode & object = nameAndObject.second;
 
-					std::string name = CModHandler::normalizeIdentifier(object.meta, CModHandler::scopeBuiltin(), nameAndObject.first);
+					std::string name = CModHandler::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
 
 					boost::algorithm::replace_all(name,":","_");
 

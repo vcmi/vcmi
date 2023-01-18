@@ -26,6 +26,8 @@ RiverType * RiverTypeHandler::loadFromJson(
 	const std::string & identifier,
 	size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+
 	RiverType * info = new RiverType;
 
 	info->id              = RiverId(index);

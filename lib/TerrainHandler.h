@@ -24,17 +24,16 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	TerrainId id;
 	ui8 passabilityType;
 
-	const std::string & getName() const override { return identifier;}
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getJsonKey() const override { return identifier;}
+	std::string getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
 	void updateFrom(const JsonNode & data) {};
 
-	std::string getNameTextID() const;
-	std::string getNameTranslated() const;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 
 	enum PassabilityType : ui8
 	{

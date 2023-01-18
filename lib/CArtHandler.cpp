@@ -60,14 +60,9 @@ int32_t CArtifact::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & CArtifact::getName() const
+std::string CArtifact::getJsonKey() const
 {
-	return identifier;
-}
-
-const std::string & CArtifact::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 void CArtifact::registerIcons(const IconRegistar & cb) const
@@ -103,17 +98,17 @@ std::string CArtifact::getNameTranslated() const
 
 std::string CArtifact::getDescriptionTextID() const
 {
-	return TextIdentifier("object", modScope, identifier, "description").get();
+	return TextIdentifier("artifact", modScope, identifier, "description").get();
 }
 
 std::string CArtifact::getEventTextID() const
 {
-	return TextIdentifier("object", modScope, identifier, "event").get();
+	return TextIdentifier("artifact", modScope, identifier, "event").get();
 }
 
 std::string CArtifact::getNameTextID() const
 {
-	return TextIdentifier("object", modScope, identifier, "name").get();
+	return TextIdentifier("artifact", modScope, identifier, "name").get();
 }
 
 uint32_t CArtifact::getPrice() const
@@ -181,7 +176,7 @@ int CArtifact::getArtClassSerial() const
 
 std::string CArtifact::nodeName() const
 {
-	return "Artifact: " + getName();
+	return "Artifact: " + getNameTranslated();
 }
 
 void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
@@ -301,7 +296,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
+	auto object = loadFromJson(scope, data, name, objects.size());
 
 	object->iconIndex = object->getIndex() + 5;
 
@@ -312,7 +307,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
+	auto object = loadFromJson(scope, data, name, index);
 
 	object->iconIndex = object->getIndex();
 
@@ -330,6 +325,9 @@ const std::vector<std::string> & CArtHandler::getTypeNames() const
 
 CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	CArtifact * art;
 
 	if(!VLC->modh->modules.COMMANDERS || node["growing"].isNull())
@@ -690,11 +688,11 @@ void CArtHandler::erasePickedArt(ArtifactID id)
 			artifactList->erase(itr);
 		}
 		else
-			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getName());
+			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
 
 	}
 	else
-		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getName());
+		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
 }
 
 boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )

@@ -23,8 +23,9 @@ public:
 
 	virtual int32_t getIndex() const = 0;
 	virtual int32_t getIconIndex() const = 0;
-	virtual const std::string & getJsonKey() const = 0;
-	virtual const std::string & getName() const = 0;
+	virtual std::string getJsonKey() const = 0;
+	virtual std::string getNameTranslated() const = 0;
+	virtual std::string getNameTextID() const = 0;
 
 	virtual void registerIcons(const IconRegistar & cb) const = 0;
 };

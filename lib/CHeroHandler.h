@@ -66,8 +66,6 @@ class DLL_LINKAGE CHero : public HeroType
 	std::string nameTextID; //name of hero
 	std::string biographyTextID;
 
-	const std::string & getName() const override;
-
 public:
 	struct InitialArmyStack
 	{
@@ -108,7 +106,7 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	HeroTypeID getId() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 
@@ -146,6 +144,7 @@ public:
 		h & portraitSmall;
 		h & portraitLarge;
 		h & identifier;
+		h & modScope;
 		h & battleImage;
 	}
 };
@@ -162,7 +161,6 @@ class DLL_LINKAGE CHeroClass : public HeroClass
 	std::string identifier; // use getJsonKey instead
 	std::string nameTextID;
 
-	const std::string & getName() const override;
 public:
 	enum EClassAffinity
 	{
@@ -197,7 +195,7 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	HeroClassID getId() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 

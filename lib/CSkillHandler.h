@@ -50,20 +50,18 @@ private:
 	std::string modScope;
 	std::string identifier;
 
-	const std::string & getName() const override;
-
 public:
 	CSkill(SecondarySkill id = SecondarySkill::DEFAULT, std::string identifier = "default");
 	~CSkill();
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	SecondarySkill getId() const override;
 
-	std::string getNameTextID() const;
-	std::string getNameTranslated() const;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 
 	std::string getDescriptionTextID(int level) const;
 	std::string getDescriptionTranslated(int level) const;

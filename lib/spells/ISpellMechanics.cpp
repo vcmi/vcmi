@@ -571,7 +571,7 @@ SpellID BaseMechanics::getSpellId() const
 
 std::string BaseMechanics::getSpellName() const
 {
-	return owner->getName();
+	return owner->getNameTranslated();
 }
 
 int32_t BaseMechanics::getSpellLevel() const

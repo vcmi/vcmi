@@ -17,6 +17,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+
 	TerrainType * info = new TerrainType;
 
 	info->id = TerrainId(index);

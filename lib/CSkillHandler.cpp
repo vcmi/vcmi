@@ -54,11 +54,6 @@ int32_t CSkill::getIconIndex() const
 	return getIndex(); //TODO: actual value with skill level
 }
 
-const std::string & CSkill::getName() const
-{
-	return identifier;
-}
-
 std::string CSkill::getNameTextID() const
 {
 	TextIdentifier id("skill", modScope, identifier, "name");
@@ -70,9 +65,9 @@ std::string CSkill::getNameTranslated() const
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
-const std::string & CSkill::getJsonKey() const
+std::string CSkill::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 std::string CSkill::getDescriptionTextID(int level) const
@@ -210,7 +205,11 @@ const std::vector<std::string> & CSkillHandler::getTypeNames() const
 
 CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier);
+	skill->modScope = scope;
 
 	VLC->generaltexth->registerString(skill->getNameTextID(), json["name"].String());
 	switch(json["gainChance"].getType())
