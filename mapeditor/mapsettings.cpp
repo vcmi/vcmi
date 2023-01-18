@@ -42,7 +42,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	}
 	for(int i = 0; i < controller.map()->allowedSpell.size(); ++i)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getName()));
+		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(controller.map()->allowedSpell[i] ? Qt::Checked : Qt::Unchecked);

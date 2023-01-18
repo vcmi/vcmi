@@ -50,8 +50,6 @@ class DLL_LINKAGE CArtifact : public Artifact, public CBonusSystemNode //contain
 	std::string modScope;
 	std::string identifier;
 
-	const std::string & getName() const override;
-
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
@@ -68,7 +66,7 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
 	virtual const IBonusBearer * accessBonuses() const override;

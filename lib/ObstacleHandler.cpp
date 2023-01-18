@@ -24,14 +24,19 @@ int32_t ObstacleInfo::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & ObstacleInfo::getName() const
+std::string ObstacleInfo::getJsonKey() const
 {
 	return identifier;
 }
 
-const std::string & ObstacleInfo::getJsonKey() const
+std::string ObstacleInfo::getNameTranslated() const
 {
 	return identifier;
+}
+
+std::string ObstacleInfo::getNameTextID() const
+{
+	return identifier; // TODO?
 }
 
 void ObstacleInfo::registerIcons(const IconRegistar & cb) const
@@ -42,7 +47,6 @@ Obstacle ObstacleInfo::getId() const
 {
 	return obstacle;
 }
-
 
 std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
 {
@@ -81,6 +85,8 @@ bool ObstacleInfo::isAppropriate(const TerrainId terrainType, const BattleField 
 
 ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+
 	auto * info = new ObstacleInfo(Obstacle(index), identifier);
 	
 	info->animation = json["animation"].String();

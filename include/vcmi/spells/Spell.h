@@ -23,8 +23,6 @@ class Caster;
 
 class DLL_LINKAGE Spell: public EntityT<SpellID>
 {
-	using EntityT<SpellID>::getName;
-
 public:
 	using SchoolCallback = std::function<void(const SchoolInfo &, bool &)>;
 

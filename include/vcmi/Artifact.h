@@ -19,8 +19,8 @@ class CreatureID;
 
 class DLL_LINKAGE Artifact : public EntityWithBonuses<ArtifactID>
 {
-	using EntityWithBonuses<ArtifactID>::getName;
 public:
+
 	virtual bool isBig() const = 0;
 	virtual bool isTradable() const = 0;
 	virtual uint32_t getPrice() const = 0;
@@ -28,11 +28,9 @@ public:
 
 	virtual std::string getDescriptionTranslated() const = 0;
 	virtual std::string getEventTranslated() const = 0;
-	virtual std::string getNameTranslated() const = 0;
 
 	virtual std::string getDescriptionTextID() const = 0;
 	virtual std::string getEventTextID() const = 0;
-	virtual std::string getNameTextID() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

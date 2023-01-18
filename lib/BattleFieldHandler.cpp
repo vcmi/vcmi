@@ -16,48 +16,27 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+
 	BattleFieldInfo * info = new BattleFieldInfo(BattleField(index), identifier);
 
-	if(json["graphics"].getType() == JsonNode::JsonType::DATA_STRING)
+	info->graphics = json["graphics"].String();
+	info->icon = json["icon"].String();
+	info->name = json["name"].String();
+	for(auto b : json["bonuses"].Vector())
 	{
-		info->graphics = json["graphics"].String();
+		auto bonus = JsonUtils::parseBonus(b);
+
+		bonus->source = Bonus::TERRAIN_OVERLAY;
+		bonus->sid = info->getIndex();
+		bonus->duration = Bonus::ONE_BATTLE;
+
+		info->bonuses.push_back(bonus);
 	}
 
-	if(json["icon"].getType() == JsonNode::JsonType::DATA_STRING)
-	{
-		info->icon = json["icon"].String();
-	}
-
-	if(json["name"].getType() == JsonNode::JsonType::DATA_STRING)
-	{
-		info->name = json["name"].String();
-	}
-
-	if(json["bonuses"].getType() == JsonNode::JsonType::DATA_VECTOR)
-	{
-		for(auto b : json["bonuses"].Vector())
-		{
-			auto bonus = JsonUtils::parseBonus(b);
-
-			bonus->source = Bonus::TERRAIN_OVERLAY;
-			bonus->sid = info->getIndex();
-			bonus->duration = Bonus::ONE_BATTLE;
-
-			info->bonuses.push_back(bonus);
-		}
-	}
-
-	if(json["isSpecial"].getType() == JsonNode::JsonType::DATA_BOOL)
-	{
-		info->isSpecial = json["isSpecial"].Bool();
-	}
-
-	if(json["impassableHexes"].getType() == JsonNode::JsonType::DATA_VECTOR)
-	{
-		for(auto node : json["impassableHexes"].Vector())
-			info->impassableHexes.push_back(BattleHex(node.Integer()));
-	}
-
+	info->isSpecial = json["isSpecial"].Bool();
+	for(auto node : json["impassableHexes"].Vector())
+		info->impassableHexes.push_back(BattleHex(node.Integer()));
 
 	return info;
 }
@@ -89,14 +68,19 @@ int32_t BattleFieldInfo::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & BattleFieldInfo::getName() const
+std::string BattleFieldInfo::getJsonKey() const
+{
+	return identifier;
+}
+
+std::string BattleFieldInfo::getNameTextID() const
 {
 	return name;
 }
 
-const std::string & BattleFieldInfo::getJsonKey() const
+std::string BattleFieldInfo::getNameTranslated() const
 {
-	return identifier;
+	return name; // TODO?
 }
 
 void BattleFieldInfo::registerIcons(const IconRegistar & cb) const

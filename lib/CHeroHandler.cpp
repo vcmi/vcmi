@@ -41,14 +41,9 @@ int32_t CHero::getIconIndex() const
 	return imageIndex;
 }
 
-const std::string & CHero::getName() const
+std::string CHero::getJsonKey() const
 {
-	return identifier;
-}
-
-const std::string & CHero::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 HeroTypeID CHero::getId() const
@@ -168,14 +163,9 @@ int32_t CHeroClass::getIconIndex() const
 	return getIndex();
 }
 
-const std::string & CHeroClass::getName() const
+std::string CHeroClass::getJsonKey() const
 {
-	return identifier;
-}
-
-const std::string & CHeroClass::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 HeroClassID CHeroClass::getId() const
@@ -224,7 +214,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
 		logMod->error("Hero class '%s' has incorrect initial value '%d' for skill '%s'. Value '%d' will be used instead.",
-			heroClass->getName(), currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
+			heroClass->getNameTranslated(), currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
 		currentPrimarySkillValue = primarySkillLegalMinimum;
 	}
 	heroClass->primarySkillInitial.push_back(currentPrimarySkillValue);
@@ -240,12 +230,16 @@ const std::vector<std::string> & CHeroClassHandler::getTypeNames() const
 
 CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	std::string affinityStr[2] = { "might", "magic" };
 
 	auto heroClass = new CHeroClass();
 
 	heroClass->id = HeroClassID(index);
 	heroClass->identifier = identifier;
+	heroClass->modScope = scope;
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
 	//MODS COMPATIBILITY FOR 0.96
@@ -417,9 +411,13 @@ const std::vector<std::string> & CHeroHandler::getTypeNames() const
 
 CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	auto hero = new CHero();
 	hero->ID = HeroTypeID(index);
 	hero->identifier = identifier;
+	hero->modScope = scope;
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
 
@@ -923,7 +921,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	size_t index = objects.size();
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
+	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = (si32)index + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
 	objects.push_back(object);
@@ -933,7 +931,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
+	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index);
 
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before

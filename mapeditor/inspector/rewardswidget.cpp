@@ -90,7 +90,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedSpell.size(); ++i)
 			{
 				if(map.allowedSpell[i])
-					result.append(QString::fromStdString(VLC->spellh->objects.at(i)->getName()));
+					result.append(QString::fromStdString(VLC->spellh->objects.at(i)->getNameTranslated()));
 			}
 			break;
 			

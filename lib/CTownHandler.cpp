@@ -46,7 +46,7 @@ const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
 
 std::string CBuilding::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 std::string CBuilding::getNameTranslated() const
@@ -61,12 +61,12 @@ std::string CBuilding::getDescriptionTranslated() const
 
 std::string CBuilding::getNameTextID() const
 {
-	return TextIdentifier("building", town->faction->getJsonKey(), modScope, identifier, "name").get();
+	return TextIdentifier("building", modScope, town->faction->identifier, identifier, "name").get();
 }
 
 std::string CBuilding::getDescriptionTextID() const
 {
-	return TextIdentifier("building", town->faction->getJsonKey(), modScope, identifier, "description").get();
+	return TextIdentifier("building", modScope, town->faction->identifier, identifier, "description").get();
 }
 
 BuildingID CBuilding::getBase() const
@@ -122,14 +122,9 @@ int32_t CFaction::getIconIndex() const
 	return index; //???
 }
 
-const std::string & CFaction::getName() const
+std::string CFaction::getJsonKey() const
 {
-	return identifier;
-}
-
-const std::string & CFaction::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 void CFaction::registerIcons(const IconRegistar & cb) const
@@ -205,7 +200,7 @@ std::string CTown::getRandomNameTranslated(size_t index) const
 
 std::string CTown::getRandomNameTextID(size_t index) const
 {
-	return TextIdentifier("faction", faction->getJsonKey(), "randomName", index).get();
+	return TextIdentifier("faction", faction->modScope, faction->identifier, "randomName", index).get();
 }
 
 size_t CTown::getRandomNamesCount() const
@@ -582,6 +577,9 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 
 void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
 {
+	assert(stringID.find(':') == std::string::npos);
+	assert(!source.meta.empty());
+
 	auto ret = new CBuilding();
 	ret->bid = getMappedValue<BuildingID, std::string>(stringID, BuildingID::NONE, MappedKeys::BUILDING_NAMES_TO_TYPES, false);
 
@@ -603,6 +601,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
 
 	ret->identifier = stringID;
+	ret->modScope = source.meta;
 	ret->town = town;
 
 	VLC->generaltexth->registerString(ret->getNameTextID(), source["name"].String());
@@ -983,6 +982,8 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 
 CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+
 	auto faction = new CFaction();
 
 	faction->index = static_cast<TFaction>(index);
@@ -1032,7 +1033,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
+	auto object = loadFromJson(scope, data, name, objects.size());
 
 	objects.push_back(object);
 
@@ -1071,7 +1072,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
+	auto object = loadFromJson(scope, data, name, index);
 
 	if (objects.size() > index)
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before

@@ -201,11 +201,6 @@ SpellID CSpell::getId() const
 	return id;
 }
 
-const std::string & CSpell::getName() const
-{
-	return identifier;
-}
-
 std::string CSpell::getNameTextID() const
 {
 	TextIdentifier id("spell", modScope, identifier, "name");
@@ -228,9 +223,9 @@ std::string CSpell::getDescriptionTranslated(int32_t level) const
 	return VLC->generaltexth->translate(getDescriptionTextID(level));
 }
 
-const std::string & CSpell::getJsonKey() const
+std::string CSpell::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;;
 }
 
 int32_t CSpell::getIndex() const
@@ -711,6 +706,9 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 
 CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	using namespace SpellConfig;
 
 	SpellID id(static_cast<si32>(index));
@@ -947,7 +945,8 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
-		VLC->generaltexth->registerString(spell->getDescriptionTranslated(levelIndex), levelNode["description"].String());
+		if (!spell->isCreatureAbility())
+			VLC->generaltexth->registerString(spell->getDescriptionTextID(levelIndex), levelNode["description"].String());
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());

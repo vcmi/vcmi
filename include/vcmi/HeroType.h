@@ -18,15 +18,11 @@ class HeroTypeID;
 
 class DLL_LINKAGE HeroType : public EntityT<HeroTypeID>
 {
-	using EntityT<HeroTypeID>::getName;
-public:
-	virtual std::string getNameTranslated() const = 0;
 	virtual std::string getBiographyTranslated() const = 0;
 	virtual std::string getSpecialtyNameTranslated() const = 0;
 	virtual std::string getSpecialtyDescriptionTranslated() const = 0;
 	virtual std::string getSpecialtyTooltipTranslated() const = 0;
 
-	virtual std::string getNameTextID() const = 0;
 	virtual std::string getBiographyTextID() const = 0;
 	virtual std::string getSpecialtyNameTextID() const = 0;
 	virtual std::string getSpecialtyDescriptionTextID() const = 0;

@@ -405,6 +405,8 @@ const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & iden
 
 void CGeneralTextHandler::registerString(const TextIdentifier & UID, const std::string & localized)
 {
+	assert(UID.get().find("..") == std::string::npos);
+
 	stringsIdentifiers[localized] = UID.get();
 	stringsLocalizations[UID.get()] = localized;
 }

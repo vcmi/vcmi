@@ -183,12 +183,13 @@ struct DLL_LINKAGE SPuzzleInfo
 class DLL_LINKAGE CFaction : public Faction
 {
 	friend class CTownHandler;
+	friend class CBuilding;
+	friend class CTown;
+
 	std::string modScope; //town name, by default - from TownName.txt
 	std::string identifier;
 
 	TFaction index;
-
-	const std::string & getName() const override;
 
 public:
 	TerrainId nativeTerrain;
@@ -207,7 +208,7 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	FactionID getId() const override;
 

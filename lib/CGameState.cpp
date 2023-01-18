@@ -1713,7 +1713,7 @@ void CGameState::initTowns()
 		}
 		if(vti->getNameTranslated().empty())
 		{
-			size_t nameID = getRandomGenerator().nextInt(vti->town->getRandomNamesCount());
+			size_t nameID = getRandomGenerator().nextInt(vti->town->getRandomNamesCount() - 1);
 			vti->setNameTranslated(vti->town->getRandomNameTranslated(nameID));
 		}
 

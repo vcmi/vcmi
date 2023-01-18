@@ -19,10 +19,10 @@ class CreatureID;
 class DLL_LINKAGE Creature : public EntityWithBonuses<CreatureID>
 {
 protected:
-	using EntityWithBonuses<CreatureID>::getName;
+	// use getNamePlural/Singular instead
+	std::string getNameTranslated() const override = 0;
+	std::string getNameTextID() const override = 0;
 
-	virtual std::string getNameTranslated() const = 0;
-	virtual std::string getNameTextID() const = 0;
 public:
 	virtual std::string getNamePluralTranslated() const = 0;
 	virtual std::string getNameSingularTranslated() const = 0;
