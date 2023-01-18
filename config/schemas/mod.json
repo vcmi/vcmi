@@ -194,7 +194,21 @@
 			"type":"array",
 			"description": "List of configuration files for obstacles",
 			"items": { "type":"string", "format" : "textFile" }
-
+		},
+		"terrains":{
+			"type":"array",
+			"description": "List of configuration files for terrains",
+			"items": { "type":"string", "format" : "textFile" }
+		},
+		"roads":{
+			"type":"array",
+			"description": "List of configuration files for roads",
+			"items": { "type":"string", "format" : "textFile" }
+		},
+		"rivers":{
+			"type":"array",
+			"description": "List of configuration files for rivers",
+			"items": { "type":"string", "format" : "textFile" }
 		},
 
 		"changelog" : {
