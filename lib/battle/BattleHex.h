@@ -88,7 +88,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	std::vector<BattleHex> allNeighbouringTiles() const;
 
 	static EDir mutualPosition(BattleHex hex1, BattleHex hex2);
-	static char getDistance(BattleHex hex1, BattleHex hex2);
+	static uint8_t getDistance(BattleHex hex1, BattleHex hex2);
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
 	static BattleHex getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 

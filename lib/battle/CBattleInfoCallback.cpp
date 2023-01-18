@@ -24,44 +24,37 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
-/*
- *Here are 2 explanations how below algorithm should work in H3, looks like they are not 100% accurate as it results in one damage number, not min/max range:
- *
- *1. http://heroes.thelazy.net/wiki/Arrow_tower
- *
- *2. All towns' turrets do the same damage. If Fort, Citadel or Castle is built damage of the Middle turret is 15, and 7,5 for others.
- *Buildings increase turrets' damage, but only those buildings that are new in town view, not upgrades to the existing. So, every building save:
- *- dwellings' upgrades
- *- Mage Guild upgrades
- *- Horde buildings
- *- income upgrades
- *- some special ones
- *increases middle Turret damage by 3, and 1,5 for the other two.
- *Damage is almost always the maximum one (right click on the Turret), sometimes +1/2 points, and it does not depend on the target. Nothing can influence it, except the mentioned above (but it will be roughly double if the defender has Armorer or Air Shield).
- *Maximum damage for Castle, Conflux is 120, Necropolis, Inferno, Fortress 125, Stronghold, Turret, and Dungeon 130 (for all three Turrets).
- *Artillery allows the player to control the Turrets.
- */
+
 static void retrieveTurretDamageRange(const CGTownInstance * town, const battle::Unit * turret, double & outMinDmg, double & outMaxDmg)//does not match OH3 yet, but damage is somewhat close
 {
+	// http://heroes.thelazy.net/wiki/Arrow_tower
 	assert(turret->creatureIndex() == CreatureID::ARROW_TOWERS);
 	assert(town);
 	assert(turret->getPosition() >= -4 && turret->getPosition() <= -2);
 
-	const float multiplier = (turret->getPosition() == -2) ? 1.0f : 0.5f;
+	// base damage, irregardless of town level
+	static const int baseDamageKeep = 10;
+	static const int baseDamageTower = 6;
 
-	//Revised - Where do below values come from?
-	/*int baseMin = 6;
-	int baseMax = 10;*/
+	// extra damage, for each building in town
+	static const int extraDamage = 2;
 
-	const int baseDamage = 15;
+	const int townLevel = town->getTownLevel();
 
-	outMinDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
-	outMaxDmg = outMinDmg;
+	int minDamage;
+
+	if (turret->getPosition() == BattleHex::CASTLE_CENTRAL_TOWER)
+		minDamage = baseDamageKeep + townLevel * extraDamage;
+	else
+		minDamage = baseDamageTower + townLevel / 2 * extraDamage;
+
+	outMinDmg = minDamage;
+	outMaxDmg = minDamage * 2;
 }
 
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
 {
-	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
+	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 96, 112, 130, 147, 165, 182};
 
 	return lineToHex[line];
 }
@@ -78,7 +71,7 @@ static bool sameSideOfWall(BattleHex pos1, BattleHex pos2)
 }
 
 // parts of wall
-static const std::pair<int, EWallPart::EWallPart> wallParts[] =
+static const std::pair<int, EWallPart> wallParts[] =
 {
 	std::make_pair(50, EWallPart::KEEP),
 	std::make_pair(183, EWallPart::BOTTOM_TOWER),
@@ -96,7 +89,7 @@ static const std::pair<int, EWallPart::EWallPart> wallParts[] =
 	std::make_pair(165, EWallPart::INDESTRUCTIBLE_PART)
 };
 
-static EWallPart::EWallPart hexToWallPart(BattleHex hex)
+static EWallPart hexToWallPart(BattleHex hex)
 {
 	for(auto & elem : wallParts)
 	{
@@ -107,7 +100,7 @@ static EWallPart::EWallPart hexToWallPart(BattleHex hex)
 	return EWallPart::INVALID; //not found!
 }
 
-static BattleHex WallPartToHex(EWallPart::EWallPart part)
+static BattleHex WallPartToHex(EWallPart part)
 {
 	for(auto & elem : wallParts)
 	{
@@ -164,8 +157,98 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	return ESpellCastProblem::OK;
 }
 
+struct Point
+{
+	int x,y;
+};
+
+/// Algorithm to test whether line segment between points line1-line2 will intersect with
+/// rectangle specified by top-left and bottom-right points
+/// Note that in order to avoid floating point rounding errors algorithm uses integers with no divisions
+static bool intersectionSegmentRect(Point line1, Point line2, Point rectTL, Point rectBR)
+{
+	assert(rectTL.x < rectBR.x);
+	assert(rectTL.y < rectBR.y);
+
+	// check whether segment is located to the left of our AABB
+	if (line1.x < rectTL.x && line2.x < rectTL.x)
+		return false;
+
+	// check whether segment is located to the right of our AABB
+	if (line1.x > rectBR.x && line2.x > rectBR.x)
+		return false;
+
+	// check whether segment is located on top of our AABB
+	if (line1.y < rectTL.y && line2.y < rectTL.y)
+		return false;
+
+	// check whether segment is located below of our AABB
+	if (line1.y > rectBR.y && line2.y > rectBR.y)
+		return false;
+
+	Point vector { line2.x - line1.x, line2.y - line1.y};
+
+	// compute position of AABB corners relative to our line
+	int tlTest = vector.y*rectTL.x - vector.x*rectTL.y + (line2.x*line1.y-line1.x*line2.y);
+	int trTest = vector.y*rectBR.x - vector.x*rectTL.y + (line2.x*line1.y-line1.x*line2.y);
+	int blTest = vector.y*rectTL.x - vector.x*rectBR.y + (line2.x*line1.y-line1.x*line2.y);
+	int brTest = vector.y*rectBR.x - vector.x*rectBR.y + (line2.x*line1.y-line1.x*line2.y);
+
+	// if all points are on the left of our line then there is no intersection
+	if ( tlTest > 0 && trTest > 0 && blTest > 0 && brTest > 0 )
+		return false;
+
+	// if all points are on the right of our line then there is no intersection
+	if ( tlTest < 0 && trTest < 0 && blTest < 0 && brTest < 0 )
+		return false;
+
+	// if all previous checks failed, this means that there is an intersection between line and AABB
+	return true;
+}
+
 bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
 {
+	auto isTileBlocked = [&](BattleHex tile)
+	{
+		EWallPart wallPart = battleHexToWallPart(tile);
+		if (wallPart == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+			return false; // does not blocks ranged attacks
+		if (wallPart == EWallPart::INDESTRUCTIBLE_PART)
+			return true; // always blocks ranged attacks
+
+		assert(isWallPartPotentiallyAttackable(wallPart));
+
+		EWallState state = battleGetWallState(wallPart);
+
+		return state != EWallState::DESTROYED;
+	};
+
+	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
+	{
+		// arbitrary selected cell size for virtual grid
+		// any even number can be selected (for division by two)
+		static const int cellSize = 10;
+
+		// create line that goes from center of shooter cell to center of target cell
+		Point line1{ from.getX()*cellSize+cellSize/2, from.getY()*cellSize+cellSize/2};
+		Point line2{ dest.getX()*cellSize+cellSize/2, dest.getY()*cellSize+cellSize/2};
+
+		for (int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
+		{
+			BattleHex obstacle = lineToWallHex(y);
+			if (!isTileBlocked(obstacle))
+				continue;
+
+			// create rect around cell with an obstacle
+			Point rectTL{ obstacle.getX()*cellSize, obstacle.getY()*cellSize };
+			Point recrBR{ obstacle.getX()*(cellSize+1), obstacle.getY()*(cellSize+1) };
+
+			if ( intersectionSegmentRect(line1, line2, rectTL, recrBR))
+				return true;
+		}
+		return false;
+	};
+
 	RETURN_IF_NOT_BATTLE(false);
 	if(!battleGetSiegeLevel())
 		return false;
@@ -177,21 +260,9 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 		return false;
 
 	const int wallInStackLine = lineToWallHex(shooterPosition.getY());
-	const int wallInDestLine = lineToWallHex(destHex.getY());
+	const bool shooterOutsideWalls = shooterPosition < wallInStackLine;
 
-	const bool stackLeft = shooterPosition < wallInStackLine;
-	const bool destRight = destHex > wallInDestLine;
-
-	if (stackLeft && destRight) //shooting from outside to inside
-	{
-		int row = (shooterPosition + destHex) / (2 * GameConstants::BFIELD_WIDTH);
-		if (shooterPosition > destHex && ((destHex % GameConstants::BFIELD_WIDTH - shooterPosition % GameConstants::BFIELD_WIDTH) < 2)) //shooting up high
-			row -= 2;
-		const int wallPos = lineToWallHex(row);
-		if (!isWallPartPotentiallyAttackable(battleHexToWallPart(wallPos))) return true;
-	}
-
-	return false;
+	return shooterOutsideWalls && needWallPenalty(shooterPosition, destHex);
 }
 
 si8 CBattleInfoCallback::battleCanTeleportTo(const battle::Unit * stack, BattleHex destHex, int telportLevel) const
@@ -1128,13 +1199,13 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			ret[hex] = EAccessibility::UNAVAILABLE;
 
 		//TODO likely duplicated logic
-		static const std::pair<int, BattleHex> lockedIfNotDestroyed[] =
+		static const std::pair<EWallPart, BattleHex> lockedIfNotDestroyed[] =
 		{
 			//which part of wall, which hex is blocked if this part of wall is not destroyed
-			std::make_pair(2, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
-			std::make_pair(3, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
-			std::make_pair(4, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
-			std::make_pair(5, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
+			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
+			std::make_pair(EWallPart::BELOW_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
+			std::make_pair(EWallPart::OVER_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
+			std::make_pair(EWallPart::UPPER_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
 		};
 
 		for(auto & elem : lockedIfNotDestroyed)
@@ -1636,19 +1707,19 @@ bool CBattleInfoCallback::isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosi
 	return false;
 }
 
-BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart::EWallPart part) const
+BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallPart part) const
 {
 	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
 	return WallPartToHex(part);
 }
 
-EWallPart::EWallPart CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
+EWallPart CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
 {
 	RETURN_IF_NOT_BATTLE(EWallPart::INVALID);
 	return hexToWallPart(hex);
 }
 
-bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart::EWallPart wallPart) const
+bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart wallPart) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	return wallPart != EWallPart::INDESTRUCTIBLE_PART && wallPart != EWallPart::INDESTRUCTIBLE_PART_OF_GATE &&
@@ -1664,8 +1735,8 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	{
 		if(isWallPartPotentiallyAttackable(wallPartPair.second))
 		{
-			auto wallState = static_cast<EWallState::EWallState>(battleGetWallState(static_cast<int>(wallPartPair.second)));
-			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			auto wallState = battleGetWallState(wallPartPair.second);
+			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
 				attackableBattleHexes.push_back(BattleHex(wallPartPair.first));
 			}

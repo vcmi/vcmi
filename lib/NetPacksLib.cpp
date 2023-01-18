@@ -1708,7 +1708,7 @@ DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
 
 	for(const auto & part : attackedParts)
 	{
-		auto newWallState = SiegeInfo::applyDamage(EWallState::EWallState(battleState->getWallState(part.attackedPart)), part.damageDealt);
+		auto newWallState = SiegeInfo::applyDamage(battleState->getWallState(part.attackedPart), part.damageDealt);
 		battleState->setWallState(part.attackedPart, newWallState);
 	}
 }

@@ -46,14 +46,14 @@ std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
 {
 	std::vector<BattleHex> result;
 
-	for(int wallPart = EWallPart::BOTTOM_WALL; wallPart < EWallPart::UPPER_WALL; wallPart++)
+	for(EWallPart wallPart : { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL })
 	{
 		auto state = cb->battleGetWallState(wallPart);
 
 		if(state != EWallState::DESTROYED)
 			continue;
 
-		auto wallHex = cb->wallPartToBattleHex((EWallPart::EWallPart)wallPart);
+		auto wallHex = cb->wallPartToBattleHex((EWallPart)wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
@@ -364,7 +364,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	}
 	else
 	{
-		EWallPart::EWallPart wallParts[] = {
+		EWallPart wallParts[] = {
 			EWallPart::KEEP,
 			EWallPart::BOTTOM_TOWER,
 			EWallPart::UPPER_TOWER,
@@ -378,10 +378,9 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 		{
 			auto wallState = cb->battleGetWallState(wallPart);
 
-			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
 				targetHex = cb->wallPartToBattleHex(wallPart);
-
 				break;
 			}
 		}

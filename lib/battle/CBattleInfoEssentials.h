@@ -94,7 +94,7 @@ public:
 
 	// for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall,
 	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	si8 battleGetWallState(int partOfWall) const;
+	EWallState battleGetWallState(EWallPart partOfWall) const;
 	EGateState battleGetGateState() const;
 
 	//helpers

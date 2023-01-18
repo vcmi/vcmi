@@ -28,22 +28,29 @@
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState::EWallState state) const
+std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
 {
 	auto getImageIndex = [&]() -> int
 	{
+		bool isTower = (what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER);
+
 		switch (state)
 		{
-		case EWallState::INTACT :
+		case EWallState::REINFORCED :
 			return 1;
+		case EWallState::INTACT :
+			if (town->hasBuilt(BuildingID::CASTLE))
+				return 2; // reinforced walls were damaged
+			else
+				return 1;
 		case EWallState::DAMAGED :
 			// towers don't have separate image here - INTACT and DAMAGED is 1, DESTROYED is 2
-			if(what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER)
+			if (isTower)
 				return 1;
 			else
 				return 2;
 		case EWallState::DESTROYED :
-			if (what == EWallVisual::KEEP || what == EWallVisual::BOTTOM_TOWER || what == EWallVisual::UPPER_TOWER)
+			if (isTower)
 				return 2;
 			else
 				return 3;
@@ -130,9 +137,9 @@ bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what)
 	{
 	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
 	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER && town->town->faction->index != ETownType::NECROPOLIS;
-	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && EWallState::EWallState(owner.curInt->cb->battleGetWallState(EWallPart::KEEP)) != EWallState::DESTROYED;
-	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER)) != EWallState::DESTROYED;
-	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER)) != EWallState::DESTROYED;
+	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.curInt->cb->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
+	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
+	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
 	default:                             return true;
 	}
 }
@@ -177,7 +184,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistance(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::INTACT));
+		wallPieceImages[g] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
 	}
 }
 
@@ -321,7 +328,7 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 	if (!owner.curInt->cb->isWallPartPotentiallyAttackable(wallPart))
 		return false;
 
-	auto state = owner.curInt->cb->battleGetWallState(static_cast<int>(wallPart));
+	auto state = owner.curInt->cb->battleGetWallState(wallPart);
 	return state != EWallState::DESTROYED && state != EWallState::NONE;
 }
 
@@ -354,12 +361,12 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 	for (auto attackInfo : ca.attackedParts)
 	{
-		int wallId = attackInfo.attackedPart + EWallVisual::DESTRUCTIBLE_FIRST;
+		int wallId = static_cast<int>(attackInfo.attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
 		//gate state changing handled separately
 		if (wallId == EWallVisual::GATE)
 			continue;
 
-		auto wallState = EWallState::EWallState(owner.curInt->cb->battleGetWallState(attackInfo.attackedPart));
+		auto wallState = EWallState(owner.curInt->cb->battleGetWallState(attackInfo.attackedPart));
 
 		wallPieceImages[wallId] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
 	}

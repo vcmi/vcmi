@@ -222,20 +222,23 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	{
 		curB->si.gateState = EGateState::CLOSED;
 
-		for (int b = 0; b < curB->si.wallState.size(); ++b)
+		curB->si.wallState[EWallPart::GATE] = EWallState::INTACT;
+
+		for (auto const wall : {EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL} )
 		{
-			curB->si.wallState[b] = EWallState::INTACT;
+			if (town->hasBuilt(BuildingID::CASTLE))
+				curB->si.wallState[wall] = EWallState::REINFORCED;
+			else
+				curB->si.wallState[wall] = EWallState::INTACT;
 		}
 
-		if (!town->hasBuilt(BuildingID::CITADEL))
-		{
-			curB->si.wallState[EWallPart::KEEP] = EWallState::NONE;
-		}
+		if (town->hasBuilt(BuildingID::CITADEL))
+			curB->si.wallState[EWallPart::KEEP] = EWallState::INTACT;
 
-		if (!town->hasBuilt(BuildingID::CASTLE))
+		if (town->hasBuilt(BuildingID::CASTLE))
 		{
-			curB->si.wallState[EWallPart::UPPER_TOWER] = EWallState::NONE;
-			curB->si.wallState[EWallPart::BOTTOM_TOWER] = EWallState::NONE;
+			curB->si.wallState[EWallPart::UPPER_TOWER] = EWallState::INTACT;
+			curB->si.wallState[EWallPart::BOTTOM_TOWER] = EWallState::INTACT;
 		}
 	}
 
@@ -609,7 +612,7 @@ const CGTownInstance * BattleInfo::getDefendedTown() const
 	return town;
 }
 
-si8 BattleInfo::getWallState(int partOfWall) const
+EWallState BattleInfo::getWallState(EWallPart partOfWall) const
 {
 	return si.wallState.at(partOfWall);
 }
@@ -912,9 +915,9 @@ void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool fo
 	}
 }
 
-void BattleInfo::setWallState(int partOfWall, si8 state)
+void BattleInfo::setWallState(EWallPart partOfWall, EWallState state)
 {
-	si.wallState.at(partOfWall) = state;
+	si.wallState[partOfWall] = state;
 }
 
 void BattleInfo::addObstacle(const ObstacleChanges & changes)
