@@ -19,7 +19,7 @@ private:
 	std::list<ENetPacket*> packets;
 	int channel = 0;
 	ENetPeer * peer = nullptr;
-	std::atomic<bool> connected, locked;
+	std::atomic<bool> connected;
 	
 public:
 	EnetConnection(ENetPeer * peer);
