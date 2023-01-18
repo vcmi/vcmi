@@ -186,7 +186,7 @@ class DLL_LINKAGE CFaction : public Faction
 	friend class CBuilding;
 	friend class CTown;
 
-	std::string modScope; //town name, by default - from TownName.txt
+	std::string modScope;
 	std::string identifier;
 
 	TFaction index;

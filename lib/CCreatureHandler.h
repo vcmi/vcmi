@@ -33,10 +33,6 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	std::string modScope;
 	std::string identifier;
 
-//	std::string nameRef; // reference name, stringID
-//	std::string nameSing;// singular name, e.g. Centaur
-//	std::string namePl;  // plural name, e.g. Centaurs
-
 	std::string getNameTranslated() const override;
 	std::string getNameTextID() const override;
 
