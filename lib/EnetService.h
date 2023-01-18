@@ -6,6 +6,7 @@
 //
 
 #pragma once
+#include <thread>
 #include <enet/enet.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
