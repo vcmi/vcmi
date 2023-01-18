@@ -63,8 +63,6 @@ class DLL_LINKAGE CHero : public HeroType
 	HeroTypeID ID;
 	std::string identifier;
 	std::string modScope;
-	std::string nameTextID; //name of hero
-	std::string biographyTextID;
 
 public:
 	struct InitialArmyStack
@@ -137,8 +135,6 @@ public:
 		h & haveSpellBook;
 		h & sex;
 		h & special;
-		h & nameTextID;
-		h & biographyTextID;
 		h & iconSpecSmall;
 		h & iconSpecLarge;
 		h & portraitSmall;
@@ -159,7 +155,6 @@ class DLL_LINKAGE CHeroClass : public HeroClass
 	HeroClassID id; // use getId instead
 	std::string modScope;
 	std::string identifier; // use getJsonKey instead
-	std::string nameTextID;
 
 public:
 	enum EClassAffinity
@@ -212,7 +207,6 @@ public:
 	{
 		h & modScope;
 		h & identifier;
-		h & nameTextID;
 		h & faction;
 		h & id;
 		h & defaultTavernChance;
