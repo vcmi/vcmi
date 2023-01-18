@@ -35,7 +35,7 @@ int32_t CCreature::getIconIndex() const
 
 std::string CCreature::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 void CCreature::registerIcons(const IconRegistar & cb) const
