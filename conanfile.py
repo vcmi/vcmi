@@ -10,14 +10,14 @@ class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     requires = [
         "boost/[^1.69]",
+        "enet/[~1.3.17]",
         "minizip/[~1.2.12]",
         "onetbb/[^2021.3]", # Nullkiller AI
         "qt/[~5.15.2]", # launcher
         "sdl/[~2.26.1 || >=2.0.20 <=2.22.0]", # versions in between have broken sound
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
-        "sdl_ttf/[~2.0.18]",
-        "enet/[~1.3.17]"
+        "sdl_ttf/[~2.0.18]"
     ]
     options = {
         "default_options_of_requirements": [True, False],
@@ -32,6 +32,7 @@ class VCMI(ConanFile):
         "with_luajit": False,
 
         "boost/*:shared": True,
+        "enet/*:shared": True,
         "minizip/*:shared": True,
         "onetbb/*:shared": True,
     }
