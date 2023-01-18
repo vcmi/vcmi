@@ -469,6 +469,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		target_link_libraries(${TARGET_NAME} PUBLIC iOS_utils)
 	endif()
 
+	# Conan compatibility
+	if(TARGET enet::enet)
+		target_link_libraries(${TARGET_NAME} PUBLIC enet::enet)
+	endif()
+
 	target_include_directories(${TARGET_NAME}
 		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 		PUBLIC ${MAIN_LIB_DIR}/..
