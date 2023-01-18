@@ -1,5 +1,5 @@
 /*
- * Geometries.h, part of VCMI engine
+ * Rect.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
