@@ -185,7 +185,7 @@ std::string CHeroClass::getNameTranslated() const
 
 std::string CHeroClass::getNameTextID() const
 {
-	return TextIdentifier("heroClass", modScope, identifier, "specialty", "name").get();
+	return TextIdentifier("heroClass", modScope, identifier, "name").get();
 }
 
 void CHeroClass::updateFrom(const JsonNode & data)
