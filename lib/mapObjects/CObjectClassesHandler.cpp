@@ -215,7 +215,7 @@ std::string ObjectClass::getJsonKey() const
 
 std::string ObjectClass::getNameTextID() const
 {
-	return TextIdentifier("object", identifier, "name").get();
+	return TextIdentifier("object", modScope, identifier, "name").get();
 }
 
 std::string ObjectClass::getNameTranslated() const
@@ -246,10 +246,10 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 			if ( subMeta != "core")
 				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
 			size_t subIndex = subData.second["index"].Integer();
-			loadSubObject(scope, subData.first, subData.second, obj, subIndex);
+			loadSubObject(subData.second.meta, subData.first, subData.second, obj, subIndex);
 		}
 		else
-			loadSubObject(scope, subData.first, subData.second, obj);
+			loadSubObject(subData.second.meta, subData.first, subData.second, obj);
 	}
 	return obj;
 }
@@ -553,7 +553,7 @@ bool AObjectTypeHandler::hasNameTextID() const
 
 std::string AObjectTypeHandler::getNameTextID() const
 {
-	return TextIdentifier("mapObject", getTypeName(), getJsonKey(), "name").get();
+	return TextIdentifier("mapObject", modScope, typeName, subTypeName, "name").get();
 }
 
 std::string AObjectTypeHandler::getNameTranslated() const
