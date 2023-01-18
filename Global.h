@@ -98,6 +98,8 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define NO_STD_TOSTRING // android runtime (gnustl) currently doesn't support std::to_string, so we provide our impl in this case
 #endif // VCMI_ANDROID
 
+#define NOGDI
+
 /* ---------------------------------------------------------------------------- */
 /* A macro to force inlining some of our functions */
 /* ---------------------------------------------------------------------------- */
