@@ -364,7 +364,7 @@ bool CBattleInfoEssentials::battleHasHero(ui8 side) const
 	return getBattle()->getSideHero(side) != nullptr;
 }
 
-si8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
+EWallState CBattleInfoEssentials::battleGetWallState(EWallPart partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(EWallState::NONE);
 	if(battleGetSiegeLevel() == CGTownInstance::NONE)

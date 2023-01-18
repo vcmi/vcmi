@@ -1827,7 +1827,7 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 	struct AttackInfo
 	{
 		si16 destinationTile;
-		ui8 attackedPart;
+		EWallPart attackedPart;
 		ui8 damageDealt;
 
 		template <typename Handler> void serialize(Handler & h, const int version)

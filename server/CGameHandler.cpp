@@ -4440,6 +4440,26 @@ static EndAction end_action;
 
 void CGameHandler::updateGateState()
 {
+	// GATE_BRIDGE - leftmost tile, located over moat
+	// GATE_OUTER - central tile, mostly covered by gate image
+	// GATE_INNER - rightmost tile, inside the walls
+
+	// GATE_OUTER or GATE_INNER:
+	// - if defender moves unit on these tiles, bridge will open
+	// - if there is a creature (dead or alive) on these tiles, bridge will always remain open
+	// - blocked to attacker if bridge is closed
+
+	// GATE_BRIDGE
+	// - if there is a unit or corpse here, bridge can't open (and can't close in fortress)
+	// - if Force Field is cast here, bridge can't open (but can close, in any town)
+	// - deals moat damage to attacker if bridge is closed (fortress only)
+
+	bool hasForceFieldOnBridge = !battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), true).empty();
+	bool hasStackAtGateInner   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
+	bool hasStackAtGateOuter   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
+	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
+	bool hasLongBridge         = gs->curB->town->subID == ETownType::FORTRESS;
+
 	BattleUpdateGateState db;
 	db.state = gs->curB->si.gateState;
 	if (gs->curB->si.wallState[EWallPart::GATE] == EWallState::DESTROYED)
@@ -4448,24 +4468,23 @@ void CGameHandler::updateGateState()
 	}
 	else if (db.state == EGateState::OPENED)
 	{
-		if (!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) &&
-			!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false))
-		{
-			if (gs->curB->town->subID == ETownType::FORTRESS)
-			{
-				if (!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
-					db.state = EGateState::CLOSED;
-			}
-			else if (gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE)))
-				db.state = EGateState::BLOCKED;
-			else
-				db.state = EGateState::CLOSED;
-		}
+		bool hasStackOnLongBridge = hasStackAtGateBridge && hasLongBridge;
+		bool gateCanClose = !hasStackAtGateInner && !hasStackAtGateOuter && !hasStackOnLongBridge;
+
+		if (gateCanClose)
+			db.state = EGateState::CLOSED;
+		else
+			db.state = EGateState::OPENED;
 	}
-	else if (gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
-		db.state = EGateState::BLOCKED;
-	else
-		db.state = EGateState::CLOSED;
+	else // CLOSED or BLOCKED
+	{
+		bool gateBlocked = hasForceFieldOnBridge || hasStackAtGateBridge;
+
+		if (gateBlocked)
+			db.state = EGateState::BLOCKED;
+		else
+			db.state = EGateState::CLOSED;
+	}
 
 	if (db.state != gs->curB->si.gateState)
 		sendAndApply(&db);
@@ -4804,7 +4823,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	case EActionType::CATAPULT:
 		{
 			//TODO: unify with spells::effects:Catapult
-			auto getCatapultHitChance = [&](EWallPart::EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
+			auto getCatapultHitChance = [](EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
 			{
 				switch(part)
 				{
@@ -4825,115 +4844,105 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				}
 			};
 
-			auto wrapper = wrapAction(ba);
-
-			if(target.size() < 1)
+			auto getBallisticsInfo = [this, &ba] (const CStack * actor)
 			{
-				complain("Destination required for catapult action.");
-				ok = false;
-				break;
-			}
-			auto destination = target.at(0).hexValue;
+				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 
-			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-			CHeroHandler::SBallisticsLevelInfo stackBallisticsParameters;
-			if(stack->getCreature()->idNumber == CreatureID::CATAPULT)
-				stackBallisticsParameters = VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
-			else
-			{
-				if(stack->hasBonusOfType(Bonus::CATAPULT_EXTRA_SHOTS)) //by design use advanced ballistics parameters with this bonus present, upg. cyclops use advanced ballistics, nonupg. use basic in OH3
+				if(actor->getCreature()->idNumber == CreatureID::CATAPULT)
+					return VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
+				else
 				{
-					stackBallisticsParameters = VLC->heroh->ballistics.at(2);
-					stackBallisticsParameters.shots = 1; //skip default "2 shots" from adv. ballistics
+					//by design use advanced ballistics parameters with this bonus present, upg. cyclops use advanced ballistics, nonupg. use basic in OH3
+					int ballisticsLevel = actor->hasBonusOfType(Bonus::CATAPULT_EXTRA_SHOTS) ? 2 : 1;
+
+					auto parameters = VLC->heroh->ballistics.at(ballisticsLevel);
+					parameters.shots = 1 + std::max(actor->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0);
+
+					return parameters;
+				}
+			};
+
+			auto isWallPartAttackable = [this] (EWallPart part)
+			{
+				return (gs->curB->si.wallState[part] == EWallState::REINFORCED || gs->curB->si.wallState[part] == EWallState::INTACT || gs->curB->si.wallState[part] == EWallState::DAMAGED);
+			};
+
+			CHeroHandler::SBallisticsLevelInfo stackBallisticsParameters = getBallisticsInfo(stack);
+
+			auto wrapper = wrapAction(ba);
+			auto destination = target.empty() ? BattleHex(BattleHex::INVALID) : target.at(0).hexValue;
+			auto desiredTarget = gs->curB->battleHexToWallPart(destination);
+
+			for (int shotNumber=0; shotNumber<stackBallisticsParameters.shots; ++shotNumber)
+			{
+				auto actualTarget = EWallPart::INVALID;
+
+				if ( isWallPartAttackable(desiredTarget) &&
+					 getRandomGenerator().nextInt(99) < getCatapultHitChance(desiredTarget, stackBallisticsParameters))
+				{
+					actualTarget = desiredTarget;
 				}
 				else
-					stackBallisticsParameters = VLC->heroh->ballistics.at(1);
-
-				stackBallisticsParameters.shots += std::max(stack->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0); //0 is allowed minimum to let modders force advanced ballistics for "oneshotting creatures"
-			}
-
-			auto wallPart = gs->curB->battleHexToWallPart(destination);
-			if (!gs->curB->isWallPartPotentiallyAttackable(wallPart))
-			{
-				complain("catapult tried to attack non-catapultable hex!");
-				break;
-			}
-
-			//in successive iterations damage is dealt but not yet subtracted from wall's HPs
-			auto &currentHP = gs->curB->si.wallState;
-
-			if (currentHP.at(wallPart) == EWallState::DESTROYED  ||  currentHP.at(wallPart) == EWallState::NONE)
-			{
-				complain("catapult tried to attack already destroyed wall part!");
-				break;
-			}
-
-			for (int g=0; g<stackBallisticsParameters.shots; ++g)
-			{
-				bool hitSuccessfull = false;
-				auto attackedPart = wallPart;
-
-				do // catapult has chance to attack desired target. Otherwise - attacks randomly
 				{
-					if (currentHP.at(attackedPart) != EWallState::DESTROYED && // this part can be hit
-					   currentHP.at(attackedPart) != EWallState::NONE &&
-					   getRandomGenerator().nextInt(99) < getCatapultHitChance(attackedPart, stackBallisticsParameters))//hit is successful
-					{
-						hitSuccessfull = true;
-					}
-					else // select new target
-					{
-						std::vector<EWallPart::EWallPart> allowedTargets;
-						for (size_t i=0; i< currentHP.size(); i++)
-						{
-							if(currentHP.at(i) != EWallState::DESTROYED &&
-								currentHP.at(i) != EWallState::NONE)
-								allowedTargets.push_back(EWallPart::EWallPart(i));
-						}
-						if (allowedTargets.empty())
-							break;
-						attackedPart = *RandomGeneratorUtil::nextItem(allowedTargets, getRandomGenerator());
-					}
+					static const std::array<EWallPart, 4> walls = { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL };
+					static const std::array<EWallPart, 3> towers= { EWallPart::BOTTOM_TOWER, EWallPart::KEEP, EWallPart::UPPER_TOWER };
+					static const EWallPart gates = EWallPart::GATE;
+
+					// in H3, catapult under automatic control will attack objects in following order:
+					// walls, gates, towers
+					std::vector<EWallPart> potentialTargets;
+					for (auto & part : walls )
+						if (isWallPartAttackable(part))
+							potentialTargets.push_back(part);
+
+					if (potentialTargets.empty() && isWallPartAttackable(gates))
+							potentialTargets.push_back(gates);
+
+					if (potentialTargets.empty())
+						for (auto & part : towers )
+							if (isWallPartAttackable(part))
+								potentialTargets.push_back(part);
+
+					if (potentialTargets.empty())
+						break; // everything is gone, can't attack anymore
+
+					actualTarget = *RandomGeneratorUtil::nextItem(potentialTargets, getRandomGenerator());
 				}
-				while (!hitSuccessfull);
+				assert(actualTarget != EWallPart::INVALID);
 
-				if (!hitSuccessfull) // break triggered - no target to shoot at
-					break;
+				std::array<int, 3> damageChances = { stackBallisticsParameters.noDmg, stackBallisticsParameters.oneDmg, stackBallisticsParameters.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
+				int totalChance = std::accumulate(damageChances.begin(), damageChances.end(), 0);
+				int damageRandom = getRandomGenerator().nextInt(totalChance - 1);
+				int dealtDamage = 0;
 
-				CatapultAttack ca; //package for clients
-				CatapultAttack::AttackInfo attack;
-				attack.attackedPart = attackedPart;
-				attack.destinationTile = destination;
-				attack.damageDealt = 0;
-				BattleUnitsChanged removeUnits;
-
-				int dmgChance[] = { stackBallisticsParameters.noDmg, stackBallisticsParameters.oneDmg, stackBallisticsParameters.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
-
-				int dmgRand = getRandomGenerator().nextInt(99);
-				//accumulating dmgChance
-				dmgChance[1] += dmgChance[0];
-				dmgChance[2] += dmgChance[1];
 				//calculating dealt damage
-				for (int damage = 0; damage < ARRAY_COUNT(dmgChance); ++damage)
+				for (int damage = 0; damage < damageChances.size(); ++damage)
 				{
-					if (dmgRand <= dmgChance[damage])
+					if (damageRandom <= damageChances[damage])
 					{
-						attack.damageDealt = damage;
+						dealtDamage = damage;
 						break;
 					}
+					damageRandom -= damageChances[damage];
 				}
-				// attacked tile may have changed - update destination
-				attack.destinationTile = gs->curB->wallPartToBattleHex(EWallPart::EWallPart(attack.attackedPart));
+
+				CatapultAttack::AttackInfo attack;
+				attack.attackedPart = actualTarget;
+				attack.destinationTile = gs->curB->wallPartToBattleHex(actualTarget);
+				attack.damageDealt = dealtDamage;
+
+				CatapultAttack ca; //package for clients
+				ca.attacker = ba.stackNumber;
+				ca.attackedParts.push_back(attack);
+				sendAndApply(&ca);
 
 				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
 
 				//removing creatures in turrets / keep if one is destroyed
-				if (currentHP.at(attackedPart) - attack.damageDealt <= 0 && (attackedPart == EWallPart::KEEP || //HP enum subtraction not intuitive, consider using SiegeInfo::applyDamage
-					attackedPart == EWallPart::BOTTOM_TOWER || attackedPart == EWallPart::UPPER_TOWER))
+				if (gs->curB->si.wallState[actualTarget] == EWallState::DESTROYED && (actualTarget == EWallPart::KEEP || actualTarget == EWallPart::BOTTOM_TOWER || actualTarget == EWallPart::UPPER_TOWER))
 				{
 					int posRemove = -1;
-					switch(attackedPart)
+					switch(actualTarget)
 					{
 					case EWallPart::KEEP:
 						posRemove = BattleHex::CASTLE_CENTRAL_TOWER;
@@ -4950,18 +4959,13 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					{
 						if(elem->initialPosition == posRemove)
 						{
+							BattleUnitsChanged removeUnits;
 							removeUnits.changedStacks.emplace_back(elem->unitId(), UnitChanges::EOperation::REMOVE);
+							sendAndApply(&removeUnits);
 							break;
 						}
 					}
 				}
-				ca.attacker = ba.stackNumber;
-				ca.attackedParts.push_back(attack);
-
-				sendAndApply(&ca);
-
-				if(!removeUnits.changedStacks.empty())
-					sendAndApply(&removeUnits);
 			}
 			//finish by scope guard
 			break;
@@ -6783,8 +6787,6 @@ void CGameHandler::runBattle()
 				if (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::CATAPULT))
 				{
 					BattleAction attack;
-					auto destination = *RandomGeneratorUtil::nextItem(attackableBattleHexes, getRandomGenerator());
-					attack.aimToHex(destination);
 					attack.actionType = EActionType::CATAPULT;
 					attack.side = next->side;
 					attack.stackNumber = next->ID;
