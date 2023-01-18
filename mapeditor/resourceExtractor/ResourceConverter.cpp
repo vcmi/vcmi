@@ -29,7 +29,7 @@ void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversi
 	std::vector<std::string> defFiles = { "TwCrPort.def", "CPRSMALL.def", "FlagPort.def", "ITPA.def", "ITPt.def", "Un32.def", "Un44.def" };
 
 	if(conversionOptions.splitDefs)
-		splitDefFiles(spritesPath, defFiles, conversionOptions.deleteOriginals);
+		splitDefFiles(defFiles, spritesPath, conversionOptions.deleteOriginals);
 
 	if(conversionOptions.convertPcxToPng)
 		doConvertPcxToPng(imagesPath, conversionOptions.deleteOriginals);
@@ -83,10 +83,10 @@ void ResourceConverter::splitDefFile(const std::string & fileName, const bfs::pa
 		logGlobal->error("Def File Split error! " + fileName);
 }
 
-void ResourceConverter::splitDefFiles(const bfs::path & sourceFolder, std::vector<std::string> defFileNames, bool deleteOriginals)
+void ResourceConverter::splitDefFiles(const std::vector<std::string> & defFileNames, const bfs::path & sourceFolder, bool deleteOriginals)
 {
 	logGlobal->info("Splitting Def Files from folder: %s ...\n", sourceFolder);
 
-	for(std::string defFilename : defFileNames)
+	for(const auto & defFilename : defFileNames)
 		splitDefFile(defFilename, sourceFolder, deleteOriginals);
 }
