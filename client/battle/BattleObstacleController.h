@@ -13,6 +13,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleHex;
 struct CObstacleInstance;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -21,7 +22,6 @@ class Canvas;
 class CAnimation;
 class BattleInterface;
 class BattleRenderer;
-class Point;
 
 /// Controls all currently active projectiles on the battlefield
 /// (with exception of moat, which is apparently handled by siege controller)

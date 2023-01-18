@@ -18,10 +18,10 @@ struct CatapultAttack;
 class CCreature;
 class CStack;
 class CGTownInstance;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
-class Point;
 class Canvas;
 class BattleInterface;
 class BattleRenderer;

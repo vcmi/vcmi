@@ -23,6 +23,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
+class Rect;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -30,8 +32,6 @@ struct SDL_Surface;
 struct SDL_Color;
 class CDefFile;
 class ColorFilter;
-class Rect;
-class Point;
 
 /*
  * Base class for images, can be used for non-animation pictures as well

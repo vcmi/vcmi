@@ -25,8 +25,12 @@ extern SDL_Renderer * mainRenderer;
 extern SDL_Texture * screenTexture;
 extern SDL_Surface * screen, *screen2, *screenBuf;
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Rect;
 class Point;
+
+VCMI_LIB_NAMESPACE_END
 
 /**
  * The colors class defines color constants of type SDL_Color.
