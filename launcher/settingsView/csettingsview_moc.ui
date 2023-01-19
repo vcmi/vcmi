@@ -638,6 +638,32 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="1">
+    <widget class="QLabel" name="labelCursorType">
+     <property name="text">
+      <string>Cursor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <widget class="QComboBox" name="comboBoxCursorType">
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Hardware</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Software</string>
+      </property>
+     </item>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

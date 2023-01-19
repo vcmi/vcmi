@@ -58,6 +58,13 @@ static const std::string languageTagList[] =
 	"ukrainian",
 };
 
+static const std::string cursorTypesList[] =
+{
+	"auto",
+	"hardware",
+	"software"
+};
+
 void CSettingsView::setDisplayList()
 {
 	QStringList list;
@@ -89,6 +96,8 @@ void CSettingsView::loadSettings()
 	ui->comboBoxFullScreen->setDisabled(true);
 #else
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
+	if (settings["video"]["realFullscreen"].Bool())
+		ui->comboBoxFullScreen->setCurrentIndex(2);
 #endif
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -120,6 +129,10 @@ void CSettingsView::loadSettings()
 	size_t languageIndex = boost::range::find(languageTagList, language) - languageTagList;
 	if(languageIndex < ui->comboBoxLanguage->count())
 		ui->comboBoxLanguage->setCurrentIndex((int)languageIndex);
+
+	std::string cursorType = settings["video"]["cursor"].String();
+	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
+	ui->comboBoxCursorType->setCurrentIndex((int)cursorTypeIndex);
 }
 
 void CSettingsView::fillValidResolutions(bool isExtraResolutionsModEnabled)
@@ -339,3 +352,10 @@ void CSettingsView::changeEvent(QEvent *event)
 	}
 	QWidget::changeEvent(event);
 }
+
+void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["cursor"];
+	node->String() = cursorTypesList[index];
+}
+
