@@ -543,7 +543,6 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 bool BattleStacksController::shouldAttackFacingRight(const CStack * attacker, const CStack * defender)
 {
 	bool mustReverse = owner.curInt->cb->isToReverse(
-				attacker->getPosition(),
 				attacker,
 				defender);
 

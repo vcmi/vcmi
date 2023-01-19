@@ -137,7 +137,7 @@ public:
 	AttackableTiles getPotentiallyShootableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const;
 	std::vector<const battle::Unit *> getAttackedBattleUnits(const battle::Unit* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	std::set<const CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
-	bool isToReverse(BattleHex attackerHex, const battle::Unit *attacker, const battle::Unit *defender) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
+	bool isToReverse(const battle::Unit *attacker, const battle::Unit *defender) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters & params) const;

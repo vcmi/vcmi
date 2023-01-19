@@ -1470,8 +1470,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	if (!defender)
 		return at; // can't attack thin air
 
-	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
-	bool reverse = isToReverse(destinationTile, attacker, defender);
+	bool reverse = isToReverse(attacker, defender);
 	if(reverse && attacker->doubleWide())
 	{
 		hex = attacker->occupiedHex(hex); //the other hex stack stands on
@@ -1622,12 +1621,13 @@ static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side
 }
 
 //TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverse (BattleHex attackerHex, const battle::Unit * attacker, const battle::Unit * defender) const
+bool CBattleInfoCallback::isToReverse (const battle::Unit * attacker, const battle::Unit * defender) const
 {
+	BattleHex attackerHex = attacker->getPosition();
+	BattleHex defenderHex = defender->getPosition();
+
 	if (attackerHex < 0 ) //turret
 		return false;
-
-	BattleHex defenderHex = defender->getPosition();
 
 	if (isHexInFront(attackerHex, defenderHex, BattleSide::Type(attacker->unitSide())))
 		return false;
