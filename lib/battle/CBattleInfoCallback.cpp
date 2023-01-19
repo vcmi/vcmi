@@ -1464,7 +1464,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
+	BattleHex attackOriginHex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 
 	auto defender = battleGetUnitByPos(destinationTile, true);
 	if (!defender)
@@ -1473,7 +1473,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	bool reverse = isToReverse(attacker, defender);
 	if(reverse && attacker->doubleWide())
 	{
-		hex = attacker->occupiedHex(hex); //the other hex stack stands on
+		attackOriginHex = attacker->occupiedHex(attackOriginHex); //the other hex stack stands on
 	}
 	if(attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
@@ -1484,7 +1484,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
 		for(BattleHex tile : hexes)
 		{
-			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
+			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
 				auto st = battleGetUnitByPos(tile, true);
 				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
@@ -1497,7 +1497,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 		std::vector<BattleHex> hexes = destinationTile.neighbouringTiles();
 		for(int i = 0; i<hexes.size(); i++)
 		{
-			if(hexes.at(i) == hex)
+			if(hexes.at(i) == attackOriginHex)
 			{
 				hexes.erase(hexes.begin() + i);
 				i = 0;
@@ -1513,10 +1513,22 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	}
 	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 	{
-		auto direction = BattleHex::mutualPosition(hex, destinationTile);
+		auto direction = BattleHex::mutualPosition(attackOriginHex, destinationTile);
 		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 		{
 			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
+
+			if ( defender->doubleWide() )
+			{
+				auto secondHex = destinationTile == defender->getPosition() ?
+					defender->occupiedHex():
+					defender->getPosition();
+
+				// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
+				// then dragon breath should target tile on the opposite side of targeted creature
+				if (BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
+					nextHex = secondHex.cloneInDirection(direction, false);
+			}
 
 			if (nextHex.isValid())
 			{
