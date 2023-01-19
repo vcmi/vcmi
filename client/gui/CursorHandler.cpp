@@ -288,6 +288,24 @@ void CursorHandler::render()
 	cursor->render();
 }
 
+void CursorHandler::hide()
+{
+	if (!showing)
+		return;
+
+	showing = false;
+	cursor->setVisible(false);
+}
+
+void CursorHandler::show()
+{
+	if (showing)
+		return;
+
+	showing = true;
+	cursor->setVisible(true);
+}
+
 void CursorSoftware::render()
 {
 	//texture must be updated in the main (renderer) thread, but changes to cursor type may come from other threads
@@ -348,10 +366,16 @@ void CursorSoftware::setCursorPosition( const Point & newPos )
 	pos = newPos;
 }
 
+void CursorSoftware::setVisible(bool on)
+{
+	visible = on;
+}
+
 CursorSoftware::CursorSoftware():
 	cursorTexture(nullptr),
 	cursorSurface(nullptr),
 	needUpdate(false),
+	visible(false),
 	pivot(0,0)
 {
 	SDL_ShowCursor(SDL_DISABLE);
@@ -364,18 +388,26 @@ CursorSoftware::~CursorSoftware()
 
 	if (cursorSurface)
 		SDL_FreeSurface(cursorSurface);
-
 }
 
 CursorHardware::CursorHardware():
 	cursor(nullptr)
 {
+	SDL_ShowCursor(SDL_DISABLE);
 }
 
 CursorHardware::~CursorHardware()
 {
 	if(cursor)
 		SDL_FreeCursor(cursor);
+}
+
+void CursorHardware::setVisible(bool on)
+{
+	if (on)
+		SDL_ShowCursor(SDL_ENABLE);
+	else
+		SDL_ShowCursor(SDL_DISABLE);
 }
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)

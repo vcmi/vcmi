@@ -120,6 +120,7 @@ public:
 	virtual void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) = 0;
 	virtual void setCursorPosition( const Point & newPos ) = 0;
 	virtual void render() = 0;
+	virtual void setVisible( bool on) = 0;
 };
 
 class CursorHardware : public ICursor
@@ -135,6 +136,7 @@ public:
 	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
 	void setCursorPosition( const Point & newPos ) override;
 	void render() override;
+	void setVisible( bool on) override;
 };
 
 class CursorSoftware : public ICursor
@@ -147,6 +149,7 @@ class CursorSoftware : public ICursor
 	Point pos;
 	Point pivot;
 	bool needUpdate;
+	bool visible;
 
 	void createTexture(const Point & dimensions);
 	void updateTexture();
@@ -157,6 +160,7 @@ public:
 	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
 	void setCursorPosition( const Point & newPos ) override;
 	void render() override;
+	void setVisible( bool on) override;
 };
 
 /// handles mouse cursor
@@ -222,8 +226,8 @@ public:
 
 	void render();
 
-	void hide() { showing=false; };
-	void show() { showing=true; };
+	void hide();
+	void show();
 
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);
