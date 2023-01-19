@@ -369,6 +369,7 @@ void CMusicHandler::release()
 		boost::mutex::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
+		current->stop();
 
 		current.reset();
 		next.reset();
