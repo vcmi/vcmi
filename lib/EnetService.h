@@ -19,6 +19,7 @@ private:
 	
 	std::list<ENetPacket*> packets;
 	int channel = 0;
+	enet_uint32 mode = ENET_PACKET_FLAG_RELIABLE;
 	ENetPeer * peer = nullptr;
 	std::atomic<bool> connected;
 	
@@ -34,6 +35,7 @@ public:
 
 	const ENetPeer * getPeer() const;
 	void dispatch(ENetPacket * packet);
+	void setMode(bool reliable);
 	
 	void write(const void * data, unsigned size);
 	void read(void * data, unsigned size);
@@ -76,6 +78,8 @@ public:
 	void stop();
 	
 	bool valid() const;
+	
+	void setMode(bool reliable);
 	
 	virtual void handleDisconnection(std::shared_ptr<EnetConnection>) = 0;
 	virtual void handleConnection(std::shared_ptr<EnetConnection>) = 0;

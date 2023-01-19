@@ -13,14 +13,13 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 EnetConnection::EnetConnection(ENetPeer * _peer):
-	peer(_peer)
+	peer(_peer), connected(false), channel(1)
 {
-	connected = false;
 }
 
-EnetConnection::EnetConnection(ENetHost * client, const std::string & host, ui16 port)
+EnetConnection::EnetConnection(ENetHost * client, const std::string & host, ui16 port):
+	connected(false), channel(0)
 {
-	connected = false;
 	ENetAddress address;
 	enet_address_set_host(&address, host.c_str());
 	address.port = port;
@@ -53,7 +52,7 @@ void EnetConnection::close()
 {
 	std::lock_guard<std::mutex> guard(mutexWrite);
 	connected = false;
-	enet_peer_disconnect(peer, 0);
+	enet_peer_disconnect_later(peer, 0);
 }
 
 void EnetConnection::kill()
@@ -81,8 +80,17 @@ void EnetConnection::write(const void * data, unsigned size)
 		return;
 	
 	std::lock_guard<std::mutex> guard(mutexWrite);
-	ENetPacket * packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
+	ENetPacket * packet = enet_packet_create(data, size, mode);
 	enet_peer_send(peer, channel, packet);
+}
+
+void EnetConnection::setMode(bool reliable)
+{
+	std::lock_guard<std::mutex> guard(mutexWrite);
+	if(reliable)
+		mode = ENET_PACKET_FLAG_RELIABLE;
+	else
+		mode = ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT;
 }
 
 void EnetConnection::read(void * data, unsigned size)
@@ -102,8 +110,8 @@ void EnetConnection::read(void * data, unsigned size)
 	auto * packet = packets.front();
 	packets.pop_front();
 	
-	if(packet->dataLength > 0)
-		memcpy(data, packet->data, packet->dataLength);
+	assert(packet->dataLength > 0);
+	memcpy(data, packet->data, packet->dataLength);
 	
 	assert(size == packet->dataLength);
 	enet_packet_destroy(packet);
@@ -191,6 +199,12 @@ void EnetService::stop()
 	if(threadPolling)
 		threadPolling->join();
 	threadPolling.reset();
+}
+
+void EnetService::setMode(bool reliable)
+{
+	for(auto c : active)
+		c->setMode(reliable);
 }
 
 bool EnetService::valid() const

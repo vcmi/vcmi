@@ -610,7 +610,7 @@ void CServerHandler::startGameplay(CGameState * gameState)
 	state = EClientState::GAMEPLAY;
 	
 	//store settings to continue game
-	if(!isServerLocal() && isGuest())
+	if(false && !isServerLocal() && isGuest())
 	{
 		Settings saveSession = settings.write["server"]["reconnect"];
 		saveSession->Bool() = true;
