@@ -21,7 +21,7 @@
 	},
 	"snow_mountains": { "graphics" : "CMBKSNMT.BMP" },
 	"snow_trees": { "graphics" : "CMBKSNTR.BMP" },
-	"subterranean": { "graphics" : "CMBKSUB.BMP", "isSpecial" : true },
+	"subterranean": { "graphics" : "CMBKSUB.BMP" },
 	"swamp_trees": { "graphics" : "CMBKSWMP.BMP" },
 	"fiery_fields": {
 		"graphics": "CMBKFF.BMP",
