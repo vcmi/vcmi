@@ -71,6 +71,8 @@ private slots:
 
 	void on_comboBoxLanguage_currentIndexChanged(int index);
 
+	void on_comboBoxCursorType_currentIndexChanged(int index);
+
 private:
 	Ui::CSettingsView * ui;
 

@@ -82,7 +82,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "softwareCursor", "spellbookAnimation", "driver", "showIntro", "displayIndex" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "cursor", "spellbookAnimation", "driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -106,9 +106,10 @@
 					"type" : "boolean",
 					"default" : false
 				},
-				"softwareCursor" :  {
-					"type" : "boolean",
-					"default" : false
+				"cursor" :  {
+					"type" : "string",
+					"enum" : [ "auto", "hardware", "software" ],
+					"default" : "auto"
 				},
 				"showIntro" : {
 					"type" : "boolean",
