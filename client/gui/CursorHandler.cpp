@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
 #include "CursorHandler.h"
 
@@ -17,14 +18,22 @@
 #include "CAnimation.h"
 #include "../../lib/CConfigHandler.h"
 
-//#include "../CMT.h"
-
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
-	if (settings["video"]["softwareCursor"].Bool())
+	if (settings["video"]["cursor"].String() == "auto")
+	{
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 		return std::make_unique<CursorSoftware>();
-	else
+#else
 		return std::make_unique<CursorHardware>();
+#endif
+	}
+
+	if (settings["video"]["cursor"].String() == "hardware")
+		return std::make_unique<CursorHardware>();
+
+	assert(settings["video"]["cursor"].String() == "software");
+	return std::make_unique<CursorSoftware>();
 }
 
 CursorHandler::CursorHandler()
