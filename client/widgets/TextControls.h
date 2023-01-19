@@ -137,9 +137,6 @@ protected:
 
 	void clickLeft(tribool down, bool previousState) override;
 
-private:
-	std::function<void()> onClick;
-
 public:
 	template<typename ...Args>
 	static std::shared_ptr<CGStatusBar> create(Args... args)

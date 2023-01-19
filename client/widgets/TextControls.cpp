@@ -392,6 +392,8 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETe
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 	, enteringText(false)
 {
+	addUsedEvents(LCLICK);
+
 	background = background_;
 	addChild(background.get());
 	pos = background->pos;
@@ -403,6 +405,8 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 	, enteringText(false)
 {
+	addUsedEvents(LCLICK);
+
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	background = std::make_shared<CPicture>(name);
 	pos = background->pos;
@@ -428,7 +432,7 @@ void CGStatusBar::init()
 
 void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
-	if(!down && onClick)
+	if(!down)
 	{
 		if(LOCPLINT && LOCPLINT->cingconsole->active)
 			LOCPLINT->cingconsole->startEnteringText();
