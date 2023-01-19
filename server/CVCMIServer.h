@@ -20,6 +20,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMapInfo;
 
 struct CPackForLobby;
+class EnetService;
+class EnetConnection;
 struct SharedMemory;
 
 struct StartInfo;

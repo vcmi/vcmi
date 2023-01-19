@@ -18,6 +18,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CConnection;
+class EnetService;
+class EnetConnection;
 class PlayerColor;
 struct StartInfo;
 

@@ -10,6 +10,8 @@
 #include "CThreadHelper.h"
 #include <thread>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 EnetConnection::EnetConnection(ENetPeer * _peer):
 	peer(_peer)
 {
@@ -267,3 +269,5 @@ void EnetService::poll()
 		}
 	}
 }
+
+VCMI_LIB_NAMESPACE_END
