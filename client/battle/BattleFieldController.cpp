@@ -211,7 +211,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 	for(BattleHex hex : set)
 		result.insert(hex);
 
-	// display the movement shadow of the stack at b (i.e. stack under mouse)
+	// display the movement shadow of stack under mouse
 	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
 	if(hoveredStack && hoveredStack != owner.stacksController->getActiveStack())
 	{
