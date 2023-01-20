@@ -39,7 +39,7 @@ void ResourceConverter::doConvertPcxToPng(const bfs::path & sourceFolder, bool d
 {
 	logGlobal->info("Converting .pcx to .png from folder: %s ...\n", sourceFolder);
 
-	for(bfs::directory_entry & directoryEntry : bfs::directory_iterator(sourceFolder))
+	for(const auto & directoryEntry : bfs::directory_iterator(sourceFolder))
 	{
 		const auto filename = directoryEntry.path().filename();
 		try
@@ -47,7 +47,6 @@ void ResourceConverter::doConvertPcxToPng(const bfs::path & sourceFolder, bool d
 			if(!bfs::is_regular_file(directoryEntry))
 				continue;
 
-			std::string filePath = directoryEntry.path().string();
 			std::string fileStem = directoryEntry.path().stem().string();
 			std::string filenameLowerCase = boost::algorithm::to_lower_copy(filename.string());
 

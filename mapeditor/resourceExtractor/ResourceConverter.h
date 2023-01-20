@@ -27,13 +27,13 @@ struct ExtractionOptions
 	bool moveExtractedArchivesToSoDMod = false;
 };
 
-/**
-* Class functionality to be used after extracting original H3 resources and before moving those resources to SoD Mod
-* Splits def files containing individual images, so that faction resources are independent. (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44)
-* (town creature portraits, hero army creature portraits, adventure map dwellings, small town icons, big town icons,
-* hero speciality small icons, hero speciality large icons)
-* Converts all PCX images to PNG
- */
+/// <summary>
+/// Class functionality to be used after extracting original H3 resources and before moving those resources to SoD Mod
+/// Splits def files containing individual images, so that faction resources are independent. (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44)
+/// (town creature portraits, hero army creature portraits, adventure map dwellings, small town icons, big town icons,
+/// hero speciality small icons, hero speciality large icons)
+/// Converts all PCX images to PNG
+/// </summary>
 class ResourceConverter
 {
 
@@ -44,14 +44,15 @@ public:
 
 private:
 
-	/** Converts all .pcx from extractedFolder/Images into .png */
+	// Converts all .pcx from extractedFolder/Images into .png
 	static void doConvertPcxToPng(const bfs::path & sourceFolder, bool deleteOriginals);
 
-	/** splits a .def file into individual images and converts the output to PNG format */
+	// splits a .def file into individual images and converts the output to PNG format
 	static void splitDefFile(const std::string & fileName, const bfs::path & sourceFolder, bool deleteOriginals);
 
-	/** Splits the given .def files into individual images.
-	* For each .def file, the resulting images will be output in the same folder, in a subfolder (named just like the .def file)
-	*/
+	/// <summary>
+	/// Splits the given .def files into individual images.
+	/// For each .def file, the resulting images will be output in the same folder, in a subfolder (named just like the .def file)
+	/// </summary>
 	static void splitDefFiles(const std::vector<std::string> & defFileNames, const bfs::path & sourceFolder, bool deleteOriginals);
 };
