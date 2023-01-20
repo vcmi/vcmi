@@ -212,10 +212,10 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 		result.insert(hex);
 
 	// display the movement shadow of the stack at b (i.e. stack under mouse)
-	const CStack * const shere = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-	if(shere && shere != owner.stacksController->getActiveStack())
+	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	if(hoveredStack && hoveredStack != owner.stacksController->getActiveStack())
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
+		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}
