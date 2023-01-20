@@ -359,13 +359,13 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 		{
 			auto const & vector = object["subObjects"].Vector();
 
-			if (!entry.second.Struct().count("index"))
-				continue;
+			if (entry.second.Struct().count("index"))
+			{
+				size_t index = entry.second["index"].Integer();
 
-			size_t index = entry.second["index"].Integer();
-
-			if (index < vector.size())
-				JsonUtils::inherit(entry.second, vector[index]);
+				if (index < vector.size())
+					JsonUtils::inherit(entry.second, vector[index]);
+			}
 		}
 
 		JsonUtils::inherit(entry.second, object["base"]);

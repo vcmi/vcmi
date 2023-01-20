@@ -530,6 +530,11 @@
 		"index" :20,
 		"handler": "dwelling",
 		"lastReservedIndex" : 1,
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ]
+			}
+		},
 		"types" : {
 			"elementalConflux" : {
 				"index" : 0,
