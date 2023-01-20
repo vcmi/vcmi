@@ -850,7 +850,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
-		amount->setText(CSDL_Ext::makeNumberShort(unit->getCount()));
+		amount->setText(CSDL_Ext::makeNumberShort(unit->getCount(), 4));
 
 		if(stateIcon)
 		{
