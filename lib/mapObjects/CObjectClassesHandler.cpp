@@ -161,7 +161,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(object);
 	obj->objects.push_back(object);
 
-	registerObject(scope, "mapObject", obj->getJsonKey() + "." + object->getSubTypeName(), object->subtype);
+	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
@@ -172,7 +172,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(obj->objects[index] == nullptr); // ensure that this id was not loaded before
 	obj->objects[index] = object;
 
-	registerObject(scope, "mapObject", obj->getJsonKey() + "." + object->getSubTypeName(), object->subtype);
+	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
@@ -306,11 +306,11 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::string type, std::string subtype) const
 {
-	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type, false);
+	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type);
 	if(id)
 	{
 		auto object = objects[id.get()];
-		boost::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype, false);
+		boost::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return object->objects[subID.get()];
