@@ -401,7 +401,7 @@ std::string MapSettings::getTownName(int townObjectIdx)
 		if(!ctown)
 			ctown = VLC->townh->randomTown;
 
-		name = ctown->faction ? town->getObjectName() : town->name + ", (random)";
+		name = ctown->faction ? town->getObjectName() : town->getNameTranslated() + ", (random)";
 	}
 	return name;
 }
@@ -411,7 +411,7 @@ std::string MapSettings::getHeroName(int townObjectIdx)
 	std::string name;
 	if(auto hero = dynamic_cast<CGHeroInstance*>(controller.map()->objects[townObjectIdx].get()))
 	{
-		name = hero->name;
+		name = hero->getNameTranslated();
 	}
 	return name;
 }
@@ -728,7 +728,7 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
 			break;
 		}
 			
@@ -736,7 +736,7 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < VLC->creh->objects.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getName()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->Entity::getNameTranslated()), QVariant::fromValue(i));
 			
 			victoryValueWidget = new QLineEdit;
 			ui->victoryParamsLayout->addWidget(victoryValueWidget);
@@ -772,7 +772,7 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
 			victorySelectWidget->addItem("Any town", QVariant::fromValue(-1));
 			for(int i : getObjectIndexes<CGTownInstance>())
-				victorySelectWidget->addItem(tr(getTownName(i).c_str()), QVariant::fromValue(i));
+				victorySelectWidget->addItem(getTownName(i).c_str(), QVariant::fromValue(i));
 			break;
 		}
 			
@@ -796,7 +796,7 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
 			
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
