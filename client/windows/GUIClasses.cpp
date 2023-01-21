@@ -1316,7 +1316,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 	goldPic = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = std::make_shared<CAnimImage>("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
+	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_ESCAPE);
 	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
 	build->addCallback(onBuy);
 
