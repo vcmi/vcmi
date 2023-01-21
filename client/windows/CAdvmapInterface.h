@@ -20,6 +20,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CGPath;
+struct CGPathNode;
 class CGHeroInstance;
 class CGTownInstance;
 class CSpell;
@@ -269,6 +270,8 @@ public:
 	void handleMapScrollingUpdate();
 	void handleSwipeUpdate();
 
+private:
+	void ShowMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
 };
 
 extern std::shared_ptr<CAdvMapInt> adventureInt;
