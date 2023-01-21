@@ -16,6 +16,10 @@
 #include "CAnimation.h"
 #include "../../lib/CConfigHandler.h"
 
+#ifdef VCMI_APPLE
+#include <dispatch/dispatch.h>
+#endif
+
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
 	if (settings["video"]["cursor"].String() == "auto")
@@ -401,10 +405,16 @@ CursorHardware::~CursorHardware()
 
 void CursorHardware::setVisible(bool on)
 {
+#ifdef VCMI_APPLE
+	dispatch_async(dispatch_get_main_queue(), ^{
+#endif
 	if (on)
 		SDL_ShowCursor(SDL_ENABLE);
 	else
 		SDL_ShowCursor(SDL_DISABLE);
+#ifdef VCMI_APPLE
+	});
+#endif
 }
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
@@ -422,10 +432,16 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 		logGlobal->error("Failed to set cursor! SDL says %s", SDL_GetError());
 
 	SDL_FreeSurface(cursorSurface);
+#ifdef VCMI_APPLE
+	dispatch_async(dispatch_get_main_queue(), ^{
+#endif
 	SDL_SetCursor(cursor);
 
 	if (oldCursor)
 		SDL_FreeCursor(oldCursor);
+#ifdef VCMI_APPLE
+	});
+#endif
 }
 
 void CursorHardware::setCursorPosition( const Point & newPos )
