@@ -54,7 +54,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
-	, myTurn(false)
 	, moveSoundHander(-1)
 {
 	for ( auto & event : animationEvents)
@@ -258,6 +257,7 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 	ba->actionSubtype = additional;
 
 	sendCommand(ba, actor);
+	CCS->curh->set(Cursor::Combat::POINTER);
 }
 
 void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
@@ -267,7 +267,6 @@ void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
 	if(!tacticsMode)
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
-		myTurn = false;
 		stacksController->setActiveStack(nullptr);
 		givenCommand.setn(command);
 	}
@@ -553,12 +552,16 @@ void BattleInterface::activateStack()
 	if(!s)
 		return;
 
-	myTurn = true;
 	windowObject->updateQueue();
 	windowObject->blockUI(false);
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
 	GH.fakeMouseMove();
+}
+
+bool BattleInterface::makingTurn() const
+{
+	return stacksController->getActiveStack() != nullptr;
 }
 
 void BattleInterface::endAction(const BattleAction* action)
