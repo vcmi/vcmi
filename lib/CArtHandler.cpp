@@ -776,7 +776,7 @@ void CArtifactInstance::init()
 
 std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * hero) const
 {
-	std::string text = artType->getDescription();
+	std::string text = artType->getDescriptionTranslated();
 	if (!vstd::contains(text, '{'))
 		text = '{' + artType->getNameTranslated() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
 
