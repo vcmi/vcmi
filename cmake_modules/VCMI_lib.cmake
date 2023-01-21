@@ -19,6 +19,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.cpp
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.cpp
 		${MAIN_LIB_DIR}/battle/CUnitState.cpp
+		${MAIN_LIB_DIR}/battle/DamageCalculator.cpp
 		${MAIN_LIB_DIR}/battle/Destination.cpp
 		${MAIN_LIB_DIR}/battle/IBattleState.cpp
 		${MAIN_LIB_DIR}/battle/ReachabilityInfo.cpp
@@ -191,8 +192,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
 		${MAIN_LIB_DIR}/ResourceSet.cpp
+		${MAIN_LIB_DIR}/RiverHandler.cpp
+		${MAIN_LIB_DIR}/RoadHandler.cpp
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
-		${MAIN_LIB_DIR}/Terrain.cpp
+		${MAIN_LIB_DIR}/TerrainHandler.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
 
@@ -251,6 +254,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.h
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.h
 		${MAIN_LIB_DIR}/battle/CUnitState.h
+		${MAIN_LIB_DIR}/battle/DamageCalculator.h
 		${MAIN_LIB_DIR}/battle/Destination.h
 		${MAIN_LIB_DIR}/battle/IBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/IBattleState.h
@@ -438,12 +442,17 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/NetPacksLobby.h
 		${MAIN_LIB_DIR}/ObstacleHandler.h
 		${MAIN_LIB_DIR}/PathfinderUtil.h
+		${MAIN_LIB_DIR}/Point.h
+		${MAIN_LIB_DIR}/Rect.h
+		${MAIN_LIB_DIR}/Rect.cpp
 		${MAIN_LIB_DIR}/ResourceSet.h
+		${MAIN_LIB_DIR}/RiverHandler.h
+		${MAIN_LIB_DIR}/RoadHandler.h
 		${MAIN_LIB_DIR}/ScriptHandler.h
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h
 		${MAIN_LIB_DIR}/StringConstants.h
-		${MAIN_LIB_DIR}/Terrain.h
+		${MAIN_LIB_DIR}/TerrainHandler.h
 		${MAIN_LIB_DIR}/UnlockGuard.h
 		${MAIN_LIB_DIR}/VCMIDirs.h
 		${MAIN_LIB_DIR}/vcmi_endian.h

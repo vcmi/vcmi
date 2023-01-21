@@ -12,8 +12,7 @@
 
 #include "../lib/int3.h"
 #include "../lib/spells/ViewSpellInt.h"
-#include "gui/Geometries.h"
-#include "SDL.h"
+#include "../lib/Rect.h"
 
 #ifdef IN
 #undef IN
@@ -35,7 +34,6 @@ class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct SDL_Rect;
 class CAnimation;
 class IImage;
 class CFadeAnimation;
@@ -80,11 +78,11 @@ enum class EMapAnimRedrawStatus
 struct TerrainTileObject
 {
 	const CGObjectInstance *obj;
-	SDL_Rect rect;
+	Rect rect;
 	int fadeAnimKey;
 	boost::optional<std::string> ambientSound;
 
-	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_, bool visitablePos = false);
+	TerrainTileObject(const CGObjectInstance *obj_, Rect rect_, bool visitablePos = false);
 	~TerrainTileObject();
 };
 
@@ -98,7 +96,7 @@ struct MapDrawingInfo
 	bool scaled;
 	int3 &topTile; // top-left tile in viewport [in tiles]
 	std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap;
-	SDL_Rect * drawBounds; // map rect drawing bounds on screen
+	Rect drawBounds; // map rect drawing bounds on screen
 	std::shared_ptr<CAnimation> icons; // holds overlay icons for world view mode
 	float scale; // map scale for world view mode (only if scaled == true)
 
@@ -115,7 +113,7 @@ struct MapDrawingInfo
 
 	bool showAllTerrain; //for expert viewEarth
 
-	MapDrawingInfo(int3 &topTile_, std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
+	MapDrawingInfo(int3 &topTile_, std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap_, const Rect & drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
 
@@ -216,7 +214,7 @@ class CMapHandler
 		const MapDrawingInfo * info; // data for drawing passed from outside
 
 		/// general drawing method, called internally by more specialized ones
-		virtual void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const = 0;
+		virtual void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, Rect * sourceRect, SDL_Surface * targetSurf, Rect * destRect) const = 0;
 
 		// first drawing pass
 
@@ -228,8 +226,8 @@ class CMapHandler
 		virtual void drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
 		/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 		virtual void drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const;
-		virtual void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
-		virtual void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
+		virtual void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, bool moving) const;
+		virtual void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, Rect * destRect, bool moving) const;
 
 		// second drawing pass
 
@@ -252,7 +250,7 @@ class CMapHandler
 		/// initializes frame-drawing (called at the start of every redraw)
 		virtual void init(const MapDrawingInfo * drawingInfo) = 0;
 		/// calculates clip region for map viewport
-		virtual SDL_Rect clip(SDL_Surface * targetSurf) const = 0;
+		virtual Rect clip(SDL_Surface * targetSurf) const = 0;
 
 		virtual ui8 getHeroFrameGroup(ui8 dir, bool isMoving) const;
 		virtual ui8 getPhaseShift(const CGObjectInstance *object) const;
@@ -279,10 +277,10 @@ class CMapHandler
 	class CMapNormalBlitter : public CMapBlitter
 	{
 	protected:
-		void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
+		void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, Rect * sourceRect, SDL_Surface * targetSurf, Rect * destRect) const override;
 		void drawTileOverlay(SDL_Surface * targetSurf,const TerrainTile2 & tile) const override {}
 		void init(const MapDrawingInfo * info) override;
-		SDL_Rect clip(SDL_Surface * targetSurf) const override;
+		Rect clip(SDL_Surface * targetSurf) const override;
 	public:
 		CMapNormalBlitter(CMapHandler * parent);
 		virtual ~CMapNormalBlitter(){}
@@ -293,14 +291,14 @@ class CMapHandler
 	private:
 		std::shared_ptr<IImage> objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
 	protected:
-		void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
+		void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, Rect * sourceRect, SDL_Surface * targetSurf, Rect * destRect) const override;
 		void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
-		void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
-		void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const override;
+		void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, Rect * destRect, bool moving) const override;
+		void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, Rect * sourceRect, bool moving) const override;
 		void drawFrame(SDL_Surface * targetSurf) const override {}
 		void drawOverlayEx(SDL_Surface * targetSurf) override;
 		void init(const MapDrawingInfo * info) override;
-		SDL_Rect clip(SDL_Surface * targetSurf) const override;
+		Rect clip(SDL_Surface * targetSurf) const override;
 		ui8 getPhaseShift(const CGObjectInstance *object) const override { return 0u; }
 		void calculateWorldViewCameraPos();
 	public:

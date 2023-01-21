@@ -19,7 +19,7 @@
 #include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "windows/CHeroWindow.h"
@@ -61,7 +61,9 @@
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"
-#include <SDL.h>
+#include "../lib/RoadHandler.h"
+#include "../lib/TerrainHandler.h"
+#include <SDL_timer.h>
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
@@ -156,7 +158,6 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	cb = CB;
 	env = ENV;
 
-	CCS->soundh->loadHorseSounds();
 	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
@@ -260,7 +261,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true, false);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->getJsonKey(), true, false);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -409,7 +410,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->name % playerID);
+	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
 
 	const CArmedInstance *newSelection = nullptr;
 	if (makingTurn)
@@ -436,7 +437,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 		adventureInt->select(newSelection, true);
 	else if (adventureInt->selection == hero)
 		adventureInt->selection = nullptr;
-	
+
 	if (vstd::contains(paths, hero))
 		paths.erase(hero);
 }
@@ -1267,7 +1268,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 			if (p.second.nodes.size())
 				pathsMap[p.first] = p.second.endPos();
 			else
-				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->name);
+				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
 		}
 		h & pathsMap;
 	}
@@ -1362,14 +1363,14 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  */
 void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes)
 {
-	std::string text = artifact->getDescription();
+	std::string text = artifact->getDescriptionTranslated();
 	text += "\n\n";
 	std::vector<std::shared_ptr<CComponent>> scs;
 
 	if(assembledArtifact)
 	{
 		// You possess all of the components to...
-		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getName());
+		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getNameTranslated());
 
 		// Picture of assembled artifact at bottom.
 		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
@@ -1623,7 +1624,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	else
 	for (directory_iterator dir(gamesDir); dir != enddir; ++dir)
 	{
-		if (is_regular(dir->status()))
+		if (is_regular_file(dir->status()))
 		{
 			std::string name = dir->path().filename().string();
 			if (starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
@@ -2372,8 +2373,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		for (auto & elem : path.nodes)
 			elem.coord = h->convertFromVisitablePos(elem.coord);
 
-		TerrainId currentTerrain = Terrain::BORDER; // not init yet
+		TerrainId currentTerrain = ETerrainId::NONE;
 		TerrainId newTerrain;
+		bool wasOnRoad = true;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2389,13 +2391,18 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
-			int3 currentCoord = path.nodes[i].coord;
+			int3 prevCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == h->pos);
+			auto prevRoad = cb->getTile(h->convertToVisitablePos(prevCoord))->roadType;
+			auto nextRoad = cb->getTile(h->convertToVisitablePos(nextCoord))->roadType;
+
+			bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
+
+			auto prevObject = getObj(prevCoord, prevCoord == h->pos);
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
-			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			auto destTeleportObj = getDestTeleportObj(prevObject, nextObjectTop, nextObject);
 			if (isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{
 				CCS->soundh->stopSound(sh);
@@ -2410,7 +2417,10 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+					if (movingOnRoad)
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSound, -1);
+					else
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSoundPenalty, -1);
 				}
 				continue;
 			}
@@ -2428,12 +2438,16 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(h->convertToVisitablePos(currentCoord))->terType->id;
-				if(newTerrain != currentTerrain)
+				newTerrain = cb->getTile(h->convertToVisitablePos(prevCoord))->terType->getId();
+				if(newTerrain != currentTerrain || wasOnRoad != movingOnRoad)
 				{
 					CCS->soundh->stopSound(sh);
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+					if (movingOnRoad)
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSound, -1);
+					else
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSoundPenalty, -1);
 					currentTerrain = newTerrain;
+					wasOnRoad = movingOnRoad;
 				}
 			}
 
@@ -2473,6 +2487,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
+
+		// ugly workaround to force instant update of adventure map
+		adventureInt->animValHitCount = 8;
 	}
 
 	setMovementStatus(false);

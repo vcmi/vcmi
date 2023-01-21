@@ -181,7 +181,7 @@ std::string CStack::nodeName() const
 	oss << owner.getStr();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getNamePluralTextID();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -320,7 +320,7 @@ bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? type->nameSing : type->namePl; //War machines can't use base
+	return (getCount() == 1) ? type->getNameSingularTranslated() : type->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const
@@ -333,7 +333,7 @@ bool CStack::canBeHealed() const
 bool CStack::isOnNativeTerrain() const
 {
 	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == Terrain::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
+	auto res = nativeTerrain == ETerrainId::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
 	return res;
 }
 
@@ -365,7 +365,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	auto ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->id == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->getId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}

@@ -861,7 +861,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 			info[0].reward.bonuses.push_back(bonus);
 			info[0].limiter.numOfGrants = 1;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
-			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
+			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getNameTranslated());
 		}
 		break;
 	case Obj::WAGON:
@@ -876,7 +876,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 				loadRandomArtifact(rand, info[0], 10, 10, 0, 0);
 				info[0].limiter.numOfGrants = 1;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
-				info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
+				info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getNameTranslated());
 			}
 			else if(hlp < 90) //2 - 5 of non-gold resource
 			{

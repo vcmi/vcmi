@@ -176,13 +176,13 @@ void CBonusSelection::createBonusesIcons()
 		{
 		case CScenarioTravel::STravelBonus::SPELL:
 			desc = CGI->generaltexth->allTexts[715];
-			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getName());
+			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
 			desc = CGI->generaltexth->allTexts[717];
 			boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info3));
-			boost::algorithm::replace_first(desc, "%s", CGI->creatures()->getByIndex(bonDescs[i].info2)->getPluralName());
+			boost::algorithm::replace_first(desc, "%s", CGI->creatures()->getByIndex(bonDescs[i].info2)->getNamePluralTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::BUILDING:
 		{
@@ -203,17 +203,17 @@ void CBonusSelection::createBonusesIcons()
 			picNumber = -1;
 
 			if(vstd::contains((*CGI->townh)[faction]->town->buildings, buildID))
-				desc = (*CGI->townh)[faction]->town->buildings.find(buildID)->second->Name();
+				desc = (*CGI->townh)[faction]->town->buildings.find(buildID)->second->getNameTranslated();
 
 			break;
 		}
 		case CScenarioTravel::STravelBonus::ARTIFACT:
 			desc = CGI->generaltexth->allTexts[715];
-			boost::algorithm::replace_first(desc, "%s", CGI->artifacts()->getByIndex(bonDescs[i].info2)->getName());
+			boost::algorithm::replace_first(desc, "%s", CGI->artifacts()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			desc = CGI->generaltexth->allTexts[716];
-			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getName());
+			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
 		{
@@ -252,7 +252,7 @@ void CBonusSelection::createBonusesIcons()
 			desc = CGI->generaltexth->allTexts[718];
 
 			boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3 - 1]); //skill level
-			boost::algorithm::replace_first(desc, "%s", CGI->skillh->skillName(bonDescs[i].info2)); //skill name
+			boost::algorithm::replace_first(desc, "%s", CGI->skillh->getByIndex(bonDescs[i].info2)->getNameTranslated()); //skill name
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 
 			break;
@@ -318,7 +318,7 @@ void CBonusSelection::createBonusesIcons()
 			}
 			else
 			{
-				boost::algorithm::replace_first(desc, "%s", CGI->heroh->objects[bonDescs[i].info2]->name);
+				boost::algorithm::replace_first(desc, "%s", CGI->heroh->objects[bonDescs[i].info2]->getNameTranslated());
 			}
 			break;
 		}

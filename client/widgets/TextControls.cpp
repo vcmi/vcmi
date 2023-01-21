@@ -349,7 +349,7 @@ void CGStatusBar::setEnteringMode(bool on)
 	{
 		assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
-		CSDL_Ext::startTextInput(&pos);
+		CSDL_Ext::startTextInput(pos);
 		setText(consoleText);
 	}
 	else
@@ -392,6 +392,8 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETe
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 	, enteringText(false)
 {
+	addUsedEvents(LCLICK);
+
 	background = background_;
 	addChild(background.get());
 	pos = background->pos;
@@ -403,6 +405,8 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 	, enteringText(false)
 {
+	addUsedEvents(LCLICK);
+
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	background = std::make_shared<CPicture>(name);
 	pos = background->pos;
@@ -428,7 +432,7 @@ void CGStatusBar::init()
 
 void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
-	if(!down && onClick)
+	if(!down)
 	{
 		if(LOCPLINT && LOCPLINT->cingconsole->active)
 			LOCPLINT->cingconsole->startEnteringText();
@@ -501,7 +505,7 @@ CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	background = std::make_shared<CPicture>(Pos, 0, true);
 	Rect hlp = Pos;
 	if(srf)
-		CSDL_Ext::blitSurface(srf, &hlp, background->getSurface(), nullptr);
+		CSDL_Ext::blitSurface(srf, hlp, background->getSurface(), Point(0,0));
 	else
 		SDL_FillRect(background->getSurface(), nullptr, 0);
 	pos.w = background->pos.w;
@@ -523,10 +527,7 @@ CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
 
 void CKeyboardFocusListener::focusGot()
 {
-	CSDL_Ext::startTextInput(&textInput->pos);
-#ifdef VCMI_ANDROID
-	textInput->notifyAndroidTextInputChanged(textInput->text);
-#endif
+	CSDL_Ext::startTextInput(textInput->pos);
 	usageIndex++;
 }
 
@@ -588,9 +589,6 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 	{
 		redraw();
 		cb(text);
-#ifdef VCMI_ANDROID
-		notifyAndroidTextInputChanged(text);
-#endif
 	}
 }
 
@@ -604,10 +602,6 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
-
-#ifdef VCMI_ANDROID
-	notifyAndroidTextInputChanged(text);
-#endif
 }
 
 bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
@@ -633,10 +627,6 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 		cb(text);
 	}
 	newText.clear();
-
-#ifdef VCMI_ANDROID
-	notifyAndroidTextInputChanged(text);
-#endif
 }
 
 void CTextInput::textEdited(const SDL_TextEditingEvent & event)
@@ -647,11 +637,6 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 	newText = event.text;
 	redraw();
 	cb(text + newText);
-
-#ifdef VCMI_ANDROID
-	auto editedText = text + newText;
-	notifyAndroidTextInputChanged(editedText);
-#endif
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
@@ -697,24 +682,6 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 		text = oldText;
 	}
 }
-
-#ifdef VCMI_ANDROID
-void CTextInput::notifyAndroidTextInputChanged(std::string & text)
-{
-	if(!focus)
-		return;
-
-	auto fun = [&text](JNIEnv * env, jclass cls, jmethodID method)
-	{
-		auto jtext = env->NewStringUTF(text.c_str());
-		env->CallStaticVoidMethod(cls, method, jtext);
-		env->DeleteLocalRef(jtext);
-	};
-	CAndroidVMHelper vmHelper;
-	vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "notifyTextInputChanged",
-		"(Ljava/lang/String;)V", fun, true);
-}
-#endif //VCMI_ANDROID
 
 CFocusable::CFocusable()
 	:CFocusable(std::make_shared<IFocusListener>())

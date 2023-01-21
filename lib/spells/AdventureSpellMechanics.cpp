@@ -147,7 +147,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 333);//%s is already in boat
-		iw.text.addReplacement(parameters.caster->name);
+		iw.text.addReplacement(parameters.caster->getNameTranslated());
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -170,7 +170,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
-		iw.text.addReplacement(parameters.caster->name);
+		iw.text.addReplacement(parameters.caster->getNameTranslated());
 		env->apply(&iw);
 		return ESpellCastResult::OK;
 	}
@@ -236,7 +236,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
-		iw.text.addReplacement(parameters.caster->name);
+		iw.text.addReplacement(parameters.caster->getNameTranslated());
 		env->apply(&iw);
 		return ESpellCastResult::OK;
 	}
@@ -307,7 +307,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
-		iw.text.addReplacement(parameters.caster->name);
+		iw.text.addReplacement(parameters.caster->getNameTranslated());
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -582,7 +582,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 		{
 			ObjectPosInfo posInfo(obj);
 
-			if((*fowMap)[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
+			if((*fowMap)[posInfo.pos.z][posInfo.pos.x][posInfo.pos.y] == 0)
 				pack.objectPositions.push_back(posInfo);
 		}
 	}

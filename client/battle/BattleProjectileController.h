@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../../lib/CCreatureHandler.h"
-#include "../gui/Geometries.h"
+#include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +19,6 @@ class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
-struct Point;
 class CAnimation;
 class Canvas;
 class BattleInterface;

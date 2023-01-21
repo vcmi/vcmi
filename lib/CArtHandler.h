@@ -45,13 +45,14 @@ namespace ArtBearer
 
 class DLL_LINKAGE CArtifact : public Artifact, public CBonusSystemNode //container for artifacts
 {
-protected:
-	std::string name, description; //set if custom
-	std::string eventText; //short story displayed upon picking
+	ArtifactID id;
+
+	std::string modScope;
+	std::string identifier;
+
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
-	std::string identifier;
 	std::string image;
 	std::string large; // big image for custom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
@@ -61,19 +62,23 @@ public:
 	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
 	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass;
-	ArtifactID id;
 	CreatureID warMachine;
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
 	virtual const IBonusBearer * accessBonuses() const override;
 
-	const std::string & getEventText() const override;
-	const std::string & getDescription() const override;
+	std::string getDescriptionTranslated() const override;
+	std::string getEventTranslated() const override;
+	std::string getNameTranslated() const override;
+
+	std::string getDescriptionTextID() const override;
+	std::string getEventTextID() const override;
+	std::string getNameTextID() const override;
+
 	uint32_t getPrice() const override;
 	CreatureID getWarMachine() const override;
 	bool isBig() const override;
@@ -91,9 +96,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & name;
-		h & description;
-		h & eventText;
 		h & image;
 		h & large;
 		h & advMapDef;
@@ -104,6 +106,7 @@ public:
 		h & constituentOf;
 		h & aClass;
 		h & id;
+		h & modScope;
 		h & identifier;
 		h & warMachine;
 	}
@@ -317,6 +320,7 @@ class DLL_LINKAGE CArtifactSet
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
 	std::map<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::vector<ArtSlotInfo> artifactsTransitionPos; // Used as transition position for dragAndDrop artifact exchange
 
 	ArtSlotInfo & retrieveNewArtSlot(ArtifactPosition slot);
 	void setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, bool locked);
@@ -392,6 +396,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
 	DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot);
+	DLL_LINKAGE bool isSlotEquipment(ArtifactPosition slot);
 }
 
 VCMI_LIB_NAMESPACE_END

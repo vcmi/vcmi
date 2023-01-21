@@ -18,7 +18,7 @@
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -170,12 +170,10 @@ void CWindowObject::setShadow(bool on)
 			shadowBottomTempl = CSDL_Ext::createSurfaceWithBpp<4>(1, size);
 			shadowRightTempl  = CSDL_Ext::createSurfaceWithBpp<4>(size, 1);
 
-			Uint32 shadowColor = SDL_MapRGBA(shadowCornerTempl->format, 0, 0, 0, 192);
-
 			//fill with shadow body color
-			SDL_FillRect(shadowCornerTempl, nullptr, shadowColor);
-			SDL_FillRect(shadowBottomTempl, nullptr, shadowColor);
-			SDL_FillRect(shadowRightTempl,  nullptr, shadowColor);
+			CSDL_Ext::fillSurface(shadowCornerTempl, { 0, 0, 0, 192 } );
+			CSDL_Ext::fillSurface(shadowBottomTempl, { 0, 0, 0, 192 } );
+			CSDL_Ext::fillSurface(shadowRightTempl,  { 0, 0, 0, 192 } );
 
 			//fill last row and column with more transparent color
 			blitAlphaCol(shadowRightTempl , size-1);

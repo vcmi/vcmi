@@ -13,6 +13,7 @@
 #include "CGTownInstance.h"
 #include "CGHeroInstance.h"
 #include "CBank.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
 #include "../CCreatureHandler.h"
@@ -57,7 +58,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
-			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->identifier, node.Vector()[0]).get());
+			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).get());
 		});
 	}
 }
@@ -84,7 +85,7 @@ CGObjectInstance * CTownInstanceConstructor::create(std::shared_ptr<const Object
 
 void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->id, object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
 		object->appearance = templ;
 }
@@ -122,7 +123,7 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 
 	auto heroTest = [&](const HeroTypeID & id)
 	{
-		return hero->type->ID == id;
+		return hero->type->getId() == id;
 	};
 
 	if(filters.count(templ->stringID))

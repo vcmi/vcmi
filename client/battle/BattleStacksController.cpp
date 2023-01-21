@@ -28,6 +28,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Canvas.h"
+#include "../gui/SDL_Extensions.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
 #include "../../CCallback.h"
@@ -83,10 +84,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP");
 	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP");
 
-	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0,0,0, 0.6, 0.2, 1.0 );
-	static const auto shifterPositive = ColorFilter::genRangeShifter( 0,0,0, 0.2, 1.0, 0.2 );
-	static const auto shifterNegative = ColorFilter::genRangeShifter( 0,0,0, 1.0, 0.2, 0.2 );
-	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0,0,0, 1.0, 1.0, 0.2 );
+	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
+	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
+	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
+	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
 
 	amountNormal->adjustPalette(shifterNormal);
 	amountPositive->adjustPalette(shifterPositive);
@@ -317,7 +318,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, CSDL_Ext::makeNumberShort(stack->getCount()));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
@@ -543,7 +544,6 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 bool BattleStacksController::shouldAttackFacingRight(const CStack * attacker, const CStack * defender)
 {
 	bool mustReverse = owner.curInt->cb->isToReverse(
-				attacker->getPosition(),
 				attacker,
 				defender);
 

@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "BattleProxy.h"
 #include "Unit.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -89,7 +88,7 @@ const CGTownInstance * BattleProxy::getDefendedTown() const
 	return subject->battleGetDefendedTown();
 }
 
-si8 BattleProxy::getWallState(int partOfWall) const
+EWallState BattleProxy::getWallState(EWallPart partOfWall) const
 {
 	return subject->battleGetWallState(partOfWall);
 }

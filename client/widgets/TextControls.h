@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../gui/TextAlignment.h"
 #include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
@@ -137,9 +138,6 @@ protected:
 
 	void clickLeft(tribool down, bool previousState) override;
 
-private:
-	std::function<void()> onClick;
-
 public:
 	template<typename ...Args>
 	static std::shared_ptr<CGStatusBar> create(Args... args)
@@ -212,9 +210,6 @@ class CTextInput : public CLabel, public CFocusable
 protected:
 	std::string visibleText() override;
 
-#ifdef VCMI_ANDROID
-	void notifyAndroidTextInputChanged(std::string & text);
-#endif
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;

@@ -26,7 +26,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
@@ -211,11 +211,11 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 	for(BattleHex hex : set)
 		result.insert(hex);
 
-	// display the movement shadow of the stack at b (i.e. stack under mouse)
-	const CStack * const shere = owner.curInt->cb->battleGetStackByPos(hoveredHex, false);
-	if(shere && shere != owner.stacksController->getActiveStack() && shere->alive())
+	// display the movement shadow of stack under mouse
+	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	if(hoveredStack && hoveredStack != owner.stacksController->getActiveStack())
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
+		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}

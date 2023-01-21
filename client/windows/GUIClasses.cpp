@@ -32,7 +32,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
@@ -102,9 +102,9 @@ void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	if(selected)
-		drawBorder(to, pos, int3(248, 0, 0));
+		drawBorder(to, pos, Colors::RED);
 	else
-		drawBorder(to, pos, int3(232, 212, 120));
+		drawBorder(to, pos, Colors::YELLOW);
 }
 
 void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
@@ -140,7 +140,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		totalCostValue->set(card->creature->cost * maxAmount);
 
 		//Recruit %s
-		title->setText(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->namePl));
+		title->setText(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->getNamePluralTranslated()));
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);
@@ -158,7 +158,7 @@ void CRecruitmentWindow::buy()
 		if(dst->ID == Obj::HERO)
 		{
 			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->namePl : CGI->creh->objects[crid]->nameSing);
+			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->getNamePluralTranslated() : CGI->creh->objects[crid]->getNameSingularTranslated());
 		}
 		else
 		{
@@ -179,17 +179,17 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 
 	// recruit\total values
-	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, int3(239,215,123));
-	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, int3(239,215,123));
+	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, Colors::YELLOW);
+	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, Colors::YELLOW);
 
 	//cost boxes
-	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, int3(239,215,123));
-	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, int3(239,215,123));
+	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, Colors::YELLOW);
+	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, Colors::YELLOW);
 
 	//buttons borders
-	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, int3(173,142,66));
-	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, int3(173,142,66));
-	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
+	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
@@ -332,7 +332,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	slider = std::make_shared<CSlider>(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPosition, rightAmount - rightMin, true);
 
 	std::string titleStr = CGI->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(titleStr,"%s", creature->namePl);
+	boost::algorithm::replace_first(titleStr,"%s", creature->getNamePluralTranslated());
 	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 }
 
@@ -404,11 +404,11 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 	ok = std::make_shared<CButton>(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->getNameTranslated()));
 
 	//%s is now a level %d %s.
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
+		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->getNameTranslated() % hero->level % hero->type->heroClass->getNameTranslated()));
 
 	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
 
@@ -743,11 +743,11 @@ void CTavernWindow::show(SDL_Surface * to)
 			oldSelected = selected;
 
 			//Recruit %s the %s
-			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->name % sel->h->type->heroClass->name));
+			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
 		}
 
 		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
-		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,Colors::BRIGHT_YELLOW);
 	}
 }
 
@@ -777,7 +777,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 	if(H)
 	{
 		hoverName = CGI->generaltexth->tavernInfo[4];
-		boost::algorithm::replace_first(hoverName,"%s",H->name);
+		boost::algorithm::replace_first(hoverName,"%s",H->getNameTranslated());
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
@@ -785,9 +785,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 				artifs--;
 
 		description = CGI->generaltexth->allTexts[215];
-		boost::algorithm::replace_first(description, "%s", h->name);
+		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(h->level));
-		boost::algorithm::replace_first(description, "%s", h->type->heroClass->name);
+		boost::algorithm::replace_first(description, "%s", h->type->heroClass->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(artifs));
 
 		portrait = std::make_shared<CAnimImage>("portraitsLarge", h->portrait);
@@ -1078,7 +1078,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	auto genTitle = [](const CGHeroInstance * h)
 	{
 		boost::format fmt(CGI->generaltexth->allTexts[138]);
-		fmt % h->name % h->level % h->type->heroClass->name;
+		fmt % h->getNameTranslated() % h->level % h->type->heroClass->getNameTranslated();
 		return boost::str(fmt);
 	};
 
@@ -1166,11 +1166,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 			secSkillAreas[b][g]->type = skill;
 			secSkillAreas[b][g]->bonusValue = level;
-			secSkillAreas[b][g]->text = CGI->skillh->skillInfo(skill, level);
+			secSkillAreas[b][g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 
 			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->skillName(skill));
+			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->getByIndex(skill)->getNameTranslated());
 		}
 
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
@@ -1178,7 +1178,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
 		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
-		specialtyAreas[b]->text = hero->type->specDescr;
+		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
@@ -1192,7 +1192,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->name);
+		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
 
@@ -1245,12 +1245,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	updateWidgets();
-}
-
-CExchangeWindow::~CExchangeWindow()
-{
-	artifs[0]->commonInfo = nullptr;
-	artifs[1]->commonInfo = nullptr;
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
@@ -1389,7 +1383,7 @@ void CPuzzleWindow::showAll(SDL_Surface * to)
 	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 	int3 topTile = grailPos - moveInt;
 
-	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), &mapRect);
+	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);
 	info.puzzleMode = true;
 	info.grailPos = grailPos;
 	CGI->mh->drawTerrainRectNew(to, &info);
@@ -1522,7 +1516,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 
 	icon = std::make_shared<CAnimImage>("SECSKILL", _ID * 3 + 3, 0);
 
-	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->skillName(ID));
+	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->getByIndex(ID)->getNameTranslated());
 	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
 
 	pos.h = icon->pos.h;
@@ -1542,14 +1536,14 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
+		CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 	}
 }
 
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->skillh->skillName(ID));
+		GH.statusbar->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
 	else
 		GH.statusbar->clear();
 }
@@ -1592,7 +1586,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 		if(town)
 		{
-			auto faction = town->town->faction->index;
+			auto faction = town->town->faction->getId();
 			auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
 			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
 		}
@@ -1631,12 +1625,12 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 
 	std::string text = CGI->generaltexth->allTexts[608];
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
+	boost::replace_first(text, "%s", CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	clerkSpeech = std::make_shared<CTextBox>(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->skillName(SKILL));
+	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	icon = std::make_shared<CAnimImage>("SECSKILL", SKILL*3+3, 0, 211, 51);
 	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);
 
@@ -1644,11 +1638,11 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "2000");
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->skillh->skillName(SKILL));
+	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 
 	text = CGI->generaltexth->zelp[633].second;
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
+	boost::replace_first(text, "%s", CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	confirm = std::make_shared<CButton>(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, SDLK_RETURN);
@@ -1687,7 +1681,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		if(up->Slots().size() > 0)
 		{
 			titleText = CGI->generaltexth->allTexts[35];
-			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->namePl);
+			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->getNamePluralTranslated());
 		}
 		else
 		{
@@ -1884,9 +1878,9 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	std::string str = CGI->generaltexth->allTexts[318];
 	int amount = hero->getStackCount(slot);
 	if(amount == 1)
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
+		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNameSingularTranslated());
 	else
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->namePl);
+		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNamePluralTranslated());
 
 	return str;
 }

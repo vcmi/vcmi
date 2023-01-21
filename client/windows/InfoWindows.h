@@ -10,16 +10,17 @@
 #pragma once
 
 #include "CWindowObject.h"
+#include "../gui/TextAlignment.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGGarrison;
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;

@@ -205,12 +205,12 @@ struct DLL_LINKAGE GrowthInfo
 
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
+	std::string name; // name of town
 public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;
 	const CTown * town;
-	std::string name; // name of town
 	si32 builded; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
@@ -283,6 +283,9 @@ public:
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 
+	std::string getNameTranslated() const;
+	void setNameTranslated( std::string const & newName );
+
 	//////////////////////////////////////////////////////////////////////////
 
 	bool passableFor(PlayerColor color) const override;
@@ -329,6 +332,12 @@ public:
 	void clearArmy() const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID::EBuildingID bid);
+
+	/// Returns damage range for secondary towers of this town
+	TDmgRange getTowerDamageRange() const;
+
+	/// Returns damage range for central tower(keep) of this town
+	TDmgRange getKeepDamageRange() const;
 
 	const CTown * getTown() const ;
 

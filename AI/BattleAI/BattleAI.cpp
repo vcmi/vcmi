@@ -46,14 +46,14 @@ std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
 {
 	std::vector<BattleHex> result;
 
-	for(int wallPart = EWallPart::BOTTOM_WALL; wallPart < EWallPart::UPPER_WALL; wallPart++)
+	for(EWallPart wallPart : { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL })
 	{
 		auto state = cb->battleGetWallState(wallPart);
 
 		if(state != EWallState::DESTROYED)
 			continue;
 
-		auto wallHex = cb->wallPartToBattleHex((EWallPart::EWallPart)wallPart);
+		auto wallHex = cb->wallPartToBattleHex((EWallPart)wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
@@ -207,10 +207,10 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				}
 
 				logAi->debug("BattleAI: %s -> %s x %d, %s, from %d curpos %d dist %d speed %d: +%lld -%lld = %lld",
-					bestAttack.attackerState->unitType()->identifier,
-					bestAttack.affectedUnits[0]->unitType()->identifier,
+					bestAttack.attackerState->unitType()->getJsonKey(),
+					bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
+					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->Speed(0, true),
 					bestAttack.defenderDamageReduce, bestAttack.attackerDamageReduce, bestAttack.attackValue()
 				);
 			}
@@ -364,7 +364,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	}
 	else
 	{
-		EWallPart::EWallPart wallParts[] = {
+		EWallPart wallParts[] = {
 			EWallPart::KEEP,
 			EWallPart::BOTTOM_TOWER,
 			EWallPart::UPPER_TOWER,
@@ -378,10 +378,9 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 		{
 			auto wallState = cb->battleGetWallState(wallPart);
 
-			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
 				targetHex = cb->wallPartToBattleHex(wallPart);
-
 				break;
 			}
 		}
@@ -688,7 +687,7 @@ void CBattleAI::attemptCastingSpell()
 
 	if(castToPerform.value > 0)
 	{
-		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->name % castToPerform.value);
+		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
 		spellcast.actionType = EActionType::HERO_SPELL;
 		spellcast.actionSubtype = castToPerform.spell->id;
@@ -699,7 +698,7 @@ void CBattleAI::attemptCastingSpell()
 	}
 	else
 	{
-		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->name % castToPerform.value);
+		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->getNameTranslated() % castToPerform.value);
 	}
 }
 

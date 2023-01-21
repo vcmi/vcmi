@@ -18,10 +18,10 @@ struct CatapultAttack;
 class CCreature;
 class CStack;
 class CGTownInstance;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
-struct Point;
 class Canvas;
 class BattleInterface;
 class BattleRenderer;
@@ -76,7 +76,7 @@ class BattleSiegeController
 	std::array<std::shared_ptr<IImage>, EWallVisual::WALL_LAST + 1> wallPieceImages;
 
 	/// return URI for image for a wall piece
-	std::string getWallPieceImageName(EWallVisual::EWallVisual what, EWallState::EWallState state) const;
+	std::string getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const;
 
 	/// returns BattleHex to which chosen wall piece is bound
 	BattleHex getWallPiecePosition(EWallVisual::EWallVisual what) const;

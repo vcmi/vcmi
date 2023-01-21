@@ -26,7 +26,7 @@
 #include "../Graphics.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
@@ -160,7 +160,7 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		CSDL_Ext::startTextInput(&pos);
+		CSDL_Ext::startTextInput(pos);
 	}
 	else
 	{
@@ -308,7 +308,7 @@ void BattleHero::clickRight(tribool down, bool previousState)
 		return;
 
 	Point windowPosition;
-	windowPosition.x = (!defender) ? owner.fieldController->pos.topLeft().x + 1 : owner.fieldController->pos.topRight().x - 79;
+	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
@@ -494,7 +494,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	pos = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
+	pos = CSDL_Ext::genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	background = std::make_shared<CPicture>("CPRESULT");
 	background->colorize(owner.playerID);
 
@@ -551,7 +551,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			if(best != stacks.end()) //should be always but to be safe...
 			{
 				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->type->getIconIndex(), 0, xs[i], 38));
-				sideNames[i] = (*best)->type->getPluralName();
+				sideNames[i] = (*best)->type->getNamePluralTranslated();
 			}
 		}
 	}
@@ -613,7 +613,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		if (ourHero)
 		{
 			str += CGI->generaltexth->allTexts[305];
-			boost::algorithm::replace_first(str, "%s", ourHero->name);
+			boost::algorithm::replace_first(str, "%s", ourHero->getNameTranslated());
 			boost::algorithm::replace_first(str, "%d", boost::lexical_cast<std::string>(br.exp[weAreAttacker ? 0 : 1]));
 		}
 
@@ -804,7 +804,7 @@ void StackQueue::update()
 
 int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner.siegeController->getSiegedTown()->town->faction->index;
+	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):
@@ -850,7 +850,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
-		amount->setText(makeNumberShort(unit->getCount()));
+		amount->setText(CSDL_Ext::makeNumberShort(unit->getCount()));
 
 		if(stateIcon)
 		{

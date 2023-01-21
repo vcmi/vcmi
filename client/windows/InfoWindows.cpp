@@ -24,7 +24,7 @@
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -42,7 +42,7 @@
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(bitmap)
-		blitAt(bitmap,pos.x,pos.y,to);
+		CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to);
 }
 CSimpleWindow::~CSimpleWindow()
 {
@@ -262,7 +262,7 @@ void CInfoPopup::close()
 
 void CInfoPopup::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,to);
+	CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to);
 }
 
 CInfoPopup::~CInfoPopup()
@@ -306,7 +306,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
+	temp->center(CSDL_Ext::fromSDL(GH.current->motion)); //center on mouse
 #ifdef VCMI_IOS
     // TODO: enable also for android?
     temp->moveBy({0, -temp->pos.h / 2});

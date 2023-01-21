@@ -20,6 +20,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
+#include "TerrainHandler.h"
 #include "CSkillHandler.h"
 #include "mapping/CMap.h"
 #include "mapping/CMapService.h"
@@ -74,7 +75,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
-			dst = art->getName();
+			dst = art->getNameTranslated();
 		else
 			dst = "#!#";
 	}
@@ -82,7 +83,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
-			dst = art->getDescription();
+			dst = art->getDescriptionTranslated();
 		else
 			dst = "#!#";
 	}
@@ -90,7 +91,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
-			dst = art->getEventText();
+			dst = art->getEventTranslated();
 		else
 			dst = "#!#";
 	}
@@ -98,7 +99,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto cre = CreatureID(ser).toCreature(VLC->creatures());
 		if(cre)
-			dst = cre->getPluralName();
+			dst = cre->getNamePluralTranslated();
 		else
 			dst = "#!#";
 	}
@@ -106,7 +107,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto cre = CreatureID(ser).toCreature(VLC->creatures());
 		if(cre)
-			dst = cre->getSingularName();
+			dst = cre->getNameSingularTranslated();
 		else
 			dst = "#!#";
 	}
@@ -122,7 +123,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		auto spell = SpellID(ser).toSpell(VLC->spells());
 		if(spell)
-			dst = spell->getName();
+			dst = spell->getNameTranslated();
 		else
 			dst = "#!#";
 	}
@@ -132,7 +133,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == SEC_SKILL_NAME)
 	{
-		dst = VLC->skillh->skillName(ser);
+		dst = VLC->skillh->getByIndex(ser)->getNameTranslated();
 	}
 	else
 	{
@@ -327,7 +328,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
-		logGlobal->error("Cannot pick hero for faction %d. Wrong owner!", town->faction->index);
+		logGlobal->error("Cannot pick hero for faction %s. Wrong owner!", town->faction->getJsonKey());
 		return nullptr;
 	}
 
@@ -338,7 +339,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		for(auto & elem : available)
 		{
 			if(pavailable.find(elem.first)->second & 1<<player.getNum()
-				&& elem.second->type->heroClass->faction == town->faction->index)
+				&& elem.second->type->heroClass->faction == town->faction->getIndex())
 			{
 				pool.push_back(elem.second); //get all available heroes
 			}
@@ -363,7 +364,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 			    ( !bannedClass || elem.second->type->heroClass != bannedClass) ) // and his class is not same as other hero
 			{
 				pool.push_back(elem.second);
-				sum += elem.second->type->heroClass->selectionProbability[town->faction->index]; //total weight
+				sum += elem.second->type->heroClass->selectionProbability[town->faction->getIndex()]; //total weight
 			}
 		}
 		if(!pool.size() || sum == 0)
@@ -375,7 +376,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		r = rand.nextInt(sum - 1);
 		for (auto & elem : pool)
 		{
-			r -= elem->type->heroClass->selectionProbability[town->faction->index];
+			r -= elem->type->heroClass->selectionProbability[town->faction->getIndex()];
 			if(r < 0)
 			{
 				ret = elem;
@@ -622,7 +623,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 
 			if (result.first == Obj::NO_OBJ)
 			{
-				logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->name, int(level));
+				logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->getNameTranslated(), int(level));
 				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), getRandomGenerator()));
 			}
 
@@ -1303,7 +1304,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				if(!art)
 					continue;
 
-				int id  = art->artType->id;
+				int id  = art->artType->getId();
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
 
@@ -1450,7 +1451,7 @@ void CGameState::initHeroes()
 
 		hero->initHero(getRandomGenerator());
 		getPlayerState(hero->getOwner())->heroes.push_back(hero);
-		map->allHeroes[hero->type->ID.getNum()] = hero;
+		map->allHeroes[hero->type->getIndex()] = hero;
 	}
 
 	for(auto obj : map->objects) //prisons
@@ -1467,7 +1468,7 @@ void CGameState::initHeroes()
 		ph->initHero(getRandomGenerator());
 		hpool.heroesPool[ph->subID] = ph;
 		hpool.pavailable[ph->subID] = 0xff;
-		heroesToCreate.erase(ph->type->ID);
+		heroesToCreate.erase(ph->type->getId());
 
 		map->allHeroes[ph->subID] = ph;
 	}
@@ -1710,9 +1711,10 @@ void CGameState::initTowns()
 		{
 			vti->town = (*VLC->townh)[vti->subID]->town;
 		}
-		if(vti->name.empty())
+		if(vti->getNameTranslated().empty())
 		{
-			vti->name = *RandomGeneratorUtil::nextItem(vti->town->names, getRandomGenerator());
+			size_t nameID = getRandomGenerator().nextInt(vti->town->getRandomNamesCount() - 1);
+			vti->setNameTranslated(vti->town->getRandomNameTranslated(nameID));
 		}
 
 		//init buildings
@@ -1944,8 +1946,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField::fromString("sand_shore");
 	
-	return BattleField::fromString(
-		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
+	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
 
@@ -2135,7 +2136,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType->id;
+				rumorExtra = getTile(map->grailPos)->terType->getIndex();
 				break;
 			}
 
@@ -2796,7 +2797,7 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
 		if(hero->type)
-			ret -= hero->type->ID;
+			ret -= hero->type->getId();
 		else
 			ret -= HeroTypeID(hero->subID);
 	}
@@ -2891,7 +2892,7 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 
 		auto fixArtifact = [&](CArtifactInstance * art)
 		{
-			art->artType = VLC->arth->objects[art->artType->id];
+			art->artType = VLC->arth->objects[art->artType->getId()];
 			gs->map->artInstances.push_back(art);
 			art->id = ArtifactInstanceID((si32)gs->map->artInstances.size() - 1);
 		};
@@ -2918,7 +2919,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 {
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
-		if(hero->type && hero->type->ID == hid)
+		if(hero->type && hero->type->getId() == hid)
 		{
 			return hero;
 		}
@@ -2930,7 +2931,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 		{
 			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
 			assert(hero);
-			if ( hero->type && hero->type->ID == hid )
+			if ( hero->type && hero->type->getId() == hid )
 				return hero;
 		}
 	}
@@ -3024,7 +3025,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 	initFromArmy(h, detailed);
 
 	hclass = h->type->heroClass;
-	name = h->name;
+	name = h->getNameTranslated();
 	portrait = h->portrait;
 
 	if(detailed)
@@ -3076,7 +3077,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	army = ArmyDescriptor(t->getUpperArmy(), detailed);
 	built = t->builded;
 	fortLevel = t->fortLevel();
-	name = t->name;
+	name = t->getNameTranslated();
 	tType = t->town;
 
 	vstd::clear_pointer(details);

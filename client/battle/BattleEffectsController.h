@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
-#include "../gui/Geometries.h"
+#include "../../lib/Point.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

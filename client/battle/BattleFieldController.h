@@ -15,11 +15,10 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CStack;
+class Rect;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
-
-struct Rect;
-struct Point;
 
 class ClickableHex;
 class BattleHero;

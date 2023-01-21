@@ -259,14 +259,14 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
+	auto object = loadFromJson(scope, data, VLC->modh->normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
 	objects[object->id] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
+	auto object = loadFromJson(scope, data, VLC->modh->normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[(si32)index] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);

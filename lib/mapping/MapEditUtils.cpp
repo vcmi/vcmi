@@ -13,6 +13,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../JsonNode.h"
+#include "../TerrainHandler.h"
 #include "CMap.h"
 #include "CMapOperation.h"
 
@@ -272,7 +273,7 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
-	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->terrains()[terrain].terrainViewPatterns);
+	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
 		return terrainViewPatterns.at("normal");
 	return iter->second;
@@ -357,7 +358,7 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int
 			{
 				auto debugTile = map->getTile(debugPos);
 
-				std::string terType = debugTile.terType->name.substr(0, 6);
+				std::string terType = debugTile.terType->shortIdentifier;
 				line += terType;
 				line.insert(line.end(), PADDED_LENGTH - terType.size(), ' ');
 			}

@@ -15,7 +15,6 @@
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
 #include "../JsonNode.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

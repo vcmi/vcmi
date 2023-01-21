@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "AdventureMapClasses.h"
 
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "MiscWidgets.h"
 #include "CComponent.h"
@@ -41,13 +41,14 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/Terrain.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/StringConstants.h"
+#include "ClientCommandManager.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),
@@ -236,12 +237,12 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, Point(GH.current->motion));
+	CRClickPopup::createAndPush(hero, CSDL_Ext::fromSDL(GH.current->motion));
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->name % hero->type->heroClass->name);
+	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->type->heroClass->getNameTranslated());
 }
 
 std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
@@ -328,7 +329,7 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, Point(GH.current->motion));
+	CRClickPopup::createAndPush(town, CSDL_Ext::fromSDL(GH.current->motion));
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -390,7 +391,7 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	}
 
 	// else - use terrain color (blocked version or normal)
-	const auto & colorPair = parent->colors.find(tile->terType->id)->second;
+	const auto & colorPair = parent->colors.find(tile->terType->getId())->second;
 	if (tile->blocked && (!tile->visitable))
 		return colorPair.second;
 	else
@@ -499,25 +500,25 @@ std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
 	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
 		SDL_Color normal =
 		{
-			ui8(terrain.minimapUnblocked[0]),
-			ui8(terrain.minimapUnblocked[1]),
-			ui8(terrain.minimapUnblocked[2]),
+			ui8(terrain->minimapUnblocked[0]),
+			ui8(terrain->minimapUnblocked[1]),
+			ui8(terrain->minimapUnblocked[2]),
 			ui8(255)
 		};
 
 		SDL_Color blocked =
 		{
-			ui8(terrain.minimapBlocked[0]),
-			ui8(terrain.minimapBlocked[1]),
-			ui8(terrain.minimapBlocked[2]),
+			ui8(terrain->minimapBlocked[0]),
+			ui8(terrain->minimapBlocked[1]),
+			ui8(terrain->minimapBlocked[2]),
 			ui8(255)
 		};
 
-		ret[terrain.id] = std::make_pair(normal, blocked);
+		ret[terrain->getId()] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }
@@ -592,8 +593,8 @@ void CMinimap::showAll(SDL_Surface * to)
 		int3 tileCountOnScreen = adventureInt->terrain.tileCountOnScreen();
 
 		//draw radar
-		SDL_Rect oldClip;
-		SDL_Rect radar =
+		Rect oldClip;
+		Rect radar =
 		{
 			si16(adventureInt->position.x * pos.w / mapSizes.x + pos.x),
 			si16(adventureInt->position.y * pos.h / mapSizes.y + pos.y),
@@ -611,10 +612,10 @@ void CMinimap::showAll(SDL_Surface * to)
 				return; // whole map is visible at once, no point in redrawing border
 		}
 
-		SDL_GetClipRect(to, &oldClip);
-		SDL_SetClipRect(to, &pos);
-		CSDL_Ext::drawDashedBorder(to, radar, int3(255,75,125));
-		SDL_SetClipRect(to, &oldClip);
+		CSDL_Ext::getClipRect(to, oldClip);
+		CSDL_Ext::setClipRect(to, pos);
+		CSDL_Ext::drawDashedBorder(to, radar, Colors::PURPLE);
+		CSDL_Ext::setClipRect(to, oldClip);
 	}
 }
 
@@ -1141,15 +1142,29 @@ void CInGameConsole::startEnteringText()
 	GH.statusbar->setEnteredText(enteredText);
 }
 
-void CInGameConsole::endEnteringText(bool printEnteredText)
+void CInGameConsole::endEnteringText(bool processEnteredText)
 {
 	captureAllKeys = false;
 	prevEntDisp = -1;
-	if(printEnteredText)
+	if(processEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
-		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
+
+		if(txt.at(0) == '/')
+		{
+			//some commands like gosolo don't work when executed from GUI thread
+			auto threadFunction = [=]()
+			{
+				ClientCommandManager commandController;
+				commandController.processCommand(txt.substr(1), true);
+			};
+
+			boost::thread clientCommandThread(threadFunction);
+			clientCommandThread.detach();
+		}
+		else
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 	}
 	enteredText.clear();
 
@@ -1209,7 +1224,7 @@ void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
 void CAdvMapPanel::showAll(SDL_Surface * to)
 {
 	if(background)
-		blitAt(background, pos.x, pos.y, to);
+		CSDL_Ext::blitAt(background, pos.x, pos.y, to);
 
 	CIntObject::showAll(to);
 }

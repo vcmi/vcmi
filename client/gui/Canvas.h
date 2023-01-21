@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "Geometries.h"
+#include "TextAlignment.h"
+#include "../../lib/Rect.h"
 
 struct SDL_Color;
 struct SDL_Surface;
@@ -50,10 +51,6 @@ public:
 
 	/// renders section of image bounded by sourceRect at specified position
 	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect);
-
-	/// renders section of image bounded by sourceRect at specified position at specific transparency value
-	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha);
-
 
 	/// renders another canvas onto this canvas
 	void draw(Canvas & image, const Point & pos);

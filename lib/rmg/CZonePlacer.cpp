@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "CMapGenOptions.h"
@@ -194,15 +195,15 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 				else
 				{
 					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
-					if(tt == Terrain::DIRT)
+					if(tt == ETerrainId::NONE)
 					{
 						//any / random
 						zonesToPlace.push_back(zone);
 					}
 					else
 					{
-						const auto & terrainType = VLC->terrainTypeHandler->terrains()[tt];
-						if(terrainType.isUnderground() && !terrainType.isSurface())
+						const auto & terrainType = VLC->terrainTypeHandler->getById(tt);
+						if(terrainType->isUnderground() && !terrainType->isSurface())
 						{
 							//underground only
 							zonesOnLevel[1]++;
@@ -580,7 +581,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			paintZoneTerrain(*zone.second, *rand, map, Terrain::SUBTERRANEAN);
+			paintZoneTerrain(*zone.second, *rand, map, ETerrainId::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");

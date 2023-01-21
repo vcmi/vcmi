@@ -87,7 +87,7 @@ public:
 	ui8 getTacticsSide() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
-	si8 getWallState(int partOfWall) const override;
+	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
 	uint32_t getCastSpells(ui8 side) const override;
@@ -115,7 +115,7 @@ public:
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 
-	void setWallState(int partOfWall, si8 state) override;
+	void setWallState(EWallPart partOfWall, EWallState state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
 	void updateObstacle(const ObstacleChanges& changes) override;

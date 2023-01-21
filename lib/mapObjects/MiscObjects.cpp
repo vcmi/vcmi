@@ -204,7 +204,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(action));
-			boost::algorithm::replace_first(tmp,"%s",VLC->creh->objects[subID]->namePl);
+			boost::algorithm::replace_first(tmp,"%s",VLC->creh->objects[subID]->getNamePluralTranslated());
 			ynd.text << tmp;
 			cb->showBlockingDialog(&ynd);
 			break;
@@ -600,7 +600,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	if(iw.components.size())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT, 183); // % has found treasure
-		iw.text.addReplacement(h->name);
+		iw.text.addReplacement(h->getNameTranslated());
 		cb->showInfoDialog(&iw);
 	}
 }
@@ -1324,7 +1324,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getByIndex(subID)->getName();
+	return VLC->artifacts()->getByIndex(subID)->getNameTranslated();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
@@ -1341,19 +1341,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				if(message.length())
 					iw.text << message;
 				else
-				{
-					auto artifact = ArtifactID(subID).toArtifact(VLC->artifacts());
-
-					if((artifact != nullptr) && (!artifact->getEventText().empty()))
-					{
-						iw.text.addTxt(MetaString::ART_EVNTS, subID);
-					}
-					else //fix for mod artifacts with no event text
-					{
-						iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
-						iw.text.addReplacement(h->name);
-					}
-				}
+					iw.text.addTxt(MetaString::ART_EVNTS, subID);
 			}
 			break;
 		case Obj::SPELL_SCROLL:
@@ -1502,7 +1490,7 @@ std::string CGWitchHut::getHoverText(PlayerColor player) const
 	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName, "%s", VLC->skillh->skillName(ability));
+		boost::algorithm::replace_first(hoverName, "%s", VLC->skillh->getByIndex(ability)->getNameTranslated());
 	}
 	return hoverName;
 }
@@ -1667,7 +1655,7 @@ std::string CGShrine::getHoverText(PlayerColor player) const
 	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->name);
+		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->getNameTextID());
 	}
 	return hoverName;
 }
@@ -1967,7 +1955,13 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
-			TQuantity drown = static_cast<TQuantity>(i->second->count * 0.3);
+			// 1-sized stacks are not affected by sirens
+			if (i->second->count == 1)
+				continue;
+
+			// tested H3 behavior: 30% (rounded up) of stack drowns
+			TQuantity drown = std::ceil(i->second->count * 0.3);
+
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);

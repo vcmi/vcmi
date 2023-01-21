@@ -8,11 +8,14 @@
  *
  */
 #pragma once
-class CIntObject;
-class CAnimImage;
+
+class CAnimation;
+class IImage;
 struct SDL_Surface;
 struct SDL_Texture;
-struct Point;
+struct SDL_Cursor;
+
+#include "../../lib/Point.h"
 
 namespace Cursor
 {
@@ -51,7 +54,9 @@ namespace Cursor
 		SHOOT_CATAPULT = 16,
 		HEAL           = 17,
 		SACRIFICE      = 18,
-		TELEPORT       = 19
+		TELEPORT       = 19,
+
+		COUNT
 	};
 
 	enum class Map {
@@ -97,7 +102,9 @@ namespace Cursor
 		SCROLL_NORTHWEST = 39,
 		//POINTER_COPY       = 40, // probably unused
 		TELEPORT         = 41,
-		SCUTTLE_BOAT     = 42
+		SCUTTLE_BOAT     = 42,
+
+		COUNT
 	};
 
 	enum class Spellcast {
@@ -105,49 +112,96 @@ namespace Cursor
 	};
 }
 
-/// handles mouse cursor
-class CCursorHandler final
+class ICursor
 {
+public:
+	virtual ~ICursor() = default;
+
+	virtual void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) = 0;
+	virtual void setCursorPosition( const Point & newPos ) = 0;
+	virtual void render() = 0;
+	virtual void setVisible( bool on) = 0;
+};
+
+class CursorHardware : public ICursor
+{
+	std::shared_ptr<IImage> cursorImage;
+
+	SDL_Cursor * cursor;
+
+public:
+	CursorHardware();
+	~CursorHardware();
+
+	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
+	void setCursorPosition( const Point & newPos ) override;
+	void render() override;
+	void setVisible( bool on) override;
+};
+
+class CursorSoftware : public ICursor
+{
+	std::shared_ptr<IImage> cursorImage;
+
+	SDL_Texture * cursorTexture;
+	SDL_Surface * cursorSurface;
+
+	Point pos;
+	Point pivot;
 	bool needUpdate;
-	SDL_Texture * cursorLayer;
+	bool visible;
 
-	SDL_Surface * buffer;
-	CAnimImage * currentCursor;
+	void createTexture(const Point & dimensions);
+	void updateTexture();
+public:
+	CursorSoftware();
+	~CursorSoftware();
 
-	std::unique_ptr<CAnimImage> dndObject; //if set, overrides currentCursor
+	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
+	void setCursorPosition( const Point & newPos ) override;
+	void render() override;
+	void setVisible( bool on) override;
+};
 
-	std::array<std::unique_ptr<CAnimImage>, 4> cursors;
+/// handles mouse cursor
+class CursorHandler final
+{
+	std::shared_ptr<IImage> dndObject; //if set, overrides currentCursor
+
+	std::array<std::unique_ptr<CAnimation>, 4> cursors;
 
 	bool showing;
-
-	void clearBuffer();
-	void updateBuffer(CIntObject * payload);
-	void replaceBuffer(CIntObject * payload);
-	void shiftPos( int &x, int &y );
-
-	void updateTexture();
 
 	/// Current cursor
 	Cursor::Type type;
 	size_t frame;
 	float frameTime;
+	Point pos;
 
 	void changeGraphic(Cursor::Type type, size_t index);
 
-	/// position of cursor
-	int xpos, ypos;
+	Point getPivotOffsetDefault(size_t index);
+	Point getPivotOffsetMap(size_t index);
+	Point getPivotOffsetCombat(size_t index);
+	Point getPivotOffsetSpellcast();
+	Point getPivotOffset();
 
+	void updateSpellcastCursor();
+
+	std::shared_ptr<IImage> getCurrentImage();
+
+	std::unique_ptr<ICursor> cursor;
+
+	static std::unique_ptr<ICursor> createCursor();
 public:
-	CCursorHandler();
-	~CCursorHandler();
+	CursorHandler();
+	~CursorHandler();
 
-	/**
-	 * Replaces the cursor with a custom image.
-	 *
-	 * @param image Image to replace cursor with or nullptr to use the normal
-	 * cursor. CursorHandler takes ownership of object
-	 */
-	void dragAndDropCursor (std::unique_ptr<CAnimImage> image);
+	/// Replaces the cursor with a custom image.
+	/// @param image Image to replace cursor with or nullptr to use the normal cursor.
+	void dragAndDropCursor(std::shared_ptr<IImage> image);
+
+	void dragAndDropCursor(std::string path, size_t index);
 
 	/// Returns current position of the cursor
 	Point position() const;
@@ -172,8 +226,8 @@ public:
 
 	void render();
 
-	void hide() { showing=false; };
-	void show() { showing=true; };
+	void hide();
+	void show();
 
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);

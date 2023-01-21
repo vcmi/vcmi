@@ -53,18 +53,18 @@ void CGarrisonSlot::hover (bool on)
 				if(owner->getSelection() == this)
 				{
 					temp = CGI->generaltexth->tcommands[4]; //View %s
-					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature == creature)
 				{
 					temp = CGI->generaltexth->tcommands[2]; //Combine %s armies
-					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature)
 				{
 					temp = CGI->generaltexth->tcommands[7]; //Exchange %s with %s
-					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->nameSing);
-					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
+					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else
 				{
@@ -92,7 +92,7 @@ void CGarrisonSlot::hover (bool on)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+				boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 			}
 		}
 		else
@@ -110,7 +110,7 @@ void CGarrisonSlot::hover (bool on)
 				else
 				{
 					temp = CGI->generaltexth->tcommands[6]; //Move %s
-					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
 				}
 			}
 			else

@@ -12,6 +12,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class TerrainType;
+class RiverType;
+class RoadType;
+
 /// The map event is an event which e.g. gives or takes resources of a specific
 /// amount to/from players and can appear regularly or once a time.
 class DLL_LINKAGE CMapEvent
@@ -82,11 +86,11 @@ struct DLL_LINKAGE TerrainTile
 	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
 	bool hasFavorableWinds() const;
 
-	TerrainType * terType;
+	const TerrainType * terType;
 	ui8 terView;
-	RiverType * riverType;
+	const RiverType * riverType;
 	ui8 riverDir;
-	RoadType * roadType;
+	const RoadType * roadType;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect

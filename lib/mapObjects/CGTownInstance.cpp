@@ -21,6 +21,7 @@
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../HeroBonus.h"
 
@@ -723,7 +724,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		logGlobal->error("%s visits allied town of %s from different pos?", h->name, name);
+		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), name);
 	}
 }
 
@@ -733,15 +734,15 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 	if(visitingHero == h)
 	{
 		cb->stopHeroVisitCastle(this, h);
-		logGlobal->trace("%s correctly left town %s", h->name, name);
+		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), name);
 	}
 	else
-		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->name, name);
+		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), name);
 }
 
 std::string CGTownInstance::getObjectName() const
 {
-	return name + ", " + town->faction->name;
+	return name + ", " + town->faction->getNameTranslated();
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
@@ -800,6 +801,42 @@ void CGTownInstance::addTownBonuses()
 		if(kvp.second->IsWeekBonus())
 			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
 	}
+}
+
+TDmgRange CGTownInstance::getTowerDamageRange() const
+{
+	assert(hasBuilt(BuildingID::CASTLE));
+
+	// http://heroes.thelazy.net/wiki/Arrow_tower
+	// base damage, irregardless of town level
+	static const int baseDamage = 6;
+	// extra damage, for each building in town
+	static const int extraDamage = 1;
+
+	const int minDamage = baseDamage + extraDamage * getTownLevel();
+
+	return {
+		minDamage,
+		minDamage * 2
+	};
+}
+
+TDmgRange CGTownInstance::getKeepDamageRange() const
+{
+	assert(hasBuilt(BuildingID::CITADEL));
+
+	// http://heroes.thelazy.net/wiki/Arrow_tower
+	// base damage, irregardless of town level
+	static const int baseDamage = 10;
+	// extra damage, for each building in town
+	static const int extraDamage = 2;
+
+	const int minDamage = baseDamage + extraDamage * getTownLevel();
+
+	return {
+		minDamage,
+		minDamage * 2
+	};
 }
 
 void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
@@ -861,7 +898,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 
 bool CGTownInstance::hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const
 {
-	return (this->town->faction != nullptr && this->town->faction->index == type && hasBuilt(bid));
+	return (this->town->faction != nullptr && this->town->faction->getIndex() == type && hasBuilt(bid));
 }
 
 void CGTownInstance::newTurn(CRandomGenerator & rand) const
@@ -1112,7 +1149,7 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 		std::vector<int> ret;
 		for(const CArtifact *a : merchantArtifacts)
 			if(a)
-				ret.push_back(a->id);
+				ret.push_back(a->getId());
 			else
 				ret.push_back(-1);
 		return ret;
@@ -1136,7 +1173,7 @@ void CGTownInstance::setType(si32 ID, si32 subID)
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
 	//FIXME: not the best way to do this
 	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(terrain, this);
 	if (app)
@@ -1145,7 +1182,7 @@ void CGTownInstance::updateAppearance()
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + (town ? town->faction->name : "unknown") + ") of " +  name;
+	return "Town (" + (town ? town->faction->getNameTranslated() : "unknown") + ") of " +  name;
 }
 
 void CGTownInstance::deserializationFix()
@@ -1299,6 +1336,16 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 	return townAndVis;
 }
 
+std::string CGTownInstance::getNameTranslated() const
+{
+	return name;
+}
+
+void CGTownInstance::setNameTranslated( const std::string & newName )
+{
+	name = newName;
+}
+
 const CArmedInstance * CGTownInstance::getUpperArmy() const
 {
 	if(garrisonHero)
@@ -1344,7 +1391,7 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 
 bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 {
-	if (townID == town->faction->index || townID == ETownType::ANY)
+	if (townID == town->faction->getIndex() || townID == ETownType::ANY)
 		return hasBuilt(buildingID);
 	return false;
 }
@@ -1418,7 +1465,7 @@ void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 st
 	else
 	{
 		//should never ever happen
-		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->name, structureInstanceID);
+		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTranslated(), structureInstanceID);
 		throw std::runtime_error("internal error");
 	}
 }
@@ -1480,7 +1527,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		auto encodeBuilding = [this](si32 index) -> std::string
 		{
-			return getTown()->buildings.at(BuildingID(index))->identifier;
+			return getTown()->buildings.at(BuildingID(index))->getJsonKey();
 		};
 
 		const std::set<si32> standard = getTown()->getAllBuildings();//by default all buildings are allowed
@@ -1727,7 +1774,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->town->buildings.at(bID);
-			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->index, building->bid)))
+			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
@@ -1786,7 +1833,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 	: count(_count)
 {
-	description = boost::str(boost::format("%s %+d") % (*VLC->townh)[subID]->town->buildings.at(building)->Name() % count);
+	description = boost::str(boost::format("%s %+d") % (*VLC->townh)[subID]->town->buildings.at(building)->getNameTranslated() % count);
 }
 
 GrowthInfo::Entry::Entry(int _count, const std::string &fullDescription)
@@ -1837,12 +1884,12 @@ const std::string CGTownBuilding::getVisitingBonusGreeting() const
 		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingDefence"));
 		break;
 	}
-	auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+	auto buildingName = town->town->getSpecialBuilding(bType)->getNameTranslated();
 
 	if(bonusGreeting.empty())
 	{
 		bonusGreeting = "Error: Bonus greeting for '%s' is not localized.";
-		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->town->getLocalizedFactionName());
+		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->town->faction->getNameTranslated());
 	}
 	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 	town->town->setGreeting(bType, bonusGreeting);
@@ -1854,7 +1901,7 @@ const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) co
 	if(bonus.type == Bonus::TOWN_MAGIC_WELL)
 	{
 		auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingInTownMagicWell"));
-		auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+		auto buildingName = town->town->getSpecialBuilding(bType)->getNameTranslated();
 		boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 		return bonusGreeting;
 	}

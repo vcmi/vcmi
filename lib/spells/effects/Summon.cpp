@@ -80,7 +80,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 			auto caster = dynamic_cast<const CGHeroInstance *>(m->caster);
 			if(caster)
 			{
-				text.addReplacement(caster->name);
+				text.addReplacement(caster->getNameTranslated());
 
 				text.addReplacement(MetaString::CRE_PL_NAMES, elemental->creatureIndex());
 

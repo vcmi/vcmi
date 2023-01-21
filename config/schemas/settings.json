@@ -37,7 +37,7 @@
 				},
 				"encoding" : {
 					"type" : "string",
-					"default" : "CP1252"
+					"default" : "auto"
 				},
 				"swipe" : {
 					"type" : "boolean",
@@ -53,6 +53,7 @@
 				},
 				"language" : {
 					"type":"string",
+					"enum" : [ "english", "german", "polish", "russian", "ukrainian" ],
 					"default" : "english"
 				},
 				"lastSave" : {
@@ -81,7 +82,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "cursor", "spellbookAnimation", "driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -104,6 +105,11 @@
 				"realFullscreen" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"cursor" :  {
+					"type" : "string",
+					"enum" : [ "auto", "hardware", "software" ],
+					"default" : "auto"
 				},
 				"showIntro" : {
 					"type" : "boolean",

@@ -44,7 +44,7 @@ public:
 	ui8 getTacticsSide() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
-	si8 getWallState(int partOfWall) const override;
+	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
 	uint32_t getCastSpells(ui8 side) const override;

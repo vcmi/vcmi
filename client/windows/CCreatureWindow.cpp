@@ -86,9 +86,9 @@ public:
 	std::string getName() const
 	{
 		if(commander)
-			return commander->type->nameSing;
+			return commander->type->getNameSingularTranslated();
 		else
-			return creature->namePl;
+			return creature->getNamePluralTranslated();
 	}
 private:
 
@@ -206,7 +206,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 		if (hasGraphics)
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-			boost::replace_first(spellText, "%s", spell->getName());
+			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first(spellText, "%d", boost::lexical_cast<std::string>(duration));
@@ -597,7 +597,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		{
 			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
 			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
-			parent->stackArtifactHelp->type = art->artType->id;
+			parent->stackArtifactHelp->type = art->artType->getId();
 
 			if(parent->info->owner)
 			{
@@ -866,7 +866,7 @@ std::string CStackWindow::generateStackExpDescription()
 		tier = 0;
 	int number;
 	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
-	boost::replace_first(expText, "%s", creature->namePl);
+	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
 	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));

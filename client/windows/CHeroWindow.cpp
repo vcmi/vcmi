@@ -211,19 +211,19 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	assert(hero == curHero);
 
-	name->setText(curHero->name);
-	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->type->heroClass->name).str());
+	name->setText(curHero->getNameTranslated());
+	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->type->heroClass->getNameTranslated()).str());
 
-	specArea->text = curHero->type->specDescr;
+	specArea->text = curHero->type->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->type->imageIndex);
-	specName->setText(curHero->type->specName);
+	specName->setText(curHero->type->getSpecialtyNameTranslated());
 
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), "hsbtns8.def", std::make_pair(heroscrn[26], heroscrn[31]), 0, SDLK_b);
 	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
-	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->name % curHero->type->heroClass->name));
-	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->name % curHero->type->heroClass->name);
-	portraitArea->text = curHero->getBiography();
+	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
+	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated());
+	portraitArea->text = curHero->getBiographyTranslated();
 	portraitImage->setFrame(curHero->portrait);
 
 	{
@@ -263,12 +263,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	{
 		int skill = curHero->secSkills[g].first;
 		int	level = curHero->getSecSkillLevel(SecondarySkill(curHero->secSkills[g].first));
-		std::string skillName = CGI->skillh->skillName(skill);
+		std::string skillName = CGI->skillh->getByIndex(skill)->getNameTranslated();
 		std::string skillValue = CGI->generaltexth->levels[level-1];
 
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
-		secSkillAreas[g]->text = CGI->skillh->skillInfo(skill, level);
+		secSkillAreas[g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % skillValue % skillName);
 		secSkillImages[g]->setFrame(skill*3 + level + 2);
 		secSkillNames[g]->setText(skillName);
@@ -291,7 +291,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//printing spell points, boost::format can't be used due to locale issues
 	spellPointsArea->text = CGI->generaltexth->allTexts[205];
-	boost::replace_first(spellPointsArea->text, "%s", boost::lexical_cast<std::string>(curHero->name));
+	boost::replace_first(spellPointsArea->text, "%s", boost::lexical_cast<std::string>(curHero->getNameTranslated()));
 	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(curHero->mana));
 	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(heroWArt.manaLimit()));
 

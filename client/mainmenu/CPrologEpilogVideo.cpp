@@ -39,7 +39,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 
 void CPrologEpilogVideo::show(SDL_Surface * to)
 {
-	CSDL_Ext::fillRectBlack(to, &pos);
+	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player

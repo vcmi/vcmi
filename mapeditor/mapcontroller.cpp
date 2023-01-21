@@ -14,7 +14,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/rmg/ObstaclePlacer.h"
 #include "../lib/CSkillHandler.h"
@@ -131,7 +131,7 @@ void MapController::repairMap()
 			if(obj->ID == Obj::HERO)
 			{
 				nih->typeName = "hero";
-				nih->subTypeName = type->heroClass->identifier;
+				nih->subTypeName = type->heroClass->getJsonKey();
 			}
 			if(obj->ID == Obj::PRISON)
 			{
@@ -140,10 +140,6 @@ void MapController::repairMap()
 			}
 			
 			nih->type = type;
-			if(nih->name.empty())
-				nih->name = nih->type->name;
-			if(nih->biography.empty())
-				nih->biography = nih->type->biography;
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -408,7 +404,7 @@ void MapController::commitObstacleFill(int level)
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType->id].blockedArea.add(t);
+		terrainSelected[tl.terType->getId()].blockedArea.add(t);
 	}
 	
 	for(auto & sel : terrainSelected)

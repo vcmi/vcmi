@@ -28,10 +28,12 @@ void CButton::update()
 {
 	if (overlay)
 	{
+		Point targetPos = Rect::createCentered( pos, overlay->pos.dimensions()).topLeft();
+
 		if (state == PRESSED)
-			overlay->moveTo(overlay->pos.centerIn(pos).topLeft() + Point(1,1));
+			overlay->moveTo(targetPos + Point(1,1));
 		else
-			overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+			overlay->moveTo(targetPos);
 	}
 
 	int newPos = stateToIndex[int(state)];
@@ -88,7 +90,8 @@ void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 	if(overlay)
 	{
 		addChild(newOverlay.get());
-		overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+		Point targetPos = Rect::createCentered( pos, overlay->pos.dimensions()).topLeft();
+		overlay->moveTo(targetPos);
 	}
 	update();
 }
@@ -277,8 +280,8 @@ void CButton::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 
 	auto borderColor = stateToBorderColor[getState()];
-	if (borderColor && borderColor->a == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
+	if (borderColor)
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, *borderColor);
 }
 
 std::pair<std::string, std::string> CButton::tooltip()
@@ -765,7 +768,7 @@ void CSlider::setAmount( int to )
 
 void CSlider::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::fillRectBlack(to, &pos);
+	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
 	CIntObject::showAll(to);
 }
 

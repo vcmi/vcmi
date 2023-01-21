@@ -15,6 +15,9 @@
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
+#include "../RiverHandler.h"
+#include "../RoadHandler.h"
+#include "../TerrainHandler.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CGeneralTextHandler.h"
@@ -128,9 +131,9 @@ CCastleEvent::CCastleEvent() : town(nullptr)
 TerrainTile::TerrainTile():
 	terType(nullptr),
 	terView(0),
-	riverType(const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[River::NO_RIVER])),
+	riverType(VLC->riverTypeHandler->getById(River::NO_RIVER)),
 	riverDir(0),
-	roadType(const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[Road::NO_ROAD])),
+	roadType(VLC->roadTypeHandler->getById(Road::NO_ROAD)),
 	roadDir(0),
 	extTileFlags(0),
 	visitable(false),
@@ -536,11 +539,11 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->objects[cond.objectType]->getName());
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->objects[cond.objectType]->getNameTranslated());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->nameSing);
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->getNameSingularTranslated());
 					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
 					break;
 
@@ -562,10 +565,10 @@ void CMap::checkForObjectives()
 					{
 						const CGTownInstance *town = dynamic_cast<const CGTownInstance*>(cond.object);
 						if (town)
-							boost::algorithm::replace_first(event.onFulfill, "%s", town->name);
+							boost::algorithm::replace_first(event.onFulfill, "%s", town->getNameTranslated());
 						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
-							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
+							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
 					break;
 
@@ -577,7 +580,7 @@ void CMap::checkForObjectives()
 					{
 						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
-							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
+							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
 					break;
 				case EventCondition::TRANSPORT:

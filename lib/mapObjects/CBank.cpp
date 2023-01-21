@@ -59,7 +59,7 @@ void CBank::setConfig(const BankConfig & config)
 	clear(); // remove all stacks, if any
 
 	for (auto & stack : config.guards)
-		setCreature (SlotID(stacksCount()), stack.type->idNumber, stack.count);
+		setCreature (SlotID(stacksCount()), stack.type->getId(), stack.count);
 }
 
 void CBank::setPropertyDer (ui8 what, ui32 val)
@@ -255,7 +255,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					return a.type->fightValue < b.type->fightValue;
 				})->type;
 
-				iw.text.addReplacement(MetaString::CRE_PL_NAMES, strongest->idNumber);
+				iw.text.addReplacement(MetaString::CRE_PL_NAMES, strongest->getId());
 				iw.text.addReplacement(loot.buildList());
 			}
 			cb->showInfoDialog(&iw);
@@ -309,7 +309,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		CCreatureSet ourArmy;
 		for (auto slot : bc->creatures)
 		{
-			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->idNumber), slot.type->idNumber, slot.count);
+			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->idNumber), slot.type->getId(), slot.count);
 		}
 
 		for (auto & elem : ourArmy.Slots())
@@ -327,7 +327,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				iw.text.addTxt(MetaString::ADVOB_TXT, 186);
 
 			iw.text.addReplacement(loot.buildList());
-			iw.text.addReplacement(hero->name);
+			iw.text.addReplacement(hero->getNameTranslated());
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}

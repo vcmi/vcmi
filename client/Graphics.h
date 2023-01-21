@@ -11,7 +11,6 @@
 
 #include "gui/Fonts.h"
 #include "../lib/GameConstants.h"
-#include "gui/Geometries.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

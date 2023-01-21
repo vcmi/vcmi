@@ -9,8 +9,10 @@
  */
 #pragma once
 
-struct SDL_Surface;
+#include "../lib/Rect.h"
 
+struct SDL_Surface;
+struct SDL_Texture;
 
 class IVideoPlayer
 {
@@ -53,9 +55,6 @@ public:
 #ifndef DISABLE_VIDEO
 
 #include "../lib/filesystem/CInputStream.h"
-
-#include <SDL.h>
-#include <SDL_video.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -106,8 +105,8 @@ class CVideoPlayer : public IMainVideoPlayer
 
 	SDL_Texture *texture;
 	SDL_Surface *dest;
-	SDL_Rect destRect;			// valid when dest is used
-	SDL_Rect pos;				// destination on screen
+	Rect destRect;			// valid when dest is used
+	Rect pos;				// destination on screen
 
 	int refreshWait; // Wait several refresh before updating the image
 	int refreshCount;

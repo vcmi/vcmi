@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
-#include "../gui/Geometries.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -18,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class CCreature;
 class CSpell;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -28,7 +28,6 @@ class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
 struct StackAttackedInfo;
-struct Point;
 
 /// Base class of battle animations
 class BattleAnimation

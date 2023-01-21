@@ -10,11 +10,15 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
 #include "../battle/BattleConstants.h"
 
+#include <SDL_render.h>
+
+VCMI_LIB_NAMESPACE_BEGIN
+class Rect;
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
-struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -142,7 +146,7 @@ public:
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0);
+	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0, uint8_t alpha = UINT8_MAX);
 	~CShowableAnim();
 
 	//set animation to group or part of group

@@ -1437,10 +1437,10 @@ std::string AIPath::toString() const
 {
 	std::stringstream str;
 
-	str << targetHero->name << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
+	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
 
 	for(auto node : nodes)
-		str << node.targetHero->name << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
+		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();
 }

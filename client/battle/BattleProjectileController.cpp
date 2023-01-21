@@ -15,7 +15,6 @@
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
-#include "../gui/Geometries.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
@@ -158,7 +157,7 @@ const CCreature & BattleProjectileController::getShooter(const CStack * stack) c
 
 	if(creature->animation.missleFrameAngles.empty())
 	{
-		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead...", creature->nameSing);
+		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead...", creature->getNameSingularTranslated());
 		creature = CGI->creh->objects[CreatureID::ARCHER];
 	}
 
@@ -313,7 +312,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 	std::shared_ptr<ProjectileBase> projectile;
 	if (stackUsesRayProjectile(shooter) && stackUsesMissileProjectile(shooter))
 	{
-		logAnim->error("Mod error: Creature '%s' has both missile and ray projectiles configured. Mod should be fixed. Using ray projectile configuration...", shooterInfo.nameSing);
+		logAnim->error("Mod error: Creature '%s' has both missile and ray projectiles configured. Mod should be fixed. Using ray projectile configuration...", shooterInfo.getNameSingularTranslated());
 	}
 
 	if (stackUsesRayProjectile(shooter))

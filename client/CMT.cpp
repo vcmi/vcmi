@@ -13,8 +13,6 @@
 
 #include <boost/program_options.hpp>
 
-#include <vcmi/scripting/Service.h>
-
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
@@ -25,7 +23,7 @@
 #include "lobby/CSelectionBase.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
@@ -33,37 +31,32 @@
 #include "../lib/CBuildingHandler.h"
 #include "CVideoHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CCreatureHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "CMusicHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"
-#include "../lib/CConfigHandler.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/serializer/BinarySerializer.h"
-#include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
 #include "../lib/CModHandler.h"
-#include "../lib/ScriptHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/StringConstants.h"
 #include "../lib/CPlayerState.h"
 #include "gui/CAnimation.h"
 #include "../lib/serializer/Connection.h"
 #include "CServerHandler.h"
 #include "gui/NotificationHandler.h"
+#include "ClientCommandManager.h"
 
 #include <boost/asio.hpp>
 
 #include "mainmenu/CPrologEpilogVideo.h"
 #include <vstd/StringUtils.h>
+#include <SDL.h>
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -71,7 +64,7 @@
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
-#include "../lib/UnlockGuard.h"
+
 #include "CMT.h"
 
 #if __MINGW32__
@@ -208,6 +201,8 @@ int main(int argc, char * argv[])
 		("lobby-host", "if this client hosts session")
 		("lobby-uuid", po::value<std::string>(), "uuid to the server")
 		("lobby-connections", po::value<ui16>(), "connections of server")
+		("lobby-username", po::value<std::string>(), "player name")
+		("lobby-gamemode", po::value<ui16>(), "use 0 for new game and 1 for load game")
 		("uuid", po::value<std::string>(), "uuid for the client");
 
 	if(argc > 1)
@@ -247,7 +242,14 @@ int main(int argc, char * argv[])
 	std::cout.flags(std::ios::unitbuf);
 #ifndef VCMI_IOS
 	console = new CConsoleHandler();
-	*console->cb = processCommand;
+
+	auto callbackFunction = [](std::string buffer, bool calledFromIngameConsole)
+	{
+		ClientCommandManager commandController;
+		commandController.processCommand(buffer, calledFromIngameConsole);
+	};
+
+	*console->cb = callbackFunction;
 	console->start();
 #endif
 
@@ -470,7 +472,7 @@ int main(int argc, char * argv[])
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
 
-		CCS->curh = new CCursorHandler();
+		CCS->curh = new CursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
 		pomtime.getDiff();
 
@@ -489,29 +491,8 @@ int main(int argc, char * argv[])
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
+	std::shared_ptr<CMainMenu> mmenu;
 	
-	session["lobby"].Bool() = false;
-	if(vm.count("lobby"))
-	{
-		session["lobby"].Bool() = true;
-		session["host"].Bool() = false;
-		session["address"].String() = vm["lobby-address"].as<std::string>();
-		CSH->uuid = vm["uuid"].as<std::string>();
-		session["port"].Integer() = vm["lobby-port"].as<ui16>();
-		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
-		if(vm.count("lobby-host"))
-		{
-			session["host"].Bool() = true;
-			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
-			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
-			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
-		}
-		
-		//we should not reconnect to previous game in online mode
-		Settings saveSession = settings.write["server"]["reconnect"];
-		saveSession->Bool() = false;
-	}
-
 	if(vm.count("testmap"))
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
@@ -526,7 +507,44 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		GH.curInt = CMainMenu::create().get();
+		mmenu = CMainMenu::create();
+		GH.curInt = mmenu.get();
+	}
+	
+	std::vector<std::string> names;
+	session["lobby"].Bool() = false;
+	if(vm.count("lobby"))
+	{
+		session["lobby"].Bool() = true;
+		session["host"].Bool() = false;
+		session["address"].String() = vm["lobby-address"].as<std::string>();
+		if(vm.count("lobby-username"))
+			session["username"].String() = vm["lobby-username"].as<std::string>();
+		else
+			session["username"].String() = settings["launcher"]["lobbyUsername"].String();
+		if(vm.count("lobby-gamemode"))
+			session["gamemode"].Integer() = vm["lobby-gamemode"].as<ui16>();
+		else
+			session["gamemode"].Integer() = 0;
+		CSH->uuid = vm["uuid"].as<std::string>();
+		session["port"].Integer() = vm["lobby-port"].as<ui16>();
+		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
+		if(vm.count("lobby-host"))
+		{
+			session["host"].Bool() = true;
+			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
+			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
+			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
+		}
+		
+		//we should not reconnect to previous game in online mode
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = false;
+		
+		//start lobby immediately
+		names.push_back(session["username"].String());
+		ESelectionScreen sscreen = session["gamemode"].Integer() == 0 ? ESelectionScreen::newGame : ESelectionScreen::loadGame;
+		mmenu->openLobby(sscreen, session["host"].Bool(), &names, ELoadMode::MULTI);
 	}
 	
 	// Restore remote session - start game immediately
@@ -547,437 +565,6 @@ int main(int argc, char * argv[])
 
 	return 0;
 }
-
-void printInfoAboutIntObject(const CIntObject *obj, int level)
-{
-	std::stringstream sbuffer;
-	sbuffer << std::string(level, '\t');
-
-	sbuffer << typeid(*obj).name() << " *** ";
-	if (obj->active)
-	{
-#define PRINT(check, text) if (obj->active & CIntObject::check) sbuffer << text
-		PRINT(LCLICK, 'L');
-		PRINT(RCLICK, 'R');
-		PRINT(HOVER, 'H');
-		PRINT(MOVE, 'M');
-		PRINT(KEYBOARD, 'K');
-		PRINT(TIME, 'T');
-		PRINT(GENERAL, 'A');
-		PRINT(WHEEL, 'W');
-		PRINT(DOUBLECLICK, 'D');
-#undef  PRINT
-	}
-	else
-		sbuffer << "inactive";
-	sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
-	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-	logGlobal->info(sbuffer.str());
-
-	for(const CIntObject *child : obj->children)
-		printInfoAboutIntObject(child, level+1);
-}
-
-void removeGUI()
-{
-	// CClient::endGame
-	GH.curInt = nullptr;
-	if(GH.topInt())
-		GH.topInt()->deactivate();
-	adventureInt = nullptr;
-	GH.listInt.clear();
-	GH.objsToBlit.clear();
-	GH.statusbar = nullptr;
-	logGlobal->info("Removed GUI.");
-
-	LOCPLINT = nullptr;
-}
-
-#ifndef VCMI_IOS
-void processCommand(const std::string &message)
-{
-	std::istringstream readed;
-	readed.str(message);
-	std::string cn; //command name
-	readed >> cn;
-
-// Check mantis issue 2292 for details
-//	if(LOCPLINT && LOCPLINT->cingconsole)
-//		LOCPLINT->cingconsole->print(message);
-
-	if(message==std::string("die, fool"))
-	{
-		exit(EXIT_SUCCESS);
-	}
-	else if(cn==std::string("activate"))
-	{
-		int what;
-		readed >> what;
-		switch (what)
-		{
-		case 0:
-			GH.topInt()->activate();
-			break;
-		case 1:
-			adventureInt->activate();
-			break;
-		case 2:
-			LOCPLINT->castleInt->activate();
-			break;
-		}
-	}
-	else if(cn=="redraw")
-	{
-		GH.totalRedraw();
-	}
-	else if(cn=="screen")
-	{
-		std::cout << "Screenbuf points to ";
-
-		if(screenBuf == screen)
-			logGlobal->error("screen");
-		else if(screenBuf == screen2)
-			logGlobal->error("screen2");
-		else
-			logGlobal->error("?!?");
-
-		SDL_SaveBMP(screen, "Screen_c.bmp");
-		SDL_SaveBMP(screen2, "Screen2_c.bmp");
-	}
-	else if(cn=="save")
-	{
-		if(!CSH->client)
-		{
-			std::cout << "Game in not active";
-			return;
-		}
-		std::string fname;
-		readed >> fname;
-		CSH->client->save(fname);
-	}
-//	else if(cn=="load")
-//	{
-//		// TODO: this code should end the running game and manage to call startGame instead
-//		std::string fname;
-//		readed >> fname;
-//		CSH->client->loadGame(fname);
-//	}
-	else if(message=="convert txt")
-	{
-		VLC->generaltexth->dumpAllTexts();
-	}
-	else if(message=="get config")
-	{
-		std::cout << "Command accepted.\t";
-
-		const bfs::path outPath =
-			VCMIDirs::get().userExtractedPath() / "configuration";
-
-		bfs::create_directories(outPath);
-
-		const std::vector<std::string> contentNames = {"heroClasses", "artifacts", "creatures", "factions", "objects", "heroes", "spells", "skills"};
-
-		for(auto contentName : contentNames)
-		{
-			auto & content = (*VLC->modh->content)[contentName];
-
-			auto contentOutPath = outPath / contentName;
-			bfs::create_directories(contentOutPath);
-
-			for(auto & iter : content.modData)
-			{
-				const JsonNode & modData = iter.second.modData;
-
-				for(auto & nameAndObject : modData.Struct())
-				{
-					const JsonNode & object = nameAndObject.second;
-
-					std::string name = CModHandler::normalizeIdentifier(object.meta, CModHandler::scopeBuiltin(), nameAndObject.first);
-
-					boost::algorithm::replace_all(name,":","_");
-
-					const bfs::path filePath = contentOutPath / (name + ".json");
-					bfs::ofstream file(filePath);
-					file << object.toJson();
-				}
-			}
-		}
-
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
-	}
-#if SCRIPTING_ENABLED
-	else if(message=="get scripts")
-	{
-		std::cout << "Command accepted.\t";
-
-		const bfs::path outPath =
-			VCMIDirs::get().userExtractedPath() / "scripts";
-
-		bfs::create_directories(outPath);
-
-		for(auto & kv : VLC->scriptHandler->objects)
-		{
-			std::string name = kv.first;
-			boost::algorithm::replace_all(name,":","_");
-
-			const scripting::ScriptImpl * script = kv.second.get();
-			bfs::path filePath = outPath / (name + ".lua");
-			bfs::ofstream file(filePath);
-			file << script->getSource();
-		}
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
-	}
-#endif
-	else if(message=="get txt")
-	{
-		std::cout << "Command accepted.\t";
-
-		const bfs::path outPath =
-			VCMIDirs::get().userExtractedPath();
-
-		auto list = CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
-		{
-			return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
-		});
-
-		for (auto & filename : list)
-		{
-			const bfs::path filePath = outPath / (filename.getName() + ".TXT");
-
-			bfs::create_directories(filePath.parent_path());
-
-			bfs::ofstream file(filePath);
-			auto text = CResourceHandler::get()->load(filename)->readAll();
-
-			file.write((char*)text.first.get(), text.second);
-		}
-
-		std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << outPath << " directory\n";
-	}
-	else if(cn=="crash")
-	{
-		int *ptr = nullptr;
-		*ptr = 666;
-		//disaster!
-	}
-	else if(cn == "mp" && adventureInt)
-	{
-		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
-			std::cout << h->movement << "; max: " << h->maxMovePoints(true) << "/" << h->maxMovePoints(false) << std::endl;
-	}
-	else if(cn == "bonuses")
-	{
-		bool jsonFormat = (message == "bonuses json");
-		auto format = [jsonFormat](const BonusList & b) -> std::string
-		{
-			if(jsonFormat)
-				return b.toJsonNode().toJson(true);
-			std::ostringstream ss;
-			ss << b;
-			return ss.str();
-		};
-		std::cout << "Bonuses of " << adventureInt->selection->getObjectName() << std::endl
-			<< format(adventureInt->selection->getBonusList()) << std::endl;
-
-		std::cout << "\nInherited bonuses:\n";
-		TCNodes parents;
-		adventureInt->selection->getParents(parents);
-		for(const CBonusSystemNode *parent : parents)
-		{
-			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << format(*parent->getAllBonuses(Selector::all, Selector::all)) << std::endl;
-		}
-	}
-	else if(cn == "not dialog")
-	{
-		LOCPLINT->showingDialog->setn(false);
-	}
-	else if(cn == "gui")
-	{
-		for(auto & child : GH.listInt)
-		{
-			const auto childPtr = child.get();
-			if(const CIntObject * obj = dynamic_cast<const CIntObject *>(childPtr))
-				printInfoAboutIntObject(obj, 0);
-			else
-				std::cout << typeid(childPtr).name() << std::endl;
-		}
-	}
-	else if(cn=="tell")
-	{
-		std::string what;
-		int id1, id2;
-		readed >> what >> id1 >> id2;
-		if(what == "hs")
-		{
-			for(const CGHeroInstance *h : LOCPLINT->cb->getHeroesInfo())
-				if(h->type->ID.getNum() == id1)
-					if(const CArtifactInstance *a = h->getArt(ArtifactPosition(id2)))
-						std::cout << a->nodeName();
-		}
-	}
-	else if (cn == "set")
-	{
-		std::string what, value;
-		readed >> what;
-
-		Settings conf = settings.write["session"][what];
-
-		readed >> value;
-
-		if (value == "on")
-		{
-			conf->Bool() = true;
-			logGlobal->info("Option %s enabled!", what);
-		}
-		else if (value == "off")
-		{
-			conf->Bool() = false;
-			logGlobal->info("Option %s disabled!", what);
-		}
-	}
-	else if(cn == "unlock")
-	{
-		std::string mxname;
-		readed >> mxname;
-		if(mxname == "pim" && LOCPLINT)
-			LOCPLINT->pim->unlock();
-	}
-	else if(cn == "def2bmp")
-	{
-		std::string URI;
-		readed >> URI;
-		std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
-		anim->preload();
-		anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
-	}
-	else if(cn == "extract")
-	{
-		std::string URI;
-		readed >> URI;
-
-		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
-		{
-			const bfs::path outPath = VCMIDirs::get().userExtractedPath() / URI;
-
-			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
-
-			bfs::create_directories(outPath.parent_path());
-			bfs::ofstream outFile(outPath, bfs::ofstream::binary);
-			outFile.write((char*)data.first.get(), data.second);
-		}
-		else
-			logGlobal->error("File not found!");
-	}
-	else if(cn == "setBattleAI")
-	{
-		std::string fname;
-		readed >> fname;
-		std::cout << "Will try loading that AI to see if it is correct name...\n";
-		try
-		{
-			if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
-			{
-				Settings neutralAI = settings.write["server"]["neutralAI"];
-				neutralAI->String() = fname;
-				std::cout << "Setting changed, from now the battle ai will be " << fname << "!\n";
-			}
-		}
-		catch(std::exception &e)
-		{
-			logGlobal->warn("Failed opening %s: %s", fname, e.what());
-			logGlobal->warn("Setting not changes, AI not found or invalid!");
-		}
-	}
-
-	auto giveTurn = [&](PlayerColor player)
-	{
-		YourTurn yt;
-		yt.player = player;
-		yt.daysWithoutCastle = CSH->client->getPlayerState(player)->daysWithoutCastle;
-		yt.applyCl(CSH->client);
-	};
-
-	Settings session = settings.write["session"];
-	if(cn == "autoskip")
-	{
-		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
-	}
-	else if(cn == "gosolo")
-	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		if(!CSH->client)
-		{
-			std::cout << "Game in not active";
-			return;
-		}
-		PlayerColor color;
-		if(session["aiSolo"].Bool())
-		{
-			for(auto & elem : CSH->client->gameState()->players)
-			{
-				if(elem.second.human)
-					CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
-			}
-		}
-		else
-		{
-			color = LOCPLINT->playerID;
-			removeGUI();
-			for(auto & elem : CSH->client->gameState()->players)
-			{
-				if(elem.second.human)
-				{
-					auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(elem.first), false);
-					logNetwork->info("Player %s will be lead by %s", elem.first, AiToGive);
-					CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
-				}
-			}
-			GH.totalRedraw();
-			giveTurn(color);
-		}
-		session["aiSolo"].Bool() = !session["aiSolo"].Bool();
-	}
-	else if(cn == "controlai")
-	{
-		std::string colorName;
-		readed >> colorName;
-		boost::to_lower(colorName);
-
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		if(!CSH->client)
-		{
-			std::cout << "Game in not active";
-			return;
-		}
-		PlayerColor color;
-		if(LOCPLINT)
-			color = LOCPLINT->playerID;
-		for(auto & elem : CSH->client->gameState()->players)
-		{
-			if(elem.second.human || (colorName.length() &&
-				elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
-			{
-				continue;
-			}
-
-			removeGUI();
-			CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
-		}
-		GH.totalRedraw();
-		if(color != PlayerColor::NEUTRAL)
-			giveTurn(color);
-	}
-	// Check mantis issue 2292 for details
-/* 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
-	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		LOCPLINT->cb->sendMessage(message);
-	}*/
-}
-#endif
 
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()

@@ -205,7 +205,7 @@ std::string StackWithBonuses::getDescription() const
 	oss << unitOwner().getStr();
 	oss << " battle stack [" << unitId() << "]: " << getCount() << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getJsonKey();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -403,7 +403,7 @@ void HypotheticBattle::removeUnitBonus(uint32_t id, const std::vector<Bonus> & b
 	bonusTreeVersion++;
 }
 
-void HypotheticBattle::setWallState(int partOfWall, si8 state)
+void HypotheticBattle::setWallState(EWallPart partOfWall, EWallState state)
 {
 	//TODO:HypotheticBattle::setWallState
 }

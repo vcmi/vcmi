@@ -130,11 +130,11 @@ size_t CBitmapFont::getGlyphWidth(const char * data) const
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const
 {
 	Rect clipRect;
-	SDL_GetClipRect(surface, &clipRect);
+	CSDL_Ext::getClipRect(surface, clipRect);
 
 	posX += character.leftOffset;
 
-	TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
+	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
 
 	Uint8 bpp = surface->format->BytesPerPixel;
 
@@ -270,7 +270,7 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
 	{
 		SDL_Color black = { 0, 0, 0, SDL_ALPHA_OPAQUE};
-		renderText(surface, data, black, Point(pos.x + 1, pos.y + 1));
+		renderText(surface, data, black, pos + Point(1,1));
 	}
 
 	if (!data.empty())
@@ -283,8 +283,7 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 
 		assert(rendered);
 
-		Rect rect(pos.x, pos.y, rendered->w, rendered->h);
-		SDL_BlitSurface(rendered, nullptr, surface, &rect);
+		CSDL_Ext::blitSurface(rendered, surface, pos);
 		SDL_FreeSurface(rendered);
 	}
 }
@@ -308,9 +307,9 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 {
 	//TODO: somewhat duplicated with CBitmapFont::renderCharacter();
 	Rect clipRect;
-	SDL_GetClipRect(surface, &clipRect);
+	CSDL_Ext::getClipRect(surface, clipRect);
 
-	TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
+	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
 	Uint8 bpp = surface->format->BytesPerPixel;
 
 	// start of line, may differ from 0 due to end of surface or clipped surface

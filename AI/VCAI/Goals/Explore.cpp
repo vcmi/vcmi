@@ -240,7 +240,7 @@ bool Explore::operator==(const Explore & other) const
 
 std::string Explore::completeMessage() const
 {
-	return "Hero " + hero.get()->name + " completed exploration";
+	return "Hero " + hero.get()->getNameTranslated() + " completed exploration";
 }
 
 TSubgoal Explore::whatToDoToAchieve()
@@ -339,7 +339,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	{
 		for(auto h : heroes)
 		{
-			logAi->trace("Exploration searching for a new point for hero %s", h->name);
+			logAi->trace("Exploration searching for a new point for hero %s", h->getNameTranslated());
 
 			TSubgoal goal = explorationNewPoint(h);
 

@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../../lib/vcmi_endian.h"
-#include "Geometries.h"
 #include "../../lib/GameConstants.h"
 
 #ifdef IN
@@ -24,10 +23,13 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
+class Rect;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
+struct SDL_Color;
 class CDefFile;
 class ColorFilter;
 
@@ -40,8 +42,8 @@ public:
 	using SpecialPalette = std::array<SDL_Color, 7>;
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr, ui8 alpha = 255) const=0;
-	virtual void draw(SDL_Surface * where, const SDL_Rect * dest, const SDL_Rect * src, ui8 alpha = 255) const = 0;
+	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr) const = 0;
+	virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
 
 	virtual std::shared_ptr<IImage> scaleFast(float scale) const = 0;
 
@@ -177,6 +179,6 @@ public:
 	~CFadeAnimation();
 	void init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd = false, float animDelta = DEFAULT_DELTA);
 	void update();
-	void draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect);
+	void draw(SDL_Surface * targetSurface, const Point & targetPoint);
 	bool isFading() const { return fading; }
 };

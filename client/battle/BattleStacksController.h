@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../gui/Geometries.h"
 #include "../gui/ColorFilter.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -19,6 +18,7 @@ class BattleAction;
 class CStack;
 class CSpell;
 class SpellID;
+class Point;
 
 VCMI_LIB_NAMESPACE_END
 

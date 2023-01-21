@@ -13,7 +13,7 @@
 #include "CAdvmapInterface.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
 
 #include "../CGameInfo.h"
@@ -188,7 +188,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				aw->arts->markPossibleSlots(art);
 
 				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", art->artType->iconIndex));
+				CCS->curh->dragAndDropCursor("artifact", art->artType->iconIndex);
 
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);
@@ -244,13 +244,13 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
+		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
 			GH.statusbar->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getName());
+			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	}
 }
@@ -269,7 +269,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_PLACEHOLDER:
 			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->artifacts()->getByIndex(id)->getDescription(), down);
+				adventureInt->handleRightClick(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated(), down);
 			break;
 		}
 	}
@@ -285,12 +285,12 @@ std::string CTradeWindow::CTradeableItem::getName(int number) const
 		return CGI->generaltexth->restypes[id];
 	case CREATURE:
 		if(number == 1)
-			return CGI->creh->objects[id]->nameSing;
+			return CGI->creh->objects[id]->getNameSingularTranslated();
 		else
-			return CGI->creh->objects[id]->namePl;
+			return CGI->creh->objects[id]->getNamePluralTranslated();
 	case ARTIFACT_TYPE:
 	case ARTIFACT_INSTANCE:
-		return CGI->artifacts()->getByIndex(id)->getName();
+		return CGI->artifacts()->getByIndex(id)->getNameTranslated();
 	}
 	logGlobal->error("Invalid trade item type: %d", (int)type);
 	return "";
@@ -313,7 +313,7 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 	assert(type == ARTIFACT_PLACEHOLDER || type == ARTIFACT_INSTANCE);
 	hlp = art;
 	if(art)
-		setID(art->artType->id);
+		setID(art->artType->getId());
 	else
 		setID(-1);
 }
@@ -501,9 +501,9 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 		const std::vector<Rect> tmp =
 		{
-			genRect(h, w, x, y), genRect(h, w, x + dx, y), genRect(h, w, x + 2*dx, y),
-			genRect(h, w, x, y + dy), genRect(h, w, x + dx, y + dy), genRect(h, w, x + 2*dx, y + dy),
-			genRect(h, w, x + dx, y + 2*dy)
+			CSDL_Ext::genRect(h, w, x, y), CSDL_Ext::genRect(h, w, x + dx, y), CSDL_Ext::genRect(h, w, x + 2*dx, y),
+			CSDL_Ext::genRect(h, w, x, y + dy), CSDL_Ext::genRect(h, w, x + dx, y + dy), CSDL_Ext::genRect(h, w, x + 2*dx, y + dy),
+			CSDL_Ext::genRect(h, w, x + dx, y + 2*dy)
 		};
 
 		vstd::concatenate(poss, tmp);
@@ -564,9 +564,9 @@ void CTradeWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 
 	if(hRight)
-		CSDL_Ext::drawBorder(to, hRight->pos.x-1, hRight->pos.y-1, hRight->pos.w+2, hRight->pos.h+2, int3(255,231,148));
+		CSDL_Ext::drawBorder(to, hRight->pos.x-1, hRight->pos.y-1, hRight->pos.w+2, hRight->pos.h+2, Colors::BRIGHT_YELLOW);
 	if(hLeft && hLeft->type != ARTIFACT_INSTANCE)
-		CSDL_Ext::drawBorder(to, hLeft->pos.x-1, hLeft->pos.y-1, hLeft->pos.w+2, hLeft->pos.h+2, int3(255,231,148));
+		CSDL_Ext::drawBorder(to, hLeft->pos.x-1, hLeft->pos.y-1, hLeft->pos.w+2, hLeft->pos.h+2, Colors::BRIGHT_YELLOW);
 
 	if(readyToTrade)
 	{
@@ -668,14 +668,14 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		switch (mode)
 		{
 		case EMarketMode::CREATURE_RESOURCE:
-			title = (*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->Name();
+			title = (*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->getNameTranslated();
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 			sliderNeeded = false;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 
 			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
@@ -738,11 +738,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		//%s's Creatures
-		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		//%s's Artifacts
-		labels.push_back(std::make_shared<CLabel>(152, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name)));
+		labels.push_back(std::make_shared<CLabel>(152, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
 		break;
 	}
 
@@ -1099,7 +1099,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	{
 		//%s's Creatures
 		labels.push_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
-				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 
 		//Altar of Sacrifice
 		labels.push_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
@@ -1397,7 +1397,7 @@ void CAltarWindow::calcTotalExp()
 		for(const CArtifactInstance *art : arts->artifactsOnAltar)
 		{
 			int dmp, valOfArt;
-			market->getOffer(art->artType->id, 0, dmp, valOfArt, mode);
+			market->getOffer(art->artType->getId(), 0, dmp, valOfArt, mode);
 			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
@@ -1470,7 +1470,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 		artIcon->showAll(to);
 
 		int dmp, val;
-		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+		market->getOffer(arts->commonInfo->src.art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 		val = static_cast<int>(hero->calculateXp(val));
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
@@ -1496,7 +1496,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	}
 
 	int dmp, val;
-	market->getOffer(art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+	market->getOffer(art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 	val = static_cast<int>(hero->calculateXp(val));
 
 	arts->artifactsOnAltar.insert(art);

@@ -13,7 +13,6 @@
 #include <vcmi/Entity.h>
 #include "GameConstants.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 #include "battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -45,8 +44,9 @@ public:
 	
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getJsonKey() const override;
-	const std::string & getName() const override;
+	std::string getJsonKey() const override;
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	Obstacle getId() const override;
 	

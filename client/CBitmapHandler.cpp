@@ -10,8 +10,7 @@
 #include "StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "SDL.h"
-#include "SDL_image.h"
+#include <SDL_image.h>
 #include "CBitmapHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/vcmi_endian.h"

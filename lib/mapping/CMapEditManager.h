@@ -12,7 +12,6 @@
 
 #include "../GameConstants.h"
 #include "CMapOperation.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
