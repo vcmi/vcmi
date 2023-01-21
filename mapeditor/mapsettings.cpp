@@ -160,21 +160,21 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	
 	//victory & loss conditions
 	const std::array<std::string, 8> conditionStringsWin = {
-		"No special victory",
-		"Have artifact",
-		"Have creatures",
-		"Have resources",
-		"Have building",
-		"Capture city",
-		"Beat hero",
-		"Transport artifact"
+		QT_TR_NOOP("No special victory"),
+		QT_TR_NOOP("Have artifact"),
+		QT_TR_NOOP("Have creatures"),
+		QT_TR_NOOP("Have resources"),
+		QT_TR_NOOP("Have building"),
+		QT_TR_NOOP("Capture city"),
+		QT_TR_NOOP("Beat hero"),
+		QT_TR_NOOP("Transport artifact")
 	};
 	const std::array<std::string, 5> conditionStringsLose = {
-		"No special loss",
-		"Lose castle",
-		"Lose hero",
-		"Time expired",
-		"Days without town"
+		QT_TR_NOOP("No special loss"),
+		QT_TR_NOOP("Lose castle"),
+		QT_TR_NOOP("Lose hero"),
+		QT_TR_NOOP("Time expired"),
+		QT_TR_NOOP("Days without town")
 	};
 	
 	for(auto & s : conditionStringsWin)
