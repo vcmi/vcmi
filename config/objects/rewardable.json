@@ -173,13 +173,34 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"campfire" : {
+				//EXPERNCE.WAV
 				"index" : 0,
 				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 500
-				}
+				},
+				"visitMode" : "unlimited",
+				"selectMode" : "player",
+				"rewards" : [
+					{
+						"message" : 23,
+						"removeObject" : true,
+						"resources" : [
+							{
+								"type" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"min" : 4,
+								"max" : 6
+							},
+							{
+								"type" : "gold",
+								"min" : 400,
+								"max" : 600
+							},
+						]
+					}
+				]
 			}
 		}
 	},
@@ -193,13 +214,38 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"flotsam" : {
+				//GENIE.WAV
 				"index" : 0,
 				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
-				}
+				},
+				"visitMode" : "unlimited",
+				"selectMode" : "player",
+				"rewards" : [
+					{
+						"message" : 51,
+						"removeObject" : true,
+					},
+					{
+						"message" : 52,
+						"removeObject" : true,
+						"resources" : {
+							"wood" : 5,
+							"gold" : 200
+						}
+					},
+					{
+						"message" : 53,
+						"removeObject" : true,
+						"resources" : {
+							"wood" : 10,
+							"gold" : 500
+						}
+					}
+				]
 			}
 		}
 	},
@@ -213,13 +259,42 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"seaChest" : {
+				//CHEST.WAV
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 500
-				}
+				},
+				"visitMode" : "unlimited",
+				"selectMode" : "player",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 20 },
+						"message" : 116,
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 20, "max" : 30 },
+						"message" : 117, //FIXME: this text contains placeholder for artifact name
+						"removeObject" : true,
+						"artifacts" : [
+							{ "class" : "TREASURE" }
+						],
+						"resources" : {
+							"gold" : 1000
+						}
+					},
+					{
+						"appearChance" : { "min" : 30 },
+						"message" : 118,
+						"removeObject" : true,
+						"resources" : {
+							"gold" : 1500
+						}
+					}
+				]
 			}
 		}
 	},
@@ -233,13 +308,42 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"shipwreckSurvivor" : {
+				//EXPERNCE.WAV
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 50
-				}
+				},
+				"visitMode" : "unlimited",
+				"selectMode" : "player",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 55 },
+						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"removeObject" : true,
+						"artifacts" : [ "TREASURE"]
+					},
+					{
+						"appearChance" : { "min" : 55, "max" : 75 },
+						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"removeObject" : true,
+						"artifacts" : [ "MINOR"]
+					},
+					{
+						"appearChance" : { "min" : 75, "max" : 95 },
+						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"removeObject" : true,
+						"artifacts" : [ "MAJOR"]
+					},
+					{
+						"appearChance" : { "min" : 95 },
+						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"removeObject" : true,
+						"artifacts" : [ "RELIC"]
+					}
+				]
 			}
 		}
 	},
@@ -253,13 +357,56 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"onSelect" : 146,
+			"treasureChest" : {
 				"index" : 0,
-				"aiValue" : 1500,
+				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 1000
-				}
+				},
+				//CHEST.WAV
+				"visitMode" : "unlimited",
+				"selectMode" : "player",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 33 },
+						"resources" : { "gold" : 2000 }
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "max" : 33 },
+						"experience" : 1500
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 33, "max" : 65 },
+						"resources" : { "gold" : 1500 }
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 33, "max" : 65 },
+						"experience" : 1000
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 65, "max" : 95 },
+						"resources" : { "gold" : 1000 }
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 65, "max" : 95 },
+						"experience" : 500
+						"removeObject" : true,
+					},
+					{
+						//TREASURE.WAV
+						"appearChance" : { "min" : 95 },
+						"message" : 145, //FIXME: this text contains placeholder for artifact name
+						"removeObject" : true,
+						"artifacts" : [ "TREASURE"]
+					}
+				]
 			}
 		}
 	},

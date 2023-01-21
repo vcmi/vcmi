@@ -121,7 +121,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGObservatory);
 	REGISTER_GENERIC_HANDLER(CGOnceVisitable);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
-	REGISTER_GENERIC_HANDLER(CGPickable);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
 	REGISTER_GENERIC_HANDLER(CGScholar);
@@ -162,7 +161,6 @@ void registerTypesMapObjects2(Serializer &s)
 			s.template registerType<CGTownBuilding, COPWBonus>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
-		s.template registerType<CRewardableObject, CGPickable>();
 		s.template registerType<CRewardableObject, CGBonusingObject>();
 		s.template registerType<CRewardableObject, CGVisitableOPH>();
 		s.template registerType<CRewardableObject, CGVisitableOPW>();

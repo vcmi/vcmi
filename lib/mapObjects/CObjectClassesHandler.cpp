@@ -73,7 +73,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("observatory", CGObservatory);
 	SET_HANDLER("onceVisitable", CGOnceVisitable);
 	SET_HANDLER("pandora", CGPandoraBox);
-	SET_HANDLER("pickable", CGPickable);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);

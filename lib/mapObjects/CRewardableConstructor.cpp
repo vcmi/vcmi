@@ -113,6 +113,8 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		info.reward.spells = JsonRandom::loadSpells(reward["spells"], rng, spells);
 		info.reward.creatures = JsonRandom::loadCreatures(reward["creatures"], rng);
 
+		info.reward.removeObject  = reward["removeObject"].Bool();
+
 		info.message = loadMessage(reward["message"]);
 		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);
 		

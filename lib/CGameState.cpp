@@ -142,9 +142,6 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 		case GENERAL_TXT:
 			dst = VLC->generaltexth->translate("core.genrltxt", ser);
 			break;
-		case XTRAINFO_TXT:
-			dst = VLC->generaltexth->translate("core.xtrainfo", ser);
-			break;
 		case RES_NAMES:
 			dst = VLC->generaltexth->translate("core.restypes", ser);
 			break;

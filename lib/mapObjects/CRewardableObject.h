@@ -287,19 +287,6 @@ public:
 	friend class CRandomRewardObjectInfo;
 };
 
-class DLL_LINKAGE CGPickable : public CRewardableObject //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
-{
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGPickable();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
 class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving bonuses to luck/morale/movement
 {
 protected:
