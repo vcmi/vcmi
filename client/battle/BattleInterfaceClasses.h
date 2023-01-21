@@ -175,8 +175,6 @@ public:
 /// Class which stands for a single hex field on a battlefield
 class ClickableHex : public CIntObject
 {
-private:
-	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
 public:
 	ui32 myNumber; //number of hex in commonly used format
 	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)

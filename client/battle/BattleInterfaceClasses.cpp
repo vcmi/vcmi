@@ -291,7 +291,7 @@ void BattleHero::clickLeft(tribool down, bool previousState)
 	if(boost::logic::indeterminate(down))
 		return;
 
-	if(!hero || down || !owner.myTurn)
+	if(!hero || down || !owner.makingTurn())
 		return;
 
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
@@ -317,7 +317,7 @@ void BattleHero::clickRight(tribool down, bool previousState)
 	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
-	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
+	if(down && (owner.makingTurn() || settings["session"]["spectate"].Bool()))
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
@@ -685,14 +685,12 @@ void ClickableHex::hover(bool on)
 {
 	hovered = on;
 	//Hoverable::hover(on);
-	if(!on && setAlterText)
-	{
-		GH.statusbar->clear();
-		setAlterText = false;
-	}
 }
 
-ClickableHex::ClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
+ClickableHex::ClickableHex()
+	: myNumber(-1)
+	, strictHovered(false)
+	, myInterface(nullptr)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
@@ -700,33 +698,13 @@ ClickableHex::ClickableHex() : setAlterText(false), myNumber(-1), strictHovered(
 void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
 	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
-
-	if(hovered && strictHovered) //print attacked creature to console
-	{
-		const CStack * attackedStack = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber);
-		if( attackedStack != nullptr &&
-			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
-			attackedStack->alive())
-		{
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 220);
-			attackedStack->addNameReplacement(text);
-			GH.statusbar->write(text.toString());
-			setAlterText = true;
-		}
-	}
-	else if(setAlterText)
-	{
-		GH.statusbar->clear();
-		setAlterText = false;
-	}
 }
 
 void ClickableHex::clickLeft(tribool down, bool previousState)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
-		myInterface->actionsController->handleHex(myNumber, LCLICK);
+		myInterface->actionsController->onHexClicked(myNumber);
 	}
 }
 
