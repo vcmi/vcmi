@@ -79,10 +79,6 @@ class BattleStacksController
 	/// stack that was selected for multi-target spells - Teleport / Sacrifice
 	const CStack *selectedStack;
 
-	/// if true, active stack could possibly cast some target spell
-	bool stackCanCastSpell;
-	si32 creatureSpellToCast;
-
 	/// for giving IDs for animations
 	ui32 animIDhelper;
 
@@ -122,9 +118,6 @@ public:
 
 	void startAction(const BattleAction* action);
 	void endAction(const BattleAction* action);
-
-	bool activeStackSpellcaster();
-	SpellID activeStackSpellToCast();
 
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 

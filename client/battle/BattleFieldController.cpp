@@ -109,7 +109,7 @@ void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
 {
 	BattleHex selectedHex = getHoveredHex();
 
-	owner.actionsController->handleHex(selectedHex, MOVE);
+	owner.actionsController->onHexHovered(selectedHex);
 }
 
 
@@ -237,12 +237,12 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 
 	if(owner.actionsController->spellcastingModeActive())//hero casts spell
 	{
-		spell = owner.actionsController->selectedSpell().toSpell();
+		spell = owner.actionsController->getHeroSpellToCast();
 		caster = owner.getActiveHero();
 	}
-	else if(owner.stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
+	else if(owner.actionsController->getStackSpellToCast(hoveredHex) != nullptr)//stack casts spell
 	{
-		spell = SpellID(owner.stacksController->activeStackSpellToCast()).toSpell();
+		spell = owner.actionsController->getStackSpellToCast(hoveredHex);
 		caster = owner.stacksController->getActiveStack();
 		mode = spells::Mode::CREATURE_ACTIVE;
 	}
@@ -520,7 +520,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 		}
 		default:
 			assert(0);
-			return attackTarget.cloneInDirection(BattleHex::LEFT);
+			return BattleHex::INVALID;
 		}
 	}
 }
