@@ -523,7 +523,6 @@ class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
-	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
