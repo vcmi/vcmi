@@ -1000,7 +1000,8 @@ std::string CGHeroInstance::getNameTextID() const
 	if (type)
 		return type->getNameTextID();
 
-	assert(0);
+	// FIXME: called by logging from some specialties (mods?) before type is set on deserialization
+	// assert(0);
 	return "";
 }
 
