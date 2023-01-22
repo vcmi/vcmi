@@ -164,7 +164,7 @@
 
 	"campfire" :{
 		"index" : 12,
-		"handler": "pickable",
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPCAMP"],
@@ -181,14 +181,14 @@
 					"rarity"	: 500
 				},
 				"visitMode" : "unlimited",
-				"selectMode" : "player",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 23,
 						"removeObject" : true,
 						"resources" : [
 							{
-								"type" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"list" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
 								"min" : 4,
 								"max" : 6
 							},
@@ -205,7 +205,7 @@
 	},
 	"flotsam" :{
 		"index" : 29,
-		"handler": "pickable",
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["GENIE"],
@@ -221,7 +221,7 @@
 					"rarity"	: 100
 				},
 				"visitMode" : "unlimited",
-				"selectMode" : "player",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 51,
@@ -260,7 +260,7 @@
 	},
 	"seaChest" :{
 		"index" : 82,
-		"handler": "pickable",
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["CHEST"],
@@ -276,7 +276,7 @@
 					"rarity"	: 500
 				},
 				"visitMode" : "unlimited",
-				"selectMode" : "player",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 20 },
@@ -308,7 +308,7 @@
 	},
 	"shipwreckSurvivor" : {
 		"index" : 86,
-		"handler": "pickable",
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["TREASURE"],
@@ -317,7 +317,6 @@
 		},
 		"types" : {
 			"shipwreckSurvivor" : {
-				//EXPERNCE.WAV
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
@@ -325,31 +324,31 @@
 					"rarity"	: 50
 				},
 				"visitMode" : "unlimited",
-				"selectMode" : "player",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 55 },
 						"message" : 125, //FIXME: this text contains placeholder for artifact name
 						"removeObject" : true,
-						"artifacts" : [ "TREASURE"]
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
 						"appearChance" : { "min" : 55, "max" : 75 },
 						"message" : 125, //FIXME: this text contains placeholder for artifact name
 						"removeObject" : true,
-						"artifacts" : [ "MINOR"]
+						"artifacts" : [ { "class" : "MINOR" } ]
 					},
 					{
 						"appearChance" : { "min" : 75, "max" : 95 },
 						"message" : 125, //FIXME: this text contains placeholder for artifact name
 						"removeObject" : true,
-						"artifacts" : [ "MAJOR"]
+						"artifacts" : [ { "class" : "MAJOR" } ]
 					},
 					{
 						"appearChance" : { "min" : 95 },
 						"message" : 125, //FIXME: this text contains placeholder for artifact name
 						"removeObject" : true,
-						"artifacts" : [ "RELIC"]
+						"artifacts" : [ { "class" : "RELIC" } ]
 					}
 				]
 			}
@@ -357,7 +356,7 @@
 	},
 	"treasureChest" : {
 		"index" : 101,
-		"handler": "pickable",
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["CHEST"],
@@ -365,7 +364,6 @@
 			}
 		},
 		"types" : {
-			"onSelect" : 146,
 			"treasureChest" : {
 				"index" : 0,
 				"aiValue" : 2000,
@@ -373,8 +371,9 @@
 					"value"		: 1500,
 					"rarity"	: 1000
 				},
+				"onSelectMessage" : 146,
 				"visitMode" : "unlimited",
-				"selectMode" : "player",
+				"selectMode" : "selectPlayer",
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 33 },
@@ -383,7 +382,7 @@
 					},
 					{
 						"appearChance" : { "max" : 33 },
-						"experience" : 1500,
+						"gainedExp" : 1500,
 						"removeObject" : true,
 					},
 					{
@@ -393,7 +392,7 @@
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 65 },
-						"experience" : 1000,
+						"gainedExp" : 1000,
 						"removeObject" : true,
 					},
 					{
@@ -403,7 +402,7 @@
 					},
 					{
 						"appearChance" : { "min" : 65, "max" : 95 },
-						"experience" : 500,
+						"gainedExp" : 500,
 						"removeObject" : true,
 					},
 					{
@@ -411,7 +410,7 @@
 						"appearChance" : { "min" : 95 },
 						"message" : 145, //FIXME: this text contains placeholder for artifact name
 						"removeObject" : true,
-						"artifacts" : [ "TREASURE"]
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					}
 				]
 			}

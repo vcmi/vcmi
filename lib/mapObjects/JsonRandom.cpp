@@ -38,15 +38,57 @@ namespace JsonRandom
 		return rng.getIntRange(min, max)();
 	}
 
+	DLL_LINKAGE std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::string defaultValue)
+	{
+		if (value.isNull())
+			return defaultValue;
+		if (value.isString())
+			return value.String();
+		if (!value["type"].isNull())
+			return value["type"].String();
+
+		if (value["list"].isNull())
+			return defaultValue;
+
+		const auto & resourceList = value["list"].Vector();
+
+		if (resourceList.empty())
+			return defaultValue;
+
+		si32 index = rng.getIntRange(0, resourceList.size() - 1 )();
+
+		return resourceList[index].String();
+	}
+
 	TResources loadResources(const JsonNode & value, CRandomGenerator & rng)
 	{
 		TResources ret;
+
+		if (value.isVector())
+		{
+			for (const auto & entry : value.Vector())
+				ret += loadResource(entry, rng);
+			return ret;
+		}
+
 		for (size_t i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		{
 			ret[i] = loadValue(value[GameConstants::RESOURCE_NAMES[i]], rng);
 		}
 		return ret;
 	}
+
+	TResources loadResource(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::string resourceName = loadKey(value, rng, "");
+		si32 resourceAmount = loadValue(value, rng, 0);
+		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).get());
+
+		TResources ret;
+		ret[resourceID] = resourceAmount;
+		return ret;
+	}
+
 
 	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng)
 	{

@@ -260,6 +260,21 @@ bool JsonNode::isNumber() const
 	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
 }
 
+bool JsonNode::isString() const
+{
+	return type == JsonType::DATA_STRING;
+}
+
+bool JsonNode::isVector() const
+{
+	return type == JsonType::DATA_VECTOR;
+}
+
+bool JsonNode::isStruct() const
+{
+	return type == JsonType::DATA_STRUCT;
+}
+
 bool JsonNode::containsBaseData() const
 {
 	switch(type)
