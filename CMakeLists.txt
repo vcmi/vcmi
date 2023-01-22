@@ -91,7 +91,7 @@ if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
 endif()
 
 # No QT Linguist on MXE
-if((MINGW) AND (${CMAKE_CROSSCOMPILING}))
+if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (NOT USING_CONAN))
 	set(ENABLE_TRANSLATIONS OFF)
 endif()
 
@@ -329,6 +329,27 @@ if(ENABLE_LUA)
 	add_definitions(-DSCRIPTING_ENABLED=1)
 endif()
 
+if(USING_CONAN AND (MINGW AND CMAKE_HOST_UNIX))
+	# Hack for workaround https://github.com/conan-io/conan-center-index/issues/15405
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl Mf ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/Mf/mf/g'"
+	)
+	# Hack for workaround ffmpeg broken linking (conan ffmpeg forgots to link to ws2_32)
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32)/secur32 ws2_32)/g'"
+	)
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32 mfplat/secur32 ws2_32 mfplat/g'"
+	)
+	# Fixup tbb for cross-compiling on Conan
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl tbb12 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/tbb tbb12/tbb12/g'"
+	)
+endif()
+
 ############################################
 #        Finding packages                  #
 ############################################
@@ -545,9 +566,19 @@ endif()
 
 
 if(WIN32)
-	file(GLOB dep_files
-		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	if(USING_CONAN)
+		#Conan imports enabled
+		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_SYSROOT}/bin/*.dll" 
+				"${CMAKE_SYSROOT}/lib/*.dll" 
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/*.dll")
+	else()
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	endif()
 
 	if((${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
 		message(STATUS "Detected MXE build")
