@@ -92,15 +92,14 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		info.reward.gainedLevels = JsonRandom::loadValue(reward["gainedLevels"], rng);
 
 		info.reward.manaDiff = JsonRandom::loadValue(reward["manaPoints"], rng);
+		info.reward.manaOverflowFactor = JsonRandom::loadValue(reward["manaOverflowFactor"], rng);
 		info.reward.manaPercentage = JsonRandom::loadValue(reward["manaPercentage"], rng, -1);
 
 		info.reward.movePoints = JsonRandom::loadValue(reward["movePoints"], rng);
 		info.reward.movePercentage = JsonRandom::loadValue(reward["movePercentage"], rng, -1);
 		
 		info.reward.removeObject = reward["removeObject"].Bool();
-
-		//FIXME: compile this line on Visual
-		//info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
+		info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
 
 		info.reward.primary = JsonRandom::loadPrimary(reward["primary"], rng);
 		info.reward.secondary = JsonRandom::loadSecondary(reward["secondary"], rng);
@@ -112,8 +111,6 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		info.reward.artifacts = JsonRandom::loadArtifacts(reward["artifacts"], rng);
 		info.reward.spells = JsonRandom::loadSpells(reward["spells"], rng, spells);
 		info.reward.creatures = JsonRandom::loadCreatures(reward["creatures"], rng);
-
-		info.reward.removeObject  = reward["removeObject"].Bool();
 
 		info.message = loadMessage(reward["message"]);
 		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);

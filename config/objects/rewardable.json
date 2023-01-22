@@ -174,7 +174,6 @@
 		},
 		"types" : {
 			"campfire" : {
-				//EXPERNCE.WAV
 				"index" : 0,
 				"aiValue" : 2000,
 				"rmg" : {
@@ -215,7 +214,6 @@
 		},
 		"types" : {
 			"flotsam" : {
-				//GENIE.WAV
 				"index" : 0,
 				"aiValue" : 2000,
 				"rmg" : {
@@ -227,10 +225,20 @@
 				"rewards" : [
 					{
 						"message" : 51,
+						"appearChance" : { "max" : 25 },
 						"removeObject" : true,
 					},
 					{
 						"message" : 52,
+						"appearChance" : { "min" : 25, "max" : 50 },
+						"removeObject" : true,
+						"resources" : {
+							"wood" : 5
+						}
+					},
+					{
+						"message" : 53,
+						"appearChance" : { "min" : 50, "max" : 75 },
 						"removeObject" : true,
 						"resources" : {
 							"wood" : 5,
@@ -238,7 +246,8 @@
 						}
 					},
 					{
-						"message" : 53,
+						"message" : 54,
+						"appearChance" : { "min" : 75 },
 						"removeObject" : true,
 						"resources" : {
 							"wood" : 10,
@@ -260,7 +269,6 @@
 		},
 		"types" : {
 			"seaChest" : {
-				//CHEST.WAV
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
@@ -365,38 +373,37 @@
 					"value"		: 1500,
 					"rarity"	: 1000
 				},
-				//CHEST.WAV
 				"visitMode" : "unlimited",
 				"selectMode" : "player",
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 33 },
-						"resources" : { "gold" : 2000 }
+						"resources" : { "gold" : 2000 },
 						"removeObject" : true,
 					},
 					{
 						"appearChance" : { "max" : 33 },
-						"experience" : 1500
+						"experience" : 1500,
 						"removeObject" : true,
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 65 },
-						"resources" : { "gold" : 1500 }
+						"resources" : { "gold" : 1500 },
 						"removeObject" : true,
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 65 },
-						"experience" : 1000
+						"experience" : 1000,
 						"removeObject" : true,
 					},
 					{
 						"appearChance" : { "min" : 65, "max" : 95 },
-						"resources" : { "gold" : 1000 }
+						"resources" : { "gold" : 1000 },
 						"removeObject" : true,
 					},
 					{
 						"appearChance" : { "min" : 65, "max" : 95 },
-						"experience" : 500
+						"experience" : 500,
 						"removeObject" : true,
 					},
 					{

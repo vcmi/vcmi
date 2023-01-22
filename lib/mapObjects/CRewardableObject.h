@@ -85,6 +85,10 @@ public:
 
 	/// mana given to/taken from hero, fixed value
 	si32 manaDiff;
+
+	/// if giving mana points puts hero above mana pool, any overflow will be multiplied by specified percentage
+	si32 manaOverflowFactor;
+
 	/// fixed value, in form of percentage from max
 	si32 manaPercentage;
 
@@ -137,6 +141,7 @@ public:
 		h & gainedExp;
 		h & gainedLevels;
 		h & manaDiff;
+		h & manaOverflowFactor;
 		h & movePoints;
 		h & primary;
 		h & secondary;

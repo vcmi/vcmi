@@ -32,7 +32,7 @@ namespace JsonRandom
 		if (value.isNumber())
 			return static_cast<si32>(value.Float());
 		if (!value["amount"].isNull())
-			return static_cast<si32>(value["amount"].Float());
+			return static_cast<si32>(loadValue(value, rng, defaultValue));
 		si32 min = static_cast<si32>(value["min"].Float());
 		si32 max = static_cast<si32>(value["max"].Float());
 		return rng.getIntRange(min, max)();
@@ -131,8 +131,6 @@ namespace JsonRandom
 	{
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
 			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).get());
-		if (value["type"].getType() == JsonNode::JsonType::DATA_STRING)
-			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value["type"]).get());
 
 		vstd::erase_if(spells, [=](SpellID spell)
 		{

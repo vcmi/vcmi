@@ -265,11 +265,17 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 {
 	if(info.reward.manaDiff || info.reward.manaPercentage >= 0)
 	{
-		si32 mana = hero->mana;
+		si32 manaScaled = hero->mana;
 		if (info.reward.manaPercentage >= 0)
-			mana = hero->manaLimit() * info.reward.manaPercentage / 100;
+			manaScaled = hero->manaLimit() * info.reward.manaPercentage / 100;
 
-		cb->setManaPoints(hero->id, mana + info.reward.manaDiff);
+		si32 manaMissing   = hero->manaLimit() - manaScaled;
+		si32 manaGranted   = std::min(manaMissing, info.reward.manaDiff);
+		si32 manaOverflow  = info.reward.manaDiff - manaGranted;
+		si32 manaOverLimit = manaOverflow * info.reward.manaOverflowFactor / 100;
+		si32 manaOutput    = manaScaled + manaGranted + manaOverLimit;
+
+		cb->setManaPoints(hero->id, manaOutput);
 	}
 
 	if(info.reward.movePoints || info.reward.movePercentage >= 0)
