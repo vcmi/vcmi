@@ -439,11 +439,6 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 void CMultiPlayers::onChange(std::string newText)
 {
-	size_t namesCount = 0;
-
-	for(auto & elem : inputNames)
-		if(!elem->getText().empty())
-			namesCount++;
 }
 
 void CMultiPlayers::enterSelectionScreen()
