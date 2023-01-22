@@ -807,8 +807,21 @@ int32_t StackQueue::getSiegeShooterIconID()
 	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
+boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
+{
+	for(const auto & stackBox : stackBoxes)
+	{
+		if(stackBox->hovered)
+		{
+			return stackBox->getBoundUnitID();
+		}
+	}
+
+	return boost::none;
+}
+
 StackQueue::StackBox::StackBox(StackQueue * owner):
-	owner(owner)
+	CIntObject(HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -838,6 +851,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 {
 	if(unit)
 	{
+		boundUnitID = unit->unitId();
 		background->colorize(unit->unitOwner());
 		icon->visible = true;
 
@@ -872,6 +886,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 	else
 	{
+		boundUnitID = boost::none;
 		background->colorize(PlayerColor::NEUTRAL);
 		icon->visible = false;
 		icon->setFrame(0);
@@ -880,4 +895,9 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if(stateIcon)
 			stateIcon->visible = false;
 	}
+}
+
+boost::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
+{
+	return boundUnitID;
 }

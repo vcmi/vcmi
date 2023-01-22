@@ -74,6 +74,9 @@ public:
 	/// Refresh queue after turn order changes
 	void updateQueue();
 
+	/// Get mouse-hovered battle queue unit ID if any found
+	boost::optional<uint32_t> getQueueHoveredUnitId();
+
 	void activate() override;
 	void deactivate() override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;

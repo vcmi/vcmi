@@ -185,6 +185,21 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 		return stacks[0];
 }
 
+const CStack* CBattleInfoEssentials::battleGetStackByUnitId(int unitId, bool onlyAlive) const
+{
+	RETURN_IF_NOT_BATTLE(nullptr);
+
+	auto stacks = battleGetStacksIf([=](const CStack * s)
+	{
+		return s->unitId() == unitId && (!onlyAlive || s->alive());
+	});
+
+	if(stacks.empty())
+		return nullptr;
+	else
+		return stacks[0];
+}
+
 bool CBattleInfoEssentials::battleDoWeKnowAbout(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(false);

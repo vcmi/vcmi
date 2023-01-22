@@ -897,6 +897,12 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	if(owner.getAnimationCondition(EAnimationEvents::ACTION) == true)
 		return {};
 
+	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
+	if(hoveredQueueUnitId.has_value())
+	{
+		return { owner.curInt->cb->battleGetStackByUnitId(hoveredQueueUnitId.value(), true) };
+	}
+
 	auto hoveredHex = owner.fieldController->getHoveredHex();
 
 	if (!hoveredHex.isValid())

@@ -196,6 +196,7 @@ class StackQueue : public CIntObject
 	class StackBox : public CIntObject
 	{
 		StackQueue * owner;
+		boost::optional<uint32_t> boundUnitID;
 	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
@@ -204,6 +205,7 @@ class StackQueue : public CIntObject
 
 		void setUnit(const battle::Unit * unit, size_t turn = 0);
 		StackBox(StackQueue * owner);
+		boost::optional<uint32_t> getBoundUnitID() const;
 	};
 
 	static const int QUEUE_SIZE = 10;
@@ -220,6 +222,7 @@ public:
 
 	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
+	boost::optional<uint32_t> getHoveredUnitIdIfAny() const;
 
 	void show(SDL_Surface * to) override;
 };
