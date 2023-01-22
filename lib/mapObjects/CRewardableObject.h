@@ -198,15 +198,7 @@ class DLL_LINKAGE CRewardableObject : public CArmedInstance
 	/// grants reward to hero
 	void grantRewardBeforeLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
 
-protected:
-	/// controls selection of reward granted to player
-	enum ESelectMode
-	{
-		SELECT_FIRST,  // first reward that matches limiters
-		SELECT_PLAYER, // player can select from all allowed rewards
-		SELECT_RANDOM  // reward will be selected from allowed randomly
-	};
-
+public:
 	enum EVisitMode
 	{
 		VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
@@ -214,6 +206,15 @@ protected:
 		VISIT_HERO,      // every hero can visit object once
 		VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
 		VISIT_PLAYER     // every player can visit object once
+	};
+
+protected:
+	/// controls selection of reward granted to player
+	enum ESelectMode
+	{
+		SELECT_FIRST,  // first reward that matches limiters
+		SELECT_PLAYER, // player can select from all allowed rewards
+		SELECT_RANDOM  // reward will be selected from allowed randomly
 	};
 
 	/// filters list of visit info and returns rewards that can be granted to current hero
@@ -247,6 +248,8 @@ protected:
 	bool canRefuse;
 
 public:
+	EVisitMode getVisitMode() const;
+
 	void setPropertyDer(ui8 what, ui32 val) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;

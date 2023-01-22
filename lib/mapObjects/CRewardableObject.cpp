@@ -359,6 +359,11 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 	}
 }
 
+CRewardableObject::EVisitMode CRewardableObject::getVisitMode() const
+{
+	return EVisitMode(visitMode);
+}
+
 void CRewardInfo::loadComponents(std::vector<Component> & comps,
                                  const CGHeroInstance * h) const
 {
@@ -663,44 +668,6 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
 	{
-		case Obj::ARENA:
-			info.resize(2);
-			info[0].reward.primary[PrimarySkill::ATTACK] = 2;
-			info[1].reward.primary[PrimarySkill::DEFENSE] = 2;
-			onSelect.addTxt(MetaString::ADVOB_TXT, 0);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 1);
-			canRefuse = true;
-			break;
-		case Obj::MERCENARY_CAMP:
-			info.resize(1);
-			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 80);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 81);
-			break;
-		case Obj::MARLETTO_TOWER:
-			info.resize(1);
-			info[0].reward.primary[PrimarySkill::DEFENSE] = 1;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 39);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 40);
-			break;
-		case Obj::STAR_AXIS:
-			info.resize(1);
-			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 100);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 101);
-			break;
-		case Obj::GARDEN_OF_REVELATION:
-			info.resize(1);
-			info[0].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 59);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 60);
-			break;
-		case Obj::LEARNING_STONE:
-			info.resize(1);
-			info[0].reward.gainedExp = 1000;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 143);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 144);
-			break;
 		case Obj::TREE_OF_KNOWLEDGE:
 			info.resize(1);
 			canRefuse = true;
@@ -725,54 +692,6 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 				onEmpty.addTxt(MetaString::ADVOB_TXT, 152);
 				break;
 			}
-			break;
-		case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		{
-			selectMode = SELECT_FIRST;
-			onVisited.addTxt(MetaString::ADVOB_TXT, 67);
-			onEmpty.addTxt(MetaString::ADVOB_TXT, 68);
-
-			CVisitInfo visit;
-			visit.reward.primary[PrimarySkill::ATTACK] = 2;
-			visit.reward.primary[PrimarySkill::DEFENSE] = 2;
-			visit.reward.primary[PrimarySkill::KNOWLEDGE] = 2;
-			visit.reward.primary[PrimarySkill::SPELL_POWER] = 2;
-			visit.message.addTxt(MetaString::ADVOB_TXT, 66);
-
-			static_assert(SecSkillLevel::LEVELS_SIZE == 4, "Behavior of Library of Enlignment may not be correct");
-			for (int i=0; i<SecSkillLevel::LEVELS_SIZE; i++)
-			{
-				visit.limiter.minLevel = 10 - i * 2;
-				visit.limiter.secondary[SecondarySkill::DIPLOMACY] = i;
-				info.push_back(visit);
-			}
-			break;
-		}
-		case Obj::SCHOOL_OF_MAGIC:
-			info.resize(2);
-			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
-			info[1].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
-			info[0].limiter.resources[Res::GOLD] = 1000;
-			info[0].reward.resources[Res::GOLD] = -1000;
-			info[1].limiter.resources[Res::GOLD] = 1000;
-			info[1].reward.resources[Res::GOLD] = -1000;
-			onSelect.addTxt(MetaString::ADVOB_TXT, 71);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 72);
-			onEmpty.addTxt(MetaString::ADVOB_TXT, 73);
-			canRefuse = true;
-			break;
-		case Obj::SCHOOL_OF_WAR:
-			info.resize(2);
-			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
-			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
-			info[0].limiter.resources[Res::GOLD] = 1000;
-			info[0].reward.resources[Res::GOLD] = -1000;
-			info[1].limiter.resources[Res::GOLD] = 1000;
-			info[1].reward.resources[Res::GOLD] = -1000;
-			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
-			onEmpty.addTxt(MetaString::ADVOB_TXT, 160);
-			canRefuse = true;
 			break;
 	}
 }

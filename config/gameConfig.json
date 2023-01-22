@@ -53,7 +53,8 @@
 		"config/objects/dwellings.json",
 		"config/objects/rewardable.json",
 		"config/objects/rewardablePickable.json",
-		"config/objects/rewardableOnceVisitable.json"
+		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/rewardableOncePerHero.json"
 	],
 
 	"artifacts" :
