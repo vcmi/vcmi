@@ -20,16 +20,12 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../Graphics.h"
-#include "../CMessage.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Compat.h"
 
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"
-#include "../windows/GUIClasses.h"
 
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
@@ -42,12 +38,8 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/NetPacksBase.h"
-#include "../../lib/StringConstants.h"
 #include "ClientCommandManager.h"
 
 CList::CListItem::CListItem(CList * Parent)
@@ -1046,10 +1038,15 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	case SDLK_RETURN: //enter key
 		{
-			if(enteredText.size() > 0  &&  captureAllKeys)
+			if(!enteredText.empty() && captureAllKeys)
 			{
-				endEnteringText(true);
-				CCS->soundh->playSound("CHAT");
+				bool anyTextExceptCaret = enteredText.size() > 1;
+				endEnteringText(anyTextExceptCaret);
+
+				if(anyTextExceptCaret)
+				{
+					CCS->soundh->playSound("CHAT");
+				}
 			}
 			break;
 		}
