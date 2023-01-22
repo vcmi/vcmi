@@ -99,7 +99,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
 	REGISTER_GENERIC_HANDLER(CGBoat);
-	REGISTER_GENERIC_HANDLER(CGBonusingObject);
 	REGISTER_GENERIC_HANDLER(CGBorderGate);
 	REGISTER_GENERIC_HANDLER(CGBorderGuard);
 	REGISTER_GENERIC_HANDLER(CGCreature);
@@ -160,7 +159,6 @@ void registerTypesMapObjects2(Serializer &s)
 			s.template registerType<CGTownBuilding, COPWBonus>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
-		s.template registerType<CRewardableObject, CGBonusingObject>();
 		s.template registerType<CRewardableObject, CGVisitableOPH>();
 		s.template registerType<CRewardableObject, CGVisitableOPW>();
 			s.template registerType<CGVisitableOPW, CGMagicSpring>();

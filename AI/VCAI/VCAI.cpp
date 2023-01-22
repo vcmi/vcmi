@@ -1618,10 +1618,10 @@ void VCAI::markObjectVisited(const CGObjectInstance * obj)
 
 	if(dynamic_cast<const CGVisitableOPH *>(obj)) //we may want to visit it with another hero
 		return;
-	if(dynamic_cast<const CGBonusingObject *>(obj)) //or another time
-		return;
+
 	if(obj->ID == Obj::MONSTER)
 		return;
+
 	alreadyVisited.insert(obj);
 }
 

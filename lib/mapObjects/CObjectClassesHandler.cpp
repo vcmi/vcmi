@@ -54,7 +54,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("blackMarket", CGBlackMarket);
 	SET_HANDLER("boat", CGBoat);
-	SET_HANDLER("bonusingObject", CGBonusingObject);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
 	SET_HANDLER("monster", CGCreature);

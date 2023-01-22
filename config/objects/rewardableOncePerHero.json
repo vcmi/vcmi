@@ -11,7 +11,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"arena" : {
 				"index" : 0,
 				"aiValue" : 3000,
 				"rmg" : {
@@ -44,7 +44,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"marlettoTower" : {
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
@@ -74,7 +74,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"gardenOfRevelation" : {
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
@@ -103,7 +103,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"libraryOfEnlightenment" : {
 				"index" : 0,
 				"aiValue" : 12000,
 				"rmg" : {
@@ -181,7 +181,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"mercenaryCamp" : {
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
@@ -211,7 +211,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"starAxis" : {
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {
@@ -240,7 +240,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"treeOfKnowledge" : {
 				"index" : 0,
 				"aiValue" : 2500,
 				"rmg" : {
@@ -261,7 +261,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"schoolOfMagic" : {
 				"index" : 0,
 				"aiValue" : 1000,
 				"rmg" : {
@@ -300,7 +300,7 @@
 			}
 		},
 		"types" : {
-			"object" : {
+			"schoolOfWar" : {
 				"index" : 0,
 				"aiValue" : 1000,
 				"rmg" : {
@@ -339,7 +339,7 @@
 			}
 		},
 		"types" : {
-			"object" : { 
+			"learningStone" : { 
 				"index" : 0,
 				"aiValue" : 1500,
 				"rmg" : {

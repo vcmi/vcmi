@@ -106,6 +106,10 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 			bonus.source = Bonus::OBJECT;
 			bonus.sid = object->ID;
 			//TODO: bonus.description = object->getObjectName();
+			if (bonus.type == Bonus::MORALE)
+				info.reward.extraComponents.push_back(Component(Component::MORALE, 0, bonus.val, 0));
+			if (bonus.type == Bonus::LUCK)
+				info.reward.extraComponents.push_back(Component(Component::LUCK, 0, bonus.val, 0));
 		}
 
 		info.reward.primary = JsonRandom::loadPrimary(reward["primary"], rng);

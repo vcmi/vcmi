@@ -54,7 +54,8 @@
 		"config/objects/rewardable.json",
 		"config/objects/rewardablePickable.json",
 		"config/objects/rewardableOnceVisitable.json",
-		"config/objects/rewardableOncePerHero.json"
+		"config/objects/rewardableOncePerHero.json",
+		"config/objects/rewardableBonusing.json"
 	],
 
 	"artifacts" :

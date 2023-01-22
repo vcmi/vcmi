@@ -295,28 +295,6 @@ public:
 	friend class CRandomRewardObjectInfo;
 };
 
-class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving bonuses to luck/morale/movement
-{
-protected:
-	CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const override;
-
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
-
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGBonusingObject();
-
-	void onHeroVisit(const CGHeroInstance *h) const override;
-
-	bool wasVisited(const CGHeroInstance * h) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
 class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
 {
 public:
