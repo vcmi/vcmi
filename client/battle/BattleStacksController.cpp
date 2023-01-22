@@ -945,3 +945,14 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 
 	return {};
 }
+
+const std::vector<uint32_t> BattleStacksController::getHoveredStacksUnitIds() const
+{
+	auto result = std::vector<uint32_t>();
+	for (auto const * stack : mouseHoveredStacks)
+	{
+		result.push_back(stack->unitId());
+	}
+
+	return result;
+}

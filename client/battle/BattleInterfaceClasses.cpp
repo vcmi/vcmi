@@ -779,6 +779,14 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 void StackQueue::show(SDL_Surface * to)
 {
+	auto unitIdsToHighlight = owner.stacksController->getHoveredStacksUnitIds();
+
+	for(auto & stackBox : stackBoxes)
+	{
+		bool isBoundUnitCurrentlyHovered = vstd::contains(unitIdsToHighlight, stackBox->getBoundUnitID());
+		stackBox->toggleHighlight(isBoundUnitCurrentlyHovered);
+	}
+
 	if (embedded)
 		showAll(to);
 	CIntObject::show(to);
@@ -900,4 +908,23 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 boost::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
 {
 	return boundUnitID;
+}
+
+void StackQueue::StackBox::toggleHighlight(bool value)
+{
+	highlighted = value;
+}
+
+void StackQueue::StackBox::show(SDL_Surface *to)
+{
+	if(highlighted)
+	{
+		//TODO: logic to perform on image that changes it visually when unit highlighted
+	}
+	else
+	{
+		//TODO: logic to perform on image that changes it visually when unit loses highlight
+	}
+
+	CIntObject::show(to);
 }

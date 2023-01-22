@@ -197,15 +197,20 @@ class StackQueue : public CIntObject
 	{
 		StackQueue * owner;
 		boost::optional<uint32_t> boundUnitID;
+		bool highlighted = false;
+
 	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
 		std::shared_ptr<CAnimImage> stateIcon;
 
-		void setUnit(const battle::Unit * unit, size_t turn = 0);
 		StackBox(StackQueue * owner);
+		void setUnit(const battle::Unit * unit, size_t turn = 0);
+		void toggleHighlight(bool value);
 		boost::optional<uint32_t> getBoundUnitID() const;
+
+		void show(SDL_Surface * to) override;
 	};
 
 	static const int QUEUE_SIZE = 10;

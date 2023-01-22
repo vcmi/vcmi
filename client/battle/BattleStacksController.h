@@ -144,6 +144,7 @@ public:
 
 	const CStack* getActiveStack() const;
 	const CStack* getSelectedStack() const;
+	const std::vector<uint32_t> getHoveredStacksUnitIds() const;
 
 	void update();
 
