@@ -1,0 +1,267 @@
+{
+	/// These are objects that covered by concept of "configurable object" and have their entire configuration in this config
+
+	"campfire" :{
+		"index" : 12,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPCAMP"],
+				"visit" : ["EXPERNCE"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
+		"types" : {
+			"campfire" : {
+				"index" : 0,
+				"aiValue" : 2000,
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 500
+				},
+				
+				"blockedVisitable" : true,
+				"visitMode" : "unlimited",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 23,
+						"removeObject" : true,
+						"resources" : [
+							{
+								"list" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"min" : 4,
+								"max" : 6
+							},
+							{
+								"type" : "gold",
+								"min" : 400,
+								"max" : 600
+							},
+						]
+					}
+				]
+			}
+		}
+	},
+	"flotsam" :{
+		"index" : 29,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GENIE"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
+		"types" : {
+			"flotsam" : {
+				"index" : 0,
+				"aiValue" : 2000,
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100
+				},
+				
+				"blockedVisitable" : true,
+				"visitMode" : "unlimited",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 51,
+						"appearChance" : { "max" : 25 },
+						"removeObject" : true,
+					},
+					{
+						"message" : 52,
+						"appearChance" : { "min" : 25, "max" : 50 },
+						"removeObject" : true,
+						"resources" : {
+							"wood" : 5
+						}
+					},
+					{
+						"message" : 53,
+						"appearChance" : { "min" : 50, "max" : 75 },
+						"removeObject" : true,
+						"resources" : {
+							"wood" : 5,
+							"gold" : 200
+						}
+					},
+					{
+						"message" : 54,
+						"appearChance" : { "min" : 75 },
+						"removeObject" : true,
+						"resources" : {
+							"wood" : 10,
+							"gold" : 500
+						}
+					}
+				]
+			}
+		}
+	},
+	"seaChest" :{
+		"index" : 82,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["CHEST"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
+		"types" : {
+			"seaChest" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 500
+				},
+				
+				"blockedVisitable" : true,
+				"visitMode" : "unlimited",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 20 },
+						"message" : 116,
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 20, "max" : 30 },
+						"message" : 117,
+						"removeObject" : true,
+						"artifacts" : [
+							{ "class" : "TREASURE" }
+						],
+						"resources" : {
+							"gold" : 1000
+						}
+					},
+					{
+						"appearChance" : { "min" : 30 },
+						"message" : 118,
+						"removeObject" : true,
+						"resources" : {
+							"gold" : 1500
+						}
+					}
+				]
+			}
+		}
+	},
+	"shipwreckSurvivor" : {
+		"index" : 86,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["TREASURE"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
+		"types" : {
+			"shipwreckSurvivor" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 50
+				},
+
+				"blockedVisitable" : true,
+				"visitMode" : "unlimited",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 55 },
+						"message" : 125,
+						"removeObject" : true,
+						"artifacts" : [ { "class" : "TREASURE" } ]
+					},
+					{
+						"appearChance" : { "min" : 55, "max" : 75 },
+						"message" : 125,
+						"removeObject" : true,
+						"artifacts" : [ { "class" : "MINOR" } ]
+					},
+					{
+						"appearChance" : { "min" : 75, "max" : 95 },
+						"message" : 125,
+						"removeObject" : true,
+						"artifacts" : [ { "class" : "MAJOR" } ]
+					},
+					{
+						"appearChance" : { "min" : 95 },
+						"message" : 125,
+						"removeObject" : true,
+						"artifacts" : [ { "class" : "RELIC" } ]
+					}
+				]
+			}
+		}
+	},
+	"treasureChest" : {
+		"index" : 101,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["CHEST"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
+		"types" : {
+			"treasureChest" : {
+				"index" : 0,
+				"aiValue" : 2000,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 1000
+				},
+				
+				"blockedVisitable" : true,
+				"onSelectMessage" : 146,
+				"visitMode" : "unlimited",
+				"selectMode" : "selectPlayer",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 33 },
+						"resources" : { "gold" : 2000 },
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "max" : 33 },
+						"gainedExp" : 1500,
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 33, "max" : 65 },
+						"resources" : { "gold" : 1500 },
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 33, "max" : 65 },
+						"gainedExp" : 1000,
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 65, "max" : 95 },
+						"resources" : { "gold" : 1000 },
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 65, "max" : 95 },
+						"gainedExp" : 500,
+						"removeObject" : true,
+					},
+					{
+						"appearChance" : { "min" : 95 },
+						"message" : 145,
+						"removeObject" : true,
+						"artifacts" : [ { "class" : "TREASURE" } ]
+					}
+				]
+			}
+		}
+	}
+}
