@@ -471,32 +471,6 @@ CRewardableObject::CRewardableObject():
 ///               END OF CODE FOR CREWARDABLEOBJECT AND RELATED CLASSES                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Helper, selects random art class based on weights
-static int selectRandomArtClass(CRandomGenerator & rand, int treasure, int minor, int major, int relic)
-{
-	int total = treasure + minor + major + relic;
-	assert(total != 0);
-	int hlp = rand.nextInt(total - 1);
-
-	if(hlp < treasure)
-		return CArtifact::ART_TREASURE;
-	if(hlp < treasure + minor)
-		return CArtifact::ART_MINOR;
-	if(hlp < treasure + minor + major)
-		return CArtifact::ART_MAJOR;
-	return CArtifact::ART_RELIC;
-}
-
-/// Helper, adds random artifact to reward selecting class based on weights
-static void loadRandomArtifact(CRandomGenerator & rand, CVisitInfo & info, int treasure, int minor, int major, int relic)
-{
-	int artClass = selectRandomArtClass(rand, treasure, minor, major, relic);
-	ArtifactID artID = VLC->arth->pickRandomArtifact(rand, artClass);
-	info.reward.artifacts.push_back(artID);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 CGBonusingObject::CGBonusingObject()
 {
 	visitMode = VISIT_BONUS;
@@ -675,86 +649,6 @@ void CGBonusingObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) c
 		return;
 	}
 	CRewardableObject::grantReward(rewardID, hero);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-CGOnceVisitable::CGOnceVisitable()
-{
-	visitMode = VISIT_ONCE;
-	selectMode = SELECT_FIRST;
-}
-
-void CGOnceVisitable::initObj(CRandomGenerator & rand)
-{
-	switch(ID)
-	{
-	case Obj::CORPSE:
-		{
-			onEmpty.addTxt(MetaString::ADVOB_TXT, 38);
-			blockVisit = true;
-			if(rand.nextInt(99) < 20)
-			{
-				info.resize(1);
-				loadRandomArtifact(rand, info[0], 10, 10, 10, 0);
-				info[0].message.addTxt(MetaString::ADVOB_TXT, 37);
-				info[0].limiter.numOfGrants = 1;
-			}
-		}
-		break;
-	case Obj::LEAN_TO:
-		{
-			onEmpty.addTxt(MetaString::ADVOB_TXT, 65);
-			info.resize(1);
-			int type =  rand.nextInt(5); //any basic resource without gold
-			int value = rand.nextInt(1, 4);
-			info[0].reward.resources[type] = value;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 64);
-			info[0].limiter.numOfGrants = 1;
-		}
-		break;
-	case Obj::WARRIORS_TOMB:
-		{
-			onSelect.addTxt(MetaString::ADVOB_TXT, 161);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 163);
-
-			info.resize(1);
-			loadRandomArtifact(rand, info[0], 30, 50, 25, 5);
-
-			Bonus bonus(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::OBJECT, -3, ID);
-			info[0].reward.bonuses.push_back(bonus);
-			info[0].limiter.numOfGrants = 1;
-			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
-			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getNameTranslated());
-		}
-		break;
-	case Obj::WAGON:
-		{
-			onVisited.addTxt(MetaString::ADVOB_TXT, 156);
-
-			int hlp = rand.nextInt(99);
-
-			if(hlp < 40) //minor or treasure art
-			{
-				info.resize(1);
-				loadRandomArtifact(rand, info[0], 10, 10, 0, 0);
-				info[0].limiter.numOfGrants = 1;
-				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
-				info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getNameTranslated());
-			}
-			else if(hlp < 90) //2 - 5 of non-gold resource
-			{
-				info.resize(1);
-				int type  = rand.nextInt(5);
-				int value = rand.nextInt(2, 5);
-				info[0].reward.resources[type] = value;
-				info[0].limiter.numOfGrants = 1;
-				info[0].message.addTxt(MetaString::ADVOB_TXT, 154);
-			}
-			// or nothing
-		}
-		break;
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

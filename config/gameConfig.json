@@ -52,7 +52,8 @@
 		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
 		"config/objects/rewardable.json",
-		"config/objects/rewardablePickable.json"
+		"config/objects/rewardablePickable.json",
+		"config/objects/rewardableOnceVisitable.json"
 	],
 
 	"artifacts" :

@@ -119,7 +119,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGMine);
 	REGISTER_GENERIC_HANDLER(CGObelisk);
 	REGISTER_GENERIC_HANDLER(CGObservatory);
-	REGISTER_GENERIC_HANDLER(CGOnceVisitable);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
@@ -164,7 +163,6 @@ void registerTypesMapObjects2(Serializer &s)
 		s.template registerType<CRewardableObject, CGBonusingObject>();
 		s.template registerType<CRewardableObject, CGVisitableOPH>();
 		s.template registerType<CRewardableObject, CGVisitableOPW>();
-		s.template registerType<CRewardableObject, CGOnceVisitable>();
 			s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();

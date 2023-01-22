@@ -71,7 +71,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("observatory", CGObservatory);
-	SET_HANDLER("onceVisitable", CGOnceVisitable);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);

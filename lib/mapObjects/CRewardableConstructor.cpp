@@ -101,6 +101,13 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		info.reward.removeObject = reward["removeObject"].Bool();
 		info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
 
+		for (auto & bonus : info.reward.bonuses)
+		{
+			bonus.source = Bonus::OBJECT;
+			bonus.sid = object->ID;
+			//TODO: bonus.description = object->getObjectName();
+		}
+
 		info.reward.primary = JsonRandom::loadPrimary(reward["primary"], rng);
 		info.reward.secondary = JsonRandom::loadSecondary(reward["secondary"], rng);
 

@@ -314,19 +314,6 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGOnceVisitable : public CRewardableObject // wagon, corpse, lean to, warriors tomb
-{
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGOnceVisitable();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
 class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
 {
 public:

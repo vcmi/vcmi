@@ -1,0 +1,172 @@
+{
+	/// These are objects that covered by concept of "configurable object" and have their entire configuration in this config
+
+	"leanTo" :{
+		"index" : 39,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GENIE"]
+			}
+		},
+		"types" : {
+			"leanTo" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"value"		: 500,
+					"rarity"	: 100
+				},
+				
+				"onEmptyMessage" : 65,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 64,
+						"resources" : [
+							{
+								"list" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"min" : 1,
+								"max" : 5
+							}
+						]
+					}
+				]				
+			}
+		}
+	},
+	"corpse" :{
+		"index" : 22,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MYSTERY"]
+			}
+		},
+		"types" : {
+			"corpse" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"value"		: 500,
+					"rarity"	: 100
+				},
+				
+				"onEmptyMessage" : 38,
+				"blockedVisitable" : true,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 10 },
+						"message" : 37,
+						"artifacts" : [ { "class" : "TREASURE" } ]
+					},
+					{
+						"appearChance" : { "min" : 10, "max" : 20 },
+						"message" : 37,
+						"artifacts" : [ { "class" : "MINOR" } ]
+					}
+				]
+
+			}
+		}
+	},
+	"wagon" :{
+		"index" : 105,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GENIE"]
+			}
+		},
+		"types" : {
+			"wagon" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"value"		: 500,
+					"rarity"	: 50
+				},
+				
+				"onEmptyMessage" : 156,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 20 },
+						"message" : 155,
+						"artifacts" : [ { "class" : "TREASURE" } ]
+					},
+					{
+						"appearChance" : { "min" : 20, "max" : 40 },
+						"message" : 155,
+						"artifacts" : [ { "class" : "MINOR" } ]
+					},
+					{
+						"message" : 154,
+						"appearChance" : { "min" : 40, "max" : 90 },
+						"resources" : [
+							{
+								"list" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"min" : 2,
+								"max" : 5
+							},
+						]
+					}
+				]
+			}
+		}
+	},
+	"warriorTomb" : {
+		"index" : 108,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GRAVEYARD"]
+			}
+		},
+		"types" : {
+			"warriorTomb" : {
+				"index" : 0,
+				"aiValue" : 6000,
+				"rmg" : {
+					"value"		: 6000,
+					"rarity"	: 20
+				},
+				
+				"onSelectMessage" : 161,
+				"onEmptyMessage" : 163,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"appearChance" : { "max" : 30 },
+						"message" : 162,
+						"artifacts" : [ { "class" : "TREASURE" } ],
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+					},
+					{
+						"appearChance" : { "min" : 30, "max" : 80 },
+						"message" : 162,
+						"artifacts" : [ { "class" : "MINOR" } ],
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+					},
+					{
+						"appearChance" : { "min" : 80, "max" : 95 },
+						"message" : 162,
+						"artifacts" : [ { "class" : "MAJOR" } ],
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+					},
+					{
+						"appearChance" : { "min" : 95 },
+						"message" : 162,
+						"artifacts" : [ { "class" : "RELIC" } ],
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+					}
+				]
+			}
+		}
+	}
+}
