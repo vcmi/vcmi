@@ -180,6 +180,8 @@
 					"value"		: 2000,
 					"rarity"	: 500
 				},
+				
+				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -220,6 +222,8 @@
 					"value"		: 2000,
 					"rarity"	: 100
 				},
+				
+				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -275,6 +279,8 @@
 					"value"		: 1500,
 					"rarity"	: 500
 				},
+				
+				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -285,7 +291,7 @@
 					},
 					{
 						"appearChance" : { "min" : 20, "max" : 30 },
-						"message" : 117, //FIXME: this text contains placeholder for artifact name
+						"message" : 117,
 						"removeObject" : true,
 						"artifacts" : [
 							{ "class" : "TREASURE" }
@@ -323,30 +329,32 @@
 					"value"		: 1500,
 					"rarity"	: 50
 				},
+
+				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 55 },
-						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"message" : 125,
 						"removeObject" : true,
 						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
 						"appearChance" : { "min" : 55, "max" : 75 },
-						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"message" : 125,
 						"removeObject" : true,
 						"artifacts" : [ { "class" : "MINOR" } ]
 					},
 					{
 						"appearChance" : { "min" : 75, "max" : 95 },
-						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"message" : 125,
 						"removeObject" : true,
 						"artifacts" : [ { "class" : "MAJOR" } ]
 					},
 					{
 						"appearChance" : { "min" : 95 },
-						"message" : 125, //FIXME: this text contains placeholder for artifact name
+						"message" : 125,
 						"removeObject" : true,
 						"artifacts" : [ { "class" : "RELIC" } ]
 					}
@@ -371,6 +379,8 @@
 					"value"		: 1500,
 					"rarity"	: 1000
 				},
+				
+				"blockedVisitable" : true,
 				"onSelectMessage" : 146,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectPlayer",
@@ -406,9 +416,8 @@
 						"removeObject" : true,
 					},
 					{
-						//TREASURE.WAV
 						"appearChance" : { "min" : 95 },
-						"message" : 145, //FIXME: this text contains placeholder for artifact name
+						"message" : 145,
 						"removeObject" : true,
 						"artifacts" : [ { "class" : "TREASURE" } ]
 					}

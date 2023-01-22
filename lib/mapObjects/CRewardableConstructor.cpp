@@ -57,7 +57,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 			si32 diceID = static_cast<si32>(chance["dice"].Float());
 
 			if (thrownDice.count(diceID) == 0)
-				thrownDice[diceID] = rng.getIntRange(1, 100)();
+				thrownDice[diceID] = rng.getIntRange(0, 99)();
 
 			if (!chance["min"].isNull())
 			{
@@ -68,7 +68,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 			if (!chance["max"].isNull())
 			{
 				int max = static_cast<int>(chance["max"].Float());
-				if (max < thrownDice[diceID])
+				if (max <= thrownDice[diceID])
 					continue;
 			}
 		}
@@ -114,10 +114,17 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 		info.message = loadMessage(reward["message"]);
 		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);
+
+		for (const auto & artifact : info.reward.artifacts )
+			info.message.addReplacement(MetaString::ART_NAMES, artifact.getNum());
 		
+		for (const auto & artifact : info.reward.spells )
+			info.message.addReplacement(MetaString::SPELL_NAME, artifact.getNum());
+
 		object->info.push_back(info);
 	}
 
+	object->blockVisit= parameters["blockedVisitable"].Bool();
 	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
 	object->onVisited = loadMessage(parameters["onVisitedMessage"]);
 	object->onEmpty   = loadMessage(parameters["onEmptyMessage"]);
