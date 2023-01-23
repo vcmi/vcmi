@@ -819,7 +819,7 @@ boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
-		if(stackBox->hovered)
+		if(stackBox->hovered || stackBox->mouseState(EIntObjMouseBtnType::RIGHT))
 		{
 			return stackBox->getBoundUnitID();
 		}
@@ -829,7 +829,7 @@ boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):
-	CIntObject(HOVER), owner(owner)
+	CIntObject(RCLICK | HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -918,13 +918,7 @@ void StackQueue::StackBox::toggleHighlight(bool value)
 void StackQueue::StackBox::show(SDL_Surface *to)
 {
 	if(highlighted)
-	{
-		//TODO: logic to perform on image that changes it visually when unit highlighted
-	}
-	else
-	{
-		//TODO: logic to perform on image that changes it visually when unit loses highlight
-	}
+		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 });
 
 	CIntObject::show(to);
 }
