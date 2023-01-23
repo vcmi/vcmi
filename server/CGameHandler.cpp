@@ -5117,7 +5117,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	}
 	
 	int obj = 0;
-	if (words.size() == 2)
+	if (words.size() == 2 && words[0] != "vcmiexp")
 	{
 		obj = std::atoi(words[1].c_str());
 		if (obj)
@@ -5129,14 +5129,14 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if (words.size() == 1 || obj)
+	if((words[0] == "vcmiarmy" || words[0] == "vcmiexp") && words.size() > 1)
+	{
+		std::string cheatCodeWithOneParameter = std::string(words[0]) + " " + words[1];
+		handleCheatCode(cheatCodeWithOneParameter, player, hero, town, cheated);
+	}
+	else if (words.size() == 1 || obj)
 	{
 		handleCheatCode(words[0], player, hero, town, cheated);
-	}
-	else if(words[0] == "vcmiarmy" && words.size() > 1)
-	{
-		std::string cheatCodeWithCreatureIdentifier = std::string(words[0]) + " " + words[1];
-		handleCheatCode(cheatCodeWithCreatureIdentifier, player, hero, town, cheated);
 	}
 	else
 	{
@@ -7155,6 +7155,34 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		if (!hero) return;
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
+	}
+	else if (boost::starts_with(cheat, "vcmiexp"))
+	{
+		cheated = true;
+		if (!hero) return;
+
+		std::vector<std::string> words;
+		boost::split(words, cheat, boost::is_any_of(" "));
+
+		if(words.size() < 2)
+			return;
+
+		std::string expAmount = words[1];
+		long expAmountProcessed = 0;
+
+		try
+		{
+			expAmountProcessed = std::stol(expAmount);
+		}
+		catch(std::exception&)
+		{
+			logGlobal->error("Could not parse experience amount for vcmiexp cheat");
+		}
+
+		if(expAmountProcessed > 1)
+		{
+			changePrimSkill(hero, PrimarySkill::EXPERIENCE, expAmountProcessed);
+		}
 	}
 	else if (cheat == "vcminahar" || cheat == "vcmimove")
 	{
