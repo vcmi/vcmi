@@ -918,7 +918,7 @@ void StackQueue::StackBox::toggleHighlight(bool value)
 void StackQueue::StackBox::show(SDL_Surface *to)
 {
 	if(highlighted)
-		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 });
+		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 }, 2);
 
 	CIntObject::show(to);
 }

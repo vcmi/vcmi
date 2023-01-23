@@ -472,23 +472,27 @@ void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const
 	}
 }
 
-void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color)
+void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color, int depth)
 {
-	for(int i = 0; i < w; i++)
+	depth = std::max(1, depth);
+	for(int depthIterator = 0; depthIterator < depth; depthIterator++)
 	{
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y,color.r,color.g,color.b);
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1,color.r,color.g,color.b);
-	}
-	for(int i = 0; i < h; i++)
-	{
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x,y+i,color.r,color.g,color.b);
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+w-1,y+i,color.r,color.g,color.b);
+		for(int i = 0; i < w; i++)
+		{
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+depthIterator,color.r,color.g,color.b);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1-depthIterator,color.r,color.g,color.b);
+		}
+		for(int i = 0; i < h; i++)
+		{
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+depthIterator,y+i,color.r,color.g,color.b);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+w-1-depthIterator,y+i,color.r,color.g,color.b);
+		}
 	}
 }
 
-void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &color )
+void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth)
 {
-	drawBorder(sur, r.x, r.y, r.w, r.h, color);
+	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
 }
 
 void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color)

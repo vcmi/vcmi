@@ -150,8 +150,8 @@ typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G,
 
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2);
-	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color);
-	void drawBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color);
+	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color, int depth = 1);
+	void drawBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth = 1);
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color);
 	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
