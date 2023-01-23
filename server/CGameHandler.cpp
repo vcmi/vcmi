@@ -5130,7 +5130,14 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 		town = hero->visitedTown;
 
 	if (words.size() == 1 || obj)
+	{
 		handleCheatCode(words[0], player, hero, town, cheated);
+	}
+	else if(words[0] == "vcmiarmy" && words.size() > 1)
+	{
+		std::string cheatCodeWithCreatureIdentifier = std::string(words[0]) + " " + words[1];
+		handleCheatCode(cheatCodeWithCreatureIdentifier, player, hero, town, cheated);
+	}
 	else
 	{
 		for (const auto & i : gs->players)
@@ -7093,6 +7100,34 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			if (!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
+	}
+	else if (boost::starts_with(cheat, "vcmiarmy"))
+	{
+		cheated = true;
+		if (!hero) return;
+
+		std::vector<std::string> words;
+		boost::split(words, cheat, boost::is_any_of(" "));
+
+		if(words.size() < 2)
+			return;
+
+		std::string creatureIdentifier = words[1];
+
+		auto creature = vstd::tryFindIf(VLC->creh->objects,
+										[creatureIdentifier](auto x)
+										{
+											std::string identifier = x->getJsonKey();
+											boost::to_lower(identifier);
+											return identifier == creatureIdentifier;
+										});
+
+		if(creature.is_initialized())
+		{
+			for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
+				if (!hero->hasStackAtSlot(SlotID(i)))
+					insertNewStack(StackLocation(hero, SlotID(i)), creature->get(), 5 * std::pow(10, i));
+		}
 	}
 	else if (cheat == "vcminoldor" || cheat == "vcmimachines")
 	{
