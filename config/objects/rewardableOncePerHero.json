@@ -118,46 +118,12 @@
 				"rewards" : [
 					{
 						"limiter" : {
-							"minLevel" : 10
-						},
-						"message" : 59,
-						"primary" : { 
-							"attack" : 2,
-							"defence" : 2,
-							"spellpower" : 2,
-							"knowledge" : 2
-						}
-					},
-					{
-						"limiter" : {
-							"minLevel" : 8,
-							"secondary" : { "diplomacy" : 1 }
-						},
-						"message" : 59,
-						"primary" : { 
-							"attack" : 2,
-							"defence" : 2,
-							"spellpower" : 2,
-							"knowledge" : 2
-						}
-					},
-					{
-						"limiter" : {
-							"minLevel" : 6,
-							"secondary" : { "diplomacy" : 2 }
-						},
-						"message" : 59,
-						"primary" : { 
-							"attack" : 2,
-							"defence" : 2,
-							"spellpower" : 2,
-							"knowledge" : 2
-						}
-					},
-					{
-						"limiter" : {
-							"minLevel" : 4,
-							"secondary" : { "diplomacy" : 3 }
+							"anyOf" : [
+								{ "minLevel" : 10 },
+								{ "minLevel" :  8, "secondary" : { "diplomacy" : 1 } },
+								{ "minLevel" :  6, "secondary" : { "diplomacy" : 2 } },
+								{ "minLevel" :  4, "secondary" : { "diplomacy" : 3 } }
+							]
 						},
 						"message" : 59,
 						"primary" : { 

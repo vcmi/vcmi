@@ -26,7 +26,9 @@
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
-						// TODO: limiter "below mana maximum"
+						"limiter" : {
+							"noneOf" : [ { "manaPercentage" : 100 } ]
+						},
 						"message" : 77,
 						"manaPercentage" : 100
 					}
@@ -54,13 +56,16 @@
 				//	"rarity"	: 50
 				//},
 				
-				"onEmptyMessage" : 75,
+				"onEmptyMessage" : 76,
+				"onVisitedMessage" : 75,
 				"resetDuration" : 7,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
-						// TODO: limiter "below mana maximum"
+						"limiter" : {
+							"noneOf" : [ { "manaPercentage" : 200 } ]
+						},
 						"message" : 74,
 						"manaPercentage" : 200
 					}

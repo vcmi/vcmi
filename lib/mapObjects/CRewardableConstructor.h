@@ -19,6 +19,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
+
+	void configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const;
+	TRewardLimitersList configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const;
+
+	void configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
 public:
 	bool givesResources() const override;
 

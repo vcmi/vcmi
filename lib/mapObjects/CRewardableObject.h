@@ -19,20 +19,26 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CRandomRewardObjectInfo;
 
+class CRewardLimiter;
+using TRewardLimitersList = std::vector<std::shared_ptr<CRewardLimiter>>;
+
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
 /// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
 /// NOTE: in future should (partially) replace seer hut/quest guard quests checks
 class DLL_LINKAGE CRewardLimiter
 {
 public:
-	/// how many times this reward can be granted, 0 for unlimited
-	si32 numOfGrants;
-
 	/// day of week, unused if 0, 1-7 will test for current day of week
 	si32 dayOfWeek;
 
 	/// level that hero needs to have
 	si32 minLevel;
+
+	/// mana points that hero needs to have
+	si32 manaPoints;
+
+	/// percentage of mana points that hero needs to have
+	si32 manaPercentage;
 
 	/// resources player needs to have in order to trigger reward
 	TResources resources;
@@ -48,8 +54,16 @@ public:
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 
+	/// sub-limiters, all must pass for this limiter to pass
+	TRewardLimitersList allOf;
+
+	/// sub-limiters, at least one should pass for this limiter to pass
+	TRewardLimitersList anyOf;
+
+	/// sub-limiters, none should pass for this limiter to pass
+	TRewardLimitersList noneOf;
+
 	CRewardLimiter():
-		numOfGrants(0),
 		dayOfWeek(0),
 		minLevel(0),
 		primary(4, 0)
@@ -59,14 +73,18 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & numOfGrants;
 		h & dayOfWeek;
 		h & minLevel;
+		h & manaPoints;
+		h & manaPercentage;
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
 		h & creatures;
+		h & allOf;
+		h & anyOf;
+		h & noneOf;
 	}
 };
 
@@ -164,12 +182,16 @@ public:
 	/// Chance for this reward to be selected in case of random choice
 	si32 selectChance;
 
+	/// How many times this reward can be granted between two resets
+	si32 numOfGrantsAllowed;
+
 	/// How many times this reward has been granted since last reset
-	si32 numOfGrants;
+	si32 numOfGrantsPerformed;
 
 	CVisitInfo():
 		selectChance(0),
-		numOfGrants(0)
+		numOfGrantsAllowed(0),
+		numOfGrantsPerformed(0)
 	{}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -178,7 +200,8 @@ public:
 		h & reward;
 		h & message;
 		h & selectChance;
-		h & numOfGrants;
+		h & numOfGrantsAllowed;
+		h & numOfGrantsPerformed;
 	}
 };
 

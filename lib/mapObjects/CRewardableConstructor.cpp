@@ -45,6 +45,80 @@ void CRandomRewardObjectInfo::init(const JsonNode & objectConfig)
 	parameters = objectConfig;
 }
 
+TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const
+{
+	TRewardLimitersList result;
+	for (const auto & input : source.Vector())
+	{
+		auto newLimiter = std::make_shared<CRewardLimiter>();
+
+		configureLimiter(object, rng, *newLimiter, input);
+
+		result.push_back(newLimiter);
+	}
+
+	return result;
+}
+
+void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const
+{
+	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng);
+	limiter.minLevel = JsonRandom::loadValue(source["minLevel"], rng);
+	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng);
+	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng);
+
+	limiter.resources = JsonRandom::loadResources(source["resources"], rng);
+
+	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng);
+	limiter.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
+	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
+	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+
+	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
+	limiter.anyOf  = configureSublimiters(object, rng, source["anyOf"] );
+	limiter.noneOf = configureSublimiters(object, rng, source["noneOf"] );
+}
+
+void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & reward, const JsonNode & source) const
+{
+	reward.resources = JsonRandom::loadResources(source["resources"], rng);
+
+	reward.gainedExp = JsonRandom::loadValue(source["gainedExp"], rng);
+	reward.gainedLevels = JsonRandom::loadValue(source["gainedLevels"], rng);
+
+	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng);
+	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng);
+	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, -1);
+
+	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng);
+	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, -1);
+
+	reward.removeObject = source["removeObject"].Bool();
+	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
+
+	for (auto & bonus : reward.bonuses)
+	{
+		bonus.source = Bonus::OBJECT;
+		bonus.sid = object->ID;
+		//TODO: bonus.description = object->getObjectName();
+		if (bonus.type == Bonus::MORALE)
+			reward.extraComponents.push_back(Component(Component::MORALE, 0, bonus.val, 0));
+		if (bonus.type == Bonus::LUCK)
+			reward.extraComponents.push_back(Component(Component::LUCK, 0, bonus.val, 0));
+	}
+
+	reward.primary = JsonRandom::loadPrimary(source["primary"], rng);
+	reward.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
+
+	std::vector<SpellID> spells;
+	for (size_t i=0; i<6; i++)
+		IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
+
+	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
+	reward.spells = JsonRandom::loadSpells(source["spells"], rng, spells);
+	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+}
+
 void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRandomGenerator & rng) const
 {
 	std::map<si32, si32> thrownDice;
@@ -73,56 +147,11 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 			}
 		}
 
-		const JsonNode & limiter = reward["limiter"];
 		CVisitInfo info;
-		// load limiter
-		info.limiter.numOfGrants = JsonRandom::loadValue(limiter["numOfGrants"], rng);
-		info.limiter.dayOfWeek = JsonRandom::loadValue(limiter["dayOfWeek"], rng);
-		info.limiter.minLevel = JsonRandom::loadValue(limiter["minLevel"], rng);
-		info.limiter.resources = JsonRandom::loadResources(limiter["resources"], rng);
+		configureLimiter(object, rng, info.limiter, reward["limiter"]);
+		configureReward(object, rng, info.reward, reward);
 
-		info.limiter.primary = JsonRandom::loadPrimary(limiter["primary"], rng);
-		info.limiter.secondary = JsonRandom::loadSecondary(limiter["secondary"], rng);
-		info.limiter.artifacts = JsonRandom::loadArtifacts(limiter["artifacts"], rng);
-		info.limiter.creatures = JsonRandom::loadCreatures(limiter["creatures"], rng);
-
-		info.reward.resources = JsonRandom::loadResources(reward["resources"], rng);
-
-		info.reward.gainedExp = JsonRandom::loadValue(reward["gainedExp"], rng);
-		info.reward.gainedLevels = JsonRandom::loadValue(reward["gainedLevels"], rng);
-
-		info.reward.manaDiff = JsonRandom::loadValue(reward["manaPoints"], rng);
-		info.reward.manaOverflowFactor = JsonRandom::loadValue(reward["manaOverflowFactor"], rng);
-		info.reward.manaPercentage = JsonRandom::loadValue(reward["manaPercentage"], rng, -1);
-
-		info.reward.movePoints = JsonRandom::loadValue(reward["movePoints"], rng);
-		info.reward.movePercentage = JsonRandom::loadValue(reward["movePercentage"], rng, -1);
-		
-		info.reward.removeObject = reward["removeObject"].Bool();
-		info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
-
-		for (auto & bonus : info.reward.bonuses)
-		{
-			bonus.source = Bonus::OBJECT;
-			bonus.sid = object->ID;
-			//TODO: bonus.description = object->getObjectName();
-			if (bonus.type == Bonus::MORALE)
-				info.reward.extraComponents.push_back(Component(Component::MORALE, 0, bonus.val, 0));
-			if (bonus.type == Bonus::LUCK)
-				info.reward.extraComponents.push_back(Component(Component::LUCK, 0, bonus.val, 0));
-		}
-
-		info.reward.primary = JsonRandom::loadPrimary(reward["primary"], rng);
-		info.reward.secondary = JsonRandom::loadSecondary(reward["secondary"], rng);
-
-		std::vector<SpellID> spells;
-		for (size_t i=0; i<6; i++)
-			IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
-
-		info.reward.artifacts = JsonRandom::loadArtifacts(reward["artifacts"], rng);
-		info.reward.spells = JsonRandom::loadSpells(reward["spells"], rng, spells);
-		info.reward.creatures = JsonRandom::loadCreatures(reward["creatures"], rng);
-
+		info.numOfGrantsAllowed = JsonRandom::loadValue(reward["numOfGrants"], rng);
 		info.message = loadMessage(reward["message"]);
 		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);
 

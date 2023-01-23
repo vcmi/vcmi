@@ -193,32 +193,24 @@
 				"rewards" : [
 					{
 						"message" : 62,
-						"limiter" : { "dayOfWeek" : 1 },
+						"limiter" : { 
+							"anyOf" : [
+								{ "dayOfWeek" : 1 },
+								{ "dayOfWeek" : 3 },
+								{ "dayOfWeek" : 5 }
+							]
+						},
 						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
 					},
 					{
 						"message" : 62,
-						"limiter" : { "dayOfWeek" : 2 },
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
-					},
-					{
-						"message" : 62,
-						"limiter" : { "dayOfWeek" : 3 },
-						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
-					},
-					{
-						"message" : 62,
-						"limiter" : { "dayOfWeek" : 4 },
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
-					},
-					{
-						"message" : 62,
-						"limiter" : { "dayOfWeek" : 5 },
-						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
-					},
-					{
-						"message" : 62,
-						"limiter" : { "dayOfWeek" : 6 },
+						"limiter" : { 
+							"anyOf" : [
+								{ "dayOfWeek" : 2 },
+								{ "dayOfWeek" : 4 },
+								{ "dayOfWeek" : 6 }
+							]
+						},
 						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
 					},
 					{
@@ -319,7 +311,7 @@
 					{
 						"message" : 137,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "LAND_MOVEMENT", "val" : 400, "duration" : "ONE_WEEK",} ]
+						"bonuses" : [ { "type" : "LAND_MOVEMENT", "val" : 400, "duration" : "ONE_WEEK"} ]
 					}
 					// TODO: 2nd reward with Cavalier -> Champions upgrade & text ID 138
 				]

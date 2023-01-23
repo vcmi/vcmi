@@ -49,6 +49,12 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	if(minLevel > (si32)hero->level)
 		return false;
 
+	if(manaPoints > hero->mana)
+		return false;
+
+	if(manaPercentage > 100 * hero->mana / hero->manaLimit())
+		return false;
+
 	for(size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] > hero->getPrimSkillLevel(PrimarySkill::PrimarySkill(i)))
@@ -67,7 +73,27 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	return true;
+	for(auto & sublimiter : noneOf)
+	{
+		if (sublimiter->heroAllowed(hero))
+			return false;
+	}
+
+	for(auto & sublimiter : allOf)
+	{
+		if (!sublimiter->heroAllowed(hero))
+			return false;
+	}
+
+	if ( anyOf.size() == 0 )
+		return true;
+
+	for(auto & sublimiter : anyOf)
+	{
+		if (sublimiter->heroAllowed(hero))
+			return true;
+	}
+	return false;
 }
 
 std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * hero) const
@@ -78,7 +104,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	{
 		const CVisitInfo & visit = info[i];
 
-		if((visit.limiter.numOfGrants == 0 || visit.numOfGrants < visit.limiter.numOfGrants) // reward has unlimited uses or some are still available
+		if((visit.numOfGrantsAllowed == 0 || visit.numOfGrantsPerformed < visit.numOfGrantsAllowed) // reward has unlimited uses or some are still available
 			&& visit.limiter.heroAllowed(hero))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
@@ -444,11 +470,11 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 	{
 		case ObjProperty::REWARD_RESET:
 			for (auto & visit : info)
-				visit.numOfGrants = 0;
+				visit.numOfGrantsPerformed = 0;
 			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
-			info[val].numOfGrants++;
+			info[val].numOfGrantsPerformed++;
 			break;
 	}
 }
