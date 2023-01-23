@@ -284,6 +284,8 @@ void CGuiHandler::handleCurrentEvent()
 		switch(current->button.button)
 		{
 		case SDL_BUTTON_LEFT:
+		{
+			auto doubleClicked = false;
 			if(lastClick == current->motion && (SDL_GetTicks() - lastClickTime) < 300)
 			{
 				std::list<CIntObject*> hlp = doubleClickInterested;
@@ -293,6 +295,7 @@ void CGuiHandler::handleCurrentEvent()
 					if((*i)->pos.isInside(current->motion.x, current->motion.y))
 					{
 						(*i)->onDoubleClick();
+						doubleClicked = true;
 					}
 				}
 
@@ -301,8 +304,10 @@ void CGuiHandler::handleCurrentEvent()
 			lastClick = current->motion;
 			lastClickTime = SDL_GetTicks();
 
-			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, true);
+			if(!doubleClicked)
+				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, true);
 			break;
+		}
 		case SDL_BUTTON_RIGHT:
 			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
 			break;
