@@ -79,9 +79,6 @@ void AIMemory::markObjectVisited(const CGObjectInstance * obj)
 			return;
 	}
 
-	if(dynamic_cast<const CGVisitableOPH *>(obj)) //we may want to visit it with another hero
-		return;
-	
 	if(obj->ID == Obj::MONSTER)
 		return;
 

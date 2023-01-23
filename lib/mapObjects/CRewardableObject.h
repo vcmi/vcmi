@@ -249,6 +249,7 @@ protected:
 
 public:
 	EVisitMode getVisitMode() const;
+	ui16 getResetDuration() const;
 
 	void setPropertyDer(ui8 what, ui32 val) override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -293,55 +294,6 @@ public:
 
 	// for configuration/object setup
 	friend class CRandomRewardObjectInfo;
-};
-
-class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
-{
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGVisitableOPH();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGVisitableOPW : public CRewardableObject //objects visitable once per week
-{
-protected:
-	void triggerRewardReset() const override;
-
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGVisitableOPW();
-
-	void setPropertyDer(ui8 what, ui32 val) override;
-	void setRandomReward(CRandomGenerator & rand);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-///Special case - magic spring that has two separate visitable entrances
-class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
-{
-protected:
-	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const override;
-
-public:
-	void initObj(CRandomGenerator & rand) override;
-	std::vector<int3> getVisitableOffsets() const;
-	int3 getVisitableOffset() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGVisitableOPW&>(*this);
-	}
 };
 
 //TODO:

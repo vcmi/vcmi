@@ -64,8 +64,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("keymaster", CGKeymasterTent);
 	SET_HANDLER("lighthouse", CGLighthouse);
 	SET_HANDLER("magi", CGMagi);
-	SET_HANDLER("magicSpring", CGMagicSpring);
-	SET_HANDLER("magicWell", CGMagicWell);
 	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
@@ -84,8 +82,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("subterraneanGate", CGSubterraneanGate);
 	SET_HANDLER("whirlpool", CGWhirlpool);
 	SET_HANDLER("university", CGUniversity);
-	SET_HANDLER("oncePerHero", CGVisitableOPH);
-	SET_HANDLER("oncePerWeek", CGVisitableOPW);
 	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
 

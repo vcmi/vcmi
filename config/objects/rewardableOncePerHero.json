@@ -54,7 +54,7 @@
 
 				"onVisitedMessage" : 40,
 				"visitMode" : "hero",
-				"selectMode" : "selectPlayer",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 39,
@@ -84,7 +84,7 @@
 				
 				"onVisitedMessage" : 60,
 				"visitMode" : "hero",
-				"selectMode" : "selectPlayer",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 59,
@@ -191,7 +191,7 @@
 			
 				"onVisitedMessage" : 81,
 				"visitMode" : "hero",
-				"selectMode" : "selectPlayer",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 80,
@@ -221,7 +221,7 @@
 				
 				"onVisitedMessage" : 101,
 				"visitMode" : "hero",
-				"selectMode" : "selectPlayer",
+				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 100,
@@ -233,7 +233,7 @@
 	},
 	"treeOfKnowledge" : {
 		"index" : 102,
-		"handler": "oncePerHero", //TODO: configurable
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["GAZEBO"]
@@ -247,7 +247,33 @@
 					"mapLimit"	: 100,
 					"value"		: 2500,
 					"rarity"	: 50
-				}
+				},
+
+				"onEmptyMessage" : 150, //TODO: ID 150 should be used for Gold version, ID 152 - for Gems version
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"message" : 148,
+						"appearChance" : { "max" : 34 },
+						"gainedLevels" : 1
+					},
+					{
+						"message" : 149,
+						"appearChance" : { "min" : 34, "max" : 67 },
+						"limiter" : { "resources" : { "gold" : 2000 } },
+						"resources" : { "gold" : -2000 },
+						"gainedLevels" : 1
+					},
+					{
+						"message" : 151,
+						"appearChance" : { "min" : 67 },
+						"limiter" : { "resources" : { "gems" : 10 } },
+						"resources" : { "gems" : -10 },
+						"gainedLevels" : 1
+					},
+				]	
 			}
 		}
 	},

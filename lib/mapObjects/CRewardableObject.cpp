@@ -111,11 +111,11 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		// grant reward afterwards. Note that it may remove object
 		grantReward(index, h);
 	};
-	auto selectRewardsMessage = [&](std::vector<ui32> rewards) -> void
+	auto selectRewardsMessage = [&](std::vector<ui32> rewards, const MetaString & dialog) -> void
 	{
 		BlockingDialog sd(canRefuse, rewards.size() > 1);
 		sd.player = h->tempOwner;
-		sd.text = onSelect;
+		sd.text = dialog;
 		for (auto index : rewards)
 			sd.components.push_back(getVisitInfo(index, h).reward.getDisplayedComponent(h));
 		cb->showBlockingDialog(&sd);
@@ -148,7 +148,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			case 1: // one reward. Just give it with message
 			{
 				if (canRefuse)
-					selectRewardsMessage(rewards);
+					selectRewardsMessage(rewards, getVisitInfo(rewards[0], h).message);
 				else
 					grantRewardWithMessage(rewards[0]);
 				break;
@@ -157,7 +157,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			{
 				switch (selectMode) {
 					case SELECT_PLAYER: // player must select
-						selectRewardsMessage(rewards);
+						selectRewardsMessage(rewards, onSelect);
 						break;
 					case SELECT_FIRST: // give first available
 						grantRewardWithMessage(rewards[0]);
@@ -269,7 +269,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 		if (info.reward.manaPercentage >= 0)
 			manaScaled = hero->manaLimit() * info.reward.manaPercentage / 100;
 
-		si32 manaMissing   = hero->manaLimit() - manaScaled;
+		si32 manaMissing   = std::max(0, hero->manaLimit() - manaScaled);
 		si32 manaGranted   = std::min(manaMissing, info.reward.manaDiff);
 		si32 manaOverflow  = info.reward.manaDiff - manaGranted;
 		si32 manaOverLimit = manaOverflow * info.reward.manaOverflowFactor / 100;
@@ -362,6 +362,11 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 CRewardableObject::EVisitMode CRewardableObject::getVisitMode() const
 {
 	return EVisitMode(visitMode);
+}
+
+ui16 CRewardableObject::getResetDuration() const
+{
+	return resetDuration;
 }
 
 void CRewardInfo::loadComponents(std::vector<Component> & comps,
@@ -473,150 +478,7 @@ CRewardableObject::CRewardableObject():
 {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-CGVisitableOPH::CGVisitableOPH()
-{
-	visitMode = VISIT_HERO;
-	selectMode = SELECT_PLAYER;
-}
-
-void CGVisitableOPH::initObj(CRandomGenerator & rand)
-{
-	switch(ID)
-	{
-		case Obj::TREE_OF_KNOWLEDGE:
-			info.resize(1);
-			canRefuse = true;
-			info[0].reward.gainedLevels = 1;
-			onVisited.addTxt(MetaString::ADVOB_TXT, 147);
-			info.resize(1);
-			switch (rand.nextInt(2))
-			{
-			case 0: // free
-				onSelect.addTxt(MetaString::ADVOB_TXT, 148);
-				break;
-			case 1:
-				info[0].limiter.resources[Res::GOLD] = 2000;
-				info[0].reward.resources[Res::GOLD] = -2000;
-				onSelect.addTxt(MetaString::ADVOB_TXT, 149);
-				onEmpty.addTxt(MetaString::ADVOB_TXT, 150);
-				break;
-			case 2:
-				info[0].limiter.resources[Res::GEMS] = 10;
-				info[0].reward.resources[Res::GEMS] = -10;
-				onSelect.addTxt(MetaString::ADVOB_TXT, 151);
-				onEmpty.addTxt(MetaString::ADVOB_TXT, 152);
-				break;
-			}
-			break;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-CGVisitableOPW::CGVisitableOPW()
-{
-	visitMode = VISIT_ONCE;
-	resetDuration = 7;
-}
-
-void CGVisitableOPW::triggerRewardReset() const
-{
-	CRewardableObject::triggerRewardReset();
-
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
-	cb->sendAndApply(&cov);
-}
-
-void CGVisitableOPW::initObj(CRandomGenerator & rand)
-{
-	setRandomReward(rand);
-
-	switch (ID)
-	{
-	case Obj::MYSTICAL_GARDEN:
-		onEmpty.addTxt(MetaString::ADVOB_TXT, 93);
-		info[0].message.addTxt(MetaString::ADVOB_TXT, 92);
-		break;
-	case Obj::WINDMILL:
-		onEmpty.addTxt(MetaString::ADVOB_TXT, 169);
-		info[0].message.addTxt(MetaString::ADVOB_TXT, 170);
-		break;
-	case Obj::WATER_WHEEL:
-		onEmpty.addTxt(MetaString::ADVOB_TXT, 165);
-		info[0].message.addTxt(MetaString::ADVOB_TXT, 164);
-		break;
-	}
-}
-
-void CGVisitableOPW::setPropertyDer(ui8 what, ui32 val)
-{
-	if(what == ObjProperty::REWARD_RESET)
-	{
-		setRandomReward(cb->gameState()->getRandomGenerator());
-
-		if (ID == Obj::WATER_WHEEL)
-		{
-			auto& reward = info[0].reward.resources[Res::GOLD];
-			if(cb->getDate() > 7)
-			{
-				reward = 1000;
-			}
-			else
-			{
-				reward = 500;
-			}
-		}
-	}
-
-	CRewardableObject::setPropertyDer(what, val);
-}
-
-void CGVisitableOPW::setRandomReward(CRandomGenerator &rand)
-{
-	switch (ID)
-	{
-	case Obj::MYSTICAL_GARDEN:
-		info.resize(1);
-		info[0].limiter.numOfGrants = 1;
-		info[0].reward.resources.amin(0);
-		if (rand.nextInt(1) == 0)
-		{
-			info[0].reward.resources[Res::GEMS] = 5;
-		}
-		else
-		{
-			info[0].reward.resources[Res::GOLD] = 500;
-		}
-		break;
-	case Obj::WINDMILL:
-		info.resize(1);
-		info[0].reward.resources.amin(0);
-		// 3-6 of any resource but wood and gold
-		info[0].reward.resources[rand.nextInt(Res::MERCURY, Res::GEMS)] = rand.nextInt(3, 6);
-		info[0].limiter.numOfGrants = 1;
-		break;
-	case Obj::WATER_WHEEL:
-		info.resize(1);
-		info[0].reward.resources.amin(0);
-		info[0].reward.resources[Res::GOLD] = 500;
-		info[0].limiter.numOfGrants = 1;
-		break;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CGMagicSpring::initObj(CRandomGenerator & rand)
-{
-	CVisitInfo visit; // TODO: "player above max mana" limiter. Use logical expressions for limiters?
-	visit.reward.manaPercentage = 200;
-	visit.message.addTxt(MetaString::ADVOB_TXT, 74);
-	info.push_back(visit); // two rewards, one for each entrance
-	info.push_back(visit);
-	onEmpty.addTxt(MetaString::ADVOB_TXT, 75);
-}
-
+/*
 std::vector<int3> CGMagicSpring::getVisitableOffsets() const
 {
 	std::vector <int3> visitableTiles;
@@ -660,5 +522,5 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	// hero is either not on visitable tile (should not happen) or tile is already used
 	return std::vector<ui32>();
 }
-
+*/
 VCMI_LIB_NAMESPACE_END

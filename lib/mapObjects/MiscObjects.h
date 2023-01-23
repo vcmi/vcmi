@@ -391,18 +391,6 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
-{
-public:
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
 class DLL_LINKAGE CGSirens : public CGObjectInstance
 {
 public:

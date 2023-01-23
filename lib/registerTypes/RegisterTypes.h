@@ -45,7 +45,6 @@ void registerTypesMapObjects1(Serializer &s)
 			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
-	s.template registerType<CGObjectInstance, CGMagicWell>();
 	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
 		s.template registerType<CGKeys, CGKeymasterTent>();
@@ -112,8 +111,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGLighthouse);
 	REGISTER_GENERIC_HANDLER(CGTerrainPatch);
 	REGISTER_GENERIC_HANDLER(CGMagi);
-	REGISTER_GENERIC_HANDLER(CGMagicSpring);
-	REGISTER_GENERIC_HANDLER(CGMagicWell);
 	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CGMine);
 	REGISTER_GENERIC_HANDLER(CGObelisk);
@@ -132,8 +129,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGWhirlpool);
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
-	REGISTER_GENERIC_HANDLER(CGVisitableOPH);
-	REGISTER_GENERIC_HANDLER(CGVisitableOPW);
 	REGISTER_GENERIC_HANDLER(CGWitchHut);
 
 #undef REGISTER_GENERIC_HANDLER
@@ -159,9 +154,6 @@ void registerTypesMapObjects2(Serializer &s)
 			s.template registerType<CGTownBuilding, COPWBonus>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
-		s.template registerType<CRewardableObject, CGVisitableOPH>();
-		s.template registerType<CRewardableObject, CGVisitableOPW>();
-			s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
 		s.template registerType<CTeamVisited, CGWitchHut>();
