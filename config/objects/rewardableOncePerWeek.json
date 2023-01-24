@@ -184,8 +184,13 @@
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
+						"limiter" : { "daysPassed" : 8 },
 						"message" : 164,
 						"resources" : { "gold" : 1000 }
+					}
+					{
+						"message" : 164,
+						"resources" : { "gold" : 500 }
 					}
 				]
 			}

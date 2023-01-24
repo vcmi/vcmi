@@ -30,6 +30,12 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
+	if(daysPassed != 0)
+	{
+		if (IObjectInterface::cb->getDate(Date::DAY) < daysPassed)
+			return false;
+	}
+
 	for(auto & reqStack : creatures)
 	{
 		size_t count = 0;

@@ -64,6 +64,7 @@ TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(CRewardableObj
 void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const
 {
 	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng);
+	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng);
 	limiter.minLevel = JsonRandom::loadValue(source["minLevel"], rng);
 	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng);
 	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng);

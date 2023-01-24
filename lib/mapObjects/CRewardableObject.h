@@ -30,6 +30,7 @@ class DLL_LINKAGE CRewardLimiter
 public:
 	/// day of week, unused if 0, 1-7 will test for current day of week
 	si32 dayOfWeek;
+	si32 daysPassed;
 
 	/// level that hero needs to have
 	si32 minLevel;
@@ -65,6 +66,7 @@ public:
 
 	CRewardLimiter():
 		dayOfWeek(0),
+		daysPassed(0),
 		minLevel(0),
 		primary(4, 0)
 	{}
@@ -74,6 +76,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & dayOfWeek;
+		h & daysPassed;
 		h & minLevel;
 		h & manaPoints;
 		h & manaPercentage;
