@@ -119,8 +119,18 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
 }
 
+void CRandomRewardObjectInfo::configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & resetParameters, const JsonNode & source) const
+{
+	resetParameters.period   = static_cast<ui32>(source["period"].Float());
+	resetParameters.visitors = source["visitors"].Bool();
+	resetParameters.grants   = source["grants"].Bool();
+	resetParameters.rewards  = source["rewards"].Bool();
+}
+
 void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRandomGenerator & rng) const
 {
+	object->info.clear();
+
 	std::map<si32, si32> thrownDice;
 
 	for (const JsonNode & reward : parameters["rewards"].Vector())
@@ -147,7 +157,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 			}
 		}
 
-		CVisitInfo info;
+		CRewardVisitInfo info;
 		configureLimiter(object, rng, info.limiter, reward["limiter"]);
 		configureReward(object, rng, info.reward, reward);
 
@@ -168,7 +178,9 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
 	object->onVisited = loadMessage(parameters["onVisitedMessage"]);
 	object->onEmpty   = loadMessage(parameters["onEmptyMessage"]);
-	object->resetDuration = static_cast<ui16>(parameters["resetDuration"].Float());
+
+	configureResetInfo(object, rng, object->resetParameters, parameters["resetParameters"]);
+
 	object->canRefuse = parameters["canRefuse"].Bool();
 	
 	auto visitMode = parameters["visitMode"].String();

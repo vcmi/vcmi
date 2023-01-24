@@ -115,22 +115,31 @@
 				
 				"onVisitedMessage" : 56,
 				"visitMode" : "bonus",
-				"selectMode" : "selectRandom",
+				"selectMode" : "selectFirst",
+				"resetParameters" : {
+					"period" : 7,
+					"rewards" : true
+				},
+
 				"rewards" : [
 					{
 						"message" : 55,
+						"appearChance" : { "min" : 0, "max" : 25 },
 						"bonuses" : [ { "type" : "LUCK", "val" : -1, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 					{
 						"message" : 55,
+						"appearChance" : { "min" : 25, "max" : 50 },
 						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 					{
 						"message" : 55,
+						"appearChance" : { "min" : 50, "max" : 75 },
 						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 					{
 						"message" : 55,
+						"appearChance" : { "min" : 75, "max" : 100 },
 						"bonuses" : [ { "type" : "LUCK", "val" : 3, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 				]

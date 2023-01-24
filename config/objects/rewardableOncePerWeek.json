@@ -1,6 +1,5 @@
 {
 	/// These are objects that covered by concept of "configurable object" and have their entire configuration in this config
-	
 	"magicWell" : {
 		"index" :49,
 		"handler" : "configurable",
@@ -21,14 +20,14 @@
 				
 				"onEmptyMessage" : 79,
 				"onVisitedMessage" : 78,
-				"resetDuration" : 1,
-				"visitMode" : "once",
+				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"limiter" : {
 							"noneOf" : [ { "manaPercentage" : 100 } ]
 						},
+						"bonuses" : [ { "type" : "NONE", "duration" : "ONE_DAY"} ],
 						"message" : 77,
 						"manaPercentage" : 100
 					}
@@ -58,7 +57,10 @@
 				
 				"onEmptyMessage" : 76,
 				"onVisitedMessage" : 75,
-				"resetDuration" : 7,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true
+				},
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -92,7 +94,11 @@
 				},
 				
 				"onEmptyMessage" : 93,
-				"resetDuration" : 7,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true,
+					"rewards" : true
+				},
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -129,7 +135,11 @@
 				},
 				
 				"onEmptyMessage" : 169,
-				"resetDuration" : 7,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true,
+					"rewards" : true
+				},
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -166,7 +176,10 @@
 				},
 				
 				"onEmptyMessage" : 165,
-				"resetDuration" : 7,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true
+				},
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [

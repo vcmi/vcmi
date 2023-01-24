@@ -102,7 +102,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 
 	for(size_t i=0; i<info.size(); i++)
 	{
-		const CVisitInfo & visit = info[i];
+		const CRewardVisitInfo & visit = info[i];
 
 		if((visit.numOfGrantsAllowed == 0 || visit.numOfGrantsPerformed < visit.numOfGrantsAllowed) // reward has unlimited uses or some are still available
 			&& visit.limiter.heroAllowed(hero))
@@ -114,7 +114,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	return ret;
 }
 
-CVisitInfo CRewardableObject::getVisitInfo(int index, const CGHeroInstance *) const
+CRewardVisitInfo CRewardableObject::getVisitInfo(int index, const CGHeroInstance *) const
 {
 	return info[index];
 }
@@ -250,7 +250,7 @@ void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) 
 	grantRewardBeforeLevelup(getVisitInfo(rewardID, hero), hero);
 }
 
-void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
+void CRewardableObject::grantRewardBeforeLevelup(const CRewardVisitInfo & info, const CGHeroInstance * hero) const
 {
 	assert(hero);
 	assert(hero->tempOwner.isValidPlayer());
@@ -287,7 +287,7 @@ void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const 
 	}
 }
 
-void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
+void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, const CGHeroInstance * hero) const
 {
 	if(info.reward.manaDiff || info.reward.manaPercentage >= 0)
 	{
@@ -392,7 +392,7 @@ CRewardableObject::EVisitMode CRewardableObject::getVisitMode() const
 
 ui16 CRewardableObject::getResetDuration() const
 {
-	return resetDuration;
+	return resetParameters.period;
 }
 
 void CRewardInfo::loadComponents(std::vector<Component> & comps,
@@ -468,7 +468,10 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 {
 	switch (what)
 	{
-		case ObjProperty::REWARD_RESET:
+		case ObjProperty::REWARD_RANDOMIZE:
+			initObj(cb->gameState()->getRandomGenerator());
+			break;
+		case ObjProperty::REWARDS_CLEAR_GRANTS:
 			for (auto & visit : info)
 				visit.numOfGrantsPerformed = 0;
 			break;
@@ -479,15 +482,27 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 	}
 }
 
-void CRewardableObject::triggerRewardReset() const
+void CRewardableObject::triggerReset() const
 {
-	cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
+	if (resetParameters.rewards)
+	{
+		cb->setObjProperty(id, ObjProperty::REWARD_RANDOMIZE, 0);
+	}
+	if (resetParameters.grants)
+	{
+		cb->setObjProperty(id, ObjProperty::REWARDS_CLEAR_GRANTS, 0);
+	}
+	if (resetParameters.visitors)
+	{
+		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
+		cb->sendAndApply(&cov);
+	}
 }
 
 void CRewardableObject::newTurn(CRandomGenerator & rand) const
 {
-	if (resetDuration != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetDuration) == 1)
-		triggerRewardReset();
+	if (resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetParameters.period) == 1)
+		triggerReset();
 }
 
 void CRewardableObject::initObj(CRandomGenerator & rand)
@@ -499,7 +514,6 @@ CRewardableObject::CRewardableObject():
 	selectMode(0),
 	visitMode(0),
 	selectedReward(0),
-	resetDuration(0),
 	canRefuse(false)
 {}
 

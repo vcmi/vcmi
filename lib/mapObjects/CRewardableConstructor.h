@@ -24,6 +24,7 @@ class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 	TRewardLimitersList configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const;
 
 	void configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
+	void configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & info, const JsonNode & source) const;
 public:
 	bool givesResources() const override;
 

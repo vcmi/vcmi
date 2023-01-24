@@ -88,6 +88,37 @@ public:
 	}
 };
 
+class DLL_LINKAGE CRewardResetInfo
+{
+public:
+	CRewardResetInfo()
+		: period(0)
+		, visitors(false)
+		, grants(false)
+		, rewards(false)
+	{}
+
+	/// if above zero, object state will be reset each resetDuration days
+	ui32 period;
+
+	/// if true - reset list of visitors (heroes & players) on reset
+	bool visitors;
+
+	/// if true - reset number of grants of rewards on reset
+	bool grants;
+
+	/// if true - re-randomize rewards on a new week
+	bool rewards;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & period;
+		h & visitors;
+		h & grants;
+		h & rewards;
+	}
+};
+
 /// Reward that can be granted to a hero
 /// NOTE: eventually should replace seer hut rewards and events/pandoras
 class DLL_LINKAGE CRewardInfo
@@ -170,7 +201,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CVisitInfo
+class DLL_LINKAGE CRewardVisitInfo
 {
 public:
 	CRewardLimiter limiter;
@@ -188,7 +219,7 @@ public:
 	/// How many times this reward has been granted since last reset
 	si32 numOfGrantsPerformed;
 
-	CVisitInfo():
+	CRewardVisitInfo():
 		selectChance(0),
 		numOfGrantsAllowed(0),
 		numOfGrantsPerformed(0)
@@ -216,10 +247,10 @@ namespace Rewardable
 class DLL_LINKAGE CRewardableObject : public CArmedInstance
 {
 	/// function that must be called if hero got level-up during grantReward call
-	void grantRewardAfterLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+	void grantRewardAfterLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 
 	/// grants reward to hero
-	void grantRewardBeforeLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+	void grantRewardBeforeLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 
 public:
 	enum EVisitMode
@@ -245,12 +276,12 @@ protected:
 
 	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 
-	virtual CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
+	virtual CRewardVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
 
-	virtual void triggerRewardReset() const;
+	virtual void triggerReset() const;
 
 	/// Rewards that can be granted by an object
-	std::vector<CVisitInfo> info;
+	std::vector<CRewardVisitInfo> info;
 
 	/// MetaString's that contain text for messages for specific situations
 	MetaString onSelect;
@@ -264,8 +295,8 @@ protected:
 	/// reward selected by player
 	ui16 selectedReward;
 
-	/// object visitability info will be reset each resetDuration days
-	ui16 resetDuration;
+	/// how and when should the object be reset
+	CRewardResetInfo resetParameters;
 
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse;
@@ -306,7 +337,7 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & info;
 		h & canRefuse;
-		h & resetDuration;
+		h & resetParameters;
 		h & onSelect;
 		h & onVisited;
 		h & onEmpty;
