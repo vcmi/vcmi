@@ -290,8 +290,15 @@ else()
 	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
 endif()
 
-target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(vcmiclient PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if (ffmpeg_INCLUDE_DIRS)
+	target_include_directories(vcmiclient PRIVATE
+		${ffmpeg_INCLUDE_DIRS}
+	)
+endif()
 
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)
