@@ -52,7 +52,10 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	if(!IObjectInterface::cb->getPlayerState(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
-	if(minLevel > (si32)hero->level)
+	if(heroLevel > (si32)hero->level)
+		return false;
+
+	if((TExpType)heroExperience > hero->exp)
 		return false;
 
 	if(manaPoints > hero->mana)
@@ -70,6 +73,12 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	for(auto & skill : secondary)
 	{
 		if (skill.second > hero->getSecSkillLevel(skill.first))
+			return false;
+	}
+
+	for(auto & spell : spells)
+	{
+		if (!hero->spellbookContainsSpell(spell))
 			return false;
 	}
 
@@ -265,12 +274,16 @@ void CRewardableObject::grantRewardBeforeLevelup(const CRewardVisitInfo & info, 
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
-		if(info.reward.primary[i] > 0)
-			cb->changePrimSkill(hero, static_cast<PrimarySkill::PrimarySkill>(i), info.reward.primary[i], false);
+		cb->changePrimSkill(hero, static_cast<PrimarySkill::PrimarySkill>(i), info.reward.primary[i], false);
 
 	si64 expToGive = 0;
-	expToGive += VLC->heroh->reqExp(hero->level+info.reward.gainedLevels) - VLC->heroh->reqExp(hero->level);
-	expToGive += hero->calculateXp(info.reward.gainedExp);
+
+	if (info.reward.heroLevel > 0)
+		expToGive += VLC->heroh->reqExp(hero->level+info.reward.heroLevel) - VLC->heroh->reqExp(hero->level);
+
+	if (info.reward.heroExperience > 0)
+		expToGive += hero->calculateXp(info.reward.heroExperience);
+
 	if(expToGive)
 		cb->changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
 
@@ -427,13 +440,13 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
 
-	if (gainedExp)
+	if (heroExperience)
 	{
 		comps.push_back(Component(
-			Component::EXPERIENCE, 0, (si32)h->calculateXp(gainedExp), 0));
+			Component::EXPERIENCE, 0, (si32)h->calculateXp(heroExperience), 0));
 	}
-	if (gainedLevels)
-		comps.push_back(Component(Component::EXPERIENCE, 1, gainedLevels, 0));
+	if (heroLevel)
+		comps.push_back(Component(Component::EXPERIENCE, 1, heroLevel, 0));
 
 	if (manaDiff || manaPercentage >= 0)
 		comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));

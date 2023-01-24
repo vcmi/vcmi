@@ -63,9 +63,17 @@ TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(CRewardableObj
 
 void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const
 {
+	std::vector<SpellID> spells;
+	for (size_t i=0; i<6; i++)
+		IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
+
+
 	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng);
 	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng);
-	limiter.minLevel = JsonRandom::loadValue(source["minLevel"], rng);
+	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng);
+	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
+					 + JsonRandom::loadValue(source["minLevel"], rng); // VCMI 1.1 compatibilty
+
 	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng);
 	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng);
 
@@ -73,7 +81,8 @@ void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRand
 
 	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng);
 	limiter.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
-	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
+	limiter.artifacts = JsonRandom::loadArtifacts(source["spells"], rng);
+	limiter.spells  = JsonRandom::loadSpells(source["artifacts"], rng, spells);
 	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
 
 	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
@@ -85,8 +94,11 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 {
 	reward.resources = JsonRandom::loadResources(source["resources"], rng);
 
-	reward.gainedExp = JsonRandom::loadValue(source["gainedExp"], rng);
-	reward.gainedLevels = JsonRandom::loadValue(source["gainedLevels"], rng);
+	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng)
+						  + JsonRandom::loadValue(source["gainedExp"], rng); // VCMI 1.1 compatibilty
+
+	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
+						+ JsonRandom::loadValue(source["gainedLevels"], rng); // VCMI 1.1 compatibilty
 
 	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng);
 	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng);

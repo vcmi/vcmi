@@ -32,8 +32,11 @@ public:
 	si32 dayOfWeek;
 	si32 daysPassed;
 
+	/// total experience that hero needs to have
+	si32 heroExperience;
+
 	/// level that hero needs to have
-	si32 minLevel;
+	si32 heroLevel;
 
 	/// mana points that hero needs to have
 	si32 manaPoints;
@@ -52,6 +55,9 @@ public:
 	/// Note: does not checks for multiple copies of the same arts
 	std::vector<ArtifactID> artifacts;
 
+	/// Spells that hero must have in the spellbook
+	std::vector<SpellID> spells;
+
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 
@@ -67,7 +73,7 @@ public:
 	CRewardLimiter():
 		dayOfWeek(0),
 		daysPassed(0),
-		minLevel(0),
+		heroLevel(0),
 		primary(4, 0)
 	{}
 
@@ -77,7 +83,8 @@ public:
 	{
 		h & dayOfWeek;
 		h & daysPassed;
-		h & minLevel;
+		h & heroExperience;
+		h & heroLevel;
 		h & manaPoints;
 		h & manaPercentage;
 		h & resources;
@@ -127,9 +134,9 @@ public:
 	TResources resources;
 
 	/// received experience
-	ui32 gainedExp;
+	si32 heroExperience;
 	/// received levels (converted into XP during grant)
-	ui32 gainedLevels;
+	si32 heroLevel;
 
 	/// mana given to/taken from hero, fixed value
 	si32 manaDiff;
@@ -172,8 +179,8 @@ public:
 	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
 	CRewardInfo() :
-		gainedExp(0),
-		gainedLevels(0),
+		heroExperience(0),
+		heroLevel(0),
 		manaDiff(0),
 		manaPercentage(-1),
 		movePoints(0),
@@ -189,8 +196,8 @@ public:
 		h & removeObject;
 		h & manaPercentage;
 		h & movePercentage;
-		h & gainedExp;
-		h & gainedLevels;
+		h & heroExperience;
+		h & heroLevel;
 		h & manaDiff;
 		h & manaOverflowFactor;
 		h & movePoints;

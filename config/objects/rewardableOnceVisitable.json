@@ -67,6 +67,10 @@
 						"appearChance" : { "min" : 10, "max" : 20 },
 						"message" : 37,
 						"artifacts" : [ { "class" : "MINOR" } ]
+					},
+					{
+						"appearChance" : { "min" : 20, "max" : 100 },
+						"message" : 38,
 					}
 				]
 			}
@@ -113,6 +117,10 @@
 								"max" : 5
 							},
 						]
+					},
+					{
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"message" : 156,
 					}
 				]
 			}

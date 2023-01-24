@@ -119,10 +119,10 @@
 					{
 						"limiter" : {
 							"anyOf" : [
-								{ "minLevel" : 10 },
-								{ "minLevel" :  8, "secondary" : { "diplomacy" : 1 } },
-								{ "minLevel" :  6, "secondary" : { "diplomacy" : 2 } },
-								{ "minLevel" :  4, "secondary" : { "diplomacy" : 3 } }
+								{ "heroLevel" : 10 },
+								{ "heroLevel" :  8, "secondary" : { "diplomacy" : 1 } },
+								{ "heroLevel" :  6, "secondary" : { "diplomacy" : 2 } },
+								{ "heroLevel" :  4, "secondary" : { "diplomacy" : 3 } }
 							]
 						},
 						"message" : 59,
@@ -355,7 +355,7 @@
 				"rewards" : [
 					{
 						"message" : 143,
-						"gainedExp" : 1000
+						"heroExperience" : 1000
 					}
 				]
 			}
