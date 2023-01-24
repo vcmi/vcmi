@@ -811,7 +811,12 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	b->sid = static_cast<si32>(ability["sourceID"].Float());
 
 	if(!ability["description"].isNull())
-		b->description = ability["description"].String();
+	{
+		if (ability["description"].isString())
+			b->description = ability["description"].String();
+		if (ability["description"].isNumber())
+			b->description = VLC->generaltexth->translate("core.arraytxt", ability["description"].Integer());
+	}
 
 	value = &ability["effectRange"];
 	if (!value->isNull())

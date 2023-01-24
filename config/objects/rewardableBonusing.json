@@ -26,7 +26,7 @@
 				"rewards" : [
 					{
 						"message" : 21,
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 94 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 94 } ]
 					}
 				]
 			}	
@@ -57,7 +57,7 @@
 					{
 						"message" : 29,
 						"movePercentage" : 0,
-						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "desription" : 67 } ]
+						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "description" : 67 } ]
 					}
 				]
 			}
@@ -88,7 +88,7 @@
 				"rewards" : [
 					{
 						"message" : 49,
-						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 71 } ]
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 71 } ]
 					}
 				]
 			}
@@ -125,22 +125,22 @@
 					{
 						"message" : 55,
 						"appearChance" : { "min" : 0, "max" : 25 },
-						"bonuses" : [ { "type" : "LUCK", "val" : -1, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
+						"bonuses" : [ { "type" : "LUCK", "val" : -1, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 					{
 						"message" : 55,
 						"appearChance" : { "min" : 25, "max" : 50 },
-						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 					{
 						"message" : 55,
 						"appearChance" : { "min" : 50, "max" : 75 },
-						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
+						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 					{
 						"message" : 55,
 						"appearChance" : { "min" : 75, "max" : 100 },
-						"bonuses" : [ { "type" : "LUCK", "val" : 3, "duration" : "ONE_BATTLE", "desription" : 69 } ] // NOTE: strings has %s placeholder for morale value
+						"bonuses" : [ { "type" : "LUCK", "val" : 3, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
 					},
 				]
 			}
@@ -172,7 +172,7 @@
 					{
 						"message" : 57,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 103 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 103 } ]
 					}
 				]
 			}
@@ -209,7 +209,7 @@
 								{ "dayOfWeek" : 5 }
 							]
 						},
-						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 } ]
 					},
 					{
 						"message" : 62,
@@ -220,14 +220,14 @@
 								{ "dayOfWeek" : 6 }
 							]
 						},
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 } ]
 					},
 					{
 						"message" : 62,
 						"limiter" : { "dayOfWeek" : 7 },
 						"bonuses" : [ 
-							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 },
-							{ "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 68 }  
+							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 },
+							{ "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 }  
 						]
 					}
 				]
@@ -257,7 +257,7 @@
 				"rewards" : [
 					{
 						"message" : 83,
-						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 72 } ]
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 72 } ]
 					}
 				]
 			}
@@ -288,7 +288,7 @@
 					{
 						"message" : 94,
 						"movePoints" : 800,
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 95 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 95 } ]
 					}
 				]
 			}
@@ -363,11 +363,11 @@
 					{
 						"message" : 140,
 						"limiter" : { "dayOfWeek" : 7 },
-						"bonuses" : [ { "type" : "MORALE", "val" : 2, "duration" : "ONE_BATTLE", "desription" : 97 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 2, "duration" : "ONE_BATTLE", "description" : 97 } ]
 					},
 					{
 						"message" : 140,
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 96 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 96 } ]
 					}
 				]
 			}
@@ -400,8 +400,8 @@
 						"message" : 110,
 						"movePoints" : 400,
 						"bonuses" : [ 
-							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 102 },
-							{ "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 102 }
+							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 102 },
+							{ "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 102 }
 						]
 					}
 				]
@@ -433,7 +433,7 @@
 					{
 						"message" : 166,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "desription" : 100 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 100 } ]
 					}
 				]
 			} 
