@@ -102,7 +102,7 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	return false;
 }
 
-std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * hero) const
+std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event) const
 {
 	std::vector<ui32> ret;
 
@@ -110,7 +110,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	{
 		const CRewardVisitInfo & visit = info[i];
 
-		if(visit.limiter.heroAllowed(hero))
+		if(event == visit.visitType && visit.limiter.heroAllowed(hero))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(static_cast<ui32>(i));
@@ -119,16 +119,11 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	return ret;
 }
 
-CRewardVisitInfo CRewardableObject::getVisitInfo(int index, const CGHeroInstance *) const
-{
-	return info[index];
-}
-
 void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
-	auto grantRewardWithMessage = [&](int index) -> void
+	auto grantRewardWithMessage = [&](int index, bool markAsVisit) -> void
 	{
-		auto vi = getVisitInfo(index, h);
+		auto vi = info[index];
 		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
 		// show message only if it is not empty
 		if (!vi.message.toString().empty())
@@ -140,7 +135,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
-		grantReward(index, h);
+		grantReward(index, h, markAsVisit);
 	};
 	auto selectRewardsMessage = [&](std::vector<ui32> rewards, const MetaString & dialog) -> void
 	{
@@ -148,40 +143,38 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		sd.player = h->tempOwner;
 		sd.text = dialog;
 		for (auto index : rewards)
-			sd.components.push_back(getVisitInfo(index, h).reward.getDisplayedComponent(h));
+			sd.components.push_back(info[index].reward.getDisplayedComponent(h));
 		cb->showBlockingDialog(&sd);
 	};
 
-	if(!wasVisited(h))
+	if(!wasVisitedBefore(h))
 	{
-		auto rewards = getAvailableRewards(h);
+		auto rewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT);
 		bool objectRemovalPossible = false;
 		for(auto index : rewards)
 		{
-			if(getVisitInfo(index, h).reward.removeObject)
+			if(info[index].reward.removeObject)
 				objectRemovalPossible = true;
 		}
 
 		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
 		switch (rewards.size())
 		{
-			case 0: // no available rewards, e.g. empty flotsam
+			case 0: // no available rewards, e.g. visiting School of War without gold
 			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				if (!onEmpty.toString().empty())
-					iw.text = onEmpty;
+				auto emptyRewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_NOT_AVAILABLE);
+				if (!emptyRewards.empty())
+					grantRewardWithMessage(emptyRewards[0], false);
 				else
-					iw.text = onVisited;
-				cb->showInfoDialog(&iw);
+					logMod->warn("No applicable message for visiting empty object!");
 				break;
 			}
 			case 1: // one reward. Just give it with message
 			{
 				if (canRefuse)
-					selectRewardsMessage(rewards, getVisitInfo(rewards[0], h).message);
+					selectRewardsMessage(rewards, info[rewards[0]].message);
 				else
-					grantRewardWithMessage(rewards[0]);
+					grantRewardWithMessage(rewards[0], true);
 				break;
 			}
 			default: // multiple rewards. Act according to select mode
@@ -191,14 +184,14 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						selectRewardsMessage(rewards, onSelect);
 						break;
 					case SELECT_FIRST: // give first available
-						grantRewardWithMessage(rewards[0]);
+						grantRewardWithMessage(rewards[0], true);
 						break;
 				}
 				break;
 			}
 		}
 
-		if(!objectRemovalPossible && getAvailableRewards(h).size() == 0)
+		if(!objectRemovalPossible && getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT).size() == 0)
 		{
 			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
 			cb->sendAndApply(&cov);
@@ -207,19 +200,18 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	else
 	{
 		logGlobal->debug("Revisiting already visited object");
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		if (!onVisited.toString().empty())
-			iw.text = onVisited;
+
+		auto visitedRewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_ALREADY_VISITED);
+		if (!visitedRewards.empty())
+			grantRewardWithMessage(visitedRewards[0], false);
 		else
-			iw.text = onEmpty;
-		cb->showInfoDialog(&iw);
+			logMod->warn("No applicable message for visiting already visited object!");
 	}
 }
 
 void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 {
-	grantRewardAfterLevelup(getVisitInfo(selectedReward, hero), hero);
+	grantRewardAfterLevelup(info[selectedReward], hero);
 }
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
@@ -229,8 +221,8 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 
 	if(answer > 0 && answer-1 < info.size())
 	{
-		auto list = getAvailableRewards(hero);
-		grantReward(list[answer - 1], hero);
+		auto list = getAvailableRewards(hero, CRewardVisitInfo::EVENT_FIRST_VISIT);
+		grantReward(list[answer - 1], hero, true);
 	}
 	else
 	{
@@ -238,18 +230,18 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 	}
 }
 
-void CRewardableObject::onRewardGiven(const CGHeroInstance * hero) const
+void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero, bool markVisited) const
 {
-	// no implementation, virtual function for overrides
-}
+	if (markVisited)
+	{
+		cb->setObjProperty(id, ObjProperty::REWARD_CLEARED, true);
 
-void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
-{
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
-	cb->sendAndApply(&cov);
+		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
+		cb->sendAndApply(&cov);
+	}
+
 	cb->setObjProperty(id, ObjProperty::REWARD_SELECT, rewardID);
-
-	grantRewardBeforeLevelup(getVisitInfo(rewardID, hero), hero);
+	grantRewardBeforeLevelup(info[rewardID], hero);
 }
 
 void CRewardableObject::grantRewardBeforeLevelup(const CRewardVisitInfo & info, const CGHeroInstance * hero) const
@@ -366,10 +358,28 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 		cb->giveCreatures(this, hero, creatures, false);
 	}
 
-	onRewardGiven(hero);
-
 	if(info.reward.removeObject)
 		cb->removeObject(this);
+}
+
+bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) const
+{
+	switch (visitMode)
+	{
+		case VISIT_UNLIMITED:
+			return false;
+		case VISIT_ONCE:
+			return onceVisitableObjectCleared;
+		case VISIT_PLAYER:
+			return vstd::contains(cb->getPlayerState(contextHero->getOwner())->visitedObjects, ObjectInstanceID(id));
+		case VISIT_BONUS:
+			return contextHero->hasBonusFrom(Bonus::OBJECT, ID);
+		case VISIT_HERO:
+			return contextHero->visitedObjects.count(ObjectInstanceID(id));
+		default:
+			return false;
+	}
+
 }
 
 bool CRewardableObject::wasVisited(PlayerColor player) const
@@ -378,11 +388,9 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 	{
 		case VISIT_UNLIMITED:
 		case VISIT_BONUS:
-			return false;
-		case VISIT_ONCE:
-			return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 		case VISIT_HERO:
 			return false;
+		case VISIT_ONCE:
 		case VISIT_PLAYER:
 			return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 		default:
@@ -394,8 +402,6 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 {
 	switch (visitMode)
 	{
-		case VISIT_UNLIMITED:
-			return false;
 		case VISIT_BONUS:
 			return h->hasBonusFrom(Bonus::OBJECT, ID);
 		case VISIT_HERO:
@@ -429,7 +435,8 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 	if (gainedLevels)
 		comps.push_back(Component(Component::EXPERIENCE, 1, gainedLevels, 0));
 
-	if (manaDiff) comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));
+	if (manaDiff || manaPercentage >= 0)
+		comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
@@ -495,6 +502,9 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
 			break;
+		case ObjProperty::REWARD_CLEARED:
+			onceVisitableObjectCleared = val;
+			break;
 	}
 }
 
@@ -506,6 +516,8 @@ void CRewardableObject::triggerReset() const
 	}
 	if (resetParameters.visitors)
 	{
+		cb->setObjProperty(id, ObjProperty::REWARD_CLEARED, false);
+
 		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
 		cb->sendAndApply(&cov);
 	}
@@ -526,6 +538,7 @@ CRewardableObject::CRewardableObject():
 	selectMode(0),
 	visitMode(0),
 	selectedReward(0),
+	onceVisitableObjectCleared(false),
 	canRefuse(false)
 {}
 

@@ -138,13 +138,14 @@ void CRandomRewardObjectInfo::configureResetInfo(CRewardableObject * object, CRa
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRandomGenerator & rng) const
+void CRandomRewardObjectInfo::configureRewards(
+		CRewardableObject * object,
+		CRandomGenerator & rng, const
+		JsonNode & source,
+		std::map<si32, si32> & thrownDice,
+		CRewardVisitInfo::ERewardEventType event ) const
 {
-	object->info.clear();
-
-	std::map<si32, si32> thrownDice;
-
-	for (const JsonNode & reward : parameters["rewards"].Vector())
+	for (const JsonNode & reward : source.Vector())
 	{
 		if (!reward["appearChance"].isNull())
 		{
@@ -172,21 +173,47 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		configureLimiter(object, rng, info.limiter, reward["limiter"]);
 		configureReward(object, rng, info.reward, reward);
 
+		info.visitType = event;
 		info.message = loadMessage(reward["message"]);
 
 		for (const auto & artifact : info.reward.artifacts )
 			info.message.addReplacement(MetaString::ART_NAMES, artifact.getNum());
-		
+
 		for (const auto & artifact : info.reward.spells )
 			info.message.addReplacement(MetaString::SPELL_NAME, artifact.getNum());
 
 		object->info.push_back(info);
 	}
+}
+
+void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRandomGenerator & rng) const
+{
+	object->info.clear();
+
+	std::map<si32, si32> thrownDice;
+
+	configureRewards(object, rng, parameters["rewards"], thrownDice, CRewardVisitInfo::EVENT_FIRST_VISIT);
+	configureRewards(object, rng, parameters["onVisited"], thrownDice, CRewardVisitInfo::EVENT_ALREADY_VISITED);
+	configureRewards(object, rng, parameters["onEmpty"], thrownDice, CRewardVisitInfo::EVENT_NOT_AVAILABLE);
 
 	object->blockVisit= parameters["blockedVisitable"].Bool();
 	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
-	object->onVisited = loadMessage(parameters["onVisitedMessage"]);
-	object->onEmpty   = loadMessage(parameters["onEmptyMessage"]);
+
+	if (!parameters["onVisitedMessage"].isNull())
+	{
+		CRewardVisitInfo onVisited;
+		onVisited.visitType = CRewardVisitInfo::EVENT_ALREADY_VISITED;
+		onVisited.message = loadMessage(parameters["onVisitedMessage"]);
+		object->info.push_back(onVisited);
+	}
+
+	if (!parameters["onEmptyMessage"].isNull())
+	{
+		CRewardVisitInfo onEmpty;
+		onEmpty.visitType = CRewardVisitInfo::EVENT_NOT_AVAILABLE;
+		onEmpty.message = loadMessage(parameters["onEmptyMessage"]);
+		object->info.push_back(onEmpty);
+	}
 
 	configureResetInfo(object, rng, object->resetParameters, parameters["resetParameters"]);
 

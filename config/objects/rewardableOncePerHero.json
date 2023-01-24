@@ -215,7 +215,17 @@
 					"rarity"	: 50
 				},
 
-				"onEmptyMessage" : 150, //TODO: ID 150 should be used for Gold version, ID 152 - for Gems version
+				"onEmpty" : [
+					{
+						"message" : 150,
+						"appearChance" : { "min" : 34, "max" : 67 }
+					},
+					{
+						"message" : 152,
+						"appearChance" : { "min" : 67, "max" : 67 }
+					}
+				],
+				"onVisitedMessage" : 147,
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"canRefuse" : true,
@@ -271,12 +281,12 @@
 					{
 						"limiter" : { "resources" : { "gold" : 1000 } },
 						"resources" : { "gold" : -1000 },
-						"primary" : { "spellpower" : 2 }
+						"primary" : { "spellpower" : 1 }
 					},
 					{
 						"limiter" : { "resources" : { "gold" : 1000 } },
 						"resources" : { "gold" : -1000 },
-						"primary" : { "knowledge" : 2 }
+						"primary" : { "knowledge" : 1 }
 					}
 				]
 			}

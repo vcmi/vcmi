@@ -313,9 +313,24 @@
 					"rarity"	: 40
 				},
 				
-				"onVisitedMessage" : 136, // TODO: alternative message with Cavalier -> Champions upgrade & text ID 139
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
+
+				"onVisited" : [
+					{
+						"message" : 139,
+						"limiter" : {
+							"creatures" : [ { "type" : "cavalier", "amount" : 1 } ],
+						},
+						"changeCreatures" : {
+							"cavalier" : "champion"
+						}
+					},
+					{
+						"message" : 136
+					},
+				],
+
 				"rewards" : [
 					{
 						"limiter" : {

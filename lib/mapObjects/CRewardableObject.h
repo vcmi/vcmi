@@ -207,11 +207,22 @@ public:
 class DLL_LINKAGE CRewardVisitInfo
 {
 public:
+	enum ERewardEventType
+	{
+		EVENT_INVALID,
+		EVENT_FIRST_VISIT,
+		EVENT_ALREADY_VISITED,
+		EVENT_NOT_AVAILABLE
+	};
+
 	CRewardLimiter limiter;
 	CRewardInfo reward;
 
 	/// Message that will be displayed on granting of this reward, if not empty
 	MetaString message;
+
+	/// Event to which this reward is assigned
+	ERewardEventType visitType;
 
 	CRewardVisitInfo() = default;
 
@@ -220,6 +231,7 @@ public:
 		h & limiter;
 		h & reward;
 		h & message;
+		h & visitType;
 	}
 };
 
@@ -258,26 +270,24 @@ protected:
 	};
 
 	/// filters list of visit info and returns rewards that can be granted to current hero
-	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
+	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event ) const;
 
-	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
-
-	virtual CRewardVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero, bool markVisited) const;
 
 	virtual void triggerReset() const;
 
-	/// Rewards that can be granted by an object
-	std::vector<CRewardVisitInfo> info;
-
-	/// MetaString's that contain text for messages for specific situations
+	/// Message that will be shown if player needs to select one of multiple rewards
 	MetaString onSelect;
-	MetaString onVisited;
-	MetaString onEmpty;
+
+	/// Rewards that can be applied by an object
+	std::vector<CRewardVisitInfo> info;
 
 	/// how reward will be selected, uses ESelectMode enum
 	ui8 selectMode;
+
 	/// contols who can visit an object, uses EVisitMode enum
 	ui8 visitMode;
+
 	/// reward selected by player
 	ui16 selectedReward;
 
@@ -286,6 +296,12 @@ protected:
 
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse;
+
+	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
+	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+
+	bool onceVisitableObjectCleared;
 
 public:
 	EVisitMode getVisitMode() const;
@@ -311,9 +327,6 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	/// function that will be called once reward is fully granted to hero
-	virtual void onRewardGiven(const CGHeroInstance * hero) const;
-	
 	void initObj(CRandomGenerator & rand) override;
 
 	CRewardableObject();
@@ -325,11 +338,10 @@ public:
 		h & canRefuse;
 		h & resetParameters;
 		h & onSelect;
-		h & onVisited;
-		h & onEmpty;
 		h & visitMode;
 		h & selectMode;
 		h & selectedReward;
+		h & onceVisitableObjectCleared;
 	}
 
 	// for configuration/object setup

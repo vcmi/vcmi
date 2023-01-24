@@ -18,7 +18,7 @@
 					"rarity"	: 100
 				},
 				
-				"onEmptyMessage" : 65,
+				"onVisitedMessage" : 65,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -53,7 +53,7 @@
 					"rarity"	: 100
 				},
 				
-				"onEmptyMessage" : 38,
+				"onVisitedMessage" : 38,
 				"blockedVisitable" : true,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
@@ -89,7 +89,7 @@
 					"rarity"	: 50
 				},
 				
-				"onEmptyMessage" : 156,
+				"onVisitedMessage" : 156,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -136,9 +136,15 @@
 				},
 				
 				"onSelectMessage" : 161,
-				"onEmptyMessage" : 163,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+
+				"onVisited" : [
+					{
+						"message" : 163,
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+					}
+				],
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 30 },
