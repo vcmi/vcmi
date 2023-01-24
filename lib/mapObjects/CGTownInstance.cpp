@@ -553,24 +553,23 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		if(hasBuilt(BuildingID::HORDE_2))
 			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_2, creature->hordeGrowth));
 
-	int dwellingBonus = 0;
-	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
-	{
-		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
-	}
-
-	if(dwellingBonus)
-		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
+	//statue-of-legion-like bonus: % to base+castle
+	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH_PERCENT));
+	for(const auto & b : *bonuses2)
+		ret.entries.push_back(GrowthInfo::Entry(b->val * (base + castleBonus) / 100, b->Description()));
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	TConstBonusListPtr bonuses = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH).And(Selector::subtype()(level)));
 	for(const auto & b : *bonuses)
 		ret.entries.push_back(GrowthInfo::Entry(b->val, b->Description()));
 
-	//statue-of-legion-like bonus: % to base+castle
-	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH_PERCENT));
-	for(const auto & b : *bonuses2)
-		ret.entries.push_back(GrowthInfo::Entry(b->val * (base + castleBonus) / 100, b->Description()));
+	int dwellingBonus = 0;
+	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
+	{
+		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
+	}
+	if(dwellingBonus)
+		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
 
 	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth
 		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::GRAIL, ret.totalGrowth() / 2));
