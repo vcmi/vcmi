@@ -556,7 +556,10 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	//statue-of-legion-like bonus: % to base+castle
 	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH_PERCENT));
 	for(const auto & b : *bonuses2)
-		ret.entries.push_back(GrowthInfo::Entry(b->val * (base + castleBonus) / 100, b->Description()));
+	{
+		const auto growth = b->val * (base + castleBonus) / 100;
+		ret.entries.push_back(GrowthInfo::Entry(growth, b->Description(growth)));
+	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	TConstBonusListPtr bonuses = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH).And(Selector::subtype()(level)));
