@@ -426,7 +426,8 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 		comps.push_back(Component(
 			Component::EXPERIENCE, 0, (si32)h->calculateXp(gainedExp), 0));
 	}
-	if (gainedLevels) comps.push_back(Component(Component::EXPERIENCE, 0, gainedLevels, 0));
+	if (gainedLevels)
+		comps.push_back(Component(Component::EXPERIENCE, 1, gainedLevels, 0));
 
 	if (manaDiff) comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));
 
