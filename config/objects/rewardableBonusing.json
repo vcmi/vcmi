@@ -313,16 +313,26 @@
 					"rarity"	: 40
 				},
 				
-				"onVisitedMessage" : 136,
+				"onVisitedMessage" : 136, // TODO: alternative message with Cavalier -> Champions upgrade & text ID 139
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
+					{
+						"limiter" : {
+							"creatures" : [ { "type" : "cavalier", "amount" : 1 } ],
+						},
+						"message" : 138,
+						"movePoints" : 400,
+						"bonuses" : [ { "type" : "LAND_MOVEMENT", "val" : 400, "duration" : "ONE_WEEK"} ],
+						"changeCreatures" : {
+							"cavalier" : "champion"
+						}
+					},
 					{
 						"message" : 137,
 						"movePoints" : 400,
 						"bonuses" : [ { "type" : "LAND_MOVEMENT", "val" : 400, "duration" : "ONE_WEEK"} ]
 					}
-					// TODO: 2nd reward with Cavalier -> Champions upgrade & text ID 138
 				]
 			}
 		}

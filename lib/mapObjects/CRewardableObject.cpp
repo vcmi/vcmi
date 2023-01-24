@@ -337,6 +337,24 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 		cb->changeSpells(hero, true, spellsToGive);
 	}
 
+	if(!info.reward.creaturesChange.empty())
+	{
+		for (auto slot : hero->Slots())
+		{
+			const CStackInstance * heroStack = slot.second;
+
+			for (auto & change : info.reward.creaturesChange)
+			{
+				if (heroStack->type->getId() == change.first)
+				{
+					StackLocation location(hero, slot.first);
+					cb->changeStackType(location, change.second.toCreature());
+					break;
+				}
+			}
+		}
+	}
+
 	if(!info.reward.creatures.empty())
 	{
 		CCreatureSet creatures;

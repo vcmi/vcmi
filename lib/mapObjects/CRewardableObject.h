@@ -153,6 +153,9 @@ public:
 	std::vector<si32> primary;
 	std::map<SecondarySkill, si32> secondary;
 
+	/// creatures that will be changed in hero's army
+	std::map<CreatureID, CreatureID> creaturesChange;
+
 	/// objects that hero may receive
 	std::vector<ArtifactID> artifacts;
 	std::vector<SpellID> spells;
@@ -198,6 +201,7 @@ public:
 		h & artifacts;
 		h & spells;
 		h & creatures;
+		h & creaturesChange;
 	}
 };
 

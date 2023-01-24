@@ -13,6 +13,7 @@
 #include "../CRandomGenerator.h"
 #include "../StringConstants.h"
 #include "../CCreatureHandler.h"
+#include "../CModHandler.h"
 #include "JsonRandom.h"
 #include "../IGameCallback.h"
 
@@ -117,6 +118,16 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
 	reward.spells = JsonRandom::loadSpells(source["spells"], rng, spells);
 	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+
+	for ( auto node : source["changeCreatures"].Struct() )
+	{
+		CreatureID from (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.first) .get());
+		CreatureID dest (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.second.String()).get());
+
+		reward.extraComponents.push_back(Component(Component::CREATURE, dest.getNum(), 0, 0));
+
+		reward.creaturesChange[from] = dest;
+	}
 }
 
 void CRandomRewardObjectInfo::configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & resetParameters, const JsonNode & source) const

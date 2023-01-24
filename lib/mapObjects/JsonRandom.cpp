@@ -32,7 +32,7 @@ namespace JsonRandom
 		if (value.isNumber())
 			return static_cast<si32>(value.Float());
 		if (!value["amount"].isNull())
-			return static_cast<si32>(loadValue(value, rng, defaultValue));
+			return static_cast<si32>(loadValue(value["amount"], rng, defaultValue));
 		si32 min = static_cast<si32>(value["min"].Float());
 		si32 max = static_cast<si32>(value["max"].Float());
 		return rng.getIntRange(min, max)();
