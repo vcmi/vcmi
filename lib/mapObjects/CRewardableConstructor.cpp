@@ -134,7 +134,6 @@ void CRandomRewardObjectInfo::configureResetInfo(CRewardableObject * object, CRa
 {
 	resetParameters.period   = static_cast<ui32>(source["period"].Float());
 	resetParameters.visitors = source["visitors"].Bool();
-	resetParameters.grants   = source["grants"].Bool();
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
@@ -172,9 +171,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		configureLimiter(object, rng, info.limiter, reward["limiter"]);
 		configureReward(object, rng, info.reward, reward);
 
-		info.numOfGrantsAllowed = JsonRandom::loadValue(reward["numOfGrants"], rng);
 		info.message = loadMessage(reward["message"]);
-		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);
 
 		for (const auto & artifact : info.reward.artifacts )
 			info.message.addReplacement(MetaString::ART_NAMES, artifact.getNum());

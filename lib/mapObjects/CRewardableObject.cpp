@@ -104,8 +104,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	{
 		const CRewardVisitInfo & visit = info[i];
 
-		if((visit.numOfGrantsAllowed == 0 || visit.numOfGrantsPerformed < visit.numOfGrantsAllowed) // reward has unlimited uses or some are still available
-			&& visit.limiter.heroAllowed(hero))
+		if(visit.limiter.heroAllowed(hero))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(static_cast<ui32>(i));
@@ -187,9 +186,6 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						break;
 					case SELECT_FIRST: // give first available
 						grantRewardWithMessage(rewards[0]);
-						break;
-					case SELECT_RANDOM: // select one randomly //TODO: use weights
-						grantRewardWithMessage(rewards[CRandomGenerator::getDefault().nextInt((int)rewards.size()-1)]);
 						break;
 				}
 				break;
@@ -489,13 +485,8 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 		case ObjProperty::REWARD_RANDOMIZE:
 			initObj(cb->gameState()->getRandomGenerator());
 			break;
-		case ObjProperty::REWARDS_CLEAR_GRANTS:
-			for (auto & visit : info)
-				visit.numOfGrantsPerformed = 0;
-			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
-			info[val].numOfGrantsPerformed++;
 			break;
 	}
 }
@@ -505,10 +496,6 @@ void CRewardableObject::triggerReset() const
 	if (resetParameters.rewards)
 	{
 		cb->setObjProperty(id, ObjProperty::REWARD_RANDOMIZE, 0);
-	}
-	if (resetParameters.grants)
-	{
-		cb->setObjProperty(id, ObjProperty::REWARDS_CLEAR_GRANTS, 0);
 	}
 	if (resetParameters.visitors)
 	{

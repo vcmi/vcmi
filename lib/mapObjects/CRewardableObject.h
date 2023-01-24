@@ -94,7 +94,6 @@ public:
 	CRewardResetInfo()
 		: period(0)
 		, visitors(false)
-		, grants(false)
 		, rewards(false)
 	{}
 
@@ -104,8 +103,6 @@ public:
 	/// if true - reset list of visitors (heroes & players) on reset
 	bool visitors;
 
-	/// if true - reset number of grants of rewards on reset
-	bool grants;
 
 	/// if true - re-randomize rewards on a new week
 	bool rewards;
@@ -114,7 +111,6 @@ public:
 	{
 		h & period;
 		h & visitors;
-		h & grants;
 		h & rewards;
 	}
 };
@@ -214,35 +210,19 @@ public:
 	/// Message that will be displayed on granting of this reward, if not empty
 	MetaString message;
 
-	/// Chance for this reward to be selected in case of random choice
-	si32 selectChance;
-
-	/// How many times this reward can be granted between two resets
-	si32 numOfGrantsAllowed;
-
-	/// How many times this reward has been granted since last reset
-	si32 numOfGrantsPerformed;
-
-	CRewardVisitInfo():
-		selectChance(0),
-		numOfGrantsAllowed(0),
-		numOfGrantsPerformed(0)
-	{}
+	CRewardVisitInfo() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & limiter;
 		h & reward;
 		h & message;
-		h & selectChance;
-		h & numOfGrantsAllowed;
-		h & numOfGrantsPerformed;
 	}
 };
 
 namespace Rewardable
 {
-	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer", "selectRandom"};
+	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer"};
 	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
 }
 
@@ -272,7 +252,6 @@ protected:
 	{
 		SELECT_FIRST,  // first reward that matches limiters
 		SELECT_PLAYER, // player can select from all allowed rewards
-		SELECT_RANDOM  // reward will be selected from allowed randomly
 	};
 
 	/// filters list of visit info and returns rewards that can be granted to current hero
