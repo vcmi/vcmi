@@ -7116,19 +7116,15 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 
 		std::string creatureIdentifier = words[1];
 
-		auto creature = vstd::tryFindIf(VLC->creh->objects,
-			[creatureIdentifier](auto x)
-			{
-				std::string identifier = x->getJsonKey();
-				boost::to_lower(identifier);
-				return identifier == creatureIdentifier;
-			});
+		boost::optional<int32_t> creatureId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatureIdentifier, false);
 
-		if(creature.is_initialized())
+		if(creatureId.is_initialized())
 		{
+			const CCreature * creature = VLC->creh->objects.at(creatureId.get());
+
 			for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 				if (!hero->hasStackAtSlot(SlotID(i)))
-					insertNewStack(StackLocation(hero, SlotID(i)), creature->get(), 5 * std::pow(10, i));
+					insertNewStack(StackLocation(hero, SlotID(i)), creature, 5 * std::pow(10, i));
 		}
 	}
 	else if (cheat == "vcminoldor" || cheat == "vcmimachines")
