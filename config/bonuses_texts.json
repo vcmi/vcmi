@@ -252,6 +252,12 @@
 		"description": "Drains ${val}% of damage dealt"
 	},
 
+	"LIMITED_SHOOTING_RANGE":
+	{
+		"name": "Limited shooting range",
+		"description": "Cannot shoot targets beyond ${val} hexes away"
+	},
+
 	"MANA_CHANNELING":
 	{
 		"name": "Magic Channel ${val}%",
