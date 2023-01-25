@@ -715,14 +715,10 @@ std::string CGMine::getObjectName() const
 
 std::string CGMine::getHoverText(PlayerColor player) const
 {
-	std::string hoverName = getObjectName(); // Sawmill
+	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-	{
-		hoverName += "\n";
-		hoverName += VLC->generaltexth->arraytxt[23 + tempOwner.getNum()]; // owned by Red Player
 		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
-	}
 
 	if(stacksCount())
 	{
@@ -2198,12 +2194,6 @@ void CGLighthouse::initObj(CRandomGenerator & rand)
 		// FIXME: This is dirty hack
 		giveBonusTo(tempOwner, true);
 	}
-}
-
-std::string CGLighthouse::getHoverText(PlayerColor player) const
-{
-	//TODO: owned by %s player
-	return getObjectName();
 }
 
 void CGLighthouse::giveBonusTo(PlayerColor player, bool onInit) const

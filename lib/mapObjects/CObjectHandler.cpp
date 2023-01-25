@@ -328,7 +328,10 @@ boost::optional<std::string> CGObjectInstance::getRemovalSound() const
 
 std::string CGObjectInstance::getHoverText(PlayerColor player) const
 {
-	return getObjectName();
+	auto text = getObjectName();
+	if (tempOwner.isValidPlayer())
+		text += "\n" + VLC->generaltexth->arraytxt[23 + tempOwner.getNum()];
+	return text;
 }
 
 std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
