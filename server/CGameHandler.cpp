@@ -5152,11 +5152,12 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 			else if (words[1] != "all" && words[1] != i.first.getStr())
 				continue;
 
-			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant")
+			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant"
+				|| words[0] == "vcmiresources" || words[0] == "vcmimap" || words[0] == "vcmihidemap")
 			{
 				handleCheatCode(words[0], i.first, nullptr, nullptr, cheated);
 			}
-			else if (words[0] == "vcmiarmenelos")
+			else if (words[0] == "vcmiarmenelos" || words[0] == "vcmibuild")
 			{
 				for (const auto & t : i.second.towns)
 				{
@@ -7086,17 +7087,18 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		cheated = true;
 		if (!hero) return;
 		///Gives N creatures into each slot
-		std::map<std::string, std::pair<int, int>> creatures;
-		creatures.insert(std::make_pair("vcmiainur", std::make_pair(13, 5))); //5 archangels
-		creatures.insert(std::make_pair("vcmiangband", std::make_pair(66, 10))); //10 black knights
-		creatures.insert(std::make_pair("vcmiglaurung", std::make_pair(133, 5000))); //5000 crystal dragons
-		creatures.insert(std::make_pair("vcmiarchangel", std::make_pair(13, 5))); //5 archangels
-		creatures.insert(std::make_pair("vcmiblackknight", std::make_pair(66, 10))); //10 black knights
-		creatures.insert(std::make_pair("vcmicrystal", std::make_pair(133, 5000))); //5000 crystal dragons
-		creatures.insert(std::make_pair("vcmiazure", std::make_pair(132, 5000))); //5000 azure dragons
-		creatures.insert(std::make_pair("vcmifaerie", std::make_pair(134, 5000))); //5000 faerie dragons
+		std::map<std::string, std::pair<std::string, int>> creatures;
+		creatures.insert(std::make_pair("vcmiainur", std::make_pair("archangel", 5))); //5 archangels
+		creatures.insert(std::make_pair("vcmiangband", std::make_pair("blackKnight", 10))); //10 black knights
+		creatures.insert(std::make_pair("vcmiglaurung", std::make_pair("crystalDragon", 5000))); //5000 crystal dragons
+		creatures.insert(std::make_pair("vcmiarchangel", std::make_pair("archangel", 5))); //5 archangels
+		creatures.insert(std::make_pair("vcmiblackknight", std::make_pair("blackKnight", 10))); //10 black knights
+		creatures.insert(std::make_pair("vcmicrystal", std::make_pair("crystalDragon", 5000))); //5000 crystal dragons
+		creatures.insert(std::make_pair("vcmiazure", std::make_pair("azureDragon", 5000))); //5000 azure dragons
+		creatures.insert(std::make_pair("vcmifaerie", std::make_pair("fairieDragon", 5000))); //5000 faerie dragons
 
-		const CCreature * creature = VLC->creh->objects.at(creatures[cheat].first);
+		const int32_t creatureIdentifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatures[cheat].first, false).get();
+		const CCreature * creature = VLC->creh->objects.at(creatureIdentifier);
 		for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			if (!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
@@ -7115,12 +7117,12 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		std::string creatureIdentifier = words[1];
 
 		auto creature = vstd::tryFindIf(VLC->creh->objects,
-										[creatureIdentifier](auto x)
-										{
-											std::string identifier = x->getJsonKey();
-											boost::to_lower(identifier);
-											return identifier == creatureIdentifier;
-										});
+			[creatureIdentifier](auto x)
+			{
+				std::string identifier = x->getJsonKey();
+				boost::to_lower(identifier);
+				return identifier == creatureIdentifier;
+			});
 
 		if(creature.is_initialized())
 		{

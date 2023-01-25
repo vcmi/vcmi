@@ -30,7 +30,7 @@ class IHandlerBase;
 
 /// class that stores all object identifiers strings and maps them to numeric ID's
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
-class CIdentifierStorage
+class DLL_LINKAGE CIdentifierStorage
 {
 	enum ELoadingState
 	{
