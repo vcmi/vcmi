@@ -13,11 +13,13 @@
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
 
-	"vcmi.adventureMap.confirmRestartGame"  : "Are you sure you want to restart game?",
-	"vcmi.adventureMap.noTownWithMarket"    : "No available marketplace!",
-	"vcmi.adventureMap.noTownWithTavern"    : "No available town with tavern!",
-	"vcmi.adventureMap.spellUnknownProblem" : "Unknown problem with this spell, no more information available.",
-	"vcmi.adventureMap.playerAttacked"      : "Player has been attacked: %s",
+	"vcmi.adventureMap.confirmRestartGame"     : "Are you sure you want to restart game?",
+	"vcmi.adventureMap.noTownWithMarket"       : "No available marketplace!",
+	"vcmi.adventureMap.noTownWithTavern"       : "No available town with tavern!",
+	"vcmi.adventureMap.spellUnknownProblem"    : "Unknown problem with this spell, no more information available.",
+	"vcmi.adventureMap.playerAttacked"         : "Player has been attacked: %s",
+	"vcmi.adventureMap.moveCostDetails"        : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
 
 	"vcmi.server.errors.existingProcess"     : "Another vcmiserver process is running, please terminate it first",
 	"vcmi.server.errors.modsIncompatibility" : "Required mods to load game:",
