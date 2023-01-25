@@ -771,14 +771,14 @@ void CClient::reinitScripting()
 }
 
 #ifdef VCMI_ANDROID
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received clientSetupJNI");
 
 	CAndroidVMHelper::cacheVM(env);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server closed signal");
 	if (CSH) {
@@ -786,13 +786,13 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerCl
 	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server ready signal");
 	androidTestServerReadyFlag.store(true);
 }
 
-extern "C" JNIEXPORT bool JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
 	logGlobal->info("Received emergency save game request");
 	if(!LOCPLINT || !LOCPLINT->cb)
