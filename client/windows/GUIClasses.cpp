@@ -2039,7 +2039,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK),
+	: CIntObject(LCLICK | DOUBLECLICK),
 	parent(_parent),
 	index(_id)
 {
@@ -2067,6 +2067,11 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 {
 	if( previousState && !down)
 		parent->changeSelection(index);
+}
+
+void CObjectListWindow::CItem::onDoubleClick()
+{
+	parent->elementSelected();
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
