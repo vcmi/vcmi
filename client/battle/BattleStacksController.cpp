@@ -900,7 +900,7 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
 	if(hoveredQueueUnitId.is_initialized())
 	{
-		return { owner.curInt->cb->battleGetStackByUnitId(hoveredQueueUnitId.value(), true) };
+		return { owner.curInt->cb->battleGetStackByID(hoveredQueueUnitId.value(), true) };
 	}
 
 	auto hoveredHex = owner.fieldController->getHoveredHex();

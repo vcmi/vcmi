@@ -102,7 +102,6 @@ public:
 	TStacks battleGetAllStacks(bool includeTurrets = false) const;
 
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
-	const CStack * battleGetStackByUnitId(int unitId, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
 
 	///returns player that controls given stack; mind control included
