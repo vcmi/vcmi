@@ -659,6 +659,12 @@ if(WIN32)
 	endif()
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
 
+	# Strip MinGW CPack target if build configuration without debug info
+	if(MINGW)
+		if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+			set(CPACK_STRIP_FILES ON)
+		endif()
+	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
 	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
