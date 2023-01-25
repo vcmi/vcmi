@@ -282,6 +282,7 @@ class DLL_LINKAGE CModHandler
 	std::vector<std::string> getModList(std::string path);
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
+	void loadTranslation(TModID modName);
 public:
 
 	/// returns true if scope is reserved for internal use and can not be used by mods

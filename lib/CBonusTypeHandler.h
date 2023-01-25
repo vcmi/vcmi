@@ -21,53 +21,27 @@ class JsonNode;
 
 typedef Bonus::BonusType BonusTypeID;
 
-class MacroString
-{
-	struct Item
-	{
-		enum ItemType
-		{
-			STRING, MACRO
-		};
-		Item(ItemType _type, std::string _value): type(_type), value(_value){};
-		ItemType type;
-		std::string value; //constant string or macro name
-	};
-	std::vector<Item> items;
-public:
-	typedef std::function<std::string(const std::string &)> GetValue;
-
-	MacroString() = default;
-	~MacroString() = default;
-	explicit MacroString(const std::string & format);
-
-	std::string build(const GetValue & getValue) const;
-};
-
 class DLL_LINKAGE CBonusType
 {
 public:
 	CBonusType();
-	~CBonusType();
+
+	std::string getNameTextID() const;
+	std::string getDescriptionTextID() const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & icon;
-		h & nameTemplate;
-		h & descriptionTemplate;
+		h & identifier;
 		h & hidden;
 
-		if (!h.saving)
-			buildMacros();
 	}
 
 private:
-	void buildMacros();
-	MacroString name, description;
-
 	friend class CBonusTypeHandler;
+
 	std::string icon;
-	std::string nameTemplate, descriptionTemplate;
+	std::string identifier;
 
 	bool hidden;
 };
@@ -91,7 +65,7 @@ public:
 private:
 	void load();
 	void load(const JsonNode & config);
-	void loadItem(const JsonNode & source, CBonusType & dest);
+	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name);
 
 	std::vector<CBonusType> bonusTypes; //index = BonusTypeID
 };

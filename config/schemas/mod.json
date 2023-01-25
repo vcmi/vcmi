@@ -8,7 +8,7 @@
 		"localizable" : {
 			"type":"object",
 			"additionalProperties" : false,
-			"required" : [ "name", "description", "author", "modType" ],
+			"required" : [ "name", "description", "modType" ],
 			"properties":{
 				"name": {
 					"type":"string",
@@ -18,7 +18,6 @@
 					"type":"string",
 					"description": "More lengthy description of mod. No hard limit"
 				},
-
 				"modType" : {
 					"type":"string",
 					"description": "Type of mod, e.g. Town, Artifacts, Graphical."
@@ -26,6 +25,11 @@
 				"author" : {
 					"type":"string",
 					"description": "Author of the mod. Can be nickname, real name or name of team"
+				},
+				"translations":{
+					"type":"array",
+					"description": "List of files with translations for this language",
+					"items": { "type":"string", "format" : "textFile" }
 				},
 				"changelog" : {
 					"type":"object",
@@ -112,27 +116,26 @@
 			"type":"boolean",
 			"description": "If set to true, mod will not be enabled automatically on install"
 		},
-		
 		"english" : {
 			"$ref" : "#/definitions/localizable"
 		},
-
 		"german" : {
 			"$ref" : "#/definitions/localizable"
 		},
-
 		"polish" : {
 			"$ref" : "#/definitions/localizable"
 		},
-
 		"russian" : {
 			"$ref" : "#/definitions/localizable"
 		},
-
 		"ukrainian" : {
 			"$ref" : "#/definitions/localizable"
 		},
-
+		"translations":{
+			"type":"array",
+			"description": "List of files with translations for this language",
+			"items": { "type":"string", "format" : "textFile" }
+		},
 		"artifacts": {
 			"type":"array",
 			"description": "List of configuration files for artifacts",
