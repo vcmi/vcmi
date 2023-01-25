@@ -97,15 +97,12 @@ public:
 	/// returns spell that is currently being cast by hero or nullptr if none
 	const CSpell * getHeroSpellToCast() const;
 
-	/// if current stack is spellcaster, returns
+	/// if current stack is spellcaster, returns spell being cast, or null othervice
 	const CSpell * getStackSpellToCast( BattleHex targetHex ) const;
 	const CSpell * getAnySpellToCast( BattleHex targetHex ) const;
 
 	/// returns true if current stack is a spellcaster
-	bool isActiveStackFixedSpellcaster() const;
-
-	/// returns true if current stack is random spellcaster (e.g. Genie)
-	bool isActiveStackRandomSpellcaster() const;
+	bool isActiveStackSpellcaster() const;
 
 	/// methods to work with array of possible actions, needed to control special creatures abilities
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;

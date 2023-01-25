@@ -42,41 +42,28 @@ static std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
 	owner(owner),
-	heroSpellToCast(nullptr)
+	heroSpellToCast(nullptr),
+	creatureSpellToCast(nullptr)
 {}
 
 void BattleActionsController::endCastingSpell()
 {
 	if(heroSpellToCast)
-	{
 		heroSpellToCast.reset();
 
-		if(owner.stacksController->getActiveStack())
-			possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
-	}
-	else
-	{
-		if(owner.stacksController->getActiveStack())
-			possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack());
-	}
+	if(owner.stacksController->getActiveStack())
+		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
+
 	GH.fakeMouseMove();
 }
 
-bool BattleActionsController::isActiveStackFixedSpellcaster() const
+bool BattleActionsController::isActiveStackSpellcaster() const
 {
 	const CStack * casterStack = owner.stacksController->getActiveStack();
-	assert(casterStack);
+	if (!casterStack)
+		return false;
 
 	const auto randomSpellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
-	return (randomSpellcaster && casterStack->canCast());
-}
-
-bool BattleActionsController::isActiveStackRandomSpellcaster() const
-{
-	const CStack * casterStack = owner.stacksController->getActiveStack();
-	assert(casterStack);
-
-	const auto randomSpellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
 	return (randomSpellcaster && casterStack->canCast());
 }
 
@@ -93,7 +80,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	if (!owner.stacksController->getActiveStack())
 		return;
 
-	if (!isActiveStackFixedSpellcaster())
+	if (!isActiveStackSpellcaster())
 		return;
 
 	if (vstd::contains(possibleActions, PossiblePlayerBattleAction::NO_LOCATION))
@@ -138,7 +125,12 @@ void BattleActionsController::enterCreatureCastingMode()
 std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack) const
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
-	data.creatureSpellToCast = getStackSpellToCast(BattleHex::INVALID)->getId();
+
+	if (getStackSpellToCast(BattleHex::INVALID))
+		data.creatureSpellToCast = getStackSpellToCast(BattleHex::INVALID)->getId();
+	else
+		data.creatureSpellToCast = SpellID::NONE;
+
 	data.tacticsMode = owner.tacticsMode;
 	auto allActions = owner.curInt->cb->getClientActionsForStack(stack, data);
 
@@ -233,6 +225,9 @@ const CSpell * BattleActionsController::getHeroSpellToCast( ) const
 
 const CSpell * BattleActionsController::getStackSpellToCast( BattleHex targetHex ) const
 {
+	if (isActiveStackSpellcaster())
+		return creatureSpellToCast;
+
 	return nullptr;
 }
 
@@ -589,7 +584,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				}
 			}
 
-			if (spellcastingModeActive())
+			if (!spellcastingModeActive())
 			{
 				if (getStackSpellToCast(targetHex))
 				{
@@ -652,6 +647,15 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
 
+	if (hoveredHex == BattleHex::INVALID)
+	{
+		if (!currentConsoleMsg.empty())
+			GH.statusbar->clearIfMatching(currentConsoleMsg);
+
+		currentConsoleMsg.clear();
+		return;
+	}
+
 	auto action = selectAction(hoveredHex);
 
 	std::string newConsoleMsg;
@@ -695,18 +699,14 @@ void BattleActionsController::onHexClicked(BattleHex clickedHex)
 
 void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterStack)
 {
-	//set casting flag to true if creature can use it to not check it every time
-	//const auto spellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
-	//const auto randomSpellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
-	//if(casterStack->canCast() && (spellcaster || randomSpellcaster))
-	//{
-	//	if(!randomSpellcaster)
-	//		creatureSpellToCast = -1; //spell will be set later on cast
-	//	else
-	//		creatureSpellToCast = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), casterStack, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
-	//	//TODO: what if creature can cast BOTH random genie spell and aimed spell?
-	//	//TODO: faerie dragon type spell should be selected by server
-	//}
+	const auto spellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
+	if(casterStack->canCast() && spellcaster)
+	{
+		// faerie dragon can cast only one, randomly selected spell until their next move
+		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
+		//TODO: faerie dragon type spell should be selected by server
+		creatureSpellToCast = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), casterStack, CBattleInfoCallback::RANDOM_AIMED).toSpell();
+	}
 }
 
 const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
@@ -759,6 +759,8 @@ void BattleActionsController::activateStack()
 	const CStack * s = owner.stacksController->getActiveStack();
 	if(s)
 	{
+		tryActivateStackSpellcasting(s);
+
 		possibleActions = getPossibleActionsForStack(s);
 		std::list<PossiblePlayerBattleAction> actionsToSelect;
 		if(!possibleActions.empty())
