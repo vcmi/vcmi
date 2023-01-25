@@ -1594,7 +1594,6 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
 			select(static_cast<const CArmedInstance*>(topBlocking), false);
-		return;
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
