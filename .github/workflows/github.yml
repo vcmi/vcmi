@@ -121,7 +121,7 @@ jobs:
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
-            conan_profile: mingw32-linux.jinja
+            conan_profile: mingw64-linux.jinja
     runs-on: ${{ matrix.os }}
     defaults:
       run:
