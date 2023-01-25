@@ -73,6 +73,8 @@ private slots:
 
 	void on_comboBoxCursorType_currentIndexChanged(int index);
 
+	void on_listWidgetSettings_currentRowChanged(int currentRow);
+
 private:
 	Ui::CSettingsView * ui;
 
