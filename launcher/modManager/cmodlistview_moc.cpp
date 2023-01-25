@@ -74,7 +74,6 @@ void CModListView::setupModsView()
 		ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
 		ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
-		ui->allModsView->setColumnWidth(ModFields::SIZE, 80);
 		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
 
@@ -161,23 +160,6 @@ void CModListView::showEvent(QShowEvent * event)
 	}
 }
 
-void CModListView::showModInfo()
-{
-	enableModInfo();
-	ui->modInfoWidget->show();
-	ui->hideModInfoButton->setArrowType(Qt::RightArrow);
-	ui->showInfoButton->setVisible(false);
-	loadScreenshots();
-}
-
-void CModListView::hideModInfo()
-{
-	ui->modInfoWidget->hide();
-	ui->hideModInfoButton->setArrowType(Qt::LeftArrow);
-	ui->hideModInfoButton->setEnabled(true);
-	ui->showInfoButton->setVisible(true);
-}
-
 static QString replaceIfNotEmpty(QVariant value, QString pattern)
 {
 	if(value.canConvert<QStringList>())
@@ -255,7 +237,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 		result += urlTemplate.arg(tr("License")).arg(mod.getValue("licenseURL").toString()).arg(mod.getValue("licenseName").toString());
 
 	if(mod.getValue("contact").isValid())
-		result += urlTemplate.arg(tr("Home")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
+		result += urlTemplate.arg(tr("Contact")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
 
 	//compatibility info
 	if(mod.isCompatible())
@@ -313,18 +295,8 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	return result;
 }
 
-void CModListView::enableModInfo()
-{
-	ui->hideModInfoButton->setEnabled(true);
-	ui->showInfoButton->setVisible(true);
-}
-
 void CModListView::disableModInfo()
 {
-	hideModInfo();
-	ui->hideModInfoButton->setEnabled(false);
-	ui->showInfoButton->setVisible(false);
-
 	ui->disableButton->setVisible(false);
 	ui->enableButton->setVisible(false);
 	ui->installButton->setVisible(false);
@@ -354,8 +326,6 @@ void CModListView::selectMod(const QModelIndex & index)
 		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
 		bool hasDependentMods = !findDependentMods(index.data(ModRoles::ModNameRole).toString(), true).empty();
 
-		ui->hideModInfoButton->setEnabled(true);
-		ui->showInfoButton->setVisible(!ui->modInfoWidget->isVisible());
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());
 		ui->installButton->setVisible(mod.isAvailable() && !mod.getName().contains('.'));
@@ -380,35 +350,15 @@ bool CModListView::isExtraResolutionsModEnabled() const
 	return manager->isExtraResolutionsModEnabled();
 }
 
-void CModListView::keyPressEvent(QKeyEvent * event)
-{
-	if(event->key() == Qt::Key_Escape && ui->modInfoWidget->isVisible())
-	{
-		hideModInfo();
-	}
-	else
-	{
-		return QWidget::keyPressEvent(event);
-	}
-}
-
 void CModListView::modSelected(const QModelIndex & current, const QModelIndex &)
 {
 	selectMod(current);
 }
 
-void CModListView::on_hideModInfoButton_clicked()
-{
-	if(ui->modInfoWidget->isVisible())
-		hideModInfo();
-	else
-		showModInfo();
-}
-
 void CModListView::on_allModsView_activated(const QModelIndex & index)
 {
-	showModInfo();
 	selectMod(index);
+	loadScreenshots();
 }
 
 void CModListView::on_lineEdit_textChanged(const QString & arg1)
@@ -798,8 +748,7 @@ void CModListView::on_pushButton_clicked()
 
 void CModListView::modelReset()
 {
-	if(ui->modInfoWidget->isVisible())
-		selectMod(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
+	selectMod(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
 }
 
 void CModListView::checkManagerErrors()
@@ -820,7 +769,7 @@ void CModListView::on_tabWidget_currentChanged(int index)
 
 void CModListView::loadScreenshots()
 {
-	if(ui->tabWidget->currentIndex() == 2 && ui->modInfoWidget->isVisible())
+	if(ui->tabWidget->currentIndex() == 2)
 	{
 		ui->screenshotsList->clear();
 		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
@@ -858,11 +807,6 @@ void CModListView::on_screenshotsList_clicked(const QModelIndex & index)
 		auto pixmap = icon.pixmap(icon.availableSizes()[0]);
 		ImageViewer::showPixmap(pixmap, this);
 	}
-}
-
-void CModListView::on_showInfoButton_clicked()
-{
-	showModInfo();
 }
 
 const CModList & CModListView::getModList() const

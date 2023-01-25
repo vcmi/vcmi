@@ -23,8 +23,6 @@ enum EModFields
 	STATUS_UPDATE,
 	TYPE,
 	VERSION,
-	SIZE,
-	AUTHOR,
 	COUNT
 };
 }
