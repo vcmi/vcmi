@@ -66,12 +66,6 @@ SDL_Rect CSDL_Ext::toSDL(const Rect & rect)
 	return result;
 }
 
-Point CSDL_Ext::fromSDL(const SDL_MouseMotionEvent & motion)
-{
-	return { motion.x, motion.y };
-}
-
-
 void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
 	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
@@ -581,6 +575,11 @@ std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor
 		boost::replace_first(str,"%s",tor[i]);
 	}
 	return str;
+}
+
+bool CSDL_Ext::isTransparent( SDL_Surface * srf, const Point & position )
+{
+	return isTransparent(srf, position.x, position.y);
 }
 
 bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )

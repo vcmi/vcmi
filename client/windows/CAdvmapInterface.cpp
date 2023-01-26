@@ -209,7 +209,7 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 {
 	if(btnPressed)
 	{
-		swipeInitialRealPos = int3(GH.current->motion.x, GH.current->motion.y, 0);
+		swipeInitialRealPos = int3(GH.getCursorPosition().x, GH.getCursorPosition().y, 0);
 		swipeInitialMapPos = int3(adventureInt->position);
 		return true;
 	}
@@ -431,10 +431,7 @@ int3 CTerrainRect::whichTileIsIt(const int x, const int y)
 
 int3 CTerrainRect::whichTileIsIt()
 {
-	if(GH.current)
-		return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
-	else
-		return int3(-1);
+	return whichTileIsIt(GH.getCursorPosition().x, GH.getCursorPosition().y);
 }
 
 int3 CTerrainRect::tileCountOnScreen()
@@ -1833,7 +1830,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, CSDL_Ext::fromSDL(GH.current->motion), ETextAlignment::CENTER);
+	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

@@ -70,26 +70,32 @@ public:
 	std::shared_ptr<IStatusBar> statusbar;
 
 private:
+	Point cursorPosition;
+
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
 	std::atomic<bool> continueEventHandling;
 	typedef std::list<CIntObject*> CIntObjectList;
 
 	//active GUI elements (listening for events
-	CIntObjectList lclickable,
-				   rclickable,
-				   mclickable,
-				   hoverable,
-				   keyinterested,
-				   motioninterested,
-	               timeinterested,
-	               wheelInterested,
-	               doubleClickInterested,
-	               textInterested;
+	CIntObjectList lclickable;
+	CIntObjectList rclickable;
+	CIntObjectList mclickable;
+	CIntObjectList hoverable;
+	CIntObjectList keyinterested;
+	CIntObjectList motioninterested;
+	CIntObjectList timeinterested;
+	CIntObjectList wheelInterested;
+	CIntObjectList doubleClickInterested;
+	CIntObjectList textInterested;
 
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
+	void handleCurrentEvent(const SDL_Event & current);
+	void handleMouseMotion(const SDL_Event & current);
+	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
+
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
@@ -98,7 +104,8 @@ public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
-	SDL_Event * current; //current event - can be set to nullptr to stop handling event
+	const Point & getCursorPosition() const;
+
 	IUpdateable *curInt;
 
 	Point lastClick;
@@ -132,9 +139,6 @@ public:
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
-	void handleCurrentEvent();
-	void handleMouseMotion();
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen

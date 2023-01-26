@@ -73,9 +73,6 @@ public:
 namespace CSDL_Ext
 {
 
-/// creates Point using provided event
-Point fromSDL(const SDL_MouseMotionEvent & motion);
-
 /// creates Rect using provided rect
 Rect fromSDL(const SDL_Rect & rect);
 
@@ -137,6 +134,7 @@ typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G,
 	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
 	Uint32 getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
+	bool isTransparent(SDL_Surface * srf, const Point &  position); //checks if surface is transparent at given position
 
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
 	TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
