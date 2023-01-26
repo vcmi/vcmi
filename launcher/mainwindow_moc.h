@@ -36,7 +36,10 @@ private:
 	
 	enum TabRows
 	{
-		MODS = 0, SETTINGS = 1, LOBBY = 2
+		MODS = 0,
+		SETTINGS = 1,
+		LOBBY = 2,
+		SETUP = 3
 	};
 
 	void changeEvent(QEvent *event) override;
@@ -57,4 +60,5 @@ private slots:
 	void on_settingsButton_clicked();
 	void on_lobbyButton_clicked();
 	void on_startEditorButton_clicked();
+	void on_setupButton_clicked();
 };

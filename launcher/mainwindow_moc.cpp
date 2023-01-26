@@ -197,3 +197,10 @@ void MainWindow::updateTranslation()
 
 #endif
 }
+
+void MainWindow::on_setupButton_clicked()
+{
+	ui->startGameButton->setEnabled(false);
+	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
+}
+

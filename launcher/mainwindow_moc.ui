@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>410</height>
+    <height>490</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -184,6 +184,52 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="setupButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Setup</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>60</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextOnly</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -316,11 +362,12 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="CModListView" name="modlistView"/>
       <widget class="CSettingsView" name="settingsView"/>
       <widget class="Lobby" name="lobbyView"/>
+      <widget class="FirstLaunchView" name="setupView"/>
      </widget>
     </item>
    </layout>
@@ -344,6 +391,12 @@
    <class>Lobby</class>
    <extends>QWidget</extends>
    <header>lobby/lobby_moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FirstLaunchView</class>
+   <extends>QWidget</extends>
+   <header>firstLaunch/firstlaunch_moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
