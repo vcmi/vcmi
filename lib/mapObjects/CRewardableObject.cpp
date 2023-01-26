@@ -538,7 +538,7 @@ void CRewardableObject::triggerReset() const
 
 void CRewardableObject::newTurn(CRandomGenerator & rand) const
 {
-	if (resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetParameters.period) == 1)
+	if (resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % resetParameters.period) == 0)
 		triggerReset();
 }
 
