@@ -597,28 +597,6 @@
 			}
 		}
 	},
-	"magicWell" : {
-		"index" :49,
-		"handler" : "magicWell",
-		"base" : {
-			"sounds" : {
-				"visit" : ["FAERIE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 250,
-				"rmg" : {
-					"zoneLimit" : 1,
-					"value"		: 250,
-					"rarity"	: 100
-				}
-			},
-			"objectWoG" : { "index" : 1} // WoG object? Present on VCMI_Test 2011b
-		}
-	},
-
 	/// Random objects
 	"randomTown"					: { "index" :77,  "handler": "randomTown", "types" : { "object" : { "index" : 0} }  },
 	"randomHero" : {

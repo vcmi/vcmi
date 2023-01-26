@@ -1523,32 +1523,6 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
-void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
-{
-	int message;
-
-	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Well today
-	{
-		message = 78;//"A second drink at the well in one day will not help you."
-	}
-	else if(h->mana < h->manaLimit())
-	{
-		giveDummyBonus(h->id);
-		cb->setManaPoints(h->id,h->manaLimit());
-		message = 77;
-	}
-	else
-	{
-		message = 79;
-	}
-	showInfoDialog(h, message);
-}
-
-std::string CGMagicWell::getHoverText(const CGHeroInstance * hero) const
-{
-	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(Bonus::OBJECT,ID));
-}
-
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;

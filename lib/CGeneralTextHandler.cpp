@@ -409,7 +409,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	hcommands        (*this, "core.hallinfo" ),
 	fcommands        (*this, "core.castinfo" ),
 	advobtxt         (*this, "core.advevent" ),
-	xtrainfo         (*this, "core.xtrainfo" ),
 	restypes         (*this, "core.restypes" ),
 	randsign         (*this, "core.randsign" ),
 	overview         (*this, "core.overview" ),
@@ -439,7 +438,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.hallinfo", "DATA/HALLINFO.TXT" );
 	readToVector("core.castinfo", "DATA/CASTINFO.TXT" );
 	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
-	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
 	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );

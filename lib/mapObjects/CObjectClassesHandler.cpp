@@ -54,7 +54,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("blackMarket", CGBlackMarket);
 	SET_HANDLER("boat", CGBoat);
-	SET_HANDLER("bonusingObject", CGBonusingObject);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
 	SET_HANDLER("monster", CGCreature);
@@ -65,15 +64,11 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("keymaster", CGKeymasterTent);
 	SET_HANDLER("lighthouse", CGLighthouse);
 	SET_HANDLER("magi", CGMagi);
-	SET_HANDLER("magicSpring", CGMagicSpring);
-	SET_HANDLER("magicWell", CGMagicWell);
 	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("observatory", CGObservatory);
-	SET_HANDLER("onceVisitable", CGOnceVisitable);
 	SET_HANDLER("pandora", CGPandoraBox);
-	SET_HANDLER("pickable", CGPickable);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);
@@ -87,8 +82,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("subterraneanGate", CGSubterraneanGate);
 	SET_HANDLER("whirlpool", CGWhirlpool);
 	SET_HANDLER("university", CGUniversity);
-	SET_HANDLER("oncePerHero", CGVisitableOPH);
-	SET_HANDLER("oncePerWeek", CGVisitableOPW);
 	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
 

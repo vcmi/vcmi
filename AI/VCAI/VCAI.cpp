@@ -29,12 +29,6 @@
 
 extern FuzzyHelper * fh;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CGVisitableOPW;
-
-VCMI_LIB_NAMESPACE_END
-
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
@@ -1606,12 +1600,19 @@ void VCAI::markObjectVisited(const CGObjectInstance * obj)
 {
 	if(!obj)
 		return;
-	if(dynamic_cast<const CGVisitableOPH *>(obj)) //we may want to visit it with another hero
-		return;
-	if(dynamic_cast<const CGBonusingObject *>(obj)) //or another time
-		return;
+
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj)) //we may want to visit it with another hero
+	{
+		if (rewardable->getVisitMode() == CRewardableObject::VISIT_HERO) //we may want to visit it with another hero
+			return;
+
+		if (rewardable->getVisitMode() == CRewardableObject::VISIT_BONUS) //or another time
+			return;
+	}
+
 	if(obj->ID == Obj::MONSTER)
 		return;
+
 	alreadyVisited.insert(obj);
 }
 
@@ -2742,8 +2743,9 @@ bool AIStatus::channelProbing()
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
 	//TODO: allow polling of remaining creatures in dwelling
-	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
-		return true;
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
+		return rewardable->getResetDuration() == 7;
+
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
 	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods

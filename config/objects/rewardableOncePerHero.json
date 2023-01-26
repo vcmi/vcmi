@@ -1,0 +1,364 @@
+{
+	/// These are objects that covered by concept of "configurable object" and have their entire configuration in this config
+
+	"arena" : {
+		"index" : 4,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPAREN"],
+				"visit" : ["NOMAD"]
+			}
+		},
+		"types" : {
+			"arena" : {
+				"index" : 0,
+				"aiValue" : 3000,
+				"rmg" : {
+					"value"		: 3000,
+					"rarity"	: 50
+				},
+				
+				"onSelectMessage" : 0,
+				"onVisitedMessage" : 1,
+				"visitMode" : "hero",
+				"selectMode" : "selectPlayer",
+				"rewards" : [
+					{
+						"primary" : { "attack" : 2 }
+					},
+					{
+						"primary" : { "defence" : 2 }
+					}
+				]
+			}
+		}
+	},
+	"marlettoTower" : {
+		"index" : 23,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSWAR"],
+				"visit" : ["NOMAD"]
+			}
+		},
+		"types" : {
+			"marlettoTower" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				},
+
+				"onVisitedMessage" : 40,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 39,
+						"primary" : { "defence" : 1 }
+					}
+				]
+			}
+		}
+	},
+	"gardenOfRevelation" : {
+		"index" : 32,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPGARD"],
+				"visit" : ["GETPROTECTION"]
+			}
+		},
+		"types" : {
+			"gardenOfRevelation" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				},
+				
+				"onVisitedMessage" : 60,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 59,
+						"primary" : { "knowledge" : 1 }
+					}
+				]
+			}
+		}
+	},
+	"libraryOfEnlightenment" : {
+		"index" : 41,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"]
+			}
+		},
+		"types" : {
+			"libraryOfEnlightenment" : {
+				"index" : 0,
+				"aiValue" : 12000,
+				"rmg" : {
+					"value"		: 12000,
+					"rarity"	: 20
+				},
+				
+				"onVisitedMessage" : 67,
+				"onEmptyMessage" : 68,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : {
+							"anyOf" : [
+								{ "heroLevel" : 10 },
+								{ "heroLevel" :  8, "secondary" : { "diplomacy" : 1 } },
+								{ "heroLevel" :  6, "secondary" : { "diplomacy" : 2 } },
+								{ "heroLevel" :  4, "secondary" : { "diplomacy" : 3 } }
+							]
+						},
+						"message" : 59,
+						"primary" : { 
+							"attack" : 2,
+							"defence" : 2,
+							"spellpower" : 2,
+							"knowledge" : 2
+						}
+					}
+				]
+			}
+		}
+	},
+	"mercenaryCamp" : {
+		"index" : 51,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMERC"],
+				"visit" : ["NOMAD"]
+			}
+		},
+		"types" : {
+			"mercenaryCamp" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				},
+			
+				"onVisitedMessage" : 81,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 80,
+						"primary" : { "attack" : 1 }
+					}
+				]
+			}
+		}
+	},
+	"starAxis" :{
+		"index" : 61,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSTAR"],
+				"visit" : ["GAZEBO"]
+			}
+		},
+		"types" : {
+			"starAxis" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				},
+				
+				"onVisitedMessage" : 101,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 100,
+						"primary" : { "spellpower" : 1 }
+					}
+				]
+			}
+		}
+	},
+	"treeOfKnowledge" : {
+		"index" : 102,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"]
+			}
+		},
+		"types" : {
+			"treeOfKnowledge" : {
+				"index" : 0,
+				"aiValue" : 2500,
+				"rmg" : {
+					"mapLimit"	: 100,
+					"value"		: 2500,
+					"rarity"	: 50
+				},
+
+				"onEmpty" : [
+					{
+						"message" : 150,
+						"appearChance" : { "min" : 34, "max" : 67 }
+					},
+					{
+						"message" : 152,
+						"appearChance" : { "min" : 67, "max" : 67 }
+					}
+				],
+				"onVisitedMessage" : 147,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"message" : 148,
+						"appearChance" : { "max" : 34 },
+						"gainedLevels" : 1
+					},
+					{
+						"message" : 149,
+						"appearChance" : { "min" : 34, "max" : 67 },
+						"limiter" : { "resources" : { "gold" : 2000 } },
+						"resources" : { "gold" : -2000 },
+						"gainedLevels" : 1
+					},
+					{
+						"message" : 151,
+						"appearChance" : { "min" : 67 },
+						"limiter" : { "resources" : { "gems" : 10 } },
+						"resources" : { "gems" : -10 },
+						"gainedLevels" : 1
+					},
+				]	
+			}
+		}
+	},
+	"schoolOfMagic" : {
+		"index" : 47,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMAGI"],
+				"visit" : ["FAERIE"]
+			}
+		},
+		"types" : {
+			"schoolOfMagic" : {
+				"index" : 0,
+				"aiValue" : 1000,
+				"rmg" : {
+					"value"		: 1000,
+					"rarity"	: 50
+				},
+				
+				"onSelectMessage" : 71,
+				"onVisitedMessage" : 72,
+				"onEmptyMessage" : 73,
+				"visitMode" : "hero",
+				"selectMode" : "selectPlayer",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"resources" : { "gold" : -1000 },
+						"primary" : { "spellpower" : 1 }
+					},
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"resources" : { "gold" : -1000 },
+						"primary" : { "knowledge" : 1 }
+					}
+				]
+			}
+		}
+	},
+	"schoolOfWar" : {
+		"index" : 107,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSWAR"],
+				"visit" : ["MILITARY"]
+			}
+		},
+		"types" : {
+			"schoolOfWar" : {
+				"index" : 0,
+				"aiValue" : 1000,
+				"rmg" : {
+					"value"		: 1000,
+					"rarity"	: 50
+				},
+
+				"onSelectMessage" : 158,
+				"onVisitedMessage" : 159,
+				"onEmptyMessage" : 160,
+				"visitMode" : "hero",
+				"selectMode" : "selectPlayer",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"resources" : { "gold" : -1000 },
+						"primary" : { "attack" : 1 }
+					},
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"resources" : { "gold" : -1000 },
+						"primary" : { "defence" : 1 }
+					}
+				]	
+			}
+		}
+	},
+	"learningStone" : {
+		"index" : 100,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPLEAR"],
+				"visit" : ["GAZEBO"]
+			}
+		},
+		"types" : {
+			"learningStone" : { 
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 200
+				},
+
+				"onVisitedMessage" : 144,
+				"visitMode" : "hero",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 143,
+						"heroExperience" : 1000
+					}
+				]
+			}
+		}
+	},
+}

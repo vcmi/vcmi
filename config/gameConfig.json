@@ -51,7 +51,11 @@
 		"config/objects/moddables.json",
 		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
-		"config/objects/rewardable.json"
+		"config/objects/rewardableOncePerWeek.json",
+		"config/objects/rewardablePickable.json",
+		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/rewardableOncePerHero.json",
+		"config/objects/rewardableBonusing.json"
 	],
 
 	"artifacts" :

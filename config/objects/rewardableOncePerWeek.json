@@ -1,0 +1,199 @@
+{
+	/// These are objects that covered by concept of "configurable object" and have their entire configuration in this config
+	"magicWell" : {
+		"index" :49,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["FAERIE"]
+			}
+		},
+		"types" : {
+			"magicWell" : {
+				"index" : 0,
+				"aiValue" : 250,
+				"rmg" : {
+					"zoneLimit" : 1,
+					"value"		: 250,
+					"rarity"	: 100
+				},
+				
+				"onEmptyMessage" : 79,
+				"onVisitedMessage" : 78,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : {
+							"noneOf" : [ { "manaPercentage" : 100 } ]
+						},
+						"bonuses" : [ { "type" : "NONE", "duration" : "ONE_DAY"} ],
+						"message" : 77,
+						"manaPercentage" : 100
+					}
+				]	
+			},
+		}
+	},
+	"magicSpring" : {
+		"index" : 48,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFOUN"],
+				"visit" : ["FAERIE"]
+			}
+		},
+		"types" : {
+			"magicSpring" : {
+				"index" : 0,
+				"aiValue" : 500,
+				//banned due to problems with 2 viistable offsets
+				//"rmg" : {
+				//	"zoneLimit"	: 1,
+				//	"value"		: 500,
+				//	"rarity"	: 50
+				//},
+				
+				"onEmptyMessage" : 76,
+				"onVisitedMessage" : 75,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : {
+							"noneOf" : [ { "manaPercentage" : 200 } ]
+						},
+						"message" : 74,
+						"manaPercentage" : 200
+					}
+				]				
+			}
+		}
+	},
+	"mysticalGarden" : {
+		"index" : 55,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPLEPR"],
+				"visit" : ["EXPERNCE"]
+			}
+		},
+		"types" : {
+			"mysticalGarden" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"value"		: 500,
+					"rarity"	: 50
+				},
+				
+				"onVisitedMessage" : 93,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true,
+					"rewards" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 92,
+						"appearChance" : { "max" : 50 },
+						"resources" : { "gems" : 5 }
+					},
+					{
+						"message" : 92,
+						"appearChance" : { "min" : 50 },
+						"resources" : { "gold" : 500 }
+					}
+				]
+			}
+		}
+	},
+	"windmill" :{
+		"index" : 112,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPWIND"],
+				"visit" : ["GENIE"]
+			}
+		},
+		"types" : {
+			"windmill" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 80
+				},
+				
+				"onVisitedMessage" : 169,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true,
+					"rewards" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 170,
+						"resources" : [
+							{
+								"list" : [ "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"min" : 3,
+								"max" : 6
+							}
+						]
+					}
+				]
+			}
+		}
+	},
+	"waterWheel" : {
+		"index" : 109,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMILL"],
+				"visit" : ["GENIE"]
+			}
+		},
+		"types" : {
+			"waterWheel" : {
+				"index" : 0,
+				"aiValue" : 750,
+				"rmg" : {
+					"value"		: 750,
+					"rarity"	: 50
+				},
+				
+				"onVisitedMessage" : 165,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : { "daysPassed" : 8 },
+						"message" : 164,
+						"resources" : { "gold" : 1000 }
+					},
+					{
+						"message" : 164,
+						"resources" : { "gold" : 500 }
+					}
+				]
+			}
+		}
+	}
+}

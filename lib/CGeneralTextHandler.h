@@ -212,7 +212,6 @@ public:
 
 	//objects
 	LegacyTextContainer advobtxt;
-	LegacyTextContainer xtrainfo;
 	LegacyTextContainer restypes; //names of resources
 	LegacyTextContainer randsign;
 	LegacyTextContainer seerEmpty;
