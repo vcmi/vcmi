@@ -77,7 +77,11 @@ void ProjectileAnimatedMissile::show(Canvas & canvas)
 
 void ProjectileCatapult::show(Canvas & canvas)
 {
-	auto image = animation->getImage(frameNum, 0, true);
+	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+	int frameCounter = std::floor(frameProgress);
+	int frameIndex = (frameCounter + 1) % animation->size(0);
+
+	auto image = animation->getImage(frameIndex, 0, true);
 
 	if(image)
 	{
@@ -86,8 +90,6 @@ void ProjectileCatapult::show(Canvas & canvas)
 		Point pos(posX, posY);
 
 		canvas.draw(image, pos);
-
-		frameNum = (frameNum + 1) % animation->size(0);
 	}
 
 	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
@@ -294,13 +296,13 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 	auto catapultProjectile       = new ProjectileCatapult();
 
 	catapultProjectile->animation = getProjectileImage(shooter);
-	catapultProjectile->frameNum  = 0;
 	catapultProjectile->progress  = 0;
 	catapultProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
 	catapultProjectile->from      = from;
 	catapultProjectile->dest      = dest;
 	catapultProjectile->shooterID = shooter->ID;
 	catapultProjectile->playing   = false;
+	catapultProjectile->frameProgress = 0.f;
 
 	projectiles.push_back(std::shared_ptr<ProjectileBase>(catapultProjectile));
 }
@@ -321,6 +323,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		projectile.reset(rayProjectile);
 
 		rayProjectile->rayConfig = shooterInfo.animation.projectileRay;
+		rayProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getRayProjectileSpeed());
 	}
 	else if (stackUsesMissileProjectile(shooter))
 	{
@@ -328,11 +331,12 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		projectile.reset(missileProjectile);
 
 		missileProjectile->animation = getProjectileImage(shooter);
-		missileProjectile->reverse  = !owner.stacksController->facingRight(shooter);
-		missileProjectile->frameNum = computeProjectileFrameID(from, dest, shooter);
+		missileProjectile->reverse   = !owner.stacksController->facingRight(shooter);
+		missileProjectile->frameNum  = computeProjectileFrameID(from, dest, shooter);
+		missileProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 	}
 
-	projectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
+
 	projectile->from      = from;
 	projectile->dest      = dest;
 	projectile->shooterID = shooter->ID;

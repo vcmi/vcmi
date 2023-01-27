@@ -851,7 +851,7 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.walkAnimationTime = animationTime["walk"].Float();
 	cre->animation.idleAnimationTime = animationTime["idle"].Float();
 	cre->animation.attackAnimationTime = animationTime["attack"].Float();
-	cre->animation.flightAnimationDistance = animationTime["flight"].Float(); //?
+	cre->animation.missileVelocityFactor = animationTime["missile"].Float();
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];

@@ -521,7 +521,7 @@ void BattleInterface::displaySpellHit(const CSpell * spell, BattleHex destinatio
 void BattleInterface::setAnimSpeed(int set)
 {
 	Settings speed = settings.write["battle"]["animationSpeed"];
-	speed->Float() = float(set) / 100;
+	speed->Float() = float(set);
 }
 
 int BattleInterface::getAnimSpeed() const

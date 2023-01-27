@@ -438,13 +438,13 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
-	animSpeeds->addToggle(40, toggle);
+	animSpeeds->addToggle(1, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point( 92, 225), "sysob10.def", CGI->generaltexth->zelp[423]);
-	animSpeeds->addToggle(63, toggle);
+	animSpeeds->addToggle(2, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
-	animSpeeds->addToggle(100, toggle);
+	animSpeeds->addToggle(3, toggle);
 
 	animSpeeds->setSelected(owner.getAnimSpeed());
 

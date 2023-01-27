@@ -73,7 +73,7 @@ public:
 		};
 
 		double timeBetweenFidgets, idleAnimationTime,
-			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+			   walkAnimationTime, attackAnimationTime, missileVelocityFactor;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
@@ -90,7 +90,7 @@ public:
 			h & idleAnimationTime;
 			h & walkAnimationTime;
 			h & attackAnimationTime;
-			h & flightAnimationDistance;
+			h & missileVelocityFactor;
 			h & upperRightMissleOffsetX;
 			h & rightMissleOffsetX;
 			h & lowerRightMissleOffsetX;

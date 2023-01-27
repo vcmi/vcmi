@@ -31,19 +31,22 @@ namespace AnimationControls
 	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
 	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType groupID);
 
-	/// returns how far projectile should move per second
+	/// returns how far projectile should move per second, in pixels per second
 	float getProjectileSpeed();
 
-	/// returns speed of catapult projectile, in pixels per second (horizontal axis only)
+	/// returns how far projectile should move per second, in pixels per second
+	float getRayProjectileSpeed();
+
+	/// returns speed of catapult projectile, in pixels per second, on a straight line, without parabola correction
 	float getCatapultSpeed();
 
 	/// returns speed of any spell effects, including any special effects like morale (in frames per second)
 	float getSpellEffectSpeed();
 
-	/// returns duration of full movement animation, in seconds. Needed to move animation on screen
-	float getMovementDuration(const CCreature * creature);
+	/// returns speed of movement animation across the screen, in tiles per second
+	float getMovementDistance(const CCreature * creature);
 
-	/// Returns distance on which flying creatures should during one animation loop
+	/// returns speed of movement animation across the screen, in pixels per seconds
 	float getFlightDistance(const CCreature * creature);
 
 	/// Returns total time for full fade-in effect on newly summoned creatures, in seconds
