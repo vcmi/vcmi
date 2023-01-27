@@ -74,20 +74,20 @@
 * Lodestar Grail implemented
 * Fixed Gargoyles immunity
 * New bonuses:
-** SOUL_STEAL - "WoG ghost" ability, should work somewhat same as in H3
-** TRANSMUTATION - "WoG werewolf"-like ability
-** SUMMON_GUARDIANS - "WoG santa gremlin"-like ability + two-hex unit extension
-** CATAPULT_EXTRA_SHOTS - defines number of extra wall attacks for units that can do so
-** RANGED_RETALIATION - allows ranged counterattack
-** BLOCKS_RANGED_RETALIATION - disallow enemy ranged counterattack
-** SECONDARY_SKILL_VAL2 - set additional parameter for certain secondary skills
-** MANUAL_CONTROL - grant manual control over war machine
-** WIDE_BREATH - melee creature attacks affect many nearby hexes
-** FIRST_STRIKE - creature counterattacks before attack if possible
-** SYNERGY_TARGET - placeholder bonus for Mod Design Team (subject to removal in future)
-** SHOOTS_ALL_ADJACENT - makes creature shots affect all neighbouring hexes
-** BLOCK_MAGIC_BELOW - allows blocking spells below particular spell level. HotA cape artifact can be implemented with this
-** DESTRUCTION - creature ability for killing extra units after hit, configurable
+* * SOUL_STEAL - "WoG ghost" ability, should work somewhat same as in H3
+* * TRANSMUTATION - "WoG werewolf"-like ability
+* * SUMMON_GUARDIANS - "WoG santa gremlin"-like ability + two-hex unit extension
+* * CATAPULT_EXTRA_SHOTS - defines number of extra wall attacks for units that can do so
+* * RANGED_RETALIATION - allows ranged counterattack
+* * BLOCKS_RANGED_RETALIATION - disallow enemy ranged counterattack
+* * SECONDARY_SKILL_VAL2 - set additional parameter for certain secondary skills
+* * MANUAL_CONTROL - grant manual control over war machine
+* * WIDE_BREATH - melee creature attacks affect many nearby hexes
+* * FIRST_STRIKE - creature counterattacks before attack if possible
+* * SYNERGY_TARGET - placeholder bonus for Mod Design Team (subject to removal in future)
+* * SHOOTS_ALL_ADJACENT - makes creature shots affect all neighbouring hexes
+* * BLOCK_MAGIC_BELOW - allows blocking spells below particular spell level. HotA cape artifact can be implemented with this
+* * DESTRUCTION - creature ability for killing extra units after hit, configurable
 
 ### MULTIPLAYER:
 * Loading support. Save from single client could be used to load all clients.
@@ -106,13 +106,13 @@
 * Added bonus limiters: alignment, faction and terrain
 * Supported new terrains, new battlefields, custom water and rock terrains
 * Following special buildings becomes available in the fan towns:
-** attackVisitingBonus
-** defenceVisitingBonus
-** spellPowerVisitingBonus
-** knowledgeVisitingBonus
-** experienceVisitingBonus
-** lighthouse
-** treasury
+* * attackVisitingBonus
+* * defenceVisitingBonus
+* * spellPowerVisitingBonus
+* * knowledgeVisitingBonus
+* * experienceVisitingBonus
+* * lighthouse
+* * treasury
 
 ### SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
@@ -159,16 +159,16 @@
 * Nomads will remove Sand movement penalty from army
 * Flying and water walking is now supported in pathfinder
 * New artifacts supported
-** Angel Wings
-** Boots of Levitation
+* * Angel Wings
+* * Boots of Levitation
 * Implemented rumors in tavern window
 * New cheat codes:
-** vcmiglaurung - gives 5000 crystal dragons into each slot
-** vcmiungoliant - conceal fog of war for current player
+* * vcmiglaurung - gives 5000 crystal dragons into each slot
+* * vcmiungoliant - conceal fog of war for current player
 * New console commands:
-** gosolo - AI take control over human players and vice versa
-** controlai - give control of one or all AIs to player
-** set hideSystemMessages on/off - supress server messages in chat
+* * gosolo - AI take control over human players and vice versa
+* * controlai - give control of one or all AIs to player
+* * set hideSystemMessages on/off - supress server messages in chat
 
 ### BATTLES:
 * Drawbridge mechanics implemented (animation still missing)
@@ -205,11 +205,11 @@
 
 ### SPELLS:
 * New spells handled:
-** Earthquake
-** View Air
-** View Earth
-** Visions
-** Disguise
+* * Earthquake
+* * View Air
+* * View Earth
+* * Visions
+* * Disguise
 * Implemented CURE spell negative dispell effect
 * Added LOCATION target for spells castable on any hex with new target modifiers
 
@@ -230,11 +230,11 @@
 * (windows) (OSX) Moved VCMI save directory from 'VCMI_DATA\Games' to 'VCMI_DATA\Saves'
 * (linux)
 * Changes in used librries:
-** VCMI can now be compiled with SDL2
-** Movies will use ffmpeg library
-** change boost::bind to std::bind 
-** removed boost::asign 
-** Updated FuzzyLite to 5.0 
+* * VCMI can now be compiled with SDL2
+* * Movies will use ffmpeg library
+* * change boost::bind to std::bind 
+* * removed boost::asign 
+* * Updated FuzzyLite to 5.0 
 * Multiplayer load support was implemented through command-line options
 
 ### ADVENTURE AI:
@@ -409,8 +409,8 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * VCMI will not crash if building selection area is smaller than def
 * Detection of transparency on selection area is closer to H3
 * Improved handling buildings with mode "auto":
-** they will be properly processed (new creatures will be added if dwelling, spells learned if mage guild, and so on)
-** transitive dependencies are handled (A makes B build, and B makes C and D)
+* * they will be properly processed (new creatures will be added if dwelling, spells learned if mage guild, and so on)
+* * transitive dependencies are handled (A makes B build, and B makes C and D)
 
 ### SOUND:
 * Added missing WoG creature sounds (from Kuririn).
@@ -440,10 +440,10 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Stack can use more than 2 attacks. Additional attacks can now be separated as "ONLY_MELEE_FIGHT and "ONLY_DISTANCE_FIGHT".
 * Moat damage configurable
 * More config options for spells:
-** mind immunity handled by config
-** direct damage immunity handled by config
-** immunity icon configurable
-** removed mind_spell flag 
+* * mind immunity handled by config
+* * direct damage immunity handled by config
+* * immunity icon configurable
+* * removed mind_spell flag 
 * creature config use string ids now. 
 * support for string subtype id in short bonus format
 * primary skill identifiers for bonuses
@@ -460,14 +460,14 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Simplified mod structure. Mods from 0.9 will not be compatible.
 * Mods can be turned on and off in config/modSettings.json file
 * Support for new factions, including:
-** New towns
-** New hero classes
-** New heroes
-** New town-related external dwellings
+* * New towns
+* * New hero classes
+* * New heroes
+* * New town-related external dwellings
 * Support for new artifact, including combined, commander and stack artifacts
 * Extended configuration options
-** All game objects are referenced by string identifiers
-** Subtype resolution for bonuses
+* * All game objects are referenced by string identifiers
+* * Subtype resolution for bonuses
 
 ### BATTLES:
 * Support for "enchanted" WoG ability
@@ -547,12 +547,12 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Fixed and simplified Teleport casting
 * Fixed Remove Obstacle spell
 * New spells supported:
-** Chain Lightning
-** Fire Wall
-** Force Field
-** Land Mine
-** Quicksands
-** Sacrifice
+* * Chain Lightning
+* * Fire Wall
+* * Force Field
+* * Land Mine
+* * Quicksands
+* * Sacrifice
 
 ### TOWNS:
 * T in castle window will open a tavern window (if available)
@@ -592,17 +592,17 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 ### BATTLES:
 * All attacked hexes will be highlighted
 * New combat abilities supported:
-** Spell Resistance aura
-** Random spellcaster (Genies)
-** Mana channeling
-** Daemon summoning
-** Spellcaster (Archangel Ogre Mage, Elementals, Faerie Dragon)
-** Fear
-** Fearless
-** No wall penalty
-** Enchanter
-** Bind
-** Dispell helpful spells
+* * Spell Resistance aura
+* * Random spellcaster (Genies)
+* * Mana channeling
+* * Daemon summoning
+* * Spellcaster (Archangel Ogre Mage, Elementals, Faerie Dragon)
+* * Fear
+* * Fearless
+* * No wall penalty
+* * Enchanter
+* * Bind
+* * Dispell helpful spells
 
 # 0.85 -> 0.86 (Sep 01 2011)
 
@@ -612,28 +612,28 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * converted many config files to JSON
 * .tga file support
 * New artifacts supported
-** Admiral's Hat
-** Statue of Legion
-** Titan's Thunder
+* * Admiral's Hat
+* * Statue of Legion
+* * Titan's Thunder
 
 ### BATTLES:
 * Correct handling of siege obstacles
 * Catapult animation
 * New combat abilities supported
-** Dragon Breath
-** Three-headed Attack
-** Attack all around
-** Death Cloud / Fireball area attack
-** Death Blow
-** Lightning Strike
-** Rebirth
+* * Dragon Breath
+* * Three-headed Attack
+* * Attack all around
+* * Death Cloud / Fireball area attack
+* * Death Blow
+* * Lightning Strike
+* * Rebirth
 * New WoG abilities supported
-** Defense Bonus
-** Cast before attack
-** Immunity to direct damage spells
+* * Defense Bonus
+* * Cast before attack
+* * Immunity to direct damage spells
 * New spells supported
-** Magic Mirror
-** Titan's Lightning Bolt
+* * Magic Mirror
+* * Titan's Lightning Bolt
 
 # 0.84 -> 0.85 (Jun 01 2011)
 
@@ -641,9 +641,9 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Support for stack experience
 * Implemented original campaign selection screens
 * New artifacts supported:
-** Statesman's Medal
-** Diplomat's Ring
-** Ambassador's Sash
+* * Statesman's Medal
+* * Diplomat's Ring
+* * Ambassador's Sash
 
 ### TOWNS:
 * Implemented animation for new town buildings
@@ -661,11 +661,11 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Bonus system has been rewritten
 * Partial support for running VCMI in duel mode (no adventure map, only one battle, ATM only AI-AI battles)
 * New artifacts supported:
-** Angellic Alliance
-** Bird of Perception
-** Emblem of Cognizance
-** Spell Scroll
-** Stoic Watchman
+* * Angellic Alliance
+* * Bird of Perception
+* * Emblem of Cognizance
+* * Spell Scroll
+* * Stoic Watchman
 
 ### BATTLES:
 * Better animations handling
@@ -673,9 +673,9 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 
 ### HERO:
 * New secondary skills supported:
-** Artillery
-** Eagle Eye
-** Tactics
+* * Artillery
+* * Eagle Eye
+* * Tactics
 
 ### AI PLAYER:
 * new AI leading neutral creatures in combat, slightly better then previous
@@ -688,8 +688,8 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Mostly done pregame for MP games (temporarily only for local clients)
 * Support for 16bpp displays
 * Campaigns:
-** support for building bonus
-** moving to next map after victory
+* * support for building bonus
+* * moving to next map after victory
 * Town Portal supported
 * Vial of Dragon Blood and Statue of Legion supported
 
@@ -709,8 +709,8 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Some of the starting bonuses in campaigns are supported
 * It's possible to select difficulty level of mission in campaign
 * new cheat codes:
-** vcmisilmaril - player wins
-** vcmimelkor - player loses
+* * vcmisilmaril - player wins
+* * vcmimelkor - player loses
 
 ### ADVENTURE MAP:
 * Neutral armies growth implemented (10% weekly)
@@ -720,36 +720,36 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 ### HERO:
 * Learning secondary skill supported.
 * Most of hero specialities are supported, including:
-** Creature specialities (progressive, fixed, Sir Mullich)
-** Spell damage specialities (Deemer), fixed bonus (Ciele)
-** Secondary skill bonuses
-** Creature Upgrades (Gelu)
-** Resorce generation
-** Starting Skill (Adrienne)
+* * Creature specialities (progressive, fixed, Sir Mullich)
+* * Spell damage specialities (Deemer), fixed bonus (Ciele)
+* * Secondary skill bonuses
+* * Creature Upgrades (Gelu)
+* * Resorce generation
+* * Starting Skill (Adrienne)
 
 ### TOWNS:
 * Support for new town structures:
-** Artifact Merchant
-** Aurora Borealis
-** Castle Gates
-** Magic University
-** Portal of Summoning 
-** Skeleton transformer
-** Veil of Darkness
+* * Artifact Merchant
+* * Aurora Borealis
+* * Castle Gates
+* * Magic University
+* * Portal of Summoning 
+* * Skeleton transformer
+* * Veil of Darkness
 
 ### OBJECTS:
 * Stables will now upgrade Cavaliers to Champions.
 * New object supported:
-** Abandoned Mine
-** Altar of Sacrifice
-** Black Market
-** Cover of Darkness
-** Hill Fort
-** Refugee Camp
-** Sanctuary
-** Tavern
-** University
-** Whirlpool
+* * Abandoned Mine
+* * Altar of Sacrifice
+* * Black Market
+* * Cover of Darkness
+* * Hill Fort
+* * Refugee Camp
+* * Sanctuary
+* * Tavern
+* * University
+* * Whirlpool
 
 # 0.8 -> 0.81 (Jun 01 2010)
 
@@ -757,23 +757,23 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * It's possible to start campaign
 * Support for build grail victory condition
 * New artifacts supported:
-** Angel's Wings
-** Boots of levitation
-** Orb of Vulnerability
-** Ammo cart
-** Golden Bow
-** Hourglass of Evil Hour
-** Bow of Sharpshooter
-** Armor of the Damned
+* * Angel's Wings
+* * Boots of levitation
+* * Orb of Vulnerability
+* * Ammo cart
+* * Golden Bow
+* * Hourglass of Evil Hour
+* * Bow of Sharpshooter
+* * Armor of the Damned
 
 ### ADVENTURE MAP:
 * Creatures now guard surrounding tiles
 * New adventura map spells supported:
-** Summon Boat
-** Scuttle Boat 
-** Dimension Door
-** Fly
-** Water walk
+* * Summon Boat
+* * Scuttle Boat 
+* * Dimension Door
+* * Fly
+* * Water walk
 
 ### BATTLES:
 * A number of new creature abilities supported
@@ -790,18 +790,18 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 ### TOWNS:
 * Sending resources to other players by marketplace
 * Support for new town structures:
-** Lighthouse
-** Colossus
-** Freelancer's Guild
-** Guardian Spirit
-** Necromancy Amplifier
-** Soul Prison
+* * Lighthouse
+* * Colossus
+* * Freelancer's Guild
+* * Guardian Spirit
+* * Necromancy Amplifier
+* * Soul Prison
 
 ### OBJECTS:
 * New object supported:
-** Freelancer's Guild
-** Trading Post
-** War Machine Factory
+* * Freelancer's Guild
+* * Trading Post
+* * War Machine Factory
 
 # 0.75 -> 0.8 (Mar 01 2010)
 
@@ -827,24 +827,24 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 
 ### TOWNS:
 * new town structures supported:
-** Ballista Yard
-** Blood Obelisk
-** Brimstone Clouds
-** Dwarven Treasury
-** Fountain of Fortune
-** Glyphs of Fear
-** Mystic Pond
-** Thieves Guild
-** Special Grail functionalities for Dungeon, Stronghold and Fortress
+* * Ballista Yard
+* * Blood Obelisk
+* * Brimstone Clouds
+* * Dwarven Treasury
+* * Fountain of Fortune
+* * Glyphs of Fear
+* * Mystic Pond
+* * Thieves Guild
+* * Special Grail functionalities for Dungeon, Stronghold and Fortress
 
 ### OBJECTS:
 * New objects supported:
-** Border gate
-** Den of Thieves
-** Lighthouse
-** Obelisk
-** Quest Guard
-** Seer hut
+* * Border gate
+* * Den of Thieves
+* * Lighthouse
+* * Obelisk
+* * Quest Guard
+* * Seer hut
 
 A lot of of various bugfixes and improvements:
 http://bugs.vcmi.eu/changelog_page.php?version_id=14
@@ -867,11 +867,11 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=14
 
 ### TOWNS:
 * new special town structures supported:
-** Academy of Battle Scholars
-** Cage of Warlords
-** Mana Vortex
-** Stables
-** Skyship (revealing entire map only)
+* * Academy of Battle Scholars
+* * Cage of Warlords
+* * Mana Vortex
+* * Stables
+* * Skyship (revealing entire map only)
 
 ### OBJECTS:
 * External dwellings increase town growth
@@ -922,19 +922,19 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * obstacles and units should be printed in better order (not tested)
 * fixed armageddon animation
 * new spells supported:
-** Anti-Magic
-** Cure
-** Resurrection 
-** Animate Dead 
-** Counterstrike 
-** Berserk 
-** Hypnotize 
-** Blind 
-** Fire Elemental 
-** Earth Elemental 
-** Water Elemental 
-** Air Elemental 
-** Remove obstacle
+* * Anti-Magic
+* * Cure
+* * Resurrection 
+* * Animate Dead 
+* * Counterstrike 
+* * Berserk 
+* * Hypnotize 
+* * Blind 
+* * Fire Elemental 
+* * Earth Elemental 
+* * Water Elemental 
+* * Air Elemental 
+* * Remove obstacle
 
 ### TOWNS:
 * enemy castle can be taken over
@@ -943,10 +943,10 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * heroes available in tavern should be always different
 * ship bought in town will be correctly placed
 * new special town structures supported:
-** Lookout Tower
-** Temple of Valhalla
-** Wall of Knowledge
-** Order of Fire
+* * Lookout Tower
+* * Temple of Valhalla
+* * Wall of Knowledge
+* * Order of Fire
 
 ### HERO WINDOW:
 * war machines cannot be unequiped
@@ -961,14 +961,14 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 ### OBJECTS:
 * fixed pairing Subterranean Gates
 * New objects supported:
-** Borderguard & Keymaster Tent
-** Cartographer
-** Creature banks
-** Eye of the Magi & Hut of the Magi
-** Garrison
-** Stables
-** Pandora Box
-** Pyramid
+* * Borderguard & Keymaster Tent
+* * Cartographer
+* * Creature banks
+* * Eye of the Magi & Hut of the Magi
+* * Garrison
+* * Stables
+* * Pandora Box
+* * Pyramid
 
 # 0.72 -> 0.73 (Aug 01 2009)
 
@@ -1010,15 +1010,15 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * non-living and undead creatures have now always 0 morale
 * displaying luck effect animation
 * support for battleground overlays:
-** cursed ground
-** magic plains
-** fiery fields
-** rock lands
-** magic clouds
-** lucid pools
-** holy ground
-** clover field
-** evil fog
+* * cursed ground
+* * magic plains
+* * fiery fields
+* * rock lands
+* * magic clouds
+* * lucid pools
+* * holy ground
+* * clover field
+* * evil fog
 
 ### TOWNS:
 * fixes for horde buildings
@@ -1040,15 +1040,15 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * fixed crash with flaggable building next to map edge
 * fixed some descriptions for events
 * New objects supported:
-** Buoy
-** Creature Generators
-** Flotsam
-** Mermaid
-** Ocean bottle
-** Sea Chest 
-** Shipwreck Survivor
-** Shipyard
-** Sirens 
+* * Buoy
+* * Creature Generators
+* * Flotsam
+* * Mermaid
+* * Ocean bottle
+* * Sea Chest 
+* * Shipwreck Survivor
+* * Shipyard
+* * Sirens 
 
 # 0.71 -> 0.72 (Jun 1 2009)
 
@@ -1086,21 +1086,21 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * canceling of casting a spell by pressing Escape or R-click (R-click on a creatures does not cancel a spell)
 * spellbook cannot be opened by L-click on hero in battle when it shouldn't be possible
 * new spells:
-** frost ring
-** fireball
-** inferno
-** meteor shower
-** death ripple
-** destroy undead
-** dispel
-** armageddon
-** disrupting ray
-** protection from air
-** protection from fire
-** protection from water
-** protection from earth
-** precision
-** slayer
+* * frost ring
+* * fireball
+* * inferno
+* * meteor shower
+* * death ripple
+* * destroy undead
+* * dispel
+* * armageddon
+* * disrupting ray
+* * protection from air
+* * protection from fire
+* * protection from water
+* * protection from earth
+* * precision
+* * slayer
 
 ### TOWNS:
 * resting in town with mage guild will replenih all the mana points
@@ -1194,10 +1194,10 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * blocked "save" command during battle 
 * spellbook displays only spells known by Hero
 * New spells supported:
-** Mirth
-** Sorrow
-** Fortune
-** Misfortune
+* * Mirth
+* * Sorrow
+* * Fortune
+* * Misfortune
 
 ### TOWN INTERFACE:
 * cannot build more than one capitol
@@ -1221,20 +1221,20 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * windmill gives 500 gold only during first week ever (not every month)
 * After the first visit to the Witch Hut, right-click/hover tip mentions the skill available. 
 * New objects supported:
-** Prison
-** Magic Well
-** Faerie Ring
-** Swan Pond
-** Idol of Fortune
-** Fountain of Fortune
-** Rally Flag
-** Oasis
-** Temple
-** Watering Hole
-** Fountain of Youth
-** support for Redwood Observatory
-** support for Shrine of Magic Incantation / Gesture / Thought
-** support for Sign / Ocean Bottle
+* * Prison
+* * Magic Well
+* * Faerie Ring
+* * Swan Pond
+* * Idol of Fortune
+* * Fountain of Fortune
+* * Rally Flag
+* * Oasis
+* * Temple
+* * Watering Hole
+* * Fountain of Youth
+* * support for Redwood Observatory
+* * support for Shrine of Magic Incantation / Gesture / Thought
+* * support for Sign / Ocean Bottle
 
 ### AI PLAYER:
 * Minor improvements and fixes.
@@ -1274,21 +1274,21 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * battle console displays notifications about wait/defend commands 
 * several reported bugs fixed
 * new spells supported:
-** Haste
-** lightning bolt
-** ice bolt
-** slow
-** implosion
-** forgetfulness
-** shield
-** air shield
-** bless
-** curse
-** bloodlust
-** weakness
-** stone skin
-** prayer
-** frenzy
+* * Haste
+* * lightning bolt
+* * ice bolt
+* * slow
+* * implosion
+* * forgetfulness
+* * shield
+* * air shield
+* * bless
+* * curse
+* * bloodlust
+* * weakness
+* * stone skin
+* * prayer
+* * frenzy
 
 ### AI PLAYER:
 * Genius AI (first VCMI AI) will control computer creatures during the combat.
@@ -1315,14 +1315,14 @@ And a lot of minor fixes
 * many minor improvements
 
 * Added some kind of simple chatting functionality through console. Implemented several WoG cheats equivalents:
-** woggaladriel -> vcmiainur
-** wogoliphaunt -> vcminoldor
-** wogshadowfax -> vcminahar
-** wogeyeofsauron -> vcmieagles
-** wogisengard -> vcmiformenos
-** wogsaruman -> vcmiistari
-** wogpathofthedead -> vcmiangband 
-** woggandalfwhite -> vcmiglorfindel
+* * woggaladriel -> vcmiainur
+* * wogoliphaunt -> vcminoldor
+* * wogshadowfax -> vcminahar
+* * wogeyeofsauron -> vcmieagles
+* * wogisengard -> vcmiformenos
+* * wogsaruman -> vcmiistari
+* * wogpathofthedead -> vcmiangband 
+* * woggandalfwhite -> vcmiglorfindel
 
 ### ADVENTURE INTERFACE:
 * clicking on a tile in advmap view when a path is shown will not only hide it but also calculate a new one 
