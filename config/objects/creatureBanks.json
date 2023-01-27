@@ -2,6 +2,7 @@
 	"creatureBank" : {
 		"index" :16,
 		"handler": "bank",
+		"lastReservedIndex" : 6,
 		"base" : {
 			"sounds" : {
 				"visit" : ["ROGUE"]

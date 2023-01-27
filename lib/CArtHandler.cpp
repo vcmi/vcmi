@@ -390,7 +390,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		JsonNode conf;
 		conf.setMeta(scope);
 
-		VLC->objtypeh->loadSubObject(art->getJsonKey(), conf, Obj::ARTIFACT, art->getIndex());
+		VLC->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
 		if(!art->advMapDef.empty())
 		{

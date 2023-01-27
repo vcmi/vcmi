@@ -2,6 +2,7 @@
 	"creatureGeneratorCommon" : {
 		"index" :17,
 		"handler": "dwelling",
+		"lastReservedIndex" : 79,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
@@ -528,6 +529,12 @@
 	"creatureGeneratorSpecial" : {
 		"index" :20,
 		"handler": "dwelling",
+		"lastReservedIndex" : 1,
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ]
+			}
+		},
 		"types" : {
 			"elementalConflux" : {
 				"index" : 0,

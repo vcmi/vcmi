@@ -16,6 +16,7 @@
 #include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
+#include "../CGeneralTextHandler.h"
 #include "../CCreatureHandler.h"
 #include "JsonRandom.h"
 #include "../CModHandler.h"
@@ -150,8 +151,18 @@ CDwellingInstanceConstructor::CDwellingInstanceConstructor()
 
 }
 
+bool CDwellingInstanceConstructor::hasNameTextID() const
+{
+	return true;
+}
+
 void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 {
+	if (input.Struct().count("name") == 0)
+		logMod->warn("Dwelling %s missing name!", getJsonKey());
+
+	VLC->generaltexth->registerString(getNameTextID(), input["name"].String());
+
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();
 
@@ -272,9 +283,18 @@ CBankInstanceConstructor::CBankInstanceConstructor()
 
 }
 
+bool CBankInstanceConstructor::hasNameTextID() const
+{
+	return true;
+}
+
 void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	//TODO: name = input["name"].String();
+	if (input.Struct().count("name") == 0)
+		logMod->warn("Bank %s missing name!", getJsonKey());
+
+	VLC->generaltexth->registerString(getNameTextID(), input["name"].String());
+
 	levels = input["levels"].Vector();
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());
 }

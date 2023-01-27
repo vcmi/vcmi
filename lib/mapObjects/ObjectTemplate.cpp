@@ -559,6 +559,9 @@ void ObjectTemplate::recalculate()
 	calculateBlockedOffsets();
 	calculateBlockMapOffset();
 	calculateVisitableOffset();
+
+	if (visitable && visitDir == 0)
+		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile);
 }
 
 VCMI_LIB_NAMESPACE_END

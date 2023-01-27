@@ -440,8 +440,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
-	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );
-	readToVector("core.crgen4",   "DATA/CRGEN4.TXT"   );
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
 	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );

@@ -172,7 +172,7 @@ namespace TriggeredEventsDetail
 				{
 					si32 subtype = *subtypes.begin();
 					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
-					identifier = handler->typeName;
+					identifier = handler->getTypeName();
 				}
 			}
 			break;
@@ -1141,7 +1141,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	pos.z = static_cast<si32>(configuration["l"].Float());
 
 	//special case for grail
-    if(typeName == "grail")
+	if(typeName == "grail")
 	{
 		owner->map->grailPos = pos;
 
@@ -1159,8 +1159,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto appearance = new ObjectTemplate;
 
-	appearance->id = Obj(handler->type);
-	appearance->subid = handler->subtype;
+	appearance->id = Obj(handler->getIndex());
+	appearance->subid = handler->getSubIndex();
 	appearance->readJson(configuration["template"], false);
 
 	// Will be destroyed soon and replaced with shared template

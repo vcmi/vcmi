@@ -160,6 +160,7 @@ class DLL_LINKAGE CGeneralTextHandler
 	/// Attempts to detect encoding & language of H3 files
 	void detectInstallParameters() const;
 public:
+
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
 	void loadTranslationOverrides(JsonNode const & file);
