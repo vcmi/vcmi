@@ -71,11 +71,11 @@ void CModListView::setupModsView()
 	else //default //TODO: default high-DPI scaling
 	{
 		ui->allModsView->setColumnWidth(ModFields::NAME, 185);
-		ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
-		ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
 		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
+	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 24);
+	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 24);
 
 	ui->allModsView->setUniformRowHeights(true);
 

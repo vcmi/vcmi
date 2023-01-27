@@ -135,8 +135,8 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>32</width>
-         <height>32</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="verticalScrollMode">
@@ -388,6 +388,16 @@ p, li { white-space: pre-wrap; }
        <property name="text">
         <string>Uninstall</string>
        </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:mod-delete.png</normaloff>icons:mod-delete.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -412,6 +422,16 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="text">
         <string>Enable</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:mod-enabled.png</normaloff>icons:mod-enabled.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -438,6 +458,16 @@ p, li { white-space: pre-wrap; }
        <property name="text">
         <string>Disable</string>
        </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:mod-disabled.png</normaloff>icons:mod-disabled.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -463,6 +493,16 @@ p, li { white-space: pre-wrap; }
        <property name="text">
         <string>Update</string>
        </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:mod-update.png</normaloff>icons:mod-update.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -487,6 +527,16 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="text">
         <string>Install</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:mod-download.png</normaloff>icons:mod-download.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
        </property>
       </widget>
      </item>
