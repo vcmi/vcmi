@@ -192,27 +192,27 @@ void CGuiHandler::handleEvents()
 	while(!SDLEventsQueue.empty())
 	{
 		continueEventHandling = true;
-		auto ev = SDLEventsQueue.front();
-		current = &ev;
+		SDL_Event currentEvent = SDLEventsQueue.front();
+		cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
 		SDLEventsQueue.pop();
 
 		// In a sequence of mouse motion events, skip all but the last one.
 		// This prevents freezes when every motion event takes longer to handle than interval at which
 		// the events arrive (like dragging on the minimap in world view, with redraw at every event)
 		// so that the events would start piling up faster than they can be processed.
-		if ((ev.type == SDL_MOUSEMOTION) && !SDLEventsQueue.empty() && (SDLEventsQueue.front().type == SDL_MOUSEMOTION))
+		if ((currentEvent.type == SDL_MOUSEMOTION) && !SDLEventsQueue.empty() && (SDLEventsQueue.front().type == SDL_MOUSEMOTION))
 			continue;
 
-		handleCurrentEvent();
+		handleCurrentEvent(currentEvent);
 	}
 }
 
-void CGuiHandler::handleCurrentEvent()
+void CGuiHandler::handleCurrentEvent(const SDL_Event & current )
 {
-	if(current->type == SDL_KEYDOWN || current->type == SDL_KEYUP)
+	if(current.type == SDL_KEYDOWN || current.type == SDL_KEYUP)
 	{
-		SDL_KeyboardEvent key = current->key;
-		if(current->type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
+		SDL_KeyboardEvent key = current.key;
+		if(current.type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
 		{
 			//TODO: we need some central place for all interface-independent hotkeys
 			Settings s = settings.write["session"];
@@ -275,24 +275,24 @@ void CGuiHandler::handleCurrentEvent()
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisEvent(key)))
 				(**i).keyPressed(key);
 	}
-	else if(current->type == SDL_MOUSEMOTION)
+	else if(current.type == SDL_MOUSEMOTION)
 	{
-		handleMouseMotion();
+		handleMouseMotion(current);
 	}
-	else if(current->type == SDL_MOUSEBUTTONDOWN)
+	else if(current.type == SDL_MOUSEBUTTONDOWN)
 	{
-		switch(current->button.button)
+		switch(current.button.button)
 		{
 		case SDL_BUTTON_LEFT:
 		{
 			auto doubleClicked = false;
-			if(lastClick == current->motion && (SDL_GetTicks() - lastClickTime) < 300)
+			if(lastClick == getCursorPosition() && (SDL_GetTicks() - lastClickTime) < 300)
 			{
 				std::list<CIntObject*> hlp = doubleClickInterested;
 				for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 				{
 					if(!vstd::contains(doubleClickInterested, *i)) continue;
-					if((*i)->pos.isInside(current->motion.x, current->motion.y))
+					if((*i)->pos.isInside(current.motion.x, current.motion.y))
 					{
 						(*i)->onDoubleClick();
 						doubleClicked = true;
@@ -301,7 +301,7 @@ void CGuiHandler::handleCurrentEvent()
 
 			}
 
-			lastClick = current->motion;
+			lastClick = current.motion;
 			lastClickTime = SDL_GetTicks();
 
 			if(!doubleClicked)
@@ -318,7 +318,7 @@ void CGuiHandler::handleCurrentEvent()
 			break;
 		}
 	}
-	else if(current->type == SDL_MOUSEWHEEL)
+	else if(current.type == SDL_MOUSEWHEEL)
 	{
 		std::list<CIntObject*> hlp = wheelInterested;
 		for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
@@ -327,27 +327,27 @@ void CGuiHandler::handleCurrentEvent()
 			// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
 			int x = 0, y = 0;
 			SDL_GetMouseState(&x, &y);
-			(*i)->wheelScrolled(current->wheel.y < 0, (*i)->pos.isInside(x, y));
+			(*i)->wheelScrolled(current.wheel.y < 0, (*i)->pos.isInside(x, y));
 		}
 	}
-	else if(current->type == SDL_TEXTINPUT)
+	else if(current.type == SDL_TEXTINPUT)
 	{
 		for(auto it : textInterested)
 		{
-			it->textInputed(current->text);
+			it->textInputed(current.text);
 		}
 	}
-	else if(current->type == SDL_TEXTEDITING)
+	else if(current.type == SDL_TEXTEDITING)
 	{
 		for(auto it : textInterested)
 		{
-			it->textEdited(current->edit);
+			it->textEdited(current.edit);
 		}
 	}
 	//todo: muiltitouch
-	else if(current->type == SDL_MOUSEBUTTONUP)
+	else if(current.type == SDL_MOUSEBUTTONUP)
 	{
-		switch(current->button.button)
+		switch(current.button.button)
 		{
 		case SDL_BUTTON_LEFT:
 			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
@@ -360,7 +360,6 @@ void CGuiHandler::handleCurrentEvent()
 			break;
 		}
 	}
-	current = nullptr;
 } //event end
 
 void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed)
@@ -373,7 +372,7 @@ void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntOb
 		auto prev = (*i)->mouseState(btn);
 		if(!isPressed)
 			(*i)->updateMouseState(btn, isPressed);
-		if((*i)->pos.isInside(current->motion.x, current->motion.y))
+		if((*i)->pos.isInside(getCursorPosition()))
 		{
 			if(isPressed)
 				(*i)->updateMouseState(btn, isPressed);
@@ -384,13 +383,13 @@ void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntOb
 	}
 }
 
-void CGuiHandler::handleMouseMotion()
+void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 {
 	//sending active, hovered hoverable objects hover() call
 	std::vector<CIntObject*> hlp;
 	for(auto & elem : hoverable)
 	{
-		if(elem->pos.isInside(current->motion.x, current->motion.y))
+		if(elem->pos.isInside(getCursorPosition()))
 		{
 			if (!(elem)->hovered)
 				hlp.push_back((elem));
@@ -407,7 +406,7 @@ void CGuiHandler::handleMouseMotion()
 		elem->hovered = true;
 	}
 
-	handleMoveInterested(current->motion);
+	handleMoveInterested(current.motion);
 }
 
 void CGuiHandler::simpleRedraw()
@@ -491,7 +490,6 @@ CGuiHandler::CGuiHandler()
 {
 	continueEventHandling = true;
 	curInt = nullptr;
-	current = nullptr;
 	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
@@ -510,6 +508,11 @@ CGuiHandler::~CGuiHandler()
 void CGuiHandler::breakEventHandling()
 {
 	continueEventHandling = false;
+}
+
+const Point & CGuiHandler::getCursorPosition() const
+{
+	return cursorPosition;
 }
 
 void CGuiHandler::drawFPSCounter()

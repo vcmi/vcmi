@@ -273,9 +273,9 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 			select(line);
 		}
 #ifdef VCMI_IOS
-        // focus input field if clicked inside it
-		else if(inputName && inputName->active && inputNameRect.isInside(GH.current->button.x, GH.current->button.y))
-            inputName->giveFocus();
+		// focus input field if clicked inside it
+		else if(inputName && inputName->active && inputNameRect.isInside(GH.getCursorPosition()))
+			inputName->giveFocus();
 #endif
 	}
 }
@@ -454,8 +454,7 @@ void SelectionTab::updateListItems()
 int SelectionTab::getLine()
 {
 	int line = -1;
-	Point clickPos(GH.current->button.x, GH.current->button.y);
-	clickPos = clickPos - pos.topLeft();
+	Point clickPos = GH.getCursorPosition() - pos.topLeft();
 
 	// Ignore clicks on save name area
 	int maxPosY;

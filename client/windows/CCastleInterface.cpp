@@ -127,7 +127,7 @@ void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
 	{
-		if(!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //inside building image
+		if(!CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft())) //inside building image
 		{
 			auto building = getBuilding();
 			parent->buildingClicked(building->bid, building->subId, building->upgrade);
@@ -139,7 +139,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
-	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
+	if( !CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft()) ) //inside building image
 	{
 		BuildingID bid = getBuilding()->bid;
 		const CBuilding *bld = town->town->buildings.at(bid);
@@ -256,7 +256,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area && pos.isInside(sEvent.x, sEvent.y))
 	{
-		if(CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //hovered pixel is inside this building
+		if(CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{

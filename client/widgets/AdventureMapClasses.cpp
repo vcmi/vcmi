@@ -229,7 +229,7 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, CSDL_Ext::fromSDL(GH.current->motion));
+	CRClickPopup::createAndPush(hero, GH.getCursorPosition());
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -321,7 +321,7 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, CSDL_Ext::fromSDL(GH.current->motion));
+	CRClickPopup::createAndPush(town, GH.getCursorPosition());
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -531,8 +531,8 @@ CMinimap::CMinimap(const Rect & position)
 int3 CMinimap::translateMousePosition()
 {
 	// 0 = top-left corner, 1 = bottom-right corner
-	double dx = double(GH.current->motion.x - pos.x) / pos.w;
-	double dy = double(GH.current->motion.y - pos.y) / pos.h;
+	double dx = double(GH.getCursorPosition().x - pos.x) / pos.w;
+	double dy = double(GH.getCursorPosition().y - pos.y) / pos.h;
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
