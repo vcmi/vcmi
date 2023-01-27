@@ -125,9 +125,9 @@ protected:
 
 	size_t first, last; //animation range
 
-	//TODO: replace with time delay(needed for battles)
-	ui32 frameDelay;//delay in frames of each image
-	ui32 value;//how many times current frame was showed
+	/// how long (in milliseconds) should
+	ui32 frameTimeTotal;
+	ui32 frameTimePassed;
 
 	ui8 flags;//Flags from EFlags enum
 
@@ -146,7 +146,7 @@ public:
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0, uint8_t alpha = UINT8_MAX);
+	CShowableAnim(int x, int y, std::string name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
 	~CShowableAnim();
 
 	//set animation to group or part of group

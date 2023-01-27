@@ -333,13 +333,13 @@ void CAnimImage::playerColored(PlayerColor currPlayer)
 			anim->getImage(0, group)->playerColored(player);
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group, uint8_t alpha):
+CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
 	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
 	first(0),
-	frameDelay(Delay),
-	value(0),
+	frameTimeTotal(frameTime),
+	frameTimePassed(0),
 	flags(Flags),
 	xOffset(0),
 	yOffset(0),
@@ -380,7 +380,7 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 	group = Group;
 	frame = first = from;
 	last = max;
-	value = 0;
+	frameTimePassed = 0;
 	return true;
 }
 
@@ -397,13 +397,13 @@ bool CShowableAnim::set(size_t Group)
 		group = Group;
 		last = anim->size(Group);
 	}
-	frame = value = 0;
+	frame = 0;
+	frameTimePassed = 0;
 	return true;
 }
 
 void CShowableAnim::reset()
 {
-	value = 0;
 	frame = first;
 
 	if (callback)
@@ -427,9 +427,11 @@ void CShowableAnim::show(SDL_Surface * to)
 	if ((flags & PLAY_ONCE) && frame + 1 == last)
 		return;
 
-	if ( ++value == frameDelay )
+	frameTimePassed += GH.mainFPSmng->getElapsedMilliseconds();
+
+	if(frameTimePassed >= frameTimeTotal)
 	{
-		value = 0;
+		frameTimePassed -= frameTimeTotal;
 		if ( ++frame >= last)
 			reset();
 	}
@@ -466,7 +468,7 @@ void CShowableAnim::rotate(bool on, bool vertical)
 }
 
 CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType type):
-	CShowableAnim(x,y,name,flags,4,size_t(type))
+	CShowableAnim(x, y, name, flags, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
 	xOffset = 0;
 	yOffset = 0;

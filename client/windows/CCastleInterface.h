@@ -47,7 +47,9 @@ public:
 		BUILDING_APPEAR_TIMEPOINT = 500, //500 msec building appears: 0->100% transparency
 		BUILDING_WHITE_BORDER_TIMEPOINT = 1000, //500 msec border glows from white to yellow
 		BUILDING_YELLOW_BORDER_TIMEPOINT = 1500, //500 msec border glows from yellow to normal
-		BUILD_ANIMATION_FINISHED_TIMEPOINT = 2500 //1000 msec delay, nothing happens
+		BUILD_ANIMATION_FINISHED_TIMEPOINT = 2500, //1000 msec delay, nothing happens
+
+		BUILDING_FRAME_TIME = 150 // confirmed H3 timing: 150 ms for each building animation frame
 	};
 
 	/// returns building associated with this structure

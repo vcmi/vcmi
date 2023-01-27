@@ -43,7 +43,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
-	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE),
+	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE, BUILDING_FRAME_TIME),
 	  parent(Par),
 	  town(Town),
 	  str(Str),
