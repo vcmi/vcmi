@@ -260,7 +260,7 @@ void CursorHandler::centerCursor()
 
 void CursorHandler::updateSpellcastCursor()
 {
-	static const float frameDisplayDuration = 5.0 / 60.0; // H3 uses ~83 ms per image = 5 / 60 second
+	static const float frameDisplayDuration = 5.f / 60.f; // H3 uses ~83 ms per image = 5 / 60 second
 
 	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
 	size_t newFrame = frame;

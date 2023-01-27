@@ -47,7 +47,7 @@ public:
 		BUILDING_APPEAR_TIMEPOINT = 500, //500 msec building appears: 0->100% transparency
 		BUILDING_WHITE_BORDER_TIMEPOINT = 900, //400 msec border glows from white to yellow
 		BUILDING_YELLOW_BORDER_TIMEPOINT = 1100, //200 msec border glows from yellow to normal (dark orange)
-		BUILD_ANIMATION_FINISHED_TIMEPOINT = 1200, //once border is back to yellow nothing happens
+		BUILD_ANIMATION_FINISHED_TIMEPOINT = 2100, // 1000msec once border is back to yellow nothing happens (this stage is basically removed by HD Mod)
 
 		BUILDING_FRAME_TIME = 150 // confirmed H3 timing: 150 ms for each building animation frame
 	};
