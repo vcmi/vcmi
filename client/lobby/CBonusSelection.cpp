@@ -119,7 +119,6 @@ CBonusSelection::CBonusSelection()
 void CBonusSelection::loadPositionsOfGraphics()
 {
 	const JsonNode config(ResourceID("config/campaign_regions.json"));
-	int idx = 0;
 
 	for(const JsonNode & campaign : config["campaign_regions"].Vector())
 	{
@@ -140,7 +139,6 @@ void CBonusSelection::loadPositionsOfGraphics()
 
 		campDescriptions.push_back(sc);
 
-		idx++;
 	}
 }
 

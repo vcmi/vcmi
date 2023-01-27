@@ -192,7 +192,7 @@ void CGuiHandler::handleEvents()
 	while(!SDLEventsQueue.empty())
 	{
 		continueEventHandling = true;
-		SDL_Event ev = SDLEventsQueue.front();
+		auto ev = SDLEventsQueue.front();
 		current = &ev;
 		SDLEventsQueue.pop();
 

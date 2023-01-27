@@ -91,7 +91,7 @@ if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
 endif()
 
 # No QT Linguist on MXE
-if((MINGW) AND (${CMAKE_CROSSCOMPILING}))
+if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (NOT USING_CONAN))
 	set(ENABLE_TRANSLATIONS OFF)
 endif()
 
@@ -168,12 +168,12 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 #Global fallback mapping
-# RelWithDebInfo falls back to Release, then MinSizeRel
-set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel "")
-# MinSizeRel falls back to Release, then RelWithDebInfo
-set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
-# Release falls back to RelWithDebInfo, then MinSizeRel
-set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
+# RelWithDebInfo falls back to Release, then MinSizeRel, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel None "")
+# MinSizeRel falls back to Release, then RelWithDebInfo, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo None "")
+# Release falls back to RelWithDebInfo, then MinSizeRel, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel None "")
 
 set(CMAKE_XCODE_ATTRIBUTE_APP_DISPLAY_NAME ${APP_DISPLAY_NAME})
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
@@ -297,6 +297,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
 
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pragmas") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
@@ -326,6 +327,27 @@ endif()
 
 if(ENABLE_LUA)
 	add_definitions(-DSCRIPTING_ENABLED=1)
+endif()
+
+if(USING_CONAN AND (MINGW AND CMAKE_HOST_UNIX))
+	# Hack for workaround https://github.com/conan-io/conan-center-index/issues/15405
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl Mf ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/Mf/mf/g'"
+	)
+	# Hack for workaround ffmpeg broken linking (conan ffmpeg forgots to link to ws2_32)
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32)/secur32 ws2_32)/g'"
+	)
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32 mfplat/secur32 ws2_32 mfplat/g'"
+	)
+	# Fixup tbb for cross-compiling on Conan
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl tbb12 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/tbb tbb12/tbb12/g'"
+	)
 endif()
 
 ############################################
@@ -544,9 +566,19 @@ endif()
 
 
 if(WIN32)
-	file(GLOB dep_files
-		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	if(USING_CONAN)
+		#Conan imports enabled
+		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_SYSROOT}/bin/*.dll" 
+				"${CMAKE_SYSROOT}/lib/*.dll" 
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/*.dll")
+	else()
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	endif()
 
 	if((${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
 		message(STATUS "Detected MXE build")
@@ -617,7 +649,11 @@ if(WIN32)
 	else()
 		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION} ${PACKAGE_NAME_SUFFIX} ")
 	endif()
-	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES ".*64")
+		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+	else()
+		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	endif()
 	if(ENABLE_LAUNCHER)
 		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
 		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
@@ -627,6 +663,12 @@ if(WIN32)
 	endif()
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
 
+	# Strip MinGW CPack target if build configuration without debug info
+	if(MINGW)
+		if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+			set(CPACK_STRIP_FILES ON)
+		endif()
+	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
 	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")

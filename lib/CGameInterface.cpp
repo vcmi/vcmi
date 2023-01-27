@@ -49,12 +49,19 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	TGetNameFun getName = nullptr;
 
 #ifdef VCMI_WINDOWS
+#ifdef __MINGW32__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
 	{
 		getName = (TGetNameFun)GetProcAddress(dll, "GetAiName");
 		getAI = (TGetAIFun)GetProcAddress(dll, methodName.c_str());
 	}
+#ifdef __MINGW32__
+#pragma GCC diagnostic pop
+#endif
 #else // !VCMI_WINDOWS
 	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)

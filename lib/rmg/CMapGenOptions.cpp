@@ -322,7 +322,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	//setWidth(50);
 
 	logGlobal->trace("Player config:");
-	int humanPlayers = 0, cpuOnlyPlayers = 0, AIplayers = 0;
+	int cpuOnlyPlayers = 0;
 	for (auto player : players)
 	{
 		std::string playerType;
@@ -330,7 +330,6 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		{
 		case EPlayerType::AI:
 			playerType = "AI";
-			AIplayers++;
 			break;
 		case EPlayerType::COMP_ONLY:
 			playerType = "computer only";
@@ -338,7 +337,6 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 			break;
 		case EPlayerType::HUMAN:
 			playerType = "human only";
-			humanPlayers++;
 			break;
 			default:
 				assert(false);

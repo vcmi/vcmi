@@ -207,11 +207,8 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 
 	std::array<int, 2> killedBySide = {0, 0};
 
-	int targets = 0;
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
-		++targets;
-
 		ui8 side = attackedInfo.defender->side;
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}

@@ -1,0 +1,15 @@
+{% import 'base/cross-macro.j2' as cross -%}
+include(base/cross-windows)
+{% set target_host="i686-w64-mingw32" %}
+
+[settings]
+arch=x86
+
+[conf]
+{{ cross.generate_conf(target_host)}}
+tools.build:cflags = ["-msse2"]
+tools.build:cxxflags = ["-msse2"]
+
+[env]
+{{ cross.generate_env(target_host) }}
+{{ cross.generate_env_win32(target_host) }}

@@ -113,6 +113,15 @@ jobs:
             pack: 1
             extension: exe
             preset: windows-msvc-release
+          - platform: mingw-ubuntu
+            os: ubuntu-22.04
+            test: 0
+            pack: 1
+            extension: exe
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
+            cmake_args: -G Ninja
+            preset: windows-mingw-conan-linux
+            conan_profile: mingw64-linux.jinja
     runs-on: ${{ matrix.os }}
     defaults:
       run:

@@ -88,7 +88,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 
 	if (!update)
 	{
-		if (!FileStream::CreateFile(baseDirectory / filename))
+		if (!FileStream::createFile(baseDirectory / filename))
 			return false;
 	}
 	fileList[resID] = filename;
