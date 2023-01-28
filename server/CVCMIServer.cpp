@@ -1051,8 +1051,16 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #ifdef SINGLE_PROCESS_APP
 #define main server_main
 #endif
+#ifdef VCMI_ANDROID
+void CVCMIServer::create()
+{
+	const int argc = 1;
+	char * argv[argc] = { "android-server" };
+#else
 int main(int argc, char * argv[])
 {
+#endif
+
 #if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
@@ -1120,7 +1128,10 @@ int main(int argc, char * argv[])
 #endif
 	logConfig.deconfigure();
 	vstd::clear_pointer(VLC);
+
+#ifndef VCMI_ANDROID
 	return 0;
+#endif
 }
 
 #ifdef VCMI_ANDROID
@@ -1129,14 +1140,8 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(J
 {
 	__android_log_write(ANDROID_LOG_INFO, "VCMI", "Got jni call to init server");
 	CAndroidVMHelper::cacheVM(env);
-	CVCMIServer::create();
-}
 
-void CVCMIServer::create()
-{
-	const char * foo = "android-server";
-	std::vector<const void *> argv = {foo};
-	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
+	CVCMIServer::create();
 }
 
 #elif defined(SINGLE_PROCESS_APP)
