@@ -990,8 +990,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.eagleEye",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"subtype" : 0,
+				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1003,8 +1003,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.eagleEye",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"subtype" : 0,
+				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1016,8 +1016,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.eagleEye",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"subtype" : 0,
+				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
 			}

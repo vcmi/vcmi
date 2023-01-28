@@ -271,6 +271,16 @@
 		}
 	},
 
+	"LEARN_BATTLE_SPELL_CHANCE":
+	{
+		"hidden": true
+	},
+
+	"LEARN_BATTLE_SPELL_LEVEL_LIMIT":
+	{
+		"hidden": true
+	},
+
 	"LEVEL_SPELL_IMMUNITY":
 	{
 		"graphics":
