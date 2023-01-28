@@ -1639,7 +1639,6 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
 	case Bonus::SPECIAL_BLESS_DAMAGE:
-	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
 	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
@@ -1745,7 +1744,6 @@ std::string Bonus::nameForBonus() const
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
 	case Bonus::SPECIAL_BLESS_DAMAGE:
-	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
 	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
