@@ -1584,6 +1584,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner);
 
+	bool isHero = false;
 	if(selection->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
 		assert(!terrain.currentPath); //path can be active only when hero is selected
@@ -1594,6 +1595,8 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
+		isHero = true;
+
 		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(mapPos);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
@@ -1635,7 +1638,8 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		throw std::runtime_error("Nothing is selected...");
 	}
 
-	if(const IShipyard *shipyard = ourInaccessibleShipyard(topBlocking))
+	const auto shipyard = ourInaccessibleShipyard(topBlocking);
+	if(isHero && shipyard != nullptr)
 	{
 		LOCPLINT->showShipyardDialogOrProblemPopup(shipyard);
 	}
