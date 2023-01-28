@@ -25,6 +25,10 @@ namespace AnimationControls
 	SDL_Color getGoldBorder();
 	SDL_Color getNoBorder();
 
+	/// returns animation speed factor according to game settings,
+	/// slow speed is considered to be "base speed" and will return 1.0
+	float getAnimationSpeedFactor();
+
 	/// creates animation object with preset speed control
 	std::shared_ptr<CreatureAnimation> getAnimation(const CCreature * creature);
 
