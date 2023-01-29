@@ -79,6 +79,13 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 	processList(CIntObject::TEXTINPUT,activityFlag,&textInterested,cb);
 }
 
+void CGuiHandler::init()
+{
+	mainFPSmng->init();
+	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
+	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
+}
+
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
@@ -207,7 +214,79 @@ void CGuiHandler::handleEvents()
 	}
 }
 
-void CGuiHandler::handleCurrentEvent(const SDL_Event & current )
+void CGuiHandler::convertTouchToMouse(SDL_Event * current)
+{
+	int rLogicalWidth, rLogicalHeight;
+
+	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
+
+	int adjustedMouseY = (int)(current->tfinger.y * rLogicalHeight);
+	int adjustedMouseX = (int)(current->tfinger.x * rLogicalWidth);
+
+	current->button.x = adjustedMouseX;
+	current->motion.x = adjustedMouseX;
+	current->button.y = adjustedMouseY;
+	current->motion.y = adjustedMouseY;
+}
+
+void CGuiHandler::fakeMoveCursor(float dx, float dy)
+{
+	int x, y, w, h;
+
+	SDL_Event event;
+	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	sme.state = SDL_GetMouseState(&x, &y);
+	SDL_GetWindowSize(mainWindow, &w, &h);
+
+	sme.x = CCS->curh->position().x + (int)(GH.pointerSpeedMultiplier * w * dx);
+	sme.y = CCS->curh->position().y + (int)(GH.pointerSpeedMultiplier * h * dy);
+
+	vstd::abetween(sme.x, 0, w);
+	vstd::abetween(sme.y, 0, h);
+
+	event.motion = sme;
+	SDL_PushEvent(&event);
+}
+
+void CGuiHandler::fakeMouseMove()
+{
+	fakeMoveCursor(0, 0);
+}
+
+void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
+{
+	SDL_Event event;
+	SDL_MouseButtonEvent sme = {SDL_MOUSEBUTTONDOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	if(!down)
+	{
+		sme.type = SDL_MOUSEBUTTONUP;
+	}
+
+	sme.button = right ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT;
+
+	sme.x = CCS->curh->position().x;
+	sme.y = CCS->curh->position().y;
+
+	float xScale, yScale;
+	int w, h, rLogicalWidth, rLogicalHeight;
+
+	SDL_GetWindowSize(mainWindow, &w, &h);
+	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
+	SDL_RenderGetScale(mainRenderer, &xScale, &yScale);
+
+	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+	CSDL_Ext::warpMouse(
+		(int)(sme.x * xScale) + (w - rLogicalWidth * xScale) / 2,
+		(int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2));
+	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+
+	event.button = sme;
+	SDL_PushEvent(&event);
+}
+
+void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 {
 	if(current.type == SDL_KEYDOWN || current.type == SDL_KEYUP)
 	{
@@ -344,21 +423,77 @@ void CGuiHandler::handleCurrentEvent(const SDL_Event & current )
 			it->textEdited(current.edit);
 		}
 	}
-	//todo: muiltitouch
 	else if(current.type == SDL_MOUSEBUTTONUP)
 	{
-		switch(current.button.button)
+		if(!multifinger)
 		{
-		case SDL_BUTTON_LEFT:
-			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
-			break;
-		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
-			break;
-		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
-			break;
+			switch(current.button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
+				break;
+			case SDL_BUTTON_RIGHT:
+				handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+				break;
+			case SDL_BUTTON_MIDDLE:
+				handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
+				break;
+			}
 		}
+	}
+	else if(current.type == SDL_FINGERMOTION)
+	{
+		if(isPointerRelativeMode)
+		{
+			fakeMoveCursor(current.tfinger.dx, current.tfinger.dy);
+		}
+	}
+	else if(current.type == SDL_FINGERDOWN)
+	{
+		auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
+
+		multifinger = fingerCount > 1;
+
+		if(isPointerRelativeMode)
+		{
+			if(current.tfinger.x > 0.5)
+			{
+				bool isRightClick = current.tfinger.y < 0.5;
+
+				fakeMouseButtonEventRelativeMode(true, isRightClick);
+			}
+		}
+#ifndef VCMI_IOS
+		else if(fingerCount == 2)
+		{
+			convertTouchToMouse(&current);
+			handleMouseMotion(current);
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+		}
+#endif //VCMI_IOS
+	}
+	else if(current.type == SDL_FINGERUP)
+	{
+		auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
+
+		if(isPointerRelativeMode)
+		{
+			if(current.tfinger.x > 0.5)
+			{
+				bool isRightClick = current.tfinger.y < 0.5;
+
+				fakeMouseButtonEventRelativeMode(false, isRightClick);
+			}
+		}
+#ifndef VCMI_IOS
+		else if(multifinger)
+		{
+			convertTouchToMouse(&current);
+			handleMouseMotion(current);
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+			multifinger = fingerCount != 0;
+		}
+#endif //VCMI_IOS
 	}
 } //event end
 
@@ -431,20 +566,6 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 	}
 }
 
-void CGuiHandler::fakeMouseMove()
-{
-	SDL_Event event;
-	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
-	int x, y;
-
-	sme.state = SDL_GetMouseState(&x, &y);
-	sme.x = x;
-	sme.y = y;
-
-	event.motion = sme;
-	SDL_PushEvent(&event);
-}
-
 void CGuiHandler::renderFrame()
 {
 
@@ -486,7 +607,8 @@ void CGuiHandler::renderFrame()
 
 
 CGuiHandler::CGuiHandler()
-	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false)
+	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false),
+    multifinger(false)
 {
 	continueEventHandling = true;
 	curInt = nullptr;

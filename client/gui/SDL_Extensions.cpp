@@ -889,22 +889,10 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(const Rect & whereInput)
 {
-	const SDL_Rect where = CSDL_Ext::toSDL(whereInput);
-
-	auto impl = [](SDL_Rect where)
-	{
-		if (SDL_IsTextInputActive() == SDL_FALSE)
-		{
-			SDL_StartTextInput();
-		}
-		SDL_SetTextInputRect(&where);
-	};
-
 #ifdef VCMI_APPLE
 	dispatch_async(dispatch_get_main_queue(), ^{
 #endif
 
-#ifdef VCMI_IOS
 	// TODO ios: looks like SDL bug actually, try fixing there
 	auto renderer = SDL_GetRenderer(mainWindow);
 	float scaleX, scaleY;
@@ -912,16 +900,24 @@ void CSDL_Ext::startTextInput(const Rect & whereInput)
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 	SDL_RenderGetViewport(renderer, &viewport);
 
+#ifdef VCMI_IOS
 	const auto nativeScale = iOS_utils::screenScale();
-	auto rectInScreenCoordinates = where;
-	rectInScreenCoordinates.x = (viewport.x + rectInScreenCoordinates.x) * scaleX / nativeScale;
-	rectInScreenCoordinates.y = (viewport.y + rectInScreenCoordinates.y) * scaleY / nativeScale;
-	rectInScreenCoordinates.w = rectInScreenCoordinates.w * scaleX / nativeScale;
-	rectInScreenCoordinates.h = rectInScreenCoordinates.h * scaleY / nativeScale;
-	impl(rectInScreenCoordinates);
-#else
-	impl(where);
+	scaleX /= nativeScale;
+	scaleY /= nativeScale;
 #endif
+
+	SDL_Rect rectInScreenCoordinates;
+	rectInScreenCoordinates.x = (viewport.x + whereInput.x) * scaleX;
+	rectInScreenCoordinates.y = (viewport.y + whereInput.y) * scaleY;
+	rectInScreenCoordinates.w = whereInput.w * scaleX;
+	rectInScreenCoordinates.h = whereInput.h * scaleY;
+
+	SDL_SetTextInputRect(&rectInScreenCoordinates);
+
+	if (SDL_IsTextInputActive() == SDL_FALSE)
+	{
+		SDL_StartTextInput();
+	}
 
 #ifdef VCMI_APPLE
 	});
