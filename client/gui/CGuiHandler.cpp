@@ -474,7 +474,9 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 	}
 	else if(current.type == SDL_FINGERUP)
 	{
+#ifndef VCMI_IOS
 		auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
+#endif //VCMI_IOS
 
 		if(isPointerRelativeMode)
 		{
