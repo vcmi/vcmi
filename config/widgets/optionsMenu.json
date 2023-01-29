@@ -1,0 +1,348 @@
+{
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"playerColored" : true,
+			"position": {"x": 0, "y": 0},
+			"image": "SysOpBck"
+		},
+
+		{
+			"name": "title",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.568",
+			"position": {"x": 242, "y": 32}
+		},
+
+		{
+			"name": "leftSettingsLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"items":
+			[
+				{
+					"position": {"x": 122, "y": 64},
+					"text": "core.genrltxt.569"
+				},
+				{
+					"position": {"x": 122, "y": 130},
+					"text": "core.genrltxt.570"
+				},
+				{
+					"position": {"x": 122, "y": 196},
+					"text": "core.genrltxt.571"
+				},
+				{
+					"position": {"x": 122, "y": 262},
+					"text": "vcmi.systemOptions.resolutionButton.hover"
+				},
+				{
+					"position": {"x": 122, "y": 347},
+					"text": "core.genrltxt.394"
+				},
+				{
+					"position": {"x": 122, "y": 412},
+					"text": "core.genrltxt.395"
+				}
+			]
+		},
+
+		{
+			"name": "rightSideCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 282, "y": 57},
+					"text": "core.genrltxt.572"
+				},
+				{
+					"position": {"x": 282, "y": 89},
+					"text": "core.genrltxt.573"
+				},
+				{
+					"position": {"x": 282, "y": 121},
+					"text": "core.genrltxt.574"
+				},
+				{
+					"position": {"x": 282, "y": 153},
+					"text": "core.genrltxt.577"
+				},
+				{
+					"position": {"x": 282, "y": 217},
+					"text": "vcmi.systemOptions.fullscreenButton.hover"
+				}
+			]
+		},
+
+		{
+			"name": "loadButton",
+			"type": "button",
+			"position": {"x": 246, "y": 298},
+			"image": "SOLOAD.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.321",
+			"callback": "loadGame",
+			"hotkey": "l"
+		},
+
+		{
+			"name": "saveButton",
+			"type": "button",
+			"position": {"x": 357, "y": 298},
+			"image": "SOSAVE.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.322",
+			"callback": "saveGame",
+			"hotkey": "s"
+		},
+
+		{
+			"name": "restartButton",
+			"type": "button",
+			"position": {"x": 246, "y": 357},
+			"image": "SORSTRT.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.323",
+			"callback": "restartGame",
+			"hotkey": "r"
+		},
+
+		{
+			"name": "mainMenuButton",
+			"type": "button",
+			"position": {"x": 357, "y": 357},
+			"image": "SOMAIN.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.320",
+			"callback": "returnToMainMenu",
+			"hotkey": "m"
+		},
+
+		{
+			"name": "quitButton",
+			"type": "button",
+			"position": {"x": 246, "y": 415},
+			"image": "soquit.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.324",
+			"callback": "quitGame",
+			"hotkey": "q"
+		},
+
+		{
+			"name": "closeSettingsButton",
+			"type": "button",
+			"position": {"x": 357, "y": 415},
+			"image": "soretrn.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.325",
+			"callback": "closeWindow",
+			"hotkey": ["esc", "backspace"]
+		},
+
+		{
+			"name": "heroMovementSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 77},
+			"items":
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "sysopb1",
+					"help": "core.help.349",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysopb2",
+					"help": "core.help.350",
+					"position": {"x": 48, "y": 0}
+				},
+
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "sysopb3",
+					"help": "core.help.351",
+					"position": {"x": 96, "y": 0}
+				},
+
+				{
+					"index": 8,
+					"type": "toggleButton",
+					"image": "sysopb4",
+					"help": "core.help.352",
+					"position": {"x": 144, "y": 0}
+				}
+			],
+			"callback": "playerHeroSpeedChanged"
+		},
+
+		{
+			"name": "enemyMovementSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 144},
+			"items":
+			[
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysopb5",
+					"help": "core.help.353",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "sysopb6",
+					"help": "core.help.354",
+					"position": {"x": 48, "y": 0}
+				},
+
+				{
+					"index": 8,
+					"type": "toggleButton",
+					"image": "sysopb7",
+					"help": "core.help.355",
+					"position": {"x": 96, "y": 0}
+				},
+
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "sysopb8",
+					"help": "core.help.356",
+					"position": {"x": 144, "y": 0}
+				}
+			],
+			"callback": "enemyHeroSpeedChanged"
+		},
+
+		{
+			"name": "mapScrollSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 210},
+			"items":
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "sysopb9",
+					"help": "core.help.357",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysob10",
+					"help": "core.help.358",
+					"position": {"x": 64, "y": 0}
+				},
+
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.359",
+					"position": {"x": 128, "y": 0}
+				}
+			],
+			"callback": "mapScrollSpeedChanged"
+		},
+
+		{
+			"name": "heroReminderCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.361",
+			"position": {"x": 246, "y": 87},
+			"callback": "heroReminderChanged"
+		},
+
+		{
+			"name": "quickCombatCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.362",
+			"position": {"x": 246, "y": 119},
+			"callback": "quickCombatChanged"
+		},
+
+		{
+			"name": "spellbookAnimationCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.364",
+			"position": {"x": 246, "y": 151},
+			"callback": "spellbookAnimationChanged"
+		},
+
+		{
+			"name": "fullscreenCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.systemOptions.fullscreenButton",
+			"position": {"x": 246, "y": 215},
+			"callback": "fullscreenChanged"
+		},
+
+		{
+			"name": "resolutionButton",
+			"type": "button",
+			"position": {"x": 28, "y": 275},
+			"image": "buttons/resolution",
+			"help": "vcmi.systemOptions.resolutionButton",
+			"callback": "setGameResolution",
+			"hotkey": "g"
+		},
+
+		{
+			"name": "resolutionLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 170, "y": 292}
+		},
+
+		{
+			"name": "musicSlider",
+			"type": "slider",
+			"position": {"x": 29, "y": 359},
+			"size": 190,
+			"style": "brown",
+			"orientation": "horizontal",
+			"itemsVisible": 0,
+			"itemsTotal": 100,
+			"callback": "setMusic"
+		},
+
+		{
+			"name": "soundVolumeSlider",
+			"type": "slider",
+			"position": {"x": 29, "y": 425},
+			"size": 190,
+			"style": "brown",
+			"orientation": "horizontal",
+			"itemsVisible": 0,
+			"itemsTotal": 100,
+			"callback": "setVolume"
+		}
+	]
+}

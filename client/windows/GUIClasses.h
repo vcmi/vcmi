@@ -17,6 +17,7 @@
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
+#include "gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -196,44 +197,22 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key) override;
 };
 
-class CSystemOptionsWindow : public CWindowObject
+class CSystemOptionsWindow : public InterfaceObjectConfigurable
 {
 private:
-	std::shared_ptr<CLabel> title;
-	std::shared_ptr<CLabelGroup> leftGroup;
-	std::shared_ptr<CLabelGroup> rightGroup;
-	std::shared_ptr<CButton> load;
-	std::shared_ptr<CButton> save;
-	std::shared_ptr<CButton> restart;
-	std::shared_ptr<CButton> mainMenu;
-	std::shared_ptr<CButton> quitGame;
-	std::shared_ptr<CButton> backToMap; //load and restart are not used yet
-	std::shared_ptr<CToggleGroup> heroMoveSpeed;
-	std::shared_ptr<CToggleGroup> enemyMoveSpeed;
-	std::shared_ptr<CToggleGroup> mapScrollSpeed;
-	std::shared_ptr<CVolumeSlider> musicVolume;
-	std::shared_ptr<CVolumeSlider> effectsVolume;
-
-	std::shared_ptr<CToggleButton> showReminder;
-	std::shared_ptr<CToggleButton> quickCombat;
-	std::shared_ptr<CToggleButton> spellbookAnim;
-	std::shared_ptr<CToggleButton> fullscreen;
-
-	std::shared_ptr<CButton> gameResButton;
-	std::shared_ptr<CLabel> gameResLabel;
-
 	SettingsListener onFullscreenChanged;
 
 	//functions bound to buttons
-	void bloadf(); //load game
-	void bsavef(); //save game
-	void bquitf(); //quit game
-	void breturnf(); //return to game
-	void brestartf(); //restart game
-	void bmainmenuf(); //return to main menu
+	void loadGameButtonCallback(); //load game
+	void saveGameButtonCallback(); //save game
+	void quitGameButtonCallback(); //quit game
+	void backButtonCallback(); //return to game
+	void restartGameButtonCallback(); //restart game
+	void mainMenuButtonCallback(); //return to main menu
 
-	void selectGameRes();
-	void setGameRes(int index);
+	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
+	void selectGameResolution();
+	void setGameResolution(int index);
 	void closeAndPushEvent(int eventType, int code = 0);
 
 public:

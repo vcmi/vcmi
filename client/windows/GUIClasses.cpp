@@ -443,119 +443,99 @@ static std::string resolutionToString(int w, int h)
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow()
-	: CWindowObject(PLAYER_COLORED, "SysOpBck"),
+	: InterfaceObjectConfigurable(),
 	onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	title = std::make_shared<CLabel>(242, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	//left window section
-	leftGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);
-	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
-	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
-	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
-	leftGroup->add(122, 262, CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover"));
-	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
-	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
+	const JsonNode config(ResourceID("config/widgets/optionsMenu.json"));
+	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
+	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });
+	addCallback("restartGame", [this](int) { restartGameButtonCallback(); });
+	addCallback("quitGame", [this](int) { quitGameButtonCallback(); });
+	addCallback("returnToMainMenu", [this](int) { mainMenuButtonCallback(); });
+	addCallback("closeWindow", [this](int) { backButtonCallback(); });
+	addCallback("playerHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
+	addCallback("enemyHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
+	addCallback("mapScrollSpeedChanged", std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
+	addCallback("heroReminderChanged", std::bind(&setBoolSetting, "adventure", "heroReminder", _1));
+	addCallback("quickCombatChanged", std::bind(&setBoolSetting, "adventure", "quickCombat", _1));
+	addCallback("spellbookAnimationChanged", std::bind(&setBoolSetting, "video", "spellbookAnimation", _1));
+	addCallback("fullscreenChanged", std::bind(&setBoolSetting, "video", "fullscreen", _1));
+	addCallback("setGameResolution", std::bind(&CSystemOptionsWindow::selectGameResolution, this));
+	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
+	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
+	build(config);
 
-	//right section
-	rightGroup = std::make_shared<CLabelGroup>(FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
-	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
-	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
-	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
-	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
-	rightGroup->add(282, 217, CGI->generaltexth->translate("vcmi.systemOptions.fullscreenButton.hover"));
+	std::shared_ptr<CPicture> background = widget<CPicture>("background");
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
+	pos = center();
 
-	//setting up buttons
-	load = std::make_shared<CButton>(Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
-	load->setImageOrder(1, 0, 2, 3);
+	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
+	const auto & currentResolution = settings["video"]["screenRes"];
+	resolutionLabel->setText(resolutionToString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
 
-	save = std::make_shared<CButton>(Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&](){ bsavef(); }, SDLK_s);
-	save->setImageOrder(1, 0, 2, 3);
 
-	restart = std::make_shared<CButton>(Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
-	restart->setImageOrder(1, 0, 2, 3);
+	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
+	playerHeroSpeedToggle->setSelected((int)settings["adventure"]["heroSpeed"].Float());
+
+	std::shared_ptr<CToggleGroup> enemyHeroSpeedToggle = widget<CToggleGroup>("enemyMovementSpeedPicker");
+	enemyHeroSpeedToggle->setSelected((int)settings["adventure"]["enemySpeed"].Float());
+
+	std::shared_ptr<CToggleGroup> mapScrollSpeedToggle = widget<CToggleGroup>("mapScrollSpeedPicker");
+	mapScrollSpeedToggle->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
+
+
+	std::shared_ptr<CToggleButton> heroReminderCheckbox = widget<CToggleButton>("heroReminderCheckbox");
+	heroReminderCheckbox->setSelected((bool)settings["adventure"]["heroReminder"].Bool());
+
+	std::shared_ptr<CToggleButton> quickCombatCheckbox = widget<CToggleButton>("quickCombatCheckbox");
+	quickCombatCheckbox->setSelected((bool)settings["adventure"]["quickCombat"].Bool());
+
+	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
+	spellbookAnimationCheckbox->setSelected((bool)settings["video"]["spellbookAnimation"].Bool());
+
+	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
+	fullscreenCheckbox->setSelected((bool)settings["video"]["fullscreen"].Bool());
+	onFullscreenChanged([&](const JsonNode &newState) //used when pressing F4 etc. to change fullscreen checkbox state
+	{
+		widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
+	});
+
+
+	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
+	musicSlider->moveTo(CCS->musich->getVolume());
+
+	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
+	volumeSlider->moveTo(CCS->soundh->getVolume());
+
+
+	std::shared_ptr<CButton> loadButton = widget<CButton>("loadButton");
+	assert(loadButton);
+
+	std::shared_ptr<CButton> saveButton = widget<CButton>("saveButton");
+	assert(saveButton);
+
+	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
+	assert(restartButton);
 
 	if(CSH->isGuest())
 	{
-		load->block(true);
-		save->block(true);
-		restart->block(true);
+		loadButton->block(true);
+		saveButton->block(true);
+		restartButton->block(true);
 	}
-
-	mainMenu = std::make_shared<CButton>(Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
-	mainMenu->setImageOrder(1, 0, 2, 3);
-
-	quitGame = std::make_shared<CButton>(Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&](){ bquitf(); }, SDLK_q);
-	quitGame->setImageOrder(1, 0, 2, 3);
-
-	backToMap = std::make_shared<CButton>( Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&](){ breturnf(); }, SDLK_RETURN);
-	backToMap->setImageOrder(1, 0, 2, 3);
-	backToMap->assignedKeys.insert(SDLK_ESCAPE);
-
-	heroMoveSpeed = std::make_shared<CToggleGroup>(0);
-	enemyMoveSpeed = std::make_shared<CToggleGroup>(0);
-	mapScrollSpeed = std::make_shared<CToggleGroup>(0);
-
-	heroMoveSpeed->addToggle(1, std::make_shared<CToggleButton>(Point( 28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
-	heroMoveSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
-	heroMoveSpeed->addToggle(4, std::make_shared<CToggleButton>(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
-	heroMoveSpeed->addToggle(8, std::make_shared<CToggleButton>(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
-	heroMoveSpeed->setSelected((int)settings["adventure"]["heroSpeed"].Float());
-	heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
-
-	enemyMoveSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
-	enemyMoveSpeed->addToggle(4, std::make_shared<CToggleButton>(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
-	enemyMoveSpeed->addToggle(8, std::make_shared<CToggleButton>(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
-	enemyMoveSpeed->addToggle(0, std::make_shared<CToggleButton>(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
-	enemyMoveSpeed->setSelected((int)settings["adventure"]["enemySpeed"].Float());
-	enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
-
-	mapScrollSpeed->addToggle(1, std::make_shared<CToggleButton>(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
-	mapScrollSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
-	mapScrollSpeed->addToggle(4, std::make_shared<CToggleButton>(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
-	mapScrollSpeed->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
-	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
-
-	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), CVolumeSlider::MUSIC);
-	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
-
-	effectsVolume = std::make_shared<CVolumeSlider>(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), CVolumeSlider::SOUND);
-	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
-
-	showReminder = std::make_shared<CToggleButton>(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361], [&](bool value)
-	{
-		setBoolSetting("adventure", "heroReminder", value);
-	});
-	showReminder->setSelected(settings["adventure"]["heroReminder"].Bool());
-
-	quickCombat = std::make_shared<CToggleButton>(Point(246, 87+32), "sysopchk.def", CGI->generaltexth->zelp[362], [&](bool value)
-	{
-		setBoolSetting("adventure", "quickCombat", value);
-	});
-	quickCombat->setSelected(settings["adventure"]["quickCombat"].Bool());
-
-	spellbookAnim = std::make_shared<CToggleButton>(Point(246, 87+64), "sysopchk.def", CGI->generaltexth->zelp[364], [&](bool value)
-	{
-		setBoolSetting("video", "spellbookAnimation", value);
-	});
-	spellbookAnim->setSelected(settings["video"]["spellbookAnimation"].Bool());
-
-	fullscreen = std::make_shared<CToggleButton>(Point(246, 215), "sysopchk.def", CButton::tooltipLocalized("vcmi.systemOptions.fullscreenButton"), [&](bool value)
-	{
-		setBoolSetting("video", "fullscreen", value);
-	});
-	fullscreen->setSelected(settings["video"]["fullscreen"].Bool());
-
-	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
-
-	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltipLocalized("vcmi.systemOptions.resolutionButton"), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
-
-	const auto & screenRes = settings["video"]["screenRes"];
-	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
 }
 
-void CSystemOptionsWindow::selectGameRes()
+void CSystemOptionsWindow::close()
+{
+	if(GH.topInt().get() != this)
+		logGlobal->error("Only top interface must be closed");
+	GH.popInts(1);
+}
+
+void CSystemOptionsWindow::selectGameResolution()
 {
 	std::vector<std::string> items;
 
@@ -575,7 +555,7 @@ void CSystemOptionsWindow::selectGameRes()
 #endif
 
 		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
-		if(gameResLabel->getText() == resolutionStr)
+		if(widget<CLabel>("resolutionLabel")->getText() == resolutionStr)
 			currentResolutionIndex = i;
 		items.push_back(std::move(resolutionStr));
 		++i;
@@ -584,11 +564,11 @@ void CSystemOptionsWindow::selectGameRes()
 	GH.pushIntT<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
-								   std::bind(&CSystemOptionsWindow::setGameRes, this, _1),
+								   std::bind(&CSystemOptionsWindow::setGameResolution, this, _1),
 								   currentResolutionIndex);
 }
 
-void CSystemOptionsWindow::setGameRes(int index)
+void CSystemOptionsWindow::setGameResolution(int index)
 {
 	auto iter = conf.guiOptions.begin();
 	std::advance(iter, index);
@@ -604,37 +584,37 @@ void CSystemOptionsWindow::setGameRes(int index)
 	resText += boost::lexical_cast<std::string>(iter->first.first);
 	resText += "x";
 	resText += boost::lexical_cast<std::string>(iter->first.second);
-	gameResLabel->setText(resText);
+	widget<CLabel>("resolutionLabel")->setText(resText);
 }
 
-void CSystemOptionsWindow::bquitf()
+void CSystemOptionsWindow::quitGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
 }
 
-void CSystemOptionsWindow::breturnf()
+void CSystemOptionsWindow::backButtonCallback()
 {
 	close();
 }
 
-void CSystemOptionsWindow::bmainmenuf()
+void CSystemOptionsWindow::mainMenuButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
 }
 
-void CSystemOptionsWindow::bloadf()
+void CSystemOptionsWindow::loadGameButtonCallback()
 {
 	close();
 	LOCPLINT->proposeLoadingGame();
 }
 
-void CSystemOptionsWindow::bsavef()
+void CSystemOptionsWindow::saveGameButtonCallback()
 {
 	close();
 	GH.pushIntT<CSavingScreen>();
 }
 
-void CSystemOptionsWindow::brestartf()
+void CSystemOptionsWindow::restartGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
 }
