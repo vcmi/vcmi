@@ -17,7 +17,6 @@
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
-#include "gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -195,28 +194,6 @@ public:
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
 	void keyPressed (const SDL_KeyboardEvent & key) override;
-};
-
-class CSystemOptionsWindow : public InterfaceObjectConfigurable
-{
-private:
-	SettingsListener onFullscreenChanged;
-
-	//functions bound to buttons
-	void loadGameButtonCallback(); //load game
-	void saveGameButtonCallback(); //save game
-	void quitGameButtonCallback(); //quit game
-	void backButtonCallback(); //return to game
-	void restartGameButtonCallback(); //restart game
-	void mainMenuButtonCallback(); //return to main menu
-
-	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
-	void selectGameResolution();
-	void setGameResolution(int index);
-	void closeAndPushEvent(int eventType, int code = 0);
-
-public:
-	CSystemOptionsWindow();
 };
 
 class CTavernWindow : public CStatusbarWindow

@@ -36,6 +36,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
+#include "../windows/SystemOptionsWindow.h"
 
 #include "../../CCallback.h"
 
@@ -817,7 +818,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	GH.pushIntT<CSystemOptionsWindow>();
+	GH.pushIntT<SystemOptionsWindow>();
 }
 
 void CAdvMapInt::fnextHero()

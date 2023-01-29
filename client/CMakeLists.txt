@@ -50,6 +50,7 @@ set(client_SRCS
 		windows/GUIClasses.cpp
 		windows/InfoWindows.cpp
 		windows/QuickRecruitmentWindow.cpp
+		windows/SystemOptionsWindow.cpp
 
 		mainmenu/CMainMenu.cpp
 		mainmenu/CCampaignScreen.cpp
@@ -138,6 +139,7 @@ set(client_HEADERS
 		windows/GUIClasses.h
 		windows/InfoWindows.h
 		windows/QuickRecruitmentWindow.h
+		windows/SystemOptionsWindow.h
 
 		mainmenu/CMainMenu.h
 		mainmenu/CCampaignScreen.h
