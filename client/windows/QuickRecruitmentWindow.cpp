@@ -101,7 +101,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 
 void QuickRecruitmentWindow::purchaseUnits()
 {
-	for(auto selected : cards)
+	for(auto selected : boost::adaptors::reverse(cards))
 	{
 		if(selected->slider->getValue())
 		{

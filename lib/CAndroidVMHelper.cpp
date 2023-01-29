@@ -96,7 +96,7 @@ jclass CAndroidVMHelper::findClass(const std::string & name, bool classloaded)
 	return get()->FindClass(name.c_str());
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jobject * cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
 {
 	CAndroidVMHelper::cacheVM(baseEnv);
 	CAndroidVMHelper envHelper;

@@ -95,7 +95,7 @@
 - (void)handlePinch:(UIGestureRecognizer *)gesture {
     if(gesture.state != UIGestureRecognizerStateBegan || CSH->state != EClientState::GAMEPLAY)
         return;
-	[self.gameChatHandler triggerInput];
+	[GameChatKeyboardHandler sendKeyEventWithKeyCode:SDLK_SPACE];
 }
 
 #pragma mark - UIGestureRecognizerDelegate
