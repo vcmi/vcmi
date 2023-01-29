@@ -16,6 +16,8 @@
 #include "CAnimation.h"
 #include "../../lib/CConfigHandler.h"
 
+#include <SDL_render.h>
+
 #ifdef VCMI_APPLE
 #include <dispatch/dispatch.h>
 #endif

@@ -9,10 +9,10 @@
  */
 
 #pragma once
-#include <SDL_render.h>
 #include <SDL_events.h>
 #include "../../lib/GameConstants.h"
 #include "../../lib/Rect.h"
+#include "../../lib/Color.h"
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -78,6 +78,12 @@ Rect fromSDL(const SDL_Rect & rect);
 
 /// creates SDL_Rect using provided rect
 SDL_Rect toSDL(const Rect & rect);
+
+/// creates Color using provided SDL_Color
+ColorRGBA fromSDL(const SDL_Color & color);
+
+/// creates SDL_Color using provided Color
+SDL_Color toSDL(const ColorRGBA & color);
 
 void setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 void warpMouse(int x, int y);

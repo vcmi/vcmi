@@ -66,6 +66,22 @@ SDL_Rect CSDL_Ext::toSDL(const Rect & rect)
 	return result;
 }
 
+ColorRGBA CSDL_Ext::fromSDL(const SDL_Color & color)
+{
+	return { color.r, color.g, color.b, color.a };
+}
+
+SDL_Color CSDL_Ext::toSDL(const ColorRGBA & color)
+{
+	SDL_Color result;
+	result.r = color.r;
+	result.g = color.g;
+	result.b = color.b;
+	result.a = color.a;
+
+	return result;
+}
+
 void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
 	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);

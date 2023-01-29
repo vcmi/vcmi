@@ -192,9 +192,9 @@ void CBuildingRect::show(SDL_Surface * to)
 		if(border->format->palette != nullptr)
 		{
 			// key colors in glowing border
-			SDL_Color c1 = {200, 200, 200, 255};
-			SDL_Color c2 = {120, 100,  60, 255};
-			SDL_Color c3 = {200, 180, 110, 255};
+			SDL_Color c1 = {200, 200, 200, 255}; // x2
+			SDL_Color c2 = {120, 100,  60, 255}; // x0.5
+			SDL_Color c3 = {210, 180, 110, 255}; // x1
 
 			ui32 colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
 			SDL_Color oldColor = border->format->palette->colors[colorID];

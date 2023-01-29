@@ -12,13 +12,12 @@
 #include "../gui/CIntObject.h"
 #include "../battle/BattleConstants.h"
 
-#include <SDL_render.h>
-
 VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
+struct SDL_Color;
 class CAnimImage;
 class CLabel;
 class CAnimation;

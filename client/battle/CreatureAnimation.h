@@ -13,6 +13,8 @@
 #include "../widgets/Images.h"
 #include "../gui/CAnimation.h"
 
+#include <SDL_render.h>
+
 class CIntObject;
 class CreatureAnimation;
 class Canvas;

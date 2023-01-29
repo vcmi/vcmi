@@ -355,13 +355,11 @@ void CTownList::update(const CGTownInstance *)
 
 const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 {
-	static const SDL_Color fogOfWar = {0, 0, 0, 255};
-
 	const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
 
 	// if tile is not visible it will be black on minimap
 	if(!tile)
-		return fogOfWar;
+		return Colors::BLACK;
 
 	// if object at tile is owned - it will be colored as its owner
 	for (const CGObjectInstance *obj : tile->blockingObjects)
@@ -494,21 +492,8 @@ std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 
 	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		SDL_Color normal =
-		{
-			ui8(terrain->minimapUnblocked[0]),
-			ui8(terrain->minimapUnblocked[1]),
-			ui8(terrain->minimapUnblocked[2]),
-			ui8(255)
-		};
-
-		SDL_Color blocked =
-		{
-			ui8(terrain->minimapBlocked[0]),
-			ui8(terrain->minimapBlocked[1]),
-			ui8(terrain->minimapBlocked[2]),
-			ui8(255)
-		};
+		SDL_Color normal = CSDL_Ext::toSDL(terrain->minimapUnblocked);
+		SDL_Color blocked = CSDL_Ext::toSDL(terrain->minimapBlocked);
 
 		ret[terrain->getId()] = std::make_pair(normal, blocked);
 	}

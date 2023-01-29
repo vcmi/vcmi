@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../../lib/vcmi_endian.h"
 #include "../../lib/GameConstants.h"
 
 #ifdef IN

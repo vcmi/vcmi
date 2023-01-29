@@ -640,9 +640,8 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		SDL_Color firstLineColor, secondLineColor;
 		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 		{
-			static const SDL_Color unavailableSpell = {239, 189, 33, 0};
 			firstLineColor = Colors::WHITE;
-			secondLineColor = unavailableSpell;
+			secondLineColor = Colors::ORANGE;
 		}
 		else
 		{

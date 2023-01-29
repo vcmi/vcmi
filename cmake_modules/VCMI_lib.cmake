@@ -414,6 +414,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CModHandler.h
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
+		${MAIN_LIB_DIR}/Color.h
 		${MAIN_LIB_DIR}/CPathfinder.h
 		${MAIN_LIB_DIR}/CPlayerState.h
 		${MAIN_LIB_DIR}/CRandomGenerator.h

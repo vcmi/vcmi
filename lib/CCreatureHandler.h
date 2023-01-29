@@ -19,6 +19,7 @@
 #include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
+#include "Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -63,12 +64,12 @@ public:
 	struct CreatureAnimation
 	{
 		struct RayColor {
-			uint8_t r1, g1, b1, a1;
-			uint8_t r2, g2, b2, a2;
+			ColorRGBA start;
+			ColorRGBA end;
 
 			template <typename Handler> void serialize(Handler &h, const int version)
 			{
-				h & r1 & g1 & b1 & a1 & r2 & g2 & b2 & a2;
+				h & start & end;
 			}
 		};
 

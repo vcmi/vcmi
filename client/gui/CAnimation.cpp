@@ -17,10 +17,11 @@
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
 
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/ISimpleResourceLoader.h"
-#include "../lib/JsonNode.h"
-#include "../lib/CRandomGenerator.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/ISimpleResourceLoader.h"
+#include "../../lib/JsonNode.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/vcmi_endian.h"
 
 class SDLImageLoader;
 
