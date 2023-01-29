@@ -30,7 +30,6 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../windows/CMessage.h"
-#include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -679,46 +678,6 @@ void BattleResultWindow::bExitf()
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
-}
-
-void ClickableHex::hover(bool on)
-{
-	hovered = on;
-	//Hoverable::hover(on);
-}
-
-ClickableHex::ClickableHex()
-	: myNumber(-1)
-	, strictHovered(false)
-	, myInterface(nullptr)
-{
-	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
-}
-
-void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
-{
-	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
-}
-
-void ClickableHex::clickLeft(tribool down, bool previousState)
-{
-	if(!down && hovered && strictHovered) //we've been really clicked!
-	{
-		myInterface->actionsController->onHexClicked(myNumber);
-	}
-}
-
-void ClickableHex::clickRight(tribool down, bool previousState)
-{
-	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
-	if(hovered && strictHovered && myst!=nullptr)
-	{
-		if(!myst->alive()) return;
-		if(down)
-		{
-			GH.pushIntT<CStackWindow>(myst, true);
-		}
-	}
 }
 
 StackQueue::StackQueue(bool Embedded, BattleInterface & owner)

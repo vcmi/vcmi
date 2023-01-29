@@ -27,6 +27,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../windows/CCreatureWindow.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
@@ -76,20 +77,11 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
-	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
-	{
-		auto hex = std::make_shared<ClickableHex>();
-		hex->myNumber = h;
-		hex->pos = hexPositionAbsolute(h);
-		hex->myInterface = &owner;
-		bfield.push_back(hex);
-	}
-
 	auto accessibility = owner.curInt->cb->getAccesibility();
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 
-	addUsedEvents(MOVE);
+	addUsedEvents(LCLICK | RCLICK | MOVE);
 	LOCPLINT->cingconsole->pos = this->pos;
 }
 
@@ -112,6 +104,29 @@ void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
 	owner.actionsController->onHexHovered(selectedHex);
 }
 
+void BattleFieldController::clickLeft(tribool down, bool previousState)
+{
+	if(!down)
+	{
+		BattleHex selectedHex = getHoveredHex();
+
+		if (selectedHex != BattleHex::INVALID)
+			owner.actionsController->onHexClicked(selectedHex);
+	}
+}
+
+void BattleFieldController::clickRight(tribool down, bool previousState)
+{
+	if(down)
+	{
+		BattleHex selectedHex = getHoveredHex();
+
+		auto selectedStack = owner.curInt->cb->battleGetStackByPos(selectedHex, true);
+
+		if (selectedStack != nullptr)
+			GH.pushIntT<CStackWindow>(selectedStack, true);
+	}
+}
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
@@ -348,9 +363,18 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 
 BattleHex BattleFieldController::getHoveredHex()
 {
-	for ( auto const & hex : bfield)
-		if (hex->hovered && hex->strictHovered)
-			return hex->myNumber;
+	Point hoverPos = GH.getCursorPosition();
+
+	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
+	{
+		Rect hexPosition = hexPositionAbsolute(h);
+
+		if (!hexPosition.isInside(hoverPos))
+			continue;
+
+		if (isPixelInHex(hoverPos - hexPosition.topLeft()))
+			return h;
+	}
 
 	return BattleHex::INVALID;
 }
