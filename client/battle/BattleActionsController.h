@@ -106,8 +106,14 @@ public:
 	/// update cursor and status bar according to new active hex
 	void onHexHovered(BattleHex hoveredHex);
 
+	/// called when cursor is no longer over battlefield and cursor/battle log should be reset
+	void onHoverEnded();
+
 	/// performs action according to selected hex
-	void onHexClicked(BattleHex clickedHex);
+	void onHexLeftClicked(BattleHex clickedHex);
+
+	/// performs action according to selected hex
+	void onHexRightClicked(BattleHex clickedHex);
 
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell() const;

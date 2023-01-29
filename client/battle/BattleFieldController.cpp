@@ -27,13 +27,14 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../windows/CCreatureWindow.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/spells/ISpellMechanics.h"
+
+#include <SDL_events.h>
 
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
@@ -99,8 +100,13 @@ void BattleFieldController::createHeroes()
 
 void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
 {
-	BattleHex selectedHex = getHoveredHex();
+	if (!pos.isInside(event.x, event.y))
+	{
+		owner.actionsController->onHoverEnded();
+		return;
+	}
 
+	BattleHex selectedHex = getHoveredHex();
 	owner.actionsController->onHexHovered(selectedHex);
 }
 
@@ -111,7 +117,7 @@ void BattleFieldController::clickLeft(tribool down, bool previousState)
 		BattleHex selectedHex = getHoveredHex();
 
 		if (selectedHex != BattleHex::INVALID)
-			owner.actionsController->onHexClicked(selectedHex);
+			owner.actionsController->onHexLeftClicked(selectedHex);
 	}
 }
 
@@ -121,10 +127,9 @@ void BattleFieldController::clickRight(tribool down, bool previousState)
 	{
 		BattleHex selectedHex = getHoveredHex();
 
-		auto selectedStack = owner.curInt->cb->battleGetStackByPos(selectedHex, true);
+		if (selectedHex != BattleHex::INVALID)
+			owner.actionsController->onHexRightClicked(selectedHex);
 
-		if (selectedStack != nullptr)
-			GH.pushIntT<CStackWindow>(selectedStack, true);
 	}
 }
 
@@ -364,6 +369,19 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 BattleHex BattleFieldController::getHoveredHex()
 {
 	Point hoverPos = GH.getCursorPosition();
+
+	if (owner.attackingHero)
+	{
+		if (owner.attackingHero->pos.isInside(hoverPos))
+			return BattleHex::HERO_ATTACKER;
+	}
+
+	if (owner.defendingHero)
+	{
+		if (owner.attackingHero->pos.isInside(hoverPos))
+			return BattleHex::HERO_DEFENDER;
+	}
+
 
 	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
 	{

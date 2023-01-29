@@ -122,9 +122,9 @@ public:
 	void pause();
 	void play();
 
-	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override; //call-in
-	void clickRight(tribool down, bool previousState) override; //call-in
+	void heroLeftClicked();
+	void heroRightClicked();
+
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 

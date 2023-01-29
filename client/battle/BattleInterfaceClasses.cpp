@@ -273,24 +273,12 @@ void BattleHero::setPhase(EHeroAnimType newPhase)
 	nextPhase = EHeroAnimType::HOLDING;
 }
 
-void BattleHero::hover(bool on)
-{
-	//TODO: BROKEN CODE
-	if (on)
-		CCS->curh->set(Cursor::Combat::HERO);
-	else
-		CCS->curh->set(Cursor::Combat::POINTER);
-}
-
-void BattleHero::clickLeft(tribool down, bool previousState)
+void BattleHero::heroLeftClicked()
 {
 	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
-	if(boost::logic::indeterminate(down))
-		return;
-
-	if(!hero || down || !owner.makingTurn())
+	if(!hero || !owner.makingTurn())
 		return;
 
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
@@ -306,17 +294,14 @@ void BattleHero::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void BattleHero::clickRight(tribool down, bool previousState)
+void BattleHero::heroRightClicked()
 {
-	if(boost::logic::indeterminate(down))
-		return;
-
 	Point windowPosition;
 	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
-	if(down && (owner.makingTurn() || settings["session"]["spectate"].Bool()))
+	if(owner.makingTurn() || settings["session"]["spectate"].Bool())
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
@@ -372,8 +357,6 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 
 	flagAnimation->preload();
 	flagAnimation->playerColored(hero->tempOwner);
-
-	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	switchToNextPhase();
 	play();

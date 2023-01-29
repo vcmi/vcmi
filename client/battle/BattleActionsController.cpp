@@ -134,6 +134,7 @@ std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActi
 	data.tacticsMode = owner.tacticsMode;
 	auto allActions = owner.curInt->cb->getClientActionsForStack(stack, data);
 
+	allActions.push_back(PossiblePlayerBattleAction::HERO_INFO);
 	allActions.push_back(PossiblePlayerBattleAction::CREATURE_INFO);
 
 	return std::vector<PossiblePlayerBattleAction>(allActions);
@@ -175,8 +176,10 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			return 10; break;
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return 11; break;
-		case PossiblePlayerBattleAction::TELEPORT:
+		case PossiblePlayerBattleAction::HERO_INFO:
 			return 12; break;
+		case PossiblePlayerBattleAction::TELEPORT:
+			return 13; break;
 		default:
 			assert(0);
 			return 200; break;
@@ -304,6 +307,9 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			CCS->curh->set(Cursor::Combat::QUERY);
 			return;
+		case PossiblePlayerBattleAction::HERO_INFO:
+			CCS->curh->set(Cursor::Combat::HERO);
+			return;
 	}
 	assert(0);
 }
@@ -394,6 +400,9 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (boost::format(CGI->generaltexth->allTexts[297]) % targetStack->getName()).str();
+
+		case PossiblePlayerBattleAction::HERO_INFO:
+			return ""; //TODO: "View Hero Stats"
 	}
 	assert(0);
 	return "";
@@ -431,6 +440,15 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (targetStack && targetStackOwned);
+
+		case PossiblePlayerBattleAction::HERO_INFO:
+			if (targetHex == BattleHex::HERO_ATTACKER)
+				return owner.attackingHero != nullptr;
+
+			if (targetHex == BattleHex::HERO_DEFENDER)
+				return owner.defendingHero != nullptr;
+
+			return false;
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
@@ -562,6 +580,17 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 			return;
 		}
 
+		case PossiblePlayerBattleAction::HERO_INFO:
+		{
+			if (targetHex == BattleHex::HERO_ATTACKER)
+				owner.attackingHero->heroLeftClicked();
+
+			if (targetHex == BattleHex::HERO_DEFENDER)
+				owner.defendingHero->heroLeftClicked();
+
+			return;
+		}
+
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		case PossiblePlayerBattleAction::ANY_LOCATION:
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
@@ -657,6 +686,7 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 			GH.statusbar->clearIfMatching(currentConsoleMsg);
 
 		currentConsoleMsg.clear();
+		CCS->curh->set(Cursor::Combat::BLOCKED);
 		return;
 	}
 
@@ -684,7 +714,17 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	currentConsoleMsg = newConsoleMsg;
 }
 
-void BattleActionsController::onHexClicked(BattleHex clickedHex)
+void BattleActionsController::onHoverEnded()
+{
+	CCS->curh->set(Cursor::Combat::POINTER);
+
+	if (!currentConsoleMsg.empty())
+		GH.statusbar->clearIfMatching(currentConsoleMsg);
+
+	currentConsoleMsg.clear();
+}
+
+void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 {
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
@@ -795,6 +835,20 @@ void BattleActionsController::activateStack()
 		}
 		owner.windowObject->setAlternativeActions(actionsToSelect);
 	}
+}
+
+void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
+{
+	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
+
+	if (selectedStack != nullptr)
+		GH.pushIntT<CStackWindow>(selectedStack, true);
+
+	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
+		owner.attackingHero->heroRightClicked();
+
+	if (clickedHex == BattleHex::HERO_DEFENDER && owner.defendingHero)
+		owner.defendingHero->heroRightClicked();
 }
 
 bool BattleActionsController::spellcastingModeActive() const
