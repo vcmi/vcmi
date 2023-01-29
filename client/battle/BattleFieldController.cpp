@@ -233,19 +233,9 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 	const spells::Caster *caster = nullptr;
 	const CSpell *spell = nullptr;
 
-	spells::Mode mode = spells::Mode::HERO;
-
-	if(owner.actionsController->spellcastingModeActive())//hero casts spell
-	{
-		spell = owner.actionsController->getHeroSpellToCast();
-		caster = owner.getActiveHero();
-	}
-	else if(owner.actionsController->getStackSpellToCast(hoveredHex) != nullptr)//stack casts spell
-	{
-		spell = owner.actionsController->getStackSpellToCast(hoveredHex);
-		caster = owner.stacksController->getActiveStack();
-		mode = spells::Mode::CREATURE_ACTIVE;
-	}
+	spells::Mode mode = owner.actionsController->getCurrentCastMode();
+	spell = owner.actionsController->getCurrentSpell();
+	caster = owner.actionsController->getCurrentSpellcaster();
 
 	if(caster && spell) //when casting spell
 	{
@@ -310,7 +300,10 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredSpell = getHighlightedHexesSpellRange();
 	std::set<BattleHex> hoveredMove  = getHighlightedHexesMovementTarget();
 
-	auto const & hoveredMouse = owner.actionsController->spellcastingModeActive() ? hoveredSpell : hoveredMove;
+	if (getHoveredHex() == BattleHex::INVALID)
+		return;
+
+	auto const & hoveredMouse = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpell : hoveredMove;
 
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{

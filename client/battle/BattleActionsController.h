@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class BattleAction;
 namespace spells {
 class Caster;
+enum class Mode;
 }
 
 VCMI_LIB_NAMESPACE_END
@@ -63,13 +64,21 @@ class BattleActionsController
 
 	PossiblePlayerBattleAction selectAction(BattleHex myNumber);
 
-	const CStack * getStackForHex(BattleHex myNumber);
+	const CStack * getStackForHex(BattleHex myNumber) ;
 
 	/// attempts to initialize spellcasting action for stack
 	/// will silently return if stack is not a spellcaster
 	void tryActivateStackSpellcasting(const CStack *casterStack);
 
-	const spells::Caster * getCurrentSpellcaster() const;
+	/// returns spell that is currently being cast by hero or nullptr if none
+	const CSpell * getHeroSpellToCast() const;
+
+	/// if current stack is spellcaster, returns spell being cast, or null othervice
+	const CSpell * getStackSpellToCast( ) const;
+
+	/// returns true if current stack is a spellcaster
+	bool isActiveStackSpellcaster() const;
+
 public:
 	BattleActionsController(BattleInterface & owner);
 
@@ -78,6 +87,12 @@ public:
 
 	/// returns true if UI is currently in target selection mode
 	bool spellcastingModeActive() const;
+
+	/// returns true if one of the following is true:
+	/// - we are casting spell by hero
+	/// - we are casting spell by creature in targeted mode (F hotkey)
+	/// - current creature is spellcaster and preferred action for current hex is spellcast
+	bool currentActionSpellcasting(BattleHex hoveredHex);
 
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
@@ -94,15 +109,9 @@ public:
 	/// performs action according to selected hex
 	void onHexClicked(BattleHex clickedHex);
 
-	/// returns spell that is currently being cast by hero or nullptr if none
-	const CSpell * getHeroSpellToCast() const;
-
-	/// if current stack is spellcaster, returns spell being cast, or null othervice
-	const CSpell * getStackSpellToCast( BattleHex targetHex ) const;
-	const CSpell * getAnySpellToCast( BattleHex targetHex ) const;
-
-	/// returns true if current stack is a spellcaster
-	bool isActiveStackSpellcaster() const;
+	const spells::Caster * getCurrentSpellcaster() const;
+	const CSpell * getCurrentSpell() const;
+	spells::Mode getCurrentCastMode() const;
 
 	/// methods to work with array of possible actions, needed to control special creatures abilities
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
