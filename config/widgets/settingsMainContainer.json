@@ -7,6 +7,7 @@
 			"image": "vcmiSettingsWindow",
 			"position": {"x": 0, "y": 0}
 		},
+
 		{
 			"name": "activateSystemOptionsButton",
 			"type": "button",
@@ -19,7 +20,7 @@
 		{
 			"name": "activateBattleSettingsButton",
 			"type": "button",
-			"position": {"x": 250, "y": 0},
+			"position": {"x": 220, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
 			"callback": "activateBattleSettingsTab"
@@ -28,10 +29,76 @@
 		{
 			"name": "activateVcmiSettingsButton",
 			"type": "button",
-			"position": {"x": 500, "y": 0},
+			"position": {"x": 440, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
 			"callback": "activateVcmiSettingsTab"
+		},
+
+		{
+			"name": "loadButton",
+			"type": "button",
+			"position": {"x": 346, "y": 298},
+			"image": "SOLOAD.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.321",
+			"callback": "loadGame",
+			"hotkey": "l"
+		},
+
+		{
+			"name": "saveButton",
+			"type": "button",
+			"position": {"x": 457, "y": 298},
+			"image": "SOSAVE.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.322",
+			"callback": "saveGame",
+			"hotkey": "s"
+		},
+
+		{
+			"name": "restartButton",
+			"type": "button",
+			"position": {"x": 346, "y": 357},
+			"image": "SORSTRT.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.323",
+			"callback": "restartGame",
+			"hotkey": "r"
+		},
+
+		{
+			"name": "mainMenuButton",
+			"type": "button",
+			"position": {"x": 457, "y": 357},
+			"image": "SOMAIN.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.320",
+			"callback": "returnToMainMenu",
+			"hotkey": "m"
+		},
+
+		{
+			"name": "quitButton",
+			"type": "button",
+			"position": {"x": 346, "y": 415},
+			"image": "soquit.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.324",
+			"callback": "quitGame",
+			"hotkey": "q"
+		},
+
+		{
+			"name": "closeSettingsButton",
+			"type": "button",
+			"position": {"x": 457, "y": 415},
+			"image": "soretrn.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.325",
+			"callback": "closeWindow",
+			"hotkey": ["esc", "backspace"]
 		}
 	]
 }

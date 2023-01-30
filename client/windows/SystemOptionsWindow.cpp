@@ -23,7 +23,6 @@
 #include "VcmiSettingsWindow.h"
 #include "GUIClasses.h"
 #include "CServerHandler.h"
-#include "lobby/CSavingScreen.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -50,12 +49,6 @@ SystemOptionsWindow::SystemOptionsWindow()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	const JsonNode config(ResourceID("config/widgets/optionsMenu.json"));
-	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
-	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });
-	addCallback("restartGame", [this](int) { restartGameButtonCallback(); });
-	addCallback("quitGame", [this](int) { quitGameButtonCallback(); });
-	addCallback("returnToMainMenu", [this](int) { mainMenuButtonCallback(); });
-	addCallback("closeWindow", [this](int) { backButtonCallback(); });
 	addCallback("playerHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
 	addCallback("enemyHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
 	addCallback("mapScrollSpeedChanged", std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
@@ -66,13 +59,7 @@ SystemOptionsWindow::SystemOptionsWindow()
 	addCallback("setGameResolution", std::bind(&SystemOptionsWindow::selectGameResolution, this));
 	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
 	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
-	addCallback("openVcmiSettings", [this](int) { showVcmiSettingsButtonCallback(); });
 	build(config);
-
-//	std::shared_ptr<CPicture> background = widget<CPicture>("background");
-//	pos.w = background->pos.w;
-//	pos.h = background->pos.h;
-//	pos = center();
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 	const auto & currentResolution = settings["video"]["screenRes"];
@@ -101,9 +88,9 @@ SystemOptionsWindow::SystemOptionsWindow()
 	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
 	fullscreenCheckbox->setSelected((bool)settings["video"]["fullscreen"].Bool());
 	onFullscreenChanged([&](const JsonNode &newState) //used when pressing F4 etc. to change fullscreen checkbox state
-						{
-							widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
-						});
+	{
+		widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
+	});
 
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
@@ -111,31 +98,9 @@ SystemOptionsWindow::SystemOptionsWindow()
 
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
 	volumeSlider->moveTo(CCS->soundh->getVolume());
-
-
-	std::shared_ptr<CButton> loadButton = widget<CButton>("loadButton");
-	assert(loadButton);
-
-	std::shared_ptr<CButton> saveButton = widget<CButton>("saveButton");
-	assert(saveButton);
-
-	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
-	assert(restartButton);
-
-	if(CSH->isGuest())
-	{
-		loadButton->block(true);
-		saveButton->block(true);
-		restartButton->block(true);
-	}
 }
 
-void SystemOptionsWindow::close()
-{
-	if(GH.topInt().get() != this)
-		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
-}
+
 
 void SystemOptionsWindow::selectGameResolution()
 {
@@ -187,48 +152,4 @@ void SystemOptionsWindow::setGameResolution(int index)
 	resText += "x";
 	resText += boost::lexical_cast<std::string>(iter->first.second);
 	widget<CLabel>("resolutionLabel")->setText(resText);
-}
-
-void SystemOptionsWindow::quitGameButtonCallback()
-{
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
-}
-
-void SystemOptionsWindow::backButtonCallback()
-{
-	close();
-}
-
-void SystemOptionsWindow::mainMenuButtonCallback()
-{
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
-}
-
-void SystemOptionsWindow::loadGameButtonCallback()
-{
-	close();
-	LOCPLINT->proposeLoadingGame();
-}
-
-void SystemOptionsWindow::saveGameButtonCallback()
-{
-	close();
-	GH.pushIntT<CSavingScreen>();
-}
-
-void SystemOptionsWindow::restartGameButtonCallback()
-{
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
-}
-
-void SystemOptionsWindow::showVcmiSettingsButtonCallback()
-{
-	close();
-	GH.pushIntT<VcmiSettingsWindow>();
-}
-
-void SystemOptionsWindow::closeAndPushEvent(int eventType, int code)
-{
-	close();
-	GH.pushSDLEvent(eventType, code);
 }

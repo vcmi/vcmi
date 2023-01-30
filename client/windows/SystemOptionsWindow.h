@@ -17,19 +17,8 @@ class SystemOptionsWindow : public InterfaceObjectConfigurable
 private:
 	SettingsListener onFullscreenChanged;
 
-	//functions bound to buttons
-	void loadGameButtonCallback();
-	void saveGameButtonCallback();
-	void quitGameButtonCallback();
-	void backButtonCallback();
-	void restartGameButtonCallback();
-	void mainMenuButtonCallback();
-	void showVcmiSettingsButtonCallback();
-
-	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
 	void selectGameResolution();
 	void setGameResolution(int index);
-	void closeAndPushEvent(int eventType, int code = 0);
 
 public:
 	SystemOptionsWindow();

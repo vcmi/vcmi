@@ -10,13 +10,21 @@
 
 #include "StdInc.h"
 
-#include "gui/CGuiHandler.h"
-#include "gui/InterfaceObjectConfigurable.h"
 #include "SettingsMainContainer.h"
+
 #include "SystemOptionsWindow.h"
 #include "VcmiSettingsWindow.h"
+
 #include "../../lib/filesystem/ResourceID.h"
-#include "battle/BattleInterfaceClasses.h"
+#include "../../lib/CGeneralTextHandler.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../gui/CGuiHandler.h"
+#include "../lobby/CSavingScreen.h"
+#include "../widgets/Images.h"
+#include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
+#include "../CServerHandler.h"
+
 
 SettingsMainContainer::SettingsMainContainer() : InterfaceObjectConfigurable()
 {
@@ -26,13 +34,41 @@ SettingsMainContainer::SettingsMainContainer() : InterfaceObjectConfigurable()
 	addCallback("activateMainTab", [this](int) { openTab(0); });
 	addCallback("activateBattleSettingsTab", [this](int) { openTab(1); });
 	addCallback("activateVcmiSettingsTab", [this](int) { openTab(2); });
+
+	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
+	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });
+	addCallback("restartGame", [this](int) { restartGameButtonCallback(); });
+	addCallback("quitGame", [this](int) { quitGameButtonCallback(); });
+	addCallback("returnToMainMenu", [this](int) { mainMenuButtonCallback(); });
+	addCallback("closeWindow", [this](int) { backButtonCallback(); });
 	build(config);
+
+	std::shared_ptr<CPicture> background = widget<CPicture>("background");
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
+	pos = center();
+
+	std::shared_ptr<CButton> loadButton = widget<CButton>("loadButton");
+	assert(loadButton);
+
+	std::shared_ptr<CButton> saveButton = widget<CButton>("saveButton");
+	assert(saveButton);
+
+	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
+	assert(restartButton);
+
+	if(CSH->isGuest())
+	{
+		loadButton->block(true);
+		saveButton->block(true);
+		restartButton->block(true);
+	}
 
 	int defaultTabIndex = 0;
 	if(settings["general"]["lastSettingsTab"].isNumber())
 		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
 
-	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(50, 50), defaultTabIndex);
+	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(0, 50), defaultTabIndex);
 }
 
 std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
@@ -58,4 +94,49 @@ void SettingsMainContainer::openTab(size_t index)
 
 	Settings lastUsedTab = settings.write["general"]["lastSettingsTab"];
 	lastUsedTab->Integer() = index;
+}
+
+void SettingsMainContainer::close()
+{
+	if(GH.topInt().get() != this)
+		logGlobal->error("Only top interface must be closed");
+	GH.popInts(1);
+}
+
+void SettingsMainContainer::quitGameButtonCallback()
+{
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
+}
+
+void SettingsMainContainer::backButtonCallback()
+{
+	close();
+}
+
+void SettingsMainContainer::mainMenuButtonCallback()
+{
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
+}
+
+void SettingsMainContainer::loadGameButtonCallback()
+{
+	close();
+	LOCPLINT->proposeLoadingGame();
+}
+
+void SettingsMainContainer::saveGameButtonCallback()
+{
+	close();
+	GH.pushIntT<CSavingScreen>();
+}
+
+void SettingsMainContainer::restartGameButtonCallback()
+{
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
+}
+
+void SettingsMainContainer::closeAndPushEvent(int eventType, int code)
+{
+	close();
+	GH.pushSDLEvent(eventType, code);
 }

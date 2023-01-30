@@ -14,9 +14,6 @@
 class VcmiSettingsWindow : public InterfaceObjectConfigurable
 {
 private:
-	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
-	void backButtonCallback();
-	void openSystemOptionsCallback();
 
 public:
 	VcmiSettingsWindow();
