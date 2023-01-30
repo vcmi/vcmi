@@ -496,7 +496,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 #endif
 }
 
-CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
+CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();

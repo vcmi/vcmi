@@ -97,7 +97,7 @@ public:
 
 	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr) const override;
 	void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const override;
-	std::shared_ptr<IImage> scaleFast(float scale) const override;
+	std::shared_ptr<IImage> scaleFast(const Point & size) const override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
@@ -111,6 +111,8 @@ public:
 	void adjustPalette(const ColorFilter & shifter) override;
 	void resetPalette(int colorID) override;
 	void resetPalette() override;
+
+	void setAlpha(uint8_t value) override;
 
 	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
 
@@ -141,6 +143,11 @@ public:
 std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
 {
 	return std::shared_ptr<IImage>(new SDLImage(path));
+}
+
+std::shared_ptr<IImage> IImage::createFromSurface( SDL_Surface * source )
+{
+	return std::shared_ptr<IImage>(new SDLImage(source, true));
 }
 
 // Extremely simple file cache. TODO: smarter, more general solution
@@ -679,7 +686,11 @@ void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) cons
 	if(dest)
 		destShift += dest->topLeft();
 
-	if(surf->format->BitsPerPixel == 8)
+	uint8_t perSurfaceAlpha;
+	if (SDL_GetSurfaceAlphaMod(surf, &perSurfaceAlpha) != 0)
+		logGlobal->error("SDL_GetSurfaceAlphaMod faied! %s", SDL_GetError());
+
+	if(surf->format->BitsPerPixel == 8 && perSurfaceAlpha == SDL_ALPHA_OPAQUE)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
 	}
@@ -689,9 +700,12 @@ void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) cons
 	}
 }
 
-std::shared_ptr<IImage> SDLImage::scaleFast(float scale) const
+std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
 {
-	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, (int)(surf->w * scale), (int)(surf->h * scale));
+	float scaleX = float(size.x) / width();
+	float scaleY = float(size.y) / height();
+
+	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, (int)(surf->w * scaleX), (int)(surf->h * scaleY));
 
 	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
 		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
@@ -702,11 +716,11 @@ std::shared_ptr<IImage> SDLImage::scaleFast(float scale) const
 
 	SDLImage * ret = new SDLImage(scaled, false);
 
-	ret->fullSize.x = (int) round((float)fullSize.x * scale);
-	ret->fullSize.y = (int) round((float)fullSize.y * scale);
+	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
+	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
 
-	ret->margins.x = (int) round((float)margins.x * scale);
-	ret->margins.y = (int) round((float)margins.y * scale);
+	ret->margins.x = (int) round((float)margins.x * scaleX);
+	ret->margins.y = (int) round((float)margins.y * scaleY);
 
 	return std::shared_ptr<IImage>(ret);
 }
@@ -719,6 +733,12 @@ void SDLImage::exportBitmap(const boost::filesystem::path& path) const
 void SDLImage::playerColored(PlayerColor player)
 {
 	graphics->blueToPlayersAdv(surf, player);
+}
+
+void SDLImage::setAlpha(uint8_t value)
+{
+	CSDL_Ext::setAlpha (surf, value);
+	SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
 }
 
 void SDLImage::setFlagColor(PlayerColor player)

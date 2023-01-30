@@ -35,15 +35,14 @@
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
 
-CPicture::CPicture(SDL_Surface *BG, const Point & position)
-	: bg(BG)
+CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
+	: bg(image)
 	, visible(true)
 	, needRefresh(false)
 {
-	BG->refcount += 1;
 	pos += position;
-	pos.w = BG->w;
-	pos.h = BG->h;
+	pos.w = bg->width();
+	pos.h = bg->height();
 }
 
 CPicture::CPicture( const std::string &bmpname, int x, int y )
@@ -55,7 +54,7 @@ CPicture::CPicture( const std::string &bmpname )
 {}
 
 CPicture::CPicture( const std::string &bmpname, const Point & position )
-	: bg(BitmapHandler::loadBitmap(bmpname))
+	: bg(IImage::createFromFile(bmpname))
 	, visible(true)
 	, needRefresh(false)
 {
@@ -65,8 +64,8 @@ CPicture::CPicture( const std::string &bmpname, const Point & position )
 	assert(bg);
 	if(bg)
 	{
-		pos.w = bg->w;
-		pos.h = bg->h;
+		pos.w = bg->width();
+		pos.h = bg->height();
 	}
 	else
 	{
@@ -74,32 +73,12 @@ CPicture::CPicture( const std::string &bmpname, const Point & position )
 	}
 }
 
-CPicture::CPicture(SDL_Surface * BG, const Rect &SrcRect, int x, int y)
-	: CPicture(BG, Point(x,y))
+CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
+	: CPicture(image, Point(x,y))
 {
 	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
-}
-
-void CPicture::setSurface(SDL_Surface *to)
-{
-	bg = to;
-	if (srcRect)
-	{
-		pos.w = srcRect->w;
-		pos.h = srcRect->h;
-	}
-	else
-	{
-		pos.w = bg->w;
-		pos.h = bg->h;
-	}
-}
-
-CPicture::~CPicture()
-{
-	SDL_FreeSurface(bg);
 }
 
 void CPicture::show(SDL_Surface * to)
@@ -111,41 +90,25 @@ void CPicture::show(SDL_Surface * to)
 void CPicture::showAll(SDL_Surface * to)
 {
 	if(bg && visible)
-	{
-		if(srcRect)
-			CSDL_Ext::blitSurface(bg, *srcRect, to, pos.topLeft());
-		else
-			CSDL_Ext::blitAt(bg, pos, to);
-	}
-}
-
-void CPicture::convertToScreenBPP()
-{
-	SDL_Surface *hlp = bg;
-	bg = SDL_ConvertSurface(hlp,screen->format,0);
-	CSDL_Ext::setDefaultColorKey(bg);
-	SDL_FreeSurface(hlp);
+		bg->draw(to, pos.x, pos.y, srcRect.get_ptr());
 }
 
 void CPicture::setAlpha(int value)
 {
-	CSDL_Ext::setAlpha (bg, value);
-	SDL_SetSurfaceBlendMode(bg,SDL_BLENDMODE_BLEND);
+	bg->setAlpha(value);
 }
 
 void CPicture::scaleTo(Point size)
 {
-	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
+	bg = bg->scaleFast(size);
 
-	SDL_FreeSurface(bg);
-
-	setSurface(scaled);
+	pos.w = bg->width();
+	pos.h = bg->height();
 }
 
 void CPicture::colorize(PlayerColor player)
 {
-	assert(bg);
-	graphics->blueToPlayersAdv(bg, player);
+	bg->playerColored(player);
 }
 
 CFilledTexture::CFilledTexture(std::string imageName, Rect position):
@@ -264,7 +227,7 @@ void CAnimImage::showAll(SDL_Surface * to)
 		{
 			if(isScaled())
 			{
-				auto scaled = img->scaleFast(float(scaledSize.x) / img->width());
+				auto scaled = img->scaleFast(scaledSize);
 				scaled->draw(to, pos.x, pos.y);
 			}
 			else
@@ -418,9 +381,7 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
-		const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
-		img->adjustPalette(alphaFilter);
-
+		img->setAlpha(alpha);
 		img->draw(to, pos.x, pos.y, &src);
 	}
 }

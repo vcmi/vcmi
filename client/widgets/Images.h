@@ -26,11 +26,7 @@ class IImage;
 // Image class
 class CPicture : public CIntObject
 {
-	void setSurface(SDL_Surface *to);
-
-	SDL_Surface * bg;
-
-	void convertToScreenBPP();
+	std::shared_ptr<IImage> bg;
 
 public:
 	/// if set, only specified section of internal image will be rendered
@@ -43,24 +39,21 @@ public:
 	/// Deprecated, use CIntObject::disable()/enable() instead
 	bool visible;
 
-	SDL_Surface * getSurface()
+	std::shared_ptr<IImage> getSurface()
 	{
 		return bg;
 	}
 
-	/// wrap existing SDL_Surface
-	/// deprecated, do not use
-	CPicture(SDL_Surface * BG, const Point & position);
+	/// wrap existing image
+	CPicture(std::shared_ptr<IImage> image, const Point & position);
 
-	/// wrap section of existing SDL_Surface
-	CPicture(SDL_Surface *BG, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
+	/// wrap section of an existing Image
+	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
 
 	/// Loads image from specified file name
 	CPicture(const std::string & bmpname);
 	CPicture(const std::string & bmpname, const Point & position);
 	CPicture(const std::string & bmpname, int x, int y);
-
-	~CPicture();
 
 	/// set alpha value for whole surface. Note: may be messed up if surface is shared
 	/// 0=transparent, 255=opaque

@@ -19,6 +19,7 @@
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/CAnimation.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -213,9 +214,9 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, Point(shadowPos.x,   shadowPos.y)));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowRight,  Point(shadowPos.x,   shadowStart.y)));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowBottom), Point(shadowStart.x, shadowPos.y)));
 
 		}
 		SDL_FreeSurface(shadowCorner);

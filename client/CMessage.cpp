@@ -97,7 +97,7 @@ void CMessage::dispose()
 SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 {
 	//prepare surface
-	SDL_Surface * ret = SDL_CreateRGBSurface(0, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
+	SDL_Surface * ret = CSDL_Ext::newSurface(w,h);
 	for (int i=0; i<w; i+=background->w)//background
 	{
 		for (int j=0; j<h; j+=background->h)

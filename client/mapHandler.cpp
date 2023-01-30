@@ -1434,7 +1434,7 @@ std::shared_ptr<IImage> CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CM
 	auto iter = cache.find(key);
 	if(iter == cache.end())
 	{
-		auto scaled = fullSurface->scaleFast(worldViewCachedScale);
+		auto scaled = fullSurface->scaleFast(fullSurface->dimensions() * worldViewCachedScale);
 		cache[key] = scaled;
 		return scaled;
 	}

@@ -852,7 +852,10 @@ void CSDL_Ext::blitSurface(SDL_Surface * src, const Rect & srcRectInput, SDL_Sur
 	SDL_Rect srcRect = CSDL_Ext::toSDL(srcRectInput);
 	SDL_Rect dstRect = CSDL_Ext::toSDL(Rect(dstPoint, srcRectInput.dimensions()));
 
-	SDL_UpperBlit(src, &srcRect, dst, &dstRect);
+	int result = SDL_UpperBlit(src, &srcRect, dst, &dstRect);
+
+	if (result != 0)
+		logGlobal->error("SDL_UpperBlit failed! %s", SDL_GetError());
 }
 
 void CSDL_Ext::blitSurface(SDL_Surface * src, SDL_Surface * dst, const Point & dest)
