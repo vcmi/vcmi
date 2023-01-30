@@ -128,8 +128,6 @@ typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G,
 
 	void fillSurface(SDL_Surface *dst, const SDL_Color & color);
 	void fillRect(SDL_Surface *dst, const Rect & dstrect, const SDL_Color & color);
-	//fill dest image with source texture.
-	void fillTexture(SDL_Surface *dst, SDL_Surface * sourceTexture);
 
 	void updateRect(SDL_Surface *surface, const Rect & rect);
 

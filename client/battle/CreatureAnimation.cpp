@@ -345,7 +345,7 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 		genSpecialPalette(SpecialPalette);
 
 		image->setSpecialPallete(SpecialPalette);
-		image->adjustPalette(shifter);
+		image->adjustPalette(shifter, 8);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 

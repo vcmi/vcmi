@@ -108,7 +108,7 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
-	void adjustPalette(const ColorFilter & shifter) override;
+	void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) override;
 	void resetPalette(int colorID) override;
 	void resetPalette() override;
 
@@ -807,15 +807,15 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
-void SDLImage::adjustPalette(const ColorFilter & shifter)
+void SDLImage::adjustPalette(const ColorFilter & shifter, size_t colorsToSkip)
 {
 	if(originalPalette == nullptr)
 		return;
 
 	SDL_Palette* palette = surf->format->palette;
 
-	// Note: here we skip the first 8 colors in the palette that predefined in H3Palette
-	for(int i = 8; i < palette->ncolors; i++)
+	// Note: here we skip first colors in the palette that are predefined in H3 images
+	for(int i = colorsToSkip; i < palette->ncolors; i++)
 	{
 		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
 	}

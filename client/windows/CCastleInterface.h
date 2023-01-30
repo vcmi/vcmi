@@ -56,13 +56,12 @@ public:
 	CCastleBuildings * parent;
 	const CGTownInstance * town;
 	const CStructure* str;
-	SDL_Surface* border;
-	SDL_Surface* area;
+	std::shared_ptr<IImage> border;
+	std::shared_ptr<IImage> area;
 
 	ui32 stateTimeCounter;//For building construction - current stage in animation
 
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str);
-	~CBuildingRect();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;

@@ -880,26 +880,6 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, const Rect & dstrect, const SDL_Color
 	SDL_FillRect(dst, &newRect, sdlColor);
 }
 
-void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
-{
-	SDL_Rect srcRect;
-	SDL_Rect dstRect;
-
-	SDL_GetClipRect(src, &srcRect);
-	SDL_GetClipRect(dst, &dstRect);
-
-	for (int y=dstRect.y; y < dstRect.y + dstRect.h; y+=srcRect.h)
-	{
-		for (int x=dstRect.x; x < dstRect.x + dstRect.w; x+=srcRect.w)
-		{
-			int xLeft = std::min<int>(srcRect.w, dstRect.x + dstRect.w - x);
-			int yLeft = std::min<int>(srcRect.h, dstRect.y + dstRect.h - y);
-			SDL_Rect currentDest{x, y, xLeft, yLeft};
-			SDL_BlitSurface(src, &srcRect, dst, &currentDest);
-		}
-	}
-}
-
 SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 {
 	SDL_Color ret = {r, g, b, a};

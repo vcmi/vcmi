@@ -24,6 +24,8 @@
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CAnimation.h"
+#include "../gui/ColorFilter.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
@@ -68,22 +70,14 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	}
 
 	if(!str->borderName.empty())
-		border = BitmapHandler::loadBitmap(str->borderName);
+		border = IImage::createFromFile(str->borderName);
 	else
 		border = nullptr;
 
 	if(!str->areaName.empty())
-		area = BitmapHandler::loadBitmap(str->areaName);
+		area = IImage::createFromFile(str->areaName);
 	else
 		area = nullptr;
-}
-
-CBuildingRect::~CBuildingRect()
-{
-	if(border)
-		SDL_FreeSurface(border);
-	if(area)
-		SDL_FreeSurface(area);
 }
 
 const CBuilding * CBuildingRect::getBuilding()
@@ -127,7 +121,7 @@ void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
 	{
-		if(!CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft())) //inside building image
+		if(!area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //inside building image
 		{
 			auto building = getBuilding();
 			parent->buildingClicked(building->bid, building->subId, building->upgrade);
@@ -139,7 +133,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
-	if( !CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft()) ) //inside building image
+	if( !area->isTransparent(GH.getCursorPosition() - pos.topLeft()) ) //inside building image
 	{
 		BuildingID bid = getBuilding()->bid;
 		const CBuilding *bld = town->town->buildings.at(bid);
@@ -186,33 +180,27 @@ void CBuildingRect::show(SDL_Surface * to)
 		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
 			if(parent->selectedBuilding == this)
-				blitAtLoc(border,0,0,to);
+				border->draw(to, pos.x, pos.y);
 			return;
 		}
-		if(border->format->palette != nullptr)
-		{
-			// key colors in glowing border
-			SDL_Color c1 = {200, 200, 200, 255}; // x2
-			SDL_Color c2 = {120, 100,  60, 255}; // x0.5
-			SDL_Color c3 = {210, 180, 110, 255}; // x1
 
-			ui32 colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
-			SDL_Color oldColor = border->format->palette->colors[colorID];
-			SDL_Color newColor;
+		auto darkBorder = ColorFilter::genRangeShifter(0.f, 0.f, 0.f, 0.5f, 0.5f, 0.5f );
+		auto lightBorder = ColorFilter::genRangeShifter(0.f, 0.f, 0.f, 2.0f, 2.0f, 2.0f );
+		auto baseBorder = ColorFilter::genEmptyShifter();
 
-			if (stateTimeCounter < BUILDING_WHITE_BORDER_TIMEPOINT)
-				newColor = multiplyColors(c1, c2, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
-			else
-			if (stateTimeCounter < BUILDING_YELLOW_BORDER_TIMEPOINT)
-				newColor = multiplyColors(c2, c3, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
-			else
-				newColor = oldColor;
+		float progress = float(stateTimeCounter % stageDelay) / stageDelay;
 
-			CSDL_Ext::setColors(border, &newColor, colorID, 1);
-			blitAtLoc(border, 0, 0, to);
-			CSDL_Ext::setColors(border, &oldColor, colorID, 1);
-		}
+		if (stateTimeCounter < BUILDING_WHITE_BORDER_TIMEPOINT)
+			border->adjustPalette(ColorFilter::genInterpolated(lightBorder, darkBorder, progress), 0);
+		else
+		if (stateTimeCounter < BUILDING_YELLOW_BORDER_TIMEPOINT)
+			border->adjustPalette(ColorFilter::genInterpolated(darkBorder, baseBorder, progress), 0);
+		else
+			border->adjustPalette(baseBorder, 0);
+
+		border->draw(to, pos.x, pos.y);
 	}
+
 	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
 }
@@ -224,7 +212,7 @@ void CBuildingRect::showAll(SDL_Surface * to)
 
 	CShowableAnim::showAll(to);
 	if(!active && parent->selectedBuilding == this && border)
-		blitAtLoc(border,0,0,to);
+		border->draw(to, pos.x, pos.y);
 }
 
 std::string CBuildingRect::getSubtitle()//hover text for building
@@ -256,7 +244,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area && pos.isInside(sEvent.x, sEvent.y))
 	{
-		if(CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
+		if(area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{

@@ -63,7 +63,7 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
-	virtual void adjustPalette(const ColorFilter & shifter) = 0;
+	virtual void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) = 0;
 	virtual void resetPalette(int colorID) = 0;
 	virtual void resetPalette() = 0;
 

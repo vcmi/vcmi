@@ -68,11 +68,11 @@ public:
 /// area filled with specific texture
 class CFilledTexture : public CIntObject
 {
-	SDL_Surface * texture;
+	std::shared_ptr<IImage> texture;
 
 public:
 	CFilledTexture(std::string imageName, Rect position);
-	~CFilledTexture();
+
 	void showAll(SDL_Surface *to) override;
 };
 

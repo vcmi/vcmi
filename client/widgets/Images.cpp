@@ -113,21 +113,21 @@ void CPicture::colorize(PlayerColor player)
 
 CFilledTexture::CFilledTexture(std::string imageName, Rect position):
     CIntObject(0, position.topLeft()),
-    texture(BitmapHandler::loadBitmap(imageName))
+	texture(IImage::createFromFile(imageName))
 {
 	pos.w = position.w;
 	pos.h = position.h;
 }
 
-CFilledTexture::~CFilledTexture()
-{
-	SDL_FreeSurface(texture);
-}
-
 void CFilledTexture::showAll(SDL_Surface *to)
 {
 	CSDL_Ext::CClipRectGuard guard(to, pos);
-	CSDL_Ext::fillTexture(to, texture);
+
+	for (int y=pos.top(); y < pos.bottom(); y+= texture->height())
+	{
+		for (int x=pos.left(); x < pos.right(); x+=texture->width())
+			texture->draw(to, x, y);
+	}
 }
 
 CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):

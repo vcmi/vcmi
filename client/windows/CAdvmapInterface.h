@@ -132,7 +132,6 @@ class CAdvMapInt : public CIntObject
 
 public:
 	CAdvMapInt();
-	~CAdvMapInt();
 
 	int3 position; //top left corner of visible map part
 	PlayerColor player;
@@ -170,8 +169,8 @@ public:
 
 	WorldViewOptions worldViewOptions;
 
-	SDL_Surface * bg;
-	SDL_Surface * bgWorldView;
+	std::shared_ptr<IImage> bg;
+	std::shared_ptr<IImage> bgWorldView;
 	std::vector<std::shared_ptr<CAnimImage>> gems;
 	CMinimap minimap;
 	std::shared_ptr<CGStatusBar> statusbar;

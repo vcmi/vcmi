@@ -23,6 +23,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
+#include "../gui/CAnimation.h"
 
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"
@@ -1168,9 +1169,9 @@ void CInGameConsole::refreshEnteredText()
 		statusbar->setEnteredText(enteredText);
 }
 
-CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
-	: CIntObject(),
-	  background(bg)
+CAdvMapPanel::CAdvMapPanel(std::shared_ptr<IImage> bg, Point position)
+	: CIntObject()
+	, background(bg)
 {
 	defActions = 255;
 	recActions = 255;
@@ -1178,15 +1179,9 @@ CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	pos.y += position.y;
 	if (bg)
 	{
-		pos.w = bg->w;
-		pos.h = bg->h;
+		pos.w = bg->width();
+		pos.h = bg->height();
 	}
-}
-
-CAdvMapPanel::~CAdvMapPanel()
-{
-	if (background)
-		SDL_FreeSurface(background);
 }
 
 void CAdvMapPanel::addChildColorableButton(std::shared_ptr<CButton> button)
@@ -1206,7 +1201,7 @@ void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
 void CAdvMapPanel::showAll(SDL_Surface * to)
 {
 	if(background)
-		CSDL_Ext::blitAt(background, pos.x, pos.y, to);
+		background->draw(to, pos.x, pos.y);
 
 	CIntObject::showAll(to);
 }
@@ -1219,7 +1214,7 @@ void CAdvMapPanel::addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions)
 	addChild(obj.get(), false);
 }
 
-CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
+CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, std::shared_ptr<IImage> bg, Point position, int spaceBottom, const PlayerColor &color)
 	: CAdvMapPanel(bg, position), icons(_icons)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
