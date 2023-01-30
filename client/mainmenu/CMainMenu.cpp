@@ -76,11 +76,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	background = std::make_shared<CPicture>(config["background"].String());
 	if(config["scalable"].Bool())
-	{
-		if(background->bg->format->palette)
-			background->convertToScreenBPP();
 		background->scaleTo(Point(screen->w, screen->h));
-	}
 
 	pos = background->center();
 

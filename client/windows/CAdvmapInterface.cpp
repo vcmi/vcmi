@@ -478,8 +478,8 @@ CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, in
 	background = std::make_shared<CPicture>(defname, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
-	pos.w = background->bg->w;
-	pos.h = background->bg->h;
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -502,8 +502,8 @@ CResDataBar::CResDataBar()
 	background = std::make_shared<CPicture>(ADVOPT.resdatabarG, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
-	pos.w = background->bg->w;
-	pos.h = background->bg->h;
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)

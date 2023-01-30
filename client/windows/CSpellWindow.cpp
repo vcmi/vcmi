@@ -206,9 +206,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 330 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this));
 
-	temp_rect = CSDL_Ext::genRect(leftCorner->bg->h, leftCorner->bg->w, 97 + pos.x, 77 + pos.y);
+	temp_rect = CSDL_Ext::genRect(leftCorner->pos.h, leftCorner->pos.w, 97 + pos.x, 77 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this));
-	temp_rect = CSDL_Ext::genRect(rightCorner->bg->h, rightCorner->bg->w, 487 + pos.x, 72 + pos.y);
+	temp_rect = CSDL_Ext::genRect(rightCorner->pos.h, rightCorner->pos.w, 487 + pos.x, 72 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells

@@ -1168,7 +1168,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555, false);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555);
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
 
@@ -1365,7 +1365,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	resdatabar->moveBy(pos.topLeft(), true);
 	Rect barRect(5, 556, 740, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 5, 556, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 5, 556);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
@@ -1588,7 +1588,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	Rect barRect(4, 554, 740, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 4, 554, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 4, 554);
 	statusbar = CGStatusBar::create(statusbarBackground);
 }
 
@@ -1729,7 +1729,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 
 	Rect barRect(7, 556, 737, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, SDLK_RETURN);
@@ -1796,7 +1796,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 
 	Rect barRect(8, pos.h - 26, pos.w - 16, 19);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 8, pos.h - 26, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	animBG = std::make_shared<CPicture>("TPSMITBK", 64, 50);

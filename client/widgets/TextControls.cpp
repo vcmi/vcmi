@@ -415,7 +415,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	{
 		//execution of this block when maxw is incorrect breaks text centralization (issue #3151)
 		vstd::amin(pos.w, maxw);
-		background->srcRect = new Rect(0, 0, maxw, pos.h);
+		background->srcRect = Rect(0, 0, maxw, pos.h);
 	}
 	autoRedraw = false;
 }
@@ -502,12 +502,7 @@ CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	pos += Pos.topLeft();
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
-	background = std::make_shared<CPicture>(Pos, 0, true);
-	Rect hlp = Pos;
-	if(srf)
-		CSDL_Ext::blitSurface(srf, hlp, background->getSurface(), Point(0,0));
-	else
-		SDL_FillRect(background->getSurface(), nullptr, 0);
+	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 	background->pos = pos;

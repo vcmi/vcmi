@@ -35,24 +35,34 @@
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
 
-CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
+CPicture::CPicture(SDL_Surface *BG, const Point & position)
+	: bg(BG)
+	, visible(true)
+	, needRefresh(false)
 {
-	init();
-	bg = BG;
-	freeSurf = Free;
-	pos.x += x;
-	pos.y += y;
+	BG->refcount += 1;
+	pos += position;
 	pos.w = BG->w;
 	pos.h = BG->h;
 }
 
 CPicture::CPicture( const std::string &bmpname, int x, int y )
+	: CPicture(bmpname, Point(x,y))
+{}
+
+CPicture::CPicture( const std::string &bmpname )
+	: CPicture(bmpname, Point(0,0))
+{}
+
+CPicture::CPicture( const std::string &bmpname, const Point & position )
+	: bg(BitmapHandler::loadBitmap(bmpname))
+	, visible(true)
+	, needRefresh(false)
 {
-	init();
-	bg = BitmapHandler::loadBitmap(bmpname);
-	freeSurf = true;
-	pos.x += x;
-	pos.y += y;
+	pos.x += position.x;
+	pos.y += position.y;
+
+	assert(bg);
 	if(bg)
 	{
 		pos.w = bg->w;
@@ -64,29 +74,12 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 	}
 }
 
-CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat)
+CPicture::CPicture(SDL_Surface * BG, const Rect &SrcRect, int x, int y)
+	: CPicture(BG, Point(x,y))
 {
-	init();
-	createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
-}
-
-CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat)
-{
-	init();
-	createSimpleRect(r, screenFormat, color);
-}
-
-CPicture::CPicture(SDL_Surface * BG, const Rect &SrcRect, int x, int y, bool free)
-{
-	visible = true;
-	needRefresh = false;
-	srcRect = new Rect(SrcRect);
-	pos.x += x;
-	pos.y += y;
+	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
-	bg = BG;
-	freeSurf = free;
 }
 
 void CPicture::setSurface(SDL_Surface *to)
@@ -106,16 +99,7 @@ void CPicture::setSurface(SDL_Surface *to)
 
 CPicture::~CPicture()
 {
-	if(freeSurf)
-		SDL_FreeSurface(bg);
-	delete srcRect;
-}
-
-void CPicture::init()
-{
-	visible = true;
-	needRefresh = false;
-	srcRect = nullptr;
+	SDL_FreeSurface(bg);
 }
 
 void CPicture::show(SDL_Surface * to)
@@ -146,31 +130,16 @@ void CPicture::convertToScreenBPP()
 void CPicture::setAlpha(int value)
 {
 	CSDL_Ext::setAlpha (bg, value);
+	SDL_SetSurfaceBlendMode(bg,SDL_BLENDMODE_BLEND);
 }
 
 void CPicture::scaleTo(Point size)
 {
 	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
 
-	if(freeSurf)
-		SDL_FreeSurface(bg);
+	SDL_FreeSurface(bg);
 
 	setSurface(scaled);
-	freeSurf = false;
-}
-
-void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
-{
-	pos += r.topLeft();
-	pos.w = r.w;
-	pos.h = r.h;
-	if(screenFormat)
-		bg = CSDL_Ext::newSurface(r.w, r.h);
-	else
-		bg = SDL_CreateRGBSurface(0, r.w, r.h, 8, 0, 0, 0, 0);
-
-	SDL_FillRect(bg, nullptr, color);
-	freeSurf = true;
 }
 
 void CPicture::colorize(PlayerColor player)

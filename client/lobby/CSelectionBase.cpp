@@ -312,7 +312,7 @@ CChatBox::CChatBox(const Rect & rect)
 	type |= REDRAW_PARENT;
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
-	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height));
+	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height), EFonts::FONT_SMALL, 0);
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = std::make_shared<CTextBox>("", Rect(0, 0, rect.w, rect.h - height), 1);
 

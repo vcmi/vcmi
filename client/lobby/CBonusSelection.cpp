@@ -492,8 +492,8 @@ CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, cons
 	graphicsSelected->disable();
 	graphicsStriped = std::make_shared<CPicture>(prefix + "Co" + suffix + ".BMP");
 	graphicsStriped->disable();
-	pos.w = graphicsNotSelected->bg->w;
-	pos.h = graphicsNotSelected->bg->h;
+	pos.w = graphicsNotSelected->pos.w;
+	pos.h = graphicsNotSelected->pos.h;
 
 }
 

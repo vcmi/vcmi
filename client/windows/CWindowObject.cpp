@@ -213,11 +213,14 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, shadowPos.x, shadowPos.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowRight, shadowPos.x, shadowStart.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, shadowStart.x, shadowPos.y));
+			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>(shadowRight,  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, Point(shadowStart.x, shadowPos.y)));
 
 		}
+		SDL_FreeSurface(shadowCorner);
+		SDL_FreeSurface(shadowBottom);
+		SDL_FreeSurface(shadowRight);
 	}
 }
 

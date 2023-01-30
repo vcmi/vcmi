@@ -182,7 +182,7 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	movement = std::make_shared<CAnimImage>("IMOBIL", 0, 0, 0, 1);
-	portrait = std::make_shared<CPicture>("HPSXXX", movement->pos.w + 1);
+	portrait = std::make_shared<CPicture>("HPSXXX", movement->pos.w + 1, 0);
 	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
@@ -213,7 +213,7 @@ void CHeroList::CHeroItem::update()
 
 std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 {
-	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1);
+	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1, 0);
 }
 
 void CHeroList::CHeroItem::select(bool on)
@@ -780,7 +780,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDis
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	background = std::make_shared<CPicture>("ADSTATOT", 1);
+	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
 
 	comp = std::make_shared<CComponent>(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
