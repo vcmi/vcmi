@@ -30,7 +30,8 @@
 				"notifications",
 				"extraDump",
 				"userRelativePointer",
-				"relativePointerSpeedMultiplier"
+				"relativePointerSpeedMultiplier",
+				"lastSettingsTab"
 			],
 			"properties" : {
 				"playerName" : {
@@ -73,6 +74,10 @@
 				"lastSave" : {
 					"type":"string",
 					"default" : "NEWGAME"
+				},
+				"lastSettingsTab" : {
+					"type" : "number",
+					"default" : 0
 				},
 				"lastCampaign" : {
 					"type":"string",

@@ -147,28 +147,10 @@ BattleInterface::~BattleInterface()
 	setAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
-void BattleInterface::setPrintCellBorders(bool set)
+void BattleInterface::redrawBattlefield()
 {
-	Settings cellBorders = settings.write["battle"]["cellBorders"];
-	cellBorders->Bool() = set;
-
 	fieldController->redrawBackgroundWithHexes();
 	GH.totalRedraw();
-}
-
-void BattleInterface::setPrintStackRange(bool set)
-{
-	Settings stackRange = settings.write["battle"]["stackRange"];
-	stackRange->Bool() = set;
-
-	fieldController->redrawBackgroundWithHexes();
-	GH.totalRedraw();
-}
-
-void BattleInterface::setPrintMouseShadow(bool set)
-{
-	Settings shadow = settings.write["battle"]["mouseShadow"];
-	shadow->Bool() = set;
 }
 
 void BattleInterface::stackReset(const CStack * stack)
@@ -518,19 +500,6 @@ void BattleInterface::displaySpellHit(const CSpell * spell, BattleHex destinatio
 		displaySpellAnimationQueue(spell, spell->animationInfo.hit, destinationTile, true);
 }
 
-void BattleInterface::setAnimSpeed(int set)
-{
-	Settings speed = settings.write["battle"]["animationSpeed"];
-	speed->Float() = float(set) / 100;
-}
-
-int BattleInterface::getAnimSpeed() const
-{
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
-		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float() *100));
-
-	return static_cast<int>(vstd::round(settings["battle"]["animationSpeed"].Float() *100));
-}
 
 CPlayerInterface *BattleInterface::getCurrentPlayerInterface() const
 {

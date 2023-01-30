@@ -146,8 +146,10 @@ private:
 	std::shared_ptr<CToggleGroup> animSpeeds;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CToggleButton>> toggles;
+
+	int getAnimSpeed() const;
 public:
-	BattleOptionsWindow(BattleInterface & owner);
+	BattleOptionsWindow(BattleInterface * owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback

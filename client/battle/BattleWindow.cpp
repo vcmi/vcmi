@@ -234,7 +234,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.pushIntT<BattleOptionsWindow>(owner);
+	GH.pushIntT<BattleOptionsWindow>(&owner);
 }
 
 void BattleWindow::bSurrenderf()

@@ -417,24 +417,44 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
+BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
 	CWindowObject(PLAYER_COLORED, "comopbck.bmp")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [&](bool on){owner.setPrintCellBorders(on);} );
+	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [=](bool on)
+	{
+		Settings cellBorders = settings.write["battle"]["cellBorders"];
+		cellBorders->Bool() = on;
+		if(owner)
+			owner->redrawBattlefield();
+	});
 	viewGrid->setSelected(settings["battle"]["cellBorders"].Bool());
 	toggles.push_back(viewGrid);
 
-	auto movementShadow = std::make_shared<CToggleButton>(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [&](bool on){owner.setPrintStackRange(on);});
+	auto movementShadow = std::make_shared<CToggleButton>(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [=](bool on)
+	{
+		Settings stackRange = settings.write["battle"]["stackRange"];
+		stackRange->Bool() = on;
+		if(owner)
+			owner->redrawBattlefield();
+	});
 	movementShadow->setSelected(settings["battle"]["stackRange"].Bool());
 	toggles.push_back(movementShadow);
 
-	auto mouseShadow = std::make_shared<CToggleButton>(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [&](bool on){owner.setPrintMouseShadow(on);});
+	auto mouseShadow = std::make_shared<CToggleButton>(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [&](bool on)
+	{
+		Settings shadow = settings.write["battle"]["mouseShadow"];
+		shadow->Bool() = on;
+	});
 	mouseShadow->setSelected(settings["battle"]["mouseShadow"].Bool());
 	toggles.push_back(mouseShadow);
 
-	animSpeeds = std::make_shared<CToggleGroup>([&](int value){ owner.setAnimSpeed(value);});
+	animSpeeds = std::make_shared<CToggleGroup>([&](int value)
+	{
+		Settings speed = settings.write["battle"]["animationSpeed"];
+		speed->Float() = float(value) / 100;
+	});
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
@@ -446,7 +466,7 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
 	animSpeeds->addToggle(100, toggle);
 
-	animSpeeds->setSelected(owner.getAnimSpeed());
+	animSpeeds->setSelected(getAnimSpeed());
 
 	setToDefault = std::make_shared<CButton>(Point(246, 359), "codefaul.def", CGI->generaltexth->zelp[393], [&](){ bDefaultf(); });
 	setToDefault->setImageOrder(1, 0, 2, 3);
@@ -477,6 +497,14 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
 	labels.push_back(std::make_shared<CLabel>(61,  90, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[405]));
 	labels.push_back(std::make_shared<CLabel>(61, 123, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[406]));
 	labels.push_back(std::make_shared<CLabel>(61, 156, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
+}
+
+int BattleOptionsWindow::getAnimSpeed() const
+{
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
+		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float() *100));
+
+	return static_cast<int>(vstd::round(settings["battle"]["animationSpeed"].Float() *100));
 }
 
 void BattleOptionsWindow::bDefaultf()

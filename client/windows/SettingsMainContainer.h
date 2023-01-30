@@ -20,6 +20,7 @@ private:
 	std::shared_ptr<CTabbedInt> tabContentArea;
 
 	std::shared_ptr<CIntObject> createTab(size_t index);
+	void openTab(size_t index);
 public:
 	SettingsMainContainer();
 };

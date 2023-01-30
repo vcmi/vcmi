@@ -17,9 +17,18 @@
 		},
 
 		{
-			"name": "activateVcmiSettingsButton",
+			"name": "activateBattleSettingsButton",
 			"type": "button",
 			"position": {"x": 250, "y": 0},
+			"image": "buttons/vcmisettings",
+			"help": "TODO",
+			"callback": "activateBattleSettingsTab"
+		},
+
+		{
+			"name": "activateVcmiSettingsButton",
+			"type": "button",
+			"position": {"x": 500, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
 			"callback": "activateVcmiSettingsTab"

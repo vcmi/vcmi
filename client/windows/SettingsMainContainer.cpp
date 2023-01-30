@@ -15,20 +15,24 @@
 #include "SettingsMainContainer.h"
 #include "SystemOptionsWindow.h"
 #include "VcmiSettingsWindow.h"
-#include "../lib/filesystem/ResourceID.h"
-
+#include "../../lib/filesystem/ResourceID.h"
+#include "battle/BattleInterfaceClasses.h"
 
 SettingsMainContainer::SettingsMainContainer() : InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	//OBJECT_CONSTRUCTION_CAPTURING(255);
 
 	const JsonNode config(ResourceID("config/widgets/settingsMainContainer.json"));
-	addCallback("activateMainTab", [this](int) { tabContentArea->setActive(0); CIntObject::redraw(); });
-	addCallback("activateVcmiSettingsTab", [this](int) { tabContentArea->setActive(1); CIntObject::redraw(); });
+	addCallback("activateMainTab", [this](int) { openTab(0); });
+	addCallback("activateBattleSettingsTab", [this](int) { openTab(1); });
+	addCallback("activateVcmiSettingsTab", [this](int) { openTab(2); });
 	build(config);
 
-	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(50, 50));
+	int defaultTabIndex = 0;
+	if(settings["general"]["lastSettingsTab"].isNumber())
+		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
+
+	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(50, 50), defaultTabIndex);
 }
 
 std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
@@ -38,9 +42,20 @@ std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
 		case 0:
 			return std::make_shared<SystemOptionsWindow>();
 		case 1:
+			return std::make_shared<BattleOptionsWindow>(nullptr);
+		case 2:
 			return std::make_shared<VcmiSettingsWindow>();
 		default:
 			logGlobal->error("Wrong settings tab ID!");
-			return std::make_shared<CIntObject>();
+			return std::make_shared<SystemOptionsWindow>();
 	}
+}
+
+void SettingsMainContainer::openTab(size_t index)
+{
+	tabContentArea->setActive(index);
+	CIntObject::redraw();
+
+	Settings lastUsedTab = settings.write["general"]["lastSettingsTab"];
+	lastUsedTab->Integer() = index;
 }
