@@ -218,8 +218,10 @@ void BattleHero::render(Canvas & canvas)
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
 
-	flagCurrentFrame += currentSpeed;
-	currentFrame += currentSpeed;
+	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
+
+	flagCurrentFrame += currentSpeed * timePassed;
+	currentFrame += currentSpeed * timePassed;
 
 	if(flagCurrentFrame >= flagAnimation->size(0))
 		flagCurrentFrame -= flagAnimation->size(0);
@@ -238,8 +240,8 @@ void BattleHero::pause()
 
 void BattleHero::play()
 {
-	//FIXME: un-hardcode speed
-	currentSpeed = 0.25f;
+	//H3 speed: 10 fps ( 100 ms per frame)
+	currentSpeed = 10.f;
 }
 
 float BattleHero::getFrame() const
