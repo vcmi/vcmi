@@ -36,6 +36,7 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/serializer/Connection.h"
 
+#include <SDL_events.h>
 
 bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb)
 {

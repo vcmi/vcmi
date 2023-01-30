@@ -32,6 +32,8 @@
 #define SDL_SCANCODE_LCTRL SDL_SCANCODE_LGUI
 #endif
 
+#include <SDL_keyboard.h>
+
 void CGarrisonSlot::setHighlight(bool on)
 {
 	if (on)
@@ -437,7 +439,7 @@ void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount
 
 bool CGarrisonSlot::handleSplittingShortcuts()
 {
-	const Uint8 * state = SDL_GetKeyboardState(NULL);
+	const uint8_t * state = SDL_GetKeyboardState(NULL);
 	const bool isAlt = !!state[SDL_SCANCODE_LALT];
 	const bool isLShift = !!state[SDL_SCANCODE_LSHIFT];
 	const bool isLCtrl = !!state[SDL_SCANCODE_LCTRL];

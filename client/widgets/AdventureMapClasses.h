@@ -405,7 +405,7 @@ public:
 class CInGameConsole : public CIntObject
 {
 private:
-	std::list< std::pair< std::string, Uint32 > > texts; //list<text to show, time of add>
+	std::list< std::pair< std::string, uint32_t > > texts; //list<text to show, time of add>
 	boost::mutex texts_mx;		// protects texts
 	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
 	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1

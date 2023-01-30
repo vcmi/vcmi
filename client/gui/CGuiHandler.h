@@ -10,8 +10,7 @@
 #pragma once
 
 #include "../../lib/Point.h"
-
-#include <SDL_events.h>
+#include "SDL_keycode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,6 +19,7 @@ template <typename T> struct CondSh;
 VCMI_LIB_NAMESPACE_END
 
 union SDL_Event;
+struct SDL_MouseMotionEvent;
 
 class CFramerateManager;
 class IStatusBar;

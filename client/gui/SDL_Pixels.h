@@ -12,6 +12,7 @@
 #include "SDL_Extensions.h"
 
 #include <SDL_endian.h>
+#include <SDL_pixels.h>
 
 // for accessing channels from pixel in format-independent way
 //should be as fast as accessing via pointer at least for 3-4 bytes per pixel
@@ -20,20 +21,20 @@ namespace Channels
 	// channel not present in this format
 	struct channel_empty
 	{
-		static STRONG_INLINE void set(Uint8*, Uint8) {}
-		static STRONG_INLINE Uint8 get(const Uint8 *) { return 255;}
+		static STRONG_INLINE void set(uint8_t*, uint8_t) {}
+		static STRONG_INLINE uint8_t get(const uint8_t *) { return 255;}
 	};
 
 	// channel which uses whole pixel
 	template<int offset>
 	struct channel_pixel
 	{
-		static STRONG_INLINE void set(Uint8 *ptr, Uint8 value)
+		static STRONG_INLINE void set(uint8_t *ptr, uint8_t value)
 		{
 			ptr[offset] = value;
 		}
 
-		static STRONG_INLINE Uint8 get(const Uint8 *ptr)
+		static STRONG_INLINE uint8_t get(const uint8_t *ptr)
 		{
 			return ptr[offset];
 		}
@@ -44,16 +45,16 @@ namespace Channels
 	struct channel_subpx
 	{
 
-		static void STRONG_INLINE set(Uint8 *ptr, Uint8 value)
+		static void STRONG_INLINE set(uint8_t *ptr, uint8_t value)
 		{
-			Uint16 * const pixel = (Uint16*)ptr;
-			Uint8 subpx = value >> (8 - bits);
+			uint16_t * const pixel = (uint16_t*)ptr;
+			uint8_t subpx = value >> (8 - bits);
 			*pixel = (*pixel & ~mask) | ((subpx << shift) & mask );
 		}
 
-		static Uint8 STRONG_INLINE get(const Uint8 *ptr)
+		static uint8_t STRONG_INLINE get(const uint8_t *ptr)
 		{
-			Uint8 subpx = (*((Uint16 *)ptr) & mask) >> shift;
+			uint8_t subpx = (*((uint16_t *)ptr) & mask) >> shift;
 			return (subpx << (8 - bits)) | (subpx >> (2*bits - 8));
 		}
 	};
@@ -122,39 +123,39 @@ namespace Channels
 template<int bpp, int incrementPtr>
 struct ColorPutter
 {
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
-	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
-	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
-	static STRONG_INLINE void PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count);
+	static STRONG_INLINE void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
+	static STRONG_INLINE void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
+	static STRONG_INLINE void PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
+	static STRONG_INLINE void PutColor(uint8_t *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorRow(uint8_t *&ptr, const SDL_Color & Color, size_t count);
 };
 
 template <int incrementPtr>
 struct ColorPutter<2, incrementPtr>
 {
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
-	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
-	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
-	static STRONG_INLINE void PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count);
+	static STRONG_INLINE void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
+	static STRONG_INLINE void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
+	static STRONG_INLINE void PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
+	static STRONG_INLINE void PutColor(uint8_t *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorRow(uint8_t *&ptr, const SDL_Color & Color, size_t count);
 };
 
 template<int bpp, int incrementPtr>
-STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color)
 {
 	PutColor(ptr, Color.r, Color.g, Color.b, Color.a);
 }
 
 template<int bpp, int incrementPtr>
-STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const SDL_Color & Color)
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(uint8_t *&ptr, const SDL_Color & Color)
 {
 	PutColor(ptr, Color.r, Color.g, Color.b);
 }
 
 template<int bpp, int incrementPtr>
-STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
 {
 	switch (A)
 	{
@@ -166,9 +167,9 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 		return;
 	case 128:  // optimized
 		PutColor(ptr,
-				 ((Uint16)R + Channels::px<bpp>::r.get(ptr)) >> 1,
-				 ((Uint16)G + Channels::px<bpp>::g.get(ptr)) >> 1,
-				 ((Uint16)B + Channels::px<bpp>::b.get(ptr)) >> 1);
+				 ((uint16_t)R + Channels::px<bpp>::r.get(ptr)) >> 1,
+				 ((uint16_t)G + Channels::px<bpp>::g.get(ptr)) >> 1,
+				 ((uint16_t)B + Channels::px<bpp>::b.get(ptr)) >> 1);
 		return;
 	default:
 		PutColor(ptr, R, G, B, A);
@@ -177,16 +178,16 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 }
 
 template<int bpp, int incrementPtr>
-STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
 {
-	PutColor(ptr, ((((Uint32)R - (Uint32)Channels::px<bpp>::r.get(ptr))*(Uint32)A) >> 8 ) + (Uint32)Channels::px<bpp>::r.get(ptr),
-				  ((((Uint32)G - (Uint32)Channels::px<bpp>::g.get(ptr))*(Uint32)A) >> 8 ) + (Uint32)Channels::px<bpp>::g.get(ptr),
-				  ((((Uint32)B - (Uint32)Channels::px<bpp>::b.get(ptr))*(Uint32)A) >> 8 ) + (Uint32)Channels::px<bpp>::b.get(ptr));
+	PutColor(ptr, ((((uint32_t)R - (uint32_t)Channels::px<bpp>::r.get(ptr))*(uint32_t)A) >> 8 ) + (uint32_t)Channels::px<bpp>::r.get(ptr),
+				  ((((uint32_t)G - (uint32_t)Channels::px<bpp>::g.get(ptr))*(uint32_t)A) >> 8 ) + (uint32_t)Channels::px<bpp>::g.get(ptr),
+				  ((((uint32_t)B - (uint32_t)Channels::px<bpp>::b.get(ptr))*(uint32_t)A) >> 8 ) + (uint32_t)Channels::px<bpp>::b.get(ptr));
 }
 
 
 template<int bpp, int incrementPtr>
-STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B)
 {
 	static_assert(incrementPtr >= -1 && incrementPtr <= +1, "Invalid incrementPtr value!");
 
@@ -204,11 +205,11 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const U
 }
 
 template<int bpp, int incrementPtr>
-STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count)
+STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorRow(uint8_t *&ptr, const SDL_Color & Color, size_t count)
 {
 	if (count)
 	{
-		Uint8 *pixel = ptr;
+		uint8_t *pixel = ptr;
 		PutColor(ptr, Color.r, Color.g, Color.b);
 
 		for (size_t i=0; i<count-1; i++)
@@ -220,12 +221,12 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorRow(Uint8 *&ptr, cons
 }
 
 template <int incrementPtr>
-STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B)
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B)
 {
 	if(incrementPtr == -1)
 		ptr -= 2;
 
-	Uint16 * const px = (Uint16*)ptr;
+	uint16_t * const px = (uint16_t*)ptr;
 	*px = (B>>3) + ((G>>2) << 5) + ((R>>3) << 11); //drop least significant bits of 24 bpp encoded color
 
 	if(incrementPtr == 1)
@@ -233,7 +234,7 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uin
 }
 
 template <int incrementPtr>
-STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
 {
 	switch (A)
 	{
@@ -250,17 +251,17 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlphaSwitch(Uint8 *&ptr
 }
 
 template <int incrementPtr>
-STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
 {
 	const int rbit = 5, gbit = 6, bbit = 5; //bits per color
 	const int rmask = 0xF800, gmask = 0x7E0, bmask = 0x1F;
 	const int rshift = 11, gshift = 5, bshift = 0;
 
-	const Uint8 r5 = (*((Uint16 *)ptr) & rmask) >> rshift,
-		b5 = (*((Uint16 *)ptr) & bmask) >> bshift,
-		g5 = (*((Uint16 *)ptr) & gmask) >> gshift;
+	const uint8_t r5 = (*((uint16_t *)ptr) & rmask) >> rshift,
+		b5 = (*((uint16_t *)ptr) & bmask) >> bshift,
+		g5 = (*((uint16_t *)ptr) & gmask) >> gshift;
 
-	const Uint32 r8 = (r5 << (8 - rbit)) | (r5 >> (2*rbit - 8)),
+	const uint32_t r8 = (r5 << (8 - rbit)) | (r5 >> (2*rbit - 8)),
 		g8 = (g5 << (8 - gbit)) | (g5 >> (2*gbit - 8)),
 		b8 = (b5 << (8 - bbit)) | (b5 >> (2*bbit - 8));
 
@@ -271,22 +272,22 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uin
 }
 
 template <int incrementPtr>
-STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color)
 {
 	PutColor(ptr, Color.r, Color.g, Color.b, Color.a);
 }
 
 template <int incrementPtr>
-STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const SDL_Color & Color)
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(uint8_t *&ptr, const SDL_Color & Color)
 {
 	PutColor(ptr, Color.r, Color.g, Color.b);
 }
 
 template <int incrementPtr>
-STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count)
+STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorRow(uint8_t *&ptr, const SDL_Color & Color, size_t count)
 {
 	//drop least significant bits of 24 bpp encoded color
-	Uint16 pixel = (Color.b>>3) + ((Color.g>>2) << 5) + ((Color.r>>3) << 11);
+	uint16_t pixel = (Color.b>>3) + ((Color.g>>2) << 5) + ((Color.r>>3) << 11);
 
 	for (size_t i=0; i<count; i++)
 	{

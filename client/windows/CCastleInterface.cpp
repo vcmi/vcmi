@@ -44,6 +44,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
+#include <SDL_events.h>
+
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE),
 	  parent(Par),
@@ -153,10 +155,10 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 {
 	SDL_Color ret;
-	ret.r = static_cast<Uint8>(a.r * f + b.r * (1 - f));
-	ret.g = static_cast<Uint8>(a.g * f + b.g * (1 - f));
-	ret.b = static_cast<Uint8>(a.b * f + b.b * (1 - f));
-	ret.a = static_cast<Uint8>(a.a * f + b.b * (1 - f));
+	ret.r = static_cast<uint8_t>(a.r * f + b.r * (1 - f));
+	ret.g = static_cast<uint8_t>(a.g * f + b.g * (1 - f));
+	ret.b = static_cast<uint8_t>(a.b * f + b.b * (1 - f));
+	ret.a = static_cast<uint8_t>(a.a * f + b.b * (1 - f));
 	return ret;
 }
 

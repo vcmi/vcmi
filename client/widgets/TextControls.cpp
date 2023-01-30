@@ -24,6 +24,8 @@
 #include "lib/CAndroidVMHelper.h"
 #endif
 
+#include <SDL_events.h>
+
 std::string CLabel::visibleText()
 {
 	return text;

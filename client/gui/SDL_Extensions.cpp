@@ -146,12 +146,12 @@ SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given s
 template<int bpp>
 SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 {
-	Uint32 rMask = 0, gMask = 0, bMask = 0, aMask = 0;
+	uint32_t rMask = 0, gMask = 0, bMask = 0, aMask = 0;
 
-	Channels::px<bpp>::r.set((Uint8*)&rMask, 255);
-	Channels::px<bpp>::g.set((Uint8*)&gMask, 255);
-	Channels::px<bpp>::b.set((Uint8*)&bMask, 255);
-	Channels::px<bpp>::a.set((Uint8*)&aMask, 255);
+	Channels::px<bpp>::r.set((uint8_t*)&rMask, 255);
+	Channels::px<bpp>::g.set((uint8_t*)&gMask, 255);
+	Channels::px<bpp>::b.set((uint8_t*)&bMask, 255);
+	Channels::px<bpp>::a.set((uint8_t*)&aMask, 255);
 
 	return SDL_CreateRGBSurface(0, width, height, bpp * 8, rMask, gMask, bMask, aMask);
 }
@@ -230,28 +230,28 @@ SDL_Surface * CSDL_Ext::horizontalFlip(SDL_Surface * toRot)
 	return ret;
 }
 
-Uint32 CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
+uint32_t CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {
 	int bpp = surface->format->BytesPerPixel;
 	/* Here p is the address to the pixel we want to retrieve */
-	Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+	uint8_t *p = (uint8_t *)surface->pixels + y * surface->pitch + x * bpp;
 
 	switch(bpp)
 	{
 	case 1:
 		if(colorByte)
-			return colorToUint32(surface->format->palette->colors+(*p));
+			return colorTouint32_t(surface->format->palette->colors+(*p));
 		else
 			return *p;
 
 	case 2:
-		return *(Uint16 *)p;
+		return *(uint16_t *)p;
 
 	case 3:
 			return p[0] | p[1] << 8 | p[2] << 16;
 
 	case 4:
-		return *(Uint32 *)p;
+		return *(uint32_t *)p;
 
 	default:
 		return 0;       // shouldn't happen, but avoids warnings
@@ -366,13 +366,13 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 				return -1; //if we cannot lock the surface
 
 			const SDL_Color *colors = src->format->palette->colors;
-			Uint8 *colory = (Uint8*)src->pixels + srcy*src->pitch + srcx;
-			Uint8 *py = (Uint8*)dst->pixels + dstRect->y*dst->pitch + dstRect->x*bpp;
+			uint8_t *colory = (uint8_t*)src->pixels + srcy*src->pitch + srcx;
+			uint8_t *py = (uint8_t*)dst->pixels + dstRect->y*dst->pitch + dstRect->x*bpp;
 
 			for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
 			{
-				Uint8 *color = colory;
-				Uint8 *p = py;
+				uint8_t *color = colory;
+				uint8_t *p = py;
 
 				for(int x = w; x; x--)
 				{
@@ -399,9 +399,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect
 	}
 }
 
-Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
+uint32_t CSDL_Ext::colorTouint32_t(const SDL_Color * color)
 {
-	Uint32 ret = 0;
+	uint32_t ret = 0;
 	ret+=color->a;
 	ret<<=8; //*=256
 	ret+=color->b;
@@ -432,7 +432,7 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t b = vstd::lerp(color1.b, color2.b, f);
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
-		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
+		uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
 	}
 }
@@ -449,7 +449,7 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t b = vstd::lerp(color1.b, color2.b, f);
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
-		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
+		uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
 	}
 }
@@ -461,7 +461,7 @@ void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const
 
 	if ( width == 0 && height == 0)
 	{
-		Uint8 *p = CSDL_Ext::getPxPtr(sur, x1, y1);
+		uint8_t *p = CSDL_Ext::getPxPtr(sur, x1, y1);
 		ColorPutter<4, 0>::PutColorAlpha(p, color1);
 		return;
 	}
@@ -579,9 +579,9 @@ CSDL_Ext::TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &des
 #undef CASE_BPP
 }
 
-Uint8 * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
+uint8_t * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
 {
-	return (Uint8 *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
+	return (uint8_t *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
 }
 
 std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
@@ -629,9 +629,9 @@ void CSDL_Ext::VflipSurf(SDL_Surface * surf)
 	}
 }
 
-void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
+void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A)
 {
-	Uint8 *p = getPxPtr(ekran, x, y);
+	uint8_t *p = getPxPtr(ekran, x, y);
 	getPutterFor(ekran, false)(p, R, G, B);
 
 	switch(ekran->format->BytesPerPixel)
@@ -642,7 +642,7 @@ void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const i
 	}
 }
 
-void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
+void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A)
 {
 	const SDL_Rect & rect = ekran->clip_rect;
 
@@ -665,7 +665,7 @@ void CSDL_Ext::applyEffectBpp(SDL_Surface * surf, const Rect & rect, int mode )
 			{
 				for(int yp = rect.y; yp < rect.y + rect.h; ++yp)
 				{
-					Uint8 * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					uint8_t * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 					int r = Channels::px<bpp>::r.get(pixel);
 					int g = Channels::px<bpp>::g.get(pixel);
 					int b = Channels::px<bpp>::b.get(pixel);
@@ -698,7 +698,7 @@ void CSDL_Ext::applyEffectBpp(SDL_Surface * surf, const Rect & rect, int mode )
 			{
 				for(int yp = rect.y; yp < rect.y + rect.h; ++yp)
 				{
-					Uint8 * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					uint8_t * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
 					int r = Channels::px<bpp>::r.get(pixel);
 					int g = Channels::px<bpp>::g.get(pixel);
@@ -744,8 +744,8 @@ void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
 				origY = static_cast<int>(floor(factorY * y));
 
 			// Get pointers to source pixels
-			Uint8 *srcPtr = (Uint8*)surf->pixels + origY * surf->pitch + origX * bpp;
-			Uint8 *destPtr = (Uint8*)ret->pixels + y * ret->pitch + x * bpp;
+			uint8_t *srcPtr = (uint8_t*)surf->pixels + origY * surf->pitch + origX * bpp;
+			uint8_t *destPtr = (uint8_t*)ret->pixels + y * ret->pitch + x * bpp;
 
 			memcpy(destPtr, srcPtr, bpp);
 		}
@@ -799,10 +799,10 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 			//assert( w11 + w12 + w21 + w22 > 0.99 && w11 + w12 + w21 + w22 < 1.01);//total weight is ~1.0
 
 			// Get pointers to source pixels
-			Uint8 *p11 = (Uint8*)surf->pixels + int(y1) * surf->pitch + int(x1) * bpp;
-			Uint8 *p12 = p11 + bpp;
-			Uint8 *p21 = p11 + surf->pitch;
-			Uint8 *p22 = p21 + bpp;
+			uint8_t *p11 = (uint8_t*)surf->pixels + int(y1) * surf->pitch + int(x1) * bpp;
+			uint8_t *p12 = p11 + bpp;
+			uint8_t *p21 = p11 + surf->pitch;
+			uint8_t *p22 = p21 + bpp;
 			// Calculate resulting channels
 #define PX(X, PTR) Channels::px<bpp>::X.get(PTR)
 			int resR = static_cast<int>(PX(r, p11) * w11 + PX(r, p12) * w12 + PX(r, p21) * w21 + PX(r, p22) * w22);
@@ -811,7 +811,7 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 			int resA = static_cast<int>(PX(a, p11) * w11 + PX(a, p12) * w12 + PX(a, p21) * w21 + PX(a, p22) * w22);
 			//assert(resR < 256 && resG < 256 && resB < 256 && resA < 256);
 #undef PX
-			Uint8 *dest = (Uint8*)ret->pixels + y * ret->pitch + x * bpp;
+			uint8_t *dest = (uint8_t*)ret->pixels + y * ret->pitch + x * bpp;
 			Channels::px<bpp>::r.set(dest, resR);
 			Channels::px<bpp>::g.set(dest, resG);
 			Channels::px<bpp>::b.set(dest, resB);

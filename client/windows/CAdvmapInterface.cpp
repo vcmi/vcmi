@@ -55,6 +55,9 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/TerrainHandler.h"
 
+#include <SDL_surface.h>
+#include <SDL_events.h>
+
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
 

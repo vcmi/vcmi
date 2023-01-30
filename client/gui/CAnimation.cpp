@@ -23,6 +23,8 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/vcmi_endian.h"
 
+#include <SDL_surface.h>
+
 class SDLImageLoader;
 
 typedef std::map <size_t, std::vector <JsonNode> > source_map;

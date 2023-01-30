@@ -56,6 +56,7 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
+#include <SDL_events.h>
 
 namespace fs = boost::filesystem;
 

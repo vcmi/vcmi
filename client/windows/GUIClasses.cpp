@@ -61,6 +61,8 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
+#include <SDL_events.h>
+
 using namespace CSDL_Ext;
 
 std::list<CFocusable*> CFocusable::focusables;

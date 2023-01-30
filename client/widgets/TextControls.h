@@ -14,6 +14,8 @@
 #include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
+#include <SDL_pixels.h>
+
 class IImage;
 class CSlider;
 

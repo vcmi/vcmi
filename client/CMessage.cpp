@@ -22,6 +22,8 @@
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
 
+#include <SDL_surface.h>
+
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;
 const int BETWEEN_COMPS = 30;

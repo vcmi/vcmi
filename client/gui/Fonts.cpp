@@ -136,7 +136,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 
 	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
 
-	Uint8 bpp = surface->format->BytesPerPixel;
+	uint8_t bpp = surface->format->BytesPerPixel;
 
 	// start of line, may differ from 0 due to end of surface or clipped surface
 	int lineBegin = std::max<int>(0, clipRect.y - posY);
@@ -149,8 +149,8 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 	//for each line in symbol
 	for(int dy = lineBegin; dy <lineEnd; dy++)
 	{
-		Uint8 *dstLine = (Uint8*)surface->pixels;
-		Uint8 *srcLine = character.pixels;
+		uint8_t *dstLine = (uint8_t*)surface->pixels;
+		uint8_t *srcLine = character.pixels;
 
 		// shift source\destination pixels to current position
 		dstLine += (posY+dy) * surface->pitch + posX * bpp;
@@ -159,7 +159,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 		//for each column in line
 		for(int dx = rowBegin; dx < rowEnd; dx++)
 		{
-			Uint8* dstPixel = dstLine + dx*bpp;
+			uint8_t* dstPixel = dstLine + dx*bpp;
 			switch(srcLine[dx])
 			{
 			case 1: //black "shadow"
@@ -307,7 +307,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 	CSDL_Ext::getClipRect(surface, clipRect);
 
 	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
-	Uint8 bpp = surface->format->BytesPerPixel;
+	uint8_t bpp = surface->format->BytesPerPixel;
 
 	// start of line, may differ from 0 due to end of surface or clipped surface
 	int lineBegin = std::max<int>(0, clipRect.y - posY);
@@ -320,8 +320,8 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 	//for each line in symbol
 	for(int dy = lineBegin; dy <lineEnd; dy++)
 	{
-		Uint8 *dstLine = (Uint8*)surface->pixels;
-		Uint8 *source = data.first.get() + getCharacterDataOffset(characterIndex);
+		uint8_t *dstLine = (uint8_t*)surface->pixels;
+		uint8_t *source = data.first.get() + getCharacterDataOffset(characterIndex);
 
 		// shift source\destination pixels to current position
 		dstLine += (posY+dy) * surface->pitch + posX * bpp;
@@ -333,7 +333,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 			// select current bit in bitmap
 			int bit = (source[dx / 8] << (dx % 8)) & 0x80;
 
-			Uint8* dstPixel = dstLine + dx*bpp;
+			uint8_t* dstPixel = dstLine + dx*bpp;
 			if (bit != 0)
 				colorPutter(dstPixel, color.r, color.g, color.b);
 		}

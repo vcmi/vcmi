@@ -39,6 +39,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 
+#include <SDL_surface.h>
+
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(bitmap)

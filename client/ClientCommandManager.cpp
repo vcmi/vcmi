@@ -33,6 +33,8 @@
 #include "../lib/ScriptHandler.h"
 #endif
 
+#include <SDL_surface.h>
+
 void ClientCommandManager::handleGoSolo()
 {
 	Settings session = settings.write["session"];

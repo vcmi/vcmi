@@ -68,6 +68,7 @@
 #include "../lib/CGameState.h"
 #include "gui/NotificationHandler.h"
 
+#include <SDL_events.h>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that CPlayerInterface::pim mutex is locked.

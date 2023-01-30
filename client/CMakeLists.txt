@@ -110,7 +110,6 @@ set(client_HEADERS
 		gui/CIntObject.h
 		gui/Fonts.h
 		gui/TextAlignment.h
-		gui/SDL_Compat.h
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
 		gui/NotificationHandler.h

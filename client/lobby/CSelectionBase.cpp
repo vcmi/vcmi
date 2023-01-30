@@ -44,6 +44,8 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/serializer/Connection.h"
 
+#include <SDL_events.h>
+
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {

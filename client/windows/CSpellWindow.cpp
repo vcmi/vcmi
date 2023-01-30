@@ -42,6 +42,8 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+#include <SDL_events.h>
+
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);

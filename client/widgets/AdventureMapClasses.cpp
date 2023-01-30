@@ -43,6 +43,10 @@
 #include "../../lib/mapping/CMap.h"
 #include "ClientCommandManager.h"
 
+#include <SDL_surface.h>
+#include <SDL_keyboard.h>
+#include <SDL_events.h>
+
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),
 	parent(Parent),
@@ -187,7 +191,7 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
+	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 }
 
 CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
@@ -200,7 +204,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
+	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 
 	update();
 }
@@ -409,7 +413,7 @@ void CMinimapInstance::blitTileWithColor(const SDL_Color &color, const int3 &til
 
 	for (int y=yBegin; y<yEnd; y++)
 	{
-		Uint8 *ptr = (Uint8*)to->pixels + y * to->pitch + xBegin * minimap->format->BytesPerPixel;
+		uint8_t *ptr = (uint8_t*)to->pixels + y * to->pitch + xBegin * minimap->format->BytesPerPixel;
 
 		for (int x=xBegin; x<xEnd; x++)
 			ColorPutter<4, 1>::PutColor(ptr, color);
@@ -446,7 +450,7 @@ void CMinimapInstance::drawScaled(int level)
 
 			for (int y=yBegin; y<yEnd; y++)
 			{
-				Uint8 *ptr = (Uint8*)minimap->pixels + y * minimap->pitch + xBegin * minimap->format->BytesPerPixel;
+				uint8_t *ptr = (uint8_t*)minimap->pixels + y * minimap->pitch + xBegin * minimap->format->BytesPerPixel;
 
 				for (int x=xBegin; x<xEnd; x++)
 					ColorPutter<4, 1>::PutColor(ptr, color);
@@ -948,7 +952,7 @@ void CInGameConsole::show(SDL_Surface * to)
 {
 	int number = 0;
 
-	std::vector<std::list< std::pair< std::string, Uint32 > >::iterator> toDel;
+	std::vector<std::list< std::pair< std::string, uint32_t > >::iterator> toDel;
 
 	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)

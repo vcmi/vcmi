@@ -35,6 +35,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
+#include <SDL_surface.h>
+
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
 	WindowBase(getUsedEvents(options_), Point()),
 	options(options_),
@@ -138,7 +140,7 @@ void CWindowObject::setShadow(bool on)
 		//helper to set last row
 		auto blitAlphaRow = [](SDL_Surface *surf, size_t row)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + surf->pitch * (row);
+			uint8_t * ptr = (uint8_t*)surf->pixels + surf->pitch * (row);
 
 			for (size_t i=0; i< surf->w; i++)
 			{
@@ -150,7 +152,7 @@ void CWindowObject::setShadow(bool on)
 		// helper to set last column
 		auto blitAlphaCol = [](SDL_Surface *surf, size_t col)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + 4 * (col);
+			uint8_t * ptr = (uint8_t*)surf->pixels + 4 * (col);
 
 			for (size_t i=0; i< surf->h; i++)
 			{

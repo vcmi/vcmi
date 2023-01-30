@@ -9,11 +9,11 @@
  */
 
 #pragma once
-#include <SDL_events.h>
 #include "../../lib/GameConstants.h"
 #include "../../lib/Rect.h"
 #include "../../lib/Color.h"
 
+struct SDL_Rect;
 struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -114,8 +114,8 @@ std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output 
 
 Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
 
-typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
-typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+typedef void (*TColorPutter)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
+typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
 
 	void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
 	void blitAt(SDL_Surface * src, const Rect & pos, SDL_Surface * dst=screen);
@@ -131,23 +131,23 @@ typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G,
 
 	void updateRect(SDL_Surface *surface, const Rect & rect);
 
-	void putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
-	void putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
+	void putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A = 255);
+	void putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A = 255);
 
 	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
 	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
-	Uint32 getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
+	uint32_t getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 	bool isTransparent(SDL_Surface * srf, const Point &  position); //checks if surface is transparent at given position
 
-	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
+	uint8_t *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
 	TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 	TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 
 	template<int bpp>
 	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
-	Uint32 colorToUint32(const SDL_Color * color); //little endian only
+	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 	SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
 
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
