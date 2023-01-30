@@ -217,7 +217,7 @@ public:
 	void fmoveHero();
 	void fshowSpellbok();
 	void fadventureOPtions();
-	void fsystemOptions();
+	void openSettings();
 	void fnextHero();
 	void fendTurn();
 

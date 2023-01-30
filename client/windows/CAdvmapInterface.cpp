@@ -36,7 +36,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/SystemOptionsWindow.h"
+#include "../windows/SettingsMainContainer.h"
 
 #include "../../CCallback.h"
 
@@ -606,7 +606,7 @@ CAdvMapInt::CAdvMapInt():
 	moveHero     = makeButton(297, std::bind(&CAdvMapInt::fmoveHero,this),         ADVOPT.moveHero,     SDLK_m);
 	spellbook    = makeButton(298, std::bind(&CAdvMapInt::fshowSpellbok,this),     ADVOPT.spellbook,    SDLK_c);
 	advOptions   = makeButton(299, std::bind(&CAdvMapInt::fadventureOPtions,this), ADVOPT.advOptions,   SDLK_a);
-	sysOptions   = makeButton(300, std::bind(&CAdvMapInt::fsystemOptions,this),    ADVOPT.sysOptions,   SDLK_o);
+	sysOptions   = makeButton(300, std::bind(&CAdvMapInt::openSettings, this), ADVOPT.sysOptions, SDLK_o);
 	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
@@ -816,9 +816,9 @@ void CAdvMapInt::fadventureOPtions()
 	GH.pushIntT<CAdventureOptions>();
 }
 
-void CAdvMapInt::fsystemOptions()
+void CAdvMapInt::openSettings()
 {
-	GH.pushIntT<SystemOptionsWindow>();
+	GH.pushIntT<SettingsMainContainer>();
 }
 
 void CAdvMapInt::fnextHero()

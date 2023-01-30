@@ -1,0 +1,28 @@
+{
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "vcmiSettingsWindow",
+			"position": {"x": 0, "y": 0}
+		},
+		{
+			"name": "activateSystemOptionsButton",
+			"type": "button",
+			"position": {"x": 0, "y": 0},
+			"image": "buttons/vcmisettings",
+			"help": "TODO",
+			"callback": "activateMainTab"
+		},
+
+		{
+			"name": "activateVcmiSettingsButton",
+			"type": "button",
+			"position": {"x": 250, "y": 0},
+			"image": "buttons/vcmisettings",
+			"help": "TODO",
+			"callback": "activateVcmiSettingsTab"
+		}
+	]
+}

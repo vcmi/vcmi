@@ -1,0 +1,14 @@
+{
+	"items":
+	[
+		{
+			"name": "closeSettingsButton",
+			"type": "button",
+			"position": {"x": 357, "y": 415},
+			"image": "soretrn.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.325",
+			"callback": "closeWindow"
+		}
+	]
+}

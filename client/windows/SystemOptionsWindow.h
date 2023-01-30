@@ -18,12 +18,13 @@ private:
 	SettingsListener onFullscreenChanged;
 
 	//functions bound to buttons
-	void loadGameButtonCallback(); //load game
-	void saveGameButtonCallback(); //save game
-	void quitGameButtonCallback(); //quit game
-	void backButtonCallback(); //return to game
-	void restartGameButtonCallback(); //restart game
-	void mainMenuButtonCallback(); //return to main menu
+	void loadGameButtonCallback();
+	void saveGameButtonCallback();
+	void quitGameButtonCallback();
+	void backButtonCallback();
+	void restartGameButtonCallback();
+	void mainMenuButtonCallback();
+	void showVcmiSettingsButtonCallback();
 
 	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
 	void selectGameResolution();

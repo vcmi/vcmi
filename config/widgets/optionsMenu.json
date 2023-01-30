@@ -2,14 +2,6 @@
 	"items":
 	[
 		{
-			"name": "background",
-			"type": "picture",
-			"playerColored" : true,
-			"position": {"x": 0, "y": 0},
-			"image": "SysOpBck"
-		},
-
-		{
 			"name": "title",
 			"type": "label",
 			"font": "big",

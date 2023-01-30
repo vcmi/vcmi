@@ -20,6 +20,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "VcmiSettingsWindow.h"
 #include "GUIClasses.h"
 #include "CServerHandler.h"
 #include "lobby/CSavingScreen.h"
@@ -65,12 +66,13 @@ SystemOptionsWindow::SystemOptionsWindow()
 	addCallback("setGameResolution", std::bind(&SystemOptionsWindow::selectGameResolution, this));
 	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
 	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
+	addCallback("openVcmiSettings", [this](int) { showVcmiSettingsButtonCallback(); });
 	build(config);
 
-	std::shared_ptr<CPicture> background = widget<CPicture>("background");
-	pos.w = background->pos.w;
-	pos.h = background->pos.h;
-	pos = center();
+//	std::shared_ptr<CPicture> background = widget<CPicture>("background");
+//	pos.w = background->pos.w;
+//	pos.h = background->pos.h;
+//	pos = center();
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 	const auto & currentResolution = settings["video"]["screenRes"];
@@ -217,6 +219,12 @@ void SystemOptionsWindow::saveGameButtonCallback()
 void SystemOptionsWindow::restartGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
+}
+
+void SystemOptionsWindow::showVcmiSettingsButtonCallback()
+{
+	close();
+	GH.pushIntT<VcmiSettingsWindow>();
 }
 
 void SystemOptionsWindow::closeAndPushEvent(int eventType, int code)
