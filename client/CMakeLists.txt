@@ -111,7 +111,7 @@ set(client_HEADERS
 		gui/Fonts.h
 		gui/TextAlignment.h
 		gui/SDL_Extensions.h
-		gui/SDL_Pixels.h
+		gui/SDL_PixelAccess.h
 		gui/NotificationHandler.h
 		gui/InterfaceObjectConfigurable.h
 

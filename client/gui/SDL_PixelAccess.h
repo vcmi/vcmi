@@ -1,5 +1,5 @@
 /*
- * SDL_Pixels.h, part of VCMI engine
+ * SDL_PixelAccess.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

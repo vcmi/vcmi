@@ -22,7 +22,7 @@
 #include "../mainmenu/CMainMenu.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Pixels.h"
+#include "../gui/SDL_PixelAccess.h"
 #include "../gui/CAnimation.h"
 
 #include "../windows/InfoWindows.h"

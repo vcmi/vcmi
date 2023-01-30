@@ -21,7 +21,6 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 
-#include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"

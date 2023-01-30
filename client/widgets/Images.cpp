@@ -13,7 +13,6 @@
 #include "MiscWidgets.h"
 
 #include "../gui/CAnimation.h"
-#include "../gui/SDL_Pixels.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/ColorFilter.h"

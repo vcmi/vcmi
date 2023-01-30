@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "SDL_Extensions.h"
-#include "SDL_Pixels.h"
+#include "SDL_PixelAccess.h"
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"

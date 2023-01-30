@@ -11,7 +11,6 @@
 #include "CAnimation.h"
 
 #include "SDL_Extensions.h"
-#include "SDL_Pixels.h"
 #include "ColorFilter.h"
 
 #include "../CBitmapHandler.h"
