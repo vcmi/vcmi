@@ -22,7 +22,6 @@
 #include "../lib/filesystem/CBinaryReader.h"
 #include "gui/SDL_Extensions.h"
 #include "gui/CAnimation.h"
-#include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
 #include "../lib/CModHandler.h"
 #include "CGameInfo.h"
@@ -36,6 +35,8 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/CHeroHandler.h"
+
+#include <SDL_surface.h>
 
 using namespace CSDL_Ext;
 
