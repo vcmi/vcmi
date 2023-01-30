@@ -472,7 +472,7 @@ std::string CGHeroInstance::getObjectName() const
 		return hoverName;
 	}
 	else
-		return CGObjectInstance::getObjectName();
+		return VLC->objtypeh->getObjectName(ID, 0);
 }
 
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
