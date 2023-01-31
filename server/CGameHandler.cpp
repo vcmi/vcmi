@@ -5176,8 +5176,11 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 	if (cheated)
 	{
-		SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
-		sendAndApply(&temp_message);
+		if(!getPlayerSettings(player)->isControlledByAI())
+		{
+			SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
+			sendAndApply(&temp_message);
+		}
 
 		if(!player.isSpectator())
 			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
