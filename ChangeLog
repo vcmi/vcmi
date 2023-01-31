@@ -7,6 +7,9 @@
 * Fixed game freeze on receiving multiple artifact assembly dialogs after combat
 * Fixed potential game freeze on end of music playback
 * macOS/iOS: fixed sound glitches
+* Android: upgraded version of SDL library
+* Android: reworked right click gesture and relative pointer mode
+* Improved map loading speed
 
 ### ADVENTURE MAP:
 * Fixed hero movement lag in single-player games
