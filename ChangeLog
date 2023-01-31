@@ -1,3 +1,33 @@
+# 1.1.0 -> 1.1.1
+
+### GENERAL:
+* Fixed missing sound in Polish version from gog.com 
+* Fixed positioning of main menu buttons in localized versions of H3
+* Fixed crash on transferring artifact to commander
+* Fixed game freeze on receiving multiple artifact assembly dialogs after combat
+* Fixed potential game freeze on end of music playback
+* macOS/iOS: fixed sound glitches
+* Android: upgraded version of SDL library
+* Android: reworked right click gesture and relative pointer mode
+* Improved map loading speed
+
+### ADVENTURE MAP:
+* Fixed hero movement lag in single-player games
+* Fixed number of drowned troops on visiting Sirens to match H3
+* iOS: pinch gesture visits current object (Spacebar behavior) instead of activating in-game console
+
+### TOWNS:
+* Fixed displaying growth bonus from Statue of Legion
+* Growth bonus tooltip ordering now matches H3
+* Buy All Units dialog will now buy units starting from the highest level
+
+### LAUNCHER:
+* Local mods can be disabled or uninstalled
+* Fixed styling of Launcher interface
+
+### MAP EDITOR:
+* Fixed saving of roads and rivers
+
 1.0.0 -> 1.1.0
 
 GENERAL:
