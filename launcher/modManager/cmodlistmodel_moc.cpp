@@ -21,8 +21,6 @@ static const QString names[ModFields::COUNT] =
 	"",
 	"modType",
 	"version",
-	"size",
-	"author"
 };
 
 }
@@ -72,8 +70,6 @@ QVariant CModListModel::getText(const CModEntry & mod, int field) const
 	case ModFields::STATUS_ENABLED:
 	case ModFields::STATUS_UPDATE:
 		return "";
-	case ModFields::SIZE:
-		return CModEntry::sizeToString(getValue(mod, field).toDouble());
 	default:
 		return getValue(mod, field);
 	}
@@ -96,10 +92,6 @@ QVariant CModListModel::getIcon(const CModEntry & mod, int field) const
 
 QVariant CModListModel::getTextAlign(int field) const
 {
-	if(field == ModFields::SIZE)
-		return QVariant(Qt::AlignRight | Qt::AlignVCenter);
-	//if (field == ModFields::NAME)
-	//	return QVariant(Qt::AlignHCenter | Qt::AlignVCenter);
 	return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
 }
 
@@ -152,8 +144,6 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 		QT_TR_NOOP(""), // status icon
 		QT_TR_NOOP("Type"),
 		QT_TR_NOOP("Version"),
-		QT_TR_NOOP("Size"),
-		QT_TR_NOOP("Author")
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
