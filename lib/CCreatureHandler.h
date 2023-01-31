@@ -90,6 +90,13 @@ public:
 			h & idleAnimationTime;
 			h & walkAnimationTime;
 			h & attackAnimationTime;
+
+			if (version < 814)
+			{
+				float unused = 0.f;
+				h & unused;
+			}
+
 			h & upperRightMissleOffsetX;
 			h & rightMissleOffsetX;
 			h & lowerRightMissleOffsetX;

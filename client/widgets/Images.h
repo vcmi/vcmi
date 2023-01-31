@@ -125,8 +125,10 @@ protected:
 
 	size_t first, last; //animation range
 
-	/// how long (in milliseconds) should
+	/// total time on scren for each frame in animation
 	ui32 frameTimeTotal;
+
+	/// how long was current frame visible on screen
 	ui32 frameTimePassed;
 
 	ui8 flags;//Flags from EFlags enum
