@@ -30,6 +30,7 @@ Platform support is constantly tested by continuous integration and CMake config
 
  * (optional) All platforms: [using Conan package manager to obtain prebuilt dependencies](docs/conan.md)
  * [On Linux](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux))
+ * [On Linux for Windows with Conan and mingw]( https://wiki.vcmi.eu/How_to_build_VCMI_(Linux/Cmake/Conan)
  * [On macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(macOS))
  * [On Windows using MSVC and Vcpkg](https://wiki.vcmi.eu/How_to_build_VCMI_(Windows/Vcpkg))
  * [iOS on macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(iOS))
