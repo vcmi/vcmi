@@ -6,10 +6,12 @@
 * Fixed crash on transferring artifact to commander
 * Fixed game freeze on receiving multiple artifact assembly dialogs after combat
 * Fixed potential game freeze on end of music playback
+* macOS/iOS: fixed sound glitches
 
 ### ADVENTURE MAP:
 * Fixed hero movement lag in single-player games
 * Fixed number of drowned troops on visiting Sirens to match H3
+* iOS: pinch gesture visits current object (Spacebar behavior) instead of activating in-game console
 
 ### TOWNS:
 * Fixed displaying growth bonus from Statue of Legion
