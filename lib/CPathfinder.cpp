@@ -1231,27 +1231,16 @@ int CPathfinderHelper::getMovementCost(
 		dt = hero->cb->getTile(dst);
 	}
 
-	/// TODO: by the original game rules hero shouldn't be affected by terrain penalty while flying.
-	/// Also flying movement only has penalty when player moving over blocked tiles.
-	/// So if you only have base flying with 40% penalty you can still ignore terrain penalty while having zero flying penalty.
 	int ret = hero->getTileCost(*dt, *ct, ti);
-	/// Unfortunately this can't be implemented yet as server don't know when player flying and when he's not.
-	/// Difference in cost calculation on client and server is much worse than incorrect cost.
-	/// So this one is waiting till server going to use pathfinder rules for path validation.
-
-	if(dt->blocked && ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+	if(hero->boat != nullptr && dt->terType->isWater())
 	{
-		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0);
-	}
-	else if(dt->terType->isWater())
-	{
-		if(hero->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
+		if(ct->hasFavorableWinds() && dt->hasFavorableWinds())
 			ret = static_cast<int>(ret * 0.666);
-		else if(!hero->boat && ti->hasBonusOfType(Bonus::WATER_WALKING))
-		{
-			ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
-		}
 	}
+	else if(ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(Bonus::FLYING_MOVEMENT));
+	else if(hero->boat == nullptr && dt->terType->isWater() && ti->hasBonusOfType(Bonus::WATER_WALKING))
+		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
 
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{
