@@ -55,6 +55,9 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/TerrainHandler.h"
 
+#include <SDL_surface.h>
+#include <SDL_events.h>
+
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
 
@@ -177,7 +180,7 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 {
 #if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	if(sEvent.state == 0) // any "button" is enough on mobile
+	if(sEvent.state == 0 || GH.multifinger) // any "button" is enough on mobile
 #else
 	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
 #endif
@@ -209,7 +212,7 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 {
 	if(btnPressed)
 	{
-		swipeInitialRealPos = int3(GH.current->motion.x, GH.current->motion.y, 0);
+		swipeInitialRealPos = int3(GH.getCursorPosition().x, GH.getCursorPosition().y, 0);
 		swipeInitialMapPos = int3(adventureInt->position);
 		return true;
 	}
@@ -431,10 +434,7 @@ int3 CTerrainRect::whichTileIsIt(const int x, const int y)
 
 int3 CTerrainRect::whichTileIsIt()
 {
-	if(GH.current)
-		return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
-	else
-		return int3(-1);
+	return whichTileIsIt(GH.getCursorPosition().x, GH.getCursorPosition().y);
 }
 
 int3 CTerrainRect::tileCountOnScreen()
@@ -481,8 +481,8 @@ CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, in
 	background = std::make_shared<CPicture>(defname, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
-	pos.w = background->bg->w;
-	pos.h = background->bg->h;
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -505,8 +505,8 @@ CResDataBar::CResDataBar()
 	background = std::make_shared<CPicture>(ADVOPT.resdatabarG, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
-	pos.w = background->bg->w;
-	pos.h = background->bg->h;
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -569,10 +569,10 @@ CAdvMapInt::CAdvMapInt():
 	pos.h = screen->h;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
-	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
+	bg = IImage::createFromFile(ADVOPT.mainGraphic);
 	if(!ADVOPT.worldViewGraphic.empty())
 	{
-		bgWorldView = BitmapHandler::loadBitmap(ADVOPT.worldViewGraphic);
+		bgWorldView = IImage::createFromFile(ADVOPT.worldViewGraphic);
 	}
 	else
 	{
@@ -582,7 +582,7 @@ CAdvMapInt::CAdvMapInt():
 	if (!bgWorldView)
 	{
 		logGlobal->warn("bgWorldView not defined in resolution config; fallback to VWorld.bmp");
-		bgWorldView = BitmapHandler::loadBitmap("VWorld.bmp");
+		bgWorldView = IImage::createFromFile("VWorld.bmp");
 	}
 
 	worldViewIcons = std::make_shared<CAnimation>("VwSymbol");//todo: customize with ADVOPT
@@ -713,11 +713,6 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 
 	addUsedEvents(MOVE);
-}
-
-CAdvMapInt::~CAdvMapInt()
-{
-	SDL_FreeSurface(bg);
 }
 
 void CAdvMapInt::fshowOverview()
@@ -979,7 +974,7 @@ void CAdvMapInt::deactivate()
 
 void CAdvMapInt::showAll(SDL_Surface * to)
 {
-	blitAt(bg,0,0,to);
+	bg->draw(to, 0, 0);
 
 	if(state != INGAME)
 		return;
@@ -1510,7 +1505,7 @@ void CAdvMapInt::startHotSeatWait(PlayerColor Player)
 void CAdvMapInt::setPlayer(PlayerColor Player)
 {
 	player = Player;
-	graphics->blueToPlayersAdv(bg,player);
+	bg->playerColored(player);
 
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
@@ -1587,6 +1582,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner);
 
+	bool isHero = false;
 	if(selection->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
 		assert(!terrain.currentPath); //path can be active only when hero is selected
@@ -1594,10 +1590,11 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
 			select(static_cast<const CArmedInstance*>(topBlocking), false);
-		return;
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
+		isHero = true;
+
 		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(mapPos);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
@@ -1639,7 +1636,8 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		throw std::runtime_error("Nothing is selected...");
 	}
 
-	if(const IShipyard *shipyard = ourInaccessibleShipyard(topBlocking))
+	const auto shipyard = ourInaccessibleShipyard(topBlocking);
+	if(isHero && shipyard != nullptr)
 	{
 		LOCPLINT->showShipyardDialogOrProblemPopup(shipyard);
 	}
@@ -1709,7 +1707,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		else
 			CCS->curh->set(Cursor::Map::POINTER);
 	}
-	else if(const CGHeroInstance * h = curHero())
+	else if(const CGHeroInstance * hero = curHero())
 	{
 		std::array<Cursor::Map, 4> cursorMove      = { Cursor::Map::T1_MOVE,       Cursor::Map::T2_MOVE,       Cursor::Map::T3_MOVE,       Cursor::Map::T4_MOVE,       };
 		std::array<Cursor::Map, 4> cursorAttack    = { Cursor::Map::T1_ATTACK,     Cursor::Map::T2_ATTACK,     Cursor::Map::T3_ATTACK,     Cursor::Map::T4_ATTACK,     };
@@ -1719,16 +1717,21 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
 
-		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
-		assert(pnode);
+		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(mapPos);
+		assert(pathNode);
 
-		int turns = pnode->turns;
+		if(LOCPLINT->altPressed() && pathNode->reachable()) //overwrite status bar text with movement info
+		{
+			ShowMoveDetailsInStatusbar(*hero, *pathNode);
+		}
+
+		int turns = pathNode->turns;
 		vstd::amin(turns, 3);
-		switch(pnode->action)
+		switch(pathNode->action)
 		{
 		case CGPathNode::NORMAL:
 		case CGPathNode::TELEPORT_NORMAL:
-			if(pnode->layer == EPathfindingLayer::LAND)
+			if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorMove[turns]);
 			else
 				CCS->curh->set(cursorSailVisit[turns]);
@@ -1744,7 +1747,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				else
 					CCS->curh->set(cursorExchange[turns]);
 			}
-			else if(pnode->layer == EPathfindingLayer::LAND)
+			else if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorVisit[turns]);
 			else
 				CCS->curh->set(cursorSailVisit[turns]);
@@ -1785,6 +1788,21 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 }
 
+void CAdvMapInt::ShowMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
+{
+	const int maxMovementPointsAtStartOfLastTurn = pathNode.turns > 0 ? hero.maxMovePoints(pathNode.layer == EPathfindingLayer::LAND) : hero.movement;
+	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;
+	const int remainingPointsAfterMove = pathNode.turns == 0 ? pathNode.moveRemains : 0;
+
+	std::string result = VLC->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
+
+	boost::replace_first(result, "%TURNS", std::to_string(pathNode.turns));
+	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
+	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
+
+	statusbar->write(result);
+}
+
 void CAdvMapInt::tileRClicked(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
@@ -1814,7 +1832,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, CSDL_Ext::fromSDL(GH.current->motion), ETextAlignment::CENTER);
+	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

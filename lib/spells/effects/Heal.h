@@ -15,6 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct BattleLogMessage;
 struct BattleUnitsChanged;
 
 namespace spells
@@ -42,7 +43,7 @@ private:
 
 	int32_t minFullUnits;
 
-	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, RNG & rng, const Mechanics * m, const EffectTarget & target) const;
+	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const EffectTarget & target) const;
 };
 
 }

@@ -35,6 +35,7 @@ class CComponent;
 class CHeroTooltip;
 class CTownTooltip;
 class CTextBox;
+class IImage;
 
 /// Base UI Element for hero\town lists
 class CList : public CIntObject
@@ -370,10 +371,9 @@ class CAdvMapPanel : public CIntObject
 	std::vector<std::shared_ptr<CButton>> colorableButtons;
 	std::vector<std::shared_ptr<CIntObject>> otherObjects;
 	/// the surface passed to this obj will be freed in dtor
-	SDL_Surface * background;
+	std::shared_ptr<IImage> background;
 public:
-	CAdvMapPanel(SDL_Surface * bg, Point position);
-	virtual ~CAdvMapPanel();
+	CAdvMapPanel(std::shared_ptr<IImage> bg, Point position);
 
 	void addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions = 0);
 	void addChildColorableButton(std::shared_ptr<CButton> button);
@@ -394,7 +394,7 @@ class CAdvMapWorldViewPanel : public CAdvMapPanel
 	std::shared_ptr<CFilledTexture> backgroundFiller;
 	std::shared_ptr<CAnimation> icons;
 public:
-	CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color);
+	CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, std::shared_ptr<IImage> bg, Point position, int spaceBottom, const PlayerColor &color);
 	virtual ~CAdvMapWorldViewPanel();
 
 	void addChildIcon(std::pair<int, Point> data, int indexOffset);
@@ -405,7 +405,7 @@ public:
 class CInGameConsole : public CIntObject
 {
 private:
-	std::list< std::pair< std::string, Uint32 > > texts; //list<text to show, time of add>
+	std::list< std::pair< std::string, uint32_t > > texts; //list<text to show, time of add>
 	boost::mutex texts_mx;		// protects texts
 	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
 	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1

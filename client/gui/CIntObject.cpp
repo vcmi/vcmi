@@ -15,6 +15,8 @@
 #include "../CMessage.h"
 
 #include <SDL_pixels.h>
+#include <SDL_surface.h>
+#include <SDL_events.h>
 
 IShowActivatable::IShowActivatable()
 {

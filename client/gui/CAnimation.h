@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../../lib/vcmi_endian.h"
 #include "../../lib/GameConstants.h"
 
 #ifdef IN
@@ -45,7 +44,7 @@ public:
 	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr) const = 0;
 	virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
 
-	virtual std::shared_ptr<IImage> scaleFast(float scale) const = 0;
+	virtual std::shared_ptr<IImage> scaleFast(const Point & size) const = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
@@ -64,9 +63,11 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
-	virtual void adjustPalette(const ColorFilter & shifter) = 0;
+	virtual void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) = 0;
 	virtual void resetPalette(int colorID) = 0;
 	virtual void resetPalette() = 0;
+
+	virtual void setAlpha(uint8_t value) = 0;
 
 	//only indexed bitmaps with 7 special colors
 	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette) = 0;
@@ -79,6 +80,10 @@ public:
 
 	/// loads image from specified file. Returns 0-sized images on failure
 	static std::shared_ptr<IImage> createFromFile( const std::string & path );
+
+	/// temporary compatibility method. Creates IImage from existing SDL_Surface
+	/// Surface will be shared, called must still free it with SDL_FreeSurface
+	static std::shared_ptr<IImage> createFromSurface( SDL_Surface * source );
 };
 
 /// Class for handling animation

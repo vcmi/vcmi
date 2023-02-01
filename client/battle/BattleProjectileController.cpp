@@ -77,7 +77,11 @@ void ProjectileAnimatedMissile::show(Canvas & canvas)
 
 void ProjectileCatapult::show(Canvas & canvas)
 {
-	auto image = animation->getImage(frameNum, 0, true);
+	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+	int frameCounter = std::floor(frameProgress);
+	int frameIndex = (frameCounter + 1) % animation->size(0);
+
+	auto image = animation->getImage(frameIndex, 0, true);
 
 	if(image)
 	{
@@ -86,8 +90,6 @@ void ProjectileCatapult::show(Canvas & canvas)
 		Point pos(posX, posY);
 
 		canvas.draw(image, pos);
-
-		frameNum = (frameNum + 1) % animation->size(0);
 	}
 
 	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
@@ -116,10 +118,7 @@ void ProjectileRay::show(Canvas & canvas)
 		for (size_t i = 0; i < rayConfig.size(); ++i)
 		{
 			auto ray = rayConfig[i];
-			SDL_Color beginColor{ ray.r1, ray.g1, ray.b1, ray.a1};
-			SDL_Color endColor  { ray.r2, ray.g2, ray.b2, ray.a2};
-
-			canvas.drawLine(Point(x1, y1 + i), Point(x2, y2+i), beginColor, endColor);
+			canvas.drawLine(Point(x1, y1 + i), Point(x2, y2+i), ray.start, ray.end);
 		}
 	}
 	else // draw in vertical axis
@@ -133,10 +132,8 @@ void ProjectileRay::show(Canvas & canvas)
 		for (size_t i = 0; i < rayConfig.size(); ++i)
 		{
 			auto ray = rayConfig[i];
-			SDL_Color beginColor{ ray.r1, ray.g1, ray.b1, ray.a1};
-			SDL_Color endColor  { ray.r2, ray.g2, ray.b2, ray.a2};
 
-			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), beginColor, endColor);
+			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), ray.start, ray.end);
 		}
 	}
 
@@ -294,13 +291,13 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 	auto catapultProjectile       = new ProjectileCatapult();
 
 	catapultProjectile->animation = getProjectileImage(shooter);
-	catapultProjectile->frameNum  = 0;
 	catapultProjectile->progress  = 0;
 	catapultProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
 	catapultProjectile->from      = from;
 	catapultProjectile->dest      = dest;
 	catapultProjectile->shooterID = shooter->ID;
 	catapultProjectile->playing   = false;
+	catapultProjectile->frameProgress = 0.f;
 
 	projectiles.push_back(std::shared_ptr<ProjectileBase>(catapultProjectile));
 }
@@ -321,6 +318,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		projectile.reset(rayProjectile);
 
 		rayProjectile->rayConfig = shooterInfo.animation.projectileRay;
+		rayProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getRayProjectileSpeed());
 	}
 	else if (stackUsesMissileProjectile(shooter))
 	{
@@ -328,11 +326,12 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		projectile.reset(missileProjectile);
 
 		missileProjectile->animation = getProjectileImage(shooter);
-		missileProjectile->reverse  = !owner.stacksController->facingRight(shooter);
-		missileProjectile->frameNum = computeProjectileFrameID(from, dest, shooter);
+		missileProjectile->reverse   = !owner.stacksController->facingRight(shooter);
+		missileProjectile->frameNum  = computeProjectileFrameID(from, dest, shooter);
+		missileProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 	}
 
-	projectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
+
 	projectile->from      = from;
 	projectile->dest      = dest;
 	projectile->shooterID = shooter->ID;

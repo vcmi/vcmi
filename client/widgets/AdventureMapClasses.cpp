@@ -20,16 +20,13 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../Graphics.h"
-#include "../CMessage.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Compat.h"
+#include "../gui/SDL_PixelAccess.h"
+#include "../gui/CAnimation.h"
 
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"
-#include "../windows/GUIClasses.h"
 
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
@@ -42,13 +39,13 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/NetPacksBase.h"
-#include "../../lib/StringConstants.h"
 #include "ClientCommandManager.h"
+
+#include <SDL_surface.h>
+#include <SDL_keyboard.h>
+#include <SDL_events.h>
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),
@@ -190,11 +187,11 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	movement = std::make_shared<CAnimImage>("IMOBIL", 0, 0, 0, 1);
-	portrait = std::make_shared<CPicture>("HPSXXX", movement->pos.w + 1);
+	portrait = std::make_shared<CPicture>("HPSXXX", movement->pos.w + 1, 0);
 	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
+	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 }
 
 CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
@@ -207,7 +204,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
+	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 
 	update();
 }
@@ -221,7 +218,7 @@ void CHeroList::CHeroItem::update()
 
 std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 {
-	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1);
+	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1, 0);
 }
 
 void CHeroList::CHeroItem::select(bool on)
@@ -237,7 +234,7 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, CSDL_Ext::fromSDL(GH.current->motion));
+	CRClickPopup::createAndPush(hero, GH.getCursorPosition());
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -329,7 +326,7 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, CSDL_Ext::fromSDL(GH.current->motion));
+	CRClickPopup::createAndPush(town, GH.getCursorPosition());
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -363,13 +360,11 @@ void CTownList::update(const CGTownInstance *)
 
 const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 {
-	static const SDL_Color fogOfWar = {0, 0, 0, 255};
-
 	const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
 
 	// if tile is not visible it will be black on minimap
 	if(!tile)
-		return fogOfWar;
+		return Colors::BLACK;
 
 	// if object at tile is owned - it will be colored as its owner
 	for (const CGObjectInstance *obj : tile->blockingObjects)
@@ -418,7 +413,7 @@ void CMinimapInstance::blitTileWithColor(const SDL_Color &color, const int3 &til
 
 	for (int y=yBegin; y<yEnd; y++)
 	{
-		Uint8 *ptr = (Uint8*)to->pixels + y * to->pitch + xBegin * minimap->format->BytesPerPixel;
+		uint8_t *ptr = (uint8_t*)to->pixels + y * to->pitch + xBegin * minimap->format->BytesPerPixel;
 
 		for (int x=xBegin; x<xEnd; x++)
 			ColorPutter<4, 1>::PutColor(ptr, color);
@@ -455,7 +450,7 @@ void CMinimapInstance::drawScaled(int level)
 
 			for (int y=yBegin; y<yEnd; y++)
 			{
-				Uint8 *ptr = (Uint8*)minimap->pixels + y * minimap->pitch + xBegin * minimap->format->BytesPerPixel;
+				uint8_t *ptr = (uint8_t*)minimap->pixels + y * minimap->pitch + xBegin * minimap->format->BytesPerPixel;
 
 				for (int x=xBegin; x<xEnd; x++)
 					ColorPutter<4, 1>::PutColor(ptr, color);
@@ -502,21 +497,8 @@ std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 
 	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		SDL_Color normal =
-		{
-			ui8(terrain->minimapUnblocked[0]),
-			ui8(terrain->minimapUnblocked[1]),
-			ui8(terrain->minimapUnblocked[2]),
-			ui8(255)
-		};
-
-		SDL_Color blocked =
-		{
-			ui8(terrain->minimapBlocked[0]),
-			ui8(terrain->minimapBlocked[1]),
-			ui8(terrain->minimapBlocked[2]),
-			ui8(255)
-		};
+		SDL_Color normal = CSDL_Ext::toSDL(terrain->minimapUnblocked);
+		SDL_Color blocked = CSDL_Ext::toSDL(terrain->minimapBlocked);
 
 		ret[terrain->getId()] = std::make_pair(normal, blocked);
 	}
@@ -539,8 +521,8 @@ CMinimap::CMinimap(const Rect & position)
 int3 CMinimap::translateMousePosition()
 {
 	// 0 = top-left corner, 1 = bottom-right corner
-	double dx = double(GH.current->motion.x - pos.x) / pos.w;
-	double dy = double(GH.current->motion.y - pos.y) / pos.h;
+	double dx = double(GH.getCursorPosition().x - pos.x) / pos.w;
+	double dy = double(GH.getCursorPosition().y - pos.y) / pos.h;
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
@@ -698,7 +680,7 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE);
+	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE, 180);// H3 uses around 175-180 ms per frame
 
 	std::string labelText;
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
@@ -739,8 +721,8 @@ CInfoBar::VisibleEnemyTurnInfo::VisibleEnemyTurnInfo(PlayerColor player)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATNX");
 	banner = std::make_shared<CAnimImage>("CREST58", player.getNum(), 0, 20, 51);
-	sand = std::make_shared<CShowableAnim>(99, 51, "HOURSAND");
-	glass = std::make_shared<CShowableAnim>(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 40);
+	sand = std::make_shared<CShowableAnim>(99, 51, "HOURSAND", 0, 100); // H3 uses around 100 ms per frame
+	glass = std::make_shared<CShowableAnim>(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 1000); // H3 scales this nicely for AI turn duration, don't have anything like that in vcmi
 }
 
 CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
@@ -803,7 +785,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDis
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	background = std::make_shared<CPicture>("ADSTATOT", 1);
+	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
 
 	comp = std::make_shared<CComponent>(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
@@ -898,7 +880,7 @@ void CInfoBar::showDate()
 	playNewDaySound();
 	state = DATE;
 	visibleInfo = std::make_shared<VisibleDateInfo>();
-	setTimer(3000);
+	setTimer(3000); // confirmed to match H3
 	redraw();
 }
 
@@ -970,7 +952,7 @@ void CInGameConsole::show(SDL_Surface * to)
 {
 	int number = 0;
 
-	std::vector<std::list< std::pair< std::string, Uint32 > >::iterator> toDel;
+	std::vector<std::list< std::pair< std::string, uint32_t > >::iterator> toDel;
 
 	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
@@ -1046,10 +1028,15 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	case SDLK_RETURN: //enter key
 		{
-			if(enteredText.size() > 0  &&  captureAllKeys)
+			if(!enteredText.empty() && captureAllKeys)
 			{
-				endEnteringText(true);
-				CCS->soundh->playSound("CHAT");
+				bool anyTextExceptCaret = enteredText.size() > 1;
+				endEnteringText(anyTextExceptCaret);
+
+				if(anyTextExceptCaret)
+				{
+					CCS->soundh->playSound("CHAT");
+				}
 			}
 			break;
 		}
@@ -1186,9 +1173,9 @@ void CInGameConsole::refreshEnteredText()
 		statusbar->setEnteredText(enteredText);
 }
 
-CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
-	: CIntObject(),
-	  background(bg)
+CAdvMapPanel::CAdvMapPanel(std::shared_ptr<IImage> bg, Point position)
+	: CIntObject()
+	, background(bg)
 {
 	defActions = 255;
 	recActions = 255;
@@ -1196,15 +1183,9 @@ CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	pos.y += position.y;
 	if (bg)
 	{
-		pos.w = bg->w;
-		pos.h = bg->h;
+		pos.w = bg->width();
+		pos.h = bg->height();
 	}
-}
-
-CAdvMapPanel::~CAdvMapPanel()
-{
-	if (background)
-		SDL_FreeSurface(background);
 }
 
 void CAdvMapPanel::addChildColorableButton(std::shared_ptr<CButton> button)
@@ -1224,7 +1205,7 @@ void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
 void CAdvMapPanel::showAll(SDL_Surface * to)
 {
 	if(background)
-		CSDL_Ext::blitAt(background, pos.x, pos.y, to);
+		background->draw(to, pos.x, pos.y);
 
 	CIntObject::showAll(to);
 }
@@ -1237,7 +1218,7 @@ void CAdvMapPanel::addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions)
 	addChild(obj.get(), false);
 }
 
-CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
+CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, std::shared_ptr<IImage> bg, Point position, int spaceBottom, const PlayerColor &color)
 	: CAdvMapPanel(bg, position), icons(_icons)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

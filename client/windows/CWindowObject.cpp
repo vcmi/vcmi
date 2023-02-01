@@ -15,10 +15,11 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
 
-#include "../gui/SDL_Pixels.h"
+#include "../gui/SDL_PixelAccess.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/CAnimation.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -33,6 +34,8 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+
+#include <SDL_surface.h>
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
 	WindowBase(getUsedEvents(options_), Point()),
@@ -137,7 +140,7 @@ void CWindowObject::setShadow(bool on)
 		//helper to set last row
 		auto blitAlphaRow = [](SDL_Surface *surf, size_t row)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + surf->pitch * (row);
+			uint8_t * ptr = (uint8_t*)surf->pixels + surf->pitch * (row);
 
 			for (size_t i=0; i< surf->w; i++)
 			{
@@ -149,7 +152,7 @@ void CWindowObject::setShadow(bool on)
 		// helper to set last column
 		auto blitAlphaCol = [](SDL_Surface *surf, size_t col)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + 4 * (col);
+			uint8_t * ptr = (uint8_t*)surf->pixels + 4 * (col);
 
 			for (size_t i=0; i< surf->h; i++)
 			{
@@ -213,11 +216,14 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, shadowPos.x, shadowPos.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowRight, shadowPos.x, shadowStart.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, shadowStart.x, shadowPos.y));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowBottom), Point(shadowStart.x, shadowPos.y)));
 
 		}
+		SDL_FreeSurface(shadowCorner);
+		SDL_FreeSurface(shadowBottom);
+		SDL_FreeSurface(shadowRight);
 	}
 }
 

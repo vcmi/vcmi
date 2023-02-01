@@ -149,16 +149,27 @@ class DLL_LINKAGE CGeneralTextHandler
 	/// map identifier -> localization
 	std::unordered_map<std::string, std::string> stringsLocalizations;
 
-	/// map localization -> identifier
-	std::unordered_map<std::string, std::string> stringsIdentifiers;
+	/// map identifier -> localization, high-priority strings from translation json
+	std::unordered_map<std::string, std::string> stringsOverrides;
 
 	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
 	/// number of scenarios in specific campaign. TODO: move to a better location
 	std::vector<size_t> scenariosCountPerCampaign;
+
+	/// Attempts to detect encoding & language of H3 files
+	void detectInstallParameters() const;
 public:
+
+	/// Loads translation from provided json
+	/// Any entries loaded by this will have priority over texts registered normally
+	void loadTranslationOverrides(JsonNode const & file);
+
 	/// add selected string to internal storage
 	void registerString(const TextIdentifier & UID, const std::string & localized);
+
+	/// add selected string to internal storage as high-priority strings
+	void registerStringOverride(const TextIdentifier & UID, const std::string & localized);
 
 	// returns true if identifier with such name was registered, even if not translated to current language
 	// not required right now, can be added if necessary
@@ -171,9 +182,6 @@ public:
 		TextIdentifier id(arg1, args ...);
 		return deserialize(id);
 	}
-
-	/// converts translated string into locale-independent text that can be sent to another client
-	const std::string & serialize(const std::string & identifier) const;
 
 	/// converts identifier into user-readable string
 	const std::string & deserialize(const TextIdentifier & identifier) const;
@@ -205,7 +213,6 @@ public:
 
 	//objects
 	LegacyTextContainer advobtxt;
-	LegacyTextContainer xtrainfo;
 	LegacyTextContainer restypes; //names of resources
 	LegacyTextContainer randsign;
 	LegacyTextContainer seerEmpty;
@@ -226,6 +233,12 @@ public:
 	CGeneralTextHandler();
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
+
+	/// Returns name of language preferred by user
+	static std::string getInstalledLanguage();
+
+	/// Returns name of encoding of Heroes III text files
+	static std::string getInstalledEncoding();
 };
 
 VCMI_LIB_NAMESPACE_END

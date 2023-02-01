@@ -17,7 +17,21 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "language", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
+			"required" : [
+				"playerName",
+				"showfps",
+				"music",
+				"sound",
+				"encoding",
+				"language",
+				"swipe",
+				"saveRandomMaps",
+				"saveFrequency",
+				"notifications",
+				"extraDump",
+				"userRelativePointer",
+				"relativePointerSpeedMultiplier"
+			],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -75,6 +89,14 @@
 				"extraDump" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"userRelativePointer" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"relativePointerSpeedMultiplier" : {
+					"type" : "number",
+					"default" : 1
 				}
 			}
 		},
@@ -230,11 +252,11 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
 			"properties" : {
-				"animationSpeed" : {
+				"speedFactor" : {
 					"type" : "number",
-					"default" : 0.63
+					"default" : 2
 				},
 				"mouseShadow" : {
 					"type":"boolean",

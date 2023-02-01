@@ -21,7 +21,6 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 
-#include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -38,6 +37,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+
+#include <SDL_surface.h>
 
 void CSimpleWindow::show(SDL_Surface * to)
 {
@@ -306,7 +307,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(CSDL_Ext::fromSDL(GH.current->motion)); //center on mouse
+	temp->center(GH.getCursorPosition()); //center on mouse
 #ifdef VCMI_IOS
     // TODO: enable also for android?
     temp->moveBy({0, -temp->pos.h / 2});

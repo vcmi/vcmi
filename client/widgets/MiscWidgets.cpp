@@ -247,7 +247,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
-			subtitle = boost::lexical_cast<std::string>(slot.second.count);
+			subtitle = CSDL_Ext::makeNumberShort(slot.second.count, 4);
 		}
 		else
 		{

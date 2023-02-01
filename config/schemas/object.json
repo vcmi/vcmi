@@ -10,48 +10,17 @@
 		"index": {
 			"type":"number"
 		},
-		"name": {
-			"type":"string"
-		},
-		"defaultAiValue": {
+		"lastReservedIndex" : {
 			"type":"number"
 		},
-
 		"handler": {
 			"type":"string"
 		},
-
-		"sounds": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description": "Sounds used by this object",
-			"properties" : {
-				"ambient": {
-					"type":"array",
-					"description": "Background sound of an object",
-					"items": {
-						"type": "string"
-					}
-				},
-				"visit": {
-					"type":"array",
-					"description": "Sound that played on object visit",
-					"items": {
-						"type": "string"
-					}
-				},
-				"removal": {
-					"type":"array",
-					"description": "Sound that played on object removal",
-					"items": {
-						"type": "string"
-					}
-				}
-			}
-		},
-
 		"base": {
 			"type" : "object"
+		},
+		"name": {
+			"type":"string"
 		},
 		"types": {
 			"type":"object",

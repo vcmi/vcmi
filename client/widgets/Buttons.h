@@ -13,6 +13,8 @@
 #include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
+#include <SDL_pixels.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace config

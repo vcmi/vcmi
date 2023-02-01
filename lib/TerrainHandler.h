@@ -14,6 +14,7 @@
 #include <vcmi/Entity.h>
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -46,8 +47,8 @@ public:
 	
 	std::vector<BattleField> battleFields;
 	std::vector<TerrainId> prohibitTransitions;
-	std::array<int, 3> minimapBlocked;
-	std::array<int, 3> minimapUnblocked;
+	ColorRGBA minimapBlocked;
+	ColorRGBA minimapUnblocked;
 	std::string shortIdentifier;
 	std::string musicFilename;
 	std::string tilesFilename;

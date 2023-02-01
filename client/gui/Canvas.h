@@ -11,6 +11,7 @@
 
 #include "TextAlignment.h"
 #include "../../lib/Rect.h"
+#include "../../lib/Color.h"
 
 struct SDL_Color;
 struct SDL_Surface;
@@ -56,7 +57,7 @@ public:
 	void draw(Canvas & image, const Point & pos);
 
 	/// renders continuous, 1-pixel wide line with color gradient
-	void drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest);
+	void drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest);
 
 	/// renders single line of text with specified parameters
 	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text );

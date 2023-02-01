@@ -84,7 +84,7 @@ class CSpellWindow : public CWindowObject
 	int sitesPerTabBattle[5];
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
-	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	uint8_t selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int currentPage; //changes when corners are clicked
 	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 

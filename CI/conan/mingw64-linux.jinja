@@ -1,0 +1,13 @@
+{% import 'base/cross-macro.j2' as cross -%}
+include(base/cross-windows)
+{% set target_host="x86_64-w64-mingw32" %}
+
+[settings]
+arch=x86_64
+
+[conf]
+{{ cross.generate_conf(target_host)}}
+
+[env]
+{{ cross.generate_env(target_host) }}
+{{ cross.generate_env_win32(target_host) }}

@@ -127,6 +127,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
+	bool hasNameTextID() const override;
 
 	CDwellingInstanceConstructor();
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
@@ -217,6 +218,8 @@ public:
 
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+
+	bool hasNameTextID() const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 

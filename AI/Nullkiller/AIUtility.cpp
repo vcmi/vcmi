@@ -314,8 +314,9 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 		return false;
 
 	//TODO: allow polling of remaining creatures in dwelling
-	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
-		return true;
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
+		return rewardable->getResetDuration() == 7;
+
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
 	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods

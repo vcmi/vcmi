@@ -99,20 +99,21 @@ jobs:
             extension: ipa
             preset: ios-release-conan
             conan_profile: ios-arm64
-          - platform: mxe
-            os: ubuntu-20.04
-            mxe: i686-w64-mingw32.shared
-            test: 0
-            pack: 1
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
-            extension: exe
-            cmake_args: -G Ninja
           - platform: msvc
             os: windows-latest
             test: 0
             pack: 1
             extension: exe
             preset: windows-msvc-release
+          - platform: mingw-ubuntu
+            os: ubuntu-22.04
+            test: 0
+            pack: 1
+            extension: exe
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
+            cmake_args: -G Ninja
+            preset: windows-mingw-conan-linux
+            conan_profile: mingw64-linux.jinja
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -126,7 +127,6 @@ jobs:
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
-        MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
 
     - uses: actions/setup-python@v4
@@ -164,40 +164,16 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: Configure CMake
-      if: "${{ matrix.preset == '' }}"
-      run: |
-        mkdir -p '${{github.workspace}}/out/build/${{matrix.preset}}'
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        cmake \
-            ../.. -GNinja \
-            ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DENABLE_TEST=${{matrix.test}} \
-            -DENABLE_STRICT_COMPILATION=ON \
-            -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
-            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME" \
-            -DENABLE_GITVERSION="$VCMI_PACKAGE_GITVERSION"
-      env:
-        CC: ${{ matrix.cc }}
-        CXX: ${{ matrix.cxx }}
-
     - name: CMake Preset
-      if: "${{ matrix.preset != '' }}"
       run: |
         cmake --preset ${{ matrix.preset }}
 
-    - name: Build
-      if: "${{ matrix.preset == '' }}"
-      run: |
-        cmake --build '${{github.workspace}}/out/build/${{matrix.preset}}'
-
     - name: Build Preset
-      if: "${{ matrix.preset != '' }}"
       run: |
         cmake --build --preset ${{matrix.preset}}
 
     - name: Test
-      if: ${{ matrix.test == 1 &&  matrix.preset != ''}}
+      if: ${{ matrix.test == 1 }}
       run: |
         ctest --preset ${{matrix.preset}}
 
@@ -213,7 +189,7 @@ jobs:
         rm -rf _CPack_Packages
 
     - name: Additional logs
-      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
+      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'msvc' }}
       run: |
         cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/project.nsi'
         cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/NSISOutput.log'
@@ -227,7 +203,7 @@ jobs:
           ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload build
-      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform == 'msvc' }}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         source '${{github.workspace}}/CI/upload_package.sh'
@@ -245,7 +221,7 @@ jobs:
 
     - name: Trigger Android
       uses: peter-evans/repository-dispatch@v1
-      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') && matrix.platform == 'mxe' }}
+      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') && matrix.platform == 'msvc' }}
       with:
         token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
         repository: vcmi/vcmi-android

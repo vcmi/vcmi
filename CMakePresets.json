@@ -82,6 +82,19 @@
             }
         },
         {
+            "name": "windows-mingw-conan-linux",
+            "displayName": "Ninja+Conan release",
+            "description": "VCMI Windows Ninja using Conan on Linux",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "FORCE_BUNDLED_FL": "ON"
+            }
+        },
+        {
             "name": "macos-ninja-release",
             "displayName": "Ninja release",
             "description": "VCMI MacOS Ninja",
@@ -223,6 +236,12 @@
             "inherits": "default-release"
         },
         {
+            "name": "windows-mingw-conan-linux",
+            "configurePreset": "windows-mingw-conan-linux",
+            "inherits": "default-release",
+            "configuration": "Release"
+        },
+        {
             "name": "ios-release-conan",
             "configurePreset": "ios-release-conan",
             "inherits": "default-release",
@@ -270,6 +289,11 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-conan-linux",
+            "configurePreset": "windows-mingw-conan-linux",
             "inherits": "default-release"
         }
     ]

@@ -1,7 +1,7 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 3.10.0 is used since it's minimal in MXE dependencies for now
-cmake_minimum_required(VERSION 3.10.0)
+# 3.16.0 is used since it's used by our currently oldest suppored system: Ubuntu-20.04
+cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
 # TODO
@@ -9,9 +9,6 @@ project(VCMI)
 # - There is problem with running fixup_bundle in main project after subdirectories.
 # Cmake put them after all install code of main CMakelists in cmake_install.cmake
 # Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-#
-# MXE:
-# - Try to implement MXE support into BundleUtilities so we can deploy deps automatically
 #
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
@@ -57,9 +54,8 @@ if(APPLE_IOS)
 else()
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 endif()
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
-	option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+
+option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
@@ -88,11 +84,6 @@ endif()
 # We don't want to deploy assets into build directory for iOS build
 if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
 	set(COPY_CONFIG_ON_BUILD OFF)
-endif()
-
-# No QT Linguist on MXE
-if((MINGW) AND (${CMAKE_CROSSCOMPILING}))
-	set(ENABLE_TRANSLATIONS OFF)
 endif()
 
 ############################################
@@ -138,10 +129,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_
 	set(ENABLE_PCH OFF) # broken
 endif()
 
-if( ${CMAKE_VERSION} VERSION_LESS "3.16.0")
-	set(ENABLE_PCH OFF) #not supported
-endif()
-
 if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
@@ -168,12 +155,12 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 #Global fallback mapping
-# RelWithDebInfo falls back to Release, then MinSizeRel
-set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel "")
-# MinSizeRel falls back to Release, then RelWithDebInfo
-set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
-# Release falls back to RelWithDebInfo, then MinSizeRel
-set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
+# RelWithDebInfo falls back to Release, then MinSizeRel, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel None "")
+# MinSizeRel falls back to Release, then RelWithDebInfo, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo None "")
+# Release falls back to RelWithDebInfo, then MinSizeRel, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel None "")
 
 set(CMAKE_XCODE_ATTRIBUTE_APP_DISPLAY_NAME ${APP_DISPLAY_NAME})
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
@@ -296,12 +283,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
 
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
-	endif()
-
 	if(ENABLE_STRICT_COMPILATION)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
@@ -326,6 +307,27 @@ endif()
 
 if(ENABLE_LUA)
 	add_definitions(-DSCRIPTING_ENABLED=1)
+endif()
+
+if(USING_CONAN AND (MINGW AND CMAKE_HOST_UNIX))
+	# Hack for workaround https://github.com/conan-io/conan-center-index/issues/15405
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl Mf ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/Mf/mf/g'"
+	)
+	# Hack for workaround ffmpeg broken linking (conan ffmpeg forgots to link to ws2_32)
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32)/secur32 ws2_32)/g'"
+	)
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32 mfplat/secur32 ws2_32 mfplat/g'"
+	)
+	# Fixup tbb for cross-compiling on Conan
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl tbb12 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/tbb tbb12/tbb12/g'"
+	)
 endif()
 
 ############################################
@@ -385,14 +387,7 @@ endif()
 
 if(ENABLE_LUA)
 	find_package(luajit)
-	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
-	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS) AND (NOT TARGET luajit::luajit))
-		add_library(luajit::luajit STATIC IMPORTED)
-		set_target_properties(luajit::luajit PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
-		set_target_properties(luajit::luajit PROPERTIES
-			IMPORTED_LOCATION "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
-	endif()
+
 	if(TARGET luajit::luajit)
 		message(STATUS "Using LuaJIT provided by system")
 	else()
@@ -544,13 +539,21 @@ endif()
 
 
 if(WIN32)
-	file(GLOB dep_files
-		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	if(USING_CONAN)
+		#Conan imports enabled
+		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_SYSROOT}/bin/*.dll" 
+				"${CMAKE_SYSROOT}/lib/*.dll" 
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/*.dll")
+	else()
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	endif()
 
-	if((${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
-		message(STATUS "Detected MXE build")
-	elseif(CMAKE_BUILD_TYPE MATCHES Debug)
+	if(CMAKE_BUILD_TYPE MATCHES Debug)
 		# Copy debug versions of libraries if build type is debug
 		set(debug_postfix d)
 	endif()
@@ -617,7 +620,11 @@ if(WIN32)
 	else()
 		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION} ${PACKAGE_NAME_SUFFIX} ")
 	endif()
-	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES ".*64")
+		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+	else()
+		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	endif()
 	if(ENABLE_LAUNCHER)
 		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
 		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
@@ -627,6 +634,12 @@ if(WIN32)
 	endif()
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
 
+	# Strip MinGW CPack target if build configuration without debug info
+	if(MINGW)
+		if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+			set(CPACK_STRIP_FILES ON)
+		endif()
+	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
 	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
@@ -643,7 +656,7 @@ if(WIN32)
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://vcmi.eu/")
 	set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
 	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-	# Use BundleUtilities to fix build when Vcpkg is used and disable it for MXE
+	# Use BundleUtilities to fix build when Vcpkg is used and disable it for mingw
 	if(NOT (${CMAKE_CROSSCOMPILING}))
 		add_subdirectory(win)
 	endif()
@@ -687,6 +700,7 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	add_subdirectory(osx)
 elseif(APPLE_IOS)
 	set(CPACK_GENERATOR ZIP)
+	set(CPACK_ARCHIVE_FILE_EXTENSION ipa)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 	set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_PROJECT_NAME};app;/")
 else()

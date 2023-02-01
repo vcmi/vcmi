@@ -390,7 +390,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		JsonNode conf;
 		conf.setMeta(scope);
 
-		VLC->objtypeh->loadSubObject(art->getJsonKey(), conf, Obj::ARTIFACT, art->getIndex());
+		VLC->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
 		if(!art->advMapDef.empty())
 		{
@@ -776,7 +776,7 @@ void CArtifactInstance::init()
 
 std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * hero) const
 {
-	std::string text = artType->getDescription();
+	std::string text = artType->getDescriptionTranslated();
 	if (!vstd::contains(text, '{'))
 		text = '{' + artType->getNameTranslated() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
 

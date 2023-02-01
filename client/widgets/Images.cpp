@@ -13,7 +13,6 @@
 #include "MiscWidgets.h"
 
 #include "../gui/CAnimation.h"
-#include "../gui/SDL_Pixels.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/ColorFilter.h"
@@ -35,28 +34,37 @@
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
 
-CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
+CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
+	: bg(image)
+	, visible(true)
+	, needRefresh(false)
 {
-	init();
-	bg = BG;
-	freeSurf = Free;
-	pos.x += x;
-	pos.y += y;
-	pos.w = BG->w;
-	pos.h = BG->h;
+	pos += position;
+	pos.w = bg->width();
+	pos.h = bg->height();
 }
 
 CPicture::CPicture( const std::string &bmpname, int x, int y )
+	: CPicture(bmpname, Point(x,y))
+{}
+
+CPicture::CPicture( const std::string &bmpname )
+	: CPicture(bmpname, Point(0,0))
+{}
+
+CPicture::CPicture( const std::string &bmpname, const Point & position )
+	: bg(IImage::createFromFile(bmpname))
+	, visible(true)
+	, needRefresh(false)
 {
-	init();
-	bg = BitmapHandler::loadBitmap(bmpname);
-	freeSurf = true;
-	pos.x += x;
-	pos.y += y;
+	pos.x += position.x;
+	pos.y += position.y;
+
+	assert(bg);
 	if(bg)
 	{
-		pos.w = bg->w;
-		pos.h = bg->h;
+		pos.w = bg->width();
+		pos.h = bg->height();
 	}
 	else
 	{
@@ -64,58 +72,12 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 	}
 }
 
-CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat)
+CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
+	: CPicture(image, Point(x,y))
 {
-	init();
-	createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
-}
-
-CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat)
-{
-	init();
-	createSimpleRect(r, screenFormat, color);
-}
-
-CPicture::CPicture(SDL_Surface * BG, const Rect &SrcRect, int x, int y, bool free)
-{
-	visible = true;
-	needRefresh = false;
-	srcRect = new Rect(SrcRect);
-	pos.x += x;
-	pos.y += y;
+	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
-	bg = BG;
-	freeSurf = free;
-}
-
-void CPicture::setSurface(SDL_Surface *to)
-{
-	bg = to;
-	if (srcRect)
-	{
-		pos.w = srcRect->w;
-		pos.h = srcRect->h;
-	}
-	else
-	{
-		pos.w = bg->w;
-		pos.h = bg->h;
-	}
-}
-
-CPicture::~CPicture()
-{
-	if(freeSurf)
-		SDL_FreeSurface(bg);
-	delete srcRect;
-}
-
-void CPicture::init()
-{
-	visible = true;
-	needRefresh = false;
-	srcRect = nullptr;
 }
 
 void CPicture::show(SDL_Surface * to)
@@ -127,75 +89,44 @@ void CPicture::show(SDL_Surface * to)
 void CPicture::showAll(SDL_Surface * to)
 {
 	if(bg && visible)
-	{
-		if(srcRect)
-			CSDL_Ext::blitSurface(bg, *srcRect, to, pos.topLeft());
-		else
-			CSDL_Ext::blitAt(bg, pos, to);
-	}
-}
-
-void CPicture::convertToScreenBPP()
-{
-	SDL_Surface *hlp = bg;
-	bg = SDL_ConvertSurface(hlp,screen->format,0);
-	CSDL_Ext::setDefaultColorKey(bg);
-	SDL_FreeSurface(hlp);
+		bg->draw(to, pos.x, pos.y, srcRect.get_ptr());
 }
 
 void CPicture::setAlpha(int value)
 {
-	CSDL_Ext::setAlpha (bg, value);
+	bg->setAlpha(value);
 }
 
 void CPicture::scaleTo(Point size)
 {
-	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
+	bg = bg->scaleFast(size);
 
-	if(freeSurf)
-		SDL_FreeSurface(bg);
-
-	setSurface(scaled);
-	freeSurf = false;
-}
-
-void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
-{
-	pos += r.topLeft();
-	pos.w = r.w;
-	pos.h = r.h;
-	if(screenFormat)
-		bg = CSDL_Ext::newSurface(r.w, r.h);
-	else
-		bg = SDL_CreateRGBSurface(0, r.w, r.h, 8, 0, 0, 0, 0);
-
-	SDL_FillRect(bg, nullptr, color);
-	freeSurf = true;
+	pos.w = bg->width();
+	pos.h = bg->height();
 }
 
 void CPicture::colorize(PlayerColor player)
 {
-	assert(bg);
-	graphics->blueToPlayersAdv(bg, player);
+	bg->playerColored(player);
 }
 
 CFilledTexture::CFilledTexture(std::string imageName, Rect position):
     CIntObject(0, position.topLeft()),
-    texture(BitmapHandler::loadBitmap(imageName))
+	texture(IImage::createFromFile(imageName))
 {
 	pos.w = position.w;
 	pos.h = position.h;
 }
 
-CFilledTexture::~CFilledTexture()
-{
-	SDL_FreeSurface(texture);
-}
-
 void CFilledTexture::showAll(SDL_Surface *to)
 {
 	CSDL_Ext::CClipRectGuard guard(to, pos);
-	CSDL_Ext::fillTexture(to, texture);
+
+	for (int y=pos.top(); y < pos.bottom(); y+= texture->height())
+	{
+		for (int x=pos.left(); x < pos.right(); x+=texture->width())
+			texture->draw(to, x, y);
+	}
 }
 
 CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
@@ -295,7 +226,7 @@ void CAnimImage::showAll(SDL_Surface * to)
 		{
 			if(isScaled())
 			{
-				auto scaled = img->scaleFast(float(scaledSize.x) / img->width());
+				auto scaled = img->scaleFast(scaledSize);
 				scaled->draw(to, pos.x, pos.y);
 			}
 			else
@@ -333,13 +264,13 @@ void CAnimImage::playerColored(PlayerColor currPlayer)
 			anim->getImage(0, group)->playerColored(player);
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group, uint8_t alpha):
+CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
 	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
 	first(0),
-	frameDelay(Delay),
-	value(0),
+	frameTimeTotal(frameTime),
+	frameTimePassed(0),
 	flags(Flags),
 	xOffset(0),
 	yOffset(0),
@@ -380,7 +311,7 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 	group = Group;
 	frame = first = from;
 	last = max;
-	value = 0;
+	frameTimePassed = 0;
 	return true;
 }
 
@@ -397,13 +328,13 @@ bool CShowableAnim::set(size_t Group)
 		group = Group;
 		last = anim->size(Group);
 	}
-	frame = value = 0;
+	frame = 0;
+	frameTimePassed = 0;
 	return true;
 }
 
 void CShowableAnim::reset()
 {
-	value = 0;
 	frame = first;
 
 	if (callback)
@@ -427,9 +358,11 @@ void CShowableAnim::show(SDL_Surface * to)
 	if ((flags & PLAY_ONCE) && frame + 1 == last)
 		return;
 
-	if ( ++value == frameDelay )
+	frameTimePassed += GH.mainFPSmng->getElapsedMilliseconds();
+
+	if(frameTimePassed >= frameTimeTotal)
 	{
-		value = 0;
+		frameTimePassed -= frameTimeTotal;
 		if ( ++frame >= last)
 			reset();
 	}
@@ -449,9 +382,7 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
-		const ColorFilter alphaFilter = ColorFilter::genAlphaShifter(vstd::lerp(0.0f, 1.0f, alpha/255.0f));
-		img->adjustPalette(alphaFilter);
-
+		img->setAlpha(alpha);
 		img->draw(to, pos.x, pos.y, &src);
 	}
 }
@@ -466,7 +397,7 @@ void CShowableAnim::rotate(bool on, bool vertical)
 }
 
 CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType type):
-	CShowableAnim(x,y,name,flags,4,size_t(type))
+	CShowableAnim(x, y, name, flags, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
 	xOffset = 0;
 	yOffset = 0;

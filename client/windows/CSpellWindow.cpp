@@ -42,6 +42,8 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+#include <SDL_events.h>
+
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
@@ -206,9 +208,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	temp_rect = CSDL_Ext::genRect(36, 56, 549 + pos.x, 330 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this));
 
-	temp_rect = CSDL_Ext::genRect(leftCorner->bg->h, leftCorner->bg->w, 97 + pos.x, 77 + pos.y);
+	temp_rect = CSDL_Ext::genRect(leftCorner->pos.h, leftCorner->pos.w, 97 + pos.x, 77 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this));
-	temp_rect = CSDL_Ext::genRect(rightCorner->bg->h, rightCorner->bg->w, 487 + pos.x, 72 + pos.y);
+	temp_rect = CSDL_Ext::genRect(rightCorner->pos.h, rightCorner->pos.w, 487 + pos.x, 72 + pos.y);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells
@@ -640,9 +642,8 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		SDL_Color firstLineColor, secondLineColor;
 		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 		{
-			static const SDL_Color unavailableSpell = {239, 189, 33, 0};
 			firstLineColor = Colors::WHITE;
-			secondLineColor = unavailableSpell;
+			secondLineColor = Colors::ORANGE;
 		}
 		else
 		{

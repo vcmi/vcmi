@@ -61,6 +61,8 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
+#include <SDL_events.h>
+
 using namespace CSDL_Ext;
 
 std::list<CFocusable*> CFocusable::focusables;
@@ -1208,7 +1210,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578, false));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578));
 
 	//garrison interface
 
@@ -1316,7 +1318,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 	goldPic = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = std::make_shared<CAnimImage>("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
+	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_ESCAPE);
 	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
 	build->addCallback(onBuy);
 
@@ -1368,7 +1370,6 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
 		}
 		else
 		{
@@ -2039,7 +2040,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK),
+	: CIntObject(LCLICK | DOUBLECLICK),
 	parent(_parent),
 	index(_id)
 {
@@ -2067,6 +2068,11 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 {
 	if( previousState && !down)
 		parent->changeSelection(index);
+}
+
+void CObjectListWindow::CItem::onDoubleClick()
+{
+	parent->elementSelected();
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)

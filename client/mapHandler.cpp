@@ -899,22 +899,22 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 				{
 					if(parent->map->getTile(int3(pos.x, pos.y, pos.z)).blocked) //temporary hiding blocked positions
 					{
-						static SDL_Surface * block = nullptr;
+						static std::shared_ptr<IImage> block;
 						if (!block)
-							block = BitmapHandler::loadBitmap("blocked");
+							block = IImage::createFromFile("blocked");
 
-						CSDL_Ext::blitSurface(block, targetSurf, realTileRect.topLeft());
+						block->draw(targetSurf, realTileRect.x, realTileRect.y);
 					}
 				}
 				if (settings["session"]["showVisit"].Bool())
 				{
 					if(parent->map->getTile(int3(pos.x, pos.y, pos.z)).visitable) //temporary hiding visitable positions
 					{
-						static SDL_Surface * visit = nullptr;
+						static std::shared_ptr<IImage> visit;
 						if (!visit)
-							visit = BitmapHandler::loadBitmap("visitable");
+							visit = IImage::createFromFile("visitable");
 
-						CSDL_Ext::blitSurface(visit, targetSurf, realTileRect.topLeft());
+						visit->draw(targetSurf, realTileRect.x, realTileRect.y);
 					}
 				}
 			}
@@ -1371,7 +1371,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 
 	if(t.hasFavorableWinds())
 	{
-		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
+		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
 		return;
 	}
 	const TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];
@@ -1434,7 +1434,7 @@ std::shared_ptr<IImage> CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CM
 	auto iter = cache.find(key);
 	if(iter == cache.end())
 	{
-		auto scaled = fullSurface->scaleFast(worldViewCachedScale);
+		auto scaled = fullSurface->scaleFast(fullSurface->dimensions() * worldViewCachedScale);
 		cache[key] = scaled;
 		return scaled;
 	}

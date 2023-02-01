@@ -92,11 +92,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(TARGET Qt6::Core)
 	qt_wrap_ui(editor_UI_HEADERS ${editor_FORMS})
-	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
-		# TODO: consider using qt_add_translations: https://doc.qt.io/qt-6/qtlinguist-cmake-qt-add-translations.html
-		qt_add_translation( editor_QM ${editor_TS} )
-	endif()
 else()
 	qt5_wrap_ui(editor_UI_HEADERS ${editor_FORMS})
 	if(ENABLE_TRANSLATIONS)
@@ -110,6 +105,17 @@ if(WIN32)
 endif()
 
 add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+
+if(TARGET Qt6::Core)
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt_add_translations(vcmieditor
+			TS_FILES ${editor_TS}
+			QM_FILES_OUTPUT_VARIABLE editor_QM
+			INCLUDE_DIRECTORIES
+				${CMAKE_CURRENT_BINARY_DIR})
+	endif()
+endif()
 
 if(WIN32)
 	set_target_properties(vcmieditor
