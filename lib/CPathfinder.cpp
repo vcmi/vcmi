@@ -1247,16 +1247,16 @@ int CPathfinderHelper::getMovementCost(
 		int old = ret;
 		ret = static_cast<int>(ret * M_SQRT2);
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
+		// https://heroes.thelazy.net/index.php/Movement#Diagonal_move_exception
 		if(ret > remainingMovePoints && remainingMovePoints >= old)
 		{
 			return remainingMovePoints;
 		}
 	}
 
-	/// TODO: This part need rework in order to work properly with flying and water walking
-	/// Currently it's only work properly for normal movement or sailing
-	int left = remainingMovePoints-ret;
-	if(checkLast && left > 0 && remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
+	const int left = remainingMovePoints - ret;
+	constexpr auto maxCostOfOneStep = static_cast<int>(175 * M_SQRT2); // diagonal move on Swamp - 247 MP
+	if(checkLast && left > 0 && left <= maxCostOfOneStep) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
