@@ -47,6 +47,15 @@ std::shared_ptr<CreatureAnimation> AnimationControls::getAnimation(const CCreatu
 	return std::make_shared<CreatureAnimation>(creature->animDefName, func);
 }
 
+float AnimationControls::getAnimationSpeedFactor()
+{
+	// according to testing, H3 ratios between slow/medium/fast might actually be 36/60/100 (x1.666)
+	// exact value is hard to tell due to large rounding errors
+	// however we will assume them to be 33/66/100 since these values are better for standard 60 fps displays:
+	// with these numbers, base frame display duration will be 100/66/33 ms - exactly 6/4/2 frames
+	return settings["battle"]["speedFactor"].Float();
+}
+
 float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType type)
 {
 	assert(creature->animation.walkAnimationTime != 0);
@@ -56,20 +65,23 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	// possible new fields for creature format:
 	//split "Attack time" into "Shoot Time" and "Cast Time"
 
-	// a lot of arbitrary multipliers, mostly to make animation speed closer to H3
-	const float baseSpeed = 0.1f;
-	const float speedMult = static_cast<float>(settings["battle"]["animationSpeed"].Float());
-	const float speed = baseSpeed / speedMult;
+	// base speed for all H3 animations on slow speed is 10 frames per second (or 100ms per frame)
+	const float baseSpeed = 10.f;
+	const float speed = baseSpeed * getAnimationSpeedFactor();
 
 	switch (type)
 	{
 	case ECreatureAnimType::MOVING:
-		return static_cast<float>(speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type));
+		return speed / creature->animation.walkAnimationTime;
 
 	case ECreatureAnimType::MOUSEON:
 		return baseSpeed;
+
 	case ECreatureAnimType::HOLDING:
-		return static_cast<float>(baseSpeed * creature->animation.idleAnimationTime / anim->framesInGroup(type));
+			if ( creature->animation.idleAnimationTime > 0.01)
+				return speed / creature->animation.idleAnimationTime;
+			else
+				return 0.f; // this animation is disabled for current creature
 
 	case ECreatureAnimType::SHOOT_UP:
 	case ECreatureAnimType::SHOOT_FRONT:
@@ -80,7 +92,7 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case ECreatureAnimType::CAST_DOWN:
 	case ECreatureAnimType::CAST_FRONT:
 	case ECreatureAnimType::CAST_UP:
-		return static_cast<float>(speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type));
+		return speed / creature->animation.attackAnimationTime;
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
 	// necessary because length of these animations must be same for all creatures for synchronization
@@ -95,15 +107,15 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case ECreatureAnimType::GROUP_ATTACK_DOWN:
 	case ECreatureAnimType::GROUP_ATTACK_FRONT:
 	case ECreatureAnimType::GROUP_ATTACK_UP:
-		return speed * 3 / anim->framesInGroup(type);
+		return speed;
 
 	case ECreatureAnimType::TURN_L:
 	case ECreatureAnimType::TURN_R:
-		return speed / 3;
+		return speed;
 
 	case ECreatureAnimType::MOVE_START:
 	case ECreatureAnimType::MOVE_END:
-		return speed / 3;
+		return speed;
 
 	case ECreatureAnimType::DEAD:
 	case ECreatureAnimType::DEAD_RANGED:
@@ -116,37 +128,51 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 float AnimationControls::getProjectileSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 4000);
+	// H3 speed: 1250/2500/3750 pixels per second
+	return static_cast<float>(getAnimationSpeedFactor() * 1250);
+}
+
+float AnimationControls::getRayProjectileSpeed()
+{
+	// H3 speed: 4000/8000/12000 pixels per second
+	return static_cast<float>(getAnimationSpeedFactor() * 4000);
 }
 
 float AnimationControls::getCatapultSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 1000);
+	// H3 speed: 200/400/600 pixels per second
+	return static_cast<float>(getAnimationSpeedFactor() * 200);
 }
 
 float AnimationControls::getSpellEffectSpeed()
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 30);
+	// H3 speed: 10/20/30 frames per second
+	return static_cast<float>(getAnimationSpeedFactor() * 10);
 }
 
-float AnimationControls::getMovementDuration(const CCreature * creature)
+float AnimationControls::getMovementDistance(const CCreature * creature)
 {
-	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 4 / creature->animation.walkAnimationTime);
+	// H3 speed: 2/4/6 tiles per second
+	return static_cast<float>( 2.0 * getAnimationSpeedFactor() / creature->animation.walkAnimationTime);
 }
 
 float AnimationControls::getFlightDistance(const CCreature * creature)
 {
-	return static_cast<float>(creature->animation.flightAnimationDistance * 200);
+	// Note: for whatever reason, H3 uses "Walk Animation Time" here, even though "Flight Animation Distance" also exists
+	// H3 speed: 250/500/750 pixels per second
+	return static_cast<float>( 250.0 * getAnimationSpeedFactor() / creature->animation.walkAnimationTime);
 }
 
 float AnimationControls::getFadeInDuration()
 {
-	return 1.0f / settings["battle"]["animationSpeed"].Float();
+	// H3 speed: 500/250/166 ms
+	return 0.5f / getAnimationSpeedFactor();
 }
 
 float AnimationControls::getObstaclesSpeed()
 {
-	return 10.0;// does not seems to be affected by animaiton speed settings
+	// H3 speed: 20 frames per second, irregardless of speed setting.
+	return 20.f;
 }
 
 ECreatureAnimType CreatureAnimation::getType() const
@@ -407,7 +433,5 @@ void CreatureAnimation::pause()
 void CreatureAnimation::play()
 {
 	//logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
-    speed = 0;
-	if(speedController(this, type) != 0)
-		speed = 1 / speedController(this, type);
+	speed = speedController(this, type);
 }

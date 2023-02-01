@@ -221,8 +221,10 @@ void BattleHero::render(Canvas & canvas)
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
 
-	flagCurrentFrame += currentSpeed;
-	currentFrame += currentSpeed;
+	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
+
+	flagCurrentFrame += currentSpeed * timePassed;
+	currentFrame += currentSpeed * timePassed;
 
 	if(flagCurrentFrame >= flagAnimation->size(0))
 		flagCurrentFrame -= flagAnimation->size(0);
@@ -241,8 +243,8 @@ void BattleHero::pause()
 
 void BattleHero::play()
 {
-	//FIXME: un-hardcode speed
-	currentSpeed = 0.25f;
+	//H3 speed: 10 fps ( 100 ms per frame)
+	currentSpeed = 10.f;
 }
 
 float BattleHero::getFrame() const
@@ -441,13 +443,13 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
-	animSpeeds->addToggle(40, toggle);
+	animSpeeds->addToggle(1, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point( 92, 225), "sysob10.def", CGI->generaltexth->zelp[423]);
-	animSpeeds->addToggle(63, toggle);
+	animSpeeds->addToggle(2, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
-	animSpeeds->addToggle(100, toggle);
+	animSpeeds->addToggle(3, toggle);
 
 	animSpeeds->setSelected(owner.getAnimSpeed());
 

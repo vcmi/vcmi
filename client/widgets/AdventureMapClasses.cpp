@@ -680,7 +680,7 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE);
+	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE, 180);// H3 uses around 175-180 ms per frame
 
 	std::string labelText;
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
@@ -721,8 +721,8 @@ CInfoBar::VisibleEnemyTurnInfo::VisibleEnemyTurnInfo(PlayerColor player)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATNX");
 	banner = std::make_shared<CAnimImage>("CREST58", player.getNum(), 0, 20, 51);
-	sand = std::make_shared<CShowableAnim>(99, 51, "HOURSAND");
-	glass = std::make_shared<CShowableAnim>(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 40);
+	sand = std::make_shared<CShowableAnim>(99, 51, "HOURSAND", 0, 100); // H3 uses around 100 ms per frame
+	glass = std::make_shared<CShowableAnim>(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 1000); // H3 scales this nicely for AI turn duration, don't have anything like that in vcmi
 }
 
 CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
@@ -880,7 +880,7 @@ void CInfoBar::showDate()
 	playNewDaySound();
 	state = DATE;
 	visibleInfo = std::make_shared<VisibleDateInfo>();
-	setTimer(3000);
+	setTimer(3000); // confirmed to match H3
 	redraw();
 }
 

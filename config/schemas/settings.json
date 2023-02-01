@@ -252,11 +252,11 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
 			"properties" : {
-				"animationSpeed" : {
+				"speedFactor" : {
 					"type" : "number",
-					"default" : 0.63
+					"default" : 2
 				},
 				"mouseShadow" : {
 					"type":"boolean",

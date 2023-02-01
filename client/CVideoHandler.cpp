@@ -21,6 +21,14 @@
 extern CGuiHandler GH; //global gui handler
 
 #ifndef DISABLE_VIDEO
+
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
+}
+
 //reads events and returns true on key down
 static bool keyDown()
 {
@@ -59,22 +67,20 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 }
 
 CVideoPlayer::CVideoPlayer()
-{
-	stream = -1;
-	format = nullptr;
-	codecContext = nullptr;
-	codec = nullptr;
-	frame = nullptr;
-	sws = nullptr;
-	context = nullptr;
-	texture = nullptr;
-	dest = nullptr;
-	destRect = CSDL_Ext::genRect(0,0,0,0);
-	pos = CSDL_Ext::genRect(0,0,0,0);
-	refreshWait = 0;
-	refreshCount = 0;
-	doLoop = false;
-}
+	: stream(-1)
+	, format (nullptr)
+	, codecContext(nullptr)
+	, codec(nullptr)
+	, frame(nullptr)
+	, sws(nullptr)
+	, context(nullptr)
+	, texture(nullptr)
+	, dest(nullptr)
+	, destRect(0,0,0,0)
+	, pos(0,0,0,0)
+	, frameTime(0)
+	, doLoop(false)
+{}
 
 bool CVideoPlayer::open(std::string fname, bool scale)
 {
@@ -88,9 +94,8 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	close();
 
 	this->fname = fname;
-	refreshWait = 3;
-	refreshCount = -1;
 	doLoop = loop;
+	frameTime = 0;
 
 	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
 
@@ -257,6 +262,7 @@ bool CVideoPlayer::nextFrame()
 			if (doLoop && !gotError)
 			{
 				// Rewind
+				frameTime = 0;
 				if (av_seek_frame(format, stream, 0, AVSEEK_FLAG_BYTE) < 0)
 					break;
 				gotError = true;
@@ -357,9 +363,11 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	if (sws == nullptr)
 		return;
 
-	if (refreshCount <= 0)
+	double frameEndTime = (frame->pts + frame->pkt_duration) * av_q2d(format->streams[stream]->time_base);
+	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.0;
+
+	if (frameTime >= frameEndTime )
 	{
-		refreshCount = refreshWait;
 		if (nextFrame())
 			show(x,y,dst,update);
 		else
@@ -377,8 +385,6 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	{
 		redraw(x, y, dst, update);
 	}
-
-	refreshCount --;
 }
 
 void CVideoPlayer::close()

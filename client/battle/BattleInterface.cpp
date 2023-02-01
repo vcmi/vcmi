@@ -520,16 +520,16 @@ void BattleInterface::displaySpellHit(const CSpell * spell, BattleHex destinatio
 
 void BattleInterface::setAnimSpeed(int set)
 {
-	Settings speed = settings.write["battle"]["animationSpeed"];
-	speed->Float() = float(set) / 100;
+	Settings speed = settings.write["battle"]["speedFactor"];
+	speed->Float() = float(set);
 }
 
 int BattleInterface::getAnimSpeed() const
 {
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
-		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float() *100));
+		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float()));
 
-	return static_cast<int>(vstd::round(settings["battle"]["animationSpeed"].Float() *100));
+	return static_cast<int>(vstd::round(settings["battle"]["speedFactor"].Float()));
 }
 
 CPlayerInterface *BattleInterface::getCurrentPlayerInterface() const

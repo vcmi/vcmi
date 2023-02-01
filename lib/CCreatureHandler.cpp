@@ -812,7 +812,7 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	JsonNode & animationTime = graphics["animationTime"];
 	animationTime["walk"].Float() = parser.readNumber();
 	animationTime["attack"].Float() = parser.readNumber();
-	animationTime["flight"].Float() = parser.readNumber();
+	parser.readNumber(); // unused value "Flight animation time" - H3 actually uses "Walk animation time" even for flying creatures
 	animationTime["idle"].Float() = 10.0;
 
 	JsonNode & missile = graphics["missile"];
@@ -851,7 +851,6 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.walkAnimationTime = animationTime["walk"].Float();
 	cre->animation.idleAnimationTime = animationTime["idle"].Float();
 	cre->animation.attackAnimationTime = animationTime["attack"].Float();
-	cre->animation.flightAnimationDistance = animationTime["flight"].Float(); //?
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];

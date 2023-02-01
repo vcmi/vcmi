@@ -364,7 +364,7 @@ bool MovementAnimation::init()
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
 	Point endPosition = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 
-	timeToMove = AnimationControls::getMovementDuration(stack->getCreature());
+	progressPerSecond = AnimationControls::getMovementDistance(stack->getCreature());
 
 	begX = begPosition.x;
 	begY = begPosition.y;
@@ -375,8 +375,7 @@ bool MovementAnimation::init()
 	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
 	{
 		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
-
-		timeToMove *= AnimationControls::getFlightDistance(stack->getCreature()) / distance;
+		progressPerSecond =  AnimationControls::getFlightDistance(stack->getCreature()) / distance;
 	}
 
 	return true;
@@ -384,7 +383,7 @@ bool MovementAnimation::init()
 
 void MovementAnimation::nextFrame()
 {
-	progress += float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000 * timeToMove;
+	progress += float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000 * progressPerSecond;
 
 	//moving instructions
 	myAnim->pos.x = static_cast<Sint16>(begX + distanceX * progress );
@@ -432,7 +431,7 @@ MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stac
 	  curentMoveIndex(0),
 	  begX(0), begY(0),
 	  distanceX(0), distanceY(0),
-	  timeToMove(0.0),
+	  progressPerSecond(0.0),
 	  progress(0.0)
 {
 	logAnim->debug("Created MovementAnimation for %s", stack->getName());

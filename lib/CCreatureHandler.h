@@ -74,7 +74,7 @@ public:
 		};
 
 		double timeBetweenFidgets, idleAnimationTime,
-			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+			   walkAnimationTime, attackAnimationTime;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
@@ -91,7 +91,13 @@ public:
 			h & idleAnimationTime;
 			h & walkAnimationTime;
 			h & attackAnimationTime;
-			h & flightAnimationDistance;
+
+			if (version < 814)
+			{
+				float unused = 0.f;
+				h & unused;
+			}
+
 			h & upperRightMissleOffsetX;
 			h & rightMissleOffsetX;
 			h & lowerRightMissleOffsetX;

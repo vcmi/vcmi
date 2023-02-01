@@ -61,7 +61,7 @@ struct ProjectileCatapult : ProjectileBase
 	void show(Canvas & canvas) override;
 
 	std::shared_ptr<CAnimation> animation;
-	int frameNum;  // frame to display from projectile animation
+	float frameProgress;
 };
 
 /// Projectile for mages/evil eye - render ray expanding from origin position to destination
