@@ -736,7 +736,7 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < VLC->creh->objects.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getNameTranslated()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getNamePluralTranslated()), QVariant::fromValue(i));
 			
 			victoryValueWidget = new QLineEdit;
 			ui->victoryParamsLayout->addWidget(victoryValueWidget);
