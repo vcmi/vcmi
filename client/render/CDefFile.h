@@ -1,5 +1,5 @@
 /*
- * CAnimation.h, part of VCMI engine
+ * CDefFile.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

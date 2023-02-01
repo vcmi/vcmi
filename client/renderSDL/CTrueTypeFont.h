@@ -1,5 +1,5 @@
 /*
- * Fonts.h, part of VCMI engine
+ * CTrueTypeFont.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

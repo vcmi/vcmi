@@ -1,5 +1,5 @@
 /*
- * AdventureMapClasses.h, part of VCMI engine
+ * CAdvMapPanel.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

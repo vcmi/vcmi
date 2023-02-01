@@ -1,5 +1,5 @@
 /*
- * CCursorHandler.cpp, part of VCMI engine
+ * CursorHardware.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

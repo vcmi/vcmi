@@ -1,5 +1,5 @@
 /*
- * AdventureMapClasses.cpp, part of VCMI engine
+ * CInfoBar.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

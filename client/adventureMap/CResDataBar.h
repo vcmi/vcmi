@@ -1,5 +1,5 @@
 /*
- * CAdvmapInterface.h, part of VCMI engine
+ * CResDataBar.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
