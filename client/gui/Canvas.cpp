@@ -76,9 +76,9 @@ void Canvas::draw(Canvas & image, const Point & pos)
 	CSDL_Ext::blitAt(image.surface, renderOffset.x + pos.x, renderOffset.y + pos.y, surface);
 }
 
-void Canvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)
+void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
-	CSDL_Ext::drawLine(surface, renderOffset.x + from.x, renderOffset.y + from.y, renderOffset.x + dest.x, renderOffset.y + dest.y, colorFrom, colorDest);
+	CSDL_Ext::drawLine(surface, renderOffset.x + from.x, renderOffset.y + from.y, renderOffset.x + dest.x, renderOffset.y + dest.y, CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
 }
 
 void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )

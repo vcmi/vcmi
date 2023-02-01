@@ -15,6 +15,9 @@
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
 
+#include <SDL_render.h>
+#include <SDL_events.h>
+
 extern CGuiHandler GH; //global gui handler
 
 #ifndef DISABLE_VIDEO

@@ -24,6 +24,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 
+#include <SDL_events.h>
+
 void CButton::update()
 {
 	if (overlay)

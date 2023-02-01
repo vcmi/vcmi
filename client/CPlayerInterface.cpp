@@ -63,12 +63,12 @@
 #include "../lib/CPathfinder.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
-#include <SDL_timer.h>
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
 #include "gui/NotificationHandler.h"
 
+#include <SDL_events.h>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that CPlayerInterface::pim mutex is locked.
@@ -342,7 +342,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 		auto unlockPim = vstd::makeUnlockGuard(*pim);
 		while(frameNumber == GH.mainFPSmng->getFrameNumber())
-			SDL_Delay(5);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	};
 
 	//first initializing done
@@ -1514,7 +1514,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		{
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
-			SDL_Delay(focusTime);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(focusTime));
 		}
 	}
 	CCS->curh->show();
@@ -2276,7 +2276,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 	while(!dialogs.empty())
 	{
 		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
-		SDL_Delay(5);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	}
 	waitWhileDialog(unlockPim);
 }

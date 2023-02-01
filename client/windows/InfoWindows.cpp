@@ -21,7 +21,6 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 
-#include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -38,6 +37,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+
+#include <SDL_surface.h>
 
 void CSimpleWindow::show(SDL_Surface * to)
 {

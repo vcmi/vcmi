@@ -492,8 +492,8 @@ CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, cons
 	graphicsSelected->disable();
 	graphicsStriped = std::make_shared<CPicture>(prefix + "Co" + suffix + ".BMP");
 	graphicsStriped->disable();
-	pos.w = graphicsNotSelected->bg->w;
-	pos.h = graphicsNotSelected->bg->h;
+	pos.w = graphicsNotSelected->pos.w;
+	pos.h = graphicsNotSelected->pos.h;
 
 }
 
@@ -525,7 +525,7 @@ void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-	if(!down && selectable && !CSDL_Ext::isTransparent(graphicsNotSelected->getSurface(), GH.getCursorPosition() - pos.topLeft()))
+	if(!down && selectable && !graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
@@ -535,7 +535,7 @@ void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;
-	if(!CSDL_Ext::isTransparent(graphicsNotSelected->getSurface(), GH.getCursorPosition() - pos.topLeft()) && text.size())
+	if(!graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()) && text.size())
 	{
 		CRClickPopup::createAndPush(text);
 	}

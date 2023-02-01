@@ -713,7 +713,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(nullptr == mainWindow)
 	{
 #if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-		auto createWindow = [displayIndex](Uint32 extraFlags) -> bool {
+		auto createWindow = [displayIndex](uint32_t extraFlags) -> bool {
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
 			return mainWindow != nullptr;
 		};
@@ -723,7 +723,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
-		Uint32 windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
+		uint32_t windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
 		if(!createWindow(windowFlags | SDL_WINDOW_METAL))
 		{
 			logGlobal->warn("Metal unavailable, using OpenGLES");

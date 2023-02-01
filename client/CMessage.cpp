@@ -22,6 +22,8 @@
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
 
+#include <SDL_surface.h>
+
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;
 const int BETWEEN_COMPS = 30;
@@ -64,7 +66,7 @@ namespace
 	std::array<std::unique_ptr<CAnimation>, PlayerColor::PLAYER_LIMIT_I> dialogBorders;
 	std::array<std::vector<std::shared_ptr<IImage>>, PlayerColor::PLAYER_LIMIT_I> piecesOfBox;
 
-	SDL_Surface * background = nullptr;//todo: should be CFilledTexture
+	std::shared_ptr<IImage> background;//todo: should be CFilledTexture
 }
 
 void CMessage::init()
@@ -84,27 +86,27 @@ void CMessage::init()
 		}
 	}
 
-	background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
+	background = IImage::createFromFile("DIBOXBCK.BMP");
 }
 
 void CMessage::dispose()
 {
 	for(auto & item : dialogBorders)
 		item.reset();
-	SDL_FreeSurface(background);
 }
 
 SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 {
 	//prepare surface
-	SDL_Surface * ret = SDL_CreateRGBSurface(0, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
-	for (int i=0; i<w; i+=background->w)//background
+	SDL_Surface * ret = CSDL_Ext::newSurface(w,h);
+	for (int i=0; i<w; i+=background->width())//background
 	{
-		for (int j=0; j<h; j+=background->h)
+		for (int j=0; j<h; j+=background->height())
 		{
-			CSDL_Ext::blitSurface(background, ret, Point(i,j));
+			background->draw(ret, i, j);
 		}
 	}
+
 	drawBorder(playerColor, ret, w, h);
 	return ret;
 }

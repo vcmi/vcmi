@@ -12,13 +12,12 @@
 #include "../gui/CIntObject.h"
 #include "../battle/BattleConstants.h"
 
-#include <SDL_render.h>
-
 VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
+struct SDL_Color;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -27,47 +26,53 @@ class IImage;
 // Image class
 class CPicture : public CIntObject
 {
-	void setSurface(SDL_Surface *to);
+	std::shared_ptr<IImage> bg;
+
 public:
-	SDL_Surface * bg;
-	Rect * srcRect; //if nullptr then whole surface will be used
-	bool freeSurf; //whether surface will be freed upon CPicture destruction
-	bool needRefresh;//Surface needs to be displayed each frame
+	/// if set, only specified section of internal image will be rendered
+	boost::optional<Rect> srcRect;
+
+	/// If set to true, iamge will be redrawn on each frame
+	bool needRefresh;
+
+	/// If set to false, image will not be rendered
+	/// Deprecated, use CIntObject::disable()/enable() instead
 	bool visible;
 
-	SDL_Surface * getSurface()
+	std::shared_ptr<IImage> getSurface()
 	{
 		return bg;
 	}
 
-	CPicture(const Rect & r, const SDL_Color & color, bool screenFormat = false); //rect filled with given color
-	CPicture(const Rect & r, ui32 color, bool screenFormat = false); //rect filled with given color
-	CPicture(SDL_Surface * BG, int x = 0, int y=0, bool Free = true); //wrap existing SDL_Surface
-	CPicture(const std::string &bmpname, int x=0, int y=0);
-	CPicture(SDL_Surface *BG, const Rect &SrcRext, int x = 0, int y = 0, bool free = false); //wrap subrect of given surface
-	~CPicture();
-	void init();
+	/// wrap existing image
+	CPicture(std::shared_ptr<IImage> image, const Point & position);
 
-	//set alpha value for whole surface. Note: may be messed up if surface is shared
-	// 0=transparent, 255=opaque
+	/// wrap section of an existing Image
+	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
+
+	/// Loads image from specified file name
+	CPicture(const std::string & bmpname);
+	CPicture(const std::string & bmpname, const Point & position);
+	CPicture(const std::string & bmpname, int x, int y);
+
+	/// set alpha value for whole surface. Note: may be messed up if surface is shared
+	/// 0=transparent, 255=opaque
 	void setAlpha(int value);
-
 	void scaleTo(Point size);
-	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
+	void colorize(PlayerColor player);
+
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
-	void convertToScreenBPP();
-	void colorize(PlayerColor player);
 };
 
 /// area filled with specific texture
 class CFilledTexture : public CIntObject
 {
-	SDL_Surface * texture;
+	std::shared_ptr<IImage> texture;
 
 public:
 	CFilledTexture(std::string imageName, Rect position);
-	~CFilledTexture();
+
 	void showAll(SDL_Surface *to) override;
 };
 

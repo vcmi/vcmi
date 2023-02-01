@@ -116,10 +116,7 @@ void ProjectileRay::show(Canvas & canvas)
 		for (size_t i = 0; i < rayConfig.size(); ++i)
 		{
 			auto ray = rayConfig[i];
-			SDL_Color beginColor{ ray.r1, ray.g1, ray.b1, ray.a1};
-			SDL_Color endColor  { ray.r2, ray.g2, ray.b2, ray.a2};
-
-			canvas.drawLine(Point(x1, y1 + i), Point(x2, y2+i), beginColor, endColor);
+			canvas.drawLine(Point(x1, y1 + i), Point(x2, y2+i), ray.start, ray.end);
 		}
 	}
 	else // draw in vertical axis
@@ -133,10 +130,8 @@ void ProjectileRay::show(Canvas & canvas)
 		for (size_t i = 0; i < rayConfig.size(); ++i)
 		{
 			auto ray = rayConfig[i];
-			SDL_Color beginColor{ ray.r1, ray.g1, ray.b1, ray.a1};
-			SDL_Color endColor  { ray.r2, ray.g2, ray.b2, ray.a2};
 
-			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), beginColor, endColor);
+			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), ray.start, ray.end);
 		}
 	}
 

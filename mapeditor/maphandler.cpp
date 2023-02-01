@@ -433,7 +433,7 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 	if (tile.blocked && (!tile.visitable))
 		color = tile.terType->minimapBlocked;
 	
-	return qRgb(color[0], color[1], color[2]);
+	return qRgb(color.r, color.g, color.b);
 }
 
 void MapHandler::drawMinimapTile(QPainter & painter, int x, int y, int z)

@@ -36,6 +36,9 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
 
+#include <SDL_surface.h>
+#include <SDL_events.h>
+
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
 {

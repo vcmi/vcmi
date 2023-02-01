@@ -927,15 +927,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		CCreature::CreatureAnimation::RayColor color;
 
-		color.r1 = value["start"].Vector()[0].Integer();
-		color.g1 = value["start"].Vector()[1].Integer();
-		color.b1 = value["start"].Vector()[2].Integer();
-		color.a1 = value["start"].Vector()[3].Integer();
+		color.start.r = value["start"].Vector()[0].Integer();
+		color.start.g = value["start"].Vector()[1].Integer();
+		color.start.b = value["start"].Vector()[2].Integer();
+		color.start.a = value["start"].Vector()[3].Integer();
 
-		color.r2 = value["end"].Vector()[0].Integer();
-		color.g2 = value["end"].Vector()[1].Integer();
-		color.b2 = value["end"].Vector()[2].Integer();
-		color.a2 = value["end"].Vector()[3].Integer();
+		color.end.r = value["end"].Vector()[0].Integer();
+		color.end.g = value["end"].Vector()[1].Integer();
+		color.end.b = value["end"].Vector()[2].Integer();
+		color.end.a = value["end"].Vector()[3].Integer();
 
 		creature->animation.projectileRay.push_back(color);
 	}

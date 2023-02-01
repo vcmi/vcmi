@@ -55,6 +55,9 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/TerrainHandler.h"
 
+#include <SDL_surface.h>
+#include <SDL_events.h>
+
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
 
@@ -478,8 +481,8 @@ CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, in
 	background = std::make_shared<CPicture>(defname, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
-	pos.w = background->bg->w;
-	pos.h = background->bg->h;
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -502,8 +505,8 @@ CResDataBar::CResDataBar()
 	background = std::make_shared<CPicture>(ADVOPT.resdatabarG, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
-	pos.w = background->bg->w;
-	pos.h = background->bg->h;
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -566,10 +569,10 @@ CAdvMapInt::CAdvMapInt():
 	pos.h = screen->h;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
-	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
+	bg = IImage::createFromFile(ADVOPT.mainGraphic);
 	if(!ADVOPT.worldViewGraphic.empty())
 	{
-		bgWorldView = BitmapHandler::loadBitmap(ADVOPT.worldViewGraphic);
+		bgWorldView = IImage::createFromFile(ADVOPT.worldViewGraphic);
 	}
 	else
 	{
@@ -579,7 +582,7 @@ CAdvMapInt::CAdvMapInt():
 	if (!bgWorldView)
 	{
 		logGlobal->warn("bgWorldView not defined in resolution config; fallback to VWorld.bmp");
-		bgWorldView = BitmapHandler::loadBitmap("VWorld.bmp");
+		bgWorldView = IImage::createFromFile("VWorld.bmp");
 	}
 
 	worldViewIcons = std::make_shared<CAnimation>("VwSymbol");//todo: customize with ADVOPT
@@ -710,11 +713,6 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 
 	addUsedEvents(MOVE);
-}
-
-CAdvMapInt::~CAdvMapInt()
-{
-	SDL_FreeSurface(bg);
 }
 
 void CAdvMapInt::fshowOverview()
@@ -976,7 +974,7 @@ void CAdvMapInt::deactivate()
 
 void CAdvMapInt::showAll(SDL_Surface * to)
 {
-	blitAt(bg,0,0,to);
+	bg->draw(to, 0, 0);
 
 	if(state != INGAME)
 		return;
@@ -1507,7 +1505,7 @@ void CAdvMapInt::startHotSeatWait(PlayerColor Player)
 void CAdvMapInt::setPlayer(PlayerColor Player)
 {
 	player = Player;
-	graphics->blueToPlayersAdv(bg,player);
+	bg->playerColored(player);
 
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
