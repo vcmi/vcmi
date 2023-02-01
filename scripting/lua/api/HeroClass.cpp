@@ -29,7 +29,7 @@ const std::vector<HeroClassProxy::CustomRegType> HeroClassProxy::REGISTER_CUSTOM
 	{"getIconIndex", LuaMethodWrapper<HeroClass, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
 	{"getIndex", LuaMethodWrapper<HeroClass, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<HeroClass, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<HeroClass, decltype(&Entity::getName), &Entity::getName>::invoke, false},
+	{"getName", LuaMethodWrapper<HeroClass, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
 };
 
 }

@@ -15,9 +15,9 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class SecondarySkill;
-class CSkill;
+class Skill;
 
-class DLL_LINKAGE SkillService : public EntityServiceT<SecondarySkill, CSkill>
+class DLL_LINKAGE SkillService : public EntityServiceT<SecondarySkill, Skill>
 {
 public:
 };

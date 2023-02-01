@@ -33,7 +33,7 @@ const std::vector<SpellProxy::CustomRegType> SpellProxy::REGISTER_CUSTOM =
 	{"getIconIndex", LuaMethodWrapper<Spell, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
 	{"getIndex", LuaMethodWrapper<Spell, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<Spell, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<Spell, decltype(&Entity::getName), &Entity::getName>::invoke, false},
+	{"getName", LuaMethodWrapper<Spell, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
 
 	{"isAdventure", LuaMethodWrapper<Spell, decltype(&Spell::isAdventure), &Spell::isAdventure>::invoke, false},
 	{"isCombat", LuaMethodWrapper<Spell, decltype(&Spell::isCombat), &Spell::isCombat>::invoke, false},
@@ -48,7 +48,7 @@ const std::vector<SpellProxy::CustomRegType> SpellProxy::REGISTER_CUSTOM =
 	{"getCost", LuaMethodWrapper<Spell, decltype(&Spell::getCost), &Spell::getCost>::invoke, false},
 	{"getBasePower", LuaMethodWrapper<Spell, decltype(&Spell::getBasePower), &Spell::getBasePower>::invoke, false},
 	{"getLevelPower", LuaMethodWrapper<Spell, decltype(&Spell::getLevelPower), &Spell::getLevelPower>::invoke, false},
-	{"getLevelDescription", LuaMethodWrapper<Spell, decltype(&Spell::getLevelDescription), &Spell::getLevelDescription>::invoke, false},
+	{"getLevelDescription", LuaMethodWrapper<Spell, decltype(&Spell::getDescriptionTranslated), &Spell::getDescriptionTranslated>::invoke, false},
 };
 
 }
