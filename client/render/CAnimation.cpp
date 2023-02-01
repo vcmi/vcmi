@@ -10,19 +10,12 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
-#include "SDL_Extensions.h"
-#include "ColorFilter.h"
+#include "CDefFile.h"
 
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
-
+#include "Graphics.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/ISimpleResourceLoader.h"
 #include "../../lib/JsonNode.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/vcmi_endian.h"
-
-#include <SDL_surface.h>
+#include "../renderSDL/SDLImage.h"
 
 std::shared_ptr<IImage> CAnimation::getFromExtraDef(std::string filename)
 {

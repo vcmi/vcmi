@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "TextAlignment.h"
+#include "../gui/TextAlignment.h"
 #include "../../lib/Rect.h"
 #include "../../lib/Color.h"
 

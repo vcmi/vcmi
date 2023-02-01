@@ -10,10 +10,9 @@
 #include "StdInc.h"
 #include "Canvas.h"
 
-#include "SDL_Extensions.h"
-#include "CAnimation.h"
-
-#include "../Graphics.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "IImage.h"
+#include "Graphics.h"
 
 #include <SDL_surface.h>
 

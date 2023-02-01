@@ -8,15 +8,16 @@
  *
  */
 #include "StdInc.h"
-#include "Fonts.h"
-
-#include <SDL_ttf.h>
+#include "CBitmapFont.h"
 
 #include "SDL_Extensions.h"
-#include "../../lib/JsonNode.h"
+
 #include "../../lib/vcmi_endian.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/Rect.h"
+
+#include <SDL_surface.h>
 
 std::array<CBitmapFont::BitmapChar, CBitmapFont::totalChars> CBitmapFont::loadChars() const
 {

@@ -8,15 +8,17 @@
  *
  */
 #include "StdInc.h"
-#include "Fonts.h"
+#include "CBitmapHanFont.h"
 
-#include <SDL_ttf.h>
-
+#include "CBitmapFont.h"
 #include "SDL_Extensions.h"
+
 #include "../../lib/JsonNode.h"
-#include "../../lib/vcmi_endian.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/Rect.h"
+
+#include <SDL_surface.h>
 
 size_t CBitmapHanFont::getCharacterDataOffset(size_t index) const
 {

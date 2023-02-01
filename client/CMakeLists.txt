@@ -25,6 +25,7 @@ set(client_SRCS
 	battle/BattleSiegeController.cpp
 	battle/BattleStacksController.cpp
 	battle/BattleWindow.cpp
+	battle/CreatureAnimation.cpp
 
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
@@ -163,6 +164,7 @@ set(client_HEADERS
 	render/ICursor.h
 	render/IFont.h
 	render/IImage.h
+	render/IImageLoader.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CBitmapHanFont.h

@@ -10,22 +10,22 @@
 #include "StdInc.h"
 #include "CHeroWindow.h"
 
-#include "CAdvmapInterface.h"
 #include "CCreatureWindow.h"
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
-#include "../Graphics.h"
 
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CAnimation.h"
+#include "../gui/TextAlignment.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/Buttons.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 
@@ -36,8 +36,6 @@
 #include "../lib/CSkillHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/NetPacksBase.h"
-#include "../mapHandler.h"
-
 
 TConstBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
 {

@@ -9,13 +9,11 @@
  */
 #pragma once
 
-class CAnimation;
-class IImage;
-struct SDL_Surface;
-struct SDL_Texture;
-struct SDL_Cursor;
+VCMI_LIB_NAMESPACE_BEGIN
+class Point;
+VCMI_LIB_NAMESPACE_END
 
-#include "../../lib/Point.h"
+class IImage;
 
 class ICursor
 {

@@ -8,58 +8,44 @@
  *
  */
 #include "StdInc.h"
-#include "CAdvmapInterface.h"
+#include "CAdvMapInt.h"
 
-#include "CCastleInterface.h"
-#include "CHeroWindow.h"
-#include "CKingdomInterface.h"
-#include "CSpellWindow.h"
-#include "CTradeWindow.h"
-#include "GUIClasses.h"
-#include "InfoWindows.h"
+#include "CAdvMapPanel.h"
+#include "CAdventureOptions.h"
+#include "CInGameConsole.h"
+#include "mapHandler.h"
 
-#include "../CBitmapHandler.h"
+#include "../windows/CKingdomInterface.h"
+#include "../windows/CSpellWindow.h"
+#include "../windows/CTradeWindow.h"
+#include "../windows/GUIClasses.h"
+#include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../mainmenu/CMainMenu.h"
-#include "../lobby/CSelectionBase.h"
-#include "../lobby/CCampaignInfoScreen.h"
 #include "../lobby/CSavingScreen.h"
-#include "../lobby/CScenarioInfoScreen.h"
-#include "../Graphics.h"
-#include "../mapHandler.h"
-
-#include "../gui/CAnimation.h"
+#include "../render/CAnimation.h"
 #include "../gui/CursorHandler.h"
+#include "../render/IImage.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/Buttons.h"
 
 #include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
-#include "../../lib/CSoundBase.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/UnlockGuard.h"
-#include "../../lib/VCMI_Lib.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/TerrainHandler.h"
 
 #include <SDL_surface.h>
 #include <SDL_events.h>
 
 #define ADVOPT (conf.go()->ac)
-using namespace CSDL_Ext;
 
 std::shared_ptr<CAdvMapInt> adventureInt;
 
@@ -630,7 +616,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4 / scrollSpeed)) == 0
-	   && ((GH.topInt().get() == this) || isCtrlKeyDown()))
+	   && ((GH.topInt().get() == this) || CSDL_Ext::isCtrlKeyDown()))
 	{
 		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
 			position.x--;
@@ -994,7 +980,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
 	// don't scroll if there is no window in focus - these events don't seem to correspond to the actual mouse movement
-	if(!isCtrlKeyDown() && isActive() && sEvent.windowID != 0 && mode == EAdvMapMode::NORMAL)
+	if(!CSDL_Ext::isCtrlKeyDown() && isActive() && sEvent.windowID != 0 && mode == EAdvMapMode::NORMAL)
 	{
 		if(sEvent.x<15)
 		{

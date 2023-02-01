@@ -7,45 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
-#include "AdventureMapClasses.h"
+#include "CAdvMapPanel.h"
 
-#include <SDL_timer.h>
-
-#include "MiscWidgets.h"
-#include "CComponent.h"
-#include "Images.h"
-
-#include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CPlayerInterface.h"
-#include "../mainmenu/CMainMenu.h"
-
+#include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
+#include "../render/CAnimation.h"
+#include "../render/IImage.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_PixelAccess.h"
-#include "../gui/CAnimation.h"
-
-#include "../windows/InfoWindows.h"
-#include "../windows/CAdvmapInterface.h"
-
-#include "../battle/BattleInterfaceClasses.h"
-#include "../battle/BattleInterface.h"
-
-#include "../../CCallback.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
-#include "../../lib/CModHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/TerrainHandler.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
-#include "ClientCommandManager.h"
-
-#include <SDL_surface.h>
-#include <SDL_keyboard.h>
-#include <SDL_events.h>
 
 CAdvMapPanel::CAdvMapPanel(std::shared_ptr<IImage> bg, Point position)
 	: CIntObject()

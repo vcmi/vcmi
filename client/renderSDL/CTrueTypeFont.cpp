@@ -8,15 +8,21 @@
  *
  */
 #include "StdInc.h"
-#include "Fonts.h"
+#include "CTrueTypeFont.h"
+
+#include "SDL_Extensions.h"
+
+#include "../../lib/JsonNode.h"
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 #include <SDL_ttf.h>
 
-#include "SDL_Extensions.h"
-#include "../../lib/JsonNode.h"
-#include "../../lib/vcmi_endian.h"
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
+std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
+{
+	std::string filename = "Data/" + config["file"].String();
+	return CResourceHandler::get()->load(ResourceID(filename, EResType::TTF_FONT))->readAll();
+}
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
 {

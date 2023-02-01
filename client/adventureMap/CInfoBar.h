@@ -9,33 +9,24 @@
  */
 #pragma once
 
-#include "ObjectLists.h"
-#include "../../lib/FunctionList.h"
+#include "../gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CArmedInstance;
-class CGGarrison;
-class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
 struct Component;
-struct InfoAboutArmy;
-struct InfoAboutHero;
-struct InfoAboutTown;
+class PlayerColor;
 
 VCMI_LIB_NAMESPACE_END
 
-class CAnimation;
 class CAnimImage;
 class CShowableAnim;
-class CFilledTexture;
-class CButton;
 class CComponent;
 class CHeroTooltip;
 class CTownTooltip;
+class CLabel;
 class CTextBox;
-class IImage;
 
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/ColorFilter.h"
+#include "../render/ColorFilter.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

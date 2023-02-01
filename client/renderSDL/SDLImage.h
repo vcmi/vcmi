@@ -9,28 +9,17 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
-
-#ifdef IN
-#undef IN
-#endif
-
-#ifdef OUT
-#undef OUT
-#endif
+#include "../render/IImage.h"
+#include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
-class Rect;
-class Point;
-
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
-struct SDL_Color;
 class CDefFile;
-class ColorFilter;
+
+struct SDL_Surface;
+struct SDL_Palette;
 
 /*
  * Wrapper around SDL_Surface

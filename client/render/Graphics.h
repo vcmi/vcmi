@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "gui/Fonts.h"
+#include "IFont.h"
 #include "../lib/GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -22,6 +22,7 @@ struct InfoAboutTown;
 class CGObjectInstance;
 class ObjectTemplate;
 class EntityService;
+class JsonNode;
 
 VCMI_LIB_NAMESPACE_END
 

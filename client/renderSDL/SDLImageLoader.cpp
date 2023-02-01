@@ -7,26 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
-#include "CAnimation.h"
+#include "SDLImageLoader.h"
 
-#include "SDL_Extensions.h"
-#include "ColorFilter.h"
+#include "SDLImage.h"
 
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
-
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/ISimpleResourceLoader.h"
-#include "../../lib/JsonNode.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/vcmi_endian.h"
+#include "../../lib/Point.h"
 
 #include <SDL_surface.h>
-
-/*************************************************************************
- *  Classes for image loaders - helpers for loading from def files       *
- *************************************************************************/
 
 SDLImageLoader::SDLImageLoader(SDLImage * Img):
 	image(Img),
@@ -52,7 +41,7 @@ void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_C
 	lineStart = position = (ui8*)image->surf->pixels;
 }
 
-inline void SDLImageLoader::Load(size_t size, const ui8 * data)
+inline void SDLImageLoader::load(size_t size, const ui8 * data)
 {
 	if (size)
 	{
@@ -61,7 +50,7 @@ inline void SDLImageLoader::Load(size_t size, const ui8 * data)
 	}
 }
 
-inline void SDLImageLoader::Load(size_t size, ui8 color)
+inline void SDLImageLoader::load(size_t size, ui8 color)
 {
 	if (size)
 	{
@@ -70,7 +59,7 @@ inline void SDLImageLoader::Load(size_t size, ui8 color)
 	}
 }
 
-inline void SDLImageLoader::EndLine()
+inline void SDLImageLoader::endLine()
 {
 	lineStart += image->surf->pitch;
 	position = lineStart;

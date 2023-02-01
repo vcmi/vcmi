@@ -9,19 +9,14 @@
  */
 
 #include "StdInc.h"
-#include "CursorHandler.h"
+#include "CursorSoftware.h"
 
 #include "SDL_Extensions.h"
-#include "CGuiHandler.h"
-#include "CAnimation.h"
-#include "../../lib/CConfigHandler.h"
+
+#include "../render/IImage.h"
 
 #include <SDL_render.h>
 #include <SDL_events.h>
-
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
 
 void CursorSoftware::render()
 {

@@ -20,12 +20,10 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/CComponent.h"
@@ -35,6 +33,7 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../render/CAnimation.h"
 
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"

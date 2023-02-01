@@ -9,12 +9,10 @@
  */
 
 #include "StdInc.h"
-#include "CursorHandler.h"
+#include "CursorHardware.h"
 
 #include "SDL_Extensions.h"
-#include "CGuiHandler.h"
-#include "CAnimation.h"
-#include "../../lib/CConfigHandler.h"
+#include "../render/IImage.h"
 
 #include <SDL_render.h>
 #include <SDL_events.h>

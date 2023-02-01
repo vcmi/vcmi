@@ -8,12 +8,14 @@
  *
  */
 #include "StdInc.h"
+#include "CBitmapHandler.h"
+
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include <SDL_image.h>
-#include "CBitmapHandler.h"
-#include "gui/SDL_Extensions.h"
 #include "../lib/vcmi_endian.h"
+
+#include <SDL_image.h>
 
 namespace BitmapHandler
 {

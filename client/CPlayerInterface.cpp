@@ -11,7 +11,8 @@
 
 #include <vcmi/Artifact.h>
 
-#include "windows/CAdvmapInterface.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/mapHandler.h"
 #include "battle/BattleInterface.h"
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
@@ -25,15 +26,15 @@
 #include "windows/CHeroWindow.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CQuestLog.h"
-#include "CMessage.h"
 #include "CPlayerInterface.h"
-#include "gui/SDL_Extensions.h"
 #include "widgets/CComponent.h"
+#include "widgets/Buttons.h"
 #include "windows/CTradeWindow.h"
 #include "windows/CSpellWindow.h"
 #include "../lib/CConfigHandler.h"
-#include "Graphics.h"
 #include "windows/GUIClasses.h"
+#include "render/CAnimation.h"
+#include "render/IImage.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -51,13 +52,11 @@
 #include "../lib/NetPacks.h"//todo: remove
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
-#include "mapHandler.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
-#include "gui/CAnimation.h"
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"
@@ -67,6 +66,7 @@
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
 #include "gui/NotificationHandler.h"
+#include "adventureMap/CInGameConsole.h"
 
 #include <SDL_events.h>
 

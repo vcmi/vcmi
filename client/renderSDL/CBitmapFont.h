@@ -9,20 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-class JsonNode;
-class Point;
-
-VCMI_LIB_NAMESPACE_END
-
-struct SDL_Surface;
-struct SDL_Color;
-
-typedef struct _TTF_Font TTF_Font;
-
-class CBitmapFont;
-class CBitmapHanFont;
+#include "../render/IFont.h"
 
 class CBitmapFont : public IFont
 {

@@ -11,7 +11,8 @@
 
 #include "../../lib/FunctionList.h"
 #include "../widgets/Images.h"
-#include "../gui/CAnimation.h"
+#include "../render/CAnimation.h"
+#include "../render/IImage.h"
 
 #include <SDL_pixels.h>
 

@@ -11,7 +11,7 @@
 #include "CVideoHandler.h"
 
 #include "gui/CGuiHandler.h"
-#include "gui/SDL_Extensions.h"
+#include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
 

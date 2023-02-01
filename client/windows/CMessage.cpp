@@ -11,16 +11,15 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "CGameInfo.h"
-#include "gui/SDL_Extensions.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "CBitmapHandler.h"
-#include "gui/CAnimation.h"
+#include "../CGameInfo.h"
+#include "../../lib/CGeneralTextHandler.h"
 
-#include "widgets/CComponent.h"
-#include "windows/InfoWindows.h"
-#include "widgets/Buttons.h"
-#include "widgets/TextControls.h"
+#include "../windows/InfoWindows.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
+#include "../widgets/TextControls.h"
+#include "../render/CAnimation.h"
+#include "../render/IImage.h"
 
 #include <SDL_surface.h>
 

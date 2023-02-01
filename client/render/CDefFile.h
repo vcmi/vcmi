@@ -9,29 +9,10 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../../lib/vcmi_endian.h"
 
-#ifdef IN
-#undef IN
-#endif
-
-#ifdef OUT
-#undef OUT
-#endif
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class JsonNode;
-class Rect;
-class Point;
-
-VCMI_LIB_NAMESPACE_END
-
-struct SDL_Surface;
+class IImageLoader;
 struct SDL_Color;
-class CDefFile;
-class ColorFilter;
-
 
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
@@ -62,8 +43,7 @@ public:
 	~CDefFile();
 
 	//load frame as SDL_Surface
-	template<class ImageLoader>
-	void loadFrame(size_t frame, size_t group, ImageLoader &loader) const;
+	void loadFrame(size_t frame, size_t group, IImageLoader &loader) const;
 
 	const std::map<size_t, size_t> getEntries() const;
 };

@@ -9,34 +9,38 @@
  */
 #pragma once
 
-#include "../widgets/AdventureMapClasses.h"
-#include "CWindowObject.h"
+#include "../gui/CIntObject.h"
 
-#include "../widgets/TextControls.h"
-#include "../widgets/Buttons.h"
+#include "../../lib/int3.h"
+#include "../../lib/GameConstants.h"
 
-#include "../../lib/spells/ViewSpellInt.h"
+#include "CTerrainRect.h"
+#include "CResDataBar.h"
+#include "CList.h"
+#include "CInfoBar.h"
+#include "CMinimap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct CGPath;
-struct CGPathNode;
+class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
-class CSpell;
+class CArmedInstance;
 class IShipyard;
+struct CGPathNode;
+struct ObjectPosInfo;
 
 VCMI_LIB_NAMESPACE_END
 
-class CCallback;
-class CAdvMapInt;
-class CHeroWindow;
-enum class EMapAnimRedrawStatus;
-class CFadeAnimation;
+class CButton;
+class IImage;
+class CAnimImage;
+class CGStatusBar;
+class CAdvMapPanel;
+class CAdvMapWorldViewPanel;
+class CAnimation;
 
 struct MapDrawingInfo;
-
-/*****************************/
 
 enum class EAdvMapMode
 {

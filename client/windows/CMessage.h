@@ -9,11 +9,13 @@
  */
 #pragma once
 
-#include "Graphics.h"
+#include "../render/Graphics.h"
+#include "../../lib/GameConstants.h"
 
 struct SDL_Surface;
 class CInfoWindow;
 class CComponent;
+
 
 /// Class which draws formatted text messages and generates chat windows
 class CMessage

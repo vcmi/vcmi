@@ -9,33 +9,9 @@
  */
 #pragma once
 
-#include "../widgets/AdventureMapClasses.h"
-#include "CWindowObject.h"
+#include "../windows/CWindowObject.h"
 
-#include "../widgets/TextControls.h"
-#include "../widgets/Buttons.h"
-
-#include "../../lib/spells/ViewSpellInt.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-struct CGPath;
-struct CGPathNode;
-class CGHeroInstance;
-class CGTownInstance;
-class CSpell;
-class IShipyard;
-
-VCMI_LIB_NAMESPACE_END
-
-class CCallback;
-class CAdvMapInt;
-class CHeroWindow;
-enum class EMapAnimRedrawStatus;
-class CFadeAnimation;
-
-struct MapDrawingInfo;
-
+class CButton;
 
 /// Adventure options dialog where you can view the world, dig, play the replay of the last turn,...
 class CAdventureOptions : public CWindowObject

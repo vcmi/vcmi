@@ -7,16 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
-#include "Fonts.h"
+#include "IFont.h"
 
-#include <SDL_ttf.h>
-
-#include "SDL_Extensions.h"
-#include "../../lib/JsonNode.h"
-#include "../../lib/vcmi_endian.h"
-#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/Point.h"
 #include "../../lib/CGeneralTextHandler.h"
+//
 
 size_t IFont::getStringWidth(const std::string & data) const
 {

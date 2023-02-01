@@ -9,43 +9,21 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../render/IImageLoader.h"
 
-#ifdef IN
-#undef IN
-#endif
-
-#ifdef OUT
-#undef OUT
-#endif
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class JsonNode;
-class Rect;
-class Point;
-
-VCMI_LIB_NAMESPACE_END
-
-struct SDL_Surface;
-struct SDL_Color;
-class CDefFile;
-class ColorFilter;
-
-
-class SDLImageLoader
+class SDLImageLoader : public IImageLoader
 {
 	SDLImage * image;
 	ui8 * lineStart;
 	ui8 * position;
 public:
 	//load size raw pixels from data
-	inline void Load(size_t size, const ui8 * data);
+	void load(size_t size, const ui8 * data);
 	//set size pixels to color
-	inline void Load(size_t size, ui8 color=0);
-	inline void EndLine();
+	void load(size_t size, ui8 color=0);
+	void endLine();
 	//init image with these sizes and palette
-	inline void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
+	void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
 
 	SDLImageLoader(SDLImage * Img);
 	~SDLImageLoader();

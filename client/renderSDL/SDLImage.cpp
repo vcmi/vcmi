@@ -8,19 +8,17 @@
  *
  */
 #include "StdInc.h"
-#include "CAnimation.h"
+#include "SDLImage.h"
 
+#include "SDLImageLoader.h"
 #include "SDL_Extensions.h"
-#include "ColorFilter.h"
 
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
+#include "../render/ColorFilter.h"
+#include "../render/CBitmapHandler.h"
+#include "../render/CDefFile.h"
+#include "../render/Graphics.h"
 
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/ISimpleResourceLoader.h"
 #include "../../lib/JsonNode.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/vcmi_endian.h"
 
 #include <SDL_surface.h>
 

@@ -7,45 +7,24 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
-#include "AdventureMapClasses.h"
+#include "CList.h"
 
-#include <SDL_timer.h>
+#include "CAdvMapInt.h"
 
-#include "MiscWidgets.h"
-#include "CComponent.h"
-#include "Images.h"
-
-#include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CPlayerInterface.h"
-#include "../mainmenu/CMainMenu.h"
-
-#include "../gui/CGuiHandler.h"
-#include "../gui/SDL_PixelAccess.h"
-#include "../gui/CAnimation.h"
-
+#include "../widgets/Images.h"
+#include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
-#include "../windows/CAdvmapInterface.h"
+#include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
+#include "../gui/CGuiHandler.h"
 
-#include "../battle/BattleInterfaceClasses.h"
-#include "../battle/BattleInterface.h"
-
-#include "../../CCallback.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
-#include "ClientCommandManager.h"
-
-#include <SDL_surface.h>
-#include <SDL_keyboard.h>
-#include <SDL_events.h>
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | RCLICK | HOVER),

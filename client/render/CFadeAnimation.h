@@ -9,8 +9,6 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
-
 #ifdef IN
 #undef IN
 #endif
@@ -20,17 +18,10 @@
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-class JsonNode;
-class Rect;
 class Point;
-
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct SDL_Color;
-class CDefFile;
-class ColorFilter;
 
 const float DEFAULT_DELTA = 0.05f;
 

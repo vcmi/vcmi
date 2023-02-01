@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../lib/ResourceSet.h"
-#include "gui/CIntObject.h"
+#include "../../lib/ResourceSet.h"
+#include "../gui/CIntObject.h"
 
 class CLabel;
 class CAnimImage;

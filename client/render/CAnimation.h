@@ -11,26 +11,12 @@
 
 #include "../../lib/GameConstants.h"
 
-#ifdef IN
-#undef IN
-#endif
-
-#ifdef OUT
-#undef OUT
-#endif
-
 VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
-class Rect;
-class Point;
-
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
-struct SDL_Color;
 class CDefFile;
-class ColorFilter;
+class IImage;
 
 /// Class for handling animation
 class CAnimation

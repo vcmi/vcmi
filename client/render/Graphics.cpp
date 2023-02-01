@@ -18,11 +18,15 @@
 #include <vcmi/SkillService.h>
 #include <vcmi/spells/Service.h>
 
+#include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/CBitmapFont.h"
+#include "../renderSDL/CBitmapHanFont.h"
+#include "../renderSDL/CTrueTypeFont.h"
+#include "../render/CAnimation.h"
+#include "../render/IImage.h"
+
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
-#include "gui/SDL_Extensions.h"
-#include "gui/CAnimation.h"
-#include "../lib/CThreadHelper.h"
 #include "../lib/CModHandler.h"
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"

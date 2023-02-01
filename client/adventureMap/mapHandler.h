@@ -10,9 +10,9 @@
 #pragma once
 
 
-#include "../lib/int3.h"
-#include "../lib/spells/ViewSpellInt.h"
-#include "../lib/Rect.h"
+#include "../../lib/int3.h"
+#include "../../lib/spells/ViewSpellInt.h"
+#include "../../lib/Rect.h"
 
 #ifdef IN
 #undef IN

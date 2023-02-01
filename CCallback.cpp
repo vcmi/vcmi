@@ -21,7 +21,6 @@
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
 #include "lib/NetPacks.h"
-#include "client/mapHandler.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
 #include "lib/CPlayerState.h"

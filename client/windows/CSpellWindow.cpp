@@ -12,25 +12,22 @@
 
 #include "../../lib/ScopeGuard.h"
 
-#include "CAdvmapInterface.h"
 #include "GUIClasses.h"
 #include "InfoWindows.h"
 #include "CCastleInterface.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
-#include "../Graphics.h"
 
 #include "../battle/BattleInterface.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 

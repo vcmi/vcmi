@@ -9,32 +9,16 @@
  */
 #pragma once
 
-#include "ObjectLists.h"
-#include "../../lib/FunctionList.h"
+#include "../gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-class CArmedInstance;
-class CGGarrison;
-class CGObjectInstance;
-class CGHeroInstance;
-class CGTownInstance;
-struct Component;
-struct InfoAboutArmy;
-struct InfoAboutHero;
-struct InfoAboutTown;
-
+class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
 class CAnimation;
 class CAnimImage;
-class CShowableAnim;
 class CFilledTexture;
 class CButton;
-class CComponent;
-class CHeroTooltip;
-class CTownTooltip;
-class CTextBox;
 class IImage;
 
 /// simple panel that contains other displayable elements; used to separate groups of controls

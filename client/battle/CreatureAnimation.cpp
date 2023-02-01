@@ -13,9 +13,9 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../gui/Canvas.h"
-#include "../gui/ColorFilter.h"
-#include "../gui/SDL_Extensions.h"
+#include "../render/Canvas.h"
+#include "../render/ColorFilter.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };

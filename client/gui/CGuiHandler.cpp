@@ -13,14 +13,15 @@
 
 #include "CIntObject.h"
 #include "CursorHandler.h"
-#include "SDL_Extensions.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/CThreadHelper.h"
-#include "../../lib/CConfigHandler.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
+
+#include "../../lib/CThreadHelper.h"
+#include "../../lib/CConfigHandler.h"
 
 #include <SDL_render.h>
 #include <SDL_timer.h>

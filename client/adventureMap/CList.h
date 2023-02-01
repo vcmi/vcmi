@@ -9,33 +9,19 @@
  */
 #pragma once
 
-#include "ObjectLists.h"
+#include "../gui/CIntObject.h"
+
+#include "../widgets/ObjectLists.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CArmedInstance;
-class CGGarrison;
-class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
-struct Component;
-struct InfoAboutArmy;
-struct InfoAboutHero;
-struct InfoAboutTown;
 
 VCMI_LIB_NAMESPACE_END
 
-class CAnimation;
-class CAnimImage;
-class CShowableAnim;
-class CFilledTexture;
 class CButton;
-class CComponent;
-class CHeroTooltip;
-class CTownTooltip;
-class CTextBox;
-class IImage;
 
 /// Base UI Element for hero\town lists
 class CList : public CIntObject

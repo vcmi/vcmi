@@ -9,13 +9,11 @@
  */
 #pragma once
 
-class CAnimation;
-class IImage;
-struct SDL_Surface;
-struct SDL_Texture;
-struct SDL_Cursor;
-
 #include "../../lib/Point.h"
+
+class ICursor;
+class IImage;
+class CAnimation;
 
 namespace Cursor
 {

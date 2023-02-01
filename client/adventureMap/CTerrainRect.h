@@ -9,32 +9,15 @@
  */
 #pragma once
 
-#include "../widgets/AdventureMapClasses.h"
-#include "CWindowObject.h"
-
-#include "../widgets/TextControls.h"
-#include "../widgets/Buttons.h"
-
-#include "../../lib/spells/ViewSpellInt.h"
+#include "../gui/CIntObject.h"
+#include "../../lib/int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
 struct CGPath;
-struct CGPathNode;
-class CGHeroInstance;
-class CGTownInstance;
-class CSpell;
-class IShipyard;
-
 VCMI_LIB_NAMESPACE_END
 
-class CCallback;
-class CAdvMapInt;
-class CHeroWindow;
 enum class EMapAnimRedrawStatus;
 class CFadeAnimation;
-
-struct MapDrawingInfo;
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
 class CTerrainRect : public CIntObject

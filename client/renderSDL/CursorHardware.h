@@ -16,6 +16,7 @@ struct SDL_Texture;
 struct SDL_Cursor;
 
 #include "../../lib/Point.h"
+#include "../render/ICursor.h"
 
 class CursorHardware : public ICursor
 {

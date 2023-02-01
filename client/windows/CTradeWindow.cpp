@@ -10,11 +10,14 @@
 #include "StdInc.h"
 #include "CTradeWindow.h"
 
-#include "CAdvmapInterface.h"
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/TextAlignment.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

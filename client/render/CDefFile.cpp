@@ -7,22 +7,16 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #include "StdInc.h"
-#include "CAnimation.h"
+#include "CDefFile.h"
 
-#include "SDL_Extensions.h"
-#include "ColorFilter.h"
-
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
+#include "IImageLoader.h"
 
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/ISimpleResourceLoader.h"
-#include "../../lib/JsonNode.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/vcmi_endian.h"
+#include "../../lib/Point.h"
 
-#include <SDL_surface.h>
+#include <SDL_pixels.h>
 
 // Extremely simple file cache. TODO: smarter, more general solution
 class CFileCache
@@ -203,8 +197,7 @@ CDefFile::CDefFile(std::string Name):
 	}
 }
 
-template<class ImageLoader>
-void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
+void CDefFile::loadFrame(size_t frame, size_t group, IImageLoader &loader) const
 {
 	std::map<size_t, std::vector <size_t> >::const_iterator it;
 	it = offset.find(group);
@@ -250,9 +243,9 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			//pixel data is not compressed, copy data to surface
 			for(ui32 i=0; i<sprite.height; i++)
 			{
-				loader.Load(sprite.width, FDef + currentOffset);
+				loader.load(sprite.width, FDef + currentOffset);
 				currentOffset += sprite.width;
-				loader.EndLine();
+				loader.endLine();
 			}
 			break;
 		}
@@ -275,17 +268,17 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 
 					if(segmentType==0xFF)//Raw data
 					{
-						loader.Load(length, FDef + currentOffset);
+						loader.load(length, FDef + currentOffset);
 						currentOffset+=length;
 					}
 					else// RLE
 					{
-						loader.Load(length, segmentType);
+						loader.load(length, segmentType);
 					}
 					TotalRowLength += length;
 				}
 
-				loader.EndLine();
+				loader.endLine();
 			}
 			break;
 		}
@@ -305,16 +298,16 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 
 					if(code==7)//Raw data
 					{
-						loader.Load(length, FDef + currentOffset);
+						loader.load(length, FDef + currentOffset);
 						currentOffset += length;
 					}
 					else//RLE
 					{
-						loader.Load(length, code);
+						loader.load(length, code);
 					}
 					TotalRowLength+=length;
 				}
-				loader.EndLine();
+				loader.endLine();
 			}
 			break;
 		}
@@ -333,16 +326,16 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 
 					if(code==7)//Raw data
 					{
-						loader.Load(length, FDef + currentOffset);
+						loader.load(length, FDef + currentOffset);
 						currentOffset += length;
 					}
 					else//RLE
 					{
-						loader.Load(length, code);
+						loader.load(length, code);
 					}
 					TotalRowLength += length;
 				}
-				loader.EndLine();
+				loader.endLine();
 			}
 			break;
 		}

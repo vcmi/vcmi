@@ -10,7 +10,9 @@
 
 #include "StdInc.h"
 #include "SDLRWwrapper.h"
-#include "../lib/filesystem/CInputStream.h"
+
+#include "../../lib/filesystem/CInputStream.h"
+
 #include <SDL_rwops.h>
 
 static inline CInputStream* get_stream(SDL_RWops* context)

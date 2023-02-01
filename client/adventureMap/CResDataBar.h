@@ -9,32 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/AdventureMapClasses.h"
-#include "CWindowObject.h"
-
-#include "../widgets/TextControls.h"
-#include "../widgets/Buttons.h"
-
-#include "../../lib/spells/ViewSpellInt.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-struct CGPath;
-struct CGPathNode;
-class CGHeroInstance;
-class CGTownInstance;
-class CSpell;
-class IShipyard;
-
-VCMI_LIB_NAMESPACE_END
-
-class CCallback;
-class CAdvMapInt;
-class CHeroWindow;
-enum class EMapAnimRedrawStatus;
-class CFadeAnimation;
-
-struct MapDrawingInfo;
+#include "../gui/CIntObject.h"
 
 /// Resources bar which shows information about how many gold, crystals,... you have
 /// Current date is displayed too
