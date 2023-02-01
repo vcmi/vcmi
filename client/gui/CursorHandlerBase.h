@@ -112,57 +112,6 @@ namespace Cursor
 	};
 }
 
-class ICursor
-{
-public:
-	virtual ~ICursor() = default;
-
-	virtual void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) = 0;
-	virtual void setCursorPosition( const Point & newPos ) = 0;
-	virtual void render() = 0;
-	virtual void setVisible( bool on) = 0;
-};
-
-class CursorHardware : public ICursor
-{
-	std::shared_ptr<IImage> cursorImage;
-
-	SDL_Cursor * cursor;
-
-public:
-	CursorHardware();
-	~CursorHardware();
-
-	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
-	void setCursorPosition( const Point & newPos ) override;
-	void render() override;
-	void setVisible( bool on) override;
-};
-
-class CursorSoftware : public ICursor
-{
-	std::shared_ptr<IImage> cursorImage;
-
-	SDL_Texture * cursorTexture;
-	SDL_Surface * cursorSurface;
-
-	Point pos;
-	Point pivot;
-	bool needUpdate;
-	bool visible;
-
-	void createTexture(const Point & dimensions);
-	void updateTexture();
-public:
-	CursorSoftware();
-	~CursorSoftware();
-
-	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
-	void setCursorPosition( const Point & newPos ) override;
-	void render() override;
-	void setVisible( bool on) override;
-};
-
 /// handles mouse cursor
 class CursorHandler final
 {
