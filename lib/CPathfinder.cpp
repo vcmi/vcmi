@@ -1234,8 +1234,8 @@ int CPathfinderHelper::getMovementCost(
 	int ret = hero->getTileCost(*dt, *ct, ti);
 	if(hero->boat != nullptr && dt->terType->isWater())
 	{
-		if(ct->hasFavorableWinds() && dt->hasFavorableWinds())
-			ret = static_cast<int>(ret * 0.666);
+		if(ct->hasFavorableWinds())
+			ret = static_cast<int>(ret * 2.0 / 3);
 	}
 	else if(ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(Bonus::FLYING_MOVEMENT));
