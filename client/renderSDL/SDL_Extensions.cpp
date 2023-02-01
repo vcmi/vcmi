@@ -11,24 +11,20 @@
 #include "SDL_Extensions.h"
 
 #include "SDL_PixelAccess.h"
-//
-//#include "../CGameInfo.h"
-//#include "../CMessage.h"
+
 #include "../render/Graphics.h"
-//#include "../CMT.h"
-//
-//#include <SDL_version.h>
+
 #include <SDL_render.h>
 #include <SDL_video.h>
 #include <SDL_events.h>
-//
-//#ifdef VCMI_APPLE
-//#include <dispatch/dispatch.h>
-//#endif
-//
-//#ifdef VCMI_IOS
-//#include "ios/utils.h"
-//#endif
+
+#ifdef VCMI_APPLE
+#include <dispatch/dispatch.h>
+#endif
+
+#ifdef VCMI_IOS
+#include "ios/utils.h"
+#endif
 
 const SDL_Color Colors::YELLOW = { 229, 215, 123, SDL_ALPHA_OPAQUE };
 const SDL_Color Colors::WHITE = { 255, 243, 222, SDL_ALPHA_OPAQUE };
