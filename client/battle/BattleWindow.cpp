@@ -553,6 +553,11 @@ void BattleWindow::blockUI(bool on)
 	}
 }
 
+boost::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
+{
+	return queue->getHoveredUnitIdIfAny();
+}
+
 void BattleWindow::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);

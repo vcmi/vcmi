@@ -784,6 +784,14 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 void StackQueue::show(SDL_Surface * to)
 {
+	auto unitIdsToHighlight = owner.stacksController->getHoveredStacksUnitIds();
+
+	for(auto & stackBox : stackBoxes)
+	{
+		bool isBoundUnitCurrentlyHovered = vstd::contains(unitIdsToHighlight, stackBox->getBoundUnitID());
+		stackBox->toggleHighlight(isBoundUnitCurrentlyHovered);
+	}
+
 	if (embedded)
 		showAll(to);
 	CIntObject::show(to);
@@ -812,8 +820,21 @@ int32_t StackQueue::getSiegeShooterIconID()
 	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
+boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
+{
+	for(const auto & stackBox : stackBoxes)
+	{
+		if(stackBox->hovered || stackBox->mouseState(EIntObjMouseBtnType::RIGHT))
+		{
+			return stackBox->getBoundUnitID();
+		}
+	}
+
+	return boost::none;
+}
+
 StackQueue::StackBox::StackBox(StackQueue * owner):
-	owner(owner)
+	CIntObject(RCLICK | HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -843,6 +864,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 {
 	if(unit)
 	{
+		boundUnitID = unit->unitId();
 		background->colorize(unit->unitOwner());
 		icon->visible = true;
 
@@ -877,6 +899,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 	else
 	{
+		boundUnitID = boost::none;
 		background->colorize(PlayerColor::NEUTRAL);
 		icon->visible = false;
 		icon->setFrame(0);
@@ -885,4 +908,22 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if(stateIcon)
 			stateIcon->visible = false;
 	}
+}
+
+boost::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
+{
+	return boundUnitID;
+}
+
+void StackQueue::StackBox::toggleHighlight(bool value)
+{
+	highlighted = value;
+}
+
+void StackQueue::StackBox::show(SDL_Surface *to)
+{
+	if(highlighted)
+		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 }, 2);
+
+	CIntObject::show(to);
 }

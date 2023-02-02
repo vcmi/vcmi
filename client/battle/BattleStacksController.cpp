@@ -896,6 +896,12 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	if(owner.getAnimationCondition(EAnimationEvents::ACTION) == true)
 		return {};
 
+	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
+	if(hoveredQueueUnitId.is_initialized())
+	{
+		return { owner.curInt->cb->battleGetStackByID(hoveredQueueUnitId.value(), true) };
+	}
+
 	auto hoveredHex = owner.fieldController->getHoveredHex();
 
 	if (!hoveredHex.isValid())
@@ -937,4 +943,15 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	}
 
 	return {};
+}
+
+const std::vector<uint32_t> BattleStacksController::getHoveredStacksUnitIds() const
+{
+	auto result = std::vector<uint32_t>();
+	for (auto const * stack : mouseHoveredStacks)
+	{
+		result.push_back(stack->unitId());
+	}
+
+	return result;
 }

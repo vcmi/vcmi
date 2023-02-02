@@ -70,7 +70,7 @@ class BattleStacksController
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
-	/// stacks below mouse pointer (multiple stacks possible while spellcasting), used for border animation
+	/// stacks or their battle queue images below mouse pointer (multiple stacks possible while spellcasting), used for border animation
 	std::vector<const CStack *> mouseHoveredStacks;
 
 	///when animation is playing, we should wait till the end to make the next stack active; nullptr of none
@@ -144,6 +144,7 @@ public:
 
 	const CStack* getActiveStack() const;
 	const CStack* getSelectedStack() const;
+	const std::vector<uint32_t> getHoveredStacksUnitIds() const;
 
 	void update();
 
