@@ -445,14 +445,14 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			lastClickTime = SDL_GetTicks();
 
 			if(!doubleClicked)
-				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, true);
+				handleMouseButtonClick(lclickable, MouseButton::LEFT, true);
 			break;
 		}
 		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+			handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
 			break;
 		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, true);
+			handleMouseButtonClick(mclickable, MouseButton::MIDDLE, true);
 			break;
 		default:
 			break;
@@ -491,13 +491,13 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			switch(current.button.button)
 			{
 			case SDL_BUTTON_LEFT:
-				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
+				handleMouseButtonClick(lclickable, MouseButton::LEFT, false);
 				break;
 			case SDL_BUTTON_RIGHT:
-				handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+				handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
 				break;
 			case SDL_BUTTON_MIDDLE:
-				handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
+				handleMouseButtonClick(mclickable, MouseButton::MIDDLE, false);
 				break;
 			}
 		}
@@ -529,7 +529,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		{
 			convertTouchToMouse(&current);
 			handleMouseMotion(current);
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+			handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
 		}
 #endif //VCMI_IOS
 	}
@@ -553,14 +553,14 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		{
 			convertTouchToMouse(&current);
 			handleMouseMotion(current);
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+			handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
 			multifinger = fingerCount != 0;
 		}
 #endif //VCMI_IOS
 	}
 } //event end
 
-void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed)
+void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
 {
 	auto hlp = interestedObjs;
 	for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)

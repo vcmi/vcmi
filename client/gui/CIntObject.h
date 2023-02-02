@@ -9,8 +9,9 @@
  */
 #pragma once
 
-#include "../../lib/Rect.h"
+#include "MouseButton.h"
 #include "../render/Graphics.h"
+#include "../../lib/Rect.h"
 
 struct SDL_Surface;
 class CGuiHandler;
@@ -61,9 +62,6 @@ public:
 	virtual ~IShowActivatable(){};
 };
 
-enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
-//typedef ui16 ActivityFlag;
-
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
@@ -73,7 +71,7 @@ class CIntObject : public IShowActivatable //interface object
 	int toNextTick;
 	int timerDelay;
 
-	std::map<EIntObjMouseBtnType, bool> currentMouseState;
+	std::map<MouseButton, bool> currentMouseState;
 
 	void onTimer(int timePassed);
 
@@ -107,10 +105,10 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
-	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
+	void updateMouseState(MouseButton btn, bool state) { currentMouseState[btn] = state; }
+	bool mouseState(MouseButton btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
-	virtual void click(EIntObjMouseBtnType btn, tribool down, bool previousState);
+	virtual void click(MouseButton btn, tribool down, bool previousState);
 	virtual void clickLeft(tribool down, bool previousState) {}
 	virtual void clickRight(tribool down, bool previousState) {}
 	virtual void clickMiddle(tribool down, bool previousState) {}

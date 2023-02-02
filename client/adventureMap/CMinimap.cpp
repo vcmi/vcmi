@@ -231,7 +231,7 @@ void CMinimap::hover(bool on)
 
 void CMinimap::mouseMoved(const Point & cursorPosition)
 {
-	if(mouseState(EIntObjMouseBtnType::LEFT))
+	if(mouseState(MouseButton::LEFT))
 		moveAdvMapSelection();
 }
 

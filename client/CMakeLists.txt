@@ -136,6 +136,7 @@ set(client_HEADERS
 	gui/CIntObject.h
 	gui/CursorHandler.h
 	gui/InterfaceObjectConfigurable.h
+	gui/MouseButton.h
 	gui/NotificationHandler.h
 	gui/TextAlignment.h
 

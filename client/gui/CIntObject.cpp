@@ -146,18 +146,18 @@ void CIntObject::deactivate(ui16 what)
 	GH.handleElementDeActivate(this, what);
 }
 
-void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState)
+void CIntObject::click(MouseButton btn, tribool down, bool previousState)
 {
 	switch(btn)
 	{
 	default:
-	case EIntObjMouseBtnType::LEFT:
+	case MouseButton::LEFT:
 		clickLeft(down, previousState);
 		break;
-	case EIntObjMouseBtnType::MIDDLE:
+	case MouseButton::MIDDLE:
 		clickMiddle(down, previousState);
 		break;
-	case EIntObjMouseBtnType::RIGHT:
+	case MouseButton::RIGHT:
 		clickRight(down, previousState);
 		break;
 	}
@@ -348,8 +348,8 @@ void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 	if(vstd::contains(assignedKeys,key.keysym.sym)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
 	{
-		bool prev = mouseState(EIntObjMouseBtnType::LEFT);
-		updateMouseState(EIntObjMouseBtnType::LEFT, key.state == SDL_PRESSED);
+		bool prev = mouseState(MouseButton::LEFT);
+		updateMouseState(MouseButton::LEFT, key.state == SDL_PRESSED);
 		clickLeft(key.state == SDL_PRESSED, prev);
 
 	}

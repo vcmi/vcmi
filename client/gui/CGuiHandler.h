@@ -9,8 +9,10 @@
  */
 #pragma once
 
+#include "MouseButton.h"
 #include "../../lib/Point.h"
-#include "SDL_keycode.h"
+
+#include <SDL_keycode.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,7 +30,6 @@ class CIntObject;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
-enum class EIntObjMouseBtnType;
 
 // TODO: event handling need refactoring
 enum EUserEvent
@@ -42,15 +43,6 @@ enum EUserEvent
 	CAMPAIGN_START_SCENARIO,
 	FORCE_QUIT, //quit client without question
 	INTERFACE_CHANGED
-};
-
-enum class MouseButton
-{
-	LEFT   = 1,
-	MIDDLE = 2,
-	RIGHT  = 3,
-	EXTRA1 = 4,
-	EXTRA2 = 5
 };
 
 // A fps manager which holds game updates at a constant rate
@@ -101,7 +93,7 @@ private:
 	CIntObjectList textInterested;
 
 
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
+	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
 	void handleCurrentEvent(SDL_Event &current);
 	void handleMouseMotion(const SDL_Event & current);
