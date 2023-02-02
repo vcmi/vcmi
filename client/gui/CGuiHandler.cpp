@@ -118,7 +118,7 @@ void CGuiHandler::popInt(std::shared_ptr<IShowActivatable> top)
 		listInt.front()->activate();
 	totalRedraw();
 
-	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
+	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
@@ -137,7 +137,7 @@ void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	objsToBlit.push_back(newInt);
 	totalRedraw();
 
-	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
+	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::popInts(int howMany)
@@ -160,7 +160,7 @@ void CGuiHandler::popInts(int howMany)
 	}
 	fakeMouseMove();
 
-	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
+	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
@@ -825,11 +825,11 @@ bool CGuiHandler::amIGuiThread()
 	return inGuiThread.get() && *inGuiThread;
 }
 
-void CGuiHandler::pushSDLEvent(int type, int usercode)
+void CGuiHandler::pushUserEvent(EUserEvent usercode)
 {
 	SDL_Event event;
-	event.type = type;
-	event.user.code = usercode;	// not necessarily used
+	event.type = SDL_USEREVENT;
+	event.user.code = static_cast<int32_t>(usercode);
 	SDL_PushEvent(&event);
 }
 

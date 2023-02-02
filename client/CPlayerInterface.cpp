@@ -2139,12 +2139,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
 	else
-		sendCustomEvent(EUserEvent::RETURN_TO_MAIN_MENU);
-}
-
-void CPlayerInterface::sendCustomEvent( int code )
-{
-	CGuiHandler::pushSDLEvent(SDL_USEREVENT, code);
+		GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
@@ -2268,7 +2263,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ GH.pushUserEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

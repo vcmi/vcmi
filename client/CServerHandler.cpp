@@ -657,7 +657,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
 {
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
-	event.user.code = EUserEvent::CAMPAIGN_START_SCENARIO;
+	event.user.code = static_cast<int32_t>(EUserEvent::CAMPAIGN_START_SCENARIO);
 	if(cs)
 		event.user.data1 = CMemorySerializer::deepCopy(*cs.get()).release();
 	else
@@ -824,7 +824,7 @@ void CServerHandler::threadHandleConnection()
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
+				CGuiHandler::pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 			}
 			else
 			{

@@ -792,7 +792,7 @@ void CAdvMapInt::keyDown(const SDL_Keycode & key)
 		if(isActive() && GH.isKeyboardCtrlDown())
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
-				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
+				[](){ GH.pushUserEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero

@@ -63,7 +63,7 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
-#include <SDL_events.h>
+#include <SDL_video.h>
 
 using namespace CSDL_Ext;
 
@@ -610,7 +610,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -620,7 +620,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
 }
 
 void CSystemOptionsWindow::bloadf()
@@ -637,13 +637,13 @@ void CSystemOptionsWindow::bsavef()
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(EUserEvent::RESTART_GAME); }, 0);
 }
 
-void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
+void CSystemOptionsWindow::closeAndPushEvent(EUserEvent code)
 {
 	close();
-	GH.pushSDLEvent(eventType, code);
+	GH.pushUserEvent(code);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)

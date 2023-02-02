@@ -43,6 +43,8 @@ class CTextBox;
 class CResDataBar;
 class CHeroWithMaybePickedArtifact;
 
+enum class EUserEvent;
+
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CStatusbarWindow
 {
@@ -234,7 +236,7 @@ private:
 
 	void selectGameRes();
 	void setGameRes(int index);
-	void closeAndPushEvent(int eventType, int code = 0);
+	void closeAndPushEvent(EUserEvent code);
 
 public:
 	CSystemOptionsWindow();

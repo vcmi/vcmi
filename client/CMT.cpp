@@ -54,7 +54,7 @@
 #include <SDL.h>
 
 #ifdef VCMI_WINDOWS
-#include "SDL_syswm.h"
+#include <SDL_syswm.h>
 #endif
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -949,7 +949,7 @@ static void handleEvent(SDL_Event & ev)
 	}
 	else if(ev.type == SDL_USEREVENT)
 	{
-		switch(ev.user.code)
+		switch(static_cast<EUserEvent>(ev.user.code))
 		{
 		case EUserEvent::FORCE_QUIT:
 			{
@@ -1050,7 +1050,7 @@ static void handleEvent(SDL_Event & ev)
 static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
-	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::FULLSCREEN_TOGGLED); });
+	resChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
 	GH.mainFPSmng->init();

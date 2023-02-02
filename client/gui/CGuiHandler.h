@@ -32,7 +32,7 @@ class IShowActivatable;
 class IShowable;
 
 // TODO: event handling need refactoring
-enum EUserEvent
+enum class EUserEvent
 {
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
@@ -176,7 +176,7 @@ public:
 	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
-	static void pushSDLEvent(int type, int usercode = 0);
+	static void pushUserEvent(EUserEvent usercode);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };
