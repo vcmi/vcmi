@@ -971,7 +971,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 	heroList.redraw();
 }
 
-void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
+void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 {
 #if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(swipeEnabled)
@@ -980,9 +980,9 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
 	// don't scroll if there is no window in focus - these events don't seem to correspond to the actual mouse movement
-	if(!CSDL_Ext::isCtrlKeyDown() && isActive() && sEvent.windowID != 0 && mode == EAdvMapMode::NORMAL)
+	if(!CSDL_Ext::isCtrlKeyDown() && isActive() && mode == EAdvMapMode::NORMAL)
 	{
-		if(sEvent.x<15)
+		if(cursorPosition.x<15)
 		{
 			scrollingDir |= LEFT;
 		}
@@ -990,7 +990,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 		{
 			scrollingDir &= ~LEFT;
 		}
-		if(sEvent.x>screen->w-15)
+		if(cursorPosition.x>screen->w-15)
 		{
 			scrollingDir |= RIGHT;
 		}
@@ -998,7 +998,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 		{
 			scrollingDir &= ~RIGHT;
 		}
-		if(sEvent.y<15)
+		if(cursorPosition.y<15)
 		{
 			scrollingDir |= UP;
 		}
@@ -1006,7 +1006,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 		{
 			scrollingDir &= ~UP;
 		}
-		if(sEvent.y>screen->h-15)
+		if(cursorPosition.y>screen->h-15)
 		{
 			scrollingDir |= DOWN;
 		}

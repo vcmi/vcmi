@@ -159,7 +159,7 @@ public:
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
 	void keyPressed(const SDL_KeyboardEvent & key) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	bool isActive();
 
 	bool isHeroSleeping(const CGHeroInstance *hero);

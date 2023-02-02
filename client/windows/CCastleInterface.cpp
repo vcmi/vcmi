@@ -241,11 +241,11 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	}
 }
 
-void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CBuildingRect::mouseMoved (const Point & cursorPosition)
 {
-	if(area && pos.isInside(sEvent.x, sEvent.y))
+	if(area && pos.isInside(cursorPosition.x, cursorPosition.y))
 	{
-		if(area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
+		if(area->isTransparent(cursorPosition - pos.topLeft())) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{

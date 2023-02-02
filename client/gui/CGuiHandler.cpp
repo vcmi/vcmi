@@ -203,7 +203,12 @@ void CGuiHandler::handleEvents()
 	{
 		continueEventHandling = true;
 		SDL_Event currentEvent = SDLEventsQueue.front();
-		cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
+
+		if (currentEvent.type == SDL_MOUSEMOTION)
+		{
+			cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
+			mouseButtonsMask = currentEvent.motion.state;
+		}
 		SDLEventsQueue.pop();
 
 		// In a sequence of mouse motion events, skip all but the last one.
@@ -546,7 +551,9 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 		elem->hovered = true;
 	}
 
-	handleMoveInterested(current.motion);
+	// do not send motion events for events outside our window
+	//if (current.motion.windowID == 0)
+		handleMoveInterested(current.motion);
 }
 
 void CGuiHandler::simpleRedraw()
@@ -566,7 +573,7 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 	{
 		if(elem->strongInterest || Rect::createAround(elem->pos, 1).isInside( motion.x, motion.y)) //checking bounds including border fixes bug #2476
 		{
-			(elem)->mouseMoved(motion);
+			(elem)->mouseMoved(Point(motion.x, motion.y));
 		}
 	}
 }
@@ -612,13 +619,16 @@ void CGuiHandler::renderFrame()
 
 
 CGuiHandler::CGuiHandler()
-	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false),
-    multifinger(false)
+	: lastClick(-500, -500)
+	, lastClickTime(0)
+	, defActionsDef(0)
+	, captureChildren(false)
+	, multifinger(false)
+	, mouseButtonsMask(0)
+	, continueEventHandling(true)
+	, curInt(nullptr)
+	, statusbar(nullptr)
 {
-	continueEventHandling = true;
-	curInt = nullptr;
-	statusbar = nullptr;
-
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new CFramerateManager(60);
 	//do not init CFramerateManager here --AVS
@@ -640,6 +650,23 @@ void CGuiHandler::breakEventHandling()
 const Point & CGuiHandler::getCursorPosition() const
 {
 	return cursorPosition;
+}
+
+bool CGuiHandler::isMouseButtonPressed() const
+{
+	return mouseButtonsMask > 0;
+}
+
+bool CGuiHandler::isMouseButtonPressed(MouseButton button) const
+{
+	static_assert(static_cast<uint32_t>(MouseButton::LEFT)   == SDL_BUTTON_LEFT,   "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::MIDDLE) == SDL_BUTTON_MIDDLE, "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::RIGHT)  == SDL_BUTTON_RIGHT,  "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
+
+	uint32_t index = static_cast<uint32_t>(button);
+	return mouseButtonsMask & SDL_BUTTON(index);
 }
 
 void CGuiHandler::drawFPSCounter()

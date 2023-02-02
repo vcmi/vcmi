@@ -43,6 +43,15 @@ enum EUserEvent
 	INTERFACE_CHANGED
 };
 
+enum class MouseButton
+{
+	LEFT   = 1,
+	MIDDLE = 2,
+	RIGHT  = 3,
+	EXTRA1 = 4,
+	EXTRA2 = 5
+};
+
 // A fps manager which holds game updates at a constant rate
 class CFramerateManager
 {
@@ -71,6 +80,7 @@ public:
 
 private:
 	Point cursorPosition;
+	uint32_t mouseButtonsMask;
 
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
@@ -107,7 +117,14 @@ public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
+	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
+
+	/// returns true if at least one mouse button is pressed
+	bool isMouseButtonPressed() const;
+
+	/// returns true if specified mouse button is pressed
+	bool isMouseButtonPressed(MouseButton button) const;
 
 	IUpdateable *curInt;
 

@@ -273,7 +273,7 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void showAll(SDL_Surface * to) override;
 
 	 /// @param position coordinates of slider

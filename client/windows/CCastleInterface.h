@@ -68,7 +68,7 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };

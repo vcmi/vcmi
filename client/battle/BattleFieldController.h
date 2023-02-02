@@ -62,7 +62,7 @@ class BattleFieldController : public CIntObject
 
 	BattleHex::EDir selectAttackDirection(BattleHex myNumber, const Point & point);
 
-	void mouseMoved(const SDL_MouseMotionEvent &event) override;
+	void mouseMoved(const Point & cursorPosition) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 

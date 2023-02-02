@@ -229,7 +229,7 @@ void CMinimap::hover(bool on)
 		GH.statusbar->clear();
 }
 
-void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
+void CMinimap::mouseMoved(const Point & cursorPosition)
 {
 	if(mouseState(EIntObjMouseBtnType::LEFT))
 		moveAdvMapSelection();

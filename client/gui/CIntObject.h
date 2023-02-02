@@ -19,7 +19,6 @@ class CPicture;
 struct SDL_KeyboardEvent;
 struct SDL_TextInputEvent;
 struct SDL_TextEditingEvent;
-struct SDL_MouseMotionEvent;
 
 using boost::logic::tribool;
 
@@ -130,7 +129,7 @@ public:
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent){}
+	virtual void mouseMoved (const Point & cursorPosition){}
 
 	//time handling
 	void setTimer(int msToTrigger);//set timer delay and activate timer if needed.
