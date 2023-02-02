@@ -15,6 +15,7 @@
 
 #include "BitmapHandler.h"
 
+#include "../lib/vcmi_endian.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
