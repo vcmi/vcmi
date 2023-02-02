@@ -475,7 +475,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		PUBLIC ${MAIN_LIB_DIR}/..
 		PUBLIC ${MAIN_LIB_DIR}/../include
 		PUBLIC ${MAIN_LIB_DIR}
-		PRIVATE ${SDL2_INCLUDE_DIR}
 	)
 
 	if(WIN32)
