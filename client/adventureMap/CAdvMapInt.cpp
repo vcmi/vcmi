@@ -739,7 +739,7 @@ void CAdvMapInt::keyReleased(const SDL_Keycode &key)
 	}
 }
 
-void CAdvMapInt::keyDown(const SDL_Keycode & key)
+void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 {
 	if (mode == EAdvMapMode::WORLD_VIEW)
 		return;

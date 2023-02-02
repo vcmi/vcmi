@@ -160,7 +160,7 @@ public:
 	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 	void keyReleased(const SDL_Keycode & key) override;
 	void mouseMoved (const Point & cursorPosition) override;
 	bool isActive();

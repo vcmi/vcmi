@@ -2170,7 +2170,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyDown (const SDL_Keycode & key)
+void CObjectListWindow::keyPressed (const SDL_Keycode & key)
 {
 	int sel = static_cast<int>(selected);
 

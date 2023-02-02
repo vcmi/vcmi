@@ -66,7 +66,7 @@ public:
 	void toggleMode();
 
 	void clickLeft(tribool down, bool previousState) override;
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 
 	void onDoubleClick() override;
 

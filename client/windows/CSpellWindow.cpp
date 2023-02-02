@@ -420,7 +420,7 @@ void CSpellWindow::turnPageRight()
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
-void CSpellWindow::keyDown(const SDL_Keycode & key)
+void CSpellWindow::keyPressed(const SDL_Keycode & key)
 {
 	if(key == SDLK_ESCAPE ||  key == SDLK_RETURN)
 	{

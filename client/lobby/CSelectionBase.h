@@ -120,7 +120,7 @@ public:
 
 	CChatBox(const Rect & rect);
 
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 	void addNewMessage(const std::string & text);
 };
 

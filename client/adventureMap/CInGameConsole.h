@@ -26,7 +26,7 @@ public:
 	std::string enteredText;
 	void show(SDL_Surface * to) override;
 	void print(const std::string &txt);
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;

@@ -549,7 +549,7 @@ void CTextInput::clickLeft(tribool down, bool previousState)
 		giveFocus();
 }
 
-void CTextInput::keyDown(const SDL_Keycode & key)
+void CTextInput::keyPressed(const SDL_Keycode & key)
 {
 	if(!focus)
 		return;

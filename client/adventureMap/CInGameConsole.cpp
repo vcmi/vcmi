@@ -91,7 +91,7 @@ void CInGameConsole::print(const std::string &txt)
 	}
 }
 
-void CInGameConsole::keyDown (const SDL_Keycode & key)
+void CInGameConsole::keyPressed (const SDL_Keycode & key)
 {
 	if(!captureAllKeys && key != SDLK_TAB) return; //because user is not entering any text
 

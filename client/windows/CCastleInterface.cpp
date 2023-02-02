@@ -1255,7 +1255,7 @@ void CCastleInterface::recreateIcons()
 		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 507), town, (int)i+4));
 }
 
-void CCastleInterface::keyDown(const SDL_Keycode & key)
+void CCastleInterface::keyPressed(const SDL_Keycode & key)
 {
 	switch(key)
 	{

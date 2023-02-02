@@ -164,7 +164,7 @@ void BattleWindow::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleWindow::keyDown(const SDL_Keycode & key)
+void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
 	if(key == SDLK_q)
 	{

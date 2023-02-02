@@ -195,7 +195,7 @@ public:
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 };
 
 class CSystemOptionsWindow : public CWindowObject

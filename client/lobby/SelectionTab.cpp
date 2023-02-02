@@ -278,7 +278,7 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void SelectionTab::keyDown(const SDL_Keycode & key)
+void SelectionTab::keyPressed(const SDL_Keycode & key)
 {
 	int moveBy = 0;
 	switch(key)

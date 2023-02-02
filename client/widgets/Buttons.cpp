@@ -778,7 +778,7 @@ void CSlider::wheelScrolled(bool down, bool in)
 	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
 }
 
-void CSlider::keyDown(const SDL_Keycode & key)
+void CSlider::keyPressed(const SDL_Keycode & key)
 {
 	int moveDest = value;
 	switch(key)

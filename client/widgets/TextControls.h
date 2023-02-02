@@ -225,7 +225,7 @@ public:
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
 	void clickLeft(tribool down, bool previousState) override;
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 
 	bool captureThisKey(const SDL_Keycode & key) override;
 

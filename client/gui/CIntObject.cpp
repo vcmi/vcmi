@@ -342,7 +342,7 @@ CKeyShortcut::CKeyShortcut(std::set<int> Keys)
 	:assignedKeys(Keys)
 {}
 
-void CKeyShortcut::keyDown(const SDL_Keycode & key)
+void CKeyShortcut::keyPressed(const SDL_Keycode & key)
 {
 	if(vstd::contains(assignedKeys,key)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))

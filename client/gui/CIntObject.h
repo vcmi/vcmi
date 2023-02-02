@@ -119,7 +119,7 @@ public:
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyDown(const SDL_Keycode & key){}
+	virtual void keyPressed(const SDL_Keycode & key){}
 	virtual void keyReleased(const SDL_Keycode & key){}
 	virtual bool captureThisKey(const SDL_Keycode & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
@@ -203,7 +203,7 @@ public:
 	CKeyShortcut();
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 	void keyReleased(const SDL_Keycode & key) override;
 
 };

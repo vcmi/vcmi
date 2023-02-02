@@ -245,7 +245,7 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyDown(const SDL_Keycode & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 
 	void close();
 	void addBuilding(BuildingID bid);

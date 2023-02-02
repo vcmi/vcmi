@@ -318,7 +318,7 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
-void CChatBox::keyDown(const SDL_Keycode & key)
+void CChatBox::keyPressed(const SDL_Keycode & key)
 {
 	if(key == SDLK_RETURN && inputBox->getText().size())
 	{
@@ -326,7 +326,7 @@ void CChatBox::keyDown(const SDL_Keycode & key)
 		inputBox->setText("");
 	}
 	else
-		inputBox->keyDown(key);
+		inputBox->keyPressed(key);
 }
 
 void CChatBox::addNewMessage(const std::string & text)
