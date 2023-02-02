@@ -23,6 +23,7 @@
 #include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
+#include "CMT.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CQuestLog.h"
@@ -67,7 +68,6 @@
 #include "../lib/CGameState.h"
 #include "gui/NotificationHandler.h"
 #include "adventureMap/CInGameConsole.h"
-#include "renderSDL/SDL_Extensions.h"
 
 #include <SDL_events.h>
 
@@ -87,8 +87,6 @@
 	if (LOCPLINT != this)			\
 		return;						\
 	RETURN_IF_QUICK_COMBAT
-
-using namespace CSDL_Ext;
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;

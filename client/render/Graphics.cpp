@@ -42,8 +42,6 @@
 
 #include <SDL_surface.h>
 
-using namespace CSDL_Ext;
-
 Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
