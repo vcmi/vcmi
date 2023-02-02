@@ -616,7 +616,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4 / scrollSpeed)) == 0
-	   && ((GH.topInt().get() == this) || CSDL_Ext::isCtrlKeyDown()))
+	   && ((GH.topInt().get() == this) || GH.isKeyboardCtrlDown()))
 	{
 		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
 			position.x--;
@@ -769,7 +769,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			LOCPLINT->viewWorldMap();
 		return;
 	case SDLK_r:
-		if(isActive() && LOCPLINT->ctrlPressed())
+		if(isActive() && GH.isKeyboardCtrlDown())
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
@@ -814,7 +814,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(key.state != SDL_PRESSED || GH.topInt()->type & BLOCK_ADV_HOTKEYS)
 				return;
 
-			if(LOCPLINT->ctrlPressed()) //CTRL + T => open marketplace
+			if(GH.isKeyboardCtrlDown()) //CTRL + T => open marketplace
 			{
 				//check if we have any marketplace
 				const CGTownInstance *townWithMarket = nullptr;
@@ -858,7 +858,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			int3 dir = directions[k];
 
-			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
+			if(!isActive() || GH.isKeyboardCtrlDown())//ctrl makes arrow move screen, not hero
 			{
 				Dir = (dir.x<0 ? LEFT  : 0) |
 					  (dir.x>0 ? RIGHT : 0) |
@@ -895,7 +895,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	}
 	if(Dir && key.state == SDL_PRESSED //arrow is pressed
-		&& LOCPLINT->ctrlPressed()
+		&& GH.isKeyboardCtrlDown()
 	)
 		scrollingDir |= Dir;
 	else
@@ -980,7 +980,7 @@ void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
 	// don't scroll if there is no window in focus - these events don't seem to correspond to the actual mouse movement
-	if(!CSDL_Ext::isCtrlKeyDown() && isActive() && mode == EAdvMapMode::NORMAL)
+	if(!GH.isKeyboardCtrlDown() && isActive() && mode == EAdvMapMode::NORMAL)
 	{
 		if(cursorPosition.x<15)
 		{
@@ -1245,7 +1245,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(mapPos);
 		assert(pathNode);
 
-		if(LOCPLINT->altPressed() && pathNode->reachable()) //overwrite status bar text with movement info
+		if(GH.isKeyboardAltDown() && pathNode->reachable()) //overwrite status bar text with movement info
 		{
 			ShowMoveDetailsInStatusbar(*hero, *pathNode);
 		}

@@ -464,7 +464,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		}
 
 		//alt + 1234567890-= casts spell from 1 - 12 slot
-		if(myInt->altPressed())
+		if(GH.isKeyboardAltDown())
 		{
 			SDL_Keycode hlpKey = key.keysym.sym;
 			if(CGuiHandler::isNumKey(hlpKey, false))

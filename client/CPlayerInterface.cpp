@@ -1043,7 +1043,7 @@ void CPlayerInterface::showComp(const Component &comp, std::string message)
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
 	}
@@ -1067,7 +1067,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is LOCPLINT=%d", playerID % text % (this==LOCPLINT));
 	waitWhileDialog();
 
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
 	}
@@ -1328,16 +1328,6 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 }
 
-bool CPlayerInterface::shiftPressed() const
-{
-	return isShiftKeyDown();
-}
-
-bool CPlayerInterface::altPressed() const
-{
-	return isAltKeyDown();
-}
-
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1556,11 +1546,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			makingTurn = false;
 		}
 	}
-}
-
-bool CPlayerInterface::ctrlPressed() const
-{
-	return isCtrlKeyDown();
 }
 
 const CArmedInstance * CPlayerInterface::getSelection()
@@ -1990,7 +1975,7 @@ void CPlayerInterface::acceptTurn()
 	adventureInt->updateNextHero(nullptr);
 	adventureInt->showAll(screen);
 
-	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();

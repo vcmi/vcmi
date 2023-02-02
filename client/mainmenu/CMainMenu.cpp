@@ -484,7 +484,7 @@ void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText("Connecting...");
 	buttonOk->block(true);
-	CSDL_Ext::stopTextInput();
+	GH.stopTextInput();
 
 	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }

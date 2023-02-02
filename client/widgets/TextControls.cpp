@@ -353,14 +353,14 @@ void CGStatusBar::setEnteringMode(bool on)
 	{
 		assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
-		CSDL_Ext::startTextInput(pos);
+		GH.startTextInput(pos);
 		setText(consoleText);
 	}
 	else
 	{
 		assert(enteringText == true);
 		alignment = ETextAlignment::CENTER;
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 		setText(hoverText);
 	}
 	enteringText = on;
@@ -526,7 +526,7 @@ CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
 
 void CKeyboardFocusListener::focusGot()
 {
-	CSDL_Ext::startTextInput(textInput->pos);
+	GH.startTextInput(textInput->pos);
 	usageIndex++;
 }
 
@@ -534,7 +534,7 @@ void CKeyboardFocusListener::focusLost()
 {
 	if(0 == --usageIndex)
 	{
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 	}
 }
 

@@ -162,12 +162,12 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		CSDL_Ext::startTextInput(pos);
+		GH.startTextInput(pos);
 	}
 	else
 	{
 		assert(enteringText == true);
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 	}
 	enteringText = on;
 	redraw();

@@ -262,6 +262,59 @@ void CGuiHandler::fakeMouseMove()
 	fakeMoveCursor(0, 0);
 }
 
+void CGuiHandler::startTextInput(const Rect & whereInput)
+{
+#ifdef VCMI_APPLE
+	dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+
+	// TODO ios: looks like SDL bug actually, try fixing there
+	auto renderer = SDL_GetRenderer(mainWindow);
+	float scaleX, scaleY;
+	SDL_Rect viewport;
+	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
+	SDL_RenderGetViewport(renderer, &viewport);
+
+#ifdef VCMI_IOS
+	const auto nativeScale = iOS_utils::screenScale();
+	scaleX /= nativeScale;
+	scaleY /= nativeScale;
+#endif
+
+	SDL_Rect rectInScreenCoordinates;
+	rectInScreenCoordinates.x = (viewport.x + whereInput.x) * scaleX;
+	rectInScreenCoordinates.y = (viewport.y + whereInput.y) * scaleY;
+	rectInScreenCoordinates.w = whereInput.w * scaleX;
+	rectInScreenCoordinates.h = whereInput.h * scaleY;
+
+	SDL_SetTextInputRect(&rectInScreenCoordinates);
+
+	if (SDL_IsTextInputActive() == SDL_FALSE)
+	{
+		SDL_StartTextInput();
+	}
+
+#ifdef VCMI_APPLE
+	});
+#endif
+}
+
+void CGuiHandler::stopTextInput()
+{
+#ifdef VCMI_APPLE
+	dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{
+		SDL_StopTextInput();
+	}
+
+#ifdef VCMI_APPLE
+	});
+#endif
+}
+
 void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 {
 	SDL_Event event;
@@ -285,9 +338,9 @@ void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 	SDL_RenderGetScale(mainRenderer, &xScale, &yScale);
 
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	CSDL_Ext::warpMouse(
+	moveCursorToPosition( Point(
 		(int)(sme.x * xScale) + (w - rLogicalWidth * xScale) / 2,
-		(int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2));
+		(int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2)));
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 
 	event.button = sme;
@@ -640,6 +693,27 @@ CGuiHandler::~CGuiHandler()
 {
 	delete mainFPSmng;
 	delete terminate_cond;
+}
+
+
+void CGuiHandler::moveCursorToPosition(const Point & position)
+{
+	SDL_WarpMouseInWindow(mainWindow, position.x, position.y);
+}
+
+bool CGuiHandler::isKeyboardCtrlDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+}
+
+bool CGuiHandler::isKeyboardAltDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+}
+
+bool CGuiHandler::isKeyboardShiftDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
 }
 
 void CGuiHandler::breakEventHandling()

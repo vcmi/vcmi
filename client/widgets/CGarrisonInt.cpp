@@ -336,7 +336,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				lastHeroStackSelected = true;
 			}
 
-			if((owner->getSplittingMode() || LOCPLINT->shiftPressed()) // split window
+			if((owner->getSplittingMode() || GH.isKeyboardShiftDown()) // split window
 				&& (!creature || creature == selection->creature))
 			{
 				refr = split();

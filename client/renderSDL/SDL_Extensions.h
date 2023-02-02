@@ -86,10 +86,6 @@ ColorRGBA fromSDL(const SDL_Color & color);
 SDL_Color toSDL(const ColorRGBA & color);
 
 void setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
-void warpMouse(int x, int y);
-bool isCtrlKeyDown();
-bool isAltKeyDown();
-bool isShiftKeyDown();
 void setAlpha(SDL_Surface * bg, int value);
 
 template<typename IntType>
@@ -172,9 +168,6 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const Rect & rect, int mode );
 	void applyEffect(SDL_Surface * surf, const Rect & rect, int mode); //mode: 0 - sepia, 1 - grayscale
-
-	void startTextInput(const Rect & where);
-	void stopTextInput();
 
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 

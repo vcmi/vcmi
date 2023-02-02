@@ -260,7 +260,7 @@ void CursorHandler::centerCursor()
 	pos = screenSize / 2 - getPivotOffset();
 
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	CSDL_Ext::warpMouse(pos.x, pos.y);
+	GH.moveCursorToPosition(pos);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 
 	cursor->setCursorPosition(pos);

@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 template <typename T> struct CondSh;
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -125,6 +126,17 @@ public:
 
 	/// returns true if specified mouse button is pressed
 	bool isMouseButtonPressed(MouseButton button) const;
+
+	/// returns true if chosen keyboard key is currently pressed down
+	bool isKeyboardAltDown() const;
+	bool isKeyboardCtrlDown() const;
+	bool isKeyboardShiftDown() const;
+
+	void startTextInput(const Rect & where);
+	void stopTextInput();
+
+	/// moves mouse pointer into specified position inside vcmi window
+	void moveCursorToPosition(const Point & position);
 
 	IUpdateable *curInt;
 
