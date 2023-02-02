@@ -11,7 +11,7 @@
 
 #include "VcmiSettingsWindow.h"
 
-#include "../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourceID.h"
 #include "gui/CGuiHandler.h"
 
 VcmiSettingsWindow::VcmiSettingsWindow() : InterfaceObjectConfigurable()

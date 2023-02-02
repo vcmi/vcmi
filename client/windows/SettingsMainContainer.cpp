@@ -15,10 +15,10 @@
 
 #include "SystemOptionsWindow.h"
 #include "VcmiSettingsWindow.h"
+#include "BattleOptionsWindow.h"
 
 #include "../../lib/filesystem/ResourceID.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CGuiHandler.h"
 #include "../lobby/CSavingScreen.h"
 #include "../widgets/Images.h"

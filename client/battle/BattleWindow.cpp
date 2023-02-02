@@ -35,6 +35,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
+#include "windows/BattleOptionsWindow.h"
 
 #include <SDL_surface.h>
 #include <SDL_events.h>

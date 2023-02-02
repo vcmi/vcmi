@@ -14,6 +14,7 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
+#include "gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -135,24 +136,6 @@ private:
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
 	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
-};
-
-/// Class which manages the battle options window
-class BattleOptionsWindow : public CWindowObject
-{
-private:
-	std::shared_ptr<CButton> setToDefault;
-	std::shared_ptr<CButton> exit;
-	std::shared_ptr<CToggleGroup> animSpeeds;
-	std::vector<std::shared_ptr<CLabel>> labels;
-	std::vector<std::shared_ptr<CToggleButton>> toggles;
-
-	int getAnimSpeed() const;
-public:
-	BattleOptionsWindow(BattleInterface * owner);
-
-	void bDefaultf(); //default button callback
-	void bExitf(); //exit button callback
 };
 
 /// Class which is responsible for showing the battle result window

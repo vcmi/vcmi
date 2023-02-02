@@ -93,6 +93,7 @@ set(client_SRCS
 	windows/SystemOptionsWindow.cpp
 	windows/VcmiSettingsWindow.cpp
 	windows/SettingsMainContainer.cpp
+	windows/BattleOptionsWindow.cpp
 
 	CGameInfo.cpp
 	CMT.cpp
@@ -206,6 +207,7 @@ set(client_HEADERS
 	windows/SystemOptionsWindow.h
 	windows/VcmiSettingsWindow.h
 	windows/SettingsMainContainer.h
+	windows/BattleOptionsWindow.h
 
 	CGameInfo.h
 	CMT.h
