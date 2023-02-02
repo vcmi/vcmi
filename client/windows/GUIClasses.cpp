@@ -2170,14 +2170,11 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
+void CObjectListWindow::keyDown (const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED)
-		return;
-
 	int sel = static_cast<int>(selected);
 
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	break; case SDLK_UP:
 		sel -=1;

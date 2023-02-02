@@ -56,6 +56,8 @@ class CAdvMapInt : public CIntObject
 	//Return object that must be active at this tile (=clickable)
 	const CGObjectInstance *getActiveObject(const int3 &tile);
 
+	boost::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
+
 public:
 	CAdvMapInt();
 
@@ -158,7 +160,8 @@ public:
 	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyDown(const SDL_Keycode & key) override;
+	void keyReleased(const SDL_Keycode & key) override;
 	void mouseMoved (const Point & cursorPosition) override;
 	bool isActive();
 

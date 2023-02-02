@@ -91,13 +91,11 @@ void CInGameConsole::print(const std::string &txt)
 	}
 }
 
-void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
+void CInGameConsole::keyDown (const SDL_Keycode & key)
 {
-	if(key.type != SDL_KEYDOWN) return;
+	if(!captureAllKeys && key != SDLK_TAB) return; //because user is not entering any text
 
-	if(!captureAllKeys && key.keysym.sym != SDLK_TAB) return; //because user is not entering any text
-
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_TAB:
 	case SDLK_ESCAPE:
@@ -106,7 +104,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 			{
 				endEnteringText(false);
 			}
-			else if(SDLK_TAB == key.keysym.sym)
+			else if(SDLK_TAB == key)
 			{
 				startEnteringText();
 			}

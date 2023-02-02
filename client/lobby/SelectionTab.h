@@ -66,7 +66,8 @@ public:
 	void toggleMode();
 
 	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyDown(const SDL_Keycode & key) override;
+
 	void onDoubleClick() override;
 
 	void filter(int size, bool selectFirst = false); //0 - all

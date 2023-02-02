@@ -403,7 +403,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		bool keysCaptured = false;
 		for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
 		{
-			if((*i)->captureThisEvent(key))
+			if((*i)->captureThisKey(key.keysym.sym))
 			{
 				keysCaptured = true;
 				break;
@@ -412,8 +412,13 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 
 		std::list<CIntObject*> miCopy = keyinterested;
 		for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
-			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisEvent(key)))
-				(**i).keyPressed(key);
+			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisKey(key.keysym.sym)))
+			{
+				if (key.state == SDL_PRESSED)
+					(**i).keyDown(key.keysym.sym);
+				if (key.state == SDL_RELEASED)
+					(**i).keyReleased(key.keysym.sym);
+			}
 	}
 	else if(current.type == SDL_MOUSEMOTION)
 	{

@@ -549,13 +549,12 @@ void CTextInput::clickLeft(tribool down, bool previousState)
 		giveFocus();
 }
 
-void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
+void CTextInput::keyDown(const SDL_Keycode & key)
 {
-
-	if(!focus || key.state != SDL_PRESSED)
+	if(!focus)
 		return;
 
-	if(key.keysym.sym == SDLK_TAB)
+	if(key == SDLK_TAB)
 	{
 		moveFocus();
 		GH.breakEventHandling();
@@ -564,7 +563,7 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 
 	bool redrawNeeded = false;
 
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
 		return;
@@ -603,9 +602,9 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 		cb(text);
 }
 
-bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
+bool CTextInput::captureThisKey(const SDL_Keycode & key)
 {
-	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER || key.keysym.sym == SDLK_ESCAPE)
+	if(key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE)
 		return false;
 
 	return true;

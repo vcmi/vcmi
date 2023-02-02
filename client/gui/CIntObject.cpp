@@ -16,7 +16,6 @@
 
 #include <SDL_pixels.h>
 #include <SDL_surface.h>
-#include <SDL_events.h>
 
 IShowActivatable::IShowActivatable()
 {
@@ -325,7 +324,7 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 	return pos;
 }
 
-bool CIntObject::captureThisEvent(const SDL_KeyboardEvent & key)
+bool CIntObject::captureThisKey(const SDL_Keycode & key)
 {
 	return captureAllKeys;
 }
@@ -343,14 +342,26 @@ CKeyShortcut::CKeyShortcut(std::set<int> Keys)
 	:assignedKeys(Keys)
 {}
 
-void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
+void CKeyShortcut::keyDown(const SDL_Keycode & key)
 {
-	if(vstd::contains(assignedKeys,key.keysym.sym)
-	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
+	if(vstd::contains(assignedKeys,key)
+	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
 	{
 		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, key.state == SDL_PRESSED);
-		clickLeft(key.state == SDL_PRESSED, prev);
+		updateMouseState(MouseButton::LEFT, true);
+		clickLeft(true, prev);
+
+	}
+}
+
+void CKeyShortcut::keyReleased(const SDL_Keycode & key)
+{
+	if(vstd::contains(assignedKeys,key)
+	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
+	{
+		bool prev = mouseState(MouseButton::LEFT);
+		updateMouseState(MouseButton::LEFT, false);
+		clickLeft(false, prev);
 
 	}
 }

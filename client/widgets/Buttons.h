@@ -270,7 +270,7 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyDown(const SDL_Keycode & key) override;
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void mouseMoved (const Point & cursorPosition) override;

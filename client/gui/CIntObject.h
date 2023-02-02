@@ -17,7 +17,7 @@ struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
 
-struct SDL_KeyboardEvent;
+typedef int32_t SDL_Keycode;
 struct SDL_TextInputEvent;
 struct SDL_TextEditingEvent;
 
@@ -119,8 +119,9 @@ public:
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyPressed(const SDL_KeyboardEvent & key){}
-	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	virtual void keyDown(const SDL_Keycode & key){}
+	virtual void keyReleased(const SDL_Keycode & key){}
+	virtual bool captureThisKey(const SDL_Keycode & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
 	virtual void textInputed(const SDL_TextInputEvent & event){};
 	virtual void textEdited(const SDL_TextEditingEvent & event){};
@@ -202,7 +203,9 @@ public:
 	CKeyShortcut();
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
-	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
+	void keyDown(const SDL_Keycode & key) override;
+	void keyReleased(const SDL_Keycode & key) override;
+
 };
 
 class WindowBase : public CIntObject

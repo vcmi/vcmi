@@ -48,7 +48,6 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 #include <SDL_surface.h>
-#include <SDL_events.h>
 
 void BattleConsole::showAll(SDL_Surface * to)
 {

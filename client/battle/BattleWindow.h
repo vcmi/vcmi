@@ -79,7 +79,7 @@ public:
 
 	void activate() override;
 	void deactivate() override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyDown(const SDL_Keycode & key) override;
 	void clickRight(tribool down, bool previousState) override;
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;

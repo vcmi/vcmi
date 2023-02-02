@@ -28,7 +28,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/CPathfinder.h"
 
-#include <SDL_events.h>
+#include <SDL_surface.h>
 
 #define ADVOPT (conf.go()->ac)
 

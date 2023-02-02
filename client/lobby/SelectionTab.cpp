@@ -35,8 +35,6 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/serializer/Connection.h"
 
-#include <SDL_events.h>
-
 bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb)
 {
 	auto a = aaa->mapHeader.get();
@@ -280,13 +278,10 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
+void SelectionTab::keyDown(const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED)
-		return;
-
 	int moveBy = 0;
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_UP:
 		moveBy = -1;

@@ -43,7 +43,6 @@
 #include "../../lib/TerrainHandler.h"
 
 #include <SDL_surface.h>
-#include <SDL_events.h>
 
 #define ADVOPT (conf.go()->ac)
 
@@ -616,7 +615,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4 / scrollSpeed)) == 0
-	   && ((GH.topInt().get() == this) || GH.isKeyboardCtrlDown()))
+	   && GH.isKeyboardCtrlDown())
 	{
 		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
 			position.x--;
@@ -712,21 +711,46 @@ void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
 	centerOn(obj->getSightCenter(), fade);
 }
 
-void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
+void CAdvMapInt::keyReleased(const SDL_Keycode &key)
 {
-
 	if (mode == EAdvMapMode::WORLD_VIEW)
 		return;
 
-	ui8 Dir = 0;
-	SDL_Keycode k = key.keysym.sym;
+	switch (key)
+	{
+		case SDLK_s:
+			if(isActive())
+				GH.pushIntT<CSavingScreen>();
+			return;
+		default:
+		{
+			auto direction = keyToMoveDirection(key);
+
+			if (!direction)
+				return;
+
+			ui8 Dir = (direction->x<0 ? LEFT  : 0) |
+				  (direction->x>0 ? RIGHT : 0) |
+				  (direction->y<0 ? UP    : 0) |
+				  (direction->y>0 ? DOWN  : 0) ;
+
+			scrollingDir &= ~Dir;
+		}
+	}
+}
+
+void CAdvMapInt::keyDown(const SDL_Keycode & key)
+{
+	if (mode == EAdvMapMode::WORLD_VIEW)
+		return;
+
 	const CGHeroInstance *h = curHero(); //selected hero
 	const CGTownInstance *t = curTown(); //selected town
 
-	switch(k)
+	switch(key)
 	{
 	case SDLK_g:
-		if(key.state != SDL_PRESSED || GH.topInt()->type & BLOCK_ADV_HOTKEYS)
+		if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)
 			return;
 
 		{
@@ -750,13 +774,9 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive())
 			LOCPLINT->proposeLoadingGame();
 		return;
-	case SDLK_s:
-		if(isActive() && key.type == SDL_KEYUP)
-			GH.pushIntT<CSavingScreen>();
-		return;
 	case SDLK_d:
 		{
-			if(h && isActive() && LOCPLINT->makingTurn && key.state == SDL_PRESSED)
+			if(h && isActive() && LOCPLINT->makingTurn)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}
@@ -779,7 +799,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		{
 			if(!isActive())
 				return;
-			if(h && key.state == SDL_PRESSED)
+			if(h)
 			{
 				auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 				//TODO!!!!!!! possible freeze, when GS mutex is locked and network thread can't apply package
@@ -792,7 +812,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_RETURN:
 		{
-			if(!isActive() || !selection || key.state != SDL_PRESSED)
+			if(!isActive() || !selection)
 				return;
 			if(h)
 				LOCPLINT->openHeroWindow(h);
@@ -802,7 +822,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		}
 	case SDLK_ESCAPE:
 		{
-			if(isActive() || GH.topInt().get() != this || !spellBeingCasted || key.state != SDL_PRESSED)
+			if(isActive() || GH.topInt().get() != this || !spellBeingCasted)
 				return;
 
 			leaveCastingMode();
@@ -811,7 +831,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_t:
 		{
 			//act on key down if marketplace windows is not already opened
-			if(key.state != SDL_PRESSED || GH.topInt()->type & BLOCK_ADV_HOTKEYS)
+			if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)
 				return;
 
 			if(GH.isKeyboardCtrlDown()) //CTRL + T => open marketplace
@@ -840,37 +860,29 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		}
 	default:
 		{
-			static const int3 directions[] = {  int3(-1, +1, 0), int3(0, +1, 0), int3(+1, +1, 0),
-												int3(-1, 0, 0),  int3(0, 0, 0),  int3(+1, 0, 0),
-												int3(-1, -1, 0), int3(0, -1, 0), int3(+1, -1, 0) };
+			auto direction = keyToMoveDirection(key);
 
-			//numpad arrow
-			if(CGuiHandler::isArrowKey(k))
-				k = CGuiHandler::arrowToNum(k);
+			if (!direction)
+				return;
 
-			k -= SDLK_KP_1;
+			ui8 Dir = (direction->x<0 ? LEFT  : 0) |
+				  (direction->x>0 ? RIGHT : 0) |
+				  (direction->y<0 ? UP    : 0) |
+				  (direction->y>0 ? DOWN  : 0) ;
 
-			if(k < 0 || k > 8)
+			scrollingDir |= Dir;
+
+			//ctrl makes arrow move screen, not hero
+			if(GH.isKeyboardCtrlDown())
+				return;
+
+			if(!h || !isActive())
 				return;
 
 			if (!CGI->mh->canStartHeroMovement())
 				return;
 
-			int3 dir = directions[k];
-
-			if(!isActive() || GH.isKeyboardCtrlDown())//ctrl makes arrow move screen, not hero
-			{
-				Dir = (dir.x<0 ? LEFT  : 0) |
-					  (dir.x>0 ? RIGHT : 0) |
-					  (dir.y<0 ? UP    : 0) |
-					  (dir.y>0 ? DOWN  : 0) ;
-				break;
-			}
-
-			if(!h || key.state != SDL_PRESSED)
-				break;
-
-			if(k == 4)
+			if(*direction == Point(0,0))
 			{
 				centerOn(h);
 				return;
@@ -878,7 +890,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
-			int3 dst = h->visitablePos() + dir;
+			int3 dst = h->visitablePos() + int3(direction->x, direction->y, 0);
 			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(path, dst))
 			{
 				terrain.currentPath = nullptr;
@@ -894,13 +906,29 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 		return;
 	}
-	if(Dir && key.state == SDL_PRESSED //arrow is pressed
-		&& GH.isKeyboardCtrlDown()
-	)
-		scrollingDir |= Dir;
-	else
-		scrollingDir &= ~Dir;
 }
+
+boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
+{
+	switch (key) {
+		case SDLK_DOWN:  return Point( 0, +1);
+		case SDLK_LEFT:  return Point(-1,  0);
+		case SDLK_RIGHT: return Point(+1,  0);
+		case SDLK_UP:    return Point( 0, -1);
+
+		case SDLK_KP_1: return Point(-1, +1);
+		case SDLK_KP_2: return Point( 0, +1);
+		case SDLK_KP_3: return Point(+1, +1);
+		case SDLK_KP_4: return Point(-1,  0);
+		case SDLK_KP_5: return Point( 0,  0);
+		case SDLK_KP_6: return Point(+1,  0);
+		case SDLK_KP_7: return Point(-1, -1);
+		case SDLK_KP_8: return Point( 0, -1);
+		case SDLK_KP_9: return Point(+1, -1);
+	}
+	return boost::none;
+}
+
 void CAdvMapInt::handleRightClick(std::string text, tribool down)
 {
 	if(down)

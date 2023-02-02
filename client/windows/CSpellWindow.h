@@ -112,6 +112,7 @@ public:
 	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int pagesWithinCurrentTab();
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyDown(const SDL_Keycode & key) override;
+
 	void show(SDL_Surface * to) override;
 };

@@ -43,8 +43,6 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/serializer/Connection.h"
 
-#include <SDL_events.h>
-
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {
@@ -320,15 +318,15 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
-void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
+void CChatBox::keyDown(const SDL_Keycode & key)
 {
-	if(key.keysym.sym == SDLK_RETURN && key.state == SDL_PRESSED && inputBox->getText().size())
+	if(key == SDLK_RETURN && inputBox->getText().size())
 	{
 		CSH->sendMessage(inputBox->getText());
 		inputBox->setText("");
 	}
 	else
-		inputBox->keyPressed(key);
+		inputBox->keyDown(key);
 }
 
 void CChatBox::addNewMessage(const std::string & text)

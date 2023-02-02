@@ -1589,7 +1589,7 @@ void CPlayerInterface::update()
 
 	if (!adventureInt || adventureInt->isActive())
 		GH.simpleRedraw();
-	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || adventureInt->scrollingDir)
+	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || (adventureInt->scrollingDir && GH.isKeyboardCtrlDown()))
 		GH.totalRedraw(); //player forces map scrolling though interface is disabled
 	else
 		GH.simpleRedraw();
