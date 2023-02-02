@@ -12,21 +12,17 @@
 
 #include "MiscWidgets.h"
 
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
-#include "../gui/ColorFilter.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/IImage.h"
+#include "../render/CAnimation.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
-#include "../windows/CAdvmapInterface.h"
 
 #include "../../CCallback.h"
 

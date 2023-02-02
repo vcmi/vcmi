@@ -13,18 +13,20 @@
 #include "Buttons.h"
 #include "Images.h"
 
-#include "../CMessage.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
-#include "../widgets/AdventureMapClasses.h"
-
-#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../windows/CMessage.h"
+#include "../adventureMap/CInGameConsole.h"
+#include "../../lib/CGeneralTextHandler.h"
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
 
 #include <SDL_events.h>
+
+std::list<CFocusable*> CFocusable::focusables;
+CFocusable * CFocusable::inputWithFocus;
 
 std::string CLabel::visibleText()
 {

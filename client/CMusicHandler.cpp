@@ -13,7 +13,8 @@
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
-#include "SDLRWwrapper.h"
+#include "renderSDL/SDLRWwrapper.h"
+
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -21,6 +22,7 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/TerrainHandler.h"
+
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,

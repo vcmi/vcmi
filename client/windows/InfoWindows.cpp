@@ -10,23 +10,21 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
-#include "CAdvmapInterface.h"
-
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
-
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../windows/CMessage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/CursorHandler.h"
 
 #include "../../CCallback.h"
 

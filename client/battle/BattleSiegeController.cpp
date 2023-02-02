@@ -20,8 +20,8 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CAnimation.h"
-#include "../gui/Canvas.h"
+#include "../render/Canvas.h"
+#include "../render/IImage.h"
 
 #include "../../CCallback.h"
 #include "../../lib/NetPacks.h"

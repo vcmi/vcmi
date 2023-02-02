@@ -10,34 +10,36 @@
 #include "StdInc.h"
 #include "GUIClasses.h"
 
-#include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
-#include "CreatureCostBox.h"
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
-#include "../Graphics.h"
-#include "../mapHandler.h"
 #include "../CServerHandler.h"
 
+#include "../adventureMap/mapHandler.h"
+#include "../adventureMap/CResDataBar.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
 
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/TextAlignment.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CreatureCostBox.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/ObjectLists.h"
 
 #include "../lobby/CSavingScreen.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 
@@ -64,9 +66,6 @@
 #include <SDL_events.h>
 
 using namespace CSDL_Ext;
-
-std::list<CFocusable*> CFocusable::focusables;
-CFocusable * CFocusable::inputWithFocus;
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),

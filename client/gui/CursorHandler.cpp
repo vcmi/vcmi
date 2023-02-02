@@ -11,9 +11,14 @@
 #include "StdInc.h"
 #include "CursorHandler.h"
 
-#include "SDL_Extensions.h"
 #include "CGuiHandler.h"
-#include "CAnimation.h"
+#include "../renderSDL/CursorSoftware.h"
+#include "../renderSDL/CursorHardware.h"
+#include "../render/CAnimation.h"
+#include "../render/IImage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../CMT.h"
+
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_render.h>
@@ -311,148 +316,3 @@ void CursorHandler::show()
 	cursor->setVisible(true);
 }
 
-void CursorSoftware::render()
-{
-	//texture must be updated in the main (renderer) thread, but changes to cursor type may come from other threads
-	if (needUpdate)
-		updateTexture();
-
-	Point renderPos = pos - pivot;
-
-	SDL_Rect destRect;
-	destRect.x = renderPos.x;
-	destRect.y = renderPos.y;
-	destRect.w = 40;
-	destRect.h = 40;
-
-	SDL_RenderCopy(mainRenderer, cursorTexture, nullptr, &destRect);
-}
-
-void CursorSoftware::createTexture(const Point & dimensions)
-{
-	if(cursorTexture)
-		SDL_DestroyTexture(cursorTexture);
-
-	if (cursorSurface)
-		SDL_FreeSurface(cursorSurface);
-
-	cursorSurface = CSDL_Ext::newSurface(dimensions.x, dimensions.y);
-	cursorTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
-
-	SDL_SetSurfaceBlendMode(cursorSurface, SDL_BLENDMODE_NONE);
-	SDL_SetTextureBlendMode(cursorTexture, SDL_BLENDMODE_BLEND);
-}
-
-void CursorSoftware::updateTexture()
-{
-	Point dimensions(-1, -1);
-
-	if (!cursorSurface ||  Point(cursorSurface->w, cursorSurface->h) != cursorImage->dimensions())
-		createTexture(cursorImage->dimensions());
-
-	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENCY);
-
-	cursorImage->draw(cursorSurface);
-	SDL_UpdateTexture(cursorTexture, NULL, cursorSurface->pixels, cursorSurface->pitch);
-	needUpdate = false;
-}
-
-void CursorSoftware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
-{
-	assert(image != nullptr);
-	cursorImage = image;
-	pivot = pivotOffset;
-	needUpdate = true;
-}
-
-void CursorSoftware::setCursorPosition( const Point & newPos )
-{
-	pos = newPos;
-}
-
-void CursorSoftware::setVisible(bool on)
-{
-	visible = on;
-}
-
-CursorSoftware::CursorSoftware():
-	cursorTexture(nullptr),
-	cursorSurface(nullptr),
-	needUpdate(false),
-	visible(false),
-	pivot(0,0)
-{
-	SDL_ShowCursor(SDL_DISABLE);
-}
-
-CursorSoftware::~CursorSoftware()
-{
-	if(cursorTexture)
-		SDL_DestroyTexture(cursorTexture);
-
-	if (cursorSurface)
-		SDL_FreeSurface(cursorSurface);
-}
-
-CursorHardware::CursorHardware():
-	cursor(nullptr)
-{
-	SDL_ShowCursor(SDL_DISABLE);
-}
-
-CursorHardware::~CursorHardware()
-{
-	if(cursor)
-		SDL_FreeCursor(cursor);
-}
-
-void CursorHardware::setVisible(bool on)
-{
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-	if (on)
-		SDL_ShowCursor(SDL_ENABLE);
-	else
-		SDL_ShowCursor(SDL_DISABLE);
-#ifdef VCMI_APPLE
-	});
-#endif
-}
-
-void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
-{
-	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
-
-	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENCY);
-
-	image->draw(cursorSurface);
-
-	auto oldCursor = cursor;
-	cursor = SDL_CreateColorCursor(cursorSurface, pivotOffset.x, pivotOffset.y);
-
-	if (!cursor)
-		logGlobal->error("Failed to set cursor! SDL says %s", SDL_GetError());
-
-	SDL_FreeSurface(cursorSurface);
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-	SDL_SetCursor(cursor);
-
-	if (oldCursor)
-		SDL_FreeCursor(oldCursor);
-#ifdef VCMI_APPLE
-	});
-#endif
-}
-
-void CursorHardware::setCursorPosition( const Point & newPos )
-{
-	//no-op
-}
-
-void CursorHardware::render()
-{
-	//no-op
-}

@@ -22,11 +22,11 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../widgets/AdventureMapClasses.h"
-#include "../gui/CAnimation.h"
-#include "../gui/Canvas.h"
+#include "../render/Canvas.h"
+#include "../render/IImage.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"

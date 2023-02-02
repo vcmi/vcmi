@@ -10,24 +10,20 @@
 #include "StdInc.h"
 #include "CWindowObject.h"
 
-#include "CAdvmapInterface.h"
-
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
-
-#include "../gui/SDL_PixelAccess.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CAnimation.h"
-
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
+#include "../windows/CMessage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/SDL_PixelAccess.h"
+#include "../render/IImage.h"
 
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../../CCallback.h"

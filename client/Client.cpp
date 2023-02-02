@@ -13,6 +13,8 @@
 #include "CMusicHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/mapHandler.h"
 #include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
@@ -35,7 +37,6 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/JsonNode.h"
-#include "mapHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CCampaignScreen.h"
@@ -46,7 +47,6 @@
 #include "gui/CGuiHandler.h"
 #include "CServerHandler.h"
 #include "../lib/ScriptHandler.h"
-#include "windows/CAdvmapInterface.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID

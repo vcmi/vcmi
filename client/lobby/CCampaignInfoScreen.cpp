@@ -15,10 +15,8 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CPlayerInterface.h"
 
 CCampaignInfoScreen::CCampaignInfoScreen()

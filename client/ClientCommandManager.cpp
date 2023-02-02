@@ -12,6 +12,8 @@
 #include "ClientCommandManager.h"
 
 #include "Client.h"
+#include "adventureMap/CInGameConsole.h"
+#include "adventureMap/CAdvMapInt.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
@@ -20,14 +22,14 @@
 #include "../lib/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/StringConstants.h"
-#include "gui/CAnimation.h"
-#include "windows/CAdvmapInterface.h"
 #include "windows/CCastleInterface.h"
+#include "render/CAnimation.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CModHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "CMT.h"
 
 #ifdef SCRIPTING_ENABLED
 #include "../lib/ScriptHandler.h"

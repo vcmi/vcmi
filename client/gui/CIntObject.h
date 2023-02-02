@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../../lib/Rect.h"
-#include "../Graphics.h"
+#include "../render/Graphics.h"
 
 struct SDL_Surface;
 class CGuiHandler;

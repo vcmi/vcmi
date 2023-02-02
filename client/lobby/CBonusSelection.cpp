@@ -17,13 +17,10 @@
 #include "CSelectionBase.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CAnimation.h"
-#include "../gui/CGuiHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../mainmenu/CPrologEpilogVideo.h"
 #include "../widgets/CComponent.h"
@@ -33,6 +30,9 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../render/IImage.h"
+#include "../render/CAnimation.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"

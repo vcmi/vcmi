@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
 #include <SDL_pixels.h>

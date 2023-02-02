@@ -16,11 +16,12 @@
 #include "../gui/CursorHandler.h"
 
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CGameInfo.h"
-#include "../windows/CAdvmapInterface.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../adventureMap/CAdvMapInt.h"
 
 #include "../../CCallback.h"
 
