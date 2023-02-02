@@ -384,14 +384,6 @@ uint32_t CSDL_Ext::colorTouint32_t(const SDL_Color * color)
 	return ret;
 }
 
-void CSDL_Ext::update(SDL_Surface * what)
-{
-	if(!what)
-		return;
-	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
-		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
-}
-
 static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
 	for(int x = x1; x <= x2; x++)

@@ -738,7 +738,7 @@ boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
-		if(stackBox->hovered || stackBox->mouseState(EIntObjMouseBtnType::RIGHT))
+		if(stackBox->hovered || stackBox->mouseState(MouseButton::RIGHT))
 		{
 			return stackBox->getBoundUnitID();
 		}
