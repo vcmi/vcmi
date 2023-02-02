@@ -81,7 +81,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 	}
 	else
 	{
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#ifdef VCMI_ENDIAN_BIG
 		int bmask = 0xff0000;
 		int gmask = 0x00ff00;
 		int rmask = 0x0000ff;
