@@ -63,6 +63,8 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
+#include <SDL_surface.h>
+
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),
 	parent(window),
@@ -582,30 +584,8 @@ void CSystemOptionsWindow::setFullscreenMode( bool on)
 	}
 }
 
-void CSystemOptionsWindow::fillSupportedResolutions()
-{
-	supportedResolutions.clear();
-
-	// in game we can only change resolution, display is fixed
-	int displayID = SDL_GetWindowDisplayIndex(mainWindow);
-
-	int modesCount = SDL_GetNumDisplayModes(displayID);
-
-	for (int i =0; i < modesCount; ++i)
-	{
-		SDL_DisplayMode mode;
-		if (SDL_GetDisplayMode(displayID, i, &mode) != 0)
-			continue;
-
-		Point resolution(mode.w, mode.h);
-
-		supportedResolutions.push_back(resolution);
-	}
-}
-
 void CSystemOptionsWindow::fillSelectableResolutions()
 {
-	fillSupportedResolutions();
 	selectableResolutions.clear();
 
 	for(const auto & it : conf.guiOptions)
@@ -629,18 +609,12 @@ bool CSystemOptionsWindow::isResolutionSupported(const Point & resolution)
 
 bool CSystemOptionsWindow::isResolutionSupported(const Point & resolution, bool fullscreen)
 {
-#ifdef VCMI_IOS
-	// ios can use any resolution
-	bool canUseAllResolutions = true;
-#else
-	// in fullscreen only resolutions supported by monitor can be used
-	bool canUseAllResolutions = (fullscreen == false);
-#endif
-
-	if (canUseAllResolutions)
+	if (!fullscreen)
 		return true;
 
-	return vstd::contains(supportedResolutions, resolution);
+	auto supportedList = CSDL_Ext::getSupportedResolutions();
+
+	return CSDL_Ext::isResolutionSupported(supportedList, resolution);
 }
 
 void CSystemOptionsWindow::selectGameRes()

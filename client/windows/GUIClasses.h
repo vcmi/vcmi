@@ -238,7 +238,6 @@ private:
 	void bmainmenuf(); //return to main menu
 
 	void setFullscreenMode( bool on);
-	void fillSupportedResolutions();
 	void fillSelectableResolutions();
 	bool isResolutionSupported(const Point & resolution);
 	bool isResolutionSupported(const Point & resolution, bool fullscreen);

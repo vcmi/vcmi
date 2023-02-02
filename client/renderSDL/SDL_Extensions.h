@@ -130,6 +130,11 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	void applyEffectBpp( SDL_Surface * surf, const Rect & rect, int mode );
 	void applyEffect(SDL_Surface * surf, const Rect & rect, int mode); //mode: 0 - sepia, 1 - grayscale
 
+	bool isResolutionSupported(const std::vector<Point> & resolutions, const Point toTest );
+
+	std::vector<Point> getSupportedResolutions();
+	std::vector<Point> getSupportedResolutions( int displayIndex);
+
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 
 	///set key-color to 0,255,255
