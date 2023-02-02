@@ -45,6 +45,18 @@
 
 #include <SDL_events.h>
 
+static bool useCompactCreatureBox()
+{
+	//TODO: add UI for easier access
+	return settings["session"]["compactCreatureInfo"].isNumber() ? settings["session"]["compactCreatureInfo"].Bool() : false;
+}
+
+static bool useAvailableAmountAsCreatureLabel()
+{
+	//TODO: add UI for easier access
+	return settings["session"]["availableCreaturesAsLabel"].isNumber() ? settings["session"]["availableCreaturesAsLabel"].Bool() : false;
+}
+
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE, BUILDING_FRAME_TIME),
 	  parent(Par),
@@ -834,7 +846,10 @@ void CCastleBuildings::enterCastleGate()
 void CCastleBuildings::enterDwelling(int level)
 {
 	assert(level >= 0 && level < town->creatures.size());
-	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
+	auto recruitCb = [=](CreatureID id, int count)
+	{
+		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
+	};
 	GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, -87);
 }
 
@@ -966,10 +981,10 @@ void CCastleBuildings::openTownHall()
 	GH.pushIntT<CHallInterface>(town);
 }
 
-CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact, bool ShowAvailable):
+CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact, bool _showAvailable):
 	town(Town),
 	level(Level),
-	showAvailable(ShowAvailable)
+	showAvailable(_showAvailable)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos += position;
@@ -990,7 +1005,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 	if(showAvailable)
 		value = boost::lexical_cast<std::string>(town->creatures[level].first);
 	else
-		value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
+		value = std::string("+") + boost::lexical_cast<std::string>(town->creatureGrowth(level));
 
 	if(compact)
 	{
@@ -1015,7 +1030,7 @@ void CCreaInfo::update()
 		if(showAvailable)
 			value = boost::lexical_cast<std::string>(town->creatures[level].first);
 		else
-			value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
+			value = std::string("+") + boost::lexical_cast<std::string>(town->creatureGrowth(level));
 
 		if(value != label->getText())
 			label->setText(value);
@@ -1042,10 +1057,12 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		int offset = LOCPLINT->castleInt? (-87) : 0;
+
 		auto recruitCb = [=](CreatureID id, int count)
 		{
 			LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 		};
+
 		GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, offset);
 	}
 }
@@ -1070,6 +1087,11 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 		else
 			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
 	}
+}
+
+bool CCreaInfo::getShowAvailable()
+{
+	return showAvailable;
 }
 
 CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townHall)
@@ -1248,11 +1270,15 @@ void CCastleInterface::recreateIcons()
 
 	creainfo.clear();
 
-	for(size_t i=0; i<4; i++)
-		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 459), town, (int)i));
+	//TODO: GUI option for these
+	bool compactCreatureInfo = useCompactCreatureBox();
+	bool useAvailableCreaturesForLabel = useAvailableAmountAsCreatureLabel();
 
 	for(size_t i=0; i<4; i++)
-		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 507), town, (int)i+4));
+		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 459), town, (int)i, compactCreatureInfo, useAvailableCreaturesForLabel));
+
+	for(size_t i=0; i<4; i++)
+		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 507), town, (int)i+4, compactCreatureInfo, useAvailableCreaturesForLabel));
 }
 
 void CCastleInterface::keyPressed(const SDL_KeyboardEvent & key)
@@ -1276,6 +1302,17 @@ void CCastleInterface::keyPressed(const SDL_KeyboardEvent & key)
 		break;
 	default:
 		break;
+	}
+}
+
+void CCastleInterface::creaturesChangedEventHandler()
+{
+	for(auto creatureInfoBox : creainfo)
+	{
+		if(creatureInfoBox->getShowAvailable())
+		{
+			creatureInfoBox->update();
+		}
 	}
 }
 
@@ -1593,10 +1630,12 @@ std::string CFortScreen::getBgName(const CGTownInstance * town)
 		return "TPCASTL8";
 }
 
-void CFortScreen::creaturesChanged()
+void CFortScreen::creaturesChangedEventHandler()
 {
 	for(auto & elem : recAreas)
-		elem->creaturesChanged();
+		elem->creaturesChangedEventHandler();
+
+	LOCPLINT->castleInt->creaturesChangedEventHandler();
 }
 
 CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance * Town, int Level):
@@ -1686,7 +1725,7 @@ void CFortScreen::RecruitArea::hover(bool on)
 		GH.statusbar->clear();
 }
 
-void CFortScreen::RecruitArea::creaturesChanged()
+void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 {
 	if(availableCount)
 	{
