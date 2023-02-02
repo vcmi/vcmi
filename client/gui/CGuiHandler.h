@@ -177,6 +177,7 @@ public:
 	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
 	static void pushUserEvent(EUserEvent usercode);
+	static void pushUserEvent(EUserEvent usercode, void * userdata);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };

@@ -21,13 +21,6 @@
 
 #include "../../lib/CConfigHandler.h"
 
-#include <SDL_render.h>
-#include <SDL_events.h>
-
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
-
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
 	if (settings["video"]["cursor"].String() == "auto")
@@ -252,18 +245,6 @@ std::shared_ptr<IImage> CursorHandler::getCurrentImage()
 		return dndObject;
 
 	return cursors[static_cast<size_t>(type)]->getImage(frame);
-}
-
-void CursorHandler::centerCursor()
-{
-	Point screenSize {screen->w, screen->h};
-	pos = screenSize / 2 - getPivotOffset();
-
-	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	GH.moveCursorToPosition(pos);
-	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-
-	cursor->setCursorPosition(pos);
 }
 
 void CursorHandler::updateSpellcastCursor()

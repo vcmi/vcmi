@@ -178,7 +178,4 @@ public:
 
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);
-	/// Move cursor to screen center
-	void centerCursor();
-
 };

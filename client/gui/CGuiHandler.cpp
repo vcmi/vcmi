@@ -827,9 +827,15 @@ bool CGuiHandler::amIGuiThread()
 
 void CGuiHandler::pushUserEvent(EUserEvent usercode)
 {
+	pushUserEvent(usercode, nullptr);
+}
+
+void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
+{
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
 	event.user.code = static_cast<int32_t>(usercode);
+	event.user.data1 = userdata;
 	SDL_PushEvent(&event);
 }
 
