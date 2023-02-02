@@ -17,6 +17,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/Colors.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 
 #include "../../CCallback.h"

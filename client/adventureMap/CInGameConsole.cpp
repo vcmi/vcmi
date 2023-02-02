@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CInGameConsole.h"
 
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Colors.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"

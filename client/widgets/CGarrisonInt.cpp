@@ -14,11 +14,11 @@
 #include "TextControls.h"
 
 #include "../gui/CGuiHandler.h"
-
-#include "../CGameInfo.h"
-#include "../CPlayerInterface.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
+#include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
 

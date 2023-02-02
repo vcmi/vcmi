@@ -28,6 +28,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"

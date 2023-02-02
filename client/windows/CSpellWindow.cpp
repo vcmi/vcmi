@@ -28,6 +28,7 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/CAdvMapInt.h"
 #include "../render/CAnimation.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 

@@ -21,6 +21,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"

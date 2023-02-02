@@ -33,6 +33,7 @@
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"

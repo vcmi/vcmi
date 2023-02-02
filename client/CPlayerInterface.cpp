@@ -67,6 +67,7 @@
 #include "../lib/CGameState.h"
 #include "gui/NotificationHandler.h"
 #include "adventureMap/CInGameConsole.h"
+#include "renderSDL/SDL_Extensions.h"
 
 #include <SDL_events.h>
 

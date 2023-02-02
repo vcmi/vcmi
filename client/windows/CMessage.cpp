@@ -20,6 +20,7 @@
 #include "../widgets/TextControls.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include <SDL_surface.h>
 

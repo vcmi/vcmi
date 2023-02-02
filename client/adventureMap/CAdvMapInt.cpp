@@ -30,6 +30,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
