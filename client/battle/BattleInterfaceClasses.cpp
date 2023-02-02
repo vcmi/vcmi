@@ -283,13 +283,7 @@ void BattleHero::heroLeftClicked()
 
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		BattleHex hoveredHex = owner.fieldController->getHoveredHex();
-		//do nothing when any hex is hovered - hero's animation overlaps battlefield
-		if ( hoveredHex != BattleHex::INVALID )
-			return;
-
 		CCS->curh->set(Cursor::Map::POINTER);
-
 		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
