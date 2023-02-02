@@ -1,4 +1,5 @@
 # 1.1.1 -> 1.2.0
+(unreleased, changes for 1.1.1..c5508d3)
 
 ### GENERAL:
 * Implemented hardware cursor support
@@ -11,6 +12,8 @@
 
 ### MAP EDITOR:
 * Added translations to German, Polish, Russian, Ukrainian
+* Implemented cut/copy/paste operations
+* Implemented lasso brush for terrain editing
 
 ### LAUNCHER:
 * Icons now have higher resolution, to prevent upscaling artifacts
@@ -22,11 +25,27 @@
 ### ADVENTURE MAP:
 * Implemented different hero movement sounds for offroad movement
 * Cartographers now reveal terrain in the same way as in H3
+* Holding ALT will now show movement points information in status bar
+* It is now not possible to receive rewards from School of War without required gold amount
+* Owned objects, like Mines and Dwellings will always show their owner in status bar
+* It is now possible to interact with on-map Shipyard when no hero is selected
 
-### BATTLES:
+## INTERFACE
 * Fixed white status bar on server connection screen
 * Buttons in battle window now correctly show tooltip in status bar
 * Fixed cursor image during enemy turn in combat
+* Fixed cases of incorrect artifact slot highlighting
+* Game will no longer promt to assemble artifacts if they fall into backpack
+* It is now possible to use in-game console for vcmi commands
+* Stacks sized 1000-9999 units will not be displayed as "1k"
+* It is now possible to select destination town for Town Portal via double-click
+
+### TOWN SCREEN
+* Fixed gradual fade-in of a newly built building
+* Fixed duration of building fade-in to match H3
+* Fixed rendering of Shipyard in Castle
+
+### BATTLES:
 * All effects will now wait for battle opening sound before playing
 * Hex highlighting will now be disabled during enemy turn
 * Fixed incorrect log message when casting spell that kills zero units
@@ -45,6 +64,8 @@
 * Fixed computations for Behemoth defense reduction ability 
 * Bad luck (if enabled) will now multiple all damage by 50%, in line with other damage reducing mechanics
 * Fixed highlighting of movement range for creatures standing on a corpse
+* All battle animations now have same duration/speed as in H3
+* Added missing combat log message on resurrecting creatures
 
 ### SPELLS:
 * Hero casting animation will play before spell effect
@@ -89,6 +110,11 @@
 * It is now possible to define new hero movement sounds in terrains
 * Implemented translation support for mods
 * Files with new Terrains, Roads and Rivers are now validated by game
+* Parameters controlling effect of attack and defences stats on damage are now configurable in defaultMods.json
+* New bonus: LIMITED_SHOOTING_RANGE. Creatures with this bonus can only use ranged attack within specified range
+* Battle window and Random Map Tab now have their layout defined in json file
+* Implemented code support for alternative actions mod
+* Implemented code support for improved random map dialog
 
 # 1.1.0 -> 1.1.1
 
