@@ -766,6 +766,8 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tDEFENSE_POINT_DMG_MULTIPLIER\t%f", settings.DEFENSE_POINT_DMG_MULTIPLIER);
 	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
 	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
+	settings.NEW_HERO_ALWAYS_3_CREATURE_STACKS = hardcodedFeatures["NEW_HERO_ALWAYS_3_CREATURE_STACKS"].Bool();
+	logMod->debug("\tNEW_HERO_ALWAYS_3_CREATURE_STACKS\t%f", settings.NEW_HERO_ALWAYS_3_CREATURE_STACKS);
 
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();

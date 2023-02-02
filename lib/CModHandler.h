@@ -363,6 +363,7 @@ public:
 		double ATTACK_POINTS_DMG_MULTIPLIER_CAP;
 		double DEFENSE_POINT_DMG_MULTIPLIER;
 		double DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+		bool NEW_HERO_ALWAYS_3_CREATURE_STACKS;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -382,6 +383,7 @@ public:
 			h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
 			h & DEFENSE_POINT_DMG_MULTIPLIER;
 			h & DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+			h & NEW_HERO_ALWAYS_3_CREATURE_STACKS;
 		}
 	} settings;
 

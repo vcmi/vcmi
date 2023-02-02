@@ -348,16 +348,20 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 	if(!dst)
 		dst = this;
 
-	int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
-	int pom = rand.nextInt(99);
+	int howManyStacks = 3; //how many stacks will hero receives <1 - 3>
 	int warMachinesGiven = 0;
 
-	if(pom < 9)
-		howManyStacks = 1;
-	else if(pom < 79)
-		howManyStacks = 2;
-	else
-		howManyStacks = 3;
+	if(!VLC->modh->settings.NEW_HERO_ALWAYS_3_CREATURE_STACKS)
+	{
+		int stacksCountInitRandomNumber = rand.nextInt(99);
+
+		if(stacksCountInitRandomNumber < 9)
+			howManyStacks = 1;
+		else if(stacksCountInitRandomNumber < 79)
+			howManyStacks = 2;
+		else
+			howManyStacks = 3;
+	}
 
 	vstd::amin(howManyStacks, type->initialArmy.size());
 
