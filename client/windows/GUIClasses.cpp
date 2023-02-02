@@ -63,8 +63,6 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
-#include <SDL_video.h>
-
 using namespace CSDL_Ext;
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
@@ -561,8 +559,7 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 
 #ifndef VCMI_IOS
-	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+	Rect displayBounds = CSDL_Ext::getDisplayBounds();
 #endif
 
 	size_t currentResolutionIndex = 0;

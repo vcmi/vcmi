@@ -66,6 +66,14 @@ SDL_Color CSDL_Ext::toSDL(const ColorRGBA & color)
 	return result;
 }
 
+Rect CSDL_Ext::getDisplayBounds()
+{
+	SDL_Rect displayBounds;
+	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+
+	return fromSDL(displayBounds);
+}
+
 void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
 	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);

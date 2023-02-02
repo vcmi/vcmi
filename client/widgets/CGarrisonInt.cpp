@@ -28,12 +28,6 @@
 
 #include "../../lib/CGameState.h"
 
-#ifdef VCMI_MAC
-#define SDL_SCANCODE_LCTRL SDL_SCANCODE_LGUI
-#endif
-
-#include <SDL_keyboard.h>
-
 void CGarrisonSlot::setHighlight(bool on)
 {
 	if (on)
@@ -439,10 +433,9 @@ void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount
 
 bool CGarrisonSlot::handleSplittingShortcuts()
 {
-	const uint8_t * state = SDL_GetKeyboardState(NULL);
-	const bool isAlt = !!state[SDL_SCANCODE_LALT];
-	const bool isLShift = !!state[SDL_SCANCODE_LSHIFT];
-	const bool isLCtrl = !!state[SDL_SCANCODE_LCTRL];
+	const bool isAlt = GH.isKeyboardAltDown();
+	const bool isLShift = GH.isKeyboardShiftDown();
+	const bool isLCtrl = GH.isKeyboardCtrlDown();
 
 	if(!isAlt && !isLShift && !isLCtrl)
 		return false; // This is only case when return false
