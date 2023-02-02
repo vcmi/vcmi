@@ -27,6 +27,14 @@
 #include <SDL_timer.h>
 #include <SDL_events.h>
 
+#ifdef VCMI_APPLE
+#include <dispatch/dispatch.h>
+#endif
+
+#ifdef VCMI_IOS
+#include "ios/utils.h"
+#endif
+
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 
