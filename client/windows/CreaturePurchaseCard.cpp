@@ -9,15 +9,19 @@
  */
 #include "StdInc.h"
 #include "CreaturePurchaseCard.h"
-#include "CAdvmapInterface.h"
+
 #include "CHeroWindow.h"
-#include "../widgets/Buttons.h"
-#include "../../CCallback.h"
-#include "../CreatureCostBox.h"
 #include "QuickRecruitmentWindow.h"
-#include "../gui/CGuiHandler.h"
-#include "../../lib/CCreatureHandler.h"
 #include "CCreatureWindow.h"
+
+#include "../gui/CGuiHandler.h"
+#include "../gui/TextAlignment.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/CreatureCostBox.h"
+
+#include "../../CCallback.h"
+#include "../../lib/CCreatureHandler.h"
 
 void CreaturePurchaseCard::initButtons()
 {

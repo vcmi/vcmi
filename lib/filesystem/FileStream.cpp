@@ -236,7 +236,7 @@ zlib_filefunc64_def* FileStream::GetMinizipFilefunc()
 }
 
 /*static*/
-bool FileStream::CreateFile(const boost::filesystem::path& filename)
+bool FileStream::createFile(const boost::filesystem::path& filename)
 {
 	FILE* f = do_open(filename.c_str(), CHAR_LITERAL("wb"));
 	bool result = (f != nullptr);

@@ -311,6 +311,14 @@
 		}
 	},
 
+	"LIMITED_SHOOTING_RANGE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_SHOOT"
+		}
+	},
+
 	"MANA_CHANNELING":
 	{
 		"graphics":

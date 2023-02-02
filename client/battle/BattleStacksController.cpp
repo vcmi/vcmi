@@ -25,13 +25,12 @@
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/Canvas.h"
-#include "../gui/SDL_Extensions.h"
-#include "../../lib/spells/ISpellMechanics.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../CCallback.h"
+#include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/CStack.h"
@@ -89,10 +88,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
 	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
 
-	amountNormal->adjustPalette(shifterNormal);
-	amountPositive->adjustPalette(shifterPositive);
-	amountNegative->adjustPalette(shifterNegative);
-	amountEffNeutral->adjustPalette(shifterNeutral);
+	amountNormal->adjustPalette(shifterNormal, 0);
+	amountPositive->adjustPalette(shifterPositive, 0);
+	amountNegative->adjustPalette(shifterNegative, 0);
+	amountEffNeutral->adjustPalette(shifterNeutral, 0);
 
 	//Restore border color {255, 231, 132, 255} to its original state
 	amountNormal->resetPalette(26);
@@ -318,7 +317,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, CSDL_Ext::makeNumberShort(stack->getCount()));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, CSDL_Ext::makeNumberShort(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)

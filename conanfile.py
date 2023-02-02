@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeDeps, CMakeToolchain
 from conans import tools
 
@@ -37,7 +38,9 @@ class VCMI(ConanFile):
 
     def configure(self):
         # SDL_image and Qt depend on it, in iOS both are static
-        self.options["libpng"].shared = self.settings.os != "iOS"
+        # Enable static libpng due to https://github.com/conan-io/conan-center-index/issues/15440,
+        # which leads to VCMI crashes of MinGW
+        self.options["libpng"].shared = is_apple_os(self) and self.settings.os != "iOS"
         # static Qt for iOS is the only viable option at the moment
         self.options["qt"].shared = self.settings.os != "iOS"
 
@@ -157,6 +160,11 @@ class VCMI(ConanFile):
         self.options["qt"].openssl = not is_apple_os(self)
         if self.settings.os == "iOS":
             self.options["qt"].opengl = "es2"
+        if not is_apple_os(self) and cross_building(self):
+            self.options["qt"].cross_compile = self.env["CONAN_CROSS_COMPILE"]
+        # No Qt OpenGL for cross-compiling for Windows, Conan does not support it
+        if self.settings.os == "Windows" and cross_building(self):
+            self.options["qt"].opengl = "no"
 
         # transitive deps
         # doesn't link to overridden bzip2 & zlib, the tool isn't needed anyway
@@ -184,6 +192,9 @@ class VCMI(ConanFile):
             ]
             for lib in systemLibsOverrides:
                 self.requires(f"{lib}@vcmi/apple", override=True)
+        else:
+            self.requires("zlib/[~1.2.13]", override=True) # minizip / Qt
+            self.requires("libiconv/[~1.17]", override=True) # ffmpeg / sdl
 
         # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm
         if self.options.with_luajit and not str(self.settings.arch).startswith("arm"):
@@ -193,6 +204,8 @@ class VCMI(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["USING_CONAN"] = True
         tc.variables["CONAN_INSTALL_FOLDER"] = self.install_folder
+        if cross_building(self) and self.settings.os == "Windows":
+            tc.variables["CONAN_SYSTEM_LIBRARY_LOCATION"] = self.env["CONAN_SYSTEM_LIBRARY_LOCATION"]
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -214,4 +227,9 @@ class VCMI(ConanFile):
             deps.generate()
 
     def imports(self):
-       self.copy("*.dylib", "Frameworks", "lib")
+        if is_apple_os(self):
+            self.copy("*.dylib", "Frameworks", "lib")
+        elif self.settings.os == "Windows":
+            self.copy("*.dll", src="bin/archdatadir/plugins/platforms", dst="platforms")
+            self.copy("*.dll", src="bin/archdatadir/plugins/styles", dst="styles")
+            self.copy("*.dll", src="@bindirs", dst="", excludes="archdatadir/*")

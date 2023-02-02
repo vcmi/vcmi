@@ -10,8 +10,7 @@
 #pragma once
 
 #include "../../lib/Point.h"
-
-#include <SDL_events.h>
+#include "SDL_keycode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,6 +19,7 @@ template <typename T> struct CondSh;
 VCMI_LIB_NAMESPACE_END
 
 union SDL_Event;
+struct SDL_MouseMotionEvent;
 
 class CFramerateManager;
 class IStatusBar;
@@ -70,26 +70,35 @@ public:
 	std::shared_ptr<IStatusBar> statusbar;
 
 private:
+	Point cursorPosition;
+
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
 	std::atomic<bool> continueEventHandling;
 	typedef std::list<CIntObject*> CIntObjectList;
 
 	//active GUI elements (listening for events
-	CIntObjectList lclickable,
-				   rclickable,
-				   mclickable,
-				   hoverable,
-				   keyinterested,
-				   motioninterested,
-	               timeinterested,
-	               wheelInterested,
-	               doubleClickInterested,
-	               textInterested;
+	CIntObjectList lclickable;
+	CIntObjectList rclickable;
+	CIntObjectList mclickable;
+	CIntObjectList hoverable;
+	CIntObjectList keyinterested;
+	CIntObjectList motioninterested;
+	CIntObjectList timeinterested;
+	CIntObjectList wheelInterested;
+	CIntObjectList doubleClickInterested;
+	CIntObjectList textInterested;
 
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
+	void handleCurrentEvent(SDL_Event &current);
+	void handleMouseMotion(const SDL_Event & current);
+	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
+	void convertTouchToMouse(SDL_Event * current);
+	void fakeMoveCursor(float dx, float dy);
+	void fakeMouseButtonEventRelativeMode(bool down, bool right);
+
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
@@ -98,11 +107,15 @@ public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
-	SDL_Event * current; //current event - can be set to nullptr to stop handling event
+	const Point & getCursorPosition() const;
+
 	IUpdateable *curInt;
 
 	Point lastClick;
 	unsigned lastClickTime;
+	bool multifinger;
+	bool isPointerRelativeMode;
+	float pointerSpeedMultiplier;
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
@@ -111,6 +124,7 @@ public:
 	CGuiHandler();
 	~CGuiHandler();
 
+	void init();
 	void renderFrame();
 
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
@@ -132,9 +146,6 @@ public:
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
-	void handleCurrentEvent();
-	void handleMouseMotion();
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen

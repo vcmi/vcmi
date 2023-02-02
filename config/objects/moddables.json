@@ -23,8 +23,8 @@
 	"hero" : {
 		"index" :34,
 		"handler": "hero",
-		"defaultAiValue" : 7500,
 		"base" : {
+			"aiValue" : 7500,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VVV", "VAV"]
@@ -54,6 +54,7 @@
 	"resource" : {
 		"index" :79,
 		"handler": "resource",
+		"lastReservedIndex" : 6,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -67,8 +68,7 @@
 			"sulfur" :  { "index" : 3, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
 			"crystal" : { "index" : 4, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
 			"gems" :    { "index" : 5, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
-			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
-			"mithril" : { "index" : 7, "aiValue" : 3500 } // TODO: move to WoG?
+			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } }
 		}
 	},
 	
@@ -76,8 +76,8 @@
 	"town" : {
 		"index" :98,
 		"handler": "town",
-		"defaultAiValue" : 20000,
 		"base" : {
+			"aiValue" : 20000,
 			"filters" : {
 				// village image - fort not present
 				"village" : [ "noneOf", [ "fort" ] ],
@@ -106,8 +106,9 @@
 	"boat" : {
 		"index" :8,
 		"handler": "boat",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 2,
 		"base" : {
+			"aiValue" : 0,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VVV", "VAV" ]
@@ -124,8 +125,9 @@
 	"borderGuard" : {
 		"index" :9,
 		"handler": "borderGuard",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -145,8 +147,9 @@
 	"borderGate" : {
 		"index" :212,
 		"handler": "borderGate",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
 			}
@@ -165,8 +168,9 @@
 	"keymasterTent" : {
 		"index" :10,
 		"handler": "keymaster",
-		"defaultAiValue" : 10000,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 10000,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
 			}
@@ -186,8 +190,9 @@
 	"seerHut" : {
 		"index" :83,
 		"handler": "seerHut",
-		"defaultAiValue" : 10000,
+		"lastReservedIndex" : 2,
 		"base" : {
+			"aiValue" : 10000,
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
 				"mask" : [ "VVV", "VVV", "VAV" ]
@@ -207,6 +212,7 @@
 	"cartographer" : {
 		"index" :13,
 		"handler": "cartographer",
+		"lastReservedIndex" : 2,
 		"base" : {
 			"sounds" : {
 				"visit" : ["LIGHTHOUSE"]
@@ -223,6 +229,7 @@
 	"mine" : {
 		"index" :53,
 		"handler": "mine",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : {
 				"visit" : ["FLAGMINE"]
@@ -237,8 +244,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPLUMB"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"alchemistLab" : {
 				"index" : 1,
@@ -248,8 +254,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSTAR"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"orePit" : {
 				"index" : 2,
@@ -259,8 +264,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"sulfurDune" : {
 				"index" : 3,
@@ -270,8 +274,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"crystalCavern" : {
 				"index" : 4,
@@ -292,8 +295,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPGEMP"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"goldMine" : {
 				"index" : 6,
@@ -320,8 +322,9 @@
 	"abandonedMine" : {
 		"index" :220,
 		"handler": "mine",
-		"defaultAiValue" : 3500,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 3500,
 			"sounds" : {
 				"ambient" : ["LOOPCAVE"]
 			}
@@ -334,8 +337,9 @@
 	"garrisonHorizontal": {
 		"index" :33,
 		"handler": "garrison",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 1,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["MILITARY"]
 			}
@@ -358,8 +362,9 @@
 	"garrisonVertical" : {
 		"index" :219,
 		"handler": "garrison",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 1,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["MILITARY"]
 			}
@@ -384,6 +389,7 @@
 	"monolithOneWayEntrance" : {
 		"index" :43,
 		"handler": "monolith",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMON1"],
@@ -404,6 +410,7 @@
 	"monolithOneWayExit" : {
 		"index" :44,
 		"handler": "monolith",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : { "ambient" : ["LOOPMON1"] }
 		},
@@ -421,6 +428,7 @@
 	"monolithTwoWay" : {
 		"index" :45,
 		"handler": "monolith",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMON2"],
@@ -441,7 +449,9 @@
 
 	// subtype: level
 	"randomDwellingLvl" : {
-		"index" :217, "handler": "randomDwelling",
+		"index" :217, 
+		"handler": "randomDwelling",
+		"lastReservedIndex" : 6,
 			"types" : {
 				"objectLvl1" : { "index" : 0},
 				"objectLvl2" : { "index" : 1},
@@ -457,6 +467,7 @@
 	"randomDwellingFaction" : {
 		"index" :218,
 		"handler": "randomDwelling",
+		"lastReservedIndex" : 8,
 			"types" : {
 				"objectCastle"     : { "index" : 0},
 				"objectRampart"    : { "index" : 1},

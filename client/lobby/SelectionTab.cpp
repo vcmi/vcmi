@@ -14,10 +14,8 @@
 #include "CLobbyScreen.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -26,6 +24,7 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 
@@ -36,6 +35,7 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/serializer/Connection.h"
 
+#include <SDL_events.h>
 
 bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb)
 {
@@ -273,9 +273,9 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 			select(line);
 		}
 #ifdef VCMI_IOS
-        // focus input field if clicked inside it
-		else if(inputName && inputName->active && inputNameRect.isInside(GH.current->button.x, GH.current->button.y))
-            inputName->giveFocus();
+		// focus input field if clicked inside it
+		else if(inputName && inputName->active && inputNameRect.isInside(GH.getCursorPosition()))
+			inputName->giveFocus();
 #endif
 	}
 }
@@ -454,8 +454,7 @@ void SelectionTab::updateListItems()
 int SelectionTab::getLine()
 {
 	int line = -1;
-	Point clickPos(GH.current->button.x, GH.current->button.y);
-	clickPos = clickPos - pos.topLeft();
+	Point clickPos = GH.getCursorPosition() - pos.topLeft();
 
 	// Ignore clicks on save name area
 	int maxPosY;

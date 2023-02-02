@@ -20,9 +20,8 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CAnimation.h"
-#include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/Canvas.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"

@@ -238,8 +238,8 @@
 		},
 		"types" : {
 			"object" : {
-				"index" : 0 },
-			"objectWoG" : { "index" : 1 } // WoG object? Present on VCMI Test 2011b
+				"index" : 0 
+			}
 		}
 	},
 
@@ -341,9 +341,6 @@
 					"value"		: 3000,
 					"rarity"	: 100
 				}
-			},
-			"object1":{ //WoG?
-				"index" :1
 			}
 		}
 	},
@@ -573,9 +570,6 @@
 					"value"		: 1500,
 					"rarity"	: 80
 				}
-			},
-			"object1" : { //WoG?
-				"index" : 1
 			}
 		}
 	},
@@ -597,28 +591,6 @@
 			}
 		}
 	},
-	"magicWell" : {
-		"index" :49,
-		"handler" : "magicWell",
-		"base" : {
-			"sounds" : {
-				"visit" : ["FAERIE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 250,
-				"rmg" : {
-					"zoneLimit" : 1,
-					"value"		: 250,
-					"rarity"	: 100
-				}
-			},
-			"objectWoG" : { "index" : 1} // WoG object? Present on VCMI_Test 2011b
-		}
-	},
-
 	/// Random objects
 	"randomTown"					: { "index" :77,  "handler": "randomTown", "types" : { "object" : { "index" : 0} }  },
 	"randomHero" : {
@@ -1064,10 +1036,5 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } },
-
-	//These are WoG objects? They are not available in H3
-	"frozenLakeDUPLICATE"			: { "index" :172, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"oakTreesDUPLICATE"				: { "index" :186, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"plant"							: { "index" :189, "handler": "static", "types" : { "object" : { "index" : 0} } }
+	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } }
 }

@@ -106,8 +106,8 @@ void MapController::repairMap()
 		if(obj->ID != Obj::HERO && obj->ID != Obj::PRISON && (obj->typeName.empty() || obj->subTypeName.empty()))
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
-			obj->typeName = handler->typeName;
-			obj->subTypeName = handler->subTypeName;
+			obj->typeName = handler->getTypeName();
+			obj->subTypeName = handler->getSubTypeName();
 		}
 		//fix flags
 		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)

@@ -198,13 +198,13 @@ void LibClasses::init(bool onlyEssential)
 
 	modh->initializeConfig();
 
+	createHandler(generaltexth, "General text", pomtime);
+
 	createHandler(bth, "Bonus type", pomtime);
 
 	createHandler(roadTypeHandler, "Road", pomtime);
 	createHandler(riverTypeHandler, "River", pomtime);
 	createHandler(terrainTypeHandler, "Terrain", pomtime);
-
-	createHandler(generaltexth, "General text", pomtime);
 
 	createHandler(heroh, "Hero", pomtime);
 

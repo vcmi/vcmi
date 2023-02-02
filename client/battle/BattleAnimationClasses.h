@@ -147,8 +147,11 @@ private:
 	double begX, begY; // starting position
 	double distanceX, distanceY; // full movement distance, may be negative if creture moves topleft
 
-	double timeToMove; // full length of movement animation
-	double progress; // range 0 -> 1, indicates move progrees. 0 = movement starts, 1 = move ends
+	/// progress gain per second
+	double progressPerSecond;
+
+	/// range 0 -> 1, indicates move progrees. 0 = movement starts, 1 = move ends
+	double progress;
 
 public:
 	bool init() override;

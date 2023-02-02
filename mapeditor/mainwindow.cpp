@@ -468,6 +468,9 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 		itemGroup = itms.front();
 	}
 
+	if (VLC->objtypeh->knownObjects().count(ID) == 0)
+		return;
+
 	auto knownSubObjects = VLC->objtypeh->knownSubObjects(ID);
 	for(auto secondaryID : knownSubObjects)
 	{
@@ -477,10 +480,7 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(factory->subTypeName);
-		auto customName = factory->getCustomName();
-		if(customName)
-			subGroupName = tr(customName->c_str());
+		auto subGroupName = QString::fromStdString(factory->getNameTranslated());
 		
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)

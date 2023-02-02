@@ -17,13 +17,10 @@
 #include "CSelectionBase.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CAnimation.h"
-#include "../gui/CGuiHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../mainmenu/CPrologEpilogVideo.h"
 #include "../widgets/CComponent.h"
@@ -33,6 +30,9 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../render/IImage.h"
+#include "../render/CAnimation.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -119,7 +119,6 @@ CBonusSelection::CBonusSelection()
 void CBonusSelection::loadPositionsOfGraphics()
 {
 	const JsonNode config(ResourceID("config/campaign_regions.json"));
-	int idx = 0;
 
 	for(const JsonNode & campaign : config["campaign_regions"].Vector())
 	{
@@ -140,7 +139,6 @@ void CBonusSelection::loadPositionsOfGraphics()
 
 		campDescriptions.push_back(sc);
 
-		idx++;
 	}
 }
 
@@ -494,8 +492,8 @@ CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, cons
 	graphicsSelected->disable();
 	graphicsStriped = std::make_shared<CPicture>(prefix + "Co" + suffix + ".BMP");
 	graphicsStriped->disable();
-	pos.w = graphicsNotSelected->bg->w;
-	pos.h = graphicsNotSelected->bg->h;
+	pos.w = graphicsNotSelected->pos.w;
+	pos.h = graphicsNotSelected->pos.h;
 
 }
 
@@ -527,7 +525,7 @@ void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-	if(!down && selectable && !CSDL_Ext::isTransparent(graphicsNotSelected->getSurface(), GH.current->motion.x - pos.x, GH.current->motion.y - pos.y))
+	if(!down && selectable && !graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
@@ -537,7 +535,7 @@ void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;
-	if(!CSDL_Ext::isTransparent(graphicsNotSelected->getSurface(), GH.current->motion.x - pos.x, GH.current->motion.y - pos.y) && text.size())
+	if(!graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()) && text.size())
 	{
 		CRClickPopup::createAndPush(text);
 	}

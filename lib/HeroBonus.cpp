@@ -1583,7 +1583,7 @@ bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int s
 	return false;
 }
 
-std::string Bonus::Description() const
+std::string Bonus::Description(boost::optional<si32> customValue) const
 {
 	std::ostringstream str;
 
@@ -1622,8 +1622,8 @@ std::string Bonus::Description() const
 		str << description;
 	}
 
-	if(val != 0)
-		str << " " << std::showpos << val;
+	if(auto value = customValue.value_or(val))
+		str << " " << std::showpos << value;
 
 	return str.str();
 }

@@ -20,12 +20,10 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/CComponent.h"
@@ -35,6 +33,7 @@
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../render/CAnimation.h"
 
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -43,6 +42,8 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/serializer/Connection.h"
+
+#include <SDL_events.h>
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -312,7 +313,7 @@ CChatBox::CChatBox(const Rect & rect)
 	type |= REDRAW_PARENT;
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
-	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height));
+	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height), EFonts::FONT_SMALL, 0);
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = std::make_shared<CTextBox>("", Rect(0, 0, rect.w, rect.h - height), 1);
 

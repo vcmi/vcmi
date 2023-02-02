@@ -7,6 +7,21 @@
 		"description" : "Grundlegende Dateien, die für die korrekte Ausführung von VCMI erforderlich sind",
 		"author" : "VCMI-Team",
 		"modType" : "Grafik",
+		
+		"translations" : [
+			"config/vcmi/german.json"
+		]
+	},
+	
+	"polish" : {
+		"name" : "VCMI essential files",
+		"description" : "Essential files required for VCMI to run correctly",
+		"author" : "VCMI Team",
+		"modType" : "Graphical",
+		
+		"translations" : [
+			"config/vcmi/polish.json"
+		]
 	},
 	
 	"ukrainian" : {
@@ -14,15 +29,23 @@
 		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
 		"author" : "Команда VCMI",
 		"modType" : "Графіка",
+		
+		"translations" : [
+			"config/vcmi/ukrainian.json"
+		]
 	},
 
-	"version" : "1.1",
+	"version" : "1.1.1",
 	"author" : "VCMI Team",
 	"contact" : "http://forum.vcmi.eu/index.php",
 	"modType" : "Graphical",
 	
 	"factions" : [ "config/vcmi/towerFactions" ],
 	"creatures" : [ "config/vcmi/towerCreature" ],
+		
+	"translations" : [
+		"config/vcmi/english.json"
+	],
 
 	"filesystem":
 	{

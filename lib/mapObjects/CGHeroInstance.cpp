@@ -472,7 +472,7 @@ std::string CGHeroInstance::getObjectName() const
 		return hoverName;
 	}
 	else
-		return CGObjectInstance::getObjectName();
+		return VLC->objtypeh->getObjectName(ID, 0);
 }
 
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
@@ -1000,7 +1000,8 @@ std::string CGHeroInstance::getNameTextID() const
 	if (type)
 		return type->getNameTextID();
 
-	assert(0);
+	// FIXME: called by logging from some specialties (mods?) before type is set on deserialization
+	// assert(0);
 	return "";
 }
 

@@ -10,24 +10,21 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
-#include "CAdvmapInterface.h"
-
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-
-#include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
-
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../windows/CMessage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/CursorHandler.h"
 
 #include "../../CCallback.h"
 
@@ -38,6 +35,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+
+#include <SDL_surface.h>
 
 void CSimpleWindow::show(SDL_Surface * to)
 {
@@ -306,7 +305,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(CSDL_Ext::fromSDL(GH.current->motion)); //center on mouse
+	temp->center(GH.getCursorPosition()); //center on mouse
 #ifdef VCMI_IOS
     // TODO: enable also for android?
     temp->moveBy({0, -temp->pos.h / 2});

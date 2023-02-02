@@ -12,9 +12,9 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CreatureCostBox.h"
 #include "../gui/CGuiHandler.h"
 #include "../../CCallback.h"
-#include "../CreatureCostBox.h"
 #include "../../lib/ResourceSet.h"
 #include "../../lib/CCreatureHandler.h"
 #include "CreaturePurchaseCard.h"
@@ -101,7 +101,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 
 void QuickRecruitmentWindow::purchaseUnits()
 {
-	for(auto selected : cards)
+	for(auto selected : boost::adaptors::reverse(cards))
 	{
 		if(selected->slider->getValue())
 		{

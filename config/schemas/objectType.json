@@ -10,13 +10,9 @@
 		"index": {
 			"type":"number"
 		},
-		"name": {
-			"type":"string"
-		},
 		"aiValue": {
 			"type":"number"
 		},
-
 		"sounds": {
 			"type":"object",
 			"additionalProperties" : false,

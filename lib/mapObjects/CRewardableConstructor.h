@@ -19,6 +19,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
+
+	void configureRewards(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, CRewardVisitInfo::ERewardEventType mode) const;
+
+	void configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const;
+	TRewardLimitersList configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const;
+
+	void configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
+	void configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & info, const JsonNode & source) const;
 public:
 	bool givesResources() const override;
 

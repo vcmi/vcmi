@@ -83,6 +83,9 @@ public:
 
 	bool isNull() const;
 	bool isNumber() const;
+	bool isString() const;
+	bool isVector() const;
+	bool isStruct() const;
 	/// true if node contains not-null data that cannot be extended via merging
 	/// used for generating common base node from multiple nodes (e.g. bonuses)
 	bool containsBaseData() const;

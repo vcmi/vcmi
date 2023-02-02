@@ -10,34 +10,36 @@
 #include "StdInc.h"
 #include "GUIClasses.h"
 
-#include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
-#include "CreatureCostBox.h"
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
-#include "../Graphics.h"
-#include "../mapHandler.h"
 #include "../CServerHandler.h"
 
+#include "../adventureMap/mapHandler.h"
+#include "../adventureMap/CResDataBar.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
 
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/TextAlignment.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CreatureCostBox.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/ObjectLists.h"
 
 #include "../lobby/CSavingScreen.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 
@@ -61,10 +63,9 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
-using namespace CSDL_Ext;
+#include <SDL_events.h>
 
-std::list<CFocusable*> CFocusable::focusables;
-CFocusable * CFocusable::inputWithFocus;
+using namespace CSDL_Ext;
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),
@@ -1208,7 +1209,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578, false));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578));
 
 	//garrison interface
 
@@ -1316,7 +1317,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 	goldPic = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = std::make_shared<CAnimImage>("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
+	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_ESCAPE);
 	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
 	build->addCallback(onBuy);
 
@@ -1368,7 +1369,6 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
 		}
 		else
 		{
@@ -2039,7 +2039,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK),
+	: CIntObject(LCLICK | DOUBLECLICK),
 	parent(_parent),
 	index(_id)
 {
@@ -2067,6 +2067,11 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 {
 	if( previousState && !down)
 		parent->changeSelection(index);
+}
+
+void CObjectListWindow::CItem::onDoubleClick()
+{
+	parent->elementSelected();
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)

@@ -11,9 +11,13 @@
 
 #include "../gui/CIntObject.h"
 #include "../gui/TextAlignment.h"
-#include "../gui/SDL_Extensions.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Graphics.h"
 #include "../../lib/FunctionList.h"
 
+#include <SDL_pixels.h>
+
+class IImage;
 class CSlider;
 
 /// Base class for all text-related widgets.
@@ -218,7 +222,7 @@ public:
 
 	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
-	CTextInput(const Rect & Pos, SDL_Surface * srf = nullptr);
+	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;

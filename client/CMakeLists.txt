@@ -1,174 +1,215 @@
 set(client_SRCS
-		StdInc.cpp
-		../CCallback.cpp
+	StdInc.cpp
+	../CCallback.cpp
 
-		battle/BattleActionsController.cpp
-		battle/BattleAnimationClasses.cpp
-		battle/BattleEffectsController.cpp
-		battle/BattleFieldController.cpp
-		battle/BattleInterfaceClasses.cpp
-		battle/BattleInterface.cpp
-		battle/BattleObstacleController.cpp
-		battle/BattleProjectileController.cpp
-		battle/BattleRenderer.cpp
-		battle/BattleSiegeController.cpp
-		battle/BattleStacksController.cpp
-		battle/BattleWindow.cpp
-		battle/CreatureAnimation.cpp
+	adventureMap/CAdvMapPanel.cpp
+	adventureMap/CAdvMapInt.cpp
+	adventureMap/CAdventureOptions.cpp
+	adventureMap/CInGameConsole.cpp
+	adventureMap/CInfoBar.cpp
+	adventureMap/CList.cpp
+	adventureMap/CMinimap.cpp
+	adventureMap/CResDataBar.cpp
+	adventureMap/CTerrainRect.cpp
+	adventureMap/mapHandler.cpp
 
-		gui/CAnimation.cpp
-		gui/Canvas.cpp
-		gui/CursorHandler.cpp
-		gui/CGuiHandler.cpp
-		gui/CIntObject.cpp
-		gui/ColorFilter.cpp
-		gui/Fonts.cpp
-		gui/SDL_Extensions.cpp
-		gui/NotificationHandler.cpp
-		gui/InterfaceObjectConfigurable.cpp
+	battle/BattleActionsController.cpp
+	battle/BattleAnimationClasses.cpp
+	battle/BattleEffectsController.cpp
+	battle/BattleFieldController.cpp
+	battle/BattleInterface.cpp
+	battle/BattleInterfaceClasses.cpp
+	battle/BattleObstacleController.cpp
+	battle/BattleProjectileController.cpp
+	battle/BattleRenderer.cpp
+	battle/BattleSiegeController.cpp
+	battle/BattleStacksController.cpp
+	battle/BattleWindow.cpp
+	battle/CreatureAnimation.cpp
 
-		widgets/AdventureMapClasses.cpp
-		widgets/Buttons.cpp
-		widgets/CArtifactHolder.cpp
-		widgets/CComponent.cpp
-		widgets/CGarrisonInt.cpp
-		widgets/Images.cpp
-		widgets/MiscWidgets.cpp
-		widgets/ObjectLists.cpp
-		widgets/TextControls.cpp
+	gui/CGuiHandler.cpp
+	gui/CIntObject.cpp
+	gui/CursorHandler.cpp
+	gui/InterfaceObjectConfigurable.cpp
+	gui/NotificationHandler.cpp
 
-		windows/CAdvmapInterface.cpp
-		windows/CCastleInterface.cpp
-		windows/CCreatureWindow.cpp
-		windows/CreaturePurchaseCard.cpp
-		windows/CHeroWindow.cpp
-		windows/CKingdomInterface.cpp
-		windows/CQuestLog.cpp
-		windows/CSpellWindow.cpp
-		windows/CTradeWindow.cpp
-		windows/CWindowObject.cpp
-		windows/GUIClasses.cpp
-		windows/InfoWindows.cpp
-		windows/QuickRecruitmentWindow.cpp
+	lobby/CBonusSelection.cpp
+	lobby/CCampaignInfoScreen.cpp
+	lobby/CLobbyScreen.cpp
+	lobby/CSavingScreen.cpp
+	lobby/CScenarioInfoScreen.cpp
+	lobby/CSelectionBase.cpp
+	lobby/OptionsTab.cpp
+	lobby/RandomMapTab.cpp
+	lobby/SelectionTab.cpp
 
-		mainmenu/CMainMenu.cpp
-		mainmenu/CCampaignScreen.cpp
-		mainmenu/CreditsScreen.cpp
-		mainmenu/CPrologEpilogVideo.cpp
+	mainmenu/CCampaignScreen.cpp
+	mainmenu/CMainMenu.cpp
+	mainmenu/CPrologEpilogVideo.cpp
+	mainmenu/CreditsScreen.cpp
 
-		lobby/CBonusSelection.cpp
-		lobby/CSelectionBase.cpp
-		lobby/CLobbyScreen.cpp
-		lobby/CSavingScreen.cpp
-		lobby/CScenarioInfoScreen.cpp
-		lobby/CCampaignInfoScreen.cpp
-		lobby/OptionsTab.cpp
-		lobby/RandomMapTab.cpp
-		lobby/SelectionTab.cpp
+	render/CAnimation.cpp
+	render/CBitmapHandler.cpp
+	render/CDefFile.cpp
+	render/CFadeAnimation.cpp
+	render/Canvas.cpp
+	render/ColorFilter.cpp
+	render/Graphics.cpp
+	render/IFont.cpp
 
-		CBitmapHandler.cpp
-		CreatureCostBox.cpp
-		CGameInfo.cpp
-		Client.cpp
-		CMessage.cpp
-		CMT.cpp
-		CMusicHandler.cpp
-		CPlayerInterface.cpp
-		CVideoHandler.cpp
-		CServerHandler.cpp
-		Graphics.cpp
-		mapHandler.cpp
-		NetPacksClient.cpp
-		NetPacksLobbyClient.cpp
-		SDLRWwrapper.cpp
-		ClientCommandManager.cpp
+	renderSDL/CBitmapFont.cpp
+	renderSDL/CBitmapHanFont.cpp
+	renderSDL/CTrueTypeFont.cpp
+	renderSDL/CursorHardware.cpp
+	renderSDL/CursorSoftware.cpp
+	renderSDL/SDLImage.cpp
+	renderSDL/SDLImageLoader.cpp
+	renderSDL/SDLRWwrapper.cpp
+	renderSDL/SDL_Extensions.cpp
+
+	widgets/Buttons.cpp
+	widgets/CArtifactHolder.cpp
+	widgets/CComponent.cpp
+	widgets/CGarrisonInt.cpp
+	widgets/CreatureCostBox.cpp
+	widgets/Images.cpp
+	widgets/MiscWidgets.cpp
+	widgets/ObjectLists.cpp
+	widgets/TextControls.cpp
+
+	windows/CCastleInterface.cpp
+	windows/CCreatureWindow.cpp
+	windows/CHeroWindow.cpp
+	windows/CKingdomInterface.cpp
+	windows/CMessage.cpp
+	windows/CQuestLog.cpp
+	windows/CSpellWindow.cpp
+	windows/CTradeWindow.cpp
+	windows/CWindowObject.cpp
+	windows/CreaturePurchaseCard.cpp
+	windows/GUIClasses.cpp
+	windows/InfoWindows.cpp
+	windows/QuickRecruitmentWindow.cpp
+
+	CGameInfo.cpp
+	CMT.cpp
+	CMusicHandler.cpp
+	CPlayerInterface.cpp
+	CServerHandler.cpp
+	CVideoHandler.cpp
+	Client.cpp
+	ClientCommandManager.cpp
+	NetPacksClient.cpp
+	NetPacksLobbyClient.cpp
 )
 
 set(client_HEADERS
-		StdInc.h
+	StdInc.h
 
-		battle/BattleActionsController.h
-		battle/BattleAnimationClasses.h
-		battle/BattleEffectsController.h
-		battle/BattleFieldController.h
-		battle/BattleInterfaceClasses.h
-		battle/BattleInterface.h
-		battle/BattleObstacleController.h
-		battle/BattleProjectileController.h
-		battle/BattleRenderer.h
-		battle/BattleSiegeController.h
-		battle/BattleStacksController.h
-		battle/BattleWindow.h
-		battle/CreatureAnimation.h
-		battle/BattleConstants.h
+	adventureMap/CAdvMapPanel.h
+	adventureMap/CAdvMapInt.h
+	adventureMap/CAdventureOptions.h
+	adventureMap/CInGameConsole.h
+	adventureMap/CInfoBar.h
+	adventureMap/CList.h
+	adventureMap/CMinimap.h
+	adventureMap/CResDataBar.h
+	adventureMap/CTerrainRect.h
+	adventureMap/mapHandler.h
 
-		gui/CAnimation.h
-		gui/Canvas.h
-		gui/CursorHandler.h
-		gui/CGuiHandler.h
-		gui/ColorFilter.h
-		gui/CIntObject.h
-		gui/Fonts.h
-		gui/TextAlignment.h
-		gui/SDL_Compat.h
-		gui/SDL_Extensions.h
-		gui/SDL_Pixels.h
-		gui/NotificationHandler.h
-		gui/InterfaceObjectConfigurable.h
+	battle/BattleActionsController.h
+	battle/BattleAnimationClasses.h
+	battle/BattleConstants.h
+	battle/BattleEffectsController.h
+	battle/BattleFieldController.h
+	battle/BattleInterface.h
+	battle/BattleInterfaceClasses.h
+	battle/BattleObstacleController.h
+	battle/BattleProjectileController.h
+	battle/BattleRenderer.h
+	battle/BattleSiegeController.h
+	battle/BattleStacksController.h
+	battle/BattleWindow.h
+	battle/CreatureAnimation.h
 
-		widgets/AdventureMapClasses.h
-		widgets/Buttons.h
-		widgets/CArtifactHolder.h
-		widgets/CComponent.h
-		widgets/CGarrisonInt.h
-		widgets/Images.h
-		widgets/MiscWidgets.h
-		widgets/ObjectLists.h
-		widgets/TextControls.h
-		windows/CAdvmapInterface.h
-		windows/CCastleInterface.h
-		windows/CCreatureWindow.h
-		windows/CreaturePurchaseCard.h
-		windows/CHeroWindow.h
-		windows/CKingdomInterface.h
-		windows/CQuestLog.h
-		windows/CSpellWindow.h
-		windows/CTradeWindow.h
-		windows/CWindowObject.h
-		windows/GUIClasses.h
-		windows/InfoWindows.h
-		windows/QuickRecruitmentWindow.h
+	gui/CGuiHandler.h
+	gui/CIntObject.h
+	gui/CursorHandler.h
+	gui/InterfaceObjectConfigurable.h
+	gui/NotificationHandler.h
+	gui/TextAlignment.h
 
-		mainmenu/CMainMenu.h
-		mainmenu/CCampaignScreen.h
-		mainmenu/CreditsScreen.h
-		mainmenu/CPrologEpilogVideo.h
+	lobby/CBonusSelection.h
+	lobby/CCampaignInfoScreen.h
+	lobby/CLobbyScreen.h
+	lobby/CSavingScreen.h
+	lobby/CScenarioInfoScreen.h
+	lobby/CSelectionBase.h
+	lobby/OptionsTab.h
+	lobby/RandomMapTab.h
+	lobby/SelectionTab.h
 
-		lobby/CBonusSelection.h
-		lobby/CSelectionBase.h
-		lobby/CLobbyScreen.h
-		lobby/CSavingScreen.h
-		lobby/CScenarioInfoScreen.h
-		lobby/CCampaignInfoScreen.h
-		lobby/OptionsTab.h
-		lobby/RandomMapTab.h
-		lobby/SelectionTab.h
+	mainmenu/CCampaignScreen.h
+	mainmenu/CMainMenu.h
+	mainmenu/CPrologEpilogVideo.h
+	mainmenu/CreditsScreen.h
 
-		CBitmapHandler.h
-		CreatureCostBox.h
-		CGameInfo.h
-		Client.h
-		CMessage.h
-		CMT.h
-		CMusicHandler.h
-		CPlayerInterface.h
-		CVideoHandler.h
-		CServerHandler.h
-		Graphics.h
-		mapHandler.h
-		resource.h
-		SDLRWwrapper.h
-		ClientCommandManager.h
+	render/CAnimation.h
+	render/CBitmapHandler.h
+	render/CDefFile.h
+	render/CFadeAnimation.h
+	render/Canvas.h
+	render/ColorFilter.h
+	render/Graphics.h
+	render/ICursor.h
+	render/IFont.h
+	render/IImage.h
+	render/IImageLoader.h
+
+	renderSDL/CBitmapFont.h
+	renderSDL/CBitmapHanFont.h
+	renderSDL/CTrueTypeFont.h
+	renderSDL/CursorHardware.h
+	renderSDL/CursorSoftware.h
+	renderSDL/SDLImage.h
+	renderSDL/SDLImageLoader.h
+	renderSDL/SDLRWwrapper.h
+	renderSDL/SDL_Extensions.h
+	renderSDL/SDL_PixelAccess.h
+
+	widgets/Buttons.h
+	widgets/CArtifactHolder.h
+	widgets/CComponent.h
+	widgets/CGarrisonInt.h
+	widgets/CreatureCostBox.h
+	widgets/Images.h
+	widgets/MiscWidgets.h
+	widgets/ObjectLists.h
+	widgets/TextControls.h
+
+	windows/CCastleInterface.h
+	windows/CCreatureWindow.h
+	windows/CHeroWindow.h
+	windows/CKingdomInterface.h
+	windows/CMessage.h
+	windows/CQuestLog.h
+	windows/CSpellWindow.h
+	windows/CTradeWindow.h
+	windows/CWindowObject.h
+	windows/CreaturePurchaseCard.h
+	windows/GUIClasses.h
+	windows/InfoWindows.h
+	windows/QuickRecruitmentWindow.h
+
+	CGameInfo.h
+	CMT.h
+	CMusicHandler.h
+	CPlayerInterface.h
+	CServerHandler.h
+	CVideoHandler.h
+	Client.h
+	ClientCommandManager.h
+	resource.h
 )
 
 if(APPLE_IOS)
@@ -263,8 +304,7 @@ elseif(APPLE_IOS)
 		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 		# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
-		# add max version condition when https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7562 is merged
-		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
+		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0" AND CMAKE_VERSION VERSION_LESS "3.25.0")
 			set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
 		endif()
 	endforeach()
@@ -290,8 +330,15 @@ else()
 	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
 endif()
 
-target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(vcmiclient PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if (ffmpeg_INCLUDE_DIRS)
+	target_include_directories(vcmiclient PRIVATE
+		${ffmpeg_INCLUDE_DIRS}
+	)
+endif()
 
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)

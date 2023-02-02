@@ -13,6 +13,8 @@
 #include "CMusicHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/mapHandler.h"
 #include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
@@ -35,7 +37,6 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/JsonNode.h"
-#include "mapHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CCampaignScreen.h"
@@ -46,7 +47,6 @@
 #include "gui/CGuiHandler.h"
 #include "CServerHandler.h"
 #include "../lib/ScriptHandler.h"
-#include "windows/CAdvmapInterface.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
@@ -775,14 +775,14 @@ void CClient::removeGUI()
 }
 
 #ifdef VCMI_ANDROID
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received clientSetupJNI");
 
 	CAndroidVMHelper::cacheVM(env);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server closed signal");
 	if (CSH) {
@@ -790,13 +790,13 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerCl
 	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server ready signal");
 	androidTestServerReadyFlag.store(true);
 }
 
-extern "C" JNIEXPORT bool JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jobject cls)
+extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
 	logGlobal->info("Received emergency save game request");
 	if(!LOCPLINT || !LOCPLINT->cb)

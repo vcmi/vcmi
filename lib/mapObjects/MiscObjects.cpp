@@ -715,14 +715,10 @@ std::string CGMine::getObjectName() const
 
 std::string CGMine::getHoverText(PlayerColor player) const
 {
-	std::string hoverName = getObjectName(); // Sawmill
+	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-	{
-		hoverName += "\n";
-		hoverName += VLC->generaltexth->arraytxt[23 + tempOwner.getNum()]; // owned by Red Player
 		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
-	}
 
 	if(stacksCount())
 	{
@@ -1527,32 +1523,6 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
-void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
-{
-	int message;
-
-	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Well today
-	{
-		message = 78;//"A second drink at the well in one day will not help you."
-	}
-	else if(h->mana < h->manaLimit())
-	{
-		giveDummyBonus(h->id);
-		cb->setManaPoints(h->id,h->manaLimit());
-		message = 77;
-	}
-	else
-	{
-		message = 79;
-	}
-	showInfoDialog(h, message);
-}
-
-std::string CGMagicWell::getHoverText(const CGHeroInstance * hero) const
-{
-	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(Bonus::OBJECT,ID));
-}
-
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
@@ -2198,12 +2168,6 @@ void CGLighthouse::initObj(CRandomGenerator & rand)
 		// FIXME: This is dirty hack
 		giveBonusTo(tempOwner, true);
 	}
-}
-
-std::string CGLighthouse::getHoverText(PlayerColor player) const
-{
-	//TODO: owned by %s player
-	return getObjectName();
 }
 
 void CGLighthouse::giveBonusTo(PlayerColor player, bool onInit) const

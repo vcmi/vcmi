@@ -1171,7 +1171,7 @@ void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &comp
 void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const
 {
 	if (!onHover)
-		text << VLC->generaltexth->tentColors[subID] << " " << VLC->objtypeh->getObjectName(Obj::KEYMASTER);
+		text << VLC->generaltexth->tentColors[subID] << " " << VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID);
 }
 
 bool CGBorderGuard::checkQuest(const CGHeroInstance * h) const

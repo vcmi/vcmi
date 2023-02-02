@@ -10,11 +10,14 @@
 #include "StdInc.h"
 #include "CTradeWindow.h"
 
-#include "CAdvmapInterface.h"
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/TextAlignment.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -679,7 +682,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 
 			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
-			images.push_back(std::make_shared<CPicture>(background->bg, Rect(20, 187, 47, 47), 18, 339 ));
+			images.push_back(std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 18, 339 ));
 			sliderNeeded = false;
 			break;
 		default:

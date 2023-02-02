@@ -103,42 +103,25 @@ bool Unicode::isValidString(const char * data, size_t size)
 	return true;
 }
 
-static std::string getSelectedEncoding()
+/// Detects language and encoding of H3 text files based on matching against pregenerated footprints of H3 file
+void CGeneralTextHandler::detectInstallParameters() const
 {
-	auto explicitSetting = settings["general"]["encoding"].String();
-	if (explicitSetting != "auto")
-		return explicitSetting;
-	return settings["session"]["encoding"].String();
-}
+	struct LanguageFootprint
+	{
+		std::string language;
+		std::string encoding;
+		std::array<double, 16> footprint;
+	};
 
-/// Detects encoding of H3 text files based on matching against pregenerated footprints of H3 file
-/// Can also detect language of H3 install, however right now this is not necessary
-static void detectEncoding()
-{
-	static const size_t knownCount = 6;
-
-	// "footprints" of data collected from known versions of H3
-	static const std::array<std::array<double, 16>, knownCount> knownFootprints =
-	{ {
-		{ { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } },
-		{ { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } },
-		{ { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } },
-		{ { 0.0534, 0.0000, 0.1701, 0.0067, 0.0157, 0.0133, 0.4328, 0.2540, 0.0001, 0.0043, 0.0000, 0.0244, 0.0000, 0.0000, 0.0181, 0.0071 } },
-		{ { 0.0548, 0.0000, 0.1744, 0.0061, 0.0031, 0.0009, 0.0046, 0.0136, 0.0000, 0.0004, 0.0000, 0.0000, 0.0227, 0.0061, 0.4882, 0.2252 } },
-		{ { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } }
-	} };
-
-	// languages of known footprints
-	static const std::array<std::string, knownCount> knownLanguages =
-	{ {
-		  "English", "French", "German", "Polish", "Russian", "Ukrainian"
-	} };
-
-	// encoding that should be used for known footprints
-	static const std::array<std::string, knownCount> knownEncodings =
-	{ {
-		  "CP1252", "CP1252", "CP1252", "CP1250", "CP1251", "CP1251"
-	} };
+	static const std::vector<LanguageFootprint> knownFootprints =
+	{
+		{ "English",   "CP1252", { { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } } },
+		{ "French",    "CP1252", { { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } } },
+		{ "German",    "CP1252", { { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } } },
+		{ "Polish",    "CP1250", { { 0.0534, 0.0000, 0.1701, 0.0067, 0.0157, 0.0133, 0.4328, 0.2540, 0.0001, 0.0043, 0.0000, 0.0244, 0.0000, 0.0000, 0.0181, 0.0071 } } },
+		{ "Russian",   "CP1251", { { 0.0548, 0.0000, 0.1744, 0.0061, 0.0031, 0.0009, 0.0046, 0.0136, 0.0000, 0.0004, 0.0000, 0.0000, 0.0227, 0.0061, 0.4882, 0.2252 } } },
+		{ "Ukrainian", "CP1251", { { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } } },
+	};
 
 	// load file that will be used for footprint generation
 	// this is one of the most text-heavy files in game and consists solely from translated texts
@@ -146,11 +129,11 @@ static void detectEncoding()
 
 	std::array<size_t, 256> charCount;
 	std::array<double, 16> footprint;
-	std::array<double, knownCount> deviations;
+	std::vector<double> deviations;
 
 	boost::range::fill(charCount, 0);
 	boost::range::fill(footprint, 0.0);
-	boost::range::fill(deviations, 0.0);
+	deviations.resize(knownFootprints.size(), 0.0);
 
 	auto data = resource->readAll();
 
@@ -173,21 +156,21 @@ static void detectEncoding()
 	for (size_t i = 0; i < deviations.size(); ++i)
 	{
 		for (size_t j = 0; j < footprint.size(); ++j)
-			deviations[i] += std::abs((footprint[j] - knownFootprints[i][j]));
+			deviations[i] += std::abs((footprint[j] - knownFootprints[i].footprint[j]));
 	}
 
 	size_t bestIndex = boost::range::min_element(deviations) - deviations.begin();
 
 	for (size_t i = 0; i < deviations.size(); ++i)
-		logGlobal->debug("Comparing to %s: %f", knownLanguages[i], deviations[i]);
+		logGlobal->debug("Comparing to %s: %f", knownFootprints[i].language, deviations[i]);
 
-	Settings s = settings.write["session"]["encoding"];
-	s->String() = knownEncodings[bestIndex];
+	Settings encoding = settings.write["session"]["encoding"];
+	encoding->String() = knownFootprints[bestIndex].encoding;
 }
 
 std::string Unicode::toUnicode(const std::string &text)
 {
-	return toUnicode(text, getSelectedEncoding());
+	return toUnicode(text, CGeneralTextHandler::getInstalledEncoding());
 }
 
 std::string Unicode::toUnicode(const std::string &text, const std::string &encoding)
@@ -197,7 +180,7 @@ std::string Unicode::toUnicode(const std::string &text, const std::string &encod
 
 std::string Unicode::fromUnicode(const std::string & text)
 {
-	return fromUnicode(text, getSelectedEncoding());
+	return fromUnicode(text, CGeneralTextHandler::getInstalledEncoding());
 }
 
 std::string Unicode::fromUnicode(const std::string &text, const std::string &encoding)
@@ -389,16 +372,14 @@ void CGeneralTextHandler::readToVector(std::string const & sourceID, std::string
 	while (parser.endLine());
 }
 
-const std::string & CGeneralTextHandler::serialize(const std::string & identifier) const
-{
-	assert(stringsIdentifiers.count(identifier));
-	return stringsIdentifiers.at(identifier);
-}
-
 const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & identifier) const
 {
+	if(stringsOverrides.count(identifier.get()))
+		return stringsOverrides.at(identifier.get());
+
 	if(stringsLocalizations.count(identifier.get()))
 		return stringsLocalizations.at(identifier.get());
+
 	logGlobal->error("Unable to find localization for string '%s'", identifier.get());
 	return identifier.get();
 }
@@ -406,9 +387,18 @@ const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & iden
 void CGeneralTextHandler::registerString(const TextIdentifier & UID, const std::string & localized)
 {
 	assert(UID.get().find("..") == std::string::npos);
-
-	stringsIdentifiers[localized] = UID.get();
 	stringsLocalizations[UID.get()] = localized;
+}
+
+void CGeneralTextHandler::registerStringOverride(const TextIdentifier & UID, const std::string & localized)
+{
+	stringsOverrides[UID.get()] = localized;
+}
+
+void CGeneralTextHandler::loadTranslationOverrides(const JsonNode & config)
+{
+	for ( auto const & node : config.Struct())
+		registerStringOverride(node.first, node.second.String());
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
@@ -419,7 +409,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	hcommands        (*this, "core.hallinfo" ),
 	fcommands        (*this, "core.castinfo" ),
 	advobtxt         (*this, "core.advevent" ),
-	xtrainfo         (*this, "core.xtrainfo" ),
 	restypes         (*this, "core.restypes" ),
 	randsign         (*this, "core.randsign" ),
 	overview         (*this, "core.overview" ),
@@ -441,8 +430,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
 	qeModCommands    (*this, "vcmi.quickExchange" )
 {
-	if (getSelectedEncoding().empty())
-		detectEncoding();
+	detectInstallParameters();
 
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
@@ -450,11 +438,8 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.hallinfo", "DATA/HALLINFO.TXT" );
 	readToVector("core.castinfo", "DATA/CASTINFO.TXT" );
 	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
-	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
-	readToVector("core.crgen1",   "DATA/CRGEN1.TXT"   );
-	readToVector("core.crgen4",   "DATA/CRGEN4.TXT"   );
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
 	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
@@ -471,11 +456,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(ResourceID(QE_MOD_COMMANDS, EResType::TEXT)))
 		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
-
-	auto vcmiTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
-
-	for ( auto const & node : vcmiTexts.Struct())
-		registerString(node.first, node.second.String());
 
 	{
 		CLegacyConfigParser parser("DATA/RANDTVRN.TXT");
@@ -638,18 +618,25 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 
 void CGeneralTextHandler::dumpAllTexts()
 {
+	auto escapeString = [](std::string input)
+	{
+		boost::replace_all(input, "\\", "\\\\");
+		boost::replace_all(input, "\n", "\\n");
+		boost::replace_all(input, "\r", "\\r");
+		boost::replace_all(input, "\t", "\\t");
+		boost::replace_all(input, "\"", "\\\"");
+
+		return input;
+	};
+
 	logGlobal->info("BEGIN TEXT EXPORT");
 	for ( auto const & entry : stringsLocalizations)
-	{
-		auto cleanString = entry.second;
-		boost::replace_all(cleanString, "\\", "\\\\");
-		boost::replace_all(cleanString, "\n", "\\n");
-		boost::replace_all(cleanString, "\r", "\\r");
-		boost::replace_all(cleanString, "\t", "\\t");
-		boost::replace_all(cleanString, "\"", "\\\"");
+		if (stringsOverrides.count(entry.first) == 0)
+			logGlobal->info("\"%s\" : \"%s\",", entry.first, escapeString(entry.second));
 
-		logGlobal->info("\"%s\" : \"%s\",", entry.first, cleanString);
-	}
+	for ( auto const & entry : stringsOverrides)
+		logGlobal->info("\"%s\" : \"%s\",", entry.first, escapeString(entry.second));
+
 	logGlobal->info("END TEXT EXPORT");
 }
 
@@ -660,6 +647,19 @@ size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
 	if(campaignID < scenariosCountPerCampaign.size())
 		return scenariosCountPerCampaign[campaignID];
 	return 0;
+}
+
+std::string CGeneralTextHandler::getInstalledLanguage()
+{
+	return settings["general"]["language"].String();
+}
+
+std::string CGeneralTextHandler::getInstalledEncoding()
+{
+	auto explicitSetting = settings["general"]["encoding"].String();
+	if (explicitSetting != "auto")
+		return explicitSetting;
+	return settings["session"]["encoding"].String();
 }
 
 std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string const & prefix)
@@ -697,6 +697,5 @@ std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index
 		owner.translate(basePath + "." + std::to_string(index) + ".help")
 	};
 }
-
 
 VCMI_LIB_NAMESPACE_END

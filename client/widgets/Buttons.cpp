@@ -18,11 +18,14 @@
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
+#include "../render/CAnimation.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+
+#include <SDL_events.h>
 
 void CButton::update()
 {
@@ -503,7 +506,7 @@ void CVolumeSlider::clickLeft(tribool down, bool previousState)
 {
 	if (down)
 	{
-		double px = GH.current->motion.x - pos.x;
+		double px = GH.getCursorPosition().x - pos.x;
 		double rx = px / static_cast<double>(pos.w);
 		// setVolume is out of 100
 		setVolume((int)(rx * 100));
@@ -522,7 +525,7 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
-		double px = GH.current->motion.x - pos.x;
+		double px = GH.getCursorPosition().x - pos.x;
 		int index = static_cast<int>(px / static_cast<double>(pos.w) * animImage->size());
 
 		size_t helpIndex = index + (mode == MUSIC ? 326 : 336);
@@ -664,12 +667,12 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		double rw = 0;
 		if(horizontal)
 		{
-			pw = GH.current->motion.x-pos.x-25;
+			pw = GH.getCursorPosition().x-pos.x-25;
 			rw = pw / static_cast<double>(pos.w - 48);
 		}
 		else
 		{
-			pw = GH.current->motion.y-pos.y-24;
+			pw = GH.getCursorPosition().y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
 		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) - 40)

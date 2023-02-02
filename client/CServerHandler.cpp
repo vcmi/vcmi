@@ -60,6 +60,8 @@
 #include <windows.h>
 #endif
 
+#include <SDL_events.h>
+
 template<typename T> class CApplyOnLobby;
 
 const std::string CServerHandler::localhostAddress{"127.0.0.1"};

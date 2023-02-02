@@ -90,11 +90,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(TARGET Qt6::Core)
 	qt_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
-	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
-		# TODO: consider using qt_add_translations: https://doc.qt.io/qt-6/qtlinguist-cmake-qt-add-translations.html
-		qt_add_translation( launcher_QM ${launcher_TS} )
-	endif()
 else()
 	qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 	if(ENABLE_TRANSLATIONS)
@@ -112,6 +107,17 @@ if(ENABLE_SINGLE_APP_BUILD)
 	add_library(vcmilauncher STATIC ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
+endif()
+
+if(TARGET Qt6::Core)
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt_add_translations(vcmilauncher
+			TS_FILES ${launcher_TS}
+			QM_FILES_OUTPUT_VARIABLE launcher_QM
+			INCLUDE_DIRECTORIES
+				${CMAKE_CURRENT_BINARY_DIR})
+	endif()
 endif()
 
 if(WIN32)

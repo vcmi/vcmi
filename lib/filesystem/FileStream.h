@@ -59,7 +59,7 @@ public:
 	explicit FileStream(const boost::filesystem::path& p, std::ios_base::openmode mode = std::ios_base::in | std::ios_base::out)
 		: boost::iostreams::stream<FileBuf>(p, mode) {}
 
-	static bool CreateFile(const boost::filesystem::path& filename);
+	static bool createFile(const boost::filesystem::path& filename);
 
 	static zlib_filefunc64_def* GetMinizipFilefunc();
 };
