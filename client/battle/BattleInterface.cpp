@@ -257,7 +257,6 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 	ba->actionSubtype = additional;
 
 	sendCommand(ba, actor);
-	CCS->curh->set(Cursor::Combat::POINTER);
 }
 
 void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
@@ -277,6 +276,7 @@ void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
+	CCS->curh->set(Cursor::Combat::POINTER);
 }
 
 const CGHeroInstance * BattleInterface::getActiveHero()
