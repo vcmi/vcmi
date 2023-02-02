@@ -1723,7 +1723,7 @@ void CGameState::initTowns()
 				vti->builtBuildings.insert(BuildingID::TAVERN);
 
 			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
-			if(getRandomGenerator().nextInt(1) == 1)
+			if((getRandomGenerator().nextInt(1) == 1) || VLC->modh->settings.DEFAULT_TOWN_ALWAYS_2_DWELLINGS)
 			{
 				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
 			}

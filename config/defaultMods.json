@@ -34,7 +34,8 @@
 		"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0, //limit of damage increase that can be achieved by overpowering attack points
 		"DEFENSE_POINT_DMG_MULTIPLIER": 0.025, //every 1 defense point damage influence in battle when defense points > attack points during creature attack
 		"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7, //limit of damage reduction that can be achieved by overpowering defense points
-		"NEW_HERO_ALWAYS_3_CREATURE_STACKS": false
+		"NEW_HERO_ALWAYS_3_CREATURE_STACKS": false,
+		"DEFAULT_TOWN_ALWAYS_2_DWELLINGS": false
 	},
 	"modules":
 	{
