@@ -1,3 +1,95 @@
+# 1.1.1 -> 1.2.0
+
+### GENERAL:
+* Implemented hardware cursor support
+* Heroes III language can now be detected automatically
+* Increased targeted framerate from 48 to 60
+* Fixed bonus values of heroes who specialize in secondary skills
+* Fixed bonus values of heroes who specialize in creatures
+* Fixed damage increase from Adela's Bless specialty
+* Fixed missing obstacles in battles on subterranean terrain 
+
+### MAP EDITOR:
+* Added translations to German, Polish, Russian, Ukrainian
+
+### LAUNCHER:
+* Icons now have higher resolution, to prevent upscaling artifacts
+* Added translations to German, Polish, Russian, Ukrainian
+* Mods tab layout has been adjusted based on feedback from players
+* Settings tab layout has been redesigned to support longer texts
+* Added button to start map editor directly from Launcher
+
+### ADVENTURE MAP:
+* Implemented different hero movement sounds for offroad movement
+* Cartographers now reveal terrain in the same way as in H3
+
+### BATTLES:
+* Fixed white status bar on server connection screen
+* Buttons in battle window now correctly show tooltip in status bar
+* Fixed cursor image during enemy turn in combat
+* All effects will now wait for battle opening sound before playing
+* Hex highlighting will now be disabled during enemy turn
+* Fixed incorrect log message when casting spell that kills zero units
+* Implemented animated cursor for spellcasting
+* Fixed multiple issues related to ordering of creature animations
+* Fixed missing flags from hero animations when opening menus
+* Fixed rendering order of moat and grid shadow
+* Jousting bonus from Champions will now be correctly accounted for in damage estimation
+* Building Castle building will now provide walls with additional health point
+* Speed of all battle animations should now match H3
+* Fixed missing obstacles on subterranean terrain
+* Ballistics mechanics now matches H3 logic
+* Arrow Tower base damage should now match H3
+* Destruction of wall segments will now remove ranged attack penalty
+* Force Field cast in front of drawbridge will now block it as in H3
+* Fixed computations for Behemoth defense reduction ability 
+* Bad luck (if enabled) will now multiple all damage by 50%, in line with other damage reducing mechanics
+* Fixed highlighting of movement range for creatures standing on a corpse
+
+### SPELLS:
+* Hero casting animation will play before spell effect
+* Fire Shield: added sound effect
+* Fire Shield: effect now correctly plays on defending creature
+* Earthquake: added sound effect
+* Earthquake: spell will not select sections that were already destroyed before cast
+* Remove Obstacles: fixed error message when casting on maps without obstacles
+* All area-effect spells (e.g. Fireball) will play their effect animation on top
+* Summoning spells: added fade-in effect for summoned creatures
+* Fixed timing of hit animation for damage-dealing spells
+* Obstacle-creating spells: UI is now locked during effect animation
+* Obstacle-creating spells: added sound effect
+* Added reverse death animation for spells that bring stack back to life
+* Bloodlust: implemented visual effect
+* Teleport: implemented visual fade-out and fade-in effect for teleporting
+* Berserk: Fixed duration of effect
+* Frost Ring: Fixed spell effect range
+* Fixed several cases where multiple different effects could play at the same time
+* All spells that can affecte multiple targets will now highlight affected stacks
+* Bless and Curse now provide +1 or -1 to base damage on Advanced & Expert levels
+
+### ABILITIES:
+* Rebirth (Phoenix): Sound will now play in the same time as animation effect
+* Master Genie spellcasting: Sound will now play in the same time as animation effect
+* Power Lich, Magogs: Sound will now play in the same time as attack animation effect
+* Dragon Breath attack now correctly uses different attack animation if multiple targets are hit
+* Petrification: implemented visual effect
+* Paralyze: added visual effect
+* Blind: Stacks will no longer retailate on attack that blinds them
+* Demon Summon: Added animation effect for summoning
+* Fire shield will no longer trigger on non-adjacent attacks, e.g. from Dragon Breath
+* Weakness now has correct visual effect 
+* Added damage bonus for opposite elements for Elementals
+* Added damage reduction for Magic Elemental attacks against creatures immune to magic
+* Added incoming damage reduction to Petrify
+* Added counter-attack damage reduction for Paralyze
+
+### MODDING:
+* All configurable objects from H3 now have their configuration in json
+* Improvements to functionality of configurable objects
+* It is now possible to define new hero movement sounds in terrains
+* Implemented translation support for mods
+* Files with new Terrains, Roads and Rivers are now validated by game
+
 # 1.1.0 -> 1.1.1
 
 ### GENERAL:
