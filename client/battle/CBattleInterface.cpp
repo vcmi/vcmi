@@ -1275,6 +1275,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 void CBattleInterface::displayBattleFinished()
 {
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+	curInt->waitWhileDialog();
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
 		close();

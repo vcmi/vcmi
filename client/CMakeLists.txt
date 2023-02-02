@@ -234,8 +234,7 @@ elseif(APPLE_IOS)
 		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 		# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
-		# add max version condition when https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7562 is merged
-		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
+		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0" AND CMAKE_VERSION VERSION_LESS "3.25.0")
 			set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
 		endif()
 	endforeach()

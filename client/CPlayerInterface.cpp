@@ -1702,7 +1702,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	else
 	for (directory_iterator dir(gamesDir); dir != enddir; ++dir)
 	{
-		if (is_regular(dir->status()))
+		if (is_regular_file(dir->status()))
 		{
 			std::string name = dir->path().filename().string();
 			if (starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
@@ -2273,6 +2273,8 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 		if (artWin)
 			artWin->artifactRemoved(al);
 	}
+
+	waitWhileDialog();
 }
 
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
@@ -2287,6 +2289,8 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	if(!GH.objsToBlit.empty())
 		GH.objsToBlit.back()->redraw();
+
+	waitWhileDialog();
 }
 
 void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
@@ -2546,6 +2550,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
+
+		// ugly workaround to force instant update of adventure map
+		adventureInt->animValHitCount = 8;
 	}
 
 	setMovementStatus(false);

@@ -88,6 +88,10 @@ private:
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
+	void convertTouchToMouse(SDL_Event * current);
+	void fakeMoveCursor(float dx, float dy);
+	void fakeMouseButtonEventRelativeMode(bool down, bool right);
+
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
@@ -101,6 +105,9 @@ public:
 
 	Point lastClick;
 	unsigned lastClickTime;
+	bool multifinger;
+	bool isPointerRelativeMode;
+	float pointerSpeedMultiplier;
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
@@ -109,6 +116,7 @@ public:
 	CGuiHandler();
 	~CGuiHandler();
 
+	void init();
 	void renderFrame();
 
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering

@@ -180,7 +180,7 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 {
 #if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	if(sEvent.state == 0) // any "button" is enough on mobile
+	if(sEvent.state == 0 || GH.multifinger) // any "button" is enough on mobile
 #else
 	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
 #endif
@@ -1044,7 +1044,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		++heroAnim;
 	}
-	if(animValHitCount == 8)
+	if(animValHitCount >= 8)
 	{
 		CGI->mh->updateWater();
 		animValHitCount = 0;

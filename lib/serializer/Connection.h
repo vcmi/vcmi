@@ -52,6 +52,7 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
+struct ConnectionBuffers;
 
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write
@@ -63,8 +64,14 @@ class DLL_LINKAGE CConnection
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
+	void flushBuffers();
 
 	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
+
+	bool enableBufferedWrite;
+	bool enableBufferedRead;
+	std::unique_ptr<ConnectionBuffers> connectionBuffers;
+
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;

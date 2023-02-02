@@ -1292,10 +1292,10 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out << tile.terType->typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
 	if(tile.roadType->id != Road::NO_ROAD)
-		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
+		out << tile.roadType->code << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
 
 	if(tile.riverType->id != River::NO_RIVER)
-		out << tile.riverType << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
+		out << tile.riverType->code << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
 
 	return out.str();
 }

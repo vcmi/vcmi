@@ -506,6 +506,9 @@ if(WIN32)
 				FILES ${integration_loc}
 				DESTINATION ${BIN_DIR}/platforms
 			)
+			install(
+				FILES "$<TARGET_FILE:Qt${QT_VERSION_MAJOR}::QWindowsVistaStylePlugin>" 
+				DESTINATION ${BIN_DIR}/styles) 
 		endif()
 	endif()
 
@@ -618,6 +621,7 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	add_subdirectory(osx)
 elseif(APPLE_IOS)
 	set(CPACK_GENERATOR ZIP)
+	set(CPACK_ARCHIVE_FILE_EXTENSION ipa)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 	set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_PROJECT_NAME};app;/")
 else()

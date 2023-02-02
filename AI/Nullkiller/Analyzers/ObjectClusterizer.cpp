@@ -202,7 +202,6 @@ void ObjectClusterizer::clusterize()
 		Obj::WHIRLPOOL,
 		Obj::BUOY,
 		Obj::SIGN,
-		Obj::SIGN,
 		Obj::GARRISON,
 		Obj::MONSTER,
 		Obj::GARRISON2,
