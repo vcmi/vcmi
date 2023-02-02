@@ -17,17 +17,17 @@
 #include "BattleActionsController.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
-#include "../gui/Canvas.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CAnimation.h"
 #include "../windows/CSpellWindow.h"
-#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
+#include "../windows/CMessage.h"
+#include "../render/CAnimation.h"
+#include "../render/Canvas.h"
+#include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -35,6 +35,9 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
+
+#include <SDL_surface.h>
+#include <SDL_events.h>
 
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)

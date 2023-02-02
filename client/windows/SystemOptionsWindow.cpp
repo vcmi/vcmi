@@ -11,6 +11,9 @@
 
 #include "SystemOptionsWindow.h"
 
+#include <SDL_rect.h>
+#include <SDL_video.h>
+
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/filesystem/ResourceID.h"
 #include "../gui/CGuiHandler.h"

@@ -20,7 +20,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
 
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
 
 #include "../CGameInfo.h"
@@ -28,7 +27,6 @@
 #include "../../lib/JsonNode.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
-#include "../Graphics.h"
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/VCMIDirs.h"
@@ -36,10 +34,8 @@
 #include "../windows/GUIClasses.h"
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
-#include "../CMessage.h"
 #include "../Client.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CAnimation.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -56,6 +52,7 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
+#include <SDL_events.h>
 
 namespace fs = boost::filesystem;
 
@@ -76,11 +73,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	background = std::make_shared<CPicture>(config["background"].String());
 	if(config["scalable"].Bool())
-	{
-		if(background->bg->format->palette)
-			background->convertToScreenBPP();
 		background->scaleTo(Point(screen->w, screen->h));
-	}
 
 	pos = background->center();
 

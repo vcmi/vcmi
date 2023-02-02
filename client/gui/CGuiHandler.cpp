@@ -11,18 +11,21 @@
 #include "CGuiHandler.h"
 #include "../lib/CondSh.h"
 
-#include <SDL_timer.h>
-
 #include "CIntObject.h"
 #include "CursorHandler.h"
-#include "SDL_Extensions.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/CThreadHelper.h"
-#include "../../lib/CConfigHandler.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
+
+#include "../../lib/CThreadHelper.h"
+#include "../../lib/CConfigHandler.h"
+
+#include <SDL_render.h>
+#include <SDL_timer.h>
+#include <SDL_events.h>
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
@@ -474,7 +477,9 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 	}
 	else if(current.type == SDL_FINGERUP)
 	{
+#ifndef VCMI_IOS
 		auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
+#endif //VCMI_IOS
 
 		if(isPointerRelativeMode)
 		{
@@ -639,12 +644,11 @@ const Point & CGuiHandler::getCursorPosition() const
 
 void CGuiHandler::drawFPSCounter()
 {
-	const static SDL_Color yellow = {255, 255, 0, 0};
 	static SDL_Rect overlay = { 0, 0, 64, 32};
-	Uint32 black = SDL_MapRGB(screen->format, 10, 10, 10);
+	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
 	std::string fps = boost::lexical_cast<std::string>(mainFPSmng->fps);
-	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, yellow, Point(10, 10));
+	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
 }
 
 SDL_Keycode CGuiHandler::arrowToNum(SDL_Keycode key)
@@ -749,7 +753,8 @@ void CFramerateManager::framerateDelay()
 	// FPS is higher than it should be, then wait some time
 	if(timeElapsed < rateticks)
 	{
-		SDL_Delay((Uint32)ceil(this->rateticks) - timeElapsed);
+		int timeToSleep = (uint32_t)ceil(this->rateticks) - timeElapsed;
+		boost::this_thread::sleep(boost::posix_time::milliseconds(timeToSleep));
 	}
 
 	currentTicks = SDL_GetTicks();

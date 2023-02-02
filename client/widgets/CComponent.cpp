@@ -18,18 +18,20 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
-
-#include "../CMessage.h"
+#include "../gui/TextAlignment.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../windows/CMessage.h"
+#include "../widgets/TextControls.h"
 #include "../CGameInfo.h"
-#include "../windows/CAdvmapInterface.h"
 
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
+#include "../../lib/CArtHandler.h"
 
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize)
 	: perDay(false)

@@ -14,7 +14,6 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"

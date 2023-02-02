@@ -812,7 +812,7 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	JsonNode & animationTime = graphics["animationTime"];
 	animationTime["walk"].Float() = parser.readNumber();
 	animationTime["attack"].Float() = parser.readNumber();
-	animationTime["flight"].Float() = parser.readNumber();
+	parser.readNumber(); // unused value "Flight animation time" - H3 actually uses "Walk animation time" even for flying creatures
 	animationTime["idle"].Float() = 10.0;
 
 	JsonNode & missile = graphics["missile"];
@@ -851,7 +851,6 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.walkAnimationTime = animationTime["walk"].Float();
 	cre->animation.idleAnimationTime = animationTime["idle"].Float();
 	cre->animation.attackAnimationTime = animationTime["attack"].Float();
-	cre->animation.flightAnimationDistance = animationTime["flight"].Float(); //?
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];
@@ -927,15 +926,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		CCreature::CreatureAnimation::RayColor color;
 
-		color.r1 = value["start"].Vector()[0].Integer();
-		color.g1 = value["start"].Vector()[1].Integer();
-		color.b1 = value["start"].Vector()[2].Integer();
-		color.a1 = value["start"].Vector()[3].Integer();
+		color.start.r = value["start"].Vector()[0].Integer();
+		color.start.g = value["start"].Vector()[1].Integer();
+		color.start.b = value["start"].Vector()[2].Integer();
+		color.start.a = value["start"].Vector()[3].Integer();
 
-		color.r2 = value["end"].Vector()[0].Integer();
-		color.g2 = value["end"].Vector()[1].Integer();
-		color.b2 = value["end"].Vector()[2].Integer();
-		color.a2 = value["end"].Vector()[3].Integer();
+		color.end.r = value["end"].Vector()[0].Integer();
+		color.end.g = value["end"].Vector()[1].Integer();
+		color.end.b = value["end"].Vector()[2].Integer();
+		color.end.a = value["end"].Vector()[3].Integer();
 
 		creature->animation.projectileRay.push_back(color);
 	}

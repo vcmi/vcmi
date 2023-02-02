@@ -8,6 +8,7 @@
  *
  */
 
+#include <SDL_events.h>
 #include "StdInc.h"
 
 #include "SettingsMainContainer.h"

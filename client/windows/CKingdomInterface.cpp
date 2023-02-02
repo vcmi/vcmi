@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CKingdomInterface.h"
 
-#include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "InfoWindows.h"
 
@@ -19,7 +18,11 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/Buttons.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 

@@ -10,23 +10,24 @@
 #include "StdInc.h"
 #include "CCastleInterface.h"
 
-#include "CAdvmapInterface.h"
 #include "CHeroWindow.h"
 #include "CTradeWindow.h"
 #include "InfoWindows.h"
 #include "GUIClasses.h"
 #include "QuickRecruitmentWindow.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../Graphics.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/IImage.h"
+#include "../render/ColorFilter.h"
+#include "../adventureMap/CAdvMapInt.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
@@ -42,8 +43,10 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
+#include <SDL_events.h>
+
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
-	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE),
+	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE, BUILDING_FRAME_TIME),
 	  parent(Par),
 	  town(Town),
 	  str(Str),
@@ -68,22 +71,14 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	}
 
 	if(!str->borderName.empty())
-		border = BitmapHandler::loadBitmap(str->borderName);
+		border = IImage::createFromFile(str->borderName);
 	else
 		border = nullptr;
 
 	if(!str->areaName.empty())
-		area = BitmapHandler::loadBitmap(str->areaName);
+		area = IImage::createFromFile(str->areaName);
 	else
 		area = nullptr;
-}
-
-CBuildingRect::~CBuildingRect()
-{
-	if(border)
-		SDL_FreeSurface(border);
-	if(area)
-		SDL_FreeSurface(area);
 }
 
 const CBuilding * CBuildingRect::getBuilding()
@@ -127,7 +122,7 @@ void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
 	{
-		if(!CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft())) //inside building image
+		if(!area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //inside building image
 		{
 			auto building = getBuilding();
 			parent->buildingClicked(building->bid, building->subId, building->upgrade);
@@ -139,7 +134,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
-	if( !CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft()) ) //inside building image
+	if( !area->isTransparent(GH.getCursorPosition() - pos.topLeft()) ) //inside building image
 	{
 		BuildingID bid = getBuilding()->bid;
 		const CBuilding *bld = town->town->buildings.at(bid);
@@ -159,10 +154,10 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 {
 	SDL_Color ret;
-	ret.r = static_cast<Uint8>(a.r * f + b.r * (1 - f));
-	ret.g = static_cast<Uint8>(a.g * f + b.g * (1 - f));
-	ret.b = static_cast<Uint8>(a.b * f + b.b * (1 - f));
-	ret.a = static_cast<Uint8>(a.a * f + b.b * (1 - f));
+	ret.r = static_cast<uint8_t>(a.r * f + b.r * (1 - f));
+	ret.g = static_cast<uint8_t>(a.g * f + b.g * (1 - f));
+	ret.b = static_cast<uint8_t>(a.b * f + b.b * (1 - f));
+	ret.a = static_cast<uint8_t>(a.a * f + b.b * (1 - f));
 	return ret;
 }
 
@@ -186,33 +181,27 @@ void CBuildingRect::show(SDL_Surface * to)
 		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
 			if(parent->selectedBuilding == this)
-				blitAtLoc(border,0,0,to);
+				border->draw(to, pos.x, pos.y);
 			return;
 		}
-		if(border->format->palette != nullptr)
-		{
-			// key colors in glowing border
-			SDL_Color c1 = {200, 200, 200, 255};
-			SDL_Color c2 = {120, 100,  60, 255};
-			SDL_Color c3 = {200, 180, 110, 255};
 
-			ui32 colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
-			SDL_Color oldColor = border->format->palette->colors[colorID];
-			SDL_Color newColor;
+		auto darkBorder = ColorFilter::genRangeShifter(0.f, 0.f, 0.f, 0.5f, 0.5f, 0.5f );
+		auto lightBorder = ColorFilter::genRangeShifter(0.f, 0.f, 0.f, 2.0f, 2.0f, 2.0f );
+		auto baseBorder = ColorFilter::genEmptyShifter();
 
-			if (stateTimeCounter < BUILDING_WHITE_BORDER_TIMEPOINT)
-				newColor = multiplyColors(c1, c2, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
-			else
-			if (stateTimeCounter < BUILDING_YELLOW_BORDER_TIMEPOINT)
-				newColor = multiplyColors(c2, c3, static_cast<double>(stateTimeCounter % stageDelay) / stageDelay);
-			else
-				newColor = oldColor;
+		float progress = float(stateTimeCounter % stageDelay) / stageDelay;
 
-			CSDL_Ext::setColors(border, &newColor, colorID, 1);
-			blitAtLoc(border, 0, 0, to);
-			CSDL_Ext::setColors(border, &oldColor, colorID, 1);
-		}
+		if (stateTimeCounter < BUILDING_WHITE_BORDER_TIMEPOINT)
+			border->adjustPalette(ColorFilter::genInterpolated(lightBorder, darkBorder, progress), 0);
+		else
+		if (stateTimeCounter < BUILDING_YELLOW_BORDER_TIMEPOINT)
+			border->adjustPalette(ColorFilter::genInterpolated(darkBorder, baseBorder, progress), 0);
+		else
+			border->adjustPalette(baseBorder, 0);
+
+		border->draw(to, pos.x, pos.y);
 	}
+
 	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
 }
@@ -224,7 +213,7 @@ void CBuildingRect::showAll(SDL_Surface * to)
 
 	CShowableAnim::showAll(to);
 	if(!active && parent->selectedBuilding == this && border)
-		blitAtLoc(border,0,0,to);
+		border->draw(to, pos.x, pos.y);
 }
 
 std::string CBuildingRect::getSubtitle()//hover text for building
@@ -256,7 +245,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area && pos.isInside(sEvent.x, sEvent.y))
 	{
-		if(CSDL_Ext::isTransparent(area, GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
+		if(area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{
@@ -1168,7 +1157,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555, false);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555);
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
 
@@ -1365,7 +1354,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	resdatabar->moveBy(pos.topLeft(), true);
 	Rect barRect(5, 556, 740, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 5, 556, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 5, 556);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
@@ -1588,7 +1577,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	Rect barRect(4, 554, 740, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 4, 554, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 4, 554);
 	statusbar = CGStatusBar::create(statusbarBackground);
 }
 
@@ -1729,7 +1718,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 
 	Rect barRect(7, 556, 737, 18);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, SDLK_RETURN);
@@ -1796,7 +1785,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 
 	Rect barRect(8, pos.h - 26, pos.w - 16, 19);
 
-	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 8, pos.h - 26, false);
+	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	animBG = std::make_shared<CPicture>("TPSMITBK", 64, 50);

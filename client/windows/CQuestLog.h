@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
+#include "../adventureMap/CMinimap.h"
 #include "CWindowObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

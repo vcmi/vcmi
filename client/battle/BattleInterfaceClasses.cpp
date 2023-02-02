@@ -19,21 +19,21 @@
 #include "BattleWindow.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
-#include "../Graphics.h"
-#include "../gui/CAnimation.h"
-#include "../gui/Canvas.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../widgets/AdventureMapClasses.h"
+#include "../render/Canvas.h"
+#include "../render/IImage.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
+#include "../windows/CMessage.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
+#include "../render/CAnimation.h"
+#include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -47,6 +47,9 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+
+#include <SDL_surface.h>
+#include <SDL_events.h>
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
@@ -218,8 +221,10 @@ void BattleHero::render(Canvas & canvas)
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
 
-	flagCurrentFrame += currentSpeed;
-	currentFrame += currentSpeed;
+	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
+
+	flagCurrentFrame += currentSpeed * timePassed;
+	currentFrame += currentSpeed * timePassed;
 
 	if(flagCurrentFrame >= flagAnimation->size(0))
 		flagCurrentFrame -= flagAnimation->size(0);
@@ -238,8 +243,8 @@ void BattleHero::pause()
 
 void BattleHero::play()
 {
-	//FIXME: un-hardcode speed
-	currentSpeed = 0.25f;
+	//H3 speed: 10 fps ( 100 ms per frame)
+	currentSpeed = 10.f;
 }
 
 float BattleHero::getFrame() const
@@ -452,19 +457,19 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
 
 	animSpeeds = std::make_shared<CToggleGroup>([&](int value)
 	{
-		Settings speed = settings.write["battle"]["animationSpeed"];
-		speed->Float() = float(value) / 100;
+		Settings speed = settings.write["battle"]["speedFactor"];
+		speed->Float() = float(value);
 	});
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
-	animSpeeds->addToggle(40, toggle);
+	animSpeeds->addToggle(1, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point( 92, 225), "sysob10.def", CGI->generaltexth->zelp[423]);
-	animSpeeds->addToggle(63, toggle);
+	animSpeeds->addToggle(2, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
-	animSpeeds->addToggle(100, toggle);
+	animSpeeds->addToggle(3, toggle);
 
 	animSpeeds->setSelected(getAnimSpeed());
 
@@ -502,9 +507,9 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
 int BattleOptionsWindow::getAnimSpeed() const
 {
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
-		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float() *100));
+		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float()));
 
-	return static_cast<int>(vstd::round(settings["battle"]["animationSpeed"].Float() *100));
+	return static_cast<int>(vstd::round(settings["battle"]["speedFactor"].Float()));
 }
 
 void BattleOptionsWindow::bDefaultf()

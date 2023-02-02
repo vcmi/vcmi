@@ -24,13 +24,12 @@
 #include "BattleRenderer.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../gui/Canvas.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../windows/CAdvmapInterface.h"
+#include "../render/Canvas.h"
+#include "../adventureMap/CAdvMapInt.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"

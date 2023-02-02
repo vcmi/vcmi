@@ -10,34 +10,36 @@
 #include "StdInc.h"
 #include "GUIClasses.h"
 
-#include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
-#include "CreatureCostBox.h"
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
-#include "../Graphics.h"
-#include "../mapHandler.h"
 #include "../CServerHandler.h"
 
+#include "../adventureMap/mapHandler.h"
+#include "../adventureMap/CResDataBar.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
 
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/TextAlignment.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CreatureCostBox.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/ObjectLists.h"
 
 #include "../lobby/CSavingScreen.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 
@@ -61,10 +63,9 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
-using namespace CSDL_Ext;
+#include <SDL_events.h>
 
-std::list<CFocusable*> CFocusable::focusables;
-CFocusable * CFocusable::inputWithFocus;
+using namespace CSDL_Ext;
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),
@@ -989,7 +990,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578, false));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578));
 
 	//garrison interface
 
@@ -1149,7 +1150,6 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
 		}
 		else
 		{

@@ -13,16 +13,20 @@
 #include "Buttons.h"
 #include "Images.h"
 
-#include "../CMessage.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
-#include "../widgets/AdventureMapClasses.h"
-
-#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../windows/CMessage.h"
+#include "../adventureMap/CInGameConsole.h"
+#include "../../lib/CGeneralTextHandler.h"
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
+
+#include <SDL_events.h>
+
+std::list<CFocusable*> CFocusable::focusables;
+CFocusable * CFocusable::inputWithFocus;
 
 std::string CLabel::visibleText()
 {
@@ -415,7 +419,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	{
 		//execution of this block when maxw is incorrect breaks text centralization (issue #3151)
 		vstd::amin(pos.w, maxw);
-		background->srcRect = new Rect(0, 0, maxw, pos.h);
+		background->srcRect = Rect(0, 0, maxw, pos.h);
 	}
 	autoRedraw = false;
 }
@@ -496,18 +500,13 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 #endif
 }
 
-CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
+CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
-	background = std::make_shared<CPicture>(Pos, 0, true);
-	Rect hlp = Pos;
-	if(srf)
-		CSDL_Ext::blitSurface(srf, hlp, background->getSurface(), Point(0,0));
-	else
-		SDL_FillRect(background->getSurface(), nullptr, 0);
+	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 	background->pos = pos;

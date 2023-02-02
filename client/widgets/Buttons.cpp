@@ -18,11 +18,14 @@
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
+#include "../render/CAnimation.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+
+#include <SDL_events.h>
 
 void CButton::update()
 {

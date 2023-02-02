@@ -63,8 +63,8 @@ public:
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 
-	std::string getDescriptionTextID(int level) const;
-	std::string getDescriptionTranslated(int level) const;
+	std::string getDescriptionTextID(int level) const override;
+	std::string getDescriptionTranslated(int level) const override;
 
 	const LevelInfo & at(int level) const;
 	LevelInfo & at(int level);
@@ -89,7 +89,7 @@ public:
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
 };
 
-class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill, CSkill, SkillService>
+class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSkill, SkillService>
 {
 public:
 	CSkillHandler();

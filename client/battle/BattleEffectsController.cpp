@@ -21,8 +21,8 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CAnimation.h"
-#include "../gui/Canvas.h"
+#include "../render/Canvas.h"
+#include "../render/CAnimation.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"

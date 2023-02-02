@@ -5117,7 +5117,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	}
 	
 	int obj = 0;
-	if (words.size() == 2)
+	if (words.size() == 2 && words[0] != "vcmiexp")
 	{
 		obj = std::atoi(words[1].c_str());
 		if (obj)
@@ -5129,8 +5129,15 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if (words.size() == 1 || obj)
+	if((words[0] == "vcmiarmy" || words[0] == "vcmiexp") && words.size() > 1)
+	{
+		std::string cheatCodeWithOneParameter = std::string(words[0]) + " " + words[1];
+		handleCheatCode(cheatCodeWithOneParameter, player, hero, town, cheated);
+	}
+	else if (words.size() == 1 || obj)
+	{
 		handleCheatCode(words[0], player, hero, town, cheated);
+	}
 	else
 	{
 		for (const auto & i : gs->players)
@@ -5145,11 +5152,12 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 			else if (words[1] != "all" && words[1] != i.first.getStr())
 				continue;
 
-			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant")
+			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant"
+				|| words[0] == "vcmiresources" || words[0] == "vcmimap" || words[0] == "vcmihidemap")
 			{
 				handleCheatCode(words[0], i.first, nullptr, nullptr, cheated);
 			}
-			else if (words[0] == "vcmiarmenelos")
+			else if (words[0] == "vcmiarmenelos" || words[0] == "vcmibuild")
 			{
 				for (const auto & t : i.second.towns)
 				{
@@ -7032,7 +7040,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 
 void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated)
 {
-	if (cheat == "vcmiistari")
+	if (cheat == "vcmiistari" || cheat == "vcmispells")
 	{
 		cheated = true;
 		if (!hero) return;
@@ -7058,7 +7066,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		sm.absolute = true;
 		sendAndApply(&sm);
 	}
-	else if (cheat == "vcmiarmenelos")
+	else if (cheat == "vcmiarmenelos" || cheat == "vcmibuild")
 	{
 		cheated = true;
 		if (!town) return;
@@ -7073,22 +7081,53 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 			}
 		}
 	}
-	else if (cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung")
+	else if (cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung" || cheat == "vcmiarchangel"
+		|| cheat == "vcmiblackknight" || cheat == "vcmicrystal" || cheat == "vcmiazure" || cheat == "vcmifaerie")
 	{
 		cheated = true;
 		if (!hero) return;
 		///Gives N creatures into each slot
-		std::map<std::string, std::pair<int, int>> creatures;
-		creatures.insert(std::make_pair("vcmiainur", std::make_pair(13, 5))); //5 archangels
-		creatures.insert(std::make_pair("vcmiangband", std::make_pair(66, 10))); //10 black knights
-		creatures.insert(std::make_pair("vcmiglaurung", std::make_pair(133, 5000))); //5000 crystal dragons
+		std::map<std::string, std::pair<std::string, int>> creatures;
+		creatures.insert(std::make_pair("vcmiainur", std::make_pair("archangel", 5))); //5 archangels
+		creatures.insert(std::make_pair("vcmiangband", std::make_pair("blackKnight", 10))); //10 black knights
+		creatures.insert(std::make_pair("vcmiglaurung", std::make_pair("crystalDragon", 5000))); //5000 crystal dragons
+		creatures.insert(std::make_pair("vcmiarchangel", std::make_pair("archangel", 5))); //5 archangels
+		creatures.insert(std::make_pair("vcmiblackknight", std::make_pair("blackKnight", 10))); //10 black knights
+		creatures.insert(std::make_pair("vcmicrystal", std::make_pair("crystalDragon", 5000))); //5000 crystal dragons
+		creatures.insert(std::make_pair("vcmiazure", std::make_pair("azureDragon", 5000))); //5000 azure dragons
+		creatures.insert(std::make_pair("vcmifaerie", std::make_pair("fairieDragon", 5000))); //5000 faerie dragons
 
-		const CCreature * creature = VLC->creh->objects.at(creatures[cheat].first);
+		const int32_t creatureIdentifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatures[cheat].first, false).get();
+		const CCreature * creature = VLC->creh->objects.at(creatureIdentifier);
 		for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			if (!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
 	}
-	else if (cheat == "vcminoldor")
+	else if (boost::starts_with(cheat, "vcmiarmy"))
+	{
+		cheated = true;
+		if (!hero) return;
+
+		std::vector<std::string> words;
+		boost::split(words, cheat, boost::is_any_of(" "));
+
+		if(words.size() < 2)
+			return;
+
+		std::string creatureIdentifier = words[1];
+
+		boost::optional<int32_t> creatureId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatureIdentifier, false);
+
+		if(creatureId.is_initialized())
+		{
+			const CCreature * creature = VLC->creh->objects.at(creatureId.get());
+
+			for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
+				if (!hero->hasStackAtSlot(SlotID(i)))
+					insertNewStack(StackLocation(hero, SlotID(i)), creature, 5 * std::pow(10, i));
+		}
+	}
+	else if (cheat == "vcminoldor" || cheat == "vcmimachines")
 	{
 		cheated = true;
 		if (!hero) return;
@@ -7100,7 +7139,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		if (!hero->getArt(ArtifactPosition::MACH3))
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
 	}
-	else if (cheat == "vcmiforgeofnoldorking")
+	else if (cheat == "vcmiforgeofnoldorking" || cheat == "vcmiartifacts")
 	{
 		cheated = true;
 		if (!hero) return;
@@ -7108,14 +7147,42 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		for (int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
 			giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::PRE_FIRST);
 	}
-	else if (cheat == "vcmiglorfindel")
+	else if (cheat == "vcmiglorfindel" || cheat == "vcmilevel")
 	{
 		cheated = true;
 		if (!hero) return;
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
 	}
-	else if (cheat == "vcminahar")
+	else if (boost::starts_with(cheat, "vcmiexp"))
+	{
+		cheated = true;
+		if (!hero) return;
+
+		std::vector<std::string> words;
+		boost::split(words, cheat, boost::is_any_of(" "));
+
+		if(words.size() < 2)
+			return;
+
+		std::string expAmount = words[1];
+		long expAmountProcessed = 0;
+
+		try
+		{
+			expAmountProcessed = std::stol(expAmount);
+		}
+		catch(std::exception&)
+		{
+			logGlobal->error("Could not parse experience amount for vcmiexp cheat");
+		}
+
+		if(expAmountProcessed > 1)
+		{
+			changePrimSkill(hero, PrimarySkill::EXPERIENCE, expAmountProcessed);
+		}
+	}
+	else if (cheat == "vcminahar" || cheat == "vcmimove")
 	{
 		cheated = true;
 		if (!hero) return;
@@ -7132,7 +7199,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		gb.id = hero->id.getNum();
 		giveHeroBonus(&gb);
 	}
-	else if (cheat == "vcmiformenos")
+	else if (cheat == "vcmiformenos" || cheat == "vcmiresources")
 	{
 		cheated = true;
 		///Give resources to player
@@ -7143,7 +7210,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 
 		giveResources(player, resources);
 	}
-	else if (cheat == "vcmisilmaril")
+	else if (cheat == "vcmisilmaril" || cheat == "vcmiwin")
 	{
 		cheated = true;
 		///Player wins
@@ -7152,7 +7219,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		pc.winningCheatCode = true;
 		sendAndApply(&pc);
 	}
-	else if (cheat == "vcmimelkor")
+	else if (cheat == "vcmimelkor" || cheat == "vcmilose")
 	{
 		cheated = true;
 		///Player looses
@@ -7161,12 +7228,12 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		pc.losingCheatCode = true;
 		sendAndApply(&pc);
 	}
-	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
+	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant" || cheat == "vcmimap" || cheat == "vcmihidemap")
 	{
 		cheated = true;
 		///Reveal or conceal FoW
 		FoWChange fc;
-		fc.mode = (cheat == "vcmieagles" ? 1 : 0);
+		fc.mode = ((cheat == "vcmieagles" || cheat == "vcmimap") ? 1 : 0);
 		fc.player = player;
 		const auto & fowMap = gs->getPlayerTeam(player)->fogOfWarMap;
 		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->levels())];

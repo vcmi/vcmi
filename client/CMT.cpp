@@ -11,48 +11,43 @@
 //
 #include "StdInc.h"
 
-#include <boost/program_options.hpp>
-
-#include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "mapHandler.h"
-
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/FileStream.h"
 #include "mainmenu/CMainMenu.h"
 #include "lobby/CSelectionBase.h"
 #include "windows/CCastleInterface.h"
-#include "../lib/CConsoleHandler.h"
 #include "gui/CursorHandler.h"
-#include "../lib/CGameState.h"
-#include "../CCallback.h"
 #include "CPlayerInterface.h"
-#include "windows/CAdvmapInterface.h"
-#include "../lib/CBuildingHandler.h"
 #include "CVideoHandler.h"
+#include "CMusicHandler.h"
+#include "Client.h"
+#include "gui/CGuiHandler.h"
+#include "CServerHandler.h"
+#include "gui/NotificationHandler.h"
+#include "ClientCommandManager.h"
+#include "windows/CMessage.h"
+#include "renderSDL/SDL_Extensions.h"
+
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/FileStream.h"
+#include "../lib/CConsoleHandler.h"
+#include "../lib/CGameState.h"
+#include "../lib/CBuildingHandler.h"
+#include "../CCallback.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "CMusicHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "Graphics.h"
-#include "Client.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/serializer/BinarySerializer.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/NetPacks.h"
-#include "CMessage.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CTownHandler.h"
-#include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CPlayerState.h"
-#include "gui/CAnimation.h"
 #include "../lib/serializer/Connection.h"
-#include "CServerHandler.h"
-#include "gui/NotificationHandler.h"
-#include "ClientCommandManager.h"
 
 #include <boost/asio.hpp>
+#include <boost/program_options.hpp>
 
 #include "mainmenu/CPrologEpilogVideo.h"
 #include <vstd/StringUtils.h>
@@ -713,7 +708,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(nullptr == mainWindow)
 	{
 #if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-		auto createWindow = [displayIndex](Uint32 extraFlags) -> bool {
+		auto createWindow = [displayIndex](uint32_t extraFlags) -> bool {
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
 			return mainWindow != nullptr;
 		};
@@ -723,7 +718,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
-		Uint32 windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
+		uint32_t windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
 		if(!createWindow(windowFlags | SDL_WINDOW_METAL))
 		{
 			logGlobal->warn("Metal unavailable, using OpenGLES");

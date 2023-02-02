@@ -11,10 +11,12 @@
 #include "CIntObject.h"
 
 #include "CGuiHandler.h"
-#include "SDL_Extensions.h"
-#include "../CMessage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../windows/CMessage.h"
 
 #include <SDL_pixels.h>
+#include <SDL_surface.h>
+#include <SDL_events.h>
 
 IShowActivatable::IShowActivatable()
 {
