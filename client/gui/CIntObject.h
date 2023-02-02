@@ -18,8 +18,6 @@ class CGuiHandler;
 class CPicture;
 
 typedef int32_t SDL_Keycode;
-struct SDL_TextInputEvent;
-struct SDL_TextEditingEvent;
 
 using boost::logic::tribool;
 
@@ -123,8 +121,8 @@ public:
 	virtual void keyReleased(const SDL_Keycode & key){}
 	virtual bool captureThisKey(const SDL_Keycode & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-	virtual void textInputed(const SDL_TextInputEvent & event){};
-	virtual void textEdited(const SDL_TextEditingEvent & event){};
+	virtual void textInputed(const std::string & enteredText){};
+	virtual void textEdited(const std::string & enteredText){};
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered

@@ -23,8 +23,6 @@
 #include "lib/CAndroidVMHelper.h"
 #endif
 
-#include <SDL_events.h>
-
 std::list<CFocusable*> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
@@ -610,13 +608,13 @@ bool CTextInput::captureThisKey(const SDL_Keycode & key)
 	return true;
 }
 
-void CTextInput::textInputed(const SDL_TextInputEvent & event)
+void CTextInput::textInputed(const std::string & enteredText)
 {
 	if(!focus)
 		return;
 	std::string oldText = text;
 
-	text += event.text;
+	text += enteredText;
 
 	filters(text, oldText);
 	if(text != oldText)
@@ -627,12 +625,12 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 	newText.clear();
 }
 
-void CTextInput::textEdited(const SDL_TextEditingEvent & event)
+void CTextInput::textEdited(const std::string & enteredText)
 {
 	if(!focus)
 		return;
 
-	newText = event.text;
+	newText = enteredText;
 	redraw();
 	cb(text + newText);
 }

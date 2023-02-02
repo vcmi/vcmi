@@ -487,14 +487,14 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 	{
 		for(auto it : textInterested)
 		{
-			it->textInputed(current.text);
+			it->textInputed(current.text.text);
 		}
 	}
 	else if(current.type == SDL_TEXTEDITING)
 	{
 		for(auto it : textInterested)
 		{
-			it->textEdited(current.edit);
+			it->textEdited(current.edit.text);
 		}
 	}
 	else if(current.type == SDL_MOUSEBUTTONUP)

@@ -28,8 +28,8 @@ public:
 	void print(const std::string &txt);
 	void keyPressed(const SDL_Keycode & key) override;
 
-	void textInputed(const SDL_TextInputEvent & event) override;
-	void textEdited(const SDL_TextEditingEvent & event) override;
+	void textInputed(const std::string & enteredText) override;
+	void textEdited(const std::string & enteredText) override;
 
 	void startEnteringText();
 	void endEnteringText(bool processEnteredText);

@@ -52,7 +52,7 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
-#include <SDL_events.h>
+#include <SDL_surface.h>
 
 namespace fs = boost::filesystem;
 
@@ -61,9 +61,7 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	SDL_Event event;
-	event.quit.type = SDL_QUIT;
-	SDL_PushEvent(&event);
+	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)

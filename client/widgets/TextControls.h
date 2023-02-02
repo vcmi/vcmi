@@ -229,8 +229,8 @@ public:
 
 	bool captureThisKey(const SDL_Keycode & key) override;
 
-	void textInputed(const SDL_TextInputEvent & event) override;
-	void textEdited(const SDL_TextEditingEvent & event) override;
+	void textInputed(const std::string & enteredText) override;
+	void textEdited(const std::string & enteredText) override;
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string & text, const std::string & oldText);

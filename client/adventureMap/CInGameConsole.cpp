@@ -24,7 +24,6 @@
 #include "../../lib/mapObjects/CArmedInstance.h"
 
 #include <SDL_timer.h>
-#include <SDL_events.h>
 
 CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TEXTINPUT),
@@ -176,19 +175,19 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 	}
 }
 
-void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
+void CInGameConsole::textInputed(const std::string & inputtedText)
 {
 	if(!captureAllKeys || enteredText.size() == 0)
 		return;
 	enteredText.resize(enteredText.size()-1);
 
-	enteredText += event.text;
+	enteredText += inputtedText;
 	enteredText += "_";
 
 	refreshEnteredText();
 }
 
-void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
+void CInGameConsole::textEdited(const std::string & inputtedText)
 {
  //do nothing here
 }
