@@ -239,8 +239,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/Environment.h
 		${MAIN_LIB_DIR}/../include/vcmi/Services.h
 
-		${MAIN_LIB_DIR}/abilities/Ability.h
-
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
@@ -477,7 +475,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		PUBLIC ${MAIN_LIB_DIR}/..
 		PUBLIC ${MAIN_LIB_DIR}/../include
 		PUBLIC ${MAIN_LIB_DIR}
-		PRIVATE ${SDL2_INCLUDE_DIR}
 	)
 
 	if(WIN32)

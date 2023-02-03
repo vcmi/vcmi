@@ -14,6 +14,7 @@
 #include "BitmapHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/vcmi_endian.h"
 
 #include <QBitmap>
 #include <QImage>

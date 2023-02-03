@@ -173,6 +173,18 @@ set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
 
+#Check for endian
+if(${CMAKE_VERSION} VERSION_LESS "3.20.0") 
+	include(TestBigEndian)
+	test_big_endian(VCMI_ENDIAN_BIG)
+	if(VCMI_ENDIAN_BIG)
+		add_definitions(-DVCMI_ENDIAN_BIG)
+	endif()
+elseif(${CMAKE_CXX_BYTE_ORDER} EQUAL "BIG_ENDIAN")
+	add_definitions(-DVCMI_ENDIAN_BIG)
+endif()
+
+
 if(ENABLE_LAUNCHER)
 	add_definitions(-DENABLE_LAUNCHER)
 endif()

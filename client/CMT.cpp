@@ -839,7 +839,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 
 
-	#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+	#ifdef VCMI_ENDIAN_BIG
 		int bmask = 0xff000000;
 		int gmask = 0x00ff0000;
 		int rmask = 0x0000ff00;
