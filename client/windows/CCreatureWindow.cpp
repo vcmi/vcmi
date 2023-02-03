@@ -517,8 +517,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	const CStack * battleStack = parent->info->stack;
 
-	morale = std::make_shared<MoraleLuckBox>(true, CSDL_Ext::genRect(42, 42, 321, 110));
-	luck = std::make_shared<MoraleLuckBox>(false, CSDL_Ext::genRect(42, 42, 375, 110));
+	morale = std::make_shared<MoraleLuckBox>(true, Rect(Point(321, 110), Point(42, 42) ));
+	luck = std::make_shared<MoraleLuckBox>(false,  Rect(Point(375, 110), Point(42, 42) ));
 
 	if(battleStack != nullptr) // in battle
 	{

@@ -18,24 +18,6 @@
 
 #include <SDL_render.h>
 
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
-
-#ifdef VCMI_IOS
-#include "ios/utils.h"
-#endif
-
-Rect CSDL_Ext::genRect(const int & hh, const int & ww, const int & xx, const int & yy)
-{
-	Rect ret;
-	ret.h=hh;
-	ret.w=ww;
-	ret.x=xx;
-	ret.y=yy;
-	return ret;
-}
-
 Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
 {
 	return Rect(Point(rect.x, rect.y), Point(rect.w, rect.h));

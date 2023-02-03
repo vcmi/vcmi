@@ -45,8 +45,6 @@ SDL_Color toSDL(const ColorRGBA & color);
 void setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 void setAlpha(SDL_Surface * bg, int value);
 
-Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
-
 typedef void (*TColorPutter)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
 typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
 
