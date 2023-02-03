@@ -37,7 +37,6 @@ class Canvas;
 class BattleResultWindow;
 class StackQueue;
 class CPlayerInterface;
-class ClickableHex;
 class CAnimation;
 struct BattleEffect;
 class IImage;
@@ -146,7 +145,8 @@ public:
 
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
-	bool myTurn; //if true, interface is active (commands can be ordered)
+	bool makingTurn() const;
+
 	int moveSoundHander; // sound handler used when moving a unit
 
 	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);

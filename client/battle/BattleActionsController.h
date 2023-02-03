@@ -14,6 +14,10 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleAction;
+namespace spells {
+class Caster;
+enum class Mode;
+}
 
 VCMI_LIB_NAMESPACE_END
 
@@ -34,40 +38,46 @@ class BattleActionsController
 	/// all actions possible to call at the moment by player
 	std::vector<PossiblePlayerBattleAction> possibleActions;
 
-	/// actions possible to take on hovered hex
-	std::vector<PossiblePlayerBattleAction> localActions;
-
-	/// these actions display message in case of illegal target
-	std::vector<PossiblePlayerBattleAction> illegalActions;
-
-	/// action that will be performed on l-click
-	PossiblePlayerBattleAction currentAction;
-
-	/// last action chosen (and saved) by player
-	PossiblePlayerBattleAction selectedAction;
-
-	/// if there are not possible actions to choose from, this action should be show as "illegal" in UI
-	PossiblePlayerBattleAction illegalAction;
-
-	/// if true, stack currently aims to cats a spell
-	bool creatureCasting;
-
-	/// if true, player is choosing destination for his spell - only for GUI / console
-	bool spellDestSelectMode;
-
-	/// spell for which player is choosing destination
-	std::shared_ptr<BattleAction> spellToCast;
-
-	/// spell for which player is choosing destination, pointer for convenience
-	const CSpell *currentSpell;
+	/// spell for which player's hero is choosing destination
+	std::shared_ptr<BattleAction> heroSpellToCast;
 
 	/// cached message that was set by this class in status bar
 	std::string currentConsoleMsg;
+
+	/// if true, active stack could possibly cast some target spell
+	const CSpell * creatureSpellToCast;
 
 	bool isCastingPossibleHere (const CStack *sactive, const CStack *shere, BattleHex myNumber);
 	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
+
+	bool actionIsLegal(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+
+	void actionSetCursor(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+	void actionSetCursorBlocked(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+
+	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+
+	void actionRealize(PossiblePlayerBattleAction action, BattleHex hoveredHex);
+
+	PossiblePlayerBattleAction selectAction(BattleHex myNumber);
+
+	const CStack * getStackForHex(BattleHex myNumber) ;
+
+	/// attempts to initialize spellcasting action for stack
+	/// will silently return if stack is not a spellcaster
+	void tryActivateStackSpellcasting(const CStack *casterStack);
+
+	/// returns spell that is currently being cast by hero or nullptr if none
+	const CSpell * getHeroSpellToCast() const;
+
+	/// if current stack is spellcaster, returns spell being cast, or null othervice
+	const CSpell * getStackSpellToCast( ) const;
+
+	/// returns true if current stack is a spellcaster
+	bool isActiveStackSpellcaster() const;
 
 public:
 	BattleActionsController(BattleInterface & owner);
@@ -75,24 +85,40 @@ public:
 	/// initialize list of potential actions for new active stack
 	void activateStack();
 
-	/// initialize potential actions for spells that can be cast by active stack
+	/// returns true if UI is currently in target selection mode
+	bool spellcastingModeActive() const;
+
+	/// returns true if one of the following is true:
+	/// - we are casting spell by hero
+	/// - we are casting spell by creature in targeted mode (F hotkey)
+	/// - current creature is spellcaster and preferred action for current hex is spellcast
+	bool currentActionSpellcasting(BattleHex hoveredHex);
+
+	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
 
-	/// initialize potential actions for selected spell
+	/// initialize hero spellcasting mode, e.g. on selecting spell in spellbook
 	void castThisSpell(SpellID spellID);
 
 	/// ends casting spell (eg. when spell has been cast or canceled)
 	void endCastingSpell();
 
-	/// update UI (e.g. status bar/cursor) according to new active hex
-	void handleHex(BattleHex myNumber, int eventType);
+	/// update cursor and status bar according to new active hex
+	void onHexHovered(BattleHex hoveredHex);
 
-	/// returns currently selected spell or SpellID::NONE on error
-	SpellID selectedSpell() const;
+	/// called when cursor is no longer over battlefield and cursor/battle log should be reset
+	void onHoverEnded();
 
-	/// returns true if UI is currently in target selection mode
-	bool spellcastingModeActive() const;
-	
+	/// performs action according to selected hex
+	void onHexLeftClicked(BattleHex clickedHex);
+
+	/// performs action according to selected hex
+	void onHexRightClicked(BattleHex clickedHex);
+
+	const spells::Caster * getCurrentSpellcaster() const;
+	const CSpell * getCurrentSpell() const;
+	spells::Mode getCurrentCastMode() const;
+
 	/// methods to work with array of possible actions, needed to control special creatures abilities
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
 	void removePossibleAction(PossiblePlayerBattleAction);

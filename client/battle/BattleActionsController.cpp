@@ -40,71 +40,53 @@ static std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 		return (boost::format("%d") % dmgRange.first).str();
 }
 
-
 BattleActionsController::BattleActionsController(BattleInterface & owner):
 	owner(owner),
-	creatureCasting(false),
-	spellDestSelectMode(false),
-	spellToCast(nullptr),
-	currentSpell(nullptr)
-{
-	currentAction = PossiblePlayerBattleAction::INVALID;
-	selectedAction = PossiblePlayerBattleAction::INVALID;
-}
+	heroSpellToCast(nullptr),
+	creatureSpellToCast(nullptr)
+{}
 
 void BattleActionsController::endCastingSpell()
 {
-	if(spellDestSelectMode)
-	{
-		spellToCast.reset();
+	if(heroSpellToCast)
+		heroSpellToCast.reset();
 
-		currentSpell = nullptr;
-		spellDestSelectMode = false;
-		CCS->curh->set(Cursor::Combat::POINTER);
+	if(owner.stacksController->getActiveStack())
+		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
 
-		if(owner.stacksController->getActiveStack())
-		{
-			possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
-			owner.myTurn = true;
-		}
-	}
-	else
-	{
-		if(owner.stacksController->getActiveStack())
-		{
-			possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack());
-			GH.fakeMouseMove();
-		}
-	}
+	GH.fakeMouseMove();
+}
+
+bool BattleActionsController::isActiveStackSpellcaster() const
+{
+	const CStack * casterStack = owner.stacksController->getActiveStack();
+	if (!casterStack)
+		return false;
+
+	const auto randomSpellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
+	return (randomSpellcaster && casterStack->canCast());
 }
 
 void BattleActionsController::enterCreatureCastingMode()
 {
 	//silently check for possible errors
-	if (!owner.myTurn)
-		return;
-
 	if (owner.tacticsMode)
 		return;
 
 	//hero is casting a spell
-	if (spellDestSelectMode)
+	if (heroSpellToCast)
 		return;
 
 	if (!owner.stacksController->getActiveStack())
 		return;
 
-	if (!owner.stacksController->activeStackSpellcaster())
-		return;
-
-	//random spellcaster
-	if (owner.stacksController->activeStackSpellToCast() == SpellID::NONE)
+	if (!isActiveStackSpellcaster())
 		return;
 
 	if (vstd::contains(possibleActions, PossiblePlayerBattleAction::NO_LOCATION))
 	{
 		const spells::Caster * caster = owner.stacksController->getActiveStack();
-		const CSpell * spell = owner.stacksController->activeStackSpellToCast().toSpell();
+		const CSpell * spell = getStackSpellToCast();
 
 		spells::Target target;
 		target.emplace_back();
@@ -118,8 +100,7 @@ void BattleActionsController::enterCreatureCastingMode()
 
 		if (isCastingPossible)
 		{
-			owner.myTurn = false;
-			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, owner.stacksController->activeStackSpellToCast());
+			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, spell->getId());
 			owner.stacksController->setSelectedStack(nullptr);
 
 			CCS->curh->set(Cursor::Combat::POINTER);
@@ -144,9 +125,17 @@ void BattleActionsController::enterCreatureCastingMode()
 std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack) const
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
-	data.creatureSpellToCast = owner.stacksController->activeStackSpellToCast();
+
+	if (getStackSpellToCast())
+		data.creatureSpellToCast = getStackSpellToCast()->getId();
+	else
+		data.creatureSpellToCast = SpellID::NONE;
+
 	data.tacticsMode = owner.tacticsMode;
 	auto allActions = owner.curInt->cb->getClientActionsForStack(stack, data);
+
+	allActions.push_back(PossiblePlayerBattleAction::HERO_INFO);
+	allActions.push_back(PossiblePlayerBattleAction::CREATURE_INFO);
 
 	return std::vector<PossiblePlayerBattleAction>(allActions);
 }
@@ -185,39 +174,43 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			return 9; break;
 		case PossiblePlayerBattleAction::HEAL:
 			return 10; break;
+		case PossiblePlayerBattleAction::CREATURE_INFO:
+			return 11; break;
+		case PossiblePlayerBattleAction::HERO_INFO:
+			return 12; break;
+		case PossiblePlayerBattleAction::TELEPORT:
+			return 13; break;
 		default:
+			assert(0);
 			return 200; break;
 		}
 	};
 
 	auto comparer = [&](PossiblePlayerBattleAction const & lhs, PossiblePlayerBattleAction const & rhs)
 	{
-		return assignPriority(lhs) > assignPriority(rhs);
+		return assignPriority(lhs) < assignPriority(rhs);
 	};
 
-	std::make_heap(possibleActions.begin(), possibleActions.end(), comparer);
+	std::sort(possibleActions.begin(), possibleActions.end(), comparer);
 }
 
 void BattleActionsController::castThisSpell(SpellID spellID)
 {
-	spellToCast = std::make_shared<BattleAction>();
-	spellToCast->actionType = EActionType::HERO_SPELL;
-	spellToCast->actionSubtype = spellID; //spell number
-	spellToCast->stackNumber = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? -1 : -2;
-	spellToCast->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-	spellDestSelectMode = true;
-	creatureCasting = false;
+	heroSpellToCast = std::make_shared<BattleAction>();
+	heroSpellToCast->actionType = EActionType::HERO_SPELL;
+	heroSpellToCast->actionSubtype = spellID; //spell number
+	heroSpellToCast->stackNumber = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? -1 : -2;
+	heroSpellToCast->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
 
 	//choosing possible targets
 	const CGHeroInstance *castingHero = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? owner.attackingHeroInstance : owner.defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
-	currentSpell = spellID.toSpell();
-	PossiblePlayerBattleAction spellSelMode = owner.curInt->cb->getCasterAction(currentSpell, castingHero, spells::Mode::HERO);
+	PossiblePlayerBattleAction spellSelMode = owner.curInt->cb->getCasterAction(spellID.toSpell(), castingHero, spells::Mode::HERO);
 
 	if (spellSelMode == PossiblePlayerBattleAction::NO_LOCATION) //user does not have to select location
 	{
-		spellToCast->aimToHex(BattleHex::INVALID);
-		owner.curInt->cb->battleMakeAction(spellToCast.get());
+		heroSpellToCast->aimToHex(BattleHex::INVALID);
+		owner.curInt->cb->battleMakeAction(heroSpellToCast.get());
 		endCastingSpell();
 	}
 	else
@@ -228,499 +221,575 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 	}
 }
 
-
-void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
+const CSpell * BattleActionsController::getHeroSpellToCast( ) const
 {
-	if (!owner.myTurn) //we are not permit to do anything
-		return;
+	if (heroSpellToCast)
+		return SpellID(heroSpellToCast->actionSubtype).toSpell();
+	return nullptr;
+}
 
-	// This function handles mouse move over hexes and l-clicking on them.
-	// First we decide what happens if player clicks on this hex and set appropriately
-	// consoleMsg, cursorFrame/Type and prepare lambda realizeAction.
-	//
-	// Then, depending whether it was hover/click we either call the action or set tooltip/cursor.
+const CSpell * BattleActionsController::getStackSpellToCast( ) const
+{
+	if (isActiveStackSpellcaster())
+		return creatureSpellToCast;
 
-	std::string newConsoleMsg;
-	//used when hovering -> tooltip message and cursor to be set
-	bool setCursor = true; //if we want to suppress setting cursor
-	bool spellcastingCursor = false;
-	auto cursorFrame = Cursor::Combat::POINTER;
+	return nullptr;
+}
 
-	//used when l-clicking -> action to be called upon the click
-	std::function<void()> realizeAction;
+const CSpell * BattleActionsController::getCurrentSpell( ) const
+{
+	if (getHeroSpellToCast())
+		return getHeroSpellToCast();
+	return getStackSpellToCast();
+}
 
-	//Get stack on the hex - first try to grab the alive one, if not found -> allow dead stacks.
-	const CStack * shere = owner.curInt->cb->battleGetStackByPos(myNumber, true);
-	if(!shere)
-		shere = owner.curInt->cb->battleGetStackByPos(myNumber, false);
+const CStack * BattleActionsController::getStackForHex(BattleHex hoveredHex)
+{
+	const CStack * shere = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	if(shere)
+		return shere;
+	return owner.curInt->cb->battleGetStackByPos(hoveredHex, false);
+}
 
-	if(!owner.stacksController->getActiveStack())
-		return;
-
-	bool ourStack = false;
-	if (shere)
-		ourStack = shere->owner == owner.curInt->playerID;
-
-	localActions.clear();
-	illegalActions.clear();
-
-	reorderPossibleActionsPriority(owner.stacksController->getActiveStack(), shere ? MouseHoveredHexContext::OCCUPIED_HEX : MouseHoveredHexContext::UNOCCUPIED_HEX);
-	const bool forcedAction = possibleActions.size() == 1;
-
-	for (PossiblePlayerBattleAction action : possibleActions)
+void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action, BattleHex targetHex)
+{
+	switch (action)
 	{
-		bool legalAction = false; //this action is legal and can be performed
-		bool notLegal = false; //this action is not legal and should display message
+		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
+			CCS->curh->set(Cursor::Combat::POINTER);
+			return;
 
-		switch (action)
-		{
-			case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-				if (shere && ourStack)
-					legalAction = true;
-				break;
-			case PossiblePlayerBattleAction::MOVE_TACTICS:
-			case PossiblePlayerBattleAction::MOVE_STACK:
-			{
-				if (!(shere && shere->alive())) //we can walk on dead stacks
-				{
-					if(canStackMoveHere(owner.stacksController->getActiveStack(), myNumber))
-						legalAction = true;
-				}
-				break;
-			}
-			case PossiblePlayerBattleAction::ATTACK:
-			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			{
-				if(owner.curInt->cb->battleCanAttack(owner.stacksController->getActiveStack(), shere, myNumber))
-				{
-					if (owner.fieldController->isTileAttackable(myNumber)) // move isTileAttackable to be part of battleCanAttack?
-					{
-						BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(myNumber);
+		case PossiblePlayerBattleAction::MOVE_TACTICS:
+		case PossiblePlayerBattleAction::MOVE_STACK:
+			if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
+				CCS->curh->set(Cursor::Combat::FLY);
+			else
+				CCS->curh->set(Cursor::Combat::MOVE);
+			return;
 
-						if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-							legalAction = true;
-					}
-				}
-			}
-				break;
-			case PossiblePlayerBattleAction::SHOOT:
-				if(owner.curInt->cb->battleCanShoot(owner.stacksController->getActiveStack(), myNumber))
-					legalAction = true;
-				break;
-			case PossiblePlayerBattleAction::ANY_LOCATION:
-				if (myNumber > -1) //TODO: this should be checked for all actions
-				{
-					if(isCastingPossibleHere(owner.stacksController->getActiveStack(), shere, myNumber))
-						legalAction = true;
-				}
-				break;
-			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-				if(shere && isCastingPossibleHere(owner.stacksController->getActiveStack(), shere, myNumber))
-					legalAction = true;
-				break;
-			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			{
-				if(shere && ourStack && shere != owner.stacksController->getActiveStack() && shere->alive()) //only positive spells for other allied creatures
-				{
-					int spellID = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), shere, CBattleInfoCallback::RANDOM_GENIE);
-					if(spellID > -1)
-					{
-						legalAction = true;
-					}
-				}
-			}
-				break;
-			case PossiblePlayerBattleAction::OBSTACLE:
-				if(isCastingPossibleHere(owner.stacksController->getActiveStack(), shere, myNumber))
-					legalAction = true;
-				break;
-			case PossiblePlayerBattleAction::TELEPORT:
-			{
-				//todo: move to mechanics
-				ui8 skill = 0;
-				if (creatureCasting)
-					skill = owner.stacksController->getActiveStack()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
-				else
-					skill = owner.getActiveHero()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
-				//TODO: explicitely save power, skill
-				if (owner.curInt->cb->battleCanTeleportTo(owner.stacksController->getSelectedStack(), myNumber, skill))
-					legalAction = true;
-				else
-					notLegal = true;
-			}
-				break;
-			case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
-				if (shere && shere != owner.stacksController->getSelectedStack() && ourStack && shere->alive())
-					legalAction = true;
-				else
-					notLegal = true;
-				break;
-			case PossiblePlayerBattleAction::FREE_LOCATION:
-				legalAction = true;
-				if(!isCastingPossibleHere(owner.stacksController->getActiveStack(), shere, myNumber))
-				{
-					legalAction = false;
-					notLegal = true;
-				}
-				break;
-			case PossiblePlayerBattleAction::CATAPULT:
-				if (owner.siegeController && owner.siegeController->isAttackableByCatapult(myNumber))
-					legalAction = true;
-				break;
-			case PossiblePlayerBattleAction::HEAL:
-				if (shere && ourStack && shere->canBeHealed())
-					legalAction = true;
-				break;
-		}
-		if (legalAction)
-			localActions.push_back (action);
-		else if (notLegal || forcedAction)
-			illegalActions.push_back (action);
+		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+			owner.fieldController->setBattleCursor(targetHex);
+			return;
+
+		case PossiblePlayerBattleAction::SHOOT:
+			if (owner.curInt->cb->battleHasShootingPenalty(owner.stacksController->getActiveStack(), targetHex))
+				CCS->curh->set(Cursor::Combat::SHOOT_PENALTY);
+			else
+				CCS->curh->set(Cursor::Combat::SHOOT);
+			return;
+
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+		case PossiblePlayerBattleAction::ANY_LOCATION:
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+		case PossiblePlayerBattleAction::FREE_LOCATION:
+		case PossiblePlayerBattleAction::OBSTACLE:
+			CCS->curh->set(Cursor::Spellcast::SPELL);
+			return;
+
+		case PossiblePlayerBattleAction::TELEPORT:
+			CCS->curh->set(Cursor::Combat::TELEPORT);
+			return;
+
+		case PossiblePlayerBattleAction::SACRIFICE:
+			CCS->curh->set(Cursor::Combat::SACRIFICE);
+			return;
+
+		case PossiblePlayerBattleAction::HEAL:
+			CCS->curh->set(Cursor::Combat::HEAL);
+			return;
+
+		case PossiblePlayerBattleAction::CATAPULT:
+			CCS->curh->set(Cursor::Combat::SHOOT_CATAPULT);
+			return;
+
+		case PossiblePlayerBattleAction::CREATURE_INFO:
+			CCS->curh->set(Cursor::Combat::QUERY);
+			return;
+		case PossiblePlayerBattleAction::HERO_INFO:
+			CCS->curh->set(Cursor::Combat::HERO);
+			return;
 	}
-	illegalAction = PossiblePlayerBattleAction::INVALID; //clear it in first place
+	assert(0);
+}
 
-	if (vstd::contains(localActions, selectedAction)) //try to use last selected action by default
-		currentAction = selectedAction;
-	else if (localActions.size()) //if not possible, select first available action (they are sorted by suggested priority)
-		currentAction = localActions.front();
-	else //no legal action possible
+void BattleActionsController::actionSetCursorBlocked(PossiblePlayerBattleAction action, BattleHex targetHex)
+{
+	switch (action)
 	{
-		currentAction = PossiblePlayerBattleAction::INVALID; //don't allow to do anything
-
-		if (vstd::contains(illegalActions, selectedAction))
-			illegalAction = selectedAction;
-		else if (illegalActions.size())
-			illegalAction = illegalActions.front();
-		else if (shere && ourStack && shere->alive()) //last possibility - display info about our creature
-		{
-			currentAction = PossiblePlayerBattleAction::CREATURE_INFO;
-		}
-		else
-			illegalAction = PossiblePlayerBattleAction::INVALID; //we should never be here
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+		case PossiblePlayerBattleAction::TELEPORT:
+		case PossiblePlayerBattleAction::SACRIFICE:
+		case PossiblePlayerBattleAction::FREE_LOCATION:
+			CCS->curh->set(Cursor::Combat::BLOCKED);
+			return;
+		default:
+			if (targetHex == -1)
+				CCS->curh->set(Cursor::Combat::POINTER);
+			else
+				CCS->curh->set(Cursor::Combat::BLOCKED);
+			return;
 	}
+	assert(0);
+}
 
-	bool isCastingPossible = false;
-	bool secondaryTarget = false;
+std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattleAction action, BattleHex targetHex)
+{
+	const CStack * targetStack = getStackForHex(targetHex);
 
-	if (currentAction > PossiblePlayerBattleAction::INVALID)
+	switch (action) //display console message, realize selected action
 	{
-		switch (currentAction) //display console message, realize selected action
-		{
-			case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
-				realizeAction = [=](){ owner.stackActivated(shere); };
-				break;
-			case PossiblePlayerBattleAction::MOVE_TACTICS:
-			case PossiblePlayerBattleAction::MOVE_STACK:
-				if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
-				{
-					cursorFrame = Cursor::Combat::FLY;
-					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
-				}
-				else
-				{
-					cursorFrame = Cursor::Combat::MOVE;
-					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
-				}
+		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
+			return (boost::format(CGI->generaltexth->allTexts[481]) % targetStack->getName()).str(); //Select %s
 
-				realizeAction = [=]()
-				{
-					if(owner.stacksController->getActiveStack()->doubleWide())
-					{
-						std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack());
-						BattleHex shiftedDest = myNumber.cloneInDirection(owner.stacksController->getActiveStack()->destShiftDir(), false);
-						if(vstd::contains(acc, myNumber))
-							owner.giveCommand(EActionType::WALK, myNumber);
-						else if(vstd::contains(acc, shiftedDest))
-							owner.giveCommand(EActionType::WALK, shiftedDest);
-					}
-					else
-					{
-						owner.giveCommand(EActionType::WALK, myNumber);
-					}
-				};
-				break;
-			case PossiblePlayerBattleAction::ATTACK:
-			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
-				{
-					owner.fieldController->setBattleCursor(myNumber); //handle direction of cursor
-					setCursor = false; //don't overwrite settings from the call above //TODO: what does it mean?
+		case PossiblePlayerBattleAction::MOVE_TACTICS:
+		case PossiblePlayerBattleAction::MOVE_STACK:
+			if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
+				return (boost::format(CGI->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
+			else
+				return (boost::format(CGI->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
 
-					bool returnAfterAttack = currentAction == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
-
-					realizeAction = [=]()
-					{
-						BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(myNumber);
-						if(attackFromHex.isValid()) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-						{
-							auto command = new BattleAction(BattleAction::makeMeleeAttack(owner.stacksController->getActiveStack(), myNumber, attackFromHex, returnAfterAttack));
-							owner.sendCommand(command, owner.stacksController->getActiveStack());
-						}
-					};
-
-					BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(myNumber);
-					TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), shere, attackFromHex);
-					std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
-					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[36]) % shere->getName() % estDmgText).str(); //Attack %s (%s damage)
-				}
-				break;
-			case PossiblePlayerBattleAction::SHOOT:
+		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
-				auto const * shooter = owner.stacksController->getActiveStack();
-
-				if (owner.curInt->cb->battleHasShootingPenalty(shooter, myNumber))
-					cursorFrame = Cursor::Combat::SHOOT_PENALTY;
-				else
-					cursorFrame = Cursor::Combat::SHOOT;
-
-				realizeAction = [=](){owner.giveCommand(EActionType::SHOOT, myNumber);};
-				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(shooter, shere, shooter->getPosition());
+				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
+				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
 				std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
-				//printing - Shoot %s (%d shots left, %s damage)
-				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % shooter->shots.available() % estDmgText).str();
+				return (boost::format(CGI->generaltexth->allTexts[36]) % targetStack->getName() % estDmgText).str(); //Attack %s (%s damage)
 			}
-				break;
-			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-				currentSpell = CGI->spellh->objects[creatureCasting ? owner.stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % currentSpell->getNameTranslated() % shere->getName()); //Cast %s on %s
-				switch (currentSpell->id)
+
+		case PossiblePlayerBattleAction::SHOOT:
+		{
+			auto const * shooter = owner.stacksController->getActiveStack();
+
+			TDmgRange damage = owner.curInt->cb->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
+			std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
+			//printing - Shoot %s (%d shots left, %s damage)
+			return (boost::format(CGI->generaltexth->allTexts[296]) % targetStack->getName() % shooter->shots.available() % estDmgText).str();
+		}
+
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+			return boost::str(boost::format(CGI->generaltexth->allTexts[27]) % getCurrentSpell()->getNameTranslated() % targetStack->getName()); //Cast %s on %s
+
+		case PossiblePlayerBattleAction::ANY_LOCATION:
+			return boost::str(boost::format(CGI->generaltexth->allTexts[26]) % getCurrentSpell()->getNameTranslated()); //Cast %s
+
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
+			return boost::str(boost::format(CGI->generaltexth->allTexts[301]) % targetStack->getName()); //Cast a spell on %
+
+		case PossiblePlayerBattleAction::TELEPORT:
+			return CGI->generaltexth->allTexts[25]; //Teleport Here
+
+		case PossiblePlayerBattleAction::OBSTACLE:
+			return CGI->generaltexth->allTexts[550];
+
+		case PossiblePlayerBattleAction::SACRIFICE:
+			return (boost::format(CGI->generaltexth->allTexts[549]) % targetStack->getName()).str(); //sacrifice the %s
+
+		case PossiblePlayerBattleAction::FREE_LOCATION:
+			return boost::str(boost::format(CGI->generaltexth->allTexts[26]) % getCurrentSpell()->getNameTranslated()); //Cast %s
+
+		case PossiblePlayerBattleAction::HEAL:
+			return (boost::format(CGI->generaltexth->allTexts[419]) % targetStack->getName()).str(); //Apply first aid to the %s
+
+		case PossiblePlayerBattleAction::CATAPULT:
+			return ""; // TODO
+
+		case PossiblePlayerBattleAction::CREATURE_INFO:
+			return (boost::format(CGI->generaltexth->allTexts[297]) % targetStack->getName()).str();
+
+		case PossiblePlayerBattleAction::HERO_INFO:
+			return  CGI->generaltexth->translate("core.genrltxt.417"); // "View Hero Stats"
+	}
+	assert(0);
+	return "";
+}
+
+std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, BattleHex targetHex)
+{
+	switch (action)
+	{
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+			return CGI->generaltexth->allTexts[23];
+			break;
+		case PossiblePlayerBattleAction::TELEPORT:
+			return CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
+			break;
+		case PossiblePlayerBattleAction::SACRIFICE:
+			return CGI->generaltexth->allTexts[543]; //choose army to sacrifice
+			break;
+		case PossiblePlayerBattleAction::FREE_LOCATION:
+			return boost::str(boost::format(CGI->generaltexth->allTexts[181]) % getCurrentSpell()->getNameTranslated()); //No room to place %s here
+			break;
+		default:
+			return "";
+	}
+}
+
+bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, BattleHex targetHex)
+{
+	const CStack * targetStack = getStackForHex(targetHex);
+	bool targetStackOwned = targetStack && targetStack->owner == owner.curInt->playerID;
+
+	switch (action)
+	{
+		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
+		case PossiblePlayerBattleAction::CREATURE_INFO:
+			return (targetStack && targetStackOwned);
+
+		case PossiblePlayerBattleAction::HERO_INFO:
+			if (targetHex == BattleHex::HERO_ATTACKER)
+				return owner.attackingHero != nullptr;
+
+			if (targetHex == BattleHex::HERO_DEFENDER)
+				return owner.defendingHero != nullptr;
+
+			return false;
+
+		case PossiblePlayerBattleAction::MOVE_TACTICS:
+		case PossiblePlayerBattleAction::MOVE_STACK:
+			if (!(targetStack && targetStack->alive())) //we can walk on dead stacks
+			{
+				if(canStackMoveHere(owner.stacksController->getActiveStack(), targetHex))
+					return true;
+			}
+			return false;
+
+		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+			if(owner.curInt->cb->battleCanAttack(owner.stacksController->getActiveStack(), targetStack, targetHex))
+			{
+				if (owner.fieldController->isTileAttackable(targetHex)) // move isTileAttackable to be part of battleCanAttack?
+					return true;
+			}
+			return false;
+
+		case PossiblePlayerBattleAction::SHOOT:
+			return owner.curInt->cb->battleCanShoot(owner.stacksController->getActiveStack(), targetHex);
+
+		case PossiblePlayerBattleAction::ANY_LOCATION:
+			return isCastingPossibleHere(owner.stacksController->getActiveStack(), targetStack, targetHex);
+
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+			return targetStack && isCastingPossibleHere(owner.stacksController->getActiveStack(), targetStack, targetHex);
+
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
+			{
+				int spellID = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), targetStack, CBattleInfoCallback::RANDOM_GENIE);
+				return spellID > -1;
+			}
+			return false;
+
+		case PossiblePlayerBattleAction::TELEPORT:
+		{
+			ui8 skill = getCurrentSpellcaster()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
+			return owner.curInt->cb->battleCanTeleportTo(owner.stacksController->getSelectedStack(), targetHex, skill);
+		}
+
+		case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
+			return targetStack && targetStack != owner.stacksController->getSelectedStack() && targetStackOwned && targetStack->alive();
+
+		case PossiblePlayerBattleAction::OBSTACLE:
+		case PossiblePlayerBattleAction::FREE_LOCATION:
+			return isCastingPossibleHere(owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return isCastingPossibleHere(owner.stacksController->getActiveStack(), targetStack, targetHex);
+
+		case PossiblePlayerBattleAction::CATAPULT:
+			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
+
+		case PossiblePlayerBattleAction::HEAL:
+			return targetStack && targetStackOwned && targetStack->canBeHealed();
+	}
+
+	assert(0);
+	return false;
+}
+
+void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, BattleHex targetHex)
+{
+	const CStack * targetStack = getStackForHex(targetHex);
+
+	switch (action) //display console message, realize selected action
+	{
+		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
+		{
+			owner.stackActivated(targetStack);
+			return;
+		}
+
+		case PossiblePlayerBattleAction::MOVE_TACTICS:
+		case PossiblePlayerBattleAction::MOVE_STACK:
+		{
+			if(owner.stacksController->getActiveStack()->doubleWide())
+			{
+				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack());
+				BattleHex shiftedDest = targetHex.cloneInDirection(owner.stacksController->getActiveStack()->destShiftDir(), false);
+				if(vstd::contains(acc, targetHex))
+					owner.giveCommand(EActionType::WALK, targetHex);
+				else if(vstd::contains(acc, shiftedDest))
+					owner.giveCommand(EActionType::WALK, shiftedDest);
+			}
+			else
+			{
+				owner.giveCommand(EActionType::WALK, targetHex);
+			}
+			return;
+		}
+
+		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
+		{
+			bool returnAfterAttack = action == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
+			BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
+			if(attackFromHex.isValid()) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+			{
+				auto command = new BattleAction(BattleAction::makeMeleeAttack(owner.stacksController->getActiveStack(), targetHex, attackFromHex, returnAfterAttack));
+				owner.sendCommand(command, owner.stacksController->getActiveStack());
+			}
+			return;
+		}
+
+		case PossiblePlayerBattleAction::SHOOT:
+		{
+			owner.giveCommand(EActionType::SHOOT, targetHex);
+			return;
+		}
+
+		case PossiblePlayerBattleAction::HEAL:
+		{
+			owner.giveCommand(EActionType::STACK_HEAL, targetHex);
+			return;
+		};
+
+		case PossiblePlayerBattleAction::CATAPULT:
+		{
+			owner.giveCommand(EActionType::CATAPULT, targetHex);
+			return;
+		}
+
+		case PossiblePlayerBattleAction::CREATURE_INFO:
+		{
+			GH.pushIntT<CStackWindow>(targetStack, false);
+			return;
+		}
+
+		case PossiblePlayerBattleAction::HERO_INFO:
+		{
+			if (targetHex == BattleHex::HERO_ATTACKER)
+				owner.attackingHero->heroLeftClicked();
+
+			if (targetHex == BattleHex::HERO_DEFENDER)
+				owner.defendingHero->heroLeftClicked();
+
+			return;
+		}
+
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+		case PossiblePlayerBattleAction::ANY_LOCATION:
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
+		case PossiblePlayerBattleAction::TELEPORT:
+		case PossiblePlayerBattleAction::OBSTACLE:
+		case PossiblePlayerBattleAction::SACRIFICE:
+		case PossiblePlayerBattleAction::FREE_LOCATION:
+		{
+			if (action == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE )
+			{
+				if (getCurrentSpell()->id == SpellID::SACRIFICE)
 				{
-					case SpellID::SACRIFICE:
-					case SpellID::TELEPORT:
-						owner.stacksController->setSelectedStack(shere); //remember first target
-						secondaryTarget = true;
-						break;
+					heroSpellToCast->aimToHex(targetHex);
+					possibleActions.push_back(PossiblePlayerBattleAction::SACRIFICE);
+					owner.stacksController->setSelectedStack(targetStack);
+					return;
 				}
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::ANY_LOCATION:
-				currentSpell = CGI->spellh->objects[creatureCasting ? owner.stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->getNameTranslated()); //Cast %s
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
-				currentSpell = nullptr;
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
-				creatureCasting = true;
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::TELEPORT:
-				newConsoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
-				cursorFrame = Cursor::Combat::TELEPORT;
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::OBSTACLE:
-				newConsoleMsg = CGI->generaltexth->allTexts[550];
-				//TODO: remove obstacle cursor
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::SACRIFICE:
-				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
-				cursorFrame = Cursor::Combat::SACRIFICE;
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::FREE_LOCATION:
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->getNameTranslated()); //Cast %s
-				isCastingPossible = true;
-				break;
-			case PossiblePlayerBattleAction::HEAL:
-				cursorFrame = Cursor::Combat::HEAL;
-				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
-				realizeAction = [=](){ owner.giveCommand(EActionType::STACK_HEAL, myNumber); }; //command healing
-				break;
-			case PossiblePlayerBattleAction::CATAPULT:
-				cursorFrame = Cursor::Combat::SHOOT_CATAPULT;
-				realizeAction = [=](){ owner.giveCommand(EActionType::CATAPULT, myNumber); };
-				break;
-			case PossiblePlayerBattleAction::CREATURE_INFO:
-			{
-				cursorFrame = Cursor::Combat::QUERY;
-				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
-				realizeAction = [=](){ GH.pushIntT<CStackWindow>(shere, false); };
-				break;
-			}
-		}
-	}
-	else //no possible valid action, display message
-	{
-		switch (illegalAction)
-		{
-			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-				cursorFrame = Cursor::Combat::BLOCKED;
-				newConsoleMsg = CGI->generaltexth->allTexts[23];
-				break;
-			case PossiblePlayerBattleAction::TELEPORT:
-				cursorFrame = Cursor::Combat::BLOCKED;
-				newConsoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
-				break;
-			case PossiblePlayerBattleAction::SACRIFICE:
-				newConsoleMsg = CGI->generaltexth->allTexts[543]; //choose army to sacrifice
-				break;
-			case PossiblePlayerBattleAction::FREE_LOCATION:
-				cursorFrame = Cursor::Combat::BLOCKED;
-				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % currentSpell->getNameTranslated()); //No room to place %s here
-				break;
-			default:
-				if (myNumber == -1)
-					CCS->curh->set(Cursor::Combat::POINTER);
-				else
-					cursorFrame = Cursor::Combat::BLOCKED;
-				break;
-		}
-	}
-
-	if (isCastingPossible) //common part
-	{
-		switch (currentAction) //don't use that with teleport / sacrifice
-		{
-			case PossiblePlayerBattleAction::TELEPORT: //FIXME: more generic solution?
-			case PossiblePlayerBattleAction::SACRIFICE:
-				break;
-			default:
-				spellcastingCursor = true;
-				if (newConsoleMsg.empty() && currentSpell)
-					newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->getNameTranslated()); //Cast %s
-				break;
-		}
-
-		realizeAction = [=]()
-		{
-			if(secondaryTarget) //select that target now
-			{
-
-				possibleActions.clear();
-				switch (currentSpell->id.toEnum())
+				if (getCurrentSpell()->id == SpellID::TELEPORT)
 				{
-					case SpellID::TELEPORT: //don't cast spell yet, only select target
-						spellToCast->aimToUnit(shere);
-						possibleActions.push_back(PossiblePlayerBattleAction::TELEPORT);
-						break;
-					case SpellID::SACRIFICE:
-						spellToCast->aimToHex(myNumber);
-						possibleActions.push_back(PossiblePlayerBattleAction::SACRIFICE);
-						break;
+					heroSpellToCast->aimToUnit(targetStack);
+					possibleActions.push_back(PossiblePlayerBattleAction::TELEPORT);
+					owner.stacksController->setSelectedStack(targetStack);
+					return;
+				}
+			}
+
+			if (!spellcastingModeActive())
+			{
+				if (getStackSpellToCast())
+				{
+					owner.giveCommand(EActionType::MONSTER_SPELL, targetHex, getStackSpellToCast()->getId());
+				}
+				else //unknown random spell
+				{
+					owner.giveCommand(EActionType::MONSTER_SPELL, targetHex);
 				}
 			}
 			else
 			{
-				if (creatureCasting)
+				assert(getHeroSpellToCast());
+				switch (getHeroSpellToCast()->id.toEnum())
 				{
-					if (currentSpell)
-					{
-						owner.giveCommand(EActionType::MONSTER_SPELL, myNumber, owner.stacksController->activeStackSpellToCast());
-					}
-					else //unknown random spell
-					{
-						owner.giveCommand(EActionType::MONSTER_SPELL, myNumber);
-					}
-				}
-				else
-				{
-					assert(currentSpell);
-					switch (currentSpell->id.toEnum())
-					{
 					case SpellID::SACRIFICE:
-						spellToCast->aimToUnit(shere);//victim
+						heroSpellToCast->aimToUnit(targetStack);//victim
 						break;
 					default:
-						spellToCast->aimToHex(myNumber);
+						heroSpellToCast->aimToHex(targetHex);
 						break;
-					}
-					owner.curInt->cb->battleMakeAction(spellToCast.get());
-					endCastingSpell();
 				}
-				owner.stacksController->setSelectedStack(nullptr);
+				owner.curInt->cb->battleMakeAction(heroSpellToCast.get());
+				endCastingSpell();
 			}
-		};
+			owner.stacksController->setSelectedStack(nullptr);
+			return;
+		}
+	}
+	assert(0);
+	return;
+}
+
+PossiblePlayerBattleAction BattleActionsController::selectAction(BattleHex targetHex)
+{
+	assert(owner.stacksController->getActiveStack() != nullptr);
+	assert(!possibleActions.empty());
+	assert(targetHex.isValid());
+
+	if (owner.stacksController->getActiveStack() == nullptr)
+		return PossiblePlayerBattleAction::INVALID;
+
+	if (possibleActions.empty())
+		return PossiblePlayerBattleAction::INVALID;
+
+	const CStack * targetStack = getStackForHex(targetHex);
+
+	reorderPossibleActionsPriority(owner.stacksController->getActiveStack(), targetStack ? MouseHoveredHexContext::OCCUPIED_HEX : MouseHoveredHexContext::UNOCCUPIED_HEX);
+
+	for (PossiblePlayerBattleAction action : possibleActions)
+	{
+		if (actionIsLegal(action, targetHex))
+			return action;
+	}
+	return possibleActions.front();
+}
+
+void BattleActionsController::onHexHovered(BattleHex hoveredHex)
+{
+	if (owner.stacksController->getActiveStack() == nullptr)
+		return;
+
+	if (hoveredHex == BattleHex::INVALID)
+	{
+		if (!currentConsoleMsg.empty())
+			GH.statusbar->clearIfMatching(currentConsoleMsg);
+
+		currentConsoleMsg.clear();
+		CCS->curh->set(Cursor::Combat::BLOCKED);
+		return;
 	}
 
+	auto action = selectAction(hoveredHex);
+
+	std::string newConsoleMsg;
+
+	if (actionIsLegal(action, hoveredHex))
 	{
-		if (eventType == CIntObject::MOVE)
-		{
-			if (setCursor)
-			{
-				if (spellcastingCursor)
-					CCS->curh->set(Cursor::Spellcast::SPELL);
-				else
-					CCS->curh->set(cursorFrame);
-			}
+		actionSetCursor(action, hoveredHex);
+		newConsoleMsg = actionGetStatusMessage(action, hoveredHex);
+	}
+	else
+	{
+		actionSetCursorBlocked(action, hoveredHex);
+		newConsoleMsg = actionGetStatusMessageBlocked(action, hoveredHex);
+	}
 
-			if (!currentConsoleMsg.empty())
-				GH.statusbar->clearIfMatching(currentConsoleMsg);
-			if (!newConsoleMsg.empty())
-				GH.statusbar->write(newConsoleMsg);
+	if (!currentConsoleMsg.empty())
+		GH.statusbar->clearIfMatching(currentConsoleMsg);
 
-			currentConsoleMsg = newConsoleMsg;
-		}
-		if (eventType == CIntObject::LCLICK && realizeAction)
-		{
-			//opening creature window shouldn't affect myTurn...
-			if ((currentAction != PossiblePlayerBattleAction::CREATURE_INFO) && !secondaryTarget)
-			{
-				owner.myTurn = false; //tends to crash with empty calls
-			}
-			realizeAction();
-			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
-				CCS->curh->set(Cursor::Combat::POINTER);
-			GH.statusbar->clear();
-		}
+	if (!newConsoleMsg.empty())
+		GH.statusbar->write(newConsoleMsg);
+
+	currentConsoleMsg = newConsoleMsg;
+}
+
+void BattleActionsController::onHoverEnded()
+{
+	CCS->curh->set(Cursor::Combat::POINTER);
+
+	if (!currentConsoleMsg.empty())
+		GH.statusbar->clearIfMatching(currentConsoleMsg);
+
+	currentConsoleMsg.clear();
+}
+
+void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
+{
+	if (owner.stacksController->getActiveStack() == nullptr)
+		return;
+
+	auto action = selectAction(clickedHex);
+
+	std::string newConsoleMsg;
+
+	if (!actionIsLegal(action, clickedHex))
+		return;
+
+	actionRealize(action, clickedHex);
+
+	GH.statusbar->clear();
+}
+
+void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterStack)
+{
+	const auto spellcaster = casterStack->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
+	if(casterStack->canCast() && spellcaster)
+	{
+		// faerie dragon can cast only one, randomly selected spell until their next move
+		//TODO: faerie dragon type spell should be selected by server
+		creatureSpellToCast = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), casterStack, CBattleInfoCallback::RANDOM_AIMED).toSpell();
 	}
 }
 
-
-bool BattleActionsController::isCastingPossibleHere(const CStack *sactive, const CStack *shere, BattleHex myNumber)
+const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
 {
-	creatureCasting = owner.stacksController->activeStackSpellcaster() && !spellDestSelectMode; //TODO: allow creatures to cast aimed spells
-
-	bool isCastingPossible = true;
-
-	int spellID = -1;
-	if (creatureCasting)
-	{
-		if (owner.stacksController->activeStackSpellToCast() != SpellID::NONE && (shere != sactive)) //can't cast on itself
-			spellID = owner.stacksController->activeStackSpellToCast(); //TODO: merge with SpellTocast?
-	}
-	else //hero casting
-	{
-		spellID = spellToCast->actionSubtype;
-	}
-
-
-	currentSpell = nullptr;
-	if (spellID >= 0)
-		currentSpell = CGI->spellh->objects[spellID];
-
-	if (currentSpell)
-	{
-		const spells::Caster *caster = creatureCasting ? static_cast<const spells::Caster *>(sactive) : static_cast<const spells::Caster *>(owner.curInt->cb->battleGetMyHero());
-		if (caster == nullptr)
-		{
-			isCastingPossible = false;//just in case
-		}
-		else
-		{
-			const spells::Mode mode = creatureCasting ? spells::Mode::CREATURE_ACTIVE : spells::Mode::HERO;
-
-			spells::Target target;
-			target.emplace_back(myNumber);
-
-			spells::BattleCast cast(owner.curInt->cb.get(), caster, mode, currentSpell);
-
-			auto m = currentSpell->battleMechanics(&cast);
-			spells::detail::ProblemImpl problem; //todo: display problem in status bar
-
-			isCastingPossible = m->canBeCastAt(target, problem);
-		}
-	}
+	if (heroSpellToCast)
+		return owner.getActiveHero();
 	else
-		isCastingPossible = false;
-	if (!myNumber.isAvailable() && !shere) //empty tile outside battlefield (or in the unavailable border column)
-			isCastingPossible = false;
+		return owner.stacksController->getActiveStack();
+}
 
-	return isCastingPossible;
+spells::Mode BattleActionsController::getCurrentCastMode() const
+{
+	if (heroSpellToCast)
+		return spells::Mode::HERO;
+	else
+		return spells::Mode::CREATURE_ACTIVE;
+
+}
+
+bool BattleActionsController::isCastingPossibleHere(const CStack *casterStack, const CStack *targetStack, BattleHex targetHex)
+{
+	auto currentSpell = getCurrentSpell();
+	assert(currentSpell);
+
+	if (!currentSpell)
+		return false;
+
+	auto caster = getCurrentSpellcaster();
+
+	const spells::Mode mode = heroSpellToCast ? spells::Mode::HERO : spells::Mode::CREATURE_ACTIVE;
+
+	spells::Target target;
+	target.emplace_back(targetHex);
+
+	spells::BattleCast cast(owner.curInt->cb.get(), caster, mode, currentSpell);
+
+	auto m = currentSpell->battleMechanics(&cast);
+	spells::detail::ProblemImpl problem; //todo: display problem in status bar
+
+	return m->canBeCastAt(target, problem);
 }
 
 bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber) const
@@ -741,6 +810,8 @@ void BattleActionsController::activateStack()
 	const CStack * s = owner.stacksController->getActiveStack();
 	if(s)
 	{
+		tryActivateStackSpellcasting(s);
+
 		possibleActions = getPossibleActionsForStack(s);
 		std::list<PossiblePlayerBattleAction> actionsToSelect;
 		if(!possibleActions.empty())
@@ -766,16 +837,41 @@ void BattleActionsController::activateStack()
 	}
 }
 
-bool BattleActionsController::spellcastingModeActive() const
+void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
-	return spellDestSelectMode;
+	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
+
+	if (selectedStack != nullptr)
+		GH.pushIntT<CStackWindow>(selectedStack, true);
+
+	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
+		owner.attackingHero->heroRightClicked();
+
+	if (clickedHex == BattleHex::HERO_DEFENDER && owner.defendingHero)
+		owner.defendingHero->heroRightClicked();
 }
 
-SpellID BattleActionsController::selectedSpell() const
+bool BattleActionsController::spellcastingModeActive() const
 {
-	if (!spellToCast)
-		return SpellID::NONE;
-	return SpellID(spellToCast->actionSubtype);
+	return heroSpellToCast != nullptr;;
+}
+
+bool BattleActionsController::currentActionSpellcasting(BattleHex hoveredHex)
+{
+	if (heroSpellToCast)
+		return true;
+
+	if (!owner.stacksController->getActiveStack())
+		return false;
+
+	auto action = selectAction(hoveredHex);
+
+	return
+		action == PossiblePlayerBattleAction::ANY_LOCATION ||
+		action == PossiblePlayerBattleAction::NO_LOCATION ||
+		action == PossiblePlayerBattleAction::FREE_LOCATION ||
+		action == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE ||
+		action == PossiblePlayerBattleAction::OBSTACLE;
 }
 
 const std::vector<PossiblePlayerBattleAction> & BattleActionsController::getPossibleActions() const

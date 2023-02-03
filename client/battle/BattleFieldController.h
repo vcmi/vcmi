@@ -20,7 +20,6 @@ class Point;
 
 VCMI_LIB_NAMESPACE_END
 
-class ClickableHex;
 class BattleHero;
 class Canvas;
 class IImage;
@@ -50,8 +49,6 @@ class BattleFieldController : public CIntObject
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
 
-	std::vector<std::shared_ptr<ClickableHex>> bfield;
-
 	void showHighlightedHex(Canvas & to, BattleHex hex, bool darkBorder);
 
 	std::set<BattleHex> getHighlightedHexesStackRange();
@@ -66,9 +63,11 @@ class BattleFieldController : public CIntObject
 	BattleHex::EDir selectAttackDirection(BattleHex myNumber, const Point & point);
 
 	void mouseMoved(const SDL_MouseMotionEvent &event) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+
 	void showAll(SDL_Surface * to) override;
 	void show(SDL_Surface * to) override;
-
 public:
 	BattleFieldController(BattleInterface & owner);
 

@@ -122,9 +122,9 @@ public:
 	void pause();
 	void play();
 
-	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override; //call-in
-	void clickRight(tribool down, bool previousState) override; //call-in
+	void heroLeftClicked();
+	void heroRightClicked();
+
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
@@ -170,24 +170,6 @@ public:
 
 	void activate() override;
 	void show(SDL_Surface * to = 0) override;
-};
-
-/// Class which stands for a single hex field on a battlefield
-class ClickableHex : public CIntObject
-{
-private:
-	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
-public:
-	ui32 myNumber; //number of hex in commonly used format
-	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
-	BattleInterface * myInterface; //interface that owns me
-
-	//for user interactions
-	void hover (bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent &sEvent) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	ClickableHex();
 };
 
 /// Shows the stack queue

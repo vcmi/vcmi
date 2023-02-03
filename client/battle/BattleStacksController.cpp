@@ -73,8 +73,6 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	activeStack(nullptr),
 	stackToActivate(nullptr),
 	selectedStack(nullptr),
-	stackCanCastSpell(false),
-	creatureSpellToCast(uint32_t(-1)),
 	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
@@ -738,25 +736,6 @@ void BattleStacksController::activateStack()
 	const CStack * s = getActiveStack();
 	if(!s)
 		return;
-
-	//set casting flag to true if creature can use it to not check it every time
-	const auto spellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
-	const auto randomSpellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
-	if(s->canCast() && (spellcaster || randomSpellcaster))
-	{
-		stackCanCastSpell = true;
-		if(randomSpellcaster)
-			creatureSpellToCast = -1; //spell will be set later on cast
-		else
-			creatureSpellToCast = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
-		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
-		//TODO: faerie dragon type spell should be selected by server
-	}
-	else
-	{
-		stackCanCastSpell = false;
-		creatureSpellToCast = -1;
-	}
 }
 
 void BattleStacksController::setSelectedStack(const CStack *stack)
@@ -777,18 +756,6 @@ const CStack* BattleStacksController::getActiveStack() const
 bool BattleStacksController::facingRight(const CStack * stack) const
 {
 	return stackFacingRight.at(stack->ID);
-}
-
-bool BattleStacksController::activeStackSpellcaster()
-{
-	return stackCanCastSpell;
-}
-
-SpellID BattleStacksController::activeStackSpellToCast()
-{
-	if (!stackCanCastSpell)
-		return SpellID::NONE;
-	return SpellID(creatureSpellToCast);
 }
 
 Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack) const
@@ -910,21 +877,11 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	const spells::Caster *caster = nullptr;
 	const CSpell *spell = nullptr;
 
-	spells::Mode mode = spells::Mode::HERO;
+	spells::Mode mode = owner.actionsController->getCurrentCastMode();
+	spell = owner.actionsController->getCurrentSpell();
+	caster = owner.actionsController->getCurrentSpellcaster();
 
-	if(owner.actionsController->spellcastingModeActive())//hero casts spell
-	{
-		spell = owner.actionsController->selectedSpell().toSpell();
-		caster = owner.getActiveHero();
-	}
-	else if(owner.stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
-	{
-		spell = SpellID(owner.stacksController->activeStackSpellToCast()).toSpell();
-		caster = owner.stacksController->getActiveStack();
-		mode = spells::Mode::CREATURE_ACTIVE;
-	}
-
-	if(caster && spell) //when casting spell
+	if(caster && spell && owner.actionsController->currentActionSpellcasting(hoveredHex) ) //when casting spell
 	{
 		spells::Target target;
 		target.emplace_back(hoveredHex);

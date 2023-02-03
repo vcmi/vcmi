@@ -44,13 +44,28 @@ struct DLL_LINKAGE AttackableTiles
 
 enum class PossiblePlayerBattleAction // actions performed at l-click
 {
-	INVALID = -1, CREATURE_INFO,
-	MOVE_TACTICS, CHOOSE_TACTICS_STACK,
-	MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
-	NO_LOCATION, ANY_LOCATION, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
-	FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
-	CATAPULT, HEAL,
-	AIMED_SPELL_CREATURE
+	INVALID = -1,
+	CREATURE_INFO,
+	HERO_INFO,
+	MOVE_TACTICS,
+	CHOOSE_TACTICS_STACK,
+
+	MOVE_STACK,
+	ATTACK,
+	WALK_AND_ATTACK,
+	ATTACK_AND_RETURN,
+	SHOOT,
+	CATAPULT,
+	HEAL,
+
+	NO_LOCATION,          // massive spells that affect every possible target, automatic casts
+	ANY_LOCATION,
+	OBSTACLE,
+	TELEPORT,
+	SACRIFICE,
+	RANDOM_GENIE_SPELL,   // random spell on a friendly creature
+	FREE_LOCATION,        // used with Force Field and Fire Wall - all tiles affected by spell must be free
+	AIMED_SPELL_CREATURE, // spell targeted at creature
 };
 
 struct DLL_LINKAGE BattleClientInterfaceData

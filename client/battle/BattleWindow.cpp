@@ -391,7 +391,7 @@ void BattleWindow::bSpellf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if (!owner.myTurn)
+	if (!owner.makingTurn())
 		return;
 
 	auto myHero = owner.currentHero();

@@ -30,7 +30,6 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../windows/CMessage.h"
-#include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -274,50 +273,29 @@ void BattleHero::setPhase(EHeroAnimType newPhase)
 	nextPhase = EHeroAnimType::HOLDING;
 }
 
-void BattleHero::hover(bool on)
-{
-	//TODO: BROKEN CODE
-	if (on)
-		CCS->curh->set(Cursor::Combat::HERO);
-	else
-		CCS->curh->set(Cursor::Combat::POINTER);
-}
-
-void BattleHero::clickLeft(tribool down, bool previousState)
+void BattleHero::heroLeftClicked()
 {
 	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
-	if(boost::logic::indeterminate(down))
-		return;
-
-	if(!hero || down || !owner.myTurn)
+	if(!hero || !owner.makingTurn())
 		return;
 
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		BattleHex hoveredHex = owner.fieldController->getHoveredHex();
-		//do nothing when any hex is hovered - hero's animation overlaps battlefield
-		if ( hoveredHex != BattleHex::INVALID )
-			return;
-
 		CCS->curh->set(Cursor::Map::POINTER);
-
 		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
-void BattleHero::clickRight(tribool down, bool previousState)
+void BattleHero::heroRightClicked()
 {
-	if(boost::logic::indeterminate(down))
-		return;
-
 	Point windowPosition;
 	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
-	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
+	if(owner.makingTurn() || settings["session"]["spectate"].Bool())
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
@@ -373,8 +351,6 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 
 	flagAnimation->preload();
 	flagAnimation->playerColored(hero->tempOwner);
-
-	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	switchToNextPhase();
 	play();
@@ -679,68 +655,6 @@ void BattleResultWindow::bExitf()
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
-}
-
-void ClickableHex::hover(bool on)
-{
-	hovered = on;
-	//Hoverable::hover(on);
-	if(!on && setAlterText)
-	{
-		GH.statusbar->clear();
-		setAlterText = false;
-	}
-}
-
-ClickableHex::ClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
-{
-	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
-}
-
-void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
-{
-	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
-
-	if(hovered && strictHovered) //print attacked creature to console
-	{
-		const CStack * attackedStack = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber);
-		if( attackedStack != nullptr &&
-			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
-			attackedStack->alive())
-		{
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 220);
-			attackedStack->addNameReplacement(text);
-			GH.statusbar->write(text.toString());
-			setAlterText = true;
-		}
-	}
-	else if(setAlterText)
-	{
-		GH.statusbar->clear();
-		setAlterText = false;
-	}
-}
-
-void ClickableHex::clickLeft(tribool down, bool previousState)
-{
-	if(!down && hovered && strictHovered) //we've been really clicked!
-	{
-		myInterface->actionsController->handleHex(myNumber, LCLICK);
-	}
-}
-
-void ClickableHex::clickRight(tribool down, bool previousState)
-{
-	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
-	if(hovered && strictHovered && myst!=nullptr)
-	{
-		if(!myst->alive()) return;
-		if(down)
-		{
-			GH.pushIntT<CStackWindow>(myst, true);
-		}
-	}
 }
 
 StackQueue::StackQueue(bool Embedded, BattleInterface & owner)

@@ -78,10 +78,7 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 		return baseSpeed;
 
 	case ECreatureAnimType::HOLDING:
-			if ( creature->animation.idleAnimationTime > 0.01)
-				return speed / creature->animation.idleAnimationTime;
-			else
-				return 0.f; // this animation is disabled for current creature
+			return creature->animation.idleAnimationTime;
 
 	case ECreatureAnimType::SHOOT_UP:
 	case ECreatureAnimType::SHOOT_FRONT:
