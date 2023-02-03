@@ -18,6 +18,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
+#include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"

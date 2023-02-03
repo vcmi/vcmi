@@ -45,26 +45,6 @@ SDL_Color toSDL(const ColorRGBA & color);
 void setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 void setAlpha(SDL_Surface * bg, int value);
 
-template<typename IntType>
-std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
-{
-	IntType max = pow(10, maxLength);
-	if (std::abs(number) < max)
-		return boost::lexical_cast<std::string>(number);
-
-	std::string symbols = " kMGTPE";
-	auto iter = symbols.begin();
-
-	while (number >= max)
-	{
-		number /= 1000;
-		iter++;
-
-		assert(iter != symbols.end());//should be enough even for int64
-	}
-	return boost::lexical_cast<std::string>(number) + *iter;
-}
-
 Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
 
 typedef void (*TColorPutter)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
@@ -111,7 +91,7 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	void drawBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth = 1);
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color);
 	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
-	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
+
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface

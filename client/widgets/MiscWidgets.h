@@ -117,6 +117,8 @@ public:
 class CMinorResDataBar : public CIntObject
 {
 	std::shared_ptr<CPicture> background;
+
+	std::string buildDateString();
 public:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;

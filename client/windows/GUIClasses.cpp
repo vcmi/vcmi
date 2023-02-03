@@ -1281,8 +1281,8 @@ void CExchangeWindow::updateWidgets()
 			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
 		}
 
-		expValues[leftRight]->setText(CSDL_Ext::makeNumberShort(hero->exp));
-		manaValues[leftRight]->setText(CSDL_Ext::makeNumberShort(hero->mana));
+		expValues[leftRight]->setText(vstd::formatMetric(hero->exp, 3));
+		manaValues[leftRight]->setText(vstd::formatMetric(hero->mana, 3));
 
 		morale[leftRight]->set(hero);
 		luck[leftRight]->set(hero);

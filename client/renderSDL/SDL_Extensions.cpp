@@ -558,15 +558,6 @@ uint8_t * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const 
 	return (uint8_t *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
 }
 
-std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
-{
-	for (size_t i=0; (i<tor.size())&&(boost::find_first(str,"%s")); ++i)
-	{
-		boost::replace_first(str,"%s",tor[i]);
-	}
-	return str;
-}
-
 bool CSDL_Ext::isTransparent( SDL_Surface * srf, const Point & position )
 {
 	return isTransparent(srf, position.x, position.y);

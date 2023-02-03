@@ -742,7 +742,7 @@ const Point & CGuiHandler::getCursorPosition() const
 
 Point CGuiHandler::screenDimensions() const
 {
-	return return Point(screen->w, screen->h);
+	return Point(screen->w, screen->h);
 }
 
 bool CGuiHandler::isMouseButtonPressed() const

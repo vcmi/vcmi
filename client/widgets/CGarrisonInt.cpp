@@ -374,7 +374,7 @@ void CGarrisonSlot::update()
 		creatureImage->setFrame(creature->getIconIndex());
 
 		stackCount->enable();
-		stackCount->setText(CSDL_Ext::makeNumberShort(myStack->count, 4));
+		stackCount->setText(vstd::formatMetric(myStack->count, 4));
 	}
 	else
 	{

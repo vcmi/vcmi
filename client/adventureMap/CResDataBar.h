@@ -15,11 +15,12 @@
 /// Current date is displayed too
 class CResDataBar : public CIntObject
 {
+	std::string buildDateString();
+
 public:
 	std::shared_ptr<CPicture> background;
 
 	std::vector<std::pair<int,int> > txtpos;
-	std::string datetext;
 
 	void clickRight(tribool down, bool previousState) override;
 	CResDataBar();

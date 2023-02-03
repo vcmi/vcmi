@@ -725,6 +725,27 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
+	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
+	template<typename IntType>
+	std::string formatMetric(IntType number, int maxLength)
+	{
+		IntType max = pow(10, maxLength);
+		if (std::abs(number) < max)
+			return boost::lexical_cast<std::string>(number);
+
+		std::string symbols = " kMGTPE";
+		auto iter = symbols.begin();
+
+		while (number >= max)
+		{
+			number /= 1000;
+			iter++;
+
+			assert(iter != symbols.end());//should be enough even for int64
+		}
+		return std::to_string(number) + *iter;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;
