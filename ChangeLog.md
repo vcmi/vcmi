@@ -1,5 +1,5 @@
 # 1.1.1 -> 1.2.0
-(unreleased, changes for 1.1.1..c5508d3)
+(unreleased, changes for 1.1.1..9c59025)
 
 ### GENERAL:
 * Implemented hardware cursor support
@@ -9,6 +9,8 @@
 * Fixed bonus values of heroes who specialize in creatures
 * Fixed damage increase from Adela's Bless specialty
 * Fixed missing obstacles in battles on subterranean terrain 
+* Added vcmifaerie, vcmiazure, vcmiarmy, vcmiexp cheats
+* Video files now play at correct speed
 
 ### MAP EDITOR:
 * Added translations to German, Polish, Russian, Ukrainian
@@ -66,6 +68,11 @@
 * Fixed highlighting of movement range for creatures standing on a corpse
 * All battle animations now have same duration/speed as in H3
 * Added missing combat log message on resurrecting creatures
+* Fixed visibility of blue border around targeted creature when spellcaster is making turn
+* Fixed selection highlight when in targeted creature spellcasting mode
+* Hovering over hero now correctly shows hero cursor
+* Creature currently making turn is now highlighted in the Battle Queue 
+* Hovering over creature icon in Battle Queue will highlight this creature in the battlefield
 
 ### SPELLS:
 * Hero casting animation will play before spell effect
