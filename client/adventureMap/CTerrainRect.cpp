@@ -28,7 +28,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/CPathfinder.h"
 
-#include <SDL_events.h>
+#include <SDL_surface.h>
 
 #define ADVOPT (conf.go()->ac)
 
@@ -110,32 +110,31 @@ void CTerrainRect::clickMiddle(tribool down, bool previousState)
 	handleSwipeStateChange((bool)down == true);
 }
 
-void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
+void CTerrainRect::mouseMoved(const Point & cursorPosition)
 {
-	handleHover(sEvent);
+	handleHover(cursorPosition);
 
 	if(!adventureInt->swipeEnabled)
 		return;
 
-	handleSwipeMove(sEvent);
+	handleSwipeMove(cursorPosition);
 }
 
-void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
+void CTerrainRect::handleSwipeMove(const Point & cursorPosition)
 {
 #if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	if(sEvent.state == 0 || GH.multifinger) // any "button" is enough on mobile
-#else
-	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
-#endif
-	{
+	if(!GH.isMouseButtonPressed() || GH.multifinger) // any "button" is enough on mobile
 		return;
-	}
+#else
+	if(!GH.isMouseButtonPressed(MouseButton::MIDDLE)) // swipe only works with middle mouse on other platforms
+		return;
+#endif
 
 	if(!isSwiping)
 	{
 		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if(abs(sEvent.x - swipeInitialRealPos.x) > SwipeTouchSlop ||
-		   abs(sEvent.y - swipeInitialRealPos.y) > SwipeTouchSlop)
+		if(abs(cursorPosition.x - swipeInitialRealPos.x) > SwipeTouchSlop ||
+		   abs(cursorPosition.y - swipeInitialRealPos.y) > SwipeTouchSlop)
 		{
 			isSwiping = true;
 		}
@@ -144,9 +143,9 @@ void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 	if(isSwiping)
 	{
 		adventureInt->swipeTargetPosition.x =
-			swipeInitialMapPos.x + static_cast<si32>(swipeInitialRealPos.x - sEvent.x) / 32;
+			swipeInitialMapPos.x + static_cast<si32>(swipeInitialRealPos.x - cursorPosition.x) / 32;
 		adventureInt->swipeTargetPosition.y =
-			swipeInitialMapPos.y + static_cast<si32>(swipeInitialRealPos.y - sEvent.y) / 32;
+			swipeInitialMapPos.y + static_cast<si32>(swipeInitialRealPos.y - cursorPosition.y) / 32;
 		adventureInt->swipeMovementRequested = true;
 	}
 }
@@ -155,7 +154,7 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 {
 	if(btnPressed)
 	{
-		swipeInitialRealPos = int3(GH.getCursorPosition().x, GH.getCursorPosition().y, 0);
+		swipeInitialRealPos = Point(GH.getCursorPosition().x, GH.getCursorPosition().y);
 		swipeInitialMapPos = int3(adventureInt->position);
 		return true;
 	}
@@ -167,9 +166,9 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 	return false;
 }
 
-void CTerrainRect::handleHover(const SDL_MouseMotionEvent &sEvent)
+void CTerrainRect::handleHover(const Point & cursorPosition)
 {
-	int3 tHovered = whichTileIsIt(sEvent.x, sEvent.y);
+	int3 tHovered = whichTileIsIt(cursorPosition.x, cursorPosition.y);
 	int3 pom = adventureInt->verifyPos(tHovered);
 
 	if(tHovered != pom) //tile outside the map

@@ -11,7 +11,7 @@
 
 #include "../gui/CIntObject.h"
 #include "../gui/TextAlignment.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Colors.h"
 #include "../render/Graphics.h"
 #include "../../lib/FunctionList.h"
 
@@ -225,11 +225,12 @@ public:
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
 	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 
-	void textInputed(const SDL_TextInputEvent & event) override;
-	void textEdited(const SDL_TextEditingEvent & event) override;
+	bool captureThisKey(const SDL_Keycode & key) override;
+
+	void textInputed(const std::string & enteredText) override;
+	void textEdited(const std::string & enteredText) override;
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string & text, const std::string & oldText);

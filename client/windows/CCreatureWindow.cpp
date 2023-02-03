@@ -22,6 +22,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 #include "../gui/CGuiHandler.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -30,8 +31,6 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CGameState.h"
-
-using namespace CSDL_Ext;
 
 class CCreatureArtifactInstance;
 class CSelectableSkill;
@@ -518,8 +517,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	const CStack * battleStack = parent->info->stack;
 
-	morale = std::make_shared<MoraleLuckBox>(true, genRect(42, 42, 321, 110));
-	luck = std::make_shared<MoraleLuckBox>(false, genRect(42, 42, 375, 110));
+	morale = std::make_shared<MoraleLuckBox>(true, CSDL_Ext::genRect(42, 42, 321, 110));
+	luck = std::make_shared<MoraleLuckBox>(false, CSDL_Ext::genRect(42, 42, 375, 110));
 
 	if(battleStack != nullptr) // in battle
 	{
@@ -583,7 +582,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		}
 		expLabel = std::make_shared<CLabel>(
 				pos.x + 21, pos.y + 52, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-				makeNumberShort<TExpType>(stack->experience, 6));
+				CSDL_Ext::makeNumberShort<TExpType>(stack->experience, 6));
 	}
 
 	if(showArt)

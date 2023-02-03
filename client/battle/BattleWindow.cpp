@@ -28,6 +28,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -37,7 +38,6 @@
 #include "../../lib/filesystem/ResourceID.h"
 
 #include <SDL_surface.h>
-#include <SDL_events.h>
 
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
@@ -165,9 +165,9 @@ void BattleWindow::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleWindow::keyPressed(const SDL_KeyboardEvent & key)
+void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
-	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
+	if(key == SDLK_q)
 	{
 		if(settings["battle"]["showQueue"].Bool()) //hide queue
 			hideQueue();
@@ -175,11 +175,11 @@ void BattleWindow::keyPressed(const SDL_KeyboardEvent & key)
 			showQueue();
 
 	}
-	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	else if(key == SDLK_f)
 	{
 		owner.actionsController->enterCreatureCastingMode();
 	}
-	else if(key.keysym.sym == SDLK_ESCAPE)
+	else if(key == SDLK_ESCAPE)
 	{
 		if(owner.getAnimationCondition(EAnimationEvents::OPENING) == true)
 			CCS->soundh->stopSound(owner.battleIntroSoundChannel);

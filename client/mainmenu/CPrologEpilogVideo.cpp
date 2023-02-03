@@ -16,6 +16,7 @@
 #include "../CVideoHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/mapping/CCampaignHandler.h"
 

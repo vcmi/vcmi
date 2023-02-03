@@ -9,12 +9,15 @@
  */
 #pragma once
 
+#include "MouseButton.h"
 #include "../../lib/Point.h"
-#include "SDL_keycode.h"
+
+#include <SDL_keycode.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 template <typename T> struct CondSh;
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -27,10 +30,9 @@ class CIntObject;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
-enum class EIntObjMouseBtnType;
 
 // TODO: event handling need refactoring
-enum EUserEvent
+enum class EUserEvent
 {
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
@@ -71,6 +73,7 @@ public:
 
 private:
 	Point cursorPosition;
+	uint32_t mouseButtonsMask;
 
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
@@ -90,7 +93,7 @@ private:
 	CIntObjectList textInterested;
 
 
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
+	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
 	void handleCurrentEvent(SDL_Event &current);
 	void handleMouseMotion(const SDL_Event & current);
@@ -107,7 +110,25 @@ public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
+	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
+
+	/// returns true if at least one mouse button is pressed
+	bool isMouseButtonPressed() const;
+
+	/// returns true if specified mouse button is pressed
+	bool isMouseButtonPressed(MouseButton button) const;
+
+	/// returns true if chosen keyboard key is currently pressed down
+	bool isKeyboardAltDown() const;
+	bool isKeyboardCtrlDown() const;
+	bool isKeyboardShiftDown() const;
+
+	void startTextInput(const Rect & where);
+	void stopTextInput();
+
+	/// moves mouse pointer into specified position inside vcmi window
+	void moveCursorToPosition(const Point & position);
 
 	IUpdateable *curInt;
 
@@ -155,7 +176,8 @@ public:
 	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
-	static void pushSDLEvent(int type, int usercode = 0);
+	static void pushUserEvent(EUserEvent usercode);
+	static void pushUserEvent(EUserEvent usercode, void * userdata);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };

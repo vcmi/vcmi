@@ -23,6 +23,7 @@
 #include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
+#include "CMT.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CQuestLog.h"
@@ -86,8 +87,6 @@
 	if (LOCPLINT != this)			\
 		return;						\
 	RETURN_IF_QUICK_COMBAT
-
-using namespace CSDL_Ext;
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
@@ -1043,7 +1042,7 @@ void CPlayerInterface::showComp(const Component &comp, std::string message)
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
 	}
@@ -1067,7 +1066,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is LOCPLINT=%d", playerID % text % (this==LOCPLINT));
 	waitWhileDialog();
 
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
 	}
@@ -1328,16 +1327,6 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 }
 
-bool CPlayerInterface::shiftPressed() const
-{
-	return isShiftKeyDown();
-}
-
-bool CPlayerInterface::altPressed() const
-{
-	return isAltKeyDown();
-}
-
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1558,11 +1547,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 	}
 }
 
-bool CPlayerInterface::ctrlPressed() const
-{
-	return isCtrlKeyDown();
-}
-
 const CArmedInstance * CPlayerInterface::getSelection()
 {
 	return currentSelection;
@@ -1604,7 +1588,7 @@ void CPlayerInterface::update()
 
 	if (!adventureInt || adventureInt->isActive())
 		GH.simpleRedraw();
-	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || adventureInt->scrollingDir)
+	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || (adventureInt->scrollingDir && GH.isKeyboardCtrlDown()))
 		GH.totalRedraw(); //player forces map scrolling though interface is disabled
 	else
 		GH.simpleRedraw();
@@ -1990,7 +1974,7 @@ void CPlayerInterface::acceptTurn()
 	adventureInt->updateNextHero(nullptr);
 	adventureInt->showAll(screen);
 
-	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
@@ -2154,12 +2138,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
 	else
-		sendCustomEvent(EUserEvent::RETURN_TO_MAIN_MENU);
-}
-
-void CPlayerInterface::sendCustomEvent( int code )
-{
-	CGuiHandler::pushSDLEvent(SDL_USEREVENT, code);
+		GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
@@ -2283,7 +2262,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [](){ GH.pushUserEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

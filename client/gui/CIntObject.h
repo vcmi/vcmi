@@ -9,17 +9,15 @@
  */
 #pragma once
 
-#include "../../lib/Rect.h"
+#include "MouseButton.h"
 #include "../render/Graphics.h"
+#include "../../lib/Rect.h"
 
 struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
 
-struct SDL_KeyboardEvent;
-struct SDL_TextInputEvent;
-struct SDL_TextEditingEvent;
-struct SDL_MouseMotionEvent;
+typedef int32_t SDL_Keycode;
 
 using boost::logic::tribool;
 
@@ -62,9 +60,6 @@ public:
 	virtual ~IShowActivatable(){};
 };
 
-enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
-//typedef ui16 ActivityFlag;
-
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
@@ -74,7 +69,7 @@ class CIntObject : public IShowActivatable //interface object
 	int toNextTick;
 	int timerDelay;
 
-	std::map<EIntObjMouseBtnType, bool> currentMouseState;
+	std::map<MouseButton, bool> currentMouseState;
 
 	void onTimer(int timePassed);
 
@@ -108,10 +103,10 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
-	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
+	void updateMouseState(MouseButton btn, bool state) { currentMouseState[btn] = state; }
+	bool mouseState(MouseButton btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
-	virtual void click(EIntObjMouseBtnType btn, tribool down, bool previousState);
+	virtual void click(MouseButton btn, tribool down, bool previousState);
 	virtual void clickLeft(tribool down, bool previousState) {}
 	virtual void clickRight(tribool down, bool previousState) {}
 	virtual void clickMiddle(tribool down, bool previousState) {}
@@ -122,15 +117,16 @@ public:
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyPressed(const SDL_KeyboardEvent & key){}
-	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	virtual void keyPressed(const SDL_Keycode & key){}
+	virtual void keyReleased(const SDL_Keycode & key){}
+	virtual bool captureThisKey(const SDL_Keycode & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-	virtual void textInputed(const SDL_TextInputEvent & event){};
-	virtual void textEdited(const SDL_TextEditingEvent & event){};
+	virtual void textInputed(const std::string & enteredText){};
+	virtual void textEdited(const std::string & enteredText){};
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent){}
+	virtual void mouseMoved (const Point & cursorPosition){}
 
 	//time handling
 	void setTimer(int msToTrigger);//set timer delay and activate timer if needed.
@@ -205,7 +201,9 @@ public:
 	CKeyShortcut();
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
-	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
+	void keyPressed(const SDL_Keycode & key) override;
+	void keyReleased(const SDL_Keycode & key) override;
+
 };
 
 class WindowBase : public CIntObject

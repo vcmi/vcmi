@@ -16,25 +16,9 @@
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
-
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/CCompressedStream.h"
-
 #include "../gui/CursorHandler.h"
-
-#include "../CGameInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/JsonNode.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
-#include "../../lib/serializer/Connection.h"
-#include "../../lib/serializer/CTypeList.h"
-#include "../../lib/VCMIDirs.h"
-#include "../../lib/mapping/CMap.h"
+#include "../CMT.h"
 #include "../windows/GUIClasses.h"
-#include "../CPlayerInterface.h"
-#include "../../CCallback.h"
-#include "../Client.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -43,6 +27,23 @@
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
+
+#include "../CGameInfo.h"
+#include "../CMusicHandler.h"
+#include "../CVideoHandler.h"
+#include "../CPlayerInterface.h"
+#include "../Client.h"
+
+#include "../../CCallback.h"
+
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/JsonNode.h"
+#include "../../lib/serializer/Connection.h"
+#include "../../lib/serializer/CTypeList.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CCompressedStream.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CThreadHelper.h"
@@ -52,7 +53,7 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
-#include <SDL_events.h>
+#include <SDL_surface.h>
 
 namespace fs = boost::filesystem;
 
@@ -61,9 +62,7 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	SDL_Event event;
-	event.quit.type = SDL_QUIT;
-	SDL_PushEvent(&event);
+	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
@@ -484,7 +483,7 @@ void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText("Connecting...");
 	buttonOk->block(true);
-	CSDL_Ext::stopTextInput();
+	GH.stopTextInput();
 
 	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }

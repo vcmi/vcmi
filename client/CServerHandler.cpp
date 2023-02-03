@@ -60,8 +60,6 @@
 #include <windows.h>
 #endif
 
-#include <SDL_events.h>
-
 template<typename T> class CApplyOnLobby;
 
 const std::string CServerHandler::localhostAddress{"127.0.0.1"};
@@ -655,14 +653,10 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
 {
-	SDL_Event event;
-	event.type = SDL_USEREVENT;
-	event.user.code = EUserEvent::CAMPAIGN_START_SCENARIO;
 	if(cs)
-		event.user.data1 = CMemorySerializer::deepCopy(*cs.get()).release();
+		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs.get()).release());
 	else
-		event.user.data1 = CMemorySerializer::deepCopy(*si->campState.get()).release();
-	SDL_PushEvent(&event);
+		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState.get()).release());
 }
 
 void CServerHandler::showServerError(std::string txt)
@@ -824,7 +818,7 @@ void CServerHandler::threadHandleConnection()
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
+				CGuiHandler::pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 			}
 			else
 			{

@@ -63,10 +63,6 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
-#include <SDL_events.h>
-
-using namespace CSDL_Ext;
-
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),
 	parent(window),
@@ -103,9 +99,9 @@ void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	if(selected)
-		drawBorder(to, pos, Colors::RED);
+		CSDL_Ext::drawBorder(to, pos, Colors::RED);
 	else
-		drawBorder(to, pos, Colors::YELLOW);
+		CSDL_Ext::drawBorder(to, pos, Colors::YELLOW);
 }
 
 void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
@@ -180,17 +176,17 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 
 	// recruit\total values
-	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, Colors::YELLOW);
-	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, Colors::YELLOW);
+	CSDL_Ext::drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, Colors::YELLOW);
+	CSDL_Ext::drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, Colors::YELLOW);
 
 	//cost boxes
-	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, Colors::YELLOW);
-	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, Colors::YELLOW);
+	CSDL_Ext::drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, Colors::YELLOW);
+	CSDL_Ext::drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, Colors::YELLOW);
 
 	//buttons borders
-	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
-	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
-	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	CSDL_Ext::drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	CSDL_Ext::drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	CSDL_Ext::drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
@@ -561,8 +557,7 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 
 #ifndef VCMI_IOS
-	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+	Rect displayBounds = CSDL_Ext::getDisplayBounds();
 #endif
 
 	size_t currentResolutionIndex = 0;
@@ -610,7 +605,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -620,7 +615,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
 }
 
 void CSystemOptionsWindow::bloadf()
@@ -637,13 +632,13 @@ void CSystemOptionsWindow::bsavef()
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(EUserEvent::RESTART_GAME); }, 0);
 }
 
-void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
+void CSystemOptionsWindow::closeAndPushEvent(EUserEvent code)
 {
 	close();
-	GH.pushSDLEvent(eventType, code);
+	GH.pushUserEvent(code);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
@@ -1140,9 +1135,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	{
 		primSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>());
 		if (qeLayout)
-			primSkillAreas[g]->pos = genRect(22, 152, pos.x + 324, pos.y + 12 + 26 * g);
+			primSkillAreas[g]->pos = CSDL_Ext::genRect(22, 152, pos.x + 324, pos.y + 12 + 26 * g);
 		else
-			primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
+			primSkillAreas[g]->pos = CSDL_Ext::genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
@@ -1162,7 +1157,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			int skill = hero->secSkills[g].first,
 				level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + (qeLayout ? 83 : 88));
+			secSkillAreas[b][g]->pos = CSDL_Ext::genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + (qeLayout ? 83 : 88));
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -1177,12 +1172,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
-		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
+		specialtyAreas[b]->pos = CSDL_Ext::genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
-		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
+		experienceAreas[b]->pos = CSDL_Ext::genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
@@ -1190,15 +1185,15 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
-		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
+		spellPointsAreas[b]->pos = CSDL_Ext::genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
 
-		morale[b] = std::make_shared<MoraleLuckBox>(true, genRect(32, 32, 176 + 490 * b, 39), true);
-		luck[b] = std::make_shared<MoraleLuckBox>(false, genRect(32, 32, 212 + 490 * b, 39), true);
+		morale[b] = std::make_shared<MoraleLuckBox>(true, CSDL_Ext::genRect(32, 32, 176 + 490 * b, 39), true);
+		luck[b] = std::make_shared<MoraleLuckBox>(false, CSDL_Ext::genRect(32, 32, 212 + 490 * b, 39), true);
 	}
 
 	quit = std::make_shared<CButton>(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), SDLK_RETURN);
@@ -1286,8 +1281,8 @@ void CExchangeWindow::updateWidgets()
 			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
 		}
 
-		expValues[leftRight]->setText(makeNumberShort(hero->exp));
-		manaValues[leftRight]->setText(makeNumberShort(hero->mana));
+		expValues[leftRight]->setText(CSDL_Ext::makeNumberShort(hero->exp));
+		manaValues[leftRight]->setText(CSDL_Ext::makeNumberShort(hero->mana));
 
 		morale[leftRight]->set(hero);
 		luck[leftRight]->set(hero);
@@ -1380,7 +1375,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 void CPuzzleWindow::showAll(SDL_Surface * to)
 {
 	int3 moveInt = int3(8, 9, 0);
-	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
+	Rect mapRect = CSDL_Ext::genRect(544, 591, pos.x + 8, pos.y + 7);
 	int3 topTile = grailPos - moveInt;
 
 	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);
@@ -2170,14 +2165,11 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
+void CObjectListWindow::keyPressed (const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED)
-		return;
-
 	int sel = static_cast<int>(selected);
 
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	break; case SDLK_UP:
 		sel -=1;

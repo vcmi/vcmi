@@ -21,11 +21,10 @@
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
-
-#include <SDL_events.h>
 
 void CButton::update()
 {
@@ -555,22 +554,22 @@ void CSlider::sliderClicked()
 		addUsedEvents(MOVE);
 }
 
-void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CSlider::mouseMoved (const Point & cursorPosition)
 {
 	double v = 0;
 	if(horizontal)
 	{
-		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  )
+		if(	std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2  )
 			return;
-		v = sEvent.x - pos.x - 24;
+		v = cursorPosition.x - pos.x - 24;
 		v *= positions;
 		v /= (pos.w - 48);
 	}
 	else
 	{
-		if(std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2  )
+		if(std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2  )
 			return;
-		v = sEvent.y - pos.y - 24;
+		v = cursorPosition.y - pos.y - 24;
 		v *= positions;
 		v /= (pos.h - 48);
 	}
@@ -679,7 +678,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->mouseState(EIntObjMouseBtnType::LEFT));
+		slider->clickLeft(true, slider->mouseState(MouseButton::LEFT));
 		moveTo((int)(rw * positions  +  0.5));
 		return;
 	}
@@ -780,12 +779,10 @@ void CSlider::wheelScrolled(bool down, bool in)
 	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
 }
 
-void CSlider::keyPressed(const SDL_KeyboardEvent & key)
+void CSlider::keyPressed(const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED) return;
-
 	int moveDest = value;
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_UP:
 		if (!horizontal)

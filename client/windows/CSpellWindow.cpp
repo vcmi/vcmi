@@ -28,6 +28,7 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/CAdvMapInt.h"
 #include "../render/CAnimation.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 
@@ -38,8 +39,6 @@
 #include "../../lib/GameConstants.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
-
-#include <SDL_events.h>
 
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
@@ -422,17 +421,16 @@ void CSpellWindow::turnPageRight()
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
-void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
+void CSpellWindow::keyPressed(const SDL_Keycode & key)
 {
-	if(key.keysym.sym == SDLK_ESCAPE ||  key.keysym.sym == SDLK_RETURN)
+	if(key == SDLK_ESCAPE ||  key == SDLK_RETURN)
 	{
 		fexitb();
 		return;
 	}
-
-	if(key.state == SDL_PRESSED)
+	else
 	{
-		switch(key.keysym.sym)
+		switch(key)
 		{
 		case SDLK_LEFT:
 			fLcornerb();
@@ -443,7 +441,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		case SDLK_UP:
 		case SDLK_DOWN:
 		{
-			bool down = key.keysym.sym == SDLK_DOWN;
+			bool down = key == SDLK_DOWN;
 			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
@@ -464,9 +462,9 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		}
 
 		//alt + 1234567890-= casts spell from 1 - 12 slot
-		if(myInt->altPressed())
+		if(GH.isKeyboardAltDown())
 		{
-			SDL_Keycode hlpKey = key.keysym.sym;
+			SDL_Keycode hlpKey = key;
 			if(CGuiHandler::isNumKey(hlpKey, false))
 			{
 				if(hlpKey == SDLK_KP_PLUS)

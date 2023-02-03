@@ -98,9 +98,9 @@ void BattleFieldController::createHeroes()
 		owner.defendingHero = std::make_shared<BattleHero>(owner, owner.defendingHeroInstance, true);
 }
 
-void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
+void BattleFieldController::mouseMoved(const Point & cursorPosition)
 {
-	if (!pos.isInside(event.x, event.y))
+	if (!pos.isInside(cursorPosition))
 	{
 		owner.actionsController->onHoverEnded();
 		return;

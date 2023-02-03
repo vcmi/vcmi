@@ -33,6 +33,7 @@
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -48,7 +49,6 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 #include <SDL_surface.h>
-#include <SDL_events.h>
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
@@ -162,12 +162,12 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		CSDL_Ext::startTextInput(pos);
+		GH.startTextInput(pos);
 	}
 	else
 	{
 		assert(enteringText == true);
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 	}
 	enteringText = on;
 	redraw();
@@ -738,7 +738,7 @@ boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
-		if(stackBox->hovered || stackBox->mouseState(EIntObjMouseBtnType::RIGHT))
+		if(stackBox->hovered || stackBox->mouseState(MouseButton::RIGHT))
 		{
 			return stackBox->getBoundUnitID();
 		}

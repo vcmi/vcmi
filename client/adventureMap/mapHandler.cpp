@@ -13,6 +13,7 @@
 
 #include "../render/CAnimation.h"
 #include "../render/CFadeAnimation.h"
+#include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../CGameInfo.h"
 #include "../render/Graphics.h"

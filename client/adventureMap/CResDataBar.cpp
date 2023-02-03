@@ -12,6 +12,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/Images.h"

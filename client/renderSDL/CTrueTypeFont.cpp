@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "CTrueTypeFont.h"
 
-#include "SDL_Extensions.h"
+#include "../render/Colors.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/CGeneralTextHandler.h"

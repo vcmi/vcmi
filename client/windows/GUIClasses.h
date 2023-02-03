@@ -43,6 +43,8 @@ class CTextBox;
 class CResDataBar;
 class CHeroWithMaybePickedArtifact;
 
+enum class EUserEvent;
+
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CStatusbarWindow
 {
@@ -193,7 +195,7 @@ public:
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
-	void keyPressed (const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 };
 
 class CSystemOptionsWindow : public CWindowObject
@@ -234,7 +236,7 @@ private:
 
 	void selectGameRes();
 	void setGameRes(int index);
-	void closeAndPushEvent(int eventType, int code = 0);
+	void closeAndPushEvent(EUserEvent code);
 
 public:
 	CSystemOptionsWindow();

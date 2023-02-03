@@ -17,13 +17,13 @@
 #include "../gui/CGuiHandler.h"
 #include "../windows/CMessage.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../renderSDL/SDL_Extensions.h"
+
 #include "../../lib/CGeneralTextHandler.h"
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
-
-#include <SDL_events.h>
 
 std::list<CFocusable*> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
@@ -353,14 +353,14 @@ void CGStatusBar::setEnteringMode(bool on)
 	{
 		assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
-		CSDL_Ext::startTextInput(pos);
+		GH.startTextInput(pos);
 		setText(consoleText);
 	}
 	else
 	{
 		assert(enteringText == true);
 		alignment = ETextAlignment::CENTER;
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 		setText(hoverText);
 	}
 	enteringText = on;
@@ -526,7 +526,7 @@ CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
 
 void CKeyboardFocusListener::focusGot()
 {
-	CSDL_Ext::startTextInput(textInput->pos);
+	GH.startTextInput(textInput->pos);
 	usageIndex++;
 }
 
@@ -534,7 +534,7 @@ void CKeyboardFocusListener::focusLost()
 {
 	if(0 == --usageIndex)
 	{
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 	}
 }
 
@@ -549,13 +549,12 @@ void CTextInput::clickLeft(tribool down, bool previousState)
 		giveFocus();
 }
 
-void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
+void CTextInput::keyPressed(const SDL_Keycode & key)
 {
-
-	if(!focus || key.state != SDL_PRESSED)
+	if(!focus)
 		return;
 
-	if(key.keysym.sym == SDLK_TAB)
+	if(key == SDLK_TAB)
 	{
 		moveFocus();
 		GH.breakEventHandling();
@@ -564,7 +563,7 @@ void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 
 	bool redrawNeeded = false;
 
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
 		return;
@@ -603,21 +602,21 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 		cb(text);
 }
 
-bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
+bool CTextInput::captureThisKey(const SDL_Keycode & key)
 {
-	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER || key.keysym.sym == SDLK_ESCAPE)
+	if(key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE)
 		return false;
 
 	return true;
 }
 
-void CTextInput::textInputed(const SDL_TextInputEvent & event)
+void CTextInput::textInputed(const std::string & enteredText)
 {
 	if(!focus)
 		return;
 	std::string oldText = text;
 
-	text += event.text;
+	text += enteredText;
 
 	filters(text, oldText);
 	if(text != oldText)
@@ -628,12 +627,12 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 	newText.clear();
 }
 
-void CTextInput::textEdited(const SDL_TextEditingEvent & event)
+void CTextInput::textEdited(const std::string & enteredText)
 {
 	if(!focus)
 		return;
 
-	newText = event.text;
+	newText = enteredText;
 	redraw();
 	cb(text + newText);
 }

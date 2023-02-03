@@ -43,7 +43,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-#include <SDL_events.h>
+#include <SDL_surface.h>
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE, BUILDING_FRAME_TIME),
@@ -241,11 +241,11 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	}
 }
 
-void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CBuildingRect::mouseMoved (const Point & cursorPosition)
 {
-	if(area && pos.isInside(sEvent.x, sEvent.y))
+	if(area && pos.isInside(cursorPosition.x, cursorPosition.y))
 	{
-		if(area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
+		if(area->isTransparent(cursorPosition - pos.topLeft())) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{
@@ -1255,11 +1255,9 @@ void CCastleInterface::recreateIcons()
 		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 507), town, (int)i+4));
 }
 
-void CCastleInterface::keyPressed(const SDL_KeyboardEvent & key)
+void CCastleInterface::keyPressed(const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED) return;
-
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_UP:
 		townlist->selectPrev();
