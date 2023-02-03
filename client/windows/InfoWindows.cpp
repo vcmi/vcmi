@@ -245,8 +245,8 @@ CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 
 	if(bitmap)
 	{
-		pos.x = screen->w/2 - bitmap->w/2;
-		pos.y = screen->h/2 - bitmap->h/2;
+		pos.x = GH.screenDimensions().x/2 - bitmap->w/2;
+		pos.y = GH.screenDimensions().y/2 - bitmap->h/2;
 		pos.h = bitmap->h;
 		pos.w = bitmap->w;
 	}
@@ -281,8 +281,8 @@ void CInfoPopup::init(int x, int y)
 	// Put the window back on screen if necessary
 	vstd::amax(pos.x, 0);
 	vstd::amax(pos.y, 0);
-	vstd::amin(pos.x, screen->w - bitmap->w);
-	vstd::amin(pos.y, screen->h - bitmap->h);
+	vstd::amin(pos.x, GH.screenDimensions().x - bitmap->w);
+	vstd::amin(pos.y, GH.screenDimensions().y - bitmap->h);
 }
 
 

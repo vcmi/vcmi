@@ -48,8 +48,6 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-#include <SDL_surface.h>
-
 void BattleConsole::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
@@ -475,9 +473,9 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	pos = CSDL_Ext::genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	background = std::make_shared<CPicture>("CPRESULT");
 	background->colorize(owner.playerID);
+	pos = center(background->pos);
 
 	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
@@ -639,7 +637,7 @@ void BattleResultWindow::activate()
 void BattleResultWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, to, true, false);
 }
 
 void BattleResultWindow::bExitf()

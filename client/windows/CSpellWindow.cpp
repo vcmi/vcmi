@@ -17,7 +17,6 @@
 #include "CCastleInterface.h"
 
 #include "../CGameInfo.h"
-#include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
 

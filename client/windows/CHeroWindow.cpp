@@ -15,7 +15,6 @@
 #include "GUIClasses.h"
 
 #include "../CGameInfo.h"
-#include "../CMT.h"
 #include "../CPlayerInterface.h"
 
 #include "../gui/CGuiHandler.h"

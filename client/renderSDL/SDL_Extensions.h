@@ -20,11 +20,6 @@ struct SDL_Texture;
 struct SDL_Surface;
 struct SDL_Color;
 
-extern SDL_Window * mainWindow;
-extern SDL_Renderer * mainRenderer;
-extern SDL_Texture * screenTexture;
-extern SDL_Surface * screen, *screen2, *screenBuf;
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class Rect;
@@ -75,8 +70,8 @@ Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
 typedef void (*TColorPutter)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
 typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
 
-	void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
-	void blitAt(SDL_Surface * src, const Rect & pos, SDL_Surface * dst=screen);
+	void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst);
+	void blitAt(SDL_Surface * src, const Rect & pos, SDL_Surface * dst);
 
 	void setClipRect(SDL_Surface * src, const Rect & other);
 	void getClipRect(SDL_Surface * src, Rect & other);
@@ -117,7 +112,8 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color);
 	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value

@@ -22,6 +22,7 @@
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../widgets/TextControls.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"

@@ -211,8 +211,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	assert(ret && ret->text);
 	for(int i = 0;
 		i < ARRAY_COUNT(sizes)
-			&& sizes[i][0] < screen->w - 150
-			&& sizes[i][1] < screen->h - 150
+			&& sizes[i][0] < GH.screenDimensions().x - 150
+			&& sizes[i][1] < GH.screenDimensions().y - 150
 			&& ret->text->slider;
 		i++)
 	{
@@ -254,7 +254,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	vstd::amax(winSize.first, comps.w);
 	vstd::amax(winSize.first, bw);
 
-	vstd::amin(winSize.first, screen->w - 150);
+	vstd::amin(winSize.first, GH.screenDimensions().x - 150);
 
 	ret->bitmap = drawDialogBox (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;

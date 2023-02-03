@@ -14,6 +14,7 @@
 
 #include "../render/Graphics.h"
 #include "../render/Colors.h"
+#include "../CMT.h"
 
 #include <SDL_render.h>
 
@@ -95,6 +96,11 @@ void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
 		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 	SDL_RenderPresent(mainRenderer);
 
+}
+
+SDL_Surface * CSDL_Ext::newSurface(int w, int h)
+{
+	return newSurface(w, h, screen);
 }
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given

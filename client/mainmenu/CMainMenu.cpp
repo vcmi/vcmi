@@ -17,7 +17,6 @@
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
 #include "../gui/CursorHandler.h"
-#include "../CMT.h"
 #include "../windows/GUIClasses.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
@@ -33,6 +32,7 @@
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../Client.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 
@@ -53,7 +53,6 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
-#include <SDL_surface.h>
 
 namespace fs = boost::filesystem;
 
@@ -72,7 +71,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	background = std::make_shared<CPicture>(config["background"].String());
 	if(config["scalable"].Bool())
-		background->scaleTo(Point(screen->w, screen->h));
+		background->scaleTo(GH.screenDimensions());
 
 	pos = background->center();
 
@@ -275,8 +274,8 @@ const JsonNode & CMainMenuConfig::getCampaigns() const
 
 CMainMenu::CMainMenu()
 {
-	pos.w = screen->w;
-	pos.h = screen->h;
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
 
 	GH.defActionsDef = 63;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
