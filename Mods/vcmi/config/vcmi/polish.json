@@ -178,7 +178,7 @@
 	"core.bonus.RANDOM_SPELLCASTER.description": "Może rzucić losowy czar",
 	"core.bonus.RANGED_RETALIATION.name": "Dystansowy kontratak",
 	"core.bonus.RANGED_RETALIATION.description": "Może wykonać kontratak dystansowy",
-	"core.bonus.RECEPTIVE.name": "Podatny",
+	"core.bonus.RECEPTIVE.name": "Absorpcyjny",
 	"core.bonus.RECEPTIVE.description": "Brak odporności na przyjazne zaklęcia",
 	"core.bonus.REBIRTH.name": "Odrodzenie (${val}%)",
 	"core.bonus.REBIRTH.description": "${val}% stworzeń powstanie po śmierci",
