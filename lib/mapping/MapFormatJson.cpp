@@ -518,7 +518,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 			{
 				if((obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO) && obj->tempOwner == PlayerColor(player))
 				{
-					CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj.get());
+					auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
 
 					auto heroes = handler.enterStruct("heroes");
 					if(hero)
@@ -810,12 +810,12 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 		{
 			auto predefinedHero = handler.enterStruct(p.first);
 
-			CGHeroInstance * hero = new CGHeroInstance();
+			auto * hero = new CGHeroInstance();
 			hero->ID = Obj::HERO;
             hero->setHeroTypeName(p.first);
             hero->serializeJsonDefinition(handler);
 
-            map->predefinedHeroes.push_back(hero);
+            map->predefinedHeroes.emplace_back(hero);
 		}
 	}
 }
@@ -884,7 +884,7 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream):
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
 	LOG_TRACE(logGlobal);
-	std::unique_ptr<CMap> result = std::unique_ptr<CMap>(new CMap());
+	std::unique_ptr<CMap> result = std::make_unique<CMap>();
 	map = result.get();
 	mapHeader = map;
 	readMap();
@@ -895,7 +895,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
 	LOG_TRACE(logGlobal);
 	map = nullptr;
-	std::unique_ptr<CMapHeader> result = std::unique_ptr<CMapHeader>(new CMapHeader());
+	std::unique_ptr<CMapHeader> result = std::make_unique<CMapHeader>();
 	mapHeader = result.get();
 	readHeader(false);
 	return result;
@@ -1251,10 +1251,7 @@ CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
 	fileVersionMinor = VERSION_MINOR;
 }
 
-CMapSaverJson::~CMapSaverJson()
-{
-
-}
+CMapSaverJson::~CMapSaverJson() = default;
 
 void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & filename)
 {

@@ -237,9 +237,7 @@ CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
 }
 
-CMapHeader::~CMapHeader()
-{
-}
+CMapHeader::~CMapHeader() = default;
 
 ui8 CMapHeader::levels() const
 {
@@ -563,10 +561,10 @@ void CMap::checkForObjectives()
 
 					if (cond.object)
 					{
-						const CGTownInstance *town = dynamic_cast<const CGTownInstance*>(cond.object);
+						const auto *town = dynamic_cast<const CGTownInstance*>(cond.object);
 						if (town)
 							boost::algorithm::replace_first(event.onFulfill, "%s", town->getNameTranslated());
-						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
+						const auto *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
@@ -578,7 +576,7 @@ void CMap::checkForObjectives()
 
 					if (cond.object)
 					{
-						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
+						const auto *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
@@ -608,7 +606,7 @@ void CMap::checkForObjectives()
 void CMap::addNewArtifactInstance(CArtifactInstance * art)
 {
 	art->id = ArtifactInstanceID((si32)artInstances.size());
-	artInstances.push_back(art);
+	artInstances.emplace_back(art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
@@ -621,7 +619,7 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 void CMap::addNewQuestInstance(CQuest* quest)
 {
 	quest->qid = static_cast<si32>(quests.size());
-	quests.push_back(quest);
+	quests.emplace_back(quest);
 }
 
 void CMap::removeQuestInstance(CQuest * quest)
@@ -662,7 +660,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
-	objects.push_back(obj);
+	objects.emplace_back(obj);
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
 

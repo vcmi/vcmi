@@ -306,8 +306,8 @@ public:
 
 	std::string victoryMessage;
 	std::string defeatMessage;
-	ui16 victoryIconIndex;
-	ui16 defeatIconIndex;
+	ui16 victoryIconIndex{};
+	ui16 defeatIconIndex{};
 
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;

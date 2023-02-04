@@ -63,8 +63,8 @@ class DLL_LINKAGE CScenarioTravel
 {
 public:
 	ui8 whatHeroKeeps; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
-	std::array<ui8, 19> monstersKeptByHero;
-	std::array<ui8, 18> artifsKeptByHero;
+	std::array<ui8, 19> monstersKeptByHero{};
+	std::array<ui8, 18> artifsKeptByHero{};
 
 	ui8 startOptions; //1 - start bonus, 2 - traveling hero, 3 - hero options
 
