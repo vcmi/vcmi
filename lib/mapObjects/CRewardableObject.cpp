@@ -442,37 +442,37 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 
 	if (heroExperience)
 	{
-		comps.push_back(Component(
-			Component::EXPERIENCE, 0, (si32)h->calculateXp(heroExperience), 0));
+		comps.emplace_back(
+			Component::EXPERIENCE, 0, (si32)h->calculateXp(heroExperience), 0);
 	}
 	if (heroLevel)
-		comps.push_back(Component(Component::EXPERIENCE, 1, heroLevel, 0));
+		comps.emplace_back(Component::EXPERIENCE, 1, heroLevel, 0);
 
 	if (manaDiff || manaPercentage >= 0)
-		comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));
+		comps.emplace_back(Component::PRIM_SKILL, 5, manaDiff, 0);
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.push_back(Component(Component::PRIM_SKILL, (ui16)i, primary[i], 0));
+			comps.emplace_back(Component::PRIM_SKILL, (ui16)i, primary[i], 0);
 	}
 
 	for (auto & entry : secondary)
-		comps.push_back(Component(Component::SEC_SKILL, entry.first, entry.second, 0));
+		comps.emplace_back(Component::SEC_SKILL, entry.first, entry.second, 0);
 
 	for (auto & entry : artifacts)
-		comps.push_back(Component(Component::ARTIFACT, entry, 1, 0));
+		comps.emplace_back(Component::ARTIFACT, entry, 1, 0);
 
 	for (auto & entry : spells)
-		comps.push_back(Component(Component::SPELL, entry, 1, 0));
+		comps.emplace_back(Component::SPELL, entry, 1, 0);
 
 	for (auto & entry : creatures)
-		comps.push_back(Component(Component::CREATURE, entry.type->idNumber, entry.count, 0));
+		comps.emplace_back(Component::CREATURE, entry.type->idNumber, entry.count, 0);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.push_back(Component(Component::RESOURCE, (ui16)i, resources[i], 0));
+			comps.emplace_back(Component::RESOURCE, (ui16)i, resources[i], 0);
 	}
 }
 

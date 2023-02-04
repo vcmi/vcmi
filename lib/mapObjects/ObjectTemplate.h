@@ -36,7 +36,7 @@ class DLL_LINKAGE ObjectTemplate
 	std::set<TerrainId> allowedTerrains;
 
 	/// or, allow placing object on any terrain
-	bool anyTerrain;
+	bool anyTerrain{};
 
 	void afterLoadFixup();
 

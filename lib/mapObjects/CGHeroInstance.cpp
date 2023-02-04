@@ -142,7 +142,7 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 {
 	if(getSecSkillLevel(which) == 0)
 	{
-		secSkills.push_back(std::pair<SecondarySkill,ui8>(which, val));
+		secSkills.emplace_back(which, val);
 		updateSkillBonus(which, val);
 	}
 	else
@@ -207,7 +207,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 
 int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 {
-	int base;
+	int base = 0;
 
 	if(onLand)
 	{
@@ -234,24 +234,15 @@ int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 }
 
 CGHeroInstance::CGHeroInstance()
- : IBoatGenerator(this)
+ : IBoatGenerator(this),
+   mana(UNINITIALIZED_MANA),
+   movement(UNINITIALIZED_MOVEMENT),
+   portrait(UNINITIALIZED_PORTRAIT)
 {
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
-	mana = UNINITIALIZED_MANA;
-	movement = UNINITIALIZED_MOVEMENT;
-	portrait = UNINITIALIZED_PORTRAIT;
-	isStanding = true;
-	moveDir = 4;
-	level = 1;
-	exp = 0xffffffff;
-	visitedTown = nullptr;
-	type = nullptr;
-	boat = nullptr;
-	commander = nullptr;
-	sex = 0xff;
-	secSkills.push_back(std::make_pair(SecondarySkill::DEFAULT, -1));
+	secSkills.emplace_back(SecondarySkill::DEFAULT, -1);
 }
 
 PlayerColor CGHeroInstance::getOwner() const
@@ -437,7 +428,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if(ID == Obj::PRISON)
 	{
-		int txt_id;
+		int txt_id = 0;
 
 		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//free hero slot
 		{
@@ -487,8 +478,6 @@ ui8 CGHeroInstance::maxlevelsToWisdom() const
 CGHeroInstance::SecondarySkillsInfo::SecondarySkillsInfo()
 {
 	rand.setSeed(0);
-	magicSchoolCounter = 1;
-	wisdomCounter = 1;
 }
 
 void CGHeroInstance::SecondarySkillsInfo::resetMagicSchoolCounter()
@@ -858,10 +847,10 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				raisedFromCasualty *= 0.5;
 			raisedUnits += raisedFromCasualty;
 		}
-		return CStackBasicDescriptor(creatureTypeRaised, std::max(static_cast<int>(raisedUnits), 1));
+		return {creatureTypeRaised, std::max(static_cast<int>(raisedUnits), 1)};
 	}
 
-	return CStackBasicDescriptor();
+	return {};
 }
 
 /**
@@ -874,7 +863,7 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 	InfoWindow iw;
 	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
 	iw.player = tempOwner;
-	iw.components.push_back(Component(raisedStack));
+	iw.components.emplace_back(raisedStack);
 
 	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
 	{
@@ -1145,7 +1134,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	if (!skillsInfo.wisdomCounter)
 	{
 		if (canLearnSkill(SecondarySkill::WISDOM))
-			obligatorySkills.push_back(SecondarySkill::WISDOM);
+			obligatorySkills.emplace_back(SecondarySkill::WISDOM);
 	}
 	if (!skillsInfo.magicSchoolCounter)
 	{
@@ -1411,7 +1400,7 @@ std::string CGHeroInstance::getHeroTypeName() const
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
 	if(ID == Obj::HERO)
-		map->heroesOnMap.push_back(this);
+		map->heroesOnMap.emplace_back(this);
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
@@ -1554,7 +1543,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		secSkills.clear();
 		if(skillMap.getType() == JsonNode::JsonType::DATA_NULL)
 		{
-			secSkills.push_back(std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1));
+			secSkills.emplace_back(SecondarySkill::DEFAULT, -1);
 		}
 		else
 		{
@@ -1577,7 +1566,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 					continue;
 				}
 
-				secSkills.push_back(std::pair<SecondarySkill,ui8>(SecondarySkill(rawId), level));
+				secSkills.emplace_back(SecondarySkill(rawId), level);
 			}
 		}
 	}

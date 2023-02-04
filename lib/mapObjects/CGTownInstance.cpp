@@ -98,7 +98,6 @@ void CCreGenLeveledCastleInfo::serializeJson(JsonSerializeFormat & handler)
 CGDwelling::CGDwelling():
 	CArmedInstance()
 {
-	info = nullptr;
 }
 
 CGDwelling::~CGDwelling()
@@ -116,7 +115,7 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 			VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
 
 			if (getOwner() != PlayerColor::NEUTRAL)
-				cb->gameState()->players[getOwner()].dwellings.push_back (this);
+				cb->gameState()->players[getOwner()].dwellings.emplace_back(this);
 
 			assert(!creatures.empty());
 			assert(!creatures[0].second.empty());
@@ -128,9 +127,9 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 
 	case Obj::WAR_MACHINE_FACTORY:
 		creatures.resize(3);
-		creatures[0].second.push_back(CreatureID::BALLISTA);
-		creatures[1].second.push_back(CreatureID::FIRST_AID_TENT);
-		creatures[2].second.push_back(CreatureID::AMMO_CART);
+		creatures[0].second.emplace_back(CreatureID::BALLISTA);
+		creatures[1].second.emplace_back(CreatureID::FIRST_AID_TENT);
+		creatures[2].second.emplace_back(CreatureID::AMMO_CART);
 		break;
 
 	default:
@@ -170,7 +169,7 @@ void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 				}
 				if (PlayerColor(val) != PlayerColor::NEUTRAL) //can new owner be neutral?
-					cb->gameState()->players[PlayerColor(val)].dwellings.push_back (this);
+					cb->gameState()->players[PlayerColor(val)].dwellings.emplace_back(this);
 			}
 			break;
 		case ObjProperty::AVAILABLE_CREATURE:
@@ -539,33 +538,33 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	const int base = creature->growth;
 	int castleBonus = 0;
 
-	ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[590], base));// \n\nBasic growth %d"
+	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base);// \n\nBasic growth %d"
 
 	if (hasBuilt(BuildingID::CASTLE))
-		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::CASTLE, castleBonus = base));
+		ret.entries.emplace_back(subID, BuildingID::CASTLE, castleBonus = base);
 	else if (hasBuilt(BuildingID::CITADEL))
-		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::CITADEL, castleBonus = base / 2));
+		ret.entries.emplace_back(subID, BuildingID::CITADEL, castleBonus = base / 2);
 
 	if(town->hordeLvl.at(0) == level)//horde 1
 		if(hasBuilt(BuildingID::HORDE_1))
-			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_1, creature->hordeGrowth));
+			ret.entries.emplace_back(subID, BuildingID::HORDE_1, creature->hordeGrowth);
 
 	if(town->hordeLvl.at(1) == level)//horde 2
 		if(hasBuilt(BuildingID::HORDE_2))
-			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_2, creature->hordeGrowth));
+			ret.entries.emplace_back(subID, BuildingID::HORDE_2, creature->hordeGrowth);
 
 	//statue-of-legion-like bonus: % to base+castle
 	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH_PERCENT));
 	for(const auto & b : *bonuses2)
 	{
 		const auto growth = b->val * (base + castleBonus) / 100;
-		ret.entries.push_back(GrowthInfo::Entry(growth, b->Description(growth)));
+		ret.entries.emplace_back(growth, b->Description(growth));
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	TConstBonusListPtr bonuses = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH).And(Selector::subtype()(level)));
 	for(const auto & b : *bonuses)
-		ret.entries.push_back(GrowthInfo::Entry(b->val, b->Description()));
+		ret.entries.emplace_back(b->val, b->Description());
 
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
@@ -573,10 +572,10 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
 	}
 	if(dwellingBonus)
-		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
+		ret.entries.emplace_back(VLC->generaltexth->allTexts[591], dwellingBonus);// \nExternal dwellings %+d
 
 	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth
-		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::GRAIL, ret.totalGrowth() / 2));
+		ret.entries.emplace_back(subID, BuildingID::GRAIL, ret.totalGrowth() / 2);
 
 	return ret;
 }
@@ -716,7 +715,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text << h->commander->getName();
-			iw.components.push_back(Component(*h->commander));
+			iw.components.emplace_back(*h->commander);
 			cb->showInfoDialog(&iw);
 		}
 	}
@@ -863,9 +862,9 @@ void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
 	bonusingBuildings.erase(bonusingBuildings.begin() + i);
 
 	if(isVisitingBonus)
-		delete (CTownBonus *)freeIt;
+		delete dynamic_cast<CTownBonus *>(freeIt);
 	else if(isWeekBonus)
-		delete (COPWBonus *)freeIt;
+		delete dynamic_cast<COPWBonus *>(freeIt);
 }
 
 void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
@@ -1401,7 +1400,7 @@ TResources CGTownInstance::getBuildingCost(BuildingID buildingID) const
 	else
 	{
 		logGlobal->error("Town %s at %s has no possible building %d!", name, pos.toString(), buildingID.toEnum());
-		return TResources();
+		return {};
 	}
 
 }
@@ -1422,7 +1421,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID,
 		if (!hasBuilt(id))
 		{
 			if (deep)
-				requirements.expressions.push_back(id);
+				requirements.expressions.emplace_back(id);
 			else
 				return id;
 		}
@@ -1490,7 +1489,7 @@ void CGTownInstance::onTownCaptured(const PlayerColor winner) const
 void CGTownInstance::afterAddToMap(CMap * map)
 {
 	if(ID == Obj::TOWN)
-		map->towns.push_back(this);
+		map->towns.emplace_back(this);
 }
 
 void CGTownInstance::afterRemoveFromMap(CMap * map)
@@ -1611,14 +1610,14 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			for(si32 idx = 0; idx < spellsLIC.any.size(); idx++)
 			{
 				if(spellsLIC.any[idx])
-					possibleSpells.push_back(SpellID(idx));
+					possibleSpells.emplace_back(idx);
 			}
 
 			obligatorySpells.clear();
 			for(si32 idx = 0; idx < spellsLIC.all.size(); idx++)
 			{
 				if(spellsLIC.all[idx])
-					obligatorySpells.push_back(SpellID(idx));
+					obligatorySpells.emplace_back(idx);
 			}
 		}
 	}
@@ -1743,31 +1742,31 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
 			what = PrimarySkill::KNOWLEDGE;
 			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 3, 1, 0));
+			iw.components.emplace_back(Component::PRIM_SKILL, 3, 1, 0);
 			break;
 
 		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
 			what = PrimarySkill::SPELL_POWER;
 			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 2, 1, 0));
+			iw.components.emplace_back(Component::PRIM_SKILL, 2, 1, 0);
 			break;
 
 		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
 			what = PrimarySkill::ATTACK;
 			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 0, 1, 0));
+			iw.components.emplace_back(Component::PRIM_SKILL, 0, 1, 0);
 			break;
 
 		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
 			what = PrimarySkill::EXPERIENCE;
 			val = static_cast<int>(h->calculateXp(1000));
-			iw.components.push_back(Component(Component::EXPERIENCE, 0, val, 0));
+			iw.components.emplace_back(Component::EXPERIENCE, 0, val, 0);
 			break;
 
 		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
 			what = PrimarySkill::DEFENSE;
 			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 1, 1, 0));
+			iw.components.emplace_back(Component::PRIM_SKILL, 1, 1, 0);
 			break;
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
@@ -1835,9 +1834,8 @@ GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 }
 
 GrowthInfo::Entry::Entry(int _count, const std::string &fullDescription)
-	: count(_count)
-{
-	description = fullDescription;
+	: count(_count), description(fullDescription)
+{	
 }
 
 CTownAndVisitingHero::CTownAndVisitingHero()

@@ -171,15 +171,15 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
-		return static_cast<const CGTownInstance*>(obj);
+		return dynamic_cast<const CGTownInstance*>(obj);
 	case Obj::ALTAR_OF_SACRIFICE:
 	case Obj::BLACK_MARKET:
 	case Obj::TRADING_POST:
 	case Obj::TRADING_POST_SNOW:
 	case Obj::FREELANCERS_GUILD:
-		return static_cast<const CGMarket*>(obj);
+		return dynamic_cast<const CGMarket*>(obj);
 	case Obj::UNIVERSITY:
-		return static_cast<const CGUniversity*>(obj);
+		return dynamic_cast<const CGUniversity*>(obj);
 	default:
 		if(verbose)
 			logGlobal->error("Cannot cast to IMarket object with ID %d", obj->ID);
@@ -255,7 +255,7 @@ std::vector<int> CGMarket::availableItemsIds(EMarketMode::EMarketMode mode) cons
 	case EMarketMode::RESOURCE_PLAYER:
 		return IMarket::availableItemsIds(mode);
 	default:
-		return std::vector<int>();
+		return {};
 	}
 }
 
@@ -281,7 +281,7 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode)
 			return ret;
 		}
 	default:
-		return std::vector<int>();
+		return {};
 	}
 }
 
@@ -333,7 +333,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) 
 			return skills;
 
 		default:
-			return std::vector <int> ();
+			return {};
 	}
 }
 

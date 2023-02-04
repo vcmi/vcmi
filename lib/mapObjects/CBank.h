@@ -20,8 +20,8 @@ class CBankInstanceConstructor;
 class DLL_LINKAGE CBank : public CArmedInstance
 {
 	std::unique_ptr<BankConfig> bc;
-	ui32 daycounter;
-	ui32 resetDuration;
+	ui32 daycounter{0};
+	ui32 resetDuration{0};
 
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void doVisit(const CGHeroInstance * hero) const;
