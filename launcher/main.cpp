@@ -27,7 +27,7 @@ char ** argvForClient;
 
 int main(int argc, char * argv[])
 {
-	int result;
+	int result = 0;
 #ifdef VCMI_IOS
 	{
 #endif

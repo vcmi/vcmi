@@ -66,7 +66,7 @@ private slots:
 
 private:
 	QString serverUrl;
-	int serverPort;
+	int serverPort{};
 	bool isLoadGameMode = false;
 	
 	Ui::Lobby *ui;

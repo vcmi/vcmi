@@ -31,9 +31,9 @@ class CModListView : public QWidget
 	Q_OBJECT
 
 	std::unique_ptr<CModManager> manager;
-	CModListModel * modModel;
-	CModFilterModel * filterModel;
-	CDownloadManager * dlManager;
+	CModListModel * modModel{nullptr};
+	CModFilterModel * filterModel{nullptr};
+	CDownloadManager * dlManager{nullptr};
 
 	SettingsListener settingsListener;
 	bool repositoriesChanged;

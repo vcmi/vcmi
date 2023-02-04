@@ -87,12 +87,12 @@ QVariant CModListModel::getIcon(const CModEntry & mod, int field) const
 	if(field == ModFields::STATUS_UPDATE && !mod.isInstalled())
 		return QIcon(ModStatus::iconDownload);
 
-	return QVariant();
+	return {};
 }
 
 QVariant CModListModel::getTextAlign(int field) const
 {
-	return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
+	return {Qt::AlignLeft | Qt::AlignVCenter};
 }
 
 QVariant CModListModel::data(const QModelIndex & index, int role) const
@@ -115,7 +115,7 @@ QVariant CModListModel::data(const QModelIndex & index, int role) const
 			return mod.getName();
 		}
 	}
-	return QVariant();
+	return {};
 }
 
 int CModListModel::rowCount(const QModelIndex & index) const
@@ -148,7 +148,7 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
 		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str());
-	return QVariant();
+	return {};
 }
 
 void CModListModel::reloadRepositories()
@@ -209,7 +209,7 @@ QModelIndex CModListModel::index(int row, int column, const QModelIndex & parent
 		if(modIndex[""].size() > row)
 			return createIndex(row, column, modNameToID.indexOf(modIndex[""][row]));
 	}
-	return QModelIndex();
+	return {};
 }
 
 QModelIndex CModListModel::parent(const QModelIndex & child) const
@@ -222,7 +222,7 @@ QModelIndex CModListModel::parent(const QModelIndex & child) const
 			return createIndex(entry.value().indexOf(modID), child.column(), modNameToID.indexOf(entry.key()));
 		}
 	}
-	return QModelIndex();
+	return {};
 }
 
 void CModFilterModel::setTypeFilter(int filteredType, int filterMask)

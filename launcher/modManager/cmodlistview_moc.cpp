@@ -101,7 +101,6 @@ CModListView::CModListView(QWidget * parent)
 	setupModsView();
 
 	ui->progressWidget->setVisible(false);
-	dlManager = nullptr;
 	disableModInfo();
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 	{
@@ -792,7 +791,7 @@ void CModListView::loadScreenshots()
 			{
 				// managed to load cached image
 				QIcon icon(pixmap);
-				QListWidgetItem * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+				auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
 				ui->screenshotsList->addItem(item);
 			}
 		}

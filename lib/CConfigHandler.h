@@ -69,7 +69,7 @@ class DLL_LINKAGE SettingsListener
 	// Callback
 	std::function<void(const JsonNode&)> callback;
 
-	SettingsListener(SettingsStorage &_parent, std::vector<std::string> _path);
+	SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path);
 
 	// Executes callback if changedpath begins with path
 	void nodeInvalidated(const std::vector<std::string> & changedPath);

@@ -61,11 +61,11 @@ QVariant toVariant(const JsonNode & node)
 	switch(node.getType())
 	{
 	case JsonNode::JsonType::DATA_NULL:
-		return QVariant();
+		return {};
 	case JsonNode::JsonType::DATA_BOOL:
-		return QVariant(node.Bool());
+		return {node.Bool()};
 	case JsonNode::JsonType::DATA_FLOAT:
-		return QVariant(node.Float());
+		return {node.Float()};
 	case JsonNode::JsonType::DATA_INTEGER:
 		return QVariant{static_cast<qlonglong>(node.Integer())};
 	case JsonNode::JsonType::DATA_STRING:
@@ -75,7 +75,7 @@ QVariant toVariant(const JsonNode & node)
 	case JsonNode::JsonType::DATA_STRUCT:
 		return JsonToMap(node.Struct());
 	}
-	return QVariant();
+	return {};
 }
 
 QVariant JsonFromFile(QString filename)
