@@ -329,7 +329,7 @@ JsonNode LuaContext::saveState()
 {
 	JsonNode data;
 	getGlobal(STATE_FIELD, data);
-	return std::move(data);
+	return data;
 }
 
 void LuaContext::pop(JsonNode & value)
