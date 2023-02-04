@@ -37,7 +37,7 @@ void MinimapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
 	this->update();
 	
-	auto * sc = static_cast<MinimapScene*>(scene());
+	auto * sc = dynamic_cast<MinimapScene*>(scene());
 	if(!sc)
 		return;
 	
@@ -78,7 +78,7 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
 	this->update();
 
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc || !controller->map())
 		return;
 
@@ -192,7 +192,7 @@ void MapView::mousePressEvent(QMouseEvent *event)
 {
 	this->update();
 
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc || !controller->map())
 		return;
 
@@ -329,7 +329,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 {
 	this->update();
 
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc || !controller->map())
 		return;
 	
@@ -418,7 +418,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 	if(!controller || !controller->map())
 		return;
 	
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc)
 		return;
 	
@@ -451,7 +451,7 @@ void MapView::dropEvent(QDropEvent * event)
 	if(!controller || !controller->map())
 		return;
 	
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc)
 		return;
 	
@@ -474,7 +474,7 @@ void MapView::dropEvent(QDropEvent * event)
 
 void MapView::dragMoveEvent(QDragMoveEvent * event)
 {
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc)
 		return;
 	
@@ -498,7 +498,7 @@ void MapView::dragLeaveEvent(QDragLeaveEvent * event)
 	if(!controller || !controller->map())
 		return;
 	
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = dynamic_cast<MapScene*>(scene());
 	if(!sc)
 		return;
 	
@@ -508,7 +508,7 @@ void MapView::dragLeaveEvent(QDragLeaveEvent * event)
 
 bool MapView::viewportEvent(QEvent *event)
 {
-	if(auto * sc = static_cast<MapScene*>(scene()))
+	if(auto * sc = dynamic_cast<MapScene*>(scene()))
 	{
 		auto rect = mapToScene(viewport()->geometry()).boundingRect();
 		controller->miniScene(sc->level)->viewport.setViewport(rect.x() / 32, rect.y() / 32, rect.width() / 32, rect.height() / 32);

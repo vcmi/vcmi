@@ -265,8 +265,8 @@ void WindowNewMap::on_okButton_clicked()
 	}
 	
 
-	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
-	static_cast<MainWindow*>(parent())->initializeMap(true);
+	dynamic_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
+	dynamic_cast<MainWindow*>(parent())->initializeMap(true);
 	close();
 }
 

@@ -821,7 +821,7 @@ QWidget * InspectorDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
 void InspectorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-	if(QComboBox *ed = qobject_cast<QComboBox *>(editor))
+	if(auto *ed = qobject_cast<QComboBox *>(editor))
 	{
 		ed->addItems(options);
 	}
@@ -833,7 +833,7 @@ void InspectorDelegate::setEditorData(QWidget *editor, const QModelIndex &index)
 
 void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-	if(QComboBox *ed = qobject_cast<QComboBox *>(editor))
+	if(auto *ed = qobject_cast<QComboBox *>(editor))
 	{
 		if(!options.isEmpty())
 		{

@@ -32,8 +32,8 @@ MapController::MapController(MainWindow * m): main(m)
 {
 	for(int i : {0, 1})
 	{
-		_scenes[i].reset(new MapScene(i));
-		_miniscenes[i].reset(new MinimapScene(i));
+		_scenes[i] = std::make_unique<MapScene>(i);
+		_miniscenes[i] = std::make_unique<MinimapScene>(i);
 	}
 	connectScenes();
 }
@@ -50,9 +50,7 @@ void MapController::connectScenes()
 	}
 }
 
-MapController::~MapController()
-{
-}
+MapController::~MapController() = default;
 
 const std::unique_ptr<CMap> & MapController::getMapUniquePtr() const
 {
@@ -202,8 +200,8 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	
 	for(int i : {0, 1})
 	{
-		_scenes[i].reset(new MapScene(i));
-		_miniscenes[i].reset(new MinimapScene(i));
+		_scenes[i] = std::make_unique<MapScene>(i);
+		_miniscenes[i] = std::make_unique<MinimapScene>(i);
 	}
 	resetMapHandler();
 	sceneForceUpdate();
@@ -239,7 +237,7 @@ void MapController::sceneForceUpdate(int level)
 void MapController::resetMapHandler()
 {
 	if(!_mapHandler)
-		_mapHandler.reset(new MapHandler());
+		_mapHandler = std::make_unique<MapHandler>();
 	_mapHandler->reset(map());
 	for(int i : {0, 1})
 	{

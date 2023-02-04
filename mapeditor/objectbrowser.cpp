@@ -98,7 +98,7 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 	if(!index.isValid())
 		return nullptr;
 
-	QMimeData * mimeData = new QMimeData;
+	auto * mimeData = new QMimeData;
 	mimeData->setImageData(standardModel->itemFromIndex(mapToSource(index))->data());
 	return mimeData;
 }
@@ -120,7 +120,7 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 	if(!mimeData)
 		return;
 		
-	QDrag *drag = new QDrag(this);
+	auto *drag = new QDrag(this);
 	drag->setMimeData(mimeData);
 	drag->exec(supportedActions);
 }

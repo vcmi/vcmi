@@ -185,10 +185,10 @@ void MapHandler::initObjectRects()
 	//initializing objects / rects
 	for(const CGObjectInstance * elem : map->objects)
 	{
-		CGObjectInstance *obj = const_cast<CGObjectInstance *>(elem);
+		auto *obj = const_cast<CGObjectInstance *>(elem);
 		if(	!obj
-		   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-		   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
+		   || (obj->ID==Obj::HERO && dynamic_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+		   || (obj->ID==Obj::BOAT && dynamic_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
 		{
 			continue;
 		}
@@ -273,14 +273,12 @@ rect(rect_)
 {
 }
 
-TileObject::~TileObject()
-{
-}
+TileObject::~TileObject() = default;
 
 std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor color, int group) const
 {
 	if(!hero || hero->boat)
-		return std::shared_ptr<QImage>();
+		return {};
 	
 	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, !hero->isStanding);
 }
@@ -300,23 +298,23 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Anima
 MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * obj, int anim, int group) const
 {
 	if(!obj)
-		return MapHandler::AnimBitmapHolder();
+		return {};
 
 	// normal object
 	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
 	size_t groupSize = animation->size(group);
 	if(groupSize == 0)
-		return MapHandler::AnimBitmapHolder();
+		return {};
 	
 	animation->playerColored(obj->tempOwner);
 	auto bitmap = animation->getImage(anim % groupSize, group);
 	
 	if(!bitmap)
-		return MapHandler::AnimBitmapHolder();
+		return {};
 
 	setPlayerColor(bitmap.get(), obj->tempOwner);
 	
-	return MapHandler::AnimBitmapHolder(bitmap);
+	return {bitmap};
 }
 
 std::vector<TileObject> & MapHandler::getObjects(int x, int y, int z)

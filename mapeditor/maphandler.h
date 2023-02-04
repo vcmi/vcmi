@@ -76,7 +76,7 @@ private:
 	
 	std::vector<TileObjects> ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
-	const CMap * map;
+	const CMap * map{};
 		
 	enum class EMapCacheType : char
 	{

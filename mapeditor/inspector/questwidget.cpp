@@ -128,18 +128,18 @@ QString QuestWidget::commitChanges()
 			return ui->targetId->currentText().append(ui->targetAmount->text());
 		case CQuest::Emission::MISSION_KILL_HERO:
 			//TODO: implement
-			return QString("N/A");
+			return {"N/A"};
 		case CQuest::Emission::MISSION_KILL_CREATURE:
 			//TODO: implement
-			return QString("N/A");
+			return {"N/A"};
 		case CQuest::Emission::MISSION_ART:
 			seerhut.quest->m5arts.clear();
-			seerhut.quest->m5arts.push_back(ArtifactID(ui->targetId->currentIndex()));
+			seerhut.quest->m5arts.emplace_back(ui->targetId->currentIndex());
 			//TODO: support multiple artifacts
 			return ui->targetId->currentText();
 		case CQuest::Emission::MISSION_ARMY:
 			//TODO: implement
-			return QString("N/A");
+			return {"N/A"};
 		case CQuest::Emission::MISSION_RESOURCES:
 			seerhut.quest->m7resources.resize(sizeof(GameConstants::RESOURCE_NAMES), 0);
 			seerhut.quest->m7resources[ui->targetId->currentIndex()] = ui->targetAmount->text().toInt();
@@ -152,9 +152,9 @@ QString QuestWidget::commitChanges()
 			seerhut.quest->m13489val = ui->targetId->currentIndex();
 			return ui->targetId->currentText();
 		case CQuest::Emission::MISSION_KEYMASTER:
-			return QString("N/A");
+			return {"N/A"};
 		default:
-			return QString("N/A");
+			return {"N/A"};
 	}
 }
 
