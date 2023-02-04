@@ -34,8 +34,8 @@
 		"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0, //limit of damage increase that can be achieved by overpowering attack points
 		"DEFENSE_POINT_DMG_MULTIPLIER": 0.025, //every 1 defense point damage influence in battle when defense points > attack points during creature attack
 		"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7, //limit of damage reduction that can be achieved by overpowering defense points
-		"NEW_HERO_ALWAYS_3_CREATURE_STACKS": false,
-		"DEFAULT_TOWN_ALWAYS_2_DWELLINGS": false
+		"HERO_STARTING_ARMY_STACKS_COUNT_CHANCES": [10, 80], //chances for new hero units count - technically random number 1-100, first element in list below generated number sets count, if none then result is number of elements + 1
+		"DEFAULT_BUILDING_SET_DWELLING_CHANCES": [100, 50] //percent chance for dwellings to appear - for example [30,10,0,100] means 30% chance for 1st level dwelling, 10% for 2nd, 0% for 3rd, and guaranteed 4th level, no 5th, no 6th, no 7th
 	},
 	"modules":
 	{

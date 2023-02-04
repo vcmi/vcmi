@@ -766,10 +766,18 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tDEFENSE_POINT_DMG_MULTIPLIER\t%f", settings.DEFENSE_POINT_DMG_MULTIPLIER);
 	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
 	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
-	settings.NEW_HERO_ALWAYS_3_CREATURE_STACKS = hardcodedFeatures["NEW_HERO_ALWAYS_3_CREATURE_STACKS"].Bool();
-	logMod->debug("\tNEW_HERO_ALWAYS_3_CREATURE_STACKS\t%f", settings.NEW_HERO_ALWAYS_3_CREATURE_STACKS);
-	settings.DEFAULT_TOWN_ALWAYS_2_DWELLINGS = hardcodedFeatures["DEFAULT_TOWN_ALWAYS_2_DWELLINGS"].Bool();
-	logMod->debug("\tDEFAULT_TOWN_ALWAYS_2_DWELLINGS\t%f", settings.DEFAULT_TOWN_ALWAYS_2_DWELLINGS);
+
+	JsonVector stacksChancesVector = hardcodedFeatures["HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"].Vector();
+	boost::range::transform(stacksChancesVector, std::back_inserter(settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES), [](JsonNode element) { return element.Integer(); });
+	std::vector<std::string> stackChangesStringVector;
+	boost::range::transform(settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES, std::back_inserter(stackChangesStringVector), [](int element) { return std::to_string(element); });
+	logMod->debug("\tHERO_STARTING_ARMY_STACKS_COUNT_CHANCES\t%s", boost::algorithm::join(stackChangesStringVector, ", "));
+
+	JsonVector buildingChancesVector = hardcodedFeatures["DEFAULT_BUILDING_SET_DWELLING_CHANCES"].Vector();
+	boost::range::transform(buildingChancesVector, std::back_inserter(settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES), [](JsonNode element) { return element.Integer(); });
+	std::vector<std::string> buildingChangesStringVector;
+	boost::range::transform(settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES, std::back_inserter(buildingChangesStringVector), [](int element) { return std::to_string(element); });
+	logMod->debug("\tDEFAULT_BUILDING_SET_DWELLING_CHANCES\t%s", boost::algorithm::join(buildingChangesStringVector, ", "));
 
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();

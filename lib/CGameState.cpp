@@ -1722,10 +1722,16 @@ void CGameState::initTowns()
 			if(vti->tempOwner != PlayerColor::NEUTRAL)
 				vti->builtBuildings.insert(BuildingID::TAVERN);
 
-			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
-			if((getRandomGenerator().nextInt(1) == 1) || VLC->modh->settings.DEFAULT_TOWN_ALWAYS_2_DWELLINGS)
+			auto definesBuildingsChances = VLC->modh->settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES;
+
+			BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
+
+			for(int i = 0; i < definesBuildingsChances.size(); i++)
 			{
-				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
+				if((getRandomGenerator().nextInt(1,100) <= definesBuildingsChances[i]))
+				{
+					vti->builtBuildings.insert(basicDwellings[i]);
+				}
 			}
 		}
 
