@@ -20,7 +20,7 @@ class DLL_LINKAGE CMemorySerializer
 {
 	std::vector<ui8> buffer;
 
-	size_t readPos; //index of the next byte to be read
+	size_t readPos{0}; //index of the next byte to be read
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;

@@ -45,7 +45,7 @@ class DLL_LINKAGE JsonStructSerializer: public JsonSerializeHelper
 {
 public:
 	JsonStructSerializer(JsonStructSerializer && other);
-	~JsonStructSerializer();
+	~JsonStructSerializer() = default;
 protected:
 	JsonStructSerializer(JsonSerializeFormat * owner_);
 
@@ -92,7 +92,7 @@ protected:
 
 	friend class JsonSerializeFormat;
 private:
-	const JsonNode * thisNode;
+	const JsonNode * thisNode{};
 
 	void serializeInt64(const size_t index, int64_t & value);
 };

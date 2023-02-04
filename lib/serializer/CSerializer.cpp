@@ -17,18 +17,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSerializer::~CSerializer()
-{
-
-}
-
-CSerializer::CSerializer()
-{
-	smartVectorMembersSerialization = false;
-	sendStackInstanceByIds = false;
-}
-
-
 void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 {
 	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects,

@@ -51,10 +51,6 @@ JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat * owner_)
 {
 }
 
-JsonStructSerializer::~JsonStructSerializer()
-{
-}
-
 //JsonArraySerializer
 JsonArraySerializer::JsonArraySerializer(JsonArraySerializer && other)
 	: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other)))
@@ -63,21 +59,20 @@ JsonArraySerializer::JsonArraySerializer(JsonArraySerializer && other)
 }
 
 JsonArraySerializer::JsonArraySerializer(JsonSerializeFormat * owner_):
-	JsonSerializeHelper(owner_)
+	JsonSerializeHelper(owner_), thisNode(&owner->getCurrent())
 {
-	thisNode = &owner->getCurrent();
 }
 
 JsonStructSerializer JsonArraySerializer::enterStruct(const size_t index)
 {
 	owner->pushArrayElement(index);
-	return JsonStructSerializer(owner);
+	return {owner};
 }
 
 JsonArraySerializer JsonArraySerializer::enterArray(const size_t index)
 {
 	owner->pushArrayElement(index);
-	return JsonArraySerializer(owner);
+	return {owner};
 }
 
 void JsonArraySerializer::serializeString(const size_t index, std::string & value)
@@ -135,13 +130,13 @@ JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResol
 JsonStructSerializer JsonSerializeFormat::enterStruct(const std::string & fieldName)
 {
 	pushStruct(fieldName);
-	return JsonStructSerializer(this);
+	return {this};
 }
 
 JsonArraySerializer JsonSerializeFormat::enterArray(const std::string & fieldName)
 {
 	pushArray(fieldName);
-	return JsonArraySerializer(this);
+	return {this};
 }
 
 void JsonSerializeFormat::serializeBool(const std::string & fieldName, bool & value)

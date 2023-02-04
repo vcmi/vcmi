@@ -256,9 +256,9 @@ void JsonDeserializer::serializeRaw(const std::string & fieldName, JsonNode & va
 
 void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value)
 {
-	for(size_t index = 0; index < part.Vector().size(); index++)
+	for(const auto & index : part.Vector())
 	{
-		const std::string & identifier = part.Vector()[index].String();
+		const std::string & identifier = index.String();
 
 		const si32 rawId = decoder(identifier);
 		if(rawId >= 0)
@@ -273,9 +273,9 @@ void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decod
 
 void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decoder, std::set<si32> & value)
 {
-	for(size_t index = 0; index < part.Vector().size(); index++)
+	for(const auto & index : part.Vector())
 	{
-		const std::string & identifier = part.Vector()[index].String();
+		const std::string & identifier = index.String();
 
 		const si32 rawId = decoder(identifier);
 		if(rawId != -1)
