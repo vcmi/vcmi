@@ -36,10 +36,9 @@ const std::string LuaContext::STATE_FIELD = "DATA";
 
 LuaContext::LuaContext(const Script * source, const Environment * env_)
 	: ContextBase(env_->logger()),
-	script(source),
+	L(luaL_newstate()), script(source),
 	env(env_)
 {
-	L = luaL_newstate();
 
 	static const std::vector<luaL_Reg> STD_LIBS =
 	{
@@ -206,7 +205,7 @@ JsonNode LuaContext::callGlobal(const std::string & name, const JsonNode & param
 
 		S.clear();
 
-		return JsonNode();
+		return {};
 	}
 
 	int argc = parameters.Vector().size();
@@ -225,7 +224,7 @@ JsonNode LuaContext::callGlobal(const std::string & name, const JsonNode & param
 
 		S.clear();
 
-		return JsonNode();
+		return {};
 	}
 
 	JsonNode ret;
@@ -256,7 +255,7 @@ void LuaContext::getGlobal(const std::string & name, int & value)
 
 	lua_getglobal(L, name.c_str());
 
-	lua_Integer temp;
+	lua_Integer temp = 0;
 	if(S.tryGetInteger(-1, temp))
 		value = static_cast<int>(temp);
 	else
@@ -446,7 +445,7 @@ void LuaContext::registerCore()
 
 int LuaContext::require(lua_State * L)
 {
-	LuaContext * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
+	auto * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	if(!self)
 	{
@@ -582,7 +581,7 @@ int LuaContext::printImpl()
 
 int LuaContext::logError(lua_State * L)
 {
-	LuaContext * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
+	auto * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	if(!self)
 	{

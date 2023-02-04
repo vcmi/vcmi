@@ -44,7 +44,7 @@ int BattleUnitsChangedProxy::add(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	uint32_t id;
+	uint32_t id = 0;
 
 	if(!S.tryGet(2, id))
 		return S.retVoid();
@@ -70,7 +70,7 @@ int BattleUnitsChangedProxy::update(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	uint32_t id;
+	uint32_t id = 0;
 
 	if(!S.tryGet(2, id))
 		return S.retVoid();
