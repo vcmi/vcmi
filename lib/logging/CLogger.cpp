@@ -248,14 +248,10 @@ CLogFormatter::CLogFormatter(const std::string & pattern)
 {
 }
 
-CLogFormatter::CLogFormatter(const CLogFormatter & c) : pattern(c.pattern) { }
+CLogFormatter::CLogFormatter(const CLogFormatter & c)  = default;
 CLogFormatter::CLogFormatter(CLogFormatter && m) : pattern(std::move(m.pattern)) { }
 
-CLogFormatter & CLogFormatter::operator=(const CLogFormatter & c)
-{
-	pattern = c.pattern;
-	return *this;
-}
+CLogFormatter & CLogFormatter::operator=(const CLogFormatter & c) = default;
 CLogFormatter & CLogFormatter::operator=(CLogFormatter && m)
 {
 	pattern = std::move(m.pattern);
