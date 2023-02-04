@@ -49,9 +49,9 @@ class EnemyInfo
 {
 public:
 	const CStack * s;
-	int adi, adr;
+	int adi{0}, adr{0};
 	std::vector<BattleHex> attackFrom; //for melee fight
-	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
+	EnemyInfo(const CStack * _s) : s(_s) 
 	{}
 	void calcDmg(const CStack * ourStack)
 	{
@@ -115,7 +115,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	{
 		if(cb->battleCanShoot(stack, s->getPosition()))
 		{
-			enemiesShootable.push_back(s);
+			enemiesShootable.emplace_back(s);
 		}
 		else
 		{
@@ -125,10 +125,10 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
-					std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
+					auto i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
 					if(i == enemiesReachable.end())
 					{
-						enemiesReachable.push_back(s);
+						enemiesReachable.emplace_back(s);
 						i = enemiesReachable.begin() + (enemiesReachable.size() - 1);
 					}
 
@@ -137,7 +137,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 			}
 
 			if(!vstd::contains(enemiesReachable, s) && s->getPosition().isValid())
-				enemiesUnreachable.push_back(s);
+				enemiesUnreachable.emplace_back(s);
 		}
 	}
 
@@ -283,7 +283,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> h
 	else
 	{
 		BattleHex currentDest = bestNeighbor;
-		while(1)
+		while(true)
 		{
 			if(!currentDest.isValid())
 			{
