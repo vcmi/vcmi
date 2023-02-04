@@ -268,7 +268,7 @@ std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::build
 SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero)
 	: PathfinderConfig(std::make_shared<NodeStorage>(out, hero), buildRuleSet())
 {
-	pathfinderHelper.reset(new CPathfinderHelper(gs, hero, options));
+	pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);
 }
 
 CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
@@ -483,7 +483,7 @@ std::vector<int3> CPathfinderHelper::getTeleportExits(const PathNodeInfo & sourc
 {
 	std::vector<int3> teleportationExits;
 
-	const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(source.nodeObject);
+	const auto * objTeleport = dynamic_cast<const CGTeleport *>(source.nodeObject);
 	if(isAllowedTeleportEntrance(objTeleport))
 	{
 		for(auto exit : getAllowedTeleportChannelExits(objTeleport->channel))
@@ -734,7 +734,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 	{
 		/// For now we only add visitable tile into queue when it's teleporter that allow transit
 		/// Movement from visitable tile when hero is standing on it is possible into any layer
-		const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(destination.nodeObject);
+		const auto * objTeleport = dynamic_cast<const CGTeleport *>(destination.nodeObject);
 		if(pathfinderHelper->isAllowedTeleportEntrance(objTeleport))
 		{
 			/// For now we'll always allow transit over teleporters

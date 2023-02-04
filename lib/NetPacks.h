@@ -1846,7 +1846,7 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 	void applyCl(CClient * cl);
 
 	std::vector< AttackInfo > attackedParts;
-	int attacker; //if -1, then a spell caused this
+	int attacker{-1}; //if -1, then a spell caused this
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

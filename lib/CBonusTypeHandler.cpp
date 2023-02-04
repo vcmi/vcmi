@@ -59,10 +59,7 @@ CBonusTypeHandler::CBonusTypeHandler()
 	load();
 }
 
-CBonusTypeHandler::~CBonusTypeHandler()
-{
-	//dtor
-}
+CBonusTypeHandler::~CBonusTypeHandler() = default;
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
 {

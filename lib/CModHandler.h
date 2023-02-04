@@ -399,7 +399,7 @@ public:
 			h & COMMANDERS;
 			h & MITHRIL;
 		}
-	} modules;
+	} modules{};
 
 	CModHandler();
 	virtual ~CModHandler();

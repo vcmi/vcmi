@@ -289,7 +289,6 @@ void LibClasses::makeNull()
 
 LibClasses::LibClasses()
 {
-	IS_AI_ENABLED = false;
 	//init pointers to handlers
 	makeNull();
 }

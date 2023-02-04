@@ -21,7 +21,7 @@
 #include "CTownHandler.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include "CSkillHandler.h"
-#include <math.h>
+#include <cmath>
 
 #include "mapObjects/CObjectClassesHandler.h"
 #include "BattleFieldHandler.h"
@@ -361,7 +361,7 @@ void CHeroClassHandler::afterLoadFinalization()
 			if (heroClass->selectionProbability.count(faction->getIndex()))
 				continue;
 
-			float chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
+			auto chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
 			heroClass->selectionProbability[faction->getIndex()] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 		// set default probabilities for gaining secondary skills where not loaded previously
@@ -476,7 +476,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
-			hero->secSkillsInit.push_back(std::make_pair(SecondarySkill(-1), skillLevel));
+			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
 
 			VLC->modh->identifiers.requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
@@ -766,7 +766,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		logMod->warn("Hero %s has deprecated specialties format.", hero->getNameTranslated());
 		for(const JsonNode &specialty : specialtiesNode.Vector())
 		{
-			SSpecialtyInfo spec;
+			SSpecialtyInfo spec{};
 			spec.type =           static_cast<si32>(specialty["type"].Integer());
 			spec.val =            static_cast<si32>(specialty["val"].Integer());
 			spec.subtype =        static_cast<si32>(specialty["subtype"].Integer());
@@ -796,7 +796,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		{
 			VLC->modh->identifiers.requestIdentifier("creature", specialtyNode["creature"], [hero](si32 creature) {
 				// use legacy format for delayed conversion (must have all creature data loaded, also for upgrades)
-				SSpecialtyInfo spec;
+				SSpecialtyInfo spec{};
 				spec.type = 1;
 				spec.additionalinfo = creature;
 				hero->specDeprecated.push_back(spec);
@@ -858,7 +858,7 @@ void CHeroHandler::loadBallistics()
 		ballParser.readString();
 		ballParser.readString();
 
-		CHeroHandler::SBallisticsLevelInfo bli;
+		CHeroHandler::SBallisticsLevelInfo bli{};
 		bli.keep   = static_cast<ui8>(ballParser.readNumber());
 		bli.tower  = static_cast<ui8>(ballParser.readNumber());
 		bli.gate   = static_cast<ui8>(ballParser.readNumber());
@@ -925,7 +925,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = (si32)index + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
-	objects.push_back(object);
+	objects.emplace_back(object);
 
 	registerObject(scope, "hero", name, object->getIndex());
 }

@@ -56,12 +56,12 @@ public:
 	std::string image;
 	std::string large; // big image for custom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
-	si32 iconIndex;
-	ui32 price;
+	si32 iconIndex{ArtifactID::NONE};
+	ui32 price{0};
 	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
 	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
 	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
-	EartClass aClass;
+	EartClass aClass{ART_SPECIAL};
 	CreatureID warMachine;
 
 	int32_t getIndex() const override;

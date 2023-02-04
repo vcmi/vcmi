@@ -40,22 +40,22 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 public:
 	CreatureID idNumber;
 
-	TFaction faction;
-	ui8 level; // 0 - unknown; 1-7 for "usual" creatures
+	TFaction faction{0};
+	ui8 level{0}; // 0 - unknown; 1-7 for "usual" creatures
 
 	//stats that are not handled by bonus system
 	ui32 fightValue, AIValue, growth, hordeGrowth;
 	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
 
-	bool doubleWide;
-	bool special; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+	bool doubleWide{false};
+	bool special{true}; // Creature is not available normally (war machines, commanders, several unused creatures, etc
 
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
 	std::string animDefName; // creature animation used during battles
 	std::string advMapDef; //for new creatures only, image for adventure map
-	si32 iconIndex; // index of icon in files like twcrport
+	si32 iconIndex{-1}; // index of icon in files like twcrport
 
 	/// names of files with appropriate icons. Used only during loading
 	std::string smallIconName;

@@ -99,13 +99,7 @@ void CBuilding::addNewBonus(std::shared_ptr<Bonus> b, BonusList & bonusList)
 	bonusList.push_back(b);
 }
 
-CFaction::CFaction()
-{
-	town = nullptr;
-	index = 0;
-	alignment = EAlignment::NEUTRAL;
-	preferUndergroundPlacement = false;
-}
+CFaction::CFaction() = default;
 
 CFaction::~CFaction()
 {
@@ -255,10 +249,9 @@ void CTown::setGreeting(BuildingSubID::EBuildingSubID subID, const std::string m
 	specialMessages.insert(std::pair<BuildingSubID::EBuildingSubID, const std::string>(subID, message));
 }
 
-CTownHandler::CTownHandler()
+CTownHandler::CTownHandler() : 
+	randomTown(new CTown()), randomFaction(new CFaction())
 {
-	randomTown = new CTown();
-	randomFaction = new CFaction();
 	randomFaction->town = randomTown;
 	randomTown->faction = randomFaction;
 	randomFaction->identifier = "random";
@@ -732,7 +725,7 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->borderName = source["border"].String();
 	ret->areaName = source["area"].String();
 
-	town.clientInfo.structures.push_back(ret);
+	town.clientInfo.structures.emplace_back(ret);
 }
 
 void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
@@ -1035,7 +1028,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(scope, data, name, objects.size());
 
-	objects.push_back(object);
+	objects.emplace_back(object);
 
 	if (object->town)
 	{

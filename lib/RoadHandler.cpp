@@ -28,7 +28,7 @@ RoadType * RoadTypeHandler::loadFromJson(
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	RoadType * info = new RoadType;
+	auto * info = new RoadType;
 
 	info->id              = RoadId(index);
 	if (identifier.find(':') == std::string::npos)

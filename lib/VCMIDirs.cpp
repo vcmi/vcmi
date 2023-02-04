@@ -548,7 +548,7 @@ public:
 bfs::path VCMIDirsXDG::userDataPath() const
 {
 	// $XDG_DATA_HOME, default: $HOME/.local/share
-	const char* homeDir;
+	const char* homeDir = nullptr;
 	if((homeDir = getenv("XDG_DATA_HOME")))
 		return bfs::path(homeDir) / "vcmi";
 	else if((homeDir = getenv("HOME")))
@@ -559,7 +559,7 @@ bfs::path VCMIDirsXDG::userDataPath() const
 bfs::path VCMIDirsXDG::userCachePath() const
 {
 	// $XDG_CACHE_HOME, default: $HOME/.cache
-	const char * tempResult;
+	const char * tempResult = nullptr;
 	if ((tempResult = getenv("XDG_CACHE_HOME")))
 		return bfs::path(tempResult) / "vcmi";
 	else if ((tempResult = getenv("HOME")))
@@ -570,7 +570,7 @@ bfs::path VCMIDirsXDG::userCachePath() const
 bfs::path VCMIDirsXDG::userConfigPath() const
 {
 	// $XDG_CONFIG_HOME, default: $HOME/.config
-	const char * tempResult;
+	const char * tempResult = nullptr;
 	if ((tempResult = getenv("XDG_CONFIG_HOME")))
 		return bfs::path(tempResult) / "vcmi";
 	else if ((tempResult = getenv("HOME")))
@@ -591,12 +591,12 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 	if(developmentMode())
 	{
 		//For now we'll disable usage of system directories when VCMI running from bin directory
-		ret.push_back(".");
+		ret.emplace_back(".");
 	}
 	else
 	{
-		ret.push_back(M_DATA_DIR);
-		const char * tempResult;
+		ret.emplace_back(M_DATA_DIR);
+		const char * tempResult = nullptr;
 		if((tempResult = getenv("XDG_DATA_DIRS")) != nullptr)
 		{
 			std::string dataDirsEnv = tempResult;

@@ -11,6 +11,7 @@
 #include "CGeneralTextHandler.h"
 
 #include <boost/locale.hpp>
+#include <cmath>
 
 #include "filesystem/Filesystem.h"
 #include "CConfigHandler.h"
@@ -127,8 +128,8 @@ void CGeneralTextHandler::detectInstallParameters() const
 	// this is one of the most text-heavy files in game and consists solely from translated texts
 	auto resource = CResourceHandler::get()->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
 
-	std::array<size_t, 256> charCount;
-	std::array<double, 16> footprint;
+	std::array<size_t, 256> charCount{};
+	std::array<double, 16> footprint{};
 	std::vector<double> deviations;
 
 	boost::range::fill(charCount, 0);
@@ -335,7 +336,7 @@ float CLegacyConfigParser::readNumber()
 	if(input.find(',') != std::string::npos) // code to handle conversion with comma as decimal separator
 		stream.imbue(std::locale(std::locale(), new LocaleWithComma()));
 
-	float result;
+	float result = NAN;
 	if ( !(stream >> result) )
 		return 0;
 	return result;
@@ -632,10 +633,10 @@ void CGeneralTextHandler::dumpAllTexts()
 	logGlobal->info("BEGIN TEXT EXPORT");
 	for ( auto const & entry : stringsLocalizations)
 		if (stringsOverrides.count(entry.first) == 0)
-			logGlobal->info("\"%s\" : \"%s\",", entry.first, escapeString(entry.second));
+			logGlobal->info(R"("%s" : "%s",)", entry.first, escapeString(entry.second));
 
 	for ( auto const & entry : stringsOverrides)
-		logGlobal->info("\"%s\" : \"%s\",", entry.first, escapeString(entry.second));
+		logGlobal->info(R"("%s" : "%s",)", entry.first, escapeString(entry.second));
 
 	logGlobal->info("END TEXT EXPORT");
 }

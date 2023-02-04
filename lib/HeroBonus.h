@@ -115,8 +115,8 @@ public:
 private:
 	int initialValue;
 
-	mutable int64_t valueCachedLast;
-	mutable int value;
+	mutable int64_t valueCachedLast{};
+	mutable int value{};
 
 	mutable int64_t meleeCachedLast;
 	mutable int meleeValue;
@@ -406,20 +406,20 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 #undef BONUS_VALUE
 	};
 
-	ui16 duration; //uses BonusDuration values
-	si16 turnsRemain; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
+	ui16 duration{PERMANENT}; //uses BonusDuration values
+	si16 turnsRemain{0}; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
-	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
-	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
+	BonusType type{NONE}; //uses BonusType values - says to what is this bonus - 1 byte
+	TBonusSubtype subtype{-1}; //-1 if not applicable - 4 bytes
 
-	BonusSource source;//source type" uses BonusSource values - what gave that bonus
-	si32 val;
-	ui32 sid; //source id: id of object/artifact/spell
-	ValueType valType;
+	BonusSource source{OTHER};//source type" uses BonusSource values - what gave that bonus
+	si32 val{0};
+	ui32 sid{0}; //source id: id of object/artifact/spell
+	ValueType valType{ADDITIVE_VALUE};
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
 	CAddInfo additionalInfo;
-	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
+	LimitEffect effectRange{NO_LIMIT}; //if not NO_LIMIT, bonus will be omitted by default
 
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
@@ -1017,8 +1017,8 @@ public:
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
-	const CCreature *creature;
-	bool includeUpgrades;
+	const CCreature *creature{nullptr};
+	bool includeUpgrades{false};
 
 	CCreatureTypeLimiter();
 	CCreatureTypeLimiter(const CCreature & creature_, bool IncludeUpgrades = true);

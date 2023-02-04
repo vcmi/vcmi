@@ -26,9 +26,7 @@ ContextBase::ContextBase(vstd::CLoggerBase * logger_)
 ContextBase::~ContextBase() = default;
 
 
-Module::Module()
-{
-}
+Module::Module() = default;
 
 Module::~Module() = default;
 

@@ -47,7 +47,7 @@ private:
 	};
 
 	JsonType type;
-	JsonData data;
+	JsonData data{};
 
 public:
 	/// free to use metadata fields

@@ -104,7 +104,7 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 	info->blockedTiles = json["blockedTiles"].convertTo<std::vector<si16>>();
 	info->isAbsoluteObstacle = json["absolute"].Bool();
 	
-	objects.push_back(info);
+	objects.emplace_back(info);
 	
 	return info;
 }

@@ -803,7 +803,7 @@ namespace
 	{
 		std::string itemEntryCheck(Validation::ValidationData & validator, const JsonVector items, const JsonNode & schema, size_t index)
 		{
-			validator.currentPath.push_back(JsonNode());
+			validator.currentPath.emplace_back();
 			validator.currentPath.back().Float() = static_cast<double>(index);
 			auto onExit = vstd::makeScopeGuard([&]()
 			{
@@ -952,7 +952,7 @@ namespace
 
 		std::string propertyEntryCheck(Validation::ValidationData & validator, const JsonNode &node, const JsonNode & schema, std::string nodeName)
 		{
-			validator.currentPath.push_back(JsonNode());
+			validator.currentPath.emplace_back();
 			validator.currentPath.back().String() = nodeName;
 			auto onExit = vstd::makeScopeGuard([&]()
 			{

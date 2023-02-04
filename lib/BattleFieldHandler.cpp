@@ -18,7 +18,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	BattleFieldInfo * info = new BattleFieldInfo(BattleField(index), identifier);
+	auto * info = new BattleFieldInfo(BattleField(index), identifier);
 
 	info->graphics = json["graphics"].String();
 	info->icon = json["icon"].String();
@@ -36,14 +36,14 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 
 	info->isSpecial = json["isSpecial"].Bool();
 	for(auto node : json["impassableHexes"].Vector())
-		info->impassableHexes.push_back(BattleHex(node.Integer()));
+		info->impassableHexes.emplace_back(node.Integer());
 
 	return info;
 }
 
 std::vector<JsonNode> BattleFieldHandler::loadLegacyData(size_t dataSize)
 {
-	return std::vector<JsonNode>();
+	return {};
 }
 
 const std::vector<std::string> & BattleFieldHandler::getTypeNames() const
@@ -55,7 +55,7 @@ const std::vector<std::string> & BattleFieldHandler::getTypeNames() const
 
 std::vector<bool> BattleFieldHandler::getDefaultAllowed() const
 {
-	return std::vector<bool>();
+	return {};
 }
 
 int32_t BattleFieldInfo::getIndex() const

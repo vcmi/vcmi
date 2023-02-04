@@ -71,7 +71,7 @@ public:
 
 	std::string toString() const;
 
-	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
+	std::array<si32, 2> gainChance{}; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);

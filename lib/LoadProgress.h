@@ -65,7 +65,7 @@ public:
 	void step(int count = 1);
 
 private:
-	std::atomic<Type> _progress, _target;
-	std::atomic<int> _step, _maxSteps;
+	std::atomic<Type> _progress, _target{};
+	std::atomic<int> _step{}, _maxSteps{};
 };
 }

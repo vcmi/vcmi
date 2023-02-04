@@ -163,7 +163,7 @@ public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
 	PlayerColor currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
-	ui32 day; //total number of days in game
+	ui32 day{0}; //total number of days in game
 	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
@@ -299,7 +299,7 @@ private:
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	CRandomGenerator rand;
-	Services * services;
+	Services * services{nullptr};
 
 	friend class IGameCallback;
 	friend class CMapHandler;

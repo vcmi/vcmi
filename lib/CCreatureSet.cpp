@@ -170,7 +170,7 @@ SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount) const
 			return SlotID(i); //return first free slot
 		}
 	}
-	return SlotID(); //no slot available
+	return {}; //no slot available
 }
 
 std::vector<SlotID> CCreatureSet::getFreeSlots(ui32 slotsAmount) const
@@ -212,7 +212,7 @@ TMapCreatureSlot CCreatureSet::getCreatureMap() const
 	{
 		auto creature = pair.second->type;
 		auto slot = pair.first;
-		TMapCreatureSlot::iterator lb = creatureMap.lower_bound(creature);
+		auto lb = creatureMap.lower_bound(creature);
 
 		if(lb != creatureMap.end() && !(keyComp(creature, lb->first)))
 			continue;
@@ -271,13 +271,13 @@ bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID prefera
 		}
 	}
 
-	for(auto i=stacks.begin(); i!=stacks.end(); ++i)
+	for(const auto & stack : stacks)
 	{
 		for(auto & elem : stacks)
 		{
-			if(i->second->type == elem.second->type  &&  i->first != elem.first)
+			if(stack.second->type == elem.second->type  &&  stack.first != elem.first)
 			{
-				out.first = i->first;
+				out.first = stack.first;
 				out.second = elem.first;
 				return true;
 			}
@@ -479,13 +479,13 @@ SlotID CCreatureSet::findStack(const CStackInstance *stack) const
 		return SlotID::COMMANDER_SLOT_PLACEHOLDER;
 
 	if(!stack)
-		return SlotID();
+		return {};
 
 	for(auto & elem : stacks)
 		if(elem.second == stack)
 			return elem.first;
 
-	return SlotID();
+	return {};
 }
 
 CArmedInstance * CCreatureSet::castToArmyObj()
@@ -519,10 +519,7 @@ void CCreatureSet::changeStackCount(SlotID slot, TQuantity toAdd)
 	setStackCount(slot, getStackCount(slot) + toAdd);
 }
 
-CCreatureSet::CCreatureSet()
-{
-	formation = false;
-}
+CCreatureSet::CCreatureSet() = default;
 
 CCreatureSet::CCreatureSet(const CCreatureSet&)
 {
@@ -660,7 +657,7 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 
 			if(amount > 0)
 			{
-				CStackInstance * new_stack = new CStackInstance();
+				auto * new_stack = new CStackInstance();
 				new_stack->serializeJson(handler);
 				putStack(SlotID((si32)idx), new_stack);
 			}
@@ -738,7 +735,7 @@ int CStackInstance::getLevel() const
 si32 CStackInstance::magicResistance() const
 {
 	si32 val = valOfBonuses(Selector::type()(Bonus::MAGIC_RESISTANCE));
-	if (const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(_armyObj))
+	if (const auto * hero = dynamic_cast<const CGHeroInstance *>(_armyObj))
 	{
 		//resistance skill
 		val += hero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::RESISTANCE);
@@ -833,10 +830,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 		return allowUnrandomized;
 }
 
-CStackInstance::~CStackInstance()
-{
-
-}
+CStackInstance::~CStackInstance() = default;
 
 std::string CStackInstance::nodeName() const
 {
@@ -931,14 +925,13 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 CCommanderInstance::CCommanderInstance()
 {
 	init();
-	name = "Unnamed";
 }
 
-CCommanderInstance::CCommanderInstance (CreatureID id)
+CCommanderInstance::CCommanderInstance (CreatureID id) : name("Commando")
 {
 	init();
 	setType(id);
-	name = "Commando"; //TODO - parse them
+	//TODO - parse names
 }
 
 void CCommanderInstance::init()
@@ -954,10 +947,7 @@ void CCommanderInstance::init()
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
 }
 
-CCommanderInstance::~CCommanderInstance()
-{
-
-}
+CCommanderInstance::~CCommanderInstance() = default;
 
 void CCommanderInstance::setAlive (bool Alive)
 {
@@ -1004,11 +994,7 @@ bool CCommanderInstance::gainsLevel() const
 	return experience >= (TExpType)VLC->heroh->reqExp(level+1);
 }
 
-CStackBasicDescriptor::CStackBasicDescriptor()
-{
-	type = nullptr;
-	count = -1;
-}
+CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
 CStackBasicDescriptor::CStackBasicDescriptor(CreatureID id, TQuantity Count)
 	: type (VLC->creh->objects[id]), count(Count)

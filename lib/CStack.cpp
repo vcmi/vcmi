@@ -42,22 +42,15 @@ CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, Slot
 CStack::CStack()
 	: CBonusSystemNode(STACK_BATTLE),
 	CUnitState(),
-	nativeTerrain()
+	nativeTerrain(), owner(PlayerColor::NEUTRAL)
 {
-	base = nullptr;
-	type = nullptr;
-	ID = -1;
-	baseAmount = -1;
-	owner = PlayerColor::NEUTRAL;
 	slot = SlotID(255);
-	side = 1;
 	initialPosition = BattleHex();
 }
 
 CStack::CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S)
 	: CBonusSystemNode(STACK_BATTLE),
 	CUnitState(),
-	base(nullptr),
 	ID(I),
 	type(stack->type),
 	baseAmount(stack->count),
@@ -224,9 +217,9 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::s
 
 			double resurrectedRaw = baseAmount * resurrectFactor;
 
-			int32_t resurrectedCount = static_cast<int32_t>(floor(resurrectedRaw));
+			auto resurrectedCount = static_cast<int32_t>(floor(resurrectedRaw));
 
-			int32_t resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount/resurrectFactor));
+			auto resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount/resurrectFactor));
 
 			auto rangeGen = rand.getInt64Range(0, 99);
 

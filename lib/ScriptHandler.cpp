@@ -222,12 +222,12 @@ const Script * ScriptHandler::resolveScript(const std::string & name) const
 
 std::vector<bool> ScriptHandler::getDefaultAllowed() const
 {
-	return std::vector<bool>();
+	return {};
 }
 
 std::vector<JsonNode> ScriptHandler::loadLegacyData(size_t dataSize)
 {
-	return std::vector<JsonNode>();
+	return {};
 }
 
 ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::string & scope,

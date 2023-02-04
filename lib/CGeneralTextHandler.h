@@ -50,8 +50,8 @@ class CInputStream;
 class DLL_LINKAGE CLegacyConfigParser
 {
 	std::unique_ptr<char[]> data;
-	char * curr;
-	char * end;
+	char * curr{};
+	char * end{};
 
 	void init(const std::unique_ptr<CInputStream> & input);
 

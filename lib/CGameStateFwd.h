@@ -52,10 +52,10 @@ public:
 	{
 		std::vector<si32> primskills;
 		si32 mana, manaLimit, luck, morale;
-	} *details;
+	} *details{};
 
-	const CHeroClass *hclass;
-	int portrait;
+	const CHeroClass *hclass{};
+	int portrait{};
 
 	enum EInfoLevel
 	{

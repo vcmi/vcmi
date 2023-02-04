@@ -48,7 +48,7 @@ namespace scripting
 /// Loads and constructs several handlers
 class DLL_LINKAGE LibClasses : public Services
 {
-	CBonusTypeHandler * bth;
+	CBonusTypeHandler * bth{};
 
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	void makeNull(); //sets all handler pointers to null
@@ -56,7 +56,7 @@ class DLL_LINKAGE LibClasses : public Services
 	void setContent(std::shared_ptr<CContentHandler> content);
 
 public:
-	bool IS_AI_ENABLED; //unused?
+	bool IS_AI_ENABLED{false}; //unused?
 
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;
@@ -78,27 +78,27 @@ public:
 
 	const IBonusTypeHandler * getBth() const; //deprecated
 
-	CArtHandler * arth;
-	CHeroHandler * heroh;
-	CCreatureHandler * creh;
-	CSpellHandler * spellh;
-	CSkillHandler * skillh;
-	CObjectHandler * objh;
-	CObjectClassesHandler * objtypeh;
-	CTownHandler * townh;
-	CGeneralTextHandler * generaltexth;
-	CModHandler * modh;
+	CArtHandler * arth{};
+	CHeroHandler * heroh{};
+	CCreatureHandler * creh{};
+	CSpellHandler * spellh{};
+	CSkillHandler * skillh{};
+	CObjectHandler * objh{};
+	CObjectClassesHandler * objtypeh{};
+	CTownHandler * townh{};
+	CGeneralTextHandler * generaltexth{};
+	CModHandler * modh{};
 
-	TerrainTypeHandler * terrainTypeHandler;
-	RoadTypeHandler * roadTypeHandler;
-	RiverTypeHandler * riverTypeHandler;
+	TerrainTypeHandler * terrainTypeHandler{};
+	RoadTypeHandler * roadTypeHandler{};
+	RiverTypeHandler * riverTypeHandler{};
 
-	CTerrainViewPatternConfig * terviewh;
-	CRmgTemplateStorage * tplh;
-	BattleFieldHandler * battlefieldsHandler;
-	ObstacleHandler * obstacleHandler;
+	CTerrainViewPatternConfig * terviewh{};
+	CRmgTemplateStorage * tplh{};
+	BattleFieldHandler * battlefieldsHandler{};
+	ObstacleHandler * obstacleHandler{};
 #if SCRIPTING_ENABLED
-	scripting::ScriptHandler * scriptHandler;
+	scripting::ScriptHandler * scriptHandler{};
 #endif
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
