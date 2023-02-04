@@ -63,7 +63,7 @@ public:
 
 	void setEnv(const IUnitEnvironment * env_);
 private:
-	const IUnitEnvironment * env;
+	const IUnitEnvironment * env{};
 
 	CCheckProxy shooter;
 };
@@ -123,9 +123,9 @@ private:
 	void setFromTotal(const int64_t totalHealth);
 	const battle::Unit * owner;
 
-	int32_t firstHPleft;
-	int32_t fullUnits;
-	int32_t resurrected;
+	int32_t firstHPleft{};
+	int32_t fullUnits{};
+	int32_t resurrected{};
 };
 
 class DLL_LINKAGE CUnitState : public Unit

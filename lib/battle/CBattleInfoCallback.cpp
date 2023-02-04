@@ -540,7 +540,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 
 	RETURN_IF_NOT_BATTLE(std::vector<BattleHex>());
 	if(!unit->getPosition().isValid()) //turrets
-		return std::vector<BattleHex>();
+		return {};
 
 	auto reachability = getReachability(unit);
 
@@ -578,7 +578,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 				continue;
 		}
 
-		ret.push_back(i);
+		ret.emplace_back(i);
 	}
 
 	return ret;
@@ -928,7 +928,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	hexq.push(params.startPosition);
 	ret.distances[params.startPosition] = 0;
 
-	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache;
+	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache{};
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
 		accessibleCache[hex] = accessibility.accessible(hex, params.doubleWide, params.side);
 
@@ -1046,7 +1046,7 @@ BattleHex CBattleInfoCallback::getAvaliableHex(CreatureID creID, ui8 side, int i
 {
 	bool twoHex = VLC->creh->objects[creID]->isDoubleWide();
 
-	int pos;
+	int pos = 0;
 	if (initialPos > -1)
 		pos = initialPos;
 	else //summon elementals depending on player side
@@ -1425,7 +1425,7 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 			auto wallState = battleGetWallState(wallPartPair.second);
 			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
-				attackableBattleHexes.push_back(BattleHex(wallPartPair.first));
+				attackableBattleHexes.emplace_back(wallPartPair.first);
 			}
 		}
 	}

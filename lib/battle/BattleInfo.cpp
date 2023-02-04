@@ -245,7 +245,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//randomize obstacles
  	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
  	{
-		RandGen r;
+		RandGen r{};
 		auto ourRand = [&](){ return r.rand(); };
 		r.srand(tile);
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
@@ -503,9 +503,9 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 const CGHeroInstance * BattleInfo::getHero(PlayerColor player) const
 {
-	for(int i = 0; i < sides.size(); i++)
-		if(sides[i].color == player)
-			return sides[i].hero;
+	for(const auto & side : sides)
+		if(side.color == player)
+			return side.hero;
 
 	logGlobal->error("Player %s is not in battle!", player.getStr());
 	return nullptr;
@@ -576,8 +576,8 @@ IBattleInfo::ObstacleCList BattleInfo::getAllObstacles() const
 {
 	ObstacleCList ret;
 
-	for(auto iter = obstacles.cbegin(); iter != obstacles.cend(); iter++)
-		ret.push_back(*iter);
+	for(const auto & obstacle : obstacles)
+		ret.push_back(obstacle);
 
 	return ret;
 }
@@ -932,11 +932,11 @@ void BattleInfo::updateObstacle(const ObstacleChanges& changes)
 	std::shared_ptr<SpellCreatedObstacle> changedObstacle = std::make_shared<SpellCreatedObstacle>();
 	changedObstacle->fromInfo(changes);
 
-	for(int i = 0; i < obstacles.size(); ++i)
+	for(auto & obstacle : obstacles)
 	{
-		if(obstacles[i]->uniqueID == changes.id) // update this obstacle
+		if(obstacle->uniqueID == changes.id) // update this obstacle
 		{
-			SpellCreatedObstacle * spellObstacle = dynamic_cast<SpellCreatedObstacle *>(obstacles[i].get());
+			auto * spellObstacle = dynamic_cast<SpellCreatedObstacle *>(obstacle.get());
 			assert(spellObstacle);
 
 			// Currently we only support to update the "revealed" property
@@ -1009,11 +1009,9 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 	return false;
 }
 
-CMP_stack::CMP_stack(int Phase, int Turn, uint8_t Side)
+CMP_stack::CMP_stack(int Phase, int Turn, uint8_t Side) 
+	: phase(Phase), turn(Turn), side(Side)
 {
-	phase = Phase;
-	turn = Turn;
-	side = Side;
 }
 
 VCMI_LIB_NAMESPACE_END

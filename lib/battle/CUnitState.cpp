@@ -32,13 +32,7 @@ CAmmo::CAmmo(const battle::Unit * Owner, CSelector totalSelector)
 	reset();
 }
 
-CAmmo::CAmmo(const CAmmo & other)
-	: used(other.used),
-	owner(other.owner),
-	totalProxy(other.totalProxy)
-{
-
-}
+CAmmo::CAmmo(const CAmmo & other) = default;
 
 CAmmo & CAmmo::operator= (const CAmmo & other)
 {
@@ -98,12 +92,7 @@ CShots::CShots(const battle::Unit * Owner)
 {
 }
 
-CShots::CShots(const CShots & other)
-	: CAmmo(other),
-	env(other.env),
-	shooter(other.shooter)
-{
-}
+CShots::CShots(const CShots & other) = default;
 
 CShots & CShots::operator=(const CShots & other)
 {
@@ -136,16 +125,9 @@ CCasts::CCasts(const battle::Unit * Owner):
 {
 }
 
-CCasts::CCasts(const CCasts & other)
-	: CAmmo(other)
-{
-}
+CCasts::CCasts(const CCasts & other) = default;
 
-CCasts & CCasts::operator=(const CCasts & other)
-{
-	CAmmo::operator=(other);
-	return *this;
-}
+CCasts & CCasts::operator=(const CCasts & other) = default;
 
 ///CRetaliations
 CRetaliations::CRetaliations(const battle::Unit * Owner)
@@ -156,22 +138,9 @@ CRetaliations::CRetaliations(const battle::Unit * Owner)
 {
 }
 
-CRetaliations::CRetaliations(const CRetaliations & other)
-	: CAmmo(other),
-	totalCache(other.totalCache),
-	noRetaliation(other.noRetaliation),
-	unlimited(other.unlimited)
-{
-}
+CRetaliations::CRetaliations(const CRetaliations & other) = default;
 
-CRetaliations & CRetaliations::operator=(const CRetaliations & other)
-{
-	CAmmo::operator=(other);
-	totalCache = other.totalCache;
-	noRetaliation = other.noRetaliation;
-	unlimited = other.unlimited;
-	return *this;
-}
+CRetaliations & CRetaliations::operator=(const CRetaliations & other) = default;
 
 bool CRetaliations::isLimited() const
 {
@@ -209,14 +178,7 @@ CHealth::CHealth(const battle::Unit * Owner):
 	reset();
 }
 
-CHealth::CHealth(const CHealth & other):
-	owner(other.owner),
-	firstHPleft(other.firstHPleft),
-	fullUnits(other.fullUnits),
-	resurrected(other.resurrected)
-{
-
-}
+CHealth::CHealth(const CHealth & other) = default;
 
 CHealth & CHealth::operator=(const CHealth & other)
 {

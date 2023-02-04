@@ -20,17 +20,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CObstacleInstance::CObstacleInstance()
-{
-	obstacleType = USUAL;
-	uniqueID = -1;
-	ID = -1;
-}
+CObstacleInstance::CObstacleInstance() = default;
 
-CObstacleInstance::~CObstacleInstance()
-{
-
-}
+CObstacleInstance::~CObstacleInstance() = default;
 
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
@@ -43,14 +35,14 @@ std::vector<BattleHex> CObstacleInstance::getBlockedTiles() const
 {
 	if(blocksTiles())
 		return getAffectedTiles();
-	return std::vector<BattleHex>();
+	return {};
 }
 
 std::vector<BattleHex> CObstacleInstance::getStoppingTile() const
 {
 	if(stopsMovement())
 		return getAffectedTiles();
-	return std::vector<BattleHex>();
+	return {};
 }
 
 std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
@@ -62,7 +54,7 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 		return getInfo().getBlocked(pos);
 	default:
 		assert(0);
-		return std::vector<BattleHex>();
+		return {};
 	}
 }
 
