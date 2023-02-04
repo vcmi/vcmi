@@ -96,7 +96,7 @@ boost::optional<boost::filesystem::path> CFilesystemList::getResourceName(const 
 {
 	if (existsResource(resourceName))
 		return getResourcesWithName(resourceName).back()->getResourceName(resourceName);
-	return boost::optional<boost::filesystem::path>();
+	return {};
 }
 
 std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const ResourceID & resourceName) const

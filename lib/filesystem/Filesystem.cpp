@@ -37,12 +37,12 @@ CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchi
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
 {
 	TLoadFunctorMap map;
-	map["map"] = std::bind(&CFilesystemGenerator::loadJsonMap, this, _1, _2);
-	map["dir"] = std::bind(&CFilesystemGenerator::loadDirectory, this, _1, _2);
-	map["lod"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_LOD>, this, _1, _2);
-	map["snd"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_SND>, this, _1, _2);
-	map["vid"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_VID>, this, _1, _2);
-	map["zip"] = std::bind(&CFilesystemGenerator::loadZipArchive, this, _1, _2);
+	map["map"] = [this](auto && PH1, auto && PH2) { loadJsonMap(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); };
+	map["dir"] = [this](auto && PH1, auto && PH2) { loadDirectory(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); };
+	map["lod"] = [this](auto && PH1, auto && PH2) { loadArchive<EResType::ARCHIVE_LOD>(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); };
+	map["snd"] = [this](auto && PH1, auto && PH2) { loadArchive<EResType::ARCHIVE_SND>(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); };
+	map["vid"] = [this](auto && PH1, auto && PH2) { loadArchive<EResType::ARCHIVE_VID>(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); };
+	map["zip"] = [this](auto && PH1, auto && PH2) { loadZipArchive(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); };
 	return map;
 }
 
