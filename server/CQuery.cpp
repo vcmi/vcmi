@@ -293,12 +293,10 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisi
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo * Bi):
-	CGhQuery(owner)
+	CGhQuery(owner), bi(Bi)
 {
 	belligerents[0] = Bi->sides[0].armyObject;
 	belligerents[1] = Bi->sides[1].armyObject;
-
-	bi = Bi;
 
 	for(auto & side : bi->sides)
 		addPlayer(side.color);
@@ -390,9 +388,8 @@ void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & ob
 }
 
 CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog & bd):
-	CDialogQuery(owner)
+	CDialogQuery(owner), bd(bd)
 {
-	this->bd = bd;
 	addPlayer(bd.player);
 }
 
@@ -407,16 +404,14 @@ void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & ob
 }
 
 CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & td):
-	CDialogQuery(owner)
+	CDialogQuery(owner), td(td)
 {
-	this->td = td;
 	addPlayer(td.player);
 }
 
 CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp & Hlu, const CGHeroInstance * Hero):
-	CDialogQuery(owner), hero(Hero)
+	CDialogQuery(owner), hlu(Hlu), hero(Hero)
 {
-	hlu = Hlu;
 	addPlayer(hero->tempOwner);
 }
 
@@ -433,9 +428,8 @@ void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &
 }
 
 CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero):
-	CDialogQuery(owner), hero(Hero)
+	CDialogQuery(owner), clu(Clu), hero(Hero)
 {
-	clu = Clu;
 	addPlayer(hero->tempOwner);
 }
 

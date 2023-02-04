@@ -311,7 +311,7 @@ public:
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
 
-		int remainingBattleQueriesCount;
+		int remainingBattleQueriesCount{0};
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
