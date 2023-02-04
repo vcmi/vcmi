@@ -76,7 +76,6 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 
 HeroPtr::HeroPtr()
 {
-	h = nullptr;
 	hid = ObjectInstanceID();
 }
 

@@ -32,27 +32,25 @@ namespace Goals
 	{
 		HeroPtr hero;
 		int sightRadius;
-		float bestValue;
+		float bestValue{0};
 		TSubgoal bestGoal;
 		VCAI * aip;
 		CCallback * cbp;
 		const TeamState * ts;
 		int3 ourPos;
-		bool allowDeadEndCancellation;
+		bool allowDeadEndCancellation{true};
 		bool allowGatherArmy;
 
-		ExplorationHelper(HeroPtr h, bool gatherArmy)
+		ExplorationHelper(HeroPtr h, bool gatherArmy) :
+			cbp(cb.get()),
+			aip(ai.get()),
+			hero(h),
+			ts(cbp->getPlayerTeam(ai->playerID)),
+			sightRadius(hero->getSightRadius()),
+			allowGatherArmy(gatherArmy)
 		{
-			cbp = cb.get();
-			aip = ai.get();
-			hero = h;
-			ts = cbp->getPlayerTeam(ai->playerID);
-			sightRadius = hero->getSightRadius();
 			bestGoal = sptr(Goals::Invalid());
-			bestValue = 0;
 			ourPos = h->visitablePos();
-			allowDeadEndCancellation = true;
-			allowGatherArmy = gatherArmy;
 		}
 
 		void scanSector(int scanRadius)

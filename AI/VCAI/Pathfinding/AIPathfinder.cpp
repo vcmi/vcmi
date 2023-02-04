@@ -43,7 +43,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const HeroPtr & hero, const int3 &
 
 	if(!tileInfo)
 	{
-		return std::vector<AIPath>();
+		return {};
 	}
 
 	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
@@ -81,7 +81,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
-		calculationTasks.push_back(std::bind(calculatePaths, hero.get(), config));
+		calculationTasks.emplace_back(std::bind(calculatePaths, hero.get(), config));
 	}
 
 	int threadsCount = std::min(

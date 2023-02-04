@@ -41,7 +41,7 @@ struct AIPath
 {
 	std::vector<AIPathNodeInfo> nodes;
 	std::shared_ptr<const ISpecialAction> specialAction;
-	uint64_t targetObjectDanger;
+	uint64_t targetObjectDanger{};
 
 	AIPath();
 
@@ -65,9 +65,9 @@ private:
 	// 2-4 - position on map[z][x][y]
 	// 5 - chain (normal, battle, spellcast and combinations)
 	boost::multi_array<AIPathNode, 5> nodes;
-	const CPlayerSpecificInfoCallback * cb;
-	const VCAI * ai;
-	const CGHeroInstance * hero;
+	const CPlayerSpecificInfoCallback * cb{};
+	const VCAI * ai{};
+	const CGHeroInstance * hero{};
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 
 	STRONG_INLINE
@@ -84,7 +84,7 @@ public:
 	static const int RESOURCE_CHAIN = 8;
 
 	AINodeStorage(const int3 & sizes);
-	~AINodeStorage();
+	~AINodeStorage() = default;
 
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 

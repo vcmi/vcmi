@@ -42,7 +42,7 @@ extern boost::thread_specific_ptr<CCallback> cb;
 
 struct DLL_EXPORT HeroPtr
 {
-	const CGHeroInstance * h;
+	const CGHeroInstance * h{nullptr};
 	ObjectInstanceID hid;
 
 public:

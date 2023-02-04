@@ -70,7 +70,7 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 		} //end of switch
 	}
 
-	return TGoalVec();
+	return {};
 }
 
 TSubgoal CompleteQuest::whatToDoToAchieve()

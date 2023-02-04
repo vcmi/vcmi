@@ -21,10 +21,8 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
 {
 	nodes.resize(boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][NUM_CHAINS]);
-	dangerEvaluator.reset(new FuzzyHelper());
+	dangerEvaluator = std::make_unique<FuzzyHelper>();
 }
-
-AINodeStorage::~AINodeStorage() = default;
 
 void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {

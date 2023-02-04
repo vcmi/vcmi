@@ -14,7 +14,7 @@ MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 {
 	static std::unique_ptr<MapObjectsEvaluator> singletonInstance;
 	if(singletonInstance == nullptr)
-		singletonInstance.reset(new MapObjectsEvaluator());
+		singletonInstance = std::make_unique<MapObjectsEvaluator>();
 
 	return *(singletonInstance.get());
 }
@@ -49,7 +49,7 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 		return object->second;
 
 	logGlobal->trace("Unknown object for AI, ID: " + std::to_string(primaryID) + ", SubID: " + std::to_string(secondaryID));
-	return boost::optional<int>();
+	return {};
 }
 
 boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * obj) const
