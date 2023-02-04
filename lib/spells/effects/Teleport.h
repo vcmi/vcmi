@@ -25,7 +25,7 @@ class Teleport : public UnitEffect
 {
 public:
 	Teleport();
-	virtual ~Teleport();
+	virtual ~Teleport() = default;
 
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 

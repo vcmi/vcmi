@@ -27,7 +27,7 @@ class Heal : public UnitEffect
 {
 public:
 	Heal();
-	virtual ~Heal();
+	virtual ~Heal() = default;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 

@@ -28,7 +28,7 @@ class Dispel : public UnitEffect
 {
 public:
 	Dispel();
-	virtual ~Dispel();
+	virtual ~Dispel() = default;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 

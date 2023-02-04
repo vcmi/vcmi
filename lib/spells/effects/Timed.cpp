@@ -36,8 +36,6 @@ Timed::Timed()
 {
 }
 
-Timed::~Timed() = default;
-
 void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	const bool describe = server->describeChanges();
@@ -147,9 +145,9 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		}
 
 		if(cumulative)
-			sse.toAdd.push_back(std::make_pair(affected->unitId(), buffer));
+			sse.toAdd.emplace_back(affected->unitId(), buffer);
 		else
-			sse.toUpdate.push_back(std::make_pair(affected->unitId(), buffer));
+			sse.toUpdate.emplace_back(affected->unitId(), buffer);
 	}
 
 	if(!(sse.toAdd.empty() && sse.toUpdate.empty()))

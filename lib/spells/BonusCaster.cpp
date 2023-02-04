@@ -30,8 +30,6 @@ BonusCaster::BonusCaster(const Caster * actualCaster_, std::shared_ptr<Bonus> bo
 
 }
 
-BonusCaster::~BonusCaster() = default;
-
 void BonusCaster::getCasterName(MetaString & text) const
 {
 	if(!bonus->description.empty())

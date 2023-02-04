@@ -40,8 +40,6 @@ Heal::Heal()
 
 }
 
-Heal::~Heal() = default;
-
 void Heal::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	apply(m->getEffectValue(), server, m, target);

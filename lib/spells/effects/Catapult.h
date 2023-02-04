@@ -23,7 +23,7 @@ class Catapult : public LocationEffect
 {
 public:
 	Catapult();
-	virtual ~Catapult();
+	virtual ~Catapult() = default;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;

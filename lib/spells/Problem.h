@@ -24,8 +24,8 @@ namespace detail
 class DLL_LINKAGE ProblemImpl : public Problem
 {
 public:
-	ProblemImpl();
-	virtual ~ProblemImpl();
+	ProblemImpl() = default;
+	virtual ~ProblemImpl() = default;
 
 	void add(MetaString && description, Severity severity = CRITICAL) override;
 

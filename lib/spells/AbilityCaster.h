@@ -21,7 +21,7 @@ class DLL_LINKAGE AbilityCaster : public ProxyCaster
 {
 public:
 	AbilityCaster(const battle::Unit * actualCaster_, int32_t baseSpellLevel_);
-	virtual ~AbilityCaster();
+	virtual ~AbilityCaster() = default;
 
 	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
 	int32_t getEffectLevel(const Spell * spell) const override;

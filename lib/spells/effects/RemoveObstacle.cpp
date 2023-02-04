@@ -39,8 +39,6 @@ RemoveObstacle::RemoveObstacle()
 {
 }
 
-RemoveObstacle::~RemoveObstacle() = default;
-
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m) const
 {
 	if (getTargets(m, EffectTarget(), true).empty())

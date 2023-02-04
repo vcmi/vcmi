@@ -35,7 +35,7 @@ public:
 	std::string triggerAnimation;
 	std::string animation;
 
-	int offsetY;
+	int offsetY{};
 
 	ObstacleSideOptions();
 
@@ -49,7 +49,7 @@ class Obstacle : public LocationEffect
 {
 public:
 	Obstacle();
-	virtual ~Obstacle();
+	virtual ~Obstacle() = default;
 
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
 

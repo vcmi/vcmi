@@ -35,8 +35,6 @@ DemonSummon::DemonSummon()
 {
 }
 
-DemonSummon::~DemonSummon() = default;
-
 void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleUnitsChanged pack;

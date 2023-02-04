@@ -26,20 +26,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
-TargetConditionItem::TargetConditionItem() = default;
-TargetConditionItem::~TargetConditionItem() = default;
-
 class TargetConditionItemBase : public TargetConditionItem
 {
 public:
-	bool inverted;
-	bool exclusive;
+	bool inverted{false};
+	bool exclusive{false};
 
-	TargetConditionItemBase()
-		: inverted(false),
-		exclusive(false)
-	{
-	}
+	TargetConditionItemBase() = default;
 
 	void setInverted(bool value) override
 	{
@@ -219,9 +212,7 @@ protected:
 class HealthValueCondition : public TargetConditionItemBase
 {
 public:
-	HealthValueCondition()
-	{
-	}
+	HealthValueCondition() = default;
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
@@ -266,7 +257,6 @@ public:
 	ReceptiveFeatureCondition()
 	{
 		selector = Selector::type()(Bonus::RECEPTIVE);
-		cachingString = "type_RECEPTIVE";
 	}
 
 protected:
@@ -277,15 +267,13 @@ protected:
 
 private:
 	CSelector selector;
-	std::string cachingString;
+	std::string cachingString{"type_RECEPTIVE"};
 };
 
 class ImmunityNegationCondition : public TargetConditionItemBase
 {
 public:
-	ImmunityNegationCondition()
-	{
-	}
+	ImmunityNegationCondition()	= default;
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
@@ -379,7 +367,7 @@ public:
 			logMod->error("Invalid type %s in spell target condition.", type);
 		}
 
-		return Object();
+		return {};
 	}
 
 	Object createReceptiveFeature() const override
@@ -403,10 +391,6 @@ const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
 		singleton = std::make_unique<DefaultTargetConditionItemFactory>();
 	return singleton.get();
 }
-
-TargetCondition::TargetCondition() = default;
-
-TargetCondition::~TargetCondition() = default;
 
 bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * target) const
 {
@@ -483,7 +467,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 {
 	for(auto & keyValue : source.Struct())
 	{
-		bool isAbsolute;
+		bool isAbsolute = false;
 
 		const JsonNode & value = keyValue.second;
 

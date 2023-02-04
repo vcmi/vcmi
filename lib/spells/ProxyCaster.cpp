@@ -24,8 +24,6 @@ ProxyCaster::ProxyCaster(const Caster * actualCaster_)
 
 }
 
-ProxyCaster::~ProxyCaster() = default;
-
 int32_t ProxyCaster::getCasterUnitId() const
 {
 	return actualCaster->getCasterUnitId();

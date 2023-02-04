@@ -18,19 +18,9 @@ namespace spells
 namespace detail
 {
 
-ProblemImpl::ProblemImpl()
-{
-
-}
-
-ProblemImpl::~ProblemImpl()
-{
-
-}
-
 void ProblemImpl::add(MetaString && description, Severity severity)
 {
-	data.push_back(std::make_pair(description, severity));
+	data.emplace_back(description, severity);
 }
 
 void ProblemImpl::getAll(std::vector<std::string> & target) const

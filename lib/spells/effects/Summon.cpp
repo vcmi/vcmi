@@ -44,8 +44,6 @@ Summon::Summon()
 {
 }
 
-Summon::~Summon() = default;
-
 void Summon::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	//no hexes affected

@@ -34,8 +34,6 @@ Teleport::Teleport()
 {
 }
 
-Teleport::~Teleport() = default;
-
 void Teleport::adjustTargetTypes(std::vector<TargetType> & types) const
 {
 	if(!types.empty())

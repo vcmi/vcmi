@@ -33,8 +33,6 @@ UnitEffect::UnitEffect()
 {
 }
 
-UnitEffect::~UnitEffect() = default;
-
 void UnitEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 {
 
@@ -200,14 +198,14 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	if(byRange.empty())
 	{
-		return EffectTarget();
+		return {};
 	}
 
 	const Destination & mainDestination = byRange.front();
 
 	if(!mainDestination.hexValue.isValid())
 	{
-		return EffectTarget();
+		return {};
 	}
 
 	std::set<BattleHex> possibleHexes;

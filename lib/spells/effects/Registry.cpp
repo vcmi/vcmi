@@ -24,7 +24,7 @@ class RegistryImpl : public Registry
 {
 public:
 	RegistryImpl() = default;
-	~RegistryImpl() = default;
+	~RegistryImpl() override = default;
 
 	const IEffectFactory * find(const std::string & name) const override
 	{
@@ -45,10 +45,6 @@ private:
 };
 
 }
-
-Registry::Registry() = default;
-
-Registry::~Registry() = default;
 
 Registry * GlobalRegistry::get()
 {

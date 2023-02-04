@@ -49,7 +49,7 @@ public:
 	std::string name;
 
 	Effect();
-	virtual ~Effect();
+	virtual ~Effect() = default;
 
 	// TODO: document me
 	virtual void adjustTargetTypes(std::vector<TargetType> & types) const = 0;

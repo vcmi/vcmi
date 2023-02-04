@@ -24,7 +24,7 @@ class LocationEffect : public Effect
 {
 public:
 	LocationEffect();
-	virtual ~LocationEffect();
+	virtual ~LocationEffect() = default;
 
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 

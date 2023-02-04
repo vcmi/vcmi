@@ -134,8 +134,6 @@ BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event, std::share
 	targetCondition(targetCondition_)
 {}
 
-BattleSpellMechanics::~BattleSpellMechanics() = default;
-
 void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const
 {
 	auto callback = [&](const effects::Effect * effect, bool & stop)
@@ -167,7 +165,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	{
 	case Mode::HERO:
 		{
-			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
+			const auto * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
 			if(!castingHero)
 			{
 				logGlobal->debug("CSpell::canBeCast: invalid caster");
@@ -457,7 +455,7 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 			buffer.emplace_back(*item);
 
 		if(!buffer.empty())
-			sse.toRemove.push_back(std::make_pair(unit->unitId(), buffer));
+			sse.toRemove.emplace_back(unit->unitId(), buffer);
 	}
 
 	if(!sse.toRemove.empty())
@@ -488,7 +486,7 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
 	{
 		std::string number1, number2;
-		int beg, end;
+		int beg = 0, end = 0;
 		bool readingFirst = true;
 		for(auto & elem : rng)
 		{
@@ -592,7 +590,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 	//TODO: BattleSpellMechanics::getPossibleDestinations
 
 	if(index != 0)
-		return std::vector<Destination>();
+		return {};
 
 	std::vector<Destination> ret;
 

@@ -208,7 +208,7 @@ public:
 	JsonNode targetCondition; //custom condition on what spell can affect
 
 	CSpell();
-	~CSpell();
+	~CSpell() = default;
 
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 

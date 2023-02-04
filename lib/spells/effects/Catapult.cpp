@@ -38,8 +38,6 @@ Catapult::Catapult()
 {
 }
 
-Catapult::~Catapult() = default;
-
 bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 {
 	auto town = m->battle()->battleGetDefendedTown();
@@ -113,7 +111,7 @@ void Catapult::apply(ServerCallback * server, const Mechanics * m, const EffectT
 
 		if (attackInfo == ca.attackedParts.end()) // new part
 		{
-			CatapultAttack::AttackInfo newInfo;
+			CatapultAttack::AttackInfo newInfo{};
 			newInfo.damageDealt = 1;
 			newInfo.attackedPart = target;
 			newInfo.destinationTile = m->battle()->wallPartToBattleHex(target);

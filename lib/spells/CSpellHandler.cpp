@@ -97,10 +97,7 @@ CSpell::LevelInfo::LevelInfo():
 
 }
 
-CSpell::LevelInfo::~LevelInfo()
-{
-
-}
+CSpell::LevelInfo::~LevelInfo() = default;
 
 ///CSpell
 CSpell::CSpell():
@@ -120,11 +117,6 @@ CSpell::CSpell():
 	adventureMechanics()
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
-}
-
-CSpell::~CSpell()
-{
-
 }
 
 bool CSpell::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
@@ -542,15 +534,9 @@ CSpell::AnimationItem::AnimationItem() :
 
 
 ///CSpell::AnimationInfo
-CSpell::AnimationInfo::AnimationInfo()
-{
+CSpell::AnimationInfo::AnimationInfo() = default;
 
-}
-
-CSpell::AnimationInfo::~AnimationInfo()
-{
-
-}
+CSpell::AnimationInfo::~AnimationInfo() = default;
 
 std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 {
@@ -648,8 +634,8 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
 			auto & chances = lineNode["gainChance"].Struct();
 
-			for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
-				chances[ETownType::names[i]].Integer() = static_cast<si64>(parser.readNumber());
+			for(const auto & name : ETownType::names)
+				chances[name].Integer() = static_cast<si64>(parser.readNumber());
 
 			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
@@ -713,7 +699,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	SpellID id(static_cast<si32>(index));
 
-	CSpell * spell = new CSpell();
+	auto * spell = new CSpell();
 	spell->id = id;
 	spell->identifier = identifier;
 	spell->modScope = scope;
@@ -776,7 +762,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		{
 			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id)
 			{
-				spell->counteredSpells.push_back(SpellID(id));
+				spell->counteredSpells.emplace_back(id);
 			});
 		}
 	}

@@ -34,8 +34,6 @@ Clone::Clone()
 {
 }
 
-Clone::~Clone() = default;
-
 void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	for(const Destination & dest : target)
@@ -105,7 +103,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		lifeTimeMarker.turnsRemain = m->getEffectDuration();
 		std::vector<Bonus> buffer;
 		buffer.push_back(lifeTimeMarker);
-		sse.toAdd.push_back(std::make_pair(unitId, buffer));
+		sse.toAdd.emplace_back(unitId, buffer);
 		server->apply(&sse);
 	}
 }

@@ -21,7 +21,7 @@ class DLL_LINKAGE ProxyCaster : public Caster
 {
 public:
 	ProxyCaster(const Caster * actualCaster_);
-	virtual ~ProxyCaster();
+	virtual ~ProxyCaster() = default;
 
 	int32_t getCasterUnitId() const override;
 	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override;

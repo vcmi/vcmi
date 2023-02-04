@@ -114,8 +114,6 @@ Obstacle::Obstacle()
 {
 }
 
-Obstacle::~Obstacle() = default;
-
 void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	EffectTarget effectTarget = transformTarget(m, spellTarget, spellTarget);

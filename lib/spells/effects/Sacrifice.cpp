@@ -37,8 +37,6 @@ Sacrifice::Sacrifice()
 
 }
 
-Sacrifice::~Sacrifice() = default;
-
 void Sacrifice::adjustTargetTypes(std::vector<TargetType> & types) const
 {
 	if(!types.empty())

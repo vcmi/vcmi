@@ -28,8 +28,6 @@ Effect::Effect()
 
 }
 
-Effect::~Effect() = default;
-
 bool Effect::applicable(Problem & problem, const Mechanics * m) const
 {
 	return true;
@@ -60,7 +58,7 @@ std::shared_ptr<Effect> Effect::create(const Registry * registry, const std::str
 	else
 	{
 		logGlobal->error("Unknown effect type '%s'", type);
-		return std::shared_ptr<Effect>();
+		return {};
 	}
 }
 

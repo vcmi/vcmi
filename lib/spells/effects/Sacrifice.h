@@ -23,7 +23,7 @@ class Sacrifice : public Heal
 {
 public:
 	Sacrifice();
-	virtual ~Sacrifice();
+	virtual ~Sacrifice() = default;
 
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
