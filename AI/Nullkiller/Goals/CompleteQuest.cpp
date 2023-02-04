@@ -78,7 +78,7 @@ TGoalVec CompleteQuest::decompose() const
 
 	} //end of switch
 
-	return TGoalVec();
+	return {};
 }
 
 bool CompleteQuest::operator==(const CompleteQuest & other) const
@@ -247,7 +247,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 		return CaptureObjectsBehavior(obj).decompose();
 	}
 
-	return TGoalVec();
+	return {};
 }
 
 }

@@ -55,10 +55,8 @@ AISharedStorage::~AISharedStorage()
 AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
 	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes)
 {
-	dangerEvaluator.reset(new FuzzyHelper(ai));
+	dangerEvaluator = std::make_unique<FuzzyHelper>(ai);
 }
-
-AINodeStorage::~AINodeStorage() = default;
 
 void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
@@ -365,12 +363,10 @@ bool AINodeStorage::calculateHeroChainFinal()
 
 struct DelayedWork
 {
-	AIPathNode * carrier;
-	AIPathNode * other;
+	AIPathNode * carrier{};
+	AIPathNode * other{};
 
-	DelayedWork()
-	{
-	}
+	DelayedWork() = default;
 	
 	DelayedWork(AIPathNode * carrier, AIPathNode * other) : carrier(carrier), other(other)
 	{
@@ -700,7 +696,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 
 		auto newActor = carrier->actor->tryExchangeNoLock(other->actor);
 		
-		if(!newActor.lockAcquired) delayedWork.push_back(DelayedWork(carrier, other));
+		if(!newActor.lockAcquired) delayedWork.emplace_back(carrier, other);
 		if(newActor.actor) result.push_back(calculateExchange(newActor.actor, carrier, other));
 	}
 }
@@ -968,14 +964,13 @@ struct TowmPortalFinder
 		std::vector<const CGTownInstance *> targetTowns,
 		AINodeStorage * nodeStorage)
 		:actor(actor), initialNodes(initialNodes), hero(actor->hero),
-		targetTowns(targetTowns), nodeStorage(nodeStorage)
+		targetTowns(targetTowns), nodeStorage(nodeStorage),
+		spellID(SpellID::TOWN_PORTAL), townPortal(spellID.toSpell()), movementNeeded(GameConstants::BASE_MOVEMENT_COST)
 	{
-		spellID = SpellID::TOWN_PORTAL;
-		townPortal = spellID.toSpell();
 
 		// TODO: Copy/Paste from TownPortalMechanics
 		townPortalSkillLevel = SecSkillLevel::SecSkillLevel(hero->getSpellSchoolLevel(townPortal));
-		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= SecSkillLevel::EXPERT ? 2 : 3);
+		movementNeeded *=  townPortalSkillLevel >= SecSkillLevel::EXPERT ? 2 : 3;
 	}
 
 	bool actorCanCastTownPortal()
@@ -1342,7 +1337,7 @@ std::shared_ptr<const SpecialAction> AIPath::getFirstBlockedAction() const
 			return node->specialAction;
 	}
 
-	return std::shared_ptr<const SpecialAction>();
+	return {};
 }
 
 int3 AIPath::firstTileToGet() const

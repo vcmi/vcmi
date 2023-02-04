@@ -68,7 +68,7 @@ AIGateway::AIGateway()
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
-	nullkiller.reset(new Nullkiller());
+	nullkiller = std::make_unique<Nullkiller>();
 }
 
 AIGateway::~AIGateway()
@@ -943,21 +943,21 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				for(auto p : h->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(h, p.first));
+						allArtifacts.emplace_back(h, p.first);
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+				allArtifacts.emplace_back(h, h->getArtPos(slot.artifact));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(otherh, p.first));
+						allArtifacts.emplace_back(otherh, p.first);
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh, otherh->getArtPos(slot.artifact)));
+					allArtifacts.emplace_back(otherh, otherh->getArtPos(slot.artifact));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1386,7 +1386,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				if(res == g.resID) //sell any other resource
 					continue;
 
-				int toGive, toGet;
+				int toGive = 0, toGet = 0;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
@@ -1526,19 +1526,6 @@ void AIGateway::validateObject(ObjectIdRef obj)
 	{
 		nullkiller->memory->removeFromMemory(obj);
 	}
-}
-
-AIStatus::AIStatus()
-{
-	battle = NO_BATTLE;
-	havingTurn = false;
-	ongoingHeroMovement = false;
-	ongoingChannelProbing = false;
-}
-
-AIStatus::~AIStatus()
-{
-
 }
 
 void AIStatus::setBattle(BattleState BS)

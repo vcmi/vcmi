@@ -132,7 +132,7 @@ void BuildAnalyzer::update()
 	{
 		logAi->trace("Checking town %s", town->getNameTranslated());
 
-		developmentInfos.push_back(TownDevelopmentInfo(town));
+		developmentInfos.emplace_back(town);
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
 
 		updateTownDwellings(developmentInfo);
@@ -276,7 +276,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 	for(const CGObjectInstance* obj : objects)
 	{
-		const CGMine* mine = dynamic_cast<const CGMine*>(obj);
+		const auto* mine = dynamic_cast<const CGMine*>(obj);
 
 		if(mine)
 		{
@@ -329,13 +329,10 @@ void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
 BuildingInfo::BuildingInfo()
 {
 	id = BuildingID::NONE;
-	creatureGrows = 0;
 	creatureID = CreatureID::NONE;
 	buildCost = 0;
 	buildCostWithPrerequisits = 0;
-	prerequisitesCount = 0;
 	name.clear();
-	armyStrength = 0;
 }
 
 BuildingInfo::BuildingInfo(
@@ -343,14 +340,14 @@ BuildingInfo::BuildingInfo(
 	const CCreature * creature,
 	CreatureID baseCreature,
 	const CGTownInstance * town,
-	Nullkiller * ai)
+	Nullkiller * ai) :
+		id(building->bid),
+		buildCost(building->resources),
+		buildCostWithPrerequisits(building->resources),
+		dailyIncome(building->produce),
+		exists(town->hasBuilt(id)),
+		prerequisitesCount(1)
 {
-	id = building->bid;
-	buildCost = building->resources;
-	buildCostWithPrerequisits = building->resources;
-	dailyIncome = building->produce;
-	exists = town->hasBuilt(id);
-	prerequisitesCount = 1;
 	name = building->getNameTranslated();
 
 	if(creature)

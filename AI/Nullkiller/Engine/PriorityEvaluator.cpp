@@ -98,7 +98,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 	//Fixme: unused variable hero
 
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
+	auto * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto resources = bankInfo->getPossibleResourcesReward();
 	TResources result = TResources();
 	int sum = 0;
@@ -115,7 +115,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
 {
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
+	auto * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto creatures = bankInfo->getPossibleCreaturesReward();
 	uint64_t result = 0;
 
@@ -535,12 +535,12 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 class HeroExchangeEvaluator : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::HERO_EXCHANGE)
 			return;
 
-		Goals::HeroExchange & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+		auto & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
 
 		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength();
 
@@ -551,12 +551,12 @@ public:
 class ArmyUpgradeEvaluator : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::ARMY_UPGRADE)
 			return;
 
-		Goals::ArmyUpgrade & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
+		auto & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
 
 		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
 
@@ -584,12 +584,12 @@ private:
 	}
 
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::DEFEND_TOWN)
 			return;
 
-		Goals::DefendTown & defendTown = dynamic_cast<Goals::DefendTown &>(*task);
+		auto & defendTown = dynamic_cast<Goals::DefendTown &>(*task);
 		const CGTownInstance * town = defendTown.town;
 		auto & treat = defendTown.getTreat();
 
@@ -621,12 +621,12 @@ private:
 public:
 	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
 
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::EXECUTE_HERO_CHAIN)
 			return;
 
-		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
+		auto & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
 		const AIPath & path = chain.getPath();
 
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
@@ -675,12 +675,12 @@ class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 public:
 	ClusterEvaluationContextBuilder(const Nullkiller * ai) {}
 
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::UNLOCK_CLUSTER)
 			return;
 
-		Goals::UnlockCluster & clusterGoal = dynamic_cast<Goals::UnlockCluster &>(*task);
+		auto & clusterGoal = dynamic_cast<Goals::UnlockCluster &>(*task);
 		std::shared_ptr<ObjectCluster> cluster = clusterGoal.getCluster();
 
 		auto hero = clusterGoal.hero.get();
@@ -722,12 +722,12 @@ public:
 class BuildThisEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::BUILD_STRUCTURE)
 			return;
 
-		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
+		auto & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
 		evaluationContext.goldReward += 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have

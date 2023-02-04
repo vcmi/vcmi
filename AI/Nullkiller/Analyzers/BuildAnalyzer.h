@@ -23,14 +23,14 @@ public:
 	BuildingID id;
 	TResources buildCost;
 	TResources buildCostWithPrerequisits;
-	int creatureGrows;
-	uint8_t creatureLevel;
+	int creatureGrows{0};
+	uint8_t creatureLevel{};
 	TResources creatureCost;
 	CreatureID creatureID;
 	CreatureID baseCreatureID;
 	TResources dailyIncome;
-	uint8_t prerequisitesCount;
-	uint64_t armyStrength;
+	uint8_t prerequisitesCount{0};
+	uint64_t armyStrength{0};
 	TResources armyCost;
 	std::string name;
 	bool exists = false;

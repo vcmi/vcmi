@@ -49,12 +49,12 @@ enum class ScanDepth
 class Nullkiller
 {
 private:
-	const CGHeroInstance * activeHero;
+	const CGHeroInstance * activeHero{};
 	int3 targetTile;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
 	ScanDepth scanDepth;
 	TResources lockedResources;
-	bool useHeroChain;
+	bool useHeroChain{};
 
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;

@@ -39,7 +39,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
 
 	if(!tileInfo)
 	{
-		return std::vector<AIPath>();
+		return {};
 	}
 
 	return storage->getChainInfo(tile, !tileInfo->isWater());

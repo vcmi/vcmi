@@ -48,7 +48,7 @@ Goals::TGoalVec DeepDecomposer::decompose(TSubgoal behavior, int depthLimit)
 
 	while(goals[0].size())
 	{
-		bool fromCache;
+		bool fromCache = false;
 		TSubgoal current = goals[depth].back();
 		TGoalVec subgoals = decomposeCached(unwrapComposition(current), fromCache);
 

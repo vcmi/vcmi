@@ -73,13 +73,13 @@ struct AIPathNodeInfo
 struct AIPath
 {
 	std::vector<AIPathNodeInfo> nodes;
-	uint64_t targetObjectDanger;
-	uint64_t armyLoss;
-	uint64_t targetObjectArmyLoss;
-	const CGHeroInstance * targetHero;
-	const CCreatureSet * heroArmy;
-	uint64_t chainMask;
-	uint8_t exchangeCount;
+	uint64_t targetObjectDanger{};
+	uint64_t armyLoss{};
+	uint64_t targetObjectArmyLoss{};
+	const CGHeroInstance * targetHero{};
+	const CCreatureSet * heroArmy{};
+	uint64_t chainMask{};
+	uint8_t exchangeCount{};
 
 	AIPath();
 
@@ -159,16 +159,16 @@ private:
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
 	EHeroChainPass heroChainPass; // true if we need to calculate hero chain
-	uint64_t chainMask;
-	int heroChainTurn;
-	int heroChainMaxTurns;
+	uint64_t chainMask{};
+	int heroChainTurn{};
+	int heroChainMaxTurns{};
 	PlayerColor playerID;
-	uint8_t turnDistanceLimit[2];
+	uint8_t turnDistanceLimit[2]{};
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.	
 	AINodeStorage(const Nullkiller * ai, const int3 & sizes);
-	~AINodeStorage();
+	~AINodeStorage() = default;
 
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 
