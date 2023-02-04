@@ -30,5 +30,5 @@ public:
 	int64_t value;
 
 	PossibleSpellcast();
-	virtual ~PossibleSpellcast();
+	virtual ~PossibleSpellcast() = default;
 };

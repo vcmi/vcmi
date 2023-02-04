@@ -11,16 +11,9 @@
 #include "BattleExchangeVariant.h"
 #include "../../lib/CStack.h"
 
-AttackerValue::AttackerValue()
-{
-	value = 0;
-	isRetalitated = false;
-}
-
 MoveTarget::MoveTarget()
-	: positions()
+	: score(EvaluationResult::INEFFECTIVE_SCORE), positions()
 {
-	score = EvaluationResult::INEFFECTIVE_SCORE;
 }
 
 int64_t BattleExchangeVariant::trackAttack(const AttackPossibility & ap, HypotheticBattle & state)
@@ -334,9 +327,9 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 		return exchangeUnits;
 	}
 
-	for(int turn = 0; turn < turnOrder.size(); turn++)
+	for(auto & turn : turnOrder)
 	{
-		for(auto unit : turnOrder[turn])
+		for(auto unit : turn)
 		{
 			if(vstd::contains(allReachableUnits, unit))
 				exchangeUnits.push_back(unit);

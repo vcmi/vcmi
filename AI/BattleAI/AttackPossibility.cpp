@@ -154,7 +154,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 			for(int i = 0; i < totalAttacks; i++)
 			{
-				int64_t damageDealt, damageReceived, defenderDamageReduce, attackerDamageReduce;
+				int64_t damageDealt = 0, damageReceived = 0, defenderDamageReduce = 0, attackerDamageReduce = 0;
 
 				TDmgRange retaliation(0, 0);
 				auto attackDmg = state.battleEstimateDamage(ap.attack, &retaliation);

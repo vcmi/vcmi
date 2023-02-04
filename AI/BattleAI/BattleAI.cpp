@@ -337,7 +337,7 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 	else
 	{
 		BattleHex currentDest = bestNeighbor;
-		while(1)
+		while(true)
 		{
 			if(!currentDest.isValid())
 			{

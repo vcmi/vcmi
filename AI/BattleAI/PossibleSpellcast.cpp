@@ -17,5 +17,3 @@ PossibleSpellcast::PossibleSpellcast()
 	value(0)
 {
 }
-
-PossibleSpellcast::~PossibleSpellcast() = default;
