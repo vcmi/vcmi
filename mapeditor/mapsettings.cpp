@@ -423,6 +423,7 @@ std::string MapSettings::getMonsterName(int monsterObjectIdx)
 	{
 		//TODO: get proper name
 		//name = hero->name;
+		MAYBE_UNUSED(monster);
 	}
 	return name;
 }
