@@ -647,10 +647,7 @@ int64_t CGHeroInstance::getSpecificSpellBonus(const spells::Spell * spell, int64
 
 int32_t CGHeroInstance::getEffectLevel(const spells::Spell * spell) const
 {
-	if(hasBonusOfType(Bonus::MAXED_SPELL, spell->getIndex()))
-		return 3;//todo: recheck specialty from where this bonus is. possible bug
-	else
-		return getSpellSchoolLevel(spell);
+	return getSpellSchoolLevel(spell);
 }
 
 int32_t CGHeroInstance::getEffectPower(const spells::Spell * spell) const
