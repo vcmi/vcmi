@@ -152,8 +152,8 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 				}
 			};
 			std::set<int3> waterCoastDirect, waterCoastDiag;
-			map.foreachDirectNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDirect)));
-			map.foreachDiagonalNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDiag)));
+			map.foreachDirectNeighbour(tile, [collectionLambda, &waterCoastDirect](auto && PH1) { return collectionLambda(std::forward<decltype(PH1)>(PH1), waterCoastDirect); });
+			map.foreachDiagonalNeighbour(tile, [collectionLambda, &waterCoastDiag](auto && PH1) { return collectionLambda(std::forward<decltype(PH1)>(PH1), waterCoastDiag); });
 			int waterCoastDirectNum = waterCoastDirect.size();
 			int waterCoastDiagNum = waterCoastDiag.size();
 			
@@ -236,9 +236,9 @@ void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)
 rmg::Area WaterAdopter::getCoastTiles() const
 {
 	if(reverseDistanceMap.empty())
-		return rmg::Area();
+		return {};
 	
-	return rmg::Area(reverseDistanceMap.at(0));
+	return {reverseDistanceMap.at(0)};
 }
 
 char WaterAdopter::dump(const int3 & t)

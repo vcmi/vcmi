@@ -46,12 +46,12 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 std::vector<bool> CRmgTemplateStorage::getDefaultAllowed() const
 {
 	//all templates are allowed
-	return std::vector<bool>();
+	return {};
 }
 
 std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
 {
-	return std::vector<JsonNode>();
+	return {};
 	//it would be cool to load old rmg.txt files
 }
 
@@ -66,9 +66,9 @@ const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templa
 std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 {
 	std::vector<const CRmgTemplate *> result;
-	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
+	for(const auto & i : templates)
 	{
-		result.push_back(&i->second);
+		result.push_back(&i.second);
 	}
 	return result;
 }

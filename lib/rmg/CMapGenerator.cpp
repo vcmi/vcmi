@@ -88,9 +88,7 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 	return config;
 }
 
-CMapGenerator::~CMapGenerator()
-{
-}
+CMapGenerator::~CMapGenerator() = default;
 
 const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 {

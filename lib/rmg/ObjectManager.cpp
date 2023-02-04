@@ -50,17 +50,17 @@ void ObjectManager::createDistancesPriorityQueue()
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
-	requiredObjects.push_back(std::make_pair(obj, strength));
+	requiredObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addCloseObject(CGObjectInstance * obj, si32 strength)
 {
-	closeObjects.push_back(std::make_pair(obj, strength));
+	closeObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
 {
-	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
+	nearbyObjects.emplace_back(obj, nearbyTarget);
 }
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
@@ -451,7 +451,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 	
-	auto guard = (CGCreature *) guardFactory->create();
+	auto guard = dynamic_cast<CGCreature *>( guardFactory->create());
 	guard->character = CGCreature::HOSTILE;
 	auto  hlp = new CStackInstance(creId, amount);
 	//will be set during initialization

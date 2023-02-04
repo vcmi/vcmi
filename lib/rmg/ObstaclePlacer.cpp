@@ -46,7 +46,7 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 	}
 	for(auto o : obstaclesBySize)
 	{
-		possibleObstacles.push_back(o);
+		possibleObstacles.emplace_back(o);
 	}
 	boost::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
 	{
@@ -57,12 +57,12 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRandomGenerator & rand, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
 {
 	int maxWeight = std::numeric_limits<int>::min();
-	for(int i = 0; i < possibleObstacles.size(); ++i)
+	for(auto & possibleObstacle : possibleObstacles)
 	{
-		if(!possibleObstacles[i].first)
+		if(!possibleObstacle.first)
 			continue;
 
-		auto shuffledObstacles = possibleObstacles[i].second;
+		auto shuffledObstacles = possibleObstacle.second;
 		RandomGeneratorUtil::randomShuffle(shuffledObstacles, rand);
 
 		for(auto temp : shuffledObstacles)
@@ -98,8 +98,8 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRand
 						++coveragePossible;
 				}
 
-				int coverageOverlap = possibleObstacles[i].first - coverageBlocked - coveragePossible;
-				int weight = possibleObstacles[i].first + coverageBlocked - coverageOverlap * possibleObstacles[i].first;
+				int coverageOverlap = possibleObstacle.first - coverageBlocked - coveragePossible;
+				int weight = possibleObstacle.first + coverageBlocked - coverageOverlap * possibleObstacle.first;
 				assert(coverageOverlap >= 0);
 
 				if(weight > maxWeight)

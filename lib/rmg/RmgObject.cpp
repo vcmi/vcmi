@@ -166,9 +166,8 @@ Object::Object(CGObjectInstance & object)
 	addInstance(object);
 }
 
-Object::Object(const Object & object)
+Object::Object(const Object & object) : dStrength(object.dStrength)
 {
-	dStrenght = object.dStrenght;
 	for(auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
 	setPosition(object.getPosition());
@@ -327,9 +326,9 @@ void Object::finalize(RmgMap & map)
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");
 	
-	for(auto iter = dInstances.begin(); iter != dInstances.end(); ++iter)
+	for(auto & dInstance : dInstances)
 	{
-		iter->finalize(map);
+		dInstance.finalize(map);
 	}
 }
 

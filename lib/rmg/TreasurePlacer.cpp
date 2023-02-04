@@ -99,7 +99,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator.rand);
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
-			auto obj = (CGHeroInstance *) factory->create();
+			auto obj = dynamic_cast<CGHeroInstance *>( factory->create());
 			
 			
 			obj->subID = hid; //will be initialized later
@@ -141,8 +141,8 @@ void TreasurePlacer::addAllPossibleObjects()
 		{
 			//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
 			static int elementalConfluxROE[] = {7, 13, 16, 47};
-			for(int i = 0; i < 4; i++)
-				vstd::erase_if_present(subObjects, elementalConfluxROE[i]);
+			for(int & i : elementalConfluxROE)
+				vstd::erase_if_present(subObjects, i);
 		}
 		
 		for(auto secondaryID : subObjects)
@@ -155,7 +155,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto cre = creatures.front();
 			if(cre->faction == zone.getTownType())
 			{
-				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->faction));
+				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->faction));
 				oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
 				oi.probability = 40;
 				
@@ -183,7 +183,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
-			auto obj = (CGArtifact *) factory->create();
+			auto obj = dynamic_cast<CGArtifact *>( factory->create());
 			std::vector<SpellID> out;
 			
 			for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
@@ -209,7 +209,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto obj = dynamic_cast<CGPandoraBox *>( factory->create());
 			obj->resources[Res::GOLD] = i * 5000;
 			return obj;
 		};
@@ -225,7 +225,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto obj = dynamic_cast<CGPandoraBox *>( factory->create());
 			obj->gainedExp = i * 5000;
 			return obj;
 		};
@@ -277,7 +277,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto obj = dynamic_cast<CGPandoraBox *>( factory->create());
 			auto stack = new CStackInstance(creature, creaturesAmount);
 			obj->creatures.putStack(SlotID(0), stack);
 			return obj;
@@ -294,7 +294,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto obj = dynamic_cast<CGPandoraBox *>( factory->create());
 			
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
@@ -323,7 +323,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto obj = dynamic_cast<CGPandoraBox *>( factory->create());
 			
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
@@ -351,7 +351,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.generateObject = [this]() -> CGObjectInstance *
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-		auto obj = (CGPandoraBox *) factory->create();
+		auto obj = dynamic_cast<CGPandoraBox *>( factory->create());
 		
 		std::vector <CSpell *> spells;
 		for(auto spell : VLC->spellh->objects)
@@ -423,7 +423,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create();
+				auto obj = dynamic_cast<CGSeerHut *>( factory->create());
 				obj->rewardType = CGSeerHut::CREATURE;
 				obj->rID = creature->idNumber;
 				obj->rVal = creaturesAmount;
@@ -459,7 +459,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create();
+				auto obj = dynamic_cast<CGSeerHut *>( factory->create());
 				
 				obj->rewardType = CGSeerHut::EXPERIENCE;
 				obj->rID = 0; //unitialized?
@@ -483,7 +483,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create();
+				auto obj = dynamic_cast<CGSeerHut *>( factory->create());
 				obj->rewardType = CGSeerHut::RESOURCES;
 				obj->rID = Res::GOLD;
 				obj->rVal = generator.getConfig().questRewardValues[i];
@@ -640,7 +640,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 		if(oi.value >= minValue && oi.maxPerZone > 0)
 		{
 			total += oi.probability;
-			thresholds.push_back(std::make_pair(total, &oi));
+			thresholds.emplace_back(total, &oi);
 		}
 	}
 	
@@ -808,7 +808,7 @@ char TreasurePlacer::dump(const int3 & t)
 
 
 ObjectInfo::ObjectInfo()
-: templ(), value(0), probability(0), maxPerZone(1)
+: templ(),  maxPerZone(1)
 {
 	
 }

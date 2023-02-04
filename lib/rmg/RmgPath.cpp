@@ -23,7 +23,7 @@ const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FU
 };
 
 //A* priority queue
-typedef std::pair<int3, float> TDistance;
+using TDistance = std::pair<int3, float>;
 struct NodeComparer
 {
 	bool operator()(const TDistance & lhs, const TDistance & rhs) const
@@ -45,10 +45,7 @@ Path::Path(const Area & area, const int3 & src): dArea(&area)
 	dPath.add(src);
 }
 
-Path::Path(const Path & path): dArea(path.dArea), dPath(path.dPath)
-{
-	
-}
+Path::Path(const Path & path) = default;
 
 Path & Path::operator= (const Path & path)
 {

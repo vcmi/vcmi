@@ -157,28 +157,7 @@ ZoneOptions::ZoneOptions()
 			terrainTypes.insert(terr->getId());
 }
 
-ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
-{
-	id = other.id;
-	type = other.type;
-	size = other.size;
-	owner = other.owner;
-	playerTowns = other.playerTowns;
-	neutralTowns = other.neutralTowns;
-	matchTerrainToTown = other.matchTerrainToTown;
-	terrainTypes = other.terrainTypes;
-	townsAreSameType = other.townsAreSameType;
-	townTypes = other.townTypes;
-	monsterTypes = other.monsterTypes;
-	zoneMonsterStrength = other.zoneMonsterStrength;
-	mines = other.mines;
-	treasureInfo = other.treasureInfo;
-	connections = other.connections;
-	minesLikeZone = other.minesLikeZone;
-	terrainTypeLikeZone = other.terrainTypeLikeZone;
-	treasureLikeZone = other.treasureLikeZone;
-	return *this;
-}
+ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other) = default;
 
 TRmgTemplateZoneId ZoneOptions::getId() const
 {
@@ -476,9 +455,7 @@ CRmgTemplate::CRmgTemplate()
 
 }
 
-CRmgTemplate::~CRmgTemplate()
-{
-}
+CRmgTemplate::~CRmgTemplate() = default;
 
 bool CRmgTemplate::matchesSize(const int3 & value) const
 {
@@ -551,12 +528,12 @@ std::pair<int3, int3> CRmgTemplate::getMapSizes() const
 
 void CRmgTemplate::CPlayerCountRange::addRange(int lower, int upper)
 {
-	range.push_back(std::make_pair(lower, upper));
+	range.emplace_back(lower, upper);
 }
 
 void CRmgTemplate::CPlayerCountRange::addNumber(int value)
 {
-	range.push_back(std::make_pair(value, value));
+	range.emplace_back(value, value);
 }
 
 bool CRmgTemplate::CPlayerCountRange::isInRange(int count) const

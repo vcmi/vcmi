@@ -263,7 +263,7 @@ void Zone::fractalize()
 	float blockDistance = minDistance * 0.25f;
 	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
-		float distance = static_cast<float>(dAreaFree.distanceSqr(t));
+		auto distance = static_cast<float>(dAreaFree.distanceSqr(t));
 		return distance > blockDistance;
 	});
 	dAreaPossible.subtract(areaToBlock);
@@ -403,9 +403,6 @@ char Modificator::dump(const int3 & t)
 	return '?';
 }
 
-Modificator::~Modificator()
-{
-	
-}
+Modificator::~Modificator() = default;
 
 VCMI_LIB_NAMESPACE_END
