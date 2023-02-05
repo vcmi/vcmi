@@ -82,7 +82,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 	else
 		tile = q->tile;
 
-	int x,y;
+	int x = 0,y = 0;
 	minimap->tileToPixels (tile, x, y);
 
 	if (level != tile.z)

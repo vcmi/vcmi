@@ -74,7 +74,7 @@ public:
 	//highlighted items (nullptr if no highlight)
 	std::shared_ptr<CTradeableItem> hLeft;
 	std::shared_ptr<CTradeableItem> hRight;
-	EType itemsType[2];
+	EType itemsType[2]{};
 
 	EMarketMode::EMarketMode mode;
 	std::shared_ptr<CButton> ok;
@@ -122,7 +122,7 @@ class CMarketplaceWindow : public CTradeWindow
 
 	std::string getBackgroundForMode(EMarketMode::EMarketMode mode);
 public:
-	int r1, r2; //suggested amounts of traded resources
+	int r1{}, r2{}; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction
 	std::shared_ptr<CTextBox> traderText;
 

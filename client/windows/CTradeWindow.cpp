@@ -36,14 +36,14 @@
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
 	: CIntObject(LCLICK | HOVER | RCLICK, pos),
+	hlp(nullptr), 
 	type(EType(-1)),// set to invalid, will be corrected in setType
 	id(ID),
 	serial(Serial),
-	left(Left)
+	left(Left), 
+	downSelection(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	downSelection = false;
-	hlp = nullptr;
 	setType(Type);
 }
 
@@ -127,7 +127,7 @@ int CTradeWindow::CTradeableItem::getIndex()
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	auto *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
 
 	Point posToBitmap;
@@ -171,14 +171,14 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	auto *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
 	if(down)
 	{
 
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
-			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
+			auto *aw = dynamic_cast<CAltarWindow *>(mw);
 			if(const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art)
 			{
 				aw->moveFromSlotToAltar(aw->arts->commonInfo->src.slotID, this->shared_from_this(), movedArt);
@@ -325,12 +325,12 @@ CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHe
 	CWindowObject(PLAYER_COLORED, bgName),
 	market(Market),
 	hero(Hero),
+	mode(Mode), 
 	readyToTrade(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	type |= BLOCK_ADV_HOTKEYS;
-	mode = Mode;
 	initTypes();
 }
 
@@ -479,7 +479,7 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 	if(mode == EMarketMode::ARTIFACT_EXP && !Left)
 	{
 		//22 boxes, 5 in row, last row: two boxes centered
-		int h, w, x, y, dx, dy;
+		int h = 0, w = 0, x = 0, y = 0, dx = 0, dy = 0;
 		h = w = 44;
 		x = 317;
 		y = 53;
@@ -487,10 +487,10 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		dy = 70;
 		for (int i = 0; i < 4 ; i++)
 			for (int j = 0; j < 5 ; j++)
-				poss.push_back(Rect(x + dx*j, y + dy*i, w, h));
+				poss.emplace_back(x + dx*j, y + dy*i, w, h);
 
-		poss.push_back(Rect((int)(x + dx * 1.5), (y + dy * 4), w, h));
-		poss.push_back(Rect((int)(x + dx * 2.5), (y + dy * 4), w, h));
+		poss.emplace_back((int)(x + dx * 1.5), (y + dy * 4), w, h);
+		poss.emplace_back((int)(x + dx * 2.5), (y + dy * 4), w, h);
 	}
 	else
 	{
@@ -498,8 +498,8 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		//  X  X  X
 		//  X  X  X
 		//     X
-		int h, w, x, y, dx, dy;
-		int leftToRightOffset;
+		int h = 0, w = 0, x = 0, y = 0, dx = 0, dy = 0;
+		int leftToRightOffset = 0;
 		getBaseForPositions(type, dx, dy, x, y, h, w, !Left, leftToRightOffset);
 
 		const std::vector<Rect> tmp =
@@ -543,7 +543,7 @@ void CTradeWindow::initSubs(bool Left)
 			}
 			else if(hLeft)//artifact, creature
 			{
-				int h1, h2; //hlp variables for getting offer
+				int h1 = 0, h2 = 0; //hlp variables for getting offer
 				market->getOffer(hLeft->id, item->id, h1, h2, mode);
 				if(item->id != hLeft->id || mode != EMarketMode::RESOURCE_RESOURCE) //don't allow exchanging same resources
 				{
@@ -655,11 +655,10 @@ std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode::EMarketMode mo
 }
 
 CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode)
-	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
+	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode), madeTransaction(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	madeTransaction = false;
 	bool sliderNeeded = true;
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
@@ -968,11 +967,11 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 		switch(itemsType[1])
 		{
 		case RESOURCE:
-			return Point(122, 446);
+			return {122, 446};
 		case CREATURE:
-			return Point(128, 450);
+			return {128, 450};
 		case ARTIFACT_INSTANCE:
-			return Point(134, 466);
+			return {134, 466};
 		}
 	}
 	else
@@ -981,18 +980,18 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 		{
 		case RESOURCE:
 			if(mode == EMarketMode::ARTIFACT_RESOURCE)
-				return Point(410, 469);
+				return {410, 469};
 			else
-				return Point(410, 446);
+				return {410, 446};
 		case ARTIFACT_TYPE:
-			return Point(425, 447);
+			return {425, 447};
 		case PLAYER:
-			return Point(417, 451);
+			return {417, 451};
 		}
 	}
 
 	assert(0);
-	return Point(0,0);
+	return {0,0};
 }
 
 void CMarketplaceWindow::resourceChanged()
@@ -1277,10 +1276,10 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(auto i = hero->artifactsWorn.cbegin(); i != hero->artifactsWorn.cend(); i++)
+		for(const auto & i : hero->artifactsWorn)
 		{
-			if(!i->second.locked) //ignore locks from assembled artifacts
-				moveFromSlotToAltar(i->first, nullptr, i->second.artifact);
+			if(!i.second.locked) //ignore locks from assembled artifacts
+				moveFromSlotToAltar(i.first, nullptr, i.second.artifact);
 		}
 
 		SacrificeBackpack();
@@ -1341,9 +1340,9 @@ void CAltarWindow::mimicCres()
 Point CAltarWindow::selectionOffset(bool Left) const
 {
 	if(Left)
-		return Point(150, 421);
+		return {150, 421};
 	else
-		return Point(396, 421);
+		return {396, 421};
 }
 
 std::string CAltarWindow::selectionSubtitle(bool Left) const
@@ -1377,7 +1376,7 @@ void CAltarWindow::garrisonChanged()
 
 void CAltarWindow::getExpValues()
 {
-	int dump;
+	int dump = 0;
 	for(auto item : items[1])
 	{
 		if(item->id >= 0)
@@ -1399,7 +1398,7 @@ void CAltarWindow::calcTotalExp()
 	{
 		for(const CArtifactInstance *art : arts->artifactsOnAltar)
 		{
-			int dmp, valOfArt;
+			int dmp = 0, valOfArt = 0;
 			market->getOffer(art->artType->getId(), 0, dmp, valOfArt, mode);
 			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
@@ -1472,7 +1471,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 		artIcon->setFrame(arts->commonInfo->src.art->artType->iconIndex);
 		artIcon->showAll(to);
 
-		int dmp, val;
+		int dmp = 0, val = 0;
 		market->getOffer(arts->commonInfo->src.art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 		val = static_cast<int>(hero->calculateXp(val));
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
@@ -1498,7 +1497,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 		altarSlot = items[0][slotIndex];
 	}
 
-	int dmp, val;
+	int dmp = 0, val = 0;
 	market->getOffer(art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 	val = static_cast<int>(hero->calculateXp(val));
 

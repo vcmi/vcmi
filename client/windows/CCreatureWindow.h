@@ -154,7 +154,7 @@ class CStackWindow : public CWindowObject
 
 	std::shared_ptr<UnitView> info;
 	std::vector<BonusInfo> activeBonuses;
-	size_t activeTab;
+	size_t activeTab{};
 	std::shared_ptr<CTabbedInt> commanderTab;
 
 	std::map<size_t, std::shared_ptr<CButton>> switchButtons;
@@ -167,7 +167,7 @@ class CStackWindow : public CWindowObject
 	std::shared_ptr<CWindowSection> buttonsSection;
 
 	std::shared_ptr<CCommanderSkillIcon> selectedIcon;
-	si32 selectedSkill;
+	si32 selectedSkill{};
 
 	void setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon);
 	std::shared_ptr<CIntObject> switchTab(size_t index);

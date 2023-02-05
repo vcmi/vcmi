@@ -48,7 +48,7 @@ public:
 
 	//ComponentResolved();
 	ComponentResolved(std::shared_ptr<CComponent> Comp);
-	~ComponentResolved();
+	~ComponentResolved() override;
 };
 // Full set of components for blitting on dialog box
 struct ComponentsToBlit
@@ -170,7 +170,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 		}
 		else if(text[currPos] == 0x0a)
 		{
-			ret.push_back(""); //add empty string, no extra actions needed
+			ret.emplace_back(""); //add empty string, no extra actions needed
 		}
 
 		if (text.length() != 0 && text[0] == 0x0a)
@@ -432,8 +432,8 @@ ComponentsToBlit::ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SC
 	for(auto & elem : comps)
 	{
 		int maxHeight = 0;
-		for(size_t j=0;j<elem.size();j++)
-			vstd::amax(maxHeight, elem[j]->pos.h);
+		for(auto & j : elem)
+			vstd::amax(maxHeight, j->pos.h);
 
 		h += maxHeight + BETWEEN_COMPS_ROWS;
 	}
@@ -446,10 +446,9 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 	for (auto & elem : comps)//for each row
 	{
 		int totalw=0, maxHeight=0;
-		for(size_t j=0;j<elem.size();j++)//find max height & total width in this row
+		for(auto cur : elem)//find max height & total width in this row
 		{
-			auto cur = elem[j];
-			totalw += cur->pos.w;
+				totalw += cur->pos.w;
 			vstd::amax(maxHeight, cur->pos.h);
 		}
 
