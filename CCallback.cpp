@@ -374,10 +374,9 @@ scripting::Pool * CBattleCallback::getContextPool() const
 }
 #endif
 
-CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C )
+CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C ) : cl(C)
 {
 	player = Player;
-	cl = C;
 }
 
 bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
