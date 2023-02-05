@@ -84,7 +84,7 @@ public:
 
 	struct WorldViewOptions
 	{
-		bool showAllTerrain; //for expert viewEarth
+		bool showAllTerrain{}; //for expert viewEarth
 
 		std::vector<ObjectPosInfo> iconPositions;
 

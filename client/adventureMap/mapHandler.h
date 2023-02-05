@@ -172,7 +172,7 @@ class CMapHandler
 	class CMapCache
 	{
 		std::array< std::map<intptr_t, std::shared_ptr<IImage>>, (ui8)EMapCacheType::AFTER_LAST> data;
-		float worldViewCachedScale;
+		float worldViewCachedScale{0};
 	public:
 		CMapCache();
 		/// destroys all cached data (frees surfaces)
@@ -325,7 +325,7 @@ class CMapHandler
 	CMapBlitter * puzzleViewBlitter;
 
 	std::map<int, std::pair<int3, CFadeAnimation*>> fadeAnims;
-	int fadeAnimCounter;
+	int fadeAnimCounter{0};
 
 	CMapBlitter * resolveBlitter(const MapDrawingInfo * info) const;
 	bool updateObjectsFade();
@@ -338,7 +338,7 @@ class CMapHandler
 public:
 	boost::multi_array<TerrainTile2, 3> ttiles; //informations about map tiles [z][x][y]
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
-	const CMap * map;
+	const CMap * map{nullptr};
 
 	// Max number of tiles that will fit in the map screen. Tiles
 	// can be partial on each edges.
@@ -346,7 +346,7 @@ public:
 	int tilesH;
 
 	// size of each side of the frame around the whole map, in tiles
-	int frameH;
+	int frameH{};
 	int frameW;
 
 	// Coord in pixels of the top left corner of the top left tile to

@@ -39,9 +39,7 @@ void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
 		object->showAll(to);
 }
 
-CInfoBar::EmptyVisibleInfo::EmptyVisibleInfo()
-{
-}
+CInfoBar::EmptyVisibleInfo::EmptyVisibleInfo() = default;
 
 CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
@@ -127,9 +125,9 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 		if(LOCPLINT->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
 		{
 			if(LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
-				allies.push_back(PlayerColor(i));
+				allies.emplace_back(i);
 			else
-				enemies.push_back(PlayerColor(i));
+				enemies.emplace_back(i);
 		}
 	}
 

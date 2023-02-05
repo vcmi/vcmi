@@ -34,9 +34,7 @@ CList::CListItem::CListItem(CList * Parent)
 	defActions = 255-DISPOSE;
 }
 
-CList::CListItem::~CListItem()
-{
-}
+CList::CListItem::~CListItem() = default;
 
 void CList::CListItem::clickRight(tribool down, bool previousState)
 {

@@ -28,7 +28,7 @@ class CTerrainRect : public CIntObject
 
 	int3 swipeInitialMapPos;
 	Point swipeInitialRealPos;
-	bool isSwiping;
+	bool isSwiping{};
 	static constexpr float SwipeTouchSlop = 16.0f;
 
 	void handleHover(const Point & cursorPosition);
