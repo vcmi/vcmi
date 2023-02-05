@@ -225,7 +225,10 @@ void CButton::hover (bool on)
 
 CButton::CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, int key, bool playerColoredButton):
     CKeyShortcut(key),
-    callback(Callback)
+    callback(Callback),
+	state(NORMAL),
+	currentImage(-1),
+	helpBox(help.second)
 {
 	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
@@ -235,12 +238,8 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
 	stateToIndex[2] = 2;
 	stateToIndex[3] = 3;
 
-	state=NORMAL;
-
-	currentImage = -1;
 	hoverable = actOnDown = soundDisabled = false;
 	hoverTexts[0] = help.first;
-	helpBox=help.second;
 
 	pos.x += position.x;
 	pos.y += position.y;
@@ -288,7 +287,7 @@ void CButton::showAll(SDL_Surface * to)
 
 std::pair<std::string, std::string> CButton::tooltip()
 {
-	return std::pair<std::string, std::string>();
+	return {};
 }
 
 std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
@@ -433,9 +432,9 @@ void CToggleGroup::setSelected(int id)
 
 void CToggleGroup::setSelectedOnly(int id)
 {
-	for(auto it = buttons.begin(); it != buttons.end(); it++)
+	for(auto & button : buttons)
 	{
-		int buttonId = it->first;
+		int buttonId = button.first;
 		buttons[buttonId]->setEnabled(buttonId == id);
 	}
 

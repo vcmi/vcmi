@@ -112,8 +112,8 @@ public:
 		struct Artpos
 		{
 			ArtifactPosition slotID;
-			const CArtifactsOfHero *AOH;
-			const CArtifactInstance *art;
+			const CArtifactsOfHero *AOH{nullptr};
+			const CArtifactInstance *art{nullptr};
 
 			Artpos();
 			void clear();

@@ -50,7 +50,7 @@ private:
 
 	ButtonState state;//current state of button from enum
 
-	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
+	std::array<int, 4> stateToIndex{}; // mapping of button state to index of frame in animation
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
 	std::array<boost::optional<SDL_Color>, 4> stateToBorderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
@@ -230,7 +230,7 @@ class CSlider : public CIntObject
 	std::shared_ptr<CButton> slider;
 
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
-	int positions; //number of highest position (0 if there is only one)
+	int positions{0}; //number of highest position (0 if there is only one)
 	bool horizontal;
 	int amount; //total amount of elements (e.g. hero list = 0-8)
 	int value; //first active element

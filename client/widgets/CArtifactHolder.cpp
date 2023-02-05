@@ -803,7 +803,7 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 	if(al.isHolder(curHero))
 	{
 		if(al.slot < GameConstants::BACKPACK_START)
-			updateWornSlots(0);
+			updateWornSlots(false);
 		else
 			scrollBackpack(0); //update backpack slots
 	}
@@ -874,9 +874,7 @@ void CArtifactsOfHero::updateSlot(ArtifactPosition slotID)
 	setSlotData(getArtPlace(slotID), slotID);
 }
 
-CArtifactHolder::CArtifactHolder()
-{
-}
+CArtifactHolder::CArtifactHolder() = default;
 
 void CWindowWithArtifacts::addSet(std::shared_ptr<CArtifactsOfHero> artSet)
 {
@@ -892,7 +890,7 @@ std::shared_ptr<CArtifactsOfHero::SCommonPart> CWindowWithArtifacts::getCommonPa
 			return realPtr->commonInfo;
 	}
 
-	return std::shared_ptr<CArtifactsOfHero::SCommonPart>();
+	return {};
 }
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)

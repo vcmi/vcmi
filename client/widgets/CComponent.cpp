@@ -331,7 +331,7 @@ Point CComponentBox::getOrTextPos(CComponent *left, CComponent *right)
 	int rightSubtitle = (right->pos.w - right->image->pos.w) / 2;
 	int fullDistance = getDistance(left, right) + leftSubtitle + rightSubtitle;
 
-	return Point(fullDistance/2 - leftSubtitle, (left->image->pos.h + right->image->pos.h) / 4);
+	return {fullDistance/2 - leftSubtitle, (left->image->pos.h + right->image->pos.h) / 4};
 }
 
 int CComponentBox::getDistance(CComponent *left, CComponent *right)
@@ -370,7 +370,7 @@ void CComponentBox::placeComponents(bool selectable)
 		comps(Comps), width (Width), height (Height){};
 	};
 	std::vector<RowData> rows;
-	rows.push_back (RowData (0,0,0));
+	rows.emplace_back(0,0,0);
 
 	//split components in rows
 	std::shared_ptr<CComponent> prevComp;
@@ -387,7 +387,7 @@ void CComponentBox::placeComponents(bool selectable)
 			|| rows.back().comps >= 4) // no more than 4 comps per row
 		{
 			prevComp = nullptr;
-			rows.push_back (RowData (0,0,0));
+			rows.emplace_back(0,0,0);
 		}
 
 		if (prevComp)

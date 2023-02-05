@@ -46,7 +46,6 @@ CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color 
 	: CTextContainer(Align, Font, Color), text(Text)
 {
 	type |= REDRAW_PARENT;
-	autoRedraw = true;
 	pos.x += x;
 	pos.y += y;
 	pos.w = pos.h = 0;
@@ -60,7 +59,7 @@ CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color 
 
 Point CLabel::getBorderSize()
 {
-	return Point(0, 0);
+	return {0, 0};
 }
 
 std::string CLabel::getText()
@@ -263,7 +262,7 @@ Rect CMultiLineLabel::getTextLocation()
 	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
 	}
 	assert(0);
-	return Rect();
+	return {};
 }
 
 CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const SDL_Color & Color)
@@ -458,12 +457,12 @@ Point CGStatusBar::getBorderSize()
 
 	switch(alignment)
 	{
-	case ETextAlignment::TOPLEFT:     return Point(borderSize.x, borderSize.y);
-	case ETextAlignment::CENTER:      return Point(pos.w / 2, pos.h / 2);
-	case ETextAlignment::BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
+	case ETextAlignment::TOPLEFT:     return {borderSize.x, borderSize.y};
+	case ETextAlignment::CENTER:      return {pos.w / 2, pos.h / 2};
+	case ETextAlignment::BOTTOMRIGHT: return {pos.w - borderSize.x, pos.h - borderSize.y};
 	}
 	assert(0);
-	return Point();
+	return {};
 }
 
 CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)
@@ -640,7 +639,7 @@ void CTextInput::textEdited(const std::string & enteredText)
 void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
 	static const std::string forbiddenChars = "<>:\"/\\|?*\r\n"; //if we are entering a filename, some special characters won't be allowed
-	size_t pos;
+	size_t pos = 0;
 	while((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
 		text.erase(pos, 1);
 }
@@ -687,9 +686,8 @@ CFocusable::CFocusable()
 }
 
 CFocusable::CFocusable(std::shared_ptr<IFocusListener> focusListener)
-	: focusListener(focusListener)
+	: focusListener(focusListener), focus(false)
 {
-	focus = false;
 	focusables.push_back(this);
 }
 

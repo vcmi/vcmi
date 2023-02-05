@@ -54,8 +54,8 @@ public:
 
 	Etype compType; //component type
 	ESize size; //component size.
-	int subtype; //type-dependant subtype. See getSomething methods for details
-	int val; // value \ strength \ amount of component. See getSomething methods for details
+	int subtype{}; //type-dependant subtype. See getSomething methods for details
+	int val{}; // value \ strength \ amount of component. See getSomething methods for details
 	bool perDay; // add "per day" text to subtitle
 
 	std::string getDescription();
@@ -72,7 +72,7 @@ class CSelectableComponent : public CComponent, public CKeyShortcut
 {
 	void init();
 public:
-	bool selected; //if true, this component is selected
+	bool selected{}; //if true, this component is selected
 	std::function<void()> onSelect; //function called on selection change
 
 	void showAll(SDL_Surface * to) override;

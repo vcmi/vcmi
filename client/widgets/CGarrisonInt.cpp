@@ -74,7 +74,7 @@ void CGarrisonSlot::hover (bool on)
 				const bool isHeroOnMap = owner->armedObjs[0] // Hero is not a visitor and not a garrison defender
 					&& owner->armedObjs[0]->ID == Obj::HERO
 					&& (!owner->armedObjs[1] || owner->armedObjs[1]->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
-					&& !(static_cast<const CGHeroInstance*>(owner->armedObjs[0]))->inTownGarrison;
+					&& !(dynamic_cast<const CGHeroInstance*>(owner->armedObjs[0]))->inTownGarrison;
 
 				if(isHeroOnMap)
 				{
