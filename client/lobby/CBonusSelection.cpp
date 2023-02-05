@@ -226,7 +226,7 @@ void CBonusSelection::createBonusesIcons()
 				}
 				if(ptr[g] != 0)
 				{
-					toPrint.push_back(std::make_pair(g, ptr[g]));
+					toPrint.emplace_back(g, ptr[g]);
 				}
 			}
 			picNumber = leadingSkill;

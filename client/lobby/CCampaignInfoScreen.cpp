@@ -19,12 +19,11 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
-CCampaignInfoScreen::CCampaignInfoScreen()
+CCampaignInfoScreen::CCampaignInfoScreen() 
+	: localSi(new StartInfo(*LOCPLINT->cb->getStartInfo())), localMi(new CMapInfo())
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
-	localMi = new CMapInfo();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localMi->mapHeader = std::make_unique<CMapHeader>(*LOCPLINT->cb->getMapHeader());
 
 	screenType = ESelectionScreen::scenarioInfo;
 

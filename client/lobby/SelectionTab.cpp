@@ -50,34 +50,35 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 			return (a->defeatMessage < b->defeatMessage);
 			break;
 		case _playerAm: //by player amount
-			int playerAmntB, humenPlayersB, playerAmntA, humenPlayersA;
-			playerAmntB = humenPlayersB = playerAmntA = humenPlayersA = 0;
-			for(int i = 0; i < 8; i++)
 			{
-				if(a->players[i].canHumanPlay)
+			int playerAmntB{0}, humanPlayersB{0}, playerAmntA{0}, humanPlayersA{0};
+				for(int i = 0; i < 8; i++)
 				{
-					playerAmntA++;
-					humenPlayersA++;
+					if(a->players[i].canHumanPlay)
+					{
+						playerAmntA++;
+						humanPlayersA++;
+					}
+					else if(a->players[i].canComputerPlay)
+					{
+						playerAmntA++;
+					}
+					if(b->players[i].canHumanPlay)
+					{
+						playerAmntB++;
+						humanPlayersB++;
+					}
+					else if(b->players[i].canComputerPlay)
+					{
+						playerAmntB++;
+					}
 				}
-				else if(a->players[i].canComputerPlay)
-				{
-					playerAmntA++;
-				}
-				if(b->players[i].canHumanPlay)
-				{
-					playerAmntB++;
-					humenPlayersB++;
-				}
-				else if(b->players[i].canComputerPlay)
-				{
-					playerAmntB++;
-				}
+				if(playerAmntB != playerAmntA)
+					return (playerAmntA < playerAmntB);
+				else
+					return (humanPlayersA < humanPlayersB);
+				break;
 			}
-			if(playerAmntB != playerAmntA)
-				return (playerAmntA < playerAmntB);
-			else
-				return (humenPlayersA < humenPlayersB);
-			break;
 		case _size: //by size of map
 			return (a->width < b->width);
 			break;
@@ -150,7 +151,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		const char * sortIconNames[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 		for(int i = 0; i < 6; i++)
 		{
-			ESortBy criteria = (ESortBy)i;
+			auto criteria = (ESortBy)i;
 			if(criteria == _name)
 				criteria = generalSortingBy;
 
@@ -311,7 +312,7 @@ void SelectionTab::onDoubleClick()
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
+		(dynamic_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
 	}
 }
 
@@ -452,7 +453,7 @@ int SelectionTab::getLine()
 	Point clickPos = GH.getCursorPosition() - pos.topLeft();
 
 	// Ignore clicks on save name area
-	int maxPosY;
+	int maxPosY = 0;
 	if(tabType == ESelectionScreen::saveGame)
 		maxPosY = 516;
 	else

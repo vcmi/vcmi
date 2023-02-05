@@ -26,14 +26,13 @@
 #include "../../lib/mapping/CMapInfo.h"
 
 CSavingScreen::CSavingScreen()
-	: CSelectionBase(ESelectionScreen::saveGame)
+	: CSelectionBase(ESelectionScreen::saveGame), localSi(new StartInfo(*LOCPLINT->cb->getStartInfo()))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	center(pos);
 	// TODO: we should really use std::shared_ptr for passing StartInfo around.
-	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
 	localMi = std::make_shared<CMapInfo>();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localMi->mapHeader = std::make_unique<CMapHeader>(*LOCPLINT->cb->getMapHeader());
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
 	curTab = tabSel;
