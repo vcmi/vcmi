@@ -1057,12 +1057,10 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		int offset = LOCPLINT->castleInt? (-87) : 0;
-
 		auto recruitCb = [=](CreatureID id, int count)
 		{
 			LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 		};
-
 		GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, offset);
 	}
 }
@@ -1275,10 +1273,12 @@ void CCastleInterface::recreateIcons()
 	bool useAvailableCreaturesForLabel = useAvailableAmountAsCreatureLabel();
 
 	for(size_t i=0; i<4; i++)
-		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 459), town, (int)i, compactCreatureInfo, useAvailableCreaturesForLabel));
+		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14 + 55 * (int)i, 459), town, (int)i, compactCreatureInfo, useAvailableCreaturesForLabel));
+
 
 	for(size_t i=0; i<4; i++)
-		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 507), town, (int)i+4, compactCreatureInfo, useAvailableCreaturesForLabel));
+		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14 + 55 * (int)i, 507), town, (int)i + 4, compactCreatureInfo, useAvailableCreaturesForLabel));
+
 }
 
 void CCastleInterface::keyPressed(const SDL_KeyboardEvent & key)
