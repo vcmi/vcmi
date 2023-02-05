@@ -127,7 +127,7 @@ static void prog_version()
 
 static void prog_help(const po::options_description &opts)
 {
-	auto time = std::time(0);
+	auto time = std::time(nullptr);
 	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
 	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
 	printf("This is free software; see the source for copying conditions. There is NO\n");
@@ -240,7 +240,7 @@ int main(int argc, char * argv[])
 
 	auto callbackFunction = [](std::string buffer, bool calledFromIngameConsole)
 	{
-		ClientCommandManager commandController;
+		ClientCommandManager commandController{};
 		commandController.processCommand(buffer, calledFromIngameConsole);
 	};
 
@@ -661,7 +661,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	auto minDiff = 10.f;
 	for (const auto& pair : conf.guiOptions)
 	{
-		int pWidth, pHeight;
+		int pWidth = 0, pHeight = 0;
 		std::tie(pWidth, pHeight) = pair.first;
 		/* filter out resolution which is larger than window */
 		if (pWidth > w || pHeight > h)
@@ -1055,7 +1055,7 @@ static void mainLoop()
 	inGuiThread.reset(new bool(true));
 	GH.mainFPSmng->init();
 
-	while(1) //main SDL events loop
+	while(true) //main SDL events loop
 	{
 		SDL_Event ev;
 

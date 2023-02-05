@@ -116,29 +116,30 @@ struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 	}
 };
 
-CPlayerInterface::CPlayerInterface(PlayerColor Player)
+CPlayerInterface::CPlayerInterface(PlayerColor Player) :
+	curAction(nullptr),
+	currentSelection(nullptr),
+	castleInt(nullptr),
+	makingTurn(false),
+	showingDialog(new CondSh<bool>(false)),
+	cingconsole(new CInGameConsole()),
+	firstCall(1),
+	autosaveCount(0),
+	isAutoFightOn(false),
+	duringMovement(false),
+	ignoreEvents(false)
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
-	curAction = nullptr;
 	playerID=Player;
 	human=true;
-	currentSelection = nullptr;
 	battleInt = nullptr;
-	castleInt = nullptr;
-	makingTurn = false;
-	showingDialog = new CondSh<bool>(false);
-	cingconsole = new CInGameConsole();
 	GH.terminate_cond->set(false);
-	firstCall = 1; //if loading will be overwritten in serialize
-	autosaveCount = 0;
-	isAutoFightOn = false;
-
-	duringMovement = false;
-	ignoreEvents = false;
+	//if loading will be overwritten in serialize
+	
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -578,14 +579,14 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(castleInt)
 	{
 		castleInt->garr->selectSlot(nullptr);
-		castleInt->garr->setArmy(town->getUpperArmy(), 0);
-		castleInt->garr->setArmy(town->visitingHero, 1);
+		castleInt->garr->setArmy(town->getUpperArmy(), false);
+		castleInt->garr->setArmy(town->visitingHero, true);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
 	}
 	for (auto isa : GH.listInt)
 	{
-		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
+		auto *ki = dynamic_cast<CKingdomInterface*>(isa.get());
 		if (ki)
 		{
 			ki->townChanged(town);
@@ -629,11 +630,11 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 
 	for (auto & elem : GH.listInt)
 	{
-		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(elem.get());
+		auto *cgh = dynamic_cast<CGarrisonHolder*>(elem.get());
 		if (cgh)
 			cgh->updateGarrisons();
 
-		if (CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(elem.get()))
+		if (auto *cmw = dynamic_cast<CTradeWindow*>(elem.get()))
 		{
 			if (vstd::contains(objs, cmw->hero))
 				cmw->garrisonChanged();
@@ -1128,10 +1129,10 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 			intComps.push_back(std::make_shared<CSelectableComponent>(component)); //will be deleted by CSelWindow::close
 
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+		pom.emplace_back("IOKAY.DEF",0);
 		if (cancel)
 		{
-			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+			pom.emplace_back("ICANCEL.DEF",0);
 		}
 
 		int charperline = 35;
@@ -1217,7 +1218,7 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
+	if (const auto * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
 		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt().get());
 		if (fs)
@@ -1225,7 +1226,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 
 		for(auto isa : GH.listInt)
 		{
-			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
+			auto *ki = dynamic_cast<CKingdomInterface*>(isa.get());
 			if (ki && townObj)
 				ki->townChanged(townObj);
 		}
@@ -1414,7 +1415,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		if(obj->ID == Obj::TOWN)
 		{
 			if(obj->tempOwner == playerID)
-				towns.push_back(static_cast<const CGTownInstance *>(obj));
+				towns.push_back(dynamic_cast<const CGTownInstance *>(obj));
 			else
 				towns -= obj;
 
@@ -1519,7 +1520,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 	}
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
-		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
+		const auto * h = dynamic_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
 }
@@ -1988,7 +1989,7 @@ void CPlayerInterface::acceptTurn()
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
-		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
+		components.emplace_back(Component::FLAG, playerColor.getNum(), 0, 0);
 		MetaString text;
 
 		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;

@@ -178,7 +178,7 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 	if (!initialized || sound.empty())
 		return -1;
 
-	int channel;
+	int channel = 0;
 	Mix_Chunk *chunk = GetSoundChunk(sound, cache);
 
 	if (chunk)

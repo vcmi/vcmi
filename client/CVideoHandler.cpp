@@ -109,7 +109,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 
 	static const int BUFFER_SIZE = 4096;
 
-	unsigned char * buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
+	auto * buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
 	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, nullptr, lodSeek);
 
 	format = avformat_alloc_context();
@@ -296,7 +296,7 @@ bool CVideoPlayer::nextFrame()
 						sws_scale(sws, frame->data, frame->linesize,
 								  0, codecContext->height, data, linesize);
 
-						SDL_UpdateYUVTexture(texture, NULL, data[0], linesize[0],
+						SDL_UpdateYUVTexture(texture, nullptr, data[0], linesize[0],
 								data[1], linesize[1],
 								data[2], linesize[2]);
 						av_freep(&data[0]);

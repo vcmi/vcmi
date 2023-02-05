@@ -66,7 +66,7 @@ class CBaseForCLApply
 public:
 	virtual void applyOnClAfter(CClient * cl, void * pack) const =0;
 	virtual void applyOnClBefore(CClient * cl, void * pack) const =0;
-	virtual ~CBaseForCLApply(){}
+	virtual ~CBaseForCLApply()= default;
 
 	template<typename U> static CBaseForCLApply * getApplier(const U * t = nullptr)
 	{
@@ -263,14 +263,14 @@ void CClient::serialize(BinarySerializer & h, const int version)
 	ui8 players = static_cast<ui8>(playerint.size());
 	h & players;
 
-	for(auto i = playerint.begin(); i != playerint.end(); i++)
+	for(auto & i : playerint)
 	{
-		logGlobal->trace("Saving player %s interface", i->first);
+		logGlobal->trace("Saving player %s interface", i.first);
 		assert(i->first == i->second->playerID);
-		h & i->first;
-		h & i->second->dllName;
-		h & i->second->human;
-		i->second->saveGame(h, version);
+		h & i.first;
+		h & i.second->dllName;
+		h & i.second->human;
+		i.second->saveGame(h, version);
 	}
 
 #if SCRIPTING_ENABLED

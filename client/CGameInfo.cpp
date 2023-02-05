@@ -17,13 +17,7 @@ CClientState * CCS = nullptr;
 CServerHandler * CSH;
 
 
-CGameInfo::CGameInfo()
-{
-	generaltexth = nullptr;
-	mh = nullptr;
-	townh = nullptr;
-	globalServices = nullptr;
-}
+CGameInfo::CGameInfo() = default;
 
 void CGameInfo::setFromLib()
 {
