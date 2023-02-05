@@ -27,6 +27,7 @@
 #include <SDL_render.h>
 #include <SDL_timer.h>
 #include <SDL_events.h>
+#include <cmath>
 
 #ifdef VCMI_APPLE
 #include <dispatch/dispatch.h>
@@ -56,11 +57,10 @@ SObjectConstruction::~SObjectConstruction()
 	GH.captureChildren = GH.createdObj.size();
 }
 
-SSetCaptureState::SSetCaptureState(bool allow, ui8 actions)
+SSetCaptureState::SSetCaptureState(bool allow, ui8 actions) :
+	previousCapture(GH.captureChildren), prevActions(GH.defActionsDef)
 {
-	previousCapture = GH.captureChildren;
 	GH.captureChildren = false;
-	prevActions = GH.defActionsDef;
 	GH.defActionsDef = actions;
 }
 
@@ -175,7 +175,7 @@ void CGuiHandler::popInts(int howMany)
 std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
 {
 	if(listInt.empty())
-		return std::shared_ptr<IShowActivatable>();
+		return {};
 	else
 		return listInt.front();
 }
@@ -233,7 +233,7 @@ void CGuiHandler::handleEvents()
 
 void CGuiHandler::convertTouchToMouse(SDL_Event * current)
 {
-	int rLogicalWidth, rLogicalHeight;
+	int rLogicalWidth = 0, rLogicalHeight = 0;
 
 	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
 
@@ -248,7 +248,7 @@ void CGuiHandler::convertTouchToMouse(SDL_Event * current)
 
 void CGuiHandler::fakeMoveCursor(float dx, float dy)
 {
-	int x, y, w, h;
+	int x = 0, y = 0, w = 0, h = 0;
 
 	SDL_Event event;
 	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -279,7 +279,7 @@ void CGuiHandler::startTextInput(const Rect & whereInput)
 
 	// TODO ios: looks like SDL bug actually, try fixing there
 	auto renderer = SDL_GetRenderer(mainWindow);
-	float scaleX, scaleY;
+	float scaleX = NAN, scaleY = NAN;
 	SDL_Rect viewport;
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 	SDL_RenderGetViewport(renderer, &viewport);
@@ -339,8 +339,8 @@ void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 	sme.x = CCS->curh->position().x;
 	sme.y = CCS->curh->position().y;
 
-	float xScale, yScale;
-	int w, h, rLogicalWidth, rLogicalHeight;
+	float xScale = NAN, yScale = NAN;
+	int w = 0, h = 0, rLogicalWidth = 0, rLogicalHeight = 0;
 
 	SDL_GetWindowSize(mainWindow, &w, &h);
 	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
@@ -690,17 +690,16 @@ CGuiHandler::CGuiHandler()
 	, lastClickTime(0)
 	, defActionsDef(0)
 	, captureChildren(false)
+	, terminate_cond(new CondSh<bool>(false))
 	, multifinger(false)
 	, mouseButtonsMask(0)
 	, continueEventHandling(true)
 	, curInt(nullptr)
+	, mainFPSmng(new CFramerateManager(60))
 	, statusbar(nullptr)
 {
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
-	mainFPSmng = new CFramerateManager(60);
 	//do not init CFramerateManager here --AVS
-
-	terminate_cond = new CondSh<bool>(false);
 }
 
 CGuiHandler::~CGuiHandler()
@@ -753,7 +752,7 @@ bool CGuiHandler::isMouseButtonPressed(MouseButton button) const
 	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
 	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
 
-	uint32_t index = static_cast<uint32_t>(button);
+	auto index = static_cast<uint32_t>(button);
 	return mouseButtonsMask & SDL_BUTTON(index);
 }
 
@@ -848,15 +847,14 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-CFramerateManager::CFramerateManager(int rate)
+CFramerateManager::CFramerateManager(int rate) 
+	: rateticks(1000.0 / rate),
+	  fps(0),
+	  accumulatedFrames(0),
+	  accumulatedTime(0),
+	  lastticks(0),
+	  timeElapsed(0)
 {
-	this->rate = rate;
-	this->rateticks = (1000.0 / rate);
-	this->fps = 0;
-	this->accumulatedFrames = 0;
-	this->accumulatedTime = 0;
-	this->lastticks = 0;
-	this->timeElapsed = 0;
 }
 
 void CFramerateManager::init()

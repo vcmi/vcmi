@@ -120,8 +120,8 @@ class CursorHandler final
 	bool showing;
 
 	/// Current cursor
-	Cursor::Type type;
-	size_t frame;
+	Cursor::Type type{Cursor::Type::DEFAULT};
+	size_t frame{0};
 	float frameTime;
 	Point pos;
 

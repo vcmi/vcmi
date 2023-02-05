@@ -51,7 +51,6 @@ class CFramerateManager
 private:
 	double rateticks;
 	ui32 lastticks, timeElapsed;
-	int rate;
 	ui32 accumulatedTime,accumulatedFrames;
 public:
 	int fps; // the actual fps value
@@ -135,8 +134,8 @@ public:
 	Point lastClick;
 	unsigned lastClickTime;
 	bool multifinger;
-	bool isPointerRelativeMode;
-	float pointerSpeedMultiplier;
+	bool isPointerRelativeMode{false};
+	float pointerSpeedMultiplier{0.0};
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list

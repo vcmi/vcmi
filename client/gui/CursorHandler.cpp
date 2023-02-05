@@ -46,7 +46,6 @@ CursorHandler::CursorHandler()
 	, pos(0,0)
 {
 
-	type = Cursor::Type::DEFAULT;
 	dndObject = nullptr;
 
 	cursors =
