@@ -60,12 +60,11 @@ SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 }
 
 SDLImage::SDLImage(SDL_Surface * from, bool extraRef)
-	: surf(nullptr),
+	: surf(from),
 	margins(0, 0),
 	fullSize(0, 0),
 	originalPalette(nullptr)
 {
-	surf = from;
 	if (surf == nullptr)
 		return;
 
@@ -168,7 +167,7 @@ void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) cons
 	if(dest)
 		destShift += dest->topLeft();
 
-	uint8_t perSurfaceAlpha;
+	uint8_t perSurfaceAlpha = 0;
 	if (SDL_GetSurfaceAlphaMod(surf, &perSurfaceAlpha) != 0)
 		logGlobal->error("SDL_GetSurfaceAlphaMod faied! %s", SDL_GetError());
 
@@ -196,7 +195,7 @@ std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	SDLImage * ret = new SDLImage(scaled, false);
+	auto * ret = new SDLImage(scaled, false);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
