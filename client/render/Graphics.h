@@ -65,10 +65,10 @@ public:
 	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
 
 	//various graphics
-	SDL_Color * playerColors; //array [8]
-	SDL_Color * neutralColor;
-	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
-	SDL_Color * neutralColorPalette;
+	SDL_Color * playerColors{}; //array [8]
+	SDL_Color * neutralColor{};
+	SDL_Color * playerColorPalette{}; //palette to make interface colors good - array of size [256]
+	SDL_Color * neutralColorPalette{};
 
 	std::shared_ptr<CAnimation> heroMoveArrows;
 

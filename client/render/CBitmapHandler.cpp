@@ -40,7 +40,7 @@ enum Epcxformat
 
 SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 {
-	SDL_Surface * ret;
+	SDL_Surface * ret = nullptr;
 
 	Epcxformat format;
 	int it=0;
