@@ -124,7 +124,7 @@ void BattleActionsController::enterCreatureCastingMode()
 
 std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack) const
 {
-	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
+	BattleClientInterfaceData data{}; //hard to get rid of these things so for now they're required data to pass
 
 	if (getStackSpellToCast())
 		data.creatureSpellToCast = getStackSpellToCast()->getId();

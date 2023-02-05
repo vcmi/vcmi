@@ -47,7 +47,7 @@ class BattleFieldController : public CIntObject
 	std::vector<BattleHex> occupyableHexes;
 
 	/// hexes that when in front of a unit cause it's amount box to move back
-	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
+	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes{};
 
 	void showHighlightedHex(Canvas & to, BattleHex hex, bool darkBorder);
 

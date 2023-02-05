@@ -353,7 +353,7 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 	SDL_Color shadowTest = shifter.shiftColor(genShadow(128));
 	shadowAlpha = shadowTest.a;
 
-	size_t frame = static_cast<size_t>(floor(currentFrame));
+	auto frame = static_cast<size_t>(floor(currentFrame));
 
 	std::shared_ptr<IImage> image;
 
