@@ -159,7 +159,7 @@ static void publishMap(lua_State * L, const T & map)
 	for(auto & p : map)
 	{
 		const std::string & name = p.first;
-		int32_t id = static_cast<int32_t>(p.second);
+		auto id = static_cast<int32_t>(p.second);
 
 		lua_pushstring(L, name.c_str());
 		lua_pushinteger(L, id);
