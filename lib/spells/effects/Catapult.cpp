@@ -32,17 +32,9 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Catapult, EFFECT_NAME);
 
-Catapult::Catapult()
-	: LocationEffect(),
-	targetsToAttack(0)
-{
-}
-
-Catapult::~Catapult() = default;
-
 bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 {
-	auto town = m->battle()->battleGetDefendedTown();
+	const auto *town = m->battle()->battleGetDefendedTown();
 
 	if(nullptr == town)
 	{
@@ -113,7 +105,7 @@ void Catapult::apply(ServerCallback * server, const Mechanics * m, const EffectT
 
 		if (attackInfo == ca.attackedParts.end()) // new part
 		{
-			CatapultAttack::AttackInfo newInfo;
+			CatapultAttack::AttackInfo newInfo{};
 			newInfo.damageDealt = 1;
 			newInfo.attackedPart = target;
 			newInfo.destinationTile = m->battle()->wallPartToBattleHex(target);

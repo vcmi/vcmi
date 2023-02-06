@@ -23,9 +23,6 @@ namespace effects
 class Summon : public Effect
 {
 public:
-	Summon();
-	virtual ~Summon();
-
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
@@ -43,10 +40,10 @@ protected:
 private:
 	CreatureID creature;
 
-	bool permanent;
-	bool exclusive;
-	bool summonByHealth;
-	bool summonSameUnit;
+	bool permanent = false;
+	bool exclusive = true;
+	bool summonByHealth = false;
+	bool summonSameUnit = false;
 };
 
 }

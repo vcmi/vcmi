@@ -31,15 +31,6 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Damage, EFFECT_NAME);
 
-Damage::Damage()
-	: UnitEffect(),
-	killByPercentage(false),
-	killByCount(false)
-{
-}
-
-Damage::~Damage() = default;
-
 void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	StacksInjured stacksInjured;
@@ -52,7 +43,7 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	uint32_t killed = 0;
 	bool multiple = false;
 
-	for(auto & t : target)
+	for(const auto & t : target)
 	{
 		const battle::Unit * unit = t.unitValue;
 		if(unit && unit->alive())

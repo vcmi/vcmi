@@ -43,13 +43,12 @@ using TargetType = spells::AimType;
 class DLL_LINKAGE Effect
 {
 public:
-	bool indirect;
-	bool optional;
+	bool indirect = false;
+	bool optional = false;
 
 	std::string name;
 
-	Effect();
-	virtual ~Effect();
+	virtual ~Effect() = default; //Required for child classes
 
 	// TODO: document me
 	virtual void adjustTargetTypes(std::vector<TargetType> & types) const = 0;

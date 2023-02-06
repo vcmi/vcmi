@@ -33,7 +33,7 @@ public:
 	Effects();
 	virtual ~Effects();
 
-	void add(const std::string & name, std::shared_ptr<Effect> effect, const int level);
+	void add(const std::string & name, const std::shared_ptr<Effect>& effect, const int level);
 
 	bool applicable(Problem & problem, const Mechanics * m) const;
 	bool applicable(Problem & problem, const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const;

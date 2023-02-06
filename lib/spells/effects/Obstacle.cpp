@@ -30,27 +30,9 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Obstacle, EFFECT_NAME);
 
-ObstacleSideOptions::ObstacleSideOptions()
-	: shape(),
-	range()
-{
-}
+using RelativeShape = std::vector<std::vector<BattleHex::EDir>>;
 
-void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
-{
-	serializeRelativeShape(handler, "shape", shape);
-	serializeRelativeShape(handler, "range", range);
-
-	handler.serializeString("appearSound", appearSound);
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("triggerSound", triggerSound);
-	handler.serializeString("triggerAnimation", triggerAnimation);
-	handler.serializeString("animation", animation);
-
-	handler.serializeInt("offsetY", offsetY);
-}
-
-void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value)
+static void serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value)
 {
 	static const std::vector<std::string> EDirMap =
 	{
@@ -102,19 +84,19 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 	}
 }
 
-Obstacle::Obstacle()
-	: LocationEffect(),
-	hidden(false),
-	passable(false),
-	trigger(false),
-	trap(false),
-	removeOnTrigger(false),
-	patchCount(1),
-	turnsRemaining(-1)
+void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 {
-}
+	serializeRelativeShape(handler, "shape", shape);
+	serializeRelativeShape(handler, "range", range);
 
-Obstacle::~Obstacle() = default;
+	handler.serializeString("appearSound", appearSound);
+	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
+	handler.serializeString("animation", animation);
+
+	handler.serializeInt("offsetY", offsetY);
+}
 
 void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
@@ -124,7 +106,7 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 	for(auto & destination : effectTarget)
 	{
-		for(auto & trasformation : options.shape)
+		for(const auto & trasformation : options.shape)
 		{
 			BattleHex hex = destination.hexValue;
 
@@ -154,7 +136,7 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 
 		for(const auto & destination : target)
 		{
-			for(auto & trasformation : options.shape)
+			for(const auto & trasformation : options.shape)
 			{
 				BattleHex hex = destination.hexValue;
 				for(auto direction : trasformation)
@@ -177,9 +159,9 @@ EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPo
 
 	if(!m->isMassive())
 	{
-		for(auto & spellDestination : spellTarget)
+		for(const auto & spellDestination : spellTarget)
 		{
-			for(auto & rangeShape : options.range)
+			for(const auto & rangeShape : options.range)
 			{
 				BattleHex hex = spellDestination.hexValue;
 
@@ -330,7 +312,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.customSize.clear();
 		obstacle.customSize.reserve(options.shape.size());
 
-		for(auto & shape : options.shape)
+		for(const auto & shape : options.shape)
 		{
 			BattleHex hex = destination.hexValue;
 
