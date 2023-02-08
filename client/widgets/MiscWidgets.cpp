@@ -187,9 +187,9 @@ std::string CMinorResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% CGI->generaltexth->allTexts[62] % LOCPLINT->cb->getDate(Date::MONTH)
-		% CGI->generaltexth->allTexts[63] % LOCPLINT->cb->getDate(Date::WEEK)
-		% CGI->generaltexth->allTexts[64] % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+		% CGI->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
+		% CGI->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
+		% CGI->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }

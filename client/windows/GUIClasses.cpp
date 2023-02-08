@@ -1157,7 +1157,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			int skill = hero->secSkills[g].first,
 				level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = Rect(Point(pos.x + 32 + g*36 + b*454 , pos.y + (qeLayout ? 83 : 88)), Point(32, 32) );
+			secSkillAreas[b][g]->pos = Rect(Point(pos.x + 32 + g * 36 + b * 454 , pos.y + (qeLayout ? 83 : 88)), Point(32, 32) );
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -1172,12 +1172,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
-		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
+		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
-		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
+		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
@@ -1185,7 +1185,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
-		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
+		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());

@@ -77,9 +77,9 @@ std::string CResDataBar::buildDateString()
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
 	auto formatted = boost::format(pattern)
-		% CGI->generaltexth->allTexts[62] % LOCPLINT->cb->getDate(Date::MONTH)
-		% CGI->generaltexth->allTexts[63] % LOCPLINT->cb->getDate(Date::WEEK)
-		% CGI->generaltexth->allTexts[64] % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+		% CGI->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
+		% CGI->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
+		% CGI->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
 
 	return boost::str(formatted);
 }
@@ -91,9 +91,9 @@ void CResDataBar::draw(SDL_Surface * to)
 	{
 		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
 
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, Point(txtpos[i].first,txtpos[i].second));
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, Point(txtpos[i].first, txtpos[i].second));
 	}
-	graphics->fonts[FONT_SMALL]->renderTextLeft(to, buildDateString(), Colors::WHITE, Point(txtpos[7].first,txtpos[7].second));
+	graphics->fonts[FONT_SMALL]->renderTextLeft(to, buildDateString(), Colors::WHITE, Point(txtpos[7].first, txtpos[7].second));
 }
 
 void CResDataBar::show(SDL_Surface * to)

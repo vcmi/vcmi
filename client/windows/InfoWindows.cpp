@@ -245,8 +245,8 @@ CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 
 	if(bitmap)
 	{
-		pos.x = GH.screenDimensions().x/2 - bitmap->w/2;
-		pos.y = GH.screenDimensions().y/2 - bitmap->h/2;
+		pos.x = GH.screenDimensions().x / 2 - bitmap->w / 2;
+		pos.y = GH.screenDimensions().y / 2 - bitmap->h / 2;
 		pos.h = bitmap->h;
 		pos.w = bitmap->w;
 	}

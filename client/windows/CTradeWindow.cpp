@@ -504,13 +504,13 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 		const std::vector<Rect> tmp =
 		{
-			Rect(Point(x + 0*dx, y + 0*dx), Point(h, w) ),
-			Rect(Point(x + 1*dx, y + 0*dx), Point(h, w) ),
-			Rect(Point(x + 2*dx, y + 0*dx), Point(h, w) ),
-			Rect(Point(x + 0*dx, y + 1*dy), Point(h, w) ),
-			Rect(Point(x + 1*dx, y + 1*dy), Point(h, w) ),
-			Rect(Point(x + 2*dx, y + 1*dy), Point(h, w) ),
-			Rect(Point(x + 1*dx, y + 2*dy), Point(h, w) )
+			Rect(Point(x + 0 * dx, y + 0 * dx), Point(h, w) ),
+			Rect(Point(x + 1 * dx, y + 0 * dx), Point(h, w) ),
+			Rect(Point(x + 2 * dx, y + 0 * dx), Point(h, w) ),
+			Rect(Point(x + 0 * dx, y + 1 * dy), Point(h, w) ),
+			Rect(Point(x + 1 * dx, y + 1 * dy), Point(h, w) ),
+			Rect(Point(x + 2 * dx, y + 1 * dy), Point(h, w) ),
+			Rect(Point(x + 1 * dx, y + 2 * dy), Point(h, w) )
 		};
 
 		vstd::concatenate(poss, tmp);

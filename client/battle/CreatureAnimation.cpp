@@ -312,7 +312,7 @@ void CreatureAnimation::playOnce( ECreatureAnimType type )
 
 inline int getBorderStrength(float time)
 {
-	float borderStrength = fabs(vstd::round(time) - time) * 2; // generate value in range 0-1
+	float borderStrength = fabs(std::round(time) - time) * 2; // generate value in range 0-1
 
 	return static_cast<int>(borderStrength * 155 + 100); // scale to 0-255
 }

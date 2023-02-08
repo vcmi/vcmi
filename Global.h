@@ -726,17 +726,18 @@ namespace vstd
 	}
 
 	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
-	template<typename IntType>
-	std::string formatMetric(IntType number, int maxLength)
+	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
+	template<typename Arithmetic>
+	std::string formatMetric(Arithmetic number, int maxDigits)
 	{
-		IntType max = pow(10, maxLength);
+		Arithmetic max = std::pow(10, maxDigits);
 		if (std::abs(number) < max)
-			return boost::lexical_cast<std::string>(number);
+			return std::to_string(number);
 
 		std::string symbols = " kMGTPE";
 		auto iter = symbols.begin();
 
-		while (number >= max)
+		while (std::abs(number) >= max)
 		{
 			number /= 1000;
 			iter++;
@@ -745,8 +746,6 @@ namespace vstd
 		}
 		return std::to_string(number) + *iter;
 	}
-
-	using boost::math::round;
 }
 using vstd::operator-=;
 
