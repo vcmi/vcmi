@@ -345,6 +345,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 		
 	auto anim = std::make_shared<CAnimation>(iconName);
 	w->setImage(anim, false);
+	w->redraw();
 }
 
 void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
