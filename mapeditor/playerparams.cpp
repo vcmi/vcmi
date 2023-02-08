@@ -15,12 +15,12 @@
 
 PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) :
 	QWidget(parent),
+	playerColor(playerId), 
 	ui(new Ui::PlayerParams),
 	controller(ctrl)
 {
 	ui->setupUi(this);
 
-	playerColor = playerId;
 	assert(controller.map()->players.size() > playerColor);
 	playerInfo = controller.map()->players[playerColor];
 	

@@ -62,7 +62,7 @@ class CustomMechanicsFactory : public ISpellMechanicsFactory
 public:
 	std::unique_ptr<Mechanics> create(const IBattleCast * event) const override
 	{
-		BattleSpellMechanics * ret = new BattleSpellMechanics(event, effects, targetCondition);
+		auto * ret = new BattleSpellMechanics(event, effects, targetCondition);
 		return std::unique_ptr<Mechanics>(ret);
 	}
 protected:
@@ -141,6 +141,7 @@ public:
 BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_)
 	: spell(spell_),
 	cb(cb_),
+	gameCb(IObjectInterface::cb),
 	caster(caster_),
 	mode(mode_),
 	magicSkillLevel(),
@@ -150,7 +151,7 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 	smart(boost::logic::indeterminate),
 	massive(boost::logic::indeterminate)
 {
-	gameCb = IObjectInterface::cb; //FIXME: pass player callback (problem is that BattleAI do not have one)
+	//FIXME: pass player callback (problem is that BattleAI do not have one)
 }
 
 BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
@@ -167,8 +168,6 @@ BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
 	massive(false)
 {
 }
-
-BattleCast::~BattleCast() = default;
 
 const CSpell * BattleCast::getSpell() const
 {
@@ -342,7 +341,7 @@ std::vector<Target> BattleCast::findPotentialTargets() const
 
 	if(targetTypes.empty() || targetTypes.size() > 2)
 	{
-		return std::vector<Target>();
+		return {};
 	}
 	else
 	{
@@ -397,11 +396,6 @@ ISpellMechanicsFactory::ISpellMechanicsFactory(const CSpell * s)
 
 }
 
-ISpellMechanicsFactory::~ISpellMechanicsFactory()
-{
-
-}
-
 std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell * s)
 {
 	if(s->hasBattleEffects())
@@ -418,17 +412,15 @@ Mechanics::Mechanics()
 
 }
 
-Mechanics::~Mechanics() = default;
-
 BaseMechanics::BaseMechanics(const IBattleCast * event)
 	: Mechanics(),
 	owner(event->getSpell()),
 	mode(event->getMode()),
 	smart(event->isSmart()),
-	massive(event->isMassive())
+	massive(event->isMassive()), 
+	cb(event->getBattle()),
+	gameCb(event->getGame())
 {
-	cb = event->getBattle();
-	gameCb = event->getGame();
 
 	caster = event->getCaster();
 
@@ -484,8 +476,6 @@ BaseMechanics::BaseMechanics(const IBattleCast * event)
 		vstd::amax(effectValue, 0);
 	}
 }
-
-BaseMechanics::~BaseMechanics() = default;
 
 bool BaseMechanics::adaptGenericProblem(Problem & target) const
 {

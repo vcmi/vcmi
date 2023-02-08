@@ -94,7 +94,7 @@ public:
 	// For starting non-custom campaign and continue to next mission
 	std::shared_ptr<CCampaignState> campaignStateToSend;
 
-	ui8 screenType; // To create lobby UI only after server is setup
+	ui8 screenType{}; // To create lobby UI only after server is setup
 	ui8 loadMode; // For saves filtering in SelectionTab
 	////////////////////
 

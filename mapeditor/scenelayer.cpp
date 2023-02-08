@@ -63,7 +63,7 @@ void GridLayer::update()
 	if(!map)
 		return;
 	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
 	pixmap->fill(Qt::transparent);
 	QPainter painter(pixmap.get());
 	painter.setPen(QColor(0, 0, 0, 190));
@@ -89,7 +89,7 @@ void PassabilityLayer::update()
 	if(!map)
 		return;
 	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
 	pixmap->fill(Qt::transparent);
 	
 	if(scene->level == 0 || map->twoLevel)
@@ -125,7 +125,7 @@ void SelectionTerrainLayer::update()
 	areaErase.clear();
 	onSelection();
 	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
 	pixmap->fill(Qt::transparent);
 	
 	redraw();
@@ -209,7 +209,7 @@ void TerrainLayer::update()
 	if(!map)
 		return;
 	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
 	draw(false);
 }
 
@@ -282,7 +282,7 @@ void ObjectsLayer::update()
 	if(!map)
 		return;
 	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
 	pixmap->fill(Qt::transparent);
 	draw(false);
 }
@@ -364,7 +364,7 @@ void SelectionObjectsLayer::update()
 	delete newObject;
 	newObject = nullptr;
 	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
 	//pixmap->fill(QColor(0, 0, 0, 0));
 	
 	draw();
@@ -528,7 +528,7 @@ void MinimapLayer::update()
 	if(!map)
 		return;
 	
-	pixmap.reset(new QPixmap(map->width, map->height));
+	pixmap = std::make_unique<QPixmap>(map->width, map->height);
 	
 	QPainter painter(pixmap.get());
 	//coordinate transfomation
@@ -552,7 +552,7 @@ void MinimapViewLayer::update()
 	if(!map)
 		return;
 	
-	pixmap.reset(new QPixmap(map->width, map->height));
+	pixmap = std::make_unique<QPixmap>(map->width, map->height);
 	
 	draw();
 }

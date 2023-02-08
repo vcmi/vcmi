@@ -30,8 +30,8 @@ class Mechanics;
 class DLL_LINKAGE TargetConditionItem : public IReceptiveCheck
 {
 public:
-	TargetConditionItem();
-	virtual ~TargetConditionItem();
+	TargetConditionItem() = default;
+	virtual ~TargetConditionItem() = default;
 
 	virtual void setInverted(bool value) = 0;
 	virtual void setExclusive(bool value) = 0;
@@ -70,8 +70,8 @@ public:
 	ItemVector absolute;
 	ItemVector negation;
 
-	TargetCondition();
-	virtual ~TargetCondition();
+	TargetCondition() = default;
+	virtual ~TargetCondition() = default;
 
 	bool isReceptive(const Mechanics * m, const battle::Unit * target) const override;
 

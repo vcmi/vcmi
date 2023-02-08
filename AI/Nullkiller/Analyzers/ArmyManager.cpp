@@ -25,11 +25,13 @@ public:
 	int count;
 	uint64_t upgradeValue;
 
-	StackUpgradeInfo(CreatureID initial, CreatureID upgraded, int count)
-		:initialCreature(initial), upgradedCreature(upgraded), count(count)
+	StackUpgradeInfo(CreatureID initial, CreatureID upgraded, int count) :
+		initialCreature(initial),
+		upgradedCreature(upgraded),
+		count(count),
+		upgradeValue((upgradedCreature.toCreature()->AIValue - initialCreature.toCreature()->AIValue) * count)
 	{
 		cost = (upgradedCreature.toCreature()->cost - initialCreature.toCreature()->cost) * count;
-		upgradeValue = (upgradedCreature.toCreature()->AIValue - initialCreature.toCreature()->AIValue) * count;
 	}
 };
 
@@ -350,7 +352,7 @@ std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) con
 
 	for(auto slot : army->Slots())
 	{
-		SlotInfo slotInfo;
+		SlotInfo slotInfo{};
 
 		slotInfo.creature = slot.second->getCreatureID().toCreature();
 		slotInfo.count = slot.second->count;
@@ -453,7 +455,7 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 	const TResources & availableResources) const
 {
 	if(!upgrader)
-		return ArmyUpgradeInfo();
+		return {};
 
 	std::vector<StackUpgradeInfo> upgrades = getPossibleUpgrades(army, upgrader);
 
@@ -463,7 +465,7 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 	});
 
 	if(upgrades.empty())
-		return ArmyUpgradeInfo();
+		return {};
 
 	std::sort(upgrades.begin(), upgrades.end(), [](const StackUpgradeInfo & u1, const StackUpgradeInfo & u2) -> bool
 	{
@@ -479,7 +481,7 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 	{
 		if(resourcesLeft.canAfford(upgrade.cost))
 		{
-			SlotInfo upgradedArmy;
+			SlotInfo upgradedArmy{};
 
 			upgradedArmy.creature = upgrade.upgradedCreature.toCreature();
 			upgradedArmy.count = upgrade.count;

@@ -44,7 +44,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 		if(entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
 			throw std::runtime_error("Invalid Json pointer");
 
-		size_t index = boost::lexical_cast<size_t>(entry);
+		auto index = boost::lexical_cast<size_t>(entry);
 
 		if (in.Vector().size() > index)
 			return in.Vector()[index].resolvePointer(remainer);
@@ -218,7 +218,7 @@ void JsonNode::setType(JsonType Type)
 	}
 	else if(type == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
 	{
-		double converted = static_cast<double>(data.Integer);
+		auto converted = static_cast<double>(data.Integer);
 		type = Type;
 		data.Float = converted;
 		return;
@@ -783,7 +783,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode &ability, Bu
 
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
-	const JsonNode *value;
+	const JsonNode *value = nullptr;
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
@@ -1176,7 +1176,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 
 JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 {
-	bool isValid;
+	bool isValid = false;
 	return assembleFromFiles(files, isValid);
 }
 
@@ -1187,7 +1187,7 @@ JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files, bool &isVa
 
 	for(std::string file : files)
 	{
-		bool isValidFile;
+		bool isValidFile = false;
 		JsonNode section(ResourceID(file, EResType::TEXT), isValidFile);
 		merge(result, section);
 		isValid |= isValidFile;

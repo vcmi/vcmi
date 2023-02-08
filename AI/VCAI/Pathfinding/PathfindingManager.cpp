@@ -23,7 +23,7 @@ PathfindingManager::PathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * 
 void PathfindingManager::init(CPlayerSpecificInfoCallback * CB)
 {
 	cb = CB;
-	pathfinder.reset(new AIPathfinder(cb, ai));
+	pathfinder = std::make_unique<AIPathfinder>(cb, ai);
 	pathfinder->init();
 }
 
@@ -81,7 +81,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(const HeroPtr & hero, ObjectId
 {
 	if(!obj)
 	{
-		return Goals::TGoalVec();
+		return {};
 	}
 
 	int3 dest = obj->visitablePos();
@@ -115,7 +115,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 {
 	Goals::TGoalVec result;
 	boost::optional<uint64_t> armyValueRequired;
-	uint64_t danger;
+	uint64_t danger = 0;
 
 	std::vector<AIPath> chainInfo = pathfinder->getPathInfo(hero, dest);
 

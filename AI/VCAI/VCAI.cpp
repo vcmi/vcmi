@@ -831,7 +831,7 @@ std::vector<HeroPtr> VCAI::getMyHeroes() const
 
 	for(auto h : cb->getHeroesInfo())
 	{
-		ret.push_back(h);
+		ret.emplace_back(h);
 	}
 
 	return ret;
@@ -1140,21 +1140,21 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				for(auto p : h->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(h, p.first));
+						allArtifacts.emplace_back(h, p.first);
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+				allArtifacts.emplace_back(h, h->getArtPos(slot.artifact));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(otherh, p.first));
+						allArtifacts.emplace_back(otherh, p.first);
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh, otherh->getArtPos(slot.artifact)));
+					allArtifacts.emplace_back(otherh, otherh->getArtPos(slot.artifact));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1415,7 +1415,7 @@ void VCAI::wander(HeroPtr h)
 			}
 			if(townsReachable.size()) //travel to town with largest garrison, or empty - better than nothing
 			{
-				dests.push_back(*boost::max_element(townsReachable, compareReinforcements));
+				dests.emplace_back(*boost::max_element(townsReachable, compareReinforcements));
 			}
 			else if(townsNotReachable.size())
 			{
@@ -2122,7 +2122,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				if(res == g.resID) //sell any other resource
 					continue;
 
-				int toGive, toGet;
+				int toGive = 0, toGet = 0;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
@@ -2241,7 +2241,7 @@ std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 		//&& !vstd::contains(lockedHeroes, h)
 		//at this point we assume heroes exhausted their locked goals
 		if(canAct(h))
-			ret.push_back(h);
+			ret.emplace_back(h);
 	}
 	return ret;
 }
@@ -2577,19 +2577,6 @@ void VCAI::validateObject(ObjectIdRef obj)
 	}
 }
 
-AIStatus::AIStatus()
-{
-	battle = NO_BATTLE;
-	havingTurn = false;
-	ongoingHeroMovement = false;
-	ongoingChannelProbing = false;
-}
-
-AIStatus::~AIStatus()
-{
-
-}
-
 void AIStatus::setBattle(BattleState BS)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
@@ -2804,7 +2791,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		if(obj->tempOwner != h->tempOwner)
 			return true; //flag just in case
 		bool canRecruitCreatures = false;
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		const auto * d = dynamic_cast<const CGDwelling *>(obj);
 		for(auto level : d->creatures)
 		{
 			for(auto c : level.second)

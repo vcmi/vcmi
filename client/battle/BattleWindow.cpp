@@ -71,11 +71,11 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	GH.statusbar = console;
 	owner.console = console;
 
-	owner.fieldController.reset( new BattleFieldController(owner));
+	owner.fieldController = std::make_unique<BattleFieldController>( owner);
 	owner.fieldController->createHeroes();
 
 	//create stack queue and adjust our own position
-	bool embedQueue;
+	bool embedQueue = false;
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")

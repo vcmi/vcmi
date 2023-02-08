@@ -40,14 +40,13 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
+CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner) :
+	onLeft(funcL), owner(_owner)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos = myRect;
-	onLeft = funcL;
 	hoverText = CGI->generaltexth->zelp[helpTextId].first;
 	helpText = CGI->generaltexth->zelp[helpTextId].second;
-	owner = _owner;
 }
 
 void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
@@ -244,9 +243,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	addUsedEvents(KEYBOARD);
 }
 
-CSpellWindow::~CSpellWindow()
-{
-}
+CSpellWindow::~CSpellWindow() = default;
 
 void CSpellWindow::fexitb()
 {
@@ -491,14 +488,13 @@ int CSpellWindow::pagesWithinCurrentTab()
 	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
 
-CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
+CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner) :
+	owner(owner),
+	schoolLevel(-1),
+	mySpell(nullptr)
 {
 	this->pos = pos;
-	this->owner = owner;
 	addUsedEvents(LCLICK | RCLICK | HOVER);
-
-	schoolLevel = -1;
-	mySpell = nullptr;
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

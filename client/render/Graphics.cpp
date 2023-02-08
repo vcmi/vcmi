@@ -388,13 +388,13 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(std::shared_ptr<const ObjectT
 	//the only(?) invisible object
 	if(info->id == Obj::EVENT)
 	{
-		return std::shared_ptr<CAnimation>();
+		return {};
 	}
 
 	if(info->animationFile.empty())
 	{
 		logGlobal->warn("Def name for obj (%d,%d) is empty!", info->id, info->subid);
-		return std::shared_ptr<CAnimation>();
+		return {};
 	}
 
 	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info->animationFile];

@@ -47,9 +47,8 @@ CArmedInstance::CArmedInstance()
 }
 
 CArmedInstance::CArmedInstance(bool isHypotetic)
-	:CBonusSystemNode(isHypotetic), nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
+	:CBonusSystemNode(isHypotetic), nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector), battle(nullptr)
 {
-	battle = nullptr;
 }
 
 void CArmedInstance::updateMoraleBonusFromArmy()

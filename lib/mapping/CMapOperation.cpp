@@ -31,7 +31,7 @@ std::string CMapOperation::getLabel() const
 
 MapRect CMapOperation::extendTileAround(const int3& centerPos) const
 {
-	return MapRect(int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3);
+	return {int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3};
 }
 
 MapRect CMapOperation::extendTileAroundSafely(const int3& centerPos) const
@@ -324,7 +324,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			return valRslt;
 		}
 	}
-	return ValidationResult(false);
+	return {false};
 }
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainViewInner(const int3& pos, const TerrainViewPattern& pattern, int recDepth) const
@@ -420,7 +420,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			};
 
 			// Validate cell with the ruleset of the pattern
-			bool nativeTestOk, nativeTestStrongOk;
+			bool nativeTestOk = false, nativeTestStrongOk = false;
 			nativeTestOk = nativeTestStrongOk = (rule.isNativeStrong() || rule.isNativeRule()) && !isAlien;
 
 			if(centerTerType->getId() == ETerrainId::DIRT)
@@ -466,7 +466,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 		if(topPoints == -1)
 		{
-			return ValidationResult(false);
+			return {false};
 		}
 		else
 		{
@@ -476,11 +476,11 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 	if(totalPoints >= pattern.minPoints && totalPoints <= pattern.maxPoints)
 	{
-		return ValidationResult(true, transitionReplacement);
+		return {true, transitionReplacement};
 	}
 	else
 	{
-		return ValidationResult(false);
+		return {false};
 	}
 }
 

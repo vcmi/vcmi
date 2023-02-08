@@ -30,15 +30,9 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-CBank::CBank()
-{
-	daycounter = 0;
-	resetDuration = 0;
-}
+CBank::CBank() = default;
 
-CBank::~CBank()
-{
-}
+CBank::~CBank() = default;
 
 void CBank::initObj(CRandomGenerator & rand)
 {
@@ -55,7 +49,7 @@ std::string CBank::getHoverText(PlayerColor player) const
 
 void CBank::setConfig(const BankConfig & config)
 {
-	bc.reset(new BankConfig(config));
+	bc = std::make_unique<BankConfig>(config);
 	clear(); // remove all stacks, if any
 
 	for (auto & stack : config.guards)
@@ -194,7 +188,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
-			iw.components.push_back(Component(Component::MORALE, 0, -1, 0));
+			iw.components.emplace_back(Component::MORALE, 0, -1, 0);
 			iw.soundID = soundBase::GRAVEYARD;
 			break;
 		}
@@ -205,7 +199,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gb.id = hero->id.getNum();
 			cb->giveHeroBonus(&gb);
 			textID = 107;
-			iw.components.push_back(Component(Component::LUCK, 0, -2, 0));
+			iw.components.emplace_back(Component::LUCK, 0, -2, 0);
 			break;
 		}
 		case Obj::CREATURE_BANK:
@@ -229,7 +223,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 			if (bc->resources[it] != 0)
 			{
-				iw.components.push_back(Component(Component::RESOURCE, it, bc->resources[it], 0));
+				iw.components.emplace_back(Component::RESOURCE, it, bc->resources[it], 0);
 				loot << "%d %s";
 				loot.addReplacement(iw.components.back().val);
 				loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
@@ -239,7 +233,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		//grant artifacts
 		for (auto & elem : bc->artifacts)
 		{
-			iw.components.push_back(Component(Component::ARTIFACT, elem, 0, 0));
+			iw.components.emplace_back(Component::ARTIFACT, elem, 0, 0);
 			loot << "%s";
 			loot.addReplacement(MetaString::ART_NAMES, elem);
 			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
@@ -283,7 +277,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					if(hero->canLearnSpell(spell))
 					{
 						spells.insert(spellId);
-						iw.components.push_back(Component(Component::SPELL, spellId, 0, 0));
+						iw.components.emplace_back(Component::SPELL, spellId, 0, 0);
 					}
 				}
 				else
@@ -314,7 +308,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 		for (auto & elem : ourArmy.Slots())
 		{
-			iw.components.push_back(Component(*elem.second));
+			iw.components.emplace_back(*elem.second);
 			loot << "%s";
 			loot.addReplacement(*elem.second);
 		}

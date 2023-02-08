@@ -38,9 +38,7 @@ CMapLoaderH3M::CMapLoaderH3M(CInputStream * stream) : map(nullptr), reader(strea
 {
 }
 
-CMapLoaderH3M::~CMapLoaderH3M()
-{
-}
+CMapLoaderH3M::~CMapLoaderH3M() = default;
 
 std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
 {
@@ -94,38 +92,38 @@ void CMapLoaderH3M::init()
 	std::vector<MapLoadingTime> times;
 
 	readHeader();
-	times.push_back(MapLoadingTime("header", sw.getDiff()));
+	times.emplace_back("header", sw.getDiff());
 
 	map->allHeroes.resize(map->allowedHeroes.size());
 
 	readDisposedHeroes();
-	times.push_back(MapLoadingTime("disposed heroes", sw.getDiff()));
+	times.emplace_back("disposed heroes", sw.getDiff());
 
 	readAllowedArtifacts();
-	times.push_back(MapLoadingTime("allowed artifacts", sw.getDiff()));
+	times.emplace_back("allowed artifacts", sw.getDiff());
 
 	readAllowedSpellsAbilities();
-	times.push_back(MapLoadingTime("allowed spells and abilities", sw.getDiff()));
+	times.emplace_back("allowed spells and abilities", sw.getDiff());
 
 	readRumors();
-	times.push_back(MapLoadingTime("rumors", sw.getDiff()));
+	times.emplace_back("rumors", sw.getDiff());
 
 	readPredefinedHeroes();
-	times.push_back(MapLoadingTime("predefined heroes", sw.getDiff()));
+	times.emplace_back("predefined heroes", sw.getDiff());
 
 	readTerrain();
-	times.push_back(MapLoadingTime("terrain", sw.getDiff()));
+	times.emplace_back("terrain", sw.getDiff());
 
 	readDefInfo();
-	times.push_back(MapLoadingTime("def info", sw.getDiff()));
+	times.emplace_back("def info", sw.getDiff());
 
 	readObjects();
-	times.push_back(MapLoadingTime("objects", sw.getDiff()));
+	times.emplace_back("objects", sw.getDiff());
 
 	readEvents();
-	times.push_back(MapLoadingTime("events", sw.getDiff()));
+	times.emplace_back("events", sw.getDiff());
 
-	times.push_back(MapLoadingTime("blocked/visitable tiles", sw.getDiff()));
+	times.emplace_back("blocked/visitable tiles", sw.getDiff());
 
 	// Print profiling times
 	if(IS_PROFILING_ENABLED)
@@ -404,9 +402,9 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = readInt3();
 				cond.objectType = BuildingID::TOWN_HALL + reader.readUInt8();
-				oper.expressions.push_back(cond);
+				oper.expressions.emplace_back(cond);
 				cond.objectType = BuildingID::FORT + reader.readUInt8();
-				oper.expressions.push_back(cond);
+				oper.expressions.emplace_back(cond);
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[283];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[282];
@@ -462,8 +460,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		case EVictoryConditionType::TAKEDWELLINGS:
 			{
 				EventExpression::OperatorAll oper;
-				oper.expressions.push_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR1));
-				oper.expressions.push_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR4));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR1));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR4));
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[289];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[288];
@@ -501,7 +499,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			EventExpression::OperatorAll oper;
 			EventCondition notAI(EventCondition::IS_HUMAN);
 			notAI.value = 1;
-			oper.expressions.push_back(notAI);
+			oper.expressions.emplace_back(notAI);
 			oper.expressions.push_back(specialVictory.trigger.get());
 			specialVictory.trigger = EventExpression(oper);
 		}
@@ -543,7 +541,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = Obj::TOWN;
 				cond.position = readInt3();
 
-				noneOf.expressions.push_back(cond);
+				noneOf.expressions.emplace_back(cond);
 				specialDefeat.onFulfill = VLC->generaltexth->allTexts[251];
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
@@ -555,7 +553,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = Obj::HERO;
 				cond.position = readInt3();
 
-				noneOf.expressions.push_back(cond);
+				noneOf.expressions.emplace_back(cond);
 				specialDefeat.onFulfill = VLC->generaltexth->allTexts[253];
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
@@ -581,7 +579,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		EventCondition isHuman(EventCondition::IS_HUMAN);
 		isHuman.value = 1;
 
-		allOf.expressions.push_back(isHuman);
+		allOf.expressions.emplace_back(isHuman);
 		allOf.expressions.push_back(specialDefeat.trigger.get());
 		specialDefeat.trigger = EventExpression(allOf);
 
@@ -807,7 +805,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 						hero->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader.readUInt8());
 					}
 				}
-				map->predefinedHeroes.push_back(hero);
+				map->predefinedHeroes.emplace_back(hero);
 			}
 			break;
 		}
@@ -945,7 +943,7 @@ void CMapLoaderH3M::readTerrain()
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
 				tile.blocked = !tile.terType->isPassable();
-				tile.visitable = 0;
+				tile.visitable = false;
 
 				assert(tile.terType->getId() != ETerrainId::NONE);
 			}
@@ -1009,7 +1007,7 @@ void CMapLoaderH3M::readObjects()
 				int gabn = reader.readUInt8(); // Number of gained abilities
 				for(int oo = 0; oo < gabn; ++oo)
 				{
-					evnt->abilities.push_back(SecondarySkill(reader.readUInt8()));
+					evnt->abilities.emplace_back(reader.readUInt8());
 					evnt->abilityLevels.push_back(reader.readUInt8());
 				}
 
@@ -1018,18 +1016,18 @@ void CMapLoaderH3M::readObjects()
 				{
 					if(map->version == EMapFormat::ROE)
 					{
-						evnt->artifacts.push_back(ArtifactID(reader.readUInt8()));
+						evnt->artifacts.emplace_back(reader.readUInt8());
 					}
 					else
 					{
-						evnt->artifacts.push_back(ArtifactID(reader.readUInt16()));
+						evnt->artifacts.emplace_back(reader.readUInt16());
 					}
 				}
 
 				int gspel = reader.readUInt8(); // Number of gained spells
 				for(int oo = 0; oo < gspel; ++oo)
 				{
-					evnt->spells.push_back(SpellID(reader.readUInt8()));
+					evnt->spells.emplace_back(reader.readUInt8());
 				}
 
 				int gcre = reader.readUInt8(); //number of gained creatures
@@ -1084,7 +1082,7 @@ void CMapLoaderH3M::readObjects()
 					cre->message = reader.readString();
 					readResourses(cre->resources);
 
-					int artID;
+					int artID = 0;
 					if (map->version == EMapFormat::ROE)
 					{
 						artID = reader.readUInt8();
@@ -1313,7 +1311,7 @@ void CMapLoaderH3M::readObjects()
 				int gabn = reader.readUInt8();//number of gained abilities
 				for(int oo = 0; oo < gabn; ++oo)
 				{
-					box->abilities.push_back(SecondarySkill(reader.readUInt8()));
+					box->abilities.emplace_back(reader.readUInt8());
 					box->abilityLevels.push_back(reader.readUInt8());
 				}
 				int gart = reader.readUInt8(); //number of gained artifacts
@@ -1321,17 +1319,17 @@ void CMapLoaderH3M::readObjects()
 				{
 					if(map->version > EMapFormat::ROE)
 					{
-						box->artifacts.push_back(ArtifactID(reader.readUInt16()));
+						box->artifacts.emplace_back(reader.readUInt16());
 					}
 					else
 					{
-						box->artifacts.push_back(ArtifactID(reader.readUInt8()));
+						box->artifacts.emplace_back(reader.readUInt8());
 					}
 				}
 				int gspel = reader.readUInt8(); //number of gained spells
 				for(int oo = 0; oo < gspel; ++oo)
 				{
-					box->spells.push_back(SpellID(reader.readUInt8()));
+					box->spells.emplace_back(reader.readUInt8());
 				}
 				int gcre = reader.readUInt8(); //number of gained creatures
 				readCreatureSet(&box->creatures, gcre);
@@ -1522,7 +1520,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 	for(int ir = 0; ir < number; ++ir)
 	{
 		CreatureID creID;
-		int count;
+		int count = 0;
 
 		if (version)
 		{
@@ -1986,7 +1984,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 				{
 					if(c == (c | static_cast<ui8>(std::pow(2., yy)))) //add obligatory spell even if it's banned on a map (?)
 					{
-						nt->obligatorySpells.push_back(SpellID(i * 8 + yy));
+						nt->obligatorySpells.emplace_back(i * 8 + yy);
 					}
 				}
 			}
@@ -2003,7 +2001,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 			{
 				if(c != (c | static_cast<ui8>(std::pow(2., yy))) && map->allowedSpell[spellid]) //add random spell only if it's allowed on entire map
 				{
-					nt->possibleSpells.push_back(SpellID(spellid));
+					nt->possibleSpells.emplace_back(spellid);
 				}
 			}
 		}
@@ -2012,7 +2010,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	//TODO: allow customize new spells in towns
 	for (int i = SpellID::AFTER_LAST; i < VLC->spellh->objects.size(); ++i)
 	{
-		nt->possibleSpells.push_back(SpellID(i));
+		nt->possibleSpells.emplace_back(i);
 	}
 
 	// Read castle events

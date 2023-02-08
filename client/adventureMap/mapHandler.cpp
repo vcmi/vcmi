@@ -260,8 +260,8 @@ void CMapHandler::initObjectRects()
 	{
 		const CGObjectInstance *obj = elem;
 		if(	!obj
-			|| (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-			|| (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
+			|| (obj->ID==Obj::HERO && dynamic_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+			|| (obj->ID==Obj::BOAT && dynamic_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
 		{
 			continue;
 		}
@@ -333,7 +333,7 @@ void CMapHandler::init()
 
 	// Total number of visible tiles. Subtract the center tile, then
 	// compute the number of tiles on each side, and reassemble.
-	int t1, t2;
+	int t1 = 0, t2 = 0;
 	t1 = (mapW-32)/2;
 	t2 = mapW - 32 - t1;
 	tilesW = 1 + (t1+31)/32 + (t2+31)/32;
@@ -472,7 +472,7 @@ std::shared_ptr<IImage> CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, 
 	case Obj::RESOURCE:
 		return info->icons->getImage((int)EWorldViewIcon::RES_WOOD + subId + ownerIndex);
 	}
-	return std::shared_ptr<IImage>();
+	return {};
 }
 
 void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
@@ -751,7 +751,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 		if (!canDrawObject(obj))
 			continue;
 
-		uint8_t animationFrame;
+		uint8_t animationFrame = 0;
 		if(obj->ID == Obj::HERO) //non-generic animation frame pick for hero and boat
 			animationFrame = info->heroAnim;
 		else
@@ -956,7 +956,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 		if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 		{
 			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->getNameTranslated(), hero->pos.toString());
-			return CMapHandler::AnimBitmapHolder();
+			return {};
 		}
 
 		//pick graphics of hero (or boat if hero is sailing)
@@ -977,10 +977,10 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 			//get flag overlay only if we have main image
 			auto flagImage = findFlagBitmap(hero, anim, &hero->tempOwner, group);
 
-			return CMapHandler::AnimBitmapHolder(heroImage, flagImage, moving);
+			return {heroImage, flagImage, moving};
 		}
 	}
-	return CMapHandler::AnimBitmapHolder();
+	return {};
 }
 
 CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findBoatBitmap(const CGBoat * boat, int anim) const
@@ -988,15 +988,15 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findBoatBitmap(const CGB
 	auto animation = graphics->boatAnimations.at(boat->subID);
 	int group = getHeroFrameGroup(boat->direction, false);
 	if(animation->size(group) > 0)
-		return CMapHandler::AnimBitmapHolder(animation->getImage(anim % animation->size(group), group));
+		return {animation->getImage(anim % animation->size(group), group)};
 	else
-		return CMapHandler::AnimBitmapHolder();
+		return {};
 }
 
 std::shared_ptr<IImage> CMapHandler::CMapBlitter::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
 {
 	if(!hero)
-		return std::shared_ptr<IImage>();
+		return {};
 
 	if(hero->boat)
 		return findBoatFlagBitmap(hero->boat, anim, color, group, hero->moveDir);
@@ -1045,25 +1045,25 @@ std::shared_ptr<IImage> CMapHandler::CMapBlitter::findFlagBitmapInternal(std::sh
 CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const CGObjectInstance * obj, int anim) const
 {
 	if (!obj)
-		return CMapHandler::AnimBitmapHolder();
+		return {};
 	if (obj->ID == Obj::HERO)
-		return findHeroBitmap(static_cast<const CGHeroInstance*>(obj), anim);
+		return findHeroBitmap(dynamic_cast<const CGHeroInstance*>(obj), anim);
 	if (obj->ID == Obj::BOAT)
-		return findBoatBitmap(static_cast<const CGBoat*>(obj), anim);
+		return findBoatBitmap(dynamic_cast<const CGBoat*>(obj), anim);
 
 	// normal object
 	std::shared_ptr<CAnimation> animation = graphics->getAnimation(obj);
 	size_t groupSize = animation->size();
 	if(groupSize == 0)
-		return CMapHandler::AnimBitmapHolder();
+		return {};
 
 	auto bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);
 	if(!bitmap)
-		return CMapHandler::AnimBitmapHolder();
+		return {};
 
 	bitmap->setFlagColor(obj->tempOwner);
 
-	return CMapHandler::AnimBitmapHolder(bitmap);
+	return {bitmap};
 }
 
 ui8 CMapHandler::CMapBlitter::getPhaseShift(const CGObjectInstance *object) const
@@ -1144,7 +1144,7 @@ bool CMapHandler::updateObjectsFade()
 
 bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 {
-	SDL_Surface * fadeBitmap;
+	SDL_Surface * fadeBitmap = nullptr;
 	assert(obj.obj);
 
 	auto objData = normalBlitter->findObjectBitmap(obj.obj, 0);
@@ -1333,14 +1333,12 @@ CMapHandler::~CMapHandler()
 	}
 }
 
-CMapHandler::CMapHandler()
+CMapHandler::CMapHandler() 
+	: frameW(frameH = 0),
+	  normalBlitter(new CMapNormalBlitter(this)),
+	  worldViewBlitter(new CMapWorldViewBlitter(this)),
+	  puzzleViewBlitter(new CMapPuzzleViewBlitter(this))
 {
-	frameW = frameH = 0;
-	normalBlitter = new CMapNormalBlitter(this);
-	worldViewBlitter = new CMapWorldViewBlitter(this);
-	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);
-	fadeAnimCounter = 0;
-	map = nullptr;
 	tilesW = tilesH = 0;
 	offsetX = offsetY = 0;
 
@@ -1402,10 +1400,7 @@ void CMapHandler::discardWorldViewCache()
 	cache.discardWorldViewCache();
 }
 
-CMapHandler::CMapCache::CMapCache()
-{
-	worldViewCachedScale = 0;
-}
+CMapHandler::CMapCache::CMapCache() = default;
 
 void CMapHandler::CMapCache::discardWorldViewCache()
 {
@@ -1423,7 +1418,7 @@ void CMapHandler::CMapCache::updateWorldViewScale(float scale)
 
 std::shared_ptr<IImage> CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, std::shared_ptr<IImage> fullSurface)
 {
-	intptr_t key = (intptr_t) (fullSurface.get());
+	auto key = (intptr_t) (fullSurface.get());
 	auto & cache = data[(ui8)type];
 
 	auto iter = cache.find(key);
@@ -1480,6 +1475,4 @@ TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, Rect rect_, 
 	}
 }
 
-TerrainTileObject::~TerrainTileObject()
-{
-}
+TerrainTileObject::~TerrainTileObject() = default;

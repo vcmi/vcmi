@@ -23,7 +23,7 @@ class Clone : public UnitEffect
 {
 public:
 	Clone();
-	virtual ~Clone();
+	virtual ~Clone() = default;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 protected:

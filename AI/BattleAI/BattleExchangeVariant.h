@@ -16,11 +16,11 @@
 
 struct AttackerValue
 {
-	int64_t value;
-	bool isRetalitated;
+	int64_t value{0};
+	bool isRetalitated{false};
 	BattleHex position;
 
-	AttackerValue();
+	AttackerValue() = default;
 };
 
 struct MoveTarget

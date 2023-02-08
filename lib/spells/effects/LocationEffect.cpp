@@ -24,8 +24,6 @@ LocationEffect::LocationEffect()
 {
 }
 
-LocationEffect::~LocationEffect() = default;
-
 void LocationEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 {
 

@@ -54,29 +54,29 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	ui8 moveDir; //format:	123
+	ui8 moveDir{4}; //format:	123
 					//		8 4
 					//		765
-	mutable ui8 isStanding, tacticFormationEnabled;
+	mutable ui8 isStanding{true}, tacticFormationEnabled;
 
 	//////////////////////////////////////////////////////////////////////////
 
-	ConstTransitivePtr<CHero> type;
-	TExpType exp; //experience points
-	ui32 level; //current level of hero
+	ConstTransitivePtr<CHero> type{nullptr};
+	TExpType exp{0xffffffff}; //experience points
+	ui32 level{1}; //current level of hero
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
-	ui8 sex;
+	ui8 sex{0xff};
 
 	std::string nameCustom;
 	std::string biographyCustom;
 
 	bool inTownGarrison; // if hero is in town garrison
-	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
-	ConstTransitivePtr<CCommanderInstance> commander;
-	const CGBoat *boat; //set to CGBoat when sailing
+	ConstTransitivePtr<CGTownInstance> visitedTown{nullptr}; //set if hero is visiting town or in the town garrison
+	ConstTransitivePtr<CCommanderInstance> commander{nullptr};
+	const CGBoat *boat{nullptr}; //set to CGBoat when sailing
 
 	static const si32 UNINITIALIZED_PORTRAIT = -1;
 	static const si32 UNINITIALIZED_MANA = -1;
@@ -119,8 +119,8 @@ public:
 		//skills are determined, initialized at map start
 		//FIXME remove mutable
 		mutable CRandomGenerator rand;
-		ui8 magicSchoolCounter;
-		ui8 wisdomCounter;
+		ui8 magicSchoolCounter{1};
+		ui8 wisdomCounter{1};
 
 		SecondarySkillsInfo();
 

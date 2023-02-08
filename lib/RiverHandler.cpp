@@ -28,7 +28,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	RiverType * info = new RiverType;
+	auto * info = new RiverType;
 
 	info->id              = RiverId(index);
 	if (identifier.find(':') == std::string::npos)

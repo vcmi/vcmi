@@ -199,7 +199,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
-	worldViewUndergroundConfig.additionalDefs.push_back("IAM003.DEF");
+	worldViewUndergroundConfig.additionalDefs.emplace_back("IAM003.DEF");
 	worldViewUndergroundConfig.x = screen->w - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
@@ -1141,9 +1141,9 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	{
 		assert(!terrain.currentPath); //path can be active only when hero is selected
 		if(selection == topBlocking) //selected town clicked
-			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
+			LOCPLINT->openTownWindow(dynamic_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
-			select(static_cast<const CArmedInstance*>(topBlocking), false);
+			select(dynamic_cast<const CArmedInstance*>(topBlocking), false);
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
@@ -1157,7 +1157,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		}
 		else if(canSelect && pn->turns == 255 ) //selectable object at inaccessible tile
 		{
-			select(static_cast<const CArmedInstance*>(topBlocking), false);
+			select(dynamic_cast<const CArmedInstance*>(topBlocking), false);
 			return;
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
@@ -1416,7 +1416,7 @@ void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 const CGHeroInstance * CAdvMapInt::curHero() const
 {
 	if(selection && selection->ID == Obj::HERO)
-		return static_cast<const CGHeroInstance *>(selection);
+		return dynamic_cast<const CGHeroInstance *>(selection);
 	else
 		return nullptr;
 }
@@ -1424,7 +1424,7 @@ const CGHeroInstance * CAdvMapInt::curHero() const
 const CGTownInstance * CAdvMapInt::curTown() const
 {
 	if(selection && selection->ID == Obj::TOWN)
-		return static_cast<const CGTownInstance *>(selection);
+		return dynamic_cast<const CGTownInstance *>(selection);
 	else
 		return nullptr;
 }

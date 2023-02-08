@@ -69,9 +69,12 @@ CPicture::CPicture( const std::string &bmpname, const Point & position )
 }
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
-	: CPicture(image, Point(x,y))
+	: bg(image)
+	, visible(true)
+	, srcRect(SrcRect)
+	, needRefresh(false)
 {
-	srcRect = SrcRect;
+	pos +=  Point(x,y);
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
 }
@@ -200,9 +203,7 @@ void CAnimImage::init()
 		setSizeFromImage(*img);
 }
 
-CAnimImage::~CAnimImage()
-{
-}
+CAnimImage::~CAnimImage() = default;
 
 void CAnimImage::showAll(SDL_Surface * to)
 {
@@ -265,6 +266,7 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 fra
 	group(Group),
 	frame(0),
 	first(0),
+	last(0),
 	frameTimeTotal(frameTime),
 	frameTimePassed(0),
 	flags(Flags),

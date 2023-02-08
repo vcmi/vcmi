@@ -116,7 +116,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	}
 	else if(commandName == std::string("activate"))
 	{
-		int what;
+		int what = 0;
 		singleWordBuffer >> what;
 		switch (what)
 		{
@@ -273,7 +273,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	}
 	else if(commandName == "mp" && adventureInt)
 	{
-		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
+		if(const auto *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
 			printCommandMessage(std::to_string(h->movement) + "; max: " + std::to_string(h->maxMovePoints(true)) + "/" + std::to_string(h->maxMovePoints(false)) + "\n");
 	}
 	else if(commandName == "bonuses")
@@ -307,7 +307,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 		for(auto & child : GH.listInt)
 		{
 			const auto childPtr = child.get();
-			if(const CIntObject * obj = dynamic_cast<const CIntObject *>(childPtr))
+			if(const auto * obj = dynamic_cast<const CIntObject *>(childPtr))
 				printInfoAboutInterfaceObject(obj, 0);
 			else
 				printCommandMessage(std::string(typeid(childPtr).name()) + "\n");
@@ -316,7 +316,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	else if(commandName == "tell")
 	{
 		std::string what;
-		int id1, id2;
+		int id1 = 0, id2 = 0;
 		singleWordBuffer >> what >> id1 >> id2;
 		if(what == "hs")
 		{

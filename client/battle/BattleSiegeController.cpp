@@ -219,7 +219,7 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 	}
 
 	assert(0);
-	return Point(0,0);
+	return {0,0};
 }
 
 void BattleSiegeController::gateStateChanged(const EGateState state)

@@ -248,15 +248,15 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	{
 		if(!detailed && nullptr != selectedObject)
 		{
-			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
+			const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
 				detailed = selectedHero->hasVisions(town, 1);
 		}
 
-		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
+		dest.initFromTown(dynamic_cast<const CGTownInstance *>(town), detailed);
 	}
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
-		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
+		dest.initFromArmy(dynamic_cast<const CArmedInstance *>(town), detailed);
 	else
 		return false;
 	return true;
@@ -281,7 +281,7 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 
 bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject) const
 {
-	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
+	const auto *h = dynamic_cast<const CGHeroInstance *>(hero);
 
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
 
@@ -300,7 +300,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
 	{
-		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
+		const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
 			if(selectedHero->hasVisions(hero, 1))
 				infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
@@ -688,13 +688,10 @@ PlayerColor CGameInfoCallback::getCurrentPlayer() const
 	return gs->currentPlayer;
 }
 
-CGameInfoCallback::CGameInfoCallback()
-{
-}
+CGameInfoCallback::CGameInfoCallback() = default;
 
-CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player)
+CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player) : gs(GS)
 {
-	gs = GS;
 	player = Player;
 }
 

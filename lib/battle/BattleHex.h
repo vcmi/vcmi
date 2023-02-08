@@ -47,7 +47,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static const si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
 	static const si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
 
-	si16 hex;
+	si16 hex{};
 	static const si16 INVALID = -1;
 	enum EDir
 	{

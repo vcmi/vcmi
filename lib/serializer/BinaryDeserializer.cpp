@@ -24,9 +24,8 @@ CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion)
 	openNextFile(fname, minimalVersion);
 }
 
-CLoadFile::~CLoadFile()
-{
-}
+//Requires specification here due to requirement to know FileStream destructor
+CLoadFile::~CLoadFile() = default;
 
 int CLoadFile::read(void * data, unsigned size)
 {

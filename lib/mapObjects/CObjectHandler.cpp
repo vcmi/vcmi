@@ -72,11 +72,9 @@ void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 void IObjectInterface::newTurn(CRandomGenerator & rand) const
 {}
 
-IObjectInterface::~IObjectInterface()
-{}
+IObjectInterface::~IObjectInterface() = default;
 
-IObjectInterface::IObjectInterface()
-{}
+IObjectInterface::IObjectInterface() = default;
 
 void IObjectInterface::initObj(CRandomGenerator & rand)
 {}
@@ -130,9 +128,7 @@ CGObjectInstance::CGObjectInstance():
 	blockVisit(false)
 {
 }
-CGObjectInstance::~CGObjectInstance()
-{
-}
+CGObjectInstance::~CGObjectInstance() = default;
 
 int32_t CGObjectInstance::getObjGroupIndex() const
 {
@@ -527,11 +523,11 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 
 	if(obj->ID == Obj::TOWN)
 	{
-		return static_cast<CGTownInstance*>(obj);
+		return dynamic_cast<CGTownInstance*>(obj);
 	}
 	else if(obj->ID == Obj::SHIPYARD)
 	{
-		return static_cast<CGShipyard*>(obj);
+		return dynamic_cast<CGShipyard*>(obj);
 	}
 	else
 	{

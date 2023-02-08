@@ -12,9 +12,8 @@
 #include "../lib/GameConstants.h"
 
 SocketLobby::SocketLobby(QObject *parent) :
-	QObject(parent)
+	QObject(parent), socket(new QTcpSocket(this))
 {
-	socket = new QTcpSocket(this);
 	connect(socket, SIGNAL(connected()), this, SLOT(connected()));
 	connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));

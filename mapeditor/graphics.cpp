@@ -113,9 +113,7 @@ Graphics::Graphics()
 	//(!) do not load any CAnimation here
 }
 
-Graphics::~Graphics()
-{
-}
+Graphics::~Graphics() = default;
 
 void Graphics::load()
 {
@@ -267,7 +265,7 @@ std::shared_ptr<Animation> Graphics::getHeroAnimation(const std::shared_ptr<cons
 	if(info->animationFile.empty())
 	{
 		logGlobal->warn("Def name for hero (%d,%d) is empty!", info->id, info->subid);
-		return std::shared_ptr<Animation>();
+		return {};
 	}
 	
 	std::shared_ptr<Animation> ret = loadHeroAnimation(info->animationFile);
@@ -291,7 +289,7 @@ std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const Ob
 	if(info->animationFile.empty())
 	{
 		logGlobal->warn("Def name for obj (%d,%d) is empty!", info->id, info->subid);
-		return std::shared_ptr<Animation>();
+		return {};
 	}
 	
 	std::shared_ptr<Animation> ret = mapObjectAnimations[info->animationFile];

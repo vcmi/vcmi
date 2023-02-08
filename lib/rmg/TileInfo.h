@@ -36,7 +36,7 @@ public:
 	void setRoadType(RoadId type);
 private:
 	float nearestObjectDistance;
-	ETileType::ETileType occupied;
+	ETileType::ETileType occupied{ETileType::POSSIBLE}; //all tiles are initially possible to place objects or passages
 	TerrainId terrain;
 	RoadId roadType;
 };

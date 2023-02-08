@@ -196,9 +196,7 @@ CTotalsProxy::CTotalsProxy(const IBonusBearer * Target, CSelector Selector, int 
 	meleeCachedLast(0),
 	meleeValue(0),
 	rangedCachedLast(0),
-	rangedValue(0),
-	value(0),
-	valueCachedLast(0)
+	rangedValue(0)
 {
 }
 
@@ -212,19 +210,7 @@ CTotalsProxy::CTotalsProxy(const CTotalsProxy & other)
 {
 }
 
-CTotalsProxy & CTotalsProxy::operator=(const CTotalsProxy & other)
-{
-	CBonusProxy::operator=(other);
-	initialValue = other.initialValue;
-	meleeCachedLast = other.meleeCachedLast;
-	meleeValue = other.meleeValue;
-	rangedCachedLast = other.rangedCachedLast;
-	rangedValue = other.rangedValue;
-	value = other.value;
-	valueCachedLast = other.valueCachedLast;
-
-	return *this;
-}
+CTotalsProxy & CTotalsProxy::operator=(const CTotalsProxy & other) = default;
 
 int CTotalsProxy::getValue() const
 {
@@ -294,13 +280,7 @@ CCheckProxy::CCheckProxy(const IBonusBearer * Target, CSelector Selector)
 {
 }
 
-CCheckProxy::CCheckProxy(const CCheckProxy & other)
-	: target(other.target),
-	selector(other.selector),
-	cachedLast(other.cachedLast),
-	hasBonus(other.hasBonus)
-{
-}
+CCheckProxy::CCheckProxy(const CCheckProxy & other) = default;
 
 bool CCheckProxy::getHasBonus() const
 {
@@ -315,9 +295,7 @@ bool CCheckProxy::getHasBonus() const
 	return hasBonus;
 }
 
-CAddInfo::CAddInfo()
-{
-}
+CAddInfo::CAddInfo() = default;
 
 CAddInfo::CAddInfo(si32 value)
 {
@@ -383,11 +361,10 @@ BonusList::BonusList(bool BelongsToTree) : belongsToTree(BelongsToTree)
 
 }
 
-BonusList::BonusList(const BonusList &bonusList)
+BonusList::BonusList(const BonusList &bonusList) : belongsToTree(false)
 {
 	bonuses.resize(bonusList.size());
 	std::copy(bonusList.begin(), bonusList.end(), bonuses.begin());
-	belongsToTree = false;
 }
 
 BonusList::BonusList(BonusList&& other):
@@ -429,7 +406,7 @@ void BonusList::stackBonuses()
 	size_t next = 1;
 	while(next < bonuses.size())
 	{
-		bool remove;
+		bool remove = false;
 		std::shared_ptr<Bonus> last = bonuses[next-1];
 		std::shared_ptr<Bonus> current = bonuses[next];
 
@@ -879,7 +856,7 @@ const CStack * retrieveStackBattle(const CBonusSystemNode * node)
 	switch(node->getNodeType())
 	{
 	case CBonusSystemNode::STACK_BATTLE:
-		return static_cast<const CStack*>(node);
+		return dynamic_cast<const CStack*>(node);
 	default:
 		return nullptr;
 	}
@@ -890,9 +867,9 @@ const CStackInstance * retrieveStackInstance(const CBonusSystemNode * node)
 	switch(node->getNodeType())
 	{
 	case CBonusSystemNode::STACK_INSTANCE:
-		return (static_cast<const CStackInstance *>(node));
+		return (dynamic_cast<const CStackInstance *>(node));
 	case CBonusSystemNode::STACK_BATTLE:
-		return (static_cast<const CStack*>(node))->base;
+		return (dynamic_cast<const CStack*>(node))->base;
 	default:
 		return nullptr;
 	}
@@ -1764,32 +1741,15 @@ std::string Bonus::nameForBonus() const
 Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
 	: duration((ui16)Duration), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
-	turnsRemain = 0;
-	valType = ADDITIVE_VALUE;
-	effectRange = NO_LIMIT;
 	boost::algorithm::trim(description);
 }
 
 Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType)
-	: duration((ui16)Duration), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
+	: duration((ui16)Duration),  type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType) 
 {
-	turnsRemain = 0;
-	effectRange = NO_LIMIT;
 }
 
-Bonus::Bonus()
-{
-	duration = PERMANENT;
-	turnsRemain = 0;
-	type = NONE;
-	subtype = -1;
-
-	valType = ADDITIVE_VALUE;
-	effectRange = NO_LIMIT;
-	val = 0;
-	source = OTHER;
-	sid = 0;
-}
+Bonus::Bonus() = default;
 
 std::shared_ptr<Bonus> Bonus::addPropagator(TPropagatorPtr Propagator)
 {
@@ -1884,9 +1844,9 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	switch(node->getNodeType())
 	{
 	case CBonusSystemNode::CREATURE:
-		return (static_cast<const CCreature *>(node));
+		return (dynamic_cast<const CCreature *>(node));
 	case CBonusSystemNode::STACK_BATTLE:
-		return (static_cast<const CStack*>(node))->type;
+		return (dynamic_cast<const CStack*>(node))->type;
 	default:
 		const CStackInstance * csi = retrieveStackInstance(node);
 		if(csi)
@@ -1907,9 +1867,9 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusL
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 {
-	for(auto i = bonusNameMap.cbegin(); i != bonusNameMap.cend(); i++)
-		if(i->second == bonus.type)
-			out << "\tType: " << i->first << " \t";
+	for(const auto & i : bonusNameMap)
+		if(i.second == bonus.type)
+			out << "\tType: " << i.first << " \t";
 
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
@@ -1957,9 +1917,7 @@ std::shared_ptr<Bonus> Bonus::addLimiter(TLimiterPtr Limiter)
 	return this->shared_from_this();
 }
 
-ILimiter::~ILimiter()
-{
-}
+ILimiter::~ILimiter() = default;
 
 int ILimiter::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
 {
@@ -1992,11 +1950,7 @@ CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature & creature_, bool Inc
 {
 }
 
-CCreatureTypeLimiter::CCreatureTypeLimiter()
-{
-	creature = nullptr;
-	includeUpgrades = false;
-}
+CCreatureTypeLimiter::CCreatureTypeLimiter() = default;
 
 void CCreatureTypeLimiter::setCreature (CreatureID id)
 {
@@ -2079,10 +2033,7 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 	return root;
 }
 
-IPropagator::~IPropagator()
-{
-
-}
+IPropagator::~IPropagator() = default;
 
 bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
 {
@@ -2427,9 +2378,7 @@ void Bonus::updateOppositeBonuses()
 	propagationUpdater = std::make_shared<OwnerUpdater>();
 }
 
-IUpdater::~IUpdater()
-{
-}
+IUpdater::~IUpdater() = default;
 
 std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
@@ -2443,7 +2392,7 @@ std::string IUpdater::toString() const
 
 JsonNode IUpdater::toJsonNode() const
 {
-	return JsonNode(JsonNode::JsonType::DATA_NULL);
+	return {JsonNode::JsonType::DATA_NULL};
 }
 
 GrowsWithLevelUpdater::GrowsWithLevelUpdater() : valPer20(0), stepSize(1)
@@ -2458,7 +2407,7 @@ std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shar
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
-		int level = static_cast<const CGHeroInstance &>(context).level;
+		int level = dynamic_cast<const CGHeroInstance &>(context).level;
 		int steps = stepSize ? level / stepSize : level;
 		//rounding follows format for HMM3 creature specialty bonus
 		int newVal = (valPer20 * steps + 19) / 20;
@@ -2487,15 +2436,13 @@ JsonNode GrowsWithLevelUpdater::toJsonNode() const
 	return root;
 }
 
-TimesHeroLevelUpdater::TimesHeroLevelUpdater()
-{
-}
+TimesHeroLevelUpdater::TimesHeroLevelUpdater() = default;
 
 std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
-		int level = static_cast<const CGHeroInstance &>(context).level;
+		int level = dynamic_cast<const CGHeroInstance &>(context).level;
 		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
 		newBonus->val *= level;
 		return newBonus;
@@ -2513,22 +2460,20 @@ JsonNode TimesHeroLevelUpdater::toJsonNode() const
 	return JsonUtils::stringNode("TIMES_HERO_LEVEL");
 }
 
-TimesStackLevelUpdater::TimesStackLevelUpdater()
-{
-}
+TimesStackLevelUpdater::TimesStackLevelUpdater() = default;
 
 std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE)
 	{
-		int level = static_cast<const CStackInstance &>(context).getLevel();
+		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
 		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
 		newBonus->val *= level;
 		return newBonus;
 	}
 	else if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
 	{
-		const CStack & stack = static_cast<const CStack &>(context);
+		const auto & stack = dynamic_cast<const CStack &>(context);
 		//only update if stack doesn't have an instance (summons, war machines)
 		//otherwise we'd end up multiplying twice
 		if(stack.base == nullptr)
@@ -2552,9 +2497,7 @@ JsonNode TimesStackLevelUpdater::toJsonNode() const
 	return JsonUtils::stringNode("TIMES_STACK_LEVEL");
 }
 
-OwnerUpdater::OwnerUpdater()
-{
-}
+OwnerUpdater::OwnerUpdater() = default;
 
 std::string OwnerUpdater::toString() const
 {

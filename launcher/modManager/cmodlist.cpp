@@ -188,7 +188,7 @@ QVariant CModEntry::getValue(QString value) const
 	if(storage.contains(value))
 		return storage[value];
 
-	return QVariant();
+	return {};
 }
 
 QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
@@ -327,7 +327,7 @@ CModEntry CModList::getMod(QString modname) const
 		}
 	}
 
-	return CModEntry(repo, local, settings, modname);
+	return {repo, local, settings, modname};
 }
 
 bool CModList::hasMod(QString modname) const

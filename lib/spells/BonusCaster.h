@@ -23,7 +23,7 @@ class DLL_LINKAGE BonusCaster : public ProxyCaster
 {
 public:
 	BonusCaster(const Caster * actualCaster_, std::shared_ptr<Bonus> bonus_);
-	virtual ~BonusCaster();
+	virtual ~BonusCaster() = default;
 
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;

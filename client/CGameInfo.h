@@ -88,14 +88,14 @@ public:
 	ConstTransitivePtr<TerrainTypeHandler> terrainTypeHandler;
 	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
 	ConstTransitivePtr<ObstacleHandler> obstacleHandler;
-	CGeneralTextHandler * generaltexth;
-	CMapHandler * mh;
-	CTownHandler * townh;
+	CGeneralTextHandler * generaltexth{nullptr};
+	CMapHandler * mh{nullptr};
+	CTownHandler * townh{nullptr};
 
 	void setFromLib();
 
 	CGameInfo();
 private:
-	const Services * globalServices;
+	const Services * globalServices{nullptr};
 };
 extern const CGameInfo* CGI;

@@ -64,7 +64,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
 
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
+	auto * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
 	ui64 totalStrength = 0;
 	ui8 totalChance = 0;
@@ -152,7 +152,7 @@ float FuzzyHelper::evaluate(Goals::GatherArmy & g)
 {
 	//the more army we need, the more important goal
 	//the more army we lack, the less important goal
-	float army = static_cast<float>(g.hero->getArmyStrength());
+	auto army = static_cast<float>(g.hero->getArmyStrength());
 	float ratio = g.value / std::max(g.value - army, 2000.0f); //2000 is about the value of hero recruited from tavern
 	return 5 * (ratio / (ratio + 2)); //so 50% army gives 2.5, asymptotic 5
 }
@@ -300,19 +300,19 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 	case Obj::MONSTER:
 	{
 		//TODO!!!!!!!!
-		const CGCreature * cre = dynamic_cast<const CGCreature *>(obj);
+		const auto * cre = dynamic_cast<const CGCreature *>(obj);
 		return cre->getArmyStrength();
 	}
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
 	{
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		const auto * d = dynamic_cast<const CGDwelling *>(obj);
 		return d->getArmyStrength();
 	}
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
 	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
+		const auto * a = dynamic_cast<const CArmedInstance *>(obj);
 		return a->getArmyStrength();
 	}
 	case Obj::CRYPT: //crypt

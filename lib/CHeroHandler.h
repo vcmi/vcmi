@@ -78,19 +78,19 @@ public:
 			h & creature;
 		}
 	};
-	si32 imageIndex;
+	si32 imageIndex{};
 
 	std::vector<InitialArmyStack> initialArmy;
 
-	CHeroClass * heroClass;
+	CHeroClass * heroClass{};
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> specDeprecated;
 	std::vector<SSpecialtyBonus> specialtyDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
-	bool haveSpellBook;
-	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
-	ui8 sex; // default sex: 0=male, 1=female
+	bool haveSpellBook{};
+	bool special{}; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
+	ui8 sex{}; // default sex: 0=male, 1=female
 
 	/// Graphics
 	std::string iconSpecSmall;

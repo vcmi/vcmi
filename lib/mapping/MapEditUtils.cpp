@@ -46,7 +46,7 @@ MapRect MapRect::operator&(const MapRect& rect) const
 	}
 	else
 	{
-		return MapRect();
+		return {};
 	}
 }
 
@@ -143,22 +143,23 @@ const std::string TerrainViewPattern::RULE_NATIVE = "N";
 const std::string TerrainViewPattern::RULE_NATIVE_STRONG = "N!";
 const std::string TerrainViewPattern::RULE_ANY = "?";
 
-TerrainViewPattern::TerrainViewPattern() : diffImages(false), rotationTypesCount(0), minPoints(0)
+TerrainViewPattern::TerrainViewPattern() : 
+	diffImages(false), rotationTypesCount(0), minPoints(0), maxPoints(std::numeric_limits<int>::max())
 {
-	maxPoints = std::numeric_limits<int>::max();
 }
 
-TerrainViewPattern::WeightedRule::WeightedRule(std::string& Name) : points(0), name(Name)
-{
-	standardRule = (TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name
+TerrainViewPattern::WeightedRule::WeightedRule(std::string& Name) : 
+	points(0),
+	standardRule(TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name
 		|| TerrainViewPattern::RULE_NATIVE == Name || TerrainViewPattern::RULE_SAND == Name
-		|| TerrainViewPattern::RULE_TRANSITION == Name || TerrainViewPattern::RULE_NATIVE_STRONG == Name);
-	anyRule = (Name == TerrainViewPattern::RULE_ANY);
-	dirtRule = (Name == TerrainViewPattern::RULE_DIRT);
-	sandRule = (Name == TerrainViewPattern::RULE_SAND);
-	transitionRule = (Name == TerrainViewPattern::RULE_TRANSITION);
-	nativeStrongRule = (Name == TerrainViewPattern::RULE_NATIVE_STRONG);
-	nativeRule = (Name == TerrainViewPattern::RULE_NATIVE);
+		|| TerrainViewPattern::RULE_TRANSITION == Name || TerrainViewPattern::RULE_NATIVE_STRONG == Name),
+	anyRule(Name == TerrainViewPattern::RULE_ANY),
+	dirtRule(Name == TerrainViewPattern::RULE_DIRT),
+	sandRule(Name == TerrainViewPattern::RULE_SAND),
+	transitionRule(Name == TerrainViewPattern::RULE_TRANSITION),
+	nativeStrongRule(Name == TerrainViewPattern::RULE_NATIVE_STRONG),
+	nativeRule(Name == TerrainViewPattern::RULE_NATIVE), name(Name)
+{
 }
 
 void TerrainViewPattern::WeightedRule::setNative()
@@ -235,8 +236,8 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					{
 						std::vector<std::string> range;
 						boost::split(range, mapping, boost::is_any_of("-"));
-						terGroupPattern.mapping.push_back(std::make_pair(boost::lexical_cast<int>(range[0]),
-							boost::lexical_cast<int>(range.size() > 1 ? range[1] : range[0])));
+						terGroupPattern.mapping.emplace_back(boost::lexical_cast<int>(range[0]),
+							boost::lexical_cast<int>(range.size() > 1 ? range[1] : range[0]));
 					}
 
 					// Add pattern to the patterns map
@@ -266,10 +267,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 	}
 }
 
-CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
-{
-
-}
+CTerrainViewPatternConfig::~CTerrainViewPatternConfig() = default;
 
 const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
@@ -293,7 +291,7 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrai
 			return boost::optional<const TerrainViewPattern&>(pattern);
 		}
 	}
-	return boost::optional<const TerrainViewPattern&>();
+	return {};
 }
 
 boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const
@@ -307,7 +305,7 @@ boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatter
 			return boost::optional<const TVPVector&>(patternFlips);
 		}
 	}
-	return boost::optional<const TVPVector&>();
+	return {};
 }
 
 

@@ -130,7 +130,7 @@ public:
 class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase, public IGameInfoCallback
 {
 protected:
-	CGameState * gs;//todo: replace with protected const getter, only actual Server and Client objects should hold game state
+	CGameState * gs{};//todo: replace with protected const getter, only actual Server and Client objects should hold game state
 
 	CGameInfoCallback();
 	CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player);

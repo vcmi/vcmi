@@ -206,7 +206,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, IImageLoader &loader) const
 	const ui8 * FDef = data.get()+it->second[frame];
 
 	const SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
-	SSpriteDef sprite;
+	SSpriteDef sprite{};
 
 	sprite.format = read_le_u32(&sd.format);
 	sprite.fullWidth = read_le_u32(&sd.fullWidth);

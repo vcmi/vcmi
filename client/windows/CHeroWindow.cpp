@@ -47,7 +47,7 @@ TConstBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &
 	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
 		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
 	else
-		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
+		bonusesFromPickedUpArtifact = std::make_shared<BonusList>();
 
 	for(const auto & b : *heroBonuses)
 		out->push_back(b);
@@ -98,12 +98,11 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	: CStatusbarWindow(PLAYER_COLORED, "HeroScr4"),
-	heroWArt(this, hero)
+	heroWArt(this, hero), curHero(hero)
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	curHero = hero;
 
 	banner = std::make_shared<CAnimImage>("CREST58", LOCPLINT->playerID.getNum(), 0, 606, 8);
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
@@ -297,10 +296,10 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	bool noDismiss=false;
 	for(auto isa : GH.listInt)
 	{
-		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
+		if(auto * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
 		{
-			for(int g=0; g < cew->heroInst.size(); ++g)
-				if(cew->heroInst[g] == curHero)
+			for(auto & g : cew->heroInst)
+				if(g == curHero)
 					noDismiss = true;
 		}
 

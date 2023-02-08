@@ -28,7 +28,7 @@ class RemoveObstacle : public LocationEffect
 {
 public:
 	RemoveObstacle();
-	virtual ~RemoveObstacle();
+	virtual ~RemoveObstacle() = default;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
 	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;

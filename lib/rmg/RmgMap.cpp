@@ -147,9 +147,7 @@ void RmgMap::addModificators()
 	}
 }
 
-RmgMap::~RmgMap()
-{
-}
+RmgMap::~RmgMap() = default;
 
 CMap & RmgMap::map() const
 {

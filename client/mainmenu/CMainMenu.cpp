@@ -83,7 +83,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 		images.push_back(CMainMenu::createPicture(node));
 
 	//Hardcoded entry
-	menuNameToEntry.push_back("credits");
+	menuNameToEntry.emplace_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
 	tabs->type |= REDRAW_PARENT;
@@ -208,7 +208,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 		}
 	}
 	logGlobal->error("Failed to parse command: %s", string);
-	return std::function<void()>();
+	return {};
 }
 
 std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const JsonNode & button)

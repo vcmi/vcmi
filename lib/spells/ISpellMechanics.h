@@ -101,7 +101,7 @@ public:
 	//magic mirror constructor
 	BattleCast(const BattleCast & orig, const Caster * caster_);
 
-	virtual ~BattleCast();
+	virtual ~BattleCast() = default;
 
 	///IBattleCast
 	const CSpell * getSpell() const override;
@@ -163,7 +163,7 @@ private:
 class DLL_LINKAGE ISpellMechanicsFactory
 {
 public:
-	virtual ~ISpellMechanicsFactory();
+	virtual ~ISpellMechanicsFactory() = default;
 
 	virtual std::unique_ptr<Mechanics> create(const IBattleCast * event) const = 0;
 
@@ -178,7 +178,7 @@ protected:
 class DLL_LINKAGE Mechanics
 {
 public:
-	virtual ~Mechanics();
+	virtual ~Mechanics() = default;
 
 	virtual bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;
@@ -261,7 +261,7 @@ protected:
 class DLL_LINKAGE BaseMechanics : public Mechanics
 {
 public:
-	virtual ~BaseMechanics();
+	virtual ~BaseMechanics() override = default;
 
 	bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const override;
 	bool adaptGenericProblem(Problem & target) const override;

@@ -24,9 +24,8 @@ CSaveFile::CSaveFile(const boost::filesystem::path &fname)
 	openNextFile(fname);
 }
 
-CSaveFile::~CSaveFile()
-{
-}
+//Requires specification here due to requirement to know FileStream destructor
+CSaveFile::~CSaveFile() = default;
 
 int CSaveFile::write(const void * data, unsigned size)
 {

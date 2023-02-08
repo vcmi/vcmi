@@ -47,7 +47,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 	{
 		floors.push_back(b);
 	}
-	const TerrainTile *tinfo;
+	const TerrainTile *tinfo = nullptr;
 	for (auto zd : floors)
 	{
 		for (int xd = 0; xd < gs->map->width; xd++)
@@ -56,7 +56,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
-					tiles.push_back (int3 (xd,yd,zd));
+					tiles.emplace_back(xd,yd,zd);
 			}
 		}
 	}
@@ -182,7 +182,7 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 	in.checkMagicBytes(SAVEGAME_MAGIC);
 
 	CMapHeader dum;
-	StartInfo *si;
+	StartInfo *si = nullptr;
 
 	logGlobal->info("\tReading header");
 	in.serializer & dum;

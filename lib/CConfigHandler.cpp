@@ -210,9 +210,7 @@ CConfigHandler::CConfigHandler()
 {
 }
 
-CConfigHandler::~CConfigHandler()
-{
-}
+CConfigHandler::~CConfigHandler() = default;
 
 void config::CConfigHandler::init()
 {

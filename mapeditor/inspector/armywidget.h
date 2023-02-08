@@ -35,8 +35,8 @@ private:
 	
 	Ui::ArmyWidget *ui;
 	CArmedInstance & army;
-	std::array<QLineEdit*, TOTAL_SLOTS> uiCounts;
-	std::array<QComboBox*, TOTAL_SLOTS> uiSlots;
+	std::array<QLineEdit*, TOTAL_SLOTS> uiCounts{};
+	std::array<QComboBox*, TOTAL_SLOTS> uiSlots{};
 };
 
 class ArmyDelegate : public QStyledItemDelegate

@@ -75,7 +75,7 @@ std::shared_ptr<const CObstacleInstance> CBattleInfoEssentials::battleGetObstacl
 	}
 
 	logGlobal->error("Invalid obstacle ID %d", ID);
-	return std::shared_ptr<const CObstacleInstance>();
+	return {};
 }
 
 bool CBattleInfoEssentials::battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const
@@ -243,10 +243,10 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(ui8 side) const
 	auto hero = getBattle()->getSideHero(side);
 	if(!hero)
 	{
-		return InfoAboutHero();
+		return {};
 	}
 	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;
-	return InfoAboutHero(hero, infoLevel);
+	return {hero, infoLevel};
 }
 
 uint32_t CBattleInfoEssentials::battleCastSpells(ui8 side) const

@@ -149,7 +149,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 
 	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
-	int choice;
+	int choice = 0;
 	double ratio = ((double)getArmyStrength() / hero->getTotalStrength());
 		 if (ratio < 0.1)  choice = 0;
 	else if (ratio < 0.25) choice = 1;
@@ -290,7 +290,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	//calculate relative strength of hero and creatures armies
 	double relStrength = double(h->getTotalStrength()) / getArmyStrength();
 
-	int powerFactor;
+	int powerFactor = 0;
 	if(relStrength >= 7)
 		powerFactor = 11;
 
@@ -583,14 +583,14 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 		for(int i = 0; i < resources.size(); i++)
 		{
 			if(resources[i] > 0)
-				iw.components.push_back(Component(Component::RESOURCE, i, resources[i], 0));
+				iw.components.emplace_back(Component::RESOURCE, i, resources[i], 0);
 		}
 	}
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
 		cb->giveHeroNewArtifact(h, VLC->arth->objects[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
-		iw.components.push_back(Component(Component::ARTIFACT, gainedArtifact, 0, 0));
+		iw.components.emplace_back(Component::ARTIFACT, gainedArtifact, 0, 0);
 	}
 
 	if(iw.components.size())
@@ -739,7 +739,7 @@ void CGMine::flagMine(PlayerColor player) const
 	iw.soundID = soundBase::FLAGMINE;
 	iw.text.addTxt(MetaString::MINE_EVNTS,producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.push_back(Component(Component::RESOURCE,producedResource,producedQuantity,-1));
+	iw.components.emplace_back(Component::RESOURCE,producedResource,producedQuantity,-1);
 	cb->showInfoDialog(&iw);
 }
 
@@ -839,9 +839,8 @@ std::string CGResource::getHoverText(PlayerColor player) const
 	return VLC->generaltexth->restypes[subID];
 }
 
-CGResource::CGResource()
+CGResource::CGResource() : amount(CGResource::RANDOM_AMOUNT)
 {
-	amount = CGResource::RANDOM_AMOUNT;
 }
 
 void CGResource::initObj(CRandomGenerator & rand)
@@ -974,7 +973,7 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 	if(passableExits.size())
 		return *RandomGeneratorUtil::nextItem(passableExits, CRandomGenerator::getDefault());
 
-	return ObjectInstanceID();
+	return {};
 }
 
 bool CGTeleport::isTeleport(const CGObjectInstance * obj)
@@ -1057,7 +1056,7 @@ TeleportChannelID CGMonolith::findMeChannel(std::vector<Obj> IDs, int SubID) con
 		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
 	}
-	return TeleportChannelID();
+	return {};
 }
 
 void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
@@ -1115,11 +1114,11 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 	{
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		type = ENTRANCE;
-		IDs.push_back(Obj::MONOLITH_ONE_WAY_EXIT);
+		IDs.emplace_back(Obj::MONOLITH_ONE_WAY_EXIT);
 		break;
 	case Obj::MONOLITH_ONE_WAY_EXIT:
 		type = EXIT;
-		IDs.push_back(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		IDs.emplace_back(Obj::MONOLITH_ONE_WAY_ENTRANCE);
 		break;
 	case Obj::MONOLITH_TWO_WAY:
 	default:
@@ -1214,8 +1213,8 @@ void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 	}
 
 	// we should assign empty channels to underground gates if they don't have matching overground gates
-	for(size_t i = 0; i < gatesSplit[1].size(); i++)
-		assignToChannel(gatesSplit[1][i]);
+	for(auto & i : gatesSplit[1])
+		assignToChannel(i);
 }
 
 void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
@@ -1238,13 +1237,13 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 				targetstack = (i->first);
 		}
 
-		TQuantity countToTake = static_cast<TQuantity>(h->getStackCount(targetstack) * 0.5);
+		auto countToTake = static_cast<TQuantity>(h->getStackCount(targetstack) * 0.5);
 		vstd::amax(countToTake, 1);
 
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		iw.text.addTxt(MetaString::ADVOB_TXT, 168);
-		iw.components.push_back(Component(CStackBasicDescriptor(h->getCreature(targetstack), countToTake)));
+		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), countToTake));
 		cb->showInfoDialog(&iw);
 		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
 	}
@@ -1329,7 +1328,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		{
 		case Obj::ARTIFACT:
 			{
-				iw.components.push_back(Component(Component::ARTIFACT, subID, 0, 0));
+				iw.components.emplace_back(Component::ARTIFACT, subID, 0, 0);
 				if(message.length())
 					iw.text << message;
 				else
@@ -1339,7 +1338,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		case Obj::SPELL_SCROLL:
 			{
 				int spellID = storedArtifact->getGivenSpellID();
-				iw.components.push_back(Component(Component::SPELL, spellID, 0, 0));
+				iw.components.emplace_back(Component::SPELL, spellID, 0, 0);
 				if(message.length())
 					iw.text << message;
 				else
@@ -1455,7 +1454,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id, CGWitchHut::OBJPROP_VISITED, h->tempOwner.getNum());
-	ui32 txt_id;
+	ui32 txt_id = 0;
 	if(h->getSecSkillLevel(SecondarySkill(ability))) //you already know this skill
 	{
 		txt_id =172;
@@ -1466,7 +1465,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else //give sec skill
 	{
-		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
+		iw.components.emplace_back(Component::SEC_SKILL, ability, 1, 0);
 		txt_id = 171;
 		cb->changeSecSkill(h, SecondarySkill(ability), 1, true);
 	}
@@ -1591,7 +1590,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 		spells.insert(spell);
 		cb->changeSpells(h, true, spells);
 
-		iw.components.push_back(Component(Component::SPELL,spell,0,0));
+		iw.components.emplace_back(Component::SPELL,spell,0,0);
 	}
 
 	cb->showInfoDialog(&iw);
@@ -1692,18 +1691,18 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case PRIM_SKILL:
 		cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
-		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
+		iw.components.emplace_back(Component::PRIM_SKILL,bid,+1,0);
 		break;
 	case SECONDARY_SKILL:
 		cb->changeSecSkill(h,SecondarySkill(bid),+1);
-		iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
+		iw.components.emplace_back(Component::SEC_SKILL,bid,ssl+1,0);
 		break;
 	case SPELL:
 		{
 			std::set<SpellID> hlp;
 			hlp.insert(SpellID(bid));
 			cb->changeSpells(h,true,hlp);
-			iw.components.push_back(Component(Component::SPELL,bid,0,0));
+			iw.components.emplace_back(Component::SPELL,bid,0,0);
 		}
 		break;
 	default:

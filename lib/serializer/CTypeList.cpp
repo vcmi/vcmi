@@ -59,13 +59,13 @@ CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(ui16 typeID) const
 		return found->second;
 	}
 
-	return TypeInfoPtr();
+	return {};
 }
 
 std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to) const
 {
 	if(!strcmp(from->name, to->name))
-		return std::vector<CTypeList::TypeInfoPtr>();
+		return {};
 
 	// Perform a simple BFS in the class hierarchy.
 
@@ -121,7 +121,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info
 	//This additional if is needed because getTypeDescriptor might fail if type is not registered
 	// (and if casting is not needed, then registereing should no  be required)
 	if(!strcmp(from->name(), to->name()))
-		return std::vector<CTypeList::TypeInfoPtr>();
+		return {};
 
 	return castSequence(getTypeDescriptor(from), getTypeDescriptor(to));
 }

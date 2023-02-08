@@ -56,12 +56,12 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	: battle::CUnitState(),
 	origBearer(nullptr),
 	owner(Owner),
+	type(info.type.toCreature()), 
 	baseAmount(info.count),
 	id(info.id),
 	side(info.side),
 	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER)
 {
-	type = info.type.toCreature();
 	origBearer = type;
 
 	player = Owner->getSidePlayer(side);
@@ -71,8 +71,6 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	position = info.position;
 	summoned = info.summoned;
 }
-
-StackWithBonuses::~StackWithBonuses() = default;
 
 StackWithBonuses & StackWithBonuses::operator=(const battle::CUnitState & other)
 {
@@ -222,17 +220,18 @@ void StackWithBonuses::spendMana(ServerCallback * server, const int spellCost) c
 HypotheticBattle::HypotheticBattle(const Environment * ENV, Subject realBattle)
 	: BattleProxy(realBattle),
 	env(ENV),
-	bonusTreeVersion(1)
+	bonusTreeVersion(1),
+	nextId(0x00F00000),
+	activeUnitId(-1)
 {
 	auto activeUnit = realBattle->battleActiveUnit();
-	activeUnitId = activeUnit ? activeUnit->unitId() : -1;
-
-	nextId = 0x00F00000;
+	if(activeUnit)
+		activeUnitId = activeUnit->unitId();
 
 	eventBus.reset(new events::EventBus());
 
-	localEnvironment.reset(new HypotheticEnvironment(this, env));
-	serverCallback.reset(new HypotheticServerCallback(this));
+	localEnvironment = std::make_unique<HypotheticEnvironment>(this, env);
+	serverCallback = std::make_unique<HypotheticServerCallback>(this);
 
 #if SCRIPTING_ENABLED
 	pool.reset(new scripting::PoolImpl(localEnvironment.get(), serverCallback.get()));

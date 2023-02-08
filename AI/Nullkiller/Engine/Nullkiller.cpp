@@ -37,7 +37,7 @@ using namespace Goals;
 
 Nullkiller::Nullkiller()
 {
-	memory.reset(new AIMemory());
+	memory = std::make_unique<AIMemory>();
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
@@ -45,22 +45,22 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	this->cb = cb;
 	this->playerID = playerID;
 
-	priorityEvaluator.reset(new PriorityEvaluator(this));
-	priorityEvaluators.reset(
-		new SharedPool<PriorityEvaluator>(
+	priorityEvaluator = std::make_unique<PriorityEvaluator>(this);
+	priorityEvaluators = std::make_unique<SharedPool<PriorityEvaluator>>(
+		
 			[&]()->std::unique_ptr<PriorityEvaluator>
 			{
 				return std::make_unique<PriorityEvaluator>(this);
-			}));
+			});
 
-	dangerHitMap.reset(new DangerHitMapAnalyzer(this));
-	buildAnalyzer.reset(new BuildAnalyzer(this));
-	objectClusterizer.reset(new ObjectClusterizer(this));
-	dangerEvaluator.reset(new FuzzyHelper(this));
-	pathfinder.reset(new AIPathfinder(cb.get(), this));
-	armyManager.reset(new ArmyManager(cb.get(), this));
-	heroManager.reset(new HeroManager(cb.get(), this));
-	decomposer.reset(new DeepDecomposer());
+	dangerHitMap = std::make_unique<DangerHitMapAnalyzer>(this);
+	buildAnalyzer = std::make_unique<BuildAnalyzer>(this);
+	objectClusterizer = std::make_unique<ObjectClusterizer>(this);
+	dangerEvaluator = std::make_unique<FuzzyHelper>(this);
+	pathfinder = std::make_unique<AIPathfinder>(cb.get(), this);
+	armyManager = std::make_unique<ArmyManager>(cb.get(), this);
+	heroManager = std::make_unique<HeroManager>(cb.get(), this);
+	decomposer = std::make_unique<DeepDecomposer>();
 }
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const

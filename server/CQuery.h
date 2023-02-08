@@ -95,7 +95,7 @@ public:
 class CBattleQuery : public CGhQuery
 {
 public:
-	std::array<const CArmedInstance *,2> belligerents;
+	std::array<const CArmedInstance *,2> belligerents{};
 
 	const BattleInfo *bi;
 	boost::optional<BattleResult> result;
@@ -137,7 +137,7 @@ protected:
 class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
 {
 public:
-	std::array<const CArmedInstance *,2> exchangingArmies;
+	std::array<const CArmedInstance *,2> exchangingArmies{};
 
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
 	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;

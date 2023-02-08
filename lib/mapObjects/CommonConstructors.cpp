@@ -24,9 +24,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CObstacleConstructor::CObstacleConstructor()
-{
-}
+CObstacleConstructor::CObstacleConstructor() = default;
 
 bool CObstacleConstructor::isStaticObject()
 {
@@ -146,10 +144,7 @@ void CHeroInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 
 }
 
-CDwellingInstanceConstructor::CDwellingInstanceConstructor()
-{
-
-}
+CDwellingInstanceConstructor::CDwellingInstanceConstructor() = default;
 
 bool CDwellingInstanceConstructor::hasNameTextID() const
 {
@@ -205,7 +200,7 @@ CGObjectInstance * CDwellingInstanceConstructor::create(std::shared_ptr<const Ob
 
 void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator &rng) const
 {
-	CGDwelling * dwelling = dynamic_cast<CGDwelling*>(object);
+	auto * dwelling = dynamic_cast<CGDwelling*>(object);
 
 	dwelling->creatures.clear();
 	dwelling->creatures.reserve(availableCreatures.size());
@@ -454,11 +449,10 @@ std::vector<PossibleReward<TResources>> CBankInfo::getPossibleResourcesReward() 
 
 		if(!resourcesInfo.isNull())
 		{
-			result.push_back(
-				PossibleReward<TResources>(
+			result.emplace_back(
 					configEntry["chance"].Integer(),
 					TResources(resourcesInfo)
-					));
+					);
 		}
 	}
 
@@ -478,10 +472,9 @@ std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreatur
 		{
 			auto creature = stack.allowedCreatures.front();
 
-			aproximateReward.push_back(
-				PossibleReward<CStackBasicDescriptor>(
+			aproximateReward.emplace_back(
 					configEntry["chance"].Integer(),
-					CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2)));
+					CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2));
 		}
 	}
 

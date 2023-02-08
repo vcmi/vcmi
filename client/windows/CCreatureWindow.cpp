@@ -55,11 +55,11 @@ public:
 	};
 
 	// pointers to permament objects in game state
-	const CCreature * creature;
-	const CCommanderInstance * commander;
-	const CStackInstance * stackNode;
-	const CStack * stack;
-	const CGHeroInstance * owner;
+	const CCreature * creature{nullptr};
+	const CCommanderInstance * commander{nullptr};
+	const CStackInstance * stackNode{nullptr};
+	const CStack * stack{nullptr};
+	const CGHeroInstance * owner{nullptr};
 
 	// temporary objects which should be kept as copy if needed
 	boost::optional<CommanderLevelInfo> levelupInfo;
@@ -67,19 +67,10 @@ public:
 	boost::optional<StackUpgradeInfo> upgradeInfo;
 
 	// misc fields
-	unsigned int creatureCount;
-	bool popupWindow;
+	unsigned int creatureCount{0};
+	bool popupWindow{false};
 
-	UnitView()
-		: creature(nullptr),
-		commander(nullptr),
-		stackNode(nullptr),
-		stack(nullptr),
-		owner(nullptr),
-		creatureCount(0),
-		popupWindow(false)
-	{
-	}
+	UnitView() = default;
 
 
 	std::string getName() const
@@ -863,7 +854,7 @@ std::string CStackWindow::generateStackExpDescription()
 	int rank = stack->getExpRank();
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;
-	int number;
+	int number = 0;
 	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
 	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
 	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));

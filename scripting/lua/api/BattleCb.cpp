@@ -71,7 +71,7 @@ int BattleCbProxy::getBattlefieldType(lua_State * L)
 {
 	LuaStack S(L);
 
-	const BattleCb * object;
+	const BattleCb * object = nullptr;
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
@@ -84,7 +84,7 @@ int BattleCbProxy::getTerrainType(lua_State * L)
 {
 	LuaStack S(L);
 
-	const BattleCb * object;
+	const BattleCb * object = nullptr;
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
@@ -95,7 +95,7 @@ int BattleCbProxy::getUnitByPos(lua_State * L)
 {
 	LuaStack S(L);
 
-	const BattleCb * object;
+	const BattleCb * object = nullptr;
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
@@ -104,7 +104,7 @@ int BattleCbProxy::getUnitByPos(lua_State * L)
 	if(!S.tryGet(2, hex.hex))
 		return S.retNil();
 
-	bool onlyAlive;
+	bool onlyAlive = false;
 
 	if(!S.tryGet(3, onlyAlive))
 		onlyAlive = true;//same as default value in battleGetUnitByPos

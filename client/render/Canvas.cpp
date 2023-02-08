@@ -43,9 +43,8 @@ Canvas::Canvas(Canvas & other, const Rect & newClipRect):
 }
 
 Canvas::Canvas(const Point & size):
-	renderOffset(0,0)
+	surface(CSDL_Ext::newSurface(size.x, size.y)), renderOffset(0,0)
 {
-	surface = CSDL_Ext::newSurface(size.x, size.y);
 }
 
 Canvas::~Canvas()

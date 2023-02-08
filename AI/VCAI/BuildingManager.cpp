@@ -113,7 +113,7 @@ boost::optional<BuildingID> BuildingManager::canBuildAnyStructure(const CGTownIn
 				break;
 		}
 	}
-	return boost::optional<BuildingID>(); //Can't build anything
+	return {}; //Can't build anything
 }
 
 bool BuildingManager::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
@@ -245,7 +245,7 @@ boost::optional<PotentialBuilding> BuildingManager::immediateBuilding() const
 	if (immediateBuildings.size())
 		return boost::optional<PotentialBuilding>(immediateBuildings.front()); //back? whatever
 	else
-		return boost::optional<PotentialBuilding>();
+		return {};
 }
 
 boost::optional<PotentialBuilding> BuildingManager::expensiveBuilding() const
@@ -253,5 +253,5 @@ boost::optional<PotentialBuilding> BuildingManager::expensiveBuilding() const
 	if (expensiveBuildings.size())
 		return boost::optional<PotentialBuilding>(expensiveBuildings.front());
 	else
-		return boost::optional<PotentialBuilding>();
+		return {};
 }

@@ -44,9 +44,7 @@ CHoverableArea::CHoverableArea()
 	addUsedEvents(HOVER);
 }
 
-CHoverableArea::~CHoverableArea()
-{
-}
+CHoverableArea::~CHoverableArea() = default;
 
 void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 {
@@ -67,16 +65,14 @@ LRClickableAreaWText::LRClickableAreaWText()
 }
 
 LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText, const std::string &ClickText)
+	: text(ClickText)
 {
 	init();
 	pos = Pos + pos.topLeft();
 	hoverText = HoverText;
-	text = ClickText;
 }
 
-LRClickableAreaWText::~LRClickableAreaWText()
-{
-}
+LRClickableAreaWText::~LRClickableAreaWText() = default;
 
 void LRClickableAreaWText::init()
 {
@@ -103,7 +99,7 @@ std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 	if(baseType >= 0)
 		return std::make_shared<CComponent>(CComponent::Etype(baseType), type, bonusValue);
 	else
-		return std::shared_ptr<CComponent>();
+		return {};
 }
 
 void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
@@ -227,13 +223,13 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
-	slotsPos.push_back(Point(36, 73));
-	slotsPos.push_back(Point(72, 73));
-	slotsPos.push_back(Point(108, 73));
-	slotsPos.push_back(Point(18, 122));
-	slotsPos.push_back(Point(54, 122));
-	slotsPos.push_back(Point(90, 122));
-	slotsPos.push_back(Point(126, 122));
+	slotsPos.emplace_back(36, 73);
+	slotsPos.emplace_back(72, 73);
+	slotsPos.emplace_back(108, 73);
+	slotsPos.emplace_back(18, 122);
+	slotsPos.emplace_back(54, 122);
+	slotsPos.emplace_back(90, 122);
+	slotsPos.emplace_back(126, 122);
 
 	for(auto & slot : army.army)
 	{

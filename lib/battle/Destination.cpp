@@ -48,19 +48,9 @@ Destination::Destination(const Unit * destination, const BattleHex & exactHex)
 
 }
 
-Destination::Destination(const Destination & other)
-	: unitValue(other.unitValue),
-	hexValue(other.hexValue)
-{
+Destination::Destination(const Destination & other) = default;
 
-}
-
-Destination & Destination::operator=(const Destination & other)
-{
-	unitValue = other.unitValue;
-	hexValue = other.hexValue;
-	return *this;
-}
+Destination & Destination::operator=(const Destination & other) = default;
 
 
 }

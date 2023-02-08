@@ -51,7 +51,7 @@ namespace AIPathfinding
 
 		if(!helper)
 		{
-			helper.reset(new CPathfinderHelper(gs, hero, options));
+			helper = std::make_unique<CPathfinderHelper>(gs, hero, options);
 		}
 
 		return helper.get();

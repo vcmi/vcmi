@@ -62,13 +62,13 @@ QVariant toVariant(const JsonNode & node)
 	{
 		break;
 	case JsonNode::JsonType::DATA_NULL:
-		return QVariant();
+		return {};
 		break;
 	case JsonNode::JsonType::DATA_BOOL:
-		return QVariant(node.Bool());
+		return {node.Bool()};
 		break;
 	case JsonNode::JsonType::DATA_FLOAT:
-		return QVariant(node.Float());
+		return {node.Float()};
 		break;
 	case JsonNode::JsonType::DATA_STRING:
 		return QVariant(QString::fromUtf8(node.String().c_str()));
@@ -79,7 +79,7 @@ QVariant toVariant(const JsonNode & node)
 	case JsonNode::JsonType::DATA_STRUCT:
 		return JsonToMap(node.Struct());
 	}
-	return QVariant();
+	return {};
 }
 
 QVariant JsonFromFile(QString filename)
@@ -91,7 +91,7 @@ QVariant JsonFromFile(QString filename)
 	if(data.size() == 0)
 	{
 		logGlobal->error("Failed to open file %s", filename.toUtf8().data());
-		return QVariant();
+		return {};
 	}
 	else
 	{

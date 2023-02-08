@@ -36,7 +36,7 @@ Rect Rect::createCentered( const Point & around, const Point & dimensions )
 
 Rect Rect::createAround(const Rect &r, int width)
 {
-	return Rect(r.x - width, r.y - width, r.w + width * 2, r.h + width * 2);
+	return {r.x - width, r.y - width, r.w + width * 2, r.h + width * 2};
 }
 
 Rect Rect::createCentered( const Rect & rect, const Point & dimensions)
@@ -125,7 +125,7 @@ Rect Rect::intersect(const Rect & other) const
 	}
 	else
 	{
-		return Rect();
+		return {};
 	}
 }
 

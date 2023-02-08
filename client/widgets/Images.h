@@ -92,7 +92,7 @@ private:
 	void setSizeFromImage(const IImage &img);
 	void init();
 public:
-	bool visible;
+	bool visible{};
 
 	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);

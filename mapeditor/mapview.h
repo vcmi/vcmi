@@ -121,7 +121,7 @@ private:
 	QPointF mouseStart;
 	int3 tileStart;
 	int3 tilePrev;
-	bool pressedOnSelected;
+	bool pressedOnSelected{};
 };
 
 class MinimapView : public QGraphicsView

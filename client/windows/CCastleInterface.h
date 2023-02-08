@@ -97,7 +97,7 @@ class CHeroGSlot : public CIntObject
 	std::shared_ptr<CAnimImage> selection; //selection border. nullptr if not selected
 
 	HeroSlots * owner;
-	const CGHeroInstance * hero;
+	const CGHeroInstance * hero{};
 	int upg; //0 - up garrison, 1 - down garrison
 
 public:

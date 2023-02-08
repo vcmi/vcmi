@@ -197,7 +197,7 @@ struct DLL_LINKAGE PathNodeInfo
 {
 	CGPathNode * node;
 	const CGObjectInstance * nodeObject;
-	const CGHeroInstance * nodeHero;
+	const CGHeroInstance * nodeHero{};
 	const TerrainTile * tile;
 	int3 coord;
 	bool guarded;
@@ -217,11 +217,11 @@ struct DLL_LINKAGE PathNodeInfo
 struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 {
 	CGPathNode::ENodeAction action;
-	int turn;
-	int movementLeft;
-	float cost; //same as CGPathNode::cost
+	int turn{};
+	int movementLeft{};
+	float cost{}; //same as CGPathNode::cost
 	bool blocked;
-	bool isGuardianTile;
+	bool isGuardianTile{};
 
 	CDestinationNodeInfo();
 

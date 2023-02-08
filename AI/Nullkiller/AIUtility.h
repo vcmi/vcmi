@@ -83,7 +83,7 @@ enum HeroRole
 
 struct DLL_EXPORT HeroPtr
 {
-	const CGHeroInstance * h;
+	const CGHeroInstance * h{nullptr};
 	ObjectInstanceID hid;
 
 public:

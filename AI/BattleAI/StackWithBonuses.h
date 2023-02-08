@@ -58,7 +58,7 @@ public:
 
 	StackWithBonuses(const HypotheticBattle * Owner, const battle::UnitInfo & info);
 
-	virtual ~StackWithBonuses();
+	virtual ~StackWithBonuses() = default;
 
 	StackWithBonuses & operator= (const battle::CUnitState & other);
 

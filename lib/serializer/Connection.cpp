@@ -15,6 +15,7 @@
 #include "../CGameState.h"
 
 #include <boost/asio.hpp>
+#include <utility>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -78,7 +79,7 @@ void CConnection::init()
 CConnection::CConnection(std::string host, ui16 port, std::string Name, std::string UUID)
 	: io_service(std::make_shared<asio::io_service>()), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
 {
-	int i;
+	int i = 0;
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = std::make_shared<tcp::socket>(*io_service);
 
@@ -181,7 +182,7 @@ int CConnection::write(const void * data, unsigned size)
 			return size;
 		}
 
-		int ret;
+		int ret = 0;
 		ret = static_cast<int>(asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size))));
 		return ret;
 	}

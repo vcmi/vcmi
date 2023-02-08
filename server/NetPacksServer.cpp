@@ -264,12 +264,12 @@ bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 			result &= gh->sellArtifact(m, hero, ArtifactInstanceID(r1[i]), static_cast<Res::ERes>(r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->transformInUndead(m, hero, SlotID(r1[i]));
+		for(unsigned int i : r1)
+			result &= gh->transformInUndead(m, hero, SlotID(i));
 		break;
 	case EMarketMode::RESOURCE_SKILL:
-		for(int i = 0; i < r2.size(); ++i)
-			result &= gh->buySecSkill(m, hero, SecondarySkill(r2[i]));
+		for(unsigned int i : r2)
+			result &= gh->buySecSkill(m, hero, SecondarySkill(i));
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
@@ -298,7 +298,7 @@ bool SetFormation::applyGh(CGameHandler * gh)
 bool HireHero::applyGh(CGameHandler * gh)
 {
 	const CGObjectInstance * obj = gh->getObj(tid);
-	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
+	const auto * town = dynamic_ptr_cast<CGTownInstance>(obj);
 	if(town && PlayerRelations::ENEMIES == gh->getPlayerRelations(obj->tempOwner, gh->getPlayerAt(c)))
 		throwAndComplain(gh, "Can't buy hero in enemy town!");
 

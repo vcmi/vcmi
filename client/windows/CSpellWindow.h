@@ -80,8 +80,8 @@ class CSpellWindow : public CWindowObject
 
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
-	int sitesPerTabAdv[5];
-	int sitesPerTabBattle[5];
+	int sitesPerTabAdv[5]{};
+	int sitesPerTabBattle[5]{};
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	uint8_t selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools

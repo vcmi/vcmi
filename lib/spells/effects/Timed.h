@@ -30,7 +30,7 @@ public:
 	std::vector<std::shared_ptr<Bonus>> bonus;
 
 	Timed();
-	virtual ~Timed();
+	virtual ~Timed() = default;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 

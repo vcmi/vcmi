@@ -188,8 +188,8 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+	pom.emplace_back("IOKAY.DEF",0);
+	pom.emplace_back("ICANCEL.DEF",0);
 	std::shared_ptr<CInfoWindow> temp =  std::make_shared<CInfoWindow>(text, player, components, pom);
 
 	temp->buttons[0]->addCallback( onYes );
@@ -201,7 +201,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string &text, PlayerColor playerID, const TCompsInfo & components)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	pom.emplace_back("IOKAY.DEF",0);
 	return std::make_shared<CInfoWindow>(text, playerID, components, pom);
 }
 
@@ -236,12 +236,10 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alig
 	}
 }
 
-CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
+CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free) :
+	free(Free), bitmap(Bitmap)
 {
 	CCS->curh->hide();
-
-	free=Free;
-	bitmap=Bitmap;
 
 	if(bitmap)
 	{
@@ -344,16 +342,14 @@ CRClickPopup::CRClickPopup()
 	addUsedEvents(RCLICK);
 }
 
-CRClickPopup::~CRClickPopup()
-{
-}
+CRClickPopup::~CRClickPopup() = default;
 
-CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our)
+CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our) :
+	inner(our)
 {
 	CCS->curh->hide();
 	defActions = SHOWALL | UPDATE;
 	our->recActions = defActions;
-	inner = our;
 	addChild(our.get(), false);
 }
 
@@ -421,6 +417,6 @@ std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CG
 	case Obj::GARRISON2:
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));
 	default:
-		return std::shared_ptr<WindowBase>();
+		return {};
 	}
 }

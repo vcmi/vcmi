@@ -38,8 +38,6 @@ Damage::Damage()
 {
 }
 
-Damage::~Damage() = default;
-
 void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	StacksInjured stacksInjured;
@@ -115,7 +113,7 @@ void Damage::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 
 int64_t Damage::damageForTarget(size_t targetIndex, const Mechanics * m, const battle::Unit * target) const
 {
-	int64_t baseDamage;
+	int64_t baseDamage = 0;
 
 	if(killByPercentage)
 	{

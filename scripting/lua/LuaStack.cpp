@@ -20,9 +20,8 @@ namespace scripting
 {
 
 LuaStack::LuaStack(lua_State * L_)
-	: L(L_)
+	: L(L_), initialTop(lua_gettop(L))
 {
-	initialTop = lua_gettop(L);
 }
 
 void LuaStack::balance()

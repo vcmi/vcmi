@@ -331,6 +331,9 @@ public:
 		SCREEN_FILL     = 4,
 	};
 
+	/// Create animation with screen-wide effect, base constructor
+	EffectAnimation(BattleInterface & owner, std::string animationName, int effects, std::vector<BattleHex> hex, std::vector<Point> pos);
+
 	/// Create animation with screen-wide effect
 	EffectAnimation(BattleInterface & owner, std::string animationName, int effects = 0);
 

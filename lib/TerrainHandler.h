@@ -23,7 +23,7 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	friend class TerrainTypeHandler;
 	std::string identifier;
 	TerrainId id;
-	ui8 passabilityType;
+	ui8 passabilityType{};
 
 public:
 	int32_t getIndex() const override { return id.getNum(); }
@@ -58,8 +58,8 @@ public:
 
 	TerrainId rockTerrain;
 	RiverId river;
-	int moveCost;
-	bool transitionRequired;
+	int moveCost{};
+	bool transitionRequired{};
 	
 	TerrainType();
 	

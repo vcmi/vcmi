@@ -76,7 +76,6 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 
 HeroPtr::HeroPtr()
 {
-	h = nullptr;
 	hid = ObjectInstanceID();
 }
 
@@ -388,7 +387,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		if(relations == PlayerRelations::ALLIES)
 			return false;
 
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		const auto * d = dynamic_cast<const CGDwelling *>(obj);
 
 		for(auto level : d->creatures)
 		{

@@ -87,23 +87,23 @@ public:
 private:
 	const Nullkiller * ai;
 
-	fl::Engine * engine;
-	fl::InputVariable * armyLossPersentageVariable;
-	fl::InputVariable * heroRoleVariable;
-	fl::InputVariable * mainTurnDistanceVariable;
-	fl::InputVariable * scoutTurnDistanceVariable;
-	fl::InputVariable * turnVariable;
-	fl::InputVariable * goldRewardVariable;
-	fl::InputVariable * armyRewardVariable;
-	fl::InputVariable * dangerVariable;
-	fl::InputVariable * skillRewardVariable;
-	fl::InputVariable * strategicalValueVariable;
-	fl::InputVariable * rewardTypeVariable;
-	fl::InputVariable * closestHeroRatioVariable;
-	fl::InputVariable * goldPreasureVariable;
-	fl::InputVariable * goldCostVariable;
-	fl::InputVariable * fearVariable;
-	fl::OutputVariable * value;
+	fl::Engine * engine{};
+	fl::InputVariable * armyLossPersentageVariable{};
+	fl::InputVariable * heroRoleVariable{};
+	fl::InputVariable * mainTurnDistanceVariable{};
+	fl::InputVariable * scoutTurnDistanceVariable{};
+	fl::InputVariable * turnVariable{};
+	fl::InputVariable * goldRewardVariable{};
+	fl::InputVariable * armyRewardVariable{};
+	fl::InputVariable * dangerVariable{};
+	fl::InputVariable * skillRewardVariable{};
+	fl::InputVariable * strategicalValueVariable{};
+	fl::InputVariable * rewardTypeVariable{};
+	fl::InputVariable * closestHeroRatioVariable{};
+	fl::InputVariable * goldPreasureVariable{};
+	fl::InputVariable * goldCostVariable{};
+	fl::InputVariable * fearVariable{};
+	fl::OutputVariable * value{};
 	std::vector<std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
 
 	EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;

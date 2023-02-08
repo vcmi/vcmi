@@ -182,7 +182,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		if(obj && obj->ID == Obj::BOAT)
 		{
-			const CGBoat *b = static_cast<const CGBoat*>(obj);
+			const auto *b = dynamic_cast<const CGBoat*>(obj);
 			if(b->hero)
 				continue; //we're looking for unoccupied boat
 

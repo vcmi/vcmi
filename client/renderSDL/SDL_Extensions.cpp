@@ -91,7 +91,7 @@ void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
 		logGlobal->error("%sSDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 
 	SDL_RenderClear(mainRenderer);
-	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL))
+	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 	SDL_RenderPresent(mainRenderer);
 
@@ -255,7 +255,7 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 	if (src->format->BytesPerPixel==1 && (bpp==3 || bpp==4 || bpp==2)) //everything's ok
 	{
 		SDL_Rect fulldst;
-		int srcx, srcy, w, h;
+		int srcx = 0, srcy = 0, w = 0, h = 0;
 
 		/* If the destination rectangle is nullptr, use the entire dest surface */
 		if ( dstRect == nullptr )
@@ -267,7 +267,7 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 		/* clip the source rectangle to the source surface */
 		if(srcRect)
 		{
-			int maxw, maxh;
+			int maxw = 0, maxh = 0;
 
 			srcx = srcRect->x;
 			w = srcRect->w;
@@ -304,7 +304,7 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 		/* clip the destination rectangle against the clip rectangle */
 		{
 			SDL_Rect *clip = &dst->clip_rect;
-			int dx, dy;
+			int dx = 0, dy = 0;
 
 			dx = clip->x - dstRect->x;
 			if(dx > 0)

@@ -22,7 +22,7 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 
-typedef std::map<size_t, std::vector<JsonNode>> source_map;
+using source_map = std::map<size_t, std::vector<JsonNode>>;
 
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
@@ -51,9 +51,9 @@ public:
 	DefFile(std::string Name);
 	~DefFile();
 
-	std::shared_ptr<QImage> loadFrame(size_t frame, size_t group) const;
+	[[nodiscard]] std::shared_ptr<QImage> loadFrame(size_t frame, size_t group) const;
 
-	const std::map<size_t, size_t> getEntries() const;
+	[[nodiscard]] const std::map<size_t, size_t> getEntries() const;
 };
 
 class ImageLoader
@@ -273,7 +273,7 @@ std::shared_ptr<QImage> DefFile::loadFrame(size_t frame, size_t group) const
 	const ui8 * FDef = data.get()+it->second[frame];
 
 	const SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
-	SSpriteDef sprite;
+	SSpriteDef sprite{};
 
 	sprite.format = read_le_u32(&sd.format);
 	sprite.fullWidth = read_le_u32(&sd.fullWidth);
@@ -482,9 +482,7 @@ inline void ImageLoader::EndLine()
 	position = lineStart;
 }
 
-ImageLoader::~ImageLoader()
-{
-}
+ImageLoader::~ImageLoader() = default;
 
 /*************************************************************************
  *  Classes for images, support loading from file and drawing on surface *

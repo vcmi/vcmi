@@ -76,7 +76,7 @@ size_t CTrueTypeFont::getGlyphWidth(const char *data) const
 
 size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 {
-	int width;
+	int width = 0;
 	TTF_SizeUTF8(font.get(), data.c_str(), &width, nullptr);
 	return width;
 }
@@ -88,7 +88,7 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 
 	if (!data.empty())
 	{
-		SDL_Surface * rendered;
+		SDL_Surface * rendered = nullptr;
 		if (blended)
 			rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), color);
 		else

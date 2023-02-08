@@ -26,8 +26,8 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CStackBasicDescriptor
 {
 public:
-	const CCreature *type;
-	TQuantity count;
+	const CCreature *type{nullptr};
+	TQuantity count{-1};
 
 	CStackBasicDescriptor();
 	CStackBasicDescriptor(CreatureID id, TQuantity Count);
@@ -64,17 +64,17 @@ public:
 class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
 {
 protected:
-	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
+	const CArmedInstance *_armyObj{}; //stack must be part of some army, army must be part of some object
 
 public:
 	// hlp variable used during loading map, when object (hero or town) have creatures that must have same alignment.
 	// idRand < 0 -> normal, non-random creature
 	// idRand / 2 -> level
 	// idRand % 2 -> upgrade number
-	int idRand;
+	int idRand{};
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
-	TExpType experience;//commander needs same amount of exp as hero
+	TExpType experience{};//commander needs same amount of exp as hero
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -124,9 +124,9 @@ public:
 	//TODO: what if Commander is not a part of creature set?
 
 	//commander class is determined by its base creature
-	ui8 alive; //maybe change to bool when breaking save compatibility?
-	ui8 level; //required only to count callbacks
-	std::string name; // each Commander has different name
+	ui8 alive{}; //maybe change to bool when breaking save compatibility?
+	ui8 level{}; //required only to count callbacks
+	std::string name{"Unnamed"}; // each Commander has different name
 	std::vector <ui8> secondarySkills; //ID -> level
 	std::set <ui8> specialSKills;
 	//std::vector <CArtifactInstance *> arts;
@@ -200,7 +200,7 @@ class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatur
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
-	ui8 formation; //false - wide, true - tight
+	ui8 formation{false}; //false - wide, true - tight
 
 	CCreatureSet();
 	virtual ~CCreatureSet();

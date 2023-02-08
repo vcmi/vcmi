@@ -102,7 +102,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 {
 	std::vector<CStackBasicDescriptor>::const_iterator cre;
 	TSlots::const_iterator it;
-	ui32 count;
+	ui32 count = 0;
 	ui32 slotsCount = 0;
 	bool hasExtraCreatures = false;
 	for(cre = q->m6creatures.begin(); cre != q->m6creatures.end(); ++cre)
@@ -200,7 +200,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			components.push_back(Component(Component::EXPERIENCE, 0, m13489val, 0));
+			components.emplace_back(Component::EXPERIENCE, 0, m13489val, 0);
 			if(!isCustom)
 				iwText.addReplacement(m13489val);
 			break;
@@ -211,7 +211,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m2stats[i])
 				{
-					components.push_back(Component(Component::PRIM_SKILL, i, m2stats[i], 0));
+					components.emplace_back(Component::PRIM_SKILL, i, m2stats[i], 0);
 					loot << "%d %s";
 					loot.addReplacement(m2stats[i]);
 					loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
@@ -222,19 +222,19 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_KILL_HERO:
-			components.push_back(Component(Component::HERO_PORTRAIT, heroPortrait, 0, 0));
+			components.emplace_back(Component::HERO_PORTRAIT, heroPortrait, 0, 0);
 			if(!isCustom)
 				addReplacements(iwText, text);
 			break;
 		case MISSION_HERO:
 			//FIXME: portrait may not match hero, if custom portrait was set in map editor
-			components.push_back(Component(Component::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0));
+			components.emplace_back(Component::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0);
 			if(!isCustom)
 				iwText.addReplacement(VLC->heroh->objects[m13489val]->getNameTextID());
 			break;
 		case MISSION_KILL_CREATURE:
 			{
-				components.push_back(Component(stackToKill));
+				components.emplace_back(stackToKill);
 				if(!isCustom)
 				{
 					addReplacements(iwText, text);
@@ -246,7 +246,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			MetaString loot;
 			for(auto & elem : m5arts)
 			{
-				components.push_back(Component(Component::ARTIFACT, elem, 0, 0));
+				components.emplace_back(Component::ARTIFACT, elem, 0, 0);
 				loot << "%s";
 				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
@@ -259,7 +259,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			MetaString loot;
 			for(auto & elem : m6creatures)
 			{
-				components.push_back(Component(elem));
+				components.emplace_back(elem);
 				loot << "%s";
 				loot.addReplacement(elem);
 			}
@@ -274,7 +274,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m7resources[i])
 				{
-					components.push_back(Component (Component::RESOURCE, i, m7resources[i], 0));
+					components.emplace_back(Component::RESOURCE, i, m7resources[i], 0);
 					loot << "%d %s";
 					loot.addReplacement(m7resources[i]);
 					loot.addReplacement(MetaString::RES_NAMES, i);
@@ -285,7 +285,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_PLAYER:
-			components.push_back(Component (Component::FLAG, m13489val, 0, 0));
+			components.emplace_back(Component::FLAG, m13489val, 0, 0);
 			if(!isCustom)
 				iwText.addReplacement(VLC->generaltexth->colors[m13489val]);
 			break;
@@ -679,25 +679,25 @@ void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &comp
 	quest->getCompletionText (text, components, isCustom, h);
 	switch(rewardType)
 	{
-		case EXPERIENCE: components.push_back(Component (Component::EXPERIENCE, 0, (si32)h->calculateXp(rVal), 0));
+		case EXPERIENCE: components.emplace_back(Component::EXPERIENCE, 0, (si32)h->calculateXp(rVal), 0);
 			break;
-		case MANA_POINTS: components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
+		case MANA_POINTS: components.emplace_back(Component::PRIM_SKILL, 5, rVal, 0);
 			break;
-		case MORALE_BONUS: components.push_back(Component (Component::MORALE, 0, rVal, 0));
+		case MORALE_BONUS: components.emplace_back(Component::MORALE, 0, rVal, 0);
 			break;
-		case LUCK_BONUS: components.push_back(Component (Component::LUCK, 0, rVal, 0));
+		case LUCK_BONUS: components.emplace_back(Component::LUCK, 0, rVal, 0);
 			break;
-		case RESOURCES: components.push_back(Component (Component::RESOURCE, rID, rVal, 0));
+		case RESOURCES: components.emplace_back(Component::RESOURCE, rID, rVal, 0);
 			break;
-		case PRIMARY_SKILL: components.push_back(Component (Component::PRIM_SKILL, rID, rVal, 0));
+		case PRIMARY_SKILL: components.emplace_back(Component::PRIM_SKILL, rID, rVal, 0);
 			break;
-		case SECONDARY_SKILL: components.push_back(Component (Component::SEC_SKILL, rID, rVal, 0));
+		case SECONDARY_SKILL: components.emplace_back(Component::SEC_SKILL, rID, rVal, 0);
 			break;
-		case ARTIFACT: components.push_back(Component (Component::ARTIFACT, rID, 0, 0));
+		case ARTIFACT: components.emplace_back(Component::ARTIFACT, rID, 0, 0);
 			break;
-		case SPELL: components.push_back(Component (Component::SPELL, rID, 0, 0));
+		case SPELL: components.emplace_back(Component::SPELL, rID, 0, 0);
 			break;
-		case CREATURE: components.push_back(Component (Component::CREATURE, rID, rVal, 0));
+		case CREATURE: components.emplace_back(Component::CREATURE, rID, rVal, 0);
 			break;
 	}
 }
@@ -906,7 +906,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 	if(allowNull && !o)
 		return nullptr;
 	assert(o && (o->ID == Obj::HERO  ||  o->ID == Obj::PRISON));
-	return static_cast<const CGHeroInstance*>(o);
+	return dynamic_cast<const CGHeroInstance*>(o);
 }
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
@@ -915,7 +915,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	if(allowNull && !o)
 		return nullptr;
 	assert(o && o->ID == Obj::MONSTER);
-	return static_cast<const CGCreature*>(o);
+	return dynamic_cast<const CGCreature*>(o);
 }
 
 void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
@@ -1146,7 +1146,7 @@ bool CGKeymasterTent::wasVisited (PlayerColor player) const
 
 void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int txt_id;
+	int txt_id = 0;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
 		cb->setObjProperty(id, h->tempOwner.getNum()+101, subID);

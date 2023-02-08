@@ -68,8 +68,8 @@ class DLL_LINKAGE CConnection
 
 	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
 
-	bool enableBufferedWrite;
-	bool enableBufferedRead;
+	bool enableBufferedWrite{};
+	bool enableBufferedRead{};
 	std::unique_ptr<ConnectionBuffers> connectionBuffers;
 
 public:
@@ -79,8 +79,8 @@ public:
 	std::shared_ptr<boost::mutex> mutexRead;
 	std::shared_ptr<boost::mutex> mutexWrite;
 	std::shared_ptr<TSocket> socket;
-	bool connected;
-	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
+	bool connected{};
+	bool myEndianess{}, contactEndianess{}; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
 	std::string contactUuid;
 	std::string name; //who uses this connection
 	std::string uuid;

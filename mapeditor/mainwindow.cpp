@@ -547,7 +547,7 @@ void MainWindow::loadObjectsTree()
 	//adding terrains
 	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
+		auto *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
@@ -559,7 +559,7 @@ void MainWindow::loadObjectsTree()
 	//adding roads
 	for(auto & road : VLC->roadTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
+		auto *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->getIndex(), true); });
 	}
@@ -568,7 +568,7 @@ void MainWindow::loadObjectsTree()
 	//adding rivers
 	for(auto & river : VLC->riverTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
+		auto *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->getIndex(), false); });
 	}
@@ -989,7 +989,7 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 	//get identifier
 	auto identifier = tableWidget->item(0, 1)->text();
-	CGObjectInstance * obj = data_cast<CGObjectInstance>(identifier.toLongLong());
+	auto * obj = data_cast<CGObjectInstance>(identifier.toLongLong());
 
 	//get parameter name
 	auto param = tableWidget->item(r, c - 1)->text();

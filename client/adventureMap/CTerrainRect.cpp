@@ -36,11 +36,9 @@ CTerrainRect::CTerrainRect()
 	: fadeSurface(nullptr),
 	  lastRedrawStatus(EMapAnimRedrawStatus::OK),
 	  fadeAnim(std::make_shared<CFadeAnimation>()),
-	  curHoveredTile(-1,-1,-1),
+	  tilesw((ADVOPT.advmapW+31)/32), tilesh((ADVOPT.advmapH+31)/32), curHoveredTile(-1,-1,-1),
 	  currentPath(nullptr)
 {
-	tilesw=(ADVOPT.advmapW+31)/32;
-	tilesh=(ADVOPT.advmapH+31)/32;
 	pos.x=ADVOPT.advmapX;
 	pos.y=ADVOPT.advmapY;
 	pos.w=ADVOPT.advmapW;
@@ -385,7 +383,7 @@ int3 CTerrainRect::tileCountOnScreen()
 	{
 	default:
 		logGlobal->error("Unknown map mode %d", (int)adventureInt->mode);
-		return int3();
+		return {};
 	case EAdvMapMode::NORMAL:
 		return int3(tilesw, tilesh, 1);
 	case EAdvMapMode::WORLD_VIEW:

@@ -301,16 +301,15 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 CDwellingInfoBox::~CDwellingInfoBox() = default;
 
-CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroSlots * Owner)
+CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroSlots * Owner) 
+	: owner(Owner), upg(updown)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	owner = Owner;
 	pos.x += x;
 	pos.y += y;
 	pos.w = 58;
 	pos.h = 64;
-	upg = updown;
 
 	portrait = std::make_shared<CAnimImage>("PortraitsLarge", 0, 0, 0, 0);
 	portrait->visible = false;
@@ -1080,7 +1079,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townH
 	addUsedEvents(RCLICK | HOVER);
 	pos.x += posX;
 	pos.y += posY;
-	int buildID;
+	int buildID = 0;
 
 	if(townHall)
 	{
@@ -1279,7 +1278,8 @@ void CCastleInterface::keyPressed(const SDL_Keycode & key)
 
 CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building):
 	town(Town),
-	building(Building)
+	building(Building), 
+	state(LOCPLINT->cb->canBuildStructure(town, building->bid))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	addUsedEvents(LCLICK | RCLICK | HOVER);
@@ -1287,8 +1287,6 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	pos.y += y;
 	pos.w = 154;
 	pos.h = 92;
-
-	state = LOCPLINT->cb->canBuildStructure(town, building->bid);
 
 	static int panelIndex[12] =
 	{
@@ -1544,12 +1542,12 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
 	{
-		positions.push_back(Point(206,421));
+		positions.emplace_back(206,421);
 	}
 	else
 	{
-		positions.push_back(Point(10, 421));
-		positions.push_back(Point(404,421));
+		positions.emplace_back(10, 421);
+		positions.emplace_back(404,421);
 	}
 
 	for(ui32 i=0; i<fortSize; i++)

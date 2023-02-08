@@ -25,13 +25,9 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///CSkill
-CSkill::LevelInfo::LevelInfo()
-{
-}
+CSkill::LevelInfo::LevelInfo() = default;
 
-CSkill::LevelInfo::~LevelInfo()
-{
-}
+CSkill::LevelInfo::~LevelInfo() = default;
 
 CSkill::CSkill(SecondarySkill id, std::string identifier)
 	: id(id), identifier(identifier)
@@ -40,9 +36,7 @@ CSkill::CSkill(SecondarySkill id, std::string identifier)
 	levels.resize(NSecondarySkill::levels.size() - 1);
 }
 
-CSkill::~CSkill()
-{
-}
+CSkill::~CSkill() = default;
 
 int32_t CSkill::getIndex() const
 {
@@ -153,9 +147,7 @@ void CSkill::serializeJson(JsonSerializeFormat & handler)
 
 
 ///CSkillHandler
-CSkillHandler::CSkillHandler()
-{
-}
+CSkillHandler::CSkillHandler() = default;
 
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 {
@@ -170,7 +162,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 	do
 	{
 		skillNames.push_back(parser.readString());
-		skillInfoTexts.push_back(std::vector<std::string>());
+		skillInfoTexts.emplace_back();
 		for(int i = 0; i < 3; i++)
 			skillInfoTexts.back().push_back(parser.readString());
 	}
@@ -208,7 +200,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier);
+	auto * skill = new CSkill(SecondarySkill((si32)index), identifier);
 	skill->modScope = scope;
 
 	VLC->generaltexth->registerString(skill->getNameTextID(), json["name"].String());
@@ -265,9 +257,7 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("expert");
 }
 
-CSkillHandler::~CSkillHandler()
-{
-}
+CSkillHandler::~CSkillHandler() = default;
 
 std::vector<bool> CSkillHandler::getDefaultAllowed() const
 {

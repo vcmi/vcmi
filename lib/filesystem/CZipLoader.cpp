@@ -124,11 +124,11 @@ std::unordered_set<ResourceID> CZipLoader::getFilteredFiles(std::function<bool(c
 /// extracts currently selected file from zip into stream "where"
 static bool extractCurrent(unzFile file, std::ostream & where)
 {
-	std::array<char, 8 * 1024> buffer;
+	std::array<char, 8 * 1024> buffer{};
 
 	unzOpenCurrentFile(file);
 
-	while (1)
+	while (true)
 	{
 		int readSize = unzReadCurrentFile(file, buffer.data(), (unsigned int)buffer.size());
 
@@ -170,7 +170,7 @@ std::vector<std::string> ZipArchive::listFiles(boost::filesystem::path filename)
 			// Get name of current file. Contrary to docs "info" parameter can't be null
 			unzGetCurrentFileInfo64 (file, &info, zipFilename.data(), (uLong)zipFilename.size(), nullptr, 0, nullptr, 0);
 
-			ret.push_back(std::string(zipFilename.data(), zipFilename.size()));
+			ret.emplace_back(zipFilename.data(), zipFilename.size());
 		}
 		while (unzGoToNextFile(file) == UNZ_OK);
 	}

@@ -73,7 +73,7 @@ class CBaseForLobbyApply
 public:
 	virtual bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const = 0;
 	virtual void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, void * pack) const = 0;
-	virtual ~CBaseForLobbyApply(){};
+	virtual ~CBaseForLobbyApply() = default;
 	template<typename U> static CBaseForLobbyApply * getApplier(const U * t = nullptr)
 	{
 		return new CApplyOnLobby<U>();
@@ -315,7 +315,7 @@ void CServerHandler::applyPacksOnLobbyScreen()
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
-		apply->applyOnLobbyScreen(static_cast<CLobbyScreen *>(SEL), this, pack);
+		apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
 		GH.totalRedraw();
 		delete pack;
 	}

@@ -204,7 +204,7 @@ const CGHeroInstance * BattleHero::instance()
 
 void BattleHero::render(Canvas & canvas)
 {
-	size_t groupIndex = static_cast<size_t>(phase);
+	auto groupIndex = static_cast<size_t>(phase);
 
 	auto flagFrame = flagAnimation->getImage(flagCurrentFrame, 0, true);
 	auto heroFrame = animation->getImage(currentFrame, groupIndex, true);

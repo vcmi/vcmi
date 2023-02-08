@@ -218,7 +218,7 @@ DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
 		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]].get() : nullptr);
 		if(h && army[i])
 			h->setToArmy(army[i]);
-		p->availableHeroes.push_back(h);
+		p->availableHeroes.emplace_back(h);
 	}
 }
 
@@ -381,7 +381,7 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 
 DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 {
-	CBonusSystemNode *node;
+	CBonusSystemNode *node = nullptr;
 	if (who == HERO)
 		node = gs->getHero(ObjectInstanceID(whoID));
 	else
@@ -389,10 +389,9 @@ DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 
 	BonusList &bonuses = node->getExportedBonusList();
 
-	for (int i = 0; i < bonuses.size(); i++)
+	for (auto b : bonuses)
 	{
-		auto b = bonuses[i];
-		if(b->source == source && b->sid == id)
+			if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
 			node->removeBonus(b);
@@ -411,7 +410,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
-		CGHeroInstance * beatenHero = static_cast<CGHeroInstance*>(obj);
+		auto * beatenHero = dynamic_cast<CGHeroInstance*>(obj);
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
 		p->heroes -= beatenHero;
@@ -553,7 +552,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	{
 		const TerrainTile &tt = gs->map->getTile(h->convertToVisitablePos(end));
 		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
-		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
+		auto *boat = dynamic_cast<CGBoat*>(tt.visitableObjects.back());
 
 		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
@@ -561,7 +560,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
-		CGBoat *b = const_cast<CGBoat *>(h->boat);
+		auto *b = const_cast<CGBoat *>(h->boat);
 		b->direction = h->moveDir;
 		b->pos = start;
 		b->hero = nullptr;
@@ -573,7 +572,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	{
 		gs->map->removeBlockVisTiles(h);
 		h->pos = end;
-		if(CGBoat *b = const_cast<CGBoat *>(h->boat))
+		if(auto *b = const_cast<CGBoat *>(h->boat))
 			b->pos = end;
 		gs->map->addBlockVisTiles(h);
 	}
@@ -622,7 +621,7 @@ DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
 
 DLL_LINKAGE void SetAvailableCreatures::applyGs(CGameState *gs)
 {
-	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->getObjInstance(tid));
+	auto *dw = dynamic_cast<CGDwelling*>(gs->getObjInstance(tid));
 	assert(dw);
 	dw->creatures = creatures;
 }
@@ -677,13 +676,13 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 	if(h->id == ObjectInstanceID())
 	{
 		h->id = ObjectInstanceID((si32)gs->map->objects.size());
-		gs->map->objects.push_back(h);
+		gs->map->objects.emplace_back(h);
 	}
 	else
 		gs->map->objects[h->id.getNum()] = h;
 
-	gs->map->heroesOnMap.push_back(h);
-	p->heroes.push_back(h);
+	gs->map->heroesOnMap.emplace_back(h);
+	p->heroes.emplace_back(h);
 	h->attachTo(*p);
 	if(fresh)
 	{
@@ -712,8 +711,8 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
 	h->pos = h->convertFromVisitablePos(oldVisitablePos);
-	gs->map->heroesOnMap.push_back(h);
-	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
+	gs->map->heroesOnMap.emplace_back(h);
+	gs->getPlayerState(h->getOwner())->heroes.emplace_back(h);
 
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
@@ -750,9 +749,9 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 		o = new CGCreature();
 		{
 			//CStackInstance hlp;
-			CGCreature *cre = static_cast<CGCreature*>(o);
+			auto *cre = dynamic_cast<CGCreature*>(o);
 			//cre->slots[0] = hlp;
-			cre->notGrowingTeam = cre->neverFlees = 0;
+			cre->notGrowingTeam = cre->neverFlees = false;
 			cre->character = 2;
 			cre->gainedArtifact = ArtifactID::NONE;
 			cre->identifier = -1;
@@ -769,7 +768,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(terrainType).front();
 	id = o->id = ObjectInstanceID((si32)gs->map->objects.size());
 
-	gs->map->objects.push_back(o);
+	gs->map->objects.emplace_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj(gs->getRandomGenerator());
 	gs->map->calculateGuardingGreaturePositions();
@@ -784,7 +783,7 @@ DLL_LINKAGE void NewArtifact::applyGs(CGameState *gs)
 
 	assert(!art->getParentNodes().size());
 	art->setType(art->artType);
-	if (CCombinedArtifactInstance* cart = dynamic_cast<CCombinedArtifactInstance*>(art.get()))
+	if (auto* cart = dynamic_cast<CCombinedArtifactInstance*>(art.get()))
 		cart->createConstituents();
 }
 
@@ -859,13 +858,13 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 
 DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
 {
-	ArtifactLocation *t = const_cast<ArtifactLocation*>(this);
+	auto *t = const_cast<ArtifactLocation*>(this);
 	return t->getHolderArtSet();
 }
 
 DLL_LINKAGE const CBonusSystemNode * ArtifactLocation::getHolderNode() const
 {
-	ArtifactLocation *t = const_cast<ArtifactLocation*>(this);
+	auto *t = const_cast<ArtifactLocation*>(this);
 	return t->getHolderNode();
 }
 
@@ -1213,7 +1212,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 
 DLL_LINKAGE void DisassembledArtifact::applyGs(CGameState *gs)
 {
-	CCombinedArtifactInstance *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
+	auto *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
 	assert(disassembled);
 
 	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
@@ -1237,7 +1236,7 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs(CGameState *gs)
 {
 	if(id >= 0)
 	{
-		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id].get()))
+		if(auto *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id].get()))
 		{
 			bm->artifacts = arts;
 		}
@@ -1286,10 +1285,10 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 		hero->mana = h.mana;
 	}
 
-	for(auto i = res.cbegin(); i != res.cend(); i++)
+	for(const auto & re : res)
 	{
 		assert(i->first < PlayerColor::PLAYER_LIMIT);
-		gs->getPlayerState(i->first)->resources = i->second;
+		gs->getPlayerState(re.first)->resources = re.second;
 	}
 
 	for(auto creatureSet : cres) //set available creatures in towns
@@ -1331,18 +1330,18 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 		return;
 	}
 
-	CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
+	auto *cai = dynamic_cast<CArmedInstance *>(obj);
 	if(what == ObjProperty::OWNER && cai)
 	{
 		if(obj->ID == Obj::TOWN)
 		{
-			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+			auto *t = dynamic_cast<CGTownInstance*>(obj);
 			if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
 				gs->getPlayerState(t->tempOwner)->towns -= t;
 			if(val < PlayerColor::PLAYER_LIMIT_I)
 			{
 				PlayerState * p = gs->getPlayerState(PlayerColor(val));
-				p->towns.push_back(t);
+				p->towns.emplace_back(t);
 
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
 				if(p->daysWithoutCastle)
@@ -1556,7 +1555,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	}
 	else
 	{
-		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype));
+		gs->curB->sides[ba.side].usedSpellsHistory.emplace_back(ba.actionSubtype);
 	}
 
 	switch(ba.actionType)
@@ -1682,14 +1681,10 @@ DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 	}
 }
 
-DLL_LINKAGE CatapultAttack::CatapultAttack()
-{
-	attacker = -1;
-}
+DLL_LINKAGE CatapultAttack::CatapultAttack() = default;
 
 DLL_LINKAGE CatapultAttack::~CatapultAttack()
-{
-}
+= default;
 
 DLL_LINKAGE void CatapultAttack::applyGs(CGameState * gs)
 {

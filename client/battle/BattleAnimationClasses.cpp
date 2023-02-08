@@ -374,7 +374,7 @@ bool MovementAnimation::init()
 
 	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
 	{
-		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
+		auto distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
 		progressPerSecond =  AnimationControls::getFlightDistance(stack->getCreature()) / distance;
 	}
 
@@ -870,19 +870,20 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects):
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects, std::vector<BattleHex> hex, std::vector<Point> pos):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	effectFlags(effects),
-	effectFinished(false)
+	effectFinished(false),
+	battlehexes(hex),
+	positions(pos)
 {
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+	EffectAnimation(owner, animationName, effects, hex, {}) 
 {
-	battlehexes = hex;
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
@@ -893,9 +894,8 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationN
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+	EffectAnimation(owner, animationName, effects, {}, pos)
 {
-	positions = pos;
 }
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
@@ -910,6 +910,11 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationN
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 	positions.push_back(pos);
+}
+
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects):
+	EffectAnimation(owner, animationName, effects, {}, {}) 
+{
 }
 
 bool EffectAnimation::init()
@@ -927,7 +932,7 @@ bool EffectAnimation::init()
 	{
 		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
 			for(int j=0; j * first->height() < owner.fieldController->pos.h ; ++j)
-				positions.push_back(Point( i * first->width(), j * first->height()));
+				positions.emplace_back( i * first->width(), j * first->height());
 	}
 
 	BattleEffect be;

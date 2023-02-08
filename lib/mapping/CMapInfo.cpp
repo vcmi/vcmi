@@ -62,7 +62,7 @@ void CMapInfo::saveInit(ResourceID file)
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
+	campaignHeader = std::make_unique<CCampaignHeader>(CCampaignHandler::getHeader(fileURI));
 }
 
 void CMapInfo::countPlayers()
@@ -81,8 +81,8 @@ void CMapInfo::countPlayers()
 	}
 
 	if(scenarioOptionsOfSave)
-		for (auto i = scenarioOptionsOfSave->playerInfos.cbegin(); i != scenarioOptionsOfSave->playerInfos.cend(); i++)
-			if(i->second.isControlledByHuman())
+		for (const auto & playerInfo : scenarioOptionsOfSave->playerInfos)
+			if(playerInfo.second.isControlledByHuman())
 				amountOfHumanPlayersInSave++;
 }
 

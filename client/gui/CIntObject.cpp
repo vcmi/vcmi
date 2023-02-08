@@ -17,22 +17,18 @@
 #include <SDL_pixels.h>
 #include <SDL_surface.h>
 
-IShowActivatable::IShowActivatable()
-{
-	type = 0;
-}
+IShowActivatable::IShowActivatable() = default;
 
 CIntObject::CIntObject(int used_, Point pos_):
+	used(used_),
 	parent_m(nullptr),
 	active_m(0),
 	parent(parent_m),
-	active(active_m)
+	active(active_m),
+	recActions(defActions = GH.defActionsDef)
 {
 	hovered = captureAllKeys = strongInterest = false;
 	toNextTick = timerDelay = 0;
-	used = used_;
-
-	recActions = defActions = GH.defActionsDef;
 
 	pos.x = pos_.x;
 	pos.y = pos_.y;
@@ -329,8 +325,7 @@ bool CIntObject::captureThisKey(const SDL_Keycode & key)
 	return captureAllKeys;
 }
 
-CKeyShortcut::CKeyShortcut()
-{}
+CKeyShortcut::CKeyShortcut() = default;
 
 CKeyShortcut::CKeyShortcut(int key)
 {
@@ -379,5 +374,4 @@ void WindowBase::close()
 	GH.popInts(1);
 }
 
-IStatusBar::~IStatusBar()
-{}
+IStatusBar::~IStatusBar() = default;

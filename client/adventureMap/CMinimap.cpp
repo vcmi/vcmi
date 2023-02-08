@@ -77,7 +77,7 @@ void CMinimapInstance::blitTileWithColor(const SDL_Color &color, const int3 &til
 {
 	//coordinates of rectangle on minimap representing this tile
 	// begin - first to blit, end - first NOT to blit
-	int xBegin, yBegin, xEnd, yEnd;
+	int xBegin = 0, yBegin = 0, xEnd = 0, yEnd = 0;
 	tileToPixels (tile, xBegin, yBegin, toX, toY);
 	tileToPixels (int3 (tile.x + 1, tile.y + 1, tile.z), xEnd, yEnd, toX, toY);
 

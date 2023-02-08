@@ -149,7 +149,7 @@ namespace Res
 			{
 				Res::ERes resType;
 				TResourceCap resVal;
-			} cur;
+			} cur{};
 			const ResourceSet &rs;
 			void advance();
 

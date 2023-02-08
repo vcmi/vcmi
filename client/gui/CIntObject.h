@@ -55,7 +55,7 @@ class IShowActivatable : public IShowable, public IActivatable
 public:
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
 	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
-	int type; //bin flags using etype
+	int type{0}; //bin flags using etype
 	IShowActivatable();
 	virtual ~IShowActivatable(){};
 };
@@ -145,7 +145,7 @@ public:
 	void removeUsedEvents(ui16 newActions);
 
 	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
-	ui8 defActions; //which calls will be tried to be redirected to children
+	ui8 defActions{}; //which calls will be tried to be redirected to children
 	ui8 recActions; //which calls we allow to receive from parent
 
 	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal

@@ -55,7 +55,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 	//for each line in symbol
 	for(int dy = lineBegin; dy <lineEnd; dy++)
 	{
-		uint8_t *dstLine = (uint8_t*)surface->pixels;
+		auto *dstLine = (uint8_t*)surface->pixels;
 		uint8_t *source = data.first.get() + getCharacterDataOffset(characterIndex);
 
 		// shift source\destination pixels to current position

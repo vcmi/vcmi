@@ -25,7 +25,7 @@ class Damage : public UnitEffect
 {
 public:
 	Damage();
-	virtual ~Damage();
+	virtual ~Damage() = default;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 

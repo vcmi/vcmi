@@ -533,7 +533,7 @@ void RazeStructures::applyCl (CClient *cl)
 
 void SetAvailableCreatures::applyCl(CClient *cl)
 {
-	const CGDwelling *dw = static_cast<const CGDwelling*>(cl->getObj(tid));
+	const auto *dw = dynamic_cast<const CGDwelling*>(cl->getObj(tid));
 
 	//inform order about the change
 
@@ -650,7 +650,7 @@ void BlockingDialog::applyCl(CClient *cl)
 void GarrisonDialog::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(hid);
-	const CArmedInstance *obj = static_cast<const CArmedInstance*>(cl->getObj(objid));
+	const auto *obj = dynamic_cast<const CArmedInstance*>(cl->getObj(objid));
 
 	callOnlyThatInterface(cl, h->getOwner(), &CGameInterface::showGarrisonDialog, obj, h, removableUnits, queryID);
 }

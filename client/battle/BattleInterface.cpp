@@ -86,14 +86,14 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 
 	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
 	if(town && town->hasFort())
-		siegeController.reset(new BattleSiegeController(*this, town));
+		siegeController = std::make_unique<BattleSiegeController>(*this, town);
 
 	windowObject = std::make_shared<BattleWindow>(*this);
-	projectilesController.reset(new BattleProjectileController(*this));
-	stacksController.reset( new BattleStacksController(*this));
-	actionsController.reset( new BattleActionsController(*this));
-	effectsController.reset(new BattleEffectsController(*this));
-	obstacleController.reset(new BattleObstacleController(*this));
+	projectilesController = std::make_unique<BattleProjectileController>(*this);
+	stacksController = std::make_unique<BattleStacksController>( *this);
+	actionsController = std::make_unique<BattleActionsController>( *this);
+	effectsController = std::make_unique<BattleEffectsController>(*this);
+	obstacleController = std::make_unique<BattleObstacleController>(*this);
 
 	CCS->musich->stopMusic();
 	setAnimationCondition(EAnimationEvents::OPENING, true);
@@ -729,7 +729,7 @@ void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
 {
 	logAnim->debug("setAnimationCondition: %d -> %s", static_cast<int>(event), state ? "ON" : "OFF");
 
-	size_t index = static_cast<size_t>(event);
+	auto index = static_cast<size_t>(event);
 	animationEvents[index].setn(state);
 
 	decltype(awaitingEvents) executingEvents;
@@ -751,14 +751,14 @@ void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
 
 bool BattleInterface::getAnimationCondition( EAnimationEvents event)
 {
-	size_t index = static_cast<size_t>(event);
+	auto index = static_cast<size_t>(event);
 	return animationEvents[index].get();
 }
 
 void BattleInterface::waitForAnimationCondition( EAnimationEvents event, bool state)
 {
 	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-	size_t index = static_cast<size_t>(event);
+	auto index = static_cast<size_t>(event);
 	animationEvents[index].waitUntil(state);
 }
 

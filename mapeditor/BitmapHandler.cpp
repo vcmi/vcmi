@@ -56,7 +56,7 @@ namespace BitmapHandler
 		else if(fSize==width*height)
 			format=PCX8B;
 		else
-			return QImage();
+			return {};
 		
 		QSize qsize(width, height);
 		
@@ -92,11 +92,11 @@ namespace BitmapHandler
 		if(!fname.size())
 		{
 			logGlobal->warn("Call to loadBitmap with void fname!");
-			return QImage();
+			return {};
 		}
 		if(!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
 		{
-			return QImage();
+			return {};
 		}
 		
 		auto fullpath = CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE));
@@ -140,7 +140,7 @@ namespace BitmapHandler
 				return image;
 			}
 		}
-		return QImage();
+		return {};
 		// When modifying anything here please check use cases:
 		// 1) Vampire mansion in Necropolis (not 1st color is transparent)
 		// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)

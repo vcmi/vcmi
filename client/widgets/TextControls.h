@@ -47,7 +47,7 @@ protected:
 
 	std::shared_ptr<CPicture> background;
 	std::string text;
-	bool autoRedraw;  //whether control will redraw itself on setTxt
+	bool autoRedraw{true};  //whether control will redraw itself on setTxt
 
 public:
 

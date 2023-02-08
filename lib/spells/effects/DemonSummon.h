@@ -24,7 +24,7 @@ class DemonSummon : public UnitEffect
 {
 public:
 	DemonSummon();
-	virtual ~DemonSummon();
+	virtual ~DemonSummon() override = default;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 protected:

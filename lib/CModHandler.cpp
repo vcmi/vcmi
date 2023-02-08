@@ -41,9 +41,7 @@ CIdentifierStorage::CIdentifierStorage():
 {
 }
 
-CIdentifierStorage::~CIdentifierStorage()
-{
-}
+CIdentifierStorage::~CIdentifierStorage() = default;
 
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
@@ -144,7 +142,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name , type ,scope);
 
-	return boost::optional<si32>();
+	return {};
 }
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const JsonNode & name, bool silent)
@@ -157,7 +155,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const 
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), type, name.meta);
 
-	return boost::optional<si32>();
+	return {};
 }
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
@@ -171,7 +169,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), pair2.first, name.meta);
 
-	return boost::optional<si32>();
+	return {};
 }
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::string fullName, bool silent)
@@ -185,7 +183,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", fullName, pair2.first, scope);
 
-	return boost::optional<si32>();
+	return {};
 }
 
 void CIdentifierStorage::registerObject(std::string scope, std::string type, std::string name, si32 identifier)
@@ -226,7 +224,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
-				return std::vector<ObjectData>();
+				return {};
 
 			allowedScopes.insert(request.localScope);
 		}
@@ -258,7 +256,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 			auto myDeps = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
-				return std::vector<ObjectData>();
+				return {};
 
 			if(myDeps.count(request.remoteScope))
 				allowedScopes.insert(request.remoteScope);
@@ -281,7 +279,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		}
 		return locatedIDs;
 	}
-	return std::vector<ObjectData>();
+	return {};
 }
 
 bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
@@ -353,7 +351,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objec
 
 bool ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList, bool validate)
 {
-	bool result;
+	bool result = false;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
 	data.setMeta(modName);
 
@@ -450,9 +448,7 @@ void ContentTypeHandler::afterLoadFinalization()
 	handler->afterLoadFinalization();
 }
 
-CContentHandler::CContentHandler()
-{
-}
+CContentHandler::CContentHandler() = default;
 
 void CContentHandler::init()
 {
@@ -559,7 +555,7 @@ static JsonNode loadModSettings(std::string path)
 	}
 	// Probably new install. Create initial configuration
 	CResourceHandler::get("local")->createResource(path);
-	return JsonNode();
+	return {};
 }
 
 JsonNode addMeta(JsonNode config, std::string meta)
@@ -570,7 +566,7 @@ JsonNode addMeta(JsonNode config, std::string meta)
 
 CModInfo::Version CModInfo::Version::GameVersion()
 {
-	return Version(VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH);
+	return {VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH};
 }
 
 CModInfo::Version CModInfo::Version::fromString(std::string from)
@@ -591,9 +587,9 @@ CModInfo::Version CModInfo::Version::fromString(std::string from)
 	}
 	catch(const std::invalid_argument &)
 	{
-		return Version();
+		return {};
 	}
-	return Version(major, minor, patch);
+	return {major, minor, patch};
 }
 
 std::string CModInfo::Version::toString() const
@@ -721,9 +717,7 @@ CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 	}
 }
 
-CModHandler::~CModHandler()
-{
-}
+CModHandler::~CModHandler() = default;
 
 void CModHandler::loadConfigFromFile (std::string name)
 {
@@ -1091,7 +1085,7 @@ std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound
 		return it->second.dependencies;
 
 	logMod->error("Mod not found: '%s'", modId);
-	return std::set<TModID>();
+	return {};
 }
 
 void CModHandler::initializeConfig()

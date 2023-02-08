@@ -56,7 +56,7 @@ class Graphics
 public:
 	//various graphics
 	QVector<QRgb> playerColors; //array [8]
-	QRgb neutralColor;
+	QRgb neutralColor{};
 	QVector<QRgb> playerColorPalette; //palette to make interface colors good - array of size [256]
 	QVector<QRgb> neutralColorPalette;
 		

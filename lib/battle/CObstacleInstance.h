@@ -25,9 +25,9 @@ struct DLL_LINKAGE CObstacleInstance
 	};
 
 	BattleHex pos; //position on battlefield, typically left bottom corner
-	EObstacleType obstacleType;
-	si32 uniqueID;
-	si32 ID; //ID of obstacle (defines type of it)
+	EObstacleType obstacleType{USUAL};
+	si32 uniqueID{-1};
+	si32 ID{-1}; //ID of obstacle (defines type of it)
 
 	CObstacleInstance();
 	virtual ~CObstacleInstance();

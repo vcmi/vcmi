@@ -190,14 +190,14 @@ class DLL_LINKAGE CFaction : public Faction
 	std::string modScope;
 	std::string identifier;
 
-	TFaction index;
+	TFaction index{0};
 
 public:
 	TerrainId nativeTerrain;
-	EAlignment::EAlignment alignment;
-	bool preferUndergroundPlacement;
+	EAlignment::EAlignment alignment{EAlignment::NEUTRAL};
+	bool preferUndergroundPlacement{false};
 
-	CTown * town; //NOTE: can be null
+	CTown * town{nullptr}; //NOTE: can be null
 
 	std::string creatureBg120;
 	std::string creatureBg130;
@@ -238,7 +238,7 @@ public:
 class DLL_LINKAGE CTown
 {
 	friend class CTownHandler;
-	size_t namesCount;
+	size_t namesCount{};
 
 public:
 	CTown();

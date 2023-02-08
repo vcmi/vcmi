@@ -543,7 +543,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
-	return std::shared_ptr<CIntObject>();
+	return {};
 }
 
 std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
@@ -556,7 +556,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	case 1:
 		return std::make_shared<CKingdTownList>(size);
 	default:
-		return std::shared_ptr<CIntObject>();
+		return {};
 	}
 }
 
@@ -571,7 +571,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		//Mines
 		if(object->ID == Obj::MINE || object->ID == Obj::ABANDONED_MINE)
 		{
-			const CGMine * mine = dynamic_cast<const CGMine *>(object);
+			const auto * mine = dynamic_cast<const CGMine *>(object);
 			assert(mine);
 			minesCount[mine->producedResource]++;
 
@@ -698,7 +698,7 @@ void CKingdHeroList::updateGarrisons()
 {
 	for(std::shared_ptr<CIntObject> object : heroes->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
+		if(auto * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
@@ -739,7 +739,7 @@ void CKingdTownList::townChanged(const CGTownInstance * town)
 {
 	for(std::shared_ptr<CIntObject> object : towns->getItems())
 	{
-		CTownItem * townItem = dynamic_cast<CTownItem *>(object.get());
+		auto * townItem = dynamic_cast<CTownItem *>(object.get());
 		if(townItem && townItem->town == town)
 			townItem->update();
 	}
@@ -749,7 +749,7 @@ void CKingdTownList::updateGarrisons()
 {
 	for(std::shared_ptr<CIntObject> object : towns->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
+		if(auto * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
@@ -794,8 +794,8 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 void CTownItem::updateGarrisons()
 {
 	garr->selectSlot(nullptr);
-	garr->setArmy(town->getUpperArmy(), 0);
-	garr->setArmy(town->visitingHero, 1);
+	garr->setArmy(town->getUpperArmy(), false);
+	garr->setArmy(town->visitingHero, true);
 	garr->recreateSlots();
 }
 

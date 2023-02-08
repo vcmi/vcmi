@@ -23,7 +23,7 @@ class UnitEffect : public Effect
 {
 public:
 	UnitEffect();
-	virtual ~UnitEffect();
+	virtual ~UnitEffect() = default;
 
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 

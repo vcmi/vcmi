@@ -353,7 +353,7 @@ Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
 	int y = 86 + 42 *hex.getY();
 	int w = cellShade->width();
 	int h = cellShade->height();
-	return Rect(x, y, w, h);
+	return {x, y, w, h};
 }
 
 Rect BattleFieldController::hexPositionAbsolute(BattleHex hex) const
@@ -428,7 +428,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 	//   4 3
 
 	// if true - our current stack can move into this hex (and attack)
-	std::array<bool, 8> attackAvailability;
+	std::array<bool, 8> attackAvailability{};
 
 	if (doubleWide)
 	{
@@ -478,7 +478,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 		testPoint[7] = (hexPositionAbsolute(neighbours[3]).center() + hexPositionAbsolute(neighbours[4]).center()) / 2 + Point(0,  5);
 
 	// Compute distance between tested position & cursor position and pick nearest
-	std::array<int, 8> distance2;
+	std::array<int, 8> distance2{};
 
 	for (size_t i = 0; i < 8; ++i)
 		if (attackAvailability[i])

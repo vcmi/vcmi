@@ -98,7 +98,7 @@ CObjectClassesHandler::~CObjectClassesHandler()
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
 	CLegacyConfigParser parser("Data/Objects.txt");
-	size_t totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
+	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
 	for (size_t i = 0; i < totalNumber; i++)
@@ -292,7 +292,7 @@ void CObjectClassesHandler::removeSubObject(si32 ID, si32 subID)
 
 std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 {
-	return std::vector<bool>(); //TODO?
+	return {}; //TODO?
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
@@ -437,9 +437,7 @@ AObjectTypeHandler::AObjectTypeHandler():
 
 }
 
-AObjectTypeHandler::~AObjectTypeHandler()
-{
-}
+AObjectTypeHandler::~AObjectTypeHandler() = default;
 
 std::string AObjectTypeHandler::getJsonKey() const
 {
@@ -618,7 +616,7 @@ std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId 
 		if (objectFilter(object, tmpl))
 			return tmpl;
 	}
-	return std::shared_ptr<const ObjectTemplate>(); //empty
+	return {}; //empty
 }
 
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()

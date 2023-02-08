@@ -68,7 +68,7 @@ class CBaseForServerApply
 public:
 	virtual bool applyOnServerBefore(CVCMIServer * srv, void * pack) const =0;
 	virtual void applyOnServerAfter(CVCMIServer * srv, void * pack) const =0;
-	virtual ~CBaseForServerApply() {}
+	virtual ~CBaseForServerApply() = default;
 	template<typename U> static CBaseForServerApply * getApplier(const U * t = nullptr)
 	{
 		return new CApplyOnServer<U>();
@@ -374,7 +374,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 #endif
 		while(c->connected)
 		{
-			CPack * pack;
+			CPack * pack = nullptr;
 			
 			try
 			{
@@ -588,12 +588,12 @@ void CVCMIServer::reconnectPlayer(int connId)
 	
 	if(gh && si && state == EServerState::GAMEPLAY)
 	{
-		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
+		for(auto & playerName : playerNames)
 		{
-			if(it->second.connection != connId)
+			if(playerName.second.connection != connId)
 				continue;
 			
-			int id = it->first;
+			int id = playerName.first;
 			auto * playerSettings = si->getPlayersSettings(id);
 			if(!playerSettings)
 				continue;
@@ -725,7 +725,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	struct PlayerToRestore
 	{
 		PlayerColor color;
-		int id;
+		int id{};
 		void reset() { id = -1; color = PlayerColor::CANNOT_DETERMINE; }
 		PlayerToRestore(){ reset(); }
 	} playerToRestore;
@@ -745,7 +745,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 		playerToRestore.reset();
 	}
 
-	int newPlayer; //which player will take clicked position
+	int newPlayer = 0; //which player will take clicked position
 
 	//who will be put here?
 	if(!clickedNameID) //AI player clicked -> if possible replace computer with unallocated player
@@ -770,15 +770,15 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	//if that player was somewhere else, we need to replace him with computer
 	if(newPlayer) //not AI
 	{
-		for(auto i = si->playerInfos.begin(); i != si->playerInfos.end(); i++)
+		for(auto & playerInfo : si->playerInfos)
 		{
-			int curNameID = *(i->second.connectedPlayerIDs.begin());
-			if(i->first != clickedColor && curNameID == newPlayer)
+			int curNameID = *(playerInfo.second.connectedPlayerIDs.begin());
+			if(playerInfo.first != clickedColor && curNameID == newPlayer)
 			{
 				assert(i->second.connectedPlayerIDs.size());
-				playerToRestore.color = i->first;
+				playerToRestore.color = playerInfo.first;
 				playerToRestore.id = newPlayer;
-				setPlayerConnectedId(i->second, PlayerSettings::PLAYER_AI); //set computer
+				setPlayerConnectedId(playerInfo.second, PlayerSettings::PLAYER_AI); //set computer
 				break;
 			}
 		}
@@ -955,10 +955,10 @@ std::vector<int> CVCMIServer::getUsedHeroes()
 
 ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 {
-	for(auto i = playerNames.cbegin(); i != playerNames.cend(); i++)
+	for(const auto & playerName : playerNames)
 	{
-		if(!si->getPlayersSettings(i->first))
-			return i->first;
+		if(!si->getPlayersSettings(playerName.first))
+			return playerName.first;
 	}
 
 	return 0;
@@ -970,7 +970,7 @@ void handleLinuxSignal(int sig)
 	const int STACKTRACE_SIZE = 100;
 	void * buffer[STACKTRACE_SIZE];
 	int ptrCount = backtrace(buffer, STACKTRACE_SIZE);
-	char * * strings;
+	char * * strings = nullptr;
 
 	logGlobal->error("Error: signal %d :", sig);
 	strings = backtrace_symbols(buffer, ptrCount);
@@ -1029,7 +1029,7 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #ifndef SINGLE_PROCESS_APP
 	if(options.count("help"))
 	{
-		auto time = std::time(0);
+		auto time = std::time(nullptr);
 		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
 		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
 		printf("This is free software; see the source for copying conditions. There is NO\n");

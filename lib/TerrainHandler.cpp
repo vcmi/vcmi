@@ -19,7 +19,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	TerrainType * info = new TerrainType;
+	auto * info = new TerrainType;
 
 	info->id = TerrainId(index);
 
@@ -187,7 +187,6 @@ std::string TerrainType::getNameTranslated() const
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
-TerrainType::TerrainType()
-{}
+TerrainType::TerrainType() = default;
 
 VCMI_LIB_NAMESPACE_END

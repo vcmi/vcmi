@@ -110,15 +110,15 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	// handle campaign specific discrepancies
 	if(name == "DATA/AB.H3C")
 	{
-		ret->scenarios[6].keepHeroes.push_back(HeroTypeID(155)); // keep hero Xeron for map 7 To Kill A Hero
+		ret->scenarios[6].keepHeroes.emplace_back(155); // keep hero Xeron for map 7 To Kill A Hero
 	}
 	else if(name == "DATA/FINAL.H3C")
 	{
 		// keep following heroes for map 8 Final H
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(148)); // Gelu
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(27)); // Gem
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(102)); // Crag Hack
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(96)); // Yog
+		ret->scenarios[7].keepHeroes.emplace_back(148); // Gelu
+		ret->scenarios[7].keepHeroes.emplace_back(27); // Gem
+		ret->scenarios[7].keepHeroes.emplace_back(102); // Crag Hack
+		ret->scenarios[7].keepHeroes.emplace_back(96); // Yog
 	}
 
 	return ret;
@@ -357,10 +357,7 @@ bool CCampaign::conquerable( int whichScenario ) const
 	return true;
 }
 
-CCampaign::CCampaign()
-{
-
-}
+CCampaign::CCampaign() = default;
 
 CCampaignScenario::SScenarioPrologEpilog::SScenarioPrologEpilog()
 	: hasPrologEpilog(false), prologVideo(0), prologMusic(0), prologText()
@@ -443,7 +440,7 @@ boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurren
 	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
 
 	if(bonuses.empty())
-		return boost::optional<CScenarioTravel::STravelBonus>();
+		return {};
 	else
 		return bonuses[currentBonusID()];
 }
@@ -463,10 +460,7 @@ ui8 CCampaignState::currentBonusID() const
 	return chosenCampaignBonuses.at(*currentMap);
 }
 
-CCampaignState::CCampaignState()
-{
-
-}
+CCampaignState::CCampaignState() = default;
 
 CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {

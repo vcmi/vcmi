@@ -59,7 +59,7 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 
 		if(side == BattleSide::ATTACKER)
 		{
-			for(BattleHex::EDir dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
+			for(auto dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
 				BattleHex::checkAndPush(position.cloneInDirection(dir, false), hexes);
 
 			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), hexes);
@@ -70,7 +70,7 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 		{
 			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::TOP_LEFT, false), hexes);
 
-			for(BattleHex::EDir dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
+			for(auto dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
 				BattleHex::checkAndPush(otherHex.cloneInDirection(dir, false), hexes);
 
 			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), hexes);

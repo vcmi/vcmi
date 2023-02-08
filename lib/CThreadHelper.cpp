@@ -18,11 +18,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
+CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads) 
+	: currentTask(0), amount((int)Tasks->size()), tasks(Tasks), threads(Threads)
 {
-	currentTask = 0; amount = (int)Tasks->size();
-	tasks = Tasks;
-	threads = Threads;
 }
 void CThreadHelper::run()
 {
@@ -37,7 +35,7 @@ void CThreadHelper::processTasks()
 {
 	while(true)
 	{
-		int pom;
+		int pom = 0;
 		{
 			boost::unique_lock<boost::mutex> lock(rtinm);
 			if((pom = currentTask) >= amount)

@@ -144,14 +144,9 @@ CArtifact::CArtifact()
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
-	iconIndex = ArtifactID::NONE;
-	price = 0;
-	aClass = ART_SPECIAL;
 }
 
-CArtifact::~CArtifact()
-{
-}
+CArtifact::~CArtifact() = default;
 
 int CArtifact::getArtClassSerial() const
 {
@@ -243,9 +238,7 @@ void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 	}
 }
 
-CArtHandler::CArtHandler()
-{
-}
+CArtHandler::CArtHandler() = default;
 
 CArtHandler::~CArtHandler() = default;
 
@@ -300,7 +293,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 	object->iconIndex = object->getIndex() + 5;
 
-	objects.push_back(object);
+	objects.emplace_back(object);
 
 	registerObject(scope, "artifact", name, object->id);
 }
@@ -328,7 +321,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	CArtifact * art;
+	CArtifact * art = nullptr;
 
 	if(!VLC->modh->modules.COMMANDERS || node["growing"].isNull())
 	{
@@ -522,7 +515,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 {
 	if (!node["components"].isNull())
 	{
-		art->constituents.reset(new std::vector<CArtifact *>());
+		art->constituents = std::make_unique<std::vector<CArtifact *>>();
 		for (auto component : node["components"].Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier("artifact", component, [=](si32 id)
@@ -540,12 +533,12 @@ void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
 {
 	for (auto b : node["growing"]["bonusesPerLevel"].Vector())
 	{
-		art->bonusesPerLevel.push_back(std::pair <ui16, Bonus>((ui16)b["level"].Float(), Bonus()));
+		art->bonusesPerLevel.emplace_back((ui16)b["level"].Float(), Bonus());
 		JsonUtils::parseBonus(b["bonus"], &art->bonusesPerLevel.back().second);
 	}
 	for (auto b : node["growing"]["thresholdBonuses"].Vector())
 	{
-		art->thresholdBonuses.push_back(std::pair <ui16, Bonus>((ui16)b["level"].Float(), Bonus()));
+		art->thresholdBonuses.emplace_back((ui16)b["level"].Float(), Bonus());
 		JsonUtils::parseBonus(b["bonus"], &art->thresholdBonuses.back().second);
 	}
 }
@@ -562,7 +555,7 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, s
 			if (accepts(arts_i->id))
 			{
 				CArtifact *art = arts_i;
-				out.push_back(art);
+				out.emplace_back(art);
 			}
 		}
 	};
@@ -708,7 +701,7 @@ boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact:
 	case CArtifact::ART_RELIC:
 		return relics;
 	default: //special artifacts should not be erased
-		return boost::optional<std::vector<CArtifact*>&>();
+		return {};
 	}
 }
 
@@ -992,7 +985,7 @@ CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, ArtifactID aid
 	//TODO make it nicer
 	if(a->artType && (!!a->artType->constituents))
 	{
-		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
+		auto * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
 		for(CCombinedArtifactInstance::ConstituentInfo & ci : comb->constituentsInfo)
 		{
 			map->addNewArtifactInstance(ci.art);
@@ -1072,9 +1065,7 @@ CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
 {
 }
 
-CCombinedArtifactInstance::CCombinedArtifactInstance()
-{
-}
+CCombinedArtifactInstance::CCombinedArtifactInstance() = default;
 
 void CCombinedArtifactInstance::createConstituents()
 {
@@ -1093,7 +1084,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, Artifac
 		return constituent->getId() == art->artType->getId();
 	}));
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
-	constituentsInfo.push_back(ConstituentInfo(art, slot));
+	constituentsInfo.emplace_back(art, slot);
 	attachTo(*art);
 }
 
@@ -1204,10 +1195,9 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance *supposedPart) co
 	return false;
 }
 
-CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art, ArtifactPosition Slot)
+CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art, ArtifactPosition Slot) 
+	: art(Art), slot(Slot)
 {
-	art = Art;
-	slot = Slot;
 }
 
 bool CCombinedArtifactInstance::ConstituentInfo::operator==(const ConstituentInfo &rhs) const
@@ -1337,7 +1327,7 @@ CArtifactSet::searchForConstituent(ArtifactID aid) const
 		auto art = slot.artifact;
 		if(art->canBeDisassembled())
 		{
-			auto ass = static_cast<CCombinedArtifactInstance *>(art.get());
+			auto ass = dynamic_cast<CCombinedArtifactInstance *>(art.get());
 			for(auto& ci : ass->constituentsInfo)
 			{
 				if(ci.art->artType->getId() == aid)
@@ -1397,7 +1387,7 @@ ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 	if(slot == ArtifactPosition::TRANSITION_POS)
 	{
 		// Always add to the end. Always take from the beginning.
-		artifactsTransitionPos.push_back(ArtSlotInfo());
+		artifactsTransitionPos.emplace_back();
 		return artifactsTransitionPos.back();
 	}
 	if(!ArtifactUtils::isSlotBackpack(slot))
@@ -1549,9 +1539,9 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 	}
 }
 
-CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer Bearer)
+CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer Bearer) 
+	: Bearer(Bearer)
 {
-	this->Bearer = Bearer;
 }
 
 void CArtifactFittingSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance * art, bool locked)

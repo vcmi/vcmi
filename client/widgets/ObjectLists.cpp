@@ -141,13 +141,13 @@ size_t CListBox::size()
 std::shared_ptr<CIntObject> CListBox::getItem(size_t which)
 {
 	if(which < first || which > first + items.size() || which > totalSize)
-		return std::shared_ptr<CIntObject>();
+		return {};
 
 	size_t i=first;
 	for (auto iter = items.begin(); iter != items.end(); iter++, i++)
 		if( i == which)
 			return *iter;
-	return std::shared_ptr<CIntObject>();
+	return {};
 }
 
 size_t CListBox::getIndexOf(std::shared_ptr<CIntObject> item)
@@ -172,7 +172,7 @@ void CListBox::scrollTo(size_t which)
 void CListBox::moveToPos(size_t which)
 {
 	//Calculate new position
-	size_t maxPossible;
+	size_t maxPossible = 0;
 	if(totalSize > items.size())
 		maxPossible = totalSize - items.size();
 	else

@@ -66,7 +66,7 @@ void CInGameConsole::print(const std::string &txt)
 
 	if(txt.size() < lineLen)
 	{
-		texts.push_back(std::make_pair(txt, SDL_GetTicks()));
+		texts.emplace_back(txt, SDL_GetTicks());
 		if(texts.size() > maxDisplayedTexts)
 		{
 			texts.pop_front();
@@ -81,7 +81,7 @@ void CInGameConsole::print(const std::string &txt)
 			if(part.size() == 0)
 				break;
 
-			texts.push_back(std::make_pair(part, SDL_GetTicks()));
+			texts.emplace_back(part, SDL_GetTicks());
 			if(texts.size() > maxDisplayedTexts)
 			{
 				texts.pop_front();
@@ -226,7 +226,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			//some commands like gosolo don't work when executed from GUI thread
 			auto threadFunction = [=]()
 			{
-				ClientCommandManager commandController;
+				ClientCommandManager commandController{};
 				commandController.processCommand(txt.substr(1), true);
 			};
 

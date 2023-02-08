@@ -73,7 +73,7 @@ ColorFilter ColorFilter::genRangeShifter( float minR, float minG, float minB, fl
 
 ColorFilter ColorFilter::genMuxerShifter( ChannelMuxer r, ChannelMuxer g, ChannelMuxer b, float a )
 {
-	return ColorFilter(r, g, b, a);
+	return {r, g, b, a};
 }
 
 ColorFilter ColorFilter::genInterpolated(const ColorFilter & left, const ColorFilter & right, float power)

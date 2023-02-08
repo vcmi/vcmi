@@ -40,8 +40,8 @@ class DLL_LINKAGE Registry
 public:
 	using FactoryPtr = std::shared_ptr<IEffectFactory>;
 
-	Registry();
-	virtual ~Registry();
+	Registry() = default;
+	virtual ~Registry() = default;
 	virtual const IEffectFactory * find(const std::string & name) const = 0;
 	virtual void add(const std::string & name, FactoryPtr item) = 0;
 };

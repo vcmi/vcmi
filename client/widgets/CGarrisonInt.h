@@ -90,7 +90,7 @@ public:
 		 smallIcons,      ///< true - 32x32 imgs, false - 58x64
 		 removableUnits,  ///< player Can remove units from up
 		 twoRows,         ///< slots Will be placed in 2 rows
-		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
+		 owned[2]{};        ///< player Owns up or down army ([0] upper, [1] lower)
 
 	void selectSlot(CGarrisonSlot * slot); ///< @param slot null = deselect
 	const CGarrisonSlot * getSelection() const;
@@ -101,7 +101,7 @@ public:
 	bool hasEmptySlot(CGarrisonSlot::EGarrisonType type) const;
 	SlotID getEmptySlot(CGarrisonSlot::EGarrisonType type) const;
 
-	const CArmedInstance * armedObjs[2];  ///< [0] is upper, [1] is down
+	const CArmedInstance * armedObjs[2]{};  ///< [0] is upper, [1] is down
 
 	void setArmy(const CArmedInstance * army, bool bottomGarrison);
 	void addSplitBtn(std::shared_ptr<CButton> button);

@@ -255,12 +255,7 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 CCreature::CCreature()
 {
 	setNodeType(CBonusSystemNode::CREATURE);
-	faction = 0;
-	level = 0;
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
-	doubleWide = false;
-	special = true;
-	iconIndex = -1;
 }
 
 void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
@@ -445,7 +440,7 @@ void CCreatureHandler::loadCommanders()
 	int i = 0;
 	for (auto skill : config["skillLevels"].Vector())
 	{
-		skillLevels.push_back (std::vector<ui8>());
+		skillLevels.emplace_back();
 		for (auto skillLevel : skill["levels"].Vector())
 		{
 			skillLevels[i].push_back ((ui8)skillLevel.Float());
@@ -528,7 +523,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 	//RUS: Singular	Plural	Plural2 Wood ...
 	// Try to detect which version this is by header
 	// TODO: use 3rd name? Stand for "whose", e.g. pikemans'
-	size_t namesCount;
+	size_t namesCount = 0;
 	{
 		if ( parser.readString() != "Singular" || parser.readString() != "Plural" )
 			throw std::runtime_error("Incorrect format of CrTraits.txt");
@@ -1258,7 +1253,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	}
 
 	//limiters, range
-	si32 lastVal, curVal, lastLev = 0;
+	si32 lastVal = 0, curVal = 0, lastLev = 0;
 
 	if (enable) //0 and 2 means non-active, 1 - active
 	{
@@ -1333,7 +1328,7 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 		for(const CBonusSystemNode *b : creaturesOfLevel[tier].getChildrenNodes())
 		{
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			const CCreature * crea = dynamic_cast<const CCreature*>(b);
+			const auto * crea = dynamic_cast<const CCreature*>(b);
 			if(crea && !crea->special)
 				allowed.push_back(crea->idNumber);
 		}
