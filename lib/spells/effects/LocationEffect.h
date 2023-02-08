@@ -23,9 +23,6 @@ namespace effects
 class LocationEffect : public Effect
 {
 public:
-	LocationEffect();
-	virtual ~LocationEffect();
-
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;

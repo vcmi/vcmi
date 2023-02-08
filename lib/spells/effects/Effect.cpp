@@ -21,15 +21,6 @@ namespace spells
 namespace effects
 {
 
-Effect::Effect()
-	: indirect(false),
-	optional(false)
-{
-
-}
-
-Effect::~Effect() = default;
-
 bool Effect::applicable(Problem & problem, const Mechanics * m) const
 {
 	return true;
@@ -49,7 +40,7 @@ void Effect::serializeJson(JsonSerializeFormat & handler)
 
 std::shared_ptr<Effect> Effect::create(const Registry * registry, const std::string & type)
 {
-	auto factory = registry->find(type);
+	const auto *factory = registry->find(type);
 
 	if(factory)
 	{

@@ -24,9 +24,6 @@ namespace effects
 class Damage : public UnitEffect
 {
 public:
-	Damage();
-	virtual ~Damage();
-
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
@@ -39,8 +36,8 @@ protected:
 	virtual void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const battle::Unit * firstTarget, uint32_t kills, int64_t damage, bool multiple) const;
 
 private:
-	bool killByPercentage;
-	bool killByCount;
+	bool killByPercentage = false;
+	bool killByCount = false;
 };
 
 }

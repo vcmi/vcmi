@@ -28,15 +28,6 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(DemonSummon, EFFECT_NAME);
 
-DemonSummon::DemonSummon()
-	: UnitEffect()
-	, creature(0)
-	, permanent(false)
-{
-}
-
-DemonSummon::~DemonSummon() = default;
-
 void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleUnitsChanged pack;
@@ -60,7 +51,7 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 			break;
 		}
 
-		auto creatureType = creature.toCreature(m->creatures());
+		const auto *creatureType = creature.toCreature(m->creatures());
 
 		int32_t deadCount         = targetStack->unitBaseAmount();
 		int32_t deadTotalHealth   = targetStack->getTotalHealth();
@@ -110,7 +101,7 @@ bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * s) con
 	if (s->isGhost())
 		return false;
 
-	auto creatureType = creature.toCreature(m->creatures());
+	const auto *creatureType = creature.toCreature(m->creatures());
 
 	if (s->getTotalHealth() < creatureType->getMaxHealth())
 		return false;
