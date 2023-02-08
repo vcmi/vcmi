@@ -43,8 +43,6 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
 
-#include <SDL_surface.h>
-
 #define ADVOPT (conf.go()->ac)
 
 std::shared_ptr<CAdvMapInt> adventureInt;
@@ -90,8 +88,8 @@ CAdvMapInt::CAdvMapInt():
 	swipeTargetPosition(int3(-1, -1, -1))
 {
 	pos.x = pos.y = 0;
-	pos.w = screen->w;
-	pos.h = screen->h;
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	bg = IImage::createFromFile(ADVOPT.mainGraphic);
@@ -137,7 +135,7 @@ CAdvMapInt::CAdvMapInt():
 	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
-	int panelSpaceBottom = screen->h - resdatabar.pos.h - 4;
+	int panelSpaceBottom = GH.screenDimensions().y - resdatabar.pos.h - 4;
 
 	panelMain = std::make_shared<CAdvMapPanel>(nullptr, Point(0, 0));
 	// TODO correct drawing position
@@ -158,7 +156,7 @@ CAdvMapInt::CAdvMapInt():
 	// TODO move configs to resolutions.json, similarly to previous buttons
 	config::ButtonInfo worldViewBackConfig = config::ButtonInfo();
 	worldViewBackConfig.defName = "IOK6432.DEF";
-	worldViewBackConfig.x = screen->w - 73;
+	worldViewBackConfig.x = GH.screenDimensions().x - 73;
 	worldViewBackConfig.y = 343 + 195;
 	worldViewBackConfig.playerColoured = false;
 	panelWorldView->addChildToPanel(
@@ -166,7 +164,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewPuzzleConfig = config::ButtonInfo();
 	worldViewPuzzleConfig.defName = "VWPUZ.DEF";
-	worldViewPuzzleConfig.x = screen->w - 188;
+	worldViewPuzzleConfig.x = GH.screenDimensions().x - 188;
 	worldViewPuzzleConfig.y = 343 + 195;
 	worldViewPuzzleConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // no help text for this one
@@ -175,7 +173,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewScale1xConfig = config::ButtonInfo();
 	worldViewScale1xConfig.defName = "VWMAG1.DEF";
-	worldViewScale1xConfig.x = screen->w - 191;
+	worldViewScale1xConfig.x = GH.screenDimensions().x - 191;
 	worldViewScale1xConfig.y = 23 + 195;
 	worldViewScale1xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
@@ -183,7 +181,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
 	worldViewScale2xConfig.defName = "VWMAG2.DEF";
-	worldViewScale2xConfig.x = screen->w - 191 + 63;
+	worldViewScale2xConfig.x = GH.screenDimensions().x- 191 + 63;
 	worldViewScale2xConfig.y = 23 + 195;
 	worldViewScale2xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
@@ -191,7 +189,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
 	worldViewScale4xConfig.defName = "VWMAG4.DEF";
-	worldViewScale4xConfig.x = screen->w - 191 + 126;
+	worldViewScale4xConfig.x = GH.screenDimensions().x- 191 + 126;
 	worldViewScale4xConfig.y = 23 + 195;
 	worldViewScale4xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
@@ -200,7 +198,7 @@ CAdvMapInt::CAdvMapInt():
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
 	worldViewUndergroundConfig.additionalDefs.push_back("IAM003.DEF");
-	worldViewUndergroundConfig.x = screen->w - 115;
+	worldViewUndergroundConfig.x = GH.screenDimensions().x - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
 	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
@@ -1019,7 +1017,7 @@ void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 		{
 			scrollingDir &= ~LEFT;
 		}
-		if(cursorPosition.x>screen->w-15)
+		if(cursorPosition.x > GH.screenDimensions().x - 15)
 		{
 			scrollingDir |= RIGHT;
 		}
@@ -1035,7 +1033,7 @@ void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 		{
 			scrollingDir &= ~UP;
 		}
-		if(cursorPosition.y>screen->h-15)
+		if(cursorPosition.y > GH.screenDimensions().y - 15)
 		{
 			scrollingDir |= DOWN;
 		}

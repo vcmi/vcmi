@@ -316,7 +316,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, CSDL_Ext::makeNumberShort(stack->getCount(), 4));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, vstd::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)

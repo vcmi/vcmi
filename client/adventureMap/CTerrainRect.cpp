@@ -22,6 +22,7 @@
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../widgets/TextControls.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -276,17 +277,17 @@ void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
 				}
 				else if(hvx<0)
 				{
-					Rect srcRect = CSDL_Ext::genRect(arrow->height() - hvy, arrow->width(), 0, 0);
+					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width()));
 					arrow->draw(to, x + moveX, y + moveY, &srcRect);
 				}
 				else if (hvy<0)
 				{
-					Rect srcRect = CSDL_Ext::genRect(arrow->height(), arrow->width() - hvx, 0, 0);
+					Rect srcRect (Point(0, 0), Point(arrow->height(), arrow->width() - hvx));
 					arrow->draw(to, x + moveX, y + moveY, &srcRect);
 				}
 				else
 				{
-					Rect srcRect = CSDL_Ext::genRect(arrow->height() - hvy, arrow->width() - hvx, 0, 0);
+					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width() - hvx));
 					arrow->draw(to, x + moveX, y + moveY, &srcRect);
 				}
 			}
@@ -298,17 +299,17 @@ void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
 				}
 				else if(hvx<0)
 				{
-					Rect srcRect = CSDL_Ext::genRect(arrow->height() - hvy, arrow->width(), 0, 0);
+					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width()));
 					arrow->draw(to, x, y, &srcRect);
 				}
 				else if (hvy<0)
 				{
-					Rect srcRect = CSDL_Ext::genRect(arrow->height(), arrow->width() - hvx, 0, 0);
+					Rect srcRect (Point(0, 0), Point(arrow->height(), arrow->width() - hvx));
 					arrow->draw(to, x, y, &srcRect);
 				}
 				else
 				{
-					Rect srcRect = CSDL_Ext::genRect(arrow->height() - hvy, arrow->width() - hvx, 0, 0);
+					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width() - hvx));
 					arrow->draw(to, x, y, &srcRect);
 				}
 			}

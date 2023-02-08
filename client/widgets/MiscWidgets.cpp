@@ -182,6 +182,18 @@ void CMinorResDataBar::show(SDL_Surface * to)
 {
 }
 
+std::string CMinorResDataBar::buildDateString()
+{
+	std::string pattern = "%s: %d, %s: %d, %s: %d";
+
+	auto formatted = boost::format(pattern)
+		% CGI->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
+		% CGI->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
+		% CGI->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+
+	return boost::str(formatted);
+}
+
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
@@ -192,16 +204,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 
 		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * i, pos.y + pos.h/2));
 	}
-	std::vector<std::string> temp;
-
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::MONTH)));
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::WEEK)));
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK)));
-
-	std::string datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
-							+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
-
-	graphics->fonts[FONT_SMALL]->renderTextCenter(to, CSDL_Ext::processStr(datetext,temp), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
+	graphics->fonts[FONT_SMALL]->renderTextCenter(to, buildDateString(), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -248,7 +251,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
-			subtitle = CSDL_Ext::makeNumberShort(slot.second.count, 4);
+			subtitle = vstd::formatMetric(slot.second.count, 4);
 		}
 		else
 		{

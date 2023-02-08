@@ -13,6 +13,7 @@
 
 #include "../render/Colors.h"
 #include "../render/IImage.h"
+#include "../CMT.h"
 #include "SDL_Extensions.h"
 
 #include <SDL_render.h>

@@ -1135,9 +1135,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	{
 		primSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>());
 		if (qeLayout)
-			primSkillAreas[g]->pos = CSDL_Ext::genRect(22, 152, pos.x + 324, pos.y + 12 + 26 * g);
+			primSkillAreas[g]->pos = Rect(Point(pos.x + 324, pos.y + 12 + 26 * g), Point(22, 152));
 		else
-			primSkillAreas[g]->pos = CSDL_Ext::genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
+			primSkillAreas[g]->pos = Rect(Point(pos.x + 329, pos.y + 19 + 36 * g), Point(32, 140));
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
@@ -1157,7 +1157,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			int skill = hero->secSkills[g].first,
 				level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = CSDL_Ext::genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + (qeLayout ? 83 : 88));
+			secSkillAreas[b][g]->pos = Rect(Point(pos.x + 32 + g * 36 + b * 454 , pos.y + (qeLayout ? 83 : 88)), Point(32, 32) );
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -1172,12 +1172,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
-		specialtyAreas[b]->pos = CSDL_Ext::genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
+		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialtyAreas[b]->text = hero->type->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
-		experienceAreas[b]->pos = CSDL_Ext::genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
+		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
@@ -1185,15 +1185,15 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
-		spellPointsAreas[b]->pos = CSDL_Ext::genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
+		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
 
-		morale[b] = std::make_shared<MoraleLuckBox>(true, CSDL_Ext::genRect(32, 32, 176 + 490 * b, 39), true);
-		luck[b] = std::make_shared<MoraleLuckBox>(false, CSDL_Ext::genRect(32, 32, 212 + 490 * b, 39), true);
+		morale[b] = std::make_shared<MoraleLuckBox>(true, Rect(Point(176 + 490 * b, 39), Point(32, 32)), true);
+		luck[b] = std::make_shared<MoraleLuckBox>(false,  Rect(Point(212 + 490 * b, 39), Point(32, 32)), true);
 	}
 
 	quit = std::make_shared<CButton>(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), SDLK_RETURN);
@@ -1281,8 +1281,8 @@ void CExchangeWindow::updateWidgets()
 			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
 		}
 
-		expValues[leftRight]->setText(CSDL_Ext::makeNumberShort(hero->exp));
-		manaValues[leftRight]->setText(CSDL_Ext::makeNumberShort(hero->mana));
+		expValues[leftRight]->setText(vstd::formatMetric(hero->exp, 3));
+		manaValues[leftRight]->setText(vstd::formatMetric(hero->mana, 3));
 
 		morale[leftRight]->set(hero);
 		luck[leftRight]->set(hero);
@@ -1375,7 +1375,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 void CPuzzleWindow::showAll(SDL_Surface * to)
 {
 	int3 moveInt = int3(8, 9, 0);
-	Rect mapRect = CSDL_Ext::genRect(544, 591, pos.x + 8, pos.y + 7);
+	Rect mapRect = Rect(Point(pos.x + 8, pos.y + 7), Point(544, 591));
 	int3 topTile = grailPos - moveInt;
 
 	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);

@@ -13,9 +13,9 @@
 #include "CGuiHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CMessage.h"
+#include "../CMT.h"
 
 #include <SDL_pixels.h>
-#include <SDL_surface.h>
 
 IShowActivatable::IShowActivatable()
 {
@@ -227,8 +227,8 @@ void CIntObject::fitToScreen(int borderWidth, bool propagate)
 	Point newPos = pos.topLeft();
 	vstd::amax(newPos.x, borderWidth);
 	vstd::amax(newPos.y, borderWidth);
-	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
-	vstd::amin(newPos.y, screen->h - borderWidth - pos.h);
+	vstd::amin(newPos.x, GH.screenDimensions().x - borderWidth - pos.w);
+	vstd::amin(newPos.y, GH.screenDimensions().y - borderWidth - pos.h);
 	if (newPos != pos.topLeft())
 		moveTo(newPos, propagate);
 }
@@ -308,7 +308,7 @@ const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	return center(Point(screen->w/2, screen->h/2), propagate);
+	return center(Point(GH.screenDimensions().x/2, GH.screenDimensions().y/2), propagate);
 }
 
 const Rect & CIntObject::center( bool propagate )

@@ -28,7 +28,6 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../CMT.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -36,8 +35,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
-
-#include <SDL_surface.h>
 
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
@@ -79,9 +76,9 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")
-		embedQueue = screen->h < 700;
+		embedQueue = GH.screenDimensions().y < 700;
 	else
-		embedQueue = screen->h < 700 || queueSize == "small";
+		embedQueue = GH.screenDimensions().y < 700 || queueSize == "small";
 
 	queue = std::make_shared<StackQueue>(embedQueue, owner);
 	if(!embedQueue && settings["battle"]["showQueue"].Bool())
@@ -563,7 +560,7 @@ void BattleWindow::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 
-	if (screen->w != 800 || screen->h !=600)
+	if (GH.screenDimensions().x != 800 || GH.screenDimensions().y !=600)
 		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 

@@ -113,6 +113,8 @@ public:
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
+	Point screenDimensions() const;
+
 	/// returns true if at least one mouse button is pressed
 	bool isMouseButtonPressed() const;
 

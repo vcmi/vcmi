@@ -14,26 +14,9 @@
 
 #include "../render/Graphics.h"
 #include "../render/Colors.h"
+#include "../CMT.h"
 
 #include <SDL_render.h>
-
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
-
-#ifdef VCMI_IOS
-#include "ios/utils.h"
-#endif
-
-Rect CSDL_Ext::genRect(const int & hh, const int & ww, const int & xx, const int & yy)
-{
-	Rect ret;
-	ret.h=hh;
-	ret.w=ww;
-	ret.x=xx;
-	ret.y=yy;
-	return ret;
-}
 
 Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
 {
@@ -95,6 +78,11 @@ void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
 		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 	SDL_RenderPresent(mainRenderer);
 
+}
+
+SDL_Surface * CSDL_Ext::newSurface(int w, int h)
+{
+	return newSurface(w, h, screen);
 }
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
@@ -550,15 +538,6 @@ CSDL_Ext::TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &des
 uint8_t * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
 {
 	return (uint8_t *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
-}
-
-std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
-{
-	for (size_t i=0; (i<tor.size())&&(boost::find_first(str,"%s")); ++i)
-	{
-		boost::replace_first(str,"%s",tor[i]);
-	}
-	return str;
 }
 
 bool CSDL_Ext::isTransparent( SDL_Surface * srf, const Point & position )

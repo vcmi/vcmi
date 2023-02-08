@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CVideoHandler.h"
 
+#include "CMT.h"
 #include "gui/CGuiHandler.h"
 #include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"

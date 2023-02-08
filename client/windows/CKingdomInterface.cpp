@@ -14,7 +14,6 @@
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
-#include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"

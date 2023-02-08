@@ -17,7 +17,6 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
-#include "../CMT.h"
 
 #include "../../lib/CConfigHandler.h"
 

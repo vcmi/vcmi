@@ -525,9 +525,9 @@ void BattleInterface::setAnimSpeed(int set)
 int BattleInterface::getAnimSpeed() const
 {
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
-		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float()));
+		return static_cast<int>(std::round(settings["session"]["spectate-battle-speed"].Float()));
 
-	return static_cast<int>(vstd::round(settings["battle"]["speedFactor"].Float()));
+	return static_cast<int>(std::round(settings["battle"]["speedFactor"].Float()));
 }
 
 CPlayerInterface *BattleInterface::getCurrentPlayerInterface() const
