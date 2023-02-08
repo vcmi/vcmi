@@ -23,7 +23,7 @@ LuaReference::LuaReference(lua_State * L)
 	key = luaL_ref(l, LUA_REGISTRYINDEX);
 }
 
-LuaReference::LuaReference(LuaReference && other)
+LuaReference::LuaReference(LuaReference && other) noexcept
 	: l(other.l),
 	key(other.key),
 	doCleanup(false)

@@ -12,6 +12,7 @@
 
 #include "api/Registry.h"
 #include "LuaStack.h"
+#include <type_traits>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -187,6 +188,7 @@ public:
 template <typename U, typename T, typename R, typename P1, R(T:: * method)(P1)const>
 class LuaMethodWrapper <U, R(T:: *)(P1)const, method>
 {
+	using PM1 = std::remove_cv_t<std::remove_reference_t<P1>>;
 public:
 	static int invoke(lua_State * L)
 	{
@@ -196,7 +198,7 @@ public:
 		if(!S.tryGet(1,obj))
 			return S.retVoid();
 
-		P1 p1;
+		PM1 p1;
 		if(!S.tryGet(2, p1))
 			return S.retVoid();
 
@@ -210,6 +212,7 @@ public:
 template <typename U, typename T, typename R, typename P1, R(T:: * method)(P1)>
 class LuaMethodWrapper <U, R(T:: *)(P1), method>
 {
+	using PM1 = std::remove_cv_t<std::remove_reference_t<P1>>;
 public:
 	static int invoke(lua_State * L)
 	{
@@ -219,7 +222,7 @@ public:
 		if(!S.tryGet(1,obj))
 			return S.retVoid();
 
-		P1 p1;
+		PM1 p1;
 		if(!S.tryGet(2, p1))
 			return S.retVoid();
 
@@ -233,6 +236,7 @@ public:
 template <typename U, typename T, typename P1, void(T:: * method)(P1)const>
 class LuaMethodWrapper <U, void(T:: *)(P1)const, method>
 {
+	using PM1 = std::remove_cv_t<std::remove_reference_t<P1>>;
 public:
 	static int invoke(lua_State * L)
 	{
@@ -242,7 +246,7 @@ public:
 		if(!S.tryGet(1,obj))
 			return S.retVoid();
 
-		P1 p1;
+		PM1 p1;
 		if(!S.tryGet(2, p1))
 			return S.retVoid();
 
@@ -256,6 +260,7 @@ public:
 template <typename U, typename T, typename P1, void(T:: * method)(P1)>
 class LuaMethodWrapper <U, void(T:: *)(P1), method>
 {
+	using PM1 = std::remove_cv_t<std::remove_reference_t<P1>>;
 public:
 	static int invoke(lua_State * L)
 	{
@@ -265,7 +270,7 @@ public:
 		if(!S.tryGet(1,obj))
 			return S.retVoid();
 
-		P1 p1;
+		PM1 p1;
 		if(!S.tryGet(2, p1))
 			return S.retVoid();
 
@@ -279,6 +284,8 @@ public:
 template <typename U, typename T, typename R, typename P1, typename P2, R(T:: * method)(P1, P2)const>
 class LuaMethodWrapper <U, R(T:: *)(P1, P2)const, method>
 {
+	using PM1 = std::remove_cv_t<std::remove_reference_t<P1>>;
+	using PM2 = std::remove_cv_t<std::remove_reference_t<P2>>;
 public:
 	static int invoke(lua_State * L)
 	{
@@ -288,11 +295,11 @@ public:
 		if(!S.tryGet(1, obj))
 			return S.retVoid();
 
-		P1 p1;
+		PM1 p1;
 		if(!S.tryGet(2, p1))
 			return S.retVoid();
 
-		P2 p2;
+		PM2 p2;
 		if(!S.tryGet(3, p2))
 			return S.retVoid();
 
@@ -306,6 +313,8 @@ public:
 template <typename U, typename T, typename P1, typename P2, void(T:: * method)(P1, P2)const>
 class LuaMethodWrapper <U, void(T:: *)(P1, P2)const, method>
 {
+	using PM1 = std::remove_cv_t<std::remove_reference_t<P1>>;
+	using PM2 = std::remove_cv_t<std::remove_reference_t<P2>>;
 public:
 	static int invoke(lua_State * L)
 	{
@@ -315,11 +324,11 @@ public:
 		if(!S.tryGet(1, obj))
 			return S.retVoid();
 
-		P1 p1;
+		PM1 p1;
 		if(!S.tryGet(2, p1))
 			return S.retVoid();
 
-		P2 p2;
+		PM2 p2;
 		if(!S.tryGet(3, p2))
 			return S.retVoid();
 
