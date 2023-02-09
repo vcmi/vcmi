@@ -348,7 +348,6 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 	if(!dst)
 		dst = this;
 
-	int howManyStacks = 7; //how many stacks will hero receives <1 - 7>
 	int warMachinesGiven = 0;
 
 	std::vector<int32_t> stacksCountChances = VLC->modh->settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
@@ -364,7 +363,7 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 	if(stacksCountElementIndex == -1)
 		stacksCountElementIndex = stacksCountChances.size();
 
-	howManyStacks = stacksCountElementIndex;
+	int howManyStacks = stacksCountElementIndex;
 	if(!allowZeroStacksArmy)
 		howManyStacks++;
 
