@@ -410,10 +410,49 @@ void CGeneralTextHandler::registerStringOverride(const std::string & modContext,
 		entry.modContext = modContext;
 }
 
-void CGeneralTextHandler::loadTranslationOverrides(const std::string & language, const JsonNode & config)
+bool CGeneralTextHandler::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
+{
+	bool allPresent = true;
+
+	for (auto const & string : stringsLocalizations)
+	{
+		if (string.second.modContext != modContext)
+			continue;
+
+		if (string.second.baseLanguage == language && !string.second.baseValue.empty())
+			continue;
+
+		if (config.Struct().count(string.first) > 0)
+			continue;
+
+		if (allPresent)
+			logMod->warn("Translation into language '%s' in mod '%s' is incomplete! Missing lines:", language, modContext);
+
+		logMod->warn(R"(    "%s" : "",)", string.first);
+		allPresent = false;
+	}
+
+	bool allFound = true;
+
+	for (auto const & string : config.Struct())
+	{
+		if (stringsLocalizations.count(string.first) > 0)
+			continue;
+
+		if (allFound)
+			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
+
+		logMod->warn(R"(    "%s" : "",)", string.first);
+		allFound = false;
+	}
+
+	return allPresent && allFound;
+}
+
+void CGeneralTextHandler::loadTranslationOverrides(const std::string & language, const std::string & modContext, const JsonNode & config)
 {
 	for ( auto const & node : config.Struct())
-		registerStringOverride(node.second.meta, language, node.first, node.second.String());
+		registerStringOverride(modContext, language, node.first, node.second.String());
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
@@ -619,7 +658,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	}
 }
 
-int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
+int32_t CGeneralTextHandler::pluralText(int32_t textIndex, int32_t count) const
 {
 	if(textIndex == 0)
 		return 0;

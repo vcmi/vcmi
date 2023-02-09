@@ -1118,32 +1118,55 @@ void CModHandler::initializeConfig()
 	loadConfigFromFile("defaultMods.json");
 }
 
+bool CModHandler::validateTranslations(TModID modName) const
+{
+	bool result = true;
+	const auto & mod = allMods.at(modName);
+
+	{
+		auto fileList = mod.config["translations"].convertTo<std::vector<std::string> >();
+		JsonNode json = JsonUtils::assembleFromFiles(fileList);
+		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
+	}
+
+	// TODO: unify language lists in mod handler, general text handler, launcher and json validation
+	static const std::vector<std::string> languagesList =
+	{ "english", "german", "polish", "russian", "ukrainian" };
+
+	for (auto const & language : languagesList)
+	{
+		if (mod.config[language].isNull())
+			continue;
+
+		auto fileList = mod.config[language]["translations"].convertTo<std::vector<std::string> >();
+		JsonNode json = JsonUtils::assembleFromFiles(fileList);
+		result |= VLC->generaltexth->validateTranslation(language, modName, json);
+	}
+
+	return result;
+}
+
 void CModHandler::loadTranslation(TModID modName)
 {
-	auto const & mod = allMods[modName];
+	auto & mod = allMods[modName];
+
 	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = allMods[modName].baseLanguage;
 
-	for (auto const & config : mod.config["translations"].Vector())
-	{
-		JsonNode json(ResourceID(config.String(), EResType::TEXT));
-		json.setMeta(modName);
+	auto baseTranslationList = mod.config["translations"].convertTo<std::vector<std::string> >();
+	auto extraTranslationList = mod.config[preferredLanguage]["translations"].convertTo<std::vector<std::string> >();
 
-		VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, json);
-	}
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(baseTranslationList);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(extraTranslationList);
 
-	for (auto const & config : mod.config[preferredLanguage]["translations"].Vector())
-	{
-		JsonNode json(ResourceID(config.String(), EResType::TEXT));
-		json.setMeta(modName);
-
-		VLC->generaltexth->loadTranslationOverrides(preferredLanguage, json);
-	}
+	VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, modName, baseTranslation);
+	VLC->generaltexth->loadTranslationOverrides(preferredLanguage, modName, extraTranslation);
 }
 
 void CModHandler::load()
 {
-	CStopWatch totalTime, timer;
+	CStopWatch totalTime;
+	CStopWatch timer;
 
 	logMod->info("\tInitializing content handler: %d ms", timer.getDiff());
 
@@ -1166,14 +1189,18 @@ void CModHandler::load()
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
 
-	for(const TModID & modName : activeMods)
-		loadTranslation(modName);
-
 #if SCRIPTING_ENABLED
 	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
 #endif
 
 	content->loadCustom();
+
+	for(const TModID & modName : activeMods)
+		loadTranslation(modName);
+
+	for(const TModID & modName : activeMods)
+		if (!validateTranslations(modName))
+			allMods[modName].validation = CModInfo::FAILED;
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 

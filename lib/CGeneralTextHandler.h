@@ -41,7 +41,7 @@ namespace Unicode
 	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
 
 	///delete (amount) UTF characters from right
-	DLL_LINKAGE void trimRight(std::string & text, const size_t amount = 1);
+	DLL_LINKAGE void trimRight(std::string & text, size_t amount = 1);
 };
 
 class CInputStream;
@@ -87,8 +87,8 @@ public:
 	/// end current line
 	bool endLine();
 
-	CLegacyConfigParser(std::string URI);
-	CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
+	explicit CLegacyConfigParser(std::string URI);
+	explicit CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
 };
 
 class CGeneralTextHandler;
@@ -175,9 +175,14 @@ class DLL_LINKAGE CGeneralTextHandler
 	std::string getModLanguage(const std::string & modContext);
 public:
 
+	/// validates translation of specified language for specified mod
+	/// returns true if localization is valid and complete
+	/// any error messages will be written to log file
+	bool validateTranslation(const std::string & language, const std::string & modContext, JsonNode const & file) const;
+
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
-	void loadTranslationOverrides(const std::string & language, JsonNode const & file);
+	void loadTranslationOverrides(const std::string & language, const std::string & modContext, JsonNode const & file);
 
 	/// add selected string to internal storage
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
@@ -240,7 +245,7 @@ public:
 
 	std::vector<std::string> findStringsWithPrefix(std::string const & prefix);
 
-	int32_t pluralText(const int32_t textIndex, const int32_t count) const;
+	int32_t pluralText(int32_t textIndex, int32_t count) const;
 
 	size_t getCampaignLength(size_t campaignID) const;
 
