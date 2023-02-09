@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 RiverTypeHandler::RiverTypeHandler()
 {
 	objects.push_back(new RiverType);
+
+	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 RiverType * RiverTypeHandler::loadFromJson(
@@ -74,7 +76,7 @@ std::string RiverType::getNameTranslated() const
 
 RiverType::RiverType():
 	id(River::NO_RIVER),
-	identifier("core:empty")
+	identifier("empty")
 {}
 
 VCMI_LIB_NAMESPACE_END

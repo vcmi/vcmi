@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 RoadTypeHandler::RoadTypeHandler()
 {
 	objects.push_back(new RoadType);
+
+	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 RoadType * RoadTypeHandler::loadFromJson(
@@ -74,7 +76,7 @@ std::string RoadType::getNameTranslated() const
 
 RoadType::RoadType():
 	id(Road::NO_ROAD),
-	identifier("core:empty"),
+	identifier("empty"),
 	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {}
 VCMI_LIB_NAMESPACE_END

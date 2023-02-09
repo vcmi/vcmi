@@ -428,7 +428,13 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		if (allPresent)
 			logMod->warn("Translation into language '%s' in mod '%s' is incomplete! Missing lines:", language, modContext);
 
-		logMod->warn(R"(    "%s" : "",)", string.first);
+		std::string currentText;
+		if (string.second.overrideValue.empty())
+			currentText = string.second.baseValue;
+		else
+			currentText = string.second.overrideValue;
+
+		logMod->warn(R"(    "%s" : "%s",)", string.first, currentText);
 		allPresent = false;
 	}
 
@@ -442,7 +448,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		if (allFound)
 			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
 
-		logMod->warn(R"(    "%s" : "",)", string.first);
+		logMod->warn(R"(    "%s" : "%s",)", string.first, string.second.String());
 		allFound = false;
 	}
 
