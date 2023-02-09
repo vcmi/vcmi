@@ -767,14 +767,12 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
 	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
 
-	JsonVector stacksChancesVector = hardcodedFeatures["HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"].Vector();
-	boost::range::transform(stacksChancesVector, std::back_inserter(settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES), [](JsonNode element) { return element.Integer(); });
+	settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES = hardcodedFeatures["HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"].convertTo<std::vector<int32_t>>();
 	std::vector<std::string> stackChangesStringVector;
 	boost::range::transform(settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES, std::back_inserter(stackChangesStringVector), [](int element) { return std::to_string(element); });
 	logMod->debug("\tHERO_STARTING_ARMY_STACKS_COUNT_CHANCES\t%s", boost::algorithm::join(stackChangesStringVector, ", "));
 
-	JsonVector buildingChancesVector = hardcodedFeatures["DEFAULT_BUILDING_SET_DWELLING_CHANCES"].Vector();
-	boost::range::transform(buildingChancesVector, std::back_inserter(settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES), [](JsonNode element) { return element.Integer(); });
+	settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES = hardcodedFeatures["DEFAULT_BUILDING_SET_DWELLING_CHANCES"].convertTo<std::vector<int32_t>>();
 	std::vector<std::string> buildingChangesStringVector;
 	boost::range::transform(settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES, std::back_inserter(buildingChangesStringVector), [](int element) { return std::to_string(element); });
 	logMod->debug("\tDEFAULT_BUILDING_SET_DWELLING_CHANCES\t%s", boost::algorithm::join(buildingChangesStringVector, ", "));
