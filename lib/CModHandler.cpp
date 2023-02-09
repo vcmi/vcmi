@@ -25,6 +25,7 @@
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
+#include "Languages.h"
 #include "ScriptHandler.h"
 #include "RoadHandler.h"
 #include "RiverHandler.h"
@@ -1129,18 +1130,17 @@ bool CModHandler::validateTranslations(TModID modName) const
 		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
 	}
 
-	// TODO: unify language lists in mod handler, general text handler, launcher and json validation
-	static const std::vector<std::string> languagesList =
-	{ "english", "german", "polish", "russian", "ukrainian" };
-
-	for (auto const & language : languagesList)
+	for (auto const & language : Languages::getLanguageList())
 	{
-		if (mod.config[language].isNull())
+		if (!language.hasTranslation)
 			continue;
 
-		auto fileList = mod.config[language]["translations"].convertTo<std::vector<std::string> >();
+		if (mod.config[language.identifier].isNull())
+			continue;
+
+		auto fileList = mod.config[language.identifier]["translations"].convertTo<std::vector<std::string> >();
 		JsonNode json = JsonUtils::assembleFromFiles(fileList);
-		result |= VLC->generaltexth->validateTranslation(language, modName, json);
+		result |= VLC->generaltexth->validateTranslation(language.identifier, modName, json);
 	}
 
 	return result;

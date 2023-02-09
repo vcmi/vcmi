@@ -18,6 +18,7 @@
 #include "GameConstants.h"
 #include "mapObjects/CQuest.h"
 #include "VCMI_Lib.h"
+#include "Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -106,22 +107,27 @@ bool Unicode::isValidString(const char * data, size_t size)
 /// Detects language and encoding of H3 text files based on matching against pregenerated footprints of H3 file
 void CGeneralTextHandler::detectInstallParameters()
 {
-	struct LanguageFootprint
-	{
-		std::string language;
-		std::string encoding;
-		std::array<double, 16> footprint;
-	};
+	using LanguageFootprint = std::array<double, 16>;
 
-	static const std::vector<LanguageFootprint> knownFootprints =
-	{
-		{ "english",   "CP1252", { { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } } },
-		{ "french",    "CP1252", { { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } } },
-		{ "german",    "CP1252", { { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } } },
-		{ "polish",    "CP1250", { { 0.0534, 0.0000, 0.1701, 0.0067, 0.0157, 0.0133, 0.4328, 0.2540, 0.0001, 0.0043, 0.0000, 0.0244, 0.0000, 0.0000, 0.0181, 0.0071 } } },
-		{ "russian",   "CP1251", { { 0.0548, 0.0000, 0.1744, 0.0061, 0.0031, 0.0009, 0.0046, 0.0136, 0.0000, 0.0004, 0.0000, 0.0000, 0.0227, 0.0061, 0.4882, 0.2252 } } },
-		{ "ukrainian", "CP1251", { { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } } },
-	};
+	static const std::array<LanguageFootprint, 6> knownFootprints =
+	{ {
+		{ { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } },
+		{ { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } },
+		{ { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } },
+		{ { 0.0534, 0.0000, 0.1701, 0.0067, 0.0157, 0.0133, 0.4328, 0.2540, 0.0001, 0.0043, 0.0000, 0.0244, 0.0000, 0.0000, 0.0181, 0.0071 } },
+		{ { 0.0548, 0.0000, 0.1744, 0.0061, 0.0031, 0.0009, 0.0046, 0.0136, 0.0000, 0.0004, 0.0000, 0.0000, 0.0227, 0.0061, 0.4882, 0.2252 } },
+		{ { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } },
+	} };
+
+	static const std::array<std::string, 6> knownLanguages =
+	{ {
+		"english",
+		"french",
+		"german",
+		"polish",
+		"russian",
+		"ukrainian"
+	} };
 
 	// load file that will be used for footprint generation
 	// this is one of the most text-heavy files in game and consists solely from translated texts
@@ -129,7 +135,7 @@ void CGeneralTextHandler::detectInstallParameters()
 
 	std::array<size_t, 256> charCount{};
 	std::array<double, 16> footprint{};
-	std::vector<double> deviations(knownFootprints.size(), 0.0);
+	std::array<double, 6> deviations{};
 
 	auto data = resource->readAll();
 
@@ -152,19 +158,19 @@ void CGeneralTextHandler::detectInstallParameters()
 	for (size_t i = 0; i < deviations.size(); ++i)
 	{
 		for (size_t j = 0; j < footprint.size(); ++j)
-			deviations[i] += std::abs((footprint[j] - knownFootprints[i].footprint[j]));
+			deviations[i] += std::abs((footprint[j] - knownFootprints[i][j]));
 	}
 
 	size_t bestIndex = boost::range::min_element(deviations) - deviations.begin();
 
 	for (size_t i = 0; i < deviations.size(); ++i)
-		logGlobal->debug("Comparing to %s: %f", knownFootprints[i].language, deviations[i]);
+		logGlobal->debug("Comparing to %s: %f", knownLanguages[i], deviations[i]);
 
 	Settings language = settings.write["session"]["language"];
-	language->String() = knownFootprints[bestIndex].language;
+	language->String() = knownLanguages[bestIndex];
 
 	Settings encoding = settings.write["session"]["encoding"];
-	encoding->String() = knownFootprints[bestIndex].encoding;
+	encoding->String() =  Languages::getLanguageOptions(knownLanguages[bestIndex]).encoding;
 }
 
 std::string Unicode::toUnicode(const std::string &text)

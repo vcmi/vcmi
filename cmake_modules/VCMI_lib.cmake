@@ -434,6 +434,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
+		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
 		${MAIN_LIB_DIR}/NetPacksBase.h
