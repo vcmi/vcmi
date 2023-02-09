@@ -219,6 +219,9 @@ public:
 	
 	/// version of the mod
 	Version version;
+
+	/// Base language of mod, all mod strings are assumed to be in this language
+	std::string baseLanguage;
 	
 	/// vcmi versions compatible with the mod
 
@@ -334,7 +337,9 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	std::set<TModID> getModDependencies(TModID modId, bool & isModFound);
+	std::string getModLanguage(TModID modId) const;
+
+	std::set<TModID> getModDependencies(TModID modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();

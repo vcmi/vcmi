@@ -40,7 +40,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->deltaName       = json["delta"].String();
 
-	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
 
 	return info;
 }

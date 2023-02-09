@@ -141,7 +141,7 @@ void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString(getNameTextID(), input["name"].String());
+	VLC->generaltexth->registerString( input.meta, getNameTextID(), input["name"].String());
 
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();
@@ -267,7 +267,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Bank %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString(getNameTextID(), input["name"].String());
+	VLC->generaltexth->registerString(input.meta, getNameTextID(), input["name"].String());
 
 	levels = input["levels"].Vector();
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());

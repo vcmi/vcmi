@@ -146,30 +146,44 @@ public:
 /// Handles all text-related data in game
 class DLL_LINKAGE CGeneralTextHandler
 {
-	/// map identifier -> localization
-	std::unordered_map<std::string, std::string> stringsLocalizations;
+	struct StringState
+	{
+		/// Human-readable string that was added on registration
+		std::string baseValue;
 
-	/// map identifier -> localization, high-priority strings from translation json
-	std::unordered_map<std::string, std::string> stringsOverrides;
+		/// Language of base string
+		std::string baseLanguage;
+
+		/// Translated human-readable string
+		std::string overrideValue;
+
+		/// Language of the override string
+		std::string overrideLanguage;
+
+		/// ID of mod that created this string
+		std::string modContext;
+	};
+
+	/// map identifier -> localization
+	std::unordered_map<std::string, StringState> stringsLocalizations;
 
 	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
 	/// number of scenarios in specific campaign. TODO: move to a better location
 	std::vector<size_t> scenariosCountPerCampaign;
 
-	/// Attempts to detect encoding & language of H3 files
-	void detectInstallParameters() const;
+	std::string getModLanguage(const std::string & modContext);
 public:
 
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
-	void loadTranslationOverrides(JsonNode const & file);
+	void loadTranslationOverrides(const std::string & language, JsonNode const & file);
 
 	/// add selected string to internal storage
-	void registerString(const TextIdentifier & UID, const std::string & localized);
+	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 
 	/// add selected string to internal storage as high-priority strings
-	void registerStringOverride(const TextIdentifier & UID, const std::string & localized);
+	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
 
 	// returns true if identifier with such name was registered, even if not translated to current language
 	// not required right now, can be added if necessary
@@ -234,7 +248,13 @@ public:
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
 
+	/// Attempts to detect encoding & language of H3 files
+	static void detectInstallParameters();
+
 	/// Returns name of language preferred by user
+	static std::string getPreferredLanguage();
+
+	/// Returns name of language of Heroes III text files
 	static std::string getInstalledLanguage();
 
 	/// Returns name of encoding of Heroes III text files

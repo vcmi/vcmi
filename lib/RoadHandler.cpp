@@ -40,7 +40,7 @@ RoadType * RoadTypeHandler::loadFromJson(
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 
-	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope,info->getNameTextID(), json["text"].String());
 
 	return info;
 }

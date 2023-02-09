@@ -636,8 +636,8 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	cre->cost = Res::ResourceSet(node["cost"]);
 
-	VLC->generaltexth->registerString(cre->getNameSingularTextID(), node["name"]["singular"].String());
-	VLC->generaltexth->registerString(cre->getNamePluralTextID(), node["name"]["plural"].String());
+	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
+	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
 
 	cre->addBonus(node["hitPoints"].Integer(), Bonus::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), Bonus::STACKS_SPEED);

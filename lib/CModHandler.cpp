@@ -638,6 +638,12 @@ CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode
 		vcmiCompatibleMin = Version::fromString(config["compatibility"]["min"].String());
 		vcmiCompatibleMax = Version::fromString(config["compatibility"]["max"].String());
 	}
+
+	if (!config["language"].isNull())
+		baseLanguage = config["language"].String();
+	else
+		baseLanguage = "english";
+
 	loadLocalData(local);
 }
 
@@ -1090,7 +1096,12 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound)
+std::string CModHandler::getModLanguage(TModID modId) const
+{
+	return allMods.at(modId).baseLanguage;
+}
+
+std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound) const
 {
 	auto it = allMods.find(modId);
 	isModFound = (it != allMods.end());
@@ -1099,7 +1110,7 @@ std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound
 		return it->second.dependencies;
 
 	logMod->error("Mod not found: '%s'", modId);
-	return std::set<TModID>();
+	return {};
 }
 
 void CModHandler::initializeConfig()
@@ -1110,13 +1121,24 @@ void CModHandler::initializeConfig()
 void CModHandler::loadTranslation(TModID modName)
 {
 	auto const & mod = allMods[modName];
-	std::string language = VLC->generaltexth->getInstalledLanguage();
+	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+	std::string modBaseLanguage = allMods[modName].baseLanguage;
 
 	for (auto const & config : mod.config["translations"].Vector())
-		VLC->generaltexth->loadTranslationOverrides(JsonNode(ResourceID(config.String(), EResType::TEXT)));
+	{
+		JsonNode json(ResourceID(config.String(), EResType::TEXT));
+		json.setMeta(modName);
 
-	for (auto const & config : mod.config[language]["translations"].Vector())
-		VLC->generaltexth->loadTranslationOverrides(JsonNode(ResourceID(config.String(), EResType::TEXT)));
+		VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, json);
+	}
+
+	for (auto const & config : mod.config[preferredLanguage]["translations"].Vector())
+	{
+		JsonNode json(ResourceID(config.String(), EResType::TEXT));
+		json.setMeta(modName);
+
+		VLC->generaltexth->loadTranslationOverrides(preferredLanguage, json);
+	}
 }
 
 void CModHandler::load()
