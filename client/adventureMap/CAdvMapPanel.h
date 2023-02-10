@@ -51,9 +51,9 @@ class CAdvMapWorldViewPanel : public CAdvMapPanel
 	std::shared_ptr<CAnimation> icons;
 public:
 	CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, std::shared_ptr<IImage> bg, Point position, int spaceBottom, const PlayerColor &color);
-	virtual ~CAdvMapWorldViewPanel();
 
 	void addChildIcon(std::pair<int, Point> data, int indexOffset);
+
 	/// recreates all pictures from given def to recolor them according to current player color
 	void recolorIcons(const PlayerColor & color, int indexOffset);
 };

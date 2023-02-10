@@ -168,15 +168,15 @@ void CMinimap::showAll(SDL_Surface * to)
 		Canvas target(to);
 
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
-		int3 tileCountOnScreen = adventureInt->terrain->tileCountOnScreen();
+		Rect screenArea = adventureInt->terrainAreaTiles();
 
 		//draw radar
 		Rect radar =
 		{
-			adventureInt->position.x * pos.w / mapSizes.x,
-			adventureInt->position.y * pos.h / mapSizes.y,
-			tileCountOnScreen.x * pos.w / mapSizes.x - 1,
-			tileCountOnScreen.y * pos.h / mapSizes.y - 1
+			screenArea.x * pos.w / mapSizes.x,
+			screenArea.y * pos.h / mapSizes.y,
+			screenArea.w * pos.w / mapSizes.x - 1,
+			screenArea.h * pos.h / mapSizes.y - 1
 		};
 
 		Canvas clippedTarget(target, pos);

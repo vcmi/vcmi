@@ -202,7 +202,7 @@ std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 
 void CHeroList::CHeroItem::select(bool on)
 {
-	if(on && adventureInt->selection != hero)
+	if(on && adventureInt->curHero() != hero)
 		adventureInt->select(hero);
 }
 
@@ -253,12 +253,9 @@ void CHeroList::update(const CGHeroInstance * hero)
 	//simplest solution for now: reset list and restore selection
 
 	listBox->resize(LOCPLINT->wanderingHeroes.size());
-	if (adventureInt->selection)
-	{
-		auto selectedHero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
-		if (selectedHero)
-			select(selectedHero);
-	}
+	if (adventureInt->curHero())
+		select(adventureInt->curHero());
+
 	CList::update();
 }
 
@@ -294,8 +291,8 @@ void CTownList::CTownItem::update()
 
 void CTownList::CTownItem::select(bool on)
 {
-	if (on && adventureInt->selection != town)
-			adventureInt->select(town);
+	if (on && adventureInt->curTown() != town)
+		adventureInt->select(town);
 }
 
 void CTownList::CTownItem::open()
@@ -328,12 +325,9 @@ void CTownList::update(const CGTownInstance *)
 	//simplest solution for now: reset list and restore selection
 
 	listBox->resize(LOCPLINT->towns.size());
-	if (adventureInt->selection)
-	{
-		auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection);
-		if (town)
-			select(town);
-	}
+	if (adventureInt->curTown())
+		select(adventureInt->curTown());
+
 	CList::update();
 }
 

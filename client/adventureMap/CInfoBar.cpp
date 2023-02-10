@@ -197,19 +197,18 @@ void CInfoBar::reset()
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	if(adventureInt->selection)
+	if(adventureInt->curHero())
 	{
-		if(auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
-		{
-			showHeroSelection(hero);
-			return;
-		}
-		else if(auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection))
-		{
-			showTownSelection(town);
-			return;
-		}
+		showHeroSelection(adventureInt->curHero());
+		return;
 	}
+
+	if(adventureInt->curTown())
+	{
+		showTownSelection(adventureInt->curTown());
+		return;
+	}
+
 	showGameStatus();//FIXME: may be incorrect but shouldn't happen in general
 }
 

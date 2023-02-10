@@ -52,7 +52,7 @@
 
 std::shared_ptr<CAdvMapInt> adventureInt;
 
-static void setScrollingCursor(ui8 direction)
+void CAdvMapInt::setScrollingCursor(ui8 direction) const
 {
 	if(direction & CAdvMapInt::RIGHT)
 	{
@@ -90,7 +90,7 @@ CAdvMapInt::CAdvMapInt():
 	terrain(new CTerrainRect),
 	state(NA),
 	spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
-	updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
+	redrawOnNextFrame(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
 	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
 	swipeTargetPosition(int3(-1, -1, -1))
@@ -237,7 +237,7 @@ CAdvMapInt::CAdvMapInt():
 
 	activeMapPanel = panelMain;
 
-	changeMode(EAdvMapMode::NORMAL);
+	changeMode(EAdvMapMode::NORMAL, 0.36F);
 
 	underground->block(!CGI->mh->map->twoLevel);
 	questlog->block(!CGI->mh->map->quests.size());
@@ -253,7 +253,7 @@ void CAdvMapInt::fshowOverview()
 
 void CAdvMapInt::fworldViewBack()
 {
-	changeMode(EAdvMapMode::NORMAL);
+	changeMode(EAdvMapMode::NORMAL, 0.36F);
 	CGI->mh->discardWorldViewCache();
 
 	auto hero = curHero();
@@ -292,7 +292,7 @@ void CAdvMapInt::fswitchLevel()
 	worldViewUnderground->setIndex(position.z, true);
 	worldViewUnderground->redraw();
 
-	updateScreen = true;
+	redrawOnNextFrame = true;
 	minimap->setLevel(position.z);
 
 	if (mode == EAdvMapMode::WORLD_VIEW)
@@ -525,7 +525,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	}
 	activeMapPanel->showAll(to);
 
-	updateScreen = true;
+	redrawOnNextFrame = true;
 	minimap->showAll(to);
 	show(to);
 
@@ -570,7 +570,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		CGI->mh->updateWater();
 		animValHitCount = 0;
 		++anim;
-		updateScreen = true;
+		redrawOnNextFrame = true;
 	}
 
 	if(swipeEnabled)
@@ -591,7 +591,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		else
 			gems[i]->setFrame(LOCPLINT->playerID.getNum());
 	}
-	if(updateScreen)
+	if(redrawOnNextFrame)
 	{
 		int3 betterPos = LOCPLINT->repairScreenPos(position);
 		if (betterPos != position)
@@ -603,7 +603,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		terrain->show(to);
 		for(int i = 0; i < 4; i++)
 			gems[i]->showAll(to);
-		updateScreen=false;
+		redrawOnNextFrame=false;
 		LOCPLINT->cingconsole->show(to);
 	}
 	else
@@ -621,8 +621,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 {
 	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
-	if((animValHitCount % (4 / scrollSpeed)) == 0
-	   && GH.isKeyboardCtrlDown())
+	if((animValHitCount % (4 / scrollSpeed)) == 0)
 	{
 		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
 			position.x--;
@@ -640,7 +639,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 		{
 			setScrollingCursor(scrollingDir);
 			scrollingState = true;
-			updateScreen = true;
+			redrawOnNextFrame = true;
 			minimap->redraw();
 			if(mode == EAdvMapMode::WORLD_VIEW)
 				terrain->redraw();
@@ -661,7 +660,7 @@ void CAdvMapInt::handleSwipeUpdate()
 		position.x = fixedPos.x;
 		position.y = fixedPos.y;
 		CCS->curh->set(Cursor::Map::POINTER);
-		updateScreen = true;
+		redrawOnNextFrame = true;
 		minimap->redraw();
 		swipeMovementRequested = false;
 	}
@@ -700,7 +699,7 @@ void CAdvMapInt::centerOn(int3 on, bool fade)
 	on = LOCPLINT->repairScreenPos(on);
 
 	position = on;
-	updateScreen=true;
+	redrawOnNextFrame=true;
 	underground->setIndex(on.z,true); //change underground switch button image
 	underground->redraw();
 	worldViewUnderground->setIndex(on.z, true);
@@ -877,11 +876,14 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 				  (direction->y<0 ? UP    : 0) |
 				  (direction->y>0 ? DOWN  : 0) ;
 
-			scrollingDir |= Dir;
+
 
 			//ctrl makes arrow move screen, not hero
 			if(GH.isKeyboardCtrlDown())
+			{
+				scrollingDir |= Dir;
 				return;
+			}
 
 			if(!h || !isActive())
 				return;
@@ -1057,13 +1059,16 @@ void CAdvMapInt::startHotSeatWait(PlayerColor Player)
 
 void CAdvMapInt::setPlayer(PlayerColor Player)
 {
+	if (Player == player)
+		return;
+
 	player = Player;
 	bg->playerColored(player);
 
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
 	panelWorldView->recolorIcons(player, player.getNum() * 19);
-	resdatabar->background->colorize(player);
+	resdatabar->colorize(player);
 }
 
 void CAdvMapInt::startTurn()
@@ -1074,6 +1079,50 @@ void CAdvMapInt::startTurn()
 	{
 		adjustActiveness(false);
 		minimap->setAIRadar(false);
+	}
+}
+
+void CAdvMapInt::initializeNewTurn()
+{
+	heroList->update();
+	townList->update();
+
+	const CGHeroInstance * heroToSelect = nullptr;
+
+	// find first non-sleeping hero
+	for (auto hero : LOCPLINT->wanderingHeroes)
+	{
+		if (boost::range::find(LOCPLINT->sleepingHeroes, hero) == LOCPLINT->sleepingHeroes.end())
+		{
+			heroToSelect = hero;
+			break;
+		}
+	}
+
+	bool centerView = !settings["session"]["autoSkip"].Bool();
+
+	//select first hero if available.
+	if (heroToSelect != nullptr)
+	{
+		select(heroToSelect, centerView);
+	}
+	else if (LOCPLINT->towns.size())
+		select(LOCPLINT->towns.front(), centerView);
+	else
+		select(LOCPLINT->wanderingHeroes.front());
+
+	//show new day animation and sound on infobar
+	infoBar->showDate();
+
+	updateNextHero(nullptr);
+	showAll(screen);
+
+	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
+	{
+		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
+			iw->close();
+
+		endingTurn();
 	}
 }
 
@@ -1415,7 +1464,7 @@ void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 const CGHeroInstance * CAdvMapInt::curHero() const
 {
 	if(selection && selection->ID == Obj::HERO)
-		return static_cast<const CGHeroInstance *>(selection);
+		return dynamic_cast<const CGHeroInstance *>(selection);
 	else
 		return nullptr;
 }
@@ -1423,9 +1472,27 @@ const CGHeroInstance * CAdvMapInt::curHero() const
 const CGTownInstance * CAdvMapInt::curTown() const
 {
 	if(selection && selection->ID == Obj::TOWN)
-		return static_cast<const CGTownInstance *>(selection);
+		return dynamic_cast<const CGTownInstance *>(selection);
 	else
 		return nullptr;
+}
+
+const CArmedInstance * CAdvMapInt::curArmy() const
+{
+	if (selection)
+		return dynamic_cast<const CArmedInstance *>(selection);
+	else
+		return nullptr;
+}
+
+Rect CAdvMapInt::terrainAreaPixels() const
+{
+	return terrain->pos;
+}
+
+Rect CAdvMapInt::terrainAreaTiles() const
+{
+	return terrain->visibleTilesArea();
 }
 
 const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *obj) const
@@ -1537,3 +1604,7 @@ void CAdvMapInt::WorldViewOptions::adjustDrawingInfo(MapDrawingInfo& info)
 	info.additionalIcons = &iconPositions;
 }
 
+void CAdvMapInt::requestRedrawMapOnNextFrame()
+{
+	redrawOnNextFrame = true;
+}

@@ -203,8 +203,7 @@ void CPlayerInterface::yourTurn()
 			autosaveCount %= 5;
 		}
 
-		if (adventureInt->player != playerID)
-			adventureInt->setPlayer(playerID);
+		adventureInt->setPlayer(playerID);
 
 		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{
@@ -360,7 +359,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 #ifndef VCMI_ANDROID
 		// currently android doesn't seem to be able to handle all these full redraws here, so let's disable it so at least it looks less choppy;
 		// most likely this is connected with the way that this manual animation+framerate handling is solved
-		adventureInt->updateScreen = true;
+		adventureInt->requestRedrawMapOnNextFrame();
 #endif
 
 		//evil returns here ...
@@ -1582,23 +1581,13 @@ void CPlayerInterface::update()
 		dialogs.pop_front();
 	}
 
-	//in some conditions we may receive calls before selection is initialized - we must ignore them
-	if(adventureInt && GH.topInt() == adventureInt
-		&& (!adventureInt->selection && !settings["session"]["spectate"].Bool()))
-	{
-		return;
-	}
+	assert(adventureInt);
+	assert(adventureInt->selection);
 
 	// Handles mouse and key input
 	GH.updateTime();
 	GH.handleEvents();
-
-	if (!adventureInt || adventureInt->isActive())
-		GH.simpleRedraw();
-	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || (adventureInt->scrollingDir && GH.isKeyboardCtrlDown()))
-		GH.totalRedraw(); //player forces map scrolling though interface is disabled
-	else
-		GH.simpleRedraw();
+	GH.simpleRedraw();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)
@@ -1858,7 +1847,7 @@ void CPlayerInterface::showPuzzleMap()
 
 void CPlayerInterface::viewWorldMap()
 {
-	adventureInt->changeMode(EAdvMapMode::WORLD_VIEW);
+	adventureInt->changeMode(EAdvMapMode::WORLD_VIEW, 0.36F);
 }
 
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
@@ -1935,10 +1924,8 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 
 void CPlayerInterface::acceptTurn()
 {
-	bool centerView = true;
 	if (settings["session"]["autoSkip"].Bool())
 	{
-		centerView = false;
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
 	}
@@ -1950,44 +1937,7 @@ void CPlayerInterface::acceptTurn()
 		adventureInt->startTurn();
 	}
 
-	adventureInt->heroList->update();
-	adventureInt->townList->update();
-
-	const CGHeroInstance * heroToSelect = nullptr;
-
-	// find first non-sleeping hero
-	for (auto hero : wanderingHeroes)
-	{
-		if (boost::range::find(sleepingHeroes, hero) == sleepingHeroes.end())
-		{
-			heroToSelect = hero;
-			break;
-		}
-	}
-
-	//select first hero if available.
-	if (heroToSelect != nullptr)
-	{
-		adventureInt->select(heroToSelect, centerView);
-	}
-	else if (towns.size())
-		adventureInt->select(towns.front(), centerView);
-	else
-		adventureInt->select(wanderingHeroes.front());
-
-	//show new day animation and sound on infobar
-	adventureInt->infoBar->showDate();
-
-	adventureInt->updateNextHero(nullptr);
-	adventureInt->showAll(screen);
-
-	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
-	{
-		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
-			iw->close();
-
-		adventureInt->fendTurn();
-	}
+	adventureInt->initializeNewTurn();
 
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)

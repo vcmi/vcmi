@@ -74,8 +74,6 @@ CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons,
 	}
 }
 
-CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel() = default;
-
 void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor & color, int indexOffset)
 {
 	assert(iconsData.size() == currentIcons.size());

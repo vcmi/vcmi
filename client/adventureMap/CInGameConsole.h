@@ -22,12 +22,13 @@ private:
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
 
 	std::weak_ptr<IStatusBar> currentStatusBar;
-public:
 	std::string enteredText;
-	void show(SDL_Surface * to) override;
-	void print(const std::string &txt);
-	void keyPressed(const SDL_Keycode & key) override;
 
+public:
+	void print(const std::string &txt);
+
+	void show(SDL_Surface * to) override;
+	void keyPressed(const SDL_Keycode & key) override;
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;
 

@@ -63,7 +63,7 @@ public:
 	void showAnim(SDL_Surface * to);
 
 	/// @returns number of visible tiles on screen respecting current map scaling
-	int3 tileCountOnScreen();
+	Rect visibleTilesArea();
 
 	/// animates view by caching current surface and crossfading it with normal screen
 	void fadeFromCurrentView();
