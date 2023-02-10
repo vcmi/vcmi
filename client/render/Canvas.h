@@ -34,16 +34,16 @@ class Canvas
 public:
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
-	Canvas(SDL_Surface * surface);
+	explicit Canvas(SDL_Surface * surface);
 
 	/// copy contructor
-	Canvas(Canvas & other);
+	Canvas(const Canvas & other);
 
 	/// creates canvas that only covers specified subsection of a surface
-	Canvas(Canvas & other, const Rect & clipRect);
+	Canvas(const Canvas & other, const Rect & clipRect);
 
 	/// constructs canvas of specified size
-	Canvas(const Point & size);
+	explicit Canvas(const Point & size);
 
 	~Canvas();
 
@@ -56,8 +56,20 @@ public:
 	/// renders another canvas onto this canvas
 	void draw(Canvas & image, const Point & pos);
 
+	/// renders another canvas onto this canvas with scaling
+	void draw(Canvas & image, const Point & pos, const Point & targetSize);
+
+	/// renders single pixels with specified color
+	void drawPoint(const Point & dest, const ColorRGBA & color);
+
 	/// renders continuous, 1-pixel wide line with color gradient
 	void drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest);
+
+	/// renders dashed, 1-pixel wide line with specified color
+	void drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color);
+
+	/// renders rectangular, dashed border in specified location
+	void drawBorderDashed(const Rect & target, const ColorRGBA & color);
 
 	/// renders single line of text with specified parameters
 	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text );
