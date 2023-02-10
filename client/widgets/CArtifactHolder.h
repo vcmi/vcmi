@@ -90,7 +90,6 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void select();
-	void deselect();
 	void showAll(SDL_Surface * to) override;
 	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
 
