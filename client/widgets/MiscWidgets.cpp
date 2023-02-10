@@ -21,7 +21,6 @@
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
 #include "../renderSDL/SDL_Extensions.h"
-#include "../adventureMap/CAdvMapInt.h"
 
 #include "../../CCallback.h"
 
@@ -57,8 +56,8 @@ void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
-	if (!text.empty())
-		adventureInt->handleRightClick(text, down);
+	if (down && !text.empty())
+		CRClickPopup::createAndPush(text);
 }
 
 LRClickableAreaWText::LRClickableAreaWText()

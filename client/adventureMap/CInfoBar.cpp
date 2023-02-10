@@ -17,6 +17,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
+#include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
@@ -234,7 +235,8 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 
 void CInfoBar::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(CGI->generaltexth->allTexts[109], down);
+	if (down)
+		CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)

@@ -159,7 +159,6 @@ public:
 	void centerOn(int3 on, bool fade = false);
 	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
-	void handleRightClick(std::string text, tribool down);
 	void keyPressed(const SDL_Keycode & key) override;
 	void keyReleased(const SDL_Keycode & key) override;
 	void mouseMoved (const Point & cursorPosition) override;
@@ -199,7 +198,7 @@ public:
 	void handleSwipeUpdate();
 
 private:
-	void ShowMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
+	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
 };
 
 extern std::shared_ptr<CAdvMapInt> adventureInt;

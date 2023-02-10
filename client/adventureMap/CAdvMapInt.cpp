@@ -256,17 +256,17 @@ void CAdvMapInt::fworldViewBack()
 void CAdvMapInt::fworldViewScale1x()
 {
 	// TODO set corresponding scale button to "selected" mode
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.22f);
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.22f); // 7 pixels per tile
 }
 
 void CAdvMapInt::fworldViewScale2x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.36f);
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.36f); // 11 pixels per tile
 }
 
 void CAdvMapInt::fworldViewScale4x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.5f);
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.5f); // 16 pixels per tile
 }
 
 void CAdvMapInt::fswitchLevel()
@@ -928,13 +928,6 @@ boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 	return boost::none;
 }
 
-void CAdvMapInt::handleRightClick(std::string text, tribool down)
-{
-	if(down)
-	{
-		CRClickPopup::createAndPush(text);
-	}
-}
 int3 CAdvMapInt::verifyPos(int3 ver)
 {
 	if (ver.x<0)
@@ -1274,7 +1267,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 
 		if(GH.isKeyboardAltDown() && pathNode->reachable()) //overwrite status bar text with movement info
 		{
-			ShowMoveDetailsInStatusbar(*hero, *pathNode);
+			showMoveDetailsInStatusbar(*hero, *pathNode);
 		}
 
 		int turns = pathNode->turns;
@@ -1340,7 +1333,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 }
 
-void CAdvMapInt::ShowMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
+void CAdvMapInt::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
 {
 	const int maxMovementPointsAtStartOfLastTurn = pathNode.turns > 0 ? hero.maxMovePoints(pathNode.layer == EPathfindingLayer::LAND) : hero.movement;
 	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;

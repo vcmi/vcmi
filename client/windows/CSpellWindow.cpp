@@ -57,7 +57,8 @@ void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
 
 void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(helpText, down);
+	if (down)
+		CRClickPopup::createAndPush(helpText);
 }
 
 void CSpellWindow::InteractiveArea::hover(bool on)

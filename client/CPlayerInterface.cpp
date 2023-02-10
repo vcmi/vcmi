@@ -251,6 +251,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 			return;
 	}
 
+	adventureInt->minimap.updateTile(hero->convertToVisitablePos(details.start));
+	adventureInt->minimap.updateTile(hero->convertToVisitablePos(details.end));
+
 	bool directlyAttackingCreature =
 		details.attackedFrom
 		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
@@ -1194,7 +1197,7 @@ void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &p
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
 	for (auto & po : pos)
-		adventureInt->minimap.showTile(po);
+		adventureInt->minimap.updateTile(po);
 	if (!pos.empty())
 		GH.totalRedraw();
 }
@@ -1203,7 +1206,7 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for (auto & po : pos)
-		adventureInt->minimap.hideTile(po);
+		adventureInt->minimap.updateTile(po);
 	if (!pos.empty())
 		GH.totalRedraw();
 }
@@ -1409,7 +1412,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		for(auto & po : pos)
 		{
 			if(cb->isVisible(po))
-				adventureInt->minimap.showTile(po);
+				adventureInt->minimap.updateTile(po);
 		}
 		if(obj->ID == Obj::TOWN)
 		{
