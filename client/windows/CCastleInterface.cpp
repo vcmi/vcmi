@@ -28,6 +28,8 @@
 #include "../render/IImage.h"
 #include "../render/ColorFilter.h"
 #include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CList.h"
+#include "../adventureMap/CResDataBar.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"

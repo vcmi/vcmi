@@ -14,12 +14,6 @@
 #include "../../lib/int3.h"
 #include "../../lib/GameConstants.h"
 
-#include "CTerrainRect.h"
-#include "CResDataBar.h"
-#include "CList.h"
-#include "CInfoBar.h"
-#include "CMinimap.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
@@ -39,6 +33,12 @@ class CGStatusBar;
 class CAdvMapPanel;
 class CAdvMapWorldViewPanel;
 class CAnimation;
+class CTerrainRect;
+class CResDataBar;
+class CHeroList;
+class CTownList;
+class CInfoBar;
+class CMinimap;
 
 struct MapDrawingInfo;
 
@@ -100,7 +100,7 @@ public:
 	std::shared_ptr<IImage> bg;
 	std::shared_ptr<IImage> bgWorldView;
 	std::vector<std::shared_ptr<CAnimImage>> gems;
-	CMinimap minimap;
+	std::shared_ptr<CMinimap> minimap;
 	std::shared_ptr<CGStatusBar> statusbar;
 
 	std::shared_ptr<CButton> kingOverview;
@@ -116,11 +116,11 @@ public:
 
 	std::shared_ptr<CButton> worldViewUnderground;
 
-	CTerrainRect terrain; //visible terrain
-	CResDataBar resdatabar;
-	CHeroList heroList;
-	CTownList townList;
-	CInfoBar infoBar;
+	std::shared_ptr<CTerrainRect> terrain; //visible terrain
+	std::shared_ptr<CResDataBar> resdatabar;
+	std::shared_ptr<CHeroList> heroList;
+	std::shared_ptr<CTownList> townList;
+	std::shared_ptr<CInfoBar> infoBar;
 
 	std::shared_ptr<CAdvMapPanel> panelMain; // panel that holds all right-side buttons in normal view
 	std::shared_ptr<CAdvMapWorldViewPanel> panelWorldView; // panel that holds all buttons and other ui in world view

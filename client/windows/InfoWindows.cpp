@@ -22,6 +22,7 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CTerrainRect.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
@@ -364,8 +365,8 @@ CRClickPopupInt::~CRClickPopupInt()
 
 Point CInfoBoxPopup::toScreen(Point p)
 {
-	vstd::abetween(p.x, adventureInt->terrain.pos.x + 100, adventureInt->terrain.pos.x + adventureInt->terrain.pos.w - 100);
-	vstd::abetween(p.y, adventureInt->terrain.pos.y + 100, adventureInt->terrain.pos.y + adventureInt->terrain.pos.h - 100);
+	vstd::abetween(p.x, adventureInt->terrain->pos.x + 100, adventureInt->terrain->pos.x + adventureInt->terrain->pos.w - 100);
+	vstd::abetween(p.y, adventureInt->terrain->pos.y + 100, adventureInt->terrain->pos.y + adventureInt->terrain->pos.h - 100);
 
 	return p;
 }

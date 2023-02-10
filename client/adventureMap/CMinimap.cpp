@@ -12,6 +12,7 @@
 #include "CMinimap.h"
 
 #include "CAdvMapInt.h"
+#include "CTerrainRect.h"
 
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
@@ -167,7 +168,7 @@ void CMinimap::showAll(SDL_Surface * to)
 		Canvas target(to);
 
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
-		int3 tileCountOnScreen = adventureInt->terrain.tileCountOnScreen();
+		int3 tileCountOnScreen = adventureInt->terrain->tileCountOnScreen();
 
 		//draw radar
 		Rect radar =

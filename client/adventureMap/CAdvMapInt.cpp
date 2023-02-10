@@ -13,6 +13,11 @@
 #include "CAdvMapPanel.h"
 #include "CAdventureOptions.h"
 #include "CInGameConsole.h"
+#include "CMinimap.h"
+#include "CResDataBar.h"
+#include "CTerrainRect.h"
+#include "CList.h"
+#include "CInfoBar.h"
 #include "mapHandler.h"
 
 #include "../windows/CKingdomInterface.h"
@@ -76,11 +81,14 @@ static void setScrollingCursor(ui8 direction)
 CAdvMapInt::CAdvMapInt():
 	mode(EAdvMapMode::NORMAL),
 	worldViewScale(0.0f), //actual init later in changeMode
-	minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
+	minimap(new CMinimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH))),
 	statusbar(CGStatusBar::create(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG)),
-	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
-	townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
-	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192)), state(NA),
+	heroList(new CHeroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD)),
+	townList(new CTownList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD)),
+	infoBar(new CInfoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192))),
+	resdatabar(new CResDataBar),
+	terrain(new CTerrainRect),
+	state(NA),
 	spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
 	updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
@@ -91,7 +99,7 @@ CAdvMapInt::CAdvMapInt():
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
-	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
+	townList->onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	bg = IImage::createFromFile(ADVOPT.mainGraphic);
 	if(!ADVOPT.worldViewGraphic.empty())
 	{
@@ -135,11 +143,11 @@ CAdvMapInt::CAdvMapInt():
 	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
-	int panelSpaceBottom = GH.screenDimensions().y - resdatabar.pos.h - 4;
+	int panelSpaceBottom = GH.screenDimensions().y - resdatabar->pos.h - 4;
 
 	panelMain = std::make_shared<CAdvMapPanel>(nullptr, Point(0, 0));
 	// TODO correct drawing position
-	panelWorldView = std::make_shared<CAdvMapWorldViewPanel>(worldViewIcons, bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
+	panelWorldView = std::make_shared<CAdvMapWorldViewPanel>(worldViewIcons, bgWorldView, Point(heroList->pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
 
 	panelMain->addChildColorableButton(kingOverview);
 	panelMain->addChildColorableButton(underground);
@@ -207,7 +215,7 @@ CAdvMapInt::CAdvMapInt():
 	setPlayer(LOCPLINT->playerID);
 
 	int iconColorMultiplier = player.getNum() * 19;
-	int wvLeft = heroList.pos.x - 2; // TODO correct drawing position
+	int wvLeft = heroList->pos.x - 2; // TODO correct drawing position
 	//int wvTop = 195;
 	for (int i = 0; i < 5; ++i)
 	{
@@ -285,10 +293,10 @@ void CAdvMapInt::fswitchLevel()
 	worldViewUnderground->redraw();
 
 	updateScreen = true;
-	minimap.setLevel(position.z);
+	minimap->setLevel(position.z);
 
 	if (mode == EAdvMapMode::WORLD_VIEW)
-		terrain.redraw();
+		terrain->redraw();
 }
 void CAdvMapInt::fshowQuestlog()
 {
@@ -315,10 +323,10 @@ void CAdvMapInt::fsleepWake()
 void CAdvMapInt::fmoveHero()
 {
 	const CGHeroInstance *h = curHero();
-	if (!h || !terrain.currentPath || !CGI->mh->canStartHeroMovement())
+	if (!h || !terrain->currentPath || !CGI->mh->canStartHeroMovement())
 		return;
 
-	LOCPLINT->moveHero(h, *terrain.currentPath);
+	LOCPLINT->moveHero(h, *terrain->currentPath);
 }
 
 void CAdvMapInt::fshowSpellbok()
@@ -461,12 +469,12 @@ void CAdvMapInt::activate()
 		activeMapPanel->activate();
 		if (mode == EAdvMapMode::NORMAL)
 		{
-			heroList.activate();
-			townList.activate();
-			infoBar.activate();
+			heroList->activate();
+			townList->activate();
+			infoBar->activate();
 		}
-		minimap.activate();
-		terrain.activate();
+		minimap->activate();
+		terrain->activate();
 		statusbar->activate();
 
 		GH.fakeMouseMove(); //to restore the cursor
@@ -485,12 +493,12 @@ void CAdvMapInt::deactivate()
 		activeMapPanel->deactivate();
 		if (mode == EAdvMapMode::NORMAL)
 		{
-			heroList.deactivate();
-			townList.deactivate();
-			infoBar.deactivate();
+			heroList->deactivate();
+			townList->deactivate();
+			infoBar->deactivate();
 		}
-		minimap.deactivate();
-		terrain.deactivate();
+		minimap->deactivate();
+		terrain->deactivate();
 		statusbar->deactivate();
 	}
 }
@@ -506,23 +514,23 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	{
 	case EAdvMapMode::NORMAL:
 
-		heroList.showAll(to);
-		townList.showAll(to);
-		infoBar.showAll(to);
+		heroList->showAll(to);
+		townList->showAll(to);
+		infoBar->showAll(to);
 		break;
 	case EAdvMapMode::WORLD_VIEW:
 
-		terrain.showAll(to);
+		terrain->showAll(to);
 		break;
 	}
 	activeMapPanel->showAll(to);
 
 	updateScreen = true;
-	minimap.showAll(to);
+	minimap->showAll(to);
 	show(to);
 
 
-	resdatabar.showAll(to);
+	resdatabar->showAll(to);
 
 	statusbar->show(to);
 
@@ -592,20 +600,20 @@ void CAdvMapInt::show(SDL_Surface * to)
 			position = betterPos;
 		}
 
-		terrain.show(to);
+		terrain->show(to);
 		for(int i = 0; i < 4; i++)
 			gems[i]->showAll(to);
 		updateScreen=false;
 		LOCPLINT->cingconsole->show(to);
 	}
-	else if (terrain.needsAnimUpdate())
+	else if (terrain->needsAnimUpdate())
 	{
-		terrain.showAnim(to);
+		terrain->showAnim(to);
 		for(int i = 0; i < 4; i++)
 			gems[i]->showAll(to);
 	}
 
-	infoBar.show(to);
+	infoBar->show(to);
 	statusbar->showAll(to);
 }
 
@@ -633,9 +641,9 @@ void CAdvMapInt::handleMapScrollingUpdate()
 			setScrollingCursor(scrollingDir);
 			scrollingState = true;
 			updateScreen = true;
-			minimap.redraw();
+			minimap->redraw();
 			if(mode == EAdvMapMode::WORLD_VIEW)
-				terrain.redraw();
+				terrain->redraw();
 		}
 		else if(scrollingState)
 		{
@@ -654,14 +662,14 @@ void CAdvMapInt::handleSwipeUpdate()
 		position.y = fixedPos.y;
 		CCS->curh->set(Cursor::Map::POINTER);
 		updateScreen = true;
-		minimap.redraw();
+		minimap->redraw();
 		swipeMovementRequested = false;
 	}
 }
 
 void CAdvMapInt::selectionChanged()
 {
-	const CGTownInstance *to = LOCPLINT->towns[townList.getSelectedIndex()];
+	const CGTownInstance *to = LOCPLINT->towns[townList->getSelectedIndex()];
 	if (selection != to)
 		select(to);
 }
@@ -672,7 +680,7 @@ void CAdvMapInt::centerOn(int3 on, bool fade)
 
 	if (fade)
 	{
-		terrain.fadeFromCurrentView();
+		terrain->fadeFromCurrentView();
 	}
 
 	switch (mode)
@@ -698,11 +706,11 @@ void CAdvMapInt::centerOn(int3 on, bool fade)
 	worldViewUnderground->setIndex(on.z, true);
 	worldViewUnderground->redraw();
 	if (switchedLevels)
-		minimap.setLevel(position.z);
-	minimap.redraw();
+		minimap->setLevel(position.z);
+	minimap->redraw();
 
 	if (mode == EAdvMapMode::WORLD_VIEW)
-		terrain.redraw();
+		terrain->redraw();
 }
 
 void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
@@ -853,7 +861,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			}
 			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
 			{
-				townList.selectNext();
+				townList->selectNext();
 			}
 			return;
 		}
@@ -888,11 +896,11 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			}
 
 			CGPath &path = LOCPLINT->paths[h];
-			terrain.currentPath = &path;
+			terrain->currentPath = &path;
 			int3 dst = h->visitablePos() + int3(direction->x, direction->y, 0);
 			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(path, dst))
 			{
-				terrain.currentPath = nullptr;
+				terrain->currentPath = nullptr;
 				return;
 			}
 
@@ -960,14 +968,14 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 	if(centerView)
 		centerOn(sel);
 
-	terrain.currentPath = nullptr;
+	terrain->currentPath = nullptr;
 	if(sel->ID==Obj::TOWN)
 	{
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
 
-		infoBar.showTownSelection(town);
-		townList.select(town);
-		heroList.select(nullptr);
+		infoBar->showTownSelection(town);
+		townList->select(town);
+		heroList->select(nullptr);
 
 		updateSleepWake(nullptr);
 		updateMoveHero(nullptr);
@@ -977,18 +985,18 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 	{
 		auto hero = dynamic_cast<const CGHeroInstance*>(sel);
 
-		infoBar.showHeroSelection(hero);
-		heroList.select(hero);
-		townList.select(nullptr);
+		infoBar->showHeroSelection(hero);
+		heroList->select(hero);
+		townList->select(nullptr);
 
-		terrain.currentPath = LOCPLINT->getAndVerifyPath(hero);
+		terrain->currentPath = LOCPLINT->getAndVerifyPath(hero);
 
 		updateSleepWake(hero);
 		updateMoveHero(hero);
 		updateSpellbook(hero);
 	}
-	townList.redraw();
-	heroList.redraw();
+	townList->redraw();
+	heroList->redraw();
 }
 
 void CAdvMapInt::mouseMoved( const Point & cursorPosition )
@@ -1055,7 +1063,7 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
 	panelWorldView->recolorIcons(player, player.getNum() * 19);
-	resdatabar.background->colorize(player);
+	resdatabar->background->colorize(player);
 }
 
 void CAdvMapInt::startTurn()
@@ -1065,7 +1073,7 @@ void CAdvMapInt::startTurn()
 		|| settings["session"]["spectate"].Bool())
 	{
 		adjustActiveness(false);
-		minimap.setAIRadar(false);
+		minimap->setAIRadar(false);
 	}
 }
 
@@ -1130,7 +1138,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	bool isHero = false;
 	if(selection->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
-		assert(!terrain.currentPath); //path can be active only when hero is selected
+		assert(!terrain->currentPath); //path can be active only when hero is selected
 		if(selection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
@@ -1153,10 +1161,10 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
-			if(terrain.currentPath && terrain.currentPath->endPos() == mapPos)//we'll be moving
+			if(terrain->currentPath && terrain->currentPath->endPos() == mapPos)//we'll be moving
 			{
 				if(CGI->mh->canStartHeroMovement())
-					LOCPLINT->moveHero(currentHero, *terrain.currentPath);
+					LOCPLINT->moveHero(currentHero, *terrain->currentPath);
 				return;
 			}
 			else //remove old path and find a new one if we clicked on accessible tile
@@ -1168,7 +1176,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 					path = newpath;
 
 				if(path.nodes.size())
-					terrain.currentPath = &path;
+					terrain->currentPath = &path;
 				else
 					LOCPLINT->eraseCurrentPathOf(currentHero);
 
@@ -1386,7 +1394,7 @@ void CAdvMapInt::enterCastingMode(const CSpell * sp)
 	spellBeingCasted = sp;
 
 	deactivate();
-	terrain.activate();
+	terrain->activate();
 	GH.fakeMouseMove();
 }
 
@@ -1395,7 +1403,7 @@ void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 	assert(spellBeingCasted);
 	SpellID id = spellBeingCasted->id;
 	spellBeingCasted = nullptr;
-	terrain.deactivate();
+	terrain->deactivate();
 	activate();
 
 	if(cast)
@@ -1439,9 +1447,9 @@ void CAdvMapInt::aiTurnStarted()
 
 	adjustActiveness(true);
 	CCS->musich->playMusicFromSet("enemy-turn", true, false);
-	adventureInt->minimap.setAIRadar(true);
-	adventureInt->infoBar.startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
-	adventureInt->infoBar.showAll(screen);//force refresh on inactive object
+	adventureInt->minimap->setAIRadar(true);
+	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
 }
 
 void CAdvMapInt::adjustActiveness(bool aiTurnStart)
@@ -1480,9 +1488,9 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
 			panelWorldView->deactivate();
 			activeMapPanel = panelMain;
 
-			townList.activate();
-			heroList.activate();
-			infoBar.activate();
+			townList->activate();
+			heroList->activate();
+			infoBar->activate();
 
 			worldViewOptions.clear();
 
@@ -1493,10 +1501,10 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
 
 			activeMapPanel = panelWorldView;
 
-			townList.deactivate();
-			heroList.deactivate();
-			infoBar.showSelection(); // to prevent new day animation interfering world view mode
-			infoBar.deactivate();
+			townList->deactivate();
+			heroList->deactivate();
+			infoBar->showSelection(); // to prevent new day animation interfering world view mode
+			infoBar->deactivate();
 
 			break;
 		}
