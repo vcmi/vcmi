@@ -360,10 +360,11 @@ void CTerrainRect::showAll(SDL_Surface * to)
 
 void CTerrainRect::showAnim(SDL_Surface * to)
 {
-	if (fadeAnim->isFading())
+	if (!needsAnimUpdate())
+		return;
+
+	if (fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
 		show(to);
-	else if (lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
-		show(to); // currently the same; maybe we should pass some flag to map handler so it redraws ONLY tiles that need redraw instead of full
 }
 
 int3 CTerrainRect::whichTileIsIt(const int x, const int y)

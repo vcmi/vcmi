@@ -606,7 +606,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		updateScreen=false;
 		LOCPLINT->cingconsole->show(to);
 	}
-	else if (terrain->needsAnimUpdate())
+	else
 	{
 		terrain->showAnim(to);
 		for(int i = 0; i < 4; i++)
