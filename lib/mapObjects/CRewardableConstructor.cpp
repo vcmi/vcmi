@@ -81,8 +81,8 @@ void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRand
 
 	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng);
 	limiter.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
-	limiter.artifacts = JsonRandom::loadArtifacts(source["spells"], rng);
-	limiter.spells  = JsonRandom::loadSpells(source["artifacts"], rng, spells);
+	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
+	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, spells);
 	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
 
 	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
