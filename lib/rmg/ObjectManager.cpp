@@ -42,7 +42,7 @@ void ObjectManager::init()
 void ObjectManager::createDistancesPriorityQueue()
 {
 	tilesByDistance.clear();
-	for (auto & tile : zone.areaPossible().getTilesVector())
+	for(const auto & tile : zone.areaPossible().getTilesVector())
 	{
 		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
 	}
@@ -50,17 +50,17 @@ void ObjectManager::createDistancesPriorityQueue()
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
-	requiredObjects.push_back(std::make_pair(obj, strength));
+	requiredObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addCloseObject(CGObjectInstance * obj, si32 strength)
 {
-	closeObjects.push_back(std::make_pair(obj, strength));
+	closeObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
 {
-	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
+	nearbyObjects.emplace_back(obj, nearbyTarget);
 }
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
@@ -69,7 +69,7 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
-		map.setNearestObjectDistance(tile, std::min((float)d, map.getNearestObjectDistance(tile)));
+		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
 		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
 	}
 }
@@ -82,8 +82,8 @@ const rmg::Area & ObjectManager::getVisitableArea() const
 std::vector<CGObjectInstance*> ObjectManager::getMines() const
 {
 	std::vector<CGObjectInstance*> mines;
-	
-	for (auto object : objects)
+
+	for(auto * object : objects)
 	{
 		if (object->ID == Obj::MINE)
 		{
@@ -94,7 +94,7 @@ std::vector<CGObjectInstance*> ObjectManager::getMines() const
 	return mines;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, OptimizeType optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer) const
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
@@ -159,8 +159,8 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		float dist = ti.getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
-		
-		for(auto & t : obj.getArea().getTilesVector())
+
+		for(const auto & t : obj.getArea().getTilesVector())
 		{
 			if(map.getTile(t).getNearestObjectDistance() < min_dist)
 				return -1.f;
@@ -178,8 +178,8 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		float dist = ti.getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
-		
-		for(auto & t : obj.getArea().getTilesVector())
+
+		for(const auto & t : obj.getArea().getTilesVector())
 		{
 			if(map.getTile(t).getNearestObjectDistance() < min_dist)
 				return -1.f;
@@ -189,7 +189,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	}, isGuarded, onlyStraight, optimizer);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
 {
 	int3 pos;
 	auto possibleArea = searchArea;
@@ -205,7 +205,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		//we should exclude tiles which will be covered
 		if(isGuarded)
 		{
-			auto & guardedArea = obj.instances().back()->getAccessibleArea();
+			const auto & guardedArea = obj.instances().back()->getAccessibleArea();
 			accessibleArea.intersect(guardedArea);
 			accessibleArea.add(obj.instances().back()->getPosition(true));
 		}
@@ -214,8 +214,8 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		{
 			if(isGuarded)
 			{
-				auto & guardedArea =  obj.instances().back()->getAccessibleArea();
-				auto & unguardedArea = obj.getAccessibleArea(isGuarded);
+				const auto & guardedArea = obj.instances().back()->getAccessibleArea();
+				const auto & unguardedArea = obj.getAccessibleArea(isGuarded);
 				if(unguardedArea.contains(t) && !guardedArea.contains(t))
 					return false;
 				
@@ -353,7 +353,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		auto areaToBlock = object.getAccessibleArea(true);
 		areaToBlock.subtract(guardedArea);
 		zone.areaPossible().subtract(areaToBlock);
-		for(auto & i : areaToBlock.getTilesVector())
+		for(const auto & i : areaToBlock.getTilesVector())
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);
 	}
@@ -429,12 +429,12 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 			continue;
 		if(!vstd::contains(zone.getMonsterTypes(), cre->faction))
 			continue;
-		if(((si32)(cre->AIValue * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < (si32)cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
+		if((static_cast<si32>(cre->AIValue * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->AIValue) * 100)) //at least one full monster. size between average size of given stack and 100
 		{
 			possibleCreatures.push_back(cre->idNumber);
 		}
 	}
-	if(possibleCreatures.size())
+	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator.rand);
 		amount = strength / VLC->creh->objects[creId]->AIValue;
@@ -448,10 +448,10 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	}
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
-	
-	auto guard = (CGCreature *) guardFactory->create();
+
+	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create());
 	guard->character = CGCreature::HOSTILE;
-	auto  hlp = new CStackInstance(creId, amount);
+	auto * hlp = new CStackInstance(creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), hlp);
 	return guard;

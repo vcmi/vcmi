@@ -64,7 +64,7 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 	{
 		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
 		rmg::Area visitable = rmg::Area(neighbours) - getBlockedArea();
-		for(auto & from : visitable.getTiles())
+		for(const auto & from : visitable.getTiles())
 		{
 			if(isVisitableFrom(from))
 				dAccessibleAreaCache.add(from);
@@ -166,10 +166,9 @@ Object::Object(CGObjectInstance & object)
 	addInstance(object);
 }
 
-Object::Object(const Object & object)
+Object::Object(const Object & object): dStrength(object.dStrength)
 {
-	dStrenght = object.dStrenght;
-	for(auto & i : object.dInstances)
+	for(const auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
 	setPosition(object.getPosition());
 }
@@ -225,7 +224,7 @@ const int3 & Object::getPosition() const
 int3 Object::getVisitablePosition() const
 {
 	assert(!dInstances.empty());
-	for(auto & instance : dInstances)
+	for(const auto & instance : dInstances)
 		if(!getArea().contains(instance.getVisitablePosition()))
 			return instance.getVisitablePosition();
 	
@@ -293,7 +292,7 @@ void Object::Instance::finalize(RmgMap & map)
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
-		auto terrainType = map.map().getTile(getPosition(true)).terType;
+		const auto * terrainType = map.map().getTile(getPosition(true)).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
@@ -307,14 +306,14 @@ void Object::Instance::finalize(RmgMap & map)
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
-	
-	for (auto & tile : dObject.getBlockedPos())
+
+	for(const auto & tile : dObject.getBlockedPos())
 	{
 		if(!map.isOnMap(tile))
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
 	}
-	
-	for(auto & tile : getBlockedArea().getTilesVector())
+
+	for(const auto & tile : getBlockedArea().getTilesVector())
 	{
 		map.setOccupied(tile, ETileType::ETileType::USED);
 	}
@@ -326,10 +325,10 @@ void Object::finalize(RmgMap & map)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");
-	
-	for(auto iter = dInstances.begin(); iter != dInstances.end(); ++iter)
+
+	for(auto & dInstance : dInstances)
 	{
-		iter->finalize(map);
+		dInstance.finalize(map);
 	}
 }
 

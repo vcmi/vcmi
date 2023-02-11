@@ -39,7 +39,7 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
 
-void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
+void RmgMap::foreach_neighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for(const int3 &dir : int3::getDirs())
 	{
@@ -51,7 +51,7 @@ void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> f
 	}
 }
 
-void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+void RmgMap::foreachDirectNeighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for(const int3 &dir : rmg::dirs4)
 	{
@@ -61,7 +61,7 @@ void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& po
 	}
 }
 
-void RmgMap::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+void RmgMap::foreachDiagonalNeighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for (const int3 &dir : rmg::dirsDiagonal)
 	{
@@ -85,13 +85,13 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	getEditManager()->clearTerrain(&generator.rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
 	getEditManager()->drawTerrain(ETerrainId::GRASS, &generator.rand);
-	
-	auto tmpl = mapGenOptions.getMapTemplate();
+
+	const auto * tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
 		auto zone = std::make_shared<Zone>(*this, generator);
-		zone->setOptions(*option.second.get());
+		zone->setOptions(*option.second);
 		zones[zone->getId()] = zone;
 	}
 	
@@ -145,10 +145,6 @@ void RmgMap::addModificators()
 		}
 		
 	}
-}
-
-RmgMap::~RmgMap()
-{
 }
 
 CMap & RmgMap::map() const
@@ -289,7 +285,7 @@ ui32 RmgMap::getTotalZoneCount() const
 	return zonesTotal;
 }
 
-bool RmgMap::isAllowedSpell(SpellID sid) const
+bool RmgMap::isAllowedSpell(const SpellID & sid) const
 {
 	assert(sid >= 0);
 	if (sid < mapInstance->allowedSpell.size())

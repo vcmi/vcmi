@@ -88,9 +88,8 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 	return config;
 }
 
-CMapGenerator::~CMapGenerator()
-{
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CMapGenerator::~CMapGenerator() = default;
 
 const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 {
@@ -281,7 +280,7 @@ void CMapGenerator::createWaterTreasures()
 		return;
 	
 	//add treasures on water
-	for(auto & treasureInfo : getConfig().waterTreasure)
+	for(const auto & treasureInfo : getConfig().waterTreasure)
 	{
 		getZoneWater()->addTreasureInfo(treasureInfo);
 	}
@@ -297,7 +296,7 @@ void CMapGenerator::fillZones()
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
 	Load::Progress::setupStepsTill(map->getZones().size(), 50);
-	for(auto it : map->getZones())
+	for(const auto & it : map->getZones())
 	{
 		it.second->initFreeTiles();
 		it.second->initModificators();
@@ -306,7 +305,7 @@ void CMapGenerator::fillZones()
 
 	Load::Progress::setupStepsTill(map->getZones().size(), 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
-	for(auto it : map->getZones())
+	for(const auto & it : map->getZones())
 	{
 		it.second->processModificators();
 		
@@ -319,7 +318,7 @@ void CMapGenerator::fillZones()
 	//find place for Grail
 	if(treasureZones.empty())
 	{
-		for(auto it : map->getZones())
+		for(const auto & it : map->getZones())
 			if(it.second->getType() != ETemplateZoneType::WATER)
 				treasureZones.push_back(it.second);
 	}
@@ -389,7 +388,7 @@ const std::vector<ArtifactID> & CMapGenerator::getQuestArtsRemaning() const
 	return questArtifacts;
 }
 
-void CMapGenerator::banQuestArt(ArtifactID id)
+void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
 	map->map().allowedArtifact[id] = false;
 	vstd::erase_if_present(questArtifacts, id);

@@ -32,7 +32,7 @@ namespace
 
 	std::string encodeZoneId(si32 id)
 	{
-		return boost::lexical_cast<std::string>(id);
+		return std::to_string(id);
 	}
 }
 
@@ -70,7 +70,7 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return *VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "terrain", identifier);
+		return *VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "terrain", identifier);
 	}
 
 	static std::string encode(const si32 index)
@@ -84,12 +84,12 @@ class ZoneEncoder
 public:
 	static si32 decode(const std::string & json)
 	{
-		return boost::lexical_cast<si32>(json);
+		return std::stoi(json);
 	}
 
 	static std::string encode(si32 id)
 	{
-		return boost::lexical_cast<std::string>(id);
+		return std::to_string(id);
 	}
 };
 
@@ -132,22 +132,14 @@ void ZoneOptions::CTownInfo::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("castleDensity", castleDensity, 0);
 }
 
-
-ZoneOptions::ZoneOptions()
-	: id(0),
+ZoneOptions::ZoneOptions():
+	id(0),
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
 	owner(boost::none),
-	playerTowns(),
-	neutralTowns(),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
-	townTypes(),
-	monsterTypes(),
 	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
-	mines(),
-	treasureInfo(),
-	connections(),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
@@ -155,29 +147,6 @@ ZoneOptions::ZoneOptions()
 	for(const auto & terr : VLC->terrainTypeHandler->objects)
 		if(terr->isLand() && terr->isPassable())
 			terrainTypes.insert(terr->getId());
-}
-
-ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
-{
-	id = other.id;
-	type = other.type;
-	size = other.size;
-	owner = other.owner;
-	playerTowns = other.playerTowns;
-	neutralTowns = other.neutralTowns;
-	matchTerrainToTown = other.matchTerrainToTown;
-	terrainTypes = other.terrainTypes;
-	townsAreSameType = other.townsAreSameType;
-	townTypes = other.townTypes;
-	monsterTypes = other.monsterTypes;
-	zoneMonsterStrength = other.zoneMonsterStrength;
-	mines = other.mines;
-	treasureInfo = other.treasureInfo;
-	connections = other.connections;
-	minesLikeZone = other.minesLikeZone;
-	terrainTypeLikeZone = other.terrainTypeLikeZone;
-	treasureLikeZone = other.treasureLikeZone;
-	return *this;
 }
 
 TRmgTemplateZoneId ZoneOptions::getId() const
@@ -362,7 +331,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		if(handler.saving)
 		{
 			node.setType(JsonNode::JsonType::DATA_VECTOR);
-			for(auto & ttype : terrainTypes)
+			for(const auto & ttype : terrainTypes)
 			{
 				JsonNode n;
 				n.String() = VLC->terrainTypeHandler->getById(ttype)->getJsonKey();
@@ -375,7 +344,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			if(!node.Vector().empty())
 			{
 				terrainTypes.clear();
-				for(auto ttype : node.Vector())
+				for(const auto & ttype : node.Vector())
 				{
 					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
 					{
@@ -476,10 +445,6 @@ CRmgTemplate::CRmgTemplate()
 
 }
 
-CRmgTemplate::~CRmgTemplate()
-{
-}
-
 bool CRmgTemplate::matchesSize(const int3 & value) const
 {
 	const int64_t square = value.x * value.y * value.z;
@@ -551,12 +516,12 @@ std::pair<int3, int3> CRmgTemplate::getMapSizes() const
 
 void CRmgTemplate::CPlayerCountRange::addRange(int lower, int upper)
 {
-	range.push_back(std::make_pair(lower, upper));
+	range.emplace_back(lower, upper);
 }
 
 void CRmgTemplate::CPlayerCountRange::addNumber(int value)
 {
-	range.push_back(std::make_pair(value, value));
+	range.emplace_back(value, value);
 }
 
 bool CRmgTemplate::CPlayerCountRange::isInRange(int count) const
@@ -591,7 +556,7 @@ std::string CRmgTemplate::CPlayerCountRange::toString() const
 
 	bool first = true;
 
-	for(auto & p : range)
+	for(const auto & p : range)
 	{
 		if(!first)
 			ret +=",";
@@ -600,7 +565,7 @@ std::string CRmgTemplate::CPlayerCountRange::toString() const
 
 		if(p.first == p.second)
 		{
-			ret += boost::lexical_cast<std::string>(p.first);
+			ret += std::to_string(p.first);
 		}
 		else
 		{
@@ -683,7 +648,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		auto zonesData = handler.enterStruct("zones");
-        if(handler.saving)
+		if(handler.saving)
 		{
 			for(auto & idAndZone : zones)
 			{
@@ -693,7 +658,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		}
 		else
 		{
-			for(auto & idAndZone : zonesData->getCurrent().Struct())
+			for(const auto & idAndZone : zonesData->getCurrent().Struct())
 			{
 				auto guard = handler.enterStruct(idAndZone.first);
 				auto zone = std::make_shared<ZoneOptions>();

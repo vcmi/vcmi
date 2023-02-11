@@ -76,8 +76,8 @@ void createBorder(RmgMap & gen, Zone & zone)
 		auto tile = borderOutsideArea.nearest(t);
 		return gen.isOnMap(tile) && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
 	});
-	
-	for(auto & tile : blockBorder.getTilesVector())
+
+	for(const auto & tile : blockBorder.getTilesVector())
 	{
 		if(gen.isPossible(tile))
 		{

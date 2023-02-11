@@ -66,9 +66,10 @@ const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templa
 std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 {
 	std::vector<const CRmgTemplate *> result;
-	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
+	result.reserve(templates.size());
+	for(const auto & i : templates)
 	{
-		result.push_back(&i->second);
+		result.push_back(&i.second);
 	}
 	return result;
 }
