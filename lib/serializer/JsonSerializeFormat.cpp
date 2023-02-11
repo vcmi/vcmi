@@ -15,9 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 //JsonSerializeHelper
-JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper && other):
-	owner(other.owner),
-	restoreState(false)
+JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper && other) noexcept: owner(other.owner), restoreState(false)
 {
 	std::swap(restoreState, other.restoreState);
 }
@@ -40,33 +38,17 @@ JsonSerializeHelper::JsonSerializeHelper(JsonSerializeFormat * owner_)
 }
 
 //JsonStructSerializer
-JsonStructSerializer::JsonStructSerializer(JsonStructSerializer && other)
-	: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other)))
-{
-
-}
+JsonStructSerializer::JsonStructSerializer(JsonStructSerializer && other) noexcept: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other))) {}
 
 JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat * owner_)
 	: JsonSerializeHelper(owner_)
 {
 }
 
-JsonStructSerializer::~JsonStructSerializer()
-{
-}
-
 //JsonArraySerializer
-JsonArraySerializer::JsonArraySerializer(JsonArraySerializer && other)
-	: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other)))
-{
+JsonArraySerializer::JsonArraySerializer(JsonArraySerializer && other) noexcept: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other))) {}
 
-}
-
-JsonArraySerializer::JsonArraySerializer(JsonSerializeFormat * owner_):
-	JsonSerializeHelper(owner_)
-{
-	thisNode = &owner->getCurrent();
-}
+JsonArraySerializer::JsonArraySerializer(JsonSerializeFormat * owner_): JsonSerializeHelper(owner_), thisNode(&owner->getCurrent()) {}
 
 JsonStructSerializer JsonArraySerializer::enterStruct(const size_t index)
 {
@@ -110,16 +92,20 @@ size_t JsonArraySerializer::size() const
 }
 
 //JsonSerializeFormat::LIC
-JsonSerializeFormat::LIC::LIC(const std::vector<bool> & Standard, const TDecoder Decoder, const TEncoder Encoder):
-	standard(Standard), decoder(Decoder), encoder(Encoder)
+JsonSerializeFormat::LIC::LIC(const std::vector<bool> & Standard, TDecoder Decoder, TEncoder Encoder):
+	standard(Standard),
+	decoder(std::move(Decoder)),
+	encoder(std::move(Encoder))
 {
 	any.resize(standard.size(), false);
 	all.resize(standard.size(), false);
 	none.resize(standard.size(), false);
 }
 
-JsonSerializeFormat::LICSet::LICSet(const std::set<si32>& Standard, const TDecoder Decoder, const TEncoder Encoder):
-	standard(Standard), decoder(Decoder), encoder(Encoder)
+JsonSerializeFormat::LICSet::LICSet(const std::set<si32> & Standard, TDecoder Decoder, TEncoder Encoder):
+	standard(Standard),
+	decoder(std::move(Decoder)),
+	encoder(std::move(Encoder))
 {
 
 }

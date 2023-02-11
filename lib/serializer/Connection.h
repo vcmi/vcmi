@@ -88,8 +88,8 @@ public:
 	int connectionID;
 	std::shared_ptr<boost::thread> handler;
 
-	CConnection(std::string host, ui16 port, std::string Name, std::string UUID);
-	CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> Io_service, std::string Name, std::string UUID);
+	CConnection(const std::string & host, ui16 port, std::string Name, std::string UUID);
+	CConnection(const std::shared_ptr<TAcceptor> & acceptor, const std::shared_ptr<boost::asio::io_service> & Io_service, std::string Name, std::string UUID);
 	CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID); //use immediately after accepting connection into socket
 
 	void close();

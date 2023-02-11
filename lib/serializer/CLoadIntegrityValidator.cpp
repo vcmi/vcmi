@@ -40,7 +40,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 	if(!foundDesync)
 	{
 		controlFile->read(controlData.data(), size);
-		if(std::memcmp(data, controlData.data(), size))
+		if(std::memcmp(data, controlData.data(), size) != 0)
 		{
 			logGlobal->error("Desync found! Position: %d", primaryFile->sfile->tellg());
 			foundDesync = true;
@@ -57,7 +57,7 @@ std::unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
 	return std::move(primaryFile);
 }
 
-void CLoadIntegrityValidator::checkMagicBytes( const std::string &text )
+void CLoadIntegrityValidator::checkMagicBytes(const std::string & text) const
 {
 	assert(primaryFile);
 	assert(controlFile);

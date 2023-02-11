@@ -74,7 +74,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 		std::map<TypeInfoPtr, TypeInfoPtr> previous;
 		std::queue<TypeInfoPtr> q;
 		q.push(to);
-		while(q.size())
+		while(!q.empty())
 		{
 			auto typeNode = q.front();
 			q.pop();

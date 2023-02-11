@@ -125,6 +125,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/serializer/JsonSerializeFormat.cpp
 		${MAIN_LIB_DIR}/serializer/JsonSerializer.cpp
 		${MAIN_LIB_DIR}/serializer/JsonUpdater.cpp
+		${MAIN_LIB_DIR}/serializer/ILICReader.cpp
 
 		${MAIN_LIB_DIR}/spells/AbilityCaster.cpp
 		${MAIN_LIB_DIR}/spells/AdventureSpellMechanics.cpp
@@ -361,6 +362,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/serializer/JsonSerializeFormat.h
 		${MAIN_LIB_DIR}/serializer/JsonSerializer.h
 		${MAIN_LIB_DIR}/serializer/JsonUpdater.h
+		${MAIN_LIB_DIR}/serializer/ILICReader.h
 		${MAIN_LIB_DIR}/serializer/Cast.h
 
 		${MAIN_LIB_DIR}/spells/AbilityCaster.h

@@ -245,7 +245,7 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 
 	if(toAdd.getType() == JsonNode::JsonType::DATA_VECTOR)
 	{
-		for(auto & item : toAdd.Vector())
+		for(const auto & item : toAdd.Vector())
 		{
 			auto b = JsonUtils::parseBonus(item);
 			value->addNewBonus(b);
@@ -256,7 +256,7 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 
 	if(toRemove.getType() == JsonNode::JsonType::DATA_VECTOR)
 	{
-		for(auto & item : toRemove.Vector())
+		for(const auto & item : toRemove.Vector())
 		{
 			auto mask = JsonUtils::parseBonus(item);
 
@@ -279,35 +279,5 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 		}
 	}
 }
-
-void JsonUpdater::readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value)
-{
-	for(size_t index = 0; index < part.Vector().size(); index++)
-	{
-		const std::string & identifier = part.Vector()[index].String();
-
-		const si32 rawId = decoder(identifier);
-		if(rawId >= 0)
-		{
-			if(rawId < value.size())
-				value[rawId] = val;
-			else
-				logGlobal->error("JsonUpdater::serializeLIC: id out of bounds %d", rawId);
-		}
-	}
-}
-
-void JsonUpdater::readLICPart(const JsonNode & part, const TDecoder & decoder, std::set<si32> & value)
-{
-	for(size_t index = 0; index < part.Vector().size(); index++)
-	{
-		const std::string & identifier = part.Vector()[index].String();
-
-		const si32 rawId = decoder(identifier);
-		if(rawId != -1)
-			value.insert(rawId);
-	}
-}
-
 
 VCMI_LIB_NAMESPACE_END
