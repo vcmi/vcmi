@@ -86,7 +86,7 @@ EventCondition::EventCondition(EWinLoseType condition):
 {
 }
 
-EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position):
+EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position):
 	object(nullptr),
 	metaType(EMetaclass::INVALID),
 	value(value),
@@ -237,10 +237,6 @@ CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
 }
 
-CMapHeader::~CMapHeader()
-{
-}
-
 ui8 CMapHeader::levels() const
 {
 	return (twoLevel ? 2 : 1);
@@ -378,7 +374,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	if(isWaterTile(pos))
 		return false;
 
-	for (auto & dir : dirs)
+	for(const auto & dir : dirs)
 	{
 		const int3 hlp = pos + dir;
 
@@ -394,15 +390,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 
 bool CMap::isInTheMap(const int3 & pos) const
 {
-	if(pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= width || pos.y >= height
-			|| pos.z > (twoLevel ? 1 : 0))
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	return pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < width && pos.y < height && pos.z <= (twoLevel ? 1 : 0);
 }
 
 TerrainTile & CMap::getTile(const int3 & tile)
@@ -428,11 +416,11 @@ bool CMap::canMoveBetween(const int3 &src, const int3 &dst) const
 	return checkForVisitableDir(src, dstTile, dst) && checkForVisitableDir(dst, srcTile, src);
 }
 
-bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const
+bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const
 {
 	if (!pom->entrableTerrain()) //rock is never accessible
 		return false;
-	for (auto obj : pom->visitableObjects) //checking destination tile
+	for(auto * obj : pom->visitableObjects) //checking destination tile
 	{
 		if(!vstd::contains(pom->blockingObjects, obj)) //this visitable object is not blocking, ignore
 			continue;
@@ -496,7 +484,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	return int3(-1, -1, -1);
 }
 
-const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
+const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj::EObj type)
 {
 	for (CGObjectInstance * object : getTile(pos).visitableObjects)
 	{
@@ -506,7 +494,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	// There is weird bug because of which sometimes heroes will not be found properly despite having correct position
 	// Try to workaround that and find closest object that we can use
 
-	logGlobal->error("Failed to find object of type %d at %s", int(type), pos.toString());
+	logGlobal->error("Failed to find object of type %d at %s", static_cast<int>(type), pos.toString());
 	logGlobal->error("Will try to find closest matching object");
 
 	CGObjectInstance * bestMatch = nullptr;
@@ -544,12 +532,12 @@ void CMap::checkForObjectives()
 
 				case EventCondition::HAVE_CREATURES:
 					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->getNameSingularTranslated());
-					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
+					boost::algorithm::replace_first(event.onFulfill, "%d", std::to_string(cond.value));
 					break;
 
 				case EventCondition::HAVE_RESOURCES:
 					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->generaltexth->restypes[cond.objectType]);
-					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
+					boost::algorithm::replace_first(event.onFulfill, "%d", std::to_string(cond.value));
 					break;
 
 				case EventCondition::HAVE_BUILDING:
@@ -559,14 +547,14 @@ void CMap::checkForObjectives()
 
 				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, Obj::EObj(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj::EObj>(cond.objectType));
 
 					if (cond.object)
 					{
-						const CGTownInstance *town = dynamic_cast<const CGTownInstance*>(cond.object);
+						const auto * town = dynamic_cast<const CGTownInstance *>(cond.object);
 						if (town)
 							boost::algorithm::replace_first(event.onFulfill, "%s", town->getNameTranslated());
-						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
+						const auto * hero = dynamic_cast<const CGHeroInstance *>(cond.object);
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
@@ -574,11 +562,11 @@ void CMap::checkForObjectives()
 
 				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, Obj::EObj(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj::EObj>(cond.objectType));
 
 					if (cond.object)
 					{
-						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
+						const auto * hero = dynamic_cast<const CGHeroInstance *>(cond.object);
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
 					}
@@ -607,8 +595,8 @@ void CMap::checkForObjectives()
 
 void CMap::addNewArtifactInstance(CArtifactInstance * art)
 {
-	art->id = ArtifactInstanceID((si32)artInstances.size());
-	artInstances.push_back(art);
+	art->id = ArtifactInstanceID(static_cast<si32>(artInstances.size()));
+	artInstances.emplace_back(art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
@@ -621,7 +609,7 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 void CMap::addNewQuestInstance(CQuest* quest)
 {
 	quest->qid = static_cast<si32>(quests.size());
-	quests.push_back(quest);
+	quests.emplace_back(quest);
 }
 
 void CMap::removeQuestInstance(CQuest * quest)
@@ -653,7 +641,7 @@ void CMap::setUniqueInstanceName(CGObjectInstance * obj)
 
 void CMap::addNewObject(CGObjectInstance * obj)
 {
-	if(obj->id != ObjectInstanceID((si32)objects.size()))
+	if(obj->id != ObjectInstanceID(static_cast<si32>(objects.size())))
 		throw std::runtime_error("Invalid object instance id");
 
 	if(obj->instanceName.empty())
@@ -662,7 +650,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
-	objects.push_back(obj);
+	objects.emplace_back(obj);
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
 

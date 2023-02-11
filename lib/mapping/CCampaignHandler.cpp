@@ -32,28 +32,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CCampaignHeader::CCampaignHeader()
-	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)
-{
-
-}
-
-CScenarioTravel::STravelBonus::STravelBonus()
-	:type(SPELL), info1(0), info2(0), info3(0)
-{
-
-}
-
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
 {
 	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
 		|| type == SECONDARY_SKILL;
-}
-
-CScenarioTravel::CScenarioTravel()
-	:whatHeroKeeps(0), startOptions(0), playerColor(0)
-{
-
 }
 
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
@@ -98,27 +80,31 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 
 		std::string scenarioName = name.substr(0, name.find('.'));
 		boost::to_lower(scenarioName);
-		scenarioName += ':' + boost::lexical_cast<std::string>(g-1);
+		scenarioName += ':' + std::to_string(g - 1);
 
 		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
 		CMapService mapService;
-		ret->scenarios[scenarioID].scenarioName = mapService.loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), (int)ret->mapPieces[scenarioID].size(), scenarioName)->name;
+		auto hdr = mapService.loadMapHeader(
+			reinterpret_cast<const ui8 *>(ret->mapPieces[scenarioID].c_str()),
+			static_cast<int>(ret->mapPieces[scenarioID].size()),
+			scenarioName);
+		ret->scenarios[scenarioID].scenarioName = hdr->name;
 		scenarioID++;
 	}
 
 	// handle campaign specific discrepancies
 	if(name == "DATA/AB.H3C")
 	{
-		ret->scenarios[6].keepHeroes.push_back(HeroTypeID(155)); // keep hero Xeron for map 7 To Kill A Hero
+		ret->scenarios[6].keepHeroes.emplace_back(155); // keep hero Xeron for map 7 To Kill A Hero
 	}
 	else if(name == "DATA/FINAL.H3C")
 	{
 		// keep following heroes for map 8 Final H
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(148)); // Gelu
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(27)); // Gem
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(102)); // Crag Hack
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(96)); // Yog
+		ret->scenarios[7].keepHeroes.emplace_back(148); // Gelu
+		ret->scenarios[7].keepHeroes.emplace_back(27); // Gem
+		ret->scenarios[7].keepHeroes.emplace_back(102); // Crag Hack
+		ret->scenarios[7].keepHeroes.emplace_back(96); // Yog
 	}
 
 	return ret;
@@ -357,33 +343,16 @@ bool CCampaign::conquerable( int whichScenario ) const
 	return true;
 }
 
-CCampaign::CCampaign()
-{
-
-}
-
-CCampaignScenario::SScenarioPrologEpilog::SScenarioPrologEpilog()
-	: hasPrologEpilog(false), prologVideo(0), prologMusic(0), prologText()
-{
-
-}
-
-CCampaignScenario::CCampaignScenario()
-	: mapName(), scenarioName(), packedMapSize(0), regionColor(0), difficulty(0), conquered(false)
-{
-
-}
-
 bool CCampaignScenario::isNotVoid() const
 {
-	return mapName.size() > 0;
+	return !mapName.empty();
 }
 
-const CGHeroInstance * CCampaignScenario::strongestHero(PlayerColor owner)
+const CGHeroInstance * CCampaignScenario::strongestHero(const PlayerColor & owner)
 {
 	std::function<bool(JsonNode & node)> isOwned = [owner](JsonNode & node)
 	{
-		auto h = CCampaignState::crossoverDeserialize(node);
+		auto * h = CCampaignState::crossoverDeserialize(node);
 		bool result = h->tempOwner == owner;
 		vstd::clear_pointer(h);
 		return result;
@@ -392,7 +361,7 @@ const CGHeroInstance * CCampaignScenario::strongestHero(PlayerColor owner)
 
 	auto i = vstd::maxElementByFun(ownedHeroes, [](JsonNode & node)
 	{
-		auto h = CCampaignState::crossoverDeserialize(node);
+		auto * h = CCampaignState::crossoverDeserialize(node);
 		double result = h->getHeroStrength();
 		vstd::clear_pointer(h);
 		return result;
@@ -407,10 +376,10 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
 	{
 		for(auto node2 : placedCrossoverHeroes)
 		{
-			auto hero = CCampaignState::crossoverDeserialize(node2);
+			auto * hero = CCampaignState::crossoverDeserialize(node2);
 			auto it = range::find_if(crossoverHeroes, [hero](JsonNode node)
 			{
-				auto h = CCampaignState::crossoverDeserialize(node);
+				auto * h = CCampaignState::crossoverDeserialize(node);
 				bool result = hero->subID == h->subID;
 				vstd::clear_pointer(h);
 				return result;
@@ -463,11 +432,6 @@ ui8 CCampaignState::currentBonusID() const
 	return chosenCampaignBonuses.at(*currentMap);
 }
 
-CCampaignState::CCampaignState()
-{
-
-}
-
 CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {
 	for(int i = 0; i < camp->scenarios.size(); i++)
@@ -484,11 +448,11 @@ CMap * CCampaignState::getMap(int scenarioId) const
 		scenarioId = currentMap.get();
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	scenarioName += ':' + std::to_string(scenarioId);
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMap(buffer, (int)mapContent.size(), scenarioName).release();
+	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName).release();
 }
 
 std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
@@ -498,11 +462,11 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	scenarioName += ':' + std::to_string(scenarioId);
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMapHeader(buffer, (int)mapContent.size(), scenarioName);
+	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName);
 }
 
 std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const
@@ -528,7 +492,7 @@ JsonNode CCampaignState::crossoverSerialize(CGHeroInstance * hero)
 CGHeroInstance * CCampaignState::crossoverDeserialize(JsonNode & node)
 {
 	JsonDeserializer handler(nullptr, node);
-	auto hero = new CGHeroInstance();
+	auto * hero = new CGHeroInstance();
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	return hero;
@@ -546,7 +510,7 @@ std::string CCampaignHandler::prologVideoName(ui8 index)
 std::string CCampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
-	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(int(index)));
+	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index)));
 }
 
 std::string CCampaignHandler::prologVoiceName(ui8 index)

@@ -47,7 +47,7 @@ public:
 	CMapInfo &operator=(CMapInfo &&other);
 
 	void mapInit(const std::string & fname);
-	void saveInit(ResourceID file);
+	void saveInit(const ResourceID & file);
 	void campaignInit();
 	void countPlayers();
 	// TODO: Those must be on client-side

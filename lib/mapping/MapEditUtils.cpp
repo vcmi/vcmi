@@ -24,9 +24,8 @@ MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
 
 }
 
-MapRect::MapRect(int3 pos, si32 width, si32 height) : x(pos.x), y(pos.y), z(pos.z), width(width), height(height)
+MapRect::MapRect(const int3 & pos, si32 width, si32 height): x(pos.x), y(pos.y), z(pos.z), width(width), height(height)
 {
-
 }
 
 MapRect MapRect::operator&(const MapRect& rect) const
@@ -97,15 +96,15 @@ CTerrainSelection::CTerrainSelection(CMap * map) : CMapSelection(map)
 
 void CTerrainSelection::selectRange(const MapRect& rect)
 {
-	rect.forEach([this](const int3 pos)
+	rect.forEach([this](const int3 & pos) 
 	{
-		this->select(pos);
+		this->select(pos); 
 	});
 }
 
 void CTerrainSelection::deselectRange(const MapRect& rect)
 {
-	rect.forEach([this](const int3 pos)
+	rect.forEach([this](const int3 & pos)
 	{
 		this->deselect(pos);
 	});
@@ -143,22 +142,26 @@ const std::string TerrainViewPattern::RULE_NATIVE = "N";
 const std::string TerrainViewPattern::RULE_NATIVE_STRONG = "N!";
 const std::string TerrainViewPattern::RULE_ANY = "?";
 
-TerrainViewPattern::TerrainViewPattern() : diffImages(false), rotationTypesCount(0), minPoints(0)
+TerrainViewPattern::TerrainViewPattern()
+	: diffImages(false)
+	, rotationTypesCount(0)
+	, minPoints(0)
+	, maxPoints(std::numeric_limits<int>::max())
 {
-	maxPoints = std::numeric_limits<int>::max();
 }
 
-TerrainViewPattern::WeightedRule::WeightedRule(std::string& Name) : points(0), name(Name)
+TerrainViewPattern::WeightedRule::WeightedRule(std::string & Name)
+	: points(0)
+	, name(Name)
+	, standardRule(TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name || TerrainViewPattern::RULE_NATIVE == Name ||
+				   TerrainViewPattern::RULE_SAND == Name || TerrainViewPattern::RULE_TRANSITION == Name || TerrainViewPattern::RULE_NATIVE_STRONG == Name)
+	, anyRule(Name == TerrainViewPattern::RULE_ANY)
+	, dirtRule(Name == TerrainViewPattern::RULE_DIRT)
+	, sandRule(Name == TerrainViewPattern::RULE_SAND)
+	, transitionRule(Name == TerrainViewPattern::RULE_TRANSITION)
+	, nativeStrongRule(Name == TerrainViewPattern::RULE_NATIVE_STRONG)
+	, nativeRule(Name == TerrainViewPattern::RULE_NATIVE)
 {
-	standardRule = (TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name
-		|| TerrainViewPattern::RULE_NATIVE == Name || TerrainViewPattern::RULE_SAND == Name
-		|| TerrainViewPattern::RULE_TRANSITION == Name || TerrainViewPattern::RULE_NATIVE_STRONG == Name);
-	anyRule = (Name == TerrainViewPattern::RULE_ANY);
-	dirtRule = (Name == TerrainViewPattern::RULE_DIRT);
-	sandRule = (Name == TerrainViewPattern::RULE_SAND);
-	transitionRule = (Name == TerrainViewPattern::RULE_TRANSITION);
-	nativeStrongRule = (Name == TerrainViewPattern::RULE_NATIVE_STRONG);
-	nativeRule = (Name == TerrainViewPattern::RULE_NATIVE);
 }
 
 void TerrainViewPattern::WeightedRule::setNative()
@@ -220,7 +223,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					TerrainViewPattern terGroupPattern = pattern;
 					auto mappingStr = mappingPair.second.String();
 					boost::algorithm::erase_all(mappingStr, " ");
-					auto colonIndex = mappingStr.find_first_of(":");
+					auto colonIndex = mappingStr.find_first_of(':');
 					const auto & flipMode = mappingStr.substr(0, colonIndex);
 					terGroupPattern.diffImages = TerrainViewPattern::FLIP_MODE_DIFF_IMAGES == &(flipMode[flipMode.length() - 1]);
 					if (terGroupPattern.diffImages)
@@ -235,8 +238,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					{
 						std::vector<std::string> range;
 						boost::split(range, mapping, boost::is_any_of("-"));
-						terGroupPattern.mapping.push_back(std::make_pair(boost::lexical_cast<int>(range[0]),
-							boost::lexical_cast<int>(range.size() > 1 ? range[1] : range[0])));
+						terGroupPattern.mapping.emplace_back(std::stoi(range[0]), std::stoi(range.size() > 1 ? range[1] : range[0]));
 					}
 
 					// Add pattern to the patterns map
@@ -266,11 +268,6 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 	}
 }
 
-CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
-{
-
-}
-
 const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
 	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
@@ -279,7 +276,7 @@ const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternCon
 	return iter->second;
 }
 
-boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(std::string patternId, const std::string & id) const
+boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(const std::string & patternId, const std::string & id) const
 {
 	auto iter = terrainViewPatterns.find(patternId);
 	const std::vector<TVPVector> & groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
@@ -343,8 +340,7 @@ void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern & pattern, int fl
 	}
 }
 
-
-void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int3 pos)
+void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, const int3 & pos)
 {
 	logGlobal->debug("Printing detailed info about nearby map tiles of pos '%s'", pos.toString());
 	for (int y = pos.y - 2; y <= pos.y + 2; ++y)
