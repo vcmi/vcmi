@@ -1023,43 +1023,44 @@ bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 	return supposedPart == this;
 }
 
-bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
+bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
 	if(slot == ArtifactPosition::TRANSITION_POS)
 		return true;
-	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved);
-	if(!canMainArtifactBePlaced)
-		return false; //no is no...
 	if(ArtifactUtils::isSlotBackpack(slot))
 		return true; //we can always remove combined art to the backapck
 
-
-	assert(artType->constituents);
-	std::vector<ConstituentInfo> constituentsToBePlaced = constituentsInfo; //we'll remove constituents from that list, as we find a suitable slot for them
-
-	//it may be that we picked a combined artifact in hero screen (though technically it's still there) to move it
-	//so we remove from the list all constituents that are already present on dst hero in the form of locks
-	for(const ConstituentInfo &constituent : constituentsInfo)
+	CArtifactFittingSet fittingSet(artSet->bearerType());
+	fittingSet.artifactsWorn = artSet->artifactsWorn;
+	auto removedArt = fittingSet.getArt(slot);
+	if(assumeDestRemoved && removedArt)
 	{
-		if(constituent.art == artSet->getArt(constituent.slot, false)) //no need to worry about locked constituent
-			constituentsToBePlaced -= constituent;
-	}
-
-	//we iterate over all active slots and check if constituents fits them
-	for(const auto pos : ArtifactUtils::constituentWornSlots())
-	{
-		for(auto art = constituentsToBePlaced.begin(); art != constituentsToBePlaced.end(); art++)
+		if(removedArt->canBeDisassembled())
 		{
-			// pos == slot because we can remove already worn artifact only from that slot. That is our main destination
-			if(art->art->canBePutAt(artSet, pos, pos == slot))
+			auto contitutient = dynamic_cast<CCombinedArtifactInstance*>(removedArt);
+			for(auto & part : contitutient->constituentsInfo)
 			{
-				constituentsToBePlaced.erase(art);
-				break;
+				if(ArtifactUtils::isSlotEquipment(part.slot))
+				{
+					fittingSet.eraseArtSlot(part.slot);
+				}
 			}
 		}
+		fittingSet.eraseArtSlot(slot);
 	}
-
-	return constituentsToBePlaced.empty();
+	for(auto & art : constituentsInfo)
+	{
+		auto possibleSlot = art.art->firstAvailableSlot(&fittingSet);
+		if(ArtifactUtils::isSlotEquipment(possibleSlot))
+		{
+			fittingSet.setNewArtSlot(possibleSlot, nullptr, true);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 bool CCombinedArtifactInstance::canBeDisassembled() const
@@ -1563,7 +1564,7 @@ void CArtifactFittingSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance
 
 void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
-	if(art && art->canBeDisassembled() && (pos < ArtifactPosition::AFTER_LAST))
+	if(art && art->canBeDisassembled() && ArtifactUtils::isSlotEquipment(pos))
 	{
 		for(auto & part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
 		{
