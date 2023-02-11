@@ -529,7 +529,7 @@ int LuaContext::loadModule()
 
 		auto rawData = loader->load(id)->readAll();
 
-		auto sourceText = std::string((char *)rawData.first.get(), rawData.second);
+		auto sourceText = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
 
 		int ret = luaL_loadbuffer(L, sourceText.c_str(), sourceText.size(), modulePath.c_str());
 
