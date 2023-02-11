@@ -294,9 +294,8 @@ void BulkMoveArtifacts::applyCl(CClient * cl)
 		{
 			auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
-			callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
-			if(srcLoc.owningPlayer() != dstLoc.owningPlayer())
-				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			MoveArtifact ma(&srcLoc, &dstLoc, false);
+			ma.applyCl(cl);
 		}
 	};
 

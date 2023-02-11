@@ -1032,13 +1032,13 @@ bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet * artSet, Artifact
 
 	CArtifactFittingSet fittingSet(artSet->bearerType());
 	fittingSet.artifactsWorn = artSet->artifactsWorn;
-	auto removedArt = fittingSet.getArt(slot);
-	if(assumeDestRemoved && removedArt)
+	auto artToRemove = fittingSet.getArt(slot);
+	if(assumeDestRemoved && artToRemove)
 	{
-		if(removedArt->canBeDisassembled())
+		if(artToRemove->canBeDisassembled())
 		{
-			auto contitutient = dynamic_cast<CCombinedArtifactInstance*>(removedArt);
-			for(auto & part : contitutient->constituentsInfo)
+			auto combinedArtToRemove = dynamic_cast<CCombinedArtifactInstance*>(artToRemove);
+			for(auto & part : combinedArtToRemove->constituentsInfo)
 			{
 				if(ArtifactUtils::isSlotEquipment(part.slot))
 				{
