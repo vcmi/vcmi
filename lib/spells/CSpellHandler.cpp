@@ -84,24 +84,6 @@ static const ESpellSchool SCHOOL_ORDER[4] =
 };
 } //namespace SpellConfig
 
-///CSpell::LevelInfo
-CSpell::LevelInfo::LevelInfo():
-	cost(0),
-	power(0),
-	AIValue(0),
-	smartTarget(true),
-	clearTarget(false),
-	clearAffected(false),
-	range("0")
-{
-
-}
-
-CSpell::LevelInfo::~LevelInfo()
-{
-
-}
-
 ///CSpell
 CSpell::CSpell():
 	id(SpellID::NONE),
@@ -115,23 +97,19 @@ CSpell::CSpell():
 	damage(false),
 	offensive(false),
 	special(true),
-	targetType(spells::AimType::NO_TARGET),
-	mechanics(),
-	adventureMechanics()
+	targetType(spells::AimType::NO_TARGET)
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
 }
 
-CSpell::~CSpell()
-{
-
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CSpell::~CSpell() = default;
 
 bool CSpell::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	assert(env);
 
-	if(!adventureMechanics.get())
+	if(!adventureMechanics)
 	{
 		env->complain("Invalid adventure spell cast attempt!");
 		return false;
@@ -185,7 +163,7 @@ void CSpell::forEachSchool(const std::function<void(const spells::SchoolInfo &, 
 	bool stop = false;
 	for(ESpellSchool iter : SpellConfig::SCHOOL_ORDER)
 	{
-		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[(ui8)iter];
+		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[static_cast<ui8>(iter)];
 		if(school.at(cnf.id))
 		{
 			cb(cnf, stop);
@@ -405,15 +383,15 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 	//affected creature-specific part
 	if(nullptr != affectedCreature)
 	{
-		auto bearer = affectedCreature;
+		const auto * bearer = affectedCreature;
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		forEachSchool([&](const spells::SchoolInfo & cnf, bool & stop)
 		{
-			if(bearer->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			if(bearer->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id)))
 			{
-				ret *= 100 - bearer->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret *= 100 - bearer->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id));
 				ret /= 100;
-				stop = true;//only bonus from one school is used
+				stop = true; //only bonus from one school is used
 			}
 		});
 
@@ -439,7 +417,7 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 
 int64_t CSpell::calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const
 {
-	return (int64_t)basePowerMultiplier * getBasePower() + levelPowerMultiplier * getLevelPower(effectLevel);
+	return static_cast<int64_t>(basePowerMultiplier) * getBasePower() + levelPowerMultiplier * getLevelPower(effectLevel);
 }
 
 void CSpell::setIsOffensive(const bool val)
@@ -540,18 +518,7 @@ CSpell::AnimationItem::AnimationItem() :
 
 }
 
-
 ///CSpell::AnimationInfo
-CSpell::AnimationInfo::AnimationInfo()
-{
-
-}
-
-CSpell::AnimationInfo::~AnimationInfo()
-{
-
-}
-
 std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 {
 	std::string res;
@@ -577,7 +544,7 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	clearAffected(false),
 	clearTarget(false)
 {
-	auto & levelInfo = spell->getLevelInfo(level);
+	const auto & levelInfo = spell->getLevelInfo(level);
 
 	smart = levelInfo.smartTarget;
 	massive = levelInfo.range == "X";
@@ -592,10 +559,6 @@ bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
 }
 
 ///CSpellHandler
-CSpellHandler::CSpellHandler() = default;
-
-CSpellHandler::~CSpellHandler() = default;
-
 std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 {
 	using namespace SpellConfig;
@@ -648,8 +611,8 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
 			auto & chances = lineNode["gainChance"].Struct();
 
-			for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
-				chances[ETownType::names[i]].Integer() = static_cast<si64>(parser.readNumber());
+			for(const auto & name : ETownType::names)
+				chances[name].Integer() = static_cast<si64>(parser.readNumber());
 
 			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
@@ -713,7 +676,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	SpellID id(static_cast<si32>(index));
 
-	CSpell * spell = new CSpell();
+	auto * spell = new CSpell();
 	spell->id = id;
 	spell->identifier = identifier;
 	spell->modScope = scope;
@@ -774,9 +737,9 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id) 
 			{
-				spell->counteredSpells.push_back(SpellID(id));
+				spell->counteredSpells.emplace_back(id);
 			});
 		}
 	}
@@ -820,7 +783,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	spell->special = flags["special"].Bool();
 
-	auto findBonus = [&](std::string name, std::vector<Bonus::BonusType> & vec)
+	auto findBonus = [&](const std::string & name, std::vector<Bonus::BonusType> & vec)
 	{
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
@@ -829,11 +792,11 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		}
 		else
 		{
-			vec.push_back((Bonus::BonusType)it->second);
+			vec.push_back(static_cast<Bonus::BonusType>(it->second));
 		}
 	};
 
-	auto readBonusStruct = [&](std::string name, std::vector<Bonus::BonusType> & vec)
+	auto readBonusStruct = [&](const std::string & name, std::vector<Bonus::BonusType> & vec)
 	{
 		for(auto bonusData: json[name].Struct())
 		{
