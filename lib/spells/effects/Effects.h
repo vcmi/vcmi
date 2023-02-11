@@ -30,8 +30,7 @@ public:
 
 	EffectData data;
 
-	Effects();
-	virtual ~Effects();
+	virtual ~Effects() = default;
 
 	void add(const std::string & name, const std::shared_ptr<Effect>& effect, const int level);
 

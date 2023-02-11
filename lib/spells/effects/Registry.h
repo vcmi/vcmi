@@ -29,7 +29,6 @@ namespace effects
 class DLL_LINKAGE IEffectFactory
 {
 public:
-	IEffectFactory() = default;
 	virtual ~IEffectFactory() = default;
 
 	virtual Effect * create() const = 0;
@@ -47,7 +46,6 @@ public:
 
 class DLL_LINKAGE GlobalRegistry
 {
-	GlobalRegistry() = default;
 public:
     static Registry * get();
 };
@@ -56,9 +54,6 @@ template<typename E>
 class EffectFactory : public IEffectFactory
 {
 public:
-	EffectFactory() = default;
-	virtual ~EffectFactory() = default;
-
 	Effect * create() const override
 	{
 		return new E();
