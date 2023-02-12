@@ -49,14 +49,6 @@ SDL_Color CSDL_Ext::toSDL(const ColorRGBA & color)
 	return result;
 }
 
-Rect CSDL_Ext::getDisplayBounds()
-{
-	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
-
-	return fromSDL(displayBounds);
-}
-
 void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
 	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
@@ -878,7 +870,42 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	other = CSDL_Ext::fromSDL(rect);
 }
 
+bool CSDL_Ext::isResolutionSupported(const std::vector<Point> & resolutions, const Point toTest )
+{
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+	// ios can use any resolution
+	// presumably, same goes for Android
+	return true;
+#else
+	// in fullscreen only resolutions supported by monitor can be used
+	return vstd::contains(resolutions, toTest);
+#endif
+}
 
+std::vector<Point> CSDL_Ext::getSupportedResolutions()
+{
+	int displayID = SDL_GetWindowDisplayIndex(mainWindow);
+	return getSupportedResolutions(displayID);
+}
+
+std::vector<Point> CSDL_Ext::getSupportedResolutions( int displayIndex)
+{
+	std::vector<Point> result;
+
+	int modesCount = SDL_GetNumDisplayModes(displayIndex);
+
+	for (int i =0; i < modesCount; ++i)
+	{
+		SDL_DisplayMode mode;
+		if (SDL_GetDisplayMode(displayIndex, i, &mode) != 0)
+			continue;
+
+		Point resolution(mode.w, mode.h);
+
+		result.push_back(resolution);
+	}
+	return result;
+}
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
