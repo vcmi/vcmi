@@ -13,9 +13,9 @@
 
 #include "SettingsMainContainer.h"
 
-#include "SystemOptionsWindow.h"
+#include "GeneralOptionsTab.h"
 #include "VcmiSettingsWindow.h"
-#include "BattleOptionsWindow.h"
+#include "BattleOptionsTab.h"
 
 #include "filesystem/ResourceID.h"
 #include "CGeneralTextHandler.h"
@@ -31,7 +31,7 @@ SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) :
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourceID("config/widgets/settingsMainContainer.json"));
+	const JsonNode config(ResourceID("config/widgets/settings/settingsMainContainer.json"));
 	addCallback("activateMainTab", [this](int) { openTab(0); });
 	addCallback("activateBattleSettingsTab", [this](int) { openTab(1); });
 	addCallback("activateVcmiSettingsTab", [this](int) { openTab(2); });
@@ -78,14 +78,14 @@ std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
 	switch(index)
 	{
 		case 0:
-			return std::make_shared<SystemOptionsWindow>();
+			return std::make_shared<GeneralOptionsTab>();
 		case 1:
-			return std::make_shared<BattleOptionsWindow>(parentBattleInterface);
+			return std::make_shared<BattleOptionsTab>(parentBattleInterface);
 		case 2:
 			return std::make_shared<VcmiSettingsWindow>();
 		default:
 			logGlobal->error("Wrong settings tab ID!");
-			return std::make_shared<SystemOptionsWindow>();
+			return std::make_shared<GeneralOptionsTab>();
 	}
 }
 

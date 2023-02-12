@@ -1,5 +1,5 @@
 /*
- * SystemOptionsWindow.h, part of VCMI engine
+ * GeneralOptionsTab.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,7 +12,7 @@
 #include "../../../lib/CConfigHandler.h"
 #include "../../gui/InterfaceObjectConfigurable.h"
 
-class SystemOptionsWindow : public InterfaceObjectConfigurable
+class GeneralOptionsTab : public InterfaceObjectConfigurable
 {
 private:
 	SettingsListener onFullscreenChanged;
@@ -29,5 +29,5 @@ private:
 	void setGameResolution(int index);
 
 public:
-	SystemOptionsWindow();
+	GeneralOptionsTab();
 };

@@ -1,5 +1,5 @@
 /*
- * BattleOptionsWindow.h, part of VCMI engine
+ * BattleOptionsTab.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,7 +12,7 @@
 #include "../../gui/InterfaceObjectConfigurable.h"
 #include "../../battle/BattleInterface.h"
 
-class BattleOptionsWindow : public InterfaceObjectConfigurable
+class BattleOptionsTab : public InterfaceObjectConfigurable
 {
 private:
 	std::shared_ptr<CToggleGroup> animSpeeds;
@@ -24,7 +24,7 @@ private:
 	void mouseShadowChangedCallback(bool value);
 	void animationSpeedChangedCallback(int value);
 public:
-	BattleOptionsWindow(BattleInterface * owner = nullptr);
+	BattleOptionsTab(BattleInterface * owner = nullptr);
 };
 
 

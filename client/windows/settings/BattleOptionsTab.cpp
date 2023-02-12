@@ -1,5 +1,5 @@
 /*
- * BattleOptionsWindow.cpp, part of VCMI engine
+ * BattleOptionsTab.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "BattleOptionsWindow.h"
+#include "BattleOptionsTab.h"
 #include "CConfigHandler.h"
 #include "../../gui/CGuiHandler.h"
 
@@ -18,16 +18,16 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
+BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 		InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourceID("config/widgets/battleOptionsWindow.json"));
-	addCallback("viewGridChanged", std::bind(&BattleOptionsWindow::viewGridChangedCallback, this, _1, owner));
-	addCallback("movementShadowChanged", std::bind(&BattleOptionsWindow::movementShadowChangedCallback, this, _1, owner));
-	addCallback("mouseShadowChanged", std::bind(&BattleOptionsWindow::mouseShadowChangedCallback, this, _1));
-	addCallback("animationSpeedChanged", std::bind(&BattleOptionsWindow::animationSpeedChangedCallback, this, _1));
+	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
+	addCallback("viewGridChanged", std::bind(&BattleOptionsTab::viewGridChangedCallback, this, _1, owner));
+	addCallback("movementShadowChanged", std::bind(&BattleOptionsTab::movementShadowChangedCallback, this, _1, owner));
+	addCallback("mouseShadowChanged", std::bind(&BattleOptionsTab::mouseShadowChangedCallback, this, _1));
+	addCallback("animationSpeedChanged", std::bind(&BattleOptionsTab::animationSpeedChangedCallback, this, _1));
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -44,7 +44,7 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
 	mouseShadowCheckbox->setSelected((bool)settings["battle"]["mouseShadow"].Bool());
 }
 
-int BattleOptionsWindow::getAnimSpeed() const
+int BattleOptionsTab::getAnimSpeed() const
 {
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
 		return static_cast<int>(std::round(settings["session"]["spectate-battle-speed"].Float()));
@@ -52,7 +52,7 @@ int BattleOptionsWindow::getAnimSpeed() const
 	return static_cast<int>(std::round(settings["battle"]["speedFactor"].Float()));
 }
 
-void BattleOptionsWindow::viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface)
+void BattleOptionsTab::viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface)
 {
 	Settings cellBorders = settings.write["battle"]["cellBorders"];
 	cellBorders->Bool() = value;
@@ -60,7 +60,7 @@ void BattleOptionsWindow::viewGridChangedCallback(bool value, BattleInterface * 
 		parentBattleInterface->redrawBattlefield();
 }
 
-void BattleOptionsWindow::movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface)
+void BattleOptionsTab::movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface)
 {
 	Settings stackRange = settings.write["battle"]["stackRange"];
 	stackRange->Bool() = value;
@@ -68,13 +68,13 @@ void BattleOptionsWindow::movementShadowChangedCallback(bool value, BattleInterf
 		parentBattleInterface->redrawBattlefield();
 }
 
-void BattleOptionsWindow::mouseShadowChangedCallback(bool value)
+void BattleOptionsTab::mouseShadowChangedCallback(bool value)
 {
 	Settings shadow = settings.write["battle"]["mouseShadow"];
 	shadow->Bool() = value;
 }
 
-void BattleOptionsWindow::animationSpeedChangedCallback(int value)
+void BattleOptionsTab::animationSpeedChangedCallback(int value)
 {
 	Settings speed = settings.write["battle"]["speedFactor"];
 	speed->Float() = float(value);

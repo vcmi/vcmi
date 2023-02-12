@@ -18,7 +18,7 @@ VcmiSettingsWindow::VcmiSettingsWindow() : InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourceID("config/widgets/vcmiSettings.json"));
+	const JsonNode config(ResourceID("config/widgets/settings/vcmiSettingsTab.json"));
 	build(config);
 }
 

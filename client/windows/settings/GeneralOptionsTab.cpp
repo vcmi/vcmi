@@ -1,5 +1,5 @@
 /*
- * SystemOptionsWindow.cpp, part of VCMI engine
+ * GeneralOptionsTab.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "SystemOptionsWindow.h"
+#include "GeneralOptionsTab.h"
 
 #include <SDL_surface.h>
 #include <SDL_rect.h>
@@ -46,21 +46,21 @@ static std::string resolutionToString(int w, int h)
 	return std::to_string(w) + 'x' + std::to_string(h);
 }
 
-SystemOptionsWindow::SystemOptionsWindow()
+GeneralOptionsTab::GeneralOptionsTab()
 		: InterfaceObjectConfigurable(),
 		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourceID("config/widgets/optionsMenu.json"));
+	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
 	addCallback("enemyHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
 	addCallback("mapScrollSpeedChanged", std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 	addCallback("heroReminderChanged", std::bind(&setBoolSetting, "adventure", "heroReminder", _1));
 	addCallback("quickCombatChanged", std::bind(&setBoolSetting, "adventure", "quickCombat", _1));
 	addCallback("spellbookAnimationChanged", std::bind(&setBoolSetting, "video", "spellbookAnimation", _1));
-	addCallback("fullscreenChanged", std::bind(&SystemOptionsWindow::setFullscreenMode, this, _1));
-	addCallback("setGameResolution", std::bind(&SystemOptionsWindow::selectGameResolution, this));
+	addCallback("fullscreenChanged", std::bind(&GeneralOptionsTab::setFullscreenMode, this, _1));
+	addCallback("setGameResolution", std::bind(&GeneralOptionsTab::selectGameResolution, this));
 	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
 	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
 	build(config);
@@ -105,12 +105,12 @@ SystemOptionsWindow::SystemOptionsWindow()
 }
 
 
-bool SystemOptionsWindow::isResolutionSupported(const Point & resolution)
+bool GeneralOptionsTab::isResolutionSupported(const Point & resolution)
 {
 	return isResolutionSupported( resolution, settings["video"]["fullscreen"].Bool());
 }
 
-bool SystemOptionsWindow::isResolutionSupported(const Point & resolution, bool fullscreen)
+bool GeneralOptionsTab::isResolutionSupported(const Point & resolution, bool fullscreen)
 {
 	if (!fullscreen)
 		return true;
@@ -120,7 +120,7 @@ bool SystemOptionsWindow::isResolutionSupported(const Point & resolution, bool f
 	return CSDL_Ext::isResolutionSupported(supportedList, resolution);
 }
 
-void SystemOptionsWindow::selectGameResolution()
+void GeneralOptionsTab::selectGameResolution()
 {
 	fillSelectableResolutions();
 
@@ -139,11 +139,11 @@ void SystemOptionsWindow::selectGameResolution()
 	GH.pushIntT<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
-								   std::bind(&SystemOptionsWindow::setGameResolution, this, _1),
+								   std::bind(&GeneralOptionsTab::setGameResolution, this, _1),
 								   currentResolutionIndex);
 }
 
-void SystemOptionsWindow::setGameResolution(int index)
+void GeneralOptionsTab::setGameResolution(int index)
 {
 	assert(index >= 0 && index < selectableResolutions.size());
 
@@ -163,7 +163,7 @@ void SystemOptionsWindow::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resText);
 }
 
-void SystemOptionsWindow::setFullscreenMode(bool on)
+void GeneralOptionsTab::setFullscreenMode(bool on)
 {
 	fillSelectableResolutions();
 
@@ -193,7 +193,7 @@ void SystemOptionsWindow::setFullscreenMode(bool on)
 	}
 }
 
-void SystemOptionsWindow::fillSelectableResolutions()
+void GeneralOptionsTab::fillSelectableResolutions()
 {
 	selectableResolutions.clear();
 
