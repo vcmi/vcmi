@@ -912,8 +912,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.archery",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "PERCENTAGE_DAMAGE_BOOST",
+				"subtype" : 1,
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE",
 				"limiters" : [
@@ -938,8 +938,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.archery",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "PERCENTAGE_DAMAGE_BOOST",
+				"subtype" : 1,
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE",
 				"limiters" : [
@@ -964,8 +964,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.archery",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "PERCENTAGE_DAMAGE_BOOST",
+				"subtype" : 1,
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE",
 				"limiters" : [

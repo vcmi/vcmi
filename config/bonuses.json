@@ -403,6 +403,11 @@
 		}
 	},
 
+	"PERCENTAGE_DAMAGE_BOOST":
+	{
+		"hidden": true
+	},
+
 	"RECEPTIVE":
 	{
 		"graphics":

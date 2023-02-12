@@ -201,18 +201,16 @@ double DamageCalculator::getAttackBlessFactor() const
 
 double DamageCalculator::getAttackOffenseArcheryFactor() const
 {
+	
 	if(info.shooting)
 	{
-		const std::string cachingStrArchery = "type_SECONDARY_SKILL_PREMYs_ARCHERY";
-		static const auto selectorArchery = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARCHERY);
+		const std::string cachingStrArchery = "type_PERCENTAGE_DAMAGE_BOOSTs_1";
+		static const auto selectorArchery = Selector::typeSubtype(Bonus::PERCENTAGE_DAMAGE_BOOST, 1);
 		return info.attacker->valOfBonuses(selectorArchery, cachingStrArchery) / 100.0;
 	}
-	else
-	{
-		const std::string cachingStrOffence = "type_SECONDARY_SKILL_PREMYs_OFFENCE";
-		static const auto selectorOffence = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::OFFENCE);
-		return info.attacker->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
-	}
+	const std::string cachingStrOffence = "type_PERCENTAGE_DAMAGE_BOOSTs_0";
+	static const auto selectorOffence = Selector::typeSubtype(Bonus::PERCENTAGE_DAMAGE_BOOST, 0);
+	return info.attacker->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
 }
 
 double DamageCalculator::getAttackLuckFactor() const

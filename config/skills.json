@@ -31,8 +31,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.archery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
+					"subtype" : 1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -645,8 +645,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.offence",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

@@ -95,11 +95,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"offence" : {
-					"subtype" : "skill.offence",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
