@@ -13,6 +13,9 @@
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Смертельна",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Неможлива",
 
+	"vcmi.adventureMap.moveCostDetails" : "Очки руху - Вартість: %TURNS ходів + %POINTS очок. Залишок очок: %REMAINING",
+	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки руху - Вартість: %POINTS очок, Залишок очок: %REMAINING",
+
 	"vcmi.adventureMap.confirmRestartGame"  : "Ви впевнені, що хочете перезапустити гру?",
 	"vcmi.adventureMap.noTownWithMarket"    : "Немає доступних ринків!",
 	"vcmi.adventureMap.noTownWithTavern"    : "Немає доступного міста з таверною!",
@@ -222,4 +225,19 @@
 	"core.bonus.WATER_IMMUNITY.description" : "Імунітет до всіх заклять школи Води",
 	"core.bonus.WIDE_BREATH.name" : "Широкий подих",
 	"core.bonus.WIDE_BREATH.description" : "Атака широким подихом",
+	"core.bonus.LIMITED_SHOOTING_RANGE.name" : "Обмежена дальність стрільби",
+	"core.bonus.LIMITED_SHOOTING_RANGE.description" : "Не може стріляти по цілях на відстані більше ${val} гексів",
+	
+	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",
+	"vcmi.stackExperience.rank.1" :  "Початковий",
+	"vcmi.stackExperience.rank.2" :  "Новачок",
+	"vcmi.stackExperience.rank.3" :  "Підготовлений",
+	"vcmi.stackExperience.rank.4" :  "Досвідчений",
+	"vcmi.stackExperience.rank.5" :  "Випробуваний",
+	"vcmi.stackExperience.rank.6" :  "Ветеран",
+	"vcmi.stackExperience.rank.7" :  "Адепт",
+	"vcmi.stackExperience.rank.8" :  "Експерт",
+	"vcmi.stackExperience.rank.9" :  "Еліта",
+	"vcmi.stackExperience.rank.10" : "Майстер",
+	"vcmi.stackExperience.rank.11" : "Профі",
 }
