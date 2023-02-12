@@ -1,6 +1,162 @@
 {
 	"items":
 	[
+		{
+			"name": "title",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.392",
+			"position": {"x": 242, "y": 32}
+		},
+		
+		{
+			"name": "animationSpeedLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.393",
+			"position": {"x": 122, "y": 214}
+		},
+		{
+			"name": "musicVolumeLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.394",
+			"position": {"x": 122, "y": 293}
+		},
+		{
+			"name": "effectsVolumeLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.395",
+			"position": {"x": 122, "y": 359}
+		},
+		{
+			"name": "autoCombatOptionsLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.396",
+			"position": {"x": 353, "y": 66}
+		},
+		{
+			"name": "creatureInfoLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.397",
+			"position": {"x": 353, "y": 265}
+		},
 
+		{
+			"name": "creaturesAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.398",
+			"position": {"x": 283, "y": 86}
+		},
+		{
+			"name": "spellsAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.399",
+			"position": {"x": 283, "y": 116}
+		},
+		{
+			"name": "catapultAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.400",
+			"position": {"x": 283, "y": 146}
+		},
+		{
+			"name": "ballistaAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.151",
+			"position": {"x": 283, "y": 176}
+		},
+		{
+			"name": "aidTentAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.401",
+			"position": {"x": 283, "y": 206}
+		},
+
+		{
+			"name": "creatureInfoAllStatsLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.402",
+			"position": {"x": 283, "y": 285}
+		},
+		{
+			"name": "creatureInfoOnlySpellsLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.403",
+			"position": {"x": 283, "y": 315}
+		},
+
+		{
+			"name": "generalOptionsLabel1",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.404",
+			"position": {"x": 61, "y": 57}
+		},
+		{
+			"name": "generalOptionsLabel2",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.405",
+			"position": {"x": 61, "y": 90}
+		},
+		{
+			"name": "generalOptionsLabel3",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.406",
+			"position": {"x": 61, "y": 123}
+		},
+		{
+			"name": "generalOptionsLabel4",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.407",
+			"position": {"x": 61, "y": 156}
+		}
 	]
 }
