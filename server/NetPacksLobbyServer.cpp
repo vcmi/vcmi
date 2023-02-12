@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "LobbyNetPackVisitors.h"
 
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
@@ -21,328 +22,378 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMapInfo.h"
 
-bool CLobbyPackToServer::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
-	return srv->isClientHost(c->connectionID);
+	if(pack.isForServer())
+	{
+		result = srv.isClientHost(pack.c->connectionID);
+	}
 }
 
-void CLobbyPackToServer::applyOnServerAfterAnnounce(CVCMIServer * srv)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
 	// Propogate options after every CLobbyPackToServer
-	srv->updateAndPropagateLobbyState();
+	if(pack.isForServer())
+	{
+		srv.updateAndPropagateLobbyState();
+	}
 }
 
-bool LobbyClientConnected::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv->gh)
+	if(srv.gh)
 	{
-		for(auto & connection : srv->hangingConnections)
+		for(auto & connection : srv.hangingConnections)
 		{
-			if(connection->uuid == uuid)
+			if(connection->uuid == pack.uuid)
 			{
-				return true;
+				{
+				result = true;
+				return;
+				}
 			}
 		}
 	}
 	
-	if(srv->state == EServerState::LOBBY)
-		return true;
+	if(srv.state == EServerState::LOBBY)
+		{
+		result = true;
+		return;
+		}
 	
 	//disconnect immediately and ignore this client
-	srv->connections.erase(c);
-	if(c && c->isOpen())
+	srv.connections.erase(pack.c);
+	if(pack.c && pack.c->isOpen())
 	{
-		c->close();
-		c->connected = false;
+		pack.c->close();
+		pack.c->connected = false;
 	}
-	return false;
+	{
+	result = false;
+	return;
+	}
 }
 
-bool LobbyClientConnected::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv->gh)
+	if(srv.gh)
 	{
-		for(auto & connection : srv->hangingConnections)
+		for(auto & connection : srv.hangingConnections)
 		{
-			if(connection->uuid == uuid)
+			if(connection->uuid == pack.uuid)
 			{
 				logNetwork->info("Reconnection player");
-				c->connectionID = connection->connectionID;
-				for(auto & playerConnection : srv->gh->connections)
+				pack.c->connectionID = connection->connectionID;
+				for(auto & playerConnection : srv.gh->connections)
 				{
 					for(auto & existingConnection : playerConnection.second)
 					{
 						if(existingConnection == connection)
 						{
 							playerConnection.second.erase(existingConnection);
-							playerConnection.second.insert(c);
+							playerConnection.second.insert(pack.c);
 							break;
 						}
 					}
 				}
-				srv->hangingConnections.erase(connection);
+				srv.hangingConnections.erase(connection);
 				break;
 			}
 		}
 	}
 	
-	srv->clientConnected(c, names, uuid, mode);
+	srv.clientConnected(pack.c, pack.names, pack.uuid, pack.mode);
 	// Server need to pass some data to newly connected client
-	clientId = c->connectionID;
-	mode = srv->si->mode;
-	hostClientId = srv->hostClientId;
-	return true;
+	pack.clientId = pack.c->connectionID;
+	pack.mode = srv.si->mode;
+	pack.hostClientId = srv.hostClientId;
+
+	result = true;
 }
 
-void LobbyClientConnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
 	// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
 	// Until UUID set we only pass LobbyClientConnected to this client
-	c->uuid = uuid;
-	srv->updateAndPropagateLobbyState();
-	if(srv->state == EServerState::GAMEPLAY)
+	pack.c->uuid = pack.uuid;
+	srv.updateAndPropagateLobbyState();
+	if(srv.state == EServerState::GAMEPLAY)
 	{
 		//immediately start game
 		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
-		startGameForReconnectedPlayer->initializedStartInfo = srv->si;
-		startGameForReconnectedPlayer->initializedGameState = srv->gh->gameState();
-		startGameForReconnectedPlayer->clientId = c->connectionID;
-		srv->addToAnnounceQueue(std::move(startGameForReconnectedPlayer));
+		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
+		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
+		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
+		srv.addToAnnounceQueue(std::move(startGameForReconnectedPlayer));
 	}
 }
 
-bool LobbyClientDisconnected::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(clientId != c->connectionID)
-		return false;
-
-	if(shutdownServer)
+	if(pack.clientId != pack.c->connectionID)
 	{
-		if(!srv->cmdLineOptions.count("run-by-client"))
-			return false;
-
-		if(c->uuid != srv->cmdLineOptions["uuid"].as<std::string>())
-			return false;
-	}
-
-	return true;
-}
-
-bool LobbyClientDisconnected::applyOnServer(CVCMIServer * srv)
-{
-	srv->clientDisconnected(c);
-	c->close();
-	c->connected = false;
-	return true;
-}
-
-void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
-{
-	if(c && c->isOpen())
-	{
-		boost::unique_lock<boost::mutex> lock(*c->mutexWrite);
-		c->close();
-		c->connected = false;
-	}
-
-	if(shutdownServer)
-	{
-		logNetwork->info("Client requested shutdown, server will close itself...");
-		srv->state = EServerState::SHUTDOWN;
+		result = false;
 		return;
 	}
-	else if(srv->connections.empty())
+
+	if(pack.shutdownServer)
+	{
+		if(!srv.cmdLineOptions.count("run-by-client"))
+		{
+			result = false;
+			return;
+		}
+
+		if(pack.c->uuid != srv.cmdLineOptions["uuid"].as<std::string>())
+		{
+			result = false;
+			return;
+		}
+	}
+
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
+{
+	srv.clientDisconnected(pack.c);
+	pack.c->close();
+	pack.c->connected = false;
+
+	result = true;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
+{
+	if(pack.c && pack.c->isOpen())
+	{
+		boost::unique_lock<boost::mutex> lock(*pack.c->mutexWrite);
+		pack.c->close();
+		pack.c->connected = false;
+	}
+
+	if(pack.shutdownServer)
+	{
+		logNetwork->info("Client requested shutdown, server will close itself...");
+		srv.state = EServerState::SHUTDOWN;
+		return;
+	}
+	else if(srv.connections.empty())
 	{
 		logNetwork->error("Last connection lost, server will close itself...");
-		srv->state = EServerState::SHUTDOWN;
+		srv.state = EServerState::SHUTDOWN;
 	}
-	else if(c == srv->hostClient)
+	else if(pack.c == srv.hostClient)
 	{
 		auto ph = std::make_unique<LobbyChangeHost>();
-		auto newHost = *RandomGeneratorUtil::nextItem(srv->connections, CRandomGenerator::getDefault());
+		auto newHost = *RandomGeneratorUtil::nextItem(srv.connections, CRandomGenerator::getDefault());
 		ph->newHostConnectionId = newHost->connectionID;
-		srv->addToAnnounceQueue(std::move(ph));
+		srv.addToAnnounceQueue(std::move(ph));
 	}
-	srv->updateAndPropagateLobbyState();
+	srv.updateAndPropagateLobbyState();
 }
 
-bool LobbyChatMessage::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
 {
-	return true;
+	result = true;
 }
 
-bool LobbySetMap::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
-	if(srv->state != EServerState::LOBBY)
-		return false;
-
-	srv->updateStartInfoOnMapChange(mapInfo, mapGenOpts);
-	return true;
-}
-
-bool LobbySetCampaign::applyOnServer(CVCMIServer * srv)
-{
-	srv->si->mapname = ourCampaign->camp->header.filename;
-	srv->si->mode = StartInfo::CAMPAIGN;
-	srv->si->campState = ourCampaign;
-	srv->si->turnTime = 0;
-	bool isCurrentMapConquerable = ourCampaign->currentMap && ourCampaign->camp->conquerable(*ourCampaign->currentMap);
-	for(int i = 0; i < ourCampaign->camp->scenarios.size(); i++)
+	if(srv.state != EServerState::LOBBY)
 	{
-		if(ourCampaign->camp->conquerable(i))
+		result = false;
+		return;
+	}
+
+	srv.updateStartInfoOnMapChange(pack.mapInfo, pack.mapGenOpts);
+
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
+{
+	srv.si->mapname = pack.ourCampaign->camp->header.filename;
+	srv.si->mode = StartInfo::CAMPAIGN;
+	srv.si->campState = pack.ourCampaign;
+	srv.si->turnTime = 0;
+	bool isCurrentMapConquerable = pack.ourCampaign->currentMap && pack.ourCampaign->camp->conquerable(*pack.ourCampaign->currentMap);
+	for(int i = 0; i < pack.ourCampaign->camp->scenarios.size(); i++)
+	{
+		if(pack.ourCampaign->camp->conquerable(i))
 		{
-			if(!isCurrentMapConquerable || (isCurrentMapConquerable && i == *ourCampaign->currentMap))
+			if(!isCurrentMapConquerable || (isCurrentMapConquerable && i == *pack.ourCampaign->currentMap))
 			{
-				srv->setCampaignMap(i);
+				srv.setCampaignMap(i);
 			}
 		}
 	}
-	return true;
+	
+	result = true;
 }
 
-bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbySetCampaignMap(LobbySetCampaignMap & pack)
 {
-	srv->setCampaignMap(mapId);
-	return true;
+	srv.setCampaignMap(pack.mapId);
+
+	result = true;
 }
 
-bool LobbySetCampaignBonus::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack)
 {
-	srv->setCampaignBonus(bonusId);
-	return true;
+	srv.setCampaignBonus(pack.bonusId);
+
+	result = true;
 }
 
-bool LobbyGuiAction::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
 {
-	return srv->isClientHost(c->connectionID);
+	result = srv.isClientHost(pack.c->connectionID);
 }
 
-bool LobbyEndGame::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
-	return srv->isClientHost(c->connectionID);
+	result = srv.isClientHost(pack.c->connectionID);
 }
 
-bool LobbyEndGame::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
-	srv->prepareToRestart();
-	return true;
+	srv.prepareToRestart();
+
+	result = true;
 }
 
-void LobbyEndGame::applyOnServerAfterAnnounce(CVCMIServer * srv)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
-	boost::unique_lock<boost::mutex> stateLock(srv->stateMutex);
-	for(auto & c : srv->connections)
+	boost::unique_lock<boost::mutex> stateLock(srv.stateMutex);
+	for(auto & c : srv.connections)
 	{
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
 	}
 }
 
-bool LobbyStartGame::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	return srv->isClientHost(c->connectionID);
+	result = srv.isClientHost(pack.c->connectionID);
 }
 
-bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
 	try
 	{
-		srv->verifyStateBeforeStart(true);
+		srv.verifyStateBeforeStart(true);
 	}
 	catch(...)
 	{
-		return false;
+		result = false;
+		return;
 	}
 	// Server will prepare gamestate and we announce StartInfo to clients
-	if(!srv->prepareToStartGame())
-		return false;
+	if(!srv.prepareToStartGame())
+	{
+		result = false;
+		return;
+	}
 	
-	initializedStartInfo = std::make_shared<StartInfo>(*srv->gh->getStartInfo(true));
-	initializedGameState = srv->gh->gameState();
+	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
+	pack.initializedGameState = srv.gh->gameState();
 
-	return true;
+	result = true;
 }
 
-void LobbyStartGame::applyOnServerAfterAnnounce(CVCMIServer * srv)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(clientId == -1) //do not restart game for single client only
-		srv->startGameImmidiately();
+	if(pack.clientId == -1) //do not restart game for single client only
+		srv.startGameImmidiately();
 	else
 	{
-		for(auto & c : srv->connections)
+		for(auto & c : srv.connections)
 		{
-			if(c->connectionID == clientId)
+			if(c->connectionID == pack.clientId)
 			{
-				c->enterGameplayConnectionMode(srv->gh->gameState());
-				srv->reconnectPlayer(clientId);
+				c->enterGameplayConnectionMode(srv.gh->gameState());
+				srv.reconnectPlayer(pack.clientId);
 			}
 		}
 	}
 }
 
-bool LobbyChangeHost::checkClientPermissions(CVCMIServer * srv) const
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
 {
-	return srv->isClientHost(c->connectionID);
+	result = srv.isClientHost(pack.c->connectionID);
 }
 
-bool LobbyChangeHost::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
 {
-	return true;
+	result = true;
 }
 
-bool LobbyChangeHost::applyOnServerAfterAnnounce(CVCMIServer * srv)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
 {
-	return srv->passHost(newHostConnectionId);
-}
-
-bool LobbyChangePlayerOption::checkClientPermissions(CVCMIServer * srv) const
-{
-	if(srv->isClientHost(c->connectionID))
-		return true;
-
-	if(vstd::contains(srv->getAllClientPlayers(c->connectionID), color))
-		return true;
-
-	return false;
-}
-
-bool LobbyChangePlayerOption::applyOnServer(CVCMIServer * srv)
-{
-	switch(what)
+	auto result = srv.passHost(pack.newHostConnectionId);
+	
+	if(!result)
 	{
-	case TOWN:
-		srv->optionNextCastle(color, direction);
+		logGlobal->error("passHost returned false. What does it mean?");
+	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
+{
+	if(srv.isClientHost(pack.c->connectionID))
+	{
+		result = true;
+		return;
+	}
+
+	if(vstd::contains(srv.getAllClientPlayers(pack.c->connectionID), pack.color))
+	{
+		result = true;
+		return;
+	}
+
+	result = false;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
+{
+	switch(pack.what)
+	{
+	case LobbyChangePlayerOption::TOWN:
+		srv.optionNextCastle(pack.color, pack.direction);
 		break;
-	case HERO:
-		srv->optionNextHero(color, direction);
+	case LobbyChangePlayerOption::HERO:
+		srv.optionNextHero(pack.color, pack.direction);
 		break;
-	case BONUS:
-		srv->optionNextBonus(color, direction);
+	case LobbyChangePlayerOption::BONUS:
+		srv.optionNextBonus(pack.color, pack.direction);
 		break;
 	}
-	return true;
+	
+	result = true;
 }
 
-bool LobbySetPlayer::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbySetPlayer(LobbySetPlayer & pack)
 {
-	srv->setPlayer(clickedColor);
-	return true;
+	srv.setPlayer(pack.clickedColor);
+	result = true;
 }
 
-bool LobbySetTurnTime::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 {
-	srv->si->turnTime = turnTime;
-	return true;
+	srv.si->turnTime = pack.turnTime;
+	result = true;
 }
 
-bool LobbySetDifficulty::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & pack)
 {
-	srv->si->difficulty = vstd::abetween(difficulty, 0, 4);
-	return true;
+	srv.si->difficulty = vstd::abetween(pack.difficulty, 0, 4);
+	result = true;
 }
 
-bool LobbyForceSetPlayer::applyOnServer(CVCMIServer * srv)
+void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack)
 {
-	srv->si->playerInfos[targetPlayerColor].connectedPlayerIDs.insert(targetConnectedPlayer);
-	return true;
+	srv.si->playerInfos[pack.targetPlayerColor].connectedPlayerIDs.insert(pack.targetConnectedPlayer);
+	result = true;
 }

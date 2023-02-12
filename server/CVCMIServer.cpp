@@ -27,6 +27,8 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
+#include "../lib/NetPackVisitor.h"
+#include "LobbyNetPackVisitors.h"
 #ifdef VCMI_ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -81,10 +83,17 @@ public:
 	bool applyOnServerBefore(CVCMIServer * srv, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		if(ptr->checkClientPermissions(srv))
+		ClientPermissionsCheckerNetPackVisitor checker(*srv);
+		ptr->visit(checker);
+
+		if(checker.getResult())
 		{
 			boost::unique_lock<boost::mutex> stateLock(srv->stateMutex);
-			return ptr->applyOnServer(srv);
+			ApplyOnServerNetPackVisitor applier(*srv);
+			
+			ptr->visit(applier);
+
+			return applier.getResult();
 		}
 		else
 			return false;
@@ -93,7 +102,8 @@ public:
 	void applyOnServerAfter(CVCMIServer * srv, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyOnServerAfterAnnounce(srv);
+		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
+		ptr->visit(applier);
 	}
 };
 
@@ -363,6 +373,35 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	startAsyncAccept();
 }
 
+class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+{
+private:
+	CVCMIServer & handler;
+	CGameHandler & gh;
+
+public:
+	CVCMIServerPackVisitor(CVCMIServer & handler, CGameHandler & gh)
+			:handler(handler), gh(gh)
+	{
+	}
+
+	virtual bool callTyped() override { return false; }
+
+	virtual void visitForLobby(CPackForLobby & packForLobby) override
+	{
+		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
+	}
+
+	virtual void visitForServer(CPackForServer & serverPack) override
+	{
+		gh.handleReceivedPack(&serverPack);
+	}
+
+	virtual void visitForClient(CPackForClient & clientPack) override
+	{
+	}
+};
+
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
 	setThreadName("CVCMIServer::handleConnection");
@@ -394,15 +433,9 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 				}
 				break;
 			}
-			
-			if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
-			{
-				handleReceivedPack(std::unique_ptr<CPackForLobby>(lobbyPack));
-			}
-			else if(auto serverPack = dynamic_ptr_cast<CPackForServer>(pack))
-			{
-				gh->handleReceivedPack(serverPack);
-			}
+
+			CVCMIServerPackVisitor visitor(*this, *this->gh);
+			pack->visit(visitor);
 		}
 #ifndef _MSC_VER
 	 }

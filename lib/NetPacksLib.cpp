@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "NetPacks.h"
-
+#include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
@@ -31,7 +31,736 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-DLL_LINKAGE void SetResources::applyGs(CGameState * gs) const
+void CPack::visit(ICPackVisitor & visitor)
+{
+	visitBasic(visitor);
+
+	// visitBasic may destroy this and in such cases we do not want to call visitTyped
+	if(visitor.callTyped())
+	{
+		visitTyped(visitor);
+	}
+}
+
+void CPack::visitBasic(ICPackVisitor & visitor)
+{
+}
+
+void CPack::visitTyped(ICPackVisitor & visitor)
+{
+}
+
+void CPackForClient::visitBasic(ICPackVisitor & visitor)
+{
+	visitor.visitForClient(*this);
+}
+
+void CPackForServer::visitBasic(ICPackVisitor & visitor)
+{
+	visitor.visitForServer(*this);
+}
+
+void CPackForLobby::visitBasic(ICPackVisitor & visitor)
+{
+	visitor.visitForLobby(*this);
+}
+
+bool CPackForLobby::isForServer() const
+{
+	return false;
+}
+
+bool CLobbyPackToServer::isForServer() const
+{
+	return true;
+}
+
+void PackageApplied::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPackageApplied(*this);
+}
+
+void SystemMessage::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSystemMessage(*this);
+}
+
+void PlayerBlocked::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerBlocked(*this);
+}
+
+void PlayerCheated::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerCheated(*this);
+}
+
+void YourTurn::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitYourTurn(*this);
+}
+
+void EntitiesChanged::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEntitiesChanged(*this);
+}
+
+void SetResources::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetResources(*this);
+}
+
+void SetPrimSkill::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetPrimSkill(*this);
+}
+
+void SetSecSkill::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetSecSkill(*this);
+}
+
+void HeroVisitCastle::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitHeroVisitCastle(*this);
+}
+
+void ChangeSpells::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeSpells(*this);
+}
+
+void SetMana::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetMana(*this);
+}
+
+void SetMovePoints::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetMovePoints(*this);
+}
+
+void FoWChange::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitFoWChange(*this);
+}
+
+void SetAvailableHeroes::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetAvailableHeroes(*this);
+}
+
+void GiveBonus::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGiveBonus(*this);
+}
+
+void ChangeObjPos::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeObjPos(*this);
+}
+
+void PlayerEndsGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerEndsGame(*this);
+}
+
+void PlayerReinitInterface::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerReinitInterface(*this);
+}
+
+void RemoveBonus::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRemoveBonus(*this);
+}
+
+void SetCommanderProperty::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetCommanderProperty(*this);
+}
+
+void AddQuest::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAddQuest(*this);
+}
+
+void UpdateArtHandlerLists::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitUpdateArtHandlerLists(*this);
+}
+
+void UpdateMapEvents::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitUpdateMapEvents(*this);
+}
+
+void UpdateCastleEvents::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitUpdateCastleEvents(*this);
+}
+
+void ChangeFormation::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeFormation(*this);
+}
+
+void RemoveObject::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRemoveObject(*this);
+}
+
+void TryMoveHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitTryMoveHero(*this);
+}
+
+void NewStructures::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitNewStructures(*this);
+}
+
+void RazeStructures::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRazeStructures(*this);
+}
+
+void SetAvailableCreatures::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetAvailableCreatures(*this);
+}
+
+void SetHeroesInTown::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetHeroesInTown(*this);
+}
+
+void HeroRecruited::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitHeroRecruited(*this);
+}
+
+void GiveHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGiveHero(*this);
+}
+
+void OpenWindow::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitOpenWindow(*this);
+}
+
+void NewObject::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitNewObject(*this);
+}
+
+void SetAvailableArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetAvailableArtifacts(*this);
+}
+
+void NewArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitNewArtifact(*this);
+}
+
+void ChangeStackCount::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeStackCount(*this);
+}
+
+void SetStackType::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetStackType(*this);
+}
+
+void EraseStack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEraseStack(*this);
+}
+
+void SwapStacks::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSwapStacks(*this);
+}
+
+void InsertNewStack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitInsertNewStack(*this);
+}
+
+void RebalanceStacks::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRebalanceStacks(*this);
+}
+
+void BulkRebalanceStacks::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkRebalanceStacks(*this);
+}
+
+void BulkSmartRebalanceStacks::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkSmartRebalanceStacks(*this);
+}
+
+void PutArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPutArtifact(*this);
+}
+
+void EraseArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEraseArtifact(*this);
+}
+
+void MoveArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitMoveArtifact(*this);
+}
+
+void BulkMoveArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkMoveArtifacts(*this);
+}
+
+void AssembledArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAssembledArtifact(*this);
+}
+
+void DisassembledArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDisassembledArtifact(*this);
+}
+
+void HeroVisit::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitHeroVisit(*this);
+}
+
+void NewTurn::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitNewTurn(*this);
+}
+
+void InfoWindow::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitInfoWindow(*this);
+}
+
+void SetObjectProperty::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetObjectProperty(*this);
+}
+
+void ChangeObjectVisitors::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeObjectVisitors(*this);
+}
+
+void PrepareHeroLevelUp::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPrepareHeroLevelUp(*this);
+}
+
+void HeroLevelUp::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitHeroLevelUp(*this);
+}
+
+void CommanderLevelUp::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitCommanderLevelUp(*this);
+}
+
+void BlockingDialog::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBlockingDialog(*this);
+}
+
+void GarrisonDialog::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGarrisonDialog(*this);
+}
+
+void ExchangeDialog::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitExchangeDialog(*this);
+}
+
+void TeleportDialog::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitTeleportDialog(*this);
+}
+
+void MapObjectSelectDialog::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitMapObjectSelectDialog(*this);
+}
+
+void BattleStart::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleStart(*this);
+}
+
+void BattleNextRound::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleNextRound(*this);
+}
+
+void BattleSetActiveStack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleSetActiveStack(*this);
+}
+
+void BattleResult::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleResult(*this);
+}
+
+void BattleLogMessage::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleLogMessage(*this);
+}
+
+void BattleStackMoved::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleStackMoved(*this);
+}
+
+void BattleUnitsChanged::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleUnitsChanged(*this);
+}
+
+void BattleAttack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleAttack(*this);
+}
+
+void StartAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitStartAction(*this);
+}
+
+void EndAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEndAction(*this);
+}
+
+void BattleSpellCast::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleSpellCast(*this);
+}
+
+void SetStackEffect::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetStackEffect(*this);
+}
+
+void StacksInjured::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitStacksInjured(*this);
+}
+
+void BattleResultsApplied::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleResultsApplied(*this);
+}
+
+void BattleObstaclesChanged::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleObstaclesChanged(*this);
+}
+
+void BattleSetStackProperty::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleSetStackProperty(*this);
+}
+
+void BattleTriggerEffect::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleTriggerEffect(*this);
+}
+
+void BattleUpdateGateState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleUpdateGateState(*this);
+}
+
+void ShowInInfobox::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitShowInInfobox(*this);
+}
+
+void AdvmapSpellCast::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAdvmapSpellCast(*this);
+}
+
+void ShowWorldViewEx::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitShowWorldViewEx(*this);
+}
+
+void EndTurn::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEndTurn(*this);
+}
+
+void DismissHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDismissHero(*this);
+}
+
+void MoveHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitMoveHero(*this);
+}
+
+void CastleTeleportHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitCastleTeleportHero(*this);
+}
+
+void ArrangeStacks::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitArrangeStacks(*this);
+}
+
+void BulkMoveArmy::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkMoveArmy(*this);
+}
+
+void BulkSplitStack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkSplitStack(*this);
+}
+
+void BulkMergeStacks::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkMergeStacks(*this);
+}
+
+void BulkSmartSplitStack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkSmartSplitStack(*this);
+}
+
+void DisbandCreature::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDisbandCreature(*this);
+}
+
+void BuildStructure::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBuildStructure(*this);
+}
+
+void RazeStructure::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRazeStructure(*this);
+}
+
+void RecruitCreatures::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRecruitCreatures(*this);
+}
+
+void UpgradeCreature::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitUpgradeCreature(*this);
+}
+
+void GarrisonHeroSwap::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGarrisonHeroSwap(*this);
+}
+
+void ExchangeArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitExchangeArtifacts(*this);
+}
+
+void BulkExchangeArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBulkExchangeArtifacts(*this);
+}
+
+void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAssembleArtifacts(*this);
+}
+
+void BuyArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBuyArtifact(*this);
+}
+
+void TradeOnMarketplace::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitTradeOnMarketplace(*this);
+}
+
+void SetFormation::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetFormation(*this);
+}
+
+void HireHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitHireHero(*this);
+}
+
+void BuildBoat::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBuildBoat(*this);
+}
+
+void QueryReply::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitQueryReply(*this);
+}
+
+void MakeAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitMakeAction(*this);
+}
+
+void MakeCustomAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitMakeCustomAction(*this);
+}
+
+void DigWithHero::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDigWithHero(*this);
+}
+
+void CastAdvSpell::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitCastAdvSpell(*this);
+}
+
+void SaveGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSaveGame(*this);
+}
+
+void SaveGameClient::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSaveGameClient(*this);
+}
+
+void PlayerMessage::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerMessage(*this);
+}
+
+void PlayerMessageClient::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerMessageClient(*this);
+}
+
+void CenterView::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitCenterView(*this);
+}
+
+void LobbyClientConnected::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyClientConnected(*this);
+}
+
+void LobbyClientDisconnected::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyClientDisconnected(*this);
+}
+
+void LobbyChatMessage::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyChatMessage(*this);
+}
+
+void LobbyGuiAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyGuiAction(*this);
+}
+
+void LobbyEndGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyEndGame(*this);
+}
+
+void LobbyStartGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyStartGame(*this);
+}
+
+void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyChangeHost(*this);
+}
+
+void LobbyUpdateState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyUpdateState(*this);
+}
+
+void LobbySetMap::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetMap(*this);
+}
+
+void LobbySetCampaign::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetCampaign(*this);
+}
+
+void LobbySetCampaignMap::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetCampaignMap(*this);
+}
+
+void LobbySetCampaignBonus::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetCampaignBonus(*this);
+}
+
+void LobbyChangePlayerOption::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyChangePlayerOption(*this);
+}
+
+void LobbySetPlayer::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetPlayer(*this);
+}
+
+void LobbySetTurnTime::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetTurnTime(*this);
+}
+
+void LobbySetDifficulty::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetDifficulty(*this);
+}
+
+void LobbyForceSetPlayer::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyForceSetPlayer(*this);
+}
+
+void LobbyShowMessage::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyShowMessage(*this);
+}
+
+void SetResources::applyGs(CGameState * gs) const
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
 	if(abs)
@@ -45,20 +774,20 @@ DLL_LINKAGE void SetResources::applyGs(CGameState * gs) const
 	gs->getPlayerState(player)->resources.positive();
 }
 
-DLL_LINKAGE void SetPrimSkill::applyGs(CGameState * gs) const
+void SetPrimSkill::applyGs(CGameState * gs) const
 {
 	CGHeroInstance * hero = gs->getHero(id);
 	assert(hero);
 	hero->setPrimarySkill(which, val, abs);
 }
 
-DLL_LINKAGE void SetSecSkill::applyGs(CGameState * gs) const
+void SetSecSkill::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	hero->setSecSkillLevel(which, val, abs);
 }
 
-DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
+void SetCommanderProperty::applyGs(CGameState *gs)
 {
 	CCommanderInstance * commander = gs->getHero(heroid)->commander;
 	assert (commander);
@@ -87,7 +816,7 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void AddQuest::applyGs(CGameState * gs) const
+void AddQuest::applyGs(CGameState * gs) const
 {
 	assert (vstd::contains(gs->players, player));
 	auto * vec = &gs->players[player].quests;
@@ -97,7 +826,7 @@ DLL_LINKAGE void AddQuest::applyGs(CGameState * gs) const
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
-DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState * gs) const
+void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 {
 	VLC->arth->minors = minors;
 	VLC->arth->majors = majors;
@@ -105,23 +834,23 @@ DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 	VLC->arth->relics = relics;
 }
 
-DLL_LINKAGE void UpdateMapEvents::applyGs(CGameState * gs) const
+void UpdateMapEvents::applyGs(CGameState * gs) const
 {
 	gs->map->events = events;
 }
 
-DLL_LINKAGE void UpdateCastleEvents::applyGs(CGameState * gs) const
+void UpdateCastleEvents::applyGs(CGameState * gs) const
 {
 	auto * t = gs->getTown(town);
 	t->events = events;
 }
 
-DLL_LINKAGE void ChangeFormation::applyGs(CGameState * gs) const
+void ChangeFormation::applyGs(CGameState * gs) const
 {
 	gs->getHero(hid)->setFormation(formation);
 }
 
-DLL_LINKAGE void HeroVisitCastle::applyGs(CGameState * gs) const
+void HeroVisitCastle::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
@@ -135,7 +864,7 @@ DLL_LINKAGE void HeroVisitCastle::applyGs(CGameState * gs) const
 		t->setVisitingHero(nullptr);
 }
 
-DLL_LINKAGE void ChangeSpells::applyGs(CGameState *gs)
+void ChangeSpells::applyGs(CGameState *gs)
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 
@@ -147,7 +876,7 @@ DLL_LINKAGE void ChangeSpells::applyGs(CGameState *gs)
 			hero->removeSpellFromSpellbook(sid);
 }
 
-DLL_LINKAGE void SetMana::applyGs(CGameState * gs) const
+void SetMana::applyGs(CGameState * gs) const
 {
 	CGHeroInstance * hero = gs->getHero(hid);
 
@@ -161,7 +890,7 @@ DLL_LINKAGE void SetMana::applyGs(CGameState * gs) const
 	vstd::amax(hero->mana, 0); //not less than 0
 }
 
-DLL_LINKAGE void SetMovePoints::applyGs(CGameState * gs) const
+void SetMovePoints::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 
@@ -175,7 +904,7 @@ DLL_LINKAGE void SetMovePoints::applyGs(CGameState * gs) const
 	vstd::amax(hero->movement, 0); //not less than 0
 }
 
-DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
+void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
 	auto fogOfWarMap = team->fogOfWarMap;
@@ -206,7 +935,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
+void SetAvailableHeroes::applyGs(CGameState *gs)
 {
 	PlayerState *p = gs->getPlayerState(player);
 	p->availableHeroes.clear();
@@ -220,7 +949,7 @@ DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void GiveBonus::applyGs(CGameState *gs)
+void GiveBonus::applyGs(CGameState *gs)
 {
 	CBonusSystemNode *cbsn = nullptr;
 	switch(who)
@@ -271,7 +1000,7 @@ DLL_LINKAGE void GiveBonus::applyGs(CGameState *gs)
 	boost::replace_first(descr, "%s", std::to_string(std::abs(bonus.val)));
 }
 
-DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
+void ChangeObjPos::applyGs(CGameState *gs)
 {
 	CGObjectInstance *obj = gs->getObjInstance(objid);
 	if(!obj)
@@ -284,7 +1013,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
 	gs->map->addBlockVisTiles(obj);
 }
 
-DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState * gs) const
+void ChangeObjectVisitors::applyGs(CGameState * gs) const
 {
 	switch (mode) {
 		case VISITOR_ADD:
@@ -321,7 +1050,7 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState * gs) const
+void PlayerEndsGame::applyGs(CGameState * gs) const
 {
 	PlayerState *p = gs->getPlayerState(player);
 	if(victoryLossCheckResult.victory())
@@ -363,7 +1092,7 @@ DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
+void PlayerReinitInterface::applyGs(CGameState *gs)
 {
 	if(!gs || !gs->scenarioOps)
 		return;
@@ -376,7 +1105,7 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
+void RemoveBonus::applyGs(CGameState *gs)
 {
 	CBonusSystemNode * node = nullptr;
 	if (who == HERO)
@@ -397,7 +1126,7 @@ DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
+void RemoveObject::applyGs(CGameState *gs)
 {
 
 	CGObjectInstance *obj = gs->getObjInstance(id);
@@ -581,7 +1310,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 }
 
-DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
+void NewStructures::applyGs(CGameState *gs)
 {
 	CGTownInstance *t = gs->getTown(tid);
 
@@ -605,7 +1334,7 @@ DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
 	t->recreateBuildingsBonuses();
 }
 
-DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
+void RazeStructures::applyGs(CGameState *gs)
 {
 	CGTownInstance *t = gs->getTown(tid);
 	for(const auto & id : bid)
@@ -618,14 +1347,14 @@ DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
 	t->recreateBuildingsBonuses();
 }
 
-DLL_LINKAGE void SetAvailableCreatures::applyGs(CGameState * gs) const
+void SetAvailableCreatures::applyGs(CGameState * gs) const
 {
 	auto * dw = dynamic_cast<CGDwelling *>(gs->getObjInstance(tid));
 	assert(dw);
 	dw->creatures = creatures;
 }
 
-DLL_LINKAGE void SetHeroesInTown::applyGs(CGameState * gs) const
+void SetHeroesInTown::applyGs(CGameState * gs) const
 {
 	CGTownInstance *t = gs->getTown(tid);
 
@@ -654,7 +1383,7 @@ DLL_LINKAGE void SetHeroesInTown::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void HeroRecruited::applyGs(CGameState * gs) const
+void HeroRecruited::applyGs(CGameState * gs) const
 {
 	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
@@ -695,7 +1424,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void GiveHero::applyGs(CGameState * gs) const
+void GiveHero::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(id);
 
@@ -717,7 +1446,7 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState * gs) const
 	h->inTownGarrison = false;
 }
 
-DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
+void NewObject::applyGs(CGameState *gs)
 {
 	TerrainId terrainType = ETerrainId::NONE;
 
@@ -776,7 +1505,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	logGlobal->debug("Added object id=%d; address=%x; name=%s", id, (intptr_t)o, o->getObjectName());
 }
 
-DLL_LINKAGE void NewArtifact::applyGs(CGameState *gs)
+void NewArtifact::applyGs(CGameState *gs)
 {
 	assert(!vstd::contains(gs->map->artInstances, art));
 	gs->map->addNewArtifactInstance(art);
@@ -787,7 +1516,7 @@ DLL_LINKAGE void NewArtifact::applyGs(CGameState *gs)
 		cart->createConstituents();
 }
 
-DLL_LINKAGE const CStackInstance * StackLocation::getStack()
+const CStackInstance * StackLocation::getStack()
 {
 	if(!army->hasStackAtSlot(slot))
 	{
@@ -819,35 +1548,35 @@ struct GetBase : boost::static_visitor<T*>
 };
 
 
-DLL_LINKAGE void ArtifactLocation::removeArtifact()
+void ArtifactLocation::removeArtifact()
 {
 	CArtifactInstance *a = getArt();
 	assert(a);
 	a->removeFrom(*this);
 }
 
-DLL_LINKAGE const CArmedInstance * ArtifactLocation::relatedObj() const
+const CArmedInstance * ArtifactLocation::relatedObj() const
 {
 	return boost::apply_visitor(ObjectRetriever(), artHolder);
 }
 
-DLL_LINKAGE PlayerColor ArtifactLocation::owningPlayer() const
+PlayerColor ArtifactLocation::owningPlayer() const
 {
 	const auto * obj = relatedObj();
 	return obj ? obj->tempOwner : PlayerColor::NEUTRAL;
 }
 
-DLL_LINKAGE CArtifactSet *ArtifactLocation::getHolderArtSet()
+CArtifactSet *ArtifactLocation::getHolderArtSet()
 {
 	return boost::apply_visitor(GetBase<CArtifactSet>(), artHolder);
 }
 
-DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
+CBonusSystemNode *ArtifactLocation::getHolderNode()
 {
 	return boost::apply_visitor(GetBase<CBonusSystemNode>(), artHolder);
 }
 
-DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
+const CArtifactInstance *ArtifactLocation::getArt() const
 {
 	const auto * s = getSlot();
 	if(s)
@@ -856,30 +1585,30 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 		return nullptr;
 }
 
-DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
+const CArtifactSet * ArtifactLocation::getHolderArtSet() const
 {
 	auto * t = const_cast<ArtifactLocation *>(this);
 	return t->getHolderArtSet();
 }
 
-DLL_LINKAGE const CBonusSystemNode * ArtifactLocation::getHolderNode() const
+const CBonusSystemNode * ArtifactLocation::getHolderNode() const
 {
 	auto * t = const_cast<ArtifactLocation *>(this);
 	return t->getHolderNode();
 }
 
-DLL_LINKAGE CArtifactInstance *ArtifactLocation::getArt()
+CArtifactInstance *ArtifactLocation::getArt()
 {
 	const ArtifactLocation *t = this;
 	return const_cast<CArtifactInstance*>(t->getArt());
 }
 
-DLL_LINKAGE const ArtSlotInfo *ArtifactLocation::getSlot() const
+const ArtSlotInfo *ArtifactLocation::getSlot() const
 {
 	return getHolderArtSet()->getSlot(slot);
 }
 
-DLL_LINKAGE void ChangeStackCount::applyGs(CGameState * gs)
+void ChangeStackCount::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
@@ -891,7 +1620,7 @@ DLL_LINKAGE void ChangeStackCount::applyGs(CGameState * gs)
 		srcObj->changeStackCount(slot, count);
 }
 
-DLL_LINKAGE void SetStackType::applyGs(CGameState * gs)
+void SetStackType::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
@@ -900,7 +1629,7 @@ DLL_LINKAGE void SetStackType::applyGs(CGameState * gs)
 	srcObj->setStackType(slot, type);
 }
 
-DLL_LINKAGE void EraseStack::applyGs(CGameState * gs)
+void EraseStack::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
@@ -909,7 +1638,7 @@ DLL_LINKAGE void EraseStack::applyGs(CGameState * gs)
 	srcObj->eraseStack(slot);
 }
 
-DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
+void SwapStacks::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
@@ -926,7 +1655,7 @@ DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 	dstObj->putStack(dstSlot, s1);
 }
 
-DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
+void InsertNewStack::applyGs(CGameState *gs)
 {
 	if(auto * obj = gs->getArmyInstance(army))
 		obj->putStack(slot, new CStackInstance(type, count));
@@ -934,7 +1663,7 @@ DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
 }
 
-DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
+void RebalanceStacks::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
@@ -1033,13 +1762,13 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 	CBonusSystemNode::treeHasChanged();
 }
 
-DLL_LINKAGE void BulkRebalanceStacks::applyGs(CGameState * gs)
+void BulkRebalanceStacks::applyGs(CGameState * gs)
 {
 	for(auto & move : moves)
 		move.applyGs(gs);
 }
 
-DLL_LINKAGE void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
+void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
 {
 	for(auto & move : moves)
 		move.applyGs(gs);
@@ -1048,14 +1777,14 @@ DLL_LINKAGE void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
 		change.applyGs(gs);
 }
 
-DLL_LINKAGE void PutArtifact::applyGs(CGameState *gs)
+void PutArtifact::applyGs(CGameState *gs)
 {
 	assert(art->canBePutAt(al));
 	art->putAt(al);
 	//al.hero->putArtifact(al.slot, art);
 }
 
-DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
+void EraseArtifact::applyGs(CGameState *gs)
 {
 	const auto * slot = al.getSlot();
 	if(slot->locked)
@@ -1066,7 +1795,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 		auto * aset = al.getHolderArtSet();
 		#ifndef NDEBUG
 		bool found = false;
-        #endif
+		#endif
 		for(auto& p : aset->artifactsWorn)
 		{
 			auto art = p.second.artifact;
@@ -1075,7 +1804,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 				dis.al.slot = aset->getArtPos(art);
 				#ifndef NDEBUG
 				found = true;
-                #endif
+				#endif
 				break;
 			}
 		}
@@ -1090,7 +1819,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	al.removeArtifact();
 }
 
-DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
+void MoveArtifact::applyGs(CGameState * gs)
 {
 	CArtifactInstance * art = src.getArt();
 	if(!ArtifactUtils::isSlotBackpack(dst.slot))
@@ -1099,7 +1828,7 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 	art->move(src, dst);
 }
 
-DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
+void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
 	enum class EBulkArtsOp
 	{
@@ -1169,7 +1898,7 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	}
 }
 
-DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
+void AssembledArtifact::applyGs(CGameState *gs)
 {
 	CArtifactSet * artSet = al.getHolderArtSet();
 	const CArtifactInstance *transformedArt = al.getArt();
@@ -1210,7 +1939,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	combinedArt->putAt(al);
 }
 
-DLL_LINKAGE void DisassembledArtifact::applyGs(CGameState *gs)
+void DisassembledArtifact::applyGs(CGameState *gs)
 {
 	auto * disassembled = dynamic_cast<CCombinedArtifactInstance *>(al.getArt());
 	assert(disassembled);
@@ -1228,11 +1957,11 @@ DLL_LINKAGE void DisassembledArtifact::applyGs(CGameState *gs)
 	gs->map->eraseArtifactInstance(disassembled);
 }
 
-DLL_LINKAGE void HeroVisit::applyGs(CGameState *gs)
+void HeroVisit::applyGs(CGameState *gs)
 {
 }
 
-DLL_LINKAGE void SetAvailableArtifacts::applyGs(CGameState * gs) const
+void SetAvailableArtifacts::applyGs(CGameState * gs) const
 {
 	if(id >= 0)
 	{
@@ -1251,7 +1980,7 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
+void NewTurn::applyGs(CGameState *gs)
 {
 	gs->day = day;
 
@@ -1321,7 +2050,7 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void SetObjectProperty::applyGs(CGameState * gs) const
+void SetObjectProperty::applyGs(CGameState * gs) const
 {
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
@@ -1361,7 +2090,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState * gs)
+void PrepareHeroLevelUp::applyGs(CGameState * gs)
 {
 	auto * hero = gs->getHero(heroId);
 	assert(hero);
@@ -1378,14 +2107,14 @@ DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState * gs)
 	}
 }
 
-DLL_LINKAGE void HeroLevelUp::applyGs(CGameState * gs) const
+void HeroLevelUp::applyGs(CGameState * gs) const
 {
 	auto * hero = gs->getHero(heroId);
 	assert(hero);
 	hero->levelUp(skills);
 }
 
-DLL_LINKAGE void CommanderLevelUp::applyGs(CGameState * gs) const
+void CommanderLevelUp::applyGs(CGameState * gs) const
 {
 	auto * hero = gs->getHero(heroId);
 	assert(hero);
@@ -1394,23 +2123,23 @@ DLL_LINKAGE void CommanderLevelUp::applyGs(CGameState * gs) const
 	commander->levelUp();
 }
 
-DLL_LINKAGE void BattleStart::applyGs(CGameState * gs) const
+void BattleStart::applyGs(CGameState * gs) const
 {
 	gs->curB = info;
 	gs->curB->localInit();
 }
 
-DLL_LINKAGE void BattleNextRound::applyGs(CGameState * gs) const
+void BattleNextRound::applyGs(CGameState * gs) const
 {
 	gs->curB->nextRound(round);
 }
 
-DLL_LINKAGE void BattleSetActiveStack::applyGs(CGameState * gs) const
+void BattleSetActiveStack::applyGs(CGameState * gs) const
 {
 	gs->curB->nextTurn(stack);
 }
 
-DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState * gs) const
+void BattleTriggerEffect::applyGs(CGameState * gs) const
 {
 	CStack * st = gs->curB->getStack(stackID);
 	assert(st);
@@ -1448,7 +2177,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState * gs) const
+void BattleUpdateGateState::applyGs(CGameState * gs) const
 {
 	if(gs->curB)
 		gs->curB->si.gateState = state;
@@ -1490,37 +2219,37 @@ void BattleResult::applyGs(CGameState *gs)
 	gs->curB.dellNull();
 }
 
-DLL_LINKAGE void BattleLogMessage::applyGs(CGameState *gs)
+void BattleLogMessage::applyGs(CGameState *gs)
 {
 	//nothing
 }
 
-DLL_LINKAGE void BattleLogMessage::applyBattle(IBattleState * battleState)
+void BattleLogMessage::applyBattle(IBattleState * battleState)
 {
 	//nothing
 }
 
-DLL_LINKAGE void BattleStackMoved::applyGs(CGameState *gs)
+void BattleStackMoved::applyGs(CGameState *gs)
 {
 	applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void BattleStackMoved::applyBattle(IBattleState * battleState)
+void BattleStackMoved::applyBattle(IBattleState * battleState)
 {
 	battleState->moveUnit(stack, tilesToMove.back());
 }
 
-DLL_LINKAGE void BattleStackAttacked::applyGs(CGameState * gs)
+void BattleStackAttacked::applyGs(CGameState * gs)
 {
 	applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void BattleStackAttacked::applyBattle(IBattleState * battleState)
+void BattleStackAttacked::applyBattle(IBattleState * battleState)
 {
 	battleState->setUnitState(newState.id, newState.data, newState.healthDelta);
 }
 
-DLL_LINKAGE void BattleAttack::applyGs(CGameState * gs)
+void BattleAttack::applyGs(CGameState * gs)
 {
 	CStack * attacker = gs->curB->getStack(stackAttacking);
 	assert(attacker);
@@ -1533,7 +2262,7 @@ DLL_LINKAGE void BattleAttack::applyGs(CGameState * gs)
 	attacker->removeBonusesRecursive(Bonus::UntilAttack);
 }
 
-DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
+void StartAction::applyGs(CGameState *gs)
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
@@ -1581,7 +2310,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void BattleSpellCast::applyGs(CGameState * gs) const
+void BattleSpellCast::applyGs(CGameState * gs) const
 {
 	assert(gs->curB);
 
@@ -1594,12 +2323,12 @@ DLL_LINKAGE void BattleSpellCast::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
+void SetStackEffect::applyGs(CGameState *gs)
 {
 	applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void SetStackEffect::applyBattle(IBattleState * battleState)
+void SetStackEffect::applyBattle(IBattleState * battleState)
 {
 	for(const auto & stackData : toRemove)
 		battleState->removeUnitBonus(stackData.first, stackData.second);
@@ -1612,23 +2341,23 @@ DLL_LINKAGE void SetStackEffect::applyBattle(IBattleState * battleState)
 }
 
 
-DLL_LINKAGE void StacksInjured::applyGs(CGameState *gs)
+void StacksInjured::applyGs(CGameState *gs)
 {
 	applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void StacksInjured::applyBattle(IBattleState * battleState)
+void StacksInjured::applyBattle(IBattleState * battleState)
 {
 	for(BattleStackAttacked stackAttacked : stacks)
 		stackAttacked.applyBattle(battleState);
 }
 
-DLL_LINKAGE void BattleUnitsChanged::applyGs(CGameState *gs)
+void BattleUnitsChanged::applyGs(CGameState *gs)
 {
 	applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void BattleUnitsChanged::applyBattle(IBattleState * battleState)
+void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 {
 	for(auto & elem : changedStacks)
 	{
@@ -1653,13 +2382,13 @@ DLL_LINKAGE void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 	}
 }
 
-DLL_LINKAGE void BattleObstaclesChanged::applyGs(CGameState * gs)
+void BattleObstaclesChanged::applyGs(CGameState * gs)
 {
 	if(gs->curB)
 		applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
+void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 {
 	for(const auto & change : changes)
 	{
@@ -1682,17 +2411,22 @@ DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 	}
 }
 
-DLL_LINKAGE CatapultAttack::CatapultAttack() = default;
+CatapultAttack::CatapultAttack() = default;
 
-DLL_LINKAGE CatapultAttack::~CatapultAttack() = default;
+CatapultAttack::~CatapultAttack() = default;
 
-DLL_LINKAGE void CatapultAttack::applyGs(CGameState * gs)
+void CatapultAttack::applyGs(CGameState * gs)
 {
 	if(gs->curB)
 		applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
+void CatapultAttack::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitCatapultAttack(*this);
+}
+
+void CatapultAttack::applyBattle(IBattleState * battleState)
 {
 	const auto * town = battleState->getDefendedTown();
 	if(!town)
@@ -1708,7 +2442,7 @@ DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
 	}
 }
 
-DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs) const
+void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
 	CStack * stack = gs->curB->getStack(stackID);
 	switch(which)
@@ -1749,7 +2483,7 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs) const
 	}
 }
 
-DLL_LINKAGE void PlayerCheated::applyGs(CGameState * gs) const
+void PlayerCheated::applyGs(CGameState * gs) const
 {
 	if(!player.isValidPlayer())
 		return;
@@ -1758,7 +2492,7 @@ DLL_LINKAGE void PlayerCheated::applyGs(CGameState * gs) const
 	gs->getPlayerState(player)->enteredWinningCheatCode = winningCheatCode;
 }
 
-DLL_LINKAGE void YourTurn::applyGs(CGameState * gs) const
+void YourTurn::applyGs(CGameState * gs) const
 {
 	gs->currentPlayer = player;
 
@@ -1766,14 +2500,14 @@ DLL_LINKAGE void YourTurn::applyGs(CGameState * gs) const
 	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
-DLL_LINKAGE Component::Component(const CStackBasicDescriptor & stack)
+Component::Component(const CStackBasicDescriptor & stack)
 	: id(CREATURE)
 	, subtype(stack.type->idNumber)
 	, val(stack.count)
 {
 }
 
-DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
+void EntitiesChanged::applyGs(CGameState * gs)
 {
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);

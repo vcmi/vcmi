@@ -18,6 +18,7 @@
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/NetPacks.h"
+#include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CPlayerState.h"
@@ -427,7 +428,9 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 	YourTurn yt;
 	yt.player = colorIdentifier;
 	yt.daysWithoutCastle = CSH->client->getPlayerState(colorIdentifier)->daysWithoutCastle;
-	yt.applyCl(CSH->client);
+
+	ApplyClientNetPackVisitor visitor(*CSH->client, *CSH->client->gameState());
+	yt.visit(visitor);
 }
 
 void ClientCommandManager::printInfoAboutInterfaceObject(const CIntObject *obj, int level)
