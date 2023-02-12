@@ -37,9 +37,6 @@
 #include "../../lib/filesystem/ResourceID.h"
 #include "windows/BattleOptionsWindow.h"
 
-#include <SDL_surface.h>
-#include <SDL_events.h>
-
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
 {
@@ -80,9 +77,9 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")
-		embedQueue = screen->h < 700;
+		embedQueue = GH.screenDimensions().y < 700;
 	else
-		embedQueue = screen->h < 700 || queueSize == "small";
+		embedQueue = GH.screenDimensions().y < 700 || queueSize == "small";
 
 	queue = std::make_shared<StackQueue>(embedQueue, owner);
 	if(!embedQueue && settings["battle"]["showQueue"].Bool())
@@ -166,9 +163,9 @@ void BattleWindow::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleWindow::keyPressed(const SDL_KeyboardEvent & key)
+void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
-	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
+	if(key == SDLK_q)
 	{
 		if(settings["battle"]["showQueue"].Bool()) //hide queue
 			hideQueue();
@@ -176,11 +173,11 @@ void BattleWindow::keyPressed(const SDL_KeyboardEvent & key)
 			showQueue();
 
 	}
-	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	else if(key == SDLK_f)
 	{
 		owner.actionsController->enterCreatureCastingMode();
 	}
-	else if(key.keysym.sym == SDLK_ESCAPE)
+	else if(key == SDLK_ESCAPE)
 	{
 		if(owner.getAnimationCondition(EAnimationEvents::OPENING) == true)
 			CCS->soundh->stopSound(owner.battleIntroSoundChannel);
@@ -346,6 +343,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 		
 	auto anim = std::make_shared<CAnimation>(iconName);
 	w->setImage(anim, false);
+	w->redraw();
 }
 
 void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
@@ -392,7 +390,7 @@ void BattleWindow::bSpellf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if (!owner.myTurn)
+	if (!owner.makingTurn())
 		return;
 
 	auto myHero = owner.currentHero();
@@ -554,11 +552,16 @@ void BattleWindow::blockUI(bool on)
 	}
 }
 
+boost::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
+{
+	return queue->getHoveredUnitIdIfAny();
+}
+
 void BattleWindow::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 
-	if (screen->w != 800 || screen->h !=600)
+	if (GH.screenDimensions().x != 800 || GH.screenDimensions().y !=600)
 		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 

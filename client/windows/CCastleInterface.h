@@ -68,7 +68,7 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };
@@ -245,7 +245,8 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
+
 	void close();
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);

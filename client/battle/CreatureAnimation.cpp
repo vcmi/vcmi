@@ -78,10 +78,7 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 		return baseSpeed;
 
 	case ECreatureAnimType::HOLDING:
-			if ( creature->animation.idleAnimationTime > 0.01)
-				return speed / creature->animation.idleAnimationTime;
-			else
-				return 0.f; // this animation is disabled for current creature
+			return creature->animation.idleAnimationTime;
 
 	case ECreatureAnimType::SHOOT_UP:
 	case ECreatureAnimType::SHOOT_FRONT:
@@ -315,7 +312,7 @@ void CreatureAnimation::playOnce( ECreatureAnimType type )
 
 inline int getBorderStrength(float time)
 {
-	float borderStrength = fabs(vstd::round(time) - time) * 2; // generate value in range 0-1
+	float borderStrength = fabs(std::round(time) - time) * 2; // generate value in range 0-1
 
 	return static_cast<int>(borderStrength * 155 + 100); // scale to 0-255
 }

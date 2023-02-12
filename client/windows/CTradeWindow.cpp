@@ -504,9 +504,13 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 		const std::vector<Rect> tmp =
 		{
-			CSDL_Ext::genRect(h, w, x, y), CSDL_Ext::genRect(h, w, x + dx, y), CSDL_Ext::genRect(h, w, x + 2*dx, y),
-			CSDL_Ext::genRect(h, w, x, y + dy), CSDL_Ext::genRect(h, w, x + dx, y + dy), CSDL_Ext::genRect(h, w, x + 2*dx, y + dy),
-			CSDL_Ext::genRect(h, w, x + dx, y + 2*dy)
+			Rect(Point(x + 0 * dx, y + 0 * dx), Point(h, w) ),
+			Rect(Point(x + 1 * dx, y + 0 * dx), Point(h, w) ),
+			Rect(Point(x + 2 * dx, y + 0 * dx), Point(h, w) ),
+			Rect(Point(x + 0 * dx, y + 1 * dy), Point(h, w) ),
+			Rect(Point(x + 1 * dx, y + 1 * dy), Point(h, w) ),
+			Rect(Point(x + 2 * dx, y + 1 * dy), Point(h, w) ),
+			Rect(Point(x + 1 * dx, y + 2 * dy), Point(h, w) )
 		};
 
 		vstd::concatenate(poss, tmp);

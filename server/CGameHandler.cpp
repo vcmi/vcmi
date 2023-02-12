@@ -4448,7 +4448,7 @@ void CGameHandler::updateGateState()
 	bool hasForceFieldOnBridge = !battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), true).empty();
 	bool hasStackAtGateInner   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
 	bool hasStackAtGateOuter   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
-	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
+	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false) != nullptr;
 	bool hasLongBridge         = gs->curB->town->subID == ETownType::FORTRESS;
 
 	BattleUpdateGateState db;
@@ -5176,8 +5176,11 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 	if (cheated)
 	{
-		SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
-		sendAndApply(&temp_message);
+		if(!getPlayerSettings(player)->isControlledByAI())
+		{
+			SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
+			sendAndApply(&temp_message);
+		}
 
 		if(!player.isSpectator())
 			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature

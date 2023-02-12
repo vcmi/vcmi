@@ -19,6 +19,7 @@
 #include "../windows/CHeroWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/GUIClasses.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 

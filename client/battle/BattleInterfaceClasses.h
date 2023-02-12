@@ -123,9 +123,9 @@ public:
 	void pause();
 	void play();
 
-	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override; //call-in
-	void clickRight(tribool down, bool previousState) override; //call-in
+	void heroLeftClicked();
+	void heroRightClicked();
+
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
@@ -157,38 +157,27 @@ public:
 	void show(SDL_Surface * to = 0) override;
 };
 
-/// Class which stands for a single hex field on a battlefield
-class ClickableHex : public CIntObject
-{
-private:
-	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
-public:
-	ui32 myNumber; //number of hex in commonly used format
-	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
-	BattleInterface * myInterface; //interface that owns me
-
-	//for user interactions
-	void hover (bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent &sEvent) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	ClickableHex();
-};
-
 /// Shows the stack queue
 class StackQueue : public CIntObject
 {
 	class StackBox : public CIntObject
 	{
 		StackQueue * owner;
+		boost::optional<uint32_t> boundUnitID;
+		bool highlighted = false;
+
 	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
 		std::shared_ptr<CAnimImage> stateIcon;
 
-		void setUnit(const battle::Unit * unit, size_t turn = 0);
 		StackBox(StackQueue * owner);
+		void setUnit(const battle::Unit * unit, size_t turn = 0);
+		void toggleHighlight(bool value);
+		boost::optional<uint32_t> getBoundUnitID() const;
+
+		void show(SDL_Surface * to) override;
 	};
 
 	static const int QUEUE_SIZE = 10;
@@ -205,6 +194,7 @@ public:
 
 	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
+	boost::optional<uint32_t> getHoveredUnitIdIfAny() const;
 
 	void show(SDL_Surface * to) override;
 };

@@ -39,6 +39,10 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static const si16 CASTLE_BOTTOM_TOWER = -3;
 	static const si16 CASTLE_UPPER_TOWER = -4;
 
+	// hexes for interaction with heroes
+	static const si16 HERO_ATTACKER = 0;
+	static const si16 HERO_DEFENDER = GameConstants::BFIELD_WIDTH - 1;
+
 	// helpers for rendering
 	static const si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
 	static const si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();

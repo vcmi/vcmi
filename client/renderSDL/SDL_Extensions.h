@@ -20,55 +20,12 @@ struct SDL_Texture;
 struct SDL_Surface;
 struct SDL_Color;
 
-extern SDL_Window * mainWindow;
-extern SDL_Renderer * mainRenderer;
-extern SDL_Texture * screenTexture;
-extern SDL_Surface * screen, *screen2, *screenBuf;
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class Rect;
 class Point;
 
 VCMI_LIB_NAMESPACE_END
-
-/**
- * The colors class defines color constants of type SDL_Color.
- */
-class Colors
-{
-public:
-	/** the h3 yellow color, typically used for headlines */
-	static const SDL_Color YELLOW;
-
-	/** the standard h3 white color */
-	static const SDL_Color WHITE;
-
-	/** the metallic gold color used mostly as a border around buttons */
-	static const SDL_Color METALLIC_GOLD;
-
-	/** green color used for in-game console */
-	static const SDL_Color GREEN;
-
-	/** the h3 orange color, used for blocked buttons */
-	static const SDL_Color ORANGE;
-
-	/** the h3 bright yellow color, used for selection border */
-	static const SDL_Color BRIGHT_YELLOW;
-
-	/** default key color for all 8 & 24 bit graphics */
-	static const SDL_Color DEFAULT_KEY_COLOR;
-
-	/// Selected creature card
-	static const SDL_Color RED;
-
-	/// Minimap border
-	static const SDL_Color PURPLE;
-
-	static const SDL_Color BLACK;
-
-	static const SDL_Color TRANSPARENCY;
-};
 
 namespace CSDL_Ext
 {
@@ -86,39 +43,13 @@ ColorRGBA fromSDL(const SDL_Color & color);
 SDL_Color toSDL(const ColorRGBA & color);
 
 void setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
-void warpMouse(int x, int y);
-bool isCtrlKeyDown();
-bool isAltKeyDown();
-bool isShiftKeyDown();
 void setAlpha(SDL_Surface * bg, int value);
-
-template<typename IntType>
-std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
-{
-	IntType max = pow(10, maxLength);
-	if (std::abs(number) < max)
-		return boost::lexical_cast<std::string>(number);
-
-	std::string symbols = " kMGTPE";
-	auto iter = symbols.begin();
-
-	while (number >= max)
-	{
-		number /= 1000;
-		iter++;
-
-		assert(iter != symbols.end());//should be enough even for int64
-	}
-	return boost::lexical_cast<std::string>(number) + *iter;
-}
-
-Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
 
 typedef void (*TColorPutter)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
 typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
 
-	void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
-	void blitAt(SDL_Surface * src, const Rect & pos, SDL_Surface * dst=screen);
+	void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst);
+	void blitAt(SDL_Surface * src, const Rect & pos, SDL_Surface * dst);
 
 	void setClipRect(SDL_Surface * src, const Rect & other);
 	void getClipRect(SDL_Surface * src, Rect & other);
@@ -150,14 +81,17 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 	SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
 
-	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
+	/// returns dimensions of display on which VCMI window is located
+	Rect getDisplayBounds();
+
 	void drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2);
-	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color);
-	void drawBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color);
+	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color, int depth = 1);
+	void drawBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth = 1);
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color);
 	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
-	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
+
+	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
@@ -173,14 +107,10 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	void applyEffectBpp( SDL_Surface * surf, const Rect & rect, int mode );
 	void applyEffect(SDL_Surface * surf, const Rect & rect, int mode); //mode: 0 - sepia, 1 - grayscale
 
-	void startTextInput(const Rect & where);
-	void stopTextInput();
-
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 
 	///set key-color to 0,255,255
 	void setDefaultColorKey(SDL_Surface * surface);
-
 	///set key-color to 0,255,255 only if it exactly mapped
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
 

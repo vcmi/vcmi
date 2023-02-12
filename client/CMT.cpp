@@ -54,7 +54,7 @@
 #include <SDL.h>
 
 #ifdef VCMI_WINDOWS
-#include "SDL_syswm.h"
+#include <SDL_syswm.h>
 #endif
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -839,7 +839,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 
 
-	#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+	#ifdef VCMI_ENDIAN_BIG
 		int bmask = 0xff000000;
 		int gmask = 0x00ff0000;
 		int rmask = 0x0000ff00;
@@ -949,7 +949,7 @@ static void handleEvent(SDL_Event & ev)
 	}
 	else if(ev.type == SDL_USEREVENT)
 	{
-		switch(ev.user.code)
+		switch(static_cast<EUserEvent>(ev.user.code))
 		{
 		case EUserEvent::FORCE_QUIT:
 			{
@@ -1050,7 +1050,7 @@ static void handleEvent(SDL_Event & ev)
 static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
-	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::FULLSCREEN_TOGGLED); });
+	resChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
 	GH.mainFPSmng->init();

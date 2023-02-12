@@ -14,10 +14,10 @@
 	},
 	
 	"polish" : {
-		"name" : "VCMI essential files",
-		"description" : "Essential files required for VCMI to run correctly",
-		"author" : "VCMI Team",
-		"modType" : "Graphical",
+		"name" : "Podstawowe pliki VCMI",
+		"description" : "Dodatkowe pliki wymagane do prawidłowego działania VCMI",
+		"author" : "Zespół VCMI",
+		"modType" : "Graficzny",
 		
 		"translations" : [
 			"config/vcmi/polish.json"

@@ -110,7 +110,8 @@ void Initializer::initialize(CGLighthouse * o)
 
 void Initializer::initialize(CGHeroInstance * o)
 {
-	if(!o) return;
+	if(!o)
+		return;
 	
 	o->tempOwner = defaultPlayer;
 	if(o->ID == Obj::PRISON)
@@ -120,9 +121,9 @@ void Initializer::initialize(CGHeroInstance * o)
 	{
 		for(auto t : VLC->heroh->objects)
 		{
-			if(t->heroClass == VLC->heroh->classes.objects[o->subID].get())
+			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
-				o->type = VLC->heroh->objects[o->subID];
+				o->type = t;
 				break;
 			}
 		}

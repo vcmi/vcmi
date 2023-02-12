@@ -43,7 +43,6 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-#include <SDL_events.h>
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE, BUILDING_FRAME_TIME),
@@ -146,7 +145,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		else
 		{
 			int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
-			GH.pushIntT<CDwellingInfoBox>(parent->pos.x+parent->pos.w/2, parent->pos.y+parent->pos.h/2, town, level);
+			GH.pushIntT<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 		}
 	}
 }
@@ -241,11 +240,11 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	}
 }
 
-void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CBuildingRect::mouseMoved (const Point & cursorPosition)
 {
-	if(area && pos.isInside(sEvent.x, sEvent.y))
+	if(area && pos.isInside(cursorPosition.x, cursorPosition.y))
 	{
-		if(area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //hovered pixel is inside this building
+		if(area->isTransparent(cursorPosition - pos.topLeft())) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{
@@ -1066,7 +1065,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 	if(down)
 	{
 		if (showAvailable)
-			GH.pushIntT<CDwellingInfoBox>(screen->w/2, screen->h/2, town, level);
+			GH.pushIntT<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
 		else
 			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
 	}
@@ -1255,11 +1254,9 @@ void CCastleInterface::recreateIcons()
 		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*(int)i, 507), town, (int)i+4));
 }
 
-void CCastleInterface::keyPressed(const SDL_KeyboardEvent & key)
+void CCastleInterface::keyPressed(const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED) return;
-
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_UP:
 		townlist->selectPrev();

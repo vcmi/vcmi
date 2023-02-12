@@ -68,7 +68,7 @@ namespace Channels
 		static channel_empty a;
 	};
 
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#ifdef VCMI_ENDIAN_BIG
 
 	template<>
 	struct px<4>

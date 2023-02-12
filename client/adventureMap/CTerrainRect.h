@@ -27,12 +27,12 @@ class CTerrainRect : public CIntObject
 	std::shared_ptr<CFadeAnimation> fadeAnim;
 
 	int3 swipeInitialMapPos;
-	int3 swipeInitialRealPos;
+	Point swipeInitialRealPos;
 	bool isSwiping;
 	static constexpr float SwipeTouchSlop = 16.0f;
 
-	void handleHover(const SDL_MouseMotionEvent & sEvent);
-	void handleSwipeMove(const SDL_MouseMotionEvent & sEvent);
+	void handleHover(const Point & cursorPosition);
+	void handleSwipeMove(const Point & cursorPosition);
 	/// handles start/finish of swipe (press/release of corresponding button); returns true if state change was handled
 	bool handleSwipeStateChange(bool btnPressed);
 public:
@@ -48,7 +48,7 @@ public:
 	void clickRight(tribool down, bool previousState) override;
 	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void showAnim(SDL_Surface * to);

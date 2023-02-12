@@ -69,7 +69,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 	if(background)
 		pos = background->center();
 	else
-		center(Point(screen->w/2, screen->h/2));
+		center(GH.screenDimensions() / 2);
 
 	if(!(options & SHADOW_DISABLED))
 		setShadow(true);

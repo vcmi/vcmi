@@ -14,11 +14,11 @@
 #include "TextControls.h"
 
 #include "../gui/CGuiHandler.h"
-
-#include "../CGameInfo.h"
-#include "../CPlayerInterface.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
+#include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
 
@@ -27,12 +27,6 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 #include "../../lib/CGameState.h"
-
-#ifdef VCMI_MAC
-#define SDL_SCANCODE_LCTRL SDL_SCANCODE_LGUI
-#endif
-
-#include <SDL_keyboard.h>
 
 void CGarrisonSlot::setHighlight(bool on)
 {
@@ -336,7 +330,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				lastHeroStackSelected = true;
 			}
 
-			if((owner->getSplittingMode() || LOCPLINT->shiftPressed()) // split window
+			if((owner->getSplittingMode() || GH.isKeyboardShiftDown()) // split window
 				&& (!creature || creature == selection->creature))
 			{
 				refr = split();
@@ -380,7 +374,7 @@ void CGarrisonSlot::update()
 		creatureImage->setFrame(creature->getIconIndex());
 
 		stackCount->enable();
-		stackCount->setText(CSDL_Ext::makeNumberShort(myStack->count, 4));
+		stackCount->setText(vstd::formatMetric(myStack->count, 4));
 	}
 	else
 	{
@@ -439,10 +433,9 @@ void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount
 
 bool CGarrisonSlot::handleSplittingShortcuts()
 {
-	const uint8_t * state = SDL_GetKeyboardState(NULL);
-	const bool isAlt = !!state[SDL_SCANCODE_LALT];
-	const bool isLShift = !!state[SDL_SCANCODE_LSHIFT];
-	const bool isLCtrl = !!state[SDL_SCANCODE_LCTRL];
+	const bool isAlt = GH.isKeyboardAltDown();
+	const bool isLShift = GH.isKeyboardShiftDown();
+	const bool isLCtrl = GH.isKeyboardCtrlDown();
 
 	if(!isAlt && !isLShift && !isLCtrl)
 		return false; // This is only case when return false

@@ -285,7 +285,7 @@ public:
 	BONUS_NAME(SPELL_DAMAGE) /*val = value*/\
 	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*subtype = id of spell, val = value*/\
 	BONUS_NAME(SPECIAL_BLESS_DAMAGE) /*val = spell (bless), additionalInfo = value per level in percent*/\
-	BONUS_NAME(MAXED_SPELL) /*val = id*/\
+	BONUS_NAME(MAXED_SPELL) /*val = id. deprecated in favour of SPECIAL_FIXED_VALUE_ENCHANT*/\
 	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
 	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\
 	BONUS_NAME(DRAGON_NATURE) \

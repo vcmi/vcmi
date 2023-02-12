@@ -31,17 +31,6 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Heal, EFFECT_NAME);
 
-Heal::Heal()
-	: UnitEffect(),
-	healLevel(EHealLevel::HEAL),
-	healPower(EHealPower::PERMANENT),
-	minFullUnits(0)
-{
-
-}
-
-Heal::~Heal() = default;
-
 void Heal::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	apply(m->getEffectValue(), server, m, target);
@@ -117,7 +106,7 @@ void Heal::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 
 void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const EffectTarget & target) const
 {
-	for(auto & oneTarget : target)
+	for(const auto & oneTarget : target)
 	{
 		const battle::Unit * unit = oneTarget.unitValue;
 

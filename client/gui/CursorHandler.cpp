@@ -17,16 +17,8 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
-#include "../CMT.h"
 
 #include "../../lib/CConfigHandler.h"
-
-#include <SDL_render.h>
-#include <SDL_events.h>
-
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
 
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
@@ -252,18 +244,6 @@ std::shared_ptr<IImage> CursorHandler::getCurrentImage()
 		return dndObject;
 
 	return cursors[static_cast<size_t>(type)]->getImage(frame);
-}
-
-void CursorHandler::centerCursor()
-{
-	Point screenSize {screen->w, screen->h};
-	pos = screenSize / 2 - getPivotOffset();
-
-	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	CSDL_Ext::warpMouse(pos.x, pos.y);
-	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-
-	cursor->setCursorPosition(pos);
 }
 
 void CursorHandler::updateSpellcastCursor()

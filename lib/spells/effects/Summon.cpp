@@ -34,18 +34,6 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Summon, EFFECT_NAME);
 
-Summon::Summon()
-	: Effect(),
-	creature(),
-	permanent(false),
-	exclusive(true),
-	summonByHealth(false),
-	summonSameUnit(false)
-{
-}
-
-Summon::~Summon() = default;
-
 void Summon::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	//no hexes affected
@@ -72,12 +60,12 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 
 		if(!otherSummoned.empty())
 		{
-			auto elemental = otherSummoned.front();
+			const auto *elemental = otherSummoned.front();
 
 			MetaString text;
 			text.addTxt(MetaString::GENERAL_TXT, 538);
 
-			auto caster = dynamic_cast<const CGHeroInstance *>(m->caster);
+			const auto *caster = dynamic_cast<const CGHeroInstance *>(m->caster);
 			if(caster)
 			{
 				text.addReplacement(caster->getNameTranslated());
@@ -105,7 +93,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 	BattleUnitsChanged pack;
 
-	for(auto & dest : target)
+	for(const auto & dest : target)
 	{
 		if(dest.unitValue)
 		{
@@ -122,7 +110,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 			if(summonByHealth)
 			{
-				auto creatureType = creature.toCreature(m->creatures());
+				const auto *creatureType = creature.toCreature(m->creatures());
 				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
 			}

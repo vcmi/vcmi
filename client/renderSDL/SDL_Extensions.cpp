@@ -13,40 +13,10 @@
 #include "SDL_PixelAccess.h"
 
 #include "../render/Graphics.h"
+#include "../render/Colors.h"
+#include "../CMT.h"
 
 #include <SDL_render.h>
-#include <SDL_video.h>
-#include <SDL_events.h>
-
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
-
-#ifdef VCMI_IOS
-#include "ios/utils.h"
-#endif
-
-const SDL_Color Colors::YELLOW = { 229, 215, 123, SDL_ALPHA_OPAQUE };
-const SDL_Color Colors::WHITE = { 255, 243, 222, SDL_ALPHA_OPAQUE };
-const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, SDL_ALPHA_OPAQUE };
-const SDL_Color Colors::GREEN = { 0, 255, 0, SDL_ALPHA_OPAQUE };
-const SDL_Color Colors::ORANGE = { 232, 184, 32, SDL_ALPHA_OPAQUE };
-const SDL_Color Colors::BRIGHT_YELLOW = { 242, 226, 110, SDL_ALPHA_OPAQUE };
-const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, SDL_ALPHA_OPAQUE};
-const SDL_Color Colors::RED = {255, 0, 0, SDL_ALPHA_OPAQUE};
-const SDL_Color Colors::PURPLE = {255, 75, 125, SDL_ALPHA_OPAQUE};
-const SDL_Color Colors::BLACK = {0, 0, 0, SDL_ALPHA_OPAQUE};
-const SDL_Color Colors::TRANSPARENCY = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
-
-Rect CSDL_Ext::genRect(const int & hh, const int & ww, const int & xx, const int & yy)
-{
-	Rect ret;
-	ret.h=hh;
-	ret.w=ww;
-	ret.x=xx;
-	ret.y=yy;
-	return ret;
-}
 
 Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
 {
@@ -79,29 +49,17 @@ SDL_Color CSDL_Ext::toSDL(const ColorRGBA & color)
 	return result;
 }
 
+Rect CSDL_Ext::getDisplayBounds()
+{
+	SDL_Rect displayBounds;
+	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+
+	return fromSDL(displayBounds);
+}
+
 void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
 	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
-}
-
-void CSDL_Ext::warpMouse(int x, int y)
-{
-	SDL_WarpMouseInWindow(mainWindow,x,y);
-}
-
-bool CSDL_Ext::isCtrlKeyDown()
-{
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
-}
-
-bool CSDL_Ext::isAltKeyDown()
-{
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
-}
-
-bool CSDL_Ext::isShiftKeyDown()
-{
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
 }
 
 void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
@@ -120,6 +78,11 @@ void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
 		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 	SDL_RenderPresent(mainRenderer);
 
+}
+
+SDL_Surface * CSDL_Ext::newSurface(int w, int h)
+{
+	return newSurface(w, h, screen);
 }
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
@@ -409,14 +372,6 @@ uint32_t CSDL_Ext::colorTouint32_t(const SDL_Color * color)
 	return ret;
 }
 
-void CSDL_Ext::update(SDL_Surface * what)
-{
-	if(!what)
-		return;
-	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
-		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
-}
-
 static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
 	for(int x = x1; x <= x2; x++)
@@ -479,23 +434,27 @@ void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const
 	}
 }
 
-void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color)
+void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color, int depth)
 {
-	for(int i = 0; i < w; i++)
+	depth = std::max(1, depth);
+	for(int depthIterator = 0; depthIterator < depth; depthIterator++)
 	{
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y,color.r,color.g,color.b);
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1,color.r,color.g,color.b);
-	}
-	for(int i = 0; i < h; i++)
-	{
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x,y+i,color.r,color.g,color.b);
-		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+w-1,y+i,color.r,color.g,color.b);
+		for(int i = 0; i < w; i++)
+		{
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+depthIterator,color.r,color.g,color.b);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+i,y+h-1-depthIterator,color.r,color.g,color.b);
+		}
+		for(int i = 0; i < h; i++)
+		{
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+depthIterator,y+i,color.r,color.g,color.b);
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur,x+w-1-depthIterator,y+i,color.r,color.g,color.b);
+		}
 	}
 }
 
-void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &color )
+void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth)
 {
-	drawBorder(sur, r.x, r.y, r.w, r.h, color);
+	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
 }
 
 void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color)
@@ -579,15 +538,6 @@ CSDL_Ext::TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &des
 uint8_t * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
 {
 	return (uint8_t *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
-}
-
-std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
-{
-	for (size_t i=0; (i<tor.size())&&(boost::find_first(str,"%s")); ++i)
-	{
-		boost::replace_first(str,"%s",tor[i]);
-	}
-	return str;
 }
 
 bool CSDL_Ext::isTransparent( SDL_Surface * srf, const Point & position )
@@ -881,59 +831,6 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 {
 	SDL_Color ret = {r, g, b, a};
 	return ret;
-}
-
-void CSDL_Ext::startTextInput(const Rect & whereInput)
-{
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-
-	// TODO ios: looks like SDL bug actually, try fixing there
-	auto renderer = SDL_GetRenderer(mainWindow);
-	float scaleX, scaleY;
-	SDL_Rect viewport;
-	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
-	SDL_RenderGetViewport(renderer, &viewport);
-
-#ifdef VCMI_IOS
-	const auto nativeScale = iOS_utils::screenScale();
-	scaleX /= nativeScale;
-	scaleY /= nativeScale;
-#endif
-
-	SDL_Rect rectInScreenCoordinates;
-	rectInScreenCoordinates.x = (viewport.x + whereInput.x) * scaleX;
-	rectInScreenCoordinates.y = (viewport.y + whereInput.y) * scaleY;
-	rectInScreenCoordinates.w = whereInput.w * scaleX;
-	rectInScreenCoordinates.h = whereInput.h * scaleY;
-
-	SDL_SetTextInputRect(&rectInScreenCoordinates);
-
-	if (SDL_IsTextInputActive() == SDL_FALSE)
-	{
-		SDL_StartTextInput();
-	}
-
-#ifdef VCMI_APPLE
-	});
-#endif
-}
-
-void CSDL_Ext::stopTextInput()
-{
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-
-	if (SDL_IsTextInputActive() == SDL_TRUE)
-	{
-		SDL_StopTextInput();
-	}
-
-#ifdef VCMI_APPLE
-	});
-#endif
 }
 
 STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)

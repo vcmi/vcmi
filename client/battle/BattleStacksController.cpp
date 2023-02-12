@@ -26,8 +26,9 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Colors.h"
 #include "../render/Canvas.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -73,8 +74,6 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	activeStack(nullptr),
 	stackToActivate(nullptr),
 	selectedStack(nullptr),
-	stackCanCastSpell(false),
-	creatureSpellToCast(uint32_t(-1)),
 	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
@@ -317,7 +316,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, CSDL_Ext::makeNumberShort(stack->getCount(), 4));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, vstd::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
@@ -738,25 +737,6 @@ void BattleStacksController::activateStack()
 	const CStack * s = getActiveStack();
 	if(!s)
 		return;
-
-	//set casting flag to true if creature can use it to not check it every time
-	const auto spellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER));
-	const auto randomSpellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
-	if(s->canCast() && (spellcaster || randomSpellcaster))
-	{
-		stackCanCastSpell = true;
-		if(randomSpellcaster)
-			creatureSpellToCast = -1; //spell will be set later on cast
-		else
-			creatureSpellToCast = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
-		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
-		//TODO: faerie dragon type spell should be selected by server
-	}
-	else
-	{
-		stackCanCastSpell = false;
-		creatureSpellToCast = -1;
-	}
 }
 
 void BattleStacksController::setSelectedStack(const CStack *stack)
@@ -777,18 +757,6 @@ const CStack* BattleStacksController::getActiveStack() const
 bool BattleStacksController::facingRight(const CStack * stack) const
 {
 	return stackFacingRight.at(stack->ID);
-}
-
-bool BattleStacksController::activeStackSpellcaster()
-{
-	return stackCanCastSpell;
-}
-
-SpellID BattleStacksController::activeStackSpellToCast()
-{
-	if (!stackCanCastSpell)
-		return SpellID::NONE;
-	return SpellID(creatureSpellToCast);
 }
 
 Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack) const
@@ -896,6 +864,12 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	if(owner.getAnimationCondition(EAnimationEvents::ACTION) == true)
 		return {};
 
+	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
+	if(hoveredQueueUnitId.is_initialized())
+	{
+		return { owner.curInt->cb->battleGetStackByID(hoveredQueueUnitId.value(), true) };
+	}
+
 	auto hoveredHex = owner.fieldController->getHoveredHex();
 
 	if (!hoveredHex.isValid())
@@ -904,21 +878,11 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	const spells::Caster *caster = nullptr;
 	const CSpell *spell = nullptr;
 
-	spells::Mode mode = spells::Mode::HERO;
+	spells::Mode mode = owner.actionsController->getCurrentCastMode();
+	spell = owner.actionsController->getCurrentSpell();
+	caster = owner.actionsController->getCurrentSpellcaster();
 
-	if(owner.actionsController->spellcastingModeActive())//hero casts spell
-	{
-		spell = owner.actionsController->selectedSpell().toSpell();
-		caster = owner.getActiveHero();
-	}
-	else if(owner.stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
-	{
-		spell = SpellID(owner.stacksController->activeStackSpellToCast()).toSpell();
-		caster = owner.stacksController->getActiveStack();
-		mode = spells::Mode::CREATURE_ACTIVE;
-	}
-
-	if(caster && spell) //when casting spell
+	if(caster && spell && owner.actionsController->currentActionSpellcasting(hoveredHex) ) //when casting spell
 	{
 		spells::Target target;
 		target.emplace_back(hoveredHex);
@@ -937,4 +901,15 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	}
 
 	return {};
+}
+
+const std::vector<uint32_t> BattleStacksController::getHoveredStacksUnitIds() const
+{
+	auto result = std::vector<uint32_t>();
+	for (auto const * stack : mouseHoveredStacks)
+	{
+		result.push_back(stack->unitId());
+	}
+
+	return result;
 }

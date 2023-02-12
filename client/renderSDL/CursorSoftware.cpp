@@ -11,9 +11,10 @@
 #include "StdInc.h"
 #include "CursorSoftware.h"
 
-#include "SDL_Extensions.h"
-
+#include "../render/Colors.h"
 #include "../render/IImage.h"
+#include "../CMT.h"
+#include "SDL_Extensions.h"
 
 #include <SDL_render.h>
 #include <SDL_events.h>

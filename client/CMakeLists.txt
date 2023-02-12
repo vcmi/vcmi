@@ -54,6 +54,7 @@ set(client_SRCS
 	render/CFadeAnimation.cpp
 	render/Canvas.cpp
 	render/ColorFilter.cpp
+	render/Colors.cpp
 	render/Graphics.cpp
 	render/IFont.cpp
 
@@ -140,6 +141,7 @@ set(client_HEADERS
 	gui/CIntObject.h
 	gui/CursorHandler.h
 	gui/InterfaceObjectConfigurable.h
+	gui/MouseButton.h
 	gui/NotificationHandler.h
 	gui/TextAlignment.h
 
@@ -164,6 +166,7 @@ set(client_HEADERS
 	render/CFadeAnimation.h
 	render/Canvas.h
 	render/ColorFilter.h
+	render/Colors.h
 	render/Graphics.h
 	render/ICursor.h
 	render/IFont.h

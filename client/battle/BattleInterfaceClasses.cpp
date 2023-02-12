@@ -30,10 +30,10 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../windows/CMessage.h"
-#include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -47,9 +47,6 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-
-#include <SDL_surface.h>
-#include <SDL_events.h>
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
@@ -163,12 +160,12 @@ void BattleConsole::setEnteringMode(bool on)
 	if (on)
 	{
 		assert(enteringText == false);
-		CSDL_Ext::startTextInput(pos);
+		GH.startTextInput(pos);
 	}
 	else
 	{
 		assert(enteringText == true);
-		CSDL_Ext::stopTextInput();
+		GH.stopTextInput();
 	}
 	enteringText = on;
 	redraw();
@@ -274,50 +271,29 @@ void BattleHero::setPhase(EHeroAnimType newPhase)
 	nextPhase = EHeroAnimType::HOLDING;
 }
 
-void BattleHero::hover(bool on)
-{
-	//TODO: BROKEN CODE
-	if (on)
-		CCS->curh->set(Cursor::Combat::HERO);
-	else
-		CCS->curh->set(Cursor::Combat::POINTER);
-}
-
-void BattleHero::clickLeft(tribool down, bool previousState)
+void BattleHero::heroLeftClicked()
 {
 	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
-	if(boost::logic::indeterminate(down))
-		return;
-
-	if(!hero || down || !owner.myTurn)
+	if(!hero || !owner.makingTurn())
 		return;
 
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		BattleHex hoveredHex = owner.fieldController->getHoveredHex();
-		//do nothing when any hex is hovered - hero's animation overlaps battlefield
-		if ( hoveredHex != BattleHex::INVALID )
-			return;
-
 		CCS->curh->set(Cursor::Map::POINTER);
-
 		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
-void BattleHero::clickRight(tribool down, bool previousState)
+void BattleHero::heroRightClicked()
 {
-	if(boost::logic::indeterminate(down))
-		return;
-
 	Point windowPosition;
 	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
 	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
-	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
+	if(owner.makingTurn() || settings["session"]["spectate"].Bool())
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
@@ -374,8 +350,6 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	flagAnimation->preload();
 	flagAnimation->playerColored(hero->tempOwner);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
-
 	switchToNextPhase();
 	play();
 }
@@ -427,9 +401,9 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	pos = CSDL_Ext::genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	background = std::make_shared<CPicture>("CPRESULT");
 	background->colorize(owner.playerID);
+	pos = center(background->pos);
 
 	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
@@ -591,7 +565,7 @@ void BattleResultWindow::activate()
 void BattleResultWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, to, true, false);
 }
 
 void BattleResultWindow::bExitf()
@@ -607,68 +581,6 @@ void BattleResultWindow::bExitf()
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
-}
-
-void ClickableHex::hover(bool on)
-{
-	hovered = on;
-	//Hoverable::hover(on);
-	if(!on && setAlterText)
-	{
-		GH.statusbar->clear();
-		setAlterText = false;
-	}
-}
-
-ClickableHex::ClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
-{
-	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
-}
-
-void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
-{
-	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
-
-	if(hovered && strictHovered) //print attacked creature to console
-	{
-		const CStack * attackedStack = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber);
-		if( attackedStack != nullptr &&
-			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
-			attackedStack->alive())
-		{
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 220);
-			attackedStack->addNameReplacement(text);
-			GH.statusbar->write(text.toString());
-			setAlterText = true;
-		}
-	}
-	else if(setAlterText)
-	{
-		GH.statusbar->clear();
-		setAlterText = false;
-	}
-}
-
-void ClickableHex::clickLeft(tribool down, bool previousState)
-{
-	if(!down && hovered && strictHovered) //we've been really clicked!
-	{
-		myInterface->actionsController->handleHex(myNumber, LCLICK);
-	}
-}
-
-void ClickableHex::clickRight(tribool down, bool previousState)
-{
-	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
-	if(hovered && strictHovered && myst!=nullptr)
-	{
-		if(!myst->alive()) return;
-		if(down)
-		{
-			GH.pushIntT<CStackWindow>(myst, true);
-		}
-	}
 }
 
 StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
@@ -712,6 +624,14 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 void StackQueue::show(SDL_Surface * to)
 {
+	auto unitIdsToHighlight = owner.stacksController->getHoveredStacksUnitIds();
+
+	for(auto & stackBox : stackBoxes)
+	{
+		bool isBoundUnitCurrentlyHovered = vstd::contains(unitIdsToHighlight, stackBox->getBoundUnitID());
+		stackBox->toggleHighlight(isBoundUnitCurrentlyHovered);
+	}
+
 	if (embedded)
 		showAll(to);
 	CIntObject::show(to);
@@ -740,8 +660,21 @@ int32_t StackQueue::getSiegeShooterIconID()
 	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
+boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
+{
+	for(const auto & stackBox : stackBoxes)
+	{
+		if(stackBox->hovered || stackBox->mouseState(MouseButton::RIGHT))
+		{
+			return stackBox->getBoundUnitID();
+		}
+	}
+
+	return boost::none;
+}
+
 StackQueue::StackBox::StackBox(StackQueue * owner):
-	owner(owner)
+	CIntObject(RCLICK | HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -771,6 +704,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 {
 	if(unit)
 	{
+		boundUnitID = unit->unitId();
 		background->colorize(unit->unitOwner());
 		icon->visible = true;
 
@@ -783,7 +717,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
-		amount->setText(CSDL_Ext::makeNumberShort(unit->getCount(), 4));
+		amount->setText(vstd::formatMetric(unit->getCount(), 4));
 
 		if(stateIcon)
 		{
@@ -805,6 +739,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 	else
 	{
+		boundUnitID = boost::none;
 		background->colorize(PlayerColor::NEUTRAL);
 		icon->visible = false;
 		icon->setFrame(0);
@@ -813,4 +748,22 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if(stateIcon)
 			stateIcon->visible = false;
 	}
+}
+
+boost::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
+{
+	return boundUnitID;
+}
+
+void StackQueue::StackBox::toggleHighlight(bool value)
+{
+	highlighted = value;
+}
+
+void StackQueue::StackBox::show(SDL_Surface *to)
+{
+	if(highlighted)
+		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 }, 2);
+
+	CIntObject::show(to);
 }

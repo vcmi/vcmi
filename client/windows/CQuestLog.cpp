@@ -18,6 +18,7 @@
 #include "../adventureMap/CAdvMapInt.h"
 #include "../widgets/Buttons.h"
 #include "../adventureMap/CMinimap.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"

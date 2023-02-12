@@ -16,25 +16,8 @@
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
-
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/CCompressedStream.h"
-
 #include "../gui/CursorHandler.h"
-
-#include "../CGameInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/JsonNode.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
-#include "../../lib/serializer/Connection.h"
-#include "../../lib/serializer/CTypeList.h"
-#include "../../lib/VCMIDirs.h"
-#include "../../lib/mapping/CMap.h"
 #include "../windows/GUIClasses.h"
-#include "../CPlayerInterface.h"
-#include "../../CCallback.h"
-#include "../Client.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -43,6 +26,24 @@
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
+
+#include "../CGameInfo.h"
+#include "../CMusicHandler.h"
+#include "../CVideoHandler.h"
+#include "../CPlayerInterface.h"
+#include "../Client.h"
+#include "../CMT.h"
+
+#include "../../CCallback.h"
+
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/JsonNode.h"
+#include "../../lib/serializer/Connection.h"
+#include "../../lib/serializer/CTypeList.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CCompressedStream.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CThreadHelper.h"
@@ -52,7 +53,6 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
-#include <SDL_events.h>
 
 namespace fs = boost::filesystem;
 
@@ -61,9 +61,7 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	SDL_Event event;
-	event.quit.type = SDL_QUIT;
-	SDL_PushEvent(&event);
+	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
@@ -73,7 +71,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	background = std::make_shared<CPicture>(config["background"].String());
 	if(config["scalable"].Bool())
-		background->scaleTo(Point(screen->w, screen->h));
+		background->scaleTo(GH.screenDimensions());
 
 	pos = background->center();
 
@@ -276,8 +274,8 @@ const JsonNode & CMainMenuConfig::getCampaigns() const
 
 CMainMenu::CMainMenu()
 {
-	pos.w = screen->w;
-	pos.h = screen->h;
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
 
 	GH.defActionsDef = 63;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
@@ -484,7 +482,7 @@ void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText("Connecting...");
 	buttonOk->block(true);
-	CSDL_Ext::stopTextInput();
+	GH.stopTextInput();
 
 	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }

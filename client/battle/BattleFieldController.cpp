@@ -34,6 +34,8 @@
 #include "../../lib/CStack.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
+#include <SDL_events.h>
+
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
@@ -76,20 +78,11 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
-	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
-	{
-		auto hex = std::make_shared<ClickableHex>();
-		hex->myNumber = h;
-		hex->pos = hexPositionAbsolute(h);
-		hex->myInterface = &owner;
-		bfield.push_back(hex);
-	}
-
 	auto accessibility = owner.curInt->cb->getAccesibility();
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 
-	addUsedEvents(MOVE);
+	addUsedEvents(LCLICK | RCLICK | MOVE);
 	LOCPLINT->cingconsole->pos = this->pos;
 }
 
@@ -105,13 +98,40 @@ void BattleFieldController::createHeroes()
 		owner.defendingHero = std::make_shared<BattleHero>(owner, owner.defendingHeroInstance, true);
 }
 
-void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
+void BattleFieldController::mouseMoved(const Point & cursorPosition)
 {
-	BattleHex selectedHex = getHoveredHex();
+	if (!pos.isInside(cursorPosition))
+	{
+		owner.actionsController->onHoverEnded();
+		return;
+	}
 
-	owner.actionsController->handleHex(selectedHex, MOVE);
+	BattleHex selectedHex = getHoveredHex();
+	owner.actionsController->onHexHovered(selectedHex);
 }
 
+void BattleFieldController::clickLeft(tribool down, bool previousState)
+{
+	if(!down)
+	{
+		BattleHex selectedHex = getHoveredHex();
+
+		if (selectedHex != BattleHex::INVALID)
+			owner.actionsController->onHexLeftClicked(selectedHex);
+	}
+}
+
+void BattleFieldController::clickRight(tribool down, bool previousState)
+{
+	if(down)
+	{
+		BattleHex selectedHex = getHoveredHex();
+
+		if (selectedHex != BattleHex::INVALID)
+			owner.actionsController->onHexRightClicked(selectedHex);
+
+	}
+}
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
@@ -233,19 +253,9 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 	const spells::Caster *caster = nullptr;
 	const CSpell *spell = nullptr;
 
-	spells::Mode mode = spells::Mode::HERO;
-
-	if(owner.actionsController->spellcastingModeActive())//hero casts spell
-	{
-		spell = owner.actionsController->selectedSpell().toSpell();
-		caster = owner.getActiveHero();
-	}
-	else if(owner.stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
-	{
-		spell = SpellID(owner.stacksController->activeStackSpellToCast()).toSpell();
-		caster = owner.stacksController->getActiveStack();
-		mode = spells::Mode::CREATURE_ACTIVE;
-	}
+	spells::Mode mode = owner.actionsController->getCurrentCastMode();
+	spell = owner.actionsController->getCurrentSpell();
+	caster = owner.actionsController->getCurrentSpellcaster();
 
 	if(caster && spell) //when casting spell
 	{
@@ -310,7 +320,10 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredSpell = getHighlightedHexesSpellRange();
 	std::set<BattleHex> hoveredMove  = getHighlightedHexesMovementTarget();
 
-	auto const & hoveredMouse = owner.actionsController->spellcastingModeActive() ? hoveredSpell : hoveredMove;
+	if (getHoveredHex() == BattleHex::INVALID)
+		return;
+
+	auto const & hoveredMouse = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpell : hoveredMove;
 
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
@@ -355,9 +368,31 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 
 BattleHex BattleFieldController::getHoveredHex()
 {
-	for ( auto const & hex : bfield)
-		if (hex->hovered && hex->strictHovered)
-			return hex->myNumber;
+	Point hoverPos = GH.getCursorPosition();
+
+	if (owner.attackingHero)
+	{
+		if (owner.attackingHero->pos.isInside(hoverPos))
+			return BattleHex::HERO_ATTACKER;
+	}
+
+	if (owner.defendingHero)
+	{
+		if (owner.attackingHero->pos.isInside(hoverPos))
+			return BattleHex::HERO_DEFENDER;
+	}
+
+
+	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
+	{
+		Rect hexPosition = hexPositionAbsolute(h);
+
+		if (!hexPosition.isInside(hoverPos))
+			continue;
+
+		if (isPixelInHex(hoverPos - hexPosition.topLeft()))
+			return h;
+	}
 
 	return BattleHex::INVALID;
 }
@@ -520,7 +555,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 		}
 		default:
 			assert(0);
-			return attackTarget.cloneInDirection(BattleHex::LEFT);
+			return BattleHex::INVALID;
 		}
 	}
 }

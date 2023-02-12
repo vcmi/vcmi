@@ -32,21 +32,13 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Dispel, EFFECT_NAME);
 
-Dispel::Dispel()
-	: UnitEffect()
-{
-
-}
-
-Dispel::~Dispel() = default;
-
 void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	const bool describe = server->describeChanges();
 	SetStackEffect sse;
 	BattleLogMessage blm;
 
-	for(auto & t : target)
+	for(const auto & t : target)
 	{
 		const battle::Unit * unit = t.unitValue;
 		if(unit)
@@ -63,11 +55,11 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 			std::vector<Bonus> buffer;
 			auto bl = getBonuses(m, unit);
 
-			for(auto item : *bl)
+			for(const auto& item : *bl)
 				buffer.emplace_back(*item);
 
 			if(!buffer.empty())
-				sse.toRemove.push_back(std::make_pair(unit->unitId(), buffer));
+				sse.toRemove.emplace_back(unit->unitId(), buffer);
 		}
 	}
 

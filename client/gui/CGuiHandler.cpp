@@ -15,6 +15,7 @@
 #include "CursorHandler.h"
 
 #include "../CGameInfo.h"
+#include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
@@ -26,6 +27,14 @@
 #include <SDL_render.h>
 #include <SDL_timer.h>
 #include <SDL_events.h>
+
+#ifdef VCMI_APPLE
+#include <dispatch/dispatch.h>
+#endif
+
+#ifdef VCMI_IOS
+#include "ios/utils.h"
+#endif
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
@@ -118,7 +127,7 @@ void CGuiHandler::popInt(std::shared_ptr<IShowActivatable> top)
 		listInt.front()->activate();
 	totalRedraw();
 
-	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
+	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
@@ -137,7 +146,7 @@ void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	objsToBlit.push_back(newInt);
 	totalRedraw();
 
-	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
+	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::popInts(int howMany)
@@ -160,7 +169,7 @@ void CGuiHandler::popInts(int howMany)
 	}
 	fakeMouseMove();
 
-	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
+	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
@@ -203,7 +212,12 @@ void CGuiHandler::handleEvents()
 	{
 		continueEventHandling = true;
 		SDL_Event currentEvent = SDLEventsQueue.front();
-		cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
+
+		if (currentEvent.type == SDL_MOUSEMOTION)
+		{
+			cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
+			mouseButtonsMask = currentEvent.motion.state;
+		}
 		SDLEventsQueue.pop();
 
 		// In a sequence of mouse motion events, skip all but the last one.
@@ -257,6 +271,59 @@ void CGuiHandler::fakeMouseMove()
 	fakeMoveCursor(0, 0);
 }
 
+void CGuiHandler::startTextInput(const Rect & whereInput)
+{
+#ifdef VCMI_APPLE
+	dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+
+	// TODO ios: looks like SDL bug actually, try fixing there
+	auto renderer = SDL_GetRenderer(mainWindow);
+	float scaleX, scaleY;
+	SDL_Rect viewport;
+	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
+	SDL_RenderGetViewport(renderer, &viewport);
+
+#ifdef VCMI_IOS
+	const auto nativeScale = iOS_utils::screenScale();
+	scaleX /= nativeScale;
+	scaleY /= nativeScale;
+#endif
+
+	SDL_Rect rectInScreenCoordinates;
+	rectInScreenCoordinates.x = (viewport.x + whereInput.x) * scaleX;
+	rectInScreenCoordinates.y = (viewport.y + whereInput.y) * scaleY;
+	rectInScreenCoordinates.w = whereInput.w * scaleX;
+	rectInScreenCoordinates.h = whereInput.h * scaleY;
+
+	SDL_SetTextInputRect(&rectInScreenCoordinates);
+
+	if (SDL_IsTextInputActive() == SDL_FALSE)
+	{
+		SDL_StartTextInput();
+	}
+
+#ifdef VCMI_APPLE
+	});
+#endif
+}
+
+void CGuiHandler::stopTextInput()
+{
+#ifdef VCMI_APPLE
+	dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{
+		SDL_StopTextInput();
+	}
+
+#ifdef VCMI_APPLE
+	});
+#endif
+}
+
 void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 {
 	SDL_Event event;
@@ -280,9 +347,9 @@ void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 	SDL_RenderGetScale(mainRenderer, &xScale, &yScale);
 
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	CSDL_Ext::warpMouse(
+	moveCursorToPosition( Point(
 		(int)(sme.x * xScale) + (w - rLogicalWidth * xScale) / 2,
-		(int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2));
+		(int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2)));
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 
 	event.button = sme;
@@ -345,7 +412,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		bool keysCaptured = false;
 		for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
 		{
-			if((*i)->captureThisEvent(key))
+			if((*i)->captureThisKey(key.keysym.sym))
 			{
 				keysCaptured = true;
 				break;
@@ -354,8 +421,13 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 
 		std::list<CIntObject*> miCopy = keyinterested;
 		for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
-			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisEvent(key)))
-				(**i).keyPressed(key);
+			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisKey(key.keysym.sym)))
+			{
+				if (key.state == SDL_PRESSED)
+					(**i).keyPressed(key.keysym.sym);
+				if (key.state == SDL_RELEASED)
+					(**i).keyReleased(key.keysym.sym);
+			}
 	}
 	else if(current.type == SDL_MOUSEMOTION)
 	{
@@ -387,14 +459,14 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			lastClickTime = SDL_GetTicks();
 
 			if(!doubleClicked)
-				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, true);
+				handleMouseButtonClick(lclickable, MouseButton::LEFT, true);
 			break;
 		}
 		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+			handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
 			break;
 		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, true);
+			handleMouseButtonClick(mclickable, MouseButton::MIDDLE, true);
 			break;
 		default:
 			break;
@@ -416,14 +488,14 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 	{
 		for(auto it : textInterested)
 		{
-			it->textInputed(current.text);
+			it->textInputed(current.text.text);
 		}
 	}
 	else if(current.type == SDL_TEXTEDITING)
 	{
 		for(auto it : textInterested)
 		{
-			it->textEdited(current.edit);
+			it->textEdited(current.edit.text);
 		}
 	}
 	else if(current.type == SDL_MOUSEBUTTONUP)
@@ -433,13 +505,13 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			switch(current.button.button)
 			{
 			case SDL_BUTTON_LEFT:
-				handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
+				handleMouseButtonClick(lclickable, MouseButton::LEFT, false);
 				break;
 			case SDL_BUTTON_RIGHT:
-				handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+				handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
 				break;
 			case SDL_BUTTON_MIDDLE:
-				handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
+				handleMouseButtonClick(mclickable, MouseButton::MIDDLE, false);
 				break;
 			}
 		}
@@ -471,7 +543,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		{
 			convertTouchToMouse(&current);
 			handleMouseMotion(current);
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+			handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
 		}
 #endif //VCMI_IOS
 	}
@@ -495,14 +567,14 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		{
 			convertTouchToMouse(&current);
 			handleMouseMotion(current);
-			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+			handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
 			multifinger = fingerCount != 0;
 		}
 #endif //VCMI_IOS
 	}
 } //event end
 
-void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed)
+void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
 {
 	auto hlp = interestedObjs;
 	for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
@@ -546,7 +618,9 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 		elem->hovered = true;
 	}
 
-	handleMoveInterested(current.motion);
+	// do not send motion events for events outside our window
+	//if (current.motion.windowID == 0)
+		handleMoveInterested(current.motion);
 }
 
 void CGuiHandler::simpleRedraw()
@@ -566,7 +640,7 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 	{
 		if(elem->strongInterest || Rect::createAround(elem->pos, 1).isInside( motion.x, motion.y)) //checking bounds including border fixes bug #2476
 		{
-			(elem)->mouseMoved(motion);
+			(elem)->mouseMoved(Point(motion.x, motion.y));
 		}
 	}
 }
@@ -612,13 +686,16 @@ void CGuiHandler::renderFrame()
 
 
 CGuiHandler::CGuiHandler()
-	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false),
-    multifinger(false)
+	: lastClick(-500, -500)
+	, lastClickTime(0)
+	, defActionsDef(0)
+	, captureChildren(false)
+	, multifinger(false)
+	, mouseButtonsMask(0)
+	, continueEventHandling(true)
+	, curInt(nullptr)
+	, statusbar(nullptr)
 {
-	continueEventHandling = true;
-	curInt = nullptr;
-	statusbar = nullptr;
-
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new CFramerateManager(60);
 	//do not init CFramerateManager here --AVS
@@ -632,6 +709,27 @@ CGuiHandler::~CGuiHandler()
 	delete terminate_cond;
 }
 
+
+void CGuiHandler::moveCursorToPosition(const Point & position)
+{
+	SDL_WarpMouseInWindow(mainWindow, position.x, position.y);
+}
+
+bool CGuiHandler::isKeyboardCtrlDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+}
+
+bool CGuiHandler::isKeyboardAltDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+}
+
+bool CGuiHandler::isKeyboardShiftDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+}
+
 void CGuiHandler::breakEventHandling()
 {
 	continueEventHandling = false;
@@ -640,6 +738,28 @@ void CGuiHandler::breakEventHandling()
 const Point & CGuiHandler::getCursorPosition() const
 {
 	return cursorPosition;
+}
+
+Point CGuiHandler::screenDimensions() const
+{
+	return Point(screen->w, screen->h);
+}
+
+bool CGuiHandler::isMouseButtonPressed() const
+{
+	return mouseButtonsMask > 0;
+}
+
+bool CGuiHandler::isMouseButtonPressed(MouseButton button) const
+{
+	static_assert(static_cast<uint32_t>(MouseButton::LEFT)   == SDL_BUTTON_LEFT,   "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::MIDDLE) == SDL_BUTTON_MIDDLE, "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::RIGHT)  == SDL_BUTTON_RIGHT,  "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
+
+	uint32_t index = static_cast<uint32_t>(button);
+	return mouseButtonsMask & SDL_BUTTON(index);
 }
 
 void CGuiHandler::drawFPSCounter()
@@ -719,11 +839,17 @@ bool CGuiHandler::amIGuiThread()
 	return inGuiThread.get() && *inGuiThread;
 }
 
-void CGuiHandler::pushSDLEvent(int type, int usercode)
+void CGuiHandler::pushUserEvent(EUserEvent usercode)
+{
+	pushUserEvent(usercode, nullptr);
+}
+
+void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 {
 	SDL_Event event;
-	event.type = type;
-	event.user.code = usercode;	// not necessarily used
+	event.type = SDL_USEREVENT;
+	event.user.code = static_cast<int32_t>(usercode);
+	event.user.data1 = userdata;
 	SDL_PushEvent(&event);
 }
 

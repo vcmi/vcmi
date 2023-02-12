@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CInGameConsole.h"
 
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Colors.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
@@ -24,7 +24,6 @@
 #include "../../lib/mapObjects/CArmedInstance.h"
 
 #include <SDL_timer.h>
-#include <SDL_events.h>
 
 CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TEXTINPUT),
@@ -91,13 +90,11 @@ void CInGameConsole::print(const std::string &txt)
 	}
 }
 
-void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
+void CInGameConsole::keyPressed (const SDL_Keycode & key)
 {
-	if(key.type != SDL_KEYDOWN) return;
+	if(!captureAllKeys && key != SDLK_TAB) return; //because user is not entering any text
 
-	if(!captureAllKeys && key.keysym.sym != SDLK_TAB) return; //because user is not entering any text
-
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_TAB:
 	case SDLK_ESCAPE:
@@ -106,7 +103,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 			{
 				endEnteringText(false);
 			}
-			else if(SDLK_TAB == key.keysym.sym)
+			else if(SDLK_TAB == key)
 			{
 				startEnteringText();
 			}
@@ -178,19 +175,19 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 	}
 }
 
-void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
+void CInGameConsole::textInputed(const std::string & inputtedText)
 {
 	if(!captureAllKeys || enteredText.size() == 0)
 		return;
 	enteredText.resize(enteredText.size()-1);
 
-	enteredText += event.text;
+	enteredText += inputtedText;
 	enteredText += "_";
 
 	refreshEnteredText();
 }
 
-void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
+void CInGameConsole::textEdited(const std::string & inputtedText)
 {
  //do nothing here
 }

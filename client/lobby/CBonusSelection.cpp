@@ -454,7 +454,7 @@ void CBonusSelection::restartMap()
 	close();
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 	{
-		LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME);
+		GH.pushUserEvent(EUserEvent::RESTART_GAME);
 	}, 0);
 }
 

@@ -70,7 +70,7 @@ class BattleStacksController
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
-	/// stacks below mouse pointer (multiple stacks possible while spellcasting), used for border animation
+	/// stacks or their battle queue images below mouse pointer (multiple stacks possible while spellcasting), used for border animation
 	std::vector<const CStack *> mouseHoveredStacks;
 
 	///when animation is playing, we should wait till the end to make the next stack active; nullptr of none
@@ -78,10 +78,6 @@ class BattleStacksController
 
 	/// stack that was selected for multi-target spells - Teleport / Sacrifice
 	const CStack *selectedStack;
-
-	/// if true, active stack could possibly cast some target spell
-	bool stackCanCastSpell;
-	si32 creatureSpellToCast;
 
 	/// for giving IDs for animations
 	ui32 animIDhelper;
@@ -123,9 +119,6 @@ public:
 	void startAction(const BattleAction* action);
 	void endAction(const BattleAction* action);
 
-	bool activeStackSpellcaster();
-	SpellID activeStackSpellToCast();
-
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 
 	void setActiveStack(const CStack *stack);
@@ -144,6 +137,7 @@ public:
 
 	const CStack* getActiveStack() const;
 	const CStack* getSelectedStack() const;
+	const std::vector<uint32_t> getHoveredStacksUnitIds() const;
 
 	void update();
 

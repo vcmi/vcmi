@@ -23,9 +23,6 @@ namespace effects
 class DemonSummon : public UnitEffect
 {
 public:
-	DemonSummon();
-	virtual ~DemonSummon();
-
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 protected:
 	bool isValidTarget(const Mechanics * m, const battle::Unit * s) const override;
@@ -33,9 +30,9 @@ protected:
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override final;
 
 private:
-	CreatureID creature;
+	CreatureID creature = CreatureID(0);
 
-	bool permanent;
+	bool permanent = false;
 };
 
 }

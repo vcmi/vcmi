@@ -725,7 +725,27 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
-	using boost::math::round;
+	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
+	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
+	template<typename Arithmetic>
+	std::string formatMetric(Arithmetic number, int maxDigits)
+	{
+		Arithmetic max = std::pow(10, maxDigits);
+		if (std::abs(number) < max)
+			return std::to_string(number);
+
+		std::string symbols = " kMGTPE";
+		auto iter = symbols.begin();
+
+		while (std::abs(number) >= max)
+		{
+			number /= 1000;
+			iter++;
+
+			assert(iter != symbols.end());//should be enough even for int64
+		}
+		return std::to_string(number) + *iter;
+	}
 }
 using vstd::operator-=;
 

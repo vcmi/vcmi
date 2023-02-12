@@ -35,22 +35,14 @@ public:
 	std::string triggerAnimation;
 	std::string animation;
 
-	int offsetY;
-
-	ObstacleSideOptions();
+	int offsetY = 0;
 
 	void serializeJson(JsonSerializeFormat & handler);
-
-private:
-	void serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value);
 };
 
 class Obstacle : public LocationEffect
 {
 public:
-	Obstacle();
-	virtual ~Obstacle();
-
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
@@ -64,13 +56,13 @@ protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
 
 private:
-	bool hidden;
-	bool passable;
-	bool trigger;
-	bool trap;
-	bool removeOnTrigger;
-	int32_t patchCount;//random patches to place, only for massive spells
-	int32_t turnsRemaining;
+	bool hidden = false;
+	bool passable = false;
+	bool trigger = false;
+	bool trap = false;
+	bool removeOnTrigger = false;
+	int32_t patchCount = 1;//random patches to place, only for massive spells
+	int32_t turnsRemaining = -1;
 
 	std::array<ObstacleSideOptions, 2> sideOptions;
 

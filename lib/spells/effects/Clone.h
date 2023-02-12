@@ -22,9 +22,6 @@ namespace effects
 class Clone : public UnitEffect
 {
 public:
-	Clone();
-	virtual ~Clone();
-
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 protected:
 	bool isReceptive(const Mechanics * m, const battle::Unit * s) const override;
@@ -32,7 +29,7 @@ protected:
 
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override final;
 private:
-	int maxTier;
+	int maxTier = 0;
 };
 
 }

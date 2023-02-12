@@ -26,6 +26,7 @@
 #include "VcmiSettingsWindow.h"
 #include "GUIClasses.h"
 #include "CServerHandler.h"
+#include "renderSDL/SDL_Extensions.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -110,8 +111,7 @@ void SystemOptionsWindow::selectGameResolution()
 	std::vector<std::string> items;
 
 #ifndef VCMI_IOS
-	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+	Rect displayBounds = CSDL_Ext::getDisplayBounds();
 #endif
 
 	size_t currentResolutionIndex = 0;

@@ -17,6 +17,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/Colors.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 
 #include "../../CCallback.h"
@@ -229,9 +230,9 @@ void CMinimap::hover(bool on)
 		GH.statusbar->clear();
 }
 
-void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
+void CMinimap::mouseMoved(const Point & cursorPosition)
 {
-	if(mouseState(EIntObjMouseBtnType::LEFT))
+	if(mouseState(MouseButton::LEFT))
 		moveAdvMapSelection();
 }
 

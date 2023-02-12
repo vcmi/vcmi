@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Colors.h"
 #include "../../lib/FunctionList.h"
 
 #include <SDL_pixels.h>
@@ -270,10 +270,10 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void showAll(SDL_Surface * to) override;
 
 	 /// @param position coordinates of slider

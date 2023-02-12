@@ -19,13 +19,6 @@ namespace spells
 namespace effects
 {
 
-LocationEffect::LocationEffect()
-	: Effect()
-{
-}
-
-LocationEffect::~LocationEffect() = default;
-
 void LocationEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 {
 
@@ -33,7 +26,7 @@ void LocationEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 
 void LocationEffect::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
-	for(auto & destnation : spellTarget)
+	for(const auto & destnation : spellTarget)
 		hexes.insert(destnation.hexValue);
 }
 

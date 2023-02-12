@@ -9,8 +9,7 @@
  */
 #pragma once
 
-//FIXME:library file depends on SDL - may cause troubles
-#include <SDL_endian.h>
+#include <boost/endian/conversion.hpp> //FIXME: use std::byteswap in C++23
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,15 +44,15 @@ static inline ui32 read_unaligned_u32(const void *p)
 	return v->val;
 }
 
-#define read_le_u16(p) (SDL_SwapLE16(read_unaligned_u16(p)))
-#define read_le_u32(p) (SDL_SwapLE32(read_unaligned_u32(p)))
+#define read_le_u16(p) (boost::endian::native_to_little(read_unaligned_u16(p)))
+#define read_le_u32(p) (boost::endian::native_to_little(read_unaligned_u32(p)))
 
 #else
 
 #warning UB: unaligned memory access
 
-#define read_le_u16(p) (SDL_SwapLE16(* reinterpret_cast<const ui16 *>(p)))
-#define read_le_u32(p) (SDL_SwapLE32(* reinterpret_cast<const ui32 *>(p)))
+#define read_le_u16(p) (boost::endian::native_to_little(* reinterpret_cast<const ui16 *>(p)))
+#define read_le_u32(p) (boost::endian::native_to_little(* reinterpret_cast<const ui32 *>(p)))
 
 #define PACKED_STRUCT_BEGIN
 #define PACKED_STRUCT_END

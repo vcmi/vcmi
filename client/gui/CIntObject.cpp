@@ -13,10 +13,9 @@
 #include "CGuiHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CMessage.h"
+#include "../CMT.h"
 
 #include <SDL_pixels.h>
-#include <SDL_surface.h>
-#include <SDL_events.h>
 
 IShowActivatable::IShowActivatable()
 {
@@ -146,18 +145,18 @@ void CIntObject::deactivate(ui16 what)
 	GH.handleElementDeActivate(this, what);
 }
 
-void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState)
+void CIntObject::click(MouseButton btn, tribool down, bool previousState)
 {
 	switch(btn)
 	{
 	default:
-	case EIntObjMouseBtnType::LEFT:
+	case MouseButton::LEFT:
 		clickLeft(down, previousState);
 		break;
-	case EIntObjMouseBtnType::MIDDLE:
+	case MouseButton::MIDDLE:
 		clickMiddle(down, previousState);
 		break;
-	case EIntObjMouseBtnType::RIGHT:
+	case MouseButton::RIGHT:
 		clickRight(down, previousState);
 		break;
 	}
@@ -228,8 +227,8 @@ void CIntObject::fitToScreen(int borderWidth, bool propagate)
 	Point newPos = pos.topLeft();
 	vstd::amax(newPos.x, borderWidth);
 	vstd::amax(newPos.y, borderWidth);
-	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
-	vstd::amin(newPos.y, screen->h - borderWidth - pos.h);
+	vstd::amin(newPos.x, GH.screenDimensions().x - borderWidth - pos.w);
+	vstd::amin(newPos.y, GH.screenDimensions().y - borderWidth - pos.h);
 	if (newPos != pos.topLeft())
 		moveTo(newPos, propagate);
 }
@@ -309,7 +308,7 @@ const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	return center(Point(screen->w/2, screen->h/2), propagate);
+	return center(Point(GH.screenDimensions().x/2, GH.screenDimensions().y/2), propagate);
 }
 
 const Rect & CIntObject::center( bool propagate )
@@ -325,7 +324,7 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 	return pos;
 }
 
-bool CIntObject::captureThisEvent(const SDL_KeyboardEvent & key)
+bool CIntObject::captureThisKey(const SDL_Keycode & key)
 {
 	return captureAllKeys;
 }
@@ -343,14 +342,26 @@ CKeyShortcut::CKeyShortcut(std::set<int> Keys)
 	:assignedKeys(Keys)
 {}
 
-void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
+void CKeyShortcut::keyPressed(const SDL_Keycode & key)
 {
-	if(vstd::contains(assignedKeys,key.keysym.sym)
-	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
+	if(vstd::contains(assignedKeys,key)
+	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
 	{
-		bool prev = mouseState(EIntObjMouseBtnType::LEFT);
-		updateMouseState(EIntObjMouseBtnType::LEFT, key.state == SDL_PRESSED);
-		clickLeft(key.state == SDL_PRESSED, prev);
+		bool prev = mouseState(MouseButton::LEFT);
+		updateMouseState(MouseButton::LEFT, true);
+		clickLeft(true, prev);
+
+	}
+}
+
+void CKeyShortcut::keyReleased(const SDL_Keycode & key)
+{
+	if(vstd::contains(assignedKeys,key)
+	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
+	{
+		bool prev = mouseState(MouseButton::LEFT);
+		updateMouseState(MouseButton::LEFT, false);
+		clickLeft(false, prev);
 
 	}
 }

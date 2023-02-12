@@ -281,7 +281,6 @@
 		<Unit filename="VCMIDirs.h" />
 		<Unit filename="VCMI_Lib.cpp" />
 		<Unit filename="VCMI_Lib.h" />
-		<Unit filename="abilities/Ability.h" />
 		<Unit filename="battle/AccessibilityInfo.cpp" />
 		<Unit filename="battle/AccessibilityInfo.h" />
 		<Unit filename="battle/BattleAction.cpp" />
