@@ -2,16 +2,6 @@
 	"items":
 	[
 		{
-			"name": "title",
-			"type": "label",
-			"font": "big",
-			"alignment": "center",
-			"color": "yellow",
-			"text": "core.genrltxt.568",
-			"position": {"x": 242, "y": 32}
-		},
-
-		{
 			"name": "leftSettingsLabels",
 			"type": "labelGroup",
 			"font": "medium",

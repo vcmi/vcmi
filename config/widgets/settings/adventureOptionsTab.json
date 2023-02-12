@@ -83,15 +83,15 @@
 					"image": "sysopb4",
 					"help": "core.help.352",
 					"position": {"x": 144, "y": 0}
-				},
-
-				{
-					"index": 9999,
-					"type": "toggleButton",
-					"image": "sysopb8",
-					"help": "core.help.356",
-					"position": {"x": 192, "y": 0}
 				}
+				//barely any difference compared to index 16 for now
+//				{
+//					"index": 9999,
+//					"type": "toggleButton",
+//					"image": "sysopb8",
+//					"help": "core.help.356",
+//					"position": {"x": 192, "y": 0}
+//				}
 			],
 			"callback": "playerHeroSpeedChanged"
 		},

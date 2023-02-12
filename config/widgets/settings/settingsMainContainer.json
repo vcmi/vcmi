@@ -14,7 +14,18 @@
 			"position": {"x": 0, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
-			"callback": "activateGeneralTab"
+			"callback": "activateGeneralTab",
+			"items":
+			[
+				{
+					"name": "generalTabButtonTitle",
+					"type": "label",
+					"font": "big",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "core.genrltxt.568"
+				}
+			]
 		},
 
 		{
@@ -32,7 +43,18 @@
 			"position": {"x": 400, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
-			"callback": "activateBattleTab"
+			"callback": "activateBattleTab",
+			"items":
+			[
+				{
+					"name": "battleTabButtonTitle",
+					"type": "label",
+					"font": "big",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "core.genrltxt.392"
+				}
+			]
 		},
 
 		{

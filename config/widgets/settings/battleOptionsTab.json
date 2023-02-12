@@ -2,23 +2,13 @@
 	"items":
 	[
 		{
-			"name": "title",
-			"type": "label",
-			"font": "big",
-			"alignment": "center",
-			"color": "yellow",
-			"text": "core.genrltxt.392",
-			"position": {"x": 242, "y": 32}
-		},
-
-		{
 			"name": "animationSpeedLabel",
 			"type": "label",
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.393",
-			"position": {"x": 122, "y": 214}
+			"position": {"x": 122, "y": 194}
 		},
 		{
 			"name": "autoCombatOptionsLabel",
@@ -27,7 +17,7 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.396",
-			"position": {"x": 353, "y": 66}
+			"position": {"x": 353, "y": 26}
 		},
 		{
 			"name": "creatureInfoLabel",
@@ -36,7 +26,7 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.397",
-			"position": {"x": 353, "y": 265}
+			"position": {"x": 98, "y": 265}
 		},
 
 		{
@@ -46,7 +36,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.398",
-			"position": {"x": 283, "y": 86}
+			"position": {"x": 283, "y": 46}
 		},
 		{
 			"name": "spellsAutoCombatLabel",
@@ -55,7 +45,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.399",
-			"position": {"x": 283, "y": 116}
+			"position": {"x": 283, "y": 76}
 		},
 		{
 			"name": "catapultAutoCombatLabel",
@@ -64,7 +54,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.400",
-			"position": {"x": 283, "y": 146}
+			"position": {"x": 283, "y": 106}
 		},
 		{
 			"name": "ballistaAutoCombatLabel",
@@ -73,7 +63,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.151",
-			"position": {"x": 283, "y": 176}
+			"position": {"x": 283, "y": 136}
 		},
 		{
 			"name": "aidTentAutoCombatLabel",
@@ -82,7 +72,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.401",
-			"position": {"x": 283, "y": 206}
+			"position": {"x": 283, "y": 166}
 		},
 
 		{
@@ -92,7 +82,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.402",
-			"position": {"x": 283, "y": 285}
+			"position": {"x": 61, "y": 285}
 		},
 		{
 			"name": "creatureInfoOnlySpellsLabel",
@@ -101,7 +91,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.403",
-			"position": {"x": 283, "y": 315}
+			"position": {"x": 61, "y": 315}
 		},
 
 		{
@@ -111,7 +101,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.404",
-			"position": {"x": 61, "y": 57}
+			"position": {"x": 61, "y": 27}
 		},
 		{
 			"name": "generalOptionsLabel2",
@@ -120,7 +110,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.405",
-			"position": {"x": 61, "y": 90}
+			"position": {"x": 61, "y": 60}
 		},
 		{
 			"name": "generalOptionsLabel3",
@@ -129,7 +119,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.406",
-			"position": {"x": 61, "y": 123}
+			"position": {"x": 61, "y": 93}
 		},
 		{
 			"name": "generalOptionsLabel4",
@@ -138,7 +128,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.407",
-			"position": {"x": 61, "y": 156}
+			"position": {"x": 61, "y": 126}
 		},
 
 		{
@@ -146,7 +136,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.427",
-			"position": {"x": 25, "y": 56},
+			"position": {"x": 25, "y": 26},
 			"callback": "viewGridChanged"
 		},
 		{
@@ -154,7 +144,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.428",
-			"position": {"x": 25, "y": 89},
+			"position": {"x": 25, "y": 59},
 			"callback": "movementShadowChanged"
 		},
 		{
@@ -162,14 +152,14 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.429",
-			"position": {"x": 25, "y": 122},
+			"position": {"x": 25, "y": 92},
 			"callback": "mouseShadowChanged"
 		},
 
 		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 225},
+			"position": {"x": 28, "y": 205},
 			"items":
 			[
 				{
@@ -194,6 +184,20 @@
 					"image": "sysob11",
 					"help": "core.help.424",
 					"position": {"x": 128, "y": 0}
+				},
+				{
+					"index": 6,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.424",
+					"position": {"x": 192, "y": 0}
+				},
+				{
+					"index": 12,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.424",
+					"position": {"x": 256, "y": 0}
 				}
 			],
 			"callback": "animationSpeedChanged"
