@@ -30,7 +30,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
-#include "../windows/SettingsMainContainer.h"
+#include "../windows/settings/SettingsMainContainer.h"
 #include "../CMT.h"
 
 #include "../../CCallback.h"

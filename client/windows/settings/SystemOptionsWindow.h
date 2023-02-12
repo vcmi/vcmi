@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../lib/CConfigHandler.h"
-#include "gui/InterfaceObjectConfigurable.h"
+#include "../../../lib/CConfigHandler.h"
+#include "../../gui/InterfaceObjectConfigurable.h"
 
 class SystemOptionsWindow : public InterfaceObjectConfigurable
 {

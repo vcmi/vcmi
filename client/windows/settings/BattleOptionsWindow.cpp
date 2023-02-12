@@ -11,13 +11,12 @@
 
 #include "BattleOptionsWindow.h"
 #include "CConfigHandler.h"
-#include "gui/CGuiHandler.h"
+#include "../../gui/CGuiHandler.h"
 
-#include "../../lib/filesystem/ResourceID.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/TextControls.h"
-#include "CGameInfo.h"
+#include "../../../lib/filesystem/ResourceID.h"
+#include "../../../lib/CGeneralTextHandler.h"
+#include "../../widgets/Buttons.h"
+#include "../../widgets/TextControls.h"
 
 BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
 		InterfaceObjectConfigurable()

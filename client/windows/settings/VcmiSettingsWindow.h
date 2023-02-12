@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "gui/InterfaceObjectConfigurable.h"
+#include "../../gui/InterfaceObjectConfigurable.h"
 
 class VcmiSettingsWindow : public InterfaceObjectConfigurable
 {

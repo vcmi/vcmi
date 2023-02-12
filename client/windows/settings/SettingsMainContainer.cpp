@@ -17,14 +17,14 @@
 #include "VcmiSettingsWindow.h"
 #include "BattleOptionsWindow.h"
 
-#include "../../lib/filesystem/ResourceID.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../gui/CGuiHandler.h"
-#include "../lobby/CSavingScreen.h"
-#include "../widgets/Images.h"
-#include "../CGameInfo.h"
-#include "../CPlayerInterface.h"
-#include "../CServerHandler.h"
+#include "filesystem/ResourceID.h"
+#include "CGeneralTextHandler.h"
+#include "gui/CGuiHandler.h"
+#include "lobby/CSavingScreen.h"
+#include "widgets/Images.h"
+#include "CGameInfo.h"
+#include "CPlayerInterface.h"
+#include "CServerHandler.h"
 
 
 SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()

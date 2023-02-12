@@ -91,10 +91,10 @@ set(client_SRCS
 	windows/GUIClasses.cpp
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
-	windows/SystemOptionsWindow.cpp
-	windows/VcmiSettingsWindow.cpp
-	windows/SettingsMainContainer.cpp
-	windows/BattleOptionsWindow.cpp
+	windows/settings/SystemOptionsWindow.cpp
+	windows/settings/VcmiSettingsWindow.cpp
+	windows/settings/SettingsMainContainer.cpp
+	windows/settings/BattleOptionsWindow.cpp
 
 	CGameInfo.cpp
 	CMT.cpp
@@ -207,10 +207,10 @@ set(client_HEADERS
 	windows/GUIClasses.h
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
-	windows/SystemOptionsWindow.h
-	windows/VcmiSettingsWindow.h
-	windows/SettingsMainContainer.h
-	windows/BattleOptionsWindow.h
+	windows/settings/SystemOptionsWindow.h
+	windows/settings/VcmiSettingsWindow.h
+	windows/settings/SettingsMainContainer.h
+	windows/settings/BattleOptionsWindow.h
 
 	CGameInfo.h
 	CMT.h

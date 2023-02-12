@@ -13,19 +13,17 @@
 
 #include <SDL_surface.h>
 #include <SDL_rect.h>
-#include <SDL_video.h>
 
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/filesystem/ResourceID.h"
-#include "../gui/CGuiHandler.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/TextControls.h"
-#include "../widgets/Images.h"
-#include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CPlayerInterface.h"
-#include "VcmiSettingsWindow.h"
-#include "GUIClasses.h"
+#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/filesystem/ResourceID.h"
+#include "../../gui/CGuiHandler.h"
+#include "../../widgets/Buttons.h"
+#include "../../widgets/TextControls.h"
+#include "../../widgets/Images.h"
+#include "CGameInfo.h"
+#include "CMusicHandler.h"
+#include "CPlayerInterface.h"
+#include "windows/GUIClasses.h"
 #include "CServerHandler.h"
 #include "renderSDL/SDL_Extensions.h"
 #include "CMT.h"

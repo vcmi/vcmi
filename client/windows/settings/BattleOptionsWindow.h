@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "gui/InterfaceObjectConfigurable.h"
-#include "battle/BattleInterface.h"
+#include "../../gui/InterfaceObjectConfigurable.h"
+#include "../../battle/BattleInterface.h"
 
 class BattleOptionsWindow : public InterfaceObjectConfigurable
 {

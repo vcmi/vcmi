@@ -35,8 +35,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
-#include "windows/BattleOptionsWindow.h"
-#include "windows/SettingsMainContainer.h"
+#include "../windows/settings/SettingsMainContainer.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
