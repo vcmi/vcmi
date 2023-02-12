@@ -705,12 +705,8 @@ namespace VCMIDirs
 			static VCMIDirsIOS singleton;
 		#endif
 
-		static bool initialized = false;
-		if (!initialized)
-		{
-			singleton.init();
-			initialized = true;
-		}
+		static std::once_flag flag;
+		std::call_once(flag, [] { singleton.init(); });
 		return singleton;
 	}
 }
