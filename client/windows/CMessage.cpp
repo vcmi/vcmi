@@ -13,6 +13,7 @@
 
 #include "../CGameInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 
 #include "../windows/InfoWindows.h"
 #include "../widgets/Buttons.h"

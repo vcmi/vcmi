@@ -19,7 +19,7 @@
 #include "../adventureMap/CInGameConsole.h"
 #include "../renderSDL/SDL_Extensions.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"

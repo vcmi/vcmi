@@ -12,7 +12,7 @@
 #include "IFont.h"
 
 #include "../../lib/Point.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 //
 
 size_t IFont::getStringWidth(const std::string & data) const

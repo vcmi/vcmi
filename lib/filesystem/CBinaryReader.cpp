@@ -11,7 +11,7 @@
 #include "CBinaryReader.h"
 
 #include "CInputStream.h"
-#include "../CGeneralTextHandler.h"
+#include "../TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

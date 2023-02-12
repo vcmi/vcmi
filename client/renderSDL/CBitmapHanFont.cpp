@@ -15,7 +15,7 @@
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/Rect.h"
 
 #include <SDL_surface.h>

@@ -12,7 +12,7 @@
 #include "JsonDetail.h"
 
 #include "VCMI_Lib.h"
-#include "CGeneralTextHandler.h"
+#include "TextOperations.h"
 #include "CModHandler.h"
 
 #include "filesystem/Filesystem.h"

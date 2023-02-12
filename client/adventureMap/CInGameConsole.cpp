@@ -20,7 +20,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 
 #include <SDL_timer.h>

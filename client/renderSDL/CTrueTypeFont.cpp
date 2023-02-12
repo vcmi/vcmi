@@ -14,7 +14,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/JsonNode.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
 
 #include <SDL_ttf.h>
