@@ -736,7 +736,6 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			if(guarded)
 				guarded = manager.addGuard(rmgObject, value);
 			
-			int3 pos;
 			auto possibleArea = zone.areaPossible();
 			
 			auto path = rmg::Path::invalid();

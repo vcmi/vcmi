@@ -40,6 +40,7 @@
 #include "../lobby/CSavingScreen.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/CAnimation.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 

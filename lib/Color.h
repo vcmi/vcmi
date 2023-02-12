@@ -27,7 +27,7 @@ public:
 	uint8_t a;
 
 	//constructors
-	ColorRGBA()
+	constexpr ColorRGBA()
 		:r(0)
 		,g(0)
 		,b(0)
@@ -35,14 +35,14 @@ public:
 	{
 	}
 
-	ColorRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+	constexpr ColorRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 		: r(r)
 		, g(g)
 		, b(b)
 		, a(a)
 	{}
 
-	ColorRGBA(uint8_t r, uint8_t g, uint8_t b)
+	constexpr ColorRGBA(uint8_t r, uint8_t g, uint8_t b)
 		: r(r)
 		, g(g)
 		, b(b)
