@@ -56,10 +56,10 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface * owner):
 	toggles.push_back(mouseShadow);
 
 	animSpeeds = std::make_shared<CToggleGroup>([&](int value)
-												{
-													Settings speed = settings.write["battle"]["speedFactor"];
-													speed->Float() = float(value);
-												});
+	{
+		Settings speed = settings.write["battle"]["speedFactor"];
+		speed->Float() = float(value);
+	});
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);

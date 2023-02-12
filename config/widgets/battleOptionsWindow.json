@@ -10,7 +10,7 @@
 			"text": "core.genrltxt.392",
 			"position": {"x": 242, "y": 32}
 		},
-		
+
 		{
 			"name": "animationSpeedLabel",
 			"type": "label",
