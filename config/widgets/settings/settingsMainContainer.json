@@ -9,27 +9,36 @@
 		},
 
 		{
-			"name": "activateSystemOptionsButton",
+			"name": "activateGeneralOptionsButton",
 			"type": "button",
 			"position": {"x": 0, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
-			"callback": "activateMainTab"
+			"callback": "activateGeneralTab"
 		},
 
 		{
-			"name": "activateBattleSettingsButton",
+			"name": "activateAdventureOptionsButton",
 			"type": "button",
-			"position": {"x": 220, "y": 0},
+			"position": {"x": 200, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
-			"callback": "activateBattleSettingsTab"
+			"callback": "activateAdventureTab"
+		},
+
+		{
+			"name": "activateBattleOptionsButton",
+			"type": "button",
+			"position": {"x": 400, "y": 0},
+			"image": "buttons/vcmisettings",
+			"help": "TODO",
+			"callback": "activateBattleTab"
 		},
 
 		{
 			"name": "activateVcmiSettingsButton",
 			"type": "button",
-			"position": {"x": 440, "y": 0},
+			"position": {"x": 600, "y": 0},
 			"image": "buttons/vcmisettings",
 			"help": "TODO",
 			"callback": "activateVcmiSettingsTab"

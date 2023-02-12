@@ -11,7 +11,7 @@
 
 #include "../../gui/InterfaceObjectConfigurable.h"
 
-class AdventureOptionsTab : InterfaceObjectConfigurable
+class AdventureOptionsTab : public InterfaceObjectConfigurable
 {
 public:
 	AdventureOptionsTab();

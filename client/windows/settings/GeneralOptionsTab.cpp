@@ -53,11 +53,6 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
-	addCallback("playerHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
-	addCallback("enemyHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
-	addCallback("mapScrollSpeedChanged", std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
-	addCallback("heroReminderChanged", std::bind(&setBoolSetting, "adventure", "heroReminder", _1));
-	addCallback("quickCombatChanged", std::bind(&setBoolSetting, "adventure", "quickCombat", _1));
 	addCallback("spellbookAnimationChanged", std::bind(&setBoolSetting, "video", "spellbookAnimation", _1));
 	addCallback("fullscreenChanged", std::bind(&GeneralOptionsTab::setFullscreenMode, this, _1));
 	addCallback("setGameResolution", std::bind(&GeneralOptionsTab::selectGameResolution, this));
@@ -69,22 +64,6 @@ GeneralOptionsTab::GeneralOptionsTab()
 	const auto & currentResolution = settings["video"]["screenRes"];
 	resolutionLabel->setText(resolutionToString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
 
-
-	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
-	playerHeroSpeedToggle->setSelected((int)settings["adventure"]["heroSpeed"].Float());
-
-	std::shared_ptr<CToggleGroup> enemyHeroSpeedToggle = widget<CToggleGroup>("enemyMovementSpeedPicker");
-	enemyHeroSpeedToggle->setSelected((int)settings["adventure"]["enemySpeed"].Float());
-
-	std::shared_ptr<CToggleGroup> mapScrollSpeedToggle = widget<CToggleGroup>("mapScrollSpeedPicker");
-	mapScrollSpeedToggle->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
-
-
-	std::shared_ptr<CToggleButton> heroReminderCheckbox = widget<CToggleButton>("heroReminderCheckbox");
-	heroReminderCheckbox->setSelected((bool)settings["adventure"]["heroReminder"].Bool());
-
-	std::shared_ptr<CToggleButton> quickCombatCheckbox = widget<CToggleButton>("quickCombatCheckbox");
-	quickCombatCheckbox->setSelected((bool)settings["adventure"]["quickCombat"].Bool());
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected((bool)settings["video"]["spellbookAnimation"].Bool());

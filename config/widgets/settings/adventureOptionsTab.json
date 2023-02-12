@@ -1,0 +1,206 @@
+{
+	"items":
+	[
+		{
+			"name": "leftSettingsLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"items":
+			[
+				{
+					"position": {"x": 122, "y": 32},
+					"text": "core.genrltxt.569"
+				},
+				{
+					"position": {"x": 122, "y": 98},
+					"text": "core.genrltxt.570"
+				},
+				{
+					"position": {"x": 122, "y": 164},
+					"text": "core.genrltxt.571"
+				}
+			]
+		},
+
+		{
+			"name": "rightSideCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 64, "y": 258},
+					"text": "core.genrltxt.572"
+				},
+				{
+					"position": {"x": 64, "y": 294},
+					"text": "core.genrltxt.573"
+				},
+				{
+					"position": {"x": 64, "y": 330},
+					"text": "core.genrltxt.574"
+				}
+			]
+		},
+
+		{
+			"name": "heroMovementSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 45},
+			"items":
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "sysopb1",
+					"help": "core.help.349",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysopb2",
+					"help": "core.help.350",
+					"position": {"x": 48, "y": 0}
+				},
+
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "sysopb3",
+					"help": "core.help.351",
+					"position": {"x": 96, "y": 0}
+				},
+
+				{
+					"index": 16,
+					"type": "toggleButton",
+					"image": "sysopb4",
+					"help": "core.help.352",
+					"position": {"x": 144, "y": 0}
+				},
+
+				{
+					"index": 9999,
+					"type": "toggleButton",
+					"image": "sysopb8",
+					"help": "core.help.356",
+					"position": {"x": 192, "y": 0}
+				}
+			],
+			"callback": "playerHeroSpeedChanged"
+		},
+
+		{
+			"name": "enemyMovementSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 112},
+			"items":
+			[
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysopb5",
+					"help": "core.help.353",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "sysopb6",
+					"help": "core.help.354",
+					"position": {"x": 48, "y": 0}
+				},
+
+				{
+					"index": 8,
+					"type": "toggleButton",
+					"image": "sysopb7",
+					"help": "core.help.355",
+					"position": {"x": 96, "y": 0}
+				},
+
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "sysopb8",
+					"help": "core.help.356",
+					"position": {"x": 144, "y": 0}
+				}
+			],
+			"callback": "enemyHeroSpeedChanged"
+		},
+
+		{
+			"name": "mapScrollSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 178},
+			"items":
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "sysopb9",
+					"help": "core.help.357",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysob10",
+					"help": "core.help.358",
+					"position": {"x": 64, "y": 0}
+				},
+
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.359",
+					"position": {"x": 128, "y": 0}
+				},
+
+				{
+					"index": 6,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.359",
+					"position": {"x": 192, "y": 0}
+				},
+				{
+					"index": 8,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.359",
+					"position": {"x": 256, "y": 0}
+				}
+			],
+			"callback": "mapScrollSpeedChanged"
+		},
+
+		{
+			"name": "heroReminderCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.361",
+			"position": {"x": 28, "y": 292},
+			"callback": "heroReminderChanged"
+		},
+
+		{
+			"name": "quickCombatCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.362",
+			"position": {"x": 28, "y": 328},
+			"callback": "quickCombatChanged"
+		}
+	]
+}

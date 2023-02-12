@@ -21,24 +21,6 @@
 			"position": {"x": 122, "y": 214}
 		},
 		{
-			"name": "musicVolumeLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"text": "core.genrltxt.394",
-			"position": {"x": 122, "y": 293}
-		},
-		{
-			"name": "effectsVolumeLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"text": "core.genrltxt.395",
-			"position": {"x": 122, "y": 359}
-		},
-		{
 			"name": "autoCombatOptionsLabel",
 			"type": "label",
 			"font": "medium",
