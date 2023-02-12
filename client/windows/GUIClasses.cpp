@@ -63,6 +63,8 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 
+#include <SDL_surface.h>
+
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),
 	parent(window),

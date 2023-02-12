@@ -11,6 +11,7 @@
 
 #include "SystemOptionsWindow.h"
 
+#include <SDL_surface.h>
 #include <SDL_rect.h>
 #include <SDL_video.h>
 
@@ -27,6 +28,7 @@
 #include "GUIClasses.h"
 #include "CServerHandler.h"
 #include "renderSDL/SDL_Extensions.h"
+#include "CMT.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -59,7 +61,7 @@ SystemOptionsWindow::SystemOptionsWindow()
 	addCallback("heroReminderChanged", std::bind(&setBoolSetting, "adventure", "heroReminder", _1));
 	addCallback("quickCombatChanged", std::bind(&setBoolSetting, "adventure", "quickCombat", _1));
 	addCallback("spellbookAnimationChanged", std::bind(&setBoolSetting, "video", "spellbookAnimation", _1));
-	addCallback("fullscreenChanged", std::bind(&setBoolSetting, "video", "fullscreen", _1));
+	addCallback("fullscreenChanged", std::bind(&SystemOptionsWindow::setFullscreenMode, this, _1));
 	addCallback("setGameResolution", std::bind(&SystemOptionsWindow::selectGameResolution, this));
 	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
 	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
@@ -105,32 +107,37 @@ SystemOptionsWindow::SystemOptionsWindow()
 }
 
 
+bool SystemOptionsWindow::isResolutionSupported(const Point & resolution)
+{
+	return isResolutionSupported( resolution, settings["video"]["fullscreen"].Bool());
+}
+
+bool SystemOptionsWindow::isResolutionSupported(const Point & resolution, bool fullscreen)
+{
+	if (!fullscreen)
+		return true;
+
+	auto supportedList = CSDL_Ext::getSupportedResolutions();
+
+	return CSDL_Ext::isResolutionSupported(supportedList, resolution);
+}
 
 void SystemOptionsWindow::selectGameResolution()
 {
+	fillSelectableResolutions();
+
 	std::vector<std::string> items;
-
-#ifndef VCMI_IOS
-	Rect displayBounds = CSDL_Ext::getDisplayBounds();
-#endif
-
 	size_t currentResolutionIndex = 0;
 	size_t i = 0;
-	for(const auto & it : conf.guiOptions)
+	for(const auto & it : selectableResolutions)
 	{
-		const auto & resolution = it.first;
-#ifndef VCMI_IOS
-		if(displayBounds.w < resolution.first || displayBounds.h < resolution.second)
-			continue;
-#endif
-
-		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
+		auto resolutionStr = resolutionToString(it.x, it.y);
 		if(widget<CLabel>("resolutionLabel")->getText() == resolutionStr)
 			currentResolutionIndex = i;
+
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
-
 	GH.pushIntT<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
@@ -140,19 +147,68 @@ void SystemOptionsWindow::selectGameResolution()
 
 void SystemOptionsWindow::setGameResolution(int index)
 {
-	auto iter = conf.guiOptions.begin();
-	std::advance(iter, index);
+	assert(index >= 0 && index < selectableResolutions.size());
 
-	//do not set resolution to illegal one (0x0)
-	assert(iter!=conf.guiOptions.end() && iter->first.first > 0 && iter->first.second > 0);
+	if ( index < 0 || index >= selectableResolutions.size() )
+		return;
+
+	Point resolution = selectableResolutions[index];
 
 	Settings gameRes = settings.write["video"]["screenRes"];
-	gameRes["width"].Float() = iter->first.first;
-	gameRes["height"].Float() = iter->first.second;
+	gameRes["width"].Float() = resolution.x;
+	gameRes["height"].Float() = resolution.y;
 
 	std::string resText;
-	resText += boost::lexical_cast<std::string>(iter->first.first);
+	resText += std::to_string(resolution.x);
 	resText += "x";
-	resText += boost::lexical_cast<std::string>(iter->first.second);
+	resText += std::to_string(resolution.y);
 	widget<CLabel>("resolutionLabel")->setText(resText);
+}
+
+void SystemOptionsWindow::setFullscreenMode(bool on)
+{
+	fillSelectableResolutions();
+
+	const auto & screenRes = settings["video"]["screenRes"];
+	const Point desiredResolution(screenRes["width"].Integer(), screenRes["height"].Integer());
+	const Point currentResolution(screen->w, screen->h);
+
+	if (!isResolutionSupported(currentResolution, on))
+	{
+		widget<CToggleButton>("fullscreenCheckbox")->setSelected(!on);
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.systemOptions.fullscreenFailed"));
+		return;
+	}
+
+	setBoolSetting("video", "fullscreen", on);
+
+	if (!isResolutionSupported(desiredResolution, on))
+	{
+		// user changed his desired resolution and switched to fullscreen
+		// however resolution he selected before is not available in fullscreen
+		// so reset it back to currect resolution which is confirmed to be supported earlier
+		Settings gameRes = settings.write["video"]["screenRes"];
+		gameRes["width"].Float() = currentResolution.x;
+		gameRes["height"].Float() = currentResolution.y;
+
+		widget<CLabel>("resolutionLabel")->setText(resolutionToString(currentResolution.x, currentResolution.y));
+	}
+}
+
+void SystemOptionsWindow::fillSelectableResolutions()
+{
+	selectableResolutions.clear();
+
+	for(const auto & it : conf.guiOptions)
+	{
+		const Point dimensions(it.first.first, it.first.second);
+
+		if(isResolutionSupported(dimensions))
+			selectableResolutions.push_back(dimensions);
+	}
+
+	boost::range::sort(selectableResolutions, [](const auto & left, const auto & right)
+	{
+		return left.x * left.y < right.x * right.y;
+	});
 }
