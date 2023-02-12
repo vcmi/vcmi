@@ -63,14 +63,10 @@ struct LobbyClientConnected : public CLobbyPackToPropagate
 	// Set by client before sending pack to server
 	std::string uuid;
 	std::vector<std::string> names;
-	StartInfo::EMode mode;
+	StartInfo::EMode mode = StartInfo::INVALID;
 	// Changed by server before announcing pack
-	int clientId;
-	int hostClientId;
-
-	LobbyClientConnected()
-		: mode(StartInfo::INVALID), clientId(-1), hostClientId(-1)
-	{}
+	int clientId = -1;
+	int hostClientId = -1;
 
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnLobbyHandler(CServerHandler * handler);
@@ -92,9 +88,8 @@ struct LobbyClientConnected : public CLobbyPackToPropagate
 struct LobbyClientDisconnected : public CLobbyPackToPropagate
 {
 	int clientId;
-	bool shutdownServer;
+	bool shutdownServer = false;
 
-	LobbyClientDisconnected() : shutdownServer(false) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 	void applyOnServerAfterAnnounce(CVCMIServer * srv);
@@ -126,9 +121,8 @@ struct LobbyGuiAction : public CLobbyPackToPropagate
 {
 	enum EAction : ui8 {
 		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS
-	} action;
+	} action = NONE;
 
-	LobbyGuiAction() : action(NONE) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
 
@@ -157,11 +151,10 @@ struct LobbyEndGame : public CLobbyPackToPropagate
 struct LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
-	std::shared_ptr<StartInfo> initializedStartInfo;
-	CGameState * initializedGameState;
-	int clientId; //-1 means to all clients
+	std::shared_ptr<StartInfo> initializedStartInfo = nullptr;
+	CGameState * initializedGameState = nullptr;
+	int clientId = -1; //-1 means to all clients
 
-	LobbyStartGame() : initializedStartInfo(nullptr), initializedGameState(nullptr), clientId(-1) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 	void applyOnServerAfterAnnounce(CVCMIServer * srv);
@@ -181,9 +174,8 @@ struct LobbyStartGame : public CLobbyPackToPropagate
 
 struct LobbyChangeHost : public CLobbyPackToPropagate
 {
-	int newHostConnectionId;
+	int newHostConnectionId = -1;
 
-	LobbyChangeHost() : newHostConnectionId(-1) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 	bool applyOnServerAfterAnnounce(CVCMIServer * srv);
@@ -197,9 +189,8 @@ struct LobbyChangeHost : public CLobbyPackToPropagate
 struct LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;
-	bool hostChanged; // Used on client-side only
+	bool hostChanged = false; // Used on client-side only
 
-	LobbyUpdateState() : hostChanged(false) {}
 	bool applyOnLobbyHandler(CServerHandler * handler);
 	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
 
@@ -228,7 +219,6 @@ struct LobbySetCampaign : public CLobbyPackToServer
 {
 	std::shared_ptr<CCampaignState> ourCampaign;
 
-	LobbySetCampaign() {}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -239,9 +229,8 @@ struct LobbySetCampaign : public CLobbyPackToServer
 
 struct LobbySetCampaignMap : public CLobbyPackToServer
 {
-	int mapId;
+	int mapId = -1;
 
-	LobbySetCampaignMap() : mapId(-1) {}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -252,9 +241,8 @@ struct LobbySetCampaignMap : public CLobbyPackToServer
 
 struct LobbySetCampaignBonus : public CLobbyPackToServer
 {
-	int bonusId;
+	int bonusId = -1;
 
-	LobbySetCampaignBonus() : bonusId(-1) {}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -266,11 +254,10 @@ struct LobbySetCampaignBonus : public CLobbyPackToServer
 struct LobbyChangePlayerOption : public CLobbyPackToServer
 {
 	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS};
-	ui8 what;
-	si8 direction; //-1 or +1
-	PlayerColor color;
+	ui8 what = UNKNOWN;
+	si8 direction = 0; //-1 or +1
+	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 
-	LobbyChangePlayerOption() : what(UNKNOWN), direction(0), color(PlayerColor::CANNOT_DETERMINE) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 
@@ -284,9 +271,8 @@ struct LobbyChangePlayerOption : public CLobbyPackToServer
 
 struct LobbySetPlayer : public CLobbyPackToServer
 {
-	PlayerColor clickedColor;
+	PlayerColor clickedColor = PlayerColor::CANNOT_DETERMINE;
 
-	LobbySetPlayer() : clickedColor(PlayerColor::CANNOT_DETERMINE){}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -297,9 +283,8 @@ struct LobbySetPlayer : public CLobbyPackToServer
 
 struct LobbySetTurnTime : public CLobbyPackToServer
 {
-	ui8 turnTime;
+	ui8 turnTime = 0;
 
-	LobbySetTurnTime() : turnTime(0) {}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -310,9 +295,8 @@ struct LobbySetTurnTime : public CLobbyPackToServer
 
 struct LobbySetDifficulty : public CLobbyPackToServer
 {
-	ui8 difficulty;
+	ui8 difficulty = 0;
 
-	LobbySetDifficulty() : difficulty(0) {}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -323,10 +307,9 @@ struct LobbySetDifficulty : public CLobbyPackToServer
 
 struct LobbyForceSetPlayer : public CLobbyPackToServer
 {
-	ui8 targetConnectedPlayer;
-	PlayerColor targetPlayerColor;
+	ui8 targetConnectedPlayer = -1;
+	PlayerColor targetPlayerColor = PlayerColor::CANNOT_DETERMINE;
 
-	LobbyForceSetPlayer() : targetConnectedPlayer(-1), targetPlayerColor(PlayerColor::CANNOT_DETERMINE) {}
 	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler & h, const int version)

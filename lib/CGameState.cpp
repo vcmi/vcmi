@@ -274,7 +274,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 	return lista;
 }
 
-void MetaString::addCreReplacement(CreatureID id, TQuantity count) //adds sing or plural name;
+void MetaString::addCreReplacement(const CreatureID & id, TQuantity count) //adds sing or plural name;
 {
 	if (!count)
 		addReplacement (CRE_PL_NAMES, id); //no creatures - just empty name (eg. defeat Angels)
