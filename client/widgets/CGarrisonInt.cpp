@@ -25,6 +25,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/TextOperations.h"
 
 #include "../../lib/CGameState.h"
 
@@ -374,7 +375,7 @@ void CGarrisonSlot::update()
 		creatureImage->setFrame(creature->getIconIndex());
 
 		stackCount->enable();
-		stackCount->setText(vstd::formatMetric(myStack->count, 4));
+		stackCount->setText(TextOperations::formatMetric(myStack->count, 4));
 	}
 	else
 	{

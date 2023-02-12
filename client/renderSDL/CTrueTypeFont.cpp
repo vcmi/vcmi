@@ -66,7 +66,7 @@ size_t CTrueTypeFont::getLineHeight() const
 
 size_t CTrueTypeFont::getGlyphWidth(const char *data) const
 {
-	return getStringWidth(std::string(data, Unicode::getCharacterSize(*data)));
+	return getStringWidth(std::string(data, TextOperations::getUnicodeCharacterSize(*data)));
 	/*
 	int advance;
 	TTF_GlyphMetrics(font.get(), *data, nullptr, nullptr, nullptr, nullptr, &advance);

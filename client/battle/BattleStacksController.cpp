@@ -36,6 +36,7 @@
 #include "../../lib/CGameState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
+#include "../../lib/TextOperations.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
@@ -316,7 +317,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, vstd::formatMetric(stack->getCount(), 4));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)

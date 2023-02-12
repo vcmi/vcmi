@@ -188,9 +188,9 @@ std::string CLegacyConfigParser::readString()
 {
 	// do not convert strings that are already in ASCII - this will only slow down loading process
 	std::string str = readRawString();
-	if (Unicode::isValidASCII(str))
+	if (TextOperations::isValidASCII(str))
 		return str;
-	return Unicode::toUnicode(str);
+	return TextOperations::toUnicode(str);
 }
 
 float CLegacyConfigParser::readNumber()
@@ -285,17 +285,6 @@ void CGeneralTextHandler::registerStringOverride(const std::string & modContext,
 
 bool CGeneralTextHandler::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
 {
-	auto escapeString = [](std::string input)
-	{
-		boost::replace_all(input, "\\", "\\\\");
-		boost::replace_all(input, "\n", "\\n");
-		boost::replace_all(input, "\r", "\\r");
-		boost::replace_all(input, "\t", "\\t");
-		boost::replace_all(input, "\"", "\\\"");
-
-		return input;
-	};
-
 	bool allPresent = true;
 
 	for (auto const & string : stringsLocalizations)
@@ -318,7 +307,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		else
 			currentText = string.second.overrideValue;
 
-		logMod->warn(R"(    "%s" : "%s",)", string.first, escapeString(currentText));
+		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(currentText));
 		allPresent = false;
 	}
 
@@ -332,7 +321,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		if (allFound)
 			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
 
-		logMod->warn(R"(    "%s" : "%s",)", string.first, escapeString(string.second.String()));
+		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(string.second.String()));
 		allFound = false;
 	}
 
@@ -562,24 +551,13 @@ int32_t CGeneralTextHandler::pluralText(int32_t textIndex, int32_t count) const
 
 void CGeneralTextHandler::dumpAllTexts()
 {
-	auto escapeString = [](std::string input)
-	{
-		boost::replace_all(input, "\\", "\\\\");
-		boost::replace_all(input, "\n", "\\n");
-		boost::replace_all(input, "\r", "\\r");
-		boost::replace_all(input, "\t", "\\t");
-		boost::replace_all(input, "\"", "\\\"");
-
-		return input;
-	};
-
 	logGlobal->info("BEGIN TEXT EXPORT");
 	for ( auto const & entry : stringsLocalizations)
 	{
 		if (!entry.second.overrideValue.empty())
-			logGlobal->info(R"("%s" : "%s",)", entry.first, escapeString(entry.second.overrideValue));
+			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.overrideValue));
 		else
-			logGlobal->info(R"("%s" : "%s",)", entry.first, escapeString(entry.second.baseValue));
+			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.baseValue));
 	}
 
 	logGlobal->info("END TEXT EXPORT");

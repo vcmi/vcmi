@@ -47,6 +47,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/TextOperations.h"
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
@@ -717,7 +718,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
-		amount->setText(vstd::formatMetric(unit->getCount(), 4));
+		amount->setText(TextOperations::formatMetric(unit->getCount(), 4));
 
 		if(stateIcon)
 		{

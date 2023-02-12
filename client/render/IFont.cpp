@@ -19,7 +19,7 @@ size_t IFont::getStringWidth(const std::string & data) const
 {
 	size_t width = 0;
 
-	for(size_t i=0; i<data.size(); i += Unicode::getCharacterSize(data[i]))
+	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
 		width += getGlyphWidth(data.data() + i);
 	}

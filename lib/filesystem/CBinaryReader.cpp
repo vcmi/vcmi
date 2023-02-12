@@ -96,9 +96,9 @@ std::string CBinaryReader::readString()
 		ret.resize(len);
 		read(reinterpret_cast<ui8*>(&ret[0]), len);
 		//FIXME: any need to move this into separate "read localized string" method?
-		if (Unicode::isValidASCII(ret))
+		if (TextOperations::isValidASCII(ret))
 			return ret;
-		return Unicode::toUnicode(ret);
+		return TextOperations::toUnicode(ret);
 	}
 	return "";
 

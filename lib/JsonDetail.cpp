@@ -169,7 +169,7 @@ JsonNode JsonParser::parse(std::string fileName)
 	}
 	else
 	{
-		if (!Unicode::isValidString(&input[0], input.size()))
+		if (!TextOperations::isValidUnicodeString(&input[0], input.size()))
 			error("Not a valid UTF-8 file", false);
 
 		extractValue(root);

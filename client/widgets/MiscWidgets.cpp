@@ -24,12 +24,13 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/CConfigHandler.h"
+#include "../../lib/TextOperations.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 void CHoverableArea::hover (bool on)
 {
@@ -251,7 +252,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
-			subtitle = vstd::formatMetric(slot.second.count, 4);
+			subtitle = TextOperations::formatMetric(slot.second.count, 4);
 		}
 		else
 		{

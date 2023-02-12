@@ -127,7 +127,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 		{
 			if(enteredText.size() > 1)
 			{
-				Unicode::trimRight(enteredText,2);
+				TextOperations::trimRightUnicode(enteredText,2);
 				enteredText += '_';
 				refreshEnteredText();
 			}

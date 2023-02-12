@@ -55,7 +55,7 @@ size_t CBitmapFont::getLineHeight() const
 
 size_t CBitmapFont::getGlyphWidth(const char * data) const
 {
-	std::string localChar = Unicode::fromUnicode(std::string(data, Unicode::getCharacterSize(data[0])));
+	std::string localChar = TextOperations::fromUnicode(std::string(data, TextOperations::getUnicodeCharacterSize(data[0])));
 
 	if (localChar.size() == 1)
 	{
@@ -131,9 +131,9 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 
 	SDL_LockSurface(surface);
 
-	for(size_t i=0; i<data.size(); i += Unicode::getCharacterSize(data[i]))
+	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		std::string localChar = Unicode::fromUnicode(data.substr(i, Unicode::getCharacterSize(data[i])));
+		std::string localChar = TextOperations::fromUnicode(data.substr(i, TextOperations::getUnicodeCharacterSize(data[i])));
 
 		if (localChar.size() == 1)
 			renderCharacter(surface, chars[ui8(localChar[0])], color, posX, posY);

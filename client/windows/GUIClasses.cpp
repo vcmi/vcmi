@@ -63,6 +63,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
+#include "../lib/TextOperations.h"
 
 #include <SDL_surface.h>
 
@@ -1066,8 +1067,8 @@ void CExchangeWindow::updateWidgets()
 			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
 		}
 
-		expValues[leftRight]->setText(vstd::formatMetric(hero->exp, 3));
-		manaValues[leftRight]->setText(vstd::formatMetric(hero->mana, 3));
+		expValues[leftRight]->setText(TextOperations::formatMetric(hero->exp, 3));
+		manaValues[leftRight]->setText(TextOperations::formatMetric(hero->mana, 3));
 
 		morale[leftRight]->set(hero);
 		luck[leftRight]->set(hero);

@@ -31,6 +31,7 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CGameState.h"
+#include "../../lib/TextOperations.h"
 
 class CCreatureArtifactInstance;
 class CSelectableSkill;
@@ -582,7 +583,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		}
 		expLabel = std::make_shared<CLabel>(
 				pos.x + 21, pos.y + 52, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-				vstd::formatMetric(stack->experience, 6));
+				TextOperations::formatMetric(stack->experience, 6));
 	}
 
 	if(showArt)

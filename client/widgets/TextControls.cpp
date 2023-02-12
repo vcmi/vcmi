@@ -570,12 +570,12 @@ void CTextInput::keyPressed(const SDL_Keycode & key)
 	case SDLK_BACKSPACE:
 		if(!newText.empty())
 		{
-			Unicode::trimRight(newText);
+			TextOperations::trimRightUnicode(newText);
 			redrawNeeded = true;
 		}
 		else if(!text.empty())
 		{
-			Unicode::trimRight(text);
+			TextOperations::trimRightUnicode(text);
 			redrawNeeded = true;
 		}
 		break;
