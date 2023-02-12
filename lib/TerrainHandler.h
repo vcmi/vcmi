@@ -22,13 +22,14 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 {
 	friend class TerrainTypeHandler;
 	std::string identifier;
+	std::string modScope;
 	TerrainId id;
 	ui8 passabilityType;
 
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	std::string getJsonKey() const override { return identifier;}
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
 	void updateFrom(const JsonNode & data) {};
@@ -78,6 +79,7 @@ public:
 		h & prohibitTransitions;
 		h & minimapBlocked;
 		h & minimapUnblocked;
+		h & modScope;
 		h & identifier;
 		h & musicFilename;
 		h & tilesFilename;

@@ -22,12 +22,8 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	TerrainType * info = new TerrainType;
 
 	info->id = TerrainId(index);
-
-	if (identifier.find(':') == std::string::npos)
-		info->identifier = scope + ":" + identifier;
-	else
-		info->identifier = identifier;
-
+	info->identifier = identifier;
+	info->modScope = scope;
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
 	info->musicFilename = json["music"].String();
 	info->tilesFilename = json["tiles"].String();
@@ -177,9 +173,14 @@ bool TerrainType::isTransitionRequired() const
 	return transitionRequired;
 }
 
+std::string TerrainType::getJsonKey() const
+{
+	return modScope + ":" + identifier;
+}
+
 std::string TerrainType::getNameTextID() const
 {
-	return TextIdentifier( "terrain", identifier,  "name" ).get();
+	return TextIdentifier( "terrain", modScope, identifier, "name" ).get();
 }
 
 std::string TerrainType::getNameTranslated() const
