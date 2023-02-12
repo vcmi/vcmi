@@ -418,6 +418,17 @@ void CGeneralTextHandler::registerStringOverride(const std::string & modContext,
 
 bool CGeneralTextHandler::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
 {
+	auto escapeString = [](std::string input)
+	{
+		boost::replace_all(input, "\\", "\\\\");
+		boost::replace_all(input, "\n", "\\n");
+		boost::replace_all(input, "\r", "\\r");
+		boost::replace_all(input, "\t", "\\t");
+		boost::replace_all(input, "\"", "\\\"");
+
+		return input;
+	};
+
 	bool allPresent = true;
 
 	for (auto const & string : stringsLocalizations)
@@ -440,7 +451,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		else
 			currentText = string.second.overrideValue;
 
-		logMod->warn(R"(    "%s" : "%s",)", string.first, currentText);
+		logMod->warn(R"(    "%s" : "%s",)", string.first, escapeString(currentText));
 		allPresent = false;
 	}
 
@@ -454,7 +465,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		if (allFound)
 			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
 
-		logMod->warn(R"(    "%s" : "%s",)", string.first, string.second.String());
+		logMod->warn(R"(    "%s" : "%s",)", string.first, escapeString(string.second.String()));
 		allFound = false;
 	}
 

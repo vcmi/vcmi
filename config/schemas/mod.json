@@ -8,7 +8,7 @@
 		"localizable" : {
 			"type":"object",
 			"additionalProperties" : false,
-			"required" : [ "name", "description", "modType" ],
+			"required" : [ "name", "description" ],
 			"properties":{
 				"name": {
 					"type":"string",

@@ -1148,7 +1148,7 @@ bool CModHandler::validateTranslations(TModID modName) const
 
 void CModHandler::loadTranslation(TModID modName)
 {
-	auto & mod = allMods[modName];
+	auto const & mod = allMods[modName];
 
 	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = allMods[modName].baseLanguage;
