@@ -16,10 +16,13 @@ class BattleOptionsWindow : public InterfaceObjectConfigurable
 {
 private:
 	std::shared_ptr<CToggleGroup> animSpeeds;
-	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CToggleButton>> toggles;
 
 	int getAnimSpeed() const;
+	void viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
+	void movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
+	void mouseShadowChangedCallback(bool value);
+	void animationSpeedChangedCallback(int value);
 public:
 	BattleOptionsWindow(BattleInterface * owner = nullptr);
 };
