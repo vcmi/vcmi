@@ -161,14 +161,13 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
-	virtual bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const;
+	virtual bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const;
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
 public:
 
-	AObjectTypeHandler();
-	virtual ~AObjectTypeHandler();
+	virtual ~AObjectTypeHandler() = default;
 
 	si32 getIndex() const;
 	si32 getSubIndex() const;
@@ -185,7 +184,7 @@ public:
 	/// Returns object-specific name, if set
 	SObjectSounds getSounds() const;
 
-	void addTemplate(std::shared_ptr<const ObjectTemplate> templ);
+	void addTemplate(const std::shared_ptr<const ObjectTemplate> & templ);
 	void addTemplate(JsonNode config);
 
 	/// returns all templates matching parameters
@@ -315,7 +314,7 @@ public:
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
-	TObjectTypeHandler getHandlerFor(std::string scope, std::string type, std::string subtype) const;
+	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 
 	std::string getObjectName(si32 type, si32 subtype) const;

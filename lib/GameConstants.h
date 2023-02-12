@@ -1034,6 +1034,8 @@ public:
 	ArtifactPosition(EArtifactPosition _num = PRE_FIRST) : num(_num)
 	{}
 
+	ArtifactPosition(std::string slotName);
+
 	ID_LIKE_CLASS_COMMON(ArtifactPosition, EArtifactPosition)
 
 	EArtifactPosition num;

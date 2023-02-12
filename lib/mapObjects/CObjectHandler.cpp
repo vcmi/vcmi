@@ -41,7 +41,7 @@ static void openWindow(const OpenWindow::EWindow type, const int id1, const int 
 	IObjectInterface::cb->sendAndApply(&ow);
 }
 
-static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID)
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
@@ -70,12 +70,6 @@ void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 {}
 
 void IObjectInterface::newTurn(CRandomGenerator & rand) const
-{}
-
-IObjectInterface::~IObjectInterface()
-{}
-
-IObjectInterface::IObjectInterface()
 {}
 
 void IObjectInterface::initObj(CRandomGenerator & rand)
@@ -122,6 +116,7 @@ CObjectHandler::CObjectHandler()
 	logGlobal->trace("\t\tDone loading resource prices!");
 }
 
+//TODO: remove constructor
 CGObjectInstance::CGObjectInstance():
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),
@@ -130,9 +125,9 @@ CGObjectInstance::CGObjectInstance():
 	blockVisit(false)
 {
 }
-CGObjectInstance::~CGObjectInstance()
-{
-}
+
+//must be instantiated in .cpp file for access to complete types of all member fields
+CGObjectInstance::~CGObjectInstance() = default;
 
 int32_t CGObjectInstance::getObjGroupIndex() const
 {
@@ -149,7 +144,7 @@ int3 CGObjectInstance::getPosition() const
 	return pos;
 }
 
-void CGObjectInstance::setOwner(PlayerColor ow)
+void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
 }
@@ -283,12 +278,12 @@ int3 CGObjectInstance::getVisitableOffset() const
 	return appearance->getVisitableOffset();
 }
 
-void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const
+void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, ui8 duration) const
 {
 	GiveBonus gbonus;
 	gbonus.bonus.type = Bonus::NONE;
 	gbonus.id = heroID.getNum();
-	gbonus.bonus.duration = (Bonus::BonusDuration)duration;
+	gbonus.bonus.duration = static_cast<Bonus::BonusDuration>(duration);
 	gbonus.bonus.source = Bonus::OBJECT;
 	gbonus.bonus.sid = ID;
 	cb->giveHeroBonus(&gbonus);
@@ -302,7 +297,7 @@ std::string CGObjectInstance::getObjectName() const
 boost::optional<std::string> CGObjectInstance::getAmbientSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
-	if(sounds.size())
+	if(!sounds.empty())
 		return sounds.front(); // TODO: Support randomization of ambient sounds
 
 	return boost::none;
@@ -311,7 +306,7 @@ boost::optional<std::string> CGObjectInstance::getAmbientSound() const
 boost::optional<std::string> CGObjectInstance::getVisitSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
-	if(sounds.size())
+	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
 
 	return boost::none;
@@ -320,7 +315,7 @@ boost::optional<std::string> CGObjectInstance::getVisitSound() const
 boost::optional<std::string> CGObjectInstance::getRemovalSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
-	if(sounds.size())
+	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
 
 	return boost::none;
@@ -466,7 +461,7 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water
-	else if(!t->blockingObjects.size())
+	else if(t->blockingObjects.empty())
 		return GOOD; //OK
 	else if(t->blockingObjects.front()->ID == Obj::BOAT)
 		return BOAT_ALREADY_BUILT; //blocked with boat
@@ -527,11 +522,11 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 
 	if(obj->ID == Obj::TOWN)
 	{
-		return static_cast<CGTownInstance*>(obj);
+		return dynamic_cast<CGTownInstance *>(obj);
 	}
 	else if(obj->ID == Obj::SHIPYARD)
 	{
-		return static_cast<CGShipyard*>(obj);
+		return dynamic_cast<CGShipyard *>(obj);
 	}
 	else
 	{

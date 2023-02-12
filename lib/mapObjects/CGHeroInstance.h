@@ -53,11 +53,12 @@ private:
 public:
 
 	//////////////////////////////////////////////////////////////////////////
-
-	ui8 moveDir; //format:	123
-					//		8 4
-					//		765
-	mutable ui8 isStanding, tacticFormationEnabled;
+	//format:   123
+	//          8 4
+	//          765
+	ui8 moveDir;
+	mutable ui8 isStanding;
+	mutable ui8 tacticFormationEnabled;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -76,11 +77,11 @@ public:
 	bool inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	ConstTransitivePtr<CCommanderInstance> commander;
-	const CGBoat *boat; //set to CGBoat when sailing
+	const CGBoat * boat = nullptr; //set to CGBoat when sailing
 
-	static const si32 UNINITIALIZED_PORTRAIT = -1;
-	static const si32 UNINITIALIZED_MANA = -1;
-	static const ui32 UNINITIALIZED_MOVEMENT = -1;
+	static constexpr si32 UNINITIALIZED_PORTRAIT = -1;
+	static constexpr si32 UNINITIALIZED_MANA = -1;
+	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -157,15 +158,15 @@ public:
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
-	void addSpellToSpellbook(SpellID spell);
-	void removeSpellFromSpellbook(SpellID spell);
-	bool spellbookContainsSpell(SpellID spell) const;
+	void addSpellToSpellbook(const SpellID & spell);
+	void removeSpellFromSpellbook(const SpellID & spell);
+	bool spellbookContainsSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
-	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	TerrainId getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
@@ -194,15 +195,15 @@ public:
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills() const;
 
-	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
+	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
-	bool canLearnSkill(SecondarySkill which) const;
+	bool canLearnSkill(const SecondarySkill & which) const;
 
 	void setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs);
-	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
-	void levelUp(std::vector<SecondarySkill> skills);
+	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
+	void levelUp(const std::vector<SecondarySkill> & skills);
 
 	int maxMovePoints(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
@@ -225,7 +226,7 @@ public:
 	void setType(si32 ID, si32 subID) override;
 
 	void initHero(CRandomGenerator & rand);
-	void initHero(CRandomGenerator & rand, HeroTypeID SUBID);
+	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
 	void putInBackpack(CArtifactInstance *art);
@@ -236,7 +237,7 @@ public:
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
 	void recreateSecondarySkillsBonuses();
-	void updateSkillBonus(SecondarySkill which, int val);
+	void updateSkillBonus(const SecondarySkill & which, int val);
 
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
 	/// If this hero perishes, the scenario is failed

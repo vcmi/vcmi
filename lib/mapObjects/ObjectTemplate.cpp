@@ -272,7 +272,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for(auto& entry : node["allowedTerrains"].Vector())
+		for(const auto & entry : node["allowedTerrains"].Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier("terrain", entry, [this](int32_t identifier){
 				allowedTerrains.insert(TerrainId(identifier));
@@ -306,10 +306,10 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	size_t height = mask.size();
 	size_t width  = 0;
-	for(auto & line : mask)
+	for(const auto & line : mask)
 		vstd::amax(width, line.String().size());
 
-	setSize((ui32)width, (ui32)height);
+	setSize(static_cast<ui32>(width), static_cast<ui32>(height));
 
 	for(size_t i = 0; i < mask.size(); i++)
 	{
@@ -420,7 +420,7 @@ void ObjectTemplate::calculateWidth()
 	//TODO: Use 2D array
 	for(const auto& row : usedTiles) //copy is expensive
 	{
-		width = std::max<ui32>(width, (ui32)row.size());
+		width = std::max<ui32>(width, static_cast<ui32>(row.size()));
 	}
 }
 
@@ -437,7 +437,7 @@ void ObjectTemplate::setSize(ui32 width, ui32 height)
 		line.resize(width, 0);
 }
 
-void ObjectTemplate::calculateVsitable()
+void ObjectTemplate::calculateVisitable()
 {
 	for(auto& line : usedTiles)
 	{
@@ -457,7 +457,7 @@ bool ObjectTemplate::isWithin(si32 X, si32 Y) const
 {
 	if (X < 0 || Y < 0)
 		return false;
-	return !(X >= (si32)getWidth() || Y >= (si32)getHeight());
+	return X < static_cast<si32>(getWidth()) && Y < static_cast<si32>(getHeight());
 }
 
 bool ObjectTemplate::isVisitableAt(si32 X, si32 Y) const
@@ -478,9 +478,9 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 void ObjectTemplate::calculateBlockedOffsets()
 {
 	blockedOffsets.clear();
-	for(int w = 0; w < (int)getWidth(); ++w)
+	for(int w = 0; w < static_cast<int>(getWidth()); ++w)
 	{
-		for(int h = 0; h < (int)getHeight(); ++h)
+		for(int h = 0; h < static_cast<int>(getHeight()); ++h)
 		{
 			if (isBlockedAt(w, h))
 				blockedOffsets.insert(int3(-w, -h, 0));
@@ -490,9 +490,9 @@ void ObjectTemplate::calculateBlockedOffsets()
 
 void ObjectTemplate::calculateBlockMapOffset()
 {
-	for(int w = 0; w < (int)getWidth(); ++w)
+	for(int w = 0; w < static_cast<int>(getWidth()); ++w)
 	{
-		for(int h = 0; h < (int)getHeight(); ++h)
+		for(int h = 0; h < static_cast<int>(getHeight()); ++h)
 		{
 			if (isBlockedAt(w, h))
 			{
@@ -526,9 +526,9 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 
 void ObjectTemplate::calculateVisitableOffset()
 {
-	for(int y = 0; y < (int)getHeight(); y++)
+	for(int y = 0; y < static_cast<int>(getHeight()); y++)
 	{
-		for(int x = 0; x < (int)getWidth(); x++)
+		for(int x = 0; x < static_cast<int>(getWidth()); x++)
 		{
 			if (isVisitableAt(x, y))
 			{
@@ -544,7 +544,7 @@ bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
 	if (anyTerrain)
 	{
-		auto const & terrain = VLC->terrainTypeHandler->getById(terrainID);
+		const auto & terrain = VLC->terrainTypeHandler->getById(terrainID);
 		return terrain->isLand() && terrain->isPassable();
 	}
 	return vstd::contains(allowedTerrains, terrainID);
@@ -554,7 +554,7 @@ void ObjectTemplate::recalculate()
 {
 	calculateWidth();
 	calculateHeight();
-	calculateVsitable();
+	calculateVisitable();
 	//The lines below use width and height
 	calculateBlockedOffsets();
 	calculateBlockMapOffset();

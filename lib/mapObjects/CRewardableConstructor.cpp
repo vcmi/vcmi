@@ -32,7 +32,7 @@ namespace {
 
 	bool testForKey(const JsonNode & value, const std::string & key)
 	{
-		for( auto & reward : value["rewards"].Vector() )
+		for(const auto & reward : value["rewards"].Vector())
 		{
 			if (!reward[key].isNull())
 				return true;
@@ -116,9 +116,9 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 		bonus.sid = object->ID;
 		//TODO: bonus.description = object->getObjectName();
 		if (bonus.type == Bonus::MORALE)
-			reward.extraComponents.push_back(Component(Component::MORALE, 0, bonus.val, 0));
+			reward.extraComponents.emplace_back(Component::MORALE, 0, bonus.val, 0);
 		if (bonus.type == Bonus::LUCK)
-			reward.extraComponents.push_back(Component(Component::LUCK, 0, bonus.val, 0));
+			reward.extraComponents.emplace_back(Component::LUCK, 0, bonus.val, 0);
 	}
 
 	reward.primary = JsonRandom::loadPrimary(source["primary"], rng);
@@ -137,7 +137,7 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 		CreatureID from (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.first) .get());
 		CreatureID dest (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.second.String()).get());
 
-		reward.extraComponents.push_back(Component(Component::CREATURE, dest.getNum(), 0, 0));
+		reward.extraComponents.emplace_back(Component::CREATURE, dest.getNum(), 0, 0);
 
 		reward.creaturesChange[from] = dest;
 	}
@@ -302,10 +302,6 @@ bool CRandomRewardObjectInfo::givesBonuses() const
 	return testForKey(parameters, "bonuses");
 }
 
-CRewardableConstructor::CRewardableConstructor()
-{
-}
-
 void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
 	objectInfo.init(config);
@@ -313,7 +309,7 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 
 CGObjectInstance * CRewardableConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
-	auto ret = new CRewardableObject();
+	auto * ret = new CRewardableObject();
 	preInitObject(ret);
 	ret->appearance = tmpl;
 	return ret;

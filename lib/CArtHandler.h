@@ -249,8 +249,7 @@ public:
 
 	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);
 
-	ArtifactPosition stringToSlot(std::string slotName);
-	CArtifact::EartClass stringToClass(std::string className);
+	static CArtifact::EartClass stringToClass(std::string className); //TODO: rework EartClass to make this a constructor
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);

@@ -36,10 +36,10 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	for(auto & reqStack : creatures)
+	for(const auto & reqStack : creatures)
 	{
 		size_t count = 0;
-		for (auto slot : hero->Slots())
+		for(const auto & slot : hero->Slots())
 		{
 			const CStackInstance * heroStack = slot.second;
 			if (heroStack->type == reqStack.type)
@@ -52,10 +52,10 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	if(!IObjectInterface::cb->getPlayerState(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
-	if(heroLevel > (si32)hero->level)
+	if(heroLevel > static_cast<si32>(hero->level))
 		return false;
 
-	if((TExpType)heroExperience > hero->exp)
+	if(static_cast<TExpType>(heroExperience) > hero->exp)
 		return false;
 
 	if(manaPoints > hero->mana)
@@ -66,44 +66,44 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 
 	for(size_t i=0; i<primary.size(); i++)
 	{
-		if (primary[i] > hero->getPrimSkillLevel(PrimarySkill::PrimarySkill(i)))
+		if(primary[i] > hero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)))
 			return false;
 	}
 
-	for(auto & skill : secondary)
+	for(const auto & skill : secondary)
 	{
 		if (skill.second > hero->getSecSkillLevel(skill.first))
 			return false;
 	}
 
-	for(auto & spell : spells)
+	for(const auto & spell : spells)
 	{
 		if (!hero->spellbookContainsSpell(spell))
 			return false;
 	}
 
-	for(auto & art : artifacts)
+	for(const auto & art : artifacts)
 	{
 		if (!hero->hasArt(art))
 			return false;
 	}
 
-	for(auto & sublimiter : noneOf)
+	for(const auto & sublimiter : noneOf)
 	{
 		if (sublimiter->heroAllowed(hero))
 			return false;
 	}
 
-	for(auto & sublimiter : allOf)
+	for(const auto & sublimiter : allOf)
 	{
 		if (!sublimiter->heroAllowed(hero))
 			return false;
 	}
 
-	if ( anyOf.size() == 0 )
+	if(anyOf.empty())
 		return true;
 
-	for(auto & sublimiter : anyOf)
+	for(const auto & sublimiter : anyOf)
 	{
 		if (sublimiter->heroAllowed(hero))
 			return true;
@@ -146,7 +146,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		// grant reward afterwards. Note that it may remove object
 		grantReward(index, h, markAsVisit);
 	};
-	auto selectRewardsMessage = [&](std::vector<ui32> rewards, const MetaString & dialog) -> void
+	auto selectRewardsMessage = [&](const std::vector<ui32> & rewards, const MetaString & dialog) -> void
 	{
 		BlockingDialog sd(canRefuse, rewards.size() > 1);
 		sd.player = h->tempOwner;
@@ -200,7 +200,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			}
 		}
 
-		if(!objectRemovalPossible && getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT).size() == 0)
+		if(!objectRemovalPossible && getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT).empty())
 		{
 			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
 			cb->sendAndApply(&cov);
@@ -263,7 +263,7 @@ void CRewardableObject::grantRewardBeforeLevelup(const CRewardVisitInfo & info, 
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
 
-	for(auto & entry : info.reward.secondary)
+	for(const auto & entry : info.reward.secondary)
 	{
 		int current = hero->getSecSkillLevel(entry.first);
 		if( (current != 0 && current < entry.second) ||
@@ -335,7 +335,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 		cb->giveHeroBonus(&gb);
 	}
 
-	for(ArtifactID art : info.reward.artifacts)
+	for(const ArtifactID & art : info.reward.artifacts)
 		cb->giveHeroNewArtifact(hero, VLC->arth->objects[art],ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
@@ -346,11 +346,11 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 
 	if(!info.reward.creaturesChange.empty())
 	{
-		for (auto slot : hero->Slots())
+		for(const auto & slot : hero->Slots())
 		{
 			const CStackInstance * heroStack = slot.second;
 
-			for (auto & change : info.reward.creaturesChange)
+			for(const auto & change : info.reward.creaturesChange)
 			{
 				if (heroStack->type->getId() == change.first)
 				{
@@ -365,7 +365,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 	if(!info.reward.creatures.empty())
 	{
 		CCreatureSet creatures;
-		for (auto & crea : info.reward.creatures)
+		for(const auto & crea : info.reward.creatures)
 			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.type, crea.count));
 
 		cb->giveCreatures(this, hero, creatures, false);
@@ -426,7 +426,7 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 
 CRewardableObject::EVisitMode CRewardableObject::getVisitMode() const
 {
-	return EVisitMode(visitMode);
+	return static_cast<EVisitMode>(visitMode);
 }
 
 ui16 CRewardableObject::getResetDuration() const
@@ -442,37 +442,36 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 
 	if (heroExperience)
 	{
-		comps.push_back(Component(
-			Component::EXPERIENCE, 0, (si32)h->calculateXp(heroExperience), 0));
+		comps.emplace_back(Component::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
 	}
 	if (heroLevel)
-		comps.push_back(Component(Component::EXPERIENCE, 1, heroLevel, 0));
+		comps.emplace_back(Component::EXPERIENCE, 1, heroLevel, 0);
 
 	if (manaDiff || manaPercentage >= 0)
-		comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));
+		comps.emplace_back(Component::PRIM_SKILL, 5, manaDiff, 0);
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.push_back(Component(Component::PRIM_SKILL, (ui16)i, primary[i], 0));
+			comps.emplace_back(Component::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
 	}
 
-	for (auto & entry : secondary)
-		comps.push_back(Component(Component::SEC_SKILL, entry.first, entry.second, 0));
+	for(const auto & entry : secondary)
+		comps.emplace_back(Component::SEC_SKILL, entry.first, entry.second, 0);
 
-	for (auto & entry : artifacts)
-		comps.push_back(Component(Component::ARTIFACT, entry, 1, 0));
+	for(const auto & entry : artifacts)
+		comps.emplace_back(Component::ARTIFACT, entry, 1, 0);
 
-	for (auto & entry : spells)
-		comps.push_back(Component(Component::SPELL, entry, 1, 0));
+	for(const auto & entry : spells)
+		comps.emplace_back(Component::SPELL, entry, 1, 0);
 
-	for (auto & entry : creatures)
-		comps.push_back(Component(Component::CREATURE, entry.type->idNumber, entry.count, 0));
+	for(const auto & entry : creatures)
+		comps.emplace_back(Component::CREATURE, entry.type->idNumber, entry.count, 0);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.push_back(Component(Component::RESOURCE, (ui16)i, resources[i], 0));
+			comps.emplace_back(Component::RESOURCE, static_cast<ui16>(i), resources[i], 0);
 	}
 }
 

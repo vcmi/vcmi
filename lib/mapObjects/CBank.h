@@ -28,7 +28,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 
 public:
 	CBank();
-	~CBank();
+	~CBank() override;
 
 	void setConfig(const BankConfig & bc);
 
