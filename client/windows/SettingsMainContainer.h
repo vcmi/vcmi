@@ -13,6 +13,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Buttons.h"
 #include "gui/InterfaceObjectConfigurable.h"
+#include "gui/CGuiHandler.h"
 
 class SettingsMainContainer : public InterfaceObjectConfigurable
 {
@@ -23,7 +24,7 @@ private:
 	void openTab(size_t index);
 
 	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
-	void closeAndPushEvent(int eventType, int code = 0);
+	void closeAndPushEvent(EUserEvent code);
 
 	void loadGameButtonCallback();
 	void saveGameButtonCallback();
