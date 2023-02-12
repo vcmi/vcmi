@@ -1530,6 +1530,12 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 	}
 }
 
+void CPlayerInterface::objectRemovedAfter()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->minimap->update();
+}
+
 void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)

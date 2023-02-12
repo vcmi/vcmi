@@ -429,6 +429,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	cl.invalidatePaths();
+	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+		i->second->objectRemovedAfter();
 }
 
 void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
