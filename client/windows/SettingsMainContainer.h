@@ -14,10 +14,12 @@
 #include "../widgets/Buttons.h"
 #include "gui/InterfaceObjectConfigurable.h"
 #include "gui/CGuiHandler.h"
+#include "battle/BattleInterface.h"
 
 class SettingsMainContainer : public InterfaceObjectConfigurable
 {
 private:
+	BattleInterface * parentBattleInterface;
 	std::shared_ptr<CTabbedInt> tabContentArea;
 
 	std::shared_ptr<CIntObject> createTab(size_t index);
@@ -33,6 +35,6 @@ private:
 	void restartGameButtonCallback();
 	void mainMenuButtonCallback();
 public:
-	SettingsMainContainer();
+	SettingsMainContainer(BattleInterface * parentBattleInterface = nullptr);
 };
 

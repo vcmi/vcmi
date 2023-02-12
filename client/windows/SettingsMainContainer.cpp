@@ -27,7 +27,7 @@
 #include "../CServerHandler.h"
 
 
-SettingsMainContainer::SettingsMainContainer() : InterfaceObjectConfigurable()
+SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -69,6 +69,7 @@ SettingsMainContainer::SettingsMainContainer() : InterfaceObjectConfigurable()
 	if(settings["general"]["lastSettingsTab"].isNumber())
 		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
 
+	parentBattleInterface = parentBattleUi;
 	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(0, 50), defaultTabIndex);
 }
 
@@ -79,7 +80,7 @@ std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
 		case 0:
 			return std::make_shared<SystemOptionsWindow>();
 		case 1:
-			return std::make_shared<BattleOptionsWindow>(nullptr);
+			return std::make_shared<BattleOptionsWindow>(parentBattleInterface);
 		case 2:
 			return std::make_shared<VcmiSettingsWindow>();
 		default:

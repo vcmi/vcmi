@@ -36,6 +36,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
 #include "windows/BattleOptionsWindow.h"
+#include "windows/SettingsMainContainer.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
@@ -235,7 +236,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.pushIntT<BattleOptionsWindow>(&owner);
+	GH.pushIntT<SettingsMainContainer>(&owner);
 }
 
 void BattleWindow::bSurrenderf()
