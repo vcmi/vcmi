@@ -17,6 +17,9 @@
 
 class CClient;
 class CGameHandler;
+class CLobbyScreen;
+class CServerHandler;
+class CVCMIServer;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,6 +32,8 @@ class CArmedInstance;
 class CArtifactSet;
 class CBonusSystemNode;
 struct ArtSlotInfo;
+
+class ICPackVisitor;
 
 struct DLL_LINKAGE CPack
 {
@@ -45,27 +50,31 @@ struct DLL_LINKAGE CPack
 
 	void applyGs(CGameState * gs)
 	{}
+
+	void visit(ICPackVisitor & cpackVisitor);
+
+protected:
+	/// <summary>
+	/// For basic types of netpacks hierarchy like CPackForClient. Called first.
+	/// </summary>
+	virtual void visitBasic(ICPackVisitor & cpackVisitor);
+
+	/// <summary>
+	/// For leaf types of netpacks hierarchy. Called after visitBasic.
+	/// </summary>
+	virtual void visitTyped(ICPackVisitor & cpackVisitor);
 };
 
-struct CPackForClient : public CPack
+struct DLL_LINKAGE CPackForClient : public CPack
 {
-	CGameState* GS(CClient *cl);
-	void applyFirstCl(CClient *cl)//called before applying to gs
-	{}
-	void applyCl(CClient *cl)//called after applying to gs
-	{}
+protected:
+	virtual void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
 
-struct CPackForServer : public CPack
+struct DLL_LINKAGE CPackForServer : public CPack
 {
 	mutable PlayerColor player = PlayerColor::NEUTRAL;
 	mutable si32 requestID;
-	CGameState * GS(CGameHandler * gh);
-	bool applyGh(CGameHandler *gh) //called after applying to gs
-	{
-		logGlobal->error("Should not happen... applying plain CPackForServer");
-		return false;
-	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -74,14 +83,15 @@ struct CPackForServer : public CPack
 	}
 
 protected:
-	void throwNotAllowedAction();
-	void throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id);
-	void throwOnWrongPlayer(CGameHandler * gh, PlayerColor player);
-	void throwAndComplain(CGameHandler * gh, std::string txt);
-	bool isPlayerOwns(CGameHandler * gh, ObjectInstanceID id);
+	virtual void visitBasic(ICPackVisitor & cpackVisitor) override;
+};
 
-private:
-	void wrongPlayerMessage(CGameHandler * gh, PlayerColor expectedplayer);
+struct DLL_LINKAGE CPackForLobby : public CPack
+{
+	virtual bool isForServer() const;
+
+protected:
+	virtual void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
 
 struct DLL_LINKAGE MetaString
