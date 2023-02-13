@@ -746,6 +746,12 @@ namespace vstd
 		}
 		return std::to_string(number) + *iter;
 	}
+	
+	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr
+	static constexpr int abs(int i) {
+		if(i < 0) return -i;
+		return i;
+	}
 }
 using vstd::operator-=;
 

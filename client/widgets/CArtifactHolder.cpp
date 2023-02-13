@@ -149,19 +149,12 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 				select();
 			}
 		}
-		else if(ourArt == ourOwner->commonInfo->src.art) //restore previously picked artifact
-		{
-			deselect();
-		}
-		else //perform artifact transition
+		// Perform artifact transition
+		else if(ourArt != ourOwner->commonInfo->src.art)
 		{
 			if(inBackpack) // Backpack destination.
 			{
-				if(srcInBackpack && slotID == ourOwner->commonInfo->src.slotID + 1) //next slot (our is not visible, so visually same as "old" place) to the art -> make nothing, return artifact to slot
-				{
-					deselect();
-				}
-				else
+				if(!srcInBackpack || slotID != ourOwner->commonInfo->src.slotID + 1)
 				{
 					const CArtifact * const cur = ourOwner->commonInfo->src.art->artType;
 
@@ -186,9 +179,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 								|| ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
 								vstd::advance(ourOwner->commonInfo->dst.slotID, -1);
 						}
-						if(srcInSameHero && ourOwner->commonInfo->dst.slotID == ourOwner->commonInfo->src.slotID) //we came to src == dst
-							deselect();
-						else
+						if(!srcInSameHero || ourOwner->commonInfo->dst.slotID != ourOwner->commonInfo->src.slotID)
 							ourOwner->realizeCurrentTransaction();
 					}
 				}
@@ -274,13 +265,13 @@ void CArtifactsOfHero::deactivate()
 /**
  * Selects artifact slot so that the containing artifact looks like it's picked up.
  */
-void CHeroArtPlace::select ()
+void CHeroArtPlace::select()
 {
-	if (locked)
+	if(locked)
 		return;
 
 	pickSlot(true);
-	if(ourArt->canBeDisassembled() && slotID < GameConstants::BACKPACK_START) //worn combined artifact -> locks have to disappear
+	if(ourArt->canBeDisassembled() && ArtifactUtils::isSlotEquipment(slotID)) //worn combined artifact -> locks have to disappear
 	{
 		for(auto slot : ArtifactUtils::constituentWornSlots())
 		{
@@ -292,41 +283,10 @@ void CHeroArtPlace::select ()
 
 	CCS->curh->dragAndDropCursor("artifact", ourArt->artType->getIconIndex());
 	ourOwner->commonInfo->src.setTo(this, false);
-	ourOwner->markPossibleSlots(ourArt);
+	ourOwner->commonInfo->src.slotID = ArtifactPosition::TRANSITION_POS;
 
-	if(slotID >= GameConstants::BACKPACK_START)
-		ourOwner->scrollBackpack(0); //will update slots
-
-	ourOwner->updateParentWindow();
-	ourOwner->safeRedraw();
-}
-
-/**
- * Deselects the artifact slot.
- */
-void CHeroArtPlace::deselect ()
-{
-	pickSlot(false);
-	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
-	{
-		for(auto slot : ArtifactUtils::constituentWornSlots())
-		{
-			auto place = ourOwner->getArtPlace(slot);
-
-			if(nullptr != place)//getArtPlace may return null
-				place->pickSlot(false);
-		}
-	}
-
-	CCS->curh->dragAndDropCursor(nullptr);
-	ourOwner->unmarkSlots();
-	ourOwner->commonInfo->src.clear();
-	if(slotID >= GameConstants::BACKPACK_START)
-		ourOwner->scrollBackpack(0); //will update slots
-
-
-	ourOwner->updateParentWindow();
-	ourOwner->safeRedraw();
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(ourOwner->curHero, slotID),
+		ArtifactLocation(ourOwner->curHero, ArtifactPosition::TRANSITION_POS));
 }
 
 void CHeroArtPlace::showAll(SDL_Surface * to)
@@ -760,35 +720,41 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 		commonInfo->src.slotID = src.slot;
 	}
 	// Artifact was taken from us
-	else if(commonInfo->src == src)
+	else if(commonInfo->src == src && dst.slot != ArtifactPosition::TRANSITION_POS)
 	{
 		// Expected movement from slot ot slot
 		assert(commonInfo->dst == dst
 			// Artifact moved back to backpack (eg. to make place for art we are moving)
-			||  dst.slot == dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START
+			|| dst.slot == dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START
 			|| dst.getHolderArtSet()->bearerType() != ArtBearer::HERO);
 		commonInfo->reset();
 		unmarkSlots();
 	}
-	// The dest artifact was moved after the swap -> we are picking it
-	else if(commonInfo->dst == src)
+	else
 	{
-		assert(dst.slot == ArtifactPosition::TRANSITION_POS);
-		commonInfo->reset();
-
-		for(CArtifactsOfHero * aoh : commonInfo->participants)
+		// The dest artifact was moved after the swap -> we are picking it
+		if(commonInfo->dst == src)
 		{
-			if(dst.isHolder(aoh->curHero))
-			{
-				commonInfo->src.AOH = aoh;
-				break;
-			}
-		}
+			assert(dst.slot == ArtifactPosition::TRANSITION_POS);
+			commonInfo->reset();
 
-		commonInfo->src.art = dst.getArt();
-		commonInfo->src.slotID = dst.slot;
-		assert(commonInfo->src.AOH);
-		CCS->curh->dragAndDropCursor("artifact", dst.getArt()->artType->getIconIndex());
+			for(CArtifactsOfHero * aoh : commonInfo->participants)
+			{
+				if(dst.isHolder(aoh->curHero))
+				{
+					commonInfo->src.AOH = aoh;
+					break;
+				}
+			}
+
+			commonInfo->src.art = dst.getArt();
+			commonInfo->src.slotID = dst.slot;
+			assert(commonInfo->src.AOH);
+			CCS->curh->dragAndDropCursor("artifact", dst.getArt()->artType->getIconIndex());
+		}
+		auto art = dst.getArt();
+		if(art && dst.slot == ArtifactPosition::TRANSITION_POS)
+			markPossibleSlots(art);
 	}
 
 	updateParentWindow();

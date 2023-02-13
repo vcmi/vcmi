@@ -34,8 +34,8 @@ struct DLL_LINKAGE CPack
 {
 	std::shared_ptr<CConnection> c; // Pointer to connection that pack received from
 
-	CPack() : c(nullptr) {};
-	virtual ~CPack() {};
+	CPack() = default;
+	virtual ~CPack() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -49,8 +49,6 @@ struct DLL_LINKAGE CPack
 
 struct CPackForClient : public CPack
 {
-	CPackForClient(){};
-
 	CGameState* GS(CClient *cl);
 	void applyFirstCl(CClient *cl)//called before applying to gs
 	{}
@@ -60,14 +58,9 @@ struct CPackForClient : public CPack
 
 struct CPackForServer : public CPack
 {
-	mutable PlayerColor player;
+	mutable PlayerColor player = PlayerColor::NEUTRAL;
 	mutable si32 requestID;
-	CGameState* GS(CGameHandler *gh);
-	CPackForServer():
-		player(PlayerColor::NEUTRAL)
-	{
-	}
-
+	CGameState * GS(CGameHandler * gh);
 	bool applyGh(CGameHandler *gh) //called after applying to gs
 	{
 		logGlobal->error("Should not happen... applying plain CPackForServer");
@@ -115,7 +108,7 @@ public:
 	void addTxt(ui8 type, ui32 serial)
 	{
 		message.push_back(TLOCAL_STRING);
-		localStrings.push_back(std::pair<ui8,ui32>(type, serial));
+		localStrings.emplace_back(type, serial);
 	}
 	MetaString& operator<<(const std::pair<ui8,ui32> &txt)
 	{
@@ -138,7 +131,7 @@ public:
 	void addReplacement(ui8 type, ui32 serial)
 	{
 		message.push_back(TREPLACE_LSTRING);
-		localStrings.push_back(std::pair<ui8,ui32>(type, serial));
+		localStrings.emplace_back(type, serial);
 	}
 	void addReplacement(const std::string &txt)
 	{
@@ -155,7 +148,7 @@ public:
 		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);
 	}
-	void addCreReplacement(CreatureID id, TQuantity count); //adds sing or plural name;
+	void addCreReplacement(const CreatureID & id, TQuantity count); //adds sing or plural name;
 	void addReplacement(const CStackBasicDescriptor &stack); //adds sing or plural name;
 	std::string buildList () const;
 	void clear()
@@ -167,17 +160,16 @@ public:
 	}
 	void toString(std::string &dst) const;
 	std::string toString() const;
-	void getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const;
+	void getLocalString(const std::pair<ui8, ui32> & txt, std::string & dst) const;
 
-	MetaString(){}
 };
 
 struct Component
 {
 	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE, LUCK, BUILDING, HERO_PORTRAIT, FLAG};
-	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
-	si32 val; // + give; - take
-	si16 when; // 0 - now; +x - within x days; -x - per x days
+	ui16 id = 0, subtype = 0; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
+	si32 val = 0; // + give; - take
+	si16 when = 0; // 0 - now; +x - within x days; -x - per x days
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -186,10 +178,7 @@ struct Component
 		h & val;
 		h & when;
 	}
-	Component()
-		:id(0), subtype(0), val(0), when(0)
-	{
-	}
+	Component() = default;
 	DLL_LINKAGE explicit Component(const CStackBasicDescriptor &stack);
 	Component(Component::EComponentType Type, ui16 Subtype, si32 Val, si16 When)
 		:id(Type),subtype(Subtype),val(Val),when(When)
@@ -197,28 +186,27 @@ struct Component
 	}
 };
 
-typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
+using TArtHolder = boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance>>;
 
 struct ArtifactLocation
 {
 	TArtHolder artHolder;//TODO: identify holder by id
-	ArtifactPosition slot;
+	ArtifactPosition slot = ArtifactPosition::PRE_FIRST;
 
 	ArtifactLocation()
+		: artHolder(ConstTransitivePtr<CGHeroInstance>())
 	{
-		artHolder = ConstTransitivePtr<CGHeroInstance>();
-		slot = ArtifactPosition::PRE_FIRST;
 	}
-	template <typename T>
-	ArtifactLocation(const T *ArtHolder, ArtifactPosition Slot)
+	template<typename T>
+	ArtifactLocation(const T * ArtHolder, ArtifactPosition Slot)
+		: artHolder(const_cast<T *>(ArtHolder)) //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		, slot(Slot)
 	{
-		artHolder = const_cast<T*>(ArtHolder); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
-		slot = Slot;
 	}
-	ArtifactLocation(TArtHolder ArtHolder, ArtifactPosition Slot)
+	ArtifactLocation(TArtHolder ArtHolder, const ArtifactPosition & Slot)
+		: artHolder(std::move(std::move(ArtHolder)))
+		, slot(Slot)
 	{
-		artHolder = ArtHolder;
-		slot = Slot;
 	}
 
 	template <typename T>
@@ -253,15 +241,9 @@ struct ArtifactLocation
 class EntityChanges
 {
 public:
-	Metatype metatype;
-	int32_t entityIndex;
+	Metatype metatype = Metatype::UNKNOWN;
+	int32_t entityIndex = 0;
 	JsonNode data;
-	EntityChanges()
-		: metatype(Metatype::UNKNOWN),
-		entityIndex(0),
-		data()
-	{
-	}
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & metatype;
@@ -284,17 +266,11 @@ public:
 	};
 
 	JsonNode data;
-	EOperation operation;
+	EOperation operation = EOperation::RESET_STATE;
 
-	BattleChanges()
-		: operation(EOperation::RESET_STATE),
-		data()
-	{
-	}
-
+	BattleChanges() = default;
 	BattleChanges(EOperation operation_)
-		: operation(operation_),
-		data()
+		: operation(operation_)
 	{
 	}
 };
@@ -302,20 +278,13 @@ public:
 class UnitChanges : public BattleChanges
 {
 public:
-	uint32_t id;
-	int64_t healthDelta;
+	uint32_t id = 0;
+	int64_t healthDelta = 0;
 
-	UnitChanges()
-		: BattleChanges(EOperation::RESET_STATE),
-		id(0),
-		healthDelta(0)
-	{
-	}
-
+	UnitChanges() = default;
 	UnitChanges(uint32_t id_, EOperation operation_)
-		: BattleChanges(operation_),
-		id(id_),
-		healthDelta(0)
+		: BattleChanges(operation_)
+		, id(id_)
 	{
 	}
 
@@ -331,13 +300,9 @@ public:
 class ObstacleChanges : public BattleChanges
 {
 public:
-	uint32_t id;
+	uint32_t id = 0;
 
-	ObstacleChanges()
-		: BattleChanges(EOperation::RESET_STATE),
-		id(0)
-	{
-	}
+	ObstacleChanges() = default;
 
 	ObstacleChanges(uint32_t id_, EOperation operation_)
 		: BattleChanges(operation_),

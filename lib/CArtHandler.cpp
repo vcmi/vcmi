@@ -1366,8 +1366,10 @@ const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 	if(pos == ArtifactPosition::TRANSITION_POS)
 	{
 		// Always add to the end. Always take from the beginning.
-		assert(!artifactsTransitionPos.empty());
-		return &(*artifactsTransitionPos.begin());
+		if(artifactsTransitionPos.empty())
+			return nullptr;
+		else
+			return &(*artifactsTransitionPos.begin());
 	}
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn.at(pos);

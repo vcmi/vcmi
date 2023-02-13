@@ -81,9 +81,6 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 	SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
 
-	/// returns dimensions of display on which VCMI window is located
-	Rect getDisplayBounds();
-
 	void drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2);
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color &color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth = 1);
@@ -106,6 +103,11 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const Rect & rect, int mode );
 	void applyEffect(SDL_Surface * surf, const Rect & rect, int mode); //mode: 0 - sepia, 1 - grayscale
+
+	bool isResolutionSupported(const std::vector<Point> & resolutions, const Point toTest );
+
+	std::vector<Point> getSupportedResolutions();
+	std::vector<Point> getSupportedResolutions( int displayIndex);
 
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 

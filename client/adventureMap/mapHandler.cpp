@@ -23,6 +23,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CObjectClassesHandler.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/Color.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CStopWatch.h"
@@ -925,21 +926,21 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 		{
 			for (realPos.y = initPos.y, pos.y = topTile.y; pos.y < topTile.y + tileCount.y; pos.y++, realPos.y += tileSize)
 			{
-				const int3 color(0x555555, 0x555555, 0x555555);
+				constexpr ColorRGBA color(0x55, 0x55, 0x55);
 
 				if (realPos.y >= info->drawBounds.y &&
 					realPos.y < info->drawBounds.y + info->drawBounds.h)
 					for(int i = 0; i < tileSize; i++)
 						if (realPos.x + i >= info->drawBounds.x &&
 							realPos.x + i < info->drawBounds.x + info->drawBounds.w)
-							CSDL_Ext::putPixelWithoutRefresh(targetSurf, realPos.x + i, realPos.y, color.x, color.y, color.z);
+							CSDL_Ext::putPixelWithoutRefresh(targetSurf, realPos.x + i, realPos.y, color.r, color.g, color.b);
 
 				if (realPos.x >= info->drawBounds.x &&
 					realPos.x < info->drawBounds.x + info->drawBounds.w)
 					for(int i = 0; i < tileSize; i++)
 						if (realPos.y + i >= info->drawBounds.y &&
 							realPos.y + i < info->drawBounds.y + info->drawBounds.h)
-							CSDL_Ext::putPixelWithoutRefresh(targetSurf, realPos.x, realPos.y + i, color.x, color.y, color.z);
+							CSDL_Ext::putPixelWithoutRefresh(targetSurf, realPos.x, realPos.y + i, color.r, color.g, color.b);
 			}
 		}
 	}

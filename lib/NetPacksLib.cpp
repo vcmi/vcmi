@@ -31,8 +31,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
+DLL_LINKAGE void SetResources::applyGs(CGameState * gs) const
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
 	if(abs)
@@ -46,14 +45,14 @@ DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 	gs->getPlayerState(player)->resources.positive();
 }
 
-DLL_LINKAGE void SetPrimSkill::applyGs(CGameState *gs)
+DLL_LINKAGE void SetPrimSkill::applyGs(CGameState * gs) const
 {
 	CGHeroInstance * hero = gs->getHero(id);
 	assert(hero);
 	hero->setPrimarySkill(which, val, abs);
 }
 
-DLL_LINKAGE void SetSecSkill::applyGs(CGameState *gs)
+DLL_LINKAGE void SetSecSkill::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	hero->setSecSkillLevel(which, val, abs);
@@ -88,17 +87,17 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
+DLL_LINKAGE void AddQuest::applyGs(CGameState * gs) const
 {
 	assert (vstd::contains(gs->players, player));
-	auto vec = &gs->players[player].quests;
+	auto * vec = &gs->players[player].quests;
 	if (!vstd::contains(*vec, quest))
 		vec->push_back (quest);
 	else
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
-DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState *gs)
+DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 {
 	VLC->arth->minors = minors;
 	VLC->arth->majors = majors;
@@ -106,24 +105,23 @@ DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState *gs)
 	VLC->arth->relics = relics;
 }
 
-DLL_LINKAGE void UpdateMapEvents::applyGs(CGameState *gs)
+DLL_LINKAGE void UpdateMapEvents::applyGs(CGameState * gs) const
 {
 	gs->map->events = events;
 }
 
-
-DLL_LINKAGE void UpdateCastleEvents::applyGs(CGameState *gs)
+DLL_LINKAGE void UpdateCastleEvents::applyGs(CGameState * gs) const
 {
-	auto t = gs->getTown(town);
+	auto * t = gs->getTown(town);
 	t->events = events;
 }
 
-DLL_LINKAGE void ChangeFormation::applyGs(CGameState *gs)
+DLL_LINKAGE void ChangeFormation::applyGs(CGameState * gs) const
 {
 	gs->getHero(hid)->setFormation(formation);
 }
 
-DLL_LINKAGE void HeroVisitCastle::applyGs(CGameState *gs)
+DLL_LINKAGE void HeroVisitCastle::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
@@ -142,14 +140,14 @@ DLL_LINKAGE void ChangeSpells::applyGs(CGameState *gs)
 	CGHeroInstance *hero = gs->getHero(hid);
 
 	if(learn)
-		for(auto sid : spells)
+		for(const auto & sid : spells)
 			hero->addSpellToSpellbook(sid);
 	else
-		for(auto sid : spells)
+		for(const auto & sid : spells)
 			hero->removeSpellFromSpellbook(sid);
 }
 
-DLL_LINKAGE void SetMana::applyGs(CGameState *gs)
+DLL_LINKAGE void SetMana::applyGs(CGameState * gs) const
 {
 	CGHeroInstance * hero = gs->getHero(hid);
 
@@ -163,7 +161,7 @@ DLL_LINKAGE void SetMana::applyGs(CGameState *gs)
 	vstd::amax(hero->mana, 0); //not less than 0
 }
 
-DLL_LINKAGE void SetMovePoints::applyGs(CGameState *gs)
+DLL_LINKAGE void SetMovePoints::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 
@@ -181,7 +179,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
 	auto fogOfWarMap = team->fogOfWarMap;
-	for(int3 t : tiles)
+	for(const int3 & t : tiles)
 		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
@@ -203,7 +201,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 				}
 			}
 		}
-		for(int3 t : tilesRevealed) //probably not the most optimal solution ever
+		for(const int3 & t : tilesRevealed) //probably not the most optimal solution ever
 			(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 	}
 }
@@ -218,7 +216,7 @@ DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
 		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]].get() : nullptr);
 		if(h && army[i])
 			h->setToArmy(army[i]);
-		p->availableHeroes.push_back(h);
+		p->availableHeroes.emplace_back(h);
 	}
 }
 
@@ -248,8 +246,7 @@ DLL_LINKAGE void GiveBonus::applyGs(CGameState *gs)
 
 	std::string &descr = b->description;
 
-	if(!bdescr.message.size()
-		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE))
+	if(bdescr.message.empty() && (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE))
 	{
 		if (bonus.source == Bonus::OBJECT)
 		{
@@ -270,8 +267,8 @@ DLL_LINKAGE void GiveBonus::applyGs(CGameState *gs)
 		bdescr.toString(descr);
 	}
 	// Some of(?) versions of H3 use %s here instead of %d. Try to replace both of them
-	boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
-	boost::replace_first(descr,"%s",boost::lexical_cast<std::string>(std::abs(bonus.val)));
+	boost::replace_first(descr, "%d", std::to_string(std::abs(bonus.val)));
+	boost::replace_first(descr, "%s", std::to_string(std::abs(bonus.val)));
 }
 
 DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
@@ -287,7 +284,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
 	gs->map->addBlockVisTiles(obj);
 }
 
-DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
+DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState * gs) const
 {
 	switch (mode) {
 		case VISITOR_ADD:
@@ -297,7 +294,7 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
 		case VISITOR_ADD_TEAM:
 			{
 				TeamState *ts = gs->getPlayerTeam(gs->getHero(hero)->tempOwner);
-				for (auto & color : ts->players)
+				for(const auto & color : ts->players)
 				{
 					gs->getPlayerState(color)->visitedObjects.insert(object);
 				}
@@ -324,7 +321,7 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState *gs)
+DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState * gs) const
 {
 	PlayerState *p = gs->getPlayerState(player);
 	if(victoryLossCheckResult.victory())
@@ -374,14 +371,14 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 	//TODO: what does mean if more that one player connected?
 	if(playerConnectionId == PlayerSettings::PLAYER_AI)
 	{
-		for(auto player : players)
+		for(const auto & player : players)
 			gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
 	}
 }
 
 DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 {
-	CBonusSystemNode *node;
+	CBonusSystemNode * node = nullptr;
 	if (who == HERO)
 		node = gs->getHero(ObjectInstanceID(whoID));
 	else
@@ -389,9 +386,8 @@ DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 
 	BonusList &bonuses = node->getExportedBonusList();
 
-	for (int i = 0; i < bonuses.size(); i++)
+	for(const auto & b : bonuses)
 	{
-		auto b = bonuses[i];
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
@@ -411,7 +407,8 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
-		CGHeroInstance * beatenHero = static_cast<CGHeroInstance*>(obj);
+		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
+		assert(beatenHero);
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
 		p->heroes -= beatenHero;
@@ -450,7 +447,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		return;
 	}
 
-	auto quest = dynamic_cast<const IQuestObject *>(obj);
+	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
 	if (quest)
 	{
 		gs->map->quests[quest->quest->qid] = nullptr;
@@ -492,7 +489,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 	gs->map->calculateGuardingGreaturePositions();
 }
 
-static int getDir(int3 src, int3 dst)
+static int getDir(const int3 & src, const int3 & dst)
 {
 	int ret = -1;
 	if(dst.x+1 == src.x && dst.y+1 == src.y) //tl
@@ -553,7 +550,8 @@ void TryMoveHero::applyGs(CGameState *gs)
 	{
 		const TerrainTile &tt = gs->map->getTile(h->convertToVisitablePos(end));
 		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
-		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
+		auto * boat = dynamic_cast<CGBoat *>(tt.visitableObjects.back());
+		assert(boat);
 
 		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
@@ -561,7 +559,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
-		CGBoat *b = const_cast<CGBoat *>(h->boat);
+		auto * b = const_cast<CGBoat *>(h->boat);
 		b->direction = h->moveDir;
 		b->pos = start;
 		b->hero = nullptr;
@@ -573,13 +571,13 @@ void TryMoveHero::applyGs(CGameState *gs)
 	{
 		gs->map->removeBlockVisTiles(h);
 		h->pos = end;
-		if(CGBoat *b = const_cast<CGBoat *>(h->boat))
+		if(auto * b = const_cast<CGBoat *>(h->boat))
 			b->pos = end;
 		gs->map->addBlockVisTiles(h);
 	}
 
 	auto fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
-	for(int3 t : fowRevealed)
+	for(const int3 & t : fowRevealed)
 		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 }
 
@@ -597,7 +595,7 @@ DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
 		if(currentBuilding->overrideBids.empty())
 			continue;
 
-		for(auto overrideBid : currentBuilding->overrideBids)
+		for(const auto & overrideBid : currentBuilding->overrideBids)
 		{
 			t->overriddenBuildings.insert(overrideBid);
 			t->deleteTownBonus(overrideBid);
@@ -620,19 +618,19 @@ DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
 	t->recreateBuildingsBonuses();
 }
 
-DLL_LINKAGE void SetAvailableCreatures::applyGs(CGameState *gs)
+DLL_LINKAGE void SetAvailableCreatures::applyGs(CGameState * gs) const
 {
-	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->getObjInstance(tid));
+	auto * dw = dynamic_cast<CGDwelling *>(gs->getObjInstance(tid));
 	assert(dw);
 	dw->creatures = creatures;
 }
 
-DLL_LINKAGE void SetHeroesInTown::applyGs(CGameState *gs)
+DLL_LINKAGE void SetHeroesInTown::applyGs(CGameState * gs) const
 {
 	CGTownInstance *t = gs->getTown(tid);
 
-	CGHeroInstance *v  = gs->getHero(visiting),
-		*g = gs->getHero(garrison);
+	CGHeroInstance * v = gs->getHero(visiting);
+	CGHeroInstance * g = gs->getHero(garrison);
 
 	bool newVisitorComesFromGarrison = v && v == t->garrisonHero;
 	bool newGarrisonComesFromVisiting = g && g == t->visitingHero;
@@ -656,7 +654,7 @@ DLL_LINKAGE void SetHeroesInTown::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
+DLL_LINKAGE void HeroRecruited::applyGs(CGameState * gs) const
 {
 	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
@@ -676,14 +674,14 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 	gs->hpool.heroesPool.erase(hid);
 	if(h->id == ObjectInstanceID())
 	{
-		h->id = ObjectInstanceID((si32)gs->map->objects.size());
-		gs->map->objects.push_back(h);
+		h->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
+		gs->map->objects.emplace_back(h);
 	}
 	else
 		gs->map->objects[h->id.getNum()] = h;
 
-	gs->map->heroesOnMap.push_back(h);
-	p->heroes.push_back(h);
+	gs->map->heroesOnMap.emplace_back(h);
+	p->heroes.emplace_back(h);
 	h->attachTo(*p);
 	if(fresh)
 	{
@@ -697,7 +695,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
+DLL_LINKAGE void GiveHero::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(id);
 
@@ -712,8 +710,8 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
 	h->pos = h->convertFromVisitablePos(oldVisitablePos);
-	gs->map->heroesOnMap.push_back(h);
-	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
+	gs->map->heroesOnMap.emplace_back(h);
+	gs->getPlayerState(h->getOwner())->heroes.emplace_back(h);
 
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
@@ -750,9 +748,10 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 		o = new CGCreature();
 		{
 			//CStackInstance hlp;
-			CGCreature *cre = static_cast<CGCreature*>(o);
+			auto * cre = dynamic_cast<CGCreature *>(o);
 			//cre->slots[0] = hlp;
-			cre->notGrowingTeam = cre->neverFlees = 0;
+			assert(cre);
+			cre->notGrowingTeam = cre->neverFlees = false;
 			cre->character = 2;
 			cre->gainedArtifact = ArtifactID::NONE;
 			cre->identifier = -1;
@@ -767,9 +766,9 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	o->subID = subID;
 	o->pos = pos;
 	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(terrainType).front();
-	id = o->id = ObjectInstanceID((si32)gs->map->objects.size());
+	id = o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
-	gs->map->objects.push_back(o);
+	gs->map->objects.emplace_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj(gs->getRandomGenerator());
 	gs->map->calculateGuardingGreaturePositions();
@@ -784,7 +783,7 @@ DLL_LINKAGE void NewArtifact::applyGs(CGameState *gs)
 
 	assert(!art->getParentNodes().size());
 	art->setType(art->artType);
-	if (CCombinedArtifactInstance* cart = dynamic_cast<CCombinedArtifactInstance*>(art.get()))
+	if(auto * cart = dynamic_cast<CCombinedArtifactInstance *>(art.get()))
 		cart->createConstituents();
 }
 
@@ -834,7 +833,7 @@ DLL_LINKAGE const CArmedInstance * ArtifactLocation::relatedObj() const
 
 DLL_LINKAGE PlayerColor ArtifactLocation::owningPlayer() const
 {
-	auto obj = relatedObj();
+	const auto * obj = relatedObj();
 	return obj ? obj->tempOwner : PlayerColor::NEUTRAL;
 }
 
@@ -850,7 +849,7 @@ DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
 
 DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
-	auto s = getSlot();
+	const auto * s = getSlot();
 	if(s)
 		return s->getArt();
 	else
@@ -859,13 +858,13 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 
 DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
 {
-	ArtifactLocation *t = const_cast<ArtifactLocation*>(this);
+	auto * t = const_cast<ArtifactLocation *>(this);
 	return t->getHolderArtSet();
 }
 
 DLL_LINKAGE const CBonusSystemNode * ArtifactLocation::getHolderNode() const
 {
-	ArtifactLocation *t = const_cast<ArtifactLocation*>(this);
+	auto * t = const_cast<ArtifactLocation *>(this);
 	return t->getHolderNode();
 }
 
@@ -882,7 +881,7 @@ DLL_LINKAGE const ArtSlotInfo *ArtifactLocation::getSlot() const
 
 DLL_LINKAGE void ChangeStackCount::applyGs(CGameState * gs)
 {
-	auto srcObj = gs->getArmyInstance(army);
+	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
 		logNetwork->error("[CRITICAL] ChangeStackCount: invalid army object %d, possible game state corruption.", army.getNum());
 
@@ -894,7 +893,7 @@ DLL_LINKAGE void ChangeStackCount::applyGs(CGameState * gs)
 
 DLL_LINKAGE void SetStackType::applyGs(CGameState * gs)
 {
-	auto srcObj = gs->getArmyInstance(army);
+	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
 		logNetwork->error("[CRITICAL] SetStackType: invalid army object %d, possible game state corruption.", army.getNum());
 
@@ -903,7 +902,7 @@ DLL_LINKAGE void SetStackType::applyGs(CGameState * gs)
 
 DLL_LINKAGE void EraseStack::applyGs(CGameState * gs)
 {
-	auto srcObj = gs->getArmyInstance(army);
+	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
 		logNetwork->error("[CRITICAL] EraseStack: invalid army object %d, possible game state corruption.", army.getNum());
 
@@ -912,11 +911,11 @@ DLL_LINKAGE void EraseStack::applyGs(CGameState * gs)
 
 DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 {
-	auto srcObj = gs->getArmyInstance(srcArmy);
+	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
 		logNetwork->error("[CRITICAL] SwapStacks: invalid army object %d, possible game state corruption.", srcArmy.getNum());
 
-	auto dstObj = gs->getArmyInstance(dstArmy);
+	auto * dstObj = gs->getArmyInstance(dstArmy);
 	if(!dstObj)
 		logNetwork->error("[CRITICAL] SwapStacks: invalid army object %d, possible game state corruption.", dstArmy.getNum());
 
@@ -929,7 +928,7 @@ DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 
 DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 {
-	if(auto obj = gs->getArmyInstance(army))
+	if(auto * obj = gs->getArmyInstance(army))
 		obj->putStack(slot, new CStackInstance(type, count));
 	else
 		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
@@ -937,11 +936,11 @@ DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 
 DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 {
-	auto srcObj = gs->getArmyInstance(srcArmy);
+	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
 		logNetwork->error("[CRITICAL] RebalanceStacks: invalid army object %d, possible game state corruption.", srcArmy.getNum());
 
-	auto dstObj = gs->getArmyInstance(dstArmy);
+	auto * dstObj = gs->getArmyInstance(dstArmy);
 	if(!dstObj)
 		logNetwork->error("[CRITICAL] RebalanceStacks: invalid army object %d, possible game state corruption.", dstArmy.getNum());
 
@@ -960,13 +959,13 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 			MAYBE_UNUSED(c);
 			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
-			auto artHere = alHere.getArt();
-			auto artDest = alDest.getArt();
+			auto * artHere = alHere.getArt();
+			auto * artDest = alDest.getArt();
 			if (artHere)
 			{
 				if (alDest.getArt())
 				{
-					auto hero = dynamic_cast <CGHeroInstance *>(src.army.get());
+					auto * hero = dynamic_cast<CGHeroInstance *>(src.army.get());
 					if (hero)
 					{
 						artDest->move (alDest, ArtifactLocation (hero, alDest.getArt()->firstBackpackSlot (hero)));
@@ -1058,13 +1057,13 @@ DLL_LINKAGE void PutArtifact::applyGs(CGameState *gs)
 
 DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 {
-	auto slot = al.getSlot();
+	const auto * slot = al.getSlot();
 	if(slot->locked)
 	{
 		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
-		auto aset = al.getHolderArtSet();
+		auto * aset = al.getHolderArtSet();
 		#ifndef NDEBUG
 		bool found = false;
         #endif
@@ -1123,9 +1122,9 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 			{
 				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
 			}
-			auto slotInfo = artSet->getSlot(srcPos);
+			const auto * slotInfo = artSet->getSlot(srcPos);
 			assert(slotInfo);
-			auto art = const_cast<CArtifactInstance*>(slotInfo->getArt());
+			auto * art = const_cast<CArtifactInstance *>(slotInfo->getArt());
 			assert(art);
 			switch(operation)
 			{
@@ -1153,8 +1152,8 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	if(swap)
 	{
 		// Swap
-		auto leftSet = getSrcHolderArtSet();
-		auto rightSet = getDstHolderArtSet();
+		auto * leftSet = getSrcHolderArtSet();
+		auto * rightSet = getDstHolderArtSet();
 		CArtifactFittingSet artFittingSet(leftSet->bearerType());
 
 		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
@@ -1182,7 +1181,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 		}));
 	MAYBE_UNUSED(transformedArt);
 
-	auto combinedArt = new CCombinedArtifactInstance(builtArt);
+	auto * combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
@@ -1213,7 +1212,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 
 DLL_LINKAGE void DisassembledArtifact::applyGs(CGameState *gs)
 {
-	CCombinedArtifactInstance *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
+	auto * disassembled = dynamic_cast<CCombinedArtifactInstance *>(al.getArt());
 	assert(disassembled);
 
 	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
@@ -1233,11 +1232,11 @@ DLL_LINKAGE void HeroVisit::applyGs(CGameState *gs)
 {
 }
 
-DLL_LINKAGE void SetAvailableArtifacts::applyGs(CGameState *gs)
+DLL_LINKAGE void SetAvailableArtifacts::applyGs(CGameState * gs) const
 {
 	if(id >= 0)
 	{
-		if(CGBlackMarket *bm = dynamic_cast<CGBlackMarket*>(gs->map->objects[id].get()))
+		if(auto * bm = dynamic_cast<CGBlackMarket *>(gs->map->objects[id].get()))
 		{
 			bm->artifacts = arts;
 		}
@@ -1262,7 +1261,7 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	for(NewTurn::Hero h : heroes) //give mana/movement point
+	for(const NewTurn::Hero & h : heroes) //give mana/movement point
 	{
 		CGHeroInstance *hero = gs->getHero(h.id);
 		if(!hero)
@@ -1286,13 +1285,13 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 		hero->mana = h.mana;
 	}
 
-	for(auto i = res.cbegin(); i != res.cend(); i++)
+	for(const auto & re : res)
 	{
 		assert(i->first < PlayerColor::PLAYER_LIMIT);
-		gs->getPlayerState(i->first)->resources = i->second;
+		gs->getPlayerState(re.first)->resources = re.second;
 	}
 
-	for(auto creatureSet : cres) //set available creatures in towns
+	for(const auto & creatureSet : cres) //set available creatures in towns
 		creatureSet.second.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
@@ -1322,7 +1321,7 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
+DLL_LINKAGE void SetObjectProperty::applyGs(CGameState * gs) const
 {
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
@@ -1331,18 +1330,19 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 		return;
 	}
 
-	CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
+	auto * cai = dynamic_cast<CArmedInstance *>(obj);
 	if(what == ObjProperty::OWNER && cai)
 	{
 		if(obj->ID == Obj::TOWN)
 		{
-			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+			auto * t = dynamic_cast<CGTownInstance *>(obj);
+			assert(t);
 			if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
 				gs->getPlayerState(t->tempOwner)->towns -= t;
 			if(val < PlayerColor::PLAYER_LIMIT_I)
 			{
 				PlayerState * p = gs->getPlayerState(PlayerColor(val));
-				p->towns.push_back(t);
+				p->towns.emplace_back(t);
 
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
 				if(p->daysWithoutCastle)
@@ -1363,7 +1363,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 
 DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState * gs)
 {
-	auto hero = gs->getHero(heroId);
+	auto * hero = gs->getHero(heroId);
 	assert(hero);
 
 	auto proposedSkills = hero->getLevelUpProposedSecondarySkills();
@@ -1378,39 +1378,39 @@ DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState * gs)
 	}
 }
 
-DLL_LINKAGE void HeroLevelUp::applyGs(CGameState * gs)
+DLL_LINKAGE void HeroLevelUp::applyGs(CGameState * gs) const
 {
-	auto hero = gs->getHero(heroId);
+	auto * hero = gs->getHero(heroId);
 	assert(hero);
 	hero->levelUp(skills);
 }
 
-DLL_LINKAGE void CommanderLevelUp::applyGs(CGameState * gs)
+DLL_LINKAGE void CommanderLevelUp::applyGs(CGameState * gs) const
 {
-	auto hero = gs->getHero(heroId);
+	auto * hero = gs->getHero(heroId);
 	assert(hero);
 	auto commander = hero->commander;
 	assert(commander);
 	commander->levelUp();
 }
 
-DLL_LINKAGE void BattleStart::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleStart::applyGs(CGameState * gs) const
 {
 	gs->curB = info;
 	gs->curB->localInit();
 }
 
-DLL_LINKAGE void BattleNextRound::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleNextRound::applyGs(CGameState * gs) const
 {
 	gs->curB->nextRound(round);
 }
 
-DLL_LINKAGE void BattleSetActiveStack::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleSetActiveStack::applyGs(CGameState * gs) const
 {
 	gs->curB->nextTurn(stack);
 }
 
-DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState * gs) const
 {
 	CStack * st = gs->curB->getStack(stackID);
 	assert(st);
@@ -1448,7 +1448,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState * gs) const
 {
 	if(gs->curB)
 		gs->curB->si.gateState = state;
@@ -1462,7 +1462,7 @@ void BattleResult::applyGs(CGameState *gs)
 
 	for(int i = 0; i < 2; ++i)
 	{
-		if(auto h = gs->curB->battleGetFightingHero(i))
+		if(auto * h = gs->curB->battleGetFightingHero(i))
 		{
 			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
@@ -1556,7 +1556,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	}
 	else
 	{
-		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype));
+		gs->curB->sides[ba.side].usedSpellsHistory.emplace_back(ba.actionSubtype);
 	}
 
 	switch(ba.actionType)
@@ -1581,7 +1581,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void BattleSpellCast::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleSpellCast::applyGs(CGameState * gs) const
 {
 	assert(gs->curB);
 
@@ -1647,7 +1647,7 @@ DLL_LINKAGE void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 			battleState->updateUnit(elem.id, elem.data);
 			break;
 		default:
-			logNetwork->error("Unknown unit operation %d", (int)elem.operation);
+			logNetwork->error("Unknown unit operation %d", static_cast<int>(elem.operation));
 			break;
 		}
 	}
@@ -1676,20 +1676,15 @@ DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 			battleState->updateObstacle(change);
 			break;
 		default:
-			logNetwork->error("Unknown obstacle operation %d", (int)change.operation);
+			logNetwork->error("Unknown obstacle operation %d", static_cast<int>(change.operation));
 			break;
 		}
 	}
 }
 
-DLL_LINKAGE CatapultAttack::CatapultAttack()
-{
-	attacker = -1;
-}
+DLL_LINKAGE CatapultAttack::CatapultAttack() = default;
 
-DLL_LINKAGE CatapultAttack::~CatapultAttack()
-{
-}
+DLL_LINKAGE CatapultAttack::~CatapultAttack() = default;
 
 DLL_LINKAGE void CatapultAttack::applyGs(CGameState * gs)
 {
@@ -1699,7 +1694,7 @@ DLL_LINKAGE void CatapultAttack::applyGs(CGameState * gs)
 
 DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
 {
-	auto town = battleState->getDefendedTown();
+	const auto * town = battleState->getDefendedTown();
 	if(!town)
 		return;
 
@@ -1713,7 +1708,7 @@ DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
 	}
 }
 
-DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
+DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
 	CStack * stack = gs->curB->getStack(stackID);
 	switch(which)
@@ -1754,7 +1749,7 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
 	}
 }
 
-DLL_LINKAGE void PlayerCheated::applyGs(CGameState *gs)
+DLL_LINKAGE void PlayerCheated::applyGs(CGameState * gs) const
 {
 	if(!player.isValidPlayer())
 		return;
@@ -1763,7 +1758,7 @@ DLL_LINKAGE void PlayerCheated::applyGs(CGameState *gs)
 	gs->getPlayerState(player)->enteredWinningCheatCode = winningCheatCode;
 }
 
-DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
+DLL_LINKAGE void YourTurn::applyGs(CGameState * gs) const
 {
 	gs->currentPlayer = player;
 
@@ -1771,8 +1766,10 @@ DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
 	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
-DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
-	: id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
+DLL_LINKAGE Component::Component(const CStackBasicDescriptor & stack)
+	: id(CREATURE)
+	, subtype(stack.type->idNumber)
+	, val(stack.count)
 {
 }
 
