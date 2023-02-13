@@ -2781,8 +2781,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 {
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
-	int h1_scholarSpellLevel = h1->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
-	int h2_scholarSpellLevel = h2->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
+	int h1_scholarSpellLevel = h1->valOfBonuses(Bonus::LEARN_MEETING_SPELL_LIMIT, -1);
+	int h2_scholarSpellLevel = h2->valOfBonuses(Bonus::LEARN_MEETING_SPELL_LIMIT, -1);
 
 	if (h1_scholarSpellLevel < h2_scholarSpellLevel)
 	{

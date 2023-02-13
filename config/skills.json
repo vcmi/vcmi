@@ -517,8 +517,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.scholar",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : -1,
+					"type" : "LEARN_MEETING_SPELL_LIMIT",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
