@@ -2,7 +2,7 @@
 	"items":
 	[
 		{
-			"name": "leftSettingsLabels",
+			"name": "topSettingsLabels",
 			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "center",
@@ -20,29 +20,6 @@
 				{
 					"position": {"x": 122, "y": 164},
 					"text": "core.genrltxt.571"
-				}
-			]
-		},
-
-		{
-			"name": "rightSideCheckboxesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"items":
-			[
-				{
-					"position": {"x": 64, "y": 258},
-					"text": "core.genrltxt.572"
-				},
-				{
-					"position": {"x": 64, "y": 294},
-					"text": "core.genrltxt.573"
-				},
-				{
-					"position": {"x": 64, "y": 330},
-					"text": "core.genrltxt.574"
 				}
 			]
 		},
@@ -186,6 +163,37 @@
 		},
 
 		{
+			"name": "bottomCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 64, "y": 258},
+					"text": "core.genrltxt.572"
+				},
+				{
+					"position": {"x": 64, "y": 294},
+					"text": "core.genrltxt.573"
+				},
+				{
+					"position": {"x": 64, "y": 330},
+					"text": "core.genrltxt.574"
+				},
+				{
+					"position": {"x": 64, "y": 366},
+					"text": "vcmi.adventureOptions.numericQuantities.hover"
+				},
+				{
+					"position": {"x": 64, "y": 402},
+					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
+				}
+			]
+		},
+
+		{
 			"name": "heroReminderCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
@@ -201,6 +209,24 @@
 			"help": "core.help.362",
 			"position": {"x": 28, "y": 328},
 			"callback": "quickCombatChanged"
+		},
+
+		{
+			"name": "numericQuantitiesCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.adventureOptions.numericQuantities",
+			"position": {"x": 28, "y": 364},
+			"callback": "numericQuantitiesChanged"
+		},
+
+		{
+			"name": "forceMovementInfoCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.adventureOptions.forceMovementInfo",
+			"position": {"x": 28, "y": 400},
+			"callback": "forceMovementInfoChanged"
 		}
 	]
 }

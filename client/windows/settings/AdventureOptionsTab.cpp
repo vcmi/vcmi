@@ -40,6 +40,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 	addCallback("mapScrollSpeedChanged", std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 	addCallback("heroReminderChanged", std::bind(&setBoolSetting, "adventure", "heroReminder", _1));
 	addCallback("quickCombatChanged", std::bind(&setBoolSetting, "adventure", "quickCombat", _1));
+	//settings that do not belong to base game:
+	addCallback("numericQuantitiesChanged", std::bind(&setBoolSetting, "gameTweaks", "numericCreaturesQuantities", _1));
+	addCallback("forceMovementInfoChanged", std::bind(&setBoolSetting, "gameTweaks", "forceMovementInfo", _1));
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -56,4 +59,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> quickCombatCheckbox = widget<CToggleButton>("quickCombatCheckbox");
 	quickCombatCheckbox->setSelected((bool)settings["adventure"]["quickCombat"].Bool());
+
+	std::shared_ptr<CToggleButton> numericQuantitiesCheckbox = widget<CToggleButton>("numericQuantitiesCheckbox");
+	numericQuantitiesCheckbox->setSelected((bool)settings["gameTweaks"]["numericCreaturesQuantities"].Bool());
+
+	std::shared_ptr<CToggleButton> forceMovementInfoCheckbox = widget<CToggleButton>("forceMovementInfoCheckbox");
+	forceMovementInfoCheckbox->setSelected((bool)settings["gameTweaks"]["forceMovementInfo"].Bool());
 }

@@ -54,10 +54,12 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", std::bind(&setBoolSetting, "video", "spellbookAnimation", _1));
-	addCallback("fullscreenChanged", std::bind(&GeneralOptionsTab::setFullscreenMode, this, _1));
-	addCallback("setGameResolution", std::bind(&GeneralOptionsTab::selectGameResolution, this));
 	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
 	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
+	//settings that do not belong to base game:
+	addCallback("fullscreenChanged", std::bind(&GeneralOptionsTab::setFullscreenMode, this, _1));
+	addCallback("setGameResolution", std::bind(&GeneralOptionsTab::selectGameResolution, this));
+	addCallback("framerateChanged", std::bind(&setBoolSetting, "general", "showfps", _1));
 	build(config);
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
@@ -75,6 +77,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 		widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
 	});
 
+	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
+	framerateCheckbox->setSelected((bool)settings["general"]["showfps"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->moveTo(CCS->musich->getVolume());

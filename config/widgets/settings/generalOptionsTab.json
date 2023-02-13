@@ -2,7 +2,7 @@
 	"items":
 	[
 		{
-			"name": "leftSettingsLabels",
+			"name": "topSettingsLabels",
 			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "center",
@@ -22,43 +22,6 @@
 					"text": "core.genrltxt.395"
 				}
 			]
-		},
-
-		{
-			"name": "rightSideCheckboxesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"items":
-			[
-				{
-					"position": {"x": 64, "y": 258},
-					"text": "core.genrltxt.577"
-				},
-				{
-					"position": {"x": 64, "y": 294},
-					"text": "vcmi.systemOptions.fullscreenButton.hover"
-				}
-			]
-		},
-
-		{
-			"name": "spellbookAnimationCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.364",
-			"position": {"x": 28, "y": 256},
-			"callback": "spellbookAnimationChanged"
-		},
-
-		{
-			"name": "fullscreenCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.systemOptions.fullscreenButton",
-			"position": {"x": 28, "y": 292},
-			"callback": "fullscreenChanged"
 		},
 
 		{
@@ -102,6 +65,56 @@
 			"itemsVisible": 0,
 			"itemsTotal": 100,
 			"callback": "setVolume"
+		},
+
+		{
+			"name": "bottomCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 64, "y": 258},
+					"text": "core.genrltxt.577"
+				},
+				{
+					"position": {"x": 64, "y": 294},
+					"text": "vcmi.systemOptions.fullscreenButton.hover"
+				},
+				{
+					"position": {"x": 64, "y": 330},
+					"text": "vcmi.systemOptions.framerateButton.hover"
+				}
+			]
+		},
+
+		{
+			"name": "spellbookAnimationCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.364",
+			"position": {"x": 28, "y": 256},
+			"callback": "spellbookAnimationChanged"
+		},
+
+		{
+			"name": "fullscreenCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.systemOptions.fullscreenButton",
+			"position": {"x": 28, "y": 292},
+			"callback": "fullscreenChanged"
+		},
+
+		{
+			"name": "framerateCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.systemOptions.framerateButton",
+			"position": {"x": 28, "y": 328},
+			"callback": "framerateChanged"
 		}
 	]
 }

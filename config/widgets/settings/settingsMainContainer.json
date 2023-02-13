@@ -13,7 +13,7 @@
 			"type": "button",
 			"position": {"x": 0, "y": 0},
 			"image": "buttons/vcmisettings",
-			"help": "TODO",
+			"help": "vcmi.settingsMainWindow.systemTab",
 			"callback": "activateGeneralTab",
 			"items":
 			[
@@ -33,8 +33,19 @@
 			"type": "button",
 			"position": {"x": 200, "y": 0},
 			"image": "buttons/vcmisettings",
-			"help": "TODO",
-			"callback": "activateAdventureTab"
+			"help": "vcmi.settingsMainWindow.adventureTab",
+			"callback": "activateAdventureTab",
+			"items":
+			[
+				{
+					"name": "generalTabButtonTitle",
+					"type": "label",
+					"font": "big",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "vcmi.settingsMainWindow.adventureTab.hover"
+				}
+			]
 		},
 
 		{
@@ -42,12 +53,12 @@
 			"type": "button",
 			"position": {"x": 400, "y": 0},
 			"image": "buttons/vcmisettings",
-			"help": "TODO",
+			"help": "vcmi.settingsMainWindow.battleTab",
 			"callback": "activateBattleTab",
 			"items":
 			[
 				{
-					"name": "battleTabButtonTitle",
+					"name": "adventureTabButtonTitle",
 					"type": "label",
 					"font": "big",
 					"alignment": "center",
@@ -62,8 +73,19 @@
 			"type": "button",
 			"position": {"x": 600, "y": 0},
 			"image": "buttons/vcmisettings",
-			"help": "TODO",
-			"callback": "activateVcmiSettingsTab"
+			"help": "vcmi.settingsMainWindow.otherTab",
+			"callback": "activateVcmiSettingsTab",
+			"items":
+			[
+				{
+					"name": "otherTabButtonTitle",
+					"type": "label",
+					"font": "big",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "vcmi.settingsMainWindow.otherTab.hover"
+				}
+			]
 		},
 
 		{
