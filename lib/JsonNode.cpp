@@ -845,7 +845,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		}
 	}
 
-	value = &ability["source"];
+	value = &ability["sourceType"];
 	if (!value->isNull())
 		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
 

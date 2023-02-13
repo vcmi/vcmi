@@ -1708,7 +1708,7 @@ JsonNode Bonus::toJsonNode() const
 	if(turnsRemain != 0)
 		root["turns"].Integer() = turnsRemain;
 	if(source != OTHER)
-		root["source"].String() = vstd::findKey(bonusSourceMap, source);
+		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(sid != 0)
 		root["sourceID"].Integer() = sid;
 	if(val != 0)
