@@ -752,9 +752,10 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 			assert(commonInfo->src.AOH);
 			CCS->curh->dragAndDropCursor("artifact", dst.getArt()->artType->getIconIndex());
 		}
-		auto art = dst.getArt();
-		if(art && dst.slot == ArtifactPosition::TRANSITION_POS)
-			markPossibleSlots(art);
+		if(!curHero->artifactsTransitionPos.empty())
+		{
+			markPossibleSlots(curHero->getArt(ArtifactPosition::TRANSITION_POS));
+		}
 	}
 
 	updateParentWindow();
