@@ -1621,6 +1621,13 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(!handler.saving)
 		{
+			if(!appearance)
+			{
+				// crossoverDeserialize
+				type = VLC->heroh->objects[subID];
+				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+			}
+
 			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
 			patrol.initialPos = visitablePos();
 			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
