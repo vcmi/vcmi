@@ -364,6 +364,7 @@ public:
 	BONUS_VALUE(BASE_NUMBER)\
 	BONUS_VALUE(PERCENT_TO_ALL)\
 	BONUS_VALUE(PERCENT_TO_BASE)\
+	BONUS_VALUE(PERCENT_TO_SOURCE) /*Adds value only to bonuses with same source*/\
 	BONUS_VALUE(INDEPENDENT_MAX) /*used for SPELL bonus */\
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
@@ -396,6 +397,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 #define BONUS_SOURCE(x) x,
 		BONUS_SOURCE_LIST
 #undef BONUS_SOURCE
+		NUM_BONUS_SOURCE /*This is a dummy value, which will be always last*/
 	};
 
 	enum LimitEffect

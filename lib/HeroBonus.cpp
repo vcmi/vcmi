@@ -452,6 +452,7 @@ void BonusList::stackBonuses()
 
 int BonusList::totalValue() const
 {
+	std::array <std::pair<int, int>, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
 	int base = 0;
 	int percentToBase = 0;
 	int percentToAll = 0;
@@ -460,19 +461,23 @@ int BonusList::totalValue() const
 	bool hasIndepMax = false;
 	int indepMin = 0;
 	bool hasIndepMin = false;
+	int modifiedBase = 0;
 
 	for(std::shared_ptr<Bonus> b : bonuses)
 	{
 		switch(b->valType)
 		{
 		case Bonus::BASE_NUMBER:
-			base += b->val;
+			sources[b->source].first += b->val;
 			break;
 		case Bonus::PERCENT_TO_ALL:
 			percentToAll += b->val;
 			break;
 		case Bonus::PERCENT_TO_BASE:
 			percentToBase += b->val;
+			break;
+		case Bonus::PERCENT_TO_SOURCE:
+			sources[b->source].second += b->val;
 			break;
 		case Bonus::ADDITIVE_VALUE:
 			additive += b->val;
@@ -501,7 +506,12 @@ int BonusList::totalValue() const
 			break;
 		}
 	}
-	int modifiedBase = base + (base * percentToBase) / 100;
+	for(auto src : sources)
+	{
+		base += src.first;
+		modifiedBase += src.first + (src.first * src.second) / 100;
+	}
+	modifiedBase += (base * percentToBase) / 100;
 	modifiedBase += additive;
 	int valFirst = (modifiedBase * (100 + percentToAll)) / 100;
 
