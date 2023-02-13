@@ -268,7 +268,7 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 	{
 		callInterfaceIfPresent(cl, player, &IGameEventsReceiver::artifactMoved, pack.src, pack.dst);
 		if(pack.askAssemble)
-			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::artifactPossibleAssembling, pack.dst);
+			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
 	};
 
 	moveArtifact(pack.src.owningPlayer());
@@ -284,12 +284,14 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		{
 			auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
-			callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
-			if(srcLoc.owningPlayer() != dstLoc.owningPlayer())
-				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			MoveArtifact ma(&srcLoc, &dstLoc, false);
+			visitMoveArtifact(ma);
 		}
 	};
 
+	// Begin a session of bulk movement of arts. It is not necessary but useful for the client optimization.
+	callInterfaceIfPresent(cl, cl.getCurrentPlayer(), &IGameEventsReceiver::bulkArtMovementStart, 
+		pack.artsPack0.size() + pack.artsPack1.size());
 	applyMove(pack.artsPack0);
 	if(pack.swap)
 		applyMove(pack.artsPack1);

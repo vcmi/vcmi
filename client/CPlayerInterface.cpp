@@ -143,6 +143,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 	duringMovement = false;
 	ignoreEvents = false;
+	numOfMovedArts = 0;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -2145,21 +2146,28 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->infoBar->showSelection();
+
+	bool redraw = true;
+	// If a bulk transfer has arrived, then redrawing only the last art movement.
+	if(numOfMovedArts != 0)
+	{
+		numOfMovedArts--;
+		if(numOfMovedArts != 0)
+			redraw = false;
+	}
+
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
-			artWin->artifactMoved(src, dst);
+			artWin->artifactMoved(src, dst, redraw);
 	}
-	if(!GH.objsToBlit.empty())
-		GH.objsToBlit.back()->redraw();
-
 	waitWhileDialog();
 }
 
-void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
+void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 {
-	askToAssembleArtifact(dst);
+	numOfMovedArts = numOfArts;
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)

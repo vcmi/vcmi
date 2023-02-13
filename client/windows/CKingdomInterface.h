@@ -251,7 +251,7 @@ public:
 	void townChanged(const CGTownInstance *town);
 	void updateGarrisons() override;
 	void artifactRemoved(const ArtifactLocation &artLoc) override;
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
 	void artifactDisassembled(const ArtifactLocation &artLoc) override;
 	void artifactAssembled(const ArtifactLocation &artLoc) override;
 };

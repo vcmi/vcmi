@@ -471,13 +471,14 @@ void CArtifactsOfHero::scrollBackpack(int dir)
  *
  * @param art Artifact checked against.
  */
-void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
+void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art, bool withRedraw)
 {
 	for(CArtifactsOfHero *aoh : commonInfo->participants)
 		for(auto p : aoh->artWorn)
 			p.second->selectSlot(art->canBePutAt(ArtifactLocation(aoh->curHero, p.second->slotID), true));
 
-	safeRedraw();
+	if(withRedraw)
+		safeRedraw();
 }
 
 /**
@@ -489,7 +490,7 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw)
 		for(CArtifactsOfHero *aoh : commonInfo->participants)
 			aoh->unmarkLocalSlots(false);
 	else
-		unmarkLocalSlots(false);\
+		unmarkLocalSlots(false);
 
 	if(withRedraw)
 		safeRedraw();
@@ -546,7 +547,6 @@ CArtifactsOfHero::CArtifactsOfHero(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr>
 	backpack(Backpack),
 	backpackPos(0),
 	commonInfo(nullptr),
-	updateState(false),
 	leftArtRoll(leftScroll),
 	rightArtRoll(rightScroll),
 	allowedAssembling(true),
@@ -580,7 +580,6 @@ CArtifactsOfHero::CArtifactsOfHero(const Point & position, bool createCommonPart
 	: curHero(nullptr),
 	backpackPos(0),
 	commonInfo(nullptr),
-	updateState(false),
 	allowedAssembling(true),
 	highlightModeCallback(nullptr)
 {
@@ -644,26 +643,13 @@ CArtifactsOfHero::~CArtifactsOfHero()
 
 void CArtifactsOfHero::updateParentWindow()
 {
-	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt().get()))
+	if(CHeroWindow * chw = dynamic_cast<CHeroWindow*>(GH.topInt().get()))
 	{
-		if(updateState)
-			chw->curHero = curHero;
-		else
-			chw->update(curHero, true);
+		chw->update(curHero, true);
 	}
-	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt().get()))
+	else if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(GH.topInt().get()))
 	{
-		//use our copy of hero to draw window
-		if(cew->heroInst[0]->id == curHero->id)
-			cew->heroInst[0] = curHero;
-		else
-			cew->heroInst[1] = curHero;
-
-		if(!updateState)
-		{
-			cew->updateWidgets();
-			cew->redraw();
-		}
+		cew->updateWidgets();
 	}
 }
 
@@ -686,7 +672,7 @@ void CArtifactsOfHero::realizeCurrentTransaction()
 								ArtifactLocation(commonInfo->dst.AOH->curHero, commonInfo->dst.slotID));
 }
 
-void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst)
+void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst, bool withUIUpdate)
 {
 	bool isCurHeroSrc = src.isHolder(curHero),
 		isCurHeroDst = dst.isHolder(curHero);
@@ -714,7 +700,8 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 		auto art = curHero->getArt(ArtifactPosition::TRANSITION_POS);
 		assert(art);
 		CCS->curh->dragAndDropCursor("artifact", art->artType->getIconIndex());
-		markPossibleSlots(art);
+		if(withUIUpdate)
+			markPossibleSlots(art);
 
 		commonInfo->src.art = art;
 		commonInfo->src.slotID = src.slot;
@@ -752,17 +739,20 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 			assert(commonInfo->src.AOH);
 			CCS->curh->dragAndDropCursor("artifact", dst.getArt()->artType->getIconIndex());
 		}
-		if(!curHero->artifactsTransitionPos.empty())
+		if(!curHero->artifactsTransitionPos.empty() && withUIUpdate)
 		{
 			markPossibleSlots(curHero->getArt(ArtifactPosition::TRANSITION_POS));
 		}
 	}
 
-	updateParentWindow();
-	// If backpack is changed, update it
-	if((isCurHeroSrc && ArtifactUtils::isSlotBackpack(src.slot))
-	 || (isCurHeroDst && ArtifactUtils::isSlotBackpack(dst.slot)))
-		scrollBackpack(0);
+	if(withUIUpdate)
+	{
+		updateParentWindow();
+		// If backpack is changed, update it
+		if((isCurHeroSrc && ArtifactUtils::isSlotBackpack(src.slot))
+			|| (isCurHeroDst && ArtifactUtils::isSlotBackpack(dst.slot)))
+			scrollBackpack(0);
+	}
 }
 
 void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
@@ -806,9 +796,9 @@ void CArtifactsOfHero::artifactUpdateSlots(const ArtifactLocation & al)
 	if(al.isHolder(curHero))
 	{
 		if(ArtifactUtils::isSlotBackpack(al.slot))
-			updateBackpackSlots();
+			updateBackpackSlots(true);
 		else
-			updateWornSlots();
+			updateWornSlots(true);
 	}
 }
 
@@ -872,7 +862,7 @@ void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
 	}
 }
 
-void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
+void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw)
 {
 	CArtifactsOfHero * destaoh = nullptr;
 
@@ -881,8 +871,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const A
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
 		{
-			realPtr->artifactMoved(artLoc, destLoc);
-			realPtr->redraw();
+			realPtr->artifactMoved(artLoc, destLoc, withRedraw);
 			if(destLoc.isHolder(realPtr->getHero()))
 				destaoh = realPtr.get();
 		}
@@ -922,17 +911,12 @@ void CArtifactsOfHero::SCommonPart::Artpos::clear()
 	art = nullptr;
 }
 
-CArtifactsOfHero::SCommonPart::Artpos::Artpos()
-{
-	clear();
-}
-
 void CArtifactsOfHero::SCommonPart::Artpos::setTo(const CHeroArtPlace *place, bool dontTakeBackpack)
 {
 	slotID = place->slotID;
 	AOH = place->ourOwner;
 
-	if(slotID >= 19 && dontTakeBackpack)
+	if(ArtifactUtils::isSlotBackpack(slotID) && dontTakeBackpack)
 		art = nullptr;
 	else
 		art = place->ourArt;
