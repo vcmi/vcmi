@@ -1027,6 +1027,8 @@ bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet * artSet, Artifact
 {
 	if(slot == ArtifactPosition::TRANSITION_POS)
 		return true;
+	if(!CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved))
+		return false;
 	if(ArtifactUtils::isSlotBackpack(slot))
 		return true; //we can always remove combined art to the backapck
 
