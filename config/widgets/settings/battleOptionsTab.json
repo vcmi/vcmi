@@ -189,7 +189,7 @@
 					"index": 6,
 					"type": "toggleButton",
 					"image": "buttons/square",
-					"help": "TODO",
+					"help": "vcmi.battleOptions.animationsSpeed4",
 					"position": {"x": 192, "y": 0},
 					"items":
 					[
@@ -199,7 +199,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "4"
+							"text": "vcmi.battleOptions.animationsSpeed4.hover"
 						}
 					]
 				},
@@ -207,7 +207,7 @@
 					"index": 12,
 					"type": "toggleButton",
 					"image": "buttons/square",
-					"help": "TODO",
+					"help": "vcmi.battleOptions.animationsSpeed5",
 					"position": {"x": 229, "y": 0},
 					"items":
 					[
@@ -217,7 +217,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "5"
+							"text": "vcmi.battleOptions.animationsSpeed5.hover"
 						}
 					]
 				},
@@ -225,7 +225,7 @@
 					"index": 24,
 					"type": "toggleButton",
 					"image": "buttons/square",
-					"help": "TODO",
+					"help": "vcmi.battleOptions.animationsSpeed6",
 					"position": {"x": 266, "y": 0},
 					"items":
 					[
@@ -235,7 +235,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "6"
+							"text": "vcmi.battleOptions.animationsSpeed6.hover"
 						}
 					]
 				}
@@ -267,7 +267,7 @@
 			"type": "label",
 			"font": "medium",
 			"alignment": "left",
-			"color": "white",
+			"color": "yellow",
 			"text": "vcmi.battleOptions.queueSizeLabel.hover",
 			"position": {"x": 60, "y": 399}
 		},
@@ -282,7 +282,7 @@
 					"index": 0, //auto
 					"type": "toggleButton",
 					"image": "buttons/triplewide",
-					"help": "TODO",
+					"help": "vcmi.battleOptions.queueSizeAutoButton",
 					"position": {"x": 0, "y": 0},
 					"items":
 					[
@@ -292,7 +292,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "AUTO"
+							"text": "vcmi.battleOptions.queueSizeAutoButton.hover"
 						}
 					]
 				},
@@ -300,7 +300,7 @@
 					"index": 1, //small
 					"type": "toggleButton",
 					"image": "buttons/triplewide",
-					"help": "TODO",
+					"help": "vcmi.battleOptions.queueSizeSmallButton",
 					"position": {"x": 113, "y": 0},
 					"items":
 					[
@@ -310,7 +310,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "SMALL"
+							"text": "vcmi.battleOptions.queueSizeSmallButton.hover"
 						}
 					]
 				},
@@ -318,7 +318,7 @@
 					"index": 2, //large
 					"type": "toggleButton",
 					"image": "buttons/triplewide",
-					"help": "TODO",
+					"help": "vcmi.battleOptions.queueSizeBigButton",
 					"position": {"x": 226, "y": 0},
 					"items":
 					[
@@ -328,7 +328,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "BIG"
+							"text": "vcmi.battleOptions.queueSizeBigButton.hover"
 						}
 					]
 				}

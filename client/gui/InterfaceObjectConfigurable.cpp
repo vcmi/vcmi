@@ -281,6 +281,13 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 	auto image = config["image"].String();
 	auto help = readHintText(config["help"]);
 	auto button = std::make_shared<CToggleButton>(position, image, help);
+	if(!config["items"].isNull())
+	{
+		for(const auto & item : config["items"].Vector())
+		{
+			button->addOverlay(buildWidget(item));
+		}
+	}
 	if(!config["selected"].isNull())
 		button->setSelected(config["selected"].Bool());
 	if(!config["imageOrder"].isNull())

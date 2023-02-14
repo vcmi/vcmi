@@ -142,44 +142,45 @@
 					"image": "sysob11",
 					"help": "core.help.359",
 					"position": {"x": 128, "y": 0}
-				},
-
-				{
-					"index": 6,
-					"type": "toggleButton",
-					"image": "buttons/square",
-					"help": "TODO",
-					"position": {"x": 192, "y": 0},
-					"items":
-					[
-						{
-							"name": "mapScrollSpeed4",
-							"type": "label",
-							"font": "big",
-							"alignment": "center",
-							"color": "yellow",
-							"text": "4"
-						}
-					]
-				},
-				{
-					"index": 8,
-					"type": "toggleButton",
-					"image": "buttons/square",
-					"help": "TODO",
-					"position": {"x": 224, "y": 0},
-					"items":
-					[
-						{
-							"name": "mapScrollSpeed5",
-							"type": "label",
-							"font": "big",
-							"alignment": "center",
-							"color": "yellow",
-							"text": "5"
-						}
-					]
 				}
+
+				//not really functional yet...
+//				{
+//					"index": 6,
+//					"type": "toggleButton",
+//					"image": "buttons/square",
+//					"help": "vcmi.adventureOptions.mapScrollSpeed4",
+//					"position": {"x": 192, "y": 0},
+//					"items":
+//					[
+//						{
+//							"name": "mapScrollSpeed4",
+//							"type": "label",
+//							"font": "big",
+//							"alignment": "center",
+//							"color": "yellow",
+//							"text": "vcmi.adventureOptions.mapScrollSpeed4.hover"
+//						}
+//					]
+//				},
+//				{
+//					"index": 8,
+//					"type": "toggleButton",
+//					"image": "buttons/square",
+//					"help": "vcmi.adventureOptions.mapScrollSpeed5",
+//					"position": {"x": 224, "y": 0},
+//					"items":
+//					[
+//						{
+//							"name": "mapScrollSpeed5",
+//							"type": "label",
+//							"font": "big",
+//							"alignment": "center",
+//							"color": "yellow",
+//							"text": "vcmi.adventureOptions.mapScrollSpeed5.hover"
+//						}
+//					]
+//				}
 			],
 			"callback": "mapScrollSpeedChanged"
 		},
