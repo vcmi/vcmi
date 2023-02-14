@@ -17,6 +17,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
+#include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
@@ -196,19 +197,18 @@ void CInfoBar::reset()
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	if(adventureInt->selection)
+	if(adventureInt->curHero())
 	{
-		if(auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
-		{
-			showHeroSelection(hero);
-			return;
-		}
-		else if(auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection))
-		{
-			showTownSelection(town);
-			return;
-		}
+		showHeroSelection(adventureInt->curHero());
+		return;
 	}
+
+	if(adventureInt->curTown())
+	{
+		showTownSelection(adventureInt->curTown());
+		return;
+	}
+
 	showGameStatus();//FIXME: may be incorrect but shouldn't happen in general
 }
 
@@ -234,7 +234,8 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 
 void CInfoBar::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(CGI->generaltexth->allTexts[109], down);
+	if (down)
+		CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)

@@ -13,11 +13,11 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
-#include "../adventureMap/CAdvMapInt.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/TextAlignment.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
+#include "../windows/InfoWindows.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -272,7 +272,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_PLACEHOLDER:
 			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated(), down);
+				CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
 			break;
 		}
 	}

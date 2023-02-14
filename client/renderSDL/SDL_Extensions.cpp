@@ -364,11 +364,40 @@ uint32_t CSDL_Ext::colorTouint32_t(const SDL_Color * color)
 	return ret;
 }
 
-static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+static void drawLineXDashed(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color)
 {
+	double length(x2 - x1);
+
 	for(int x = x1; x <= x2; x++)
 	{
-		float f = float(x - x1) / float(x2 - x1);
+		double f = (x - x1) / length;
+		int y = vstd::lerp(y1, y2, f);
+
+		if (std::abs(x - x1) % 5 != 4)
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x, y, color.r, color.g, color.b);
+	}
+}
+
+static void drawLineYDashed(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color)
+{
+	double length(y2 - y1);
+
+	for(int y = y1; y <= y2; y++)
+	{
+		double f = (y - y1) / length;
+		int x = vstd::lerp(x1, x2, f);
+
+		if (std::abs(y - y1) % 5 != 4)
+			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x, y, color.r, color.g, color.b);
+	}
+}
+
+static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	double length(x2 - x1);
+	for(int x = x1; x <= x2; x++)
+	{
+		double f = (x - x1) / length;
 		int y = vstd::lerp(y1, y2, f);
 
 		uint8_t r = vstd::lerp(color1.r, color2.r, f);
@@ -383,9 +412,10 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 
 static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
+	double length(y2 - y1);
 	for(int y = y1; y <= y2; y++)
 	{
-		float f = float(y - y1) / float(y2 - y1);
+		double f = (y - y1) / length;
 		int x = vstd::lerp(x1, x2, f);
 
 		uint8_t r = vstd::lerp(color1.r, color2.r, f);
@@ -398,31 +428,60 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	}
 }
 
-void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+void CSDL_Ext::drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2)
 {
-	int width  = std::abs(x1-x2);
-	int height = std::abs(y1-y2);
+	//FIXME: duplicated code with drawLineDashed
+	int width  = std::abs(from.x - dest.x);
+	int height = std::abs(from.y - dest.y);
 
 	if ( width == 0 && height == 0)
 	{
-		uint8_t *p = CSDL_Ext::getPxPtr(sur, x1, y1);
+		uint8_t *p = CSDL_Ext::getPxPtr(sur, from.x, from.y);
 		ColorPutter<4, 0>::PutColorAlpha(p, color1);
 		return;
 	}
 
 	if (width > height)
 	{
-		if ( x1 < x2)
-			drawLineX(sur, x1,y1,x2,y2, color1, color2);
+		if ( from.x < dest.x)
+			drawLineX(sur, from.x, from.y, dest.x, dest.y, color1, color2);
 		else
-			drawLineX(sur, x2,y2,x1,y1, color2, color1);
+			drawLineX(sur, dest.x, dest.y, from.x, from.y, color2, color1);
 	}
 	else
 	{
-		if ( y1 < y2)
-			drawLineY(sur, x1,y1,x2,y2, color1, color2);
+		if ( from.y < dest.y)
+			drawLineY(sur, from.x, from.y, dest.x, dest.y, color1, color2);
 		else
-			drawLineY(sur, x2,y2,x1,y1, color2, color1);
+			drawLineY(sur, dest.x, dest.y, from.x, from.y, color2, color1);
+	}
+}
+
+void CSDL_Ext::drawLineDashed(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color)
+{
+	//FIXME: duplicated code with drawLine
+	int width  = std::abs(from.x - dest.x);
+	int height = std::abs(from.y - dest.y);
+
+	if ( width == 0 && height == 0)
+	{
+		CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, from.x, from.y, color.r, color.g, color.b);
+		return;
+	}
+
+	if (width > height)
+	{
+		if ( from.x < dest.x)
+			drawLineXDashed(sur, from.x, from.y, dest.x, dest.y, color);
+		else
+			drawLineXDashed(sur, dest.x, dest.y, from.x, from.y, color);
+	}
+	else
+	{
+		if ( from.y < dest.y)
+			drawLineYDashed(sur, from.x, from.y, dest.x, dest.y, color);
+		else
+			drawLineYDashed(sur, dest.x, dest.y, from.x, from.y, color);
 	}
 }
 
@@ -447,31 +506,6 @@ void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const S
 void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &color, int depth)
 {
 	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
-}
-
-void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const SDL_Color &color)
-{
-	const int y1 = r.y, y2 = r.y + r.h-1;
-	for (int i=0; i<r.w; i++)
-	{
-		const int x = r.x + i;
-		if (i%4 || (i==0))
-		{
-			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x, y1, color.r, color.g, color.b);
-			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x, y2, color.r, color.g, color.b);
-		}
-	}
-
-	const int x1 = r.x, x2 = r.x + r.w-1;
-	for (int i=0; i<r.h; i++)
-	{
-		const int y = r.y + i;
-		if ((i%4) || (i==0))
-		{
-			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x1, y, color.r, color.g, color.b);
-			CSDL_Ext::putPixelWithoutRefreshIfInSurf(sur, x2, y, color.r, color.g, color.b);
-		}
-	}
 }
 
 void CSDL_Ext::setPlayerColor(SDL_Surface * sur, PlayerColor player)

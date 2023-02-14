@@ -13,7 +13,6 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/Images.h"
 
@@ -22,10 +21,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 
 #define ADVOPT (conf.go()->ac)
-
-void CResDataBar::clickRight(tribool down, bool previousState)
-{
-}
 
 CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
@@ -70,8 +65,6 @@ CResDataBar::CResDataBar()
 
 }
 
-CResDataBar::~CResDataBar() = default;
-
 std::string CResDataBar::buildDateString()
 {
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
@@ -96,14 +89,13 @@ void CResDataBar::draw(SDL_Surface * to)
 	graphics->fonts[FONT_SMALL]->renderTextLeft(to, buildDateString(), Colors::WHITE, Point(txtpos[7].first, txtpos[7].second));
 }
 
-void CResDataBar::show(SDL_Surface * to)
-{
-
-}
-
 void CResDataBar::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	draw(to);
 }
 
+void CResDataBar::colorize(PlayerColor player)
+{
+	background->colorize(player);
+}

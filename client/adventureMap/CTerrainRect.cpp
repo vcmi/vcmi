@@ -189,7 +189,7 @@ void CTerrainRect::hover(bool on)
 {
 	if (!on)
 	{
-		adventureInt->statusbar->clear();
+		GH.statusbar->clear();
 		CCS->curh->set(Cursor::Map::POINTER);
 	}
 	//Hoverable::hover(on);
@@ -360,10 +360,11 @@ void CTerrainRect::showAll(SDL_Surface * to)
 
 void CTerrainRect::showAnim(SDL_Surface * to)
 {
-	if (fadeAnim->isFading())
+	if (!needsAnimUpdate())
+		return;
+
+	if (fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
 		show(to);
-	else if (lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
-		show(to); // currently the same; maybe we should pass some flag to map handler so it redraws ONLY tiles that need redraw instead of full
 }
 
 int3 CTerrainRect::whichTileIsIt(const int x, const int y)
@@ -380,17 +381,17 @@ int3 CTerrainRect::whichTileIsIt()
 	return whichTileIsIt(GH.getCursorPosition().x, GH.getCursorPosition().y);
 }
 
-int3 CTerrainRect::tileCountOnScreen()
+Rect CTerrainRect::visibleTilesArea()
 {
 	switch (adventureInt->mode)
 	{
 	default:
 		logGlobal->error("Unknown map mode %d", (int)adventureInt->mode);
-		return int3();
+		return Rect();
 	case EAdvMapMode::NORMAL:
-		return int3(tilesw, tilesh, 1);
+		return Rect(adventureInt->position.x, adventureInt->position.y, tilesw, tilesh);
 	case EAdvMapMode::WORLD_VIEW:
-		return int3((si32)(tilesw / adventureInt->worldViewScale), (si32)(tilesh / adventureInt->worldViewScale), 1);
+		return Rect(adventureInt->position.x, adventureInt->position.y, tilesw / adventureInt->worldViewScale, tilesh / adventureInt->worldViewScale);
 	}
 }
 

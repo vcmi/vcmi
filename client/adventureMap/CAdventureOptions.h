@@ -16,7 +16,6 @@ class CButton;
 /// Adventure options dialog where you can view the world, dig, play the replay of the last turn,...
 class CAdventureOptions : public CWindowObject
 {
-public:
 	std::shared_ptr<CButton> exit;
 	std::shared_ptr<CButton> viewWorld;
 	std::shared_ptr<CButton> puzzle;
@@ -24,7 +23,9 @@ public:
 	std::shared_ptr<CButton> scenInfo;
 	/*std::shared_ptr<CButton> replay*/
 
+public:
 	CAdventureOptions();
+
 	static void showScenarioInfo();
 };
 

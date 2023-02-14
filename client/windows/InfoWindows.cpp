@@ -22,6 +22,7 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CTerrainRect.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
@@ -364,8 +365,10 @@ CRClickPopupInt::~CRClickPopupInt()
 
 Point CInfoBoxPopup::toScreen(Point p)
 {
-	vstd::abetween(p.x, adventureInt->terrain.pos.x + 100, adventureInt->terrain.pos.x + adventureInt->terrain.pos.w - 100);
-	vstd::abetween(p.y, adventureInt->terrain.pos.y + 100, adventureInt->terrain.pos.y + adventureInt->terrain.pos.h - 100);
+	auto bounds = adventureInt->terrainAreaPixels();
+
+	vstd::abetween(p.x, bounds.top() + 100, bounds.bottom() - 100);
+	vstd::abetween(p.y, bounds.left() + 100, bounds.right() - 100);
 
 	return p;
 }
@@ -374,7 +377,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->selection); //todo: should this be nearest hero?
+	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->curTown()); //todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
@@ -384,7 +387,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->selection);//todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->curHero());//todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
@@ -403,7 +406,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
-		specific = adventureInt->selection;
+		specific = adventureInt->curArmy();
 
 	if(nullptr == specific)
 	{

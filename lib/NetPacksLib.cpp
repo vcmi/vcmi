@@ -2016,7 +2016,7 @@ void NewTurn::applyGs(CGameState *gs)
 
 	for(const auto & re : res)
 	{
-		assert(i->first < PlayerColor::PLAYER_LIMIT);
+		assert(re.first < PlayerColor::PLAYER_LIMIT);
 		gs->getPlayerState(re.first)->resources = re.second;
 	}
 

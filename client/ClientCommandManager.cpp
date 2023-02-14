@@ -115,25 +115,6 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	{
 		exit(EXIT_SUCCESS);
 	}
-	else if(commandName == std::string("activate"))
-	{
-		int what;
-		singleWordBuffer >> what;
-		switch (what)
-		{
-			case 0:
-				GH.topInt()->activate();
-				break;
-			case 1:
-				adventureInt->activate();
-				break;
-			case 2:
-				LOCPLINT->castleInt->activate();
-				break;
-			default:
-				printCommandMessage("Wrong argument specified!", ELogLevel::ERROR);
-		}
-	}
 	else if(commandName == "redraw")
 	{
 		GH.totalRedraw();
@@ -274,7 +255,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	}
 	else if(commandName == "mp" && adventureInt)
 	{
-		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
+		if(const CGHeroInstance *h = adventureInt->curHero())
 			printCommandMessage(std::to_string(h->movement) + "; max: " + std::to_string(h->maxMovePoints(true)) + "/" + std::to_string(h->maxMovePoints(false)) + "\n");
 	}
 	else if(commandName == "bonuses")
@@ -288,12 +269,12 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 			ss << b;
 			return ss.str();
 		};
-		printCommandMessage("Bonuses of " + adventureInt->selection->getObjectName() + "\n");
-		printCommandMessage(format(adventureInt->selection->getBonusList()) + "\n");
+		printCommandMessage("Bonuses of " + adventureInt->curArmy()->getObjectName() + "\n");
+		printCommandMessage(format(adventureInt->curArmy()->getBonusList()) + "\n");
 
 		printCommandMessage("\nInherited bonuses:\n");
 		TCNodes parents;
-		adventureInt->selection->getParents(parents);
+		adventureInt->curArmy()->getParents(parents);
 		for(const CBonusSystemNode *parent : parents)
 		{
 			printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");

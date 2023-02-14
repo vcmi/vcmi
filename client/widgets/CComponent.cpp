@@ -20,8 +20,8 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../renderSDL/SDL_Extensions.h"
-#include "../adventureMap/CAdvMapInt.h"
 #include "../windows/CMessage.h"
+#include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 #include "../CGameInfo.h"
 
@@ -250,8 +250,8 @@ void CComponent::setSurface(std::string defName, int imgPos)
 
 void CComponent::clickRight(tribool down, bool previousState)
 {
-	if(!getDescription().empty())
-		adventureInt->handleRightClick(getDescription(), down);
+	if(down && !getDescription().empty())
+		CRClickPopup::createAndPush(getDescription());
 }
 
 void CSelectableComponent::clickLeft(tribool down, bool previousState)
