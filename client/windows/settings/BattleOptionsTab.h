@@ -19,10 +19,14 @@ private:
 	std::vector<std::shared_ptr<CToggleButton>> toggles;
 
 	int getAnimSpeed() const;
+	int getQueueSizeId() const;
+	std::string getQueueSizeStringFromId(int value) const;
 	void viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
 	void movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
 	void mouseShadowChangedCallback(bool value);
 	void animationSpeedChangedCallback(int value);
+	void showQueueChangedCallback(bool value);
+	void queueSizeChangedCallback(int value);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);
 };

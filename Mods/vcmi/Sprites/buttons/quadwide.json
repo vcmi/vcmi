@@ -1,0 +1,8 @@
+{
+	"basepath" : "buttons/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "quadwide-normal.png"},
+		{ "frame" : 1, "file" : "quadwide-pressed.png"}
+	]
+}

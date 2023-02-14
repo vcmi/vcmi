@@ -12,7 +12,7 @@
 			"name": "activateGeneralOptionsButton",
 			"type": "button",
 			"position": {"x": 0, "y": 0},
-			"image": "buttons/vcmisettings",
+			"image": "buttons/quadwide",
 			"help": "vcmi.settingsMainWindow.systemTab",
 			"callback": "activateGeneralTab",
 			"items":
@@ -31,8 +31,8 @@
 		{
 			"name": "activateAdventureOptionsButton",
 			"type": "button",
-			"position": {"x": 200, "y": 0},
-			"image": "buttons/vcmisettings",
+			"position": {"x": 150, "y": 0},
+			"image": "buttons/quadwide",
 			"help": "vcmi.settingsMainWindow.adventureTab",
 			"callback": "activateAdventureTab",
 			"items":
@@ -51,8 +51,8 @@
 		{
 			"name": "activateBattleOptionsButton",
 			"type": "button",
-			"position": {"x": 400, "y": 0},
-			"image": "buttons/vcmisettings",
+			"position": {"x": 300, "y": 0},
+			"image": "buttons/quadwide",
 			"help": "vcmi.settingsMainWindow.battleTab",
 			"callback": "activateBattleTab",
 			"items":
@@ -71,8 +71,8 @@
 		{
 			"name": "activateVcmiSettingsButton",
 			"type": "button",
-			"position": {"x": 600, "y": 0},
-			"image": "buttons/vcmisettings",
+			"position": {"x": 450, "y": 0},
+			"image": "buttons/quadwide",
 			"help": "vcmi.settingsMainWindow.otherTab",
 			"callback": "activateVcmiSettingsTab",
 			"items":

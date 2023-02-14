@@ -28,11 +28,15 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	addCallback("movementShadowChanged", std::bind(&BattleOptionsTab::movementShadowChangedCallback, this, _1, owner));
 	addCallback("mouseShadowChanged", std::bind(&BattleOptionsTab::mouseShadowChangedCallback, this, _1));
 	addCallback("animationSpeedChanged", std::bind(&BattleOptionsTab::animationSpeedChangedCallback, this, _1));
+	addCallback("showQueueChanged", std::bind(&BattleOptionsTab::showQueueChangedCallback, this, _1));
+	addCallback("queueSizeChanged", std::bind(&BattleOptionsTab::queueSizeChangedCallback, this, _1));
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
 	animationSpeedToggle->setSelected(getAnimSpeed());
 
+	std::shared_ptr<CToggleGroup> queueSizeToggle = widget<CToggleGroup>("queueSizePicker");
+	queueSizeToggle->setSelected(getQueueSizeId());
 
 	std::shared_ptr<CToggleButton> viewGridCheckbox = widget<CToggleButton>("viewGridCheckbox");
 	viewGridCheckbox->setSelected((bool)settings["battle"]["cellBorders"].Bool());
@@ -42,6 +46,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected((bool)settings["battle"]["mouseShadow"].Bool());
+
+	std::shared_ptr<CToggleButton> showQueueCheckbox = widget<CToggleButton>("showQueueCheckbox");
+	showQueueCheckbox->setSelected((bool)settings["battle"]["showQueue"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -50,6 +57,34 @@ int BattleOptionsTab::getAnimSpeed() const
 		return static_cast<int>(std::round(settings["session"]["spectate-battle-speed"].Float()));
 
 	return static_cast<int>(std::round(settings["battle"]["speedFactor"].Float()));
+}
+
+int BattleOptionsTab::getQueueSizeId() const
+{
+	std::string text = settings["battle"]["queueSize"].String();
+	if(text == "auto")
+		return 0;
+	else if(text == "small")
+		return 1;
+	else if(text == "big")
+		return 2;
+
+	return 0;
+}
+
+std::string BattleOptionsTab::getQueueSizeStringFromId(int value) const
+{
+	switch(value)
+	{
+		case 0:
+			return "auto";
+		case 1:
+			return "small";
+		case 2:
+			return "big";
+		default:
+			return "auto";
+	}
 }
 
 void BattleOptionsTab::viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface)
@@ -78,5 +113,18 @@ void BattleOptionsTab::animationSpeedChangedCallback(int value)
 {
 	Settings speed = settings.write["battle"]["speedFactor"];
 	speed->Float() = float(value);
+}
+
+void BattleOptionsTab::showQueueChangedCallback(bool value)
+{
+	Settings shadow = settings.write["battle"]["showQueue"];
+	shadow->Bool() = value;
+}
+
+void BattleOptionsTab::queueSizeChangedCallback(int value)
+{
+	std::string stringifiedValue = getQueueSizeStringFromId(value);
+	Settings size = settings.write["battle"]["queueSize"];
+	size->String() = stringifiedValue;
 }
 

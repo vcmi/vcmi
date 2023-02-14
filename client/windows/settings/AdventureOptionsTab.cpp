@@ -43,6 +43,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 	//settings that do not belong to base game:
 	addCallback("numericQuantitiesChanged", std::bind(&setBoolSetting, "gameTweaks", "numericCreaturesQuantities", _1));
 	addCallback("forceMovementInfoChanged", std::bind(&setBoolSetting, "gameTweaks", "forceMovementInfo", _1));
+	addCallback("showGridChanged", std::bind(&setBoolSetting, "gameTweaks", "showGrid", _1));
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -65,4 +66,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> forceMovementInfoCheckbox = widget<CToggleButton>("forceMovementInfoCheckbox");
 	forceMovementInfoCheckbox->setSelected((bool)settings["gameTweaks"]["forceMovementInfo"].Bool());
+
+	std::shared_ptr<CToggleButton> showGridCheckbox = widget<CToggleButton>("showGridCheckbox");
+	showGridCheckbox->setSelected((bool)settings["gameTweaks"]["showGrid"].Bool());
 }

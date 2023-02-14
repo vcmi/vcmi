@@ -147,16 +147,38 @@
 				{
 					"index": 6,
 					"type": "toggleButton",
-					"image": "sysob11",
-					"help": "core.help.359",
-					"position": {"x": 192, "y": 0}
+					"image": "buttons/square",
+					"help": "TODO",
+					"position": {"x": 192, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed4",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "4"
+						}
+					]
 				},
 				{
 					"index": 8,
 					"type": "toggleButton",
-					"image": "sysob11",
-					"help": "core.help.359",
-					"position": {"x": 256, "y": 0}
+					"image": "buttons/square",
+					"help": "TODO",
+					"position": {"x": 224, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed5",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "5"
+						}
+					]
 				}
 			],
 			"callback": "mapScrollSpeedChanged"
@@ -189,6 +211,10 @@
 				{
 					"position": {"x": 64, "y": 402},
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
+				},
+				{
+					"position": {"x": 64, "y": 438},
+					"text": "vcmi.adventureOptions.showGrid.hover"
 				}
 			]
 		},
@@ -227,6 +253,14 @@
 			"help": "vcmi.adventureOptions.forceMovementInfo",
 			"position": {"x": 28, "y": 400},
 			"callback": "forceMovementInfoChanged"
+		},
+		{
+			"name": "showGridCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.adventureOptions.showGrid",
+			"position": {"x": 28, "y": 436},
+			"callback": "showGridChanged"
 		}
 	]
 }

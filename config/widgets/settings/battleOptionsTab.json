@@ -188,19 +188,152 @@
 				{
 					"index": 6,
 					"type": "toggleButton",
-					"image": "sysob11",
-					"help": "core.help.424",
-					"position": {"x": 192, "y": 0}
+					"image": "buttons/square",
+					"help": "TODO",
+					"position": {"x": 192, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleAnimationsSpeed4",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "4"
+						}
+					]
 				},
 				{
 					"index": 12,
 					"type": "toggleButton",
-					"image": "sysob11",
-					"help": "core.help.424",
-					"position": {"x": 256, "y": 0}
+					"image": "buttons/square",
+					"help": "TODO",
+					"position": {"x": 229, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleAnimationsSpeed5",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "5"
+						}
+					]
+				},
+				{
+					"index": 24,
+					"type": "toggleButton",
+					"image": "buttons/square",
+					"help": "TODO",
+					"position": {"x": 266, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleAnimationsSpeed6",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "6"
+						}
+					]
 				}
 			],
 			"callback": "animationSpeedChanged"
+		},
+
+		{
+			"name": "showQueueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.battleOptions.showQueue.hover",
+			"position": {"x": 61, "y": 363}
+		},
+
+		{
+			"name": "showQueueCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.showQueue",
+			"position": {"x": 25, "y": 361},
+			"callback": "showQueueChanged"
+		},
+
+		{
+			"name": "queueSizeLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.battleOptions.queueSizeLabel.hover",
+			"position": {"x": 60, "y": 399}
+		},
+
+		{
+			"name": "queueSizePicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 420},
+			"items":
+			[
+				{
+					"index": 0, //auto
+					"type": "toggleButton",
+					"image": "buttons/triplewide",
+					"help": "TODO",
+					"position": {"x": 0, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeAutoText",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "AUTO"
+						}
+					]
+				},
+				{
+					"index": 1, //small
+					"type": "toggleButton",
+					"image": "buttons/triplewide",
+					"help": "TODO",
+					"position": {"x": 113, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeSmallText",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "SMALL"
+						}
+					]
+				},
+				{
+					"index": 2, //large
+					"type": "toggleButton",
+					"image": "buttons/triplewide",
+					"help": "TODO",
+					"position": {"x": 226, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeBigText",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "BIG"
+						}
+					]
+				}
+			],
+			"callback": "queueSizeChanged"
 		}
 	]
 }
