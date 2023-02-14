@@ -257,7 +257,7 @@ public:
 	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school, additional info - weighted chance. use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER for calculating the power*/ \
 	BONUS_NAME(CATAPULT)								\
 	BONUS_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
-	BONUS_NAME(GENERAL_DAMAGE_REDUCTION) /* shield / air shield effect */ \
+	BONUS_NAME(GENERAL_DAMAGE_REDUCTION) /* shield / air shield effect, also armorer skill/petrify effect for subtype -1*/ \
 	BONUS_NAME(GENERAL_ATTACK_REDUCTION) /*eg. while stoned or blinded - in %,// subtype not used, use ONLY_MELEE_FIGHT / DISTANCE_FIGHT*/ \
 	BONUS_NAME(DEFENSIVE_STANCE) /* val - bonus to defense while defending */ \
 	BONUS_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
@@ -335,7 +335,7 @@ public:
 	BONUS_NAME(LEARN_BATTLE_SPELL_CHANCE) /*skill-agnostic eagle eye chance. subtype = 0 - from enemy, 1 - TODO: from entire battlefield*/\
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT) /*skill-agnostic eagle eye limit, subtype - school (-1 for all), others TODO*/\
 	BONUS_NAME(PERCENTAGE_DAMAGE_BOOST) /*skill-agnostic archery and offence, subtype is 0 for offence and 1 for archery*/\
-	BONUS_NAME(LEARN_MEETING_SPELL_LIMIT) /*skill-agnostic scholar, subtype is -1 for all, TODO for others (> 0)*/
+	BONUS_NAME(LEARN_MEETING_SPELL_LIMIT) /*skill-agnostic scholar, subtype is -1 for all, TODO for others (> 0)*/\
 	/* end of list */
 
 

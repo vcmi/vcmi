@@ -672,8 +672,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.armorer",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "GENERAL_DAMAGE_REDUCTION",
+					"subtype" : -1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}

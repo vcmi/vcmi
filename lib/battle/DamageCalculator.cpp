@@ -277,8 +277,8 @@ double DamageCalculator::getDefenseSkillFactor() const
 
 double DamageCalculator::getDefenseArmorerFactor() const
 {
-	const std::string cachingStrArmorer = "type_SECONDARY_SKILL_PREMYs_ARMORER";
-	static const auto selectorArmorer = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARMORER);
+	const std::string cachingStrArmorer = "type_GENERAL_DAMAGE_REDUCTIONs_N1_NsrcSPELL_EFFECT";
+	static const auto selectorArmorer = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(Bonus::SPELL_EFFECT).Not());
 	return info.defender->valOfBonuses(selectorArmorer, cachingStrArmorer) / 100.0;
 
 }
@@ -382,8 +382,8 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 double DamageCalculator::getDefensePetrificationFactor() const
 {
 	// Creatures that are petrified by a Basilisk's Petrifying attack or a Medusa's Stone gaze take 50% damage (R8 = 0.50) from ranged and melee attacks. Taking damage also deactivates the effect.
-	const std::string cachingStrAllReduction = "type_GENERAL_DAMAGE_REDUCTIONs_N1";
-	static const auto selectorAllReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1);
+	const std::string cachingStrAllReduction = "type_GENERAL_DAMAGE_REDUCTIONs_N1_srcSPELL_EFFECT";
+	static const auto selectorAllReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(Bonus::SPELL_EFFECT));
 
 	return info.defender->valOfBonuses(selectorAllReduction, cachingStrAllReduction) / 100.0;
 }
