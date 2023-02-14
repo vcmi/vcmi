@@ -41,7 +41,7 @@ public:
 		/// The color of the player ranging from 0 to PlayerColor::PLAYER_LIMIT - 1.
 		/// The default value is 0.
 		PlayerColor getColor() const;
-		void setColor(PlayerColor value);
+		void setColor(const PlayerColor & value);
 
 		/// The starting town of the player ranging from 0 to town max count or RANDOM_TOWN.
 		/// The default value is RANDOM_TOWN.
@@ -54,7 +54,7 @@ public:
 		
 		/// Team id for this player. TeamID::NO_TEAM by default - team will be randomly assigned
 		TeamID getTeam() const;
-		void setTeam(TeamID value);
+		void setTeam(const TeamID & value);
 
 		/// Constant for a random town selection.
 		static const si32 RANDOM_TOWN = -1;
@@ -119,12 +119,12 @@ public:
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
 	const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
-	void setStartingTownForPlayer(PlayerColor color, si32 town);
+	void setStartingTownForPlayer(const PlayerColor & color, si32 town);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
-	void setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType);
-	
-	void setPlayerTeam(PlayerColor color, TeamID team = TeamID::NO_TEAM);
+	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType::EPlayerType playerType);
+
+	void setPlayerTeam(const PlayerColor & color, const TeamID & team = TeamID::NO_TEAM);
 
 	/// The random map template to generate the map with or empty/not set if the template should be chosen randomly.
 	/// Default: Not set/random.

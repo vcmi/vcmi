@@ -26,7 +26,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///helpers
-static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID)
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
@@ -40,13 +40,6 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	const PlayerColor playerID = h->getOwner();
 	showInfoDialog(playerID,txtID,soundID);
 }
-
-CGPandoraBox::CGPandoraBox()
-	: hasGuardians(false), gainedExp(0), manaDiff(0), moraleDiff(0), luckDiff(0)
-{
-
-}
-
 
 void CGPandoraBox::initObj(CRandomGenerator & rand)
 {
@@ -70,7 +63,7 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 	iw.player = h->getOwner();
 
 	bool changesPrimSkill = false;
-	for (auto & elem : primskills)
+	for(const auto & elem : primskills)
 	{
 		if(elem)
 		{
@@ -93,11 +86,11 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 
 		if ((curLev && curLev < abilityLevels[i]) || abilityCanUseSlot)
 		{
-			unpossessedAbilities.push_back({ abilities[i], abilityLevels[i] });
+			unpossessedAbilities.emplace_back(abilities[i], abilityLevels[i]);
 		}
 	}
 
-	if(gainedExp || changesPrimSkill || unpossessedAbilities.size())
+	if(gainedExp || changesPrimSkill || !unpossessedAbilities.empty())
 	{
 		TExpType expVal = h->calculateXp(gainedExp);
 		//getText(iw,afterBattle,175,h); //wtf?
@@ -105,19 +98,19 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 		iw.text.addReplacement(h->getNameTranslated());
 
 		if(expVal)
-			iw.components.push_back(Component(Component::EXPERIENCE,0,static_cast<si32>(expVal),0));
+			iw.components.emplace_back(Component::EXPERIENCE, 0, static_cast<si32>(expVal), 0);
 
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
-				iw.components.push_back(Component(Component::PRIM_SKILL,i,primskills[i],0));
+				iw.components.emplace_back(Component::PRIM_SKILL, i, primskills[i], 0);
 
-		for(auto abilityData : unpossessedAbilities)
-			iw.components.push_back(Component(Component::SEC_SKILL, abilityData.first, abilityData.second, 0));
+		for(const auto & abilityData : unpossessedAbilities)
+			iw.components.emplace_back(Component::SEC_SKILL, abilityData.first, abilityData.second, 0);
 
 		cb->showInfoDialog(&iw);
 
 		//give sec skills
-		for (auto abilityData : unpossessedAbilities)
+		for(const auto & abilityData : unpossessedAbilities)
 			cb->changeSecSkill(h, abilityData.first, abilityData.second, true);
 
 		assert(h->secSkills.size() <= GameConstants::SKILL_PER_HERO);
@@ -149,7 +142,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	iw.player = h->getOwner();
 
 	//TODO: reuse this code for Scholar skill
-	if(spells.size())
+	if(!spells.empty())
 	{
 		std::set<SpellID> spellsToGive;
 
@@ -162,10 +155,10 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 
 			for (; i != spells.cend(); i++)
 			{
-				auto spell = (*i).toSpell(VLC->spells());
+				const auto * spell = (*i).toSpell(VLC->spells());
 				if(h->canLearnSpell(spell))
 				{
-					iw.components.push_back(Component(Component::SPELL, *i, 0, 0));
+					iw.components.emplace_back(Component::SPELL, *i, 0, 0);
 					spellsToGive.insert(*i);
 				}
 				if(spellsToGive.size() == 8) //display up to 8 spells at once
@@ -193,7 +186,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(manaDiff)
 	{
 		getText(iw,hadGuardians,manaDiff,176,177,h);
-		iw.components.push_back(Component(Component::PRIM_SKILL,5,manaDiff,0));
+		iw.components.emplace_back(Component::PRIM_SKILL, 5, manaDiff, 0);
 		cb->showInfoDialog(&iw);
 		cb->setManaPoints(h->id, h->mana + manaDiff);
 	}
@@ -201,7 +194,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(moraleDiff)
 	{
 		getText(iw,hadGuardians,moraleDiff,178,179,h);
-		iw.components.push_back(Component(Component::MORALE,0,moraleDiff,0));
+		iw.components.emplace_back(Component::MORALE, 0, moraleDiff, 0);
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
 		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,moraleDiff,id.getNum(),"");
@@ -212,7 +205,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(luckDiff)
 	{
 		getText(iw,hadGuardians,luckDiff,180,181,h);
-		iw.components.push_back(Component(Component::LUCK,0,luckDiff,0));
+		iw.components.emplace_back(Component::LUCK, 0, luckDiff, 0);
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
 		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,luckDiff,id.getNum(),"");
@@ -225,9 +218,9 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	for(int i=0; i<resources.size(); i++)
 	{
 		if(resources[i] < 0)
-			iw.components.push_back(Component(Component::RESOURCE,i,resources[i],0));
+			iw.components.emplace_back(Component::RESOURCE, i, resources[i], 0);
 	}
-	if(iw.components.size())
+	if(!iw.components.empty())
 	{
 		getText(iw,hadGuardians,182,h);
 		cb->showInfoDialog(&iw);
@@ -238,9 +231,9 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	for(int i=0; i<resources.size(); i++)
 	{
 		if(resources[i] > 0)
-			iw.components.push_back(Component(Component::RESOURCE,i,resources[i],0));
+			iw.components.emplace_back(Component::RESOURCE, i, resources[i], 0);
 	}
-	if(iw.components.size())
+	if(!iw.components.empty())
 	{
 		getText(iw,hadGuardians,183,h);
 		cb->showInfoDialog(&iw);
@@ -250,9 +243,9 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	// 	getText(iw,afterBattle,183,h);
 	iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
 	iw.text.addReplacement(h->getNameTranslated());
-	for(auto & elem : artifacts)
+	for(const auto & elem : artifacts)
 	{
-		iw.components.push_back(Component(Component::ARTIFACT,elem,0,0));
+		iw.components.emplace_back(Component::ARTIFACT, elem, 0, 0);
 		if(iw.components.size() >= 14)
 		{
 			cb->showInfoDialog(&iw);
@@ -261,14 +254,14 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 			iw.text.addReplacement(h->getNameTranslated());
 		}
 	}
-	if(iw.components.size())
+	if(!iw.components.empty())
 	{
 		cb->showInfoDialog(&iw);
 	}
 
 	cb->giveResources(h->getOwner(), resources);
 
-	for(auto & elem : artifacts)
+	for(const auto & elem : artifacts)
 		cb->giveHeroNewArtifact(h, VLC->arth->objects[elem],ArtifactPosition::FIRST_AVAILABLE);
 
 	iw.components.clear();
@@ -277,9 +270,9 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(creatures.stacksCount())
 	{ //this part is taken straight from creature bank
 		MetaString loot;
-		for(auto & elem : creatures.Slots())
+		for(const auto & elem : creatures.Slots())
 		{ //build list of joined creatures
-			iw.components.push_back(Component(*elem.second));
+			iw.components.emplace_back(*elem.second);
 			loot << "%s";
 			loot.addReplacement(*elem.second);
 		}
@@ -295,7 +288,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 		cb->showInfoDialog(&iw);
 		cb->giveCreatures(this, h, creatures, false);
 	}
-	if(!hasGuardians && msg.size())
+	if(!hasGuardians && !msg.empty())
 	{
 		iw.text << msg;
 		cb->showInfoDialog(&iw);
@@ -304,7 +297,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 
 void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
 {
-	if(afterBattle || !message.size())
+	if(afterBattle || message.empty())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,text);//%s has lost treasure.
 		iw.text.addReplacement(h->getNameTranslated());
@@ -320,7 +313,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 {
 	iw.components.clear();
 	iw.text.clear();
-	if(afterBattle || !message.size())
+	if(afterBattle || message.empty())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,val < 0 ? negative : positive); //%s's luck takes a turn for the worse / %s's luck increases
 		iw.text.addReplacement(h->getNameTranslated());
@@ -349,10 +342,10 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 			showInfoDialog(hero,16,0);
 			cb->startBattleI(hero, this); //grants things after battle
 		}
-		else if(message.size() == 0 && resources.size() == 0
-			&& primskills.size() == 0 && abilities.size() == 0
-			&& abilityLevels.size() == 0 && artifacts.size() == 0
-			&& spells.size() == 0 && creatures.stacksCount() > 0
+		else if(message.empty() && resources.empty()
+			&& primskills.empty() && abilities.empty()
+			&& abilityLevels.empty() && artifacts.empty()
+			&& spells.empty() && creatures.stacksCount() > 0
 			&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
 			showInfoDialog(hero,15,0);
@@ -375,12 +368,6 @@ void CGPandoraBox::afterSuccessfulVisit() const
 	cb->removeAfterVisit(this);
 }
 
-CGEvent::CGEvent()
-	: CGPandoraBox(), removeAfterVisit(false), availableFor(0), computerActivate(false), humanActivate(false)
-{
-
-}
-
 void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CCreatureSet::serializeJson(handler, "guards", 7);
@@ -398,8 +385,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(handler.saving)
 		{
-			for(int idx = 0; idx < primskills.size(); idx ++)
-				if(primskills[idx] != 0)
+			for(int primskill : primskills)
+				if(primskill != 0)
 					haveSkills = true;
 		}
 		else
@@ -456,7 +443,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				continue;
 			}
 
-			abilities.push_back(SecondarySkill(rawId));
+			abilities.emplace_back(rawId);
 			abilityLevels.push_back(level);
 		}
 	}
@@ -487,7 +474,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
-		if(message.size())
+		if(!message.empty())
 			iw.text << message;
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);

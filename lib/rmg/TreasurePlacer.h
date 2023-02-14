@@ -24,14 +24,12 @@ struct ObjectInfo
 	std::shared_ptr<const ObjectTemplate> templ;
 	ui32 value = 0;
 	ui16 probability = 0;
-	ui32 maxPerZone = -1;
+	ui32 maxPerZone = 1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
 	void setTemplate(si32 type, si32 subtype, TerrainId terrain);
-	
-	ObjectInfo();
-	
+
 	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
 };
 

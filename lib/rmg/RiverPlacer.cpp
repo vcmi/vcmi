@@ -71,7 +71,7 @@ const std::array<std::array<int, 25>, 4> deltaTemplates
 void RiverPlacer::process()
 {
 	preprocess();
-	for(auto & t : riverNodes)
+	for(const auto & t : riverNodes)
 		connectRiver(t);
 	
 	if(!rivers.empty())
@@ -134,8 +134,8 @@ void RiverPlacer::prepareHeightmap()
 	{
 		roads.unite(m->getRoads());
 	}
-	
-	for(auto & t : zone.area().getTilesVector())
+
+	for(const auto & t : zone.area().getTilesVector())
 	{
 		heightMap[t] = generator.rand.nextInt(5);
 		
@@ -164,7 +164,7 @@ void RiverPlacer::preprocess()
 	std::map<TRmgTemplateZoneId, rmg::Area> neighbourZonesTiles;
 	rmg::Area borderArea(zone.getArea().getBorder());
 	TRmgTemplateZoneId connectedToWaterZoneId = -1;
-	for(auto & t : zone.getArea().getBorderOutside())
+	for(const auto & t : zone.getArea().getBorderOutside())
 	{
 		if(!map.isOnMap(t))
 		{
@@ -200,7 +200,7 @@ void RiverPlacer::preprocess()
 		auto river = VLC->terrainTypeHandler->getById(zone.getTerrainType())->river;
 		auto & a = neighbourZonesTiles[connectedToWaterZoneId];
 		auto availableArea = zone.areaPossible() + zone.freePaths();
-		for(auto & tileToProcess : availableArea.getTilesVector())
+		for(const auto & tileToProcess : availableArea.getTilesVector())
 		{
 			int templateId = -1;
 			for(int tId = 0; tId < 4; ++tId)
@@ -390,7 +390,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 			{
 				if(templ->animationFile == targetTemplateName)
 				{
-					auto obj = handler->create(templ);
+					auto * obj = handler->create(templ);
 					rmg::Object deltaObj(*obj, deltaPositions[pos]);
 					deltaObj.finalize(map);
 				}

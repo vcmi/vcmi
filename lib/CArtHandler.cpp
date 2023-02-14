@@ -410,17 +410,17 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	return art;
 }
 
-ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
+ArtifactPosition::ArtifactPosition(std::string slotName):
+	num(ArtifactPosition::PRE_FIRST)
 {
 #define ART_POS(x) { #x, ArtifactPosition::x },
 	static const std::map<std::string, ArtifactPosition> artifactPositionMap = { ART_POS_LIST };
 #undef ART_POS
 	auto it = artifactPositionMap.find (slotName);
 	if (it != artifactPositionMap.end())
-		return it->second;
+		num = it->second;
 
 	logMod->warn("Warning! Artifact slot %s not recognized!", slotName);
-	return ArtifactPosition::PRE_FIRST;
 }
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
@@ -445,7 +445,7 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 	}
 	else
 	{
-		auto slot = stringToSlot(slotID);
+		auto slot = ArtifactPosition(slotID);
 		if (slot != ArtifactPosition::PRE_FIRST)
 			art->possibleSlots[ArtBearer::HERO].push_back (slot);
 	}

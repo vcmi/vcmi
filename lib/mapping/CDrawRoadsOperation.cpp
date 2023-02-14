@@ -153,9 +153,9 @@ static bool ruleIsAny(const std::string & rule)
 #endif
 
 ///CDrawLinesOperation
-CDrawLinesOperation::CDrawLinesOperation(CMap * map, const CTerrainSelection & terrainSel, CRandomGenerator * gen):
+CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, CRandomGenerator * gen):
 	CMapOperation(map),
-	terrainSel(terrainSel),
+	terrainSel(std::move(terrainSel)),
 	gen(gen)
 {
 }
@@ -232,7 +232,7 @@ void CDrawLinesOperation::flipPattern(LinePattern& pattern, int flip) const
 
 void CDrawLinesOperation::updateTiles(std::set<int3> & invalidated)
 {
-	for(int3 coord : invalidated)
+	for(const int3 & coord : invalidated)
 	{
 		TerrainTile & tile = map->getTile(coord);
 		ValidationResult result(false);

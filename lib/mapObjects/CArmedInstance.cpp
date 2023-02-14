@@ -35,7 +35,6 @@ void CArmedInstance::randomizeArmy(int type)
 		assert(elem.second->valid(false));
 		assert(elem.second->armyObj == this);
 	}
-	return;
 }
 
 // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
@@ -46,10 +45,11 @@ CArmedInstance::CArmedInstance()
 {
 }
 
-CArmedInstance::CArmedInstance(bool isHypotetic)
-	:CBonusSystemNode(isHypotetic), nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
+CArmedInstance::CArmedInstance(bool isHypotetic):
+	CBonusSystemNode(isHypotetic),
+	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
+	battle(nullptr)
 {
-	battle = nullptr;
 }
 
 void CArmedInstance::updateMoraleBonusFromArmy()
@@ -71,7 +71,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	const std::string undeadCacheKey = "type_UNDEAD";
 	static const CSelector undeadSelector = Selector::type()(Bonus::UNDEAD);
 
-	for(auto slot : Slots())
+	for(const auto & slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
 		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
@@ -110,7 +110,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
-	 	b->val = 2 - (si32)factionsInArmy;
+		b->val = 2 - static_cast<si32>(factionsInArmy);
 		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
 		description = b->description.substr(0, description.size()-2);//trim value
 	}

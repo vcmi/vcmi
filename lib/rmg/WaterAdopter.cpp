@@ -78,7 +78,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		rmg::Area noWaterSlice;
 		for(int i = 1; i < reverseDistanceMap.size(); ++i)
 		{
-			for(auto & t : reverseDistanceMap[i])
+			for(const auto & t : reverseDistanceMap[i])
 			{
 				if(noWaterArea.distanceSqr(t) < 3)
 					noWaterSlice.add(t);
@@ -140,7 +140,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	rmg::Area waterAdd;
 	for(int coastId = 1; coastId <= coastIdMax; ++coastId)
 	{
-		for(auto& tile : reverseDistanceMap[coastId])
+		for(const auto & tile : reverseDistanceMap[coastId])
 		{
 			//collect neighbout water tiles
 			auto collectionLambda = [this](const int3 & t, std::set<int3> & outCollection)
@@ -151,7 +151,8 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 					outCollection.insert(t);
 				}
 			};
-			std::set<int3> waterCoastDirect, waterCoastDiag;
+			std::set<int3> waterCoastDirect;
+			std::set<int3> waterCoastDiag;
 			map.foreachDirectNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDirect)));
 			map.foreachDiagonalNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDiag)));
 			int waterCoastDirectNum = waterCoastDirect.size();
@@ -170,10 +171,11 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 			}
 			if(waterCoastDirectNum == 2 && waterCoastDiagNum >= 2)
 			{
-				int3 diagSum, dirSum;
-				for(auto & i : waterCoastDiag)
+				int3 diagSum;
+				int3 dirSum;
+				for(const auto & i : waterCoastDiag)
 					diagSum += i - tile;
-				for(auto & i : waterCoastDirect)
+				for(const auto & i : waterCoastDirect)
 					dirSum += i - tile;
 				if(diagSum == int3() || dirSum == int3())
 				{
@@ -192,7 +194,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	waterArea.unite(waterAdd);
 	
 	//filtering tiny "lakes"
-	for(auto& tile : reverseDistanceMap[0]) //now it's only coast-water tiles
+	for(const auto & tile : reverseDistanceMap[0]) //now it's only coast-water tiles
 	{
 		if(!waterArea.contains(tile)) //for ground tiles
 			continue;

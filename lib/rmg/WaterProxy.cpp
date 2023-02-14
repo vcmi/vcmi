@@ -32,7 +32,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void WaterProxy::process()
 {
-	for(auto & t : zone.area().getTilesVector())
+	for(const auto & t : zone.area().getTilesVector())
 	{
 		map.setZoneID(t, zone.getId());
 		map.setOccupied(t, ETileType::POSSIBLE);
@@ -41,19 +41,19 @@ void WaterProxy::process()
 	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
 	
 	//check terrain type
-	for(auto & t : zone.area().getTilesVector())
+	for(const auto & t : zone.area().getTilesVector())
 	{
 		MAYBE_UNUSED(t);
 		assert(map.isOnMap(t));
 		assert(map.map().getTile(t).terType->getId() == zone.getTerrainType());
 	}
-	
-	for(auto z : map.getZones())
+
+	for(const auto & z : map.getZones())
 	{
 		if(z.second->getId() == zone.getId())
 			continue;
-		
-		for(auto & t : z.second->area().getTilesVector())
+
+		for(const auto & t : z.second->area().getTilesVector())
 		{
 			if(map.map().getTile(t).terType->getId() == zone.getTerrainType())
 			{
@@ -97,15 +97,15 @@ const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const
 void WaterProxy::collectLakes()
 {
 	int lakeId = 0;
-	for(auto lake : connectedAreas(zone.getArea(), true))
+	for(const auto & lake : connectedAreas(zone.getArea(), true))
 	{
 		lakes.push_back(Lake{});
 		lakes.back().area = lake;
 		lakes.back().distanceMap = lake.computeDistanceMap(lakes.back().reverseDistanceMap);
-		for(auto & t : lake.getBorderOutside())
+		for(const auto & t : lake.getBorderOutside())
 			if(map.isOnMap(t))
 				lakes.back().neighbourZones[map.getZoneID(t)].add(t);
-		for(auto & t : lake.getTiles())
+		for(const auto & t : lake.getTiles())
 			lakeMap[t] = lakeId;
 		
 		//each lake must have at least one free tile
@@ -134,7 +134,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 		{
 			if(!lake.keepConnections.count(dst.getId()))
 			{
-				for(auto & ct : lake.neighbourZones[dst.getId()].getTiles())
+				for(const auto & ct : lake.neighbourZones[dst.getId()].getTiles())
 				{
 					if(map.isPossible(ct))
 						map.setOccupied(ct, ETileType::BLOCKED);
@@ -204,8 +204,8 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		return false;
 	
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create();
-	
+	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
+
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
 	
@@ -263,7 +263,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		return false;
 	
 	int subtype = chooseRandomAppearance(generator.rand, Obj::SHIPYARD, land.getTerrainType());
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create();
+	auto * shipyard = dynamic_cast<CGShipyard *>(VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	rmg::Object rmgObject(*shipyard);
@@ -337,7 +337,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		manager->placeObject(rmgObject, guarded, true);
 		
 		zone.areaPossible().subtract(shipyardOutToBlock);
-		for(auto & i : shipyardOutToBlock.getTilesVector())
+		for(const auto & i : shipyardOutToBlock.getTilesVector())
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);
 		
@@ -354,7 +354,7 @@ char WaterProxy::dump(const int3 & t)
 		return '?';
 	
 	Lake & lake = lakes[lakeMap.at(t)];
-	for(auto i : lake.neighbourZones)
+	for(const auto & i : lake.neighbourZones)
 	{
 		if(i.second.contains(t))
 			return lake.keepConnections.count(i.first) ? std::to_string(i.first)[0] : '=';

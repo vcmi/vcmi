@@ -20,7 +20,7 @@ namespace rmg
 void toAbsolute(Tileset & tiles, const int3 & position)
 {
 	Tileset temp;
-	for(auto & tile : tiles)
+	for(const auto & tile : tiles)
 	{
 		temp.insert(tile + position);
 	}
@@ -36,10 +36,9 @@ Area::Area(const Area & area): dTiles(area.dTiles), dTotalShiftCache(area.dTotal
 {
 }
 
-Area::Area(const Area && area): dTiles(std::move(area.dTiles)), dTotalShiftCache(std::move(area.dTotalShiftCache))
+Area::Area(Area && area) noexcept: dTiles(std::move(area.dTiles)), dTotalShiftCache(area.dTotalShiftCache)
 {
 }
-
 
 Area & Area::operator=(const Area & area)
 {
@@ -49,11 +48,11 @@ Area & Area::operator=(const Area & area)
 	return *this;
 }
 
-Area::Area(const Tileset & tiles): dTiles(tiles)
+Area::Area(Tileset tiles): dTiles(std::move(tiles))
 {
 }
 
-Area::Area(const Tileset & relative, const int3 & position): dTiles(relative), dTotalShiftCache(position)
+Area::Area(Tileset relative, const int3 & position): dTiles(std::move(relative)), dTotalShiftCache(position)
 {
 }
 
@@ -148,7 +147,7 @@ const Tileset & Area::getBorder() const
 		return dBorderCache;
 	
 	//compute border cache
-	for(auto & t : dTiles)
+	for(const auto & t : dTiles)
 	{
 		for(auto & i : int3::getDirs())
 		{
@@ -169,7 +168,7 @@ const Tileset & Area::getBorderOutside() const
 		return dBorderOutsideCache;
 	
 	//compute outside border cache
-	for(auto & t : dTiles)
+	for(const auto & t : dTiles)
 	{
 		for(auto & i : int3::getDirs())
 		{
@@ -190,7 +189,7 @@ DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap
 	
 	while(!area.empty())
 	{
-		for(auto & tile : area.getBorder())
+		for(const auto & tile : area.getBorder())
 			result[tile] = distance;
 		reverseDistanceMap[distance++] = area.getBorder();
 		area.subtract(area.getBorder());
@@ -210,7 +209,7 @@ bool Area::contains(const int3 & tile) const
 
 bool Area::contains(const std::vector<int3> & tiles) const
 {
-	for(auto & t : tiles)
+	for(const auto & t : tiles)
 	{
 		if(!contains(t))
 			return false;
@@ -225,7 +224,7 @@ bool Area::contains(const Area & area) const
 
 bool Area::overlap(const std::vector<int3> & tiles) const
 {
-	for(auto & t : tiles)
+	for(const auto & t : tiles)
 	{
 		if(contains(t))
 			return true;
@@ -280,10 +279,10 @@ int3 Area::nearest(const Area & area) const
 	return nearTile;
 }
 
-Area Area::getSubarea(std::function<bool(const int3 &)> filter) const
+Area Area::getSubarea(const std::function<bool(const int3 &)> & filter) const
 {
 	Area subset;
-	for(auto & t : getTilesVector())
+	for(const auto & t : getTilesVector())
 		if(filter(t))
 			subset.add(t);
 	return subset;
@@ -316,7 +315,7 @@ void Area::erase(const int3 & tile)
 void Area::unite(const Area & area)
 {
 	invalidate();
-	for(auto & t : area.getTilesVector())
+	for(const auto & t : area.getTilesVector())
 	{
 		dTiles.insert(t);
 	}
@@ -325,7 +324,7 @@ void Area::intersect(const Area & area)
 {
 	invalidate();
 	Tileset result;
-	for(auto & t : area.getTilesVector())
+	for(const auto & t : area.getTilesVector())
 	{
 		if(dTiles.count(t))
 			result.insert(t);
@@ -336,7 +335,7 @@ void Area::intersect(const Area & area)
 void Area::subtract(const Area & area)
 {
 	invalidate();
-	for(auto & t : area.getTilesVector())
+	for(const auto & t : area.getTilesVector())
 	{
 		dTiles.erase(t);
 	}

@@ -116,8 +116,6 @@ public:
 
 	ZoneOptions();
 
-	ZoneOptions & operator=(const ZoneOptions & other);
-
 	TRmgTemplateZoneId getId() const;
 	void setId(TRmgTemplateZoneId value);
 
@@ -210,7 +208,6 @@ public:
 	};
 
 	CRmgTemplate();
-	~CRmgTemplate();
 
 	bool matchesSize(const int3 & value) const;
 	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;

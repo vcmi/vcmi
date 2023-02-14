@@ -91,19 +91,19 @@ CObjectClassesHandler::CObjectClassesHandler()
 
 CObjectClassesHandler::~CObjectClassesHandler()
 {
-	for(auto p : objects)
+	for(auto * p : objects)
 		delete p;
 }
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
 	CLegacyConfigParser parser("Data/Objects.txt");
-	size_t totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
+	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
 	for (size_t i = 0; i < totalNumber; i++)
 	{
-		auto tmpl = new ObjectTemplate;
+		auto * tmpl = new ObjectTemplate;
 
 		tmpl->readTxt(parser);
 		parser.endLine();
@@ -225,7 +225,7 @@ std::string ObjectClass::getNameTranslated() const
 
 ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
-	auto obj = new ObjectClass();
+	auto * obj = new ObjectClass();
 
 	obj->modScope = scope;
 	obj->identifier = name;
@@ -241,7 +241,7 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 	{
 		if (!subData.second["index"].isNull())
 		{
-			std::string const & subMeta = subData.second["index"].meta;
+			const std::string & subMeta = subData.second["index"].meta;
 
 			if ( subMeta != "core")
 				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
@@ -256,16 +256,16 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, name, objects.size());
+	auto * object = loadFromJson(scope, data, name, objects.size());
 	objects.push_back(object);
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, name, index);
+	auto * object = loadFromJson(scope, data, name, index);
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
-	objects[(si32)index] = object;
+	objects[static_cast<si32>(index)] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
@@ -304,12 +304,12 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 	return objects.at(type)->objects.at(subtype);
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::string type, std::string subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
 {
 	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type);
 	if(id)
 	{
-		auto object = objects[id.get()];
+		auto * object = objects[id.get()];
 		boost::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
@@ -330,7 +330,7 @@ std::set<si32> CObjectClassesHandler::knownObjects() const
 {
 	std::set<si32> ret;
 
-	for (auto entry : objects)
+	for(auto * entry : objects)
 		if (entry)
 			ret.insert(entry->id);
 
@@ -344,7 +344,7 @@ std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
 
 	std::set<si32> ret;
 
-	for (auto entry : objects.at(primaryID)->objects)
+	for(const auto & entry : objects.at(primaryID)->objects)
 		if (entry)
 			ret.insert(entry->subtype);
 
@@ -357,7 +357,7 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 	{
 		if (object.Struct().count("subObjects"))
 		{
-			auto const & vector = object["subObjects"].Vector();
+			const auto & vector = object["subObjects"].Vector();
 
 			if (entry.second.Struct().count("index"))
 			{
@@ -377,12 +377,12 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 
 void CObjectClassesHandler::afterLoadFinalization()
 {
-	for(auto entry : objects)
+	for(auto * entry : objects)
 	{
 		if (!entry)
 			continue;
 
-		for(auto obj : entry->objects)
+		for(const auto & obj : entry->objects)
 		{
 			if (!obj)
 				continue;
@@ -403,7 +403,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 {
-	auto const handler = getHandlerFor(type, subtype);
+	const auto handler = getHandlerFor(type, subtype);
 	if (handler->hasNameTextID())
 		return handler->getNameTranslated();
 	else
@@ -429,16 +429,6 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) co
 std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
 {
 	return objects.at(type)->handlerName;
-}
-
-AObjectTypeHandler::AObjectTypeHandler():
-	type(-1), subtype(-1)
-{
-
-}
-
-AObjectTypeHandler::~AObjectTypeHandler()
-{
 }
 
 std::string AObjectTypeHandler::getJsonKey() const
@@ -491,7 +481,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
 		JsonUtils::inherit(entry.second, base);
 
-		auto tmpl = new ObjectTemplate;
+		auto * tmpl = new ObjectTemplate;
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
@@ -528,7 +518,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	initTypeData(input);
 }
 
-bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const
+bool AObjectTypeHandler::objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	return false; // by default there are no overrides
 }
@@ -566,7 +556,7 @@ SObjectSounds AObjectTypeHandler::getSounds() const
 	return sounds;
 }
 
-void AObjectTypeHandler::addTemplate(std::shared_ptr<const ObjectTemplate> templ)
+void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate> & templ)
 {
 	templates.push_back(templ);
 }
@@ -575,7 +565,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
-	auto tmpl = new ObjectTemplate;
+	auto * tmpl = new ObjectTemplate;
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
 	tmpl->stringID.clear(); // TODO?
@@ -597,11 +587,11 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplat
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
 	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
-
-	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](std::shared_ptr<const ObjectTemplate> obj)
+	const auto cfun = [&](const std::shared_ptr<const ObjectTemplate> & obj)
 	{
 		return obj->canBePlacedAt(terrainType);
-	});
+	};
+	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), cfun);
 	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
 	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
 	if (type == Obj::ARTIFACT || type == Obj::MONSTER)

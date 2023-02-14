@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
+
 class DLL_LINKAGE CQuest final
 {
 	mutable std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
@@ -70,9 +71,11 @@ public:
 	si32 heroPortrait;
 
 	std::string firstVisitText, nextVisitText, completedText;
-	bool isCustomFirst, isCustomNext, isCustomComplete;
+	bool isCustomFirst;
+	bool isCustomNext;
+	bool isCustomComplete;
 
-	CQuest();
+	CQuest(); //TODO: Remove constructor
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
@@ -81,7 +84,7 @@ public:
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest (const CGHeroInstance * h) const {};
 	virtual void addReplacements(MetaString &out, const std::string &base) const;
-	void addArtifactID(ArtifactID id);
+	void addArtifactID(const ArtifactID & id);
 
 	bool operator== (const CQuest & quest) const
 	{
@@ -119,10 +122,11 @@ public:
 class DLL_LINKAGE IQuestObject
 {
 public:
-	CQuest * quest;
+	CQuest * quest = new CQuest();
 
-	IQuestObject();
-	virtual ~IQuestObject();
+	///Information about quest should remain accessible even if IQuestObject removed from map
+	///All CQuest objects are freed in CMap destructor
+	virtual ~IQuestObject() = default;
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
@@ -131,19 +135,18 @@ public:
 		h & quest;
 	}
 protected:
-	void afterAddToMapCommon(CMap * map);
+	void afterAddToMapCommon(CMap * map) const;
 };
 
 class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
 {
 public:
 	enum ERewardType {NOTHING, EXPERIENCE, MANA_POINTS, MORALE_BONUS, LUCK_BONUS, RESOURCES, PRIMARY_SKILL, SECONDARY_SKILL, ARTIFACT, SPELL, CREATURE};
-	ERewardType rewardType;
-	si32 rID; //reward ID
-	si32 rVal; //reward value
+	ERewardType rewardType = ERewardType::NOTHING;
+	si32 rID = -1; //reward ID
+	si32 rVal = -1; //reward value
 	std::string seerName;
 
-	CGSeerHut();
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 	void newTurn(CRandomGenerator & rand) const override;
@@ -172,7 +175,7 @@ public:
 		h & seerName;
 	}
 protected:
-	static const int OBJPROP_VISITED = 10;
+	static constexpr int OBJPROP_VISITED = 10;
 
 	void setPropertyDer(ui8 what, ui32 val) override;
 
@@ -182,7 +185,6 @@ protected:
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
-	CGQuestGuard() = default;
 	void init(CRandomGenerator & rand) override;
 	void completeQuest (const CGHeroInstance * h) const override;
 
@@ -202,7 +204,7 @@ public:
 
 	static void reset();
 
-	bool wasMyColorVisited (PlayerColor player) const;
+	bool wasMyColorVisited(const PlayerColor & player) const;
 
 	std::string getObjectName() const override; //depending on color
 	std::string getHoverText(PlayerColor player) const override;
@@ -230,7 +232,6 @@ public:
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
-	CGBorderGuard() = default;
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -252,7 +253,6 @@ public:
 class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
-	CGBorderGate() = default;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	bool passableFor(PlayerColor color) const override;

@@ -44,13 +44,13 @@ void CMapInfo::mapInit(const std::string & fname)
 	countPlayers();
 }
 
-void CMapInfo::saveInit(ResourceID file)
+void CMapInfo::saveInit(const ResourceID & file)
 {
 	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 	lf.checkMagicBytes(SAVEGAME_MAGIC);
 
 	mapHeader = std::make_unique<CMapHeader>();
-	lf >> *(mapHeader.get()) >> scenarioOptionsOfSave;
+	lf >> *(mapHeader) >> scenarioOptionsOfSave;
 	fileURI = file.getName();
 	countPlayers();
 	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
@@ -62,7 +62,7 @@ void CMapInfo::saveInit(ResourceID file)
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
+	campaignHeader = std::make_unique<CCampaignHeader>(CCampaignHandler::getHeader(fileURI));
 }
 
 void CMapInfo::countPlayers()
@@ -81,8 +81,8 @@ void CMapInfo::countPlayers()
 	}
 
 	if(scenarioOptionsOfSave)
-		for (auto i = scenarioOptionsOfSave->playerInfos.cbegin(); i != scenarioOptionsOfSave->playerInfos.cend(); i++)
-			if(i->second.isControlledByHuman())
+		for(const auto & playerInfo : scenarioOptionsOfSave->playerInfos)
+			if(playerInfo.second.isControlledByHuman())
 				amountOfHumanPlayersInSave++;
 }
 
@@ -147,7 +147,8 @@ int CMapInfo::getMapSizeIconId() const
 
 std::pair<int, int> CMapInfo::getMapSizeFormatIconId() const
 {
-	int frame = -1, group = 0;
+	int frame = -1;
+	int group = 0;
 	switch(mapHeader->version)
 	{
 	case EMapFormat::ROE:

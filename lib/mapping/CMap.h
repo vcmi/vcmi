@@ -143,7 +143,7 @@ struct DLL_LINKAGE EventCondition
 	};
 
 	EventCondition(EWinLoseType condition = STANDARD_WIN);
-	EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position = int3(-1, -1, -1));
+	EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position = int3(-1, -1, -1));
 
 	const CGObjectInstance * object; // object that was at specified position or with instance name on start
 	EMetaclass metaType;
@@ -289,7 +289,7 @@ public:
 	static const int MAP_SIZE_GIANT = 252;
 
 	CMapHeader();
-	virtual ~CMapHeader();
+	virtual ~CMapHeader() = default;
 
 	ui8 levels() const;
 
@@ -357,7 +357,7 @@ public:
 	bool isWaterTile(const int3 & pos) const;
 
 	bool canMoveBetween(const int3 &src, const int3 &dst) const;
-	bool checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const;
+	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;
 	int3 guardingCreaturePosition (int3 pos) const;
 
 	void addBlockVisTiles(CGObjectInstance * obj);
@@ -378,7 +378,7 @@ public:
 
 
 	/// Gets object of specified type on requested position
-	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, Obj::EObj type);
+	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj::EObj type);
 	CGHeroInstance * getHero(int heroId);
 
 	/// Sets the victory/loss condition objectives ??

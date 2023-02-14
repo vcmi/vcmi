@@ -33,15 +33,25 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
-CQuest::CQuest()
-	: qid(-1), missionType(MISSION_NONE), progress(NOT_ACTIVE), lastDay(-1), m13489val(0),
-	textOption(0), completedOption(0), stackDirection(0), heroPortrait(-1),
-	isCustomFirst(false), isCustomNext(false), isCustomComplete(false)
+//TODO: Remove constructor
+CQuest::CQuest():
+	qid(-1),
+	missionType(MISSION_NONE),
+	progress(NOT_ACTIVE),
+	lastDay(-1),
+	m13489val(0),
+	textOption(0),
+	completedOption(0),
+	stackDirection(0),
+	heroPortrait(-1),
+	isCustomFirst(false), 
+	isCustomNext(false),
+	isCustomComplete(false)
 {
 }
 
 ///helpers
-static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID = 0)
+static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID = 0)
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
@@ -102,7 +112,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 {
 	std::vector<CStackBasicDescriptor>::const_iterator cre;
 	TSlots::const_iterator it;
-	ui32 count;
+	ui32 count = 0;
 	ui32 slotsCount = 0;
 	bool hasExtraCreatures = false;
 	for(cre = q->m6creatures.begin(); cre != q->m6creatures.end(); ++cre)
@@ -116,10 +126,10 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 			}
 		}
 
-		if((TQuantity)count < cre->count) //not enough creatures of this kind
+		if(static_cast<TQuantity>(count) < cre->count) //not enough creatures of this kind
 			return false;
 
-		hasExtraCreatures |= (TQuantity)count > cre->count;
+		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->count;
 	}
 
 	return hasExtraCreatures || slotsCount < army->Slots().size();
@@ -132,25 +142,23 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_NONE:
 			return true;
 		case MISSION_LEVEL:
-			if(m13489val <= h->level)
-				return true;
-			return false;
+			return m13489val <= h->level;
 		case MISSION_PRIMARY_STAT:
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				if(h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)) < (int)m2stats[i])
+				if(h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)) < static_cast<int>(m2stats[i]))
 					return false;
 			}
 			return true;
 		case MISSION_KILL_HERO:
 		case MISSION_KILL_CREATURE:
-			if (!h->cb->getObjByQuestIdentifier(m13489val))
+			if(!CGHeroInstance::cb->getObjByQuestIdentifier(m13489val))
 				return true;
 			return false;
 		case MISSION_ART:
 			// if the object was deserialized
 			if(artifactsRequirements.empty())
-				for(auto id : m5arts)
+				for(const auto & id : m5arts)
 					++artifactsRequirements[id];
 
 			for(const auto & elem : artifactsRequirements)
@@ -165,18 +173,14 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_RESOURCES:
 			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback
-				if(h->cb->getResource (h->tempOwner, i) < (int)m7resources[i])
+				if(CGHeroInstance::cb->getResource(h->tempOwner, i) < static_cast<int>(m7resources[i]))
 					return false;
 			}
 			return true;
 		case MISSION_HERO:
-			if(m13489val == h->type->getIndex())
-				return true;
-			return false;
+			return m13489val == h->type->getIndex();
 		case MISSION_PLAYER:
-			if(m13489val == h->getOwner().getNum())
-				return true;
-			return false;
+			return m13489val == h->getOwner().getNum();
 		default:
 			return false;
 	}
@@ -200,7 +204,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			components.push_back(Component(Component::EXPERIENCE, 0, m13489val, 0));
+			components.emplace_back(Component::EXPERIENCE, 0, m13489val, 0);
 			if(!isCustom)
 				iwText.addReplacement(m13489val);
 			break;
@@ -211,7 +215,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m2stats[i])
 				{
-					components.push_back(Component(Component::PRIM_SKILL, i, m2stats[i], 0));
+					components.emplace_back(Component::PRIM_SKILL, i, m2stats[i], 0);
 					loot << "%d %s";
 					loot.addReplacement(m2stats[i]);
 					loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
@@ -222,19 +226,19 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_KILL_HERO:
-			components.push_back(Component(Component::HERO_PORTRAIT, heroPortrait, 0, 0));
+			components.emplace_back(Component::HERO_PORTRAIT, heroPortrait, 0, 0);
 			if(!isCustom)
 				addReplacements(iwText, text);
 			break;
 		case MISSION_HERO:
 			//FIXME: portrait may not match hero, if custom portrait was set in map editor
-			components.push_back(Component(Component::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0));
+			components.emplace_back(Component::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0);
 			if(!isCustom)
 				iwText.addReplacement(VLC->heroh->objects[m13489val]->getNameTextID());
 			break;
 		case MISSION_KILL_CREATURE:
 			{
-				components.push_back(Component(stackToKill));
+				components.emplace_back(stackToKill);
 				if(!isCustom)
 				{
 					addReplacements(iwText, text);
@@ -244,9 +248,9 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		case MISSION_ART:
 		{
 			MetaString loot;
-			for(auto & elem : m5arts)
+			for(const auto & elem : m5arts)
 			{
-				components.push_back(Component(Component::ARTIFACT, elem, 0, 0));
+				components.emplace_back(Component::ARTIFACT, elem, 0, 0);
 				loot << "%s";
 				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
@@ -257,9 +261,9 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		case MISSION_ARMY:
 		{
 			MetaString loot;
-			for(auto & elem : m6creatures)
+			for(const auto & elem : m6creatures)
 			{
-				components.push_back(Component(elem));
+				components.emplace_back(elem);
 				loot << "%s";
 				loot.addReplacement(elem);
 			}
@@ -274,7 +278,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m7resources[i])
 				{
-					components.push_back(Component (Component::RESOURCE, i, m7resources[i], 0));
+					components.emplace_back(Component::RESOURCE, i, m7resources[i], 0);
 					loot << "%d %s";
 					loot.addReplacement(m7resources[i]);
 					loot.addReplacement(MetaString::RES_NAMES, i);
@@ -285,7 +289,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_PLAYER:
-			components.push_back(Component (Component::FLAG, m13489val, 0, 0));
+			components.emplace_back(Component::FLAG, m13489val, 0, 0);
 			if(!isCustom)
 				iwText.addReplacement(VLC->generaltexth->colors[m13489val]);
 			break;
@@ -300,7 +304,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	if(onHover)
 		ms << "\n\n";
 
-	std::string questName  = missionName(Emission(missionType-1));
+	std::string questName = missionName(static_cast<Emission>(missionType - 1));
 	std::string questState = missionState(onHover ? 3 : 4);
 
 	ms << VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption);
@@ -334,7 +338,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 		case MISSION_ART:
 			{
 				MetaString loot;
-				for (auto & elem : m5arts)
+				for(const auto & elem : m5arts)
 				{
 					loot << "%s";
 					loot.addReplacement(MetaString::ART_NAMES, elem);
@@ -345,7 +349,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 		case MISSION_ARMY:
 			{
 				MetaString loot;
-				for (auto & elem : m6creatures)
+				for(const auto & elem : m6creatures)
 				{
 					loot << "%s";
 					loot.addReplacement(elem);
@@ -408,7 +412,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 		case CQuest::MISSION_ART:
 		{
 			MetaString loot;
-			for (auto & elem : m5arts)
+			for(const auto & elem : m5arts)
 			{
 				loot << "%s";
 				loot.addReplacement(MetaString::ART_NAMES, elem);
@@ -420,7 +424,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 		case CQuest::MISSION_ARMY:
 		{
 			MetaString loot;
-			for (auto & elem : m6creatures)
+			for(const auto & elem : m6creatures)
 			{
 				loot << "%s";
 				loot.addReplacement(elem);
@@ -461,7 +465,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 	}
 }
 
-void CQuest::addArtifactID(ArtifactID id)
+void CQuest::addArtifactID(const ArtifactID & id)
 {
 	m5arts.push_back(id);
 	++artifactsRequirements[id];
@@ -477,9 +481,9 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 
 	if(!handler.saving)
 	{
-		isCustomFirst = firstVisitText.size() > 0;
-		isCustomNext = nextVisitText.size() > 0;
-		isCustomComplete = completedText.size() > 0;
+		isCustomFirst = !firstVisitText.empty();
+		isCustomNext = !nextVisitText.empty();
+		isCustomComplete = !completedText.empty();
 	}
 
 	static const std::vector<std::string> MISSION_TYPE_JSON =
@@ -509,7 +513,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		break;
 	case MISSION_KILL_HERO:
 	case MISSION_KILL_CREATURE:
-		handler.serializeInstance<ui32>("killTarget", m13489val, ui32(-1));
+		handler.serializeInstance<ui32>("killTarget", m13489val, static_cast<ui32>(-1));
 		break;
 	case MISSION_ART:
 		//todo: ban artifacts
@@ -545,15 +549,6 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		break;
 	}
 
-}
-
-CGSeerHut::CGSeerHut() : IQuestObject(),
-	rewardType(NOTHING), rID(-1), rVal(-1)
-{
-	quest->lastDay = -1;
-	quest->isCustomFirst = false;
-	quest->isCustomNext = false;
-	quest->isCustomComplete = false;
 }
 
 void CGSeerHut::setObjToKill()
@@ -646,19 +641,6 @@ void CQuest::addReplacements(MetaString &out, const std::string &base) const
 	}
 }
 
-IQuestObject::IQuestObject():
-	quest(new CQuest())
-{
-
-}
-
-IQuestObject::~IQuestObject()
-{
-	///Information about quest should remain accessible even if IQuestObject removed from map
-	///All CQuest objects are freed in CMap destructor
-	//delete quest;
-}
-
 bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 {
 	return quest->checkQuest(h);
@@ -669,7 +651,7 @@ void IQuestObject::getVisitText (MetaString &text, std::vector<Component> &compo
 	quest->getVisitText (text,components, isCustom, FirstVisit, h);
 }
 
-void IQuestObject::afterAddToMapCommon(CMap * map)
+void IQuestObject::afterAddToMapCommon(CMap * map) const
 {
 	map->addNewQuestInstance(quest);
 }
@@ -679,26 +661,36 @@ void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &comp
 	quest->getCompletionText (text, components, isCustom, h);
 	switch(rewardType)
 	{
-		case EXPERIENCE: components.push_back(Component (Component::EXPERIENCE, 0, (si32)h->calculateXp(rVal), 0));
-			break;
-		case MANA_POINTS: components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
-			break;
-		case MORALE_BONUS: components.push_back(Component (Component::MORALE, 0, rVal, 0));
-			break;
-		case LUCK_BONUS: components.push_back(Component (Component::LUCK, 0, rVal, 0));
-			break;
-		case RESOURCES: components.push_back(Component (Component::RESOURCE, rID, rVal, 0));
-			break;
-		case PRIMARY_SKILL: components.push_back(Component (Component::PRIM_SKILL, rID, rVal, 0));
-			break;
-		case SECONDARY_SKILL: components.push_back(Component (Component::SEC_SKILL, rID, rVal, 0));
-			break;
-		case ARTIFACT: components.push_back(Component (Component::ARTIFACT, rID, 0, 0));
-			break;
-		case SPELL: components.push_back(Component (Component::SPELL, rID, 0, 0));
-			break;
-		case CREATURE: components.push_back(Component (Component::CREATURE, rID, rVal, 0));
-			break;
+	case EXPERIENCE:
+		components.emplace_back(Component::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(rVal)), 0);
+		break;
+	case MANA_POINTS:
+		components.emplace_back(Component::PRIM_SKILL, 5, rVal, 0);
+		break;
+	case MORALE_BONUS:
+		components.emplace_back(Component::MORALE, 0, rVal, 0);
+		break;
+	case LUCK_BONUS:
+		components.emplace_back(Component::LUCK, 0, rVal, 0);
+		break;
+	case RESOURCES:
+		components.emplace_back(Component::RESOURCE, rID, rVal, 0);
+		break;
+	case PRIMARY_SKILL:
+		components.emplace_back(Component::PRIM_SKILL, rID, rVal, 0);
+		break;
+	case SECONDARY_SKILL:
+		components.emplace_back(Component::SEC_SKILL, rID, rVal, 0);
+		break;
+	case ARTIFACT:
+		components.emplace_back(Component::ARTIFACT, rID, 0, 0);
+		break;
+	case SPELL:
+		components.emplace_back(Component::SPELL, rID, 0, 0);
+		break;
+	case CREATURE:
+		components.emplace_back(Component::CREATURE, rID, rVal, 0);
+		break;
 	}
 }
 
@@ -774,29 +766,29 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 int CGSeerHut::checkDirection() const
 {
 	int3 cord = getCreatureToKill()->pos;
-	if ((double)cord.x/(double)cb->getMapSize().x < 0.34) //north
+	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
 	{
-		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //northwest
+		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
 			return 8;
-		else if ((double)cord.y/(double)cb->getMapSize().y < 0.67) //north
+		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //north
 			return 1;
 		else //northeast
 			return 2;
 	}
-	else if ((double)cord.x/(double)cb->getMapSize().x < 0.67) //horizontal
+	else if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.67) //horizontal
 	{
-		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //west
+		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //west
 			return 7;
-		else if ((double)cord.y/(double)cb->getMapSize().y < 0.67) //central
+		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //central
 			return 9;
 		else //east
 			return 3;
 	}
 	else //south
 	{
-		if ((double)cord.y/(double)cb->getMapSize().y < 0.34) //southwest
+		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //southwest
 			return 6;
-		else if ((double)cord.y/(double)cb->getMapSize().y < 0.67) //south
+		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //south
 			return 5;
 		else //southeast
 			return 4;
@@ -815,9 +807,9 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 					if(!h->hasArt(elem))
 					{
 						// first we need to disassemble this backpack artifact
-						auto assembly = h->getAssemblyByConstituent(elem);
+						const auto * assembly = h->getAssemblyByConstituent(elem);
 						assert(assembly);
-						for(auto & ci : assembly->constituentsInfo)
+						for(const auto & ci : assembly->constituentsInfo)
 						{
 							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::PRE_FIRST);
 						}
@@ -833,7 +825,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
 				{
-					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -(int)quest->m7resources[i]);
+					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -static_cast<int>(quest->m7resources[i]));
 				}
 				break;
 			default:
@@ -906,7 +898,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 	if(allowNull && !o)
 		return nullptr;
 	assert(o && (o->ID == Obj::HERO  ||  o->ID == Obj::PRISON));
-	return static_cast<const CGHeroInstance*>(o);
+	return dynamic_cast<const CGHeroInstance *>(o);
 }
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
@@ -915,7 +907,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	if(allowNull && !o)
 		return nullptr;
 	assert(o && o->ID == Obj::MONSTER);
-	return static_cast<const CGCreature*>(o);
+	return dynamic_cast<const CGCreature *>(o);
 }
 
 void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
@@ -966,7 +958,10 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	//todo: full reward format support after CRewardInfo integration
 
 	auto s = handler.enterStruct("reward");
-	std::string fullIdentifier, metaTypeName, scope, identifier;
+	std::string fullIdentifier;
+	std::string metaTypeName;
+	std::string scope;
+	std::string identifier;
 
 	if(handler.saving)
 	{
@@ -1115,18 +1110,15 @@ void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for play
 	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))
 	{
 		PlayerColor player(what-101);
-		playerKeyMap[player].insert((ui8)val);
+		playerKeyMap[player].insert(static_cast<ui8>(val));
 	}
 	else
-		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", (int)what, val);
+		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", static_cast<int>(what), val);
 }
 
-bool CGKeys::wasMyColorVisited (PlayerColor player) const
+bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
 {
-	if(playerKeyMap.count(player) && vstd::contains(playerKeyMap[player], subID))
-		return true;
-	else
-		return false;
+	return playerKeyMap.count(player) && vstd::contains(playerKeyMap[player], subID);
 }
 
 std::string CGKeys::getHoverText(PlayerColor player) const

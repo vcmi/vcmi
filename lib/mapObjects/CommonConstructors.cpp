@@ -24,18 +24,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CObstacleConstructor::CObstacleConstructor()
-{
-}
-
 bool CObstacleConstructor::isStaticObject()
 {
 	return true;
-}
-
-CTownInstanceConstructor::CTownInstanceConstructor() :
-	faction(nullptr)
-{
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
@@ -55,7 +46,7 @@ void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 void CTownInstanceConstructor::afterLoadFinalization()
 {
 	assert(faction);
-	for(auto entry : filtersJson.Struct())
+	for(const auto & entry : filtersJson.Struct())
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
@@ -66,7 +57,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 
 bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, std::shared_ptr<const ObjectTemplate> templ) const
 {
-	auto town = dynamic_cast<const CGTownInstance *>(object);
+	const auto * town = dynamic_cast<const CGTownInstance *>(object);
 
 	auto buildTest = [&](const BuildingID & id)
 	{
@@ -86,15 +77,9 @@ CGObjectInstance * CTownInstanceConstructor::create(std::shared_ptr<const Object
 
 void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
+	auto templ = getOverride(CGObjectInstance::cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
 		object->appearance = templ;
-}
-
-CHeroInstanceConstructor::CHeroInstanceConstructor()
-	:heroClass(nullptr)
-{
-
 }
 
 void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
@@ -109,7 +94,7 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 
 void CHeroInstanceConstructor::afterLoadFinalization()
 {
-	for(auto entry : filtersJson.Struct())
+	for(const auto & entry : filtersJson.Struct())
 	{
 		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
 		{
@@ -120,7 +105,7 @@ void CHeroInstanceConstructor::afterLoadFinalization()
 
 bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std::shared_ptr<const ObjectTemplate> templ) const
 {
-	auto hero = dynamic_cast<const CGHeroInstance *>(object);
+	const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
 	auto heroTest = [&](const HeroTypeID & id)
 	{
@@ -142,11 +127,6 @@ CGObjectInstance * CHeroInstanceConstructor::create(std::shared_ptr<const Object
 }
 
 void CHeroInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
-{
-
-}
-
-CDwellingInstanceConstructor::CDwellingInstanceConstructor()
 {
 
 }
@@ -185,7 +165,7 @@ void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	guards = input["guards"];
 }
 
-bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const
+bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	return false;
 }
@@ -195,7 +175,7 @@ CGObjectInstance * CDwellingInstanceConstructor::create(std::shared_ptr<const Ob
 	CGDwelling * obj = createTyped(tmpl);
 
 	obj->creatures.resize(availableCreatures.size());
-	for(auto & entry : availableCreatures)
+	for(const auto & entry : availableCreatures)
 	{
 		for(const CCreature * cre : entry)
 			obj->creatures.back().second.push_back(cre->idNumber);
@@ -205,12 +185,12 @@ CGObjectInstance * CDwellingInstanceConstructor::create(std::shared_ptr<const Ob
 
 void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator &rng) const
 {
-	CGDwelling * dwelling = dynamic_cast<CGDwelling*>(object);
+	auto * dwelling = dynamic_cast<CGDwelling *>(object);
 
 	dwelling->creatures.clear();
 	dwelling->creatures.reserve(availableCreatures.size());
 
-	for(auto & entry : availableCreatures)
+	for(const auto & entry : availableCreatures)
 	{
 		dwelling->creatures.resize(dwelling->creatures.size() + 1);
 		for(const CCreature * cre : entry)
@@ -257,7 +237,7 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 
 bool CDwellingInstanceConstructor::producesCreature(const CCreature * crea) const
 {
-	for(auto & entry : availableCreatures)
+	for(const auto & entry : availableCreatures)
 	{
 		for(const CCreature * cre : entry)
 			if(crea == cre)
@@ -269,18 +249,12 @@ bool CDwellingInstanceConstructor::producesCreature(const CCreature * crea) cons
 std::vector<const CCreature *> CDwellingInstanceConstructor::getProducedCreatures() const
 {
 	std::vector<const CCreature *> creatures; //no idea why it's 2D, to be honest
-	for(auto & entry : availableCreatures)
+	for(const auto & entry : availableCreatures)
 	{
 		for(const CCreature * cre : entry)
 			creatures.push_back(cre);
 	}
 	return creatures;
-}
-
-CBankInstanceConstructor::CBankInstanceConstructor()
-	: bankResetDuration(0)
-{
-
 }
 
 bool CBankInstanceConstructor::hasNameTextID() const
@@ -330,12 +304,12 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 
 void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	auto bank = dynamic_cast<CBank*>(object);
+	auto * bank = dynamic_cast<CBank *>(object);
 
 	bank->resetDuration = bankResetDuration;
 
 	si32 totalChance = 0;
-	for (auto & node : levels)
+	for(const auto & node : levels)
 		totalChance += static_cast<si32>(node["chance"].Float());
 
 	assert(totalChance != 0);
@@ -343,7 +317,7 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 	si32 selectedChance = rng.nextInt(totalChance - 1);
 
 	int cumulativeChance = 0;
-	for(auto & node : levels)
+	for(const auto & node : levels)
 	{
 		cumulativeChance += static_cast<int>(node["chance"].Float());
 		if(selectedChance < cumulativeChance)
@@ -454,11 +428,7 @@ std::vector<PossibleReward<TResources>> CBankInfo::getPossibleResourcesReward() 
 
 		if(!resourcesInfo.isNull())
 		{
-			result.push_back(
-				PossibleReward<TResources>(
-					configEntry["chance"].Integer(),
-					TResources(resourcesInfo)
-					));
+			result.emplace_back(configEntry["chance"].Integer(), TResources(resourcesInfo));
 		}
 	}
 
@@ -476,12 +446,9 @@ std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreatur
 
 		for(auto stack : stacks)
 		{
-			auto creature = stack.allowedCreatures.front();
+			const auto * creature = stack.allowedCreatures.front();
 
-			aproximateReward.push_back(
-				PossibleReward<CStackBasicDescriptor>(
-					configEntry["chance"].Integer(),
-					CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2)));
+			aproximateReward.emplace_back(configEntry["chance"].Integer(), CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2));
 		}
 	}
 

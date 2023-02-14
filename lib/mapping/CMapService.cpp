@@ -70,7 +70,7 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 		boost::filesystem::remove(fullPath);
 		boost::filesystem::ofstream tmp(fullPath, boost::filesystem::ofstream::binary);
 
-		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
+		tmp.write(reinterpret_cast<const char *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
 	}
@@ -123,7 +123,7 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 
 static JsonNode loadPatches(std::string path)
 {
-	JsonNode node = JsonUtils::assembleFromFiles(path);
+	JsonNode node = JsonUtils::assembleFromFiles(std::move(path));
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 	return node;

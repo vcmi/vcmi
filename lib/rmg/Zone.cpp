@@ -26,11 +26,10 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 };
 
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
-					: ZoneOptions(),
-					townType(ETownType::NEUTRAL),
-					terrainType(ETerrainId::GRASS),
-					map(map),
-					generator(generator)
+	: townType(ETownType::NEUTRAL)
+	, terrainType(ETerrainId::GRASS)
+	, map(map)
+	, generator(generator)
 {
 	
 }
@@ -144,7 +143,7 @@ void Zone::setTerrainType(TerrainId terrain)
 	terrainType = terrain;
 }
 
-rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
+rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)
@@ -157,7 +156,8 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 	};
 	
 	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
-	rmg::Path freePath(area), resultPath(area);
+	rmg::Path freePath(area);
+	rmg::Path resultPath(area);
 	freePath.connect(dAreaFree);
 	
 	//connect to all pieces
@@ -175,7 +175,7 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 	return resultPath;
 }
 
-rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
+rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {
 	return searchPath(rmg::Area({src}), onlyStraight, areafilter);
@@ -186,7 +186,7 @@ void Zone::connectPath(const rmg::Path & path)
 {
 	dAreaPossible.subtract(path.getPathArea());
 	dAreaFree.unite(path.getPathArea());
-	for(auto & t : path.getPathArea().getTilesVector())
+	for(const auto & t : path.getPathArea().getTilesVector())
 		map.setOccupied(t, ETileType::FREE);
 }
 
@@ -209,8 +209,8 @@ void Zone::fractalize()
 			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator.rand);
 			
 			int3 nodeFound(-1, -1, -1);
-			
-			for(auto tileToMakePath : tilesToMakePath)
+
+			for(const auto & tileToMakePath : tilesToMakePath)
 			{
 				//find closest free tile
 				int3 closestTile = clearedTiles.nearest(tileToMakePath);
@@ -247,14 +247,14 @@ void Zone::fractalize()
 		{
 			dAreaPossible.subtract(area);
 			dAreaFree.subtract(area);
-			for(auto & t : area.getTiles())
+			for(const auto & t : area.getTiles())
 				map.setOccupied(t, ETileType::BLOCKED);
 		}
 		else
 		{
 			dAreaPossible.subtract(res.getPathArea());
 			dAreaFree.unite(res.getPathArea());
-			for(auto & t : res.getPathArea().getTiles())
+			for(const auto & t : res.getPathArea().getTiles())
 				map.setOccupied(t, ETileType::FREE);
 		}
 	}
@@ -263,12 +263,12 @@ void Zone::fractalize()
 	float blockDistance = minDistance * 0.25f;
 	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
-		float distance = static_cast<float>(dAreaFree.distanceSqr(t));
+		auto distance = static_cast<float>(dAreaFree.distanceSqr(t));
 		return distance > blockDistance;
 	});
 	dAreaPossible.subtract(areaToBlock);
 	dAreaFree.subtract(areaToBlock);
-	for(auto & t : areaToBlock.getTiles())
+	for(const auto & t : areaToBlock.getTiles())
 		map.setOccupied(t, ETileType::BLOCKED);
 }
 
@@ -401,11 +401,6 @@ char Modificator::dump(const int3 & t)
 			return '^'; //visitable points?
 	}
 	return '?';
-}
-
-Modificator::~Modificator()
-{
-	
 }
 
 VCMI_LIB_NAMESPACE_END

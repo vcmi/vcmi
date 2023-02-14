@@ -133,7 +133,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto ourArea = zone.areaPossible() + zone.freePaths();
 			auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
 			theirArea.add(guardPos);
-			rmg::Path ourPath(ourArea), theirPath(theirArea);
+			rmg::Path ourPath(ourArea);
+			rmg::Path theirPath(theirArea);
 			ourPath.connect(zone.freePaths());
 			ourPath = ourPath.search(guardPos, true, costFunction);
 			theirPath.connect(otherZone->freePaths());
@@ -210,9 +211,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto gate1 = factory->create();
-			auto gate2 = factory->create();
-			rmg::Object rmgGate1(*gate1), rmgGate2(*gate2);
+			auto * gate1 = factory->create();
+			auto * gate2 = factory->create();
+			rmg::Object rmgGate1(*gate1);
+			rmg::Object rmgGate2(*gate2);
 			rmgGate1.setTemplate(zone.getTerrainType());
 			rmgGate2.setTemplate(otherZone->getTerrainType());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
@@ -255,9 +257,9 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	if(!success)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto teleport1 = factory->create();
-		auto teleport2 = factory->create();
-		
+		auto * teleport1 = factory->create();
+		auto * teleport2 = factory->create();
+
 		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
 		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());
 		
@@ -274,7 +276,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 void ConnectionsPlacer::collectNeighbourZones()
 {
 	auto border = zone.area().getBorderOutside();
-	for(auto & i : border)
+	for(const auto & i : border)
 	{
 		if(!map.isOnMap(i))
 			continue;

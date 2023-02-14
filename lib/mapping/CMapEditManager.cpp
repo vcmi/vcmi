@@ -106,7 +106,7 @@ void CMapUndoManager::onUndoRedo()
 
 void CMapUndoManager::setUndoCallback(std::function<void(bool, bool)> functor)
 {
-	undoCallback = functor;
+	undoCallback = std::move(functor);
 	onUndoRedo(); //inform immediately
 }
 
@@ -154,7 +154,7 @@ void CMapEditManager::insertObject(CGObjectInstance * obj)
 void CMapEditManager::insertObjects(std::set<CGObjectInstance*>& objects)
 {
 	auto composedOperation = std::make_unique<CComposedOperation>(map);
-	for (auto obj : objects)
+	for(auto * obj : objects)
 	{
 		composedOperation->addOperation(std::make_unique<CInsertObjectOperation>(map, obj));
 	}
@@ -174,7 +174,7 @@ void CMapEditManager::removeObject(CGObjectInstance * obj)
 void CMapEditManager::removeObjects(std::set<CGObjectInstance*> & objects)
 {
 	auto composedOperation = std::make_unique<CComposedOperation>(map);
-	for (auto obj : objects)
+	for(auto * obj : objects)
 	{
 		composedOperation->addOperation(std::make_unique<CRemoveObjectOperation>(map, obj));
 	}

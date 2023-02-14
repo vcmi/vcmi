@@ -23,7 +23,7 @@ class CMap;
 struct DLL_LINKAGE MapRect
 {
 	MapRect();
-	MapRect(int3 pos, si32 width, si32 height);
+	MapRect(const int3 & pos, si32 width, si32 height);
 	si32 x, y, z;
 	si32 width, height;
 
@@ -215,10 +215,9 @@ public:
 	typedef std::vector<TerrainViewPattern> TVPVector;
 
 	CTerrainViewPatternConfig();
-	~CTerrainViewPatternConfig();
 
 	const std::vector<TVPVector> & getTerrainViewPatterns(TerrainId terrain) const;
-	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(std::string patternId, const std::string & id) const;
+	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(const std::string & patternId, const std::string & id) const;
 	boost::optional<const TVPVector &> getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const;
 	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
@@ -231,7 +230,7 @@ private:
 class DLL_LINKAGE CTerrainViewPatternUtils
 {
 public:
-	static void printDebuggingInfoAboutTile(const CMap * map, int3 pos);
+	static void printDebuggingInfoAboutTile(const CMap * map, const int3 & pos);
 };
 
 VCMI_LIB_NAMESPACE_END

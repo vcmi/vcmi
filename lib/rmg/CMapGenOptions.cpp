@@ -138,7 +138,7 @@ void CMapGenOptions::resetPlayersMap()
 	std::map<PlayerColor, TFaction> rememberTownTypes;
 	std::map<PlayerColor, TeamID> rememberTeam;
 
-	for (auto p : players)
+	for(const auto & p : players)
 	{
 		auto town = p.second.getStartingTown();
 		if (town != RANDOM_SIZE)
@@ -184,14 +184,14 @@ const std::map<PlayerColor, CMapGenOptions::CPlayerSettings> & CMapGenOptions::g
 	return players;
 }
 
-void CMapGenOptions::setStartingTownForPlayer(PlayerColor color, si32 town)
+void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, si32 town)
 {
 	auto it = players.find(color);
 	if(it == players.end()) assert(0);
 	it->second.setStartingTown(town);
 }
 
-void CMapGenOptions::setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType)
+void CMapGenOptions::setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType::EPlayerType playerType)
 {
 	assert(playerType != EPlayerType::COMP_ONLY);
 	auto it = players.find(color);
@@ -246,7 +246,7 @@ bool CMapGenOptions::isRoadEnabled(const std::string & roadName) const
 	return !disabledRoads.count(roadName);
 }
 
-void CMapGenOptions::setPlayerTeam(PlayerColor color, TeamID team)
+void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & team)
 {
 	auto it = players.find(color);
 	if(it == players.end()) assert(0);
@@ -298,7 +298,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	{
 		auto allowedContent = mapTemplate->getWaterContentAllowed();
 
-		if(allowedContent.size())
+		if(!allowedContent.empty())
 		{
 			waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
 		}
@@ -323,7 +323,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	logGlobal->trace("Player config:");
 	int cpuOnlyPlayers = 0;
-	for (auto player : players)
+	for(const auto & player : players)
 	{
 		std::string playerType;
 		switch (player.second.getPlayerType())
@@ -344,7 +344,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		logGlobal->trace("Player %d: %s", player.second.getColor(), playerType);
 	}
 	setCompOnlyPlayerCount(cpuOnlyPlayers); //human players are set automaticlaly (?)
-	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), (int)getCompOnlyPlayerCount());
+	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), static_cast<int>(getCompOnlyPlayerCount()));
 }
 
 void CMapGenOptions::updatePlayers()
@@ -504,7 +504,7 @@ PlayerColor CMapGenOptions::CPlayerSettings::getColor() const
 	return color;
 }
 
-void CMapGenOptions::CPlayerSettings::setColor(PlayerColor value)
+void CMapGenOptions::CPlayerSettings::setColor(const PlayerColor & value)
 {
 	assert(value >= PlayerColor(0) && value < PlayerColor::PLAYER_LIMIT);
 	color = value;
@@ -541,7 +541,7 @@ TeamID CMapGenOptions::CPlayerSettings::getTeam() const
 	return team;
 }
 
-void CMapGenOptions::CPlayerSettings::setTeam(TeamID value)
+void CMapGenOptions::CPlayerSettings::setTeam(const TeamID & value)
 {
 	team = value;
 }

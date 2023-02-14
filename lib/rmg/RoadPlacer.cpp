@@ -81,7 +81,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	RoadId roadType(*VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "road", roadName));
+	RoadId roadType(*VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "road", roadName));
 	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 
@@ -100,7 +100,7 @@ void RoadPlacer::connectRoads()
 		noRoadNodes = true;
 		if (auto* m = zone.getModificator<ObjectManager>())
 		{
-			for (auto object : m->getMines())
+			for(auto * object : m->getMines())
 			{
 				addRoadNode(object->visitablePos());
 			}
@@ -113,8 +113,8 @@ void RoadPlacer::connectRoads()
 	//take any tile from road nodes as destination zone for all other road nodes
 	if(roads.empty())
 		roads.add(*roadNodes.begin());
-	
-	for(auto & node : roadNodes)
+
+	for(const auto & node : roadNodes)
 	{
 		createRoad(node);
 	}

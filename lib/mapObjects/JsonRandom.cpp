@@ -100,7 +100,7 @@ namespace JsonRandom
 	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::vector<si32> ret;
-		for (auto & name : PrimarySkill::names)
+		for(const auto & name : PrimarySkill::names)
 		{
 			ret.push_back(loadValue(value[name], rng));
 		}
@@ -110,7 +110,7 @@ namespace JsonRandom
 	std::map<SecondarySkill, si32> loadSecondary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::map<SecondarySkill, si32> ret;
-		for (auto & pair : value.Struct())
+		for(const auto & pair : value.Struct())
 		{
 			SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
 			ret[id] = loadValue(pair.second, rng);
@@ -129,35 +129,35 @@ namespace JsonRandom
 		ui32 maxValue = std::numeric_limits<ui32>::max();
 
 		if (value["class"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedClasses.insert(VLC->arth->stringToClass(value["class"].String()));
+			allowedClasses.insert(CArtHandler::stringToClass(value["class"].String()));
 		else
-			for (auto & entry : value["class"].Vector())
-				allowedClasses.insert(VLC->arth->stringToClass(entry.String()));
+			for(const auto & entry : value["class"].Vector())
+				allowedClasses.insert(CArtHandler::stringToClass(entry.String()));
 
 		if (value["slot"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedPositions.insert(VLC->arth->stringToSlot(value["class"].String()));
+			allowedPositions.insert(ArtifactPosition(value["class"].String()));
 		else
-			for (auto & entry : value["slot"].Vector())
-				allowedPositions.insert(VLC->arth->stringToSlot(entry.String()));
+			for(const auto & entry : value["slot"].Vector())
+				allowedPositions.insert(ArtifactPosition(entry.String()));
 
 		if (!value["minValue"].isNull()) minValue = static_cast<ui32>(value["minValue"].Float());
 		if (!value["maxValue"].isNull()) maxValue = static_cast<ui32>(value["maxValue"].Float());
 
-		return VLC->arth->pickRandomArtifact(rng, [=](ArtifactID artID) -> bool
+		return VLC->arth->pickRandomArtifact(rng, [=](const ArtifactID & artID) -> bool
 		{
 			CArtifact * art = VLC->arth->objects[artID];
 
-			if (!vstd::iswithin(art->price, minValue, maxValue))
+			if(!vstd::iswithin(art->price, minValue, maxValue))
 				return false;
 
-			if (!allowedClasses.empty() && !allowedClasses.count(art->aClass))
+			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
 				return false;
 
-			if (!allowedPositions.empty())
+			if(!allowedPositions.empty())
 			{
-				for (auto pos : art->possibleSlots[ArtBearer::HERO])
+				for(const auto & pos : art->possibleSlots[ArtBearer::HERO])
 				{
-					if (allowedPositions.count(pos))
+					if(allowedPositions.count(pos))
 						return true;
 				}
 				return false;
@@ -181,7 +181,7 @@ namespace JsonRandom
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
 			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).get());
 
-		vstd::erase_if(spells, [=](SpellID spell)
+		vstd::erase_if(spells, [=](const SpellID & spell)
 		{
 			return VLC->spellh->objects[spell]->level != si32(value["level"].Float());
 		});
@@ -189,7 +189,7 @@ namespace JsonRandom
 		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));
 	}
 
-	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells)
+	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const std::vector<SpellID> & spells)
 	{
 		// possible extensions: (taken from spell json config)
 		// "type": "adventure",//"adventure", "combat", "ability"
@@ -247,7 +247,7 @@ namespace JsonRandom
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{
-				for (auto creaID : crea->upgrades)
+				for(const auto & creaID : crea->upgrades)
 					info.allowedCreatures.push_back(VLC->creh->objects[creaID]);
 			}
 			ret.push_back(info);

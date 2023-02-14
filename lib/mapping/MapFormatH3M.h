@@ -164,7 +164,7 @@ private:
 	 * @param idToBeGiven the object id which should be set for the hero
 	 * @return a object instance
 	 */
-	CGObjectInstance * readHero(ObjectInstanceID idToBeGiven, const int3 & initialPos);
+	CGObjectInstance * readHero(const ObjectInstanceID & idToBeGiven, const int3 & initialPos);
 
 	/**
 	 * Reads a seer hut.
@@ -196,7 +196,7 @@ private:
 	 * @param addAuxiliary true if the village hall should be added
 	 * @return the converted buildings
 	 */
-	std::set<BuildingID> convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary = true);
+	std::set<BuildingID> convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary = true) const;
 
 	/**
 	 * Reads events.
@@ -229,7 +229,7 @@ private:
 	 * @param arg the input argument
 	 * @return the reversed 8-bit integer
 	 */
-	ui8 reverse(ui8 arg);
+	ui8 reverse(ui8 arg) const;
 
 	/**
 	* Helper to read map position

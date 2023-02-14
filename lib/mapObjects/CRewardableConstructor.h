@@ -45,9 +45,6 @@ public:
 
 	void configureObject(CRewardableObject * object, CRandomGenerator & rng) const;
 
-	CRandomRewardObjectInfo()
-	{}
-
 	void init(const JsonNode & objectConfig);
 };
 
@@ -56,9 +53,8 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 	CRandomRewardObjectInfo objectInfo;
 
 	void initTypeData(const JsonNode & config) override;
-public:
-	CRewardableConstructor();
 
+public:
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
