@@ -379,7 +379,7 @@
     </message>
     <message>
         <location filename="../mapsettings.ui" line="195"/>
-        <source>7 days without castle</source>
+        <source>7 days without town</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -419,32 +419,32 @@
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="164"/>
-        <source>Have artifact</source>
+        <source>Capture artifact</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="165"/>
-        <source>Have creatures</source>
+        <source>Hire creatures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="166"/>
-        <source>Have resources</source>
+        <source>Accumulate resources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="167"/>
-        <source>Have building</source>
+        <source>Construct building</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="168"/>
-        <source>Capture city</source>
+        <source>Capture town</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="169"/>
-        <source>Beat hero</source>
+        <source>Defeat hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

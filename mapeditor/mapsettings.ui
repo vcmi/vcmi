@@ -192,7 +192,7 @@
            <item row="2" column="0" colspan="2">
             <widget class="QCheckBox" name="standardLoseCheck">
              <property name="text">
-              <string>7 days without castle</string>
+              <string>7 days without town</string>
              </property>
             </widget>
            </item>
