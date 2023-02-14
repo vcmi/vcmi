@@ -29,26 +29,26 @@ namespace GameConstants
 	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 }
 
-typedef boost::optional<ui8> BattleSideOpt;
+using BattleSideOpt =  boost::optional<ui8>;
 
 // for battle stacks' positions
 struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class for better code design
 {
 	// helpers for siege
-	static const si16 CASTLE_CENTRAL_TOWER = -2;
-	static const si16 CASTLE_BOTTOM_TOWER = -3;
-	static const si16 CASTLE_UPPER_TOWER = -4;
+	static constexpr si16 CASTLE_CENTRAL_TOWER = -2;
+	static constexpr si16 CASTLE_BOTTOM_TOWER = -3;
+	static constexpr si16 CASTLE_UPPER_TOWER = -4;
 
 	// hexes for interaction with heroes
-	static const si16 HERO_ATTACKER = 0;
-	static const si16 HERO_DEFENDER = GameConstants::BFIELD_WIDTH - 1;
+	static constexpr si16 HERO_ATTACKER = 0;
+	static constexpr si16 HERO_DEFENDER = GameConstants::BFIELD_WIDTH - 1;
 
 	// helpers for rendering
-	static const si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
-	static const si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
+	static constexpr si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
+	static constexpr si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
 
 	si16 hex;
-	static const si16 INVALID = -1;
+	static constexpr si16 INVALID = -1;
 	enum EDir
 	{
 		NONE = -1,
@@ -106,6 +106,11 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
     using NeighbouringTilesCache = std::vector<NeighbouringTiles>;
 
     static const NeighbouringTilesCache neighbouringTilesCache;
+private:
+	//Constexpr defined array with all directions used in battle
+	static constexpr auto hexagonalDirections() {
+		return std::array<EDir,6>{BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT};
+	}
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);

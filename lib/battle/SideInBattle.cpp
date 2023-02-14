@@ -13,15 +13,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-SideInBattle::SideInBattle()
-{
-	color = PlayerColor::CANNOT_DETERMINE;
-	hero = nullptr;
-	armyObject = nullptr;
-	castSpellsCount = 0;
-	enchanterCounter = 0;
-}
-
 void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army)
 {
 	hero = Hero;

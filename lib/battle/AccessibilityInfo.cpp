@@ -9,10 +9,20 @@
  */
 #include "StdInc.h"
 #include "AccessibilityInfo.h"
+#include "BattleHex.h"
 #include "Unit.h"
 #include "../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+bool AccessibilityInfo::tileAccessibleWithGate(BattleHex tile, ui8 side) const
+{
+	//at(otherHex) != EAccessibility::ACCESSIBLE && (at(otherHex) != EAccessibility::GATE || side != BattleSide::DEFENDER)
+	if(at(tile) != EAccessibility::ACCESSIBLE)
+		if(at(tile) != EAccessibility::GATE || side != BattleSide::DEFENDER)
+			return false;
+	return true;
+}
 
 bool AccessibilityInfo::accessible(BattleHex tile, const battle::Unit * stack) const
 {
@@ -25,7 +35,7 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, ui8 side) co
 	//do not use getHexes for speed reasons
 	if(!tile.isValid())
 		return false;
-	if(at(tile) != EAccessibility::ACCESSIBLE && !(at(tile) == EAccessibility::GATE && side == BattleSide::DEFENDER))
+	if(!tileAccessibleWithGate(tile, side))
 		return false;
 
 	if(doubleWide)
@@ -33,7 +43,7 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, ui8 side) co
 		auto otherHex = battle::Unit::occupiedHex(tile, doubleWide, side);
 		if(!otherHex.isValid())
 			return false;
-		if(at(otherHex) != EAccessibility::ACCESSIBLE && !(at(otherHex) == EAccessibility::GATE && side == BattleSide::DEFENDER))
+		if(!tileAccessibleWithGate(tile, side))
 			return false;
 	}
 

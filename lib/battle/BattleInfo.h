@@ -121,7 +121,7 @@ public:
 	void updateObstacle(const ObstacleChanges& changes) override;
 	void removeObstacle(uint32_t id) override;
 
-	void addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd);
+	static void addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd);
 
 	//////////////////////////////////////////////////////////////////////////
 	CStack * getStack(int stackID, bool onlyAlive = true);
@@ -134,15 +134,15 @@ public:
 
 	void calculateCasualties(std::map<ui32,si32> * casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 
-	CStack * generateNewStack(uint32_t id, const CStackInstance &base, ui8 side, SlotID slot, BattleHex position);
-	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor &base, ui8 side, SlotID slot, BattleHex position);
+	CStack * generateNewStack(uint32_t id, const CStackInstance & base, ui8 side, const SlotID & slot, BattleHex position);
+	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, ui8 side, const SlotID & slot, BattleHex position);
 
-	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
+	const CGHeroInstance * getHero(const PlayerColor & player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
 	static BattleInfo * setupBattle(const int3 & tile, TerrainId, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
-	ui8 whatSide(PlayerColor player) const;
+	ui8 whatSide(const PlayerColor & player) const;
 
 protected:
 #if SCRIPTING_ENABLED
@@ -157,8 +157,7 @@ class DLL_LINKAGE CMP_stack
 	int turn;
 	uint8_t side;
 public:
-
-	bool operator ()(const battle::Unit * a, const battle::Unit * b);
+	bool operator()(const battle::Unit * a, const battle::Unit * b) const;
 	CMP_stack(int Phase = 1, int Turn = 0, uint8_t Side = BattleSide::ATTACKER);
 };
 

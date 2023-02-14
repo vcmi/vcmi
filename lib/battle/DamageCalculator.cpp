@@ -30,7 +30,7 @@ TDmgRange DamageCalculator::getBaseDamageSingle() const
 
 	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
 	{
-		auto town = callback.battleGetDefendedTown();
+		const auto * town = callback.battleGetDefendedTown();
 		assert(town);
 
 		switch(info.attacker->getPosition())
@@ -78,8 +78,8 @@ TDmgRange DamageCalculator::getBaseDamageBlessCurse() const
 
 	TDmgRange baseDamage = getBaseDamageSingle();
 	TDmgRange modifiedDamage = {
-		std::max( int64_t(1), baseDamage.first  + curseBlessAdditiveModifier),
-		std::max( int64_t(1), baseDamage.second + curseBlessAdditiveModifier)
+		std::max(static_cast<int64_t>(1), baseDamage.first + curseBlessAdditiveModifier),
+		std::max(static_cast<int64_t>(1), baseDamage.second + curseBlessAdditiveModifier)
 	};
 
 	if(curseEffects->size() && blessEffects->size() )
