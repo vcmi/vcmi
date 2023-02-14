@@ -475,19 +475,6 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	GH.pushInt(newCastleInt);
 }
 
-int3 CPlayerInterface::repairScreenPos(int3 pos)
-{
-	if (pos.x<-CGI->mh->frameW)
-		pos.x = -CGI->mh->frameW;
-	if (pos.y<-CGI->mh->frameH)
-		pos.y = -CGI->mh->frameH;
-	if (pos.x>CGI->mh->sizes.x - adventureInt->terrain->tilesw + CGI->mh->frameW)
-		pos.x = CGI->mh->sizes.x - adventureInt->terrain->tilesw + CGI->mh->frameW;
-	if (pos.y>CGI->mh->sizes.y - adventureInt->terrain->tilesh + CGI->mh->frameH)
-		pos.y = CGI->mh->sizes.y - adventureInt->terrain->tilesh + CGI->mh->frameH;
-	return pos;
-}
-
 void CPlayerInterface::activateForSpectator()
 {
 	adventureInt->state = CAdvMapInt::INGAME;
@@ -1719,8 +1706,8 @@ void CPlayerInterface::movementPxStep( const TryMoveHero &details, int i, const 
 		}
 	}
 
-	adventureInt->terrain->moveX = (32 - i) * (heroImageNewX - heroImageOldX) / 32;
-	adventureInt->terrain->moveY = (32 - i) * (heroImageNewY - heroImageOldY) / 32;
+	//adventureInt->terrain->moveX = (32 - i) * (heroImageNewX - heroImageOldX) / 32;
+	//adventureInt->terrain->moveY = (32 - i) * (heroImageNewY - heroImageOldY) / 32;
 }
 
 void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho )

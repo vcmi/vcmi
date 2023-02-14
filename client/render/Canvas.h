@@ -27,8 +27,8 @@ class Canvas
 	/// Clip rect that was in use on surface originally and needs to be restored on destruction
 	boost::optional<Rect> clipRect;
 
-	/// Current rendering area offset, all rendering operations will be moved into selected area
-	Point renderOffset;
+	/// Current rendering area, all rendering operations will be moved into selected area
+	Rect renderArea;
 
 	Canvas & operator = (Canvas & other) = delete;
 public:

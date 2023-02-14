@@ -11,6 +11,7 @@
 #include "CTerrainRect.h"
 
 #include "mapHandler.h"
+#include "MapView.h"
 #include "CAdvMapInt.h"
 
 #include "../CGameInfo.h"
@@ -40,20 +41,31 @@ CTerrainRect::CTerrainRect()
 	  curHoveredTile(-1,-1,-1),
 	  currentPath(nullptr)
 {
-	tilesw=(ADVOPT.advmapW+31)/32;
-	tilesh=(ADVOPT.advmapH+31)/32;
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
 	pos.x=ADVOPT.advmapX;
 	pos.y=ADVOPT.advmapY;
 	pos.w=ADVOPT.advmapW;
 	pos.h=ADVOPT.advmapH;
-	moveX = moveY = 0;
 	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE);
+
+	renderer = std::make_shared<MapView>( Point(0,0), pos.dimensions() );
 }
 
 CTerrainRect::~CTerrainRect()
 {
 	if(fadeSurface)
 		SDL_FreeSurface(fadeSurface);
+}
+
+void CTerrainRect::setViewCenter(const int3 &coordinates)
+{
+	renderer->setViewCenter(coordinates);
+}
+
+void CTerrainRect::setViewCenter(const Point & position, int level)
+{
+	renderer->setViewCenter(position, level);
 }
 
 void CTerrainRect::deactivate()
@@ -143,10 +155,8 @@ void CTerrainRect::handleSwipeMove(const Point & cursorPosition)
 
 	if(isSwiping)
 	{
-		adventureInt->swipeTargetPosition.x =
-			swipeInitialMapPos.x + static_cast<si32>(swipeInitialRealPos.x - cursorPosition.x) / 32;
-		adventureInt->swipeTargetPosition.y =
-			swipeInitialMapPos.y + static_cast<si32>(swipeInitialRealPos.y - cursorPosition.y) / 32;
+		adventureInt->swipeTargetPosition.x = swipeInitialViewPos.x + swipeInitialRealPos.x - cursorPosition.x;
+		adventureInt->swipeTargetPosition.y = swipeInitialViewPos.y + swipeInitialRealPos.y - cursorPosition.y;
 		adventureInt->swipeMovementRequested = true;
 	}
 }
@@ -156,7 +166,7 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 	if(btnPressed)
 	{
 		swipeInitialRealPos = Point(GH.getCursorPosition().x, GH.getCursorPosition().y);
-		swipeInitialMapPos = int3(adventureInt->position);
+		swipeInitialViewPos = getViewCenter();
 		return true;
 	}
 	else if(isSwiping) // only accept this touch if it wasn't a swipe
@@ -169,7 +179,7 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 
 void CTerrainRect::handleHover(const Point & cursorPosition)
 {
-	int3 tHovered = whichTileIsIt(cursorPosition.x, cursorPosition.y);
+	int3 tHovered = whichTileIsIt(cursorPosition);
 	int3 pom = adventureInt->verifyPos(tHovered);
 
 	if(tHovered != pom) //tile outside the map
@@ -196,6 +206,7 @@ void CTerrainRect::hover(bool on)
 }
 void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
 {
+/*
 	const static int pns[9][9] = {
 				{16, 17, 18,  7, -1, 19,  6,  5, -1},
 				{ 8,  9, 18,  7, -1, 19,  6, -1, 20},
@@ -228,18 +239,18 @@ void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
 			const int3 &prevPos = currentPath->nodes[i-1].coord;
 			std::vector<CGPathNode> & cv = currentPath->nodes;
 
-			/* Vector directions
-			 *  0   1   2
-			 *    \ | /
-			 *  3 - 4 - 5
-			 *    / | \
-			 *  6   7  8
-			 *For example:
-			 *  |
-			 *  |__\
-			 *     /
-			 * is id1=7, id2=5 (pns[7][5])
-			*/
+			// Vector directions
+			//  0   1   2
+			//    \ | /
+			//  3 - 4 - 5
+			//    / | \
+			//  6   7  8
+			//For example:
+			//  |
+			//  |__\
+			//     /
+			// is id1=7, id2=5 (pns[7][5])
+			//
 			bool pathContinuous = curPos.areNeighbours(nextPos) && curPos.areNeighbours(prevPos);
 			if(pathContinuous && cv[i].action != CGPathNode::EMBARK && cv[i].action != CGPathNode::DISEMBARK)
 			{
@@ -317,8 +328,8 @@ void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
 
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
-}
-
+*/}
+/*
 void CTerrainRect::show(SDL_Surface * to)
 {
 	if (adventureInt->mode == EAdvMapMode::NORMAL)
@@ -338,7 +349,7 @@ void CTerrainRect::show(SDL_Surface * to)
 			fadeAnim->draw(to, r.topLeft());
 		}
 
-		if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
+		if (currentPath) //drawing path
 		{
 			showPath(pos, to);
 		}
@@ -366,33 +377,20 @@ void CTerrainRect::showAnim(SDL_Surface * to)
 	if (fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
 		show(to);
 }
-
-int3 CTerrainRect::whichTileIsIt(const int x, const int y)
+*/
+int3 CTerrainRect::whichTileIsIt(const Point &position)
 {
-	int3 ret;
-	ret.x = adventureInt->position.x + ((x-CGI->mh->offsetX-pos.x)/32);
-	ret.y = adventureInt->position.y + ((y-CGI->mh->offsetY-pos.y)/32);
-	ret.z = adventureInt->position.z;
-	return ret;
+	return renderer->getTileAtPoint(position - pos);
 }
 
 int3 CTerrainRect::whichTileIsIt()
 {
-	return whichTileIsIt(GH.getCursorPosition().x, GH.getCursorPosition().y);
+	return whichTileIsIt(GH.getCursorPosition());
 }
 
 Rect CTerrainRect::visibleTilesArea()
 {
-	switch (adventureInt->mode)
-	{
-	default:
-		logGlobal->error("Unknown map mode %d", (int)adventureInt->mode);
-		return Rect();
-	case EAdvMapMode::NORMAL:
-		return Rect(adventureInt->position.x, adventureInt->position.y, tilesw, tilesh);
-	case EAdvMapMode::WORLD_VIEW:
-		return Rect(adventureInt->position.x, adventureInt->position.y, tilesw / adventureInt->worldViewScale, tilesh / adventureInt->worldViewScale);
-	}
+	return renderer->getVisibleAreaTiles();
 }
 
 void CTerrainRect::fadeFromCurrentView()
@@ -413,3 +411,27 @@ bool CTerrainRect::needsAnimUpdate()
 	return fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED;
 }
 
+void CTerrainRect::setLevel(int level)
+{
+	renderer->setViewCenter(renderer->getViewCenter(), level);
+}
+
+void CTerrainRect::moveViewBy(const Point & delta)
+{
+	renderer->setViewCenter(renderer->getViewCenter() + delta, getLevel());
+}
+
+int3 CTerrainRect::getTileCenter()
+{
+	return renderer->getTileCenter();
+}
+
+Point CTerrainRect::getViewCenter()
+{
+	return renderer->getViewCenter();
+}
+
+int CTerrainRect::getLevel()
+{
+	return renderer->getTileCenter().z;
+}

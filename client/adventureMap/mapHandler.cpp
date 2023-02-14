@@ -14,11 +14,16 @@
 #include "../render/CAnimation.h"
 #include "../render/CFadeAnimation.h"
 #include "../render/Colors.h"
+#include "../gui/CGuiHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../CGameInfo.h"
 #include "../render/Graphics.h"
 #include "../render/IImage.h"
+#include "../render/Canvas.h"
 #include "../CMusicHandler.h"
+#include "../CPlayerInterface.h"
+
+#include "../../CCallback.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CObjectClassesHandler.h"
@@ -1483,4 +1488,5 @@ TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, Rect rect_, 
 
 TerrainTileObject::~TerrainTileObject()
 {
+
 }

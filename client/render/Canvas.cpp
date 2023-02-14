@@ -18,14 +18,14 @@
 
 Canvas::Canvas(SDL_Surface * surface):
 	surface(surface),
-	renderOffset(0,0)
+	renderArea(0,0, surface->w, surface->h)
 {
 	surface->refcount++;
 }
 
 Canvas::Canvas(const Canvas & other):
 	surface(other.surface),
-	renderOffset(other.renderOffset)
+	renderArea(other.renderArea)
 {
 	surface->refcount++;
 }
@@ -33,25 +33,23 @@ Canvas::Canvas(const Canvas & other):
 Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 	Canvas(other)
 {
-	clipRect.emplace();
-	CSDL_Ext::getClipRect(surface, clipRect.get());
+	//clipRect.emplace();
+	//CSDL_Ext::getClipRect(surface, clipRect.get());
 
-	Rect currClipRect = newClipRect + renderOffset;
-	CSDL_Ext::setClipRect(surface, currClipRect);
-
-	renderOffset += newClipRect.topLeft();
+	renderArea = other.renderArea.intersect(newClipRect + other.renderArea.topLeft());
+	//CSDL_Ext::setClipRect(surface, currClipRect);
 }
 
 Canvas::Canvas(const Point & size):
-	renderOffset(0,0),
+	renderArea(Point(0,0), size),
 	surface(CSDL_Ext::newSurface(size.x, size.y))
 {
 }
 
 Canvas::~Canvas()
 {
-	if (clipRect)
-		CSDL_Ext::setClipRect(surface, clipRect.get());
+	//if (clipRect)
+	//	CSDL_Ext::setClipRect(surface, clipRect.get());
 
 	SDL_FreeSurface(surface);
 }
@@ -60,19 +58,19 @@ void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y);
+		image->draw(surface, renderArea.x + pos.x, renderArea.y + pos.y);
 }
 
 void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, renderOffset.x + pos.x, renderOffset.y + pos.y, &sourceRect);
+		image->draw(surface, renderArea.x + pos.x, renderArea.y + pos.y, &sourceRect);
 }
 
 void Canvas::draw(Canvas & image, const Point & pos)
 {
-	CSDL_Ext::blitAt(image.surface, renderOffset.x + pos.x, renderOffset.y + pos.y, surface);
+	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
 }
 
 void Canvas::draw(Canvas & image, const Point & pos, const Point & targetSize)
@@ -88,17 +86,17 @@ void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
 
 void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
-	CSDL_Ext::drawLine(surface, renderOffset + from, renderOffset + dest, CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
+	CSDL_Ext::drawLine(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
 }
 
 void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color)
 {
-	CSDL_Ext::drawLineDashed(surface, renderOffset + from, renderOffset + dest, CSDL_Ext::toSDL(color));
+	CSDL_Ext::drawLineDashed(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(color));
 }
 
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 {
-	Rect realTarget = target + renderOffset;
+	Rect realTarget = target + renderArea.topLeft();
 
 	CSDL_Ext::drawLineDashed(surface, realTarget.topLeft(),    realTarget.topRight(),    CSDL_Ext::toSDL(color));
 	CSDL_Ext::drawLineDashed(surface, realTarget.bottomLeft(), realTarget.bottomRight(), CSDL_Ext::toSDL(color));
@@ -110,9 +108,9 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 {
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, renderOffset + position);
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderOffset + position);
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, renderOffset + position);
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, renderArea.topLeft() + position);
 	}
 }
 
@@ -120,9 +118,9 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 {
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, renderOffset + position);
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderOffset + position);
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, renderOffset + position);
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, renderArea.topLeft() + position);
 	}
 }
 

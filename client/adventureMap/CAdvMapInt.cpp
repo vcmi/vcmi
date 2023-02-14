@@ -90,11 +90,11 @@ CAdvMapInt::CAdvMapInt():
 	resdatabar(new CResDataBar),
 	terrain(new CTerrainRect),
 	state(NA),
-	spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
+	spellBeingCasted(nullptr), selection(nullptr),
 	redrawOnNextFrame(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
 	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
-	swipeTargetPosition(int3(-1, -1, -1))
+	swipeTargetPosition(Point(0, 0))
 {
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -285,16 +285,16 @@ void CAdvMapInt::fswitchLevel()
 	if (maxLevels < 2)
 		return;
 
-	position.z = (position.z + 1) % maxLevels;
+	terrain->setLevel((terrain->getLevel() + 1) % maxLevels);
 
-	underground->setIndex(position.z, true);
+	underground->setIndex(terrain->getLevel(), true);
 	underground->redraw();
 
-	worldViewUnderground->setIndex(position.z, true);
+	worldViewUnderground->setIndex(terrain->getLevel(), true);
 	worldViewUnderground->redraw();
 
 	redrawOnNextFrame = true;
-	minimap->setLevel(position.z);
+	minimap->setLevel(terrain->getLevel());
 
 	if (mode == EAdvMapMode::WORLD_VIEW)
 		terrain->redraw();
@@ -520,8 +520,6 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 		infoBar->showAll(to);
 		break;
 	case EAdvMapMode::WORLD_VIEW:
-
-		terrain->showAll(to);
 		break;
 	}
 	activeMapPanel->showAll(to);
@@ -594,25 +592,15 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 	if(redrawOnNextFrame)
 	{
-		int3 betterPos = LOCPLINT->repairScreenPos(position);
-		if (betterPos != position)
-		{
-			logGlobal->warn("Incorrect position for adventure map!");
-			position = betterPos;
-		}
-
-		terrain->show(to);
 		for(int i = 0; i < 4; i++)
 			gems[i]->showAll(to);
 		redrawOnNextFrame=false;
 		LOCPLINT->cingconsole->show(to);
 	}
-	else
-	{
-		terrain->showAnim(to);
-		for(int i = 0; i < 4; i++)
-			gems[i]->showAll(to);
-	}
+
+	terrain->show(to);
+	for(int i = 0; i < 4; i++)
+		gems[i]->showAll(to);
 
 	infoBar->show(to);
 	statusbar->showAll(to);
@@ -624,26 +612,22 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4 / scrollSpeed)) == 0)
 	{
-		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
-			position.x--;
+		if(scrollingDir & LEFT)
+			terrain->moveViewBy(Point(-4, 0));
 
-		if((scrollingDir & RIGHT) && (position.x < CGI->mh->map->width - CGI->mh->tilesW + CGI->mh->frameW))
-			position.x++;
+		if(scrollingDir & RIGHT)
+			terrain->moveViewBy(Point(+4, 0));
 
-		if((scrollingDir & UP) && (position.y > -CGI->mh->frameH))
-			position.y--;
+		if(scrollingDir & UP)
+			terrain->moveViewBy(Point(0, -4));
 
-		if((scrollingDir & DOWN) && (position.y < CGI->mh->map->height - CGI->mh->tilesH + CGI->mh->frameH))
-			position.y++;
+		if(scrollingDir & DOWN)
+			terrain->moveViewBy(Point(0, +4));
 
 		if(scrollingDir)
 		{
 			setScrollingCursor(scrollingDir);
 			scrollingState = true;
-			redrawOnNextFrame = true;
-			minimap->redraw();
-			if(mode == EAdvMapMode::WORLD_VIEW)
-				terrain->redraw();
 		}
 		else if(scrollingState)
 		{
@@ -657,9 +641,7 @@ void CAdvMapInt::handleSwipeUpdate()
 {
 	if(swipeMovementRequested)
 	{
-		auto fixedPos = LOCPLINT->repairScreenPos(swipeTargetPosition);
-		position.x = fixedPos.x;
-		position.y = fixedPos.y;
+		terrain->setViewCenter(swipeTargetPosition, terrain->getLevel());
 		CCS->curh->set(Cursor::Map::POINTER);
 		redrawOnNextFrame = true;
 		minimap->redraw();
@@ -676,37 +658,22 @@ void CAdvMapInt::selectionChanged()
 
 void CAdvMapInt::centerOn(int3 on, bool fade)
 {
-	bool switchedLevels = on.z != position.z;
+	bool switchedLevels = on.z != terrain->getLevel();
 
 	if (fade)
 	{
 		terrain->fadeFromCurrentView();
 	}
 
-	switch (mode)
-	{
-	default:
-	case EAdvMapMode::NORMAL:
-		on.x -= CGI->mh->frameW; // is this intentional? frame size doesn't really have to correspond to camera size...
-		on.y -= CGI->mh->frameH;
-		break;
-	case EAdvMapMode::WORLD_VIEW:
-		on.x -= static_cast<si32>(CGI->mh->tilesW / 2 / worldViewScale);
-		on.y -= static_cast<si32>(CGI->mh->tilesH / 2 / worldViewScale);
-		break;
-	}
+	terrain->setViewCenter(on);
 
-
-	on = LOCPLINT->repairScreenPos(on);
-
-	position = on;
 	redrawOnNextFrame=true;
 	underground->setIndex(on.z,true); //change underground switch button image
 	underground->redraw();
 	worldViewUnderground->setIndex(on.z, true);
 	worldViewUnderground->redraw();
 	if (switchedLevels)
-		minimap->setLevel(position.z);
+		minimap->setLevel(terrain->getLevel());
 	minimap->redraw();
 
 	if (mode == EAdvMapMode::WORLD_VIEW)

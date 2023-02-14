@@ -18,18 +18,26 @@ VCMI_LIB_NAMESPACE_END
 
 enum class EMapAnimRedrawStatus;
 class CFadeAnimation;
+class MapView;
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
 class CTerrainRect : public CIntObject
 {
+	std::shared_ptr<MapView> renderer;
+
 	SDL_Surface * fadeSurface;
 	EMapAnimRedrawStatus lastRedrawStatus;
 	std::shared_ptr<CFadeAnimation> fadeAnim;
 
-	int3 swipeInitialMapPos;
+	Point swipeInitialViewPos;
 	Point swipeInitialRealPos;
 	bool isSwiping;
-	static constexpr float SwipeTouchSlop = 16.0f;
+
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+	static constexpr float SwipeTouchSlop = 16.0f; // touch UI
+#else
+	static constexpr float SwipeTouchSlop = 1.0f; // mouse UI
+#endif
 
 	void handleHover(const Point & cursorPosition);
 	void handleSwipeMove(const Point & cursorPosition);
@@ -37,18 +45,25 @@ class CTerrainRect : public CIntObject
 	bool handleSwipeStateChange(bool btnPressed);
 	int3 curHoveredTile;
 
-	int3 whichTileIsIt(const int x, const int y); //x,y are cursor position
+	int3 whichTileIsIt(const Point & position); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 	void showPath(const Rect &extRect, SDL_Surface * to);
 
 	bool needsAnimUpdate();
 public:
-	int tilesw, tilesh; //width and height of terrain to blit in tiles
-	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
 	CGPath * currentPath;
 
 	CTerrainRect();
 	~CTerrainRect();
+
+	void moveViewBy(const Point & delta);
+	void setViewCenter(const int3 & coordinates);
+	void setViewCenter(const Point & position, int level);
+	void setLevel(int level);
+
+	int3  getTileCenter();
+	Point getViewCenter();
+	int getLevel();
 
 	// CIntObject interface implementation
 	void deactivate() override;
@@ -57,10 +72,10 @@ public:
 	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
 	void mouseMoved (const Point & cursorPosition) override;
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	//void show(SDL_Surface * to) override;
+	//void showAll(SDL_Surface * to) override;
 
-	void showAnim(SDL_Surface * to);
+	//void showAnim(SDL_Surface * to);
 
 	/// @returns number of visible tiles on screen respecting current map scaling
 	Rect visibleTilesArea();
@@ -68,4 +83,3 @@ public:
 	/// animates view by caching current surface and crossfading it with normal screen
 	void fadeFromCurrentView();
 };
-

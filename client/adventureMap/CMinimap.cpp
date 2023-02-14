@@ -180,6 +180,7 @@ void CMinimap::showAll(SDL_Surface * to)
 		};
 
 		Canvas clippedTarget(target, pos);
+		CSDL_Ext::CClipRectGuard guard(to, pos);
 		clippedTarget.drawBorderDashed(radar, CSDL_Ext::fromSDL(Colors::PURPLE));
 	}
 }

@@ -72,7 +72,7 @@ private:
 
 	bool swipeEnabled;
 	bool swipeMovementRequested;
-	int3 swipeTargetPosition;
+	Point swipeTargetPosition;
 
 	EGameStates state;
 
@@ -80,7 +80,7 @@ private:
 	ui8 heroAnim, heroAnimValHitCount; //animation frame
 
 	/// top left corner of visible map part
-	int3 position;
+	//int3 position;
 
 	EAdvMapMode mode;
 	float worldViewScale;

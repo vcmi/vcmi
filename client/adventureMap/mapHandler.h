@@ -14,6 +14,8 @@
 #include "../../lib/spells/ViewSpellInt.h"
 #include "../../lib/Rect.h"
 
+#include "../gui/CIntObject.h"
+
 #ifdef IN
 #undef IN
 #endif
@@ -346,7 +348,7 @@ public: //TODO: make private
 	boost::multi_array<TerrainTile2, 3> ttiles; //informations about map tiles [z][x][y]
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	const CMap * map;
-
+private:
 	// Max number of tiles that will fit in the map screen. Tiles
 	// can be partial on each edges.
 	int tilesW;

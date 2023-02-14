@@ -220,7 +220,6 @@ public:
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
-	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
 	// show dialogs

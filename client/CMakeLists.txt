@@ -11,6 +11,8 @@ set(client_SRCS
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
 	adventureMap/CTerrainRect.cpp
+	adventureMap/MapRenderer.cpp
+	adventureMap/MapView.cpp
 	adventureMap/mapHandler.cpp
 
 	battle/BattleActionsController.cpp
@@ -121,6 +123,9 @@ set(client_HEADERS
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
 	adventureMap/CTerrainRect.h
+	adventureMap/MapRenderer.h
+	adventureMap/MapRendererContext.h
+	adventureMap/MapView.h
 	adventureMap/mapHandler.h
 
 	battle/BattleActionsController.h
