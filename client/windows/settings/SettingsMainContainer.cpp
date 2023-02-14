@@ -16,7 +16,7 @@
 #include "GeneralOptionsTab.h"
 #include "AdventureOptionsTab.h"
 #include "BattleOptionsTab.h"
-#include "VcmiSettingsWindow.h"
+#include "OtherOptionsWindow.h"
 
 #include "filesystem/ResourceID.h"
 #include "CGeneralTextHandler.h"
@@ -86,7 +86,7 @@ std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
 		case 2:
 			return std::make_shared<BattleOptionsTab>(parentBattleInterface);
 		case 3:
-			return std::make_shared<VcmiSettingsWindow>();
+			return std::make_shared<OtherOptionsWindow>();
 		default:
 			logGlobal->error("Wrong settings tab ID!");
 			return std::make_shared<GeneralOptionsTab>();

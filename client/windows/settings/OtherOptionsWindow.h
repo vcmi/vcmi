@@ -11,10 +11,10 @@
 
 #include "../../gui/InterfaceObjectConfigurable.h"
 
-class VcmiSettingsWindow : public InterfaceObjectConfigurable
+class OtherOptionsWindow : public InterfaceObjectConfigurable
 {
 private:
 
 public:
-	VcmiSettingsWindow();
+	OtherOptionsWindow();
 };

@@ -92,7 +92,7 @@ set(client_SRCS
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
 	windows/settings/GeneralOptionsTab.cpp
-	windows/settings/VcmiSettingsWindow.cpp
+	windows/settings/OtherOptionsWindow.cpp
 	windows/settings/SettingsMainContainer.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
@@ -209,7 +209,7 @@ set(client_HEADERS
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
 	windows/settings/GeneralOptionsTab.h
-	windows/settings/VcmiSettingsWindow.h
+	windows/settings/OtherOptionsWindow.h
 	windows/settings/SettingsMainContainer.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h

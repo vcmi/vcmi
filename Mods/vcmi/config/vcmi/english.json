@@ -72,6 +72,11 @@
 	"vcmi.battleOptions.animationsSpeed6.hover": "6",
 	"vcmi.battleOptions.animationsSpeed6.help": "Sets animation speed to extremely fast",
 
+	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show available creatures in town summary",
+	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show available creatures in town summary}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",
+	"vcmi.otherOptions.compactTownCreatureInfo.hover": "More compact creature info in town summary",
+	"vcmi.otherOptions.compactTownCreatureInfo.help": "{More compact creature info in town summary}\n\n Smaller town creatures information in town summary.",
+
 	"vcmi.townHall.missingBase"             : "Base building %s must be built first",
 	"vcmi.townHall.noCreaturesToRecruit"    : "There are no creatures to recruit!",
 	"vcmi.townHall.greetingManaVortex"      : "As you near the %s your body is filled with new energy. You have doubled your normal spell points.",
