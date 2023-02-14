@@ -25,7 +25,7 @@ public:
 	CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion = SERIALIZATION_VERSION); //throws!
 
 	int read( void * data, unsigned size) override; //throws!
-	void checkMagicBytes(const std::string &text);
+	void checkMagicBytes(const std::string & text) const;
 
 	std::unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
 };

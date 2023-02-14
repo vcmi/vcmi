@@ -25,10 +25,6 @@ namespace spells
 namespace effects
 {
 
-Effects::Effects() = default;
-
-Effects::~Effects() = default;
-
 void Effects::add(const std::string & name, const std::shared_ptr<Effect>& effect, const int level)
 {
 	effect->name = name;

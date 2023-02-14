@@ -28,7 +28,7 @@ public:
 class DLL_LINKAGE JsonSerializeHelper: public boost::noncopyable
 {
 public:
-	JsonSerializeHelper(JsonSerializeHelper && other);
+	JsonSerializeHelper(JsonSerializeHelper && other) noexcept;
 	virtual ~JsonSerializeHelper();
 
 	JsonSerializeFormat * operator->();
@@ -44,8 +44,8 @@ private:
 class DLL_LINKAGE JsonStructSerializer: public JsonSerializeHelper
 {
 public:
-	JsonStructSerializer(JsonStructSerializer && other);
-	~JsonStructSerializer();
+	JsonStructSerializer(JsonStructSerializer && other) noexcept;
+
 protected:
 	JsonStructSerializer(JsonSerializeFormat * owner_);
 
@@ -56,7 +56,7 @@ protected:
 class DLL_LINKAGE JsonArraySerializer: public JsonSerializeHelper
 {
 public:
-	JsonArraySerializer(JsonArraySerializer && other);
+	JsonArraySerializer(JsonArraySerializer && other) noexcept;
 
 	JsonStructSerializer enterStruct(const size_t index);
 	JsonArraySerializer enterArray(const size_t index);
@@ -102,17 +102,17 @@ class DLL_LINKAGE JsonSerializeFormat: public boost::noncopyable
 public:
 	///user-provided callback to resolve string identifier
 	///returns resolved identifier or -1 on error
-	typedef std::function<si32(const std::string &)> TDecoder;
+	using TDecoder = std::function<si32(const std::string &)>;
 
 	///user-provided callback to get string identifier
 	///may assume that object index is valid
-	typedef std::function<std::string(si32)> TEncoder;
+	using TEncoder = std::function<std::string(si32)>;
 
-	typedef std::function<void(JsonSerializeFormat &)> TSerialize;
+	using TSerialize = std::function<void(JsonSerializeFormat &)>;
 
 	struct LIC
 	{
-		LIC(const std::vector<bool> & Standard, const TDecoder Decoder, const TEncoder Encoder);
+		LIC(const std::vector<bool> & Standard, TDecoder Decoder, TEncoder Encoder);
 
 		const std::vector<bool> & standard;
 		const TDecoder decoder;
@@ -122,7 +122,7 @@ public:
 
 	struct LICSet
 	{
-		LICSet(const std::set<si32> & Standard, const TDecoder Decoder, const TEncoder Encoder);
+		LICSet(const std::set<si32> & Standard, TDecoder Decoder, TEncoder Encoder);
 
 		const std::set<si32> & standard;
 		const TDecoder decoder;

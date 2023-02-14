@@ -97,9 +97,6 @@ public:
 
 	struct DLL_LINKAGE AnimationInfo
 	{
-		AnimationInfo();
-		~AnimationInfo();
-
 		///displayed on all affected targets.
 		TAnimationQueue affect;
 
@@ -123,26 +120,24 @@ public:
 
 		std::string selectProjectile(const double angle) const;
 	} animationInfo;
+
 public:
 	struct LevelInfo
 	{
-		si32 cost;
-		si32 power;
-		si32 AIValue;
+		si32 cost = 0;
+		si32 power = 0;
+		si32 AIValue = 0;
 
-		bool smartTarget;
-		bool clearTarget;
-		bool clearAffected;
-		std::string range;
+		bool smartTarget = true;
+		bool clearTarget = false;
+		bool clearAffected = false;
+		std::string range = "0";
 
 		//TODO: remove these two when AI will understand special effects
 		std::vector<std::shared_ptr<Bonus>> effects; //deprecated
 		std::vector<std::shared_ptr<Bonus>> cumulativeEffects; //deprecated
 
 		JsonNode battleEffects;
-
-		LevelInfo();
-		~LevelInfo();
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
@@ -369,9 +364,6 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {
 public:
-	CSpellHandler();
-	virtual ~CSpellHandler();
-
 	///IHandler base
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 	void afterLoadFinalization() override;
