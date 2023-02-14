@@ -75,7 +75,7 @@ CLoggerDomain CLoggerDomain::getParent() const
 	if(isGlobalDomain())
 		return *this;
 
-	const size_t pos = name.find_last_of(".");
+	const size_t pos = name.find_last_of('.');
 	if(pos != std::string::npos)
 		return CLoggerDomain(name.substr(0, pos));
 	return CLoggerDomain(DOMAIN_GLOBAL);
@@ -189,7 +189,7 @@ void CLogger::callTargets(const LogRecord & record) const
 {
 	TLockGuard _(mx);
 	for(const CLogger * logger = this; logger != nullptr; logger = logger->parent)
-		for(auto & target : logger->targets)
+		for(const auto & target : logger->targets)
 			target->write(record);
 }
 
@@ -235,7 +235,8 @@ CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 std::vector<std::string> CLogManager::getRegisteredDomains() const
 {
 	std::vector<std::string> domains;
-	for (auto& pair : loggers)
+	domains.reserve(loggers.size());
+	for(const auto & pair : loggers)
 	{
 		domains.push_back(pair.second->getDomain().getName());
 	}
@@ -247,23 +248,9 @@ CLogFormatter::CLogFormatter()
 {
 }
 
-CLogFormatter::CLogFormatter(const std::string & pattern)
-	: pattern(pattern)
+CLogFormatter::CLogFormatter(std::string pattern):
+	pattern(std::move(pattern))
 {
-}
-
-CLogFormatter::CLogFormatter(const CLogFormatter & c) : pattern(c.pattern) { }
-CLogFormatter::CLogFormatter(CLogFormatter && m) : pattern(std::move(m.pattern)) { }
-
-CLogFormatter & CLogFormatter::operator=(const CLogFormatter & c)
-{
-	pattern = c.pattern;
-	return *this;
-}
-CLogFormatter & CLogFormatter::operator=(CLogFormatter && m)
-{
-	pattern = std::move(m.pattern);
-	return *this;
 }
 
 std::string CLogFormatter::format(const LogRecord & record) const
@@ -437,8 +424,8 @@ void CLogConsoleTarget::setFormatter(const CLogFormatter & formatter) { this->fo
 const CColorMapping & CLogConsoleTarget::getColorMapping() const { return colorMapping; }
 void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { this->colorMapping = colorMapping; }
 
-CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append)
-	: file(std::move(filePath), append ? std::ios_base::app : std::ios_base::out)
+CLogFileTarget::CLogFileTarget(const boost::filesystem::path & filePath, bool append):
+	file(filePath, append ? std::ios_base::app : std::ios_base::out)
 {
 //	formatter.setPattern("%d %l %n [%t] - %m");
 	formatter.setPattern("%l %n [%t] - %m");

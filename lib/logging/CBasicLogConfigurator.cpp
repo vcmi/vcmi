@@ -37,7 +37,7 @@ void CBasicLogConfigurator::configure()
 		const JsonNode & loggers = loggingNode["loggers"];
 		if(!loggers.isNull())
 		{
-			for(auto & loggerNode : loggers.Vector())
+			for(const auto & loggerNode : loggers.Vector())
 			{
 				// Get logger
 				std::string name = loggerNode["domain"].String();
@@ -148,6 +148,7 @@ void CBasicLogConfigurator::deconfigure()
 	auto l = CLogger::getGlobalLogger();
 	if(l != nullptr)
 		l->clearTargets();
+	appendToLogFile = true;
 }
 
 VCMI_LIB_NAMESPACE_END
