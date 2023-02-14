@@ -132,10 +132,10 @@ BattleInterface::~BattleInterface()
 	CPlayerInterface::battleInt = nullptr;
 	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
 
-	if (adventureInt && adventureInt->selection)
+	if (adventureInt && adventureInt->curArmy())
 	{
 		//FIXME: this should be moved to adventureInt which should restore correct track based on selection/active player
-		const auto * terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
+		const auto * terrain = LOCPLINT->cb->getTile(adventureInt->curArmy()->visitablePos())->terType;
 		CCS->musich->playMusicFromSet("terrain", terrain->getJsonKey(), true, false);
 	}
 

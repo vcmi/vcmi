@@ -241,7 +241,6 @@ bool ObjectManager::createRequiredObjects()
 	for(const auto & object : requiredObjects)
 	{
 		auto * obj = object.first;
-		int3 pos;
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
@@ -278,7 +277,6 @@ bool ObjectManager::createRequiredObjects()
 	for(const auto & object : closeObjects)
 	{
 		auto * obj = object.first;
-		int3 pos;
 		auto possibleArea = zone.areaPossible();
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());

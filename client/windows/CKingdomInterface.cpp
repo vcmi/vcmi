@@ -15,12 +15,13 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../widgets/ObjectLists.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
@@ -95,7 +96,7 @@ void InfoBox::clickRight(tribool down, bool previousState)
 		if (comp)
 			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 		else if (!text.empty())
-			adventureInt->handleRightClick(text, down);
+			CRClickPopup::createAndPush(text);
 	}
 }
 

@@ -50,246 +50,266 @@
         <translation>Edycja</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="86"/>
+        <location filename="../mainwindow.ui" line="89"/>
         <source>View</source>
         <translation>Widok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="94"/>
+        <location filename="../mainwindow.ui" line="97"/>
         <source>Player</source>
         <translation>Gracz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="274"/>
+        <location filename="../mainwindow.ui" line="117"/>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="163"/>
+        <source>Minimap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="239"/>
+        <source>Map Objects View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="283"/>
         <source>Browser</source>
         <translation>Przeglądarka</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="352"/>
+        <location filename="../mainwindow.ui" line="361"/>
         <source>Inspector</source>
         <translation>Inspektor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="391"/>
+        <location filename="../mainwindow.ui" line="400"/>
         <source>Property</source>
         <translation>Właściwość</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="396"/>
+        <location filename="../mainwindow.ui" line="405"/>
         <source>Value</source>
         <translation>Wartość</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="472"/>
+        <location filename="../mainwindow.ui" line="432"/>
+        <source>Terrains View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="484"/>
         <source>Brush</source>
         <translation>Pędzel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="747"/>
+        <location filename="../mainwindow.ui" line="763"/>
         <source>Terrains</source>
         <translation>Tereny</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="790"/>
+        <location filename="../mainwindow.ui" line="806"/>
         <source>Roads</source>
         <translation>Drogi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="826"/>
+        <location filename="../mainwindow.ui" line="842"/>
         <source>Rivers</source>
         <translation>Rzeki</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="873"/>
+        <location filename="../mainwindow.ui" line="889"/>
         <source>Open</source>
         <translation>Otwórz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="885"/>
+        <location filename="../mainwindow.ui" line="901"/>
         <source>Save</source>
         <translation>Zapisz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="897"/>
+        <location filename="../mainwindow.ui" line="913"/>
         <source>New</source>
         <translation>Nowy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="905"/>
+        <location filename="../mainwindow.ui" line="921"/>
         <source>Save as</source>
         <translation>Zapisz jako</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="908"/>
+        <location filename="../mainwindow.ui" line="924"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="917"/>
+        <location filename="../mainwindow.ui" line="933"/>
         <source>U/G</source>
         <translation>Podziemia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="920"/>
-        <location filename="../mainwindow.cpp" line="731"/>
+        <location filename="../mainwindow.ui" line="936"/>
+        <location filename="../mainwindow.cpp" line="746"/>
         <source>View underground</source>
         <translation>Pokaż podziemia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="935"/>
+        <location filename="../mainwindow.ui" line="951"/>
         <source>Pass</source>
         <translation>Przejścia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="947"/>
+        <location filename="../mainwindow.ui" line="963"/>
         <source>Cut</source>
         <translation>Wytnij</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="959"/>
+        <location filename="../mainwindow.ui" line="975"/>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="971"/>
+        <location filename="../mainwindow.ui" line="987"/>
         <source>Paste</source>
         <translation>Wklej</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="983"/>
+        <location filename="../mainwindow.ui" line="999"/>
         <source>Fill</source>
         <translation>Wypełnij</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="986"/>
+        <location filename="../mainwindow.ui" line="1002"/>
         <source>Fills the selection with obstacles</source>
         <translation>Wypełnia zaznaczony obszar przeszkodami</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1001"/>
+        <location filename="../mainwindow.ui" line="1017"/>
         <source>Grid</source>
         <translation>Siatka</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1012"/>
+        <location filename="../mainwindow.ui" line="1028"/>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1015"/>
+        <location filename="../mainwindow.ui" line="1031"/>
         <source>Map title and description</source>
         <translation>Nazwa i opis mapy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1026"/>
+        <location filename="../mainwindow.ui" line="1042"/>
         <source>Players settings</source>
         <translation>Ustawienia graczy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1041"/>
-        <location filename="../mainwindow.ui" line="1044"/>
+        <location filename="../mainwindow.ui" line="1057"/>
+        <location filename="../mainwindow.ui" line="1060"/>
         <source>Undo</source>
         <translation>Cofnij</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1062"/>
+        <location filename="../mainwindow.ui" line="1078"/>
         <source>Redo</source>
         <translation>Przywróć</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1080"/>
+        <location filename="../mainwindow.ui" line="1096"/>
         <source>Erase</source>
         <translation>Wymaż</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1091"/>
+        <location filename="../mainwindow.ui" line="1107"/>
         <source>Neutral</source>
         <translation>Neutralny</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1099"/>
+        <location filename="../mainwindow.ui" line="1115"/>
         <source>Validate</source>
         <translation>Sprawdź</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1110"/>
+        <location filename="../mainwindow.ui" line="1126"/>
         <source>Update appearance</source>
         <translation>Aktualizuj wygląd</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1121"/>
+        <location filename="../mainwindow.ui" line="1137"/>
         <source>Recreate obstacles</source>
         <translation>Powtórnie stwórz przeszkody</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1132"/>
+        <location filename="../mainwindow.ui" line="1148"/>
         <source>Player 1</source>
         <translation>Gracz 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1143"/>
+        <location filename="../mainwindow.ui" line="1159"/>
         <source>Player 2</source>
         <translation>Gracz 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1154"/>
+        <location filename="../mainwindow.ui" line="1170"/>
         <source>Player 3</source>
         <translation>Gracz 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1165"/>
+        <location filename="../mainwindow.ui" line="1181"/>
         <source>Player 4</source>
         <translation>Gracz 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1176"/>
+        <location filename="../mainwindow.ui" line="1192"/>
         <source>Player 5</source>
         <translation>Gracz 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1187"/>
+        <location filename="../mainwindow.ui" line="1203"/>
         <source>Player 6</source>
         <translation>Gracz 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1198"/>
+        <location filename="../mainwindow.ui" line="1214"/>
         <source>Player 7</source>
         <translation>Gracz 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1209"/>
+        <location filename="../mainwindow.ui" line="1225"/>
         <source>Player 8</source>
         <translation>Gracz 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="331"/>
+        <location filename="../mainwindow.cpp" line="346"/>
         <source>Open map</source>
         <translation>Otwórz mapę</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="333"/>
+        <location filename="../mainwindow.cpp" line="348"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Wszystkie wspierane mapy (*.vmap *.h3m);;Mapy VCMI(*.vmap);;Mapy HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="382"/>
-        <location filename="../mainwindow.cpp" line="409"/>
+        <location filename="../mainwindow.cpp" line="397"/>
+        <location filename="../mainwindow.cpp" line="424"/>
         <source>Save map</source>
         <translation>Zapisz mapę</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="382"/>
-        <location filename="../mainwindow.cpp" line="409"/>
+        <location filename="../mainwindow.cpp" line="397"/>
+        <location filename="../mainwindow.cpp" line="424"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mapy VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="567"/>
+        <location filename="../mainwindow.cpp" line="582"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="735"/>
+        <location filename="../mainwindow.cpp" line="750"/>
         <source>View surface</source>
         <translation>Pokaż powierzchnię</translation>
     </message>
@@ -302,44 +322,160 @@
         <translation>Ustawienia mapy</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="33"/>
+        <location filename="../mapsettings.ui" line="40"/>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="39"/>
+        <location filename="../mapsettings.ui" line="46"/>
         <source>Map name</source>
         <translation>Nazwa mapy</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="49"/>
+        <location filename="../mapsettings.ui" line="56"/>
         <source>Map description</source>
         <translation>Opis mapy</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="60"/>
+        <location filename="../mapsettings.ui" line="66"/>
+        <source>Difficulty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="111"/>
+        <source>Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="121"/>
+        <source>Victory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="135"/>
+        <source>Victory message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="150"/>
+        <source>Only for human players</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="157"/>
+        <source>Allow standard victory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="170"/>
+        <location filename="../mapsettings.ui" line="218"/>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="186"/>
+        <source>Loss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="195"/>
+        <source>7 days without town</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="202"/>
+        <source>Defeat message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="235"/>
         <source>Abilities</source>
         <translation>Umiejętności</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="86"/>
+        <location filename="../mapsettings.ui" line="261"/>
         <source>Spells</source>
         <translation>Zaklęcia</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="112"/>
+        <location filename="../mapsettings.ui" line="287"/>
         <source>Artifacts</source>
         <translation>Artefakty</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="138"/>
+        <location filename="../mapsettings.ui" line="313"/>
         <source>Heroes</source>
         <translation>Bohaterowie</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="167"/>
+        <location filename="../mapsettings.ui" line="29"/>
         <source>Ok</source>
         <translation>Ok</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="163"/>
+        <source>No special victory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="164"/>
+        <source>Capture artifact</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="165"/>
+        <source>Hire creatures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="166"/>
+        <source>Accumulate resources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="167"/>
+        <source>Construct building</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="168"/>
+        <source>Capture town</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="169"/>
+        <source>Defeat hero</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="170"/>
+        <source>Transport artifact</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="173"/>
+        <source>No special loss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="174"/>
+        <source>Lose castle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="175"/>
+        <source>Lose hero</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="176"/>
+        <source>Time expired</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.cpp" line="177"/>
+        <source>Days without town</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -613,27 +749,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="95"/>
+        <location filename="../mainwindow.cpp" line="98"/>
         <source>Filepath of the map to open.</source>
         <translation>Lokalizacja pliku mapy do otworzenia.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="98"/>
+        <location filename="../mainwindow.cpp" line="101"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>Wyodrębnij oryginalne archiwa H3 do osobnego folderu.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="99"/>
+        <location filename="../mainwindow.cpp" line="102"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>Z wyodrębnionego archiwum, rozdzielenie TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 i Un44 do poszczególnych plików PNG.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="100"/>
+        <location filename="../mainwindow.cpp" line="103"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>Z wyodrębnionego archiwum, konwersja pojedynczych obrazków (znalezionych w folderze Images) z .pcx do .png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="101"/>
+        <location filename="../mainwindow.cpp" line="104"/>
         <source>Delete original files, for the ones splitted / converted.</source>
         <translation>Usuń oryginalne pliki, dla już rozdzielonych / skonwertowanych.</translation>
     </message>

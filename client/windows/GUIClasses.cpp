@@ -40,6 +40,7 @@
 #include "../lobby/CSavingScreen.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/CAnimation.h"
+#include "../CMT.h"
 
 #include "../../CCallback.h"
 
@@ -1860,9 +1861,10 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
+
 	for(int id : _items)
 	{
-		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->getObjectName()));
+		items.push_back(std::make_pair(id, LOCPLINT->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
 	}
 
 	init(titleWidget_, _title, _descr);

@@ -124,8 +124,8 @@ int64_t Damage::damageForTarget(size_t targetIndex, const Mechanics * m, const b
 
 	if(chainLength > 1 && targetIndex > 0)
 	{
-		double indexedFactor = std::pow(chainFactor, (double) targetIndex);
-		return (int64_t) (indexedFactor * baseDamage);
+		double indexedFactor = std::pow(chainFactor, static_cast<double>(targetIndex));
+		return static_cast<int64_t>(indexedFactor * baseDamage);
 	}
 
 	return baseDamage;
@@ -165,7 +165,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
 			line << text;
-			line.addReplacement((int)damage); //no more text afterwards
+			line.addReplacement(static_cast<int>(damage)); //no more text afterwards
 			log.push_back(line);
 		}
 	}
@@ -175,7 +175,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			MetaString line;
 			line.addTxt(MetaString::GENERAL_TXT, 376); // Spell %s does %d damage
 			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
-			line.addReplacement((int)damage);
+			line.addReplacement(static_cast<int>(damage));
 
 			log.push_back(line);
 		}

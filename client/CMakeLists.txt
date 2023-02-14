@@ -222,6 +222,8 @@ set(client_HEADERS
 	CVideoHandler.h
 	Client.h
 	ClientCommandManager.h
+	ClientNetPackVisitors.h
+	LobbyClientNetPackVisitors.h
 	resource.h
 )
 

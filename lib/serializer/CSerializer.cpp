@@ -17,17 +17,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSerializer::~CSerializer()
-{
-
-}
-
-CSerializer::CSerializer()
-{
-	smartVectorMembersSerialization = false;
-	sendStackInstanceByIds = false;
-}
-
+//must be instantiated in .cpp file for access to complete types of all member fields
+CSerializer::~CSerializer() = default;
 
 void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 {

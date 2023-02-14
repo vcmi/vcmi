@@ -32,6 +32,7 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CLoadIntegrityValidator.h"
 #include "../lib/NetPacks.h"
+#include "ClientNetPackVisitors.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CMap.h"
@@ -80,12 +81,14 @@ public:
 	void applyOnClAfter(CClient * cl, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyCl(cl);
+		ApplyClientNetPackVisitor visitor(*cl, *cl->gameState());
+		ptr->visit(visitor);
 	}
 	void applyOnClBefore(CClient * cl, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyFirstCl(cl);
+		ApplyFirstClientNetPackVisitor visitor(*cl, *cl->gameState());
+		ptr->visit(visitor);
 	}
 };
 

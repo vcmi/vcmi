@@ -79,7 +79,7 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(SpellCastEnviron
 
 		owner->getEffects(bonuses, schoolLevel, false, parameters.caster->getEnchantPower(owner));
 
-		for(Bonus b : bonuses)
+		for(const Bonus & b : bonuses)
 		{
 			GiveBonus gb;
 			gb.id = parameters.caster->id.getNum();
@@ -182,7 +182,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		if(obj && obj->ID == Obj::BOAT)
 		{
-			const CGBoat *b = static_cast<const CGBoat*>(obj);
+			const auto * b = dynamic_cast<const CGBoat *>(obj);
 			if(b->hero)
 				continue; //we're looking for unoccupied boat
 
@@ -249,7 +249,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 
 	//TODO: test range, visibility
 	const TerrainTile *t = &env->getMap()->getTile(parameters.pos);
-	if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != Obj::BOAT)
+	if(t->visitableObjects.empty() || t->visitableObjects.back()->ID != Obj::BOAT)
 	{
 		env->complain("There is no boat to scuttle!");
 		return ESpellCastResult::ERROR;
@@ -328,7 +328,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
-		if(movementCost < (int)parameters.caster->movement)
+		if(movementCost < static_cast<int>(parameters.caster->movement))
 			smp.val = parameters.caster->movement - movementCost;
 		else
 			smp.val = 0;
@@ -356,7 +356,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
 
-		if((int)parameters.caster->movement < moveCost)
+		if(static_cast<int>(parameters.caster->movement) < moveCost)
 			return ESpellCastResult::ERROR;
 
 		if(destination->visitingHero)
@@ -372,7 +372,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
 
-		const auto topObj = tile.topVisitableObj(false);
+		auto * const topObj = tile.topVisitableObj(false);
 
 		if(!topObj)
 		{
@@ -406,7 +406,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		if((int)parameters.caster->movement < moveCost)
+		if(static_cast<int>(parameters.caster->movement) < moveCost)
 		{
 			env->complain("This hero has not enough movement points!");
 			return ESpellCastResult::ERROR;
@@ -449,7 +449,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 	const int moveCost = movementCost(parameters);
 
-	if((int)parameters.caster->movement < moveCost)
+	if(static_cast<int>(parameters.caster->movement) < moveCost)
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
@@ -464,7 +464,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		{
 			if(reply.getType() == JsonNode::JsonType::DATA_INTEGER)
 			{
-				ObjectInstanceID townId((si32)reply.Integer());
+				ObjectInstanceID townId(static_cast<si32>(reply.Integer()));
 
 				const CGObjectInstance * o = env->getCb()->getObj(townId, true);
 				if(o == nullptr)
@@ -488,7 +488,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 		MapObjectSelectDialog request;
 
-		for(auto t : towns)
+		for(const auto * t : towns)
 		{
 			if(t->visitingHero == nullptr) //empty town
 				request.objects.push_back(t->id);

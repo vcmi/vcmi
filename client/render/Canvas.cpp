@@ -23,14 +23,14 @@ Canvas::Canvas(SDL_Surface * surface):
 	surface->refcount++;
 }
 
-Canvas::Canvas(Canvas & other):
+Canvas::Canvas(const Canvas & other):
 	surface(other.surface),
 	renderOffset(other.renderOffset)
 {
 	surface->refcount++;
 }
 
-Canvas::Canvas(Canvas & other, const Rect & newClipRect):
+Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 	Canvas(other)
 {
 	clipRect.emplace();
@@ -43,9 +43,9 @@ Canvas::Canvas(Canvas & other, const Rect & newClipRect):
 }
 
 Canvas::Canvas(const Point & size):
-	renderOffset(0,0)
+	renderOffset(0,0),
+	surface(CSDL_Ext::newSurface(size.x, size.y))
 {
-	surface = CSDL_Ext::newSurface(size.x, size.y);
 }
 
 Canvas::~Canvas()
@@ -75,9 +75,35 @@ void Canvas::draw(Canvas & image, const Point & pos)
 	CSDL_Ext::blitAt(image.surface, renderOffset.x + pos.x, renderOffset.y + pos.y, surface);
 }
 
+void Canvas::draw(Canvas & image, const Point & pos, const Point & targetSize)
+{
+	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(pos, targetSize));
+	SDL_BlitScaled(image.surface, nullptr, surface, &targetRect );
+}
+
+void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
+{
+	CSDL_Ext::putPixelWithoutRefreshIfInSurf(surface, dest.x, dest.y, color.r, color.g, color.b, color.a);
+}
+
 void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
-	CSDL_Ext::drawLine(surface, renderOffset.x + from.x, renderOffset.y + from.y, renderOffset.x + dest.x, renderOffset.y + dest.y, CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
+	CSDL_Ext::drawLine(surface, renderOffset + from, renderOffset + dest, CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
+}
+
+void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color)
+{
+	CSDL_Ext::drawLineDashed(surface, renderOffset + from, renderOffset + dest, CSDL_Ext::toSDL(color));
+}
+
+void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
+{
+	Rect realTarget = target + renderOffset;
+
+	CSDL_Ext::drawLineDashed(surface, realTarget.topLeft(),    realTarget.topRight(),    CSDL_Ext::toSDL(color));
+	CSDL_Ext::drawLineDashed(surface, realTarget.bottomLeft(), realTarget.bottomRight(), CSDL_Ext::toSDL(color));
+	CSDL_Ext::drawLineDashed(surface, realTarget.topLeft(),    realTarget.bottomLeft(),  CSDL_Ext::toSDL(color));
+	CSDL_Ext::drawLineDashed(surface, realTarget.topRight(),   realTarget.bottomRight(), CSDL_Ext::toSDL(color));
 }
 
 void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )

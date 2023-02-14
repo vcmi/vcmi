@@ -303,6 +303,13 @@ public:
 	void sendAndApply(SetResources * pack);
 	void sendAndApply(NewStructures * pack);
 
+	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
+	void throwNotAllowedAction(CPackForServer * pack);
+	void throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id);
+	void throwOnWrongPlayer(CPackForServer * pack, PlayerColor player);
+	void throwAndComplain(CPackForServer * pack, std::string txt);
+	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
+
 	struct FinishingBattleHelper
 	{
 		FinishingBattleHelper();

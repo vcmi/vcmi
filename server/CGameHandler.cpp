@@ -30,7 +30,7 @@
 #include "../lib/CStack.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/CondSh.h"
-#include "../lib/NetPacks.h"
+#include "ServerNetPackVisitors.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
@@ -196,7 +196,7 @@ template <typename T> class CApplyOnGH;
 class CBaseForGHApply
 {
 public:
-	virtual bool applyOnGH(CGameHandler * gh, void * pack) const =0;
+	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const =0;
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
 	{
@@ -207,12 +207,16 @@ public:
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler * gh, void * pack) const override
+	bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		try
 		{
-			return ptr->applyGh(gh);
+			ApplyGhNetPackVisitor applier(*gh, *gs);
+
+			ptr->visit(applier);
+
+			return applier.getResult();
 		}
 		catch(ExceptionNotAllowedAction & e)
 		{
@@ -230,7 +234,7 @@ template <>
 class CApplyOnGH<CPack> : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler * gh, void * pack) const override
+	bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const override
 	{
 		logGlobal->error("Cannot apply on GH plain CPack!");
 		assert(0);
@@ -1358,7 +1362,7 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	}
 	else if(apply)
 	{
-		const bool result = apply->applyOnGH(this, pack);
+		const bool result = apply->applyOnGH(this, this->gs, pack);
 		if(result)
 			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 		else
@@ -2931,6 +2935,58 @@ void CGameHandler::sendAndApply(NewStructures * pack)
 {
 	sendAndApply(static_cast<CPackForClient *>(pack));
 	checkVictoryLossConditionsForPlayer(getTown(pack->tid)->tempOwner);
+}
+
+bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
+{
+	return getPlayerAt(pack->c) == getOwner(id);
+}
+
+void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
+{
+	if(pack->c)
+	{
+		SystemMessage temp_message("You are not allowed to perform this action!");
+		pack->c->sendPack(&temp_message);
+	}
+	logNetwork->error("Player is not allowed to perform this action!");
+	throw ExceptionNotAllowedAction();
+}
+
+void CGameHandler::wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer)
+{
+	std::ostringstream oss;
+	oss << "You were identified as player " << getPlayerAt(pack->c) << " while expecting " << expectedplayer;
+	logNetwork->error(oss.str());
+	if(pack->c)
+	{
+		SystemMessage temp_message(oss.str());
+		pack->c->sendPack(&temp_message);
+	}
+}
+
+void CGameHandler::throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id)
+{
+	if(!isPlayerOwns(pack, id))
+	{
+		wrongPlayerMessage(pack, getOwner(id));
+		throwNotAllowedAction(pack);
+	}
+}
+
+void CGameHandler::throwOnWrongPlayer(CPackForServer * pack, PlayerColor player)
+{
+	if(!hasPlayerAt(player, pack->c) && player != getPlayerAt(pack->c))
+	{
+		wrongPlayerMessage(pack, player);
+		throwNotAllowedAction(pack);
+	}
+}
+
+void CGameHandler::throwAndComplain(CPackForServer * pack, std::string txt)
+{
+	complain(txt);
+	throwNotAllowedAction(pack);
 }
 
 void CGameHandler::save(const std::string & filename)

@@ -22,10 +22,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
-BonusCaster::BonusCaster(const Caster * actualCaster_, std::shared_ptr<Bonus> bonus_)
-	: ProxyCaster(actualCaster_),
+BonusCaster::BonusCaster(const Caster * actualCaster_, std::shared_ptr<Bonus> bonus_):
+	ProxyCaster(actualCaster_),
 	actualCaster(actualCaster_),
-	bonus(bonus_)
+	bonus(std::move(bonus_))
 {
 
 }

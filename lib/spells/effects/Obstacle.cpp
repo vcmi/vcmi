@@ -68,7 +68,7 @@ static void serializeRelativeShape(JsonSerializeFormat & handler, const std::str
 
 				if(!handler.saving)
 				{
-					value.at(outerIndex).at(innerIndex) = (BattleHex::EDir) vstd::find_pos(EDirMap, temp);
+					value.at(outerIndex).at(innerIndex) = static_cast<BattleHex::EDir>(vstd::find_pos(EDirMap, temp));
 				}
 			}
 		}
@@ -189,7 +189,7 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 		}
 		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
 
-		const int patchesToPut = std::min(patchCount, (int)availableTiles.size());
+		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
 
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);

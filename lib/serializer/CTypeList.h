@@ -109,12 +109,7 @@ private:
 
 		return ptr;
 	}
-	CTypeList &operator=(CTypeList &)
-	{
-		// As above.
-		assert(0);
-		return *this;
-	}
+	CTypeList & operator=(CTypeList &) = delete;
 
 	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
 	TypeInfoPtr registerType(const std::type_info *type);

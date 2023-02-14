@@ -17,18 +17,17 @@ class CResDataBar : public CIntObject
 {
 	std::string buildDateString();
 
-public:
 	std::shared_ptr<CPicture> background;
 
 	std::vector<std::pair<int,int> > txtpos;
 
-	void clickRight(tribool down, bool previousState) override;
-	CResDataBar();
-	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
-	~CResDataBar();
 
 	void draw(SDL_Surface * to);
-	void show(SDL_Surface * to) override;
+public:
+	CResDataBar();
+	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
+
+	void colorize(PlayerColor player);
 	void showAll(SDL_Surface * to) override;
 };
 

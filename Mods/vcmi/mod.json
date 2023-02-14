@@ -23,7 +23,18 @@
 			"config/vcmi/polish.json"
 		]
 	},
-	
+
+	"russian" : {
+		"name" : "Ключевые файлы VCMI",
+		"description" : "Файлы, необходимые для полноценной работы VCMI",
+		"author" : "Команда VCMI",
+		"modType" : "Графический",
+
+		"translations" : [
+			"config/vcmi/russian.json"
+		]
+	},
+
 	"ukrainian" : {
 		"name" : "VCMI - ключові файли",
 		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",

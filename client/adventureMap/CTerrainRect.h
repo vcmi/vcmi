@@ -35,14 +35,22 @@ class CTerrainRect : public CIntObject
 	void handleSwipeMove(const Point & cursorPosition);
 	/// handles start/finish of swipe (press/release of corresponding button); returns true if state change was handled
 	bool handleSwipeStateChange(bool btnPressed);
+	int3 curHoveredTile;
+
+	int3 whichTileIsIt(const int x, const int y); //x,y are cursor position
+	int3 whichTileIsIt(); //uses current cursor pos
+	void showPath(const Rect &extRect, SDL_Surface * to);
+
+	bool needsAnimUpdate();
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
-	int3 curHoveredTile;
 	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
 	CGPath * currentPath;
 
 	CTerrainRect();
-	virtual ~CTerrainRect();
+	~CTerrainRect();
+
+	// CIntObject interface implementation
 	void deactivate() override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -51,14 +59,13 @@ public:
 	void mouseMoved (const Point & cursorPosition) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
+
 	void showAnim(SDL_Surface * to);
-	void showPath(const Rect &extRect, SDL_Surface * to);
-	int3 whichTileIsIt(const int x, const int y); //x,y are cursor position
-	int3 whichTileIsIt(); //uses current cursor pos
+
 	/// @returns number of visible tiles on screen respecting current map scaling
-	int3 tileCountOnScreen();
+	Rect visibleTilesArea();
+
 	/// animates view by caching current surface and crossfading it with normal screen
 	void fadeFromCurrentView();
-	bool needsAnimUpdate();
 };
 

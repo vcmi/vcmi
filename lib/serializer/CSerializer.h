@@ -80,10 +80,9 @@ class DLL_LINKAGE CSerializer
 	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
 
 public:
-	bool smartVectorMembersSerialization;
-	bool sendStackInstanceByIds;
+	bool smartVectorMembersSerialization = false;
+	bool sendStackInstanceByIds = false;
 
-	CSerializer();
 	~CSerializer();
 
 	virtual void reportState(vstd::CLoggerBase * out){};

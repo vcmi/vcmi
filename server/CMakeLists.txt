@@ -14,6 +14,8 @@ set(server_HEADERS
 		CGameHandler.h
 		CQuery.h
 		CVCMIServer.h
+		LobbyNetPackVisitors.h
+		ServerNetPackVisitors.h
 )
 
 assign_source_group(${server_SRCS} ${server_HEADERS})

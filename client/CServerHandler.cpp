@@ -37,7 +37,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/NetPacks.h"
+#include "../lib/NetPackVisitor.h"
 #include "../lib/StartInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CCampaignHandler.h"
@@ -53,6 +53,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include "../lib/serializer/Cast.h"
+#include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
 
@@ -86,15 +87,21 @@ public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
+		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
+
 		logNetwork->trace("\tImmediately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
-		return ptr->applyOnLobbyHandler(handler);
+		ptr->visit(visitor);
+
+		return visitor.getResult();
 	}
 
 	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
+		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
+
 		logNetwork->trace("\tApply on lobby from queue: %s", typeList.getTypeInfo(ptr)->name());
-		ptr->applyOnLobbyScreen(lobby, handler);
+		ptr->visit(visitor);
 	}
 };
 
@@ -575,7 +582,7 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	c->disableStackSendingByID();
 }
 
-void CServerHandler::startGameplay(CGameState * gameState)
+void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
 	if(CMM)
 		CMM->disable();
@@ -767,6 +774,30 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	}
 }
 
+class ServerHandlerCPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+{
+private:
+	CServerHandler & handler;
+
+public:
+	ServerHandlerCPackVisitor(CServerHandler & handler)
+			:handler(handler)
+	{
+	}
+
+	virtual bool callTyped() override { return false; }
+
+	virtual void visitForLobby(CPackForLobby & lobbyPack) override
+	{
+		handler.visitForLobby(lobbyPack);
+	}
+
+	virtual void visitForClient(CPackForClient & clientPack) override
+	{
+		handler.visitForClient(clientPack);
+	}
+};
+
 void CServerHandler::threadHandleConnection()
 {
 	setThreadName("CServerHandler::threadHandleConnection");
@@ -787,20 +818,10 @@ void CServerHandler::threadHandleConnection()
 				// Though currently they'll be delivered and might cause crash.
 				vstd::clear_pointer(pack);
 			}
-			else if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
+			else
 			{
-				if(applier->getApplier(typeList.getTypeID(pack))->applyOnLobbyHandler(this, pack))
-				{
-					if(!settings["session"]["headless"].Bool())
-					{
-						boost::unique_lock<boost::recursive_mutex> lock(*mx);
-						packsForLobbyScreen.push_back(lobbyPack);
-					}
-				}
-			}
-			else if(auto clientPack = dynamic_ptr_cast<CPackForClient>(pack))
-			{
-				client->handlePack(clientPack);
+				ServerHandlerCPackVisitor visitor(*this);
+				pack->visit(visitor);
 			}
 		}
 	}
@@ -834,6 +855,23 @@ void CServerHandler::threadHandleConnection()
 		handleException();
 		throw;
 	}
+}
+
+void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
+{
+	if(applier->getApplier(typeList.getTypeID(&lobbyPack))->applyOnLobbyHandler(this, &lobbyPack))
+	{
+		if(!settings["session"]["headless"].Bool())
+		{
+			boost::unique_lock<boost::recursive_mutex> lock(*mx);
+			packsForLobbyScreen.push_back(&lobbyPack);
+		}
+	}
+}
+
+void CServerHandler::visitForClient(CPackForClient & clientPack)
+{
+	client->handlePack(&clientPack);
 }
 
 void CServerHandler::threadRunServer()
