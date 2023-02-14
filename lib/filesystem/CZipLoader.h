@@ -29,7 +29,7 @@ public:
 	 * @param archive path to archive to open
 	 * @param filepos position of file to open
 	 */
-	CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz64_file_pos filepos);
+	CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesystem::path & archive, unz64_file_pos filepos);
 	~CZipStream();
 
 	si64 getSize() override;
@@ -64,13 +64,13 @@ public:
 namespace ZipArchive
 {
 	/// List all files present in archive
-	std::vector<std::string> DLL_LINKAGE listFiles(boost::filesystem::path filename);
+	std::vector<std::string> DLL_LINKAGE listFiles(const boost::filesystem::path & filename);
 
 	/// extracts all files from archive "from" into destination directory "where". Directory must exist
-	bool DLL_LINKAGE extract(boost::filesystem::path from, boost::filesystem::path where);
+	bool DLL_LINKAGE extract(const boost::filesystem::path & from, const boost::filesystem::path & where);
 
 	///same as above, but extracts only files mentioned in "what" list
-	bool DLL_LINKAGE extract(boost::filesystem::path from, boost::filesystem::path where, std::vector<std::string> what);
+	bool DLL_LINKAGE extract(const boost::filesystem::path & from, const boost::filesystem::path & where, const std::vector<std::string> & what);
 }
 
 VCMI_LIB_NAMESPACE_END

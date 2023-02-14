@@ -54,7 +54,7 @@ si64 CBinaryReader::read(ui8 * data, si64 size)
 	si64 bytesRead = stream->read(data, size);
 	if(bytesRead != size)
 	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg((long)size));
+		throw std::runtime_error(getEndOfStreamExceptionMsg(static_cast<long>(size)));
 	}
 	return bytesRead;
 }
