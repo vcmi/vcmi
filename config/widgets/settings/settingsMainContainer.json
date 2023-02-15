@@ -91,7 +91,7 @@
 		{
 			"name": "loadButton",
 			"type": "button",
-			"position": {"x": 386, "y": 378},
+			"position": {"x": 386, "y": 383},
 			"image": "SOLOAD.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.321",
@@ -102,7 +102,7 @@
 		{
 			"name": "saveButton",
 			"type": "button",
-			"position": {"x": 497, "y": 378},
+			"position": {"x": 497, "y": 383},
 			"image": "SOSAVE.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.322",
@@ -113,7 +113,7 @@
 		{
 			"name": "restartButton",
 			"type": "button",
-			"position": {"x": 386, "y": 437},
+			"position": {"x": 386, "y": 442},
 			"image": "SORSTRT.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.323",
@@ -124,7 +124,7 @@
 		{
 			"name": "mainMenuButton",
 			"type": "button",
-			"position": {"x": 497, "y": 437},
+			"position": {"x": 497, "y": 442},
 			"image": "SOMAIN.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.320",
@@ -135,7 +135,7 @@
 		{
 			"name": "quitButton",
 			"type": "button",
-			"position": {"x": 386, "y": 495},
+			"position": {"x": 386, "y": 500},
 			"image": "soquit.def",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.324",
@@ -146,7 +146,7 @@
 		{
 			"name": "closeSettingsButton",
 			"type": "button",
-			"position": {"x": 497, "y": 495},
+			"position": {"x": 497, "y": 500},
 			"image": "soretrn.def",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.325",
