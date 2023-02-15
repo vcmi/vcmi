@@ -30,8 +30,9 @@ public:
 	ObjectsVector getAllObjects() const override;
 	const CGObjectInstance * getObject(ObjectInstanceID objectID) const override;
 
+	const CGPath * currentPath() const override;
+
 	bool isVisible(const int3 & coordinates) const override;
-	VisibilityMap getVisibilityMap() const override;
 
 	uint32_t getAnimationPeriod() const override;
 	uint32_t getAnimationTime() const override;

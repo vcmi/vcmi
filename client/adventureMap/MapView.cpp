@@ -13,6 +13,7 @@
 
 #include "MapRenderer.h"
 #include "mapHandler.h"
+#include "CAdvMapInt.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -266,9 +267,17 @@ bool MapRendererContext::isVisible(const int3 & coordinates) const
 	return LOCPLINT->cb->isVisible(coordinates) || settings["session"]["spectate"].Bool();
 }
 
-MapRendererContext::VisibilityMap MapRendererContext::getVisibilityMap() const
+const CGPath * MapRendererContext::currentPath() const
 {
-	return LOCPLINT->cb->getVisibilityMap();
+	const auto * hero = adventureInt->curHero();
+
+	if(!hero)
+		return nullptr;
+
+	if(!LOCPLINT->paths.hasPath(hero))
+		return nullptr;
+
+	return &LOCPLINT->paths.getPath(hero);
 }
 
 uint32_t MapRendererContext::getAnimationPeriod() const

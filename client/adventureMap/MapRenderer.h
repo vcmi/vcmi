@@ -113,6 +113,19 @@ public:
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
+class MapRendererPath
+{
+	std::unique_ptr<CAnimation> pathNodes;
+
+	void renderImage(Canvas & target, bool reachableToday, size_t imageIndex);
+	void renderImageCross(Canvas & target, bool reachableToday, const int3 & curr);
+	void renderImageArrow(Canvas & target, bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next);
+public:
+	MapRendererPath();
+	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+};
+
+
 class MapRendererDebugGrid
 {
 public:
@@ -127,6 +140,7 @@ class MapRenderer
 	MapRendererBorder rendererBorder;
 	MapRendererFow rendererFow;
 	MapRendererObjects rendererObjects;
+	MapRendererPath rendererPath;
 	MapRendererDebugGrid rendererDebugGrid;
 
 public:

@@ -26,6 +26,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/CPathfinder.h"
 
 struct NeighborTilesInfo
 {
@@ -534,10 +535,98 @@ void MapRendererDebugGrid::renderTile(const IMapRendererContext & context, Canva
 	}
 }
 
+MapRendererPath::MapRendererPath()
+	: pathNodes(new CAnimation("ADAG"))
+{
+	pathNodes->preload();
+}
+
+void MapRendererPath::renderImage(Canvas & target, bool reachableToday, size_t imageIndex)
+{
+	const static size_t unreachableTodayOffset = 25;
+
+	if(reachableToday)
+		target.draw(pathNodes->getImage(imageIndex), Point(0, 0));
+	else
+		target.draw(pathNodes->getImage(imageIndex + unreachableTodayOffset), Point(0, 0));
+}
+
+void MapRendererPath::renderImageCross(Canvas & target, bool reachableToday, const int3 & curr)
+{
+	renderImage(target, reachableToday, 0);
+}
+
+void MapRendererPath::renderImageArrow(Canvas & target, bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next)
+{
+	// Vector directions
+	//  0   1   2
+	//      |
+	//  3 - 4 - 5
+	//      |
+	//  6   7   8
+	//For example:
+	//  |
+	//  +->
+	// is (directionToArrowIndex[7][5])
+	//
+	const static size_t directionToArrowIndex[9][9] = {
+		{16, 17, 18, 7,  0, 19, 6,  5,  0 },
+		{8,  9,  18, 7,  0, 19, 6,  0,  20},
+		{8,  1,  10, 7,  0, 19, 0,  21, 20},
+		{24, 17, 18, 15, 0, 0,  6,  5,  4 },
+		{0,  0,  0,  0,  0, 0,  0,  0,  0 },
+		{8,  1,  2,  0,  0, 11, 22, 21, 20},
+		{24, 17, 0,  23, 0, 3,  14, 5,  4 },
+		{24, 0,  2,  23, 0, 3,  22, 13, 4 },
+		{0,  1,  2,  23, 0, 3,  22, 21, 12}
+	};
+
+	size_t enterDirection = (curr.x - next.x + 1) + 3 * (curr.y - next.y + 1);
+	size_t leaveDirection = (prev.x - curr.x + 1) + 3 * (prev.y - curr.y + 1);
+	size_t imageIndex = directionToArrowIndex[enterDirection][leaveDirection];
+
+	renderImage(target, reachableToday, imageIndex);
+}
+
+void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+{
+	const auto & functor = [&](const CGPathNode & node)
+	{
+		return node.coord == coordinates;
+	};
+
+	const auto * path = context.currentPath();
+	if(!path)
+		return;
+
+	const auto & iter = boost::range::find_if(path->nodes, functor);
+
+	if(iter == path->nodes.end())
+		return;
+
+	bool reachableToday = iter->turns == 0;
+	if(iter == path->nodes.begin())
+		renderImageCross(target, reachableToday, iter->coord);
+
+	auto next = iter + 1;
+	auto prev = iter - 1;
+
+	// start of path - currentl hero location
+	if(next == path->nodes.end())
+		return;
+
+	bool pathContinuous = iter->coord.areNeighbours(next->coord) && iter->coord.areNeighbours(prev->coord);
+	bool embarking = iter->action == CGPathNode::EMBARK || iter->action == CGPathNode::DISEMBARK;
+
+	if(pathContinuous && !embarking)
+		renderImageArrow(target, reachableToday, iter->coord, prev->coord, next->coord);
+	else
+		renderImageCross(target, reachableToday, iter->coord);
+}
+
 MapRenderer::MapRenderer(const IMapRendererContext & context)
 	: rendererObjects(context)
 {
-
 }
 
 void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -560,6 +649,7 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 		rendererRiver.renderTile(context, target, coordinates);
 		rendererRoad.renderTile(context, target, coordinates);
 		rendererObjects.renderTile(context, target, coordinates);
+		rendererPath.renderTile(context, target, coordinates);
 
 		if (!context.isVisible(coordinates))
 			rendererFow.renderTile(context, target, coordinates);
