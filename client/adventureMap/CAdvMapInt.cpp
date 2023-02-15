@@ -324,10 +324,10 @@ void CAdvMapInt::fsleepWake()
 void CAdvMapInt::fmoveHero()
 {
 	const CGHeroInstance *h = curHero();
-	if (!h || !terrain->currentPath || !CGI->mh->canStartHeroMovement())
+	if (!h || !LOCPLINT->paths.hasPath(h) || !CGI->mh->canStartHeroMovement())
 		return;
 
-	LOCPLINT->moveHero(h, *terrain->currentPath);
+	LOCPLINT->moveHero(h, LOCPLINT->paths.getPath(h));
 }
 
 void CAdvMapInt::fshowSpellbok()
@@ -373,10 +373,18 @@ void CAdvMapInt::fendTurn()
 				// Only show hero reminder if conditions met:
 				// - There still movement points
 				// - Hero don't have a path or there not points for first step on path
-				auto path = LOCPLINT->getAndVerifyPath(hero);
-				if(!path || path->nodes.size() < 2 || !path->nodes[path->nodes.size()-2].turns)
+				LOCPLINT->paths.verifyPath(hero);
+
+				if(!LOCPLINT->paths.hasPath(hero))
 				{
-					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), nullptr);
+					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), nullptr );
+					return;
+				}
+
+				auto path = LOCPLINT->paths.getPath(hero);
+				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
+				{
+					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), nullptr );
 					return;
 				}
 			}
@@ -405,7 +413,7 @@ void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 	}
 	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
 	if(boost::logic::indeterminate(hasPath))
-		hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
+		hasPath = LOCPLINT->paths.hasPath(h);
 
 	moveHero->block(!(bool)hasPath || (h->movement == 0));
 }
@@ -865,14 +873,15 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 				return;
 			}
 
-			CGPath &path = LOCPLINT->paths[h];
-			terrain->currentPath = &path;
 			int3 dst = h->visitablePos() + int3(direction->x, direction->y, 0);
-			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(path, dst))
-			{
-				terrain->currentPath = nullptr;
+
+			if(dst != verifyPos(dst))
 				return;
-			}
+
+			if ( !LOCPLINT->paths.setPath(h, dst))
+				return;
+
+			const CGPath & path = LOCPLINT->paths.getPath(h);
 
 			if (path.nodes.size() > 2)
 				updateMoveHero(h);
@@ -938,7 +947,6 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 	if(centerView)
 		centerOn(sel);
 
-	terrain->currentPath = nullptr;
 	if(sel->ID==Obj::TOWN)
 	{
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
@@ -958,8 +966,6 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		infoBar->showHeroSelection(hero);
 		heroList->select(hero);
 		townList->select(nullptr);
-
-		terrain->currentPath = LOCPLINT->getAndVerifyPath(hero);
 
 		updateSleepWake(hero);
 		updateMoveHero(hero);
@@ -1155,7 +1161,6 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	bool isHero = false;
 	if(selection->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
-		assert(!terrain->currentPath); //path can be active only when hero is selected
 		if(selection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
@@ -1178,25 +1183,16 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
-			if(terrain->currentPath && terrain->currentPath->endPos() == mapPos)//we'll be moving
+			if(LOCPLINT->paths.hasPath(currentHero) &&
+			   LOCPLINT->paths.getPath(currentHero).endPos() == mapPos)//we'll be moving
 			{
 				if(CGI->mh->canStartHeroMovement())
-					LOCPLINT->moveHero(currentHero, *terrain->currentPath);
+					LOCPLINT->moveHero(currentHero, LOCPLINT->paths.getPath(currentHero));
 				return;
 			}
 			else //remove old path and find a new one if we clicked on accessible tile
 			{
-				CGPath &path = LOCPLINT->paths[currentHero];
-				CGPath newpath;
-				bool gotPath = LOCPLINT->cb->getPathsInfo(currentHero)->getPath(newpath, mapPos); //try getting path, erase if failed
-				if(gotPath && newpath.nodes.size())
-					path = newpath;
-
-				if(path.nodes.size())
-					terrain->currentPath = &path;
-				else
-					LOCPLINT->eraseCurrentPathOf(currentHero);
-
+				LOCPLINT->paths.setPath(currentHero, mapPos);
 				updateMoveHero(currentHero);
 			}
 		}

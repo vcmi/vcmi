@@ -35,11 +35,11 @@
 #define ADVOPT (conf.go()->ac)
 
 CTerrainRect::CTerrainRect()
-	: fadeSurface(nullptr),
-	  lastRedrawStatus(EMapAnimRedrawStatus::OK),
-	  fadeAnim(std::make_shared<CFadeAnimation>()),
-	  curHoveredTile(-1,-1,-1),
-	  currentPath(nullptr)
+	: fadeSurface(nullptr)
+	, lastRedrawStatus(EMapAnimRedrawStatus::OK)
+	, fadeAnim(std::make_shared<CFadeAnimation>())
+	, curHoveredTile(-1, -1, -1)
+	, isSwiping(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -90,13 +90,12 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		}
 	}
 	else
-	{
 #endif
+	{
 		if(down == false)
 			return;
-#if defined(VCMI_MOBILE)
 	}
-#endif
+
 	int3 mp = whichTileIsIt();
 	if(mp.x < 0 || mp.y < 0 || mp.x >= LOCPLINT->cb->getMapSize().x || mp.y >= LOCPLINT->cb->getMapSize().y)
 		return;
@@ -146,8 +145,8 @@ void CTerrainRect::handleSwipeMove(const Point & cursorPosition)
 	if(!isSwiping)
 	{
 		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if(abs(cursorPosition.x - swipeInitialRealPos.x) > SwipeTouchSlop ||
-		   abs(cursorPosition.y - swipeInitialRealPos.y) > SwipeTouchSlop)
+		if(std::abs(cursorPosition.x - swipeInitialRealPos.x) > SwipeTouchSlop ||
+		   std::abs(cursorPosition.y - swipeInitialRealPos.y) > SwipeTouchSlop)
 		{
 			isSwiping = true;
 		}
@@ -169,7 +168,8 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 		swipeInitialViewPos = getViewCenter();
 		return true;
 	}
-	else if(isSwiping) // only accept this touch if it wasn't a swipe
+
+	if(isSwiping) // only accept this touch if it wasn't a swipe
 	{
 		isSwiping = false;
 		return true;

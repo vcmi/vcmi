@@ -1219,7 +1219,7 @@ void CCastleInterface::castleTeleport(int where)
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
 	adventureInt->select(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
-	LOCPLINT->eraseCurrentPathOf(town->visitingHero, false);
+	LOCPLINT->paths.erasePath(town->visitingHero);
 }
 
 void CCastleInterface::townChange()

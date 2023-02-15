@@ -51,7 +51,7 @@ class CTerrainRect : public CIntObject
 
 	bool needsAnimUpdate();
 public:
-	CGPath * currentPath;
+	//CGPath * currentPath;
 
 	CTerrainRect();
 	~CTerrainRect();

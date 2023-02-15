@@ -120,7 +120,164 @@ struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 	}
 };
 
-CPlayerInterface::CPlayerInterface(PlayerColor Player)
+HeroPathStorage::HeroPathStorage(CPlayerInterface & owner):
+	owner(owner)
+{
+}
+
+void HeroPathStorage::setPath(const CGHeroInstance *h, const CGPath & path)
+{
+	paths[h] = path;
+}
+
+const CGPath & HeroPathStorage::getPath(const CGHeroInstance *h) const
+{
+	assert(hasPath(h));
+	return paths.at(h);
+}
+
+bool HeroPathStorage::hasPath(const CGHeroInstance *h) const
+{
+	return paths.count(h) > 0;
+}
+
+bool HeroPathStorage::setPath(const CGHeroInstance *h, const int3 & destination)
+{
+	CGPath path;
+	if (!owner.cb->getPathsInfo(h)->getPath(path, destination))
+		return false;
+
+	setPath(h, path);
+	return true;
+}
+
+void HeroPathStorage::removeLastNode(const CGHeroInstance *h)
+{
+	assert(hasPath(h));
+	if (!hasPath(h))
+		return;
+
+	auto & path = paths[h];
+	path.nodes.pop_back();
+	if (path.nodes.size() < 2)  //if it was the last one, remove entire path and path with only one tile is not a real path
+		erasePath(h);
+}
+
+void HeroPathStorage::erasePath(const CGHeroInstance *h)
+{
+	paths.erase(h);
+	adventureInt->updateMoveHero(h, false);
+
+}
+
+void HeroPathStorage::verifyPath(const CGHeroInstance *h)
+{
+	if (!hasPath(h))
+		return;
+	setPath(h, getPath(h).endPos());
+}
+
+//CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
+//{
+//	if (vstd::contains(paths,h)) //hero has assigned path
+//	{
+//		CGPath &path = paths[h];
+//		if (!path.nodes.size())
+//		{
+//			logGlobal->warn("Warning: empty path found...");
+//			paths.erasePath(h);
+//		}
+//		else
+//		{
+//			assert(h->visitablePos() == path.startPos());
+//			//update the hero path in case of something has changed on map
+//			if (LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
+//				return &path;
+//
+//			paths.erase(h);
+//			return nullptr;
+//		}
+//	}
+//
+//	return nullptr;
+//}
+//
+//CGPath * CPlayerInterface::getPath(const CGHeroInstance * h)
+//{
+//	if (vstd::contains(paths,h)) //hero has assigned path
+//		return &paths[h];
+//
+//	return nullptr;
+//}
+
+//removeLastNode
+
+
+//void HeroPathStorage::setPath(const CGHeroInstance *h, const CGPath & path)
+//{
+//
+//}
+//
+//const CGPath & HeroPathStorage::getPath(const CGHeroInstance *h)
+//{
+//
+//}
+//
+//void HeroPathStorage::verifyPath(const CGHeroInstance *h)
+//{
+//
+//}
+
+//void CPlayerInterface::eraseCurrentPathOf(const CGHeroInstance * ho, bool checkForExistanceOfPath)
+//{
+//	if (checkForExistanceOfPath)
+//	{
+//		assert(vstd::contains(paths, ho));
+//	}
+//	else if (!vstd::contains(paths, ho))
+//	{
+//		return;
+//	}
+//	assert(ho == adventureInt->selection);
+//
+//	paths.erasePath(ho);
+//	adventureInt->updateMoveHero(ho, false);
+//}
+
+template<typename Handler>
+void HeroPathStorage::serialize(Handler & h, int version)
+{
+	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
+	if (h.saving)
+	{
+		for (auto &p : paths)
+		{
+			if (p.second.nodes.size())
+				pathsMap[p.first] = p.second.endPos();
+			else
+				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
+		}
+		h & pathsMap;
+	}
+	else
+	{
+		h & pathsMap;
+
+		if (owner.cb)
+		{
+			for (auto &p : pathsMap)
+			{
+				CGPath path;
+				owner.cb->getPathsInfo(p.first)->getPath(path, p.second);
+				paths[p.first] = path;
+				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
+			}
+		}
+	}
+}
+
+CPlayerInterface::CPlayerInterface(PlayerColor Player):
+	paths(*this)
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
@@ -260,8 +417,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 	bool directlyAttackingCreature =
 		details.attackedFrom
-		&& adventureInt->terrain->currentPath					//in case if movement has been canceled in the meantime and path was already erased
-		&& adventureInt->terrain->currentPath->nodes.size() == 3;//FIXME should be 2 but works nevertheless...
+		&& paths.hasPath(hero) //in case if movement has been canceled in the meantime and path was already erased
+		&& paths.getPath(hero).nodes.size() == 3;//FIXME should be 2 but works nevertheless...
 
 	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
@@ -271,21 +428,21 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
-			if(adventureInt->terrain->currentPath)
+			if(paths.hasPath(hero))
 			{
-				assert(adventureInt->terrain->currentPath->nodes.size() >= 2);
-				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain->currentPath->nodes.end() - 1;
+				assert(paths.getPath(hero).nodes.size() >= 2);
+				auto nodesIt = paths.getPath(hero).nodes.end() - 1;
 
 				if((nodesIt)->coord == hero->convertToVisitablePos(details.start)
 					&& (nodesIt - 1)->coord == hero->convertToVisitablePos(details.end))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
-					removeLastNodeFromPath(hero);
+					paths.removeLastNode(hero);
 				}
 				else
 				{
 					//teleport was not along current path, it'll now be invalid (hero is somewhere else)
-					eraseCurrentPathOf(hero);
+					paths.erasePath(hero);
 
 				}
 			}
@@ -299,12 +456,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		if(hero->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
-			eraseCurrentPathOf(hero, false);
+			paths.erasePath(hero);
 		}
-		else if(adventureInt->terrain->currentPath && hero->pos == details.end) //&& hero is moving
+		else if(paths.hasPath(hero) && hero->pos == details.end) //&& hero is moving
 		{
 			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
-				removeLastNodeFromPath(hero);
+				paths.removeLastNode(hero);
 		}
 	}
 
@@ -444,8 +601,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	else if (adventureInt->selection == hero)
 		adventureInt->selection = nullptr;
 
-	if (vstd::contains(paths, hero))
-		paths.erase(hero);
+	paths.erasePath(hero);
 }
 
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
@@ -1247,7 +1403,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
-		eraseCurrentPathOf(hero, false);
+		paths.erasePath(hero);
 	}
 }
 
@@ -1256,33 +1412,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & wanderingHeroes;
 	h & towns;
 	h & sleepingHeroes;
-
-	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
-	if (h.saving)
-	{
-		for (auto &p : paths)
-		{
-			if (p.second.nodes.size())
-				pathsMap[p.first] = p.second.endPos();
-			else
-				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
-		}
-		h & pathsMap;
-	}
-	else
-	{
-		h & pathsMap;
-
-		if (cb)
-			for (auto &p : pathsMap)
-			{
-				CGPath path;
-				cb->getPathsInfo(p.first)->getPath(path, p.second);
-				paths[p.first] = path;
-				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
-			}
-	}
-
+	h & paths;
 	h & spellbookSettings;
 }
 
@@ -1299,7 +1429,7 @@ void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 	firstCall = -1;
 }
 
-void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
+void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
 	LOG_TRACE(logGlobal);
 	if (!LOCPLINT->makingTurn)
@@ -1330,7 +1460,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
 
-	if (stillMoveHero.get() == DURING_MOVE  && adventureInt->terrain->currentPath && adventureInt->terrain->currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
+	if (stillMoveHero.get() == DURING_MOVE  && paths.hasPath(down) && paths.getPath(down).nodes.size() > 1) //to ignore calls on passing through garrisons
 	{
 		onEnd();
 		return;
@@ -1641,7 +1771,7 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 			bool heroVisibleHere = false;
 			auto & tile = subArr[tileX][tileY];
 
-			for ( auto const & obj : tile.objects)
+			for(const auto & obj : tile.objects)
 			{
 				if (obj.obj == ho)
 				{
@@ -1856,7 +1986,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		GH.popInts(1);
 
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
-		eraseCurrentPathOf(caster, false);
+		paths.erasePath(caster);
 
 	const spells::Spell * spell = CGI->spells()->getByIndex(spellID);
 
@@ -1870,54 +2000,6 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	auto castSoundPath = spell->getCastSound();
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
-}
-
-void CPlayerInterface::eraseCurrentPathOf(const CGHeroInstance * ho, bool checkForExistanceOfPath)
-{
-	if (checkForExistanceOfPath)
-	{
-		assert(vstd::contains(paths, ho));
-	}
-	else if (!vstd::contains(paths, ho))
-	{
-		return;
-	}
-	assert(ho == adventureInt->selection);
-
-	paths.erase(ho);
-	adventureInt->terrain->currentPath = nullptr;
-	adventureInt->updateMoveHero(ho, false);
-}
-
-void CPlayerInterface::removeLastNodeFromPath(const CGHeroInstance *ho)
-{
-	adventureInt->terrain->currentPath->nodes.erase(adventureInt->terrain->currentPath->nodes.end()-1);
-	if (adventureInt->terrain->currentPath->nodes.size() < 2)  //if it was the last one, remove entire path and path with only one tile is not a real path
-		eraseCurrentPathOf(ho);
-}
-
-CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
-{
-	if (vstd::contains(paths,h)) //hero has assigned path
-	{
-		CGPath &path = paths[h];
-		if (!path.nodes.size())
-		{
-			logGlobal->warn("Warning: empty path found...");
-			paths.erase(h);
-		}
-		else
-		{
-			assert(h->visitablePos() == path.startPos());
-			//update the hero path in case of something has changed on map
-			if (LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
-				return &path;
-			else
-				paths.erase(h);
-		}
-	}
-
-	return nullptr;
 }
 
 void CPlayerInterface::acceptTurn()

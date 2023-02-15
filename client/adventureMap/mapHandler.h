@@ -365,7 +365,6 @@ private:
 	int offsetY;
 
 	//terrain graphics
-private:
 	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
 	typedef std::map<std::string, std::array<std::shared_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
 	typedef std::map<std::string, std::vector<std::array<std::shared_ptr<IImage>, 4>>> TFlippedCache;//[type, view type, rotation]

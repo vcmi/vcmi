@@ -64,12 +64,39 @@ namespace boost
 	class recursive_mutex;
 }
 
+class CPlayerInterface;
+
+class HeroPathStorage
+{
+	CPlayerInterface & owner;
+
+	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
+
+public:
+	explicit HeroPathStorage(CPlayerInterface &owner);
+
+	void setPath(const CGHeroInstance *h, const CGPath & path);
+	bool setPath(const CGHeroInstance *h, const int3 & destination);
+
+	const CGPath & getPath(const CGHeroInstance *h) const;
+	bool hasPath(const CGHeroInstance *h) const;
+
+	void removeLastNode(const CGHeroInstance *h);
+	void erasePath(const CGHeroInstance *h);
+	void verifyPath(const CGHeroInstance *h);
+
+	template <typename Handler>
+	void serialize( Handler &h, int version );
+};
+
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	const CArmedInstance * currentSelection;
 
 public:
+	HeroPathStorage paths;
+
 	std::shared_ptr<Environment> env;
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
 	int3 destinationTeleportPos;
@@ -94,7 +121,6 @@ public:
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
-	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
 	//During battle is quick combat mode is used
@@ -229,14 +255,11 @@ public:
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
 	void stopMovement();
-	void moveHero(const CGHeroInstance *h, CGPath path);
+	void moveHero(const CGHeroInstance *h, const CGPath& path);
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
 	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
 	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
-	void eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath = true );
 
-	void removeLastNodeFromPath(const CGHeroInstance *ho);
-	CGPath *getAndVerifyPath( const CGHeroInstance * h );
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
