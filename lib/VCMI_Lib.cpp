@@ -246,7 +246,6 @@ void LibClasses::init(bool onlyEssential)
 
 void LibClasses::clear()
 {
-	delete generaltexth;
 	delete heroh;
 	delete arth;
 	delete creh;
@@ -263,6 +262,7 @@ void LibClasses::clear()
 	delete scriptHandler;
 #endif
 	delete battlefieldsHandler;
+	delete generaltexth;
 	makeNull();
 }
 
