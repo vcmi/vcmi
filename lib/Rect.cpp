@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 Point::Point(const int3 & a)
 	: x(a.x)
-	, y(a.x)
+	, y(a.y)
 {
 }
 

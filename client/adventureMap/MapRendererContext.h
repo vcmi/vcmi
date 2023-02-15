@@ -57,7 +57,7 @@ public:
 	virtual uint32_t getAnimationTime() const = 0;
 
 	/// returns size of ouput tile, in pixels. 32x32 for "standard" map, may be smaller for world view mode
-	virtual Point tileSize() const = 0;
+	virtual Point getTileSize() const = 0;
 
 	/// if true, map grid should be visible on map
 	virtual bool showGrid() const = 0;

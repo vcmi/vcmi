@@ -18,10 +18,12 @@ class MapRenderer;
 
 class MapRendererContext : public IMapRendererContext
 {
+	Point tileSize = Point(32,32);
 	uint32_t animationTime = 0;
 
 public:
 	void advanceAnimations(uint32_t ms);
+	void setTileSize(const Point & dimensions);
 
 	int3 getMapSize() const override;
 	bool isInMap(const int3 & coordinates) const override;
@@ -36,40 +38,69 @@ public:
 
 	uint32_t getAnimationPeriod() const override;
 	uint32_t getAnimationTime() const override;
-	Point tileSize() const override;
+	Point getTileSize() const override;
 
 	bool showGrid() const override;
+};
+
+class MapViewModel
+{
+	Point tileSize;
+	Point viewCenter;
+	Point viewDimensions;
+
+	int mapLevel = 0;
+public:
+	void setTileSize(Point const & newValue);
+	void setViewCenter(Point const & newValue);
+	void setViewDimensions(Point const & newValue);
+	void setLevel(int newLevel);
+
+	/// returns current size of map tile in pixels
+	Point getSingleTileSize() const;
+
+	/// returns center point of map view, in Map coordinates
+	Point getMapViewCenter() const;
+
+	/// returns total number of visible tiles
+	Point getTilesVisibleDimensions() const;
+
+	/// returns rect encompassing all visible tiles
+	Rect getTilesTotalRect() const;
+
+	/// returns required area in pixels of cache canvas
+	Point getCacheDimensionsPixels() const;
+
+	/// returns actual player-visible area
+	Point getPixelsVisibleDimensions() const;
+
+	/// returns area covered by specified tile in map cache
+	Rect getCacheTileArea(const int3 & coordinates) const;
+
+	/// returns area covered by specified tile in target view
+	Rect getTargetTileArea(const int3 & coordinates) const;
+
+	int getLevel() const;
+	int3 getTileCenter() const;
+
+	/// returns tile under specified position in target view
+	int3 getTileAtPoint(const Point & position) const;
 };
 
 class MapCache
 {
 	std::unique_ptr<Canvas> terrain;
-
-	Point tileSize;
-	Point viewCenter;
-	Point viewDimensionsTiles;
-	Point viewDimensionsPixels;
-	Point targetDimensionsPixels;
-
-	int mapLevel;
+	std::shared_ptr<MapViewModel> model;
 
 	std::unique_ptr<MapRendererContext> context;
 	std::unique_ptr<MapRenderer> mapRenderer;
 
 	Canvas getTile(const int3 & coordinates);
-
 	void updateTile(const int3 & coordinates);
 
 public:
-	explicit MapCache(const Point & tileSize, const Point & dimensions);
+	explicit MapCache(const std::shared_ptr<MapViewModel> & model);
 	~MapCache();
-
-	void setViewCenter(const Point & center, int level);
-
-	Rect getVisibleAreaTiles() const;
-	int3 getTileCenter() const;
-	int3 getTileAtPoint(const Point & position) const;
-	Point getViewCenter() const;
 
 	void update(uint32_t timeDelta);
 	void render(Canvas & target);
@@ -77,20 +108,18 @@ public:
 
 class MapView : public CIntObject
 {
+	std::shared_ptr<MapViewModel> model;
 	std::unique_ptr<MapCache> tilesCache;
 
-	Point tileSize;
-
+	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 public:
-	MapView(const Point & offset, const Point & dimensions);
+	std::shared_ptr<const MapViewModel> getModel() const;
 
-	Rect getVisibleAreaTiles() const;
-	Point getViewCenter() const;
-	int3 getTileCenter() const;
-	int3 getTileAtPoint(const Point & position) const;
+	MapView(const Point & offset, const Point & dimensions);
 
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
+	void setTileSize(const Point & tileSize);
 
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
