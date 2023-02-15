@@ -27,6 +27,7 @@ private:
 	void animationSpeedChangedCallback(int value);
 	void showQueueChangedCallback(bool value);
 	void queueSizeChangedCallback(int value);
+	void skipBattleIntroMusicChangedCallback(bool value);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);
 };

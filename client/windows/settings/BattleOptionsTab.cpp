@@ -30,6 +30,7 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	addCallback("animationSpeedChanged", std::bind(&BattleOptionsTab::animationSpeedChangedCallback, this, _1));
 	addCallback("showQueueChanged", std::bind(&BattleOptionsTab::showQueueChangedCallback, this, _1));
 	addCallback("queueSizeChanged", std::bind(&BattleOptionsTab::queueSizeChangedCallback, this, _1));
+	addCallback("skipBattleIntroMusicChanged", std::bind(&BattleOptionsTab::skipBattleIntroMusicChangedCallback, this, _1));
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -49,6 +50,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 
 	std::shared_ptr<CToggleButton> showQueueCheckbox = widget<CToggleButton>("showQueueCheckbox");
 	showQueueCheckbox->setSelected((bool)settings["battle"]["showQueue"].Bool());
+
+	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
+	skipBattleIntroMusicCheckbox->setSelected((bool)settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -126,5 +130,11 @@ void BattleOptionsTab::queueSizeChangedCallback(int value)
 	std::string stringifiedValue = getQueueSizeStringFromId(value);
 	Settings size = settings.write["battle"]["queueSize"];
 	size->String() = stringifiedValue;
+}
+
+void BattleOptionsTab::skipBattleIntroMusicChangedCallback(bool value)
+{
+	Settings musicSkipSettingValue = settings.write["gameTweaks"]["skipBattleIntroMusic"];
+	musicSkipSettingValue->Bool() = value;
 }
 

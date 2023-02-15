@@ -95,7 +95,7 @@
 		},
 
 		{
-			"name": "generalOptionsLabel1",
+			"name": "viewGridLabel",
 			"type": "label",
 			"font": "medium",
 			"alignment": "left",
@@ -104,7 +104,7 @@
 			"position": {"x": 61, "y": 27}
 		},
 		{
-			"name": "generalOptionsLabel2",
+			"name": "showMovementRangeLabel",
 			"type": "label",
 			"font": "medium",
 			"alignment": "left",
@@ -113,7 +113,7 @@
 			"position": {"x": 61, "y": 60}
 		},
 		{
-			"name": "generalOptionsLabel3",
+			"name": "mouseShadowLabel",
 			"type": "label",
 			"font": "medium",
 			"alignment": "left",
@@ -122,7 +122,7 @@
 			"position": {"x": 61, "y": 93}
 		},
 		{
-			"name": "generalOptionsLabel4",
+			"name": "battleCasualtiesLabel",
 			"type": "label",
 			"font": "medium",
 			"alignment": "left",
@@ -334,6 +334,25 @@
 				}
 			],
 			"callback": "queueSizeChanged"
+		},
+
+		{
+			"name": "skipBattleIntroMusicLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
+			"position": {"x": 61, "y": 472}
+		},
+
+		{
+			"name": "skipBattleIntroMusicCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.skipBattleIntroMusic",
+			"position": {"x": 25, "y": 470},
+			"callback": "skipBattleIntroMusicChanged"
 		}
 	]
 }

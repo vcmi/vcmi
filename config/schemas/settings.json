@@ -479,7 +479,8 @@
 				"forceMovementInfo",
 				"numericCreaturesQuantities",
 				"availableCreaturesAsDwellingLabel",
-				"compactTownCreatureInfo"
+				"compactTownCreatureInfo",
+				"skipBattleIntroMusic"
 			],
 			"properties": {
 				"showGrid": {
@@ -499,6 +500,10 @@
 					"default" : false
 				},
 				"compactTownCreatureInfo" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"skipBattleIntroMusic" : {
 					"type" : "boolean",
 					"default" : false
 				}
