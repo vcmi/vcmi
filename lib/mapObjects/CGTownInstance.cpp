@@ -82,6 +82,11 @@ void CCreGenLeveledCastleInfo::serializeJson(JsonSerializeFormat & handler)
 	CCreGenLeveledInfo::serializeJson(handler);
 }
 
+CGDwelling::CGDwelling()
+	: info(nullptr)
+{
+}
+
 CGDwelling::~CGDwelling()
 {
 	vstd::clear_pointer(info);

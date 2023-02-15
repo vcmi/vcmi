@@ -243,7 +243,7 @@ CGHeroInstance::CGHeroInstance():
 	movement(UNINITIALIZED_MOVEMENT),
 	portrait(UNINITIALIZED_PORTRAIT),
 	level(1),
-	exp(std::numeric_limits<TExpType>::max()),
+	exp(UNINITIALIZED_EXPERIENCE),
 	sex(std::numeric_limits<ui8>::max())
 {
 	setNodeType(HERO);
@@ -320,7 +320,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if (patrol.patrolling)
 		patrol.initialPos = visitablePos();
 
-	if(exp == 0xffffffff)
+	if(exp == UNINITIALIZED_EXPERIENCE)
 	{
 		initExp(rand);
 	}
@@ -1445,7 +1445,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeString("biography", biographyCustom);
 	handler.serializeInt("experience", exp, 0);
 
-	if(!handler.saving && exp != 0xffffffff) //do not gain levels if experience is not initialized
+	if(!handler.saving && exp != UNINITIALIZED_EXPERIENCE) //do not gain levels if experience is not initialized
 	{
 		while (gainsLevel())
 		{

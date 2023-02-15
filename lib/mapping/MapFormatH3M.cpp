@@ -1609,7 +1609,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 		}
 		else
 		{
-			nhi->exp = 0xffffffff;
+			nhi->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
 		}
 	}
 	else
@@ -1619,7 +1619,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 		//0 means "not set" in <=AB maps
 		if(!nhi->exp)
 		{
-			nhi->exp = 0xffffffff;
+			nhi->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
 		}
 	}
 

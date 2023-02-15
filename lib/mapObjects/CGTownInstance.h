@@ -68,6 +68,7 @@ public:
 	CSpecObjInfo * info; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
+	CGDwelling();
 	~CGDwelling() override;
 
 	void initRandomObjectInfo();
