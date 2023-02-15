@@ -1011,7 +1011,7 @@ TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 	flyingMovementVal = bl->valOfBonuses(Selector::type()(Bonus::FLYING_MOVEMENT));
 	waterWalking = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::WATER_WALKING)));
 	waterWalkingVal = bl->valOfBonuses(Selector::type()(Bonus::WATER_WALKING));
-	pathfindingVal = bl->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING));
+	pathfindingVal = bl->valOfBonuses(Selector::type()(Bonus::ROUGH_TERRAIN_DISCOUNT));
 }
 
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
@@ -1068,9 +1068,8 @@ int TurnInfo::valOfBonuses(Bonus::BonusType type, int subtype) const
 		return bonusCache->flyingMovementVal;
 	case Bonus::WATER_WALKING:
 		return bonusCache->waterWalkingVal;
-	case Bonus::SECONDARY_SKILL_PREMY:
-		if (subtype == SecondarySkill::PATHFINDING)
-			return bonusCache->pathfindingVal;
+	case Bonus::ROUGH_TERRAIN_DISCOUNT:
+		return bonusCache->pathfindingVal;
 	}
 
 	return bonuses->valOfBonuses(Selector::type()(type).And(Selector::subtype()(subtype)));

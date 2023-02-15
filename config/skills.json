@@ -4,8 +4,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.pathfinding",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "ROUGH_TERRAIN_DISCOUNT",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
