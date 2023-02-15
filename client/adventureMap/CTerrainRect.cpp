@@ -204,131 +204,7 @@ void CTerrainRect::hover(bool on)
 	}
 	//Hoverable::hover(on);
 }
-void CTerrainRect::showPath(const Rect & extRect, SDL_Surface * to)
-{
-/*
-	const static int pns[9][9] = {
-				{16, 17, 18,  7, -1, 19,  6,  5, -1},
-				{ 8,  9, 18,  7, -1, 19,  6, -1, 20},
-				{ 8,  1, 10,  7, -1, 19, -1, 21, 20},
-				{24, 17, 18, 15, -1, -1,  6,  5,  4},
-				{-1, -1, -1, -1, -1, -1, -1, -1, -1},
-				{ 8,  1,  2, -1, -1, 11, 22, 21, 20},
-				{24, 17, -1, 23, -1,  3, 14,  5,  4},
-				{24, -1,  2, 23, -1,  3, 22, 13,  4},
-				{-1,  1,  2, 23, -1,  3, 22, 21, 12}
-			}; //table of magic values TODO meaning, change variable name
 
-	for (int i = 0; i < -1 + (int)currentPath->nodes.size(); ++i)
-	{
-		const int3 &curPos = currentPath->nodes[i].coord, &nextPos = currentPath->nodes[i+1].coord;
-		if(curPos.z != adventureInt->position.z)
-			continue;
-
-		int pn=-1;//number of picture
-		if (i==0) //last tile
-		{
-			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
-				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
-			if (x<0 || y<0 || x>pos.w || y>pos.h)
-				continue;
-			pn=0;
-		}
-		else
-		{
-			const int3 &prevPos = currentPath->nodes[i-1].coord;
-			std::vector<CGPathNode> & cv = currentPath->nodes;
-
-			// Vector directions
-			//  0   1   2
-			//    \ | /
-			//  3 - 4 - 5
-			//    / | \
-			//  6   7  8
-			//For example:
-			//  |
-			//  |__\
-			//     /
-			// is id1=7, id2=5 (pns[7][5])
-			//
-			bool pathContinuous = curPos.areNeighbours(nextPos) && curPos.areNeighbours(prevPos);
-			if(pathContinuous && cv[i].action != CGPathNode::EMBARK && cv[i].action != CGPathNode::DISEMBARK)
-			{
-				int id1=(curPos.x-nextPos.x+1)+3*(curPos.y-nextPos.y+1);   //Direction of entering vector
-				int id2=(cv[i-1].coord.x-curPos.x+1)+3*(cv[i-1].coord.y-curPos.y+1); //Direction of exiting vector
-				pn=pns[id1][id2];
-			}
-			else //path discontinuity or sea/land transition (eg. when moving through Subterranean Gate or Boat)
-			{
-				pn = 0;
-			}
-		}
-		if (currentPath->nodes[i].turns)
-			pn+=25;
-		if (pn>=0)
-		{
-			const auto arrow = graphics->heroMoveArrows->getImage(pn);
-
-			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
-				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
-			if (x< -32 || y< -32 || x>pos.w || y>pos.h)
-				continue;
-			int hvx = (x + arrow->width())  - (pos.x + pos.w),
-				hvy = (y + arrow->height()) - (pos.y + pos.h);
-
-			Rect prevClip;
-			CSDL_Ext::getClipRect(to, prevClip);
-			CSDL_Ext::setClipRect(to, extRect); //preventing blitting outside of that rect
-
-			if(ADVOPT.smoothMove) //version for smooth hero move, with pos shifts
-			{
-				if (hvx<0 && hvy<0)
-				{
-					arrow->draw(to, x + moveX, y + moveY);
-				}
-				else if(hvx<0)
-				{
-					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width()));
-					arrow->draw(to, x + moveX, y + moveY, &srcRect);
-				}
-				else if (hvy<0)
-				{
-					Rect srcRect (Point(0, 0), Point(arrow->height(), arrow->width() - hvx));
-					arrow->draw(to, x + moveX, y + moveY, &srcRect);
-				}
-				else
-				{
-					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width() - hvx));
-					arrow->draw(to, x + moveX, y + moveY, &srcRect);
-				}
-			}
-			else //standard version
-			{
-				if (hvx<0 && hvy<0)
-				{
-					arrow->draw(to, x, y);
-				}
-				else if(hvx<0)
-				{
-					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width()));
-					arrow->draw(to, x, y, &srcRect);
-				}
-				else if (hvy<0)
-				{
-					Rect srcRect (Point(0, 0), Point(arrow->height(), arrow->width() - hvx));
-					arrow->draw(to, x, y, &srcRect);
-				}
-				else
-				{
-					Rect srcRect (Point(0, 0), Point(arrow->height() - hvy, arrow->width() - hvx));
-					arrow->draw(to, x, y, &srcRect);
-				}
-			}
-			CSDL_Ext::setClipRect(to, prevClip);
-
-		}
-	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
-*/}
 /*
 void CTerrainRect::show(SDL_Surface * to)
 {
@@ -347,11 +223,6 @@ void CTerrainRect::show(SDL_Surface * to)
 			Rect r(pos);
 			fadeAnim->update();
 			fadeAnim->draw(to, r.topLeft());
-		}
-
-		if (currentPath) //drawing path
-		{
-			showPath(pos, to);
 		}
 	}
 }
@@ -380,7 +251,7 @@ void CTerrainRect::showAnim(SDL_Surface * to)
 */
 int3 CTerrainRect::whichTileIsIt(const Point &position)
 {
-	return renderer->getTileAtPoint(position - pos);
+	return renderer->getModel()->getTileAtPoint(position - pos);
 }
 
 int3 CTerrainRect::whichTileIsIt()
@@ -390,7 +261,7 @@ int3 CTerrainRect::whichTileIsIt()
 
 Rect CTerrainRect::visibleTilesArea()
 {
-	return renderer->getVisibleAreaTiles();
+	return renderer->getModel()->getTilesTotalRect();
 }
 
 void CTerrainRect::fadeFromCurrentView()
@@ -413,25 +284,25 @@ bool CTerrainRect::needsAnimUpdate()
 
 void CTerrainRect::setLevel(int level)
 {
-	renderer->setViewCenter(renderer->getViewCenter(), level);
+	renderer->setViewCenter(renderer->getModel()->getMapViewCenter(), level);
 }
 
 void CTerrainRect::moveViewBy(const Point & delta)
 {
-	renderer->setViewCenter(renderer->getViewCenter() + delta, getLevel());
+	renderer->setViewCenter(renderer->getModel()->getMapViewCenter() + delta, getLevel());
 }
 
 int3 CTerrainRect::getTileCenter()
 {
-	return renderer->getTileCenter();
+	return renderer->getModel()->getTileCenter();
 }
 
 Point CTerrainRect::getViewCenter()
 {
-	return renderer->getViewCenter();
+	return renderer->getModel()->getMapViewCenter();
 }
 
 int CTerrainRect::getLevel()
 {
-	return renderer->getTileCenter().z;
+	return renderer->getModel()->getLevel();
 }

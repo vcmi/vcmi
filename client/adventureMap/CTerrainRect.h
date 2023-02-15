@@ -47,12 +47,10 @@ class CTerrainRect : public CIntObject
 
 	int3 whichTileIsIt(const Point & position); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
-	void showPath(const Rect &extRect, SDL_Surface * to);
 
 	bool needsAnimUpdate();
-public:
-	//CGPath * currentPath;
 
+public:
 	CTerrainRect();
 	~CTerrainRect();
 
