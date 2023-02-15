@@ -47,14 +47,12 @@
 
 static bool useCompactCreatureBox()
 {
-	//TODO: add UI for easier access
-	return settings["session"]["compactCreatureInfo"].isNumber() ? settings["session"]["compactCreatureInfo"].Bool() : false;
+	return settings["gameTweaks"]["compactTownCreatureInfo"].isNumber() ? settings["gameTweaks"]["compactTownCreatureInfo"].Bool() : false;
 }
 
 static bool useAvailableAmountAsCreatureLabel()
 {
-	//TODO: add UI for easier access
-	return settings["session"]["availableCreaturesAsLabel"].isNumber() ? settings["session"]["availableCreaturesAsLabel"].Bool() : false;
+	return settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].isNumber() ? settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool() : false;
 }
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
@@ -1268,7 +1266,6 @@ void CCastleInterface::recreateIcons()
 
 	creainfo.clear();
 
-	//TODO: GUI option for these
 	bool compactCreatureInfo = useCompactCreatureBox();
 	bool useAvailableCreaturesForLabel = useAvailableAmountAsCreatureLabel();
 
