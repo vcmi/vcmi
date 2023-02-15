@@ -134,7 +134,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat", "numericStackQuantities" ],
+			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
 			"properties" : {
 				"heroSpeed" : {
 					"type" : "number",
@@ -155,10 +155,6 @@
 				"quickCombat" : {
 					"type" : "boolean",
 					"default" : false
-				},
-				"numericStackQuantities" : {
-					"type": "boolean",
-					"default": true
 				}
 			}
 		},

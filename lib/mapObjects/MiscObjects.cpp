@@ -104,7 +104,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	MetaString ms;
 	CCreature::CreatureQuantityId monsterQuantityId = stacks.begin()->second->getQuantityID();
 	int quantityTextIndex = 172 + 3 * (int)monsterQuantityId;
-	if(settings["adventure"]["numericStackQuantities"].Bool())
+	if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 		ms << CCreature::getQuantityRangeStringForId(monsterQuantityId);
 	else
 		ms.addTxt(MetaString::ARRAY_TXT, quantityTextIndex);

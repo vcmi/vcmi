@@ -255,7 +255,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			//if =0 - we have no information about stack size at all
 			if(slot.second.count)
 			{
-				if(settings["adventure"]["numericStackQuantities"].Bool())
+				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 				{
 					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.count);
 				}

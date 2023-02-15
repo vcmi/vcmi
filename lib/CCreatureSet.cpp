@@ -377,7 +377,7 @@ std::string CCreatureSet::getRoughAmount(SlotID slot, int mode) const
 
 	if((int)quantity)
 	{
-		if(settings["adventure"]["numericStackQuantities"].Bool())
+		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
 		return VLC->generaltexth->arraytxt[(174 + mode) + 3*(int)quantity];
@@ -825,7 +825,7 @@ std::string CStackInstance::getQuantityTXT(bool capitalized) const
 
 	if ((int)quantity)
 	{
-		if(settings["adventure"]["numericStackQuantities"].Bool())
+		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
 		return VLC->generaltexth->arraytxt[174 + (int)quantity*3 - 1 - capitalized];
