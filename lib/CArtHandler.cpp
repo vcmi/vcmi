@@ -419,8 +419,8 @@ ArtifactPosition::ArtifactPosition(std::string slotName):
 	auto it = artifactPositionMap.find (slotName);
 	if (it != artifactPositionMap.end())
 		num = it->second;
-
-	logMod->warn("Warning! Artifact slot %s not recognized!", slotName);
+	else
+		logMod->warn("Warning! Artifact slot %s not recognized!", slotName);
 }
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
