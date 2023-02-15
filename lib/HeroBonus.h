@@ -365,6 +365,7 @@ public:
 	BONUS_VALUE(PERCENT_TO_ALL)\
 	BONUS_VALUE(PERCENT_TO_BASE)\
 	BONUS_VALUE(PERCENT_TO_SOURCE) /*Adds value only to bonuses with same source*/\
+	BONUS_VALUE(PERCENT_TO_TARGET_TYPE) /*Adds value only to bonuses with SourceType target*/\
 	BONUS_VALUE(INDEPENDENT_MAX) /*used for SPELL bonus */\
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
@@ -421,6 +422,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
 
 	BonusSource source;//source type" uses BonusSource values - what gave that bonus
+	BonusSource targetSourceType;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE.
 	si32 val;
 	ui32 sid; //source id: id of object/artifact/spell
 	ValueType valType;
@@ -458,6 +460,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & propagator;
 		h & updater;
 		h & propagationUpdater;
+		h & targetSourceType;
 	}
 
 	template <typename Ptr>
@@ -1176,6 +1179,7 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> & subtype();
 	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info();
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & sourceType();
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & targetSourceType();
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> & effectRange();
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;

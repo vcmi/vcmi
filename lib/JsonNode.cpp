@@ -849,6 +849,10 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if (!value->isNull())
 		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
 
+	value = &ability["targetSourceType"];
+	if (!value->isNull())
+		b->targetSourceType = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
+
 	value = &ability["limiters"];
 	if (!value->isNull())
 		b->limiter = parseLimiter(*value);

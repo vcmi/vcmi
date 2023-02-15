@@ -452,73 +452,74 @@ void BonusList::stackBonuses()
 
 int BonusList::totalValue() const
 {
-	std::array <std::pair<int, int>, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
-	int base = 0;
-	int percentToBase = 0;
-	int percentToAll = 0;
-	int additive = 0;
-	int indepMax = 0;
+	struct BonusCollection
+	{
+		int base = 0;
+		int percentToBase = 0;
+		int percentToAll = 0;
+		int additive = 0;
+		int percentToSource;
+		int indepMin = std::numeric_limits<int>::max();
+		int indepMax = std::numeric_limits<int>::min();
+	};
+
+	auto percent = [](int base, int percent) -> int {return (base * (100 + percent)) / 100; };
+	std::array <BonusCollection, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
+	BonusCollection any;
 	bool hasIndepMax = false;
-	int indepMin = 0;
 	bool hasIndepMin = false;
-	int modifiedBase = 0;
 
 	for(std::shared_ptr<Bonus> b : bonuses)
 	{
 		switch(b->valType)
 		{
 		case Bonus::BASE_NUMBER:
-			sources[b->source].first += b->val;
+			sources[b->source].base += b->val;
 			break;
 		case Bonus::PERCENT_TO_ALL:
-			percentToAll += b->val;
+			sources[b->source].percentToAll += b->val;
 			break;
 		case Bonus::PERCENT_TO_BASE:
-			percentToBase += b->val;
+			sources[b->source].percentToBase += b->val;
 			break;
 		case Bonus::PERCENT_TO_SOURCE:
-			sources[b->source].second += b->val;
+			sources[b->source].percentToSource += b->val;
+			break;
+		case Bonus::PERCENT_TO_TARGET_TYPE:
+			sources[b->targetSourceType].percentToSource += b->val;
 			break;
 		case Bonus::ADDITIVE_VALUE:
-			additive += b->val;
+			sources[b->source].additive += b->val;
 			break;
 		case Bonus::INDEPENDENT_MAX:
-			if (!hasIndepMax)
-			{
-				indepMax = b->val;
-				hasIndepMax = true;
-			}
-			else
-			{
-				vstd::amax(indepMax, b->val);
-			}
+			hasIndepMax = true;
+			vstd::amax(sources[b->source].indepMax, b->val);
 			break;
 		case Bonus::INDEPENDENT_MIN:
-			if (!hasIndepMin)
-			{
-				indepMin = b->val;
-				hasIndepMin = true;
-			}
-			else
-			{
-				vstd::amin(indepMin, b->val);
-			}
+			hasIndepMin = true;
+			vstd::amin(sources[b->source].indepMin, b->val);
 			break;
 		}
 	}
 	for(auto src : sources)
 	{
-		base += src.first;
-		modifiedBase += src.first + (src.first * src.second) / 100;
+		any.base += percent(src.base ,src.percentToSource);
+		any.percentToBase += percent(src.percentToBase, src.percentToSource);
+		any.percentToAll += percent(src.percentToAll, src.percentToSource);
+		any.additive += percent(src.additive, src.percentToSource);
+		if(hasIndepMin)
+			vstd::amin(any.indepMin, percent(src.indepMin, src.percentToSource));
+		if(hasIndepMax)
+			vstd::amax(any.indepMax, percent(src.indepMin, src.percentToSource));
 	}
-	modifiedBase += (base * percentToBase) / 100;
-	modifiedBase += additive;
-	int valFirst = (modifiedBase * (100 + percentToAll)) / 100;
+	any.base = percent(any.base, any.percentToBase);
+	any.base += any.additive;
+	auto valFirst = percent(any.base ,any.percentToAll);
 
 	if(hasIndepMin && hasIndepMax)
-		assert(indepMin < indepMax);
+		assert(any.indepMin < any.indepMax);
 
-	const int notIndepBonuses = (int)boost::count_if(bonuses, [](const std::shared_ptr<Bonus>& b)
+	const int notIndepBonuses = (int)std::count_if(bonuses.cbegin(), bonuses.cend(), [](const std::shared_ptr<Bonus>& b)
 	{
 		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN;
 	});
@@ -526,16 +527,16 @@ int BonusList::totalValue() const
 	if (hasIndepMax)
 	{
 		if(notIndepBonuses)
-			vstd::amax(valFirst, indepMax);
+			vstd::amax(valFirst, any.indepMax);
 		else
-			valFirst = indepMax;
+			valFirst = any.indepMax;
 	}
 	if (hasIndepMin)
 	{
 		if(notIndepBonuses)
-			vstd::amin(valFirst, indepMin);
+			vstd::amin(valFirst, any.indepMin);
 		else
-			valFirst = indepMin;
+			valFirst = any.indepMin;
 	}
 
 	return valFirst;
@@ -1719,6 +1720,8 @@ JsonNode Bonus::toJsonNode() const
 		root["turns"].Integer() = turnsRemain;
 	if(source != OTHER)
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
+	if(targetSourceType != OTHER)
+		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
 	if(sid != 0)
 		root["sourceID"].Integer() = sid;
 	if(val != 0)
@@ -1778,6 +1781,7 @@ Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si3
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
 	boost::algorithm::trim(description);
+	targetSourceType = OTHER;
 }
 
 Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType)
@@ -1785,6 +1789,7 @@ Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si3
 {
 	turnsRemain = 0;
 	effectRange = NO_LIMIT;
+	targetSourceType = OTHER;
 }
 
 Bonus::Bonus()
@@ -1799,6 +1804,7 @@ Bonus::Bonus()
 	val = 0;
 	source = OTHER;
 	sid = 0;
+	targetSourceType = OTHER;
 }
 
 std::shared_ptr<Bonus> Bonus::addPropagator(TPropagatorPtr Propagator)
@@ -1830,6 +1836,12 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & sourceType()
 	{
 		static CSelectFieldEqual<Bonus::BonusSource> ssourceType(&Bonus::source);
+		return ssourceType;
+	}
+
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & targetSourceType()
+	{
+		static CSelectFieldEqual<Bonus::BonusSource> ssourceType(&Bonus::targetSourceType);
 		return ssourceType;
 	}
 

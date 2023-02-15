@@ -123,6 +123,10 @@
 			"type":"string",
 			"description": "sourceType"
 		},
+		"targetSourceType": {
+			"type":"string",
+			"description": "targetSourceType"
+		},
 		"stacking" : {
 			"type" : "string",
 			"description" : "stacking"
