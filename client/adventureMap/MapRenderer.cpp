@@ -611,7 +611,7 @@ void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & t
 	auto next = iter + 1;
 	auto prev = iter - 1;
 
-	// start of path - currentl hero location
+	// start of path - current hero location
 	if(next == path->nodes.end())
 		return;
 

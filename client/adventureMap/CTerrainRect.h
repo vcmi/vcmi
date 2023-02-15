@@ -58,6 +58,7 @@ public:
 	void setViewCenter(const int3 & coordinates);
 	void setViewCenter(const Point & position, int level);
 	void setLevel(int level);
+	void setTileSize(int sizePixels);
 
 	int3  getTileCenter();
 	Point getViewCenter();

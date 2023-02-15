@@ -81,7 +81,6 @@ void CAdvMapInt::setScrollingCursor(ui8 direction) const
 
 CAdvMapInt::CAdvMapInt():
 	mode(EAdvMapMode::NORMAL),
-	worldViewScale(0.0f), //actual init later in changeMode
 	minimap(new CMinimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH))),
 	statusbar(CGStatusBar::create(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG)),
 	heroList(new CHeroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD)),
@@ -238,7 +237,7 @@ CAdvMapInt::CAdvMapInt():
 
 	activeMapPanel = panelMain;
 
-	changeMode(EAdvMapMode::NORMAL, 0.36F);
+	changeMode(EAdvMapMode::NORMAL);
 
 	underground->block(!CGI->mh->map->twoLevel);
 	questlog->block(!CGI->mh->map->quests.size());
@@ -254,7 +253,7 @@ void CAdvMapInt::fshowOverview()
 
 void CAdvMapInt::fworldViewBack()
 {
-	changeMode(EAdvMapMode::NORMAL, 0.36F);
+	changeMode(EAdvMapMode::NORMAL);
 	CGI->mh->discardWorldViewCache();
 
 	auto hero = curHero();
@@ -265,17 +264,17 @@ void CAdvMapInt::fworldViewBack()
 void CAdvMapInt::fworldViewScale1x()
 {
 	// TODO set corresponding scale button to "selected" mode
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.22f); // 7 pixels per tile
+	changeMode(EAdvMapMode::WORLD_VIEW, 7); // 7 pixels per tile
 }
 
 void CAdvMapInt::fworldViewScale2x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.36f); // 11 pixels per tile
+	changeMode(EAdvMapMode::WORLD_VIEW, 11); // 11 pixels per tile
 }
 
 void CAdvMapInt::fworldViewScale4x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.5f); // 16 pixels per tile
+	changeMode(EAdvMapMode::WORLD_VIEW, 16); // 16 pixels per tile
 }
 
 void CAdvMapInt::fswitchLevel()
@@ -295,14 +294,13 @@ void CAdvMapInt::fswitchLevel()
 
 	redrawOnNextFrame = true;
 	minimap->setLevel(terrain->getLevel());
-
-	if (mode == EAdvMapMode::WORLD_VIEW)
-		terrain->redraw();
 }
+
 void CAdvMapInt::fshowQuestlog()
 {
 	LOCPLINT->showQuestLog();
 }
+
 void CAdvMapInt::fsleepWake()
 {
 	const CGHeroInstance *h = curHero();
@@ -683,9 +681,6 @@ void CAdvMapInt::centerOn(int3 on, bool fade)
 	if (switchedLevels)
 		minimap->setLevel(terrain->getLevel());
 	minimap->redraw();
-
-	if (mode == EAdvMapMode::WORLD_VIEW)
-		terrain->redraw();
 }
 
 void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
@@ -1506,7 +1501,12 @@ void CAdvMapInt::quickCombatUnlock()
 		activate();
 }
 
-void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
+void CAdvMapInt::changeMode(EAdvMapMode newMode)
+{
+	changeMode(newMode, 11);
+}
+
+void CAdvMapInt::changeMode(EAdvMapMode newMode, int tileSize)
 {
 	if (mode != newMode)
 	{
@@ -1524,6 +1524,7 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
 			infoBar->activate();
 
 			worldViewOptions.clear();
+			terrain->setTileSize(32);
 
 			break;
 		case EAdvMapMode::WORLD_VIEW:
@@ -1536,15 +1537,10 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
 			heroList->deactivate();
 			infoBar->showSelection(); // to prevent new day animation interfering world view mode
 			infoBar->deactivate();
+			terrain->setTileSize(tileSize);
 
 			break;
 		}
-		worldViewScale = newScale;
-		redraw();
-	}
-	else if (worldViewScale != newScale) // still in world view mode, but the scale changed
-	{
-		worldViewScale = newScale;
 		redraw();
 	}
 }

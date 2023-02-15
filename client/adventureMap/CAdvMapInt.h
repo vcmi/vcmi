@@ -83,7 +83,6 @@ private:
 	//int3 position;
 
 	EAdvMapMode mode;
-	float worldViewScale;
 
 	WorldViewOptions worldViewOptions;
 
@@ -226,7 +225,8 @@ public:
 	Rect terrainAreaTiles() const;
 
 	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
-	void changeMode(EAdvMapMode newMode, float newScale);
+	void changeMode(EAdvMapMode newMode);
+	void changeMode(EAdvMapMode newMode, int tileSize);
 };
 
 extern std::shared_ptr<CAdvMapInt> adventureInt;

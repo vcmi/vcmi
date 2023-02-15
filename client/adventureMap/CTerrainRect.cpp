@@ -306,3 +306,8 @@ int CTerrainRect::getLevel()
 {
 	return renderer->getModel()->getLevel();
 }
+
+void CTerrainRect::setTileSize(int sizePixels)
+{
+	renderer->setTileSize(Point(sizePixels, sizePixels));
+}

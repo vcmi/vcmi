@@ -81,7 +81,7 @@ CMinimapInstance::CMinimapInstance(CMinimap *Parent, int Level):
 void CMinimapInstance::showAll(SDL_Surface * to)
 {
 	Canvas target(to);
-	target.draw(*minimap, pos.topLeft(), pos.dimensions());
+	target.drawScaled(*minimap, pos.topLeft(), pos.dimensions());
 }
 
 CMinimap::CMinimap(const Rect & position)

@@ -33,11 +33,7 @@ Canvas::Canvas(const Canvas & other):
 Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 	Canvas(other)
 {
-	//clipRect.emplace();
-	//CSDL_Ext::getClipRect(surface, clipRect.get());
-
 	renderArea = other.renderArea.intersect(newClipRect + other.renderArea.topLeft());
-	//CSDL_Ext::setClipRect(surface, currClipRect);
 }
 
 Canvas::Canvas(const Point & size):
@@ -48,32 +44,29 @@ Canvas::Canvas(const Point & size):
 
 Canvas::~Canvas()
 {
-	//if (clipRect)
-	//	CSDL_Ext::setClipRect(surface, clipRect.get());
-
 	SDL_FreeSurface(surface);
 }
 
-void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos)
+void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 {
 	assert(image);
 	if (image)
 		image->draw(surface, renderArea.x + pos.x, renderArea.y + pos.y);
 }
 
-void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect)
+void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect)
 {
 	assert(image);
 	if (image)
 		image->draw(surface, renderArea.x + pos.x, renderArea.y + pos.y, &sourceRect);
 }
 
-void Canvas::draw(Canvas & image, const Point & pos)
+void Canvas::draw(const Canvas & image, const Point & pos)
 {
 	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
 }
 
-void Canvas::draw(Canvas & image, const Point & pos, const Point & targetSize)
+void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)
 {
 	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(pos, targetSize));
 	SDL_BlitScaled(image.surface, nullptr, surface, &targetRect );
