@@ -111,8 +111,19 @@ std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode &
 	return std::make_shared<BattleConsole>(background, rect.topLeft(), offset, rect.dimensions() );
 }
 
+void BattleWindow::toggleQueueVisibility()
+{
+	if(settings["battle"]["showQueue"].Bool())
+		hideQueue();
+	else
+		showQueue();
+}
+
 void BattleWindow::hideQueue()
 {
+	if(settings["battle"]["showQueue"].Bool() == false)
+		return;
+
 	Settings showQueue = settings.write["battle"]["showQueue"];
 	showQueue->Bool() = false;
 
@@ -130,6 +141,9 @@ void BattleWindow::hideQueue()
 
 void BattleWindow::showQueue()
 {
+	if(settings["battle"]["showQueue"].Bool() == true)
+		return;
+
 	Settings showQueue = settings.write["battle"]["showQueue"];
 	showQueue->Bool() = true;
 
@@ -167,11 +181,7 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
 	if(key == SDLK_q)
 	{
-		if(settings["battle"]["showQueue"].Bool()) //hide queue
-			hideQueue();
-		else
-			showQueue();
-
+		toggleQueueVisibility();
 	}
 	else if(key == SDLK_f)
 	{

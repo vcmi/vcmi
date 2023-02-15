@@ -25,7 +25,7 @@ private:
 	void movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
 	void mouseShadowChangedCallback(bool value);
 	void animationSpeedChangedCallback(int value);
-	void showQueueChangedCallback(bool value);
+	void showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
 	void queueSizeChangedCallback(int value);
 	void skipBattleIntroMusicChangedCallback(bool value);
 public:

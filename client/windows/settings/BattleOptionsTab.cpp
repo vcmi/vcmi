@@ -28,7 +28,7 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	addCallback("movementShadowChanged", std::bind(&BattleOptionsTab::movementShadowChangedCallback, this, _1, owner));
 	addCallback("mouseShadowChanged", std::bind(&BattleOptionsTab::mouseShadowChangedCallback, this, _1));
 	addCallback("animationSpeedChanged", std::bind(&BattleOptionsTab::animationSpeedChangedCallback, this, _1));
-	addCallback("showQueueChanged", std::bind(&BattleOptionsTab::showQueueChangedCallback, this, _1));
+	addCallback("showQueueChanged", std::bind(&BattleOptionsTab::showQueueChangedCallback, this, _1, owner));
 	addCallback("queueSizeChanged", std::bind(&BattleOptionsTab::queueSizeChangedCallback, this, _1));
 	addCallback("skipBattleIntroMusicChanged", std::bind(&BattleOptionsTab::skipBattleIntroMusicChangedCallback, this, _1));
 	build(config);
@@ -119,10 +119,17 @@ void BattleOptionsTab::animationSpeedChangedCallback(int value)
 	speed->Float() = float(value);
 }
 
-void BattleOptionsTab::showQueueChangedCallback(bool value)
+void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface)
 {
-	Settings shadow = settings.write["battle"]["showQueue"];
-	shadow->Bool() = value;
+	if(!parentBattleInterface)
+	{
+		Settings showQueue = settings.write["battle"]["showQueue"];
+		showQueue->Bool() = value;
+	}
+	else
+	{
+		parentBattleInterface->setBattleQueueVisibility(value);
+	}
 }
 
 void BattleOptionsTab::queueSizeChangedCallback(int value)

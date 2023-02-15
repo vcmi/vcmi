@@ -55,9 +55,9 @@ class BattleWindow : public InterfaceObjectConfigurable
 	PossiblePlayerBattleAction defaultAction;
 	void showAlternativeActionIcon(PossiblePlayerBattleAction);
 
-	/// Toggle StackQueue visibility
-	void hideQueue();
-	void showQueue();
+	/// flip battle queue visibility to opposite
+	void toggleQueueVisibility();
+
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
@@ -67,6 +67,10 @@ public:
 
 	/// Closes window once battle finished
 	void close();
+
+	/// Toggle StackQueue visibility
+	void hideQueue();
+	void showQueue();
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);

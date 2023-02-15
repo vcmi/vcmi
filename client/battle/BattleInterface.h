@@ -175,6 +175,8 @@ public:
 	void tacticNextStack(const CStack *current);
 	void tacticPhaseEnd();
 
+	void setBattleQueueVisibility(bool visible);
+
 	/// sets condition to targeted state and executes any awaiting actions
 	void setAnimationCondition( EAnimationEvents event, bool state);
 

@@ -97,7 +97,17 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 
 	CCS->musich->stopMusic();
 	setAnimationCondition(EAnimationEvents::OPENING, true);
-	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+
+	GH.pushInt(windowObject);
+	windowObject->blockUI(true);
+	windowObject->updateQueue();
+
+	if(settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+	{
+		onIntroSoundPlayed();
+		return;
+	}
+
 	auto onIntroPlayed = [this]()
 	{
 		if(LOCPLINT->battleInt)
@@ -107,10 +117,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		}
 	};
 
-	GH.pushInt(windowObject);
-	windowObject->blockUI(true);
-	windowObject->updateQueue();
-
+	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
 	else
@@ -733,4 +740,12 @@ void BattleInterface::waitForAnimationCondition( EAnimationEvents event, bool st
 void BattleInterface::executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action)
 {
 	awaitingEvents.push_back({action, event, state});
+}
+
+void BattleInterface::setBattleQueueVisibility(bool visible)
+{
+	if(visible)
+		windowObject->showQueue();
+	else
+		windowObject->hideQueue();
 }
