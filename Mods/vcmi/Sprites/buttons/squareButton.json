@@ -1,8 +1,0 @@
-{
-	"basepath" : "buttons/",
-	"images" :
-	[
-		{ "frame" : 0, "file" : "square-normal.png"},
-		{ "frame" : 1, "file" : "square-pressed.png"}
-	]
-}

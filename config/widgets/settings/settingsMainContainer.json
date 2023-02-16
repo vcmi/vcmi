@@ -9,83 +9,91 @@
 		},
 
 		{
-			"name": "activateGeneralOptionsButton",
-			"type": "button",
-			"position": {"x": 0, "y": 0},
-			"image": "buttons/quadwide",
-			"help": "vcmi.settingsMainWindow.systemTab",
-			"callback": "activateGeneralTab",
+			"name": "settingsTabs",
+			"type": "toggleGroup",
+			"position": {
+				"x": 0,
+				"y": 0
+			},
 			"items":
 			[
 				{
-					"name": "generalTabButtonTitle",
-					"type": "label",
-					"font": "big",
-					"alignment": "center",
-					"color": "yellow",
-					"text": "core.genrltxt.568"
-				}
-			]
-		},
+					"index": 0,
+					"type": "toggleButton",
+					"position": {"x": 0, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.systemTab",
+					"items":
+					[
+						{
+							"name": "generalTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "core.genrltxt.568"
+						}
+					]
+				},
 
-		{
-			"name": "activateAdventureOptionsButton",
-			"type": "button",
-			"position": {"x": 150, "y": 0},
-			"image": "buttons/quadwide",
-			"help": "vcmi.settingsMainWindow.adventureTab",
-			"callback": "activateAdventureTab",
-			"items":
-			[
 				{
-					"name": "generalTabButtonTitle",
-					"type": "label",
-					"font": "big",
-					"alignment": "center",
-					"color": "yellow",
-					"text": "vcmi.settingsMainWindow.adventureTab.hover"
-				}
-			]
-		},
+					"index": 1,
+					"type": "toggleButton",
+					"position": {"x": 150, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.adventureTab",
+					"items":
+					[
+						{
+							"name": "generalTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.settingsMainWindow.adventureTab.hover"
+						}
+					]
+				},
 
-		{
-			"name": "activateBattleOptionsButton",
-			"type": "button",
-			"position": {"x": 300, "y": 0},
-			"image": "buttons/quadwide",
-			"help": "vcmi.settingsMainWindow.battleTab",
-			"callback": "activateBattleTab",
-			"items":
-			[
 				{
-					"name": "adventureTabButtonTitle",
-					"type": "label",
-					"font": "big",
-					"alignment": "center",
-					"color": "yellow",
-					"text": "core.genrltxt.392"
-				}
-			]
-		},
+					"index": 2,
+					"type": "toggleButton",
+					"position": {"x": 300, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.battleTab",
+					"items":
+					[
+						{
+							"name": "adventureTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "core.genrltxt.392"
+						}
+					]
+				},
 
-		{
-			"name": "activateVcmiSettingsButton",
-			"type": "button",
-			"position": {"x": 450, "y": 0},
-			"image": "buttons/quadwide",
-			"help": "vcmi.settingsMainWindow.otherTab",
-			"callback": "activateVcmiSettingsTab",
-			"items":
-			[
 				{
-					"name": "otherTabButtonTitle",
-					"type": "label",
-					"font": "big",
-					"alignment": "center",
-					"color": "yellow",
-					"text": "vcmi.settingsMainWindow.otherTab.hover"
+					"index": 3,
+					"type": "toggleButton",
+					"position": {"x": 450, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.otherTab",
+					"items":
+					[
+						{
+							"name": "otherTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.settingsMainWindow.otherTab.hover"
+						}
+					]
 				}
-			]
+			],
+			"callback": "activateSettingsTab"
 		},
 
 		{

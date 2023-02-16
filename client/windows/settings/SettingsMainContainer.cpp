@@ -33,11 +33,7 @@ SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) :
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	const JsonNode config(ResourceID("config/widgets/settings/settingsMainContainer.json"));
-	addCallback("activateGeneralTab", [this](int) { openTab(0); });
-	addCallback("activateAdventureTab", [this](int) { openTab(1); });
-	addCallback("activateBattleTab", [this](int) { openTab(2); });
-	addCallback("activateVcmiSettingsTab", [this](int) { openTab(3); });
-
+	addCallback("activateSettingsTab", [this](int tabId) { openTab(tabId); });
 	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
 	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });
 	addCallback("restartGame", [this](int) { restartGameButtonCallback(); });
@@ -72,7 +68,10 @@ SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) :
 		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
 
 	parentBattleInterface = parentBattleUi;
-	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(0, 50), defaultTabIndex);
+	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(0, 40), defaultTabIndex);
+
+	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
+	mainTabs->setSelected(defaultTabIndex);
 }
 
 std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
