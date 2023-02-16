@@ -16,7 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct CGPath;
 VCMI_LIB_NAMESPACE_END
 
-enum class EMapAnimRedrawStatus;
 class CFadeAnimation;
 class MapView;
 
@@ -26,7 +25,6 @@ class CTerrainRect : public CIntObject
 	std::shared_ptr<MapView> renderer;
 
 	SDL_Surface * fadeSurface;
-	EMapAnimRedrawStatus lastRedrawStatus;
 	std::shared_ptr<CFadeAnimation> fadeAnim;
 
 	Point swipeInitialViewPos;
@@ -47,8 +45,6 @@ class CTerrainRect : public CIntObject
 
 	int3 whichTileIsIt(const Point & position); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
-
-	bool needsAnimUpdate();
 
 public:
 	CTerrainRect();

@@ -2773,12 +2773,11 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player)
 	sendAndApply(&gh);
 }
 
-void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags)
+void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos)
 {
 	ChangeObjPos cop;
 	cop.objid = objid;
 	cop.nPos = newPos;
-	cop.flags = flags;
 	sendAndApply(&cop);
 }
 

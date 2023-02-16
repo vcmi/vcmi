@@ -326,10 +326,12 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const CGObjectInsta
 		return std::shared_ptr<CAnimation>();
 	}
 
-	return getAnimation(info->animationFile);
+	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
+
+	return getAnimation(info->animationFile, generateMovementGroups);
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const std::string & filename)
+std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const std::string & filename, bool generateMovementGroups)
 {
 	if (animations.count(filename))
 		return animations[filename];
@@ -338,73 +340,27 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const std::string &
 	animations[filename] = ret;
 	ret->preload();
 
+	if (generateMovementGroups)
+	{
+		ret->createFlippedGroup(1,13);
+		ret->createFlippedGroup(2,14);
+		ret->createFlippedGroup(3,15);
+
+		ret->createFlippedGroup(6,10);
+		ret->createFlippedGroup(7,11);
+		ret->createFlippedGroup(8,12);
+	}
 	return ret;
 }
 
-void MapRendererObjects::initializeObjects(const IMapRendererContext & context)
+MapRendererObjects::MapRendererObjects(const IMapRendererContext & context)
 {
 	auto mapSize = context.getMapSize();
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
 	for(const auto & obj : context.getAllObjects())
-	{
-		if(!obj)
-			continue;
-
-		if(obj->ID == Obj::HERO && dynamic_cast<const CGHeroInstance *>(obj.get())->inTownGarrison)
-			continue;
-
-		if(obj->ID == Obj::BOAT && dynamic_cast<const CGBoat *>(obj.get())->hero)
-			continue;
-
-		std::shared_ptr<CAnimation> animation = getAnimation(obj);
-
-		//no animation at all, e.g. Event
-		if(!animation)
-			continue;
-
-		//empty animation. Illegal?
-		assert(animation->size(0) > 0);
-		if(animation->size(0) == 0)
-			continue;
-
-		auto image = animation->getImage(0, 0);
-
-		int imageWidthTiles = (image->width() + 31) / 32;
-		int imageHeightTiles = (image->height() + 31) / 32;
-
-		int objectWidth = std::min(obj->getWidth(), imageWidthTiles);
-		int objectHeight = std::min(obj->getHeight(), imageHeightTiles);
-
-		for(int fx = 0; fx < objectWidth; ++fx)
-		{
-			for(int fy = 0; fy < objectHeight; ++fy)
-			{
-				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-
-				if(context.isInMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
-					objects[currTile.z][currTile.x][currTile.y].push_back(obj->id);
-			}
-		}
-	}
-
-	for(int z = 0; z < mapSize.z; z++)
-	{
-		for(int x = 0; x < mapSize.x; x++)
-		{
-			for(int y = 0; y < mapSize.y; y++)
-			{
-				auto & array = objects[z][x][y];
-				std::sort(array.begin(), array.end(), MapObjectsSorter(context));
-			}
-		}
-	}
-}
-
-MapRendererObjects::MapRendererObjects(const IMapRendererContext & context)
-{
-	initializeObjects(context);
+		onObjectInstantAdd(context, obj);
 }
 
 std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectInstance* obj)
@@ -425,7 +381,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
 		assert(obj->tempOwner.isValidPlayer());
-		return getAnimation(heroFlags[obj->tempOwner.getNum()]);
+		return getAnimation(heroFlags[obj->tempOwner.getNum()], true);
 	}
 	if(obj->ID == Obj::BOAT)
 	{
@@ -435,7 +391,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		assert(!boat->hero || boat->hero->tempOwner.isValidPlayer());
 
 		if(boat->hero)
-			return getAnimation(boatFlags[obj->subID][boat->hero->tempOwner.getNum()]);
+			return getAnimation(boatFlags[obj->subID][boat->hero->tempOwner.getNum()], true);
 	}
 	return nullptr;
 }
@@ -516,14 +472,59 @@ void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas 
 	}
 }
 
-void MapRendererObjects::addObject(const IMapRendererContext & context, const CGObjectInstance * object)
+void MapRendererObjects::onObjectInstantAdd(const IMapRendererContext & context, const CGObjectInstance * obj)
 {
+	if(!obj)
+		return;
 
+	if(obj->ID == Obj::HERO && dynamic_cast<const CGHeroInstance *>(obj)->inTownGarrison)
+		return;
+
+	if(obj->ID == Obj::BOAT && dynamic_cast<const CGBoat *>(obj)->hero)
+		return;
+
+	std::shared_ptr<CAnimation> animation = getAnimation(obj);
+
+	//no animation at all, e.g. Event
+	if(!animation)
+		return;
+
+	//empty animation. Illegal?
+	assert(animation->size(0) > 0);
+	if(animation->size(0) == 0)
+		return;
+
+	auto image = animation->getImage(0, 0);
+
+	int imageWidthTiles = (image->width() + 31) / 32;
+	int imageHeightTiles = (image->height() + 31) / 32;
+
+	int objectWidth = std::min(obj->getWidth(), imageWidthTiles);
+	int objectHeight = std::min(obj->getHeight(), imageHeightTiles);
+
+	for(int fx = 0; fx < objectWidth; ++fx)
+	{
+		for(int fy = 0; fy < objectHeight; ++fy)
+		{
+			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
+
+			if(context.isInMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
+			{
+				auto & container = objects[currTile.z][currTile.x][currTile.y];
+
+				container.push_back(obj->id);
+				boost::range::sort(container, MapObjectsSorter(context));
+			}
+		}
+	}
 }
 
-void MapRendererObjects::removeObject(const IMapRendererContext & context, const CGObjectInstance * object)
+void MapRendererObjects::onObjectInstantRemove(const IMapRendererContext & context, const CGObjectInstance * object)
 {
-
+	for(int z = 0; z < context.getMapSize().z; z++)
+		for(int x = 0; x < context.getMapSize().x; x++)
+			for(int y = 0; y < context.getMapSize().y; y++)
+				vstd::erase(objects[z][x][y], object->id);
 }
 
 void MapRendererDebugGrid::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -655,14 +656,4 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 			rendererFow.renderTile(context, target, coordinates);
 	}
 	rendererDebugGrid.renderTile(context, target,coordinates);
-}
-
-void MapRenderer::addObject(const IMapRendererContext & context, const CGObjectInstance * object)
-{
-	rendererObjects.addObject(context, object);
-}
-
-void MapRenderer::removeObject(const IMapRendererContext & context, const CGObjectInstance * object)
-{
-	rendererObjects.addObject(context, object);
 }

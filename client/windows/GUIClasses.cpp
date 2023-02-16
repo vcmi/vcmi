@@ -21,7 +21,6 @@
 #include "../CVideoHandler.h"
 #include "../CServerHandler.h"
 
-#include "../adventureMap/mapHandler.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
@@ -1159,14 +1158,15 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 
 void CPuzzleWindow::showAll(SDL_Surface * to)
 {
-	int3 moveInt = int3(8, 9, 0);
-	Rect mapRect = Rect(Point(pos.x + 8, pos.y + 7), Point(544, 591));
-	int3 topTile = grailPos - moveInt;
+	assert(0);
+	//int3 moveInt = int3(8, 9, 0);
+	//Rect mapRect = Rect(Point(pos.x + 8, pos.y + 7), Point(544, 591));
+	//int3 topTile = grailPos - moveInt;
 
-	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);
-	info.puzzleMode = true;
-	info.grailPos = grailPos;
-	CGI->mh->drawTerrainRectNew(to, &info);
+	//MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);
+	//info.puzzleMode = true;
+	//info.grailPos = grailPos;
+	//CGI->mh->drawTerrainRectNew(to, &info);
 
 	CWindowObject::showAll(to);
 }

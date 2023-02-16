@@ -380,7 +380,6 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 
 	ObjectInstanceID objid;
 	int3 nPos;
-	ui8 flags = 0; //bit flags: 1 - redraw
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -388,7 +387,6 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 	{
 		h & objid;
 		h & nPos;
-		h & flags;
 	}
 };
 
@@ -583,7 +581,6 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		FAILED,
 		SUCCESS,
 		TELEPORTATION,
-		RESERVED_,
 		BLOCKING_VISIT,
 		EMBARK,
 		DISEMBARK

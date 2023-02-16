@@ -342,14 +342,14 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 void ApplyFirstClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(pack.flags & 1 && CGI->mh)
-		CGI->mh->hideObject(obj);
+	if(CGI->mh)
+		CGI->mh->onObjectFadeOut(obj);
 }
 void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(pack.flags & 1 && CGI->mh)
-		CGI->mh->printObject(obj);
+	if(CGI->mh)
+		CGI->mh->onObjectFadeIn(obj);
 
 	cl.invalidatePaths();
 }
@@ -416,7 +416,7 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 	const CGObjectInstance *o = cl.getObj(pack.id);
 
 	if(CGI->mh)
-		CGI->mh->hideObject(o, true);
+		CGI->mh->onObjectFadeOut(o);
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -443,7 +443,7 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 	{
 		auto ps = gs.getPlayerState(i->first);
-		if(ps && (gs.isVisible(pack.start - int3(1, 0, 0), i->first) || gs.isVisible(pack.end - int3(1, 0, 0), i->first)))
+		if(ps && (gs.isVisible(h->convertToVisitablePos(pack.start), i->first) || gs.isVisible(h->convertToVisitablePos(pack.end), i->first)))
 		{
 			if(ps->human)
 				pack.humanKnows = true;
@@ -452,12 +452,6 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 
 	if(!CGI->mh)
 		return;
-
-	if(pack.result == TryMoveHero::TELEPORTATION  || pack.result == TryMoveHero::EMBARK  || pack.result == TryMoveHero::DISEMBARK  ||  !pack.humanKnows)
-		CGI->mh->hideObject(h, pack.result == TryMoveHero::EMBARK && pack.humanKnows);
-
-	if(pack.result == TryMoveHero::DISEMBARK)
-		CGI->mh->printObject(h->boat);
 }
 
 void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
@@ -467,11 +461,26 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 
 	if(CGI->mh)
 	{
-		if(pack.result == TryMoveHero::TELEPORTATION  || pack.result == TryMoveHero::EMBARK  || pack.result == TryMoveHero::DISEMBARK)
-			CGI->mh->printObject(h, pack.result == TryMoveHero::DISEMBARK);
-
-		if(pack.result == TryMoveHero::EMBARK)
-			CGI->mh->hideObject(h->boat);
+		switch(pack.result)
+		{
+			case TryMoveHero::FAILED:
+				break; // no-op
+			case TryMoveHero::SUCCESS:
+				CGI->mh->onHeroMoved(h, pack.start, pack.end);
+				break;
+			case TryMoveHero::TELEPORTATION:
+				CGI->mh->onHeroTeleported(h, pack.start, pack.end);
+				break;
+			case TryMoveHero::BLOCKING_VISIT:
+				CGI->mh->onHeroRotated(h, pack.start, pack.end);
+				break;
+			case TryMoveHero::EMBARK:
+				CGI->mh->onObjectFadeOut(h);
+				break;
+			case TryMoveHero::DISEMBARK:
+				CGI->mh->onObjectFadeIn(h);
+				break;
+		}
 	}
 
 	PlayerColor player = h->tempOwner;
@@ -485,19 +494,14 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		if(i->first != PlayerColor::SPECTATOR && gs.checkForStandardLoss(i->first)) // Do not notify vanquished pack.player's interface
 			continue;
 
-		if(gs.isVisible(pack.start - int3(1, 0, 0), i->first)
-			|| gs.isVisible(pack.end - int3(1, 0, 0), i->first))
+		if(gs.isVisible(h->convertToVisitablePos(pack.start), i->first)
+			|| gs.isVisible(h->convertToVisitablePos(pack.end), i->first))
 		{
 			// pack.src and pack.dst of enemy hero move may be not visible => 'verbose' should be false
 			const bool verbose = cl.getPlayerRelations(i->first, player) != PlayerRelations::ENEMIES;
 			i->second->heroMoved(pack, verbose);
 		}
 	}
-
-	//maphandler didn't get update from playerint, do it now
-	//TODO: restructure nicely
-	if(!pack.humanKnows && CGI->mh)
-		CGI->mh->printObject(h);
 }
 
 void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
@@ -569,21 +573,19 @@ void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 		}
 	}
 	if(needsPrinting && CGI->mh)
-		CGI->mh->printObject(h);
+		CGI->mh->onObjectInstantAdd(h);
 }
 
 void ApplyClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
 	if(CGI->mh)
-		CGI->mh->printObject(h);
+		CGI->mh->onObjectInstantAdd(h);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h);
 }
 
 void ApplyFirstClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 {
-	if(CGI->mh)
-		CGI->mh->hideObject(gs.getHero(pack.id));
 }
 
 void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
@@ -950,7 +952,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 
 	const CGObjectInstance *obj = cl.getObj(pack.id);
 	if(CGI->mh)
-		CGI->mh->printObject(obj, true);
+		CGI->mh->onObjectFadeIn(obj);
 
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 	{

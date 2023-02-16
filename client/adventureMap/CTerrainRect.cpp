@@ -36,7 +36,6 @@
 
 CTerrainRect::CTerrainRect()
 	: fadeSurface(nullptr)
-	, lastRedrawStatus(EMapAnimRedrawStatus::OK)
 	, fadeAnim(std::make_shared<CFadeAnimation>())
 	, curHoveredTile(-1, -1, -1)
 	, isSwiping(false)
@@ -113,7 +112,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		return;
 	int3 mp = whichTileIsIt();
 
-	if(CGI->mh->map->isInTheMap(mp) && down)
+	if(CGI->mh->isInMap(mp) && down)
 		adventureInt->tileRClicked(mp);
 }
 
@@ -180,18 +179,17 @@ bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
 void CTerrainRect::handleHover(const Point & cursorPosition)
 {
 	int3 tHovered = whichTileIsIt(cursorPosition);
-	int3 pom = adventureInt->verifyPos(tHovered);
 
-	if(tHovered != pom) //tile outside the map
+	if(!CGI->mh->isInMap(tHovered))
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
 		return;
 	}
 
-	if (pom != curHoveredTile)
+	if (tHovered != curHoveredTile)
 	{
-		curHoveredTile = pom;
-		adventureInt->tileHovered(pom);
+		curHoveredTile = tHovered;
+		adventureInt->tileHovered(tHovered);
 	}
 }
 
@@ -205,50 +203,6 @@ void CTerrainRect::hover(bool on)
 	//Hoverable::hover(on);
 }
 
-/*
-void CTerrainRect::show(SDL_Surface * to)
-{
-	if (adventureInt->mode == EAdvMapMode::NORMAL)
-	{
-		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), pos);
-		info.otherheroAnim = true;
-		info.anim = adventureInt->anim;
-		info.heroAnim = adventureInt->heroAnim;
-		if (ADVOPT.smoothMove)
-			info.movement = int3(moveX, moveY, 0);
-
-		lastRedrawStatus = CGI->mh->drawTerrainRectNew(to, &info);
-		if (fadeAnim->isFading())
-		{
-			Rect r(pos);
-			fadeAnim->update();
-			fadeAnim->draw(to, r.topLeft());
-		}
-	}
-}
-
-void CTerrainRect::showAll(SDL_Surface * to)
-{
-	// world view map is static and doesn't need redraw every frame
-	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
-	{
-		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), pos, adventureInt->worldViewIcons);
-		info.scaled = true;
-		info.scale = adventureInt->worldViewScale;
-		adventureInt->worldViewOptions.adjustDrawingInfo(info);
-		CGI->mh->drawTerrainRectNew(to, &info);
-	}
-}
-
-void CTerrainRect::showAnim(SDL_Surface * to)
-{
-	if (!needsAnimUpdate())
-		return;
-
-	if (fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
-		show(to);
-}
-*/
 int3 CTerrainRect::whichTileIsIt(const Point &position)
 {
 	return renderer->getModel()->getTileAtPoint(position - pos);
@@ -275,11 +229,6 @@ void CTerrainRect::fadeFromCurrentView()
 		fadeSurface = CSDL_Ext::newSurface(pos.w, pos.h);
 	CSDL_Ext::blitSurface(screen, fadeSurface, Point(0,0));
 	fadeAnim->init(CFadeAnimation::EMode::OUT, fadeSurface);
-}
-
-bool CTerrainRect::needsAnimUpdate()
-{
-	return fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED;
 }
 
 void CTerrainRect::setLevel(int level)

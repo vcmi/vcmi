@@ -126,7 +126,7 @@ public:
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player)=0;
-	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags)=0;
+	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos)=0;
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;

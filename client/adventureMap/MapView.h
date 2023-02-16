@@ -18,7 +18,7 @@ class MapRenderer;
 
 class MapRendererContext : public IMapRendererContext
 {
-	Point tileSize = Point(32,32);
+	Point tileSize = Point(32, 32);
 	uint32_t animationTime = 0;
 
 public:
@@ -50,10 +50,11 @@ class MapViewModel
 	Point viewDimensions;
 
 	int mapLevel = 0;
+
 public:
-	void setTileSize(Point const & newValue);
-	void setViewCenter(Point const & newValue);
-	void setViewDimensions(Point const & newValue);
+	void setTileSize(const Point & newValue);
+	void setViewCenter(const Point & newValue);
+	void setViewDimensions(const Point & newValue);
 	void setLevel(int newLevel);
 
 	/// returns current size of map tile in pixels
@@ -112,6 +113,7 @@ class MapView : public CIntObject
 	std::unique_ptr<MapCache> tilesCache;
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
+
 public:
 	std::shared_ptr<const MapViewModel> getModel() const;
 
@@ -120,6 +122,8 @@ public:
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
 	void setTileSize(const Point & tileSize);
+
+	void moveHero();
 
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;

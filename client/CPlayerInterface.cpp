@@ -103,11 +103,6 @@ std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
-static bool objectBlitOrderSorter(const TerrainTileObject  & a, const TerrainTileObject & b)
-{
-	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
-}
-
 struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 {
 	const CGHeroInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
@@ -396,21 +391,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		return;
 
 	const CGHeroInstance * hero = cb->getHero(details.id); //object representing this hero
-	int3 hp = details.start;
 
-	if(!hero)
-	{
-		//AI hero left the visible area (we can't obtain info)
-		//TODO very evil workaround -> retrieve pointer to hero so we could animate it
-		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
-		const TerrainTile2 & tile = CGI->mh->ttiles[hp.z][hp.x - 1][hp.y];
-		for(auto & elem : tile.objects)
-			if(elem.obj && elem.obj->id == details.id)
-				hero = dynamic_cast<const CGHeroInstance *>(elem.obj);
-
-		if(!hero) //still nothing...
-			return;
-	}
+	if (!hero)
+		return;
 
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.start));
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.end));
@@ -474,30 +457,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		return;
 	}
 
-	ui32 speed = 0;
-	if(settings["session"]["spectate"].Bool())
-	{
-		if(!settings["session"]["spectate-hero-speed"].isNull())
-			speed = static_cast<ui32>(settings["session"]["spectate-hero-speed"].Integer());
-	}
-	else if(makingTurn) // our turn, our hero moves
-		speed = static_cast<ui32>(settings["adventure"]["heroSpeed"].Float());
-	else
-		speed = static_cast<ui32>(settings["adventure"]["enemySpeed"].Float());
-
-	if(speed == 0)
-	{
-		//FIXME: is this a proper solution?
-		CGI->mh->hideObject(hero);
-		CGI->mh->printObject(hero);
-		return; // no animation
-	}
-
 	adventureInt->centerOn(hero); //actualizing screen pos
 	adventureInt->minimap->redraw();
 	adventureInt->heroList->redraw();
-
-	initMovement(details, hero, hp);
 
 	auto waitFrame = [&]()
 	{
@@ -505,29 +467,14 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 		auto unlockPim = vstd::makeUnlockGuard(*pim);
 		while(frameNumber == GH.mainFPSmng->getFrameNumber())
-			boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	};
 
-	//first initializing done
-
 	//main moving
-	for(int i = 1; i < 32; i += 2 * speed)
-	{
-		movementPxStep(details, i, hp, hero);
-#ifndef VCMI_ANDROID
-		// currently android doesn't seem to be able to handle all these full redraws here, so let's disable it so at least it looks less choppy;
-		// most likely this is connected with the way that this manual animation+framerate handling is solved
-		adventureInt->requestRedrawMapOnNextFrame();
-#endif
-
-		//evil returns here ...
-		//todo: get rid of it
+	while (CGI->mh->hasActiveAnimations())
 		waitFrame(); //for animation purposes
-	}
-	//main moving done
 
 	//finishing move
-	finishMovement(details, hp, hero);
 	hero->isStanding = true;
 
 	//move finished
@@ -570,6 +517,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		const_cast<CGHeroInstance *>(hero)->moveDir = dirLookup[posOffset.y][posOffset.x];
 	}
 }
+
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -711,14 +659,12 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 
 	if (town->garrisonHero) //wandering hero moved to the garrison
 	{
-		CGI->mh->hideObject(town->garrisonHero);
 		if (town->garrisonHero->tempOwner == playerID && vstd::contains(wanderingHeroes,town->garrisonHero)) // our hero
 			wanderingHeroes -= town->garrisonHero;
 	}
 
 	if (town->visitingHero) //hero leaves garrison
 	{
-		CGI->mh->printObject(town->visitingHero);
 		if (town->visitingHero->tempOwner == playerID && !vstd::contains(wanderingHeroes,town->visitingHero)) // our hero
 			wanderingHeroes.push_back(town->visitingHero);
 	}
@@ -1748,7 +1694,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 		return (--dates.end())->second; //return latest file number
 	return 0;
 }
-
+/*
 void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
 {
 	auto subArr = (CGI->mh->ttiles)[hp.z];
@@ -1892,7 +1838,7 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 	//recompute hero sprite positioning using hero's final position
 	movementPxStep(details, 32, hp, ho);
 }
-
+*/
 void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -2510,9 +2456,6 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
-
-		// ugly workaround to force instant update of adventure map
-		adventureInt->animValHitCount = 8;
 	}
 
 	setMovementStatus(false);
@@ -2558,13 +2501,10 @@ void CPlayerInterface::updateAmbientSounds(bool resetAll)
 	{
 		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
 		// We want sound for every special terrain on tile and not just one on top
-		for(auto & ttObj : CGI->mh->ttiles[tile.z][tile.x][tile.y].objects)
-		{
-			if(ttObj.ambientSound)
-				updateSounds(ttObj.ambientSound.get(), dist);
-		}
-		if(CGI->mh->map->isCoastalTile(tile))
-			updateSounds("LOOPOCEA", dist);
+
+		for(auto & soundName : CGI->mh->getAmbientSounds(tile))
+			updateSounds(soundName, dist);
+
 	}
 	CCS->soundh->ambientUpdateChannels(currentSounds);
 }

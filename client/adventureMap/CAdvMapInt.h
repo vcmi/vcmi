@@ -67,7 +67,6 @@ private:
 		std::vector<ObjectPosInfo> iconPositions;
 		WorldViewOptions();
 		void clear();
-		void adjustDrawingInfo(MapDrawingInfo & info);
 	};
 
 	bool swipeEnabled;
@@ -75,15 +74,7 @@ private:
 	Point swipeTargetPosition;
 
 	EGameStates state;
-
-	ui8 anim, animValHitCount; //animation frame
-	ui8 heroAnim, heroAnimValHitCount; //animation frame
-
-	/// top left corner of visible map part
-	//int3 position;
-
 	EAdvMapMode mode;
-
 	WorldViewOptions worldViewOptions;
 
 	/// Currently selected object, can be town, hero or null
@@ -166,7 +157,6 @@ private:
 
 	boost::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
-	bool redrawOnNextFrame;
 public:
 	CAdvMapInt();
 
@@ -184,12 +174,9 @@ public:
 
 	// public interface
 
-	void requestRedrawMapOnNextFrame();
-
 	void select(const CArmedInstance *sel, bool centerView = true);
 	void centerOn(int3 on, bool fade = false);
 	void centerOn(const CGObjectInstance *obj, bool fade = false);
-	int3 verifyPos(int3 ver);
 
 	bool isHeroSleeping(const CGHeroInstance *hero);
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);

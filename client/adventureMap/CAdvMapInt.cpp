@@ -90,7 +90,6 @@ CAdvMapInt::CAdvMapInt():
 	terrain(new CTerrainRect),
 	state(NA),
 	spellBeingCasted(nullptr), selection(nullptr),
-	redrawOnNextFrame(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
 	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
 	swipeTargetPosition(Point(0, 0))
@@ -239,9 +238,9 @@ CAdvMapInt::CAdvMapInt():
 
 	changeMode(EAdvMapMode::NORMAL);
 
-	underground->block(!CGI->mh->map->twoLevel);
-	questlog->block(!CGI->mh->map->quests.size());
-	worldViewUnderground->block(!CGI->mh->map->twoLevel);
+	underground->block(!CGI->mh->getMap()->twoLevel);
+	questlog->block(!CGI->mh->getMap()->quests.size());
+	worldViewUnderground->block(!CGI->mh->getMap()->twoLevel);
 
 	addUsedEvents(MOVE);
 }
@@ -254,7 +253,6 @@ void CAdvMapInt::fshowOverview()
 void CAdvMapInt::fworldViewBack()
 {
 	changeMode(EAdvMapMode::NORMAL);
-	CGI->mh->discardWorldViewCache();
 
 	auto hero = curHero();
 	if (hero)
@@ -280,7 +278,7 @@ void CAdvMapInt::fworldViewScale4x()
 void CAdvMapInt::fswitchLevel()
 {
 	// with support for future multi-level maps :)
-	int maxLevels = CGI->mh->map->levels();
+	int maxLevels = CGI->mh->getMap()->levels();
 	if (maxLevels < 2)
 		return;
 
@@ -292,7 +290,6 @@ void CAdvMapInt::fswitchLevel()
 	worldViewUnderground->setIndex(terrain->getLevel(), true);
 	worldViewUnderground->redraw();
 
-	redrawOnNextFrame = true;
 	minimap->setLevel(terrain->getLevel());
 }
 
@@ -322,7 +319,7 @@ void CAdvMapInt::fsleepWake()
 void CAdvMapInt::fmoveHero()
 {
 	const CGHeroInstance *h = curHero();
-	if (!h || !LOCPLINT->paths.hasPath(h) || !CGI->mh->canStartHeroMovement())
+	if (!h || !LOCPLINT->paths.hasPath(h) || CGI->mh->hasActiveAnimations())
 		return;
 
 	LOCPLINT->moveHero(h, LOCPLINT->paths.getPath(h));
@@ -530,7 +527,6 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	}
 	activeMapPanel->showAll(to);
 
-	redrawOnNextFrame = true;
 	minimap->showAll(to);
 	show(to);
 
@@ -564,20 +560,6 @@ void CAdvMapInt::show(SDL_Surface * to)
 	if(state != INGAME)
 		return;
 
-	++animValHitCount; //for animations
-
-	if(animValHitCount % 2 == 0)
-	{
-		++heroAnim;
-	}
-	if(animValHitCount >= 8)
-	{
-		CGI->mh->updateWater();
-		animValHitCount = 0;
-		++anim;
-		redrawOnNextFrame = true;
-	}
-
 	if(swipeEnabled)
 	{
 		handleSwipeUpdate();
@@ -596,17 +578,13 @@ void CAdvMapInt::show(SDL_Surface * to)
 		else
 			gems[i]->setFrame(LOCPLINT->playerID.getNum());
 	}
-	if(redrawOnNextFrame)
-	{
-		for(int i = 0; i < 4; i++)
-			gems[i]->showAll(to);
-		redrawOnNextFrame=false;
-		LOCPLINT->cingconsole->show(to);
-	}
 
 	terrain->show(to);
+
 	for(int i = 0; i < 4; i++)
 		gems[i]->showAll(to);
+
+	LOCPLINT->cingconsole->show(to);
 
 	infoBar->show(to);
 	statusbar->showAll(to);
@@ -616,30 +594,28 @@ void CAdvMapInt::handleMapScrollingUpdate()
 {
 	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
-	if((animValHitCount % (4 / scrollSpeed)) == 0)
+
+	if(scrollingDir & LEFT)
+		terrain->moveViewBy(Point(-scrollSpeed, 0));
+
+	if(scrollingDir & RIGHT)
+		terrain->moveViewBy(Point(+scrollSpeed, 0));
+
+	if(scrollingDir & UP)
+		terrain->moveViewBy(Point(0, -scrollSpeed));
+
+	if(scrollingDir & DOWN)
+		terrain->moveViewBy(Point(0, +scrollSpeed));
+
+	if(scrollingDir)
 	{
-		if(scrollingDir & LEFT)
-			terrain->moveViewBy(Point(-4, 0));
-
-		if(scrollingDir & RIGHT)
-			terrain->moveViewBy(Point(+4, 0));
-
-		if(scrollingDir & UP)
-			terrain->moveViewBy(Point(0, -4));
-
-		if(scrollingDir & DOWN)
-			terrain->moveViewBy(Point(0, +4));
-
-		if(scrollingDir)
-		{
-			setScrollingCursor(scrollingDir);
-			scrollingState = true;
-		}
-		else if(scrollingState)
-		{
-			CCS->curh->set(Cursor::Map::POINTER);
-			scrollingState = false;
-		}
+		setScrollingCursor(scrollingDir);
+		scrollingState = true;
+	}
+	else if(scrollingState)
+	{
+		CCS->curh->set(Cursor::Map::POINTER);
+		scrollingState = false;
 	}
 }
 
@@ -649,7 +625,6 @@ void CAdvMapInt::handleSwipeUpdate()
 	{
 		terrain->setViewCenter(swipeTargetPosition, terrain->getLevel());
 		CCS->curh->set(Cursor::Map::POINTER);
-		redrawOnNextFrame = true;
 		minimap->redraw();
 		swipeMovementRequested = false;
 	}
@@ -673,7 +648,6 @@ void CAdvMapInt::centerOn(int3 on, bool fade)
 
 	terrain->setViewCenter(on);
 
-	redrawOnNextFrame=true;
 	underground->setIndex(on.z,true); //change underground switch button image
 	underground->redraw();
 	worldViewUnderground->setIndex(on.z, true);
@@ -859,7 +833,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			if(!h || !isActive())
 				return;
 
-			if (!CGI->mh->canStartHeroMovement())
+			if (CGI->mh->hasActiveAnimations())
 				return;
 
 			if(*direction == Point(0,0))
@@ -870,7 +844,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 
 			int3 dst = h->visitablePos() + int3(direction->x, direction->y, 0);
 
-			if(dst != verifyPos(dst))
+			if (!CGI->mh->isInMap((dst)))
 				return;
 
 			if ( !LOCPLINT->paths.setPath(h, dst))
@@ -908,23 +882,6 @@ boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 		case SDLK_KP_9: return Point(+1, -1);
 	}
 	return boost::none;
-}
-
-int3 CAdvMapInt::verifyPos(int3 ver)
-{
-	if (ver.x<0)
-		ver.x=0;
-	if (ver.y<0)
-		ver.y=0;
-	if (ver.z<0)
-		ver.z=0;
-	if (ver.x>=CGI->mh->sizes.x)
-		ver.x=CGI->mh->sizes.x-1;
-	if (ver.y>=CGI->mh->sizes.y)
-		ver.y=CGI->mh->sizes.y-1;
-	if (ver.z>=CGI->mh->sizes.z)
-		ver.z=CGI->mh->sizes.z-1;
-	return ver;
 }
 
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
@@ -1181,7 +1138,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 			if(LOCPLINT->paths.hasPath(currentHero) &&
 			   LOCPLINT->paths.getPath(currentHero).endPos() == mapPos)//we'll be moving
 			{
-				if(CGI->mh->canStartHeroMovement())
+				if(!CGI->mh->hasActiveAnimations())
 					LOCPLINT->moveHero(currentHero, LOCPLINT->paths.getPath(currentHero));
 				return;
 			}
@@ -1555,16 +1512,4 @@ void CAdvMapInt::WorldViewOptions::clear()
 	showAllTerrain = false;
 
 	iconPositions.clear();
-}
-
-void CAdvMapInt::WorldViewOptions::adjustDrawingInfo(MapDrawingInfo& info)
-{
-	info.showAllTerrain = showAllTerrain;
-
-	info.additionalIcons = &iconPositions;
-}
-
-void CAdvMapInt::requestRedrawMapOnNextFrame()
-{
-	redrawOnNextFrame = true;
 }

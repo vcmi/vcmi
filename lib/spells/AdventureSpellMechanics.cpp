@@ -200,7 +200,6 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		ChangeObjPos cop;
 		cop.objid = nearest->id;
 		cop.nPos = summonPos + int3(1,0,0);
-		cop.flags = 1;
 		env->apply(&cop);
 	}
 	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(

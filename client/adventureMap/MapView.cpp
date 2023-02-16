@@ -147,17 +147,17 @@ bool MapRendererContext::isInMap(const int3 & coordinates) const
 
 const TerrainTile & MapRendererContext::getMapTile(const int3 & coordinates) const
 {
-	return CGI->mh->map->getTile(coordinates);
+	return CGI->mh->getMap()->getTile(coordinates);
 }
 
 MapRendererContext::ObjectsVector MapRendererContext::getAllObjects() const
 {
-	return CGI->mh->map->objects;
+	return CGI->mh->getMap()->objects;
 }
 
 const CGObjectInstance * MapRendererContext::getObject(ObjectInstanceID objectID) const
 {
-	return CGI->mh->map->objects.at(objectID.getNum());
+	return CGI->mh->getMap()->objects.at(objectID.getNum());
 }
 
 bool MapRendererContext::isVisible(const int3 & coordinates) const

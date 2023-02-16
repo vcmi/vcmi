@@ -22,11 +22,13 @@ public:
 	Point()
 	{
 		x = y = 0;
-	};
+	}
 
 	Point(int X, int Y)
-		:x(X),y(Y)
-	{};
+		: x(X)
+		, y(Y)
+	{
+	}
 
 	explicit DLL_LINKAGE Point(const int3 &a);
 

@@ -17,6 +17,7 @@ class int3;
 class Point;
 class ObjectInstanceID;
 class CGObjectInstance;
+class CGHeroInstance;
 struct TerrainTile;
 struct CGPath;
 
@@ -27,7 +28,7 @@ class IMapRendererContext
 public:
 	virtual ~IMapRendererContext() = default;
 
-	using ObjectsVector = std::vector< ConstTransitivePtr<CGObjectInstance> >;
+	using ObjectsVector = std::vector<ConstTransitivePtr<CGObjectInstance>>;
 
 	/// returns dimensions of current map
 	virtual int3 getMapSize() const = 0;
@@ -42,7 +43,7 @@ public:
 	virtual ObjectsVector getAllObjects() const = 0;
 
 	/// returns specific object by ID, or nullptr if not found
-	virtual const CGObjectInstance * getObject( ObjectInstanceID objectID ) const = 0;
+	virtual const CGObjectInstance * getObject(ObjectInstanceID objectID) const = 0;
 
 	/// returns path of currently active hero, or nullptr if none
 	virtual const CGPath * currentPath() const = 0;
@@ -61,4 +62,32 @@ public:
 
 	/// if true, map grid should be visible on map
 	virtual bool showGrid() const = 0;
+};
+
+class IMapObjectObserver
+{
+public:
+	IMapObjectObserver();
+	virtual ~IMapObjectObserver();
+
+	/// Plays fade-in animation and adds object to map
+	virtual void onObjectFadeIn(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+
+	/// Plays fade-out animation and removed object from map
+	virtual void onObjectFadeOut(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+
+	/// Adds object to map instantly, with no animation
+	virtual void onObjectInstantAdd(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+
+	/// Removes object from map instantly, with no animation
+	virtual void onObjectInstantRemove(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+
+	/// Perform hero teleportation animation with terrain fade animation
+	virtual void onHeroTeleported(const IMapRendererContext & context, const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+
+	/// Perform hero movement animation, moving hero across terrain
+	virtual void onHeroMoved(const IMapRendererContext & context, const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+
+	/// Instantly rotates hero to face destination tile
+	virtual void onHeroRotated(const IMapRendererContext & context, const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 };
