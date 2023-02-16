@@ -1,0 +1,27 @@
+import groovy.json.JsonSlurper
+
+ext {
+	final def jsonFile = rootProject.file("../vcmiconf.json")
+	final def rawConf = new JsonSlurper().parseText(jsonFile.text)
+
+	PROJECT_PATH_BASE = jsonFile.getParentFile().getAbsolutePath().replace('\\', '/')
+	VCMI_PATH_EXT = "${PROJECT_PATH_BASE}/ext"
+	VCMI_PATH_MAIN = "${PROJECT_PATH_BASE}/project"
+
+	VCMI_PATH_VCMI = "${VCMI_PATH_EXT}/vcmi"
+
+	// can be 16 if building only for armeabi-v7a, definitely needs to be 21+ to build arm64 and x86_64
+	VCMI_PLATFORM = rawConf.androidApi
+	// we should be able to use the newest version to compile, but it seems that gradle-experimental is somehow broken and doesn't compile native libs correctly for apis older than this setting...
+	VCMI_COMPILE_SDK = 26
+	VCMI_ABIS = rawConf.abis.split(" ")
+
+	VCMI_STL_VERSION = "c++_shared"
+	VCMI_BUILD_TOOLS = "25.0.2"
+
+	// these values will be retrieved during gradle build
+	gitInfoLauncher = "none"
+	gitInfoVcmi = "none"
+
+	//logger.info("Base path = ${PROJECT_PATH_BASE}")
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="eu.vcmi.vcmi">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:extractNativeLibs="true"
+        android:hardwareAccelerated="true"
+        android:hasFragileUserData="true"
+        android:allowBackup="false"
+        android:installLocation="auto"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:testOnly="false"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VCMI">
+        <activity
+            android:exported="true"
+            android:name=".ActivityLauncher"
+            android:screenOrientation="sensorLandscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ActivityError"
+            android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name=".ActivityMods"
+            android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name=".ActivityAbout"
+            android:screenOrientation="sensorLandscape" />
+
+        <activity
+            android:name=".VcmiSDLActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.VCMI.Full" />
+
+        <service
+            android:name=".ServerService"
+            android:process="eu.vcmi.vcmi.srv"
+            android:description="@string/server_name"
+            android:exported="false"/>
+    </application>
+
+</manifest>
