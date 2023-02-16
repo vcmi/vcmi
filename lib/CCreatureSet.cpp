@@ -745,11 +745,6 @@ int CStackInstance::getLevel() const
 si32 CStackInstance::magicResistance() const
 {
 	si32 val = valOfBonuses(Selector::type()(Bonus::MAGIC_RESISTANCE));
-	if (const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(_armyObj))
-	{
-		//resistance skill
-		val += hero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::RESISTANCE);
-	}
 	vstd::amin (val, 100);
 	return val;
 }
@@ -792,15 +787,7 @@ void CStackInstance::setType(const CCreature *c)
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
-	if(Bonus::MAGIC_RESISTANCE == bonus->type)
-	{
-		return "";
-	}
-	else
-	{
-		return VLC->getBth()->bonusToString(bonus, this, description);
-	}
-
+	return VLC->getBth()->bonusToString(bonus, this, description);
 }
 
 std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const

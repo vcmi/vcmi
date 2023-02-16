@@ -768,25 +768,8 @@ void CStackWindow::initBonusesList()
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
-		if(b->type == Bonus::MAGIC_RESISTANCE || (b->type == Bonus::SECONDARY_SKILL_PREMY && b->subtype == SecondarySkill::RESISTANCE))
-			continue;
 		if(!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())
 			activeBonuses.push_back(bonusInfo);
-	}
-
-	//handle Magic resistance separately :/
-	int magicResistance = info->stackNode->magicResistance();//both MAGIC_RESITANCE and SECONDARY_SKILL_PREMY as one entry
-
-	if(magicResistance)
-	{
-		BonusInfo bonusInfo;
-		auto b = std::make_shared<Bonus>();
-		b->type = Bonus::MAGIC_RESISTANCE;
-
-		bonusInfo.name = VLC->getBth()->bonusToString(b, info->stackNode, false);
-		bonusInfo.description = VLC->getBth()->bonusToString(b, info->stackNode, true);
-		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
-		activeBonuses.push_back(bonusInfo);
 	}
 }
 

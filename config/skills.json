@@ -752,8 +752,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.resistance",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MAGIC_RESISTANCE",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
