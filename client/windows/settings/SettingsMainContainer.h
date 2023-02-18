@@ -10,11 +10,11 @@
 
 #pragma once
 
-#include "widgets/ObjectLists.h"
-#include "widgets/Buttons.h"
 #include "gui/InterfaceObjectConfigurable.h"
-#include "gui/CGuiHandler.h"
-#include "battle/BattleInterface.h"
+
+class BattleInterface;
+class CTabbedInt;
+enum class EUserEvent;
 
 class SettingsMainContainer : public InterfaceObjectConfigurable
 {

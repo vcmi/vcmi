@@ -14,7 +14,6 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
-#include "gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

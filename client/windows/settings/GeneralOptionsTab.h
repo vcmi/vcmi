@@ -12,6 +12,7 @@
 #include "../../../lib/CConfigHandler.h"
 #include "../../gui/InterfaceObjectConfigurable.h"
 
+
 class GeneralOptionsTab : public InterfaceObjectConfigurable
 {
 private:

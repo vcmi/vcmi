@@ -11,9 +11,6 @@
 
 #include "GeneralOptionsTab.h"
 
-#include <SDL_surface.h>
-#include <SDL_rect.h>
-
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../gui/CGuiHandler.h"
@@ -26,7 +23,6 @@
 #include "windows/GUIClasses.h"
 #include "CServerHandler.h"
 #include "renderSDL/SDL_Extensions.h"
-#include "CMT.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -60,6 +56,9 @@ GeneralOptionsTab::GeneralOptionsTab()
 	addCallback("fullscreenChanged", std::bind(&GeneralOptionsTab::setFullscreenMode, this, _1));
 	addCallback("setGameResolution", std::bind(&GeneralOptionsTab::selectGameResolution, this));
 	addCallback("framerateChanged", std::bind(&setBoolSetting, "general", "showfps", _1));
+	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
+	addCallback("availableCreaturesAsDwellingLabelChanged", std::bind(&setBoolSetting, "gameTweaks", "availableCreaturesAsDwellingLabel", _1));
+	addCallback("compactTownCreatureInfoChanged", std::bind(&setBoolSetting, "gameTweaks", "compactTownCreatureInfo", _1));
 	build(config);
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
@@ -85,6 +84,12 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
 	volumeSlider->moveTo(CCS->soundh->getVolume());
+
+	std::shared_ptr<CToggleButton> availableCreaturesAsDwellingLabelCheckbox = widget<CToggleButton>("availableCreaturesAsDwellingLabelCheckbox");
+	availableCreaturesAsDwellingLabelCheckbox->setSelected((bool)settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
+
+	std::shared_ptr<CToggleButton> compactTownCreatureInfo = widget<CToggleButton>("compactTownCreatureInfoCheckbox");
+	compactTownCreatureInfo->setSelected((bool)settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
 }
 
 
@@ -152,7 +157,7 @@ void GeneralOptionsTab::setFullscreenMode(bool on)
 
 	const auto & screenRes = settings["video"]["screenRes"];
 	const Point desiredResolution(screenRes["width"].Integer(), screenRes["height"].Integer());
-	const Point currentResolution(screen->w, screen->h);
+	const Point currentResolution = GH.screenDimensions();
 
 	if (!isResolutionSupported(currentResolution, on))
 	{

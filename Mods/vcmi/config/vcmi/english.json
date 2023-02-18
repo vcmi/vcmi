@@ -25,10 +25,9 @@
 	"vcmi.server.errors.modsIncompatibility" : "Required mods to load game:",
 	"vcmi.server.confirmReconnect"           : "Connect to the last session?",
 
-	"vcmi.settingsMainWindow.battleTab.hover" : "Battle Options", //unused
-	"vcmi.settingsMainWindow.systemTab.hover" : "System Options", //unused
-
-	"vcmi.settingsMainWindow.systemTab.help"     : "Switches to System Options tab - these settings are related to general game client behavior",
+	"vcmi.settingsMainWindow.generalTab.hover" : "General",
+	"vcmi.settingsMainWindow.generalTab.help"     : "Switches to System Options tab - these settings are related to general game client behavior",
+	"vcmi.settingsMainWindow.battleTab.hover" : "Battle",
 	"vcmi.settingsMainWindow.battleTab.help"     : "Switches to Battle Options tab - these settings allow configuring battle interface and related things",
 	"vcmi.settingsMainWindow.adventureTab.hover" : "Adventure Map",
 	"vcmi.settingsMainWindow.adventureTab.help"  : "Switches to Adventure Map Options tab - adventure map is part of the game where you can move your heroes",
@@ -76,8 +75,8 @@
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show available creatures in town summary",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show available creatures in town summary}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",
-	"vcmi.otherOptions.compactTownCreatureInfo.hover": "More compact creature info in town summary",
-	"vcmi.otherOptions.compactTownCreatureInfo.help": "{More compact creature info in town summary}\n\n Smaller town creatures information in town summary.",
+	"vcmi.otherOptions.compactTownCreatureInfo.hover": "Compact creature info in town summary",
+	"vcmi.otherOptions.compactTownCreatureInfo.help": "{Compact creature info in town summary}\n\n Smaller town creatures information in town summary.",
 
 	"vcmi.townHall.missingBase"             : "Base building %s must be built first",
 	"vcmi.townHall.noCreaturesToRecruit"    : "There are no creatures to recruit!",

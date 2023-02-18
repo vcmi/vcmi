@@ -22,7 +22,9 @@
 #include "CGeneralTextHandler.h"
 #include "gui/CGuiHandler.h"
 #include "lobby/CSavingScreen.h"
+#include "widgets/Buttons.h"
 #include "widgets/Images.h"
+#include "widgets/ObjectLists.h"
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
@@ -64,7 +66,9 @@ SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) :
 	}
 
 	int defaultTabIndex = 0;
-	if(settings["general"]["lastSettingsTab"].isNumber())
+	if(parentBattleUi != nullptr)
+		defaultTabIndex = 2;
+	else if(settings["general"]["lastSettingsTab"].isNumber())
 		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
 
 	parentBattleInterface = parentBattleUi;

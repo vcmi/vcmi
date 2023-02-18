@@ -22,7 +22,7 @@
 					"type": "toggleButton",
 					"position": {"x": 0, "y": 0},
 					"image": "buttons/quadwide",
-					"help": "vcmi.settingsMainWindow.systemTab",
+					"help": "vcmi.settingsMainWindow.generalTab",
 					"items":
 					[
 						{
@@ -31,7 +31,7 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "core.genrltxt.568"
+							"text": "vcmi.settingsMainWindow.generalTab.hover"
 						}
 					]
 				},
@@ -69,29 +69,29 @@
 							"font": "big",
 							"alignment": "center",
 							"color": "yellow",
-							"text": "core.genrltxt.392"
-						}
-					]
-				},
-
-				{
-					"index": 3,
-					"type": "toggleButton",
-					"position": {"x": 450, "y": 0},
-					"image": "buttons/quadwide",
-					"help": "vcmi.settingsMainWindow.otherTab",
-					"items":
-					[
-						{
-							"name": "otherTabButtonTitle",
-							"type": "label",
-							"font": "big",
-							"alignment": "center",
-							"color": "yellow",
-							"text": "vcmi.settingsMainWindow.otherTab.hover"
+							"text": "vcmi.settingsMainWindow.battleTab.hover"
 						}
 					]
 				}
+				//disabled, due to being redundant for now
+//				{
+//					"index": 3,
+//					"type": "toggleButton",
+//					"position": {"x": 450, "y": 0},
+//					"image": "buttons/quadwide",
+//					"help": "vcmi.settingsMainWindow.otherTab",
+//					"items":
+//					[
+//						{
+//							"name": "otherTabButtonTitle",
+//							"type": "label",
+//							"font": "big",
+//							"alignment": "center",
+//							"color": "yellow",
+//							"text": "vcmi.settingsMainWindow.otherTab.hover"
+//						}
+//					]
+//				}
 			],
 			"callback": "activateSettingsTab"
 		},

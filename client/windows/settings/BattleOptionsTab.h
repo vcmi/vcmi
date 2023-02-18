@@ -10,7 +10,8 @@
 #pragma once
 
 #include "../../gui/InterfaceObjectConfigurable.h"
-#include "../../battle/BattleInterface.h"
+
+class BattleInterface;
 
 class BattleOptionsTab : public InterfaceObjectConfigurable
 {

@@ -102,6 +102,11 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
 
+	playIntroSoundAndUnlockInterface();
+}
+
+void BattleInterface::playIntroSoundAndUnlockInterface()
+{
 	if(settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
 	{
 		onIntroSoundPlayed();

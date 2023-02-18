@@ -112,6 +112,7 @@ class BattleInterface
 	/// defender interface, not null if attacker is human in our vcmiclient
 	std::shared_ptr<CPlayerInterface> defenderInt;
 
+	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
 	/// copy of initial armies (for result window)
