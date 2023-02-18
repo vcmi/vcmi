@@ -25,13 +25,34 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
-	addCallback("viewGridChanged", std::bind(&BattleOptionsTab::viewGridChangedCallback, this, _1, owner));
-	addCallback("movementShadowChanged", std::bind(&BattleOptionsTab::movementShadowChangedCallback, this, _1, owner));
-	addCallback("mouseShadowChanged", std::bind(&BattleOptionsTab::mouseShadowChangedCallback, this, _1));
-	addCallback("animationSpeedChanged", std::bind(&BattleOptionsTab::animationSpeedChangedCallback, this, _1));
-	addCallback("showQueueChanged", std::bind(&BattleOptionsTab::showQueueChangedCallback, this, _1, owner));
-	addCallback("queueSizeChanged", std::bind(&BattleOptionsTab::queueSizeChangedCallback, this, _1));
-	addCallback("skipBattleIntroMusicChanged", std::bind(&BattleOptionsTab::skipBattleIntroMusicChangedCallback, this, _1));
+	addCallback("viewGridChanged", [this, owner](bool value)
+	{
+		viewGridChangedCallback(value, owner);
+	});
+	addCallback("movementShadowChanged", [this, owner](bool value)
+	{
+		movementShadowChangedCallback(value, owner);
+	});
+	addCallback("mouseShadowChanged", [this](bool value)
+	{
+		mouseShadowChangedCallback(value);
+	});
+	addCallback("animationSpeedChanged", [this](int value)
+	{
+		animationSpeedChangedCallback(value);
+	});
+	addCallback("showQueueChanged", [this, owner](bool value)
+	{
+		showQueueChangedCallback(value, owner);
+	});
+	addCallback("queueSizeChanged", [this](int value)
+	{
+		queueSizeChangedCallback(value);
+	});
+	addCallback("skipBattleIntroMusicChanged", [this](bool value)
+	{
+		skipBattleIntroMusicChangedCallback(value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -41,19 +62,19 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	queueSizeToggle->setSelected(getQueueSizeId());
 
 	std::shared_ptr<CToggleButton> viewGridCheckbox = widget<CToggleButton>("viewGridCheckbox");
-	viewGridCheckbox->setSelected((bool)settings["battle"]["cellBorders"].Bool());
+	viewGridCheckbox->setSelected(settings["battle"]["cellBorders"].Bool());
 
 	std::shared_ptr<CToggleButton> movementShadowCheckbox = widget<CToggleButton>("movementShadowCheckbox");
-	movementShadowCheckbox->setSelected((bool)settings["battle"]["stackRange"].Bool());
+	movementShadowCheckbox->setSelected(settings["battle"]["stackRange"].Bool());
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
-	mouseShadowCheckbox->setSelected((bool)settings["battle"]["mouseShadow"].Bool());
+	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
 
 	std::shared_ptr<CToggleButton> showQueueCheckbox = widget<CToggleButton>("showQueueCheckbox");
-	showQueueCheckbox->setSelected((bool)settings["battle"]["showQueue"].Bool());
+	showQueueCheckbox->setSelected(settings["battle"]["showQueue"].Bool());
 
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
-	skipBattleIntroMusicCheckbox->setSelected((bool)settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
+	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -117,7 +138,7 @@ void BattleOptionsTab::mouseShadowChangedCallback(bool value)
 void BattleOptionsTab::animationSpeedChangedCallback(int value)
 {
 	Settings speed = settings.write["battle"]["speedFactor"];
-	speed->Float() = float(value);
+	speed->Float() = static_cast<float>(value);
 }
 
 void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface)

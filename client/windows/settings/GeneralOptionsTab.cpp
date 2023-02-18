@@ -49,16 +49,42 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
-	addCallback("spellbookAnimationChanged", std::bind(&setBoolSetting, "video", "spellbookAnimation", _1));
-	addCallback("setMusic", [this](int value) { setIntSetting("general", "music", value); widget<CSlider>("musicSlider")->redraw(); });
-	addCallback("setVolume", [this](int value) { setIntSetting("general", "sound", value); widget<CSlider>("soundVolumeSlider")->redraw(); });
+	addCallback("spellbookAnimationChanged", [](bool value)
+	{
+		return setBoolSetting("video", "spellbookAnimation", value);
+	});
+	addCallback("setMusic", [this](int value)
+	{
+		setIntSetting("general", "music", value);
+		widget<CSlider>("musicSlider")->redraw();
+	});
+	addCallback("setVolume", [this](int value)
+	{
+		setIntSetting("general", "sound", value);
+		widget<CSlider>("soundVolumeSlider")->redraw();
+	});
 	//settings that do not belong to base game:
-	addCallback("fullscreenChanged", std::bind(&GeneralOptionsTab::setFullscreenMode, this, _1));
-	addCallback("setGameResolution", std::bind(&GeneralOptionsTab::selectGameResolution, this));
-	addCallback("framerateChanged", std::bind(&setBoolSetting, "general", "showfps", _1));
+	addCallback("fullscreenChanged", [this](bool value)
+	{
+		setFullscreenMode(value);
+	});
+	addCallback("setGameResolution", [this](int dummyValue)
+	{
+		selectGameResolution();
+	});
+	addCallback("framerateChanged", [](bool value)
+	{
+		setBoolSetting("general", "showfps", value);
+	});
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
-	addCallback("availableCreaturesAsDwellingLabelChanged", std::bind(&setBoolSetting, "gameTweaks", "availableCreaturesAsDwellingLabel", _1));
-	addCallback("compactTownCreatureInfoChanged", std::bind(&setBoolSetting, "gameTweaks", "compactTownCreatureInfo", _1));
+	addCallback("availableCreaturesAsDwellingLabelChanged", [](bool value)
+	{
+		setBoolSetting("gameTweaks", "availableCreaturesAsDwellingLabel", value);
+	});
+	addCallback("compactTownCreatureInfoChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "compactTownCreatureInfo", value);
+	});
 	build(config);
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
@@ -67,17 +93,17 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
-	spellbookAnimationCheckbox->setSelected((bool)settings["video"]["spellbookAnimation"].Bool());
+	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
 
 	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
-	fullscreenCheckbox->setSelected((bool)settings["video"]["fullscreen"].Bool());
+	fullscreenCheckbox->setSelected(settings["video"]["fullscreen"].Bool());
 	onFullscreenChanged([&](const JsonNode &newState) //used when pressing F4 etc. to change fullscreen checkbox state
 	{
 		widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
 	});
 
 	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
-	framerateCheckbox->setSelected((bool)settings["general"]["showfps"].Bool());
+	framerateCheckbox->setSelected(settings["general"]["showfps"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->moveTo(CCS->musich->getVolume());
@@ -86,10 +112,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	volumeSlider->moveTo(CCS->soundh->getVolume());
 
 	std::shared_ptr<CToggleButton> availableCreaturesAsDwellingLabelCheckbox = widget<CToggleButton>("availableCreaturesAsDwellingLabelCheckbox");
-	availableCreaturesAsDwellingLabelCheckbox->setSelected((bool)settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
+	availableCreaturesAsDwellingLabelCheckbox->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
 
 	std::shared_ptr<CToggleButton> compactTownCreatureInfo = widget<CToggleButton>("compactTownCreatureInfoCheckbox");
-	compactTownCreatureInfo->setSelected((bool)settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
+	compactTownCreatureInfo->setSelected(settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
 }
 
 
@@ -127,7 +153,10 @@ void GeneralOptionsTab::selectGameResolution()
 	GH.pushIntT<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
-								   std::bind(&GeneralOptionsTab::setGameResolution, this, _1),
+								   [this](int index)
+								   {
+									   setGameResolution(index);
+								   },
 								   currentResolutionIndex);
 }
 

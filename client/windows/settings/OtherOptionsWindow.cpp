@@ -27,15 +27,21 @@ OtherOptionsWindow::OtherOptionsWindow() : InterfaceObjectConfigurable()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	const JsonNode config(ResourceID("config/widgets/settings/otherOptionsTab.json"));
-	addCallback("availableCreaturesAsDwellingLabelChanged", std::bind(&setBoolSetting, "gameTweaks", "availableCreaturesAsDwellingLabel", _1));
-	addCallback("compactTownCreatureInfoChanged", std::bind(&setBoolSetting, "gameTweaks", "compactTownCreatureInfo", _1));
+	addCallback("availableCreaturesAsDwellingLabelChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "availableCreaturesAsDwellingLabel", value);
+	});
+	addCallback("compactTownCreatureInfoChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "compactTownCreatureInfo", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleButton> availableCreaturesAsDwellingLabelCheckbox = widget<CToggleButton>("availableCreaturesAsDwellingLabelCheckbox");
-	availableCreaturesAsDwellingLabelCheckbox->setSelected((bool)settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
+	availableCreaturesAsDwellingLabelCheckbox->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
 
 	std::shared_ptr<CToggleButton> compactTownCreatureInfo = widget<CToggleButton>("compactTownCreatureInfoCheckbox");
-	compactTownCreatureInfo->setSelected((bool)settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
+	compactTownCreatureInfo->setSelected(settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
 }
 
 

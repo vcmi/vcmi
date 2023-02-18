@@ -35,38 +35,62 @@ AdventureOptionsTab::AdventureOptionsTab()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
-	addCallback("playerHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
-	addCallback("enemyHeroSpeedChanged", std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
-	addCallback("mapScrollSpeedChanged", std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
-	addCallback("heroReminderChanged", std::bind(&setBoolSetting, "adventure", "heroReminder", _1));
-	addCallback("quickCombatChanged", std::bind(&setBoolSetting, "adventure", "quickCombat", _1));
+	addCallback("playerHeroSpeedChanged", [](int value)
+	{
+		return setIntSetting("adventure", "heroSpeed", value);
+	});
+	addCallback("enemyHeroSpeedChanged", [](int value)
+	{
+		return setIntSetting("adventure", "enemySpeed", value);
+	});
+	addCallback("mapScrollSpeedChanged", [](int value)
+	{
+		return setIntSetting("adventure", "scrollSpeed", value);
+	});
+	addCallback("heroReminderChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "heroReminder", value);
+	});
+	addCallback("quickCombatChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "quickCombat", value);
+	});
 	//settings that do not belong to base game:
-	addCallback("numericQuantitiesChanged", std::bind(&setBoolSetting, "gameTweaks", "numericCreaturesQuantities", _1));
-	addCallback("forceMovementInfoChanged", std::bind(&setBoolSetting, "gameTweaks", "forceMovementInfo", _1));
-	addCallback("showGridChanged", std::bind(&setBoolSetting, "gameTweaks", "showGrid", _1));
+	addCallback("numericQuantitiesChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "numericCreaturesQuantities", value);
+	});
+	addCallback("forceMovementInfoChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "forceMovementInfo", value);
+	});
+	addCallback("showGridChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "showGrid", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
-	playerHeroSpeedToggle->setSelected((int)settings["adventure"]["heroSpeed"].Float());
+	playerHeroSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["heroSpeed"].Float()));
 
 	std::shared_ptr<CToggleGroup> enemyHeroSpeedToggle = widget<CToggleGroup>("enemyMovementSpeedPicker");
-	enemyHeroSpeedToggle->setSelected((int)settings["adventure"]["enemySpeed"].Float());
+	enemyHeroSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["enemySpeed"].Float()));
 
 	std::shared_ptr<CToggleGroup> mapScrollSpeedToggle = widget<CToggleGroup>("mapScrollSpeedPicker");
-	mapScrollSpeedToggle->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
+	mapScrollSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["scrollSpeed"].Float()));
 
 	std::shared_ptr<CToggleButton> heroReminderCheckbox = widget<CToggleButton>("heroReminderCheckbox");
-	heroReminderCheckbox->setSelected((bool)settings["adventure"]["heroReminder"].Bool());
+	heroReminderCheckbox->setSelected(settings["adventure"]["heroReminder"].Bool());
 
 	std::shared_ptr<CToggleButton> quickCombatCheckbox = widget<CToggleButton>("quickCombatCheckbox");
-	quickCombatCheckbox->setSelected((bool)settings["adventure"]["quickCombat"].Bool());
+	quickCombatCheckbox->setSelected(settings["adventure"]["quickCombat"].Bool());
 
 	std::shared_ptr<CToggleButton> numericQuantitiesCheckbox = widget<CToggleButton>("numericQuantitiesCheckbox");
-	numericQuantitiesCheckbox->setSelected((bool)settings["gameTweaks"]["numericCreaturesQuantities"].Bool());
+	numericQuantitiesCheckbox->setSelected(settings["gameTweaks"]["numericCreaturesQuantities"].Bool());
 
 	std::shared_ptr<CToggleButton> forceMovementInfoCheckbox = widget<CToggleButton>("forceMovementInfoCheckbox");
-	forceMovementInfoCheckbox->setSelected((bool)settings["gameTweaks"]["forceMovementInfo"].Bool());
+	forceMovementInfoCheckbox->setSelected(settings["gameTweaks"]["forceMovementInfo"].Bool());
 
 	std::shared_ptr<CToggleButton> showGridCheckbox = widget<CToggleButton>("showGridCheckbox");
-	showGridCheckbox->setSelected((bool)settings["gameTweaks"]["showGrid"].Bool());
+	showGridCheckbox->setSelected(settings["gameTweaks"]["showGrid"].Bool());
 }
