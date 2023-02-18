@@ -350,6 +350,7 @@ struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
 	GiveBonus(ui8 Who = 0)
+		:who(Who)
 	{
 	}
 
@@ -426,6 +427,7 @@ struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
 struct DLL_LINKAGE RemoveBonus : public CPackForClient
 {
 	RemoveBonus(ui8 Who = 0)
+		:who(Who)
 	{
 	}
 
