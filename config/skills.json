@@ -373,8 +373,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.estates",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

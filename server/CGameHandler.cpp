@@ -1937,8 +1937,6 @@ void CGameHandler::newTurn()
 
 			if (!firstTurn) //not first day
 			{
-				n.res[elem.first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES)); //estates
-
 				for (int k = 0; k < GameConstants::RESOURCE_QUANTITY; k++)
 				{
 					n.res[elem.first][k] += h->valOfBonuses(Bonus::GENERATE_RESOURCE, k);

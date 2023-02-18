@@ -2564,7 +2564,6 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
 			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
 
 			if(!heroOrTown)
