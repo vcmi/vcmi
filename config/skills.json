@@ -110,8 +110,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.diplomacy",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "WANDERING_CREATURES_JOIN_BONUS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"surr" : {

@@ -311,7 +311,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int diplomacy = h->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::DIPLOMACY);
+	int diplomacy = h->valOfBonuses(Bonus::WANDERING_CREATURES_JOIN_BONUS);
 	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < character)
