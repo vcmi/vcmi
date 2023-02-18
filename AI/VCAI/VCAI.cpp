@@ -862,7 +862,7 @@ void VCAI::mainLoop()
 
 	invalidPathHeroes.clear();
 
-	while (basicGoals.size())
+	for (int pass = 0; pass< 30 && basicGoals.size(); pass++)
 	{
 		vstd::removeDuplicates(basicGoals); //TODO: container which does this automagically without has would be nice
 		goalsToAdd.clear();
