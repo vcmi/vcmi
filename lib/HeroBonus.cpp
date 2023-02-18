@@ -95,7 +95,8 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
 {
 	{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
-	{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()}
+	{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
+	{"ARMY_MOVEMENT", std::make_shared<ArmyMovementUpdater>()}
 };
 
 ///CBonusProxy
@@ -563,11 +564,6 @@ std::shared_ptr<const Bonus> BonusList::getFirst(const CSelector &selector) cons
 			return b;
 	}
 	return nullptr;
-}
-
-void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
-{
-	getBonuses(out, selector, nullptr);
 }
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
@@ -1100,6 +1096,19 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 {
 	assert(updater);
 	return updater->createUpdatedBonus(b, * this);
+}
+
+TConstBonusListPtr CBonusSystemNode::getUpdatedBonusList(const BonusList & out, const CSelector & sel) const
+{
+	auto ret = std::make_shared<BonusList>();
+	for(const auto & b : out)
+	{
+		if(sel(b.get()) && b->updater)
+			ret->push_back(getUpdatedBonus(b, b->updater));
+		else
+			ret->push_back(b);
+	}
+	return ret;
 }
 
 CBonusSystemNode::CBonusSystemNode()
@@ -2551,6 +2560,30 @@ std::string TimesHeroLevelUpdater::toString() const
 JsonNode TimesHeroLevelUpdater::toJsonNode() const
 {
 	return JsonUtils::stringNode("TIMES_HERO_LEVEL");
+}
+
+std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+{
+	if(b->type == Bonus::MOVEMENT && context.getNodeType() == CBonusSystemNode::HERO)
+	{
+		auto newBonus = std::make_shared<Bonus>(*b);
+		newBonus->source = Bonus::ARMY;
+		newBonus->val = static_cast<const CGHeroInstance &>(context).getArmyMovementBonus();
+		return newBonus;
+	}
+	if(b->type != Bonus::MOVEMENT)
+		logGlobal->error("ArmyMovementUpdater should only be used for MOVEMENT bonus!");
+	return b;
+}
+
+std::string ArmyMovementUpdater::toString() const
+{
+	return "ArmyMovementUpdater";
+}
+
+JsonNode ArmyMovementUpdater::toJsonNode() const
+{
+	return JsonUtils::stringNode("ARMY_MOVEMENT");
 }
 
 TimesStackLevelUpdater::TimesStackLevelUpdater()

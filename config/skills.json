@@ -57,9 +57,9 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.logistics",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"subtype" : 1,
+					"type" : "MOVEMENT",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},
@@ -144,9 +144,9 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.navigation",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"subtype" : 0,
+					"type" : "MOVEMENT",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},

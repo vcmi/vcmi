@@ -188,32 +188,27 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	return maxMovePointsCached(onLand, &ti);
 }
 
+int CGHeroInstance::getArmyMovementBonus() const
+{
+	return armyMovementVal;
+}
+
+void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const
+{
+	int armySpeed = lowestSpeed(this) * 20 / 3;
+
+	auto base = armySpeed * 10; // separate *10 is intentional to receive same rounding as in h3
+	if(armyMovementVal != vstd::abetween(base, 200, 700)) // army modifier speed is limited by these values
+	{
+		armyMovementVal = base;
+		ti->updateHeroBonuses(Bonus::MOVEMENT, Selector::subtype()(!!onLand).And(Selector::sourceTypeSel(Bonus::ARMY)));
+	}
+}
+
 int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 {
-	int base = 0;
-
-	if(onLand)
-	{
-		// used function is f(x) = 66.6x + 1300, rounded to second digit, where x is lowest speed in army
-		static constexpr int baseSpeed = 1300; // base speed from creature with 0 speed
-
-		int armySpeed = lowestSpeed(this) * 20 / 3;
-
-		base = armySpeed * 10 + baseSpeed; // separate *10 is intentional to receive same rounding as in h3
-		vstd::abetween(base, 1500, 2000); // base speed is limited by these values
-	}
-	else
-	{
-		base = 1500; //on water base movement is always 1500 (speed of army doesn't matter)
-	}
-
-	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
-	const int bonus = ti->valOfBonuses(Bonus::MOVEMENT) + ti->valOfBonuses(bt);
-
-	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
-	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
-
-	return static_cast<int>(base * (1 + modifier)) + bonus;
+	updateArmyMovementBonus(onLand, ti);
+	return ti->valOfBonuses(Bonus::MOVEMENT, !!onLand);;
 }
 
 CGHeroInstance::CGHeroInstance():
@@ -226,7 +221,8 @@ CGHeroInstance::CGHeroInstance():
 	portrait(UNINITIALIZED_PORTRAIT),
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
-	sex(std::numeric_limits<ui8>::max())
+	sex(std::numeric_limits<ui8>::max()),
+	armyMovementVal(0)
 {
 	setNodeType(HERO);
 	ID = Obj::HERO;

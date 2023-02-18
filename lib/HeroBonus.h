@@ -171,9 +171,7 @@ public:
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
 	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
-	BONUS_NAME(MOVEMENT) /*both water/land*/			\
-	BONUS_NAME(LAND_MOVEMENT) \
-	BONUS_NAME(SEA_MOVEMENT) \
+	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
@@ -590,10 +588,8 @@ public:
 	// BonusList functions
 	void stackBonuses();
 	int totalValue() const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
 	void getAllBonuses(BonusList &out) const;
-
-	void getBonuses(BonusList & out, const CSelector &selector) const;
 
 	//special find functions
 	std::shared_ptr<Bonus> getFirst(const CSelector &select);
@@ -801,6 +797,7 @@ public:
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
+	TConstBonusListPtr getUpdatedBonusList(const BonusList& out, const CSelector &sel) const; //update bonuses in list with builtin updaters, passes this as context
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
@@ -1301,6 +1298,19 @@ class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
 public:
 	TimesStackLevelUpdater();
 
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<IUpdater &>(*this);
+	}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
+};
+
+class DLL_LINKAGE ArmyMovementUpdater : public IUpdater
+{
+public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<IUpdater &>(*this);

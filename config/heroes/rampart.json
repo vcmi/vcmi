@@ -131,11 +131,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"logistics" : {
-					"subtype" : "skill.logistics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"subtype" : 1,
+					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}

@@ -1085,6 +1085,29 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer layer) const
 	return layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
 }
 
+void TurnInfo::updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) const
+{
+	switch(type)
+	{
+	case Bonus::FREE_SHIP_BOARDING:
+		bonusCache->freeShipBoarding = static_cast<bool>(bonuses->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
+		break;
+	case Bonus::FLYING_MOVEMENT:
+		bonusCache->flyingMovement = static_cast<bool>(bonuses->getFirst(Selector::type()(Bonus::FLYING_MOVEMENT)));
+		bonusCache->flyingMovementVal = bonuses->valOfBonuses(Selector::type()(Bonus::FLYING_MOVEMENT));
+		break;
+	case Bonus::WATER_WALKING:
+		bonusCache->waterWalking = static_cast<bool>(bonuses->getFirst(Selector::type()(Bonus::WATER_WALKING)));
+		bonusCache->waterWalkingVal = bonuses->valOfBonuses(Selector::type()(Bonus::WATER_WALKING));
+		break;
+	case Bonus::ROUGH_TERRAIN_DISCOUNT:
+		bonusCache->pathfindingVal = bonuses->valOfBonuses(Selector::type()(Bonus::ROUGH_TERRAIN_DISCOUNT));
+		break;
+	default:
+		bonuses = hero->getUpdatedBonusList(*bonuses, Selector::type()(type).And(sel));
+	}
+}
+
 CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options)
 	: CGameInfoCallback(gs, boost::optional<PlayerColor>()), turn(-1), hero(Hero), options(Options), owner(Hero->tempOwner)
 {

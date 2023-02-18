@@ -1074,9 +1074,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "LAND_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 1,
 				"val" : 300,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 70,
@@ -1086,9 +1087,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "SEA_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 0,
 				"val" : 1000,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 71,
@@ -1430,9 +1432,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "LAND_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 1,
 				"val" : 600,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 98,
@@ -1778,9 +1781,10 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"type" : "SEA_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 0,
 				"val" : 500,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			},
 			{
 				"subtype" : "spell.summonBoat",

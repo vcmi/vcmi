@@ -78,6 +78,25 @@
 			"type" : "MANA_PER_KNOWLEDGE", //10 knowledge to 100 mana is default
 			"val" : 10,
 			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MOVEMENT", //Basic land movement
+			"subtype" : 1,
+			"val" : 1300,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MOVEMENT", //Enable army movement bonus
+			"subtype" : 1,
+			"val" : 0,
+			"valueType" : "BASE_NUMBER",
+			"updater" : "ARMY_MOVEMENT"
+		},
+		{
+			"type" : "MOVEMENT", //Basic sea movement
+			"subtype" : 0,
+			"val" : 1500,
+			"valueType" : "BASE_NUMBER"
 		}
 	]
 }

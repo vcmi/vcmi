@@ -49,6 +49,7 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
+	mutable int armyMovementVal;
 
 public:
 
@@ -210,6 +211,9 @@ public:
 	int maxMovePoints(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
 	int maxMovePointsCached(bool onLand, const TurnInfo * ti) const;
+	//update army movement bonus
+	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
+	int getArmyMovementBonus() const;
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
