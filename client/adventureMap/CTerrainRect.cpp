@@ -19,7 +19,6 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
-#include "../render/CFadeAnimation.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../widgets/TextControls.h"
@@ -35,9 +34,7 @@
 #define ADVOPT (conf.go()->ac)
 
 CTerrainRect::CTerrainRect()
-	: fadeSurface(nullptr)
-	, fadeAnim(std::make_shared<CFadeAnimation>())
-	, curHoveredTile(-1, -1, -1)
+	: curHoveredTile(-1, -1, -1)
 	, isSwiping(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -51,20 +48,14 @@ CTerrainRect::CTerrainRect()
 	renderer = std::make_shared<MapView>( Point(0,0), pos.dimensions() );
 }
 
-CTerrainRect::~CTerrainRect()
-{
-	if(fadeSurface)
-		SDL_FreeSurface(fadeSurface);
-}
-
 void CTerrainRect::setViewCenter(const int3 &coordinates)
 {
-	renderer->setViewCenter(coordinates);
+	renderer->getController()->setViewCenter(coordinates);
 }
 
 void CTerrainRect::setViewCenter(const Point & position, int level)
 {
-	renderer->setViewCenter(position, level);
+	renderer->getController()->setViewCenter(position, level);
 }
 
 void CTerrainRect::deactivate()
@@ -220,30 +211,17 @@ Rect CTerrainRect::visibleTilesArea()
 
 void CTerrainRect::fadeFromCurrentView()
 {
-	if (!ADVOPT.screenFading)
-		return;
-	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
-		return;
-
-	if (!fadeSurface)
-		fadeSurface = CSDL_Ext::newSurface(pos.w, pos.h);
-	CSDL_Ext::blitSurface(screen, fadeSurface, Point(0,0));
-	fadeAnim->init(CFadeAnimation::EMode::OUT, fadeSurface);
+	assert(0);//TODO
 }
 
 void CTerrainRect::setLevel(int level)
 {
-	renderer->setViewCenter(renderer->getModel()->getMapViewCenter(), level);
+	renderer->getController()->setViewCenter(renderer->getModel()->getMapViewCenter(), level);
 }
 
 void CTerrainRect::moveViewBy(const Point & delta)
 {
-	renderer->setViewCenter(renderer->getModel()->getMapViewCenter() + delta, getLevel());
-}
-
-int3 CTerrainRect::getTileCenter()
-{
-	return renderer->getModel()->getTileCenter();
+	renderer->getController()->setViewCenter(renderer->getModel()->getMapViewCenter() + delta, getLevel());
 }
 
 Point CTerrainRect::getViewCenter()
@@ -258,5 +236,5 @@ int CTerrainRect::getLevel()
 
 void CTerrainRect::setTileSize(int sizePixels)
 {
-	renderer->setTileSize(Point(sizePixels, sizePixels));
+	renderer->getController()->setTileSize(Point(sizePixels, sizePixels));
 }

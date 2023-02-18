@@ -9,37 +9,65 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
-
 #include "MapRendererContext.h"
+#include "../gui/CIntObject.h"
+#include "../lib/int3.h"
 
 class Canvas;
 class MapRenderer;
+class MapViewController;
+
+struct HeroAnimationState
+{
+	ObjectInstanceID target;
+	int3 tileFrom;
+	int3 tileDest;
+	double progress;
+};
+
+struct FadingAnimationState
+{
+	ObjectInstanceID target;
+	double progress;
+};
 
 class MapRendererContext : public IMapRendererContext
 {
+	friend class MapViewController;
+
+	boost::multi_array<MapObjectsList, 3> objects;
+
 	Point tileSize = Point(32, 32);
 	uint32_t animationTime = 0;
 
+	boost::optional<HeroAnimationState> movementAnimation;
+	boost::optional<HeroAnimationState> teleportAnimation;
+
+	boost::optional<FadingAnimationState> fadeOutAnimation;
+	boost::optional<FadingAnimationState> fadeInAnimation;
+
 public:
-	void advanceAnimations(uint32_t ms);
-	void setTileSize(const Point & dimensions);
+	MapRendererContext();
 
-	int3 getMapSize() const override;
-	bool isInMap(const int3 & coordinates) const override;
-	const TerrainTile & getMapTile(const int3 & coordinates) const override;
+	void addObject(const CGObjectInstance * object);
+	void addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest);
+	void removeObject(const CGObjectInstance * object);
 
-	ObjectsVector getAllObjects() const override;
-	const CGObjectInstance * getObject(ObjectInstanceID objectID) const override;
-
-	const CGPath * currentPath() const override;
-
+	int3 getMapSize() const final;
+	bool isInMap(const int3 & coordinates) const final;
 	bool isVisible(const int3 & coordinates) const override;
 
+	const TerrainTile & getMapTile(const int3 & coordinates) const override;
+	const MapObjectsList & getObjects(const int3 & coordinates) const override;
+	const CGObjectInstance * getObject(ObjectInstanceID objectID) const override;
+	const CGPath * currentPath() const override;
+
+	size_t objectGroupIndex(ObjectInstanceID objectID) const override;
+	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
+	double objectTransparency(ObjectInstanceID objectID) const override;
 	uint32_t getAnimationPeriod() const override;
 	uint32_t getAnimationTime() const override;
 	Point getTileSize() const override;
-
 	bool showGrid() const override;
 };
 
@@ -81,49 +109,78 @@ public:
 	/// returns area covered by specified tile in target view
 	Rect getTargetTileArea(const int3 & coordinates) const;
 
-	int getLevel() const;
-	int3 getTileCenter() const;
-
 	/// returns tile under specified position in target view
 	int3 getTileAtPoint(const Point & position) const;
+
+	/// returns currently visible map level
+	int getLevel() const;
 };
 
-class MapCache
+/// Class responsible for rendering of entire map view
+/// uses rendering parameters provided by owner class
+class MapViewCache
 {
-	std::unique_ptr<Canvas> terrain;
 	std::shared_ptr<MapViewModel> model;
 
-	std::unique_ptr<MapRendererContext> context;
+	std::unique_ptr<Canvas> terrain;
 	std::unique_ptr<MapRenderer> mapRenderer;
 
 	Canvas getTile(const int3 & coordinates);
-	void updateTile(const int3 & coordinates);
+	void updateTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates);
 
 public:
-	explicit MapCache(const std::shared_ptr<MapViewModel> & model);
-	~MapCache();
+	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
+	~MapViewCache();
 
-	void update(uint32_t timeDelta);
+	/// updates internal terrain cache according to provided time delta
+	void update(const std::shared_ptr<MapRendererContext> & context);
+
+	/// renders updated terrain cache onto provided canvas
 	void render(Canvas & target);
 };
 
+/// Class responsible for updating view state,
+/// such as its position and any animations
+class MapViewController : public IMapObjectObserver
+{
+	std::shared_ptr<MapRendererContext> context;
+	std::shared_ptr<MapViewModel> model;
+
+private:
+	// IMapObjectObserver impl
+	bool hasOngoingAnimations() override;
+	void onObjectFadeIn(const CGObjectInstance * obj) override;
+	void onObjectFadeOut(const CGObjectInstance * obj) override;
+	void onObjectInstantAdd(const CGObjectInstance * obj) override;
+	void onObjectInstantRemove(const CGObjectInstance * obj) override;
+	 void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
+	 void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
+	 void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
+
+public:
+	MapViewController(std::shared_ptr<MapRendererContext> context, std::shared_ptr<MapViewModel> model);
+
+	void setViewCenter(const int3 & position);
+	void setViewCenter(const Point & position, int level);
+	void setTileSize(const Point & tileSize);
+	void update(uint32_t timeDelta);
+};
+
+/// Main map rendering class that mostly acts as container for component classes
 class MapView : public CIntObject
 {
 	std::shared_ptr<MapViewModel> model;
-	std::unique_ptr<MapCache> tilesCache;
+	std::shared_ptr<MapRendererContext> context;
+	std::unique_ptr<MapViewCache> tilesCache;
+	std::shared_ptr<MapViewController> controller;
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 
 public:
 	std::shared_ptr<const MapViewModel> getModel() const;
+	std::shared_ptr<MapViewController> getController();
 
 	MapView(const Point & offset, const Point & dimensions);
-
-	void setViewCenter(const int3 & position);
-	void setViewCenter(const Point & position, int level);
-	void setTileSize(const Point & tileSize);
-
-	void moveHero();
 
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;

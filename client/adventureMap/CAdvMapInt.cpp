@@ -319,7 +319,7 @@ void CAdvMapInt::fsleepWake()
 void CAdvMapInt::fmoveHero()
 {
 	const CGHeroInstance *h = curHero();
-	if (!h || !LOCPLINT->paths.hasPath(h) || CGI->mh->hasActiveAnimations())
+	if (!h || !LOCPLINT->paths.hasPath(h) || CGI->mh->hasOngoingAnimations())
 		return;
 
 	LOCPLINT->moveHero(h, LOCPLINT->paths.getPath(h));
@@ -833,7 +833,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			if(!h || !isActive())
 				return;
 
-			if (CGI->mh->hasActiveAnimations())
+			if (CGI->mh->hasOngoingAnimations())
 				return;
 
 			if(*direction == Point(0,0))
@@ -1138,7 +1138,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 			if(LOCPLINT->paths.hasPath(currentHero) &&
 			   LOCPLINT->paths.getPath(currentHero).endPos() == mapPos)//we'll be moving
 			{
-				if(!CGI->mh->hasActiveAnimations())
+				if(!CGI->mh->hasOngoingAnimations())
 					LOCPLINT->moveHero(currentHero, LOCPLINT->paths.getPath(currentHero));
 				return;
 			}

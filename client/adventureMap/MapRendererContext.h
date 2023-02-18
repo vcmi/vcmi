@@ -15,9 +15,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class int3;
 class Point;
-class ObjectInstanceID;
 class CGObjectInstance;
 class CGHeroInstance;
+class ObjectInstanceID;
 struct TerrainTile;
 struct CGPath;
 
@@ -26,9 +26,10 @@ VCMI_LIB_NAMESPACE_END
 class IMapRendererContext
 {
 public:
-	virtual ~IMapRendererContext() = default;
+	using MapObject = ObjectInstanceID;
+	using MapObjectsList = std::vector<MapObject>;
 
-	using ObjectsVector = std::vector<ConstTransitivePtr<CGObjectInstance>>;
+	virtual ~IMapRendererContext() = default;
 
 	/// returns dimensions of current map
 	virtual int3 getMapSize() const = 0;
@@ -39,8 +40,8 @@ public:
 	/// returns tile by selected coordinates. Coordinates MUST be valid
 	virtual const TerrainTile & getMapTile(const int3 & coordinates) const = 0;
 
-	/// returns vector of all objects present on current map
-	virtual ObjectsVector getAllObjects() const = 0;
+	/// returns all objects visible on specified tile
+	virtual const MapObjectsList & getObjects(const int3 & coordinates) const = 0;
 
 	/// returns specific object by ID, or nullptr if not found
 	virtual const CGObjectInstance * getObject(ObjectInstanceID objectID) const = 0;
@@ -50,6 +51,12 @@ public:
 
 	/// returns true if specified tile is visible in current context
 	virtual bool isVisible(const int3 & coordinates) const = 0;
+
+	virtual size_t objectGroupIndex(ObjectInstanceID objectID) const = 0;
+	virtual Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const = 0;
+
+	/// returns object animation transparency. IF set to 0, object will not be visible
+	virtual double objectTransparency(ObjectInstanceID objectID) const = 0;
 
 	/// returns how long should each frame of animation be visible, in milliseconds
 	virtual uint32_t getAnimationPeriod() const = 0;
@@ -70,24 +77,26 @@ public:
 	IMapObjectObserver();
 	virtual ~IMapObjectObserver();
 
+	virtual bool hasOngoingAnimations() = 0;
+
 	/// Plays fade-in animation and adds object to map
-	virtual void onObjectFadeIn(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+	virtual void onObjectFadeIn(const CGObjectInstance * obj) {}
 
 	/// Plays fade-out animation and removed object from map
-	virtual void onObjectFadeOut(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+	virtual void onObjectFadeOut(const CGObjectInstance * obj) {}
 
 	/// Adds object to map instantly, with no animation
-	virtual void onObjectInstantAdd(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+	virtual void onObjectInstantAdd(const CGObjectInstance * obj) {}
 
 	/// Removes object from map instantly, with no animation
-	virtual void onObjectInstantRemove(const IMapRendererContext & context, const CGObjectInstance * obj) {}
+	virtual void onObjectInstantRemove(const CGObjectInstance * obj) {}
 
 	/// Perform hero teleportation animation with terrain fade animation
-	virtual void onHeroTeleported(const IMapRendererContext & context, const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	virtual void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 
 	/// Perform hero movement animation, moving hero across terrain
-	virtual void onHeroMoved(const IMapRendererContext & context, const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	virtual void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 
 	/// Instantly rotates hero to face destination tile
-	virtual void onHeroRotated(const IMapRendererContext & context, const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	virtual void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 };

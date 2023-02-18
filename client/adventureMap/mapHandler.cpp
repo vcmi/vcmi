@@ -14,7 +14,6 @@
 #include "MapView.h"
 
 #include "../render/CAnimation.h"
-#include "../render/CFadeAnimation.h"
 #include "../render/Colors.h"
 #include "../gui/CGuiHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -27,6 +26,7 @@
 
 #include "../../CCallback.h"
 
+#include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CObjectClassesHandler.h"
 #include "../../lib/mapping/CMap.h"
@@ -476,10 +476,24 @@ bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 }
 */
 
-bool CMapHandler::hasActiveAnimations()
+bool CMapHandler::hasOngoingAnimations()
 {
-	return false; // !fadeAnims.empty(); // don't allow movement during fade animation
+	for (auto * observer : observers)
+		if (observer->hasOngoingAnimations())
+			return true;
+
+	return false;
 }
+
+void CMapHandler::waitForOngoingAnimations()
+{
+	while (CGI->mh->hasOngoingAnimations())
+	{
+		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+	}
+}
+
 /*
 void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
@@ -600,26 +614,6 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 	return false;
 }
 
-TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, Rect rect_, bool visitablePos)
-	: obj(obj_),
-	  rect(rect_),
-	  fadeAnimKey(-1)
-{
-	// We store information about ambient sound is here because object might disappear while sound is updating
-	if(obj->getAmbientSound())
-	{
-		// All tiles of static objects are sound sources. E.g Volcanos and special terrains
-		// For visitable object only their visitable tile is sound source
-		if(!CCS->soundh->ambientCheckVisitable() || !obj->isVisitable() || visitablePos)
-			ambientSound = obj->getAmbientSound();
-	}
-}
-
-TerrainTileObject::~TerrainTileObject()
-{
-
-}
-
 CMapHandler::CMapHandler(const CMap * map)
 	: map(map)
 {
@@ -652,45 +646,47 @@ std::vector<std::string> CMapHandler::getAmbientSounds(const int3 & tile)
 
 void CMapHandler::onObjectFadeIn(const CGObjectInstance * obj)
 {
-	onObjectInstantAdd(obj);
+	for (auto * observer : observers)
+		observer->onObjectFadeIn(obj);
 }
 
 void CMapHandler::onObjectFadeOut(const CGObjectInstance * obj)
 {
-	onObjectInstantRemove(obj);
+	for (auto * observer : observers)
+		observer->onObjectFadeOut(obj);
 }
 
 void CMapHandler::onObjectInstantAdd(const CGObjectInstance * obj)
 {
-	MapRendererContext context;
 	for (auto * observer : observers)
-		observer->onObjectInstantAdd(context, obj);
+		observer->onObjectInstantAdd(obj);
 }
 
 void CMapHandler::onObjectInstantRemove(const CGObjectInstance * obj)
 {
-	MapRendererContext context;
 	for (auto * observer : observers)
-		observer->onObjectInstantRemove(context, obj);
+		observer->onObjectInstantRemove(obj);
 }
 
 void CMapHandler::onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(obj->pos == dest);
-	onObjectInstantRemove(obj);
-	onObjectInstantAdd(obj);
+	for (auto * observer : observers)
+		observer->onHeroTeleported(obj, from, dest);
 }
 
 void CMapHandler::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(obj->pos == dest);
-	onObjectInstantRemove(obj);
-	onObjectInstantAdd(obj);
+	for (auto * observer : observers)
+		observer->onHeroMoved(obj, from, dest);
 }
 
 void CMapHandler::onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	//TODO
+	assert(obj->pos == from);
+	for (auto * observer : observers)
+		observer->onHeroRotated(obj, from, dest);
 }
 
 void CMapHandler::addMapObserver(IMapObjectObserver * object)

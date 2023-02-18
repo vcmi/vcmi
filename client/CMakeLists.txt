@@ -53,7 +53,6 @@ set(client_SRCS
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
-	render/CFadeAnimation.cpp
 	render/Canvas.cpp
 	render/ColorFilter.cpp
 	render/Colors.cpp
@@ -169,7 +168,6 @@ set(client_HEADERS
 	render/CAnimation.h
 	render/CBitmapHandler.h
 	render/CDefFile.h
-	render/CFadeAnimation.h
 	render/Canvas.h
 	render/ColorFilter.h
 	render/Colors.h

@@ -457,22 +457,10 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		return;
 	}
 
-	adventureInt->centerOn(hero); //actualizing screen pos
 	adventureInt->minimap->redraw();
 	adventureInt->heroList->redraw();
 
-	auto waitFrame = [&]()
-	{
-		int frameNumber = GH.mainFPSmng->getFrameNumber();
-
-		auto unlockPim = vstd::makeUnlockGuard(*pim);
-		while(frameNumber == GH.mainFPSmng->getFrameNumber())
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-	};
-
-	//main moving
-	while (CGI->mh->hasActiveAnimations())
-		waitFrame(); //for animation purposes
+	CGI->mh->waitForOngoingAnimations();
 
 	//finishing move
 	hero->isStanding = true;

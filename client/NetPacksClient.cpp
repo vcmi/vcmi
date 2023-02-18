@@ -344,6 +344,8 @@ void ApplyFirstClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
 	if(CGI->mh)
 		CGI->mh->onObjectFadeOut(obj);
+
+	CGI->mh->waitForOngoingAnimations();
 }
 void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
@@ -351,6 +353,7 @@ void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 	if(CGI->mh)
 		CGI->mh->onObjectFadeIn(obj);
 
+	CGI->mh->waitForOngoingAnimations();
 	cl.invalidatePaths();
 }
 
@@ -426,6 +429,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 		if(gs.isVisible(o, i->first) || (!cl.getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
 			i->second->objectRemoved(o);
 	}
+
+	CGI->mh->waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
@@ -938,7 +943,6 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 		callInterfaceIfPresent(cl, obj1->tempOwner, &IGameEventsReceiver::showTavernWindow, obj2);
 		break;
 	}
-
 }
 
 void ApplyClientNetPackVisitor::visitCenterView(CenterView & pack)
@@ -959,6 +963,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 		if(gs.isVisible(obj, i->first))
 			i->second->newObject(obj);
 	}
+	CGI->mh->waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pack)

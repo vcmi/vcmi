@@ -38,7 +38,6 @@ VCMI_LIB_NAMESPACE_END
 struct SDL_Surface;
 class CAnimation;
 class IImage;
-class CFadeAnimation;
 class CMapHandler;
 class IMapObjectObserver;
 
@@ -63,30 +62,6 @@ enum class EWorldViewIcon
 	RES_CRYSTAL,
 	RES_GEM,
 	RES_GOLD,
-
-};
-
-enum class EMapObjectFadingType
-{
-	NONE,
-	IN,
-	OUT
-};
-
-struct TerrainTileObject
-{
-	const CGObjectInstance *obj;
-	Rect rect;
-	int fadeAnimKey;
-	boost::optional<std::string> ambientSound;
-
-	TerrainTileObject(const CGObjectInstance *obj_, Rect rect_, bool visitablePos = false);
-	~TerrainTileObject();
-};
-
-struct TerrainTile2
-{
-	std::vector<TerrainTileObject> objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
 };
 
 class CMapHandler
@@ -125,7 +100,10 @@ public:
 	bool hasObjectHole(const int3 & pos) const;
 
 	/// determines if the map is ready to handle new hero movement (not available during fading animations)
-	bool hasActiveAnimations();
+	bool hasOngoingAnimations();
+
+	/// blocking wait until all ongoing animatins are over
+	void waitForOngoingAnimations();
 
 	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 };

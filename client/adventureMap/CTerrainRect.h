@@ -16,16 +16,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct CGPath;
 VCMI_LIB_NAMESPACE_END
 
-class CFadeAnimation;
 class MapView;
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
 class CTerrainRect : public CIntObject
 {
 	std::shared_ptr<MapView> renderer;
-
-	SDL_Surface * fadeSurface;
-	std::shared_ptr<CFadeAnimation> fadeAnim;
 
 	Point swipeInitialViewPos;
 	Point swipeInitialRealPos;
@@ -48,7 +44,6 @@ class CTerrainRect : public CIntObject
 
 public:
 	CTerrainRect();
-	~CTerrainRect();
 
 	void moveViewBy(const Point & delta);
 	void setViewCenter(const int3 & coordinates);
@@ -56,7 +51,6 @@ public:
 	void setLevel(int level);
 	void setTileSize(int sizePixels);
 
-	int3  getTileCenter();
 	Point getViewCenter();
 	int getLevel();
 

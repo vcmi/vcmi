@@ -182,8 +182,8 @@ void MapRendererRiver::renderTile(const IMapRendererContext & context, Canvas & 
 	}
 }
 
-MapRendererRoad::MapRendererRoad():
-	storage(VLC->roadTypeHandler->objects.size())
+MapRendererRoad::MapRendererRoad()
+	: storage(VLC->roadTypeHandler->objects.size())
 {
 	for(const auto & road : VLC->roadTypeHandler->objects)
 		storage.load(road->getIndex(), road->tilesFilename);
@@ -191,19 +191,19 @@ MapRendererRoad::MapRendererRoad():
 
 void MapRendererRoad::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
-	const int3 coordinatesAbove = coordinates - int3(0,1,0);
+	const int3 coordinatesAbove = coordinates - int3(0, 1, 0);
 
-	if (context.isInMap(coordinatesAbove))
+	if(context.isInMap(coordinatesAbove))
 	{
 		const TerrainTile & mapTileAbove = context.getMapTile(coordinatesAbove);
-		if (mapTileAbove.roadType->getId() != Road::NO_ROAD)
+		if(mapTileAbove.roadType->getId() != Road::NO_ROAD)
 		{
 			int32_t terrainIndex = mapTileAbove.roadType->getIndex();
 			int32_t imageIndex = mapTileAbove.roadDir;
 			int32_t rotationIndex = (mapTileAbove.extTileFlags >> 4) % 4;
 
 			const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
-			target.draw(image, Point(0,0), Rect(0, 16, 32, 16));
+			target.draw(image, Point(0, 0), Rect(0, 16, 32, 16));
 		}
 	}
 
@@ -215,7 +215,7 @@ void MapRendererRoad::renderTile(const IMapRendererContext & context, Canvas & t
 		int32_t rotationIndex = (mapTile.extTileFlags >> 4) % 4;
 
 		const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
-		target.draw(image, Point(0,16), Rect(0, 0, 32, 16));
+		target.draw(image, Point(0, 16), Rect(0, 0, 32, 16));
 	}
 }
 
@@ -231,31 +231,31 @@ size_t MapRendererBorder::getIndexForTile(const IMapRendererContext & context, c
 
 	int3 size = context.getMapSize();
 
-	if (tile.x < -1 || tile.x > size.x || tile.y < -1 || tile.y > size.y)
-		return std::abs(tile.x) % 4 + 4*(std::abs(tile.y) % 4);
+	if(tile.x < -1 || tile.x > size.x || tile.y < -1 || tile.y > size.y)
+		return std::abs(tile.x) % 4 + 4 * (std::abs(tile.y) % 4);
 
-	if (tile.x == -1 && tile.y == -1)
+	if(tile.x == -1 && tile.y == -1)
 		return 16;
 
-	if (tile.x == size.x && tile.y == -1)
+	if(tile.x == size.x && tile.y == -1)
 		return 17;
 
-	if (tile.x == size.x && tile.y == size.y)
+	if(tile.x == size.x && tile.y == size.y)
 		return 18;
 
-	if (tile.x == -1 && tile.y == size.y)
+	if(tile.x == -1 && tile.y == size.y)
 		return 19;
 
-	if (tile.y == -1)
+	if(tile.y == -1)
 		return 20 + (tile.x % 4);
 
-	if (tile.x == size.x)
+	if(tile.x == size.x)
 		return 24 + (tile.y % 4);
 
-	if (tile.y == size.y)
+	if(tile.y == size.y)
 		return 28 + (tile.x % 4);
 
-	if (tile.x == -1)
+	if(tile.x == -1)
 		return 32 + (tile.y % 4);
 
 	//else - visible area, no renderable border
@@ -266,7 +266,7 @@ size_t MapRendererBorder::getIndexForTile(const IMapRendererContext & context, c
 void MapRendererBorder::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	const auto & image = animation->getImage(getIndexForTile(context, coordinates));
-	target.draw(image, Point(0,0));
+	target.draw(image, Point(0, 0));
 }
 
 MapRendererFow::MapRendererFow()
@@ -278,7 +278,7 @@ MapRendererFow::MapRendererFow()
 
 	static const std::vector<int> rotations = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
-	size_t size = fogOfWarPartialHide->size(0);//group size after next rotation
+	size_t size = fogOfWarPartialHide->size(0); //group size after next rotation
 
 	for(const int rotation : rotations)
 	{
@@ -295,8 +295,8 @@ void MapRendererFow::renderTile(const IMapRendererContext & context, Canvas & ta
 
 	const NeighborTilesInfo neighborInfo(context, coordinates);
 
-	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
-	if (retBitmapID < 0)
+	int retBitmapID = neighborInfo.getBitmapID(); // >=0 -> partial hide, <0 - full hide
+	if(retBitmapID < 0)
 	{
 		// generate a number that is predefined for each tile,
 		// but appears random to break visible pattern in large areas of fow
@@ -304,15 +304,15 @@ void MapRendererFow::renderTile(const IMapRendererContext & context, Canvas & ta
 		size_t pseudorandomNumber = ((coordinates.x * 997) ^ (coordinates.y * 1009)) / 101;
 		size_t imageIndex = pseudorandomNumber % fogOfWarFullHide->size();
 
-		target.draw(fogOfWarFullHide->getImage(imageIndex), Point(0,0));
+		target.draw(fogOfWarFullHide->getImage(imageIndex), Point(0, 0));
 	}
 	else
 	{
-		target.draw(fogOfWarPartialHide->getImage(retBitmapID), Point(0,0));
+		target.draw(fogOfWarPartialHide->getImage(retBitmapID), Point(0, 0));
 	}
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const CGObjectInstance* obj)
+std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const CGObjectInstance * obj)
 {
 	const auto & info = obj->appearance;
 
@@ -333,34 +333,24 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const CGObjectInsta
 
 std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const std::string & filename, bool generateMovementGroups)
 {
-	if (animations.count(filename))
+	if(animations.count(filename))
 		return animations[filename];
 
 	auto ret = std::make_shared<CAnimation>(filename);
 	animations[filename] = ret;
 	ret->preload();
 
-	if (generateMovementGroups)
+	if(generateMovementGroups)
 	{
-		ret->createFlippedGroup(1,13);
-		ret->createFlippedGroup(2,14);
-		ret->createFlippedGroup(3,15);
+		ret->createFlippedGroup(1, 13);
+		ret->createFlippedGroup(2, 14);
+		ret->createFlippedGroup(3, 15);
 
-		ret->createFlippedGroup(6,10);
-		ret->createFlippedGroup(7,11);
-		ret->createFlippedGroup(8,12);
+		ret->createFlippedGroup(6, 10);
+		ret->createFlippedGroup(7, 11);
+		ret->createFlippedGroup(8, 12);
 	}
 	return ret;
-}
-
-MapRendererObjects::MapRendererObjects(const IMapRendererContext & context)
-{
-	auto mapSize = context.getMapSize();
-
-	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
-
-	for(const auto & obj : context.getAllObjects())
-		onObjectInstantAdd(context, obj);
 }
 
 std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectInstance* obj)
@@ -401,7 +391,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(const IMapRendererContext &
 	if(!animation)
 		return nullptr;
 
-	size_t groupIndex = getAnimationGroup(context, obj);
+	size_t groupIndex = context.objectGroupIndex(obj->id);
 
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
@@ -412,52 +402,37 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(const IMapRendererContext &
 	return animation->getImage(frameIndex, groupIndex);
 }
 
-size_t MapRendererObjects::getAnimationGroup(const IMapRendererContext & context, const CGObjectInstance * obj) const
-{
-	// TODO
-	//static const std::vector<size_t> moveGroups = {99, 10, 5, 6, 7, 8, 9, 12, 11};
-	static const std::vector<size_t> idleGroups = {99, 13, 0, 1, 2, 3, 4, 15, 14};
-
-	if(obj->ID == Obj::HERO)
-	{
-		const auto * hero = dynamic_cast<const CGHeroInstance *>(obj);
-		return idleGroups[hero->moveDir];
-	}
-
-	if(obj->ID == Obj::BOAT)
-	{
-		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		return idleGroups[boat->direction];
-	}
-
-	return 0;
-}
-
-void MapRendererObjects::renderImage(Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image)
+void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image)
 {
 	if(!image)
 		return;
 
+	uint8_t transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id)));
+
+	if (transparency == 0)
+		return;
+
+	image->setAlpha(transparency);
 	image->setFlagColor(object->tempOwner);
 
-	int3 offsetTiles(object->getPosition() - coordinates);
+	Point offsetPixels = context.objectImageOffset(object->id, coordinates);
 
-	Point offsetPixels(offsetTiles.x * 32, offsetTiles.y * 32);
-	Point imagePos = image->dimensions() - offsetPixels - Point(32, 32);
-	Point tileDimensions(32, 32);
-
-	target.draw(image, Point(0, 0), Rect(imagePos, tileDimensions));
+	if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
+	{
+		Point imagePos = image->dimensions() - offsetPixels - Point(32, 32);
+		target.draw(image, Point(0, 0), Rect(imagePos, Point(32,32)));
+	}
 }
 
 void MapRendererObjects::renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance* instance)
 {
-	renderImage(target, coordinates, instance, getImage(context, instance, getAnimation(instance)));
-	renderImage(target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImage(context, instance, getAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
 }
 
 void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
-	for(const auto & objectID : objects[coordinates.z][coordinates.x][coordinates.y])
+	for(const auto & objectID : context.getObjects(coordinates))
 	{
 		const auto * objectInstance = context.getObject(objectID);
 
@@ -470,61 +445,6 @@ void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas 
 
 		renderObject(context, target, coordinates, objectInstance);
 	}
-}
-
-void MapRendererObjects::onObjectInstantAdd(const IMapRendererContext & context, const CGObjectInstance * obj)
-{
-	if(!obj)
-		return;
-
-	if(obj->ID == Obj::HERO && dynamic_cast<const CGHeroInstance *>(obj)->inTownGarrison)
-		return;
-
-	if(obj->ID == Obj::BOAT && dynamic_cast<const CGBoat *>(obj)->hero)
-		return;
-
-	std::shared_ptr<CAnimation> animation = getAnimation(obj);
-
-	//no animation at all, e.g. Event
-	if(!animation)
-		return;
-
-	//empty animation. Illegal?
-	assert(animation->size(0) > 0);
-	if(animation->size(0) == 0)
-		return;
-
-	auto image = animation->getImage(0, 0);
-
-	int imageWidthTiles = (image->width() + 31) / 32;
-	int imageHeightTiles = (image->height() + 31) / 32;
-
-	int objectWidth = std::min(obj->getWidth(), imageWidthTiles);
-	int objectHeight = std::min(obj->getHeight(), imageHeightTiles);
-
-	for(int fx = 0; fx < objectWidth; ++fx)
-	{
-		for(int fy = 0; fy < objectHeight; ++fy)
-		{
-			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-
-			if(context.isInMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
-			{
-				auto & container = objects[currTile.z][currTile.x][currTile.y];
-
-				container.push_back(obj->id);
-				boost::range::sort(container, MapObjectsSorter(context));
-			}
-		}
-	}
-}
-
-void MapRendererObjects::onObjectInstantRemove(const IMapRendererContext & context, const CGObjectInstance * object)
-{
-	for(int z = 0; z < context.getMapSize().z; z++)
-		for(int x = 0; x < context.getMapSize().x; x++)
-			for(int y = 0; y < context.getMapSize().y; y++)
-				vstd::erase(objects[z][x][y], object->id);
 }
 
 void MapRendererDebugGrid::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -625,14 +545,9 @@ void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & t
 		renderImageCross(target, reachableToday, iter->coord);
 }
 
-MapRenderer::MapRenderer(const IMapRendererContext & context)
-	: rendererObjects(context)
-{
-}
-
 void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
-	if (!context.isInMap(coordinates))
+	if(!context.isInMap(coordinates))
 	{
 		rendererBorder.renderTile(context, target, coordinates);
 		return;
@@ -640,7 +555,7 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 
 	const NeighborTilesInfo neighborInfo(context, coordinates);
 
-	if (neighborInfo.areAllHidden())
+	if(neighborInfo.areAllHidden())
 	{
 		rendererFow.renderTile(context, target, coordinates);
 	}
@@ -652,8 +567,8 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 		rendererObjects.renderTile(context, target, coordinates);
 		rendererPath.renderTile(context, target, coordinates);
 
-		if (!context.isVisible(coordinates))
+		if(!context.isVisible(coordinates))
 			rendererFow.renderTile(context, target, coordinates);
 	}
-	rendererDebugGrid.renderTile(context, target,coordinates);
+	rendererDebugGrid.renderTile(context, target, coordinates);
 }

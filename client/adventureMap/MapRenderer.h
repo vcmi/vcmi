@@ -72,12 +72,8 @@ public:
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
-class MapRendererObjects : public IMapObjectObserver
+class MapRendererObjects
 {
-	using MapObject = ObjectInstanceID;
-	using MapTile = std::vector<MapObject>;
-
-	boost::multi_array<MapTile, 3> objects;
 	std::map<std::string, std::shared_ptr<CAnimation>> animations;
 
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
@@ -85,17 +81,12 @@ class MapRendererObjects : public IMapObjectObserver
 	std::shared_ptr<CAnimation> getAnimation(const std::string & filename, bool generateMovementGroups);
 
 	std::shared_ptr<IImage> getImage(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
-	size_t getAnimationGroup(const IMapRendererContext & context, const CGObjectInstance * obj) const;
 
-	void renderImage(Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image);
+	void renderImage(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image);
 	void renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj);
 
 public:
-	explicit MapRendererObjects(const IMapRendererContext & context);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
-
-	void onObjectInstantAdd(const IMapRendererContext & context, const CGObjectInstance * object) final override;
-	void onObjectInstantRemove(const IMapRendererContext & context, const CGObjectInstance * object) final override;
 };
 
 class MapRendererBorder
@@ -150,7 +141,5 @@ class MapRenderer
 	MapRendererDebugGrid rendererDebugGrid;
 
 public:
-	explicit MapRenderer(const IMapRendererContext & context);
-
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
