@@ -1865,6 +1865,9 @@ void CGameState::placeHeroesInTowns()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
+				if(h->visitablePos().z != t->visitablePos().z)
+					continue;
+
 				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
 
 				// current hero position is at one of blocking tiles of current town
@@ -1896,6 +1899,9 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
+				if(h->visitablePos().z != t->visitablePos().z)
+					continue;
+
 				if (t->visitableAt(h->visitablePos().x, h->visitablePos().y))
 				{
 					assert(t->visitingHero == nullptr);
