@@ -11,12 +11,12 @@
 #include <SDL_events.h>
 #include "StdInc.h"
 
-#include "SettingsMainContainer.h"
+#include "SettingsMainWindow.h"
 
 #include "GeneralOptionsTab.h"
 #include "AdventureOptionsTab.h"
 #include "BattleOptionsTab.h"
-#include "OtherOptionsWindow.h"
+#include "OtherOptionsTab.h"
 
 #include "filesystem/ResourceID.h"
 #include "CGeneralTextHandler.h"
@@ -30,7 +30,7 @@
 #include "CServerHandler.h"
 
 
-SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
+SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -72,13 +72,13 @@ SettingsMainContainer::SettingsMainContainer(BattleInterface * parentBattleUi) :
 		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
 
 	parentBattleInterface = parentBattleUi;
-	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainContainer::createTab, this, _1), Point(0, 40), defaultTabIndex);
+	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainWindow::createTab, this, _1), Point(0, 40), defaultTabIndex);
 
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);
 }
 
-std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
+std::shared_ptr<CIntObject> SettingsMainWindow::createTab(size_t index)
 {
 	switch(index)
 	{
@@ -89,14 +89,14 @@ std::shared_ptr<CIntObject> SettingsMainContainer::createTab(size_t index)
 		case 2:
 			return std::make_shared<BattleOptionsTab>(parentBattleInterface);
 		case 3:
-			return std::make_shared<OtherOptionsWindow>();
+			return std::make_shared<OtherOptionsTab>();
 		default:
 			logGlobal->error("Wrong settings tab ID!");
 			return std::make_shared<GeneralOptionsTab>();
 	}
 }
 
-void SettingsMainContainer::openTab(size_t index)
+void SettingsMainWindow::openTab(size_t index)
 {
 	tabContentArea->setActive(index);
 	CIntObject::redraw();
@@ -105,46 +105,46 @@ void SettingsMainContainer::openTab(size_t index)
 	lastUsedTab->Integer() = index;
 }
 
-void SettingsMainContainer::close()
+void SettingsMainWindow::close()
 {
 	if(GH.topInt().get() != this)
 		logGlobal->error("Only top interface must be closed");
 	GH.popInts(1);
 }
 
-void SettingsMainContainer::quitGameButtonCallback()
+void SettingsMainWindow::quitGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::FORCE_QUIT); }, 0);
 }
 
-void SettingsMainContainer::backButtonCallback()
+void SettingsMainWindow::backButtonCallback()
 {
 	close();
 }
 
-void SettingsMainContainer::mainMenuButtonCallback()
+void SettingsMainWindow::mainMenuButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
 }
 
-void SettingsMainContainer::loadGameButtonCallback()
+void SettingsMainWindow::loadGameButtonCallback()
 {
 	close();
 	LOCPLINT->proposeLoadingGame();
 }
 
-void SettingsMainContainer::saveGameButtonCallback()
+void SettingsMainWindow::saveGameButtonCallback()
 {
 	close();
 	GH.pushIntT<CSavingScreen>();
 }
 
-void SettingsMainContainer::restartGameButtonCallback()
+void SettingsMainWindow::restartGameButtonCallback()
 {
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(EUserEvent::RESTART_GAME); }, 0);
 }
 
-void SettingsMainContainer::closeAndPushEvent(EUserEvent code)
+void SettingsMainWindow::closeAndPushEvent(EUserEvent code)
 {
 	close();
 	GH.pushUserEvent(code);

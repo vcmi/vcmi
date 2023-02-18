@@ -11,10 +11,10 @@
 
 #include "../../gui/InterfaceObjectConfigurable.h"
 
-class OtherOptionsWindow : public InterfaceObjectConfigurable
+class OtherOptionsTab : public InterfaceObjectConfigurable
 {
 private:
 
 public:
-	OtherOptionsWindow();
+	OtherOptionsTab();
 };

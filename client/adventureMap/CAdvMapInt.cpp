@@ -35,7 +35,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
-#include "../windows/settings/SettingsMainContainer.h"
+#include "../windows/settings/SettingsMainWindow.h"
 #include "../CMT.h"
 
 #include "../../CCallback.h"
@@ -347,7 +347,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	GH.pushIntT<SettingsMainContainer>();
+	GH.pushIntT<SettingsMainWindow>();
 }
 
 void CAdvMapInt::fnextHero()

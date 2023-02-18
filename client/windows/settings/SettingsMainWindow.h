@@ -16,7 +16,7 @@ class BattleInterface;
 class CTabbedInt;
 enum class EUserEvent;
 
-class SettingsMainContainer : public InterfaceObjectConfigurable
+class SettingsMainWindow : public InterfaceObjectConfigurable
 {
 private:
 	BattleInterface * parentBattleInterface;
@@ -35,6 +35,6 @@ private:
 	void restartGameButtonCallback();
 	void mainMenuButtonCallback();
 public:
-	SettingsMainContainer(BattleInterface * parentBattleInterface = nullptr);
+	SettingsMainWindow(BattleInterface * parentBattleInterface = nullptr);
 };
 

@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "OtherOptionsWindow.h"
+#include "OtherOptionsTab.h"
 
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../gui/CGuiHandler.h"
@@ -22,7 +22,7 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
-OtherOptionsWindow::OtherOptionsWindow() : InterfaceObjectConfigurable()
+OtherOptionsTab::OtherOptionsTab() : InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 

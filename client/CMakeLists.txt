@@ -92,8 +92,8 @@ set(client_SRCS
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
 	windows/settings/GeneralOptionsTab.cpp
-	windows/settings/OtherOptionsWindow.cpp
-	windows/settings/SettingsMainContainer.cpp
+	windows/settings/OtherOptionsTab.cpp
+	windows/settings/SettingsMainWindow.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
 
@@ -209,8 +209,8 @@ set(client_HEADERS
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
 	windows/settings/GeneralOptionsTab.h
-	windows/settings/OtherOptionsWindow.h
-	windows/settings/SettingsMainContainer.h
+	windows/settings/OtherOptionsTab.h
+	windows/settings/SettingsMainWindow.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
 
