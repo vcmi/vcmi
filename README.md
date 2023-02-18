@@ -14,6 +14,7 @@ VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it ne
  * Forums:     https://forum.vcmi.eu/
  * Bugtracker: https://github.com/vcmi/vcmi/issues
  * Slack:      https://slack.vcmi.eu/
+ * Discord:    https://discord.gg/chBT42V
 
 ## Installation guides
 
