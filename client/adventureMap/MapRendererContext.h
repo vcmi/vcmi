@@ -58,11 +58,8 @@ public:
 	/// returns object animation transparency. IF set to 0, object will not be visible
 	virtual double objectTransparency(ObjectInstanceID objectID) const = 0;
 
-	/// returns how long should each frame of animation be visible, in milliseconds
-	virtual uint32_t getAnimationPeriod() const = 0;
-
-	/// returns total animation time since creation of this context
-	virtual uint32_t getAnimationTime() const = 0;
+	/// returns animation frame for selected object
+	virtual size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const = 0;
 
 	/// returns size of ouput tile, in pixels. 32x32 for "standard" map, may be smaller for world view mode
 	virtual Point getTileSize() const = 0;

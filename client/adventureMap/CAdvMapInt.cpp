@@ -592,20 +592,22 @@ void CAdvMapInt::show(SDL_Surface * to)
 
 void CAdvMapInt::handleMapScrollingUpdate()
 {
-	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
+	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
+	double scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
+	int32_t scrollDistance = static_cast<int32_t>(scrollSpeedPixels * timePassed / 1000);
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 
 	if(scrollingDir & LEFT)
-		terrain->moveViewBy(Point(-scrollSpeed, 0));
+		terrain->moveViewBy(Point(-scrollDistance, 0));
 
 	if(scrollingDir & RIGHT)
-		terrain->moveViewBy(Point(+scrollSpeed, 0));
+		terrain->moveViewBy(Point(+scrollDistance, 0));
 
 	if(scrollingDir & UP)
-		terrain->moveViewBy(Point(0, -scrollSpeed));
+		terrain->moveViewBy(Point(0, -scrollDistance));
 
 	if(scrollingDir & DOWN)
-		terrain->moveViewBy(Point(0, +scrollSpeed));
+		terrain->moveViewBy(Point(0, +scrollDistance));
 
 	if(scrollingDir)
 	{

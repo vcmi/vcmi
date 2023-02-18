@@ -396,8 +396,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(const IMapRendererContext &
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
 
-	size_t frameCounter = context.getAnimationTime() / context.getAnimationPeriod();
-	size_t frameIndex = frameCounter % animation->size(groupIndex);
+	size_t frameIndex = context.objectImageIndex(obj->id, animation->size(groupIndex));
 
 	return animation->getImage(frameIndex, groupIndex);
 }

@@ -161,19 +161,19 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat" ],
 			"properties" : {
-				"heroSpeed" : {
+				"heroMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"enemySpeed" : {
+				"enemyMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"scrollSpeed" : {
+				"scrollSpeedPixels" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 800
 				},
 				"heroReminder" : {
 					"type" : "boolean",

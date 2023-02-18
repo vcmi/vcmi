@@ -37,15 +37,15 @@ AdventureOptionsTab::AdventureOptionsTab()
 	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", [](int value)
 	{
-		return setIntSetting("adventure", "heroSpeed", value);
+		return setIntSetting("adventure", "heroMoveTime", value);
 	});
 	addCallback("enemyHeroSpeedChanged", [](int value)
 	{
-		return setIntSetting("adventure", "enemySpeed", value);
+		return setIntSetting("adventure", "enemyMoveTime", value);
 	});
 	addCallback("mapScrollSpeedChanged", [](int value)
 	{
-		return setIntSetting("adventure", "scrollSpeed", value);
+		return setIntSetting("adventure", "scrollSpeedPixels", value);
 	});
 	addCallback("heroReminderChanged", [](bool value)
 	{

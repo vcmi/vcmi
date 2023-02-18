@@ -65,8 +65,7 @@ public:
 	size_t objectGroupIndex(ObjectInstanceID objectID) const override;
 	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
 	double objectTransparency(ObjectInstanceID objectID) const override;
-	uint32_t getAnimationPeriod() const override;
-	uint32_t getAnimationTime() const override;
+	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	Point getTileSize() const override;
 	bool showGrid() const override;
 };

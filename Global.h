@@ -442,6 +442,20 @@ namespace vstd
 		}
 	}
 
+	// c++17: makes a to fit the range <b, c>
+	template <typename t1, typename t2, typename t3>
+	t1 clamp(const t1 &value, const t2 &low, const t3 &high)
+	{
+		if ( value > high)
+			return high;
+
+		if ( value < low)
+			return low;
+
+		return value;
+	}
+
+
 	//makes a to fit the range <b, c>
 	template <typename t1, typename t2, typename t3>
 	t1 &abetween(t1 &a, const t2 &b, const t3 &c)

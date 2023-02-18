@@ -166,19 +166,24 @@ const CGPath * MapRendererContext::currentPath() const
 	return &LOCPLINT->paths.getPath(hero);
 }
 
-uint32_t MapRendererContext::getAnimationPeriod() const
+size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
 {
+	assert(groupSize > 0);
+	if (groupSize == 0)
+		return 0;
+
 	// H3 timing for adventure map objects animation is 180 ms
 	// Terrain animations also use identical interval, however those are only present in HotA and/or HD Mod
-	// TODO: duration of fade-in/fade-out for teleport, entering/leaving boat, removal of objects
-	// TOOD: duration of hero movement animation, frame timing of hero movement animation, effect of hero speed option
-	// TOOD: duration of enemy hero movement animation, frame timing of enemy hero movement animation, effect of enemy hero speed option
-	return 180;
-}
+	size_t baseFrameTime = 180;
 
-uint32_t MapRendererContext::getAnimationTime() const
-{
-	return animationTime;
+	// hero movement animation always plays at ~50ms / frame
+	// in-game setting only affect movement across screen
+	if (movementAnimation && movementAnimation->target == objectID)
+		 baseFrameTime = 50;
+
+	size_t frameCounter = animationTime / baseFrameTime;
+	size_t frameIndex = frameCounter % groupSize;
+	return frameIndex;
 }
 
 Point MapRendererContext::getTileSize() const
@@ -193,14 +198,19 @@ bool MapRendererContext::showGrid() const
 
 void MapViewController::setViewCenter(const int3 & position)
 {
-	model->setViewCenter(Point(position.x, position.y) * model->getSingleTileSize());
-	model->setLevel(position.z);
+	assert(context->isInMap(position));
+	setViewCenter(Point(position) * model->getSingleTileSize(), position.z);
 }
 
 void MapViewController::setViewCenter(const Point & position, int level)
 {
-	model->setViewCenter(position);
-	model->setLevel(level);
+	Point betterPosition = {
+		vstd::clamp(position.x, 0, context->getMapSize().x * model->getSingleTileSize().x),
+		vstd::clamp(position.y, 0, context->getMapSize().y * model->getSingleTileSize().y)
+	};
+
+	model->setViewCenter(betterPosition);
+	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
 }
 
 void MapViewController::setTileSize(const Point & tileSize)
@@ -452,14 +462,16 @@ void MapViewController::update(uint32_t timeDelta)
 {
 	static const double fadeOutDuration = 1.0;
 	static const double fadeInDuration = 1.0;
-	static const double heroMoveDuration = 1.0;
 	static const double heroTeleportDuration = 1.0;
 
 	//FIXME: remove code duplication?
 
 	if (context->movementAnimation)
 	{
-		context->movementAnimation->progress += heroMoveDuration * timeDelta / 1000;
+		// TODO: enemyMoveTime
+		double heroMoveTime = settings["adventure"]["heroMoveTime"].Float();
+
+		context->movementAnimation->progress += timeDelta / heroMoveTime;
 
 		Point positionFrom = Point(context->movementAnimation->tileFrom) * model->getSingleTileSize();
 		Point positionDest = Point(context->movementAnimation->tileDest) * model->getSingleTileSize();
@@ -503,7 +515,7 @@ void MapViewController::update(uint32_t timeDelta)
 	}
 
 	context->animationTime += timeDelta;
-	context->tileSize =model->getSingleTileSize();
+	context->tileSize = model->getSingleTileSize();
 }
 
 void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
@@ -539,8 +551,17 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 {
 	assert(!context->movementAnimation);
 	context->removeObject(obj);
-	context->addMovingObject(obj, from, dest);
-	context->movementAnimation = HeroAnimationState{ obj->id, from, dest, 0.0 };
+
+	if (settings["adventure"]["heroMoveTime"].Float() > 1)
+	{
+		context->addMovingObject(obj, from, dest);
+		context->movementAnimation = HeroAnimationState{ obj->id, from, dest, 0.0 };
+	}
+	else
+	{
+		// instant movement
+		context->addObject(obj);
+	}
 }
 
 void MapViewController::onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest)

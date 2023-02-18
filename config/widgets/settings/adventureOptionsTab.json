@@ -31,7 +31,7 @@
 			"items":
 			[
 				{
-					"index": 1,
+					"index": 200,
 					"type": "toggleButton",
 					"image": "sysopb1",
 					"help": "core.help.349",
@@ -39,7 +39,7 @@
 				},
 
 				{
-					"index": 2,
+					"index": 150,
 					"type": "toggleButton",
 					"image": "sysopb2",
 					"help": "core.help.350",
@@ -47,7 +47,7 @@
 				},
 
 				{
-					"index": 4,
+					"index": 100,
 					"type": "toggleButton",
 					"image": "sysopb3",
 					"help": "core.help.351",
@@ -55,7 +55,7 @@
 				},
 
 				{
-					"index": 16,
+					"index": 0,
 					"type": "toggleButton",
 					"image": "sysopb4",
 					"help": "core.help.352",
@@ -80,7 +80,7 @@
 			"items":
 			[
 				{
-					"index": 2,
+					"index": 150,
 					"type": "toggleButton",
 					"image": "sysopb5",
 					"help": "core.help.353",
@@ -88,7 +88,7 @@
 				},
 
 				{
-					"index": 4,
+					"index": 100,
 					"type": "toggleButton",
 					"image": "sysopb6",
 					"help": "core.help.354",
@@ -96,7 +96,7 @@
 				},
 
 				{
-					"index": 8,
+					"index": 0,
 					"type": "toggleButton",
 					"image": "sysopb7",
 					"help": "core.help.355",
@@ -104,7 +104,7 @@
 				},
 
 				{
-					"index": 0,
+					"index": -1,
 					"type": "toggleButton",
 					"image": "sysopb8",
 					"help": "core.help.356",
@@ -121,7 +121,7 @@
 			"items":
 			[
 				{
-					"index": 1,
+					"index": 400,
 					"type": "toggleButton",
 					"image": "sysopb9",
 					"help": "core.help.357",
@@ -129,7 +129,7 @@
 				},
 
 				{
-					"index": 2,
+					"index": 800,
 					"type": "toggleButton",
 					"image": "sysob10",
 					"help": "core.help.358",
@@ -137,7 +137,7 @@
 				},
 
 				{
-					"index": 4,
+					"index": 1200,
 					"type": "toggleButton",
 					"image": "sysob11",
 					"help": "core.help.359",

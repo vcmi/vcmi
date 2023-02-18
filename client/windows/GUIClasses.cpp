@@ -424,7 +424,6 @@ CLevelWindow::~CLevelWindow()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	: CStatusbarWindow(PLAYER_COLORED, "TPTAVERN"),
 	tavernObj(TavernObj)
