@@ -285,7 +285,7 @@ public:
 	BONUS_NAME(DARKNESS) /*val = radius */ \
 	BONUS_NAME(SPECIAL_SECONDARY_SKILL) /*subtype = id, val = value per level in percent*/ \
 	BONUS_NAME(SPECIAL_SPELL_LEV) /*subtype = id, val = value per level in percent*/\
-	BONUS_NAME(SPELL_DAMAGE) /*val = value*/\
+	BONUS_NAME(SPELL_DAMAGE) /*val = value, now works for sorcery*/\
 	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*subtype = id of spell, val = value*/\
 	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
 	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\

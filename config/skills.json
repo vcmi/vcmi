@@ -730,8 +730,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.sorcery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "SPELL_DAMAGE",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

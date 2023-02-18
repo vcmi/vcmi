@@ -618,8 +618,8 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 {
 	//applying sorcery secondary skill
 
-	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0);
-	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
+	base = static_cast<int64_t>(base * (valOfBonuses(Bonus::SPELL_DAMAGE)) / 100.0);
+	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
 
 	int maxSchoolBonus = 0;
 

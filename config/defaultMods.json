@@ -45,6 +45,13 @@
 		"COMMANDERS": false,
 		"MITHRIL": false //so far unused
 	},
+	"baseBonuses" : [
+		{
+			"type" : "SPELL_DAMAGE", //Default spell damage
+			"val" : 100,
+			"valueType" : "BASE_NUMBER"
+		}
+	],
 	"heroBaseBonuses":
 	[
 		{
