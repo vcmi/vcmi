@@ -237,7 +237,6 @@ CGHeroInstance::CGHeroInstance():
 	IBoatGenerator(this),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
-	isStanding(true),
 	moveDir(4),
 	mana(UNINITIALIZED_MANA),
 	movement(UNINITIALIZED_MOVEMENT),

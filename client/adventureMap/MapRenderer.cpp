@@ -157,6 +157,17 @@ void MapRendererTerrain::renderTile(const IMapRendererContext & context, Canvas 
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
+	if(mapTile.terType->getId() == ETerrainId::LAVA)
+	{
+		image->shiftPalette(246, 9, context.terrainImageIndex(9));
+	}
+
+	if(mapTile.terType->getId() == ETerrainId::WATER)
+	{
+		image->shiftPalette(229, 12, context.terrainImageIndex(12));
+		image->shiftPalette(242, 14, context.terrainImageIndex(14));
+	}
+
 	target.draw(image, Point(0, 0));
 }
 
@@ -171,15 +182,34 @@ void MapRendererRiver::renderTile(const IMapRendererContext & context, Canvas & 
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(mapTile.riverType->getId() != River::NO_RIVER)
-	{
-		int32_t terrainIndex = mapTile.riverType->getIndex();
-		int32_t imageIndex = mapTile.riverDir;
-		int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
+	if(mapTile.riverType->getId() == River::NO_RIVER)
+		return;
 
-		const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
-		target.draw(image, Point(0, 0));
+	int32_t terrainIndex = mapTile.riverType->getIndex();
+	int32_t imageIndex = mapTile.riverDir;
+	int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
+
+	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
+
+	if(mapTile.riverType->getId() == River::WATER_RIVER)
+	{
+		image->shiftPalette(183, 12, context.terrainImageIndex(12));
+		image->shiftPalette(195, 6, context.terrainImageIndex(6));
 	}
+
+	if(mapTile.riverType->getId() == River::MUD_RIVER)
+	{
+		image->shiftPalette(228, 12, context.terrainImageIndex(12));
+		image->shiftPalette(183, 6, context.terrainImageIndex(6));
+		image->shiftPalette(240, 6, context.terrainImageIndex(6));
+	}
+
+	if(mapTile.riverType->getId() == River::LAVA_RIVER)
+	{
+		image->shiftPalette(240, 9, context.terrainImageIndex(9));
+	}
+
+	target.draw(image, Point(0, 0));
 }
 
 MapRendererRoad::MapRendererRoad()

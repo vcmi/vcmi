@@ -155,7 +155,7 @@ const CGPath * MapRendererContext::currentPath() const
 size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
 {
 	assert(groupSize > 0);
-	if (groupSize == 0)
+	if(groupSize == 0)
 		return 0;
 
 	// H3 timing for adventure map objects animation is 180 ms
@@ -164,9 +164,17 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 
 	// hero movement animation always plays at ~50ms / frame
 	// in-game setting only affect movement across screen
-	if (movementAnimation && movementAnimation->target == objectID)
-		 baseFrameTime = 50;
+	if(movementAnimation && movementAnimation->target == objectID)
+		baseFrameTime = 50;
 
+	size_t frameCounter = animationTime / baseFrameTime;
+	size_t frameIndex = frameCounter % groupSize;
+	return frameIndex;
+}
+
+size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
+{
+	size_t baseFrameTime = 180;
 	size_t frameCounter = animationTime / baseFrameTime;
 	size_t frameIndex = frameCounter % groupSize;
 	return frameIndex;
@@ -179,7 +187,7 @@ Point MapRendererContext::getTileSize() const
 
 bool MapRendererContext::showGrid() const
 {
-	return true; // settings["session"]["showGrid"].Bool();
+	return true; // settings["gameTweaks"]["showGrid"].Bool();
 }
 
 void MapViewController::setViewCenter(const int3 & position)

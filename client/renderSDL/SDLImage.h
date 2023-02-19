@@ -63,7 +63,7 @@ public:
 	void horizontalFlip() override;
 	void verticalFlip() override;
 
-	void shiftPalette(int from, int howMany) override;
+	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) override;
 	void resetPalette(int colorID) override;
 	void resetPalette() override;

@@ -172,73 +172,6 @@ void HeroPathStorage::verifyPath(const CGHeroInstance *h)
 	setPath(h, getPath(h).endPos());
 }
 
-//CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
-//{
-//	if (vstd::contains(paths,h)) //hero has assigned path
-//	{
-//		CGPath &path = paths[h];
-//		if (!path.nodes.size())
-//		{
-//			logGlobal->warn("Warning: empty path found...");
-//			paths.erasePath(h);
-//		}
-//		else
-//		{
-//			assert(h->visitablePos() == path.startPos());
-//			//update the hero path in case of something has changed on map
-//			if (LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
-//				return &path;
-//
-//			paths.erase(h);
-//			return nullptr;
-//		}
-//	}
-//
-//	return nullptr;
-//}
-//
-//CGPath * CPlayerInterface::getPath(const CGHeroInstance * h)
-//{
-//	if (vstd::contains(paths,h)) //hero has assigned path
-//		return &paths[h];
-//
-//	return nullptr;
-//}
-
-//removeLastNode
-
-
-//void HeroPathStorage::setPath(const CGHeroInstance *h, const CGPath & path)
-//{
-//
-//}
-//
-//const CGPath & HeroPathStorage::getPath(const CGHeroInstance *h)
-//{
-//
-//}
-//
-//void HeroPathStorage::verifyPath(const CGHeroInstance *h)
-//{
-//
-//}
-
-//void CPlayerInterface::eraseCurrentPathOf(const CGHeroInstance * ho, bool checkForExistanceOfPath)
-//{
-//	if (checkForExistanceOfPath)
-//	{
-//		assert(vstd::contains(paths, ho));
-//	}
-//	else if (!vstd::contains(paths, ho))
-//	{
-//		return;
-//	}
-//	assert(ho == adventureInt->selection);
-//
-//	paths.erasePath(ho);
-//	adventureInt->updateMoveHero(ho, false);
-//}
-
 template<typename Handler>
 void HeroPathStorage::serialize(Handler & h, int version)
 {
@@ -398,10 +331,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.start));
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.end));
 
-	bool directlyAttackingCreature =
-		details.attackedFrom
-		&& paths.hasPath(hero) //in case if movement has been canceled in the meantime and path was already erased
-		&& paths.getPath(hero).nodes.size() == 3;//FIXME should be 2 but works nevertheless...
+	bool directlyAttackingCreature = details.attackedFrom && paths.hasPath(hero) && paths.getPath(hero).endPos() == *details.attackedFrom;
 
 	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
@@ -429,11 +359,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 				}
 			}
-			adventureInt->centerOn(hero, true); //actualizing screen pos
-			adventureInt->minimap->redraw();
-			adventureInt->heroList->update(hero);
-			return;	//teleport - no fancy moving animation
-					//TODO: smooth disappear / appear effect
 		}
 
 		if(hero->pos != details.end //hero didn't change tile but visit succeeded
@@ -450,7 +375,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 	if(details.stopMovement()) //hero failed to move
 	{
-		hero->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
 		GH.totalRedraw();
 		adventureInt->heroList->update(hero);
@@ -461,9 +385,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	adventureInt->heroList->redraw();
 
 	CGI->mh->waitForOngoingAnimations();
-
-	//finishing move
-	hero->isStanding = true;
 
 	//move finished
 	adventureInt->minimap->redraw();
@@ -1686,8 +1607,6 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
 {
 	auto subArr = (CGI->mh->ttiles)[hp.z];
-
-	ho->isStanding = false;
 
 	int heroWidth  = ho->appearance->getWidth();
 	int heroHeight = ho->appearance->getHeight();

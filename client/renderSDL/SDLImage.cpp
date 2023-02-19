@@ -272,20 +272,17 @@ void SDLImage::savePalette()
 	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, DEFAULT_PALETTE_COLORS);
 }
 
-void SDLImage::shiftPalette(int from, int howMany)
+void SDLImage::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
 {
-	//works with at most 16 colors, if needed more -> increase values
-	assert(howMany < 16);
-
 	if(surf->format->palette)
 	{
-		SDL_Color palette[16];
+		std::vector<SDL_Color> shifterColors(colorsToMove);
 
-		for(int i=0; i<howMany; ++i)
+		for(uint32_t i=0; i<colorsToMove; ++i)
 		{
-			palette[(i+1)%howMany] = surf->format->palette->colors[from + i];
+			shifterColors[(i+distanceToMove)%colorsToMove] = originalPalette->colors[firstColorID + i];
 		}
-		CSDL_Ext::setColors(surf, palette, from, howMany);
+		CSDL_Ext::setColors(surf, shifterColors.data(), firstColorID, colorsToMove);
 	}
 }
 

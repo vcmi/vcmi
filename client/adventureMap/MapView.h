@@ -13,6 +13,7 @@
 #include "../gui/CIntObject.h"
 #include "../lib/int3.h"
 
+class IImage;
 class Canvas;
 class MapRenderer;
 class MapViewController;
@@ -66,6 +67,7 @@ public:
 	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
 	double objectTransparency(ObjectInstanceID objectID) const override;
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
+	size_t terrainImageIndex(size_t groupSize) const override;
 	Point getTileSize() const override;
 	bool showGrid() const override;
 };
@@ -120,6 +122,7 @@ public:
 class MapViewCache
 {
 	std::shared_ptr<MapViewModel> model;
+	std::shared_ptr<IImage> mapTransition; //TODO
 
 	std::unique_ptr<Canvas> terrain;
 	std::unique_ptr<MapRenderer> mapRenderer;
