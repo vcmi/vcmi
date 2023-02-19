@@ -69,6 +69,8 @@ public:
 
 	/// if true, map grid should be visible on map
 	virtual bool showGrid() const = 0;
+	virtual bool showVisitable() const = 0;
+	virtual bool showBlockable() const = 0;
 };
 
 class IMapObjectObserver

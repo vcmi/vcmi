@@ -190,6 +190,16 @@ bool MapRendererContext::showGrid() const
 	return true; // settings["gameTweaks"]["showGrid"].Bool();
 }
 
+bool MapRendererContext::showVisitable() const
+{
+	return settings["session"]["showVisitable"].Bool();
+}
+
+bool MapRendererContext::showBlockable() const
+{
+	return settings["session"]["showBlockable"].Bool();
+}
+
 void MapViewController::setViewCenter(const int3 & position)
 {
 	assert(context->isInMap(position));

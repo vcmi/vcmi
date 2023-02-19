@@ -500,12 +500,39 @@ void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas 
 	}
 }
 
-void MapRendererDebugGrid::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+MapRendererDebug::MapRendererDebug()
+	: imageGrid(IImage::createFromFile("debug/grid"))
+	, imageBlockable(IImage::createFromFile("debug/blocked"))
+	, imageVisitable(IImage::createFromFile("debug/visitable"))
+{
+
+}
+
+void MapRendererDebug::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	if(context.showGrid())
+		target.draw(imageGrid, Point(0,0));
+
+	if(context.showVisitable() || context.showBlockable())
 	{
-		target.drawLine(Point(0, 0), Point(0, 31), {128, 128, 128, 128}, {128, 128, 128, 128});
-		target.drawLine(Point(0, 0), Point(31, 0), {128, 128, 128, 128}, {128, 128, 128, 128});
+		bool blockable = false;
+		bool visitable = false;
+
+		for (auto const & objectID: context.getObjects(coordinates))
+		{
+			auto const * object = context.getObject(objectID);
+
+			if (context.objectTransparency(objectID) > 0)
+			{
+				visitable |= object->visitableAt(coordinates.x, coordinates.y);
+				blockable |= object->blockingAt(coordinates.x, coordinates.y);
+			}
+		}
+
+		if (context.showBlockable() && blockable)
+			target.draw(imageBlockable, Point(0,0));
+		if (context.showVisitable() && visitable)
+			target.draw(imageVisitable, Point(0,0));
 	}
 }
 
@@ -619,9 +646,10 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 		rendererRoad.renderTile(context, target, coordinates);
 		rendererObjects.renderTile(context, target, coordinates);
 		rendererPath.renderTile(context, target, coordinates);
+		rendererDebug.renderTile(context, target, coordinates);
 
 		if(!context.isVisible(coordinates))
 			rendererFow.renderTile(context, target, coordinates);
 	}
-	rendererDebugGrid.renderTile(context, target, coordinates);
+
 }

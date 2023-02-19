@@ -70,6 +70,8 @@ public:
 	size_t terrainImageIndex(size_t groupSize) const override;
 	Point getTileSize() const override;
 	bool showGrid() const override;
+	bool showVisitable() const override;
+	bool showBlockable() const override;
 };
 
 class MapViewModel

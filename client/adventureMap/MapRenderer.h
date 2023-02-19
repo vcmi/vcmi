@@ -125,9 +125,14 @@ public:
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
-class MapRendererDebugGrid
+class MapRendererDebug
 {
+	std::shared_ptr<IImage> imageGrid;
+	std::shared_ptr<IImage> imageVisitable;
+	std::shared_ptr<IImage> imageBlockable;
 public:
+	MapRendererDebug();
+
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -140,7 +145,7 @@ class MapRenderer
 	MapRendererFow rendererFow;
 	MapRendererObjects rendererObjects;
 	MapRendererPath rendererPath;
-	MapRendererDebugGrid rendererDebugGrid;
+	MapRendererDebug rendererDebug;
 
 public:
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
