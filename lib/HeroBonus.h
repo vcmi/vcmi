@@ -177,7 +177,7 @@ public:
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
-	BONUS_NAME(SIGHT_RADIOUS) /*the correct word is RADIUS, but this one's already used in mods */\
+	BONUS_NAME(SIGHT_RADIUS) \
 	BONUS_NAME(MANA_REGENERATION) /*points per turn apart from normal (1 + mysticism)*/  \
 	BONUS_NAME(FULL_MANA_REGENERATION) /*all mana points are replenished every day*/  \
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \

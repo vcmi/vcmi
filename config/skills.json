@@ -84,7 +84,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"type" : "SIGHT_RADIOUS",
+					"type" : "SIGHT_RADIUS",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

@@ -32,7 +32,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
 
 #define BONUS_NAME(x) { #x, Bonus::x },
-	const std::map<std::string, Bonus::BonusType> bonusNameMap = { BONUS_LIST };
+	const std::map<std::string, Bonus::BonusType> bonusNameMap = {
+		BONUS_LIST
+		{"SIGHT_RADIOUS", Bonus::SIGHT_RADIUS} /*the correct word is RADIUS, but this one's already used in mods. Deprecated. */
+	};
 #undef BONUS_NAME
 
 #define BONUS_VALUE(x) { #x, Bonus::x },

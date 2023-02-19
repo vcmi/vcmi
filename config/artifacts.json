@@ -810,7 +810,7 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "SIGHT_RADIOUS",
+				"type" : "SIGHT_RADIUS",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -822,7 +822,7 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "SIGHT_RADIOUS",
+				"type" : "SIGHT_RADIUS",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}

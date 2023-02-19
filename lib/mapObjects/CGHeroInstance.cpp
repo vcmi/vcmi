@@ -895,7 +895,7 @@ int3 CGHeroInstance::getSightCenter() const
 
 int CGHeroInstance::getSightRadius() const
 {
-	return 5 + valOfBonuses(Bonus::SIGHT_RADIOUS); // scouting gives SIGHT_RADIUS bonus
+	return 5 + valOfBonuses(Bonus::SIGHT_RADIUS); // scouting gives SIGHT_RADIUS bonus
 }
 
 si32 CGHeroInstance::manaRegain() const
