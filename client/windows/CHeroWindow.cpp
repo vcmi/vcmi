@@ -315,7 +315,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
-	if(curHero->getSecSkillLevel(SecondarySkill::TACTICS) == 0)
+	if(curHero->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION)) == 0)
 	{
 		tacticsButton->block(true);
 	}

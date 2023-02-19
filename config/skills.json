@@ -542,25 +542,31 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.tactics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "BEFORE_BATTLE_REPOSITION",
+					"valueType" : "BASE_NUMBER"
+				},
+				"block" : {
+					"type" : "BEFORE_BATTLE_REPOSITION_BLOCK",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 2 }
+				"main" : { "val" : 2 },
+				"block" : { "val" : 2 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 4 }
+				"main" : { "val" : 4 },
+				"block" : { "val" : 4 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 6 }
+				"main" : { "val" : 6 },
+				"block" : { "val" : 6 }
 			}
 		}
 	},

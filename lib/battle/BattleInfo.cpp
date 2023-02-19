@@ -483,22 +483,47 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//tactics
 	bool isTacticsAllowed = !creatureBank; //no tactics in creature banks
 
-	int tacticLvls[2] = {0};
-	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
+	constexpr int sideSize = 2;
+
+	std::array<int, sideSize> battleRepositionHex = {};
+	std::array<int, sideSize> battleRepositionHexBlock = {};
+	for(int i = 0; i < sideSize; i++)
 	{
 		if(heroes[i])
-			tacticLvls[i] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::TACTICS));
+		{
+			battleRepositionHex[i] += heroes[i]->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION));
+			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION_BLOCK));
+		}
 	}
-	int tacticsSkillDiff = tacticLvls[0] - tacticLvls[1];
+	int tacticsSkillDiffAttacker = battleRepositionHex[BattleSide::ATTACKER] - battleRepositionHexBlock[BattleSide::DEFENDER];
+	int tacticsSkillDiffDefender = battleRepositionHex[BattleSide::DEFENDER] - battleRepositionHexBlock[BattleSide::ATTACKER];
 
-	if(tacticsSkillDiff && isTacticsAllowed)
+	/* for current tactics, we need to choose one side, so, we will choose side when first - second > 0, and ignore sides
+	   when first - second <= 0. If there will be situations when both > 0, attacker will be chosen. Anyway, in OH3 this
+	   will not happen because tactics block opposite tactics on same value.
+	   TODO: For now, it is an error to use BEFORE_BATTLE_REPOSITION bonus without counterpart, but it can be changed if
+	   double tactics will be implemented.
+	*/
+
+	if(isTacticsAllowed)
 	{
-		curB->tacticsSide = tacticsSkillDiff < 0;
-		//bonus specifies distance you can move beyond base row; this allows 100% compatibility with HMM3 mechanics
-		curB->tacticDistance = 1 + std::abs(tacticsSkillDiff);
+		if(tacticsSkillDiffAttacker > 0 && tacticsSkillDiffDefender > 0)
+			logGlobal->warn("Double tactics is not implemented, only attacker will have tactics!");
+		if(tacticsSkillDiffAttacker > 0)
+		{
+			curB->tacticsSide = BattleSide::ATTACKER;
+			//bonus specifies distance you can move beyond base row; this allows 100% compatibility with HMM3 mechanics
+			curB->tacticDistance = 1 + tacticsSkillDiffAttacker;
+		}
+		else if(tacticsSkillDiffDefender > 0)
+		{
+			curB->tacticsSide = BattleSide::DEFENDER;
+			//bonus specifies distance you can move beyond base row; this allows 100% compatibility with HMM3 mechanics
+			curB->tacticDistance = 1 + tacticsSkillDiffDefender;
+		}
+		else
+			curB->tacticDistance = 0;
 	}
-	else
-		curB->tacticDistance = 0;
 
 	return curB;
 }
