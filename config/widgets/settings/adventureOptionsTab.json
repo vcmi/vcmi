@@ -10,15 +10,15 @@
 			"items":
 			[
 				{
-					"position": {"x": 122, "y": 32},
+					"position": {"x": 122, "y": 52},
 					"text": "core.genrltxt.569"
 				},
 				{
-					"position": {"x": 122, "y": 98},
+					"position": {"x": 122, "y": 118},
 					"text": "core.genrltxt.570"
 				},
 				{
-					"position": {"x": 122, "y": 164},
+					"position": {"x": 122, "y": 184},
 					"text": "core.genrltxt.571"
 				}
 			]
@@ -27,7 +27,7 @@
 		{
 			"name": "heroMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 45},
+			"position": {"x": 28, "y": 65},
 			"items":
 			[
 				{
@@ -76,7 +76,7 @@
 		{
 			"name": "enemyMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 112},
+			"position": {"x": 28, "y": 132},
 			"items":
 			[
 				{
@@ -117,7 +117,7 @@
 		{
 			"name": "mapScrollSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 178},
+			"position": {"x": 28, "y": 198},
 			"items":
 			[
 				{
@@ -194,27 +194,27 @@
 			"items":
 			[
 				{
-					"position": {"x": 64, "y": 258},
+					"position": {"x": 64, "y": 278},
 					"text": "core.genrltxt.572"
 				},
 				{
-					"position": {"x": 64, "y": 294},
+					"position": {"x": 64, "y": 314},
 					"text": "core.genrltxt.573"
 				},
 				{
-					"position": {"x": 64, "y": 330},
+					"position": {"x": 64, "y": 350},
 					"text": "core.genrltxt.574"
 				},
 				{
-					"position": {"x": 64, "y": 366},
+					"position": {"x": 64, "y": 386},
 					"text": "vcmi.adventureOptions.numericQuantities.hover"
 				},
 				{
-					"position": {"x": 64, "y": 402},
+					"position": {"x": 64, "y": 422},
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"position": {"x": 64, "y": 438},
+					"position": {"x": 64, "y": 458},
 					"text": "vcmi.adventureOptions.showGrid.hover"
 				}
 			]
@@ -225,7 +225,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.361",
-			"position": {"x": 28, "y": 292},
+			"position": {"x": 28, "y": 312},
 			"callback": "heroReminderChanged"
 		},
 
@@ -234,7 +234,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.362",
-			"position": {"x": 28, "y": 328},
+			"position": {"x": 28, "y": 348},
 			"callback": "quickCombatChanged"
 		},
 
@@ -243,7 +243,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.numericQuantities",
-			"position": {"x": 28, "y": 364},
+			"position": {"x": 28, "y": 384},
 			"callback": "numericQuantitiesChanged"
 		},
 
@@ -252,7 +252,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.forceMovementInfo",
-			"position": {"x": 28, "y": 400},
+			"position": {"x": 28, "y": 420},
 			"callback": "forceMovementInfoChanged"
 		},
 		{
@@ -260,7 +260,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.showGrid",
-			"position": {"x": 28, "y": 436},
+			"position": {"x": 28, "y": 456},
 			"callback": "showGridChanged"
 		}
 	]

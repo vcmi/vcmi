@@ -71,7 +71,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 		defaultTabIndex = settings["general"]["lastSettingsTab"].Integer();
 
 	parentBattleInterface = parentBattleUi;
-	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainWindow::createTab, this, _1), Point(0, 40), defaultTabIndex);
+	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainWindow::createTab, this, _1), Point(0, 0), defaultTabIndex);
 
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);

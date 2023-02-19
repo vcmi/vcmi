@@ -16,6 +16,10 @@ class BattleInterface;
 class CTabbedInt;
 enum class EUserEvent;
 
+/// <summary>
+///Original H3 settings were replaced with this window in Github PR #1540. New options added are intended to be clientside settings.
+///By design, most new options that alter gameplay UI from now on should be added to "gameTweaks" config key.
+/// </summary>
 class SettingsMainWindow : public InterfaceObjectConfigurable
 {
 private:

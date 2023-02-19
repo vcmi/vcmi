@@ -8,7 +8,7 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.393",
-			"position": {"x": 122, "y": 194}
+			"position": {"x": 122, "y": 224}
 		},
 		{
 			"name": "autoCombatOptionsLabel",
@@ -17,7 +17,7 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.396",
-			"position": {"x": 353, "y": 26}
+			"position": {"x": 353, "y": 56}
 		},
 		{
 			"name": "creatureInfoLabel",
@@ -26,7 +26,7 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.397",
-			"position": {"x": 98, "y": 265}
+			"position": {"x": 98, "y": 295}
 		},
 
 		{
@@ -36,7 +36,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.398",
-			"position": {"x": 283, "y": 46}
+			"position": {"x": 283, "y": 76}
 		},
 		{
 			"name": "spellsAutoCombatLabel",
@@ -45,7 +45,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.399",
-			"position": {"x": 283, "y": 76}
+			"position": {"x": 283, "y": 106}
 		},
 		{
 			"name": "catapultAutoCombatLabel",
@@ -54,7 +54,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.400",
-			"position": {"x": 283, "y": 106}
+			"position": {"x": 283, "y": 136}
 		},
 		{
 			"name": "ballistaAutoCombatLabel",
@@ -63,7 +63,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.151",
-			"position": {"x": 283, "y": 136}
+			"position": {"x": 283, "y": 166}
 		},
 		{
 			"name": "aidTentAutoCombatLabel",
@@ -72,7 +72,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.401",
-			"position": {"x": 283, "y": 166}
+			"position": {"x": 283, "y": 196}
 		},
 
 		{
@@ -82,7 +82,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.402",
-			"position": {"x": 61, "y": 285}
+			"position": {"x": 61, "y": 315}
 		},
 		{
 			"name": "creatureInfoOnlySpellsLabel",
@@ -91,7 +91,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.403",
-			"position": {"x": 61, "y": 315}
+			"position": {"x": 61, "y": 345}
 		},
 
 		{
@@ -101,7 +101,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.404",
-			"position": {"x": 61, "y": 27}
+			"position": {"x": 61, "y": 57}
 		},
 		{
 			"name": "showMovementRangeLabel",
@@ -110,7 +110,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.405",
-			"position": {"x": 61, "y": 60}
+			"position": {"x": 61, "y": 90}
 		},
 		{
 			"name": "mouseShadowLabel",
@@ -119,7 +119,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.406",
-			"position": {"x": 61, "y": 93}
+			"position": {"x": 61, "y": 123}
 		},
 		{
 			"name": "battleCasualtiesLabel",
@@ -128,7 +128,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.407",
-			"position": {"x": 61, "y": 126}
+			"position": {"x": 61, "y": 156}
 		},
 
 		{
@@ -136,7 +136,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.427",
-			"position": {"x": 25, "y": 26},
+			"position": {"x": 25, "y": 56},
 			"callback": "viewGridChanged"
 		},
 		{
@@ -144,7 +144,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.428",
-			"position": {"x": 25, "y": 59},
+			"position": {"x": 25, "y": 89},
 			"callback": "movementShadowChanged"
 		},
 		{
@@ -152,14 +152,14 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.429",
-			"position": {"x": 25, "y": 92},
+			"position": {"x": 25, "y": 122},
 			"callback": "mouseShadowChanged"
 		},
 
 		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 205},
+			"position": {"x": 28, "y": 233},
 			"items":
 			[
 				{
@@ -250,7 +250,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.battleOptions.showQueue.hover",
-			"position": {"x": 61, "y": 363}
+			"position": {"x": 61, "y": 393}
 		},
 
 		{
@@ -258,7 +258,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.showQueue",
-			"position": {"x": 25, "y": 361},
+			"position": {"x": 25, "y": 391},
 			"callback": "showQueueChanged"
 		},
 
@@ -269,13 +269,13 @@
 			"alignment": "left",
 			"color": "yellow",
 			"text": "vcmi.battleOptions.queueSizeLabel.hover",
-			"position": {"x": 60, "y": 399}
+			"position": {"x": 60, "y": 429}
 		},
 
 		{
 			"name": "queueSizePicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 420},
+			"position": {"x": 28, "y": 450},
 			"items":
 			[
 				{
@@ -343,7 +343,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-			"position": {"x": 61, "y": 472}
+			"position": {"x": 61, "y": 502}
 		},
 
 		{
@@ -351,7 +351,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 25, "y": 470},
+			"position": {"x": 25, "y": 500},
 			"callback": "skipBattleIntroMusicChanged"
 		}
 	]
