@@ -622,9 +622,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.learning",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"type" : "HERO_EXPERIENCE_GAIN_PERCENT",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},

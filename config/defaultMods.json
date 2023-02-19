@@ -63,6 +63,11 @@
 			"type" : "SIGHT_RADIUS", //default sight radius
 			"val" : 5,
 			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
+			"val" : 100,
+			"valueType" : "BASE_NUMBER"
 		}
 	]
 }

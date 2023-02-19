@@ -581,7 +581,7 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
-	return static_cast<TExpType>(exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::LEARNING)) / 100.0);
+	return static_cast<TExpType>(exp * (valOfBonuses(Bonus::HERO_EXPERIENCE_GAIN_PERCENT)) / 100.0);
 }
 
 int32_t CGHeroInstance::getCasterUnitId() const
