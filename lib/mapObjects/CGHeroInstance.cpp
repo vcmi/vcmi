@@ -782,23 +782,27 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
+	bool hasImprovedNecromancy = hasBonusOfType(Bonus::IMPROVED_NECROMANCY);
+
 	// need skill or cloak of undead king - lesser artifacts don't work without skill
-	if (necromancyLevel > 0 || hasBonusOfType(Bonus::IMPROVED_NECROMANCY))
+	if (hasImprovedNecromancy)
 	{
-		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY) / 100.0;
+		double necromancySkill = valOfBonuses(Bonus::UNDEAD_RAISE_PERCENTAGE) / 100.0;
+		const ui8 necromancyLevel = valOfBonuses(Bonus::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
-		CreatureID creatureTypeRaised = CreatureID::SKELETON;
+		auto creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
 		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(Bonus::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
 		{
-			auto getCreatureID = [necromancyLevel](const std::shared_ptr<Bonus> & bonus) -> CreatureID
+			auto getCreatureID = [](const std::shared_ptr<Bonus> & bonus) -> CreatureID
 			{
-				const CreatureID legacyTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
-				return CreatureID(bonus->subtype >= 0 ? bonus->subtype : legacyTypes[necromancyLevel]);
+				assert(bonus->subtype >=0);
+				if(bonus->subtype >= 0)
+					return CreatureID(bonus->subtype);
+				return CreatureID::NONE;
 			};
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
@@ -831,6 +835,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
 			}
 		}
+		assert(creatureTypeRaised != CreatureID::NONE);
 		// raise upgraded creature (at 2/3 rate) if no space available otherwise
 		if(getSlotFor(creatureTypeRaised) == SlotID())
 		{

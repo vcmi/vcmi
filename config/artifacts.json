@@ -834,8 +834,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 12,
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -847,8 +846,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 12,
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -860,8 +858,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 12,
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1931,6 +1928,11 @@
 	"cloakOfTheUndeadKing":
 	{
 		"bonuses" : [
+			{
+				"type" : "IMPROVED_NECROMANCY",
+				"subtype" : "creature.skeleton",
+				"addInfo" : 0
+			},
 			{
 				"type" : "IMPROVED_NECROMANCY",
 				"subtype" : "creature.walkingDead",

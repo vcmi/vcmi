@@ -345,25 +345,32 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.necromancy",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "UNDEAD_RAISE_PERCENTAGE",
 					"valueType" : "BASE_NUMBER"
+				},
+				"power" : {
+					"type" : "IMPROVED_NECROMANCY",
+					"subtype" : "creature.skeleton",
+					"addInfo" : 0
 				}
 			}
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 10 }
+				"main" : { "val" : 10 },
+				"power" : { "val" : 1 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 20 }
+				"main" : { "val" : 20 },
+				"power" : { "val" : 2 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 30 }
+				"main" : { "val" : 30 },
+				"power" : { "val" : 3 }
 			}
 		}
 	},
