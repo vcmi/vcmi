@@ -834,9 +834,7 @@ int IBonusBearer::getMaxDamage(bool ranged) const
 
 si32 IBonusBearer::manaLimit() const
 {
-	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
-		* (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::INTELLIGENCE))
-		/ 10.0);
+	return 0;
 }
 
 int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const

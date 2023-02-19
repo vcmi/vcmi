@@ -256,6 +256,7 @@ public:
 	///IBonusBearer
 	CBonusSystemNode & whereShouldBeAttached(CGameState * gs) override;
 	std::string nodeName() const override;
+	si32 manaLimit() const override;
 
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState * gs);

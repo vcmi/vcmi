@@ -988,6 +988,12 @@ std::string CGHeroInstance::nodeName() const
 	return "Hero " + getNameTextID();
 }
 
+si32 CGHeroInstance::manaLimit() const
+{
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
+		* (valOfBonuses(Bonus::MANA_PER_KNOWLEDGE)));
+}
+
 std::string CGHeroInstance::getNameTranslated() const
 {
 	if (!nameCustom.empty())

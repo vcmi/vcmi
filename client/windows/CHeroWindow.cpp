@@ -61,6 +61,11 @@ int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
 	return hero->getTreeVersion();  //this assumes that hero and artifact belongs to main bonus tree
 }
 
+si32 CHeroWithMaybePickedArtifact::manaLimit() const
+{
+	return hero->manaLimit();
+}
+
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
 	: hero(Hero), cww(Cww)
 {

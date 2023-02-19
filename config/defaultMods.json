@@ -68,6 +68,11 @@
 			"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
 			"val" : 100,
 			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MANA_PER_KNOWLEDGE", //10 knowledge to 100 mana is default
+			"val" : 10,
+			"valueType" : "BASE_NUMBER"
 		}
 	]
 }

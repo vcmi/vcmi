@@ -708,9 +708,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.intelligence",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"type" : "MANA_PER_KNOWLEDGE",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},

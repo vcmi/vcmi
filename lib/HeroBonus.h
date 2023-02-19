@@ -342,6 +342,7 @@ public:
 	BONUS_NAME(BEFORE_BATTLE_REPOSITION_BLOCK) /*skill-agnostic tactics, bonus for blocking opposite tactics. For now donble side tactics is TODO.*/\
 	BONUS_NAME(HERO_EXPERIENCE_GAIN_PERCENT) /*skill-agnostic learning, and we can use it as a global effect also*/\
 	BONUS_NAME(UNDEAD_RAISE_PERCENTAGE) /*Percentage of killed enemy creatures to be raised after battle as undead*/\
+	BONUS_NAME(MANA_PER_KNOWLEDGE) /*Rate of translating hero knowledge to mana, used for intelligence and as a global bonus*/\
 	/* end of list */
 
 
@@ -743,7 +744,7 @@ public:
 	virtual si32 magicResistance() const;
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 
-	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	virtual si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
 
 	virtual int64_t getTreeVersion() const = 0;
