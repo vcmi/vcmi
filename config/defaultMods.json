@@ -44,5 +44,18 @@
 		"STACK_ARTIFACTS": false,
 		"COMMANDERS": false,
 		"MITHRIL": false //so far unused
-	}
+	},
+	"heroBaseBonuses":
+	[
+		{
+			"type" : "MANA_REGENERATION", //default mana regeneration
+			"val" : 1,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "SIGHT_RADIUS", //default sight radius
+			"val" : 5,
+			"valueType" : "BASE_NUMBER"
+		}
+	]
 }
