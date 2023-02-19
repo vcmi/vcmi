@@ -462,9 +462,15 @@ MapViewController::MapViewController(std::shared_ptr<MapRendererContext> context
 
 void MapViewController::update(uint32_t timeDelta)
 {
-	static const double fadeOutDuration = 1.0;
-	static const double fadeInDuration = 1.0;
-	static const double heroTeleportDuration = 1.0;
+	// confirmed to match H3 for
+	// - hero embarking on boat (500 ms)
+	// - hero disembarking from boat (500 ms)
+	// - TODO: picking up resources
+	// - TODO: killing mosters
+	// - teleporting ( 250 ms)
+	static const double fadeOutDuration = 500;
+	static const double fadeInDuration = 500;
+	static const double heroTeleportDuration = 250;
 
 	//FIXME: remove code duplication?
 
@@ -494,14 +500,14 @@ void MapViewController::update(uint32_t timeDelta)
 
 	if (context->teleportAnimation)
 	{
-		context->teleportAnimation->progress += heroTeleportDuration * timeDelta / 1000;
+		context->teleportAnimation->progress += timeDelta / heroTeleportDuration;
 		if (context->teleportAnimation->progress >= 1.0)
 			context->teleportAnimation.reset();
 	}
 
 	if (context->fadeOutAnimation)
 	{
-		context->fadeOutAnimation->progress += fadeOutDuration * timeDelta / 1000;
+		context->fadeOutAnimation->progress += timeDelta / fadeOutDuration;
 		if (context->fadeOutAnimation->progress >= 1.0)
 		{
 			context->removeObject(context->getObject(context->fadeOutAnimation->target));
@@ -511,7 +517,7 @@ void MapViewController::update(uint32_t timeDelta)
 
 	if (context->fadeInAnimation)
 	{
-		context->fadeInAnimation->progress += fadeInDuration * timeDelta / 1000;
+		context->fadeInAnimation->progress += timeDelta / fadeInDuration;
 		if (context->fadeInAnimation->progress >= 1.0)
 			context->fadeInAnimation.reset();
 	}

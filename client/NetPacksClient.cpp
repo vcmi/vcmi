@@ -455,8 +455,11 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		}
 	}
 
-	if(!CGI->mh)
-		return;
+	if(CGI->mh && pack.result == TryMoveHero::EMBARK)
+	{
+		CGI->mh->onObjectFadeOut(h);
+		CGI->mh->waitForOngoingAnimations();
+	}
 }
 
 void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
@@ -480,7 +483,8 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 				CGI->mh->onHeroRotated(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::EMBARK:
-				CGI->mh->onObjectFadeOut(h);
+				// handled in ApplyFirst
+				//CGI->mh->onObjectFadeOut(h);
 				break;
 			case TryMoveHero::DISEMBARK:
 				CGI->mh->onObjectFadeIn(h);
