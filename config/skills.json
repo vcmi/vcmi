@@ -225,8 +225,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.mysticism",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MANA_REGENERATION",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
