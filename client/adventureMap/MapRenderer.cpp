@@ -30,40 +30,34 @@
 
 struct NeighborTilesInfo
 {
-	bool d7, //789
-		 d8, //456
-		 d9, //123
-		 d4,
-		 d5,
-		 d6,
-		 d1,
-		 d2,
-		 d3;
-	NeighborTilesInfo( const IMapRendererContext & context, const int3 & pos)
-	{
-		auto getTile = [&](int dx, int dy)->bool
-		{
-			if ( dx + pos.x < 0 || dx + pos.x >= context.getMapSize().x
-			  || dy + pos.y < 0 || dy + pos.y >= context.getMapSize().y)
-				return false;
+	//567
+	//3 4
+	//012
+	std::bitset<8> d;
 
-			//FIXME: please do not read settings for every tile...
-			return context.isVisible( pos + int3(dx, dy, 0));
+	NeighborTilesInfo(const IMapRendererContext & context, const int3 & pos)
+	{
+		auto checkTile = [&](int dx, int dy)
+		{
+			return context.isVisible(pos + int3(dx, dy, 0));
 		};
-		d7 = getTile(-1, -1); //789
-		d8 = getTile( 0, -1); //456
-		d9 = getTile(+1, -1); //123
-		d4 = getTile(-1, 0);
-		d5 = getTile( 0, 0);
-		d6 = getTile(+1, 0);
-		d1 = getTile(-1, +1);
-		d2 = getTile( 0, +1);
-		d3 = getTile(+1, +1);
+
+		// sides
+		d[1] = checkTile(0, +1);
+		d[3] = checkTile(-1, 0);
+		d[4] = checkTile(+1, 0);
+		d[6] = checkTile(0, -1);
+
+		// corners - select visible image if either corner or adjacent sides are visible
+		d[0] = d[1] || d[3] || checkTile(-1, +1);
+		d[2] = d[1] || d[4] || checkTile(+1, +1);
+		d[5] = d[3] || d[6] || checkTile(-1, -1);
+		d[7] = d[4] || d[6] || checkTile(+1, -1);
 	}
 
 	bool areAllHidden() const
 	{
-		return !(d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d9);
+		return d.none();
 	}
 
 	int getBitmapID() const
@@ -89,7 +83,7 @@ struct NeighborTilesInfo
 			13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10  //256
 		};
 
-		return visBitmaps[d1 + d2 * 2 + d3 * 4 + d4 * 8 + d6 * 16 + d7 * 32 + d8 * 64 + d9 * 128]; // >=0 -> partial hide, <0 - full hide
+		return visBitmaps[d.to_ulong()]; // >=0 -> partial hide, <0 - full hide
 	}
 };
 
@@ -482,7 +476,7 @@ void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas
 	}
 }
 
-void MapRendererObjects::renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance* instance)
+void MapRendererObjects::renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
 	renderImage(context, target, coordinates, instance, getImage(context, instance, getBaseAnimation(instance)));
 	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
@@ -614,7 +608,7 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 
 	const NeighborTilesInfo neighborInfo(context, coordinates);
 
-	if(neighborInfo.areAllHidden())
+	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
 	{
 		rendererFow.renderTile(context, target, coordinates);
 	}

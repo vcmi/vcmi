@@ -400,7 +400,7 @@ size_t MapRendererContext::objectGroupIndex(ObjectInstanceID objectID) const
 	if(obj->ID == Obj::HERO)
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(obj);
-		if (movementAnimation && movementAnimation->target == objectID)
+		if(movementAnimation && movementAnimation->target == objectID)
 			return moveGroups[hero->moveDir];
 		return idleGroups[hero->moveDir];
 	}
@@ -411,7 +411,7 @@ size_t MapRendererContext::objectGroupIndex(ObjectInstanceID objectID) const
 
 		uint8_t direction = boat->hero ? boat->hero->moveDir : boat->direction;
 
-		if (movementAnimation && movementAnimation->target == objectID)
+		if(movementAnimation && movementAnimation->target == objectID)
 			return moveGroups[direction];
 		return idleGroups[direction];
 	}
@@ -420,13 +420,13 @@ size_t MapRendererContext::objectGroupIndex(ObjectInstanceID objectID) const
 
 Point MapRendererContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
 {
-	if (movementAnimation && movementAnimation->target == objectID)
+	if(movementAnimation && movementAnimation->target == objectID)
 	{
 		int3 offsetTilesFrom = movementAnimation->tileFrom - coordinates;
 		int3 offsetTilesDest = movementAnimation->tileDest - coordinates;
 
-		Point offsetPixelsFrom = Point(offsetTilesFrom) * Point(32,32);
-		Point offsetPixelsDest = Point(offsetTilesDest) * Point(32,32);
+		Point offsetPixelsFrom = Point(offsetTilesFrom) * Point(32, 32);
+		Point offsetPixelsDest = Point(offsetTilesDest) * Point(32, 32);
 
 		Point result = vstd::lerp(offsetPixelsFrom, offsetPixelsDest, movementAnimation->progress);
 
@@ -442,21 +442,21 @@ double MapRendererContext::objectTransparency(ObjectInstanceID objectID) const
 {
 	const CGObjectInstance * object = getObject(objectID);
 
-	if (object && object->ID == Obj::HERO)
+	if(object && object->ID == Obj::HERO)
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
-		if (hero->inTownGarrison)
+		if(hero->inTownGarrison)
 			return 0;
 
-		if (hero->boat)
+		if(hero->boat)
 			return 0;
 	}
 
-	if (fadeOutAnimation && objectID == fadeOutAnimation->target)
+	if(fadeOutAnimation && objectID == fadeOutAnimation->target)
 		return 1.0 - fadeOutAnimation->progress;
 
-	if (fadeInAnimation && objectID == fadeInAnimation->target)
+	if(fadeInAnimation && objectID == fadeInAnimation->target)
 		return fadeInAnimation->progress;
 
 	return 1.0;
@@ -482,7 +482,7 @@ void MapViewController::update(uint32_t timeDelta)
 
 	//FIXME: remove code duplication?
 
-	if (context->movementAnimation)
+	if(context->movementAnimation)
 	{
 		// TODO: enemyMoveTime
 		double heroMoveTime = settings["adventure"]["heroMoveTime"].Float();
@@ -496,7 +496,7 @@ void MapViewController::update(uint32_t timeDelta)
 
 		setViewCenter(positionCurr, context->movementAnimation->tileDest.z);
 
-		if (context->movementAnimation->progress >= 1.0)
+		if(context->movementAnimation->progress >= 1.0)
 		{
 			setViewCenter(context->movementAnimation->tileDest);
 
@@ -506,27 +506,27 @@ void MapViewController::update(uint32_t timeDelta)
 		}
 	}
 
-	if (context->teleportAnimation)
+	if(context->teleportAnimation)
 	{
 		context->teleportAnimation->progress += timeDelta / heroTeleportDuration;
-		if (context->teleportAnimation->progress >= 1.0)
+		if(context->teleportAnimation->progress >= 1.0)
 			context->teleportAnimation.reset();
 	}
 
-	if (context->fadeOutAnimation)
+	if(context->fadeOutAnimation)
 	{
 		context->fadeOutAnimation->progress += timeDelta / fadeOutDuration;
-		if (context->fadeOutAnimation->progress >= 1.0)
+		if(context->fadeOutAnimation->progress >= 1.0)
 		{
 			context->removeObject(context->getObject(context->fadeOutAnimation->target));
 			context->fadeOutAnimation.reset();
 		}
 	}
 
-	if (context->fadeInAnimation)
+	if(context->fadeInAnimation)
 	{
 		context->fadeInAnimation->progress += timeDelta / fadeInDuration;
-		if (context->fadeInAnimation->progress >= 1.0)
+		if(context->fadeInAnimation->progress >= 1.0)
 			context->fadeInAnimation.reset();
 	}
 
@@ -560,7 +560,7 @@ void MapViewController::onObjectInstantRemove(const CGObjectInstance * obj)
 void MapViewController::onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(!context->teleportAnimation);
-	context->teleportAnimation = HeroAnimationState{ obj->id, from, dest, 0.0 };
+	context->teleportAnimation = HeroAnimationState{obj->id, from, dest, 0.0};
 }
 
 void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
@@ -568,15 +568,15 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 	assert(!context->movementAnimation);
 
 	const CGObjectInstance * movingObject = obj;
-	if (obj->boat)
+	if(obj->boat)
 		movingObject = obj->boat;
 
 	context->removeObject(movingObject);
 
-	if (settings["adventure"]["heroMoveTime"].Float() > 1)
+	if(settings["adventure"]["heroMoveTime"].Float() > 1)
 	{
 		context->addMovingObject(movingObject, from, dest);
-		context->movementAnimation = HeroAnimationState{ movingObject->id, from, dest, 0.0 };
+		context->movementAnimation = HeroAnimationState{movingObject->id, from, dest, 0.0};
 	}
 	else
 	{

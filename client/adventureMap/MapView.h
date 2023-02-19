@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include "MapRendererContext.h"
 #include "../gui/CIntObject.h"
 #include "../lib/int3.h"
+#include "MapRendererContext.h"
 
 class IImage;
 class Canvas;
@@ -155,9 +155,9 @@ private:
 	void onObjectFadeOut(const CGObjectInstance * obj) override;
 	void onObjectInstantAdd(const CGObjectInstance * obj) override;
 	void onObjectInstantRemove(const CGObjectInstance * obj) override;
-	 void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
-	 void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
-	 void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
+	void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
+	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
+	void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 
 public:
 	MapViewController(std::shared_ptr<MapRendererContext> context, std::shared_ptr<MapViewModel> model);
