@@ -311,6 +311,20 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		levelUpAutomatically(rand);
 	}
 
+	// load base hero bonuses, TODO: per-map loading of base hero bonuses
+	// must be done separately from global bonuses since recruitable heroes in taverns 
+	// are not attached to global bonus node but need access to some global bonuses
+	// e.g. MANA_PER_KNOWLEDGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	// or MOVEMENT to compute initial movement before recruiting is finished
+	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	{
+		auto bonus = ob;
+		bonus->source = Bonus::HERO_BASE_SKILL;
+		bonus->sid = id.getNum();
+		bonus->duration = Bonus::PERMANENT;
+		addNewBonus(bonus);
+	}
+
 	if (VLC->modh->modules.COMMANDERS && !commander)
 	{
 		commander = new CCommanderInstance(type->heroClass->commander->idNumber);

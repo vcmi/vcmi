@@ -252,6 +252,7 @@ private:
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
 	void initCampaign();
 	void checkMapChecksum();
+	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
 	void randomizeMapObjects();
