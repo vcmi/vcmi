@@ -11,35 +11,21 @@
 #include "StdInc.h"
 #include "MapView.h"
 
-#include <utility>
-
 #include "MapRenderer.h"
 #include "mapHandler.h"
 #include "CAdvMapInt.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/Graphics.h"
-#include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/CStopWatch.h"
-#include "../../lib/Color.h"
-#include "../../lib/RiverHandler.h"
-#include "../../lib/RoadHandler.h"
-#include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CObjectClassesHandler.h"
 #include "../../lib/mapping/CMap.h"
 
 MapViewCache::~MapViewCache() = default;
@@ -414,9 +400,12 @@ size_t MapRendererContext::objectGroupIndex(ObjectInstanceID objectID) const
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
+
+		uint8_t direction = boat->hero ? boat->hero->moveDir : boat->direction;
+
 		if (movementAnimation && movementAnimation->target == objectID)
-			return moveGroups[boat->direction];
-		return idleGroups[boat->direction];
+			return moveGroups[direction];
+		return idleGroups[direction];
 	}
 	return 0;
 }
@@ -443,6 +432,19 @@ Point MapRendererContext::objectImageOffset(ObjectInstanceID objectID, const int
 
 double MapRendererContext::objectTransparency(ObjectInstanceID objectID) const
 {
+	const CGObjectInstance * object = getObject(objectID);
+
+	if (object && object->ID == Obj::HERO)
+	{
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
+
+		if (hero->inTownGarrison)
+			return 0;
+
+		if (hero->boat)
+			return 0;
+	}
+
 	if (fadeOutAnimation && objectID == fadeOutAnimation->target)
 		return 1.0 - fadeOutAnimation->progress;
 
@@ -550,17 +552,22 @@ void MapViewController::onHeroTeleported(const CGHeroInstance * obj, const int3 
 void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(!context->movementAnimation);
-	context->removeObject(obj);
+
+	const CGObjectInstance * movingObject = obj;
+	if (obj->boat)
+		movingObject = obj->boat;
+
+	context->removeObject(movingObject);
 
 	if (settings["adventure"]["heroMoveTime"].Float() > 1)
 	{
-		context->addMovingObject(obj, from, dest);
-		context->movementAnimation = HeroAnimationState{ obj->id, from, dest, 0.0 };
+		context->addMovingObject(movingObject, from, dest);
+		context->movementAnimation = HeroAnimationState{ movingObject->id, from, dest, 0.0 };
 	}
 	else
 	{
 		// instant movement
-		context->addObject(obj);
+		context->addObject(movingObject);
 	}
 }
 

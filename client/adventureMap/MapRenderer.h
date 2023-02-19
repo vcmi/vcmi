@@ -76,8 +76,10 @@ class MapRendererObjects
 {
 	std::map<std::string, std::shared_ptr<CAnimation>> animations;
 
+	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getAnimation(const CGObjectInstance * obj);
+	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
+
 	std::shared_ptr<CAnimation> getAnimation(const std::string & filename, bool generateMovementGroups);
 
 	std::shared_ptr<IImage> getImage(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;

@@ -312,7 +312,7 @@ void MapRendererFow::renderTile(const IMapRendererContext & context, Canvas & ta
 	}
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const CGObjectInstance * obj)
+std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectInstance* obj)
 {
 	const auto & info = obj->appearance;
 
@@ -327,6 +327,16 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const CGObjectInsta
 	}
 
 	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
+
+	//TODO: relocate to config file?
+	// Boat appearance files only contain single, unanimated image
+	// proper boat animations are actually in different file
+	static const std::vector<std::string> boatAnimations = {
+		"AB01_.def", "AB02_.def", "AB03_.def"
+	};
+
+	if (info->id == Obj::BOAT)
+		return getAnimation(boatAnimations[info->subid], generateMovementGroups);
 
 	return getAnimation(info->animationFile, generateMovementGroups);
 }
@@ -373,15 +383,34 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		assert(obj->tempOwner.isValidPlayer());
 		return getAnimation(heroFlags[obj->tempOwner.getNum()], true);
 	}
+
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		assert(boat);
 		assert(boat->subID < boatFlags.size());
-		assert(!boat->hero || boat->hero->tempOwner.isValidPlayer());
+		if (boat->hero)
+		{
+			assert(boat->hero->tempOwner.isValidPlayer());
+			return getAnimation(boatFlags[boat->subID][boat->hero->tempOwner.getNum()], true);
+		}
+	}
 
-		if(boat->hero)
-			return getAnimation(boatFlags[obj->subID][boat->hero->tempOwner.getNum()], true);
+	return nullptr;
+}
+
+std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObjectInstance * obj)
+{
+	if(obj->ID == Obj::BOAT)
+	{
+		//TODO: relocate to config file?
+		// Boats have additional animation with waves around boat
+		static const std::vector<std::string> boatAnimations = {
+			"ABM01_.def", "ABM02_.def", "ABM03_.def"
+		};
+
+		const auto * boat = dynamic_cast<const CGBoat *>(obj);
+		if (boat->hero)
+			return getAnimation(boatAnimations[obj->subID], true);
 	}
 	return nullptr;
 }
@@ -406,7 +435,7 @@ void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas
 	if(!image)
 		return;
 
-	uint8_t transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id)));
+	auto transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id)));
 
 	if (transparency == 0)
 		return;
@@ -425,8 +454,9 @@ void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas
 
 void MapRendererObjects::renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance* instance)
 {
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImage(context, instance, getBaseAnimation(instance)));
 	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImage(context, instance, getOverlayAnimation(instance)));
 }
 
 void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
