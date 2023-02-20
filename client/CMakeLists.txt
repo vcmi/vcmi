@@ -11,9 +11,6 @@ set(client_SRCS
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
 	adventureMap/CTerrainRect.cpp
-	adventureMap/MapRenderer.cpp
-	adventureMap/MapView.cpp
-	adventureMap/mapHandler.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -49,6 +46,10 @@ set(client_SRCS
 	mainmenu/CMainMenu.cpp
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
+
+	mapRenderer/MapRenderer.cpp
+	mapRenderer/MapView.cpp
+	mapRenderer/mapHandler.cpp
 
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
@@ -122,10 +123,6 @@ set(client_HEADERS
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
 	adventureMap/CTerrainRect.h
-	adventureMap/MapRenderer.h
-	adventureMap/MapRendererContext.h
-	adventureMap/MapView.h
-	adventureMap/mapHandler.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
@@ -164,6 +161,11 @@ set(client_HEADERS
 	mainmenu/CMainMenu.h
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
+
+	mapRenderer/MapRenderer.h
+	mapRenderer/MapRendererContext.h
+	mapRenderer/MapView.h
+	mapRenderer/mapHandler.h
 
 	render/CAnimation.h
 	render/CBitmapHandler.h
