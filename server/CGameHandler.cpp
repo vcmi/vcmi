@@ -4859,150 +4859,20 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	case EActionType::CATAPULT:
 		{
-			//TODO: unify with spells::effects:Catapult
-			auto getCatapultHitChance = [](EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
-			{
-				switch(part)
-				{
-				case EWallPart::GATE:
-					return sbi.gate;
-				case EWallPart::KEEP:
-					return sbi.keep;
-				case EWallPart::BOTTOM_TOWER:
-				case EWallPart::UPPER_TOWER:
-					return sbi.tower;
-				case EWallPart::BOTTOM_WALL:
-				case EWallPart::BELOW_GATE:
-				case EWallPart::OVER_GATE:
-				case EWallPart::UPPER_WALL:
-					return sbi.wall;
-				default:
-					return 0;
-				}
-			};
-
-			auto getBallisticsInfo = [this, &ba] (const CStack * actor)
-			{
-				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-				if(actor->getCreature()->idNumber == CreatureID::CATAPULT)
-					return VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
-				else
-				{
-					//by design use advanced ballistics parameters with this bonus present, upg. cyclops use advanced ballistics, nonupg. use basic in OH3
-					int ballisticsLevel = actor->hasBonusOfType(Bonus::CATAPULT_EXTRA_SHOTS) ? 2 : 1;
-
-					auto parameters = VLC->heroh->ballistics.at(ballisticsLevel);
-					parameters.shots = 1 + std::max(actor->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0);
-
-					return parameters;
-				}
-			};
-
-			auto isWallPartAttackable = [this] (EWallPart part)
-			{
-				return (gs->curB->si.wallState[part] == EWallState::REINFORCED || gs->curB->si.wallState[part] == EWallState::INTACT || gs->curB->si.wallState[part] == EWallState::DAMAGED);
-			};
-
-			CHeroHandler::SBallisticsLevelInfo stackBallisticsParameters = getBallisticsInfo(stack);
-
 			auto wrapper = wrapAction(ba);
-			auto destination = target.empty() ? BattleHex(BattleHex::INVALID) : target.at(0).hexValue;
-			auto desiredTarget = gs->curB->battleHexToWallPart(destination);
-
-			for (int shotNumber=0; shotNumber<stackBallisticsParameters.shots; ++shotNumber)
+			const CStack * shooter = gs->curB->battleGetStackByID(ba.stackNumber);
+			std::shared_ptr<const Bonus> catapultAbility = stack->getBonusLocalFirst(Selector::type()(Bonus::CATAPULT));
+			if(!catapultAbility || catapultAbility->subtype < 0)
 			{
-				auto actualTarget = EWallPart::INVALID;
-
-				if ( isWallPartAttackable(desiredTarget) &&
-					 getRandomGenerator().nextInt(99) < getCatapultHitChance(desiredTarget, stackBallisticsParameters))
-				{
-					actualTarget = desiredTarget;
-				}
-				else
-				{
-					static const std::array<EWallPart, 4> walls = { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL };
-					static const std::array<EWallPart, 3> towers= { EWallPart::BOTTOM_TOWER, EWallPart::KEEP, EWallPart::UPPER_TOWER };
-					static const EWallPart gates = EWallPart::GATE;
-
-					// in H3, catapult under automatic control will attack objects in following order:
-					// walls, gates, towers
-					std::vector<EWallPart> potentialTargets;
-					for (auto & part : walls )
-						if (isWallPartAttackable(part))
-							potentialTargets.push_back(part);
-
-					if (potentialTargets.empty() && isWallPartAttackable(gates))
-							potentialTargets.push_back(gates);
-
-					if (potentialTargets.empty())
-						for (auto & part : towers )
-							if (isWallPartAttackable(part))
-								potentialTargets.push_back(part);
-
-					if (potentialTargets.empty())
-						break; // everything is gone, can't attack anymore
-
-					actualTarget = *RandomGeneratorUtil::nextItem(potentialTargets, getRandomGenerator());
-				}
-				assert(actualTarget != EWallPart::INVALID);
-
-				std::array<int, 3> damageChances = { stackBallisticsParameters.noDmg, stackBallisticsParameters.oneDmg, stackBallisticsParameters.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
-				int totalChance = std::accumulate(damageChances.begin(), damageChances.end(), 0);
-				int damageRandom = getRandomGenerator().nextInt(totalChance - 1);
-				int dealtDamage = 0;
-
-				//calculating dealt damage
-				for (int damage = 0; damage < damageChances.size(); ++damage)
-				{
-					if (damageRandom <= damageChances[damage])
-					{
-						dealtDamage = damage;
-						break;
-					}
-					damageRandom -= damageChances[damage];
-				}
-
-				CatapultAttack::AttackInfo attack;
-				attack.attackedPart = actualTarget;
-				attack.destinationTile = gs->curB->wallPartToBattleHex(actualTarget);
-				attack.damageDealt = dealtDamage;
-
-				CatapultAttack ca; //package for clients
-				ca.attacker = ba.stackNumber;
-				ca.attackedParts.push_back(attack);
-				sendAndApply(&ca);
-
-				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
-
-				//removing creatures in turrets / keep if one is destroyed
-				if (gs->curB->si.wallState[actualTarget] == EWallState::DESTROYED && (actualTarget == EWallPart::KEEP || actualTarget == EWallPart::BOTTOM_TOWER || actualTarget == EWallPart::UPPER_TOWER))
-				{
-					int posRemove = -1;
-					switch(actualTarget)
-					{
-					case EWallPart::KEEP:
-						posRemove = BattleHex::CASTLE_CENTRAL_TOWER;
-						break;
-					case EWallPart::BOTTOM_TOWER:
-						posRemove = BattleHex::CASTLE_BOTTOM_TOWER;
-						break;
-					case EWallPart::UPPER_TOWER:
-						posRemove = BattleHex::CASTLE_UPPER_TOWER;
-						break;
-					}
-
-					for(auto & elem : gs->curB->stacks)
-					{
-						if(elem->initialPosition == posRemove)
-						{
-							BattleUnitsChanged removeUnits;
-							removeUnits.changedStacks.emplace_back(elem->unitId(), UnitChanges::EOperation::REMOVE);
-							sendAndApply(&removeUnits);
-							break;
-						}
-					}
-				}
+				complain("We do not know how to shoot :P");
+			}
+			else
+			{
+				const CSpell * spell = SpellID(catapultAbility->subtype).toSpell();
+				spells::BattleCast parameters(gs->curB, shooter, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can shot infinitely by catapult
+				auto shotLevel = stack->valOfBonuses(Selector::typeSubtype(Bonus::CATAPULT_EXTRA_SHOTS, catapultAbility->subtype));
+				parameters.setSpellLevel(shotLevel);
+				parameters.cast(spellEnv, target);
 			}
 			//finish by scope guard
 			break;

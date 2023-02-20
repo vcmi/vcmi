@@ -253,34 +253,12 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
 
 	void loadExperience();
-	void loadBallistics();
 
 public:
 	CHeroClassHandler classes;
 
 	//default costs of going through terrains. -1 means terrain is impassable
 	std::map<TerrainId, int> terrCosts;
-
-	struct SBallisticsLevelInfo
-	{
-		ui8 keep, tower, gate, wall; //chance to hit in percent (eg. 87 is 87%)
-		ui8 shots; //how many shots we have
-		ui8 noDmg, oneDmg, twoDmg; //chances for shot dealing certain dmg in percent (eg. 87 is 87%); must sum to 100
-		ui8 sum; //I don't know if it is useful for anything, but it's in config file
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & keep;
-			h & tower;
-			h & gate;
-			h & wall;
-			h & shots;
-			h & noDmg;
-			h & oneDmg;
-			h & twoDmg;
-			h & sum;
-		}
-	};
-	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
@@ -302,7 +280,6 @@ public:
 		h & classes;
 		h & objects;
 		h & expPerLevel;
-		h & ballistics;
 		h & terrCosts;
 	}
 

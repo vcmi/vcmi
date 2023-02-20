@@ -277,8 +277,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.ballistics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "spell.catapultShot",
+					"type" : "CATAPULT_EXTRA_SHOTS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {

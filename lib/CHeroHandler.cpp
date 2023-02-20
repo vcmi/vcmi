@@ -399,7 +399,6 @@ CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	loadBallistics();
 	loadExperience();
 }
 
@@ -771,35 +770,6 @@ static std::string genRefName(std::string input)
 	boost::algorithm::replace_all(input, " ", ""); //remove spaces
 	input[0] = std::tolower(input[0]); // to camelCase
 	return input;
-}
-
-void CHeroHandler::loadBallistics()
-{
-	CLegacyConfigParser ballParser("DATA/BALLIST.TXT");
-
-	ballParser.endLine(); //header
-	ballParser.endLine();
-
-	do
-	{
-		ballParser.readString();
-		ballParser.readString();
-
-		CHeroHandler::SBallisticsLevelInfo bli;
-		bli.keep   = static_cast<ui8>(ballParser.readNumber());
-		bli.tower  = static_cast<ui8>(ballParser.readNumber());
-		bli.gate   = static_cast<ui8>(ballParser.readNumber());
-		bli.wall   = static_cast<ui8>(ballParser.readNumber());
-		bli.shots  = static_cast<ui8>(ballParser.readNumber());
-		bli.noDmg  = static_cast<ui8>(ballParser.readNumber());
-		bli.oneDmg = static_cast<ui8>(ballParser.readNumber());
-		bli.twoDmg = static_cast<ui8>(ballParser.readNumber());
-		bli.sum    = static_cast<ui8>(ballParser.readNumber());
-		ballistics.push_back(bli);
-
-		assert(bli.noDmg + bli.oneDmg + bli.twoDmg == 100 && bli.sum == 100);
-	}
-	while (ballParser.endLine());
 }
 
 std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)

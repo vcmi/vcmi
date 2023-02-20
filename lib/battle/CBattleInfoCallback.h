@@ -133,6 +133,7 @@ public:
 	BattleHex wallPartToBattleHex(EWallPart part) const;
 	EWallPart battleHexToWallPart(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	bool isWallPartPotentiallyAttackable(EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
+	bool isWallPartAttackable(EWallPart wallPart) const; // returns true if the wall part is actually attackable, false if not
 	std::vector<BattleHex> getAttackableBattleHexes() const;
 
 	si8 battleMinSpellLevel(ui8 side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned

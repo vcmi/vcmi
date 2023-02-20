@@ -36,6 +36,9 @@
 		"index": 145,
 		"level": 0,
 		"faction": "neutral",
+		"abilities" : {
+			"siegeMachine" : { "type" : "CATAPULT", "subtype" : "spell.catapultShot" }
+		},
 		"graphics" :
 		{
 			"animation": "SMCATA.DEF",

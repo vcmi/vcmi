@@ -101,5 +101,136 @@
 				"bonus.SIEGE_WEAPON" : "absolute"
 			}
 		}
+	},
+	"catapultShot" : {
+		"targetType" : "LOCATION",
+		"type": "ability",
+		"name": "Catapult shot",
+		"school" : {},
+		"level": 1,
+		"power": 1,
+		"defaultGainChance": 0,
+		"gainChance": {},
+		"levels" : {
+			"base":{
+				"description" : "",
+				"aiValue" : 0,
+				"power" : 1,
+				"cost" : 0,
+				"targetModifier":{"smart":true},
+				"battleEffects":{
+					"catapult":{
+						"type":"core:catapult"
+					}
+				},
+				"range" : "0"
+			},
+			"none":{
+				"battleEffects" : {
+					"catapult" : {
+						"targetsToAttack": 1,
+						"chanceToHitKeep" : 5,
+						"chanceToHitGate" : 25,
+						"chanceToHitTower" : 10,
+						"chanceToHitWall" : 50,
+						"chanceToNormalHit" : 60,
+						"chanceToCrit" : 30
+					}
+				}
+			},
+			"basic":{
+				"battleEffects" : {
+					"catapult" : {
+						"targetsToAttack": 1,
+						"chanceToHitKeep" : 7,
+						"chanceToHitGate" : 30,
+						"chanceToHitTower" : 15,
+						"chanceToHitWall" : 60,
+						"chanceToNormalHit" : 50,
+						"chanceToCrit" : 50
+					}
+				}
+			},
+			"advanced":{
+				"battleEffects" : {
+					"catapult" : {
+						"targetsToAttack": 2,
+						"chanceToHitKeep" : 7,
+						"chanceToHitGate" : 30,
+						"chanceToHitTower" : 15,
+						"chanceToHitWall" : 60,
+						"chanceToNormalHit" : 50,
+						"chanceToCrit" : 50
+					}
+				}
+			},
+			"expert":{
+				"battleEffects" : {
+					"catapult" : {
+						"targetsToAttack": 2,
+						"chanceToHitKeep" : 10,
+						"chanceToHitGate" : 40,
+						"chanceToHitTower" : 20,
+						"chanceToHitWall" : 75,
+						"chanceToNormalHit" : 0,
+						"chanceToCrit" : 100
+					}
+				}
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		},
+		"targetCondition" : {
+			"nonMagical" : true
+		}
+	},
+	"cyclopsShot" : {
+		"targetType" : "LOCATION",
+		"type": "ability",
+		"name": "Siege shot",
+		"school" : {},
+		"level": 1,
+		"power": 1,
+		"defaultGainChance": 0,
+		"gainChance": {},
+		"levels" : {
+			"base":{
+				"description" : "",
+				"aiValue" : 0,
+				"power" : 1,
+				"cost" : 0,
+				"targetModifier":{"smart":true},
+				"battleEffects":{
+					"catapult":{
+						"type":"core:catapult",
+						"targetsToAttack": 1,
+						"chanceToHitKeep" : 7,
+						"chanceToHitGate" : 30,
+						"chanceToHitTower" : 15,
+						"chanceToHitWall" : 60,
+						"chanceToNormalHit" : 50,
+						"chanceToCrit" : 50
+					}
+				},
+				"range" : "0"
+			},
+			"none":{},
+			"basic":{
+				"battleEffects" : {
+					"catapult" : {
+						"targetsToAttack": 2
+					}
+				}
+			},
+			"advanced":{},
+			"expert" : {}
+		},
+		"flags" : {
+			"indifferent": true
+		},
+		"targetCondition" : {
+			"nonMagical" : true
+		}
 	}
 }
