@@ -27,8 +27,8 @@ class Canvas
 	/// Current rendering area, all rendering operations will be moved into selected area
 	Rect renderArea;
 
-	Canvas & operator = (const Canvas & other) = delete;
 public:
+	Canvas & operator = (const Canvas & other) = delete;
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	explicit Canvas(SDL_Surface * surface);
@@ -52,6 +52,9 @@ public:
 
 	/// renders another canvas onto this canvas
 	void draw(const Canvas &image, const Point & pos);
+
+	/// renders another canvas onto this canvas with transparency
+	void drawTransparent(const Canvas & image, const Point & pos, double transparency);
 
 	/// renders another canvas onto this canvas with scaling
 	void drawScaled(const Canvas &image, const Point & pos, const Point & targetSize);

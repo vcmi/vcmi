@@ -40,6 +40,7 @@ Canvas::Canvas(const Point & size):
 	renderArea(Point(0,0), size),
 	surface(CSDL_Ext::newSurface(size.x, size.y))
 {
+	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
 }
 
 Canvas::~Canvas()
@@ -66,10 +67,17 @@ void Canvas::draw(const Canvas & image, const Point & pos)
 	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
 }
 
+void Canvas::drawTransparent(const Canvas & image, const Point & pos, double transparency)
+{
+	SDL_SetSurfaceAlphaMod(image.surface, 255 * transparency);
+	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
+	SDL_SetSurfaceAlphaMod(image.surface, 255);
+}
+
 void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)
 {
-	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(pos, targetSize));
-	SDL_BlitScaled(image.surface, nullptr, surface, &targetRect );
+	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(pos + renderArea.topLeft(), targetSize));
+	SDL_BlitScaled(image.surface, nullptr, surface, &targetRect);
 }
 
 void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)

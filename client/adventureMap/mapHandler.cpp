@@ -11,32 +11,15 @@
 #include "StdInc.h"
 #include "mapHandler.h"
 #include "MapRendererContext.h"
-#include "MapView.h"
 
-#include "../render/CAnimation.h"
-#include "../render/Colors.h"
-#include "../gui/CGuiHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../CGameInfo.h"
-#include "../render/Graphics.h"
-#include "../render/IImage.h"
-#include "../render/Canvas.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CObjectClassesHandler.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/Color.h"
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CStopWatch.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/RoadHandler.h"
-#include "../../lib/RiverHandler.h"
 #include "../../lib/TerrainHandler.h"
 
 /*

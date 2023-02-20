@@ -33,6 +33,7 @@ MapViewCache::~MapViewCache() = default;
 MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, mapRenderer(new MapRenderer())
+	, intermediate(new Canvas(Point(32,32)))
 	, terrain(new Canvas(model->getCacheDimensionsPixels()))
 {
 }
@@ -46,7 +47,15 @@ void MapViewCache::updateTile(const std::shared_ptr<MapRendererContext> & contex
 {
 	Canvas target = getTile(coordinates);
 
-	mapRenderer->renderTile(*context, target, coordinates);
+	if(model->getSingleTileSize() == Point(32, 32))
+	{
+		mapRenderer->renderTile(*context, target, coordinates);
+	}
+	else
+	{
+		mapRenderer->renderTile(*context, *intermediate, coordinates);
+		target.drawScaled(*intermediate, Point(0, 0), model->getSingleTileSize());
+	}
 }
 
 void MapViewCache::update(const std::shared_ptr<MapRendererContext> & context)
@@ -541,7 +550,7 @@ void MapViewController::update(uint32_t timeDelta)
 	}
 
 	context->animationTime += timeDelta;
-	context->tileSize = model->getSingleTileSize();
+	context->tileSize = Point(32,32); //model->getSingleTileSize();
 }
 
 void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)

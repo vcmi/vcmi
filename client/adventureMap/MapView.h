@@ -124,10 +124,12 @@ public:
 class MapViewCache
 {
 	std::shared_ptr<MapViewModel> model;
-	std::shared_ptr<IImage> mapTransition; //TODO
 
 	std::unique_ptr<Canvas> terrain;
+	std::unique_ptr<Canvas> terrainTransition;
+	std::unique_ptr<Canvas> intermediate;
 	std::unique_ptr<MapRenderer> mapRenderer;
+
 
 	Canvas getTile(const int3 & coordinates);
 	void updateTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates);

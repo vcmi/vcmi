@@ -1483,7 +1483,6 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, int tileSize)
 			infoBar->activate();
 
 			worldViewOptions.clear();
-			terrain->setTileSize(32);
 
 			break;
 		case EAdvMapMode::WORLD_VIEW:
@@ -1496,12 +1495,17 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, int tileSize)
 			heroList->deactivate();
 			infoBar->showSelection(); // to prevent new day animation interfering world view mode
 			infoBar->deactivate();
-			terrain->setTileSize(tileSize);
+
 
 			break;
 		}
 		redraw();
 	}
+
+	if(mode == EAdvMapMode::NORMAL)
+		terrain->setTileSize(32);
+	if(mode == EAdvMapMode::WORLD_VIEW)
+		terrain->setTileSize(tileSize);
 }
 
 CAdvMapInt::WorldViewOptions::WorldViewOptions()
