@@ -362,27 +362,6 @@ public:
 	CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy);
 };
 
-/// Puzzle screen which gets uncovered when you visit obilisks
-class CPuzzleWindow : public CWindowObject
-{
-private:
-	int3 grailPos;
-	std::shared_ptr<CPicture> logo;
-	std::shared_ptr<CLabel> title;
-	std::shared_ptr<CButton> quitb;
-	std::shared_ptr<CResDataBar> resDataBar;
-
-	std::vector<std::shared_ptr<CPicture>> piecesToRemove;
-	std::vector<std::shared_ptr<CPicture>> visiblePieces;
-	ui8 currentAlpha;
-
-public:
-	void showAll(SDL_Surface * to) override;
-	void show(SDL_Surface * to) override;
-
-	CPuzzleWindow(const int3 & grailPos, double discoveredRatio);
-};
-
 /// Creature transformer window
 class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
 {

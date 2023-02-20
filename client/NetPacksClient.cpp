@@ -14,7 +14,7 @@
 #include "CPlayerInterface.h"
 #include "CGameInfo.h"
 #include "windows/GUIClasses.h"
-#include "adventureMap/mapHandler.h"
+#include "mapRenderer/mapHandler.h"
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
 #include "gui/CGuiHandler.h"

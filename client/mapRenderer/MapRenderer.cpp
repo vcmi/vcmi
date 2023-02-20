@@ -21,12 +21,12 @@
 
 #include "../../CCallback.h"
 
+#include "../../lib/CPathfinder.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/CPathfinder.h"
 
 struct NeighborTilesInfo
 {
@@ -86,22 +86,6 @@ struct NeighborTilesInfo
 		return visBitmaps[d.to_ulong()]; // >=0 -> partial hide, <0 - full hide
 	}
 };
-
-MapObjectsSorter::MapObjectsSorter(const IMapRendererContext & context)
-	: context(context)
-{
-}
-
-bool MapObjectsSorter::operator()(const ObjectInstanceID & left, const ObjectInstanceID & right) const
-{
-	return (*this)(context.getObject(left), context.getObject(right));
-}
-
-bool MapObjectsSorter::operator()(const CGObjectInstance * left, const CGObjectInstance * right) const
-{
-	//FIXME: remove mh access
-	return CGI->mh->compareObjectBlitOrder(left, right);
-}
 
 MapTileStorage::MapTileStorage(size_t capacity)
 	: animations(capacity)
@@ -519,9 +503,9 @@ void MapRendererDebug::renderTile(const IMapRendererContext & context, Canvas & 
 		bool blockable = false;
 		bool visitable = false;
 
-		for (auto const & objectID: context.getObjects(coordinates))
+		for(const auto & objectID : context.getObjects(coordinates))
 		{
-			auto const * object = context.getObject(objectID);
+			const auto * object = context.getObject(objectID);
 
 			if (context.objectTransparency(objectID) > 0)
 			{

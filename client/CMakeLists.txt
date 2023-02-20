@@ -48,7 +48,11 @@ set(client_SRCS
 	mainmenu/CreditsScreen.cpp
 
 	mapRenderer/MapRenderer.cpp
+	mapRenderer/MapRendererContext.cpp
 	mapRenderer/MapView.cpp
+	mapRenderer/MapViewCache.cpp
+	mapRenderer/MapViewController.cpp
+	mapRenderer/MapViewModel.cpp
 	mapRenderer/mapHandler.cpp
 
 	render/CAnimation.cpp
@@ -85,6 +89,7 @@ set(client_SRCS
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
 	windows/CMessage.cpp
+	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTradeWindow.cpp
@@ -162,9 +167,15 @@ set(client_HEADERS
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
 
+	mapRenderer/IMapRendererContext.h
+	mapRenderer/IMapRendererObserver.h
 	mapRenderer/MapRenderer.h
 	mapRenderer/MapRendererContext.h
 	mapRenderer/MapView.h
+	mapRenderer/MapViewCache.cpp
+	mapRenderer/MapViewCache.h
+	mapRenderer/MapViewController.h
+	mapRenderer/MapViewModel.h
 	mapRenderer/mapHandler.h
 
 	render/CAnimation.h
@@ -205,6 +216,7 @@ set(client_HEADERS
 	windows/CHeroWindow.h
 	windows/CKingdomInterface.h
 	windows/CMessage.h
+	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTradeWindow.h

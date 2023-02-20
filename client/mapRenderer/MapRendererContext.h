@@ -1,5 +1,5 @@
 /*
- * MapRenderer.h, part of VCMI engine
+ * MapRendererContext.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,99 +9,78 @@
  */
 #pragma once
 
-#include "../../lib/ConstTransitivePtr.h"
+#include "IMapRendererContext.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../lib/int3.h"
+#include "../lib/GameConstants.h"
 
-class int3;
-class Point;
-class CGObjectInstance;
-class CGHeroInstance;
-class ObjectInstanceID;
-struct TerrainTile;
-struct CGPath;
-
-VCMI_LIB_NAMESPACE_END
-
-class IMapRendererContext
+class MapObjectsSorter
 {
+	const IMapRendererContext & context;
+
 public:
-	using MapObject = ObjectInstanceID;
-	using MapObjectsList = std::vector<MapObject>;
+	explicit MapObjectsSorter(const IMapRendererContext & context);
 
-	virtual ~IMapRendererContext() = default;
-
-	/// returns dimensions of current map
-	virtual int3 getMapSize() const = 0;
-
-	/// returns true if chosen coordinates exist on map
-	virtual bool isInMap(const int3 & coordinates) const = 0;
-
-	/// returns tile by selected coordinates. Coordinates MUST be valid
-	virtual const TerrainTile & getMapTile(const int3 & coordinates) const = 0;
-
-	/// returns all objects visible on specified tile
-	virtual const MapObjectsList & getObjects(const int3 & coordinates) const = 0;
-
-	/// returns specific object by ID, or nullptr if not found
-	virtual const CGObjectInstance * getObject(ObjectInstanceID objectID) const = 0;
-
-	/// returns path of currently active hero, or nullptr if none
-	virtual const CGPath * currentPath() const = 0;
-
-	/// returns true if specified tile is visible in current context
-	virtual bool isVisible(const int3 & coordinates) const = 0;
-
-	virtual size_t objectGroupIndex(ObjectInstanceID objectID) const = 0;
-	virtual Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const = 0;
-
-	/// returns object animation transparency. IF set to 0, object will not be visible
-	virtual double objectTransparency(ObjectInstanceID objectID) const = 0;
-
-	/// returns animation frame for selected object
-	virtual size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const = 0;
-
-	/// returns animation frame for terrain
-	virtual size_t terrainImageIndex(size_t groupSize) const = 0;
-
-//	/// returns size of ouput tile, in pixels. 32x32 for "standard" map, may be smaller for world view mode
-//	virtual Point getTileSize() const = 0;
-
-	/// if true, world view overlay will be shown
-	virtual bool showOverlay() const = 0;
-
-	/// if true, map grid should be visible on map
-	virtual bool showGrid() const = 0;
-	virtual bool showVisitable() const = 0;
-	virtual bool showBlockable() const = 0;
+	bool operator()(const ObjectInstanceID & left, const ObjectInstanceID & right) const;
+	bool operator()(const CGObjectInstance * left, const CGObjectInstance * right) const;
 };
 
-class IMapObjectObserver
+struct HeroAnimationState
 {
+	ObjectInstanceID target;
+	int3 tileFrom;
+	int3 tileDest;
+	double progress;
+};
+
+struct FadingAnimationState
+{
+	ObjectInstanceID target;
+	double progress;
+};
+
+class MapRendererContext : public IMapRendererContext
+{
+	friend class MapViewController;
+
+	boost::multi_array<MapObjectsList, 3> objects;
+
+	//Point tileSize = Point(32, 32);
+	uint32_t animationTime = 0;
+
+	boost::optional<HeroAnimationState> movementAnimation;
+	boost::optional<HeroAnimationState> teleportAnimation;
+
+	boost::optional<FadingAnimationState> fadeOutAnimation;
+	boost::optional<FadingAnimationState> fadeInAnimation;
+
+	bool worldViewModeActive = false;
+
 public:
-	IMapObjectObserver();
-	virtual ~IMapObjectObserver();
+	MapRendererContext();
 
-	virtual bool hasOngoingAnimations() = 0;
+	void addObject(const CGObjectInstance * object);
+	void addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest);
+	void removeObject(const CGObjectInstance * object);
 
-	/// Plays fade-in animation and adds object to map
-	virtual void onObjectFadeIn(const CGObjectInstance * obj) {}
+	int3 getMapSize() const final;
+	bool isInMap(const int3 & coordinates) const final;
+	bool isVisible(const int3 & coordinates) const override;
 
-	/// Plays fade-out animation and removed object from map
-	virtual void onObjectFadeOut(const CGObjectInstance * obj) {}
+	const TerrainTile & getMapTile(const int3 & coordinates) const override;
+	const MapObjectsList & getObjects(const int3 & coordinates) const override;
+	const CGObjectInstance * getObject(ObjectInstanceID objectID) const override;
+	const CGPath * currentPath() const override;
 
-	/// Adds object to map instantly, with no animation
-	virtual void onObjectInstantAdd(const CGObjectInstance * obj) {}
+	size_t objectGroupIndex(ObjectInstanceID objectID) const override;
+	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
+	double objectTransparency(ObjectInstanceID objectID) const override;
+	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
+	size_t terrainImageIndex(size_t groupSize) const override;
+//	Point getTileSize() const override;
 
-	/// Removes object from map instantly, with no animation
-	virtual void onObjectInstantRemove(const CGObjectInstance * obj) {}
-
-	/// Perform hero teleportation animation with terrain fade animation
-	virtual void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
-
-	/// Perform hero movement animation, moving hero across terrain
-	virtual void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
-
-	/// Instantly rotates hero to face destination tile
-	virtual void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	bool showOverlay() const override;
+	bool showGrid() const override;
+	bool showVisitable() const override;
+	bool showBlockable() const override;
 };

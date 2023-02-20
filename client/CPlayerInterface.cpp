@@ -12,7 +12,7 @@
 #include <vcmi/Artifact.h>
 
 #include "adventureMap/CAdvMapInt.h"
-#include "adventureMap/mapHandler.h"
+#include "mapRenderer/mapHandler.h"
 #include "adventureMap/CList.h"
 #include "adventureMap/CTerrainRect.h"
 #include "adventureMap/CInfoBar.h"
@@ -31,6 +31,7 @@
 #include "windows/CHeroWindow.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CQuestLog.h"
+#include "windows/CPuzzleWindow.h"
 #include "CPlayerInterface.h"
 #include "widgets/CComponent.h"
 #include "widgets/Buttons.h"

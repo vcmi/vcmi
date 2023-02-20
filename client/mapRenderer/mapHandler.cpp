@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "mapHandler.h"
-#include "MapRendererContext.h"
+#include "IMapRendererObserver.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

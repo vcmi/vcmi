@@ -18,8 +18,8 @@
 #include "CTerrainRect.h"
 #include "CList.h"
 #include "CInfoBar.h"
-#include "mapHandler.h"
 
+#include "../mapRenderer/mapHandler.h"
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/CTradeWindow.h"

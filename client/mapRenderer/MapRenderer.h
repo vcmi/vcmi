@@ -23,17 +23,6 @@ class CAnimation;
 class IImage;
 class Canvas;
 
-class MapObjectsSorter
-{
-	const IMapRendererContext & context;
-
-public:
-	explicit MapObjectsSorter(const IMapRendererContext & context);
-
-	bool operator()(const ObjectInstanceID & left, const ObjectInstanceID & right) const;
-	bool operator()(const CGObjectInstance * left, const CGObjectInstance * right) const;
-};
-
 class MapTileStorage
 {
 	using TerrainAnimation = std::array<std::unique_ptr<CAnimation>, 4>;
