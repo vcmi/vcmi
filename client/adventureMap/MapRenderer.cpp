@@ -162,6 +162,7 @@ void MapRendererTerrain::renderTile(const IMapRendererContext & context, Canvas 
 		image->shiftPalette(242, 14, context.terrainImageIndex(14));
 	}
 
+	image->setBlitMode(EImageBlitMode::OPAQUE);
 	target.draw(image, Point(0, 0));
 }
 

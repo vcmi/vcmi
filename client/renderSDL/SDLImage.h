@@ -37,15 +37,17 @@ public:
 	//total size including borders
 	Point fullSize;
 
+	EImageBlitMode blitMode;
+
 public:
 	//Load image from def file
 	SDLImage(CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
-	SDLImage(std::string filename);
+	SDLImage(std::string filename, EImageBlitMode blitMode);
 
-	SDLImage(const JsonNode & conf);
+	SDLImage(const JsonNode & conf, EImageBlitMode blitMode);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImage(SDL_Surface * from, bool extraRef);
+	SDLImage(SDL_Surface * from, EImageBlitMode blitMode);
 	~SDLImage();
 
 	// Keep the original palette, in order to do color switching operation
@@ -69,6 +71,7 @@ public:
 	void resetPalette() override;
 
 	void setAlpha(uint8_t value) override;
+	void setBlitMode(EImageBlitMode mode) override;
 
 	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
 

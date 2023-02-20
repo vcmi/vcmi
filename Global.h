@@ -116,33 +116,32 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #define _USE_MATH_DEFINES
 
-#include <cstdio>
-#include <stdio.h>
-
 #include <algorithm>
 #include <array>
+#include <atomic>
+#include <bitset>
 #include <cassert>
 #include <climits>
 #include <cmath>
 #include <cstdlib>
-#include <functional>
+#include <cstdio>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <queue>
 #include <random>
 #include <set>
 #include <sstream>
 #include <string>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
-#include <atomic>
-#include <mutex>
 
 //The only available version is 3, as of Boost 1.50
 #include <boost/version.hpp>

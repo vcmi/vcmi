@@ -189,14 +189,14 @@ size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
 	return frameIndex;
 }
 
-Point MapRendererContext::getTileSize() const
-{
-	return Point(32, 32);
-}
+//Point MapRendererContext::getTileSize() const
+//{
+//	return Point(32, 32);
+//}
 
 bool MapRendererContext::showGrid() const
 {
-	return true; // settings["gameTweaks"]["showGrid"].Bool();
+	return settings["gameTweaks"]["showGrid"].Bool();
 }
 
 bool MapRendererContext::showVisitable() const

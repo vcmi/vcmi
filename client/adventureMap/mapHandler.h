@@ -41,27 +41,31 @@ class IImage;
 class CMapHandler;
 class IMapObjectObserver;
 
+// from VwSymbol.def
 enum class EWorldViewIcon
 {
 	TOWN = 0,
-	HERO,
-	ARTIFACT,
-	TELEPORT,
-	GATE,
-	MINE_WOOD,
-	MINE_MERCURY,
-	MINE_STONE,
-	MINE_SULFUR,
-	MINE_CRYSTAL,
-	MINE_GEM,
-	MINE_GOLD,
-	RES_WOOD,
-	RES_MERCURY,
-	RES_STONE,
-	RES_SULFUR,
-	RES_CRYSTAL,
-	RES_GEM,
-	RES_GOLD,
+	HERO = 1,
+	ARTIFACT = 2,
+	TELEPORT = 3,
+	GATE = 4,
+	MINE_WOOD = 5,
+	MINE_MERCURY = 6,
+	MINE_STONE = 7,
+	MINE_SULFUR = 8,
+	MINE_CRYSTAL = 9,
+	MINE_GEM = 10,
+	MINE_GOLD = 11,
+	RES_WOOD = 12,
+	RES_MERCURY = 13,
+	RES_STONE = 14,
+	RES_SULFUR = 15,
+	RES_CRYSTAL = 16,
+	RES_GEM = 17,
+	RES_GOLD = 18,
+
+	ICONS_PER_PLAYER = 19,
+	ICONS_TOTAL = 19 * 9 // 8 players + neutral set at the end
 };
 
 class CMapHandler

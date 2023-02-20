@@ -64,8 +64,8 @@ public:
 	/// returns animation frame for terrain
 	virtual size_t terrainImageIndex(size_t groupSize) const = 0;
 
-	/// returns size of ouput tile, in pixels. 32x32 for "standard" map, may be smaller for world view mode
-	virtual Point getTileSize() const = 0;
+//	/// returns size of ouput tile, in pixels. 32x32 for "standard" map, may be smaller for world view mode
+//	virtual Point getTileSize() const = 0;
 
 	/// if true, map grid should be visible on map
 	virtual bool showGrid() const = 0;

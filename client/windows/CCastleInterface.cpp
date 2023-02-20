@@ -61,6 +61,8 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  parent(Par),
 	  town(Town),
 	  str(Str),
+	  border(nullptr),
+	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
@@ -83,13 +85,9 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 
 	if(!str->borderName.empty())
 		border = IImage::createFromFile(str->borderName);
-	else
-		border = nullptr;
 
 	if(!str->areaName.empty())
 		area = IImage::createFromFile(str->areaName);
-	else
-		area = nullptr;
 }
 
 const CBuilding * CBuildingRect::getBuilding()
@@ -565,6 +563,8 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	background = std::make_shared<CPicture>(town->town->clientInfo.townBackground);
+	background->needRefresh = true;
+	background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 
