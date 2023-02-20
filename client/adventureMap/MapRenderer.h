@@ -136,6 +136,15 @@ public:
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
+class MapRendererOverlay
+{
+	std::unique_ptr<CAnimation> iconsStorage;
+public:
+	MapRendererOverlay();
+
+	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+};
+
 class MapRenderer
 {
 	MapRendererTerrain rendererTerrain;

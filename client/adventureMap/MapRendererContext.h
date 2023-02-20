@@ -67,6 +67,9 @@ public:
 //	/// returns size of ouput tile, in pixels. 32x32 for "standard" map, may be smaller for world view mode
 //	virtual Point getTileSize() const = 0;
 
+	/// if true, world view overlay will be shown
+	virtual bool showOverlay() const = 0;
+
 	/// if true, map grid should be visible on map
 	virtual bool showGrid() const = 0;
 	virtual bool showVisitable() const = 0;

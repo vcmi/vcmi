@@ -38,7 +38,7 @@ class MapRendererContext : public IMapRendererContext
 
 	boost::multi_array<MapObjectsList, 3> objects;
 
-	Point tileSize = Point(32, 32);
+	//Point tileSize = Point(32, 32);
 	uint32_t animationTime = 0;
 
 	boost::optional<HeroAnimationState> movementAnimation;
@@ -46,6 +46,8 @@ class MapRendererContext : public IMapRendererContext
 
 	boost::optional<FadingAnimationState> fadeOutAnimation;
 	boost::optional<FadingAnimationState> fadeInAnimation;
+
+	bool worldViewModeActive = false;
 
 public:
 	MapRendererContext();
@@ -69,6 +71,8 @@ public:
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	size_t terrainImageIndex(size_t groupSize) const override;
 //	Point getTileSize() const override;
+
+	bool showOverlay() const override;
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlockable() const override;
@@ -130,10 +134,12 @@ class MapViewCache
 	std::unique_ptr<Canvas> intermediate;
 	std::unique_ptr<MapRenderer> mapRenderer;
 
+	std::unique_ptr<CAnimation> iconsStorage;
 
 	Canvas getTile(const int3 & coordinates);
 	void updateTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates);
 
+	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates);
 public:
 	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
 	~MapViewCache();
@@ -142,7 +148,7 @@ public:
 	void update(const std::shared_ptr<MapRendererContext> & context);
 
 	/// renders updated terrain cache onto provided canvas
-	void render(Canvas & target);
+	void render(const std::shared_ptr<MapRendererContext> &context, Canvas & target);
 };
 
 /// Class responsible for updating view state,
