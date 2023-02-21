@@ -90,6 +90,9 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 	if(groupSize == 0)
 		return 0;
 
+	if (!settings["adventure"]["objectAnimation"].Bool())
+		return 0;
+
 	// H3 timing for adventure map objects animation is 180 ms
 	// Terrain animations also use identical interval, however those are only present in HotA and/or HD Mod
 	size_t baseFrameTime = 180;
@@ -106,6 +109,9 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 
 size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
 {
+	if (!settings["adventure"]["terrainAnimation"].Bool())
+		return 0;
+
 	size_t baseFrameTime = 180;
 	size_t frameCounter = animationTime / baseFrameTime;
 	size_t frameIndex = frameCounter % groupSize;
