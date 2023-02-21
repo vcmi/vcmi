@@ -138,8 +138,15 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 		return true;
 	if (!b)
 		return false;
-	if (a->appearance->printPriority != b->appearance->printPriority)
-		return a->appearance->printPriority > b->appearance->printPriority;
+
+	if (a->appearance->printPriority != 0 || b->appearance->printPriority != 0)
+	{
+		if (a->appearance->printPriority != b->appearance->printPriority)
+			return a->appearance->printPriority > b->appearance->printPriority;
+
+		//H3 behavior: order of two background objects depends on their placement order on map
+		return a->id < b->id;
+	}
 
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;
@@ -153,9 +160,10 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 		return true;
 	if(!b->isVisitable() && a->isVisitable())
 		return false;
-	if(a->pos.x < b->pos.x)
-		return true;
-	return false;
+
+	//H3 behavior: order of two background objects depends on their placement order on map
+	return a->id < b->id;
+
 }
 
 CMapHandler::CMapHandler(const CMap * map)
