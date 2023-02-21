@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "MapRenderer.h"
 
-#include "MapRendererContext.h"
+#include "IMapRendererContext.h"
 #include "mapHandler.h"
 
 #include "../CGameInfo.h"
@@ -92,7 +92,7 @@ MapTileStorage::MapTileStorage(size_t capacity)
 {
 }
 
-void MapTileStorage::load(size_t index, const std::string & filename)
+void MapTileStorage::load(size_t index, const std::string & filename, EImageBlitMode blitMode)
 {
 	auto & terrainAnimations = animations[index];
 
@@ -100,6 +100,9 @@ void MapTileStorage::load(size_t index, const std::string & filename)
 	{
 		entry = std::make_unique<CAnimation>(filename);
 		entry->preload();
+
+		for(size_t i = 0; i < entry->size(); ++i)
+			entry->getImage(i)->setBlitMode(blitMode);
 	}
 
 	for(size_t i = 0; i < terrainAnimations[0]->size(); ++i)
@@ -122,7 +125,7 @@ MapRendererTerrain::MapRendererTerrain()
 	: storage(VLC->terrainTypeHandler->objects.size())
 {
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
-		storage.load(terrain->getIndex(), terrain->tilesFilename);
+		storage.load(terrain->getIndex(), terrain->tilesFilename, EImageBlitMode::OPAQUE);
 }
 
 void MapRendererTerrain::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -146,15 +149,23 @@ void MapRendererTerrain::renderTile(const IMapRendererContext & context, Canvas 
 		image->shiftPalette(242, 14, context.terrainImageIndex(14));
 	}
 
-	image->setBlitMode(EImageBlitMode::OPAQUE);
 	target.draw(image, Point(0, 0));
+}
+
+uint8_t MapRendererTerrain::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	const TerrainTile & mapTile = context.getMapTile(coordinates);
+
+	if(mapTile.terType->getId() == ETerrainId::LAVA || mapTile.terType->getId() == ETerrainId::WATER)
+		return context.terrainImageIndex(250);
+	return 0xff-1;
 }
 
 MapRendererRiver::MapRendererRiver()
 	: storage(VLC->riverTypeHandler->objects.size())
 {
 	for(const auto & river : VLC->riverTypeHandler->objects)
-		storage.load(river->getIndex(), river->tilesFilename);
+		storage.load(river->getIndex(), river->tilesFilename, EImageBlitMode::COLORKEY);
 }
 
 void MapRendererRiver::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -191,11 +202,22 @@ void MapRendererRiver::renderTile(const IMapRendererContext & context, Canvas & 
 	target.draw(image, Point(0, 0));
 }
 
+uint8_t MapRendererRiver::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	const TerrainTile & mapTile = context.getMapTile(coordinates);
+
+	if(mapTile.riverType->getId() == River::WATER_RIVER ||
+	   mapTile.riverType->getId() == River::MUD_RIVER ||
+	   mapTile.riverType->getId() == River::LAVA_RIVER)
+		return context.terrainImageIndex(250);
+	return 0xff-1;
+}
+
 MapRendererRoad::MapRendererRoad()
 	: storage(VLC->roadTypeHandler->objects.size())
 {
 	for(const auto & road : VLC->roadTypeHandler->objects)
-		storage.load(road->getIndex(), road->tilesFilename);
+		storage.load(road->getIndex(), road->tilesFilename, EImageBlitMode::COLORKEY);
 }
 
 void MapRendererRoad::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -226,6 +248,11 @@ void MapRendererRoad::renderTile(const IMapRendererContext & context, Canvas & t
 		const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 		target.draw(image, Point(0, 16), Rect(0, 0, 32, 16));
 	}
+}
+
+uint8_t MapRendererRoad::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	return 0;
 }
 
 MapRendererBorder::MapRendererBorder()
@@ -278,12 +305,20 @@ void MapRendererBorder::renderTile(const IMapRendererContext & context, Canvas &
 	target.draw(image, Point(0, 0));
 }
 
+uint8_t MapRendererBorder::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	return 0;
+}
+
 MapRendererFow::MapRendererFow()
 {
 	fogOfWarFullHide = std::make_unique<CAnimation>("TSHRC");
 	fogOfWarFullHide->preload();
 	fogOfWarPartialHide = std::make_unique<CAnimation>("TSHRE");
 	fogOfWarPartialHide->preload();
+
+	for(size_t i = 0; i < fogOfWarFullHide->size(); ++i)
+		fogOfWarFullHide->getImage(i)->setBlitMode(EImageBlitMode::OPAQUE);
 
 	static const std::vector<int> rotations = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
@@ -319,6 +354,15 @@ void MapRendererFow::renderTile(const IMapRendererContext & context, Canvas & ta
 	{
 		target.draw(fogOfWarPartialHide->getImage(retBitmapID), Point(0, 0));
 	}
+}
+
+uint8_t MapRendererFow::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	const NeighborTilesInfo neighborInfo(context, coordinates);
+	int retBitmapID = neighborInfo.getBitmapID();
+	if(retBitmapID < 0)
+		return 0xff-1;
+	return retBitmapID;
 }
 
 std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectInstance* obj)
@@ -485,6 +529,36 @@ void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas 
 	}
 }
 
+uint8_t MapRendererObjects::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	for(const auto & objectID : context.getObjects(coordinates))
+	{
+		const auto * objectInstance = context.getObject(objectID);
+		size_t groupIndex = context.objectGroupIndex(objectInstance->id);
+		Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
+
+		auto base = getBaseAnimation(objectInstance);
+		auto flag = getFlagAnimation(objectInstance);
+
+		if (base && base->size(groupIndex) > 1)
+		{
+			auto imageIndex = context.objectImageIndex(objectID, base->size(groupIndex));
+			auto image = base->getImage(imageIndex, groupIndex);
+			if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
+				return context.objectImageIndex(objectID, 250);
+		}
+
+		if (flag && flag->size(groupIndex) > 1)
+		{
+			auto imageIndex = context.objectImageIndex(objectID, flag->size(groupIndex));
+			auto image = flag->getImage(imageIndex, groupIndex);
+			if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
+				return context.objectImageIndex(objectID, 250);
+		}
+	}
+	return 0xff-1;
+}
+
 MapRendererDebug::MapRendererDebug()
 	: imageGrid(IImage::createFromFile("debug/grid", EImageBlitMode::ALPHA))
 	, imageBlockable(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
@@ -521,28 +595,33 @@ void MapRendererDebug::renderTile(const IMapRendererContext & context, Canvas & 
 	}
 }
 
+uint8_t MapRendererDebug::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	return 0;
+}
+
 MapRendererPath::MapRendererPath()
 	: pathNodes(new CAnimation("ADAG"))
 {
 	pathNodes->preload();
 }
 
-void MapRendererPath::renderImage(Canvas & target, bool reachableToday, size_t imageIndex)
+size_t MapRendererPath::selectImageReachability(bool reachableToday, size_t imageIndex)
 {
 	const static size_t unreachableTodayOffset = 25;
 
-	if(reachableToday)
-		target.draw(pathNodes->getImage(imageIndex), Point(0, 0));
-	else
-		target.draw(pathNodes->getImage(imageIndex + unreachableTodayOffset), Point(0, 0));
+	if(!reachableToday)
+		return unreachableTodayOffset + imageIndex;
+
+	return imageIndex;
 }
 
-void MapRendererPath::renderImageCross(Canvas & target, bool reachableToday, const int3 & curr)
+size_t MapRendererPath::selectImageCross(bool reachableToday, const int3 & curr)
 {
-	renderImage(target, reachableToday, 0);
+	return selectImageReachability(reachableToday, 0);
 }
 
-void MapRendererPath::renderImageArrow(Canvas & target, bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next)
+size_t MapRendererPath::selectImageArrow(bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next)
 {
 	// Vector directions
 	//  0   1   2
@@ -571,10 +650,18 @@ void MapRendererPath::renderImageArrow(Canvas & target, bool reachableToday, con
 	size_t leaveDirection = (prev.x - curr.x + 1) + 3 * (prev.y - curr.y + 1);
 	size_t imageIndex = directionToArrowIndex[enterDirection][leaveDirection];
 
-	renderImage(target, reachableToday, imageIndex);
+	return selectImageReachability(reachableToday, imageIndex);
 }
 
 void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+{
+	size_t imageID = selectImage(context, coordinates);
+
+	if (imageID < pathNodes->size())
+		target.draw(pathNodes->getImage(imageID), Point(0,0));
+}
+
+size_t MapRendererPath::selectImage(const IMapRendererContext & context, const int3 & coordinates)
 {
 	const auto & functor = [&](const CGPathNode & node)
 	{
@@ -583,31 +670,70 @@ void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & t
 
 	const auto * path = context.currentPath();
 	if(!path)
-		return;
+		return std::numeric_limits<size_t>::max();
 
 	const auto & iter = boost::range::find_if(path->nodes, functor);
 
 	if(iter == path->nodes.end())
-		return;
+		return std::numeric_limits<size_t>::max();
 
 	bool reachableToday = iter->turns == 0;
 	if(iter == path->nodes.begin())
-		renderImageCross(target, reachableToday, iter->coord);
+		return selectImageCross(reachableToday, iter->coord);
 
 	auto next = iter + 1;
 	auto prev = iter - 1;
 
 	// start of path - current hero location
 	if(next == path->nodes.end())
-		return;
+		return std::numeric_limits<size_t>::max();
 
 	bool pathContinuous = iter->coord.areNeighbours(next->coord) && iter->coord.areNeighbours(prev->coord);
 	bool embarking = iter->action == CGPathNode::EMBARK || iter->action == CGPathNode::DISEMBARK;
 
 	if(pathContinuous && !embarking)
-		renderImageArrow(target, reachableToday, iter->coord, prev->coord, next->coord);
+		return selectImageArrow(reachableToday, iter->coord, prev->coord, next->coord);
+
+	return selectImageCross(reachableToday, iter->coord);
+}
+
+uint8_t MapRendererPath::checksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	return selectImage(context, coordinates) & 0xff;
+}
+
+MapRenderer::TileChecksum MapRenderer::getTileChecksum(const IMapRendererContext & context, const int3 & coordinates)
+{
+	// computes basic checksum to determine whether tile needs an update
+	// if any component gives different value, tile will be updated
+	TileChecksum result;
+	boost::range::fill(result, std::numeric_limits<uint8_t>::max());
+
+	if(!context.isInMap(coordinates))
+	{
+		result[0] = rendererBorder.checksum(context, coordinates);
+		return result;
+	}
+
+	const NeighborTilesInfo neighborInfo(context, coordinates);
+
+	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	{
+		result[7] = rendererFow.checksum(context, coordinates);
+	}
 	else
-		renderImageCross(target, reachableToday, iter->coord);
+	{
+		result[1] = rendererTerrain.checksum(context, coordinates);
+		result[2] = rendererRiver.checksum(context, coordinates);
+		result[3] = rendererRoad.checksum(context, coordinates);
+		result[4] = rendererObjects.checksum(context, coordinates);
+		result[5] = rendererPath.checksum(context, coordinates);
+		result[6] = rendererDebug.checksum(context, coordinates);
+
+		if(!context.isVisible(coordinates))
+			result[7] = rendererFow.checksum(context, coordinates);
+	}
+	return result;
 }
 
 void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -636,5 +762,4 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 		if(!context.isVisible(coordinates))
 			rendererFow.renderTile(context, target, coordinates);
 	}
-
 }

@@ -17,14 +17,28 @@ class IImage;
 class CAnimation;
 class Canvas;
 class MapRenderer;
-class MapRendererContext;
-//class MapViewController;
+class IMapRendererContext;
 class MapViewModel;
 
 /// Class responsible for rendering of entire map view
 /// uses rendering parameters provided by owner class
 class MapViewCache
 {
+	struct TileChecksum
+	{
+		int tileX = std::numeric_limits<int>::min();
+		int tileY = std::numeric_limits<int>::min();
+		std::array<uint8_t, 8> checksum {};
+
+		bool operator == (const TileChecksum & other) const
+		{
+			return tileX == other.tileX && tileY == other.tileY && checksum == other.checksum;
+		}
+	};
+
+	boost::multi_array<TileChecksum, 2> terrainChecksum;
+	int cachedLevel;
+
 	std::shared_ptr<MapViewModel> model;
 
 	std::unique_ptr<Canvas> terrain;
@@ -35,16 +49,16 @@ class MapViewCache
 	std::unique_ptr<CAnimation> iconsStorage;
 
 	Canvas getTile(const int3 & coordinates);
-	void updateTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates);
+	void updateTile(const std::shared_ptr<const IMapRendererContext> & context, const int3 & coordinates);
 
-	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates);
+	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<const IMapRendererContext> & context, const int3 & coordinates);
 public:
 	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
 	~MapViewCache();
 
 	/// updates internal terrain cache according to provided time delta
-	void update(const std::shared_ptr<MapRendererContext> & context);
+	void update(const std::shared_ptr<const IMapRendererContext> & context);
 
 	/// renders updated terrain cache onto provided canvas
-	void render(const std::shared_ptr<MapRendererContext> &context, Canvas & target);
+	void render(const std::shared_ptr<const IMapRendererContext> &context, Canvas & target);
 };

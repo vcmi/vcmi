@@ -17,6 +17,7 @@ struct ObjectPosInfo;
 VCMI_LIB_NAMESPACE_END
 
 class MapViewModel;
+class IMapRendererContext;
 class MapRendererContext;
 
 /// Class responsible for updating view state,
@@ -38,7 +39,9 @@ private:
 	void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 
 public:
-	MapViewController(std::shared_ptr<MapRendererContext> context, std::shared_ptr<MapViewModel> model);
+	explicit MapViewController(std::shared_ptr<MapViewModel> model);
+
+	std::shared_ptr<const IMapRendererContext> getContext() const;
 
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);

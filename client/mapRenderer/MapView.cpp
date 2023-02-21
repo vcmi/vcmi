@@ -14,7 +14,6 @@
 #include "MapViewModel.h"
 #include "MapViewCache.h"
 #include "MapViewController.h"
-#include "MapRendererContext.h"
 #include "mapHandler.h"
 
 #include "../adventureMap/CAdvMapInt.h"
@@ -48,8 +47,7 @@ std::shared_ptr<MapViewModel> MapView::createModel(const Point & dimensions) con
 
 MapView::MapView(const Point & offset, const Point & dimensions)
 	: model(createModel(dimensions))
-	, context(new MapRendererContext())
-	, controller(new MapViewController(context, model))
+	, controller(new MapViewController(model))
 	, tilesCache(new MapViewCache(model))
 {
 	pos += offset;
@@ -65,8 +63,8 @@ void MapView::show(SDL_Surface * to)
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 
 	controller->update(GH.mainFPSmng->getElapsedMilliseconds());
-	tilesCache->update(context);
-	tilesCache->render(context, targetClipped);
+	tilesCache->update(controller->getContext());
+	tilesCache->render(controller->getContext(), targetClipped);
 }
 
 void MapView::showAll(SDL_Surface * to)

@@ -41,10 +41,15 @@ void MapViewController::setTileSize(const Point & tileSize)
 	model->setTileSize(tileSize);
 }
 
-MapViewController::MapViewController(std::shared_ptr<MapRendererContext> context, std::shared_ptr<MapViewModel> model)
-	: context(std::move(context))
+MapViewController::MapViewController(std::shared_ptr<MapViewModel> model)
+	: context(new MapRendererContext())
 	, model(std::move(model))
 {
+}
+
+std::shared_ptr<const IMapRendererContext> MapViewController::getContext() const
+{
+	return context;
 }
 
 void MapViewController::update(uint32_t timeDelta)

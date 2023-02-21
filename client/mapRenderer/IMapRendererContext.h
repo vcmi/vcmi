@@ -34,6 +34,9 @@ public:
 	/// returns true if chosen coordinates exist on map
 	virtual bool isInMap(const int3 & coordinates) const = 0;
 
+//	/// returns true if selected tile has animation and should not be cached
+//	virtual bool tileAnimated(const int3 & coordinates) const = 0;
+
 	/// returns tile by selected coordinates. Coordinates MUST be valid
 	virtual const TerrainTile & getMapTile(const int3 & coordinates) const = 0;
 

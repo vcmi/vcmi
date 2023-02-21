@@ -9,8 +9,6 @@
  */
 #pragma once
 
-#include "MapRendererContext.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class int3;
@@ -22,6 +20,8 @@ VCMI_LIB_NAMESPACE_END
 class CAnimation;
 class IImage;
 class Canvas;
+class IMapRendererContext;
+enum class EImageBlitMode : uint8_t;
 
 class MapTileStorage
 {
@@ -30,7 +30,7 @@ class MapTileStorage
 
 public:
 	explicit MapTileStorage(size_t capacity);
-	void load(size_t index, const std::string & filename);
+	void load(size_t index, const std::string & filename, EImageBlitMode blitMode);
 	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
 };
 
@@ -40,6 +40,8 @@ class MapRendererTerrain
 
 public:
 	MapRendererTerrain();
+
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -49,6 +51,8 @@ class MapRendererRiver
 
 public:
 	MapRendererRiver();
+
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -58,6 +62,8 @@ class MapRendererRoad
 
 public:
 	MapRendererRoad();
+
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -77,6 +83,7 @@ class MapRendererObjects
 	void renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj);
 
 public:
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -88,6 +95,8 @@ class MapRendererBorder
 
 public:
 	MapRendererBorder();
+
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -98,6 +107,8 @@ class MapRendererFow
 
 public:
 	MapRendererFow();
+
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -105,12 +116,15 @@ class MapRendererPath
 {
 	std::unique_ptr<CAnimation> pathNodes;
 
-	void renderImage(Canvas & target, bool reachableToday, size_t imageIndex);
-	void renderImageCross(Canvas & target, bool reachableToday, const int3 & curr);
-	void renderImageArrow(Canvas & target, bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next);
+	size_t selectImageReachability(bool reachableToday, size_t imageIndex);
+	size_t selectImageCross(bool reachableToday, const int3 & curr);
+	size_t selectImageArrow(bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next);
+	size_t selectImage(const IMapRendererContext & context, const int3 & coordinates);
 
 public:
 	MapRendererPath();
+
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -122,6 +136,7 @@ class MapRendererDebug
 public:
 	MapRendererDebug();
 
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -131,6 +146,7 @@ class MapRendererOverlay
 public:
 	MapRendererOverlay();
 
+	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
@@ -146,5 +162,9 @@ class MapRenderer
 	MapRendererDebug rendererDebug;
 
 public:
+	using TileChecksum = std::array<uint8_t, 8>;
+
+	TileChecksum getTileChecksum(const IMapRendererContext & context, const int3 & coordinates);
+
 	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };

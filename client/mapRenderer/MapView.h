@@ -11,7 +11,6 @@
 
 #include "../gui/CIntObject.h"
 
-class MapRendererContext;
 class MapViewController;
 class MapViewModel;
 class MapViewCache;
@@ -20,7 +19,6 @@ class MapViewCache;
 class MapView : public CIntObject
 {
 	std::shared_ptr<MapViewModel> model;
-	std::shared_ptr<MapRendererContext> context;
 	std::unique_ptr<MapViewCache> tilesCache;
 	std::shared_ptr<MapViewController> controller;
 
