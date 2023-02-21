@@ -1090,19 +1090,6 @@ void CGameState::placeCampaignHeroes()
 			logGlobal->debug("\tReplace placeholders with heroes");
 			replaceHeroesPlaceholders(campaignHeroReplacements);
 
-			// remove hero placeholders on map
-			for(auto obj : map->objects)
-			{
-				if(obj && obj->ID == Obj::HERO_PLACEHOLDER)
-				{
-					auto heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
-					map->removeBlockVisTiles(heroPlaceholder, true);
-					map->instanceNames.erase(obj->instanceName);
-					map->objects[heroPlaceholder->id.getNum()] = nullptr;
-					delete heroPlaceholder;
-				}
-			}
-
 			// now add removed heroes again with unused type ID
 			for(auto hero : removedHeroes)
 			{
@@ -1133,6 +1120,19 @@ void CGameState::placeCampaignHeroes()
 				hero->portrait = hero->subID;
 				map->getEditManager()->insertObject(hero);
 			}
+		}
+	}
+
+	// remove hero placeholders on map
+	for(auto obj : map->objects)
+	{
+		if(obj && obj->ID == Obj::HERO_PLACEHOLDER)
+		{
+			auto heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
+			map->removeBlockVisTiles(heroPlaceholder, true);
+			map->instanceNames.erase(obj->instanceName);
+			map->objects[heroPlaceholder->id.getNum()] = nullptr;
+			delete heroPlaceholder;
 		}
 	}
 }
@@ -2905,9 +2905,16 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 		for(auto &&i : heroToPlace->artifactsInBackpack)
 			fixArtifact(i.artifact);
 
+		map->removeBlockVisTiles(heroPlaceholder, true);
+		map->objects[heroPlaceholder->id.getNum()] = nullptr;
+		map->instanceNames.erase(heroPlaceholder->instanceName);
+
 		map->heroesOnMap.push_back(heroToPlace);
 		map->objects[heroToPlace->id.getNum()] = heroToPlace;
 		map->addBlockVisTiles(heroToPlace);
+		map->instanceNames[heroToPlace->instanceName] = heroToPlace;
+
+		delete heroPlaceholder;
 
 		scenarioOps->campState->getCurrentScenario().placedCrossoverHeroes.push_back(CCampaignState::crossoverSerialize(heroToPlace));
 	}
