@@ -37,9 +37,6 @@ class BattleFieldController : public CIntObject
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
-	/// Canvas that contains cell borders of all tiles in the battlefield
-	std::unique_ptr<Canvas> cellBorders;
-
 	/// hex from which the stack would perform attack with current cursor
 	BattleHex attackingHex;
 

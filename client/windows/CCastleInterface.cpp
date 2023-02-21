@@ -84,10 +84,10 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	}
 
 	if(!str->borderName.empty())
-		border = IImage::createFromFile(str->borderName);
+		border = IImage::createFromFile(str->borderName, EImageBlitMode::ALPHA);
 
 	if(!str->areaName.empty())
-		area = IImage::createFromFile(str->areaName);
+		area = IImage::createFromFile(str->areaName, EImageBlitMode::ALPHA);
 }
 
 const CBuilding * CBuildingRect::getBuilding()

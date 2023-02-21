@@ -26,7 +26,12 @@ class SDLImageLoader;
 
 std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
 {
-	return std::shared_ptr<IImage>(new SDLImage(path, EImageBlitMode::ALPHA));
+	return createFromFile(path, EImageBlitMode::ALPHA);
+}
+
+std::shared_ptr<IImage> IImage::createFromFile( const std::string & path, EImageBlitMode mode )
+{
+	return std::shared_ptr<IImage>(new SDLImage(path, mode));
 }
 
 std::shared_ptr<IImage> IImage::createFromSurface( SDL_Surface * source )

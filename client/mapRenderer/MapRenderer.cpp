@@ -486,9 +486,9 @@ void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas 
 }
 
 MapRendererDebug::MapRendererDebug()
-	: imageGrid(IImage::createFromFile("debug/grid"))
-	, imageBlockable(IImage::createFromFile("debug/blocked"))
-	, imageVisitable(IImage::createFromFile("debug/visitable"))
+	: imageGrid(IImage::createFromFile("debug/grid", EImageBlitMode::ALPHA))
+	, imageBlockable(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
+	, imageVisitable(IImage::createFromFile("debug/visitable", EImageBlitMode::ALPHA))
 {
 
 }
