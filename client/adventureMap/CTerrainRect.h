@@ -14,6 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct CGPath;
+struct ObjectPosInfo;
 VCMI_LIB_NAMESPACE_END
 
 class MapView;
@@ -50,6 +51,9 @@ public:
 	void setViewCenter(const Point & position, int level);
 	void setLevel(int level);
 	void setTileSize(int sizePixels);
+
+	void setTerrainVisibility(bool showAllTerrain);
+	void setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions);
 
 	Point getViewCenter();
 	int getLevel();

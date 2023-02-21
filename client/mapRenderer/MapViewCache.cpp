@@ -26,13 +26,12 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, mapRenderer(new MapRenderer())
 	, iconsStorage(new CAnimation("VwSymbol"))
-	, intermediate(new Canvas(Point(32,32)))
+	, intermediate(new Canvas(Point(32, 32)))
 	, terrain(new Canvas(model->getCacheDimensionsPixels()))
 {
 	iconsStorage->preload();
-	for (size_t i = 0; i < iconsStorage->size(); ++i)
+	for(size_t i = 0; i < iconsStorage->size(); ++i)
 		iconsStorage->getImage(i)->setBlitMode(EImageBlitMode::COLORKEY);
-
 }
 
 Canvas MapViewCache::getTile(const int3 & coordinates)
@@ -42,40 +41,10 @@ Canvas MapViewCache::getTile(const int3 & coordinates)
 
 std::shared_ptr<IImage> MapViewCache::getOverlayImageForTile(const std::shared_ptr<MapRendererContext> & context, const int3 & coordinates)
 {
-	if (!context->isVisible(coordinates))
-		return nullptr;
+	size_t imageIndex = context->overlayImageIndex(coordinates);
 
-	for(const auto & objectID : context->getObjects(coordinates))
-	{
-		const auto * object = context->getObject(objectID);
-
-		if (!object->visitableAt(coordinates.x, coordinates.y))
-			continue;
-
-		size_t ownerIndex = PlayerColor::PLAYER_LIMIT.getNum() * static_cast<size_t>(EWorldViewIcon::ICONS_PER_PLAYER);
-		if (object->tempOwner.isValidPlayer())
-			ownerIndex = object->tempOwner.getNum() * static_cast<size_t>(EWorldViewIcon::ICONS_PER_PLAYER);
-
-		switch (object->ID)
-		{
-			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-			case Obj::MONOLITH_ONE_WAY_EXIT:
-			case Obj::MONOLITH_TWO_WAY:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::TELEPORT));
-			case Obj::SUBTERRANEAN_GATE:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::GATE));
-			case Obj::ARTIFACT:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::ARTIFACT));
-			case Obj::TOWN:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::TOWN));
-			case Obj::HERO:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::HERO));
-			case Obj::MINE:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::MINE_WOOD) + object->subID);
-			case Obj::RESOURCE:
-				return iconsStorage->getImage(ownerIndex + static_cast<size_t>(EWorldViewIcon::RES_WOOD) + object->subID);
-		}
-	}
+	if(imageIndex < iconsStorage->size())
+		return iconsStorage->getImage(imageIndex);
 	return nullptr;
 }
 
@@ -115,9 +84,17 @@ void MapViewCache::render(const std::shared_ptr<MapRendererContext> & context, C
 			Canvas source = getTile(tile);
 			Rect targetRect = model->getTargetTileArea(tile);
 			target.draw(source, targetRect.topLeft());
+		}
+	}
 
-			if (context->showOverlay())
+	if (context->showOverlay())
+	{
+		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
+		{
+			for(int x = dimensions.left(); x < dimensions.right(); ++x)
 			{
+				int3 tile(x, y, model->getLevel());
+				Rect targetRect = model->getTargetTileArea(tile);
 				auto overlay = getOverlayImageForTile(context, tile);
 
 				if (overlay)

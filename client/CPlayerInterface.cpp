@@ -1829,7 +1829,7 @@ void CPlayerInterface::showPuzzleMap()
 
 void CPlayerInterface::viewWorldMap()
 {
-	adventureInt->changeMode(EAdvMapMode::WORLD_VIEW);
+	adventureInt->openWorldView();
 }
 
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
@@ -1843,14 +1843,6 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		paths.erasePath(caster);
 
 	const spells::Spell * spell = CGI->spells()->getByIndex(spellID);
-
-	if(spellID == SpellID::VIEW_EARTH)
-	{
-		//TODO: implement on server side
-		const auto level = caster->getSpellSchoolLevel(spell);
-		adventureInt->worldViewOptions.showAllTerrain = (level > 2);
-	}
-
 	auto castSoundPath = spell->getCastSound();
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
@@ -2369,14 +2361,10 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	setMovementStatus(false);
 }
 
-void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions)
+void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	//TODO: showWorldViewEx
-
-	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
-
-	viewWorldMap();
+	adventureInt->openWorldView(objectPositions, showTerrain );
 }
 
 void CPlayerInterface::updateAmbientSounds(bool resetAll)

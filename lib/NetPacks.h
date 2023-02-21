@@ -1908,12 +1908,14 @@ protected:
 struct DLL_LINKAGE ShowWorldViewEx : public CPackForClient
 {
 	PlayerColor player;
+	bool showTerrain; // TODO: send terrain state
 
 	std::vector<ObjectPosInfo> objectPositions;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & player;
+		h & showTerrain;
 		h & objectPositions;
 	}
 

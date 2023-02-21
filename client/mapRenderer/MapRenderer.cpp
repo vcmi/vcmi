@@ -444,7 +444,7 @@ void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas
 	if(!image)
 		return;
 
-	auto transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id)));
+	auto transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id, coordinates)));
 
 	if (transparency == 0)
 		return;
@@ -507,7 +507,7 @@ void MapRendererDebug::renderTile(const IMapRendererContext & context, Canvas & 
 		{
 			const auto * object = context.getObject(objectID);
 
-			if (context.objectTransparency(objectID) > 0)
+			if (context.objectTransparency(objectID, coordinates) > 0)
 			{
 				visitable |= object->visitableAt(coordinates.x, coordinates.y);
 				blockable |= object->blockingAt(coordinates.x, coordinates.y);

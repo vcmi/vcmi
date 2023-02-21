@@ -61,21 +61,12 @@ private:
 	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	enum EGameStates {NA, INGAME, WAITING};
 
-	struct WorldViewOptions
-	{
-		bool showAllTerrain; //for expert viewEarth
-		std::vector<ObjectPosInfo> iconPositions;
-		WorldViewOptions();
-		void clear();
-	};
-
 	bool swipeEnabled;
 	bool swipeMovementRequested;
 	Point swipeTargetPosition;
 
 	EGameStates state;
 	EAdvMapMode mode;
-	WorldViewOptions worldViewOptions;
 
 	/// Currently selected object, can be town, hero or null
 	const CArmedInstance *selection;
@@ -211,9 +202,17 @@ public:
 	/// returs visible section of game map, in tiles
 	Rect terrainAreaTiles() const;
 
-	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
-	void changeMode(EAdvMapMode newMode);
-	void changeMode(EAdvMapMode newMode, int tileSize);
+	/// exits currently opened world view mode and returns to normal map
+	void exitWorldView();
+
+	/// opens world view at default scale
+	void openWorldView();
+
+	/// opens world view at specific scale
+	void openWorldView(int tileSize);
+
+	/// opens world view with specific info, e.g. after View Earth/Air is shown
+	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
 };
 
 extern std::shared_ptr<CAdvMapInt> adventureInt;

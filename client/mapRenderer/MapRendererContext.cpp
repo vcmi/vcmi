@@ -66,6 +66,8 @@ const CGObjectInstance * MapRendererContext::getObject(ObjectInstanceID objectID
 
 bool MapRendererContext::isVisible(const int3 & coordinates) const
 {
+	if (showAllTerrain)
+		return LOCPLINT->cb->isInTheMap(coordinates);
 	return LOCPLINT->cb->isVisible(coordinates) || settings["session"]["spectate"].Bool();
 }
 
@@ -253,11 +255,11 @@ Point MapRendererContext::objectImageOffset(ObjectInstanceID objectID, const int
 	return Point(offsetTiles) * Point(32, 32);
 }
 
-double MapRendererContext::objectTransparency(ObjectInstanceID objectID) const
+double MapRendererContext::objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const
 {
 	const CGObjectInstance * object = getObject(objectID);
 
-	if(object && object->ID == Obj::HERO)
+	if(object->ID == Obj::HERO)
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
@@ -268,6 +270,12 @@ double MapRendererContext::objectTransparency(ObjectInstanceID objectID) const
 			return 0;
 	}
 
+	if(showAllTerrain)
+	{
+		if(object->isVisitable() && !LOCPLINT->cb->isVisible(coordinates))
+			return 0;
+	}
+
 	if(fadeOutAnimation && objectID == fadeOutAnimation->target)
 		return 1.0 - fadeOutAnimation->progress;
 
@@ -275,4 +283,70 @@ double MapRendererContext::objectTransparency(ObjectInstanceID objectID) const
 		return fadeInAnimation->progress;
 
 	return 1.0;
+}
+
+size_t MapRendererContext::selectOverlayImageForObject(const ObjectPosInfo & object) const
+{
+	size_t ownerIndex = PlayerColor::PLAYER_LIMIT.getNum() * static_cast<size_t>(EWorldViewIcon::ICONS_PER_PLAYER);
+
+	if(object.owner.isValidPlayer())
+		ownerIndex = object.owner.getNum() * static_cast<size_t>(EWorldViewIcon::ICONS_PER_PLAYER);
+
+	switch(object.id)
+	{
+		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+		case Obj::MONOLITH_TWO_WAY:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::TELEPORT);
+		case Obj::SUBTERRANEAN_GATE:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::GATE);
+		case Obj::ARTIFACT:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::ARTIFACT);
+		case Obj::TOWN:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::TOWN);
+		case Obj::HERO:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::HERO);
+		case Obj::MINE:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::MINE_WOOD) + object.subId;
+		case Obj::RESOURCE:
+			return ownerIndex + static_cast<size_t>(EWorldViewIcon::RES_WOOD) + object.subId;
+	}
+	return std::numeric_limits<size_t>::max();
+}
+
+size_t MapRendererContext::overlayImageIndex(const int3 & coordinates) const
+{
+	for(const auto & entry : additionalOverlayIcons)
+	{
+		if(entry.pos != coordinates)
+			continue;
+
+		size_t iconIndex = selectOverlayImageForObject(entry);
+
+		if(iconIndex != std::numeric_limits<size_t>::max())
+			return iconIndex;
+	}
+
+	if(!isVisible(coordinates))
+		return std::numeric_limits<size_t>::max();
+
+	for(const auto & objectID : getObjects(coordinates))
+	{
+		const auto * object = getObject(objectID);
+
+		if(!object->visitableAt(coordinates.x, coordinates.y))
+			continue;
+
+		ObjectPosInfo info;
+		info.pos = coordinates;
+		info.id = object->ID;
+		info.subId = object->subID;
+		info.owner = object->tempOwner;
+
+		size_t iconIndex = selectOverlayImageForObject(info);
+
+		if(iconIndex != std::numeric_limits<size_t>::max())
+			return iconIndex;
+	}
+	return std::numeric_limits<size_t>::max();
 }

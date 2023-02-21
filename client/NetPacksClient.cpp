@@ -883,7 +883,7 @@ void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)
 
 void ApplyClientNetPackVisitor::visitShowWorldViewEx(ShowWorldViewEx & pack)
 {
-	callOnlyThatInterface(cl, pack.player, &CGameInterface::showWorldViewEx, pack.objectPositions);
+	callOnlyThatInterface(cl, pack.player, &CGameInterface::showWorldViewEx, pack.objectPositions, pack.showTerrain);
 }
 
 void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)

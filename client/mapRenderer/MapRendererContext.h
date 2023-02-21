@@ -14,6 +14,10 @@
 #include "../lib/int3.h"
 #include "../lib/GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+struct ObjectPosInfo;
+VCMI_LIB_NAMESPACE_END
+
 class MapObjectsSorter
 {
 	const IMapRendererContext & context;
@@ -39,6 +43,33 @@ struct FadingAnimationState
 	double progress;
 };
 
+// from VwSymbol.def
+enum class EWorldViewIcon
+{
+	TOWN = 0,
+	HERO = 1,
+	ARTIFACT = 2,
+	TELEPORT = 3,
+	GATE = 4,
+	MINE_WOOD = 5,
+	MINE_MERCURY = 6,
+	MINE_STONE = 7,
+	MINE_SULFUR = 8,
+	MINE_CRYSTAL = 9,
+	MINE_GEM = 10,
+	MINE_GOLD = 11,
+	RES_WOOD = 12,
+	RES_MERCURY = 13,
+	RES_STONE = 14,
+	RES_SULFUR = 15,
+	RES_CRYSTAL = 16,
+	RES_GEM = 17,
+	RES_GOLD = 18,
+
+	ICONS_PER_PLAYER = 19,
+	ICONS_TOTAL = 19 * 9 // 8 players + neutral set at the end
+};
+
 class MapRendererContext : public IMapRendererContext
 {
 	friend class MapViewController;
@@ -54,7 +85,12 @@ class MapRendererContext : public IMapRendererContext
 	boost::optional<FadingAnimationState> fadeOutAnimation;
 	boost::optional<FadingAnimationState> fadeInAnimation;
 
+	std::vector<ObjectPosInfo> additionalOverlayIcons;
+
 	bool worldViewModeActive = false;
+	bool showAllTerrain = false;
+
+	size_t selectOverlayImageForObject(const ObjectPosInfo & objectID) const;
 
 public:
 	MapRendererContext();
@@ -74,9 +110,10 @@ public:
 
 	size_t objectGroupIndex(ObjectInstanceID objectID) const override;
 	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
-	double objectTransparency(ObjectInstanceID objectID) const override;
+	double objectTransparency(ObjectInstanceID objectID, const int3 &coordinates) const override;
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	size_t terrainImageIndex(size_t groupSize) const override;
+	size_t overlayImageIndex(const int3 & coordinates) const override;
 //	Point getTileSize() const override;
 
 	bool showOverlay() const override;

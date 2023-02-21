@@ -198,7 +198,7 @@ public:
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
 	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
 	void battleEnd(const BattleResult * br) override;

@@ -585,6 +585,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 				pack.objectPositions.push_back(posInfo);
 		}
 	}
+	pack.showTerrain = showTerrain(spellLevel);
 
 	env->apply(&pack);
 
@@ -602,6 +603,11 @@ bool ViewAirMechanics::filterObject(const CGObjectInstance * obj, const int32_t 
 	return (obj->ID == Obj::ARTIFACT) || (spellLevel > 1 && obj->ID == Obj::HERO) || (spellLevel > 2 && obj->ID == Obj::TOWN);
 }
 
+bool ViewAirMechanics::showTerrain(const int32_t spellLevel) const
+{
+	return false;
+}
+
 ///ViewEarthMechanics
 ViewEarthMechanics::ViewEarthMechanics(const CSpell * s):
 	ViewMechanics(s)
@@ -613,5 +619,9 @@ bool ViewEarthMechanics::filterObject(const CGObjectInstance * obj, const int32_
 	return (obj->ID == Obj::RESOURCE) || (spellLevel > 1 && obj->ID == Obj::MINE);
 }
 
+bool ViewEarthMechanics::showTerrain(const int32_t spellLevel) const
+{
+	return spellLevel > 2;
+}
 
 VCMI_LIB_NAMESPACE_END

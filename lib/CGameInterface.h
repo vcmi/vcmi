@@ -107,7 +107,7 @@ public:
 	virtual void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) = 0;
 	virtual void finish(){}; //if for some reason we want to end
 
-	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions){};
+	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
 	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 	{

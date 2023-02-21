@@ -240,3 +240,14 @@ void CTerrainRect::setTileSize(int sizePixels)
 {
 	renderer->getController()->setTileSize(Point(sizePixels, sizePixels));
 }
+
+
+void CTerrainRect::setTerrainVisibility(bool showAllTerrain)
+{
+	renderer->getController()->setTerrainVisibility(showAllTerrain);
+}
+
+void CTerrainRect::setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions)
+{
+	renderer->getController()->setOverlayVisibility(objectPositions);
+}

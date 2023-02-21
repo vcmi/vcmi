@@ -53,10 +53,13 @@ public:
 	virtual Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const = 0;
 
 	/// returns object animation transparency. IF set to 0, object will not be visible
-	virtual double objectTransparency(ObjectInstanceID objectID) const = 0;
+	virtual double objectTransparency(ObjectInstanceID objectID, const int3 &coordinates) const = 0;
 
 	/// returns animation frame for selected object
 	virtual size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const = 0;
+
+	/// returns index of image for overlay on specific tile, or numeric_limits::max if none
+	virtual size_t overlayImageIndex(const int3 & coordinates) const = 0;
 
 	/// returns animation frame for terrain
 	virtual size_t terrainImageIndex(size_t groupSize) const = 0;

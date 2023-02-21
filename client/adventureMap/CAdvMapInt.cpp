@@ -236,7 +236,7 @@ CAdvMapInt::CAdvMapInt():
 
 	activeMapPanel = panelMain;
 
-	changeMode(EAdvMapMode::NORMAL);
+	exitWorldView();
 
 	underground->block(!CGI->mh->getMap()->twoLevel);
 	questlog->block(!CGI->mh->getMap()->quests.size());
@@ -252,7 +252,7 @@ void CAdvMapInt::fshowOverview()
 
 void CAdvMapInt::fworldViewBack()
 {
-	changeMode(EAdvMapMode::NORMAL);
+	exitWorldView();
 
 	auto hero = curHero();
 	if (hero)
@@ -262,17 +262,17 @@ void CAdvMapInt::fworldViewBack()
 void CAdvMapInt::fworldViewScale1x()
 {
 	// TODO set corresponding scale button to "selected" mode
-	changeMode(EAdvMapMode::WORLD_VIEW, 7); // 7 pixels per tile
+	openWorldView(7);
 }
 
 void CAdvMapInt::fworldViewScale2x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 11); // 11 pixels per tile
+	openWorldView(11);
 }
 
 void CAdvMapInt::fworldViewScale4x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 16); // 16 pixels per tile
+	openWorldView(16);
 }
 
 void CAdvMapInt::fswitchLevel()
@@ -666,7 +666,7 @@ void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
 
 void CAdvMapInt::keyReleased(const SDL_Keycode &key)
 {
-	if (mode == EAdvMapMode::WORLD_VIEW)
+	if (mode != EAdvMapMode::NORMAL)
 		return;
 
 	switch (key)
@@ -694,7 +694,7 @@ void CAdvMapInt::keyReleased(const SDL_Keycode &key)
 
 void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 {
-	if (mode == EAdvMapMode::WORLD_VIEW)
+	if (mode != EAdvMapMode::NORMAL)
 		return;
 
 	const CGHeroInstance *h = curHero(); //selected hero
@@ -1460,62 +1460,49 @@ void CAdvMapInt::quickCombatUnlock()
 		activate();
 }
 
-void CAdvMapInt::changeMode(EAdvMapMode newMode)
+void CAdvMapInt::exitWorldView()
 {
-	changeMode(newMode, 11);
+	mode = EAdvMapMode::NORMAL;
+
+	panelMain->activate();
+	panelWorldView->deactivate();
+	activeMapPanel = panelMain;
+
+	townList->activate();
+	heroList->activate();
+	infoBar->activate();
+
+	redraw();
+	terrain->setTileSize(32);
+	terrain->setTerrainVisibility(false);
+	terrain->setOverlayVisibility({});
 }
 
-void CAdvMapInt::changeMode(EAdvMapMode newMode, int tileSize)
+void CAdvMapInt::openWorldView(int tileSize)
 {
-	if (mode != newMode)
-	{
-		mode = newMode;
+	mode = EAdvMapMode::WORLD_VIEW;
+	panelMain->deactivate();
+	panelWorldView->activate();
 
-		switch (mode)
-		{
-		case EAdvMapMode::NORMAL:
-			panelMain->activate();
-			panelWorldView->deactivate();
-			activeMapPanel = panelMain;
+	activeMapPanel = panelWorldView;
 
-			townList->activate();
-			heroList->activate();
-			infoBar->activate();
+	townList->deactivate();
+	heroList->deactivate();
+	infoBar->showSelection(); // to prevent new day animation interfering world view mode
+	infoBar->deactivate();
 
-			worldViewOptions.clear();
-
-			break;
-		case EAdvMapMode::WORLD_VIEW:
-			panelMain->deactivate();
-			panelWorldView->activate();
-
-			activeMapPanel = panelWorldView;
-
-			townList->deactivate();
-			heroList->deactivate();
-			infoBar->showSelection(); // to prevent new day animation interfering world view mode
-			infoBar->deactivate();
-
-
-			break;
-		}
-		redraw();
-	}
-
-	if(mode == EAdvMapMode::NORMAL)
-		terrain->setTileSize(32);
-	if(mode == EAdvMapMode::WORLD_VIEW)
-		terrain->setTileSize(tileSize);
+	redraw();
+	terrain->setTileSize(tileSize);
 }
 
-CAdvMapInt::WorldViewOptions::WorldViewOptions()
+void CAdvMapInt::openWorldView()
 {
-	clear();
+	openWorldView(11);
 }
 
-void CAdvMapInt::WorldViewOptions::clear()
+void CAdvMapInt::openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
-	showAllTerrain = false;
-
-	iconPositions.clear();
+	openWorldView(11);
+	terrain->setTerrainVisibility(showTerrain);
+	terrain->setOverlayVisibility(objectPositions);
 }

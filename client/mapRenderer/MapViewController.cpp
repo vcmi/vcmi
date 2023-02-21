@@ -17,6 +17,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/spells/ViewSpellInt.h"
 
 void MapViewController::setViewCenter(const int3 & position)
 {
@@ -185,3 +186,14 @@ bool MapViewController::hasOngoingAnimations()
 
 	return false;
 }
+
+void MapViewController::setTerrainVisibility(bool showAllTerrain)
+{
+	context->showAllTerrain = showAllTerrain;
+}
+
+void MapViewController::setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions)
+{
+	context->additionalOverlayIcons = objectPositions;
+}
+

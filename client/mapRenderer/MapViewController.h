@@ -13,7 +13,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
+struct ObjectPosInfo;
 VCMI_LIB_NAMESPACE_END
+
 class MapViewModel;
 class MapRendererContext;
 
@@ -42,4 +44,8 @@ public:
 	void setViewCenter(const Point & position, int level);
 	void setTileSize(const Point & tileSize);
 	void update(uint32_t timeDelta);
+
+	void setTerrainVisibility(bool showAllTerrain);
+	void setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions);
+
 };
