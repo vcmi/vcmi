@@ -55,21 +55,28 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 	pos.h = dimensions.y;
 }
 
-void MapView::show(SDL_Surface * to)
+void MapView::render(Canvas & target, bool fullUpdate)
 {
-	Canvas target(to);
 	Canvas targetClipped(target, pos);
 
-	CSDL_Ext::CClipRectGuard guard(to, pos);
 
 	controller->update(GH.mainFPSmng->getElapsedMilliseconds());
 	tilesCache->update(controller->getContext());
-	tilesCache->render(controller->getContext(), targetClipped);
+	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
+}
+
+void MapView::show(SDL_Surface * to)
+{
+	Canvas target(to);
+	CSDL_Ext::CClipRectGuard guard(to, pos);
+	render(target, false);
 }
 
 void MapView::showAll(SDL_Surface * to)
 {
-	show(to);
+	Canvas target(to);
+	CSDL_Ext::CClipRectGuard guard(to, pos);
+	render(target, true);
 }
 
 std::shared_ptr<const MapViewModel> MapView::getModel() const

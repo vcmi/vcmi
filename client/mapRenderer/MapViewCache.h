@@ -9,9 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-class int3;
-VCMI_LIB_NAMESPACE_END
+#include "../../lib/Point.h"
 
 class IImage;
 class CAnimation;
@@ -37,6 +35,9 @@ class MapViewCache
 	};
 
 	boost::multi_array<TileChecksum, 2> terrainChecksum;
+	boost::multi_array<bool, 2> tilesUpToDate;
+
+	Point cachedPosition;
 	int cachedLevel;
 
 	std::shared_ptr<MapViewModel> model;
@@ -60,5 +61,5 @@ public:
 	void update(const std::shared_ptr<const IMapRendererContext> & context);
 
 	/// renders updated terrain cache onto provided canvas
-	void render(const std::shared_ptr<const IMapRendererContext> &context, Canvas & target);
+	void render(const std::shared_ptr<const IMapRendererContext> &context, Canvas & target, bool fullRedraw);
 };

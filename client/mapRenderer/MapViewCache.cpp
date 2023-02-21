@@ -37,6 +37,7 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 
 	Point visibleSize = model->getTilesVisibleDimensions();
 	terrainChecksum.resize(boost::extents[visibleSize.x][visibleSize.y]);
+	tilesUpToDate.resize(boost::extents[visibleSize.x][visibleSize.y]);
 }
 
 Canvas MapViewCache::getTile(const int3 & coordinates)
@@ -88,6 +89,7 @@ void MapViewCache::updateTile(const std::shared_ptr<const IMapRendererContext> &
 	}
 
 	oldCacheEntry = newCacheEntry;
+	tilesUpToDate[cacheX][cacheY] = false;
 }
 
 void MapViewCache::update(const std::shared_ptr<const IMapRendererContext> & context)
@@ -108,18 +110,36 @@ void MapViewCache::update(const std::shared_ptr<const IMapRendererContext> & con
 	cachedLevel = model->getLevel();
 }
 
-void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & context, Canvas & target)
+void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
+	bool mapMoved = (cachedPosition != model->getMapViewCenter());
+	bool lazyUpdate = !mapMoved && !fullRedraw;
+
 	Rect dimensions = model->getTilesTotalRect();
+
+	if (dimensions.w != tilesUpToDate.shape()[0] || dimensions.h != tilesUpToDate.shape()[1])
+	{
+		boost::multi_array<bool, 2> newCache;
+		newCache.resize(boost::extents[dimensions.w][dimensions.h]);
+		std::swap(newCache, tilesUpToDate);
+	}
 
 	for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 	{
 		for(int x = dimensions.left(); x < dimensions.right(); ++x)
 		{
+			int cacheX = (terrainChecksum.shape()[0] + x) % terrainChecksum.shape()[0];
+			int cacheY = (terrainChecksum.shape()[1] + y) % terrainChecksum.shape()[1];
+
+			if (lazyUpdate && tilesUpToDate[cacheX][cacheY])
+				continue;
+
 			int3 tile(x, y, model->getLevel());
 			Canvas source = getTile(tile);
 			Rect targetRect = model->getTargetTileArea(tile);
 			target.draw(source, targetRect.topLeft());
+
+			tilesUpToDate[cacheX][cacheY] = true;
 		}
 	}
 
@@ -141,4 +161,6 @@ void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & con
 			}
 		}
 	}
+
+	cachedPosition = model->getMapViewCenter();
 }

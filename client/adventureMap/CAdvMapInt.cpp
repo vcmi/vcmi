@@ -528,13 +528,11 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	activeMapPanel->showAll(to);
 
 	minimap->showAll(to);
+	terrain->showAll(to);
 	show(to);
 
-
 	resdatabar->showAll(to);
-
 	statusbar->show(to);
-
 	LOCPLINT->cingconsole->show(to);
 }
 

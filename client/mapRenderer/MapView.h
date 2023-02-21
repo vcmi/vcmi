@@ -11,6 +11,7 @@
 
 #include "../gui/CIntObject.h"
 
+class Canvas;
 class MapViewController;
 class MapViewModel;
 class MapViewCache;
@@ -24,6 +25,7 @@ class MapView : public CIntObject
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 
+	void render(Canvas & target, bool fullUpdate);
 public:
 	std::shared_ptr<const MapViewModel> getModel() const;
 	std::shared_ptr<MapViewController> getController();
