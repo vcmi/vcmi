@@ -15,6 +15,7 @@
 
 #include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
+#include "../../battle/CUnitState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
@@ -127,6 +128,16 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLog
 				state->addNameReplacement(resurrectText);
 				resurrectText.addReplacement(resurrectedCount);
 				logMessage.lines.push_back(std::move(resurrectText));
+			}
+			else if (unitHPgained > 0 && m->caster->getCasterUnitId() >= 0) //Show text about healed HP if healed by unit
+			{
+				MetaString healText;
+				auto casterUnit = dynamic_cast<const battle::CUnitState*>(m->caster)->acquire();
+				healText.addTxt(MetaString::GENERAL_TXT, 414);
+				casterUnit->addNameReplacement(healText, false);
+				state->addNameReplacement(healText, false);
+				healText.addReplacement((int)unitHPgained);
+				logMessage.lines.push_back(std::move(healText));
 			}
 
 			if(unitHPgained > 0)

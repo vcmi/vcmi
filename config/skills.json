@@ -786,8 +786,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.firstAid",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "spell.firstAid",
+					"type" : "SPECIFIC_SPELL_POWER",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
@@ -800,17 +800,17 @@
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 50 }
+				"main" : { "val" : 40 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 75 }
+				"main" : { "val" : 65 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 100 }
+				"main" : { "val" : 90 }
 			}
 		}
 	}

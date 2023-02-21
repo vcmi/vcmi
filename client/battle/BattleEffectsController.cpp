@@ -110,15 +110,6 @@ void BattleEffectsController::startAction(const BattleAction* action)
 		break;
 	}
 
-	//displaying special abilities
-	auto actionTarget = action->getTarget(owner.curInt->cb.get());
-	switch(action->actionType)
-	{
-		case EActionType::STACK_HEAL:
-			displayEffect(EBattleEffect::REGENERATION, "REGENER", actionTarget.at(0).hexValue);
-			break;
-	}
-
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 

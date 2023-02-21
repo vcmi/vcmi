@@ -389,6 +389,7 @@ bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * targ
 
 void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFactory * itemFactory)
 {
+	bool isNonMagical = false;
 	if(handler.saving)
 	{
 		logGlobal->error("Spell target condition saving is not supported");
@@ -399,13 +400,18 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 	normal.clear();
 	negation.clear();
 
-	absolute.push_back(itemFactory->createAbsoluteLevel());
 	absolute.push_back(itemFactory->createAbsoluteSpell());
-	normal.push_back(itemFactory->createElemental());
-	normal.push_back(itemFactory->createNormalLevel());
-	normal.push_back(itemFactory->createNormalSpell());
-	negation.push_back(itemFactory->createReceptiveFeature());
-	negation.push_back(itemFactory->createImmunityNegation());
+
+	handler.serializeBool("nonMagical", isNonMagical);
+	if(!isNonMagical)
+	{
+		absolute.push_back(itemFactory->createAbsoluteLevel());
+		normal.push_back(itemFactory->createElemental());
+		normal.push_back(itemFactory->createNormalLevel());
+		normal.push_back(itemFactory->createNormalSpell());
+		negation.push_back(itemFactory->createReceptiveFeature());
+		negation.push_back(itemFactory->createImmunityNegation());
+	}
 
 	{
 		auto anyOf = handler.enterStruct("anyOf");

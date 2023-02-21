@@ -78,7 +78,19 @@
 		"index": 147,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": { "heals" : { "type" : "HEALER" } },
+		"abilities":
+		{
+			"heals" : {
+				"type" : "HEALER" ,
+				"subtype" : "spell.firstAid"
+			},
+			"power" : {
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.firstAid",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "SMTENT.DEF"

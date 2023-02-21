@@ -5010,7 +5010,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		case EActionType::STACK_HEAL: //healing with First Aid Tent
 		{
 			auto wrapper = wrapAction(ba);
-			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			const CStack * healer = gs->curB->battleGetStackByID(ba.stackNumber);
 
 			if(target.size() < 1)
@@ -5021,48 +5020,23 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 
 			const battle::Unit * destStack = nullptr;
+			std::shared_ptr<const Bonus> healerAbility = stack->getBonusLocalFirst(Selector::type()(Bonus::HEALER));
 
 			if(target.at(0).unitValue)
 				destStack = target.at(0).unitValue;
 			else
 				destStack = gs->curB->battleGetStackByPos(target.at(0).hexValue);
 
-			if(healer == nullptr || destStack == nullptr || !healer->hasBonusOfType(Bonus::HEALER))
+			if(healer == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype < 0)
 			{
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
 			else
 			{
-				int64_t toHeal = healer->getCount() * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
-
-				//TODO: allow resurrection for mods
-				auto state = destStack->acquireState();
-				state->heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
-
-				if(toHeal == 0)
-				{
-					logGlobal->warn("Nothing to heal");
-				}
-				else
-				{
-					BattleUnitsChanged pack;
-
-					BattleLogMessage message;
-
-					MetaString text;
-					text.addTxt(MetaString::GENERAL_TXT, 414);
-					healer->addNameReplacement(text, false);
-					destStack->addNameReplacement(text, false);
-					text.addReplacement((int)toHeal);
-					message.lines.push_back(text);
-
-					UnitChanges info(state->unitId(), UnitChanges::EOperation::RESET_STATE);
-					info.healthDelta = toHeal;
-					state->save(info.data);
-					pack.changedStacks.push_back(info);
-					sendAndApply(&pack);
-					sendAndApply(&message);
-				}
+				const CSpell * spell = SpellID(healerAbility->subtype).toSpell();
+				spells::BattleCast parameters(gs->curB, healer, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can heal infinitely by first aid tent
+				parameters.setSpellLevel(0);
+				parameters.cast(spellEnv, target);
 			}
 			break;
 		}

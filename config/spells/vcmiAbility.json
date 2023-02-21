@@ -45,5 +45,61 @@
 				"bonus.GARGOYLE" : "absolute"
 			}
 		}
-    }
+    },
+    "firstAid" : {
+		"targetType" : "CREATURE",
+		"type": "ability",
+		"name": "First Aid",
+		"school" : {},
+		"level": 1,
+		"power": 10,
+		"defaultGainChance": 0,
+		"gainChance": {},
+		"animation":{
+			"affect":["SP12_"]
+		},
+
+		"sounds": {
+			"cast": "REGENER"
+		},
+		"levels" : {
+			"base":{
+				"description" : "",
+				"aiValue" : 0,
+				"power" : 10,
+				"cost" : 0,
+				"targetModifier":{"smart":true},
+				"battleEffects":{
+					"heal":{
+						"type":"core:heal",
+						"healLevel":"heal",
+						"healPower":"permanent",
+						"optional":true
+					}
+				},
+				"range" : "0"
+			},
+			"none" :{
+				"power" : 10
+			},
+			"basic" :{
+				"power" : 50
+			},
+			"advanced" :{
+				"power" : 75
+			},
+			"expert" :{
+				"power" : 100
+			}
+		},
+		"flags" : {
+			"positive": true
+		},
+		"targetCondition" : {
+			"nonMagical" : true,
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
+		}
+	}
 }
