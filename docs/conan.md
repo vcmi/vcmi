@@ -12,8 +12,8 @@ The following platforms are supported and known to work, others might require ch
 
 ## Getting started
 
-1. [Install Conan](https://docs.conan.io/en/latest/installation.html). Currently we support only Conan v1, you can install it with `pip` like this: `pip3 install 'conan<2.0'`
-2. Execute in terminal: `conan profile new default --detect`
+1. [Install Conan](https://docs.conan.io/en/latest/installation.html). `pip3 install 'conan'`
+2. Execute in terminal: `conan profile new default --detect` or for v2 `conan profile detect --force --name default`
 
 ## Download dependencies
 

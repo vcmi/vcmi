@@ -136,11 +136,10 @@ jobs:
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        pip3 install 'conan<2.0'
-        conan profile new default --detect
+        pip3 install conan
+        conan profile detect --force --name default
         conan install . \
-          --install-folder=conan-generated \
-          --no-imports \
+          --output-folder=conan-generated \
           --build=never \
           --profile:build=default \
           --profile:host=CI/conan/${{ matrix.conan_profile }} \
