@@ -115,8 +115,14 @@ void MapViewController::update(uint32_t timeDelta)
 	}
 
 	context->animationTime += timeDelta;
-	//context->tileSize = Point(32,32); //model->getSingleTileSize();
 	context->worldViewModeActive = model->getSingleTileSize() != Point(32,32);
+
+	context->settingsSessionSpectate = settings["session"]["spectate"].Bool();
+	context->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
+	context->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
+	context->settingsSessionShowGrid = settings["gameTweaks"]["showGrid"].Bool();
+	context->settingsSessionShowVisitable = settings["session"]["showVisitable"].Bool();
+	context->settingsSessionShowBlockable = settings["session"]["showBlockable"].Bool();
 }
 
 void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)

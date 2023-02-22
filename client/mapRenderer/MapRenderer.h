@@ -69,7 +69,7 @@ public:
 
 class MapRendererObjects
 {
-	std::map<std::string, std::shared_ptr<CAnimation>> animations;
+	std::unordered_map<std::string, std::shared_ptr<CAnimation>> animations;
 
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);

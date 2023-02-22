@@ -66,7 +66,7 @@ void MapViewCache::updateTile(const std::shared_ptr<const IMapRendererContext> &
 	newCacheEntry.tileY = coordinates.y;
 	newCacheEntry.checksum = mapRenderer->getTileChecksum(*context, coordinates);
 
-	if (cachedLevel == coordinates.z && oldCacheEntry == newCacheEntry)
+	if(cachedLevel == coordinates.z && oldCacheEntry == newCacheEntry)
 	{
 		// debug code to check caching - cached tiles will slowly fade to black
 		//static const auto overlay = IImage::createFromFile("debug/cached");
@@ -96,7 +96,7 @@ void MapViewCache::update(const std::shared_ptr<const IMapRendererContext> & con
 {
 	Rect dimensions = model->getTilesTotalRect();
 
-	if (dimensions.w != terrainChecksum.shape()[0] || dimensions.h != terrainChecksum.shape()[1])
+	if(dimensions.w != terrainChecksum.shape()[0] || dimensions.h != terrainChecksum.shape()[1])
 	{
 		boost::multi_array<TileChecksum, 2> newCache;
 		newCache.resize(boost::extents[dimensions.w][dimensions.h]);
@@ -117,7 +117,7 @@ void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & con
 
 	Rect dimensions = model->getTilesTotalRect();
 
-	if (dimensions.w != tilesUpToDate.shape()[0] || dimensions.h != tilesUpToDate.shape()[1])
+	if(dimensions.w != tilesUpToDate.shape()[0] || dimensions.h != tilesUpToDate.shape()[1])
 	{
 		boost::multi_array<bool, 2> newCache;
 		newCache.resize(boost::extents[dimensions.w][dimensions.h]);
@@ -130,11 +130,11 @@ void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & con
 		{
 			int cacheX = (terrainChecksum.shape()[0] + x) % terrainChecksum.shape()[0];
 			int cacheY = (terrainChecksum.shape()[1] + y) % terrainChecksum.shape()[1];
+			int3 tile(x, y, model->getLevel());
 
-			if (lazyUpdate && tilesUpToDate[cacheX][cacheY])
+			if(lazyUpdate && tilesUpToDate[cacheX][cacheY] && !context->tileAnimated(tile))
 				continue;
 
-			int3 tile(x, y, model->getLevel());
 			Canvas source = getTile(tile);
 			Rect targetRect = model->getTargetTileArea(tile);
 			target.draw(source, targetRect.topLeft());
@@ -143,7 +143,7 @@ void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & con
 		}
 	}
 
-	if (context->showOverlay())
+	if(context->showOverlay())
 	{
 		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		{
@@ -153,7 +153,7 @@ void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & con
 				Rect targetRect = model->getTargetTileArea(tile);
 				auto overlay = getOverlayImageForTile(context, tile);
 
-				if (overlay)
+				if(overlay)
 				{
 					Point position = targetRect.center() - overlay->dimensions() / 2;
 					target.draw(overlay, position);

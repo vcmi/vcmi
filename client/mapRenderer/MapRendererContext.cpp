@@ -16,15 +16,8 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CAdvMapInt.h"
-//#include "../gui/CGuiHandler.h"
-//#include "../render/CAnimation.h"
-//#include "../render/Canvas.h"
-//#include "../render/IImage.h"
-//#include "../renderSDL/SDL_Extensions.h"
-//
 #include "../../CCallback.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
@@ -66,9 +59,9 @@ const CGObjectInstance * MapRendererContext::getObject(ObjectInstanceID objectID
 
 bool MapRendererContext::isVisible(const int3 & coordinates) const
 {
-	if (showAllTerrain)
+	if (settingsSessionSpectate || showAllTerrain)
 		return LOCPLINT->cb->isInTheMap(coordinates);
-	return LOCPLINT->cb->isVisible(coordinates) || settings["session"]["spectate"].Bool();
+	return LOCPLINT->cb->isVisible(coordinates);
 }
 
 const CGPath * MapRendererContext::currentPath() const
@@ -90,7 +83,7 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 	if(groupSize == 0)
 		return 0;
 
-	if (!settings["adventure"]["objectAnimation"].Bool())
+	if (!settingsAdventureObjectAnimation)
 		return 0;
 
 	// H3 timing for adventure map objects animation is 180 ms
@@ -109,7 +102,7 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 
 size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
 {
-	if (!settings["adventure"]["terrainAnimation"].Bool())
+	if (!settingsAdventureTerrainAnimation)
 		return 0;
 
 	size_t baseFrameTime = 180;
@@ -118,10 +111,33 @@ size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
 	return frameIndex;
 }
 
-//Point MapRendererContext::getTileSize() const
-//{
-//	return Point(32, 32);
-//}
+bool MapRendererContext::tileAnimated(const int3 & coordinates) const
+{
+	if(movementAnimation)
+	{
+		auto objects = getObjects(coordinates);
+
+		if(vstd::contains(objects, movementAnimation->target))
+			return true;
+	}
+
+	if(fadeInAnimation)
+	{
+		auto objects = getObjects(coordinates);
+
+		if(vstd::contains(objects, fadeInAnimation->target))
+			return true;
+	}
+
+	if(fadeOutAnimation)
+	{
+		auto objects = getObjects(coordinates);
+
+		if(vstd::contains(objects, fadeOutAnimation->target))
+			return true;
+	}
+	return false;
+}
 
 bool MapRendererContext::showOverlay() const
 {
@@ -130,17 +146,21 @@ bool MapRendererContext::showOverlay() const
 
 bool MapRendererContext::showGrid() const
 {
+<<<<<<< HEAD
 	return settings["gameTweaks"]["showGrid"].Bool();
+=======
+	return settingsSessionShowGrid;
+>>>>>>> 9a847b520 (Working version of image caching)
 }
 
 bool MapRendererContext::showVisitable() const
 {
-	return settings["session"]["showVisitable"].Bool();
+	return settingsSessionShowVisitable;
 }
 
 bool MapRendererContext::showBlockable() const
 {
-	return settings["session"]["showBlockable"].Bool();
+	return settingsSessionShowBlockable;
 }
 
 MapRendererContext::MapRendererContext()

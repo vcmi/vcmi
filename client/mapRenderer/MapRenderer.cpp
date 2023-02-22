@@ -158,7 +158,7 @@ uint8_t MapRendererTerrain::checksum(const IMapRendererContext & context, const 
 
 	if(mapTile.terType->getId() == ETerrainId::LAVA || mapTile.terType->getId() == ETerrainId::WATER)
 		return context.terrainImageIndex(250);
-	return 0xff-1;
+	return 0xff - 1;
 }
 
 MapRendererRiver::MapRendererRiver()
@@ -361,7 +361,7 @@ uint8_t MapRendererFow::checksum(const IMapRendererContext & context, const int3
 	const NeighborTilesInfo neighborInfo(context, coordinates);
 	int retBitmapID = neighborInfo.getBitmapID();
 	if(retBitmapID < 0)
-		return 0xff-1;
+		return 0xff - 1;
 	return retBitmapID;
 }
 
@@ -396,8 +396,10 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 
 std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const std::string & filename, bool generateMovementGroups)
 {
-	if(animations.count(filename))
-		return animations[filename];
+	auto it = animations.find(filename);
+
+	if(it != animations.end())
+		return it->second;
 
 	auto ret = std::make_shared<CAnimation>(filename);
 	animations[filename] = ret;

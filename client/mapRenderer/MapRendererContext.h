@@ -76,7 +76,6 @@ class MapRendererContext : public IMapRendererContext
 
 	boost::multi_array<MapObjectsList, 3> objects;
 
-	//Point tileSize = Point(32, 32);
 	uint32_t animationTime = 0;
 
 	boost::optional<HeroAnimationState> movementAnimation;
@@ -89,6 +88,12 @@ class MapRendererContext : public IMapRendererContext
 
 	bool worldViewModeActive = false;
 	bool showAllTerrain = false;
+	bool settingsSessionSpectate = false;
+	bool settingsAdventureObjectAnimation = true;
+	bool settingsAdventureTerrainAnimation = true;
+	bool settingsSessionShowGrid = false;
+	bool settingsSessionShowVisitable = false;
+	bool settingsSessionShowBlockable = false;
 
 	size_t selectOverlayImageForObject(const ObjectPosInfo & objectID) const;
 
@@ -102,6 +107,7 @@ public:
 	int3 getMapSize() const final;
 	bool isInMap(const int3 & coordinates) const final;
 	bool isVisible(const int3 & coordinates) const override;
+	bool tileAnimated(const int3 & coordinates) const override;
 
 	const TerrainTile & getMapTile(const int3 & coordinates) const override;
 	const MapObjectsList & getObjects(const int3 & coordinates) const override;
@@ -114,7 +120,6 @@ public:
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	size_t terrainImageIndex(size_t groupSize) const override;
 	size_t overlayImageIndex(const int3 & coordinates) const override;
-//	Point getTileSize() const override;
 
 	bool showOverlay() const override;
 	bool showGrid() const override;
