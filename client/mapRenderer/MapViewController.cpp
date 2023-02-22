@@ -14,6 +14,8 @@
 #include "MapRendererContext.h"
 #include "MapViewModel.h"
 
+#include "../adventureMap/CAdvMapInt.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -52,6 +54,14 @@ std::shared_ptr<const IMapRendererContext> MapViewController::getContext() const
 	return context;
 }
 
+void MapViewController::moveFocusToSelection()
+{
+	const auto * army = adventureInt->curArmy();
+
+	if (army)
+		setViewCenter(army->getSightCenter());
+}
+
 void MapViewController::update(uint32_t timeDelta)
 {
 	// confirmed to match H3 for
@@ -68,13 +78,22 @@ void MapViewController::update(uint32_t timeDelta)
 
 	if(context->movementAnimation)
 	{
+		const auto * object = context->getObject(context->movementAnimation->target);
+		const auto * hero = dynamic_cast<const CGHeroInstance*>(object);
+		const auto * boat = dynamic_cast<const CGBoat*>(object);
+
+		assert(boat || hero);
+
+		if (!hero)
+			hero = boat->hero;
+
 		// TODO: enemyMoveTime
 		double heroMoveTime = settings["adventure"]["heroMoveTime"].Float();
 
 		context->movementAnimation->progress += timeDelta / heroMoveTime;
 
-		Point positionFrom = Point(context->movementAnimation->tileFrom) * model->getSingleTileSize();
-		Point positionDest = Point(context->movementAnimation->tileDest) * model->getSingleTileSize();
+		Point positionFrom = Point(hero->convertToVisitablePos(context->movementAnimation->tileFrom)) * model->getSingleTileSize();
+		Point positionDest = Point(hero->convertToVisitablePos(context->movementAnimation->tileDest)) * model->getSingleTileSize();
 
 		Point positionCurr = vstd::lerp(positionFrom, positionDest, context->movementAnimation->progress);
 
@@ -82,7 +101,7 @@ void MapViewController::update(uint32_t timeDelta)
 
 		if(context->movementAnimation->progress >= 1.0)
 		{
-			setViewCenter(context->movementAnimation->tileDest);
+			setViewCenter(hero->getSightCenter());
 
 			context->removeObject(context->getObject(context->movementAnimation->target));
 			context->addObject(context->getObject(context->movementAnimation->target));
@@ -93,6 +112,7 @@ void MapViewController::update(uint32_t timeDelta)
 	if(context->teleportAnimation)
 	{
 		context->teleportAnimation->progress += timeDelta / heroTeleportDuration;
+		moveFocusToSelection();
 		if(context->teleportAnimation->progress >= 1.0)
 			context->teleportAnimation.reset();
 	}
@@ -100,6 +120,7 @@ void MapViewController::update(uint32_t timeDelta)
 	if(context->fadeOutAnimation)
 	{
 		context->fadeOutAnimation->progress += timeDelta / fadeOutDuration;
+		moveFocusToSelection();
 		if(context->fadeOutAnimation->progress >= 1.0)
 		{
 			context->removeObject(context->getObject(context->fadeOutAnimation->target));
@@ -110,6 +131,7 @@ void MapViewController::update(uint32_t timeDelta)
 	if(context->fadeInAnimation)
 	{
 		context->fadeInAnimation->progress += timeDelta / fadeInDuration;
+		moveFocusToSelection();
 		if(context->fadeInAnimation->progress >= 1.0)
 			context->fadeInAnimation.reset();
 	}
@@ -127,15 +149,25 @@ void MapViewController::update(uint32_t timeDelta)
 
 void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
 {
+	bool actionVisible = context->isVisible(obj->pos);
+
 	assert(!context->fadeInAnimation);
-	context->fadeInAnimation = FadingAnimationState{obj->id, 0.0};
+
+	if (actionVisible)
+		context->fadeInAnimation = FadingAnimationState{obj->id, 0.0};
 	context->addObject(obj);
 }
 
 void MapViewController::onObjectFadeOut(const CGObjectInstance * obj)
 {
+	bool actionVisible = context->isVisible(obj->pos);
+
 	assert(!context->fadeOutAnimation);
-	context->fadeOutAnimation = FadingAnimationState{obj->id, 0.0};
+
+	if (actionVisible)
+		context->fadeOutAnimation = FadingAnimationState{obj->id, 0.0};
+	else
+		context->removeObject(obj);
 }
 
 void MapViewController::onObjectInstantAdd(const CGObjectInstance * obj)
@@ -151,12 +183,23 @@ void MapViewController::onObjectInstantRemove(const CGObjectInstance * obj)
 void MapViewController::onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(!context->teleportAnimation);
-	context->teleportAnimation = HeroAnimationState{obj->id, from, dest, 0.0};
+	bool actionVisible = context->isVisible(from) || context->isVisible(dest);
+
+	if (actionVisible)
+	{
+		context->teleportAnimation = HeroAnimationState{obj->id, from, dest, 0.0};
+	}
+	else
+	{
+		context->removeObject(obj);
+		context->addObject(obj);
+	}
 }
 
 void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(!context->movementAnimation);
+	bool actionVisible = context->isVisible(from) || context->isVisible(dest);
 
 	const CGObjectInstance * movingObject = obj;
 	if(obj->boat)
@@ -164,7 +207,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 
 	context->removeObject(movingObject);
 
-	if(settings["adventure"]["heroMoveTime"].Float() > 1)
+	if(settings["adventure"]["heroMoveTime"].Float() > 1 && actionVisible)
 	{
 		context->addMovingObject(movingObject, from, dest);
 		context->movementAnimation = HeroAnimationState{movingObject->id, from, dest, 0.0};
@@ -173,13 +216,15 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 	{
 		// instant movement
 		context->addObject(movingObject);
-		setViewCenter(movingObject->visitablePos());
+
+		if (actionVisible)
+			setViewCenter(movingObject->visitablePos());
 	}
 }
 
 void MapViewController::onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	//TODO
+	//TODO. Or no-op?
 }
 
 bool MapViewController::hasOngoingAnimations()

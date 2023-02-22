@@ -572,16 +572,12 @@ void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 		logNetwork->error("Something wrong with hero recruited!");
 	}
 
-	bool needsPrinting = true;
 	if(callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h))
 	{
 		if(const CGTownInstance *t = gs.getTown(pack.tid))
-		{
 			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroInGarrisonChange, t);
-			needsPrinting = false;
-		}
 	}
-	if(needsPrinting && CGI->mh)
+	if(CGI->mh)
 		CGI->mh->onObjectInstantAdd(h);
 }
 

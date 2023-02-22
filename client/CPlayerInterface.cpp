@@ -1501,6 +1501,8 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 		waitWhileDialog();
 		CCS->soundh->playSound(obj->getRemovalSound().get());
 	}
+	CGI->mh->waitForOngoingAnimations();
+
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
 		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);

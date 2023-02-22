@@ -38,6 +38,7 @@ private:
 	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 
+	void moveFocusToSelection();
 public:
 	explicit MapViewController(std::shared_ptr<MapViewModel> model);
 
