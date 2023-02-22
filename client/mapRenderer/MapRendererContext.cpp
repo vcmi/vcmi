@@ -154,11 +154,7 @@ bool MapRendererContext::showOverlay() const
 
 bool MapRendererContext::showGrid() const
 {
-<<<<<<< HEAD
-	return settings["gameTweaks"]["showGrid"].Bool();
-=======
 	return settingsSessionShowGrid;
->>>>>>> 9a847b520 (Working version of image caching)
 }
 
 bool MapRendererContext::showVisitable() const

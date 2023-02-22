@@ -89,10 +89,12 @@ CAdvMapInt::CAdvMapInt():
 	resdatabar(new CResDataBar),
 	terrain(new CTerrainRect),
 	state(NA),
-	spellBeingCasted(nullptr), selection(nullptr),
-	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
-	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
-	swipeTargetPosition(Point(0, 0))
+	spellBeingCasted(nullptr),
+	selection(nullptr),
+	activeMapPanel(nullptr),
+	duringAITurn(false),
+	scrollingDir(0),
+	scrollingState(false)
 {
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -558,16 +560,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	if(state != INGAME)
 		return;
 
-	if(swipeEnabled)
-	{
-		handleSwipeUpdate();
-	}
-#if defined(VCMI_MOBILE) // on mobile, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
-	else
-#endif
-	{
-		handleMapScrollingUpdate();
-	}
+	handleMapScrollingUpdate();
 
 	for(int i = 0; i < 4; i++)
 	{
@@ -619,17 +612,6 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	}
 }
 
-void CAdvMapInt::handleSwipeUpdate()
-{
-	if(swipeMovementRequested)
-	{
-		terrain->setViewCenter(swipeTargetPosition, terrain->getLevel());
-		CCS->curh->set(Cursor::Map::POINTER);
-		minimap->redraw();
-		swipeMovementRequested = false;
-	}
-}
-
 void CAdvMapInt::selectionChanged()
 {
 	const CGTownInstance *to = LOCPLINT->towns[townList->getSelectedIndex()];
@@ -637,29 +619,21 @@ void CAdvMapInt::selectionChanged()
 		select(to);
 }
 
-void CAdvMapInt::centerOn(int3 on, bool fade)
+void CAdvMapInt::centerOn(int3 on)
 {
-	bool switchedLevels = on.z != terrain->getLevel();
-
-	if (fade)
-	{
-		terrain->fadeFromCurrentView();
-	}
-
 	terrain->setViewCenter(on);
 
 	underground->setIndex(on.z,true); //change underground switch button image
 	underground->redraw();
 	worldViewUnderground->setIndex(on.z, true);
 	worldViewUnderground->redraw();
-	if (switchedLevels)
-		minimap->setLevel(terrain->getLevel());
+	minimap->setLevel(terrain->getLevel());
 	minimap->redraw();
 }
 
-void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
+void CAdvMapInt::centerOn(const CGObjectInstance * obj)
 {
-	centerOn(obj->getSightCenter(), fade);
+	centerOn(obj->getSightCenter());
 }
 
 void CAdvMapInt::keyReleased(const SDL_Keycode &key)
@@ -929,13 +903,8 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 
 void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 {
-#if defined(VCMI_MOBILE)
-	if(swipeEnabled)
-		return;
-#endif
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
-	// don't scroll if there is no window in focus - these events don't seem to correspond to the actual mouse movement
 	if(!GH.isKeyboardCtrlDown() && isActive() && mode == EAdvMapMode::NORMAL)
 	{
 		if(cursorPosition.x<15)

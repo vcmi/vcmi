@@ -24,15 +24,12 @@ class CTerrainRect : public CIntObject
 {
 	std::shared_ptr<MapView> renderer;
 
+	bool swipeEnabled;
+	bool swipeMovementRequested;
+	Point swipeTargetPosition;
 	Point swipeInitialViewPos;
 	Point swipeInitialRealPos;
 	bool isSwiping;
-
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	static constexpr float SwipeTouchSlop = 16.0f; // touch UI
-#else
-	static constexpr float SwipeTouchSlop = 1.0f; // mouse UI
-#endif
 
 	void handleHover(const Point & cursorPosition);
 	void handleSwipeMove(const Point & cursorPosition);
@@ -43,20 +40,30 @@ class CTerrainRect : public CIntObject
 	int3 whichTileIsIt(const Point & position); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 
+	Point getViewCenter();
+
 public:
 	CTerrainRect();
 
-	void moveViewBy(const Point & delta);
+	/// Handle swipe & selection of object
 	void setViewCenter(const int3 & coordinates);
 	void setViewCenter(const Point & position, int level);
-	void setLevel(int level);
-	void setTileSize(int sizePixels);
 
+	/// Edge scrolling
+	void moveViewBy(const Point & delta);
+
+	/// Toggle undeground view button
+	void setLevel(int level);
+	int getLevel();
+
+	/// World view & View Earth/Air spells
 	void setTerrainVisibility(bool showAllTerrain);
 	void setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions);
+	void setTileSize(int sizePixels);
 
-	Point getViewCenter();
-	int getLevel();
+	/// Minimap access
+	/// @returns number of visible tiles on screen respecting current map scaling
+	Rect visibleTilesArea();
 
 	// CIntObject interface implementation
 	void deactivate() override;
@@ -65,14 +72,8 @@ public:
 	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
 	void mouseMoved (const Point & cursorPosition) override;
-	//void show(SDL_Surface * to) override;
+	void show(SDL_Surface * to) override;
 	//void showAll(SDL_Surface * to) override;
 
 	//void showAnim(SDL_Surface * to);
-
-	/// @returns number of visible tiles on screen respecting current map scaling
-	Rect visibleTilesArea();
-
-	/// animates view by caching current surface and crossfading it with normal screen
-	void fadeFromCurrentView();
 };

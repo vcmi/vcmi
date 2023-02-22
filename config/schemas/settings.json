@@ -25,6 +25,7 @@
 				"encoding",
 				"language",
 				"swipe",
+				"swipeDesktop",
 				"saveRandomMaps",
 				"saveFrequency",
 				"notifications",
@@ -57,6 +58,10 @@
 				"swipe" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeDesktop" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"saveRandomMaps" : {
 					"type" : "boolean",

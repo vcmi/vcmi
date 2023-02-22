@@ -31,13 +31,18 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/CPathfinder.h"
 
-#include <SDL_surface.h>
-
 #define ADVOPT (conf.go()->ac)
 
 CTerrainRect::CTerrainRect()
 	: curHoveredTile(-1, -1, -1)
 	, isSwiping(false)
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+	, swipeEnabled(settings["general"]["swipe"].Bool())
+#else
+	, swipeEnabled(settings["general"]["swipeDesktop"].Bool())
+#endif
+	, swipeMovementRequested(false)
+	, swipeTargetPosition(Point(0, 0))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -73,8 +78,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-#if defined(VCMI_MOBILE)
-	if(adventureInt->swipeEnabled)
+	if(swipeEnabled)
 	{
 		if(handleSwipeStateChange((bool)down == true))
 		{
@@ -82,7 +86,6 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		}
 	}
 	else
-#endif
 	{
 		if(down == false)
 			return;
@@ -97,10 +100,9 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
-#if defined(VCMI_MOBILE)
-	if(adventureInt->swipeEnabled && isSwiping)
+	if(isSwiping)
 		return;
-#endif
+
 	if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
 	int3 mp = whichTileIsIt();
@@ -118,27 +120,26 @@ void CTerrainRect::mouseMoved(const Point & cursorPosition)
 {
 	handleHover(cursorPosition);
 
-	if(!adventureInt->swipeEnabled)
-		return;
-
 	handleSwipeMove(cursorPosition);
 }
 
 void CTerrainRect::handleSwipeMove(const Point & cursorPosition)
 {
-#if defined(VCMI_MOBILE)
-	if(!GH.isMouseButtonPressed() || GH.multifinger) // any "button" is enough on mobile
+	// unless swipe is enabled, swipe move only works with middle mouse button
+	if(!swipeEnabled && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
 		return;
-#else
-	if(!GH.isMouseButtonPressed(MouseButton::MIDDLE)) // swipe only works with middle mouse on other platforms
+
+	// on mobile platforms with enabled swipe any button is enough
+	if(swipeEnabled && (!GH.isMouseButtonPressed() || GH.multifinger))
 		return;
-#endif
 
 	if(!isSwiping)
 	{
+		static constexpr int touchSwipeSlop = 16;
+
 		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if(std::abs(cursorPosition.x - swipeInitialRealPos.x) > SwipeTouchSlop ||
-		   std::abs(cursorPosition.y - swipeInitialRealPos.y) > SwipeTouchSlop)
+		if(std::abs(cursorPosition.x - swipeInitialRealPos.x) > touchSwipeSlop ||
+		   std::abs(cursorPosition.y - swipeInitialRealPos.y) > touchSwipeSlop)
 		{
 			isSwiping = true;
 		}
@@ -146,9 +147,9 @@ void CTerrainRect::handleSwipeMove(const Point & cursorPosition)
 
 	if(isSwiping)
 	{
-		adventureInt->swipeTargetPosition.x = swipeInitialViewPos.x + swipeInitialRealPos.x - cursorPosition.x;
-		adventureInt->swipeTargetPosition.y = swipeInitialViewPos.y + swipeInitialRealPos.y - cursorPosition.y;
-		adventureInt->swipeMovementRequested = true;
+		swipeTargetPosition.x = swipeInitialViewPos.x + swipeInitialRealPos.x - cursorPosition.x;
+		swipeTargetPosition.y = swipeInitialViewPos.y + swipeInitialRealPos.y - cursorPosition.y;
+		swipeMovementRequested = true;
 	}
 }
 
@@ -211,11 +212,6 @@ Rect CTerrainRect::visibleTilesArea()
 	return renderer->getModel()->getTilesTotalRect();
 }
 
-void CTerrainRect::fadeFromCurrentView()
-{
-	assert(0);//TODO
-}
-
 void CTerrainRect::setLevel(int level)
 {
 	renderer->getController()->setViewCenter(renderer->getModel()->getMapViewCenter(), level);
@@ -223,6 +219,10 @@ void CTerrainRect::setLevel(int level)
 
 void CTerrainRect::moveViewBy(const Point & delta)
 {
+	// ignore scrolling attempts while we are swiping
+	if (isSwiping || swipeMovementRequested)
+		return;
+
 	renderer->getController()->setViewCenter(renderer->getModel()->getMapViewCenter() + delta, getLevel());
 }
 
@@ -241,7 +241,6 @@ void CTerrainRect::setTileSize(int sizePixels)
 	renderer->getController()->setTileSize(Point(sizePixels, sizePixels));
 }
 
-
 void CTerrainRect::setTerrainVisibility(bool showAllTerrain)
 {
 	renderer->getController()->setTerrainVisibility(showAllTerrain);
@@ -250,4 +249,15 @@ void CTerrainRect::setTerrainVisibility(bool showAllTerrain)
 void CTerrainRect::setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions)
 {
 	renderer->getController()->setOverlayVisibility(objectPositions);
+}
+
+void CTerrainRect::show(SDL_Surface * to)
+{
+	if(swipeMovementRequested)
+	{
+		setViewCenter(swipeTargetPosition, getLevel());
+		CCS->curh->set(Cursor::Map::POINTER);
+		swipeMovementRequested = false;
+	}
+	CIntObject::show(to);
 }

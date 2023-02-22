@@ -173,6 +173,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 	{
 		// instant movement
 		context->addObject(movingObject);
+		setViewCenter(movingObject->visitablePos());
 	}
 }
 

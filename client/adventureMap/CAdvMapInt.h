@@ -61,10 +61,6 @@ private:
 	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	enum EGameStates {NA, INGAME, WAITING};
 
-	bool swipeEnabled;
-	bool swipeMovementRequested;
-	Point swipeTargetPosition;
-
 	EGameStates state;
 	EAdvMapMode mode;
 
@@ -140,7 +136,6 @@ private:
 	void updateSpellbook(const CGHeroInstance *h);
 
 	void handleMapScrollingUpdate();
-	void handleSwipeUpdate();
 
 	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
 
@@ -166,8 +161,8 @@ public:
 	// public interface
 
 	void select(const CArmedInstance *sel, bool centerView = true);
-	void centerOn(int3 on, bool fade = false);
-	void centerOn(const CGObjectInstance *obj, bool fade = false);
+	void centerOn(int3 on);
+	void centerOn(const CGObjectInstance *obj);
 
 	bool isHeroSleeping(const CGHeroInstance *hero);
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
