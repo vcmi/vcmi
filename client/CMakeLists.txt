@@ -239,15 +239,7 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
-if(WIN32)
-	set(client_ICON "VCMI_client.rc")
-endif()
-
-if(ENABLE_DEBUG_CONSOLE)
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} ${client_ICON})
-else()
-	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
-endif(ENABLE_DEBUG_CONSOLE)
+add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 
 add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
 if(ENABLE_NULLKILLER_AI)
@@ -263,6 +255,7 @@ if(APPLE_IOS)
 endif()
 
 if(WIN32)
+	target_sources(vcmiclient PRIVATE "VCMI_client.rc")
 	set_target_properties(vcmiclient
 		PROPERTIES
 			OUTPUT_NAME "VCMI_client"
@@ -270,6 +263,7 @@ if(WIN32)
 	)
 	set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vcmiclient)
 	if(NOT ENABLE_DEBUG_CONSOLE)
+		set_target_properties(vcmiclient PROPERTIES WIN32_EXECUTABLE)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
