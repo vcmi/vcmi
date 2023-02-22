@@ -138,6 +138,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <utility>
 #include <vector>
 #include <atomic>
+#include <mutex>
 
 //The only available version is 3, as of Boost 1.50
 #include <boost/version.hpp>

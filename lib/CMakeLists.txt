@@ -1,4 +1,4 @@
-add_main_lib(vcmi SHARED)
+add_main_lib(${VCMI_LIB_TARGET} SHARED)
 if(ENABLE_SINGLE_APP_BUILD)
-	target_compile_definitions(vcmi PUBLIC VCMI_LIB_NAMESPACE=LIB_CLIENT)
+	target_compile_definitions(${VCMI_LIB_TARGET} PUBLIC VCMI_LIB_NAMESPACE=LIB_CLIENT)
 endif()

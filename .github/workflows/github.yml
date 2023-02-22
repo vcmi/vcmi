@@ -136,7 +136,7 @@ jobs:
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        pip3 install conan
+        pip3 install 'conan<2.0'
         conan profile new default --detect
         conan install . \
           --install-folder=conan-generated \
@@ -200,7 +200,7 @@ jobs:
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
-          ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload build
       if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform == 'msvc' }}
