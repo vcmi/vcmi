@@ -137,7 +137,7 @@ jobs:
       if: "${{ matrix.conan_profile != '' }}"
       run: |
         pip3 install conan
-        conan profile new default --detect
+        conan profile detect --force --name default
         conan install . \
           --install-folder=conan-generated \
           --no-imports \
