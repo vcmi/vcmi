@@ -113,6 +113,9 @@ size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
 
 bool MapRendererContext::tileAnimated(const int3 & coordinates) const
 {
+	if (!isInMap(coordinates))
+		return false;
+
 	if(movementAnimation)
 	{
 		auto objects = getObjects(coordinates);

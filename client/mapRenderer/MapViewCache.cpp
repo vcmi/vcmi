@@ -66,7 +66,7 @@ void MapViewCache::updateTile(const std::shared_ptr<const IMapRendererContext> &
 	newCacheEntry.tileY = coordinates.y;
 	newCacheEntry.checksum = mapRenderer->getTileChecksum(*context, coordinates);
 
-	if(cachedLevel == coordinates.z && oldCacheEntry == newCacheEntry)
+	if(cachedLevel == coordinates.z && oldCacheEntry == newCacheEntry && !context->tileAnimated(coordinates))
 	{
 		// debug code to check caching - cached tiles will slowly fade to black
 		//static const auto overlay = IImage::createFromFile("debug/cached");
@@ -132,7 +132,7 @@ void MapViewCache::render(const std::shared_ptr<const IMapRendererContext> & con
 			int cacheY = (terrainChecksum.shape()[1] + y) % terrainChecksum.shape()[1];
 			int3 tile(x, y, model->getLevel());
 
-			if(lazyUpdate && tilesUpToDate[cacheX][cacheY] && !context->tileAnimated(tile))
+			if(lazyUpdate && tilesUpToDate[cacheX][cacheY])
 				continue;
 
 			Canvas source = getTile(tile);
