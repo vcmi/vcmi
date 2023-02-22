@@ -8,6 +8,6 @@ arch=x86_64
 [conf]
 {{ cross.generate_conf(target_host)}}
 
-[env]
+[buildenv]
 {{ cross.generate_env(target_host) }}
 {{ cross.generate_env_win32(target_host) }}

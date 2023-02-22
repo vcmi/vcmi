@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeDeps, CMakeToolchain
-from conans import tools
+from conans.util.env import get_env
 
 required_conan_version = ">=1.51.3"
 
@@ -161,7 +161,7 @@ class VCMI(ConanFile):
         if self.settings.os == "iOS":
             self.options["qt"].opengl = "es2"
         if not is_apple_os(self) and cross_building(self):
-            self.options["qt"].cross_compile = self.env["CONAN_CROSS_COMPILE"]
+            self.options["qt"].cross_compile = self.buildenv.vars(self).get("CONAN_CROSS_COMPILE")
         # No Qt OpenGL for cross-compiling for Windows, Conan does not support it
         if self.settings.os == "Windows" and cross_building(self):
             self.options["qt"].opengl = "no"
@@ -205,11 +205,11 @@ class VCMI(ConanFile):
         tc.variables["USING_CONAN"] = True
         tc.variables["CONAN_INSTALL_FOLDER"] = self.install_folder
         if cross_building(self) and self.settings.os == "Windows":
-            tc.variables["CONAN_SYSTEM_LIBRARY_LOCATION"] = self.env["CONAN_SYSTEM_LIBRARY_LOCATION"]
+            tc.variables["CONAN_SYSTEM_LIBRARY_LOCATION"] = self.buildenv.vars(self).get("CONAN_SYSTEM_LIBRARY_LOCATION")
         tc.generate()
 
         deps = CMakeDeps(self)
-        if tools.get_env("GENERATE_ONLY_BUILT_CONFIG", default=False):
+        if get_env("GENERATE_ONLY_BUILT_CONFIG", default=False):
             deps.generate()
             return
 
