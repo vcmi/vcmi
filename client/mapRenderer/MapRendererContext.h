@@ -121,6 +121,7 @@ public:
 	size_t terrainImageIndex(size_t groupSize) const override;
 	size_t overlayImageIndex(const int3 & coordinates) const override;
 
+	bool filterGrayscale() const override;
 	bool showOverlay() const override;
 	bool showGrid() const override;
 	bool showVisitable() const override;

@@ -503,6 +503,16 @@ void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas
 	if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
 	{
 		Point imagePos = image->dimensions() - offsetPixels - Point(32, 32);
+
+		//if (transparency == 255)
+		//{
+		//	Canvas intermediate(Point(32,32));
+		//	intermediate.enableTransparency(true);
+		//	image->setBlitMode(EImageBlitMode::OPAQUE);
+		//	intermediate.draw(image, Point(0, 0), Rect(imagePos, Point(32,32)));
+		//	target.draw(intermediate, Point(0,0));
+		//	return;
+		//}
 		target.draw(image, Point(0, 0), Rect(imagePos, Point(32,32)));
 	}
 }

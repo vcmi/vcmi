@@ -88,6 +88,9 @@ void MapViewCache::updateTile(const std::shared_ptr<const IMapRendererContext> &
 		target.drawScaled(*intermediate, Point(0, 0), model->getSingleTileSize());
 	}
 
+	if (context->filterGrayscale())
+		target.applyGrayscale();
+
 	oldCacheEntry = newCacheEntry;
 	tilesUpToDate[cacheX][cacheY] = false;
 }

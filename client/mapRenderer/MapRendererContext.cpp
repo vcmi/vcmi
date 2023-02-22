@@ -142,6 +142,11 @@ bool MapRendererContext::tileAnimated(const int3 & coordinates) const
 	return false;
 }
 
+bool MapRendererContext::filterGrayscale() const
+{
+	return false;//true;
+}
+
 bool MapRendererContext::showOverlay() const
 {
 	return worldViewModeActive;
