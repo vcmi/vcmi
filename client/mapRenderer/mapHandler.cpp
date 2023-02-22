@@ -83,18 +83,6 @@ void CMapHandler::waitForOngoingAnimations()
 	}
 }
 
-bool CMapHandler::hasObjectHole(const int3 & pos) const
-{
-	//const TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];
-
-	//for(auto & elem : tt.objects)
-	//{
-	//	if(elem.obj && elem.obj->ID == Obj::HOLE)
-	//		return true;
-	//}
-	return false;
-}
-
 void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRMB) const
 {
 	const TerrainTile & t = map->getTile(pos);

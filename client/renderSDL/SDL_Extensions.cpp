@@ -631,8 +631,8 @@ void CSDL_Ext::convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect )
 
 	for(int yp = rect.top(); yp < rect.bottom(); ++yp)
 	{
-		uint8_t * pixel_from = pixels + rect.top() * surf->pitch + rect.left() * surf->format->BytesPerPixel;
-		uint8_t * pixel_dest = pixels + rect.top() * surf->pitch + rect.right() * surf->format->BytesPerPixel;
+		uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
+		uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
 
 		for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
 		{

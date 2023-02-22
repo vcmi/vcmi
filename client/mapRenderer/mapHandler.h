@@ -73,9 +73,6 @@ public:
 	/// returns list of ambient sounds for specified tile
 	std::vector<std::string> getAmbientSounds(const int3 & tile);
 
-	/// returns true if tile has hole from grail digging attempt
-	bool hasObjectHole(const int3 & pos) const;
-
 	/// determines if the map is ready to handle new hero movement (not available during fading animations)
 	bool hasOngoingAnimations();
 

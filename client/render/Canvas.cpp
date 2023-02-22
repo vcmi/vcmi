@@ -11,6 +11,7 @@
 #include "Canvas.h"
 
 #include "../renderSDL/SDL_Extensions.h"
+#include "Colors.h"
 #include "IImage.h"
 #include "Graphics.h"
 
@@ -40,7 +41,21 @@ Canvas::Canvas(const Point & size):
 	renderArea(Point(0,0), size),
 	surface(CSDL_Ext::newSurface(size.x, size.y))
 {
+	CSDL_Ext::fillSurface(surface, Colors::TRANSPARENCY );
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+}
+
+void Canvas::applyTransparency(bool on)
+{
+	if (on)
+		SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+}
+
+void Canvas::applyGrayscale()
+{
+	CSDL_Ext::convertToGrayscale(surface, renderArea);
 }
 
 Canvas::~Canvas()

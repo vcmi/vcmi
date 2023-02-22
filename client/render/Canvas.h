@@ -44,6 +44,12 @@ public:
 
 	~Canvas();
 
+	/// if set to true, drawing this canvas onto another canvas will use alpha channel information
+	void applyTransparency(bool on);
+
+	/// applies grayscale filter onto current image
+	void applyGrayscale();
+
 	/// renders image onto this canvas at specified position
 	void draw(const std::shared_ptr<IImage>& image, const Point & pos);
 

@@ -197,6 +197,7 @@ public:
 	virtual void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	virtual void calculatePaths(std::shared_ptr<PathfinderConfig> config);
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
+	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const;
 
 	//town
 	virtual const CGTownInstance* getTown(ObjectInstanceID objid) const;

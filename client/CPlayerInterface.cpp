@@ -1901,11 +1901,8 @@ void CPlayerInterface::acceptTurn()
 void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
-	const bool isBlocked = CGI->mh->hasObjectHole(h->visitablePos()); // Don't dig in the pit.
 
-	const auto diggingStatus = isBlocked
-		? EDiggingStatus::TILE_OCCUPIED
-		: h->diggingStatus().num;
+	const auto diggingStatus = h->diggingStatus();
 
 	switch(diggingStatus)
 	{

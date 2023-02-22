@@ -504,6 +504,19 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 	return nullptr;
 }
 
+EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) const
+{
+	if(!isVisible(tile))
+		return EDiggingStatus::UNKNOWN;
+
+	for(const auto & object : gs->map->objects)
+	{
+		if(object && object->ID == Obj::HOLE && object->pos == tile)
+			return EDiggingStatus::TILE_OCCUPIED;
+	}
+	return getTile(tile)->getDiggingStatus();
+}
+
 //TODO: typedef?
 std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {

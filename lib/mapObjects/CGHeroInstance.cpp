@@ -1135,7 +1135,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	if(static_cast<int>(movement) < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 
-	return cb->getTile(visitablePos())->getDiggingStatus();
+	return cb->getTileDigStatus(visitablePos());
 }
 
 ArtBearer::ArtBearer CGHeroInstance::bearerType() const
