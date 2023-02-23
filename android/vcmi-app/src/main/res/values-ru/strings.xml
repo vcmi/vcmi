@@ -57,9 +57,9 @@
     <string name="dialog_authors_vcmi">Авторы VCMI</string>
     <string name="dialog_authors_launcher">Авторы лаунчера</string>
     <string name="about_btn_privacy" translatable="false">Политика конфиденциальности: %1$s</string>
-    <string name="launcher_btn_export_title">Експортировать данные VCMI</string>
-    <string name="launcher_btn_export_description">Сделать копию данных VCMI перед удалением игры или чтобы перенести сейв-файлы на версию для других платформ</string>
+    <string name="launcher_btn_export_title">Экспортировать данные VCMI</string>
+    <string name="launcher_btn_export_description">Сделать копию данных VCMI перед удалением игры или чтобы перенести файлы сохранений на версию для других платформ</string>
     <string name="launcher_btn_import_title">Загрузить данные VCMI во внутреннее хранилище</string>
-    <string name="launcher_btn_import_description">Скопировать данные VCMI во внутреннее хранилище. Вы можете загрузить старую папку vcmi-data от версии 0.99 или файлы героев</string>
+    <string name="launcher_btn_import_description">Скопировать данные VCMI во внутреннее хранилище. Вы можете загрузить старую папку vcmi-data от версии 0.99 или файлы Героев</string>
     <string name="launcher_progress_copy">Копируем %1$s</string>
 </resources>
