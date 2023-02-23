@@ -33,7 +33,7 @@
     <string name="launcher_progress_copy">Copying %1$s</string>
     <string name="launcher_version">Current launcher version: %1$s</string>
     <string name="launcher_error_vcmi_data_root_failed">Could not create VCMI data folder in %1$s.</string>
-    <string name="launcher_error_h3_data_missing">Could not find data folder in \'%1$s\'. Place your HoMM3 data files there or use a button below to do this for you. You may need to  restart the application also.</string>
+    <string name="launcher_error_h3_data_missing">Could not find data folder in \'%1$s\'. Place your HoMM3 data files there or use a button below to do this for you. You may need to restart the application also.</string>
     <string name="launcher_error_vcmi_data_internal_missing">Could not find or extract vcmi data from app resources. Try to reinstall the app.</string>
     <string name="launcher_error_vcmi_data_internal_update">Could not update vcmi data from app resources. Try to reinstall the app.</string>
     <string name="launcher_error_permissions">This application needs write permissions to use the content stored in external storage</string>
