@@ -17,7 +17,6 @@
     <string name="launcher_btn_pointermode_subtitle">Aktuell: %1$s</string>
     <string name="launcher_btn_pointermulti_subtitle">Aktuell: %1$s</string>
     <string name="launcher_version">Aktuelle Version des Starters: %1$s</string>
-    <string name="launcher_error_vcmi_data_root_created">VCMI hat den Ordner \'%1$s\' (in %2$s) erstellt. Legen Sie Ihre HoMM3-Datendateien dort ab (so dass Sie einen Ordner %1$s/Data und %1$s/Mp3 usw. haben) und starten Sie die Anwendung neu.</string>
     <string name="launcher_error_h3_data_missing">Der Datenordner in \'%1$s\' konnte nicht gefunden werden. Legen Sie Ihre HoMM3-Datendateien dort ab oder verwenden Sie die Schaltfläche unten, um diese zu importieren. Möglicherweise müssen Sie die Anwendung neu starten.</string>
     <string name="launcher_btn_pointermulti_title">Multiplikator der relativen Zeigergeschwindigkeit</string>
     <string name="launcher_btn_sound_title">Lautstärke der Geräusche</string>

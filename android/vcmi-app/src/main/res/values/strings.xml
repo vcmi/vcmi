@@ -32,7 +32,6 @@
     <string name="launcher_btn_export_description">Make a copy of internal VCMI data before uninstallation or to synchronize saves with desktop version. You can also access the internal storage directly.</string>
     <string name="launcher_progress_copy">Copying %1$s</string>
     <string name="launcher_version">Current launcher version: %1$s</string>
-    <string name="launcher_error_vcmi_data_root_created">VCMI created folder \'%1$s\' (in %2$s). Place your H3 data files there (so that you have a folder %1$s/Data and %1$s/Mp3 etc) and restart the application.</string>
     <string name="launcher_error_vcmi_data_root_failed">Could not create VCMI data folder in %1$s.</string>
     <string name="launcher_error_h3_data_missing">Could not find data folder in \'%1$s\'. Place your HoMM3 data files there or use a button below to do this for you. You may need to  restart the application also.</string>
     <string name="launcher_error_vcmi_data_internal_missing">Could not find or extract vcmi data from app resources. Try to reinstall the app.</string>

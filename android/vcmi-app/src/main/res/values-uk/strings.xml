@@ -17,7 +17,6 @@
     <string name="launcher_btn_pointermode_subtitle">Поточна: %1$s</string>
     <string name="launcher_btn_pointermulti_subtitle">Поточна: %1$s</string>
     <string name="launcher_version">Поточна версія лаунчера: %1$s</string>
-    <string name="launcher_error_vcmi_data_root_created">VCMI створила папку \'%1$s\' (в %2$s). Скопіюйте ваші файли Героїв 3 туди (так щоб вийшла папка %1$s/Data та %1$s/Mp3 та %1$s/Maps) та перезапустіть гру.</string>
     <string name="launcher_error_h3_data_missing">Не вдалося знайти файли Героїв у \'%1$s\'. Скопіюйте файли Героїв 3 туди вручну або скористайтеся кнопкою копіювання і перезапустіть гру.</string>
     <string name="launcher_btn_pointermulti_title">Відносна швидкість керування курсором</string>
     <string name="launcher_btn_sound_title">Громкість звуків</string>

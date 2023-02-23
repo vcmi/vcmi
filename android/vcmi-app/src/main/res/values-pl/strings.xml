@@ -22,7 +22,6 @@
     <string name="launcher_btn_adventure_ai">Algorytm AI mapy przygody</string>
     <string name="launcher_btn_adventure_ai_title">Zmień AI mapy przygody</string>
     <string name="launcher_version">Obecna wersja launchera: %1$s</string>
-    <string name="launcher_error_vcmi_data_root_created">VCMI utworzyło folder \'%1$s\' (w %2$s). Przenieś tam pliki Heroes 3 (by mieć tam foldery %1$s/Data i %1$s/Mp3 itp) i uruchom jeszcze raz aplikację.</string>
     <string name="launcher_error_vcmi_data_root_failed">Nie udało się stworzyć folderu na dane w %1$s.</string>
     <string name="launcher_error_h3_data_missing">Nie znaleziono danych w \'%1$s\'. Przenieś tam pliki Heroes 3 (by mieć tam foldery %1$s/Data i %1$s/Mp3 itp) i uruchom jeszcze raz aplikację.</string>
     <string name="launcher_error_vcmi_data_internal_missing">Nie udało się znaleźć lub wyodrębnić danych VCMI. Spróbuj zainstalować od nowa aplikację.</string>
