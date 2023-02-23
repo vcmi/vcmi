@@ -12,7 +12,6 @@
 #include "CMinimap.h"
 
 #include "CAdvMapInt.h"
-#include "CTerrainRect.h"
 
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
@@ -126,7 +125,7 @@ Point CMinimap::tileToPixels(const int3 &tile) const
 void CMinimap::moveAdvMapSelection()
 {
 	int3 newLocation = pixelToTile(GH.getCursorPosition() - pos.topLeft());
-	adventureInt->centerOn(newLocation);
+	adventureInt->centerOnTile(newLocation);
 
 	if (!(adventureInt->active & GENERAL))
 		GH.totalRedraw(); //redraw this as well as inactive adventure map
@@ -162,13 +161,14 @@ void CMinimap::mouseMoved(const Point & cursorPosition)
 
 void CMinimap::showAll(SDL_Surface * to)
 {
+	CSDL_Ext::CClipRectGuard guard(to, pos);
 	CIntObject::showAll(to);
+
 	if(minimap)
 	{
 		Canvas target(to);
 
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
-		Rect screenArea = adventureInt->terrainAreaTiles();
 
 		//draw radar
 		Rect radar =
@@ -180,7 +180,6 @@ void CMinimap::showAll(SDL_Surface * to)
 		};
 
 		Canvas clippedTarget(target, pos);
-		CSDL_Ext::CClipRectGuard guard(to, pos);
 		clippedTarget.drawBorderDashed(radar, CSDL_Ext::fromSDL(Colors::PURPLE));
 	}
 }
@@ -195,13 +194,20 @@ void CMinimap::update()
 	redraw();
 }
 
-void CMinimap::setLevel(int newLevel)
+void CMinimap::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
-	if (level == newLevel)
+	if (screenArea == visibleArea && level == mapLevel)
 		return;
 
-	level = newLevel;
-	update();
+	screenArea = visibleArea;
+
+	if(level != mapLevel)
+	{
+		level = mapLevel;
+		update();
+	}
+	else
+		redraw();
 }
 
 void CMinimap::setAIRadar(bool on)

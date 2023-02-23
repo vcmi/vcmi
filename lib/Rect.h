@@ -132,6 +132,11 @@ public:
 		return *this;
 	}
 
+	bool operator == (const Rect & other)
+	{
+		return x == other.x && y == other.y && w == other.w && h == other.h;
+	}
+
 	/// returns true if this rect intersects with another rect
 	DLL_LINKAGE bool intersectionTest(const Rect & other) const;
 

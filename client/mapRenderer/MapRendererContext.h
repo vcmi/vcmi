@@ -20,10 +20,10 @@ VCMI_LIB_NAMESPACE_END
 
 class MapObjectsSorter
 {
-	const IMapRendererContext & context;
+	IMapRendererContext & context;
 
 public:
-	explicit MapObjectsSorter(const IMapRendererContext & context);
+	explicit MapObjectsSorter(IMapRendererContext & context);
 
 	bool operator()(const ObjectInstanceID & left, const ObjectInstanceID & right) const;
 	bool operator()(const CGObjectInstance * left, const CGObjectInstance * right) const;
@@ -122,6 +122,9 @@ public:
 	size_t overlayImageIndex(const int3 & coordinates) const override;
 
 	bool filterGrayscale() const override;
+	bool showRoads() const override;
+	bool showRivers() const override;
+	bool showBorder() const override;
 	bool showOverlay() const override;
 	bool showGrid() const override;
 	bool showVisitable() const override;

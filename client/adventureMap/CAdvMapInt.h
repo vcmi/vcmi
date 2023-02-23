@@ -33,7 +33,7 @@ class CGStatusBar;
 class CAdvMapPanel;
 class CAdvMapWorldViewPanel;
 class CAnimation;
-class CTerrainRect;
+class MapView;
 class CResDataBar;
 class CHeroList;
 class CTownList;
@@ -55,7 +55,6 @@ class CAdvMapInt : public CIntObject
 {
 	//TODO: remove
 	friend class CPlayerInterface;
-	friend class CTerrainRect;
 
 private:
 	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
@@ -94,7 +93,7 @@ private:
 	std::shared_ptr<CButton> endTurn;
 	std::shared_ptr<CButton> worldViewUnderground;
 
-	std::shared_ptr<CTerrainRect> terrain;
+	std::shared_ptr<MapView> terrain;
 	std::shared_ptr<CMinimap> minimap;
 	std::shared_ptr<CHeroList> heroList;
 	std::shared_ptr<CTownList> townList;
@@ -160,9 +159,13 @@ public:
 
 	// public interface
 
+	/// called by MapView whenever currently visible area changes
+	/// visibleArea describen now visible map section measured in tiles
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
+
 	void select(const CArmedInstance *sel, bool centerView = true);
-	void centerOn(int3 on);
-	void centerOn(const CGObjectInstance *obj);
+	void centerOnTile(int3 on);
+	void centerOnObject(const CGObjectInstance *obj);
 
 	bool isHeroSleeping(const CGHeroInstance *hero);
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
@@ -178,9 +181,9 @@ public:
 	void quickCombatLock(); //should be called when quick battle started
 	void quickCombatUnlock();
 
-	void tileLClicked(const int3 &mapPos);
-	void tileHovered(const int3 &mapPos);
-	void tileRClicked(const int3 &mapPos);
+	void onTileLeftClicked(const int3 & mapPos);
+	void onTileHovered(const int3 & mapPos);
+	void onTileRightClicked(const int3 & mapPos);
 
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
@@ -193,9 +196,6 @@ public:
 
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;
-
-	/// returs visible section of game map, in tiles
-	Rect terrainAreaTiles() const;
 
 	/// exits currently opened world view mode and returns to normal map
 	void exitWorldView();

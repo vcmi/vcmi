@@ -70,6 +70,10 @@ public:
 	/// if true, rendered images will be converted to grayscale
 	virtual bool filterGrayscale() const = 0;
 
+	virtual bool showRoads() const = 0;
+	virtual bool showRivers() const = 0;
+	virtual bool showBorder() const = 0;
+
 	/// if true, world view overlay will be shown
 	virtual bool showOverlay() const = 0;
 

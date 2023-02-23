@@ -15,11 +15,13 @@
 #include "CInGameConsole.h"
 #include "CMinimap.h"
 #include "CResDataBar.h"
-#include "CTerrainRect.h"
 #include "CList.h"
 #include "CInfoBar.h"
 
 #include "../mapRenderer/mapHandler.h"
+#include "../mapRenderer/MapView.h"
+#include "../mapRenderer/MapViewModel.h"
+#include "../mapRenderer/MapViewController.h"
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/CTradeWindow.h"
@@ -87,7 +89,7 @@ CAdvMapInt::CAdvMapInt():
 	townList(new CTownList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD)),
 	infoBar(new CInfoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192))),
 	resdatabar(new CResDataBar),
-	terrain(new CTerrainRect),
+	terrain(new MapView(Point(ADVOPT.advmapX, ADVOPT.advmapY), Point(ADVOPT.advmapW, ADVOPT.advmapH))),
 	state(NA),
 	spellBeingCasted(nullptr),
 	selection(nullptr),
@@ -258,7 +260,7 @@ void CAdvMapInt::fworldViewBack()
 
 	auto hero = curHero();
 	if (hero)
-		centerOn(hero);
+		centerOnObject(hero);
 }
 
 void CAdvMapInt::fworldViewScale1x()
@@ -284,15 +286,18 @@ void CAdvMapInt::fswitchLevel()
 	if (maxLevels < 2)
 		return;
 
-	terrain->setLevel((terrain->getLevel() + 1) % maxLevels);
+	terrain->onMapLevelSwitched();
+}
 
-	underground->setIndex(terrain->getLevel(), true);
+void CAdvMapInt::onMapViewMoved(const Rect & visibleArea, int mapLevel)
+{
+	underground->setIndex(mapLevel, true);
 	underground->redraw();
 
-	worldViewUnderground->setIndex(terrain->getLevel(), true);
+	worldViewUnderground->setIndex(mapLevel, true);
 	worldViewUnderground->redraw();
 
-	minimap->setLevel(terrain->getLevel());
+	minimap->onMapViewMoved(visibleArea, mapLevel);
 }
 
 void CAdvMapInt::fshowQuestlog()
@@ -332,7 +337,7 @@ void CAdvMapInt::fshowSpellbok()
 	if (!curHero()) //checking necessary values
 		return;
 
-	centerOn(selection);
+	centerOnObject(selection);
 
 	GH.pushIntT<CSpellWindow>(curHero(), LOCPLINT, false);
 }
@@ -570,6 +575,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 			gems[i]->setFrame(LOCPLINT->playerID.getNum());
 	}
 
+	minimap->show(to);
 	terrain->show(to);
 
 	for(int i = 0; i < 4; i++)
@@ -589,16 +595,16 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 
 	if(scrollingDir & LEFT)
-		terrain->moveViewBy(Point(-scrollDistance, 0));
+		terrain->onMapScrolled(Point(-scrollDistance, 0));
 
 	if(scrollingDir & RIGHT)
-		terrain->moveViewBy(Point(+scrollDistance, 0));
+		terrain->onMapScrolled(Point(+scrollDistance, 0));
 
 	if(scrollingDir & UP)
-		terrain->moveViewBy(Point(0, -scrollDistance));
+		terrain->onMapScrolled(Point(0, -scrollDistance));
 
 	if(scrollingDir & DOWN)
-		terrain->moveViewBy(Point(0, +scrollDistance));
+		terrain->onMapScrolled(Point(0, +scrollDistance));
 
 	if(scrollingDir)
 	{
@@ -619,21 +625,14 @@ void CAdvMapInt::selectionChanged()
 		select(to);
 }
 
-void CAdvMapInt::centerOn(int3 on)
+void CAdvMapInt::centerOnTile(int3 on)
 {
-	terrain->setViewCenter(on);
-
-	underground->setIndex(on.z,true); //change underground switch button image
-	underground->redraw();
-	worldViewUnderground->setIndex(on.z, true);
-	worldViewUnderground->redraw();
-	minimap->setLevel(terrain->getLevel());
-	minimap->redraw();
+	terrain->onCenteredTile(on);
 }
 
-void CAdvMapInt::centerOn(const CGObjectInstance * obj)
+void CAdvMapInt::centerOnObject(const CGObjectInstance * obj)
 {
-	centerOn(obj->getSightCenter());
+	terrain->onCenteredObject(obj);
 }
 
 void CAdvMapInt::keyReleased(const SDL_Keycode &key)
@@ -812,7 +811,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 
 			if(*direction == Point(0,0))
 			{
-				centerOn(h);
+				centerOnObject(h);
 				return;
 			}
 
@@ -871,7 +870,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 			CCS->musich->playMusicFromSet("terrain", tile->terType->getJsonKey(), true, false);
 	}
 	if(centerView)
-		centerOn(sel);
+		centerOnObject(sel);
 
 	if(sel->ID==Obj::TOWN)
 	{
@@ -1046,7 +1045,7 @@ const CGObjectInstance* CAdvMapInt::getActiveObject(const int3 &mapPos)
 		return bobjs.front();*/
 }
 
-void CAdvMapInt::tileLClicked(const int3 &mapPos)
+void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
 		return;
@@ -1130,7 +1129,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	}
 }
 
-void CAdvMapInt::tileHovered(const int3 &mapPos)
+void CAdvMapInt::onTileHovered(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL //disable in world view
 		|| !selection) //may occur just at the start of game (fake move before full intiialization)
@@ -1290,7 +1289,7 @@ void CAdvMapInt::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const C
 	statusbar->write(result);
 }
 
-void CAdvMapInt::tileRClicked(const int3 &mapPos)
+void CAdvMapInt::onTileRightClicked(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
 		return;
@@ -1375,11 +1374,6 @@ Rect CAdvMapInt::terrainAreaPixels() const
 	return terrain->pos;
 }
 
-Rect CAdvMapInt::terrainAreaTiles() const
-{
-	return terrain->visibleTilesArea();
-}
-
 const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *obj) const
 {
 	const IShipyard *ret = IShipyard::castFrom(obj);
@@ -1440,9 +1434,7 @@ void CAdvMapInt::exitWorldView()
 	infoBar->activate();
 
 	redraw();
-	terrain->setTileSize(32);
-	terrain->setTerrainVisibility(false);
-	terrain->setOverlayVisibility({});
+	terrain->onViewMapActivated();
 }
 
 void CAdvMapInt::openWorldView(int tileSize)
@@ -1459,7 +1451,7 @@ void CAdvMapInt::openWorldView(int tileSize)
 	infoBar->deactivate();
 
 	redraw();
-	terrain->setTileSize(tileSize);
+	terrain->onViewWorldActivated(tileSize);
 }
 
 void CAdvMapInt::openWorldView()
@@ -1470,6 +1462,5 @@ void CAdvMapInt::openWorldView()
 void CAdvMapInt::openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
 	openWorldView(11);
-	terrain->setTerrainVisibility(showTerrain);
-	terrain->setOverlayVisibility(objectPositions);
+	terrain->onViewSpellActivated(11, objectPositions, showTerrain);
 }

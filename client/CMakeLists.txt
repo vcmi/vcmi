@@ -10,7 +10,6 @@ set(client_SRCS
 	adventureMap/CList.cpp
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
-	adventureMap/CTerrainRect.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -50,6 +49,7 @@ set(client_SRCS
 	mapRenderer/MapRenderer.cpp
 	mapRenderer/MapRendererContext.cpp
 	mapRenderer/MapView.cpp
+	mapRenderer/MapViewActions.cpp
 	mapRenderer/MapViewCache.cpp
 	mapRenderer/MapViewController.cpp
 	mapRenderer/MapViewModel.cpp
@@ -127,7 +127,6 @@ set(client_HEADERS
 	adventureMap/CList.h
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
-	adventureMap/CTerrainRect.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
@@ -172,7 +171,7 @@ set(client_HEADERS
 	mapRenderer/MapRenderer.h
 	mapRenderer/MapRendererContext.h
 	mapRenderer/MapView.h
-	mapRenderer/MapViewCache.cpp
+	mapRenderer/MapViewActions.h
 	mapRenderer/MapViewCache.h
 	mapRenderer/MapViewController.h
 	mapRenderer/MapViewModel.h

@@ -35,7 +35,7 @@ struct NeighborTilesInfo
 	//012
 	std::bitset<8> d;
 
-	NeighborTilesInfo(const IMapRendererContext & context, const int3 & pos)
+	NeighborTilesInfo(IMapRendererContext & context, const int3 & pos)
 	{
 		auto checkTile = [&](int dx, int dy)
 		{
@@ -128,7 +128,7 @@ MapRendererTerrain::MapRendererTerrain()
 		storage.load(terrain->getIndex(), terrain->tilesFilename, EImageBlitMode::OPAQUE);
 }
 
-void MapRendererTerrain::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
@@ -152,7 +152,7 @@ void MapRendererTerrain::renderTile(const IMapRendererContext & context, Canvas 
 	target.draw(image, Point(0, 0));
 }
 
-uint8_t MapRendererTerrain::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
@@ -168,7 +168,7 @@ MapRendererRiver::MapRendererRiver()
 		storage.load(river->getIndex(), river->tilesFilename, EImageBlitMode::COLORKEY);
 }
 
-void MapRendererRiver::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
@@ -202,7 +202,7 @@ void MapRendererRiver::renderTile(const IMapRendererContext & context, Canvas & 
 	target.draw(image, Point(0, 0));
 }
 
-uint8_t MapRendererRiver::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
@@ -220,7 +220,7 @@ MapRendererRoad::MapRendererRoad()
 		storage.load(road->getIndex(), road->tilesFilename, EImageBlitMode::COLORKEY);
 }
 
-void MapRendererRoad::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	const int3 coordinatesAbove = coordinates - int3(0, 1, 0);
 
@@ -250,18 +250,19 @@ void MapRendererRoad::renderTile(const IMapRendererContext & context, Canvas & t
 	}
 }
 
-uint8_t MapRendererRoad::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	return 0;
 }
 
 MapRendererBorder::MapRendererBorder()
 {
+	emptyFill = std::make_unique<Canvas>(Point(32,32));
 	animation = std::make_unique<CAnimation>("EDG");
 	animation->preload();
 }
 
-size_t MapRendererBorder::getIndexForTile(const IMapRendererContext & context, const int3 & tile)
+size_t MapRendererBorder::getIndexForTile(IMapRendererContext & context, const int3 & tile)
 {
 	assert(!context.isInMap(tile));
 
@@ -299,13 +300,20 @@ size_t MapRendererBorder::getIndexForTile(const IMapRendererContext & context, c
 	return 0;
 }
 
-void MapRendererBorder::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererBorder::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
-	const auto & image = animation->getImage(getIndexForTile(context, coordinates));
-	target.draw(image, Point(0, 0));
+	if (context.showBorder())
+	{
+		const auto & image = animation->getImage(getIndexForTile(context, coordinates));
+		target.draw(image, Point(0, 0));
+	}
+	else
+	{
+		target.draw(*emptyFill, Point(0,0));
+	}
 }
 
-uint8_t MapRendererBorder::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	return 0;
 }
@@ -333,7 +341,7 @@ MapRendererFow::MapRendererFow()
 	}
 }
 
-void MapRendererFow::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	assert(!context.isVisible(coordinates));
 
@@ -356,7 +364,7 @@ void MapRendererFow::renderTile(const IMapRendererContext & context, Canvas & ta
 	}
 }
 
-uint8_t MapRendererFow::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	const NeighborTilesInfo neighborInfo(context, coordinates);
 	int retBitmapID = neighborInfo.getBitmapID();
@@ -470,7 +478,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 	return nullptr;
 }
 
-std::shared_ptr<IImage> MapRendererObjects::getImage(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
+std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
 {
 	if(!animation)
 		return nullptr;
@@ -485,7 +493,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(const IMapRendererContext &
 	return animation->getImage(frameIndex, groupIndex);
 }
 
-void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image)
+void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image)
 {
 	if(!image)
 		return;
@@ -517,14 +525,14 @@ void MapRendererObjects::renderImage(const IMapRendererContext & context, Canvas
 	}
 }
 
-void MapRendererObjects::renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
+void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
 	renderImage(context, target, coordinates, instance, getImage(context, instance, getBaseAnimation(instance)));
 	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
 	renderImage(context, target, coordinates, instance, getImage(context, instance, getOverlayAnimation(instance)));
 }
 
-void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
@@ -541,7 +549,7 @@ void MapRendererObjects::renderTile(const IMapRendererContext & context, Canvas 
 	}
 }
 
-uint8_t MapRendererObjects::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
@@ -579,7 +587,7 @@ MapRendererDebug::MapRendererDebug()
 
 }
 
-void MapRendererDebug::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
@@ -607,7 +615,7 @@ void MapRendererDebug::renderTile(const IMapRendererContext & context, Canvas & 
 	}
 }
 
-uint8_t MapRendererDebug::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererDebug::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	return 0;
 }
@@ -665,7 +673,7 @@ size_t MapRendererPath::selectImageArrow(bool reachableToday, const int3 & curr,
 	return selectImageReachability(reachableToday, imageIndex);
 }
 
-void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	size_t imageID = selectImage(context, coordinates);
 
@@ -673,7 +681,7 @@ void MapRendererPath::renderTile(const IMapRendererContext & context, Canvas & t
 		target.draw(pathNodes->getImage(imageID), Point(0,0));
 }
 
-size_t MapRendererPath::selectImage(const IMapRendererContext & context, const int3 & coordinates)
+size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & coordinates)
 {
 	const auto & functor = [&](const CGPathNode & node)
 	{
@@ -709,12 +717,12 @@ size_t MapRendererPath::selectImage(const IMapRendererContext & context, const i
 	return selectImageCross(reachableToday, iter->coord);
 }
 
-uint8_t MapRendererPath::checksum(const IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererPath::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	return selectImage(context, coordinates) & 0xff;
 }
 
-MapRenderer::TileChecksum MapRenderer::getTileChecksum(const IMapRendererContext & context, const int3 & coordinates)
+MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	// computes basic checksum to determine whether tile needs an update
 	// if any component gives different value, tile will be updated
@@ -736,8 +744,10 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(const IMapRendererContext
 	else
 	{
 		result[1] = rendererTerrain.checksum(context, coordinates);
-		result[2] = rendererRiver.checksum(context, coordinates);
-		result[3] = rendererRoad.checksum(context, coordinates);
+		if (context.showRivers())
+			result[2] = rendererRiver.checksum(context, coordinates);
+		if (context.showRoads())
+			result[3] = rendererRoad.checksum(context, coordinates);
 		result[4] = rendererObjects.checksum(context, coordinates);
 		result[5] = rendererPath.checksum(context, coordinates);
 		result[6] = rendererDebug.checksum(context, coordinates);
@@ -748,7 +758,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(const IMapRendererContext
 	return result;
 }
 
-void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	if(!context.isInMap(coordinates))
 	{
@@ -765,8 +775,13 @@ void MapRenderer::renderTile(const IMapRendererContext & context, Canvas & targe
 	else
 	{
 		rendererTerrain.renderTile(context, target, coordinates);
-		rendererRiver.renderTile(context, target, coordinates);
-		rendererRoad.renderTile(context, target, coordinates);
+
+		if (context.showRivers())
+			rendererRiver.renderTile(context, target, coordinates);
+
+		if (context.showRoads())
+			rendererRoad.renderTile(context, target, coordinates);
+
 		rendererObjects.renderTile(context, target, coordinates);
 		rendererPath.renderTile(context, target, coordinates);
 		rendererDebug.renderTile(context, target, coordinates);

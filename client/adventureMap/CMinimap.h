@@ -41,6 +41,7 @@ class CMinimap : public CIntObject
 {
 	std::shared_ptr<CPicture> aiShield; //the graphic displayed during AI turn
 	std::shared_ptr<CMinimapInstance> minimap;
+	Rect screenArea;
 	int level;
 
 	void clickLeft(tribool down, bool previousState) override;
@@ -59,11 +60,10 @@ protected:
 	Point tileToPixels(const int3 & position) const;
 
 public:
-
 	explicit CMinimap(const Rect & position);
 
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 	void update();
-	void setLevel(int level);
 	void setAIRadar(bool on);
 
 	void showAll(SDL_Surface * to) override;

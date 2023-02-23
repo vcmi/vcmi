@@ -42,7 +42,7 @@ private:
 public:
 	explicit MapViewController(std::shared_ptr<MapViewModel> model);
 
-	std::shared_ptr<const IMapRendererContext> getContext() const;
+	std::shared_ptr<IMapRendererContext> getContext() const;
 
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);

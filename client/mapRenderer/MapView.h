@@ -11,27 +11,63 @@
 
 #include "../gui/CIntObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+struct ObjectPosInfo;
+VCMI_LIB_NAMESPACE_END
+
 class Canvas;
+class MapViewActions;
 class MapViewController;
 class MapViewModel;
 class MapViewCache;
 
-/// Main map rendering class that mostly acts as container for component classes
+/// Main class that represents visible section of adventure map
+/// Contains all public interface of view and translates calls to internal model
 class MapView : public CIntObject
 {
 	std::shared_ptr<MapViewModel> model;
-	std::unique_ptr<MapViewCache> tilesCache;
+	std::shared_ptr<MapViewCache> tilesCache;
 	std::shared_ptr<MapViewController> controller;
+	std::shared_ptr<MapViewActions> actions;
+
+	bool isSwiping;
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 
 	void render(Canvas & target, bool fullUpdate);
-public:
-	std::shared_ptr<const MapViewModel> getModel() const;
-	std::shared_ptr<MapViewController> getController();
 
+public:
 	MapView(const Point & offset, const Point & dimensions);
 	~MapView() override;
+
+	/// Moves current view to another level, preserving position
+	void onMapLevelSwitched();
+
+	/// Moves current view by specified distance in pixels
+	void onMapScrolled(const Point & distance);
+
+	/// Moves current view to specified position, in pixels
+	void onMapSwiped(const Point & viewPosition);
+
+	/// Ends swiping mode and allows normal map scrolling once again
+	void onMapSwipeEnded();
+
+	/// Moves current view to specified tile
+	void onCenteredTile(const int3 & tile);
+
+	/// Centers view on object and starts "tracking" it
+	/// Whenever object changes position, so will the object
+	/// Tracking will be disabled on any call that moves view
+	void onCenteredObject(const CGObjectInstance * target);
+
+	/// Switches view to "View Earth" / "View Air" mode, displaying downscaled map with overlay
+	void onViewSpellActivated( uint32_t tileSize, const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
+
+	/// Switches view to downscaled View World
+	void onViewWorldActivated( uint32_t tileSize);
+
+	/// Switches view from View World mode back to standard view
+	void onViewMapActivated();
 
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;

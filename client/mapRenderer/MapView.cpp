@@ -11,14 +11,15 @@
 #include "StdInc.h"
 #include "MapView.h"
 
-#include "MapViewModel.h"
+#include "MapViewActions.h"
 #include "MapViewCache.h"
 #include "MapViewController.h"
+#include "MapViewModel.h"
 #include "mapHandler.h"
 
-#include "../adventureMap/CAdvMapInt.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../adventureMap/CAdvMapInt.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -49,16 +50,20 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 	: model(createModel(dimensions))
 	, controller(new MapViewController(model))
 	, tilesCache(new MapViewCache(model))
+	, isSwiping(false)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += offset;
 	pos.w = dimensions.x;
 	pos.h = dimensions.y;
+
+	actions = std::make_shared<MapViewActions>(*this, model);
+	actions->setContext(controller->getContext());
 }
 
 void MapView::render(Canvas & target, bool fullUpdate)
 {
 	Canvas targetClipped(target, pos);
-
 
 	controller->update(GH.mainFPSmng->getElapsedMilliseconds());
 	tilesCache->update(controller->getContext());
@@ -79,12 +84,59 @@ void MapView::showAll(SDL_Surface * to)
 	render(target, true);
 }
 
-std::shared_ptr<const MapViewModel> MapView::getModel() const
+void MapView::onMapLevelSwitched()
 {
-	return model;
+	if(LOCPLINT->cb->getMapSize().z > 1)
+	{
+		if(model->getLevel() == 0)
+			controller->setViewCenter(model->getMapViewCenter(), 1);
+		else
+			controller->setViewCenter(model->getMapViewCenter(), 0);
+	}
 }
 
-std::shared_ptr<MapViewController> MapView::getController()
+void MapView::onMapScrolled(const Point & distance)
 {
-	return controller;
+	if(!isSwiping)
+		controller->setViewCenter(model->getMapViewCenter() + distance, model->getLevel());
+}
+
+void MapView::onMapSwiped(const Point & viewPosition)
+{
+	isSwiping = true;
+	controller->setViewCenter(viewPosition, model->getLevel());
+}
+
+void MapView::onMapSwipeEnded()
+{
+	isSwiping = true;
+}
+
+void MapView::onCenteredTile(const int3 & tile)
+{
+	controller->setViewCenter(tile);
+}
+
+void MapView::onCenteredObject(const CGObjectInstance * target)
+{
+	controller->setViewCenter(target->getSightCenter());
+}
+
+void MapView::onViewSpellActivated(uint32_t tileSize, const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
+{
+	controller->setTileSize(Point(tileSize, tileSize));
+	controller->setOverlayVisibility(objectPositions);
+	controller->setTerrainVisibility(showTerrain);
+}
+
+void MapView::onViewWorldActivated(uint32_t tileSize)
+{
+	controller->setTileSize(Point(tileSize, tileSize));
+}
+
+void MapView::onViewMapActivated()
+{
+	controller->setTileSize(Point(32, 32));
+	controller->setOverlayVisibility({});
+	controller->setTerrainVisibility(false);
 }

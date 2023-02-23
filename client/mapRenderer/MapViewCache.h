@@ -50,16 +50,16 @@ class MapViewCache
 	std::unique_ptr<CAnimation> iconsStorage;
 
 	Canvas getTile(const int3 & coordinates);
-	void updateTile(const std::shared_ptr<const IMapRendererContext> & context, const int3 & coordinates);
+	void updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
 
-	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<const IMapRendererContext> & context, const int3 & coordinates);
+	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
 public:
 	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
 	~MapViewCache();
 
 	/// updates internal terrain cache according to provided time delta
-	void update(const std::shared_ptr<const IMapRendererContext> & context);
+	void update(const std::shared_ptr<IMapRendererContext> & context);
 
 	/// renders updated terrain cache onto provided canvas
-	void render(const std::shared_ptr<const IMapRendererContext> &context, Canvas & target, bool fullRedraw);
+	void render(const std::shared_ptr<IMapRendererContext> &context, Canvas & target, bool fullRedraw);
 };

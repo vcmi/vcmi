@@ -84,7 +84,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 
 	Point offset = tileToPixels(tile);
 
-	setLevel(tile.z);
+	onMapViewMoved(Rect(), tile.z);
 
 	auto pic = std::make_shared<CQuestIcon>("VwSymbol.def", 3, offset.x, offset.y);
 
@@ -104,7 +104,7 @@ void CQuestMinimap::update()
 void CQuestMinimap::iconClicked()
 {
 	if(currentQuest->obj)
-		adventureInt->centerOn (currentQuest->obj->pos);
+		adventureInt->centerOnTile(currentQuest->obj->pos);
 	//moveAdvMapSelection();
 }
 

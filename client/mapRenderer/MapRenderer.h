@@ -41,8 +41,8 @@ class MapRendererTerrain
 public:
 	MapRendererTerrain();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererRiver
@@ -52,8 +52,8 @@ class MapRendererRiver
 public:
 	MapRendererRiver();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererRoad
@@ -63,8 +63,8 @@ class MapRendererRoad
 public:
 	MapRendererRoad();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererObjects
@@ -77,27 +77,28 @@ class MapRendererObjects
 
 	std::shared_ptr<CAnimation> getAnimation(const std::string & filename, bool generateMovementGroups);
 
-	std::shared_ptr<IImage> getImage(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
+	std::shared_ptr<IImage> getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 
-	void renderImage(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image);
-	void renderObject(const IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj);
+	void renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image);
+	void renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj);
 
 public:
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererBorder
 {
 	std::unique_ptr<CAnimation> animation;
+	std::unique_ptr<Canvas> emptyFill;
 
-	size_t getIndexForTile(const IMapRendererContext & context, const int3 & coordinates);
+	size_t getIndexForTile(IMapRendererContext & context, const int3 & coordinates);
 
 public:
 	MapRendererBorder();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererFow
@@ -108,8 +109,8 @@ class MapRendererFow
 public:
 	MapRendererFow();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererPath
@@ -119,13 +120,13 @@ class MapRendererPath
 	size_t selectImageReachability(bool reachableToday, size_t imageIndex);
 	size_t selectImageCross(bool reachableToday, const int3 & curr);
 	size_t selectImageArrow(bool reachableToday, const int3 & curr, const int3 & prev, const int3 & next);
-	size_t selectImage(const IMapRendererContext & context, const int3 & coordinates);
+	size_t selectImage(IMapRendererContext & context, const int3 & coordinates);
 
 public:
 	MapRendererPath();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererDebug
@@ -136,8 +137,8 @@ class MapRendererDebug
 public:
 	MapRendererDebug();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRendererOverlay
@@ -146,8 +147,8 @@ class MapRendererOverlay
 public:
 	MapRendererOverlay();
 
-	uint8_t checksum(const IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
 class MapRenderer
@@ -164,7 +165,7 @@ class MapRenderer
 public:
 	using TileChecksum = std::array<uint8_t, 8>;
 
-	TileChecksum getTileChecksum(const IMapRendererContext & context, const int3 & coordinates);
+	TileChecksum getTileChecksum(IMapRendererContext & context, const int3 & coordinates);
 
-	void renderTile(const IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };

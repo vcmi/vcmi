@@ -21,7 +21,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
-MapObjectsSorter::MapObjectsSorter(const IMapRendererContext & context)
+MapObjectsSorter::MapObjectsSorter(IMapRendererContext & context)
 	: context(context)
 {
 }
@@ -66,6 +66,9 @@ bool MapRendererContext::isVisible(const int3 & coordinates) const
 
 const CGPath * MapRendererContext::currentPath() const
 {
+	if (worldViewModeActive)
+		return nullptr;
+
 	const auto * hero = adventureInt->curHero();
 
 	if(!hero)
@@ -86,6 +89,9 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 	if (!settingsAdventureObjectAnimation)
 		return 0;
 
+	if (worldViewModeActive)
+		return 0;
+
 	// H3 timing for adventure map objects animation is 180 ms
 	// Terrain animations also use identical interval, however those are only present in HotA and/or HD Mod
 	size_t baseFrameTime = 180;
@@ -103,6 +109,9 @@ size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t gr
 size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
 {
 	if (!settingsAdventureTerrainAnimation)
+		return 0;
+
+	if (worldViewModeActive)
 		return 0;
 
 	size_t baseFrameTime = 180;
@@ -144,7 +153,22 @@ bool MapRendererContext::tileAnimated(const int3 & coordinates) const
 
 bool MapRendererContext::filterGrayscale() const
 {
-	return false;//true;
+	return false;
+}
+
+bool MapRendererContext::showRoads() const
+{
+	return true;
+}
+
+bool MapRendererContext::showRivers() const
+{
+	return true;
+}
+
+bool MapRendererContext::showBorder() const
+{
+	return !worldViewModeActive;
 }
 
 bool MapRendererContext::showOverlay() const

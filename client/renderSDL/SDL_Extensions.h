@@ -118,7 +118,7 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
 
 	/// helper that will safely set and un-set ClipRect for SDL_Surface
-	class CClipRectGuard
+	class CClipRectGuard : boost::noncopyable
 	{
 		SDL_Surface * surf;
 		Rect oldRect;

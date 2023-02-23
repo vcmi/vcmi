@@ -24,23 +24,54 @@
 void MapViewController::setViewCenter(const int3 & position)
 {
 	assert(context->isInMap(position));
-	setViewCenter(Point(position) * model->getSingleTileSize(), position.z);
+	setViewCenter(Point(position) * model->getSingleTileSize() + model->getSingleTileSize() / 2, position.z);
 }
 
 void MapViewController::setViewCenter(const Point & position, int level)
 {
+	Point upperLimit = Point(context->getMapSize()) * model->getSingleTileSize() + model->getSingleTileSize();
+	Point lowerLimit = Point(0,0);
+
+	if (context->worldViewModeActive)
+	{
+		Point area = model->getPixelsVisibleDimensions();
+		Point mapCenter = upperLimit / 2;
+
+		Point desiredLowerLimit = lowerLimit + area / 2;
+		Point desiredUpperLimit = upperLimit - area / 2;
+
+		Point actualLowerLimit {
+			std::min(desiredLowerLimit.x, mapCenter.x),
+			std::min(desiredLowerLimit.y, mapCenter.y)
+		};
+
+		Point actualUpperLimit {
+			std::max(desiredUpperLimit.x, mapCenter.x),
+			std::max(desiredUpperLimit.y, mapCenter.y)
+		};
+
+		upperLimit = actualUpperLimit;
+		lowerLimit = actualLowerLimit;
+	}
+
 	Point betterPosition = {
-		vstd::clamp(position.x, 0, context->getMapSize().x * model->getSingleTileSize().x),
-		vstd::clamp(position.y, 0, context->getMapSize().y * model->getSingleTileSize().y)
+		vstd::clamp(position.x, lowerLimit.x, upperLimit.x),
+		vstd::clamp(position.y, lowerLimit.y, upperLimit.y)
 	};
 
 	model->setViewCenter(betterPosition);
 	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
+
+	if (adventureInt) // may be called before adventureInt is initialized
+		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());
 }
 
 void MapViewController::setTileSize(const Point & tileSize)
 {
 	model->setTileSize(tileSize);
+
+	// force update of view center since changing tile size may invalidated it
+	setViewCenter(model->getMapViewCenter(), model->getLevel());
 }
 
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model)
@@ -49,7 +80,7 @@ MapViewController::MapViewController(std::shared_ptr<MapViewModel> model)
 {
 }
 
-std::shared_ptr<const IMapRendererContext> MapViewController::getContext() const
+std::shared_ptr<IMapRendererContext> MapViewController::getContext() const
 {
 	return context;
 }
@@ -92,12 +123,10 @@ void MapViewController::update(uint32_t timeDelta)
 
 		context->movementAnimation->progress += timeDelta / heroMoveTime;
 
-		Point positionFrom = Point(hero->convertToVisitablePos(context->movementAnimation->tileFrom)) * model->getSingleTileSize();
-		Point positionDest = Point(hero->convertToVisitablePos(context->movementAnimation->tileDest)) * model->getSingleTileSize();
+		Point positionFrom = Point(hero->convertToVisitablePos(context->movementAnimation->tileFrom)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
+		Point positionDest = Point(hero->convertToVisitablePos(context->movementAnimation->tileDest)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
 
 		Point positionCurr = vstd::lerp(positionFrom, positionDest, context->movementAnimation->progress);
-
-		setViewCenter(positionCurr, context->movementAnimation->tileDest.z);
 
 		if(context->movementAnimation->progress >= 1.0)
 		{
@@ -106,6 +135,10 @@ void MapViewController::update(uint32_t timeDelta)
 			context->removeObject(context->getObject(context->movementAnimation->target));
 			context->addObject(context->getObject(context->movementAnimation->target));
 			context->movementAnimation.reset();
+		}
+		else
+		{
+			setViewCenter(positionCurr, context->movementAnimation->tileDest.z);
 		}
 	}
 

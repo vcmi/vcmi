@@ -14,7 +14,6 @@
 #include "adventureMap/CAdvMapInt.h"
 #include "mapRenderer/mapHandler.h"
 #include "adventureMap/CList.h"
-#include "adventureMap/CTerrainRect.h"
 #include "adventureMap/CInfoBar.h"
 #include "adventureMap/CMinimap.h"
 #include "battle/BattleInterface.h"
@@ -382,13 +381,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		return;
 	}
 
-	adventureInt->minimap->redraw();
 	adventureInt->heroList->redraw();
 
 	CGI->mh->waitForOngoingAnimations();
 
 	//move finished
-	adventureInt->minimap->redraw();
 	adventureInt->heroList->update(hero);
 
 	//check if user cancelled movement
@@ -1480,7 +1477,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->curh->hide();
-	adventureInt->centerOn (pos);
+	adventureInt->centerOnTile(pos);
 	if (focusTime)
 	{
 		GH.totalRedraw();
