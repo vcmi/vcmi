@@ -32,6 +32,8 @@
 	using CharType = char;
 #endif
 
+namespace
+{
 inline FILE* do_open(const CharType* name, const CharType* mode)
 {
 	#ifdef VCMI_WINDOWS
@@ -61,6 +63,7 @@ voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void* filename, int mode)
 	else
 		return nullptr;
 }
+} // namespace
 
 template struct boost::iostreams::stream<VCMI_LIB_WRAP_NAMESPACE(FileBuf)>;
 
