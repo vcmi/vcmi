@@ -9,15 +9,22 @@ required_conan_version = ">=1.51.3"
 
 class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = [
+
+    _libRequires = [
         "boost/[^1.69]",
         "minizip/[~1.2.12]",
-        "onetbb/[^2021.3]", # Nullkiller AI
+    ]
+    _clientRequires = [
         "sdl/[~2.26.1 || >=2.0.20 <=2.22.0]", # versions in between have broken sound
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",
     ]
+    _nullkillerAIRequires = [
+        "onetbb/[^2021.3]",
+    ]
+    requires = _libRequires + _clientRequires + _nullkillerAIRequires
+
     options = {
         "default_options_of_requirements": [True, False],
         "with_apple_system_libs": [True, False],
