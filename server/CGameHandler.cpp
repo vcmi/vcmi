@@ -637,7 +637,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 				InfoWindow iw;
 				iw.player = hero->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 1); //can gain no more XP
-				iw.text.addReplacement(hero->getNameTextID());
+				iw.text.addReplacement(hero->getNameTranslated());
 				sendAndApply(&iw);
 			}
 		}
@@ -860,7 +860,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
 		iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
-		iw.text.addReplacement(finishingBattle->winnerHero->getNameTextID());
+		iw.text.addReplacement(finishingBattle->winnerHero->getNameTranslated());
 
 		std::ostringstream names;
 		for (int i = 0; i < cs.spells.size(); i++)
@@ -2826,7 +2826,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.components.push_back(Component(Component::SEC_SKILL, 18, ScholarSkillLevel, 0));
 
 		iw.text.addTxt(MetaString::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
-		iw.text.addReplacement(h1->getNameTextID());
+		iw.text.addReplacement(h1->getNameTranslated());
 
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
@@ -2844,7 +2844,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				}
 			}
 			iw.text.addTxt(MetaString::GENERAL_TXT, 142);//from %s
-			iw.text.addReplacement(h2->getNameTextID());
+			iw.text.addReplacement(h2->getNameTranslated());
 			sendAndApply(&cs2);
 		}
 
@@ -2866,9 +2866,10 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
 					case 1:	break;
 					default:	iw.text << ", ";
-				}			}
+				}
+			}
 			iw.text.addTxt(MetaString::GENERAL_TXT, 148);//from %s
-			iw.text.addReplacement(h2->getNameTextID());
+			iw.text.addReplacement(h2->getNameTranslated());
 			sendAndApply(&cs1);
 		}
 		sendAndApply(&iw);
