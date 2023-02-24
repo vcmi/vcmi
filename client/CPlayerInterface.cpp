@@ -335,7 +335,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
-		updateAmbientSounds();
+		updateAmbientSounds(false);
 		//We may need to change music - select new track, music handler will change it if needed
 		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->getJsonKey(), true, false);
 

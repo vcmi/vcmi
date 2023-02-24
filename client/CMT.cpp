@@ -1002,7 +1002,7 @@ static void handleEvent(SDL_Event & ev)
 			break;
 		case EUserEvent::INTERFACE_CHANGED:
 			if(LOCPLINT)
-				LOCPLINT->updateAmbientSounds();
+				LOCPLINT->updateAmbientSounds(false);
 			break;
 		default:
 			logGlobal->error("Unknown user event. Code %d", ev.user.code);

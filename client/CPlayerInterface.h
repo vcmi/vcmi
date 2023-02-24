@@ -264,7 +264,7 @@ public:
 	void proposeLoadingGame();
 
 	// Ambient sounds
-	void updateAmbientSounds(bool resetAll = false);
+	void updateAmbientSounds(bool resetAll);
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
