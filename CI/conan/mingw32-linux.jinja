@@ -10,6 +10,6 @@ arch=x86
 tools.build:cflags = ["-msse2"]
 tools.build:cxxflags = ["-msse2"]
 
-[env]
+[buildenv]
 {{ cross.generate_env(target_host) }}
 {{ cross.generate_env_win32(target_host) }}
