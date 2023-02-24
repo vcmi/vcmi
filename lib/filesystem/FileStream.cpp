@@ -20,6 +20,8 @@
 
 #include <cstdio>
 
+#define GETFILE static_cast<std::FILE*>(filePtr)
+
 #ifdef VCMI_WINDOWS
 	#ifndef _CRT_SECURE_NO_WARNINGS
 		#define _CRT_SECURE_NO_WARNINGS
@@ -43,12 +45,10 @@ inline FILE* do_open(const CharType* name, const CharType* mode)
 	#endif
 }
 
-#define GETFILE static_cast<std::FILE*>(filePtr)
-
 voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void* filename, int mode)
 {
-    const CharType* mode_fopen = [mode]() -> const CharType*
-    {
+	const CharType* mode_fopen = [mode]() -> const CharType*
+	{
 		if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER) == ZLIB_FILEFUNC_MODE_READ)
 			return CHAR_LITERAL("rb");
 		else if (mode & ZLIB_FILEFUNC_MODE_EXISTING)
@@ -56,10 +56,10 @@ voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void* filename, int mode)
 		else if (mode & ZLIB_FILEFUNC_MODE_CREATE)
 			return CHAR_LITERAL("wb");
 		return nullptr;
-    }();
+	}();
 
-    if (filename != nullptr && mode_fopen != nullptr)
-        return do_open(static_cast<const CharType*>(filename), mode_fopen);
+	if (filename != nullptr && mode_fopen != nullptr)
+		return do_open(static_cast<const CharType*>(filename), mode_fopen);
 	else
 		return nullptr;
 }
