@@ -355,15 +355,6 @@ battle::Units CBattleInfoCallback::battleAliveUnits(ui8 side) const
 	});
 }
 
-enum BattlePhases
-{
-	SIEGE, // [0] - turrets/catapult,
-	NORMAL, // [1] - normal (unmoved) creatures, other war machines,
-	WAIT_MORALE, // [2] - waited creatures that had morale,
-	WAIT, // [3] - rest of waited creatures
-	MAX_NO_OF_PHASES // [4] - number of phases.
-};
-
 //T is battle::Unit descendant
 template <typename T>
 const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t & sideThatLastMoved, int phase)
@@ -387,7 +378,7 @@ const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t &
 
 		switch(phase)
 		{
-		case NORMAL: // Faster first, attacker priority, higher slot first
+		case battle::NORMAL: // Faster first, attacker priority, higher slot first
 			if(returnedUnit == nullptr || currentUnitInitiative > returnedUnitInitiative)
 			{
 				returnedUnit = currentUnit;
@@ -409,8 +400,8 @@ const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t &
 				}
 			}
 			break;
-		case WAIT_MORALE: // Slower first, higher slot first
-		case WAIT:
+		case battle::WAIT_MORALE: // Slower first, higher slot first
+		case battle::WAIT:
 			if(returnedUnit == nullptr || currentUnitInitiative < returnedUnitInitiative)
 			{
 				returnedUnit = currentUnit;
@@ -462,11 +453,11 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 	turns.emplace_back();
 
 	// We'll split creatures with remaining movement to 4 buckets
-	// [0] - turrets/catapult,
-	// [1] - normal (unmoved) creatures, other war machines,
-	// [2] - waited creatures that had morale,
-	// [3] - rest of waited creatures
-	std::array<battle::Units, MAX_NO_OF_PHASES> phases;
+	// [0] SIEGE - turrets/catapult,
+	// [1] NORMAL - normal (unmoved) creatures, other war machines,
+	// [2] WAIT_MORALE - waited creatures that had morale,
+	// [3] WAIT - rest of waited creatures
+	std::array<battle::Units, battle::MAX_NO_OF_PHASES> phases; // Access using BattlePhases enum
 
 	const battle::Unit * activeUnit = battleActiveUnit();
 
@@ -512,17 +503,17 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		phases[unitPhase].push_back(unit);
 	}
 
-	boost::sort(phases[SIEGE], CMP_stack(SIEGE, actualTurn, sideThatLastMoved));
-	std::copy(phases[SIEGE].begin(), phases[SIEGE].end(), std::back_inserter(turns.back()));
+	boost::sort(phases[battle::SIEGE], CMP_stack(battle::SIEGE, actualTurn, sideThatLastMoved));
+	std::copy(phases[battle::SIEGE].begin(), phases[battle::SIEGE].end(), std::back_inserter(turns.back()));
 
 	if(turnsIsFull())
 		return;
 
-	for(int phase = NORMAL; phase < MAX_NO_OF_PHASES; phase++)
+	for(int phase = battle::NORMAL; phase < battle::MAX_NO_OF_PHASES; phase++)
 		boost::sort(phases[phase], CMP_stack(phase, actualTurn, sideThatLastMoved));
 
-	int phase = NORMAL;
-	while(!turnsIsFull() && phase < MAX_NO_OF_PHASES)
+	int phase = battle::NORMAL;
+	while(!turnsIsFull() && phase < battle::MAX_NO_OF_PHASES)
 	{
 		const battle::Unit * currentUnit = nullptr;
 		if(phases[phase].empty())
