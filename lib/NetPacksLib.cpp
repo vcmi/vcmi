@@ -28,6 +28,8 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
+#include "mapping/CCampaignHandler.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 

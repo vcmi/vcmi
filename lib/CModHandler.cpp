@@ -217,7 +217,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// special scope that should have access to all in-game objects
 		if (request.localScope == CModHandler::scopeGame())
 		{
-			for (auto const & modName : VLC->modh->getActiveMods())
+			for(const auto & modName : VLC->modh->getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
@@ -943,8 +943,9 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 
 bool CModHandler::isScopeReserved(const TModID & scope)
 {
-	static const std::array<TModID, 6> reservedScopes = {
-		"core", "map", "game", "root", "saves", "config"
+	//following scopes are reserved - either in use by mod system or by filesystem
+	static const std::array<TModID, 9> reservedScopes = {
+		"core", "map", "game", "root", "saves", "config", "local", "initial", "mapEditor"
 	};
 
 	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
@@ -1097,8 +1098,22 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-std::string CModHandler::getModLanguage(TModID modId) const
+TModID CModHandler::findResourceOrigin(const ResourceID & name)
 {
+	for(const auto & modID : boost::adaptors::reverse(activeMods))
+	{
+		if(CResourceHandler::get(modID)->existsResource(name))
+			return modID;
+	}
+
+	assert(0);
+	return "";
+}
+
+std::string CModHandler::getModLanguage(const TModID& modId) const
+{
+	if ( modId == "core")
+		return VLC->generaltexth->getInstalledLanguage();
 	return allMods.at(modId).baseLanguage;
 }
 
@@ -1130,7 +1145,7 @@ bool CModHandler::validateTranslations(TModID modName) const
 		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
 	}
 
-	for (auto const & language : Languages::getLanguageList())
+	for(const auto & language : Languages::getLanguageList())
 	{
 		if (!language.hasTranslation)
 			continue;
@@ -1148,7 +1163,7 @@ bool CModHandler::validateTranslations(TModID modName) const
 
 void CModHandler::loadTranslation(TModID modName)
 {
-	auto const & mod = allMods[modName];
+	const auto & mod = allMods[modName];
 
 	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = allMods[modName].baseLanguage;

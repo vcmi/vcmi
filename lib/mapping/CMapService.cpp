@@ -15,6 +15,8 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CMemoryBuffer.h"
+#include "../CModHandler.h"
+#include "../Languages.h"
 
 #include "CMap.h"
 
@@ -26,20 +28,28 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
 {
+	std::string modName = VLC->modh->findResourceOrigin(name);
+	std::string language = VLC->modh->getModLanguage(modName);
+	std::string encoding = Languages::getLanguageOptions(language).encoding;
+
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream)->loadMap();
+	return getMapLoader(stream, name.getName(), encoding)->loadMap();
 }
 
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name) const
 {
+	std::string modName = VLC->modh->findResourceOrigin(name);
+	std::string language = VLC->modh->getModLanguage(modName);
+	std::string encoding = Languages::getLanguageOptions(language).encoding;
+
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream)->loadMapHeader();
+	return getMapLoader(stream, name.getName(), encoding)->loadMapHeader();
 }
 
-std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name) const
+std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & encoding) const
 {
 	auto stream = getStreamFromMem(buffer, size);
-	std::unique_ptr<CMap> map(getMapLoader(stream)->loadMap());
+	std::unique_ptr<CMap> map(getMapLoader(stream, name, encoding)->loadMap());
 	std::unique_ptr<CMapHeader> header(map.get());
 
 	//might be original campaign and require patch
@@ -49,10 +59,10 @@ std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const s
 	return map;
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name) const
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & encoding) const
 {
 	auto stream = getStreamFromMem(buffer, size);
-	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
+	std::unique_ptr<CMapHeader> header = getMapLoader(stream, name, encoding)->loadMapHeader();
 
 	//might be original campaign and require patch
 	getMapPatcher(name)->patchMapHeader(header);
@@ -86,7 +96,7 @@ std::unique_ptr<CInputStream> CMapService::getStreamFromMem(const ui8 * buffer, 
 	return std::unique_ptr<CInputStream>(new CMemoryStream(buffer, size));
 }
 
-std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStream> & stream)
+std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStream> & stream, std::string mapName, std::string encoding)
 {
 	// Read map header
 	CBinaryReader reader(stream.get());
@@ -109,12 +119,12 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 			// gzip header magic number, reversed for LE
 			case 0x00088B1F:
 				stream = std::unique_ptr<CInputStream>(new CCompressedStream(std::move(stream), true));
-				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(stream.get()));
+				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(mapName, encoding, stream.get()));
 			case EMapFormat::WOG :
 			case EMapFormat::AB  :
 			case EMapFormat::ROE :
 			case EMapFormat::SOD :
-				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(stream.get()));
+				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(mapName, encoding, stream.get()));
 			default :
 				throw std::runtime_error("Unknown map format");
 		}

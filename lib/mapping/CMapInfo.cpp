@@ -14,6 +14,8 @@
 #include "../StartInfo.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
+#include "CMap.h"
+#include "CCampaignHandler.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../serializer/CMemorySerializer.h"

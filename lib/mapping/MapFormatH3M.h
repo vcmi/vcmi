@@ -39,7 +39,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderH3M(CInputStream * stream);
+	CMapLoaderH3M(const std::string & mapName, const std::string & encodingName, CInputStream * stream);
 
 	/**
 	 * Destructor.

@@ -34,7 +34,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
-CMapLoaderH3M::CMapLoaderH3M(CInputStream * stream)
+CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new CBinaryReader(stream))
 	, inputStream(stream)

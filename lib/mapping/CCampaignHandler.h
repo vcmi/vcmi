@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
+class CInputStream;
 class CMap;
 class CMapHeader;
 class CMapInfo;
@@ -42,7 +43,7 @@ public:
 	ui8 music = 0; //CmpMusic.txt, start from 0
 
 	std::string filename;
-	ui8 loadFromLod = 0; //if true, this campaign must be loaded fro, .lod file
+	std::string encoding;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -53,7 +54,7 @@ public:
 		h & difficultyChoosenByPlayer;
 		h & music;
 		h & filename;
-		h & loadFromLod;
+		h & encoding;
 	}
 };
 
@@ -181,7 +182,7 @@ class DLL_LINKAGE CCampaignState
 {
 public:
 	std::unique_ptr<CCampaign> camp;
-	std::string campaignName;
+	std::string fileEncoding;
 	std::vector<ui8> mapsConquered, mapsRemaining;
 	boost::optional<si32> currentMap;
 
@@ -206,7 +207,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & camp;
-		h & campaignName;
 		h & mapsRemaining;
 		h & mapsConquered;
 		h & currentMap;
@@ -218,14 +218,15 @@ class DLL_LINKAGE CCampaignHandler
 {
 	std::vector<size_t> scenariosCountPerCampaign;
 
-	static std::string readLocalizedString(CBinaryReader & reader);
+	static std::string readLocalizedString(CBinaryReader & reader, std::string encoding);
 
-	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, int version, int mapVersion );
+	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string encoding);
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string encoding, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
-	static std::vector< std::vector<ui8> > getFile(const std::string & name, bool headerOnly);
+	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
+
 public:
 	static std::string prologVideoName(ui8 index);
 	static std::string prologMusicName(ui8 index);

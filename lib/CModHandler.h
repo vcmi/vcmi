@@ -339,7 +339,10 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	std::string getModLanguage(TModID modId) const;
+	/// returns ID of mod that provides selected file resource
+	TModID findResourceOrigin(const ResourceID & name);
+
+	std::string getModLanguage(const TModID& modId) const;
 
 	std::set<TModID> getModDependencies(TModID modId, bool & isModFound) const;
 
