@@ -25,6 +25,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/MapObjects.h"
 #include "../VCMI_Lib.h"
+#include "../TextOperations.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
@@ -38,6 +39,8 @@ CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & en
 	: map(nullptr)
 	, reader(new CBinaryReader(stream))
 	, inputStream(stream)
+	, mapName(mapName)
+	, fileEncoding(encodingName)
 {
 }
 
@@ -2242,7 +2245,7 @@ int3 CMapLoaderH3M::readInt3()
 
 std::string CMapLoaderH3M::readLocalizedString()
 {
-	return reader->readBaseString();
+	return TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
 }
 
 void CMapLoaderH3M::afterRead()

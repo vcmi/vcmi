@@ -256,6 +256,9 @@ private:
 	std::unique_ptr<CBinaryReader> reader;
 	CInputStream * inputStream;
 
+	std::string mapName;
+	std::string fileEncoding;
+
 };
 
 VCMI_LIB_NAMESPACE_END

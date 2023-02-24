@@ -11,7 +11,9 @@
 
 #include "../render/IFont.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
 class ResourceID;
+VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont : public IFont
 {
