@@ -1,0 +1,6 @@
+[settings]
+build_type=Release
+compiler=clang
+compiler.libcxx=c++_shared
+compiler.version=14
+os=Android

@@ -13,7 +13,6 @@ class VCMI(ConanFile):
         "boost/[^1.69]",
         "minizip/[~1.2.12]",
         "onetbb/[^2021.3]", # Nullkiller AI
-        "qt/[~5.15.2]", # launcher
         "sdl/[~2.26.1 || >=2.0.20 <=2.22.0]", # versions in between have broken sound
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
@@ -37,12 +36,21 @@ class VCMI(ConanFile):
     }
 
     def configure(self):
+        self.options["ffmpeg"].shared = self.settings.os == "Android" # using shared version results in less total project size on Android
+        self.options["freetype"].shared = self.settings.os == "Android"
+
         # SDL_image and Qt depend on it, in iOS both are static
         # Enable static libpng due to https://github.com/conan-io/conan-center-index/issues/15440,
         # which leads to VCMI crashes of MinGW
-        self.options["libpng"].shared = is_apple_os(self) and self.settings.os != "iOS"
+        self.options["libpng"].shared = not (self.settings.os == "Windows" and cross_building(self)) and self.settings.os != "iOS"
         # static Qt for iOS is the only viable option at the moment
         self.options["qt"].shared = self.settings.os != "iOS"
+
+        # TODO: enable for all platforms
+        if self.settings.os == "Android":
+            self.options["bzip2"].shared = True
+            self.options["libiconv"].shared = True
+            self.options["zlib"].shared = True
 
         if self.options.default_options_of_requirements:
             return
@@ -77,6 +85,7 @@ class VCMI(ConanFile):
         self.options["ffmpeg"].avfilter = False
         self.options["ffmpeg"].postproc = False
         self.options["ffmpeg"].swresample = False
+        self.options["ffmpeg"].with_asm = self.settings.os != "Android"
         self.options["ffmpeg"].with_freetype = False
         self.options["ffmpeg"].with_libfdk_aac = False
         self.options["ffmpeg"].with_libmp3lame = False
@@ -150,7 +159,7 @@ class VCMI(ConanFile):
         ]
         self.options["qt"].config = " ".join(_qtOptions)
         self.options["qt"].qttools = True
-        self.options["qt"].with_freetype = False
+        self.options["qt"].with_freetype = self.settings.os == "Android"
         self.options["qt"].with_libjpeg = False
         self.options["qt"].with_md4c = False
         self.options["qt"].with_mysql = False
@@ -158,9 +167,9 @@ class VCMI(ConanFile):
         self.options["qt"].with_openal = False
         self.options["qt"].with_pq = False
         self.options["qt"].openssl = not is_apple_os(self)
-        if self.settings.os == "iOS":
+        if self.settings.os == "iOS" or self.settings.os == "Android":
             self.options["qt"].opengl = "es2"
-        if not is_apple_os(self) and cross_building(self):
+        if not is_apple_os(self) and self.settings.os != "Android" and cross_building(self):
             self.options["qt"].cross_compile = self.env["CONAN_CROSS_COMPILE"]
         # No Qt OpenGL for cross-compiling for Windows, Conan does not support it
         if self.settings.os == "Windows" and cross_building(self):
@@ -179,8 +188,13 @@ class VCMI(ConanFile):
             if self.options.with_ffmpeg:
                 self.requires("libwebp/[~1.2.4]", override=True) # sdl_image / ffmpeg
 
+        # client
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[^4.4]")
+
+        # launcher
+        if not self.settings.os == "Android":
+            self.requires("qt/[~5.15.2]")
 
         # use Apple system libraries instead of external ones
         if self.options.with_apple_system_libs and not self.options.default_options_of_requirements and is_apple_os(self):
@@ -192,6 +206,8 @@ class VCMI(ConanFile):
             ]
             for lib in systemLibsOverrides:
                 self.requires(f"{lib}@vcmi/apple", override=True)
+        elif self.settings.os == "Android":
+            self.requires("zlib/1.2.12@vcmi/android", override=True)
         else:
             self.requires("zlib/[~1.2.13]", override=True) # minizip / Qt
             self.requires("libiconv/[~1.17]", override=True) # ffmpeg / sdl
@@ -233,3 +249,5 @@ class VCMI(ConanFile):
             self.copy("*.dll", src="bin/archdatadir/plugins/platforms", dst="platforms")
             self.copy("*.dll", src="bin/archdatadir/plugins/styles", dst="styles")
             self.copy("*.dll", src="@bindirs", dst="", excludes="archdatadir/*")
+        elif self.settings.os == "Android":
+            self.copy("*.so", ".", "lib")
