@@ -611,20 +611,29 @@ bool CUnitState::waited(int turn) const
 
 int CUnitState::battleQueuePhase(int turn) const
 {
+	enum BattlePhases
+	{
+		SIEGE, // [0] - turrets/catapult,
+		NORMAL, // [1] - normal (unmoved) creatures, other war machines,
+		WAIT_MORALE, // [2] - waited creatures that had morale,
+		WAIT, // [3] - rest of waited creatures
+		MAX_NO_OF_PHASES // [4] - number of phases. Can be used in for loops.
+	};
+
 	if(turn <= 0 && waited()) //consider waiting state only for ongoing round
 	{
 		if(hadMorale)
-			return 2;
+			return WAIT_MORALE;
 		else
-			return 3;
+			return WAIT;
 	}
 	else if(creatureIndex() == CreatureID::CATAPULT || isTurret()) //catapult and turrets are first
 	{
-		return 0;
+		return SIEGE;
 	}
 	else
 	{
-		return 1;
+		return NORMAL;
 	}
 }
 
