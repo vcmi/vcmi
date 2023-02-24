@@ -1106,6 +1106,9 @@ TModID CModHandler::findResourceOrigin(const ResourceID & name)
 			return modID;
 	}
 
+	if(CResourceHandler::get("core")->existsResource(name))
+		return "core";
+
 	assert(0);
 	return "";
 }

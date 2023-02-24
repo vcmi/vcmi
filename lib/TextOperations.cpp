@@ -112,6 +112,49 @@ bool TextOperations::isValidUnicodeString(const char * data, size_t size)
 	return true;
 }
 
+uint32_t TextOperations::getUnicodeCodepoint(const char * data, size_t maxSize)
+{
+	assert(isValidUnicodeCharacter(data, maxSize));
+	if (!isValidUnicodeCharacter(data, maxSize))
+		return 0;
+
+	// https://en.wikipedia.org/wiki/UTF-8#Encoding
+	switch (getUnicodeCharacterSize(data[0]))
+	{
+		case 1:
+			return static_cast<uint8_t>(data[0]) & 0b1111111;
+		case 2:
+			return
+				((static_cast<uint8_t>(data[0]) & 0b11111 ) << 6) +
+				((static_cast<uint8_t>(data[1]) & 0b111111) << 0) ;
+		case 3:
+			return
+				((static_cast<uint8_t>(data[0]) & 0b1111 )  << 12) +
+				((static_cast<uint8_t>(data[1]) & 0b111111) << 6) +
+				((static_cast<uint8_t>(data[2]) & 0b111111) << 0) ;
+		case 4:
+			return
+				((static_cast<uint8_t>(data[0]) & 0b111 )   << 18) +
+				((static_cast<uint8_t>(data[1]) & 0b111111) << 12) +
+				((static_cast<uint8_t>(data[2]) & 0b111111) << 6) +
+				((static_cast<uint8_t>(data[3]) & 0b111111) << 0) ;
+	}
+
+	assert(0);
+	return 0;
+}
+
+uint32_t TextOperations::getUnicodeCodepoint(char data, const std::string & encoding )
+{
+	std::string stringNative(1, data);
+	std::string stringUnicode = toUnicode(stringNative, encoding);
+
+	if (stringUnicode.empty())
+		return 0;
+
+	return getUnicodeCodepoint(stringUnicode.data(), stringUnicode.size());
+}
+
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)
 {
 	return boost::locale::conv::to_utf<char>(text, encoding);
