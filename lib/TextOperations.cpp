@@ -112,19 +112,9 @@ bool TextOperations::isValidUnicodeString(const char * data, size_t size)
 	return true;
 }
 
-std::string TextOperations::toUnicode(const std::string &text)
-{
-	return toUnicode(text, CGeneralTextHandler::getInstalledEncoding());
-}
-
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)
 {
 	return boost::locale::conv::to_utf<char>(text, encoding);
-}
-
-std::string TextOperations::fromUnicode(const std::string & text)
-{
-	return fromUnicode(text, CGeneralTextHandler::getInstalledEncoding());
 }
 
 std::string TextOperations::fromUnicode(const std::string &text, const std::string &encoding)

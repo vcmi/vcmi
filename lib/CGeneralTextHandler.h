@@ -17,11 +17,11 @@ class JsonNode;
 /// Parser for any text files from H3
 class DLL_LINKAGE CLegacyConfigParser
 {
+	std::string fileEncoding;
+
 	std::unique_ptr<char[]> data;
 	char * curr;
 	char * end;
-
-	void init(const std::unique_ptr<CInputStream> & input);
 
 	/// extracts part of quoted string.
 	std::string extractQuotedPart();
@@ -56,6 +56,7 @@ public:
 	bool endLine();
 
 	explicit CLegacyConfigParser(std::string URI);
+private:
 	explicit CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
 };
 

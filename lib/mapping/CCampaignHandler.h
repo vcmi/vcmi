@@ -218,6 +218,8 @@ class DLL_LINKAGE CCampaignHandler
 {
 	std::vector<size_t> scenariosCountPerCampaign;
 
+	static std::string readLocalizedString(CBinaryReader & reader);
+
 	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader);
 	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);

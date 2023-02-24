@@ -190,7 +190,7 @@ std::string CLegacyConfigParser::readString()
 	std::string str = readRawString();
 	if (TextOperations::isValidASCII(str))
 		return str;
-	return TextOperations::toUnicode(str);
+	return TextOperations::toUnicode(str, fileEncoding);
 }
 
 float CLegacyConfigParser::readNumber()

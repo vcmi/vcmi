@@ -86,7 +86,7 @@ INSTANTIATE(si64, readInt64)
 
 #undef INSTANTIATE
 
-std::string CBinaryReader::readString()
+std::string CBinaryReader::readBaseString()
 {
 	unsigned int len = readUInt32();
 	assert(len <= 500000); //not too long
@@ -95,10 +95,7 @@ std::string CBinaryReader::readString()
 		std::string ret;
 		ret.resize(len);
 		read(reinterpret_cast<ui8*>(&ret[0]), len);
-		//FIXME: any need to move this into separate "read localized string" method?
-		if (TextOperations::isValidASCII(ret))
-			return ret;
-		return TextOperations::toUnicode(ret);
+		return ret;
 	}
 	return "";
 

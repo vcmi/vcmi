@@ -943,8 +943,8 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 
 bool CModHandler::isScopeReserved(const TModID & scope)
 {
-	static const std::array<TModID, 3> reservedScopes = {
-		"core", "map", "game"
+	static const std::array<TModID, 6> reservedScopes = {
+		"core", "map", "game", "root", "saves", "config"
 	};
 
 	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();

@@ -110,14 +110,19 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	return ret;
 }
 
+std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader)
+{
+	return reader.readBaseString();
+}
+
 CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader )
 {
 	CCampaignHeader ret;
 
 	ret.version = reader.readUInt32();
 	ret.mapVersion = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	ret.name = reader.readString();
-	ret.description = reader.readString();
+	ret.name = readLocalizedString(reader);
+	ret.description = readLocalizedString(reader);
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
@@ -136,14 +141,14 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 		{
 			ret.prologVideo = reader.readUInt8();
 			ret.prologMusic = reader.readUInt8();
-			ret.prologText = reader.readString();
+			ret.prologText = readLocalizedString(reader);
 		}
 		return ret;
 	};
 
 	CCampaignScenario ret;
 	ret.conquered = false;
-	ret.mapName = reader.readString();
+	ret.mapName = readLocalizedString(reader);
 	ret.packedMapSize = reader.readUInt32();
 	if(mapVersion == 18)//unholy alliance
 	{
@@ -155,7 +160,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText = reader.readString();
+	ret.regionText = readLocalizedString(reader);
 	ret.prolog = prologEpilogReader();
 	ret.epilog = prologEpilogReader();
 

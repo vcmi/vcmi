@@ -17,11 +17,11 @@
 
 #include "../int3.h"
 
-#include "../filesystem/CBinaryReader.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
+class CBinaryReader;
 class CArtifactInstance;
 class CGObjectInstance;
 class CGSeerHut;
@@ -234,14 +234,10 @@ private:
 	/**
 	* Helper to read map position
 	*/
-	inline int3 readInt3()
-	{
-		int3 p;
-		p.x = reader.readUInt8();
-		p.y = reader.readUInt8();
-		p.z = reader.readUInt8();
-		return p;
-	}
+	int3 readInt3();
+
+	/// reads string from input stream and converts it to unicode
+	std::string readLocalizedString();
 
 	void afterRead();
 
@@ -257,8 +253,7 @@ private:
 	 * (when loading a map then the mapHeader ptr points to the same object)
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
-
-	CBinaryReader reader;
+	std::unique_ptr<CBinaryReader> reader;
 	CInputStream * inputStream;
 
 };
