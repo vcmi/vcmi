@@ -30,8 +30,6 @@ public class NativeMethods
 
     public static native void initClassloader();
 
-    public static native void clientSetupJNI();
-
     public static native void createServer();
 
     public static native void notifyServerReady();

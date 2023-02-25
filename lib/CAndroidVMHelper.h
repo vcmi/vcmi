@@ -42,6 +42,8 @@ public:
 
 	static void cacheVM(JNIEnv * env);
 
+	static void initClassloader(void * baseEnv);
+	
 	static constexpr const char * NATIVE_METHODS_DEFAULT_CLASS = "eu/vcmi/vcmi/NativeMethods";
 };
 

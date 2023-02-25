@@ -54,8 +54,6 @@ public final class LibsLoader
         loadCommon();
         loadLib("vcmiclient", false);
         SDL.setContext(ctx);
-        NativeMethods.clientSetupJNI();
-        NativeMethods.initClassloader();
     }
 
     public static void loadServerLibs()

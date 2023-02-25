@@ -156,6 +156,7 @@ int main(int argc, char * argv[])
 #endif
 {
 #ifdef VCMI_ANDROID
+	CAndroidVMHelper::initClassloader(SDL_AndroidGetJNIEnv());
 	// boost will crash without this
 	setenv("LANG", "C", 1);
 #endif

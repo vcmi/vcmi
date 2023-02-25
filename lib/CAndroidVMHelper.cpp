@@ -96,9 +96,9 @@ jclass CAndroidVMHelper::findClass(const std::string & name, bool classloaded)
 	return get()->FindClass(name.c_str());
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
+void CAndroidVMHelper::initClassloader(void * baseEnv)
 {
-	CAndroidVMHelper::cacheVM(baseEnv);
+	CAndroidVMHelper::cacheVM(static_cast<JNIEnv *>(baseEnv));
 	CAndroidVMHelper envHelper;
 	auto env = envHelper.get();
 	auto anyVCMIClass = env->FindClass(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS);
@@ -107,5 +107,10 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloade
 	auto getClassLoaderMethod = env->GetMethodID(classClass, "getClassLoader", "()Ljava/lang/ClassLoader;");
 	vcmiClassLoader = (jclass) env->NewGlobalRef(env->CallObjectMethod(anyVCMIClass, getClassLoaderMethod));
 	vcmiFindClassMethod = env->GetMethodID(classLoaderClass, "findClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+}
+
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
+{
+	CAndroidVMHelper::initClassloader(baseEnv);
 }
 #endif
