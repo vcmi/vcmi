@@ -581,13 +581,13 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.artillery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "creature.ballista",
+					"type" : "BONUS_DAMAGE_CHANCE",
 					"valueType" : "BASE_NUMBER"
 				},
 				"val2" : {
-					"subtype" : "skill.artillery",
-					"type" : "SECONDARY_SKILL_VAL2",
+					"subtype" : "creature.ballista",
+					"type" : "HERO_GRANTS_ATTACKS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
@@ -599,6 +599,12 @@
 				"ctrl2" : {
 					"subtype" : "creature.arrowTower",
 					"type" : "MANUAL_CONTROL",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				},
+				"damagePower" : {
+					"subtype" : "creature.ballista",
+					"type" : "BONUS_DAMAGE_PERCENTAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				}

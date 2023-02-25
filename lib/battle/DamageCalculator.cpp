@@ -229,8 +229,11 @@ double DamageCalculator::getAttackDeathBlowFactor() const
 
 double DamageCalculator::getAttackDoubleDamageFactor() const
 {
-	if(info.doubleDamage)
-		return 1.0;
+	if(info.doubleDamage) {
+		const auto cachingStr = "type_BONUS_DAMAGE_PERCENTAGEs_" + std::to_string(info.attacker->creatureIndex());
+		const auto selector = Selector::typeSubtype(Bonus::BONUS_DAMAGE_PERCENTAGE, info.attacker->creatureIndex());
+		return info.attacker->valOfBonuses(selector, cachingStr) / 100.0;
+	}
 	return 0.0;
 }
 

@@ -1050,14 +1050,12 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
 
-	if (attacker->getCreature()->idNumber == CreatureID::BALLISTA)
+	const auto * owner = gs->curB->getHero(attacker->owner);
+	if(owner)
 	{
-		const CGHeroInstance * owner = gs->curB->getHero(attacker->owner);
-		int chance = owner->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARTILLERY);
+		int chance = owner->valOfBonuses(Bonus::BONUS_DAMAGE_CHANCE, attacker->creatureIndex());
 		if (chance > getRandomGenerator().nextInt(99))
-		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
-		}
 	}
 
 	int64_t drainedLife = 0;
@@ -4748,6 +4746,14 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			//attack
 			int totalAttacks = stack->totalAttacks.getMeleeValue();
 
+			//TODO: move to CUnitState
+			const auto * attackingHero = gs->curB->battleGetFightingHero(ba.side);
+			if(attackingHero)
+			{
+				totalAttacks += attackingHero->valOfBonuses(Bonus::HERO_GRANTS_ATTACKS, stack->creatureIndex());
+			}
+
+
 			const bool firstStrike = destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE);
 			const bool retaliation = destinationStack->ableToRetaliate();
 			for (int i = 0; i < totalAttacks; ++i)
@@ -4824,25 +4830,17 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			{
 				makeAttack(destinationStack, stack, 0, stack->getPosition(), true, true, true);
 			}
-
-			//TODO: move to CUnitState
-			//extra shot(s) for ballista, based on artillery skill
-			if(stack->creatureIndex() == CreatureID::BALLISTA)
-			{
-				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-				if(attackingHero)
-				{
-					int ballistaBonusAttacks = attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::ARTILLERY);
-					while(destinationStack->alive() && ballistaBonusAttacks-- > 0)
-					{
-						makeAttack(stack, destinationStack, 0, destination, false, true, false);
-					}
-				}
-			}
 			//allow more than one additional attack
 
 			int totalRangedAttacks = stack->totalAttacks.getRangedValue();
+
+			//TODO: move to CUnitState
+			const auto * attackingHero = gs->curB->battleGetFightingHero(ba.side);
+			if(attackingHero)
+			{
+				totalRangedAttacks += attackingHero->valOfBonuses(Bonus::HERO_GRANTS_ATTACKS, stack->creatureIndex());
+			}
+
 
 			for(int i = 1; i < totalRangedAttacks; ++i)
 			{
