@@ -712,7 +712,7 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 	map->allowedSpell.resize(VLC->spellh->objects.size(), true);
 
 	// Read allowed abilities
-	map->allowedAbilities.resize(GameConstants::SKILL_QUANTITY, true);
+	map->allowedAbilities.resize(VLC->skillh->objects.size(), true);
 
 	if(map->version >= EMapFormat::SOD)
 	{
