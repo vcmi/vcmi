@@ -53,7 +53,7 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 
 	CMemoryStream stream(cmpgn.data(), cmpgn.size());
 	CBinaryReader reader(&stream);
-	CCampaignHeader ret = readHeaderFromMemory(reader, name, encoding);
+	CCampaignHeader ret = readHeaderFromMemory(reader, name, modName, encoding);
 
 	return ret;
 }
@@ -72,12 +72,12 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 
 	CMemoryStream stream(file[0].data(), file[0].size());
 	CBinaryReader reader(&stream);
-	ret->header = readHeaderFromMemory(reader, name, encoding);
+	ret->header = readHeaderFromMemory(reader, name, modName, encoding);
 
 	int howManyScenarios = static_cast<int>(VLC->generaltexth->getCampaignLength(ret->header.mapVersion));
 	for(int g=0; g<howManyScenarios; ++g)
 	{
-		CCampaignScenario sc = readScenarioFromMemory(reader, name, encoding, ret->header.version, ret->header.mapVersion);
+		CCampaignScenario sc = readScenarioFromMemory(reader, encoding, ret->header.version, ret->header.mapVersion);
 		ret->scenarios.push_back(sc);
 	}
 
@@ -102,7 +102,8 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 			reinterpret_cast<const ui8 *>(ret->mapPieces[scenarioID].c_str()),
 			static_cast<int>(ret->mapPieces[scenarioID].size()),
 			scenarioName,
-			"(unknown)");
+			modName,
+			encoding);
 		ret->scenarios[scenarioID].scenarioName = hdr->name;
 		scenarioID++;
 	}
@@ -129,7 +130,7 @@ std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::s
 	return TextOperations::toUnicode(reader.readBaseString(), encoding);
 }
 
-CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string encoding )
+CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
 	CCampaignHeader ret;
 
@@ -143,11 +144,12 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 		ret.difficultyChoosenByPlayer = 0;
 	ret.music = reader.readInt8();
 	ret.filename = filename;
+	ret.modName = modName;
 	ret.encoding = encoding;
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, std::string filename, std::string encoding, int version, int mapVersion )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, std::string encoding, int version, int mapVersion )
 {
 	auto prologEpilogReader = [&]() -> CCampaignScenario::SScenarioPrologEpilog
 	{
@@ -473,7 +475,7 @@ CMap * CCampaignState::getMap(int scenarioId) const
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
 	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, "(unknown)").release();
+	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, camp->header.modName, camp->header.encoding).release();
 }
 
 std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
@@ -487,7 +489,7 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
 	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, "(unknown)");
+	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, camp->header.modName, camp->header.encoding);
 }
 
 std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const

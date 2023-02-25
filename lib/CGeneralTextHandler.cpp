@@ -257,7 +257,17 @@ const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & iden
 void CGeneralTextHandler::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
 {
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
+	//assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
+
+	if (stringsLocalizations.count(UID.get()) > 0)
+	{
+		std::string oldValue = stringsLocalizations[UID.get()].baseValue;
+
+		if (oldValue != localized)
+			logMod->warn("Duplicate registered string '%s' found! Old value: '%s', new value: '%s'", UID.get(), oldValue, localized);
+		return;
+	}
+
 	assert(!modContext.empty());
 	assert(!getModLanguage(modContext).empty());
 

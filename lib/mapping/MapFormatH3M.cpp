@@ -35,11 +35,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
-CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & encodingName, CInputStream * stream)
+CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new CBinaryReader(stream))
 	, inputStream(stream)
-	, mapName(mapName)
+	, mapName(boost::algorithm::to_lower_copy(mapName))
+	, modName(modName)
 	, fileEncoding(encodingName)
 {
 }
@@ -161,8 +162,8 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readUInt32();
 	mapHeader->twoLevel = reader->readBool();
-	mapHeader->name = readLocalizedString();
-	mapHeader->description = readLocalizedString();
+	mapHeader->name = readLocalizedString("header.name");
+	mapHeader->description = readLocalizedString("header.description");
 	mapHeader->difficulty = reader->readInt8();
 	if(mapHeader->version != EMapFormat::ROE)
 	{
@@ -270,7 +271,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			if (mapHeader->players[i].mainCustomHeroPortrait == 0xff)
 				mapHeader->players[i].mainCustomHeroPortrait = -1; //correct 1-byte -1 (0xff) into 4-byte -1
 
-			mapHeader->players[i].mainCustomHeroName = readLocalizedString();
+			mapHeader->players[i].mainCustomHeroName = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
 		}
 		else
 			mapHeader->players[i].mainCustomHeroId = -1; //correct 1-byte -1 (0xff) into 4-byte -1
@@ -284,7 +285,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			{
 				SHeroName vv;
 				vv.heroId = reader->readUInt8();
-				vv.heroName = readLocalizedString();
+				vv.heroName = readLocalizedString( TextIdentifier("header", "heroNames", vv.heroId));
 
 				mapHeader->players[i].heroesNames.push_back(vv);
 			}
@@ -650,7 +651,7 @@ void CMapLoaderH3M::readDisposedHeroes()
 		{
 			map->disposedHeroes[g].heroId = reader->readUInt8();
 			map->disposedHeroes[g].portrait = reader->readUInt8();
-			map->disposedHeroes[g].name = readLocalizedString();
+			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
 			map->disposedHeroes[g].players = reader->readUInt8();
 		}
 	}
@@ -738,8 +739,8 @@ void CMapLoaderH3M::readRumors()
 	for(int it = 0; it < rumNr; it++)
 	{
 		Rumor ourRumor;
-		ourRumor.name = readLocalizedString();
-		ourRumor.text = readLocalizedString();
+		ourRumor.name = readLocalizedString(TextIdentifier("header", "rumor", it, "name"));
+		ourRumor.text = readLocalizedString(TextIdentifier("header", "rumor", it, "text"));
 		map->rumors.push_back(ourRumor);
 	}
 }
@@ -788,7 +789,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				bool hasCustomBio = reader->readBool();
 				if(hasCustomBio)
 				{
-					hero->biographyCustom = readLocalizedString();
+					hero->biographyCustom = readLocalizedString(TextIdentifier("heroes", z, "biography"));
 				}
 
 				// 0xFF is default, 00 male, 01 female
@@ -994,7 +995,7 @@ void CMapLoaderH3M::readObjects()
 				auto * evnt = new CGEvent();
 				nobj = evnt;
 
-				readMessageAndGuards(evnt->message, evnt);
+				readMessageAndGuards(evnt->message, evnt, objPos);
 
 				evnt->gainedExp = reader->readUInt32();
 				evnt->manaDiff = reader->readUInt32();
@@ -1084,7 +1085,7 @@ void CMapLoaderH3M::readObjects()
 				bool hasMessage = reader->readBool();
 				if(hasMessage)
 				{
-					cre->message = readLocalizedString();
+					cre->message = readLocalizedString(TextIdentifier("monster", objPos.x, objPos.y, objPos.z, "message"));
 					readResourses(cre->resources);
 
 					int artID = 0;
@@ -1130,13 +1131,13 @@ void CMapLoaderH3M::readObjects()
 			{
 				auto * sb = new CGSignBottle();
 				nobj = sb;
-				sb->message = readLocalizedString();
+				sb->message = readLocalizedString(TextIdentifier("sign", objPos.x, objPos.y, objPos.z, "message"));
 				reader->skip(4);
 				break;
 			}
 		case Obj::SEER_HUT:
 			{
-				nobj = readSeerHut();
+				nobj = readSeerHut(objPos);
 				break;
 			}
 		case Obj::WITCH_HUT:
@@ -1217,7 +1218,7 @@ void CMapLoaderH3M::readObjects()
 				auto * art = new CGArtifact();
 				nobj = art;
 
-				readMessageAndGuards(art->message, art);
+				readMessageAndGuards(art->message, art, objPos);
 
 				if(objTempl->id == Obj::SPELL_SCROLL)
 				{
@@ -1239,7 +1240,7 @@ void CMapLoaderH3M::readObjects()
 				auto * res = new CGResource();
 				nobj = res;
 
-				readMessageAndGuards(res->message, res);
+				readMessageAndGuards(res->message, res, objPos);
 
 				res->amount = reader->readUInt32();
 				if(objTempl->subid == Res::GOLD)
@@ -1253,7 +1254,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_TOWN:
 		case Obj::TOWN:
 			{
-				nobj = readTown(objTempl->subid);
+				nobj = readTown(objTempl->subid, objPos);
 				break;
 			}
 		case Obj::MINE:
@@ -1298,7 +1299,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				auto * box = new CGPandoraBox();
 				nobj = box;
-				readMessageAndGuards(box->message, box);
+				readMessageAndGuards(box->message, box, objPos);
 
 				box->gainedExp = reader->readUInt32();
 				box->manaDiff = reader->readUInt32();
@@ -1412,7 +1413,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::QUEST_GUARD:
 			{
 				auto * guard = new CGQuestGuard();
-				readQuest(guard);
+				readQuest(guard, objPos);
 				nobj = guard;
 				break;
 			}
@@ -1604,7 +1605,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 	bool hasName = reader->readBool();
 	if(hasName)
 	{
-		nhi->nameCustom = readLocalizedString();
+		nhi->nameCustom = readLocalizedString(TextIdentifier("heroes", nhi->subID, "name"));
 	}
 	if(map->version > EMapFormat::AB)
 	{
@@ -1669,7 +1670,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 		bool hasCustomBiography = reader->readBool();
 		if(hasCustomBiography)
 		{
-			nhi->biographyCustom = readLocalizedString();
+			nhi->biographyCustom = readLocalizedString(TextIdentifier("heroes", nhi->subID, "biography"));
 		}
 		nhi->sex = reader->readUInt8();
 
@@ -1740,13 +1741,13 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 	return nhi;
 }
 
-CGSeerHut * CMapLoaderH3M::readSeerHut()
+CGSeerHut * CMapLoaderH3M::readSeerHut(const int3 & position)
 {
 	auto * hut = new CGSeerHut();
 
 	if(map->version > EMapFormat::ROE)
 	{
-		readQuest(hut);
+		readQuest(hut, position);
 	}
 	else
 	{
@@ -1854,7 +1855,7 @@ CGSeerHut * CMapLoaderH3M::readSeerHut()
 	return hut;
 }
 
-void CMapLoaderH3M::readQuest(IQuestObject * guard)
+void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 {
 	guard->quest->missionType = static_cast<CQuest::Emission>(reader->readUInt8());
 
@@ -1926,15 +1927,15 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 	{
 		guard->quest->lastDay = limit;
 	}
-	guard->quest->firstVisitText = readLocalizedString();
-	guard->quest->nextVisitText = readLocalizedString();
-	guard->quest->completedText = readLocalizedString();
+	guard->quest->firstVisitText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit"));
+	guard->quest->nextVisitText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit"));
+	guard->quest->completedText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed"));
 	guard->quest->isCustomFirst = !guard->quest->firstVisitText.empty();
 	guard->quest->isCustomNext = !guard->quest->nextVisitText.empty();
 	guard->quest->isCustomComplete = !guard->quest->completedText.empty();
 }
 
-CGTownInstance * CMapLoaderH3M::readTown(int castleID)
+CGTownInstance * CMapLoaderH3M::readTown(int castleID, const int3 & position)
 {
 	auto * nt = new CGTownInstance();
 	if(map->version > EMapFormat::ROE)
@@ -1945,7 +1946,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	bool hasName = reader->readBool();
 	if(hasName)
 	{
-		nt->setNameTranslated( readLocalizedString());
+		nt->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
 	}
 
 	bool hasGarrison = reader->readBool();
@@ -2025,8 +2026,8 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	{
 		CCastleEvent nce;
 		nce.town = nt;
-		nce.name = readLocalizedString();
-		nce.message = readLocalizedString();
+		nce.name = readBasicString();
+		nce.message = readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", gh, "description"));
 
 		readResourses(nce.resources);
 
@@ -2136,8 +2137,8 @@ void CMapLoaderH3M::readEvents()
 	for(int yyoo = 0; yyoo < numberOfEvents; ++yyoo)
 	{
 		CMapEvent ne;
-		ne.name = readLocalizedString();
-		ne.message = readLocalizedString();
+		ne.name = readBasicString();
+		ne.message = readLocalizedString(TextIdentifier("event", yyoo, "description"));
 
 		readResourses(ne.resources);
 		ne.players = reader->readUInt8();
@@ -2159,12 +2160,12 @@ void CMapLoaderH3M::readEvents()
 	}
 }
 
-void CMapLoaderH3M::readMessageAndGuards(std::string& message, CCreatureSet* guards)
+void CMapLoaderH3M::readMessageAndGuards(std::string& message, CCreatureSet* guards, const int3 & position)
 {
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
 	{
-		message = readLocalizedString();
+		message = readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message"));
 		bool hasGuards = reader->readBool();
 		if(hasGuards)
 		{
@@ -2243,9 +2244,21 @@ int3 CMapLoaderH3M::readInt3()
 	return p;
 }
 
-std::string CMapLoaderH3M::readLocalizedString()
+std::string CMapLoaderH3M::readBasicString()
 {
 	return TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
+}
+
+std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIdentifier)
+{
+	std::string mapString = TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
+	TextIdentifier fullIdentifier(mapName, stringIdentifier.get());
+
+	if (mapString.empty())
+		return "";
+
+	VLC->generaltexth->registerString(modName, fullIdentifier, mapString);
+	return VLC->generaltexth->translate(fullIdentifier.get());
 }
 
 void CMapLoaderH3M::afterRead()

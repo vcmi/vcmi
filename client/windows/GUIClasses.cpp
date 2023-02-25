@@ -408,8 +408,12 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->getNameTranslated()));
 
 	//%s is now a level %d %s.
-	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->getNameTranslated() % hero->level % hero->type->heroClass->getNameTranslated()));
+	std::string levelTitleText = CGI->generaltexth->translate("core.genrltxt.445");
+	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
+	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
+	boost::replace_first(levelTitleText, "%s", hero->type->heroClass->getNameTranslated());
+
+	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 
 	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
 

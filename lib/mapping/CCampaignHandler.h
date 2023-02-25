@@ -43,6 +43,7 @@ public:
 	ui8 music = 0; //CmpMusic.txt, start from 0
 
 	std::string filename;
+	std::string modName;
 	std::string encoding;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
@@ -54,6 +55,7 @@ public:
 		h & difficultyChoosenByPlayer;
 		h & music;
 		h & filename;
+		h & modName;
 		h & encoding;
 	}
 };
@@ -220,8 +222,8 @@ class DLL_LINKAGE CCampaignHandler
 
 	static std::string readLocalizedString(CBinaryReader & reader, std::string encoding);
 
-	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string encoding);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string encoding, int version, int mapVersion );
+	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string encoding, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
