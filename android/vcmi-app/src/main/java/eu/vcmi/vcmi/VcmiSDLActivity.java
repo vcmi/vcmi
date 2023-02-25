@@ -80,7 +80,7 @@ public class VcmiSDLActivity extends SDLActivity
 
     @Override
     protected String getMainSharedObject() {
-        String library = "libvcmi-client.so";
+        String library = "libvcmiclient.so";
 
         return getContext().getApplicationInfo().nativeLibraryDir + "/" + library;
     }

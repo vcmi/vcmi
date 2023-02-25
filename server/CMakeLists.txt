@@ -20,16 +20,16 @@ set(server_HEADERS
 
 assign_source_group(${server_SRCS} ${server_HEADERS})
 
-if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
-	return()
-endif()
-
 if(ENABLE_SINGLE_APP_BUILD)
 	add_library(vcmiserver STATIC ${server_SRCS} ${server_HEADERS})
 	target_compile_definitions(vcmiserver PUBLIC VCMI_DLL_STATIC=1)
 	set(server_LIBS vcmi_lib_server)
 else()
-	add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
+	if(ANDROID)
+		add_library(vcmiserver SHARED ${server_SRCS} ${server_HEADERS})
+	else()
+		add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
+	endif()
 	set(server_LIBS vcmi)
 endif()
 
@@ -54,5 +54,9 @@ vcmi_set_output_dir(vcmiserver "")
 enable_pch(vcmiserver)
 
 if(NOT ENABLE_SINGLE_APP_BUILD)
-	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+	if(ANDROID)
+		install(TARGETS vcmiserver DESTINATION ${LIB_DIR})
+	else()
+		install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+	endif()
 endif()

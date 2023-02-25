@@ -243,9 +243,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * It can be overridden by derived classes.
      */
     protected String getMainSharedObject() {
-        String library = "libvcmi-client.so";
-
-        return getContext().getApplicationInfo().nativeLibraryDir + "/" + library;
+        return null;
     }
 
     /**
@@ -265,13 +263,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * @return names of shared libraries to be loaded (e.g. "SDL2", "main").
      */
     protected String[] getLibraries() {
+        // SDL is linked statically, no need to load anything
         return new String[] {
-                "SDL2",
+                // "SDL2",
                 // "SDL2_image",
                 // "SDL2_mixer",
                 // "SDL2_net",
                 // "SDL2_ttf",
-                "main"
+                // "main"
         };
     }
 

@@ -34,7 +34,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #elif defined(__linux__) || defined(__gnu_linux__) || defined(linux) || defined(__linux)
 #  define VCMI_UNIX
 #  define VCMI_XDG
-#  ifdef __ANDROID__
+#  if defined(__ANDROID__) || defined(ANDROID)
 #    define VCMI_ANDROID
 #  endif
 #elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)

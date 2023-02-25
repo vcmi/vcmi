@@ -57,7 +57,7 @@
 #include <SDL_syswm.h>
 #endif
 #ifdef VCMI_ANDROID
-#include "lib/CAndroidVMHelper.h"
+#include "../lib/CAndroidVMHelper.h"
 #endif
 
 #include "CMT.h"
@@ -580,7 +580,7 @@ void playIntro()
 	}
 }
 
-#ifndef VCMI_IOS
+#if !defined(VCMI_IOS) && !defined(VCMI_ANDROID)
 static bool checkVideoMode(int monitorIndex, int w, int h)
 {
 	//we only check that our desired window size fits on screen

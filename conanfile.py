@@ -227,6 +227,13 @@ class VCMI(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["USING_CONAN"] = True
         tc.variables["CONAN_INSTALL_FOLDER"] = self.install_folder
+        if self.settings.os == "Android":
+            tc.variables["ANDROID_SYSROOT_LIB_SUBDIR"] = {
+                'armv7': 'arm-linux-androideabi',
+                'armv8': 'aarch64-linux-android',
+                'x86': 'i686-linux-android',
+                'x86_64': 'x86_64-linux-android',
+            }.get(str(self.settings.arch))
         if cross_building(self) and self.settings.os == "Windows":
             tc.variables["CONAN_SYSTEM_LIBRARY_LOCATION"] = self.env["CONAN_SYSTEM_LIBRARY_LOCATION"]
         tc.generate()

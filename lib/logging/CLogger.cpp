@@ -348,7 +348,7 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 }
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) :
-#ifndef VCMI_IOS
+#if !defined(VCMI_IOS) && !defined(VCMI_ANDROID)
 	console(console),
 #endif
 	threshold(ELogLevel::INFO), coloredOutputEnabled(true)

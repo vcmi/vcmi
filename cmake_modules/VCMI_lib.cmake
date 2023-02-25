@@ -488,10 +488,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		)
 	endif()
 
-	if(ANDROID)
-		return()
-	endif()
-
 	vcmi_set_output_dir(${TARGET_NAME} "")
 
 	enable_pch(${TARGET_NAME})

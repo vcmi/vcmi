@@ -17,7 +17,7 @@
 #include <string>
 
 /// helper class that allows access to java vm to communicate with java code from native
-class CAndroidVMHelper
+class DLL_LINKAGE CAndroidVMHelper
 {
 	JNIEnv * envPtr;
 	bool detachInDestructor;
