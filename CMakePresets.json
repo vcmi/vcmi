@@ -186,6 +186,18 @@
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
+        },
+        {
+            "name": "android-conan-ninja-release",
+            "displayName": "Android release",
+            "description": "VCMI Android Ninja using Conan",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
@@ -255,6 +267,11 @@
             "name": "ios-release-legacy",
             "configurePreset": "ios-release-legacy",
             "inherits": "ios-release-conan"
+        },
+        {
+            "name": "android-conan-ninja-release",
+            "configurePreset": "android-conan-ninja-release",
+            "inherits": "default-release"
         }
     ],
     "testPresets": [
