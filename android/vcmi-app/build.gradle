@@ -17,7 +17,7 @@ android {
 
 	signingConfigs {
 		releaseSigning
-		LoadSigningConfig(PROJECT_PATH_BASE)
+		LoadSigningConfig()
 	}
 
 	buildTypes {
@@ -119,16 +119,17 @@ def ResolveGitInfo() {
 }
 
 def SigningPropertiesPath(final basePath) {
-	return file(basePath + "/.github/CI/signing.properties")
+	return file("${basePath}/signing.properties")
 }
 
 def SigningKeystorePath(final basePath, final keystoreFileName) {
-	return file(basePath + "/.github/CI/" + keystoreFileName)
+	return file("${basePath}/${keystoreFileName}")
 }
 
-def LoadSigningConfig(final basePath) {
+def LoadSigningConfig() {
+	final def projectRoot = "${project.projectDir}/../../CI/android"
 	final def props = new Properties()
-	final def propFile = SigningPropertiesPath(basePath)
+	final def propFile = SigningPropertiesPath(projectRoot)
 	if (propFile.canRead()) {
 		props.load(new FileInputStream(propFile))
 
@@ -138,7 +139,7 @@ def LoadSigningConfig(final basePath) {
 			&& props.containsKey('KEY_ALIAS')
 			&& props.containsKey('KEY_PASSWORD')) {
 
-			android.signingConfigs.releaseSigning.storeFile = SigningKeystorePath(basePath, props['STORE_FILE'])
+			android.signingConfigs.releaseSigning.storeFile = SigningKeystorePath(projectRoot, props['STORE_FILE'])
 			android.signingConfigs.releaseSigning.storePassword = props['STORE_PASSWORD']
 			android.signingConfigs.releaseSigning.keyAlias = props['KEY_ALIAS']
 			android.signingConfigs.releaseSigning.keyPassword = props['KEY_PASSWORD']
