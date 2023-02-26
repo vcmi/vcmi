@@ -43,6 +43,13 @@ android {
 				debugSymbolLevel 'symbol_table'
 			}
 		}
+		daily {
+			initWith release
+			applicationIdSuffix '.daily'
+			manifestPlaceholders = [
+				applicationLabel: 'VCMI daily',
+			]
+		}
 	}
 
 	applicationVariants.all { variant -> RenameOutput(project.archivesBaseName, variant) }
