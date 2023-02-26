@@ -23,6 +23,10 @@ android {
 	buildTypes {
 		debug {
 			debuggable true
+			applicationIdSuffix '.debug'
+			manifestPlaceholders = [
+				applicationLabel: 'VCMI debug',
+			]
 			ndk {
 				debugSymbolLevel 'full'
 			}
@@ -32,6 +36,9 @@ android {
 			zipAlignEnabled true
 			signingConfig signingConfigs.releaseSigning
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+			manifestPlaceholders = [
+				applicationLabel: '@string/app_name',
+			]
 			ndk {
 				debugSymbolLevel 'symbol_table'
 			}
