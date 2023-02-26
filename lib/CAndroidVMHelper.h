@@ -46,6 +46,8 @@ public:
 
 	static void initClassloader(void * baseEnv);
 	
+	static bool alwaysUseLoadedClass;
+
 	static constexpr const char * NATIVE_METHODS_DEFAULT_CLASS = "eu/vcmi/vcmi/NativeMethods";
 };
 

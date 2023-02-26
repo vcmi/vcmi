@@ -18,6 +18,8 @@ static JavaVM * vmCache = nullptr;
 static jobject vcmiClassLoader;
 static jmethodID vcmiFindClassMethod;
 
+bool CAndroidVMHelper::alwaysUseLoadedClass = false;
+
 void CAndroidVMHelper::cacheVM(JNIEnv * env)
 {
 	env->GetJavaVM(&vmCache);
@@ -91,7 +93,7 @@ void CAndroidVMHelper::callCustomMethod(const std::string & cls, const std::stri
 
 jclass CAndroidVMHelper::findClass(const std::string & name, bool classloaded)
 {
-	if(classloaded)
+	if(alwaysUseLoadedClass || classloaded)
 	{
 		return findClassloadedClass(name);
 	}

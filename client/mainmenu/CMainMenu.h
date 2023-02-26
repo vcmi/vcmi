@@ -167,7 +167,8 @@ class CSimpleJoinScreen : public WindowBase
 	void connectToServer();
 	void leaveScreen();
 	void onChange(const std::string & newText);
-	void connectThread(const std::string addr = "", const ui16 inputPort = 0);
+	void startConnectThread(const std::string & addr = {}, ui16 port = 0);
+	void connectThread(const std::string & addr, ui16 port);
 
 public:
 	CSimpleJoinScreen(bool host = true);

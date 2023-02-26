@@ -53,6 +53,10 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
+#if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
+#include "../../server/CVCMIServer.h"
+#include <SDL.h>
+#endif
 
 namespace fs = boost::filesystem;
 
@@ -459,7 +463,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
 		textTitle->setText("Connecting...");
-		boost::thread(&CSimpleJoinScreen::connectThread, this, "", 0);
+		startConnectThread();
 	}
 	else
 	{
@@ -484,7 +488,7 @@ void CSimpleJoinScreen::connectToServer()
 	buttonOk->block(true);
 	GH.stopTextInput();
 
-	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
+	startConnectThread(inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }
 
 void CSimpleJoinScreen::leaveScreen()
@@ -505,7 +509,18 @@ void CSimpleJoinScreen::onChange(const std::string & newText)
 	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 }
 
-void CSimpleJoinScreen::connectThread(const std::string addr, const ui16 port)
+void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
+{
+#if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
+	// in single process build server must use same JNIEnv as client
+	// as server runs in a separate thread, it must not attempt to search for Java classes (and they're already cached anyway)
+	// https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md#threads-and-the-java-vm
+	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
+#endif
+	boost::thread(&CSimpleJoinScreen::connectThread, this, addr, port);
+}
+
+void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 {
 	setThreadName("CSimpleJoinScreen::connectThread");
 	if(!addr.length())

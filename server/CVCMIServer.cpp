@@ -1191,4 +1191,12 @@ void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std
 		argv.push_back(a.c_str());
 	main(argv.size(), reinterpret_cast<const char **>(&*argv.begin()));
 }
-#endif
+
+#ifdef VCMI_ANDROID
+void CVCMIServer::reuseClientJNIEnv(void * jniEnv)
+{
+	CAndroidVMHelper::initClassloader(jniEnv);
+	CAndroidVMHelper::alwaysUseLoadedClass = true;
+}
+#endif // VCMI_ANDROID
+#endif // VCMI_ANDROID_DUAL_PROCESS

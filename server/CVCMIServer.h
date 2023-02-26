@@ -121,5 +121,8 @@ public:
 	static void create();
 #elif defined(SINGLE_PROCESS_APP)
 	static void create(boost::condition_variable * cond, const std::vector<std::string> & args);
-#endif
+# ifdef VCMI_ANDROID
+	static void reuseClientJNIEnv(void * jniEnv);
+# endif // VCMI_ANDROID
+#endif // VCMI_ANDROID_DUAL_PROCESS
 };
