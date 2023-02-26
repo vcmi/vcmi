@@ -21,7 +21,6 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CModHandler.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/GameConstants.h"
 #include "../lib/JsonDetail.h"
 

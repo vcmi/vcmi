@@ -11,101 +11,27 @@
 
 #include "IMapRendererContext.h"
 
-#include "../lib/int3.h"
 #include "../lib/GameConstants.h"
+#include "../lib/int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;
 VCMI_LIB_NAMESPACE_END
 
-class MapObjectsSorter
-{
-	IMapRendererContext & context;
+struct MapRendererContextState;
 
+class MapRendererBaseContext : public IMapRendererContext
+{
 public:
-	explicit MapObjectsSorter(IMapRendererContext & context);
-
-	bool operator()(const ObjectInstanceID & left, const ObjectInstanceID & right) const;
-	bool operator()(const CGObjectInstance * left, const CGObjectInstance * right) const;
-};
-
-struct HeroAnimationState
-{
-	ObjectInstanceID target;
-	int3 tileFrom;
-	int3 tileDest;
-	double progress;
-};
-
-struct FadingAnimationState
-{
-	ObjectInstanceID target;
-	double progress;
-};
-
-// from VwSymbol.def
-enum class EWorldViewIcon
-{
-	TOWN = 0,
-	HERO = 1,
-	ARTIFACT = 2,
-	TELEPORT = 3,
-	GATE = 4,
-	MINE_WOOD = 5,
-	MINE_MERCURY = 6,
-	MINE_STONE = 7,
-	MINE_SULFUR = 8,
-	MINE_CRYSTAL = 9,
-	MINE_GEM = 10,
-	MINE_GOLD = 11,
-	RES_WOOD = 12,
-	RES_MERCURY = 13,
-	RES_STONE = 14,
-	RES_SULFUR = 15,
-	RES_CRYSTAL = 16,
-	RES_GEM = 17,
-	RES_GOLD = 18,
-
-	ICONS_PER_PLAYER = 19,
-	ICONS_TOTAL = 19 * 9 // 8 players + neutral set at the end
-};
-
-class MapRendererContext : public IMapRendererContext
-{
-	friend class MapViewController;
-
-	boost::multi_array<MapObjectsList, 3> objects;
-
-	uint32_t animationTime = 0;
-
-	boost::optional<HeroAnimationState> movementAnimation;
-	boost::optional<HeroAnimationState> teleportAnimation;
-
-	boost::optional<FadingAnimationState> fadeOutAnimation;
-	boost::optional<FadingAnimationState> fadeInAnimation;
-
-	std::vector<ObjectPosInfo> additionalOverlayIcons;
-
-	bool worldViewModeActive = false;
-	bool showAllTerrain = false;
+	const MapRendererContextState & viewState;
 	bool settingsSessionSpectate = false;
-	bool settingsAdventureObjectAnimation = true;
-	bool settingsAdventureTerrainAnimation = true;
-	bool settingsSessionShowGrid = false;
-	bool settingsSessionShowVisitable = false;
-	bool settingsSessionShowBlockable = false;
 
-	size_t selectOverlayImageForObject(const ObjectPosInfo & objectID) const;
+	explicit MapRendererBaseContext(const MapRendererContextState & viewState);
 
-public:
-	MapRendererContext();
+	uint32_t getObjectRotation(ObjectInstanceID objectID) const;
 
-	void addObject(const CGObjectInstance * object);
-	void addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest);
-	void removeObject(const CGObjectInstance * object);
-
-	int3 getMapSize() const final;
-	bool isInMap(const int3 & coordinates) const final;
+	int3 getMapSize() const override;
+	bool isInMap(const int3 & coordinates) const override;
 	bool isVisible(const int3 & coordinates) const override;
 	bool tileAnimated(const int3 & coordinates) const override;
 
@@ -116,7 +42,7 @@ public:
 
 	size_t objectGroupIndex(ObjectInstanceID objectID) const override;
 	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
-	double objectTransparency(ObjectInstanceID objectID, const int3 &coordinates) const override;
+	double objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const override;
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	size_t terrainImageIndex(size_t groupSize) const override;
 	size_t overlayImageIndex(const int3 & coordinates) const override;
@@ -129,4 +55,95 @@ public:
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlockable() const override;
+};
+
+class MapRendererAdventureContext : public MapRendererBaseContext
+{
+public:
+	uint32_t animationTime = 0;
+	bool settingShowGrid = false;
+	bool settingShowVisitable = false;
+	bool settingShowBlockable = false;
+	bool settingsAdventureObjectAnimation = true;
+	bool settingsAdventureTerrainAnimation = true;
+
+	explicit MapRendererAdventureContext(const MapRendererContextState & viewState);
+
+	const CGPath * currentPath() const override;
+	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
+	size_t terrainImageIndex(size_t groupSize) const override;
+
+	bool showBorder() const override;
+	bool showGrid() const override;
+	bool showVisitable() const override;
+	bool showBlockable() const override;
+};
+
+class MapRendererAdventureFadingContext : public MapRendererAdventureContext
+{
+public:
+	ObjectInstanceID target;
+	double progress;
+
+	explicit MapRendererAdventureFadingContext(const MapRendererContextState & viewState);
+
+	bool tileAnimated(const int3 & coordinates) const override;
+	double objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const override;
+};
+
+class MapRendererAdventureMovingContext : public MapRendererAdventureContext
+{
+public:
+	ObjectInstanceID target;
+	int3 tileFrom;
+	int3 tileDest;
+	double progress;
+
+	explicit MapRendererAdventureMovingContext(const MapRendererContextState & viewState);
+
+	bool tileAnimated(const int3 & coordinates) const override;
+	size_t objectGroupIndex(ObjectInstanceID objectID) const override;
+	Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const override;
+	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
+};
+
+class MapRendererWorldViewContext : public MapRendererBaseContext
+{
+protected:
+	size_t selectOverlayImageForObject(const ObjectPosInfo & object) const;
+
+public:
+	explicit MapRendererWorldViewContext(const MapRendererContextState & viewState);
+
+	size_t overlayImageIndex(const int3 & coordinates) const override;
+	bool showOverlay() const override;
+};
+
+class MapRendererSpellViewContext : public MapRendererWorldViewContext
+{
+public:
+	std::vector<ObjectPosInfo> additionalOverlayIcons;
+	bool showAllTerrain = false;
+
+	explicit MapRendererSpellViewContext(const MapRendererContextState & viewState);
+
+	bool isVisible(const int3 & coordinates) const override;
+	double objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const override;
+	size_t overlayImageIndex(const int3 & coordinates) const override;
+};
+
+class MapRendererPuzzleMapContext : public MapRendererBaseContext
+{
+public:
+	std::unique_ptr<CGPath> grailPos;
+
+	explicit MapRendererPuzzleMapContext(const MapRendererContextState & viewState);
+	~MapRendererPuzzleMapContext();
+
+	const CGPath * currentPath() const override;
+	double objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const override;
+	bool isVisible(const int3 & coordinates) const override;
+	bool filterGrayscale() const override;
+	bool showRoads() const override;
+	bool showRivers() const override;
 };

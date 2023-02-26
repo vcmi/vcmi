@@ -21,24 +21,38 @@ class MapViewController;
 class MapViewModel;
 class MapViewCache;
 
-/// Main class that represents visible section of adventure map
-/// Contains all public interface of view and translates calls to internal model
-class MapView : public CIntObject
+/// Internal class that contains logic shared between all map views
+class BasicMapView : public CIntObject
 {
+protected:
 	std::shared_ptr<MapViewModel> model;
 	std::shared_ptr<MapViewCache> tilesCache;
 	std::shared_ptr<MapViewController> controller;
-	std::shared_ptr<MapViewActions> actions;
-
-	bool isSwiping;
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 
 	void render(Canvas & target, bool fullUpdate);
 
 public:
+	BasicMapView(const Point & offset, const Point & dimensions);
+	~BasicMapView() override;
+
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
+};
+
+/// Main class that represents visible section of adventure map
+/// Contains all public interface of view and translates calls to internal model
+class MapView : public BasicMapView
+{
+	std::shared_ptr<MapViewActions> actions;
+
+	bool isSwiping;
+
+public:
+	void show(SDL_Surface * to) override;
+
 	MapView(const Point & offset, const Point & dimensions);
-	~MapView() override;
 
 	/// Moves current view to another level, preserving position
 	void onMapLevelSwitched();
@@ -55,9 +69,7 @@ public:
 	/// Moves current view to specified tile
 	void onCenteredTile(const int3 & tile);
 
-	/// Centers view on object and starts "tracking" it
-	/// Whenever object changes position, so will the object
-	/// Tracking will be disabled on any call that moves view
+	/// Moves current view to specified object
 	void onCenteredObject(const CGObjectInstance * target);
 
 	/// Switches view to "View Earth" / "View Air" mode, displaying downscaled map with overlay
@@ -68,7 +80,11 @@ public:
 
 	/// Switches view from View World mode back to standard view
 	void onViewMapActivated();
+};
 
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+/// Main class that represents map view for puzzle map
+class PuzzleMapView : public BasicMapView
+{
+public:
+	PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter);
 };

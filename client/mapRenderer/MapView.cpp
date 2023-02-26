@@ -32,9 +32,9 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
-MapView::~MapView() = default;
+BasicMapView::~BasicMapView() = default;
 
-std::shared_ptr<MapViewModel> MapView::createModel(const Point & dimensions) const
+std::shared_ptr<MapViewModel> BasicMapView::createModel(const Point & dimensions) const
 {
 	auto result = std::make_shared<MapViewModel>();
 
@@ -46,22 +46,18 @@ std::shared_ptr<MapViewModel> MapView::createModel(const Point & dimensions) con
 	return result;
 }
 
-MapView::MapView(const Point & offset, const Point & dimensions)
+BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	: model(createModel(dimensions))
-	, controller(new MapViewController(model))
 	, tilesCache(new MapViewCache(model))
-	, isSwiping(false)
+	, controller(new MapViewController(model, tilesCache))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += offset;
 	pos.w = dimensions.x;
 	pos.h = dimensions.y;
-
-	actions = std::make_shared<MapViewActions>(*this, model);
-	actions->setContext(controller->getContext());
 }
 
-void MapView::render(Canvas & target, bool fullUpdate)
+void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
 	Canvas targetClipped(target, pos);
 
@@ -70,18 +66,33 @@ void MapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }
 
-void MapView::show(SDL_Surface * to)
+void BasicMapView::show(SDL_Surface * to)
 {
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, false);
 }
 
-void MapView::showAll(SDL_Surface * to)
+void BasicMapView::showAll(SDL_Surface * to)
 {
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, true);
+}
+
+void MapView::show(SDL_Surface * to)
+{
+	actions->setContext(controller->getContext());
+	BasicMapView::show(to);
+}
+
+MapView::MapView(const Point & offset, const Point & dimensions)
+	: BasicMapView(offset, dimensions)
+	, isSwiping(false)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	actions = std::make_shared<MapViewActions>(*this, model);
+	actions->setContext(controller->getContext());
 }
 
 void MapView::onMapLevelSwitched()
@@ -124,6 +135,7 @@ void MapView::onCenteredObject(const CGObjectInstance * target)
 
 void MapView::onViewSpellActivated(uint32_t tileSize, const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
 {
+	controller->activateSpellViewContext();
 	controller->setTileSize(Point(tileSize, tileSize));
 	controller->setOverlayVisibility(objectPositions);
 	controller->setTerrainVisibility(showTerrain);
@@ -131,12 +143,19 @@ void MapView::onViewSpellActivated(uint32_t tileSize, const std::vector<ObjectPo
 
 void MapView::onViewWorldActivated(uint32_t tileSize)
 {
+	controller->activateWorldViewContext();
 	controller->setTileSize(Point(tileSize, tileSize));
 }
 
 void MapView::onViewMapActivated()
 {
+	controller->activateAdventureContext();
 	controller->setTileSize(Point(32, 32));
-	controller->setOverlayVisibility({});
-	controller->setTerrainVisibility(false);
+}
+
+PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)
+	: BasicMapView(offset, dimensions)
+{
+	controller->setViewCenter(tileToCenter);
+	controller->activatePuzzleMapContext(tileToCenter);
 }

@@ -37,12 +37,16 @@ public:
 	/// Removes object from map instantly, with no animation
 	virtual void onObjectInstantRemove(const CGObjectInstance * obj) {}
 
-	/// Perform hero teleportation animation with terrain fade animation
-	virtual void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
-
 	/// Perform hero movement animation, moving hero across terrain
 	virtual void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 
-	/// Instantly rotates hero to face destination tile
-	virtual void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	/// Perform initialization of hero teleportation animation with terrain fade animation
+	virtual void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	virtual void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+
+	virtual void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
+	virtual void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
+
+	virtual void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
+	virtual void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
 };

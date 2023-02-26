@@ -12,14 +12,18 @@
 #include "MapViewController.h"
 
 #include "MapRendererContext.h"
+#include "MapRendererContextState.h"
 #include "MapViewModel.h"
+#include "MapViewCache.h"
 
 #include "../adventureMap/CAdvMapInt.h"
+#include "../CPlayerInterface.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/ViewSpellInt.h"
+#include "../../lib/CPathfinder.h"
 
 void MapViewController::setViewCenter(const int3 & position)
 {
@@ -32,7 +36,7 @@ void MapViewController::setViewCenter(const Point & position, int level)
 	Point upperLimit = Point(context->getMapSize()) * model->getSingleTileSize() + model->getSingleTileSize();
 	Point lowerLimit = Point(0,0);
 
-	if (context->worldViewModeActive)
+	if (worldViewContext)
 	{
 		Point area = model->getPixelsVisibleDimensions();
 		Point mapCenter = upperLimit / 2;
@@ -74,23 +78,18 @@ void MapViewController::setTileSize(const Point & tileSize)
 	setViewCenter(model->getMapViewCenter(), model->getLevel());
 }
 
-MapViewController::MapViewController(std::shared_ptr<MapViewModel> model)
-	: context(new MapRendererContext())
+MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)
+	: state(new MapRendererContextState())
 	, model(std::move(model))
+	, view(view)
 {
+	adventureContext = std::make_shared<MapRendererAdventureContext>(*state);
+	context = adventureContext;
 }
 
 std::shared_ptr<IMapRendererContext> MapViewController::getContext() const
 {
 	return context;
-}
-
-void MapViewController::moveFocusToSelection()
-{
-	const auto * army = adventureInt->curArmy();
-
-	if (army)
-		setViewCenter(army->getSightCenter());
 }
 
 void MapViewController::update(uint32_t timeDelta)
@@ -103,13 +102,13 @@ void MapViewController::update(uint32_t timeDelta)
 	// - teleporting ( 250 ms)
 	static const double fadeOutDuration = 500;
 	static const double fadeInDuration = 500;
-	static const double heroTeleportDuration = 250;
+	//static const double heroTeleportDuration = 250;
 
 	//FIXME: remove code duplication?
 
-	if(context->movementAnimation)
+	if(movementContext)
 	{
-		const auto * object = context->getObject(context->movementAnimation->target);
+		const auto * object = context->getObject(movementContext->target);
 		const auto * hero = dynamic_cast<const CGHeroInstance*>(object);
 		const auto * boat = dynamic_cast<const CGBoat*>(object);
 
@@ -118,172 +117,360 @@ void MapViewController::update(uint32_t timeDelta)
 		if (!hero)
 			hero = boat->hero;
 
-		// TODO: enemyMoveTime
-		double heroMoveTime = settings["adventure"]["heroMoveTime"].Float();
+		double heroMoveTime =
+			LOCPLINT->makingTurn ?
+			settings["adventure"]["heroMoveTime"].Float():
+			settings["adventure"]["enemyMoveTime"].Float();
 
-		context->movementAnimation->progress += timeDelta / heroMoveTime;
+		movementContext->progress += timeDelta / heroMoveTime;
 
-		Point positionFrom = Point(hero->convertToVisitablePos(context->movementAnimation->tileFrom)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
-		Point positionDest = Point(hero->convertToVisitablePos(context->movementAnimation->tileDest)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
+		Point positionFrom = Point(hero->convertToVisitablePos(movementContext->tileFrom)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
+		Point positionDest = Point(hero->convertToVisitablePos(movementContext->tileDest)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
 
-		Point positionCurr = vstd::lerp(positionFrom, positionDest, context->movementAnimation->progress);
+		Point positionCurr = vstd::lerp(positionFrom, positionDest, movementContext->progress);
 
-		if(context->movementAnimation->progress >= 1.0)
+		if(movementContext->progress >= 1.0)
 		{
 			setViewCenter(hero->getSightCenter());
 
-			context->removeObject(context->getObject(context->movementAnimation->target));
-			context->addObject(context->getObject(context->movementAnimation->target));
-			context->movementAnimation.reset();
+			removeObject(context->getObject(movementContext->target));
+			addObject(context->getObject(movementContext->target));
+
+			activateAdventureContext(movementContext->animationTime);
 		}
 		else
 		{
-			setViewCenter(positionCurr, context->movementAnimation->tileDest.z);
+			setViewCenter(positionCurr, movementContext->tileDest.z);
 		}
 	}
 
-	if(context->teleportAnimation)
-	{
-		context->teleportAnimation->progress += timeDelta / heroTeleportDuration;
-		moveFocusToSelection();
-		if(context->teleportAnimation->progress >= 1.0)
-			context->teleportAnimation.reset();
-	}
+	//if(teleportContext)
+	//{
+	//	teleportContext->progress += timeDelta / heroTeleportDuration;
+	//	moveFocusToSelection();
+	//	if(teleportContext->progress >= 1.0)
+	//		teleportContext.reset();
+	//}
 
-	if(context->fadeOutAnimation)
+	if(fadingOutContext)
 	{
-		context->fadeOutAnimation->progress += timeDelta / fadeOutDuration;
-		moveFocusToSelection();
-		if(context->fadeOutAnimation->progress >= 1.0)
+		fadingOutContext->progress -= timeDelta / fadeOutDuration;
+
+		if(fadingOutContext->progress <= 0.0)
 		{
-			context->removeObject(context->getObject(context->fadeOutAnimation->target));
-			context->fadeOutAnimation.reset();
+			removeObject(context->getObject(fadingOutContext->target));
+
+			activateAdventureContext(fadingOutContext->animationTime);
 		}
 	}
 
-	if(context->fadeInAnimation)
+	if(fadingInContext)
 	{
-		context->fadeInAnimation->progress += timeDelta / fadeInDuration;
-		moveFocusToSelection();
-		if(context->fadeInAnimation->progress >= 1.0)
-			context->fadeInAnimation.reset();
+		fadingInContext->progress += timeDelta / fadeInDuration;
+
+		if(fadingInContext->progress >= 1.0)
+		{
+			activateAdventureContext(fadingInContext->animationTime);
+		}
 	}
 
-	context->animationTime += timeDelta;
-	context->worldViewModeActive = model->getSingleTileSize() != Point(32,32);
-
-	context->settingsSessionSpectate = settings["session"]["spectate"].Bool();
-	context->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
-	context->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
-	context->settingsSessionShowGrid = settings["gameTweaks"]["showGrid"].Bool();
-	context->settingsSessionShowVisitable = settings["session"]["showVisitable"].Bool();
-	context->settingsSessionShowBlockable = settings["session"]["showBlockable"].Bool();
+	if (adventureContext)
+	{
+		adventureContext->animationTime += timeDelta;
+		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool();
+		adventureContext->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
+		adventureContext->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
+		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
+		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
+		adventureContext->settingShowBlockable = settings["session"]["showBlockable"].Bool();
+	}
 }
 
-void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
+bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 {
-	bool actionVisible = context->isVisible(obj->pos);
+	if (adventureContext == nullptr)
+		return false;
 
-	assert(!context->fadeInAnimation);
+	if (!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
+		return false; // enemy move speed set to "hidden/none"
 
-	if (actionVisible)
-		context->fadeInAnimation = FadingAnimationState{obj->id, 0.0};
-	context->addObject(obj);
-}
-
-void MapViewController::onObjectFadeOut(const CGObjectInstance * obj)
-{
-	bool actionVisible = context->isVisible(obj->pos);
-
-	assert(!context->fadeOutAnimation);
-
-	if (actionVisible)
-		context->fadeOutAnimation = FadingAnimationState{obj->id, 0.0};
+	if (obj->isVisitable())
+		return context->isVisible(obj->visitablePos());
 	else
-		context->removeObject(obj);
+		return context->isVisible(obj->pos);
 }
 
-void MapViewController::onObjectInstantAdd(const CGObjectInstance * obj)
+bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	context->addObject(obj);
-};
+	if (adventureContext == nullptr)
+		return false;
 
-void MapViewController::onObjectInstantRemove(const CGObjectInstance * obj)
-{
-	context->removeObject(obj);
-};
+	if (!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
+		return false; // enemy move speed set to "hidden/none"
 
-void MapViewController::onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
-{
-	assert(!context->teleportAnimation);
-	bool actionVisible = context->isVisible(from) || context->isVisible(dest);
-
-	if (actionVisible)
-	{
-		context->teleportAnimation = HeroAnimationState{obj->id, from, dest, 0.0};
-	}
-	else
-	{
-		context->removeObject(obj);
-		context->addObject(obj);
-	}
-}
-
-void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
-{
-	assert(!context->movementAnimation);
-	bool actionVisible = context->isVisible(from) || context->isVisible(dest);
-
-	const CGObjectInstance * movingObject = obj;
-	if(obj->boat)
-		movingObject = obj->boat;
-
-	context->removeObject(movingObject);
-
-	if(settings["adventure"]["heroMoveTime"].Float() > 1 && actionVisible)
-	{
-		context->addMovingObject(movingObject, from, dest);
-		context->movementAnimation = HeroAnimationState{movingObject->id, from, dest, 0.0};
-	}
-	else
-	{
-		// instant movement
-		context->addObject(movingObject);
-
-		if (actionVisible)
-			setViewCenter(movingObject->visitablePos());
-	}
-}
-
-void MapViewController::onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
-{
-	//TODO. Or no-op?
-}
-
-bool MapViewController::hasOngoingAnimations()
-{
-	if(context->movementAnimation)
+	if (context->isVisible(obj->convertToVisitablePos(from)))
 		return true;
 
-	if(context->teleportAnimation)
-		return true;
-
-	if(context->fadeOutAnimation)
-		return true;
-
-	if(context->fadeInAnimation)
+	if (context->isVisible(obj->convertToVisitablePos(dest)))
 		return true;
 
 	return false;
 }
 
+void MapViewController::fadeOutObject(const CGObjectInstance * obj)
+{
+	fadingOutContext = std::make_shared<MapRendererAdventureFadingContext>(*state);
+	fadingOutContext->animationTime = adventureContext->animationTime;
+	adventureContext = fadingOutContext;
+	context = fadingOutContext;
+
+	fadingOutContext->target = obj->id;
+	fadingOutContext->progress = 1.0;
+}
+
+void MapViewController::fadeInObject(const CGObjectInstance * obj)
+{
+	fadingInContext = std::make_shared<MapRendererAdventureFadingContext>(*state);
+	fadingInContext->animationTime = adventureContext->animationTime;
+	adventureContext = fadingInContext;
+	context = fadingInContext;
+
+	fadingInContext->target = obj->id;
+	fadingInContext->progress = 0.0;
+}
+
+void MapViewController::removeObject(const CGObjectInstance * obj)
+{
+	view->invalidate(context, obj->id);
+	state->removeObject(obj);
+}
+
+void MapViewController::addObject(const CGObjectInstance * obj)
+{
+	state->addObject(obj);
+	view->invalidate(context, obj->id);
+}
+
+void MapViewController::onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	if (isEventVisible(obj, from, dest))
+	{
+		onObjectFadeOut(obj);
+		setViewCenter(obj->getSightCenter());
+	}
+	else
+		removeObject(obj);
+}
+
+void MapViewController::onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	if (isEventVisible(obj, from, dest))
+		setViewCenter(obj->getSightCenter());
+}
+
+void MapViewController::onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	if (isEventVisible(obj, from, dest))
+		setViewCenter(obj->getSightCenter());
+}
+
+void MapViewController::onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	if (isEventVisible(obj, from, dest))
+	{
+		onObjectFadeIn(obj);
+		setViewCenter(obj->getSightCenter());
+	}
+	addObject(obj);
+}
+
+void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
+{
+	assert(!hasOngoingAnimations());
+
+	if (isEventVisible(obj))
+		fadeInObject(obj);
+
+	addObject(obj);
+}
+
+void MapViewController::onObjectFadeOut(const CGObjectInstance * obj)
+{
+	assert(!hasOngoingAnimations());
+
+	if (isEventVisible(obj))
+		fadeOutObject(obj);
+	else
+		removeObject(obj);
+}
+
+void MapViewController::onObjectInstantAdd(const CGObjectInstance * obj)
+{
+	addObject(obj);
+};
+
+void MapViewController::onObjectInstantRemove(const CGObjectInstance * obj)
+{
+	removeObject(obj);
+};
+
+void MapViewController::onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	assert(!hasOngoingAnimations());
+
+	if (isEventVisible(obj, from, dest))
+	{
+		// TODO: generate view with old state
+		setViewCenter(obj->getSightCenter());
+	}
+}
+
+void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	assert(!hasOngoingAnimations());
+
+	if (isEventVisible(obj, from, dest))
+	{
+		// TODO: animation
+		setViewCenter(obj->getSightCenter());
+	}
+	else
+	{
+		removeObject(obj);
+		addObject(obj);
+	}
+}
+
+void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	assert(!hasOngoingAnimations());
+
+	const CGObjectInstance * movingObject = obj;
+	if(obj->boat)
+		movingObject = obj->boat;
+
+	removeObject(movingObject);
+
+	if (!isEventVisible(obj, from, dest))
+	{
+		addObject(movingObject);
+		return;
+	}
+
+	double movementTime =
+		LOCPLINT->playerID == obj->tempOwner ?
+		settings["adventure"]["heroMoveTime"].Float():
+		settings["adventure"]["enemyMoveTime"].Float();
+
+	if(movementTime > 1)
+	{
+		movementContext = std::make_shared<MapRendererAdventureMovingContext>(*state);
+		movementContext->animationTime = adventureContext->animationTime;
+		adventureContext = movementContext;
+		context = movementContext;
+
+		state->addMovingObject(movingObject, from, dest);
+
+		movementContext->target = movingObject->id;
+		movementContext->tileFrom = from;
+		movementContext->tileDest = dest;
+		movementContext->progress = 0.0;
+	}
+	else // instant movement
+	{
+		addObject(movingObject);
+		setViewCenter(movingObject->visitablePos());
+	}
+}
+
+bool MapViewController::hasOngoingAnimations()
+{
+	if(movementContext)
+		return true;
+
+	if(fadingOutContext)
+		return true;
+
+	if(fadingInContext)
+		return true;
+
+	return false;
+}
+
+void MapViewController::activateAdventureContext(uint32_t animationTime)
+{
+	resetContext();
+
+	adventureContext = std::make_shared<MapRendererAdventureContext>(*state);
+	adventureContext->animationTime = animationTime;
+	context = adventureContext;
+}
+
+void MapViewController::activateAdventureContext()
+{
+	activateAdventureContext(0);
+}
+
+void MapViewController::activateWorldViewContext()
+{
+	if (worldViewContext)
+		return;
+
+	resetContext();
+
+	worldViewContext = std::make_shared<MapRendererWorldViewContext>(*state);
+	context = worldViewContext;
+}
+
+void MapViewController::activateSpellViewContext()
+{
+	if (spellViewContext)
+		return;
+
+	resetContext();
+
+	spellViewContext = std::make_shared<MapRendererSpellViewContext>(*state);
+	worldViewContext = spellViewContext;
+	context = spellViewContext;
+}
+
+void MapViewController::activatePuzzleMapContext(const int3 & grailPosition)
+{
+	resetContext();
+
+	puzzleMapContext = std::make_shared<MapRendererPuzzleMapContext>(*state);
+	context = puzzleMapContext;
+
+	CGPathNode fakeNode;
+	fakeNode.coord = grailPosition;
+
+	puzzleMapContext->grailPos = std::make_unique<CGPath>();
+
+	// create two nodes since 1st one is normally not visible
+	puzzleMapContext->grailPos->nodes.push_back(fakeNode);
+	puzzleMapContext->grailPos->nodes.push_back(fakeNode);
+}
+
+void MapViewController::resetContext()
+{
+	adventureContext.reset();
+	movementContext.reset();
+	fadingOutContext.reset();
+	fadingInContext.reset();
+	worldViewContext.reset();
+	spellViewContext.reset();
+	puzzleMapContext.reset();
+}
+
 void MapViewController::setTerrainVisibility(bool showAllTerrain)
 {
-	context->showAllTerrain = showAllTerrain;
+	assert(spellViewContext);
+	spellViewContext->showAllTerrain = showAllTerrain;
 }
 
 void MapViewController::setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions)
 {
-	context->additionalOverlayIcons = objectPositions;
+	assert(spellViewContext);
+	spellViewContext->additionalOverlayIcons = objectPositions;
 }
 

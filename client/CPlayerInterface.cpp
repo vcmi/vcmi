@@ -328,6 +328,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (!hero)
 		return;
 
+	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
+	{
+		if (hero->getRemovalSound())
+			CCS->soundh->playSound(hero->getRemovalSound().get());
+	}
+
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.start));
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.end));
 
@@ -1603,149 +1609,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 		return (--dates.end())->second; //return latest file number
 	return 0;
 }
-/*
-void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
-{
-	auto subArr = (CGI->mh->ttiles)[hp.z];
 
-	int heroWidth  = ho->appearance->getWidth();
-	int heroHeight = ho->appearance->getHeight();
-
-	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
-	int tileMaxX = std::max(details.start.x, details.end.x);
-	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
-	int tileMaxY = std::max(details.start.y, details.end.y);
-
-	// determine tiles on which hero will be visible during movement and add hero as visible object on these tiles where necessary
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			bool heroVisibleHere = false;
-			auto & tile = subArr[tileX][tileY];
-
-			for(const auto & obj : tile.objects)
-			{
-				if (obj.obj == ho)
-				{
-					heroVisibleHere = true;
-					break;
-				}
-			}
-
-			if ( !heroVisibleHere)
-			{
-				tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
-				std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
-			}
-		}
-	}
-}
-
-void CPlayerInterface::movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho )
-{
-	auto subArr = (CGI->mh->ttiles)[hp.z];
-
-	int heroWidth  = ho->appearance->getWidth();
-	int heroHeight = ho->appearance->getHeight();
-
-	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
-	int tileMaxX = std::max(details.start.x, details.end.x);
-	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
-	int tileMaxY = std::max(details.start.y, details.end.y);
-
-	std::shared_ptr<CAnimation> animation = graphics->getAnimation(ho);
-
-	assert(animation);
-	assert(animation->size(0) != 0);
-	auto image = animation->getImage(0,0);
-
-	int heroImageOldX = details.start.x * 32;
-	int heroImageOldY = details.start.y * 32;
-
-	int heroImageNewX = details.end.x * 32;
-	int heroImageNewY = details.end.y * 32;
-
-	int heroImageCurrX = heroImageOldX + i*(heroImageNewX - heroImageOldX)/32;
-	int heroImageCurrY = heroImageOldY + i*(heroImageNewY - heroImageOldY)/32;
-
-	// recompute which part of hero sprite will be visible on each tile at this point of movement animation
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			for ( auto & obj : tile.objects)
-			{
-				if (obj.obj == ho)
-				{
-					int tilePosX = tileX * 32;
-					int tilePosY = tileY * 32;
-
-					obj.rect.x = tilePosX - heroImageCurrX + image->width() - 32;
-					obj.rect.y = tilePosY - heroImageCurrY + image->height() - 32;
-				}
-			}
-		}
-	}
-
-	//adventureInt->terrain->moveX = (32 - i) * (heroImageNewX - heroImageOldX) / 32;
-	//adventureInt->terrain->moveY = (32 - i) * (heroImageNewY - heroImageOldY) / 32;
-}
-
-void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho )
-{
-	auto subArr = (CGI->mh->ttiles)[hp.z];
-
-	int heroWidth  = ho->appearance->getWidth();
-	int heroHeight = ho->appearance->getHeight();
-
-	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
-	int tileMaxX = std::max(details.start.x, details.end.x);
-	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
-	int tileMaxY = std::max(details.start.y, details.end.y);
-
-	// erase hero from all tiles on which he is currently visible
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			for (size_t i = 0; i < tile.objects.size(); ++i)
-			{
-				if ( tile.objects[i].obj == ho)
-				{
-					tile.objects.erase(tile.objects.begin() + i);
-					break;
-				}
-			}
-		}
-	}
-
-	// re-add hero to all tiles on which he will still be visible after animation is over
-	for ( int tileX = details.end.x - heroWidth + 1; tileX <= details.end.x; ++tileX)
-	{
-		for ( int tileY = details.end.y - heroHeight + 1; tileY <= details.end.y; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
-		}
-	}
-
-	// update object list on all tiles that were affected during previous operations
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
-		}
-	}
-
-	//recompute hero sprite positioning using hero's final position
-	movementPxStep(details, 32, hp, ho);
-}
-*/
 void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

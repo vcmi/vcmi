@@ -1,5 +1,5 @@
 /*
- * MapRendererContext.cpp, part of VCMI engine
+ * MapRendererContextState.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,305 +11,103 @@
 #include "StdInc.h"
 #include "MapRendererContext.h"
 
+#include "MapRendererContextState.h"
 #include "mapHandler.h"
 
+#include "../../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CAdvMapInt.h"
-#include "../../CCallback.h"
 
+#include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/CPathfinder.h"
 
-MapObjectsSorter::MapObjectsSorter(IMapRendererContext & context)
-	: context(context)
+MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
+	: viewState(viewState)
 {
 }
 
-bool MapObjectsSorter::operator()(const ObjectInstanceID & left, const ObjectInstanceID & right) const
-{
-	return (*this)(context.getObject(left), context.getObject(right));
-}
-
-bool MapObjectsSorter::operator()(const CGObjectInstance * left, const CGObjectInstance * right) const
-{
-	//FIXME: remove mh access
-	return CGI->mh->compareObjectBlitOrder(left, right);
-}
-
-int3 MapRendererContext::getMapSize() const
-{
-	return LOCPLINT->cb->getMapSize();
-}
-
-bool MapRendererContext::isInMap(const int3 & coordinates) const
-{
-	return LOCPLINT->cb->isInTheMap(coordinates);
-}
-
-const TerrainTile & MapRendererContext::getMapTile(const int3 & coordinates) const
-{
-	return CGI->mh->getMap()->getTile(coordinates);
-}
-
-const CGObjectInstance * MapRendererContext::getObject(ObjectInstanceID objectID) const
-{
-	return CGI->mh->getMap()->objects.at(objectID.getNum());
-}
-
-bool MapRendererContext::isVisible(const int3 & coordinates) const
-{
-	if (settingsSessionSpectate || showAllTerrain)
-		return LOCPLINT->cb->isInTheMap(coordinates);
-	return LOCPLINT->cb->isVisible(coordinates);
-}
-
-const CGPath * MapRendererContext::currentPath() const
-{
-	if (worldViewModeActive)
-		return nullptr;
-
-	const auto * hero = adventureInt->curHero();
-
-	if(!hero)
-		return nullptr;
-
-	if(!LOCPLINT->paths.hasPath(hero))
-		return nullptr;
-
-	return &LOCPLINT->paths.getPath(hero);
-}
-
-size_t MapRendererContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
-{
-	assert(groupSize > 0);
-	if(groupSize == 0)
-		return 0;
-
-	if (!settingsAdventureObjectAnimation)
-		return 0;
-
-	if (worldViewModeActive)
-		return 0;
-
-	// H3 timing for adventure map objects animation is 180 ms
-	// Terrain animations also use identical interval, however those are only present in HotA and/or HD Mod
-	size_t baseFrameTime = 180;
-
-	// hero movement animation always plays at ~50ms / frame
-	// in-game setting only affect movement across screen
-	if(movementAnimation && movementAnimation->target == objectID)
-		baseFrameTime = 50;
-
-	size_t frameCounter = animationTime / baseFrameTime;
-	size_t frameIndex = frameCounter % groupSize;
-	return frameIndex;
-}
-
-size_t MapRendererContext::terrainImageIndex(size_t groupSize) const
-{
-	if (!settingsAdventureTerrainAnimation)
-		return 0;
-
-	if (worldViewModeActive)
-		return 0;
-
-	size_t baseFrameTime = 180;
-	size_t frameCounter = animationTime / baseFrameTime;
-	size_t frameIndex = frameCounter % groupSize;
-	return frameIndex;
-}
-
-bool MapRendererContext::tileAnimated(const int3 & coordinates) const
-{
-	if (!isInMap(coordinates))
-		return false;
-
-	if(movementAnimation)
-	{
-		auto objects = getObjects(coordinates);
-
-		if(vstd::contains(objects, movementAnimation->target))
-			return true;
-	}
-
-	if(fadeInAnimation)
-	{
-		auto objects = getObjects(coordinates);
-
-		if(vstd::contains(objects, fadeInAnimation->target))
-			return true;
-	}
-
-	if(fadeOutAnimation)
-	{
-		auto objects = getObjects(coordinates);
-
-		if(vstd::contains(objects, fadeOutAnimation->target))
-			return true;
-	}
-	return false;
-}
-
-bool MapRendererContext::filterGrayscale() const
-{
-	return false;
-}
-
-bool MapRendererContext::showRoads() const
-{
-	return true;
-}
-
-bool MapRendererContext::showRivers() const
-{
-	return true;
-}
-
-bool MapRendererContext::showBorder() const
-{
-	return !worldViewModeActive;
-}
-
-bool MapRendererContext::showOverlay() const
-{
-	return worldViewModeActive;
-}
-
-bool MapRendererContext::showGrid() const
-{
-	return settingsSessionShowGrid;
-}
-
-bool MapRendererContext::showVisitable() const
-{
-	return settingsSessionShowVisitable;
-}
-
-bool MapRendererContext::showBlockable() const
-{
-	return settingsSessionShowBlockable;
-}
-
-MapRendererContext::MapRendererContext()
-{
-	auto mapSize = getMapSize();
-
-	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
-
-	for(const auto & obj : CGI->mh->getMap()->objects)
-		addObject(obj);
-}
-
-void MapRendererContext::addObject(const CGObjectInstance * obj)
-{
-	if(!obj)
-		return;
-
-	for(int fx = 0; fx < obj->getWidth(); ++fx)
-	{
-		for(int fy = 0; fy < obj->getHeight(); ++fy)
-		{
-			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-
-			if(isInMap(currTile) && obj->coveringAt(currTile.x, currTile.y))
-			{
-				auto & container = objects[currTile.z][currTile.x][currTile.y];
-
-				container.push_back(obj->id);
-				boost::range::sort(container, MapObjectsSorter(*this));
-			}
-		}
-	}
-}
-
-void MapRendererContext::addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest)
-{
-	int xFrom = std::min(tileFrom.x, tileDest.x) - object->getWidth();
-	int xDest = std::max(tileFrom.x, tileDest.x);
-	int yFrom = std::min(tileFrom.y, tileDest.y) - object->getHeight();
-	int yDest = std::max(tileFrom.y, tileDest.y);
-
-	for(int x = xFrom; x <= xDest; ++x)
-	{
-		for(int y = yFrom; y <= yDest; ++y)
-		{
-			int3 currTile(x, y, object->pos.z);
-
-			if(isInMap(currTile))
-			{
-				auto & container = objects[currTile.z][currTile.x][currTile.y];
-
-				container.push_back(object->id);
-				boost::range::sort(container, MapObjectsSorter(*this));
-			}
-		}
-	}
-}
-
-void MapRendererContext::removeObject(const CGObjectInstance * object)
-{
-	for(int z = 0; z < getMapSize().z; z++)
-		for(int x = 0; x < getMapSize().x; x++)
-			for(int y = 0; y < getMapSize().y; y++)
-				vstd::erase(objects[z][x][y], object->id);
-}
-
-const MapRendererContext::MapObjectsList & MapRendererContext::getObjects(const int3 & coordinates) const
-{
-	assert(isInMap(coordinates));
-	return objects[coordinates.z][coordinates.x][coordinates.y];
-}
-
-size_t MapRendererContext::objectGroupIndex(ObjectInstanceID objectID) const
+uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) const
 {
 	const CGObjectInstance * obj = getObject(objectID);
-	// TODO
-	static const std::vector<size_t> moveGroups = {99, 10, 5, 6, 7, 8, 9, 12, 11};
-	static const std::vector<size_t> idleGroups = {99, 13, 0, 1, 2, 3, 4, 15, 14};
 
 	if(obj->ID == Obj::HERO)
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(obj);
-		if(movementAnimation && movementAnimation->target == objectID)
-			return moveGroups[hero->moveDir];
-		return idleGroups[hero->moveDir];
+		return hero->moveDir;
 	}
 
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 
-		uint8_t direction = boat->hero ? boat->hero->moveDir : boat->direction;
-
-		if(movementAnimation && movementAnimation->target == objectID)
-			return moveGroups[direction];
-		return idleGroups[direction];
+		if(boat->hero)
+			return boat->hero->moveDir;
+		return boat->direction;
 	}
 	return 0;
 }
 
-Point MapRendererContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
+int3 MapRendererBaseContext::getMapSize() const
 {
-	if(movementAnimation && movementAnimation->target == objectID)
-	{
-		int3 offsetTilesFrom = movementAnimation->tileFrom - coordinates;
-		int3 offsetTilesDest = movementAnimation->tileDest - coordinates;
+	return LOCPLINT->cb->getMapSize();
+}
 
-		Point offsetPixelsFrom = Point(offsetTilesFrom) * Point(32, 32);
-		Point offsetPixelsDest = Point(offsetTilesDest) * Point(32, 32);
+bool MapRendererBaseContext::isInMap(const int3 & coordinates) const
+{
+	return LOCPLINT->cb->isInTheMap(coordinates);
+}
 
-		Point result = vstd::lerp(offsetPixelsFrom, offsetPixelsDest, movementAnimation->progress);
+bool MapRendererBaseContext::isVisible(const int3 & coordinates) const
+{
+	if(settingsSessionSpectate)
+		return LOCPLINT->cb->isInTheMap(coordinates);
+	else
+		return LOCPLINT->cb->isVisible(coordinates);
+}
 
-		return result;
-	}
+bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const
+{
+	return false;
+}
 
+const TerrainTile & MapRendererBaseContext::getMapTile(const int3 & coordinates) const
+{
+	return CGI->mh->getMap()->getTile(coordinates);
+}
+
+const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObjects(const int3 & coordinates) const
+{
+	assert(isInMap(coordinates));
+	return viewState.objects[coordinates.z][coordinates.x][coordinates.y];
+}
+
+const CGObjectInstance * MapRendererBaseContext::getObject(ObjectInstanceID objectID) const
+{
+	return CGI->mh->getMap()->objects.at(objectID.getNum());
+}
+
+const CGPath * MapRendererBaseContext::currentPath() const
+{
+	return nullptr;
+}
+
+size_t MapRendererBaseContext::objectGroupIndex(ObjectInstanceID objectID) const
+{
+	static const std::vector<size_t> idleGroups = {0, 13, 0, 1, 2, 3, 4, 15, 14};
+	return idleGroups[getObjectRotation(objectID)];
+}
+
+Point MapRendererBaseContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
+{
 	const CGObjectInstance * object = getObject(objectID);
 	int3 offsetTiles(object->getPosition() - coordinates);
 	return Point(offsetTiles) * Point(32, 32);
 }
 
-double MapRendererContext::objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const
+double MapRendererBaseContext::objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const
 {
 	const CGObjectInstance * object = getObject(objectID);
 
@@ -323,23 +121,213 @@ double MapRendererContext::objectTransparency(ObjectInstanceID objectID, const i
 		if(hero->boat)
 			return 0;
 	}
+	return 1;
+}
 
-	if(showAllTerrain)
-	{
-		if(object->isVisitable() && !LOCPLINT->cb->isVisible(coordinates))
-			return 0;
-	}
+size_t MapRendererBaseContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
+{
+	return 0;
+}
 
-	if(fadeOutAnimation && objectID == fadeOutAnimation->target)
-		return 1.0 - fadeOutAnimation->progress;
+size_t MapRendererBaseContext::terrainImageIndex(size_t groupSize) const
+{
+	return 0;
+}
 
-	if(fadeInAnimation && objectID == fadeInAnimation->target)
-		return fadeInAnimation->progress;
+size_t MapRendererBaseContext::overlayImageIndex(const int3 & coordinates) const
+{
+	return std::numeric_limits<size_t>::max();
+}
+
+bool MapRendererBaseContext::filterGrayscale() const
+{
+	return false;
+}
+
+bool MapRendererBaseContext::showRoads() const
+{
+	return true;
+}
+
+bool MapRendererBaseContext::showRivers() const
+{
+	return true;
+}
+
+bool MapRendererBaseContext::showBorder() const
+{
+	return false;
+}
+
+bool MapRendererBaseContext::showOverlay() const
+{
+	return false;
+}
+
+bool MapRendererBaseContext::showGrid() const
+{
+	return false;
+}
+
+bool MapRendererBaseContext::showVisitable() const
+{
+	return false;
+}
+
+bool MapRendererBaseContext::showBlockable() const
+{
+	return false;
+}
+
+MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContextState & viewState)
+	: MapRendererBaseContext(viewState)
+{
+}
+
+const CGPath * MapRendererAdventureContext::currentPath() const
+{
+	const auto * hero = adventureInt->curHero();
+
+	if(!hero)
+		return nullptr;
+
+	if(!LOCPLINT->paths.hasPath(hero))
+		return nullptr;
+
+	return &LOCPLINT->paths.getPath(hero);
+}
+
+size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
+{
+	assert(groupSize > 0);
+
+	if(!settingsAdventureObjectAnimation)
+		return 0;
+
+	if(groupSize == 0)
+		return 0;
+
+	// usign objectID for frameCounter to add pseudo-random element per-object.
+	// Without it, animation of multiple visible objects of the same type will always be in sync
+	size_t baseFrameTime = 180;
+	size_t frameCounter = animationTime / baseFrameTime + objectID.getNum();
+	size_t frameIndex = frameCounter % groupSize;
+	return frameIndex;
+}
+
+size_t MapRendererAdventureContext::terrainImageIndex(size_t groupSize) const
+{
+	if(!settingsAdventureTerrainAnimation)
+		return 0;
+
+	size_t baseFrameTime = 180;
+	size_t frameCounter = animationTime / baseFrameTime;
+	size_t frameIndex = frameCounter % groupSize;
+	return frameIndex;
+}
+
+bool MapRendererAdventureContext::showBorder() const
+{
+	return true;
+}
+
+bool MapRendererAdventureContext::showGrid() const
+{
+	return settingShowGrid;
+}
+
+bool MapRendererAdventureContext::showVisitable() const
+{
+	return settingShowVisitable;
+}
+
+bool MapRendererAdventureContext::showBlockable() const
+{
+	return settingShowBlockable;
+}
+
+MapRendererAdventureFadingContext::MapRendererAdventureFadingContext(const MapRendererContextState & viewState)
+	: MapRendererAdventureContext(viewState)
+{
+}
+
+bool MapRendererAdventureFadingContext::tileAnimated(const int3 & coordinates) const
+{
+	if(!isInMap(coordinates))
+		return false;
+
+	auto objects = getObjects(coordinates);
+	if(vstd::contains(objects, target))
+		return true;
+
+	return false;
+}
+
+double MapRendererAdventureFadingContext::objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const
+{
+	if(objectID == target)
+		return progress;
 
 	return 1.0;
 }
 
-size_t MapRendererContext::selectOverlayImageForObject(const ObjectPosInfo & object) const
+MapRendererAdventureMovingContext::MapRendererAdventureMovingContext(const MapRendererContextState & viewState)
+	: MapRendererAdventureContext(viewState)
+{
+}
+
+size_t MapRendererAdventureMovingContext::objectGroupIndex(ObjectInstanceID objectID) const
+{
+	if(target == objectID)
+	{
+		static const std::vector<size_t> moveGroups = {0, 10, 5, 6, 7, 8, 9, 12, 11};
+		return moveGroups[getObjectRotation(objectID)];
+	}
+	return MapRendererAdventureContext::objectGroupIndex(objectID);
+}
+
+bool MapRendererAdventureMovingContext::tileAnimated(const int3 & coordinates) const
+{
+	if(!isInMap(coordinates))
+		return false;
+
+	auto objects = getObjects(coordinates);
+	if(vstd::contains(objects, target))
+		return true;
+
+	return false;
+}
+
+Point MapRendererAdventureMovingContext::objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const
+{
+	if(target == objectID)
+	{
+		int3 offsetTilesFrom = tileFrom - coordinates;
+		int3 offsetTilesDest = tileDest - coordinates;
+
+		Point offsetPixelsFrom = Point(offsetTilesFrom) * Point(32, 32);
+		Point offsetPixelsDest = Point(offsetTilesDest) * Point(32, 32);
+
+		Point result = vstd::lerp(offsetPixelsFrom, offsetPixelsDest, progress);
+
+		return result;
+	}
+
+	return MapRendererAdventureContext::objectImageOffset(objectID, coordinates);
+}
+
+size_t MapRendererAdventureMovingContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
+{
+	if(target != objectID)
+		return MapRendererAdventureContext::objectImageIndex(objectID, groupSize);
+
+	int32_t baseFrameTime = 50;
+	size_t frameCounter = animationTime / baseFrameTime;
+	size_t frameIndex = frameCounter % groupSize;
+	return frameIndex;
+}
+
+size_t MapRendererWorldViewContext::selectOverlayImageForObject(const ObjectPosInfo & object) const
 {
 	size_t ownerIndex = PlayerColor::PLAYER_LIMIT.getNum() * static_cast<size_t>(EWorldViewIcon::ICONS_PER_PLAYER);
 
@@ -368,19 +356,18 @@ size_t MapRendererContext::selectOverlayImageForObject(const ObjectPosInfo & obj
 	return std::numeric_limits<size_t>::max();
 }
 
-size_t MapRendererContext::overlayImageIndex(const int3 & coordinates) const
+MapRendererWorldViewContext::MapRendererWorldViewContext(const MapRendererContextState & viewState)
+	: MapRendererBaseContext(viewState)
 {
-	for(const auto & entry : additionalOverlayIcons)
-	{
-		if(entry.pos != coordinates)
-			continue;
+}
 
-		size_t iconIndex = selectOverlayImageForObject(entry);
+bool MapRendererWorldViewContext::showOverlay() const
+{
+	return true;
+}
 
-		if(iconIndex != std::numeric_limits<size_t>::max())
-			return iconIndex;
-	}
-
+size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) const
+{
 	if(!isVisible(coordinates))
 		return std::numeric_limits<size_t>::max();
 
@@ -402,5 +389,93 @@ size_t MapRendererContext::overlayImageIndex(const int3 & coordinates) const
 		if(iconIndex != std::numeric_limits<size_t>::max())
 			return iconIndex;
 	}
+
 	return std::numeric_limits<size_t>::max();
+}
+
+MapRendererSpellViewContext::MapRendererSpellViewContext(const MapRendererContextState & viewState)
+	: MapRendererWorldViewContext(viewState)
+{
+}
+
+double MapRendererSpellViewContext::objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const
+{
+	if(showAllTerrain)
+	{
+		if(getObject(objectID)->isVisitable() && !MapRendererWorldViewContext::isVisible(coordinates))
+			return 0;
+	}
+
+	return MapRendererWorldViewContext::objectTransparency(objectID, coordinates);
+}
+
+bool MapRendererSpellViewContext::isVisible(const int3 & coordinates) const
+{
+	if (showAllTerrain)
+		return isInMap(coordinates);
+	return MapRendererBaseContext::isVisible(coordinates);
+}
+
+size_t MapRendererSpellViewContext::overlayImageIndex(const int3 & coordinates) const
+{
+	for(const auto & entry : additionalOverlayIcons)
+	{
+		if(entry.pos != coordinates)
+			continue;
+
+		size_t iconIndex = selectOverlayImageForObject(entry);
+
+		if(iconIndex != std::numeric_limits<size_t>::max())
+			return iconIndex;
+	}
+
+	return MapRendererWorldViewContext::overlayImageIndex(coordinates);
+}
+
+MapRendererPuzzleMapContext::MapRendererPuzzleMapContext(const MapRendererContextState & viewState)
+	: MapRendererBaseContext(viewState)
+{
+}
+
+MapRendererPuzzleMapContext::~MapRendererPuzzleMapContext() = default;
+
+const CGPath * MapRendererPuzzleMapContext::currentPath() const
+{
+	return grailPos.get();
+}
+
+double MapRendererPuzzleMapContext::objectTransparency(ObjectInstanceID objectID, const int3 & coordinates) const
+{
+	const auto * object = getObject(objectID);
+
+	if(!object)
+		return 0;
+
+	if(object->isVisitable())
+		return 0;
+
+	if(object->ID == Obj::HOLE)
+		return 0;
+
+	return MapRendererBaseContext::objectTransparency(objectID, coordinates);
+}
+
+bool MapRendererPuzzleMapContext::isVisible(const int3 & coordinates) const
+{
+	return LOCPLINT->cb->isInTheMap(coordinates);
+}
+
+bool MapRendererPuzzleMapContext::filterGrayscale() const
+{
+	return true;
+}
+
+bool MapRendererPuzzleMapContext::showRoads() const
+{
+	return false;
+}
+
+bool MapRendererPuzzleMapContext::showRivers() const
+{
+	return false;
 }

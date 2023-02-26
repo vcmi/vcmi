@@ -54,6 +54,33 @@ std::shared_ptr<IImage> MapViewCache::getOverlayImageForTile(const std::shared_p
 	return nullptr;
 }
 
+void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & context, const int3 & tile)
+{
+	int cacheX = (terrainChecksum.shape()[0] + tile.x) % terrainChecksum.shape()[0];
+	int cacheY = (terrainChecksum.shape()[1] + tile.y) % terrainChecksum.shape()[1];
+
+	auto & entry = terrainChecksum[cacheX][cacheY];
+
+	if (entry.tileX == tile.x && entry.tileY ==tile.y)
+		entry = TileChecksum{};
+}
+
+void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & context, const ObjectInstanceID & object)
+{
+	for (size_t cacheY = 0; cacheY < terrainChecksum.shape()[1]; ++cacheY)
+	{
+		for (size_t cacheX = 0; cacheX < terrainChecksum.shape()[0]; ++cacheX)
+		{
+			auto & entry = terrainChecksum[cacheX][cacheY];
+
+			int3 tile( entry.tileX, entry.tileY, cachedLevel);
+
+			if (context->isInMap(tile) && vstd::contains(context->getObjects(tile), object))
+				entry = TileChecksum{};
+		}
+	}
+}
+
 void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates)
 {
 	int cacheX = (terrainChecksum.shape()[0] + coordinates.x) % terrainChecksum.shape()[0];

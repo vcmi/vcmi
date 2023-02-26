@@ -17,6 +17,7 @@ class Canvas;
 class MapRenderer;
 class IMapRendererContext;
 class MapViewModel;
+class ObjectInstanceID;
 
 /// Class responsible for rendering of entire map view
 /// uses rendering parameters provided by owner class
@@ -56,6 +57,9 @@ class MapViewCache
 public:
 	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
 	~MapViewCache();
+
+	void invalidate(const std::shared_ptr<IMapRendererContext> & context, const int3 & tile);
+	void invalidate(const std::shared_ptr<IMapRendererContext> & context, const ObjectInstanceID & object);
 
 	/// updates internal terrain cache according to provided time delta
 	void update(const std::shared_ptr<IMapRendererContext> & context);

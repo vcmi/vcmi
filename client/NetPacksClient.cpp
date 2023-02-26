@@ -444,20 +444,20 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
 
-	//check if playerint will have the knowledge about movement - if not, directly update maphandler
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	if(CGI->mh)
 	{
-		auto ps = gs.getPlayerState(i->first);
-		if(ps && (gs.isVisible(h->convertToVisitablePos(pack.start), i->first) || gs.isVisible(h->convertToVisitablePos(pack.end), i->first)))
+		switch (pack.result)
 		{
-			if(ps->human)
-				pack.humanKnows = true;
+			case TryMoveHero::EMBARK:
+				CGI->mh->onBeforeHeroEmbark(h, pack.start, pack.end);
+				break;
+			case TryMoveHero::TELEPORTATION:
+				CGI->mh->onBeforeHeroTeleported(h, pack.start, pack.end);
+				break;
+			case TryMoveHero::DISEMBARK:
+				CGI->mh->onBeforeHeroDisembark(h, pack.start, pack.end);
+				break;
 		}
-	}
-
-	if(CGI->mh && pack.result == TryMoveHero::EMBARK)
-	{
-		CGI->mh->onObjectFadeOut(h);
 		CGI->mh->waitForOngoingAnimations();
 	}
 }
@@ -471,23 +471,17 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 	{
 		switch(pack.result)
 		{
-			case TryMoveHero::FAILED:
-				break; // no-op
 			case TryMoveHero::SUCCESS:
 				CGI->mh->onHeroMoved(h, pack.start, pack.end);
 				break;
-			case TryMoveHero::TELEPORTATION:
-				CGI->mh->onHeroTeleported(h, pack.start, pack.end);
-				break;
-			case TryMoveHero::BLOCKING_VISIT:
-				CGI->mh->onHeroRotated(h, pack.start, pack.end);
-				break;
 			case TryMoveHero::EMBARK:
-				// handled in ApplyFirst
-				//CGI->mh->onObjectFadeOut(h);
+				CGI->mh->onAfterHeroEmbark(h, pack.start, pack.end);
+				break;
+			case TryMoveHero::TELEPORTATION:
+				CGI->mh->onAfterHeroTeleported(h, pack.start, pack.end);
 				break;
 			case TryMoveHero::DISEMBARK:
-				CGI->mh->onObjectFadeIn(h);
+				CGI->mh->onAfterHeroDisembark(h, pack.start, pack.end);
 				break;
 		}
 	}

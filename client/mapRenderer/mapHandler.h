@@ -59,9 +59,13 @@ public:
 	void onObjectFadeOut(const CGObjectInstance * obj);
 	void onObjectInstantAdd(const CGObjectInstance * obj);
 	void onObjectInstantRemove(const CGObjectInstance * obj);
-	void onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
+	void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
+	void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
+	void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
+	void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
+	void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
+	void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
-	void onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 
 	/// Add object to receive notifications on any changes in visible map state
 	void addMapObserver(IMapObjectObserver * observer);

@@ -22,49 +22,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
 
-/*
-void CMapPuzzleViewBlitter::drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const
-{
-	CMapBlitter::drawObjects(targetSurf, tile);
-
-	// grail X mark
-	if(pos.x == info->grailPos.x && pos.y == info->grailPos.y)
-	{
-		const auto mark = graphics->heroMoveArrows->getImage(0);
-		mark->draw(targetSurf,realTileRect.x,realTileRect.y);
-	}
-}
-*/
-/*
-void CMapPuzzleViewBlitter::postProcessing(SDL_Surface * targetSurf) const
-{
-	CSDL_Ext::applyEffect(targetSurf, info->drawBounds, static_cast<int>(!ADVOPT.puzzleSepia));
-}
-*/
-/*
-bool CMapPuzzleViewBlitter::canDrawObject(const CGObjectInstance * obj) const
-{
-	if (!CMapBlitter::canDrawObject(obj))
-		return false;
-
-	//don't print flaggable objects in puzzle mode
-	if (obj->isVisitable())
-		return false;
-
-	if(std::find(unblittableObjects.begin(), unblittableObjects.end(), obj->ID) != unblittableObjects.end())
-		return false;
-
-	return true;
-}
-*/
-/*
-CMapPuzzleViewBlitter::CMapPuzzleViewBlitter(CMapHandler * parent)
-	: CMapNormalBlitter(parent)
-{
-	unblittableObjects.push_back(Obj::HOLE);
-}
-*/
-
 bool CMapHandler::hasOngoingAnimations()
 {
 	for (auto * observer : observers)
@@ -196,6 +153,30 @@ void CMapHandler::onObjectFadeOut(const CGObjectInstance * obj)
 		observer->onObjectFadeOut(obj);
 }
 
+void CMapHandler::onBeforeHeroEmbark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+{
+	for (auto * observer : observers)
+		observer->onBeforeHeroEmbark(obj, from, dest);
+}
+
+void CMapHandler::onAfterHeroEmbark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+{
+	for (auto * observer : observers)
+		observer->onAfterHeroEmbark(obj, from, dest);
+}
+
+void CMapHandler::onBeforeHeroDisembark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+{
+	for (auto * observer : observers)
+		observer->onBeforeHeroDisembark(obj, from, dest);
+}
+
+void CMapHandler::onAfterHeroDisembark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+{
+	for (auto * observer : observers)
+		observer->onAfterHeroDisembark(obj, from, dest);
+}
+
 void CMapHandler::onObjectInstantAdd(const CGObjectInstance * obj)
 {
 	for (auto * observer : observers)
@@ -208,11 +189,18 @@ void CMapHandler::onObjectInstantRemove(const CGObjectInstance * obj)
 		observer->onObjectInstantRemove(obj);
 }
 
-void CMapHandler::onHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+void CMapHandler::onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(obj->pos == dest);
 	for (auto * observer : observers)
-		observer->onHeroTeleported(obj, from, dest);
+		observer->onAfterHeroTeleported(obj, from, dest);
+}
+
+void CMapHandler::onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
+{
+	assert(obj->pos == from);
+	for (auto * observer : observers)
+		observer->onBeforeHeroTeleported(obj, from, dest);
 }
 
 void CMapHandler::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
@@ -220,13 +208,6 @@ void CMapHandler::onHeroMoved(const CGHeroInstance * obj, const int3 & from, con
 	assert(obj->pos == dest);
 	for (auto * observer : observers)
 		observer->onHeroMoved(obj, from, dest);
-}
-
-void CMapHandler::onHeroRotated(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
-{
-	assert(obj->pos == from);
-	for (auto * observer : observers)
-		observer->onHeroRotated(obj, from, dest);
 }
 
 void CMapHandler::addMapObserver(IMapObjectObserver * object)

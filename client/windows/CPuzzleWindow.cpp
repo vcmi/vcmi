@@ -16,6 +16,7 @@
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
+#include "../mapRenderer/MapView.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
@@ -37,6 +38,8 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	quitb = std::make_shared<CButton>(Point(670, 538), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
+
+	mapView = std::make_shared<PuzzleMapView>(Point(8,9), Point(591, 544), grailPos);
 
 	logo = std::make_shared<CPicture>("PUZZLOGO", 607, 3);
 	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
@@ -68,16 +71,6 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 
 void CPuzzleWindow::showAll(SDL_Surface * to)
 {
-	assert(0);
-	//int3 moveInt = int3(8, 9, 0);
-	//Rect mapRect = Rect(Point(pos.x + 8, pos.y + 7), Point(544, 591));
-	//int3 topTile = grailPos - moveInt;
-
-	//MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), mapRect);
-	//info.puzzleMode = true;
-	//info.grailPos = grailPos;
-	//CGI->mh->drawTerrainRectNew(to, &info);
-
 	CWindowObject::showAll(to);
 }
 

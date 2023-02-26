@@ -48,6 +48,7 @@ set(client_SRCS
 
 	mapRenderer/MapRenderer.cpp
 	mapRenderer/MapRendererContext.cpp
+	mapRenderer/MapRendererContextState.cpp
 	mapRenderer/MapView.cpp
 	mapRenderer/MapViewActions.cpp
 	mapRenderer/MapViewCache.cpp
@@ -170,6 +171,7 @@ set(client_HEADERS
 	mapRenderer/IMapRendererObserver.h
 	mapRenderer/MapRenderer.h
 	mapRenderer/MapRendererContext.h
+	mapRenderer/MapRendererContextState.h
 	mapRenderer/MapView.h
 	mapRenderer/MapViewActions.h
 	mapRenderer/MapViewCache.h

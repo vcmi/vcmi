@@ -593,8 +593,6 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	std::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
 	boost::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
-	bool humanKnows = false; //used locally during applying to client
-
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	bool stopMovement() const
