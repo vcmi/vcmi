@@ -1,6 +1,4 @@
 set(Nullkiller_SRCS
-		StdInc.cpp
-
 		Pathfinding/AIPathfinderConfig.cpp
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
@@ -54,7 +52,6 @@ set(Nullkiller_SRCS
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
-		main.cpp
 		AIGateway.cpp
 )
 
@@ -120,19 +117,23 @@ set(Nullkiller_HEADERS
 		AIGateway.h
 )
 
+if(NOT ENABLE_STATIC_AI_LIBS)
+	list(APPEND Nullkiller_SRCS main.cpp StdInc.cpp)
+endif()
 assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
-if(ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+list(APPEND requiredLibs fuzzylite::fuzzylite TBB::tbb)
+
+if(ENABLE_STATIC_AI_LIBS)
+	list(TRANSFORM Nullkiller_SRCS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+	set(VCMILIB_AI_SOURCES ${VCMILIB_AI_SOURCES} ${Nullkiller_SRCS} PARENT_SCOPE)
+	set(VCMILIB_AI_LIBRARIES ${VCMILIB_AI_LIBRARIES} ${requiredLibs} PARENT_SCOPE)
 	return()
 endif()
 
 add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
-
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(Nullkiller PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
-
-target_link_libraries(Nullkiller PRIVATE TBB::tbb)
+target_link_libraries(Nullkiller PRIVATE ${VCMI_LIB_TARGET} ${requiredLibs})
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)

@@ -1177,6 +1177,11 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(J
 	CVCMIServer::create();
 }
 
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
+{
+	CAndroidVMHelper::initClassloader(baseEnv);
+}
+
 #elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
 {

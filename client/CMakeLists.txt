@@ -251,12 +251,16 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_dependencies(vcmiclient vcmiserver BattleAI VCAI)
-if(NOT ANDROID)
-	add_dependencies(vcmiclient StupidAI)
-endif()
-if(ENABLE_NULLKILLER_AI)
-	add_dependencies(vcmiclient Nullkiller)
+add_dependencies(vcmiclient vcmiserver)
+if(NOT ENABLE_STATIC_AI_LIBS)
+	add_dependencies(vcmiclient
+		BattleAI
+		StupidAI
+		VCAI
+	)
+	if(ENABLE_NULLKILLER_AI)
+		add_dependencies(vcmiclient Nullkiller)
+	endif()
 endif()
 if(APPLE_IOS)
 	if(ENABLE_ERM)

@@ -1,11 +1,8 @@
 set(battleAI_SRCS
-		StdInc.cpp
-
 		AttackPossibility.cpp
 		BattleAI.cpp
 		common.cpp
 		EnemyInfo.cpp
-		main.cpp
 		PossibleSpellcast.cpp
 		PotentialTargets.cpp
 		StackWithBonuses.cpp
@@ -27,9 +24,14 @@ set(battleAI_HEADERS
 		BattleExchangeVariant.h
 )
 
+if(NOT ENABLE_STATIC_AI_LIBS)
+	list(APPEND battleAI_SRCS main.cpp StdInc.cpp)
+endif()
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})
 
-if(ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+if(ENABLE_STATIC_AI_LIBS)
+	list(TRANSFORM battleAI_SRCS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+	set(VCMILIB_AI_SOURCES ${VCMILIB_AI_SOURCES} ${battleAI_SRCS} PARENT_SCOPE)
 	return()
 endif()
 

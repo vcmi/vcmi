@@ -1,6 +1,4 @@
 set(VCAI_SRCS
-		StdInc.cpp
-
 		Pathfinding/AIPathfinderConfig.cpp
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
@@ -42,7 +40,6 @@ set(VCAI_SRCS
 		Goals/GetArtOfType.cpp
 		Goals/FindObj.cpp
 		Goals/CompleteQuest.cpp
-		main.cpp
 		VCAI.cpp
 )
 
@@ -97,17 +94,23 @@ set(VCAI_HEADERS
 		VCAI.h
 )
 
+if(NOT ENABLE_STATIC_AI_LIBS)
+	list(APPEND VCAI_SRCS main.cpp StdInc.cpp)
+endif()
 assign_source_group(${VCAI_SRCS} ${VCAI_HEADERS})
 
-if(ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+list(APPEND requiredLibs fuzzylite::fuzzylite)
+
+if(ENABLE_STATIC_AI_LIBS)
+	list(TRANSFORM VCAI_SRCS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+	set(VCMILIB_AI_SOURCES ${VCMILIB_AI_SOURCES} ${VCAI_SRCS} PARENT_SCOPE)
+	set(VCMILIB_AI_LIBRARIES ${VCMILIB_AI_LIBRARIES} ${requiredLibs} PARENT_SCOPE)
 	return()
 endif()
 
 add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
-
 target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(VCAI PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
+target_link_libraries(VCAI PRIVATE ${VCMI_LIB_TARGET} ${requiredLibs})
 
 vcmi_set_output_dir(VCAI "AI")
 enable_pch(VCAI)

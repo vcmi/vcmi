@@ -109,8 +109,4 @@ void CAndroidVMHelper::initClassloader(void * baseEnv)
 	vcmiFindClassMethod = env->GetMethodID(classLoaderClass, "findClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
-{
-	CAndroidVMHelper::initClassloader(baseEnv);
-}
 #endif
