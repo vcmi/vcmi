@@ -186,12 +186,13 @@ class CCreaInfo : public CIntObject
 	std::string genGrowthText();
 
 public:
-	CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact=false, bool showAvailable=false);
+	CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact=false, bool _showAvailable=false);
 
 	void update();
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
+	bool getShowAvailable();
 };
 
 /// Town hall and fort icons for town screen
@@ -251,6 +252,7 @@ public:
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
 	void recreateIcons();
+	void creaturesChangedEventHandler();
 };
 
 /// Hall window where you can build things
@@ -340,7 +342,7 @@ class CFortScreen : public CStatusbarWindow
 	public:
 		RecruitArea(int posX, int posY, const CGTownInstance *town, int level);
 
-		void creaturesChanged();
+		void creaturesChangedEventHandler();
 		void hover(bool on) override;
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
@@ -355,7 +357,7 @@ class CFortScreen : public CStatusbarWindow
 public:
 	CFortScreen(const CGTownInstance * town);
 
-	void creaturesChanged();
+	void creaturesChangedEventHandler();
 };
 
 /// The mage guild screen where you can see which spells you have

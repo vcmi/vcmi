@@ -1225,9 +1225,13 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
-		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt().get());
-		if (fs)
-			fs->creaturesChanged();
+		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.topInt().get());
+		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.topInt().get());
+
+		if (fortScreen)
+			fortScreen->creaturesChangedEventHandler();
+		else if(castleInterface)
+			castleInterface->creaturesChangedEventHandler();
 
 		for(auto isa : GH.listInt)
 		{
