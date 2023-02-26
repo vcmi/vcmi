@@ -74,7 +74,7 @@ def RenameOutput(final baseName, final variant) {
 
 	ResolveGitInfo()
 
-	def name = baseName + "-" + ext.gitInfoLauncher + "-" + ext.gitInfoVcmi
+	def name = baseName + "-" + ext.gitInfoVcmi
 
 	if (buildTaskId != null && !buildTaskId.isEmpty()) {
 		name = buildTaskId + "-" + name
@@ -109,14 +109,13 @@ def CommandOutput(final cmd, final arguments, final cwd) {
 }
 
 def ResolveGitInfo() {
-	if (ext.gitInfoLauncher != "none" && ext.gitInfoVcmi != "none") {
+	if (ext.gitInfoVcmi != "none") {
 		return
 	}
-	ext.gitInfoLauncher = CommandOutput("git", ["describe", "--match=", "--always", "--abbrev=7"], PROJECT_PATH_BASE)
 	ext.gitInfoVcmi =
-		CommandOutput("git", ["log", "-1", "--pretty=%D", "--decorate-refs=refs/remotes/origin/*"], PROJECT_PATH_BASE + "/ext/vcmi").replace("origin/", "").replace(", HEAD", "").replaceAll("[^a-zA-Z0-9\\-_]", "_") +
+		CommandOutput("git", ["log", "-1", "--pretty=%D", "--decorate-refs=refs/remotes/origin/*"], ".").replace("origin/", "").replace(", HEAD", "").replaceAll("[^a-zA-Z0-9\\-_]", "_") +
 		"-" +
-		CommandOutput("git", ["describe", "--match=", "--always", "--abbrev=7"], PROJECT_PATH_BASE + "/ext/vcmi")
+		CommandOutput("git", ["describe", "--match=", "--always", "--abbrev=7"], ".")
 }
 
 def SigningPropertiesPath(final basePath) {
