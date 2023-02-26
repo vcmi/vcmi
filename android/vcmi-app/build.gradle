@@ -4,6 +4,7 @@ plugins {
 
 android {
 	compileSdk 31
+	ndkVersion '25.2.9519653'
 
 	defaultConfig {
 		applicationId "is.xyz.vcmi"
@@ -12,21 +13,6 @@ android {
 		versionCode 1103
 		versionName "1.1"
 		setProperty("archivesBaseName", "vcmi")
-
-		externalNativeBuild {
-			cmake {
-				version "3.18+"
-				arguments "-DANDROID_STL=${VCMI_STL_VERSION}",
-					"-DANDROID_NATIVE_API_LEVEL=${VCMI_PLATFORM}",
-					"-DANDROID_TOOLCHAIN=clang",
-					"-DVCMI_ROOT=${PROJECT_PATH_BASE}"
-				cppFlags "-frtti", "-fexceptions", "-Wno-switch"
-			}
-		}
-		ndk {
-			abiFilters = new HashSet<>()
-			abiFilters.addAll(VCMI_ABIS)
-		}
 	}
 
 	signingConfigs {
@@ -34,18 +20,21 @@ android {
 		LoadSigningConfig(PROJECT_PATH_BASE)
 	}
 
-	sourceSets {
-		main {
-			jniLibs.srcDirs = ["${PROJECT_PATH_BASE}/ext-output"]
-		}
-	}
-
 	buildTypes {
+		debug {
+			debuggable true
+			ndk {
+				debugSymbolLevel 'full'
+			}
+		}
 		release {
 			minifyEnabled false
 			zipAlignEnabled true
 			signingConfig signingConfigs.releaseSigning
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+			ndk {
+				debugSymbolLevel 'symbol_table'
+			}
 		}
 	}
 
@@ -60,66 +49,9 @@ android {
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
 
-	externalNativeBuild {
-		cmake {
-			version "3.18.0+"
-			path file('cmake-scripts/CMakeLists.txt')
-		}
-	}
-
 	buildFeatures {
 		viewBinding true
 		dataBinding true
-	}
-
-	flavorDimensions "vcmi"
-	productFlavors {
-		VcmiOnly {
-			dimension "vcmi"
-			externalNativeBuild {
-				cmake {
-					version "3.18+"
-					targets "vcmi",
-							"vcmiserver",
-							"vcmiclient"
-				}
-			}
-		}
-		LibsOnly {
-			dimension "vcmi"
-			externalNativeBuild {
-				cmake {
-					version "3.18+"
-					targets "boost-datetime",
-						"boost-system",
-						"boost-filesystem",
-						"boost-locale",
-						"boost-program-options",
-						"boost-thread",
-						"fl-shared",
-						"minizip"
-				}
-			}
-		}
-		AllTargets {
-			dimension "vcmi"
-			externalNativeBuild {
-				cmake {
-					version "3.18+"
-					targets "boost-datetime",
-						"boost-system",
-						"boost-filesystem",
-						"boost-locale",
-						"boost-program-options",
-						"boost-thread",
-						"fl-shared",
-						"minizip",
-						"vcmi",
-						"vcmiserver",
-						"vcmiclient"
-				}
-			}
-		}
 	}
 }
 
