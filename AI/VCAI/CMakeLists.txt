@@ -99,20 +99,15 @@ if(NOT ENABLE_STATIC_AI_LIBS)
 endif()
 assign_source_group(${VCAI_SRCS} ${VCAI_HEADERS})
 
-list(APPEND requiredLibs fuzzylite::fuzzylite)
-
 if(ENABLE_STATIC_AI_LIBS)
-	list(TRANSFORM VCAI_SRCS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
-	set(VCMILIB_AI_SOURCES ${VCMILIB_AI_SOURCES} ${VCAI_SRCS} PARENT_SCOPE)
-	set(VCMILIB_AI_LIBRARIES ${VCMILIB_AI_LIBRARIES} ${requiredLibs} PARENT_SCOPE)
-	return()
+	add_library(VCAI STATIC ${VCAI_SRCS} ${VCAI_HEADERS})
+else()
+	add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
+	install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 
-add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
 target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(VCAI PRIVATE ${VCMI_LIB_TARGET} ${requiredLibs})
+target_link_libraries(VCAI PUBLIC ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
 
 vcmi_set_output_dir(VCAI "AI")
 enable_pch(VCAI)
-
-install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

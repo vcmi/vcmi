@@ -122,23 +122,19 @@ if(NOT ENABLE_STATIC_AI_LIBS)
 endif()
 assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
-list(APPEND requiredLibs fuzzylite::fuzzylite TBB::tbb)
-
 if(ENABLE_STATIC_AI_LIBS)
-	list(TRANSFORM Nullkiller_SRCS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
-	set(VCMILIB_AI_SOURCES ${VCMILIB_AI_SOURCES} ${Nullkiller_SRCS} PARENT_SCOPE)
-	set(VCMILIB_AI_LIBRARIES ${VCMILIB_AI_LIBRARIES} ${requiredLibs} PARENT_SCOPE)
-	return()
+	add_library(Nullkiller STATIC ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+else()
+	add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+	install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 
-add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller PRIVATE ${VCMI_LIB_TARGET} ${requiredLibs})
+target_link_libraries(Nullkiller PUBLIC ${VCMI_LIB_TARGET} fuzzylite::fuzzylite TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
 
-install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 if(APPLE_IOS AND NOT USING_CONAN)
 	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
 endif()

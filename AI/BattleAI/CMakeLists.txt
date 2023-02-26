@@ -30,16 +30,14 @@ endif()
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})
 
 if(ENABLE_STATIC_AI_LIBS)
-	list(TRANSFORM battleAI_SRCS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
-	set(VCMILIB_AI_SOURCES ${VCMILIB_AI_SOURCES} ${battleAI_SRCS} PARENT_SCOPE)
-	return()
+	add_library(BattleAI STATIC ${battleAI_SRCS} ${battleAI_HEADERS})
+else()
+	add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
+	install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 
-add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
 target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(BattleAI PRIVATE ${VCMI_LIB_TARGET})
 
 vcmi_set_output_dir(BattleAI "AI")
 enable_pch(BattleAI)
-
-install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
