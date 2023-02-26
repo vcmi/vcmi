@@ -756,6 +756,9 @@ namespace vstd
 }
 using vstd::operator-=;
 
+VCMI_LIB_NAMESPACE_END
+
+
 #ifdef NO_STD_TOSTRING
 namespace std
 {
@@ -768,5 +771,3 @@ namespace std
 	}
 }
 #endif // NO_STD_TOSTRING
-
-VCMI_LIB_NAMESPACE_END

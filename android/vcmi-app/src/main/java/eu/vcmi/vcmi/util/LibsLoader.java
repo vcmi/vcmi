@@ -18,6 +18,7 @@ public final class LibsLoader
         SDL.setContext(ctx);
     }
 
+    // not used in single-process build
     public static void loadServerLibs()
     {
         SDL.loadLibrary("vcmiserver");
