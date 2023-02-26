@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher" ],
+	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -30,7 +30,8 @@
 				"notifications",
 				"extraDump",
 				"userRelativePointer",
-				"relativePointerSpeedMultiplier"
+				"relativePointerSpeedMultiplier",
+				"lastSettingsTab"
 			],
 			"properties" : {
 				"playerName" : {
@@ -73,6 +74,10 @@
 				"lastSave" : {
 					"type":"string",
 					"default" : "NEWGAME"
+				},
+				"lastSettingsTab" : {
+					"type" : "number",
+					"default" : 0
 				},
 				"lastCampaign" : {
 					"type":"string",
@@ -421,7 +426,7 @@
 					],
 					"items" : {
 						"type" : "string"
-					},
+					}
 				},
 				"enableInstalledMods" : {
 					"type" : "boolean",
@@ -462,6 +467,45 @@
 					"type" : "number",
 					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
 					"default" : 2000
+				}
+			}
+		},
+		"gameTweaks" : {
+			"type": "object",
+			"default": {},
+			"additionalProperties": false,
+			"required": [
+				"showGrid",
+				"forceMovementInfo",
+				"numericCreaturesQuantities",
+				"availableCreaturesAsDwellingLabel",
+				"compactTownCreatureInfo",
+				"skipBattleIntroMusic"
+			],
+			"properties": {
+				"showGrid": {
+					"type": "boolean",
+					"default": false
+				},
+				"forceMovementInfo": {
+					"type": "boolean",
+					"default": false
+				},
+				"numericCreaturesQuantities": {
+					"type": "boolean",
+					"default": false
+				},
+				"availableCreaturesAsDwellingLabel" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"compactTownCreatureInfo" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"skipBattleIntroMusic" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		}

@@ -1,0 +1,358 @@
+{
+	"items":
+	[
+		{
+			"name": "animationSpeedLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.393",
+			"position": {"x": 122, "y": 224}
+		},
+		{
+			"name": "autoCombatOptionsLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.396",
+			"position": {"x": 353, "y": 56}
+		},
+		{
+			"name": "creatureInfoLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.397",
+			"position": {"x": 98, "y": 295}
+		},
+
+		{
+			"name": "creaturesAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.398",
+			"position": {"x": 283, "y": 76}
+		},
+		{
+			"name": "spellsAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.399",
+			"position": {"x": 283, "y": 106}
+		},
+		{
+			"name": "catapultAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.400",
+			"position": {"x": 283, "y": 136}
+		},
+		{
+			"name": "ballistaAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.151",
+			"position": {"x": 283, "y": 166}
+		},
+		{
+			"name": "aidTentAutoCombatLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.401",
+			"position": {"x": 283, "y": 196}
+		},
+
+		{
+			"name": "creatureInfoAllStatsLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.402",
+			"position": {"x": 61, "y": 315}
+		},
+		{
+			"name": "creatureInfoOnlySpellsLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.403",
+			"position": {"x": 61, "y": 345}
+		},
+
+		{
+			"name": "viewGridLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.404",
+			"position": {"x": 61, "y": 57}
+		},
+		{
+			"name": "showMovementRangeLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.405",
+			"position": {"x": 61, "y": 90}
+		},
+		{
+			"name": "mouseShadowLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.406",
+			"position": {"x": 61, "y": 123}
+		},
+		{
+			"name": "battleCasualtiesLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "core.genrltxt.407",
+			"position": {"x": 61, "y": 156}
+		},
+
+		{
+			"name": "viewGridCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.427",
+			"position": {"x": 25, "y": 56},
+			"callback": "viewGridChanged"
+		},
+		{
+			"name": "movementShadowCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.428",
+			"position": {"x": 25, "y": 89},
+			"callback": "movementShadowChanged"
+		},
+		{
+			"name": "mouseShadowCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.429",
+			"position": {"x": 25, "y": 122},
+			"callback": "mouseShadowChanged"
+		},
+
+		{
+			"name": "animationSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 233},
+			"items":
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "sysopb9",
+					"help": "core.help.422",
+					"position": {"x": 0, "y": 0}
+				},
+
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "sysob10",
+					"help": "core.help.423",
+					"position": {"x": 64, "y": 0}
+				},
+
+				{
+					"index": 3,
+					"type": "toggleButton",
+					"image": "sysob11",
+					"help": "core.help.424",
+					"position": {"x": 128, "y": 0}
+				},
+				{
+					"index": 6,
+					"type": "toggleButton",
+					"image": "buttons/square",
+					"help": "vcmi.battleOptions.animationsSpeed4",
+					"position": {"x": 192, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleAnimationsSpeed4",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.animationsSpeed4.hover"
+						}
+					]
+				},
+				{
+					"index": 12,
+					"type": "toggleButton",
+					"image": "buttons/square",
+					"help": "vcmi.battleOptions.animationsSpeed5",
+					"position": {"x": 229, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleAnimationsSpeed5",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.animationsSpeed5.hover"
+						}
+					]
+				},
+				{
+					"index": 24,
+					"type": "toggleButton",
+					"image": "buttons/square",
+					"help": "vcmi.battleOptions.animationsSpeed6",
+					"position": {"x": 266, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleAnimationsSpeed6",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.animationsSpeed6.hover"
+						}
+					]
+				}
+			],
+			"callback": "animationSpeedChanged"
+		},
+
+		{
+			"name": "showQueueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.battleOptions.showQueue.hover",
+			"position": {"x": 61, "y": 393}
+		},
+
+		{
+			"name": "showQueueCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.showQueue",
+			"position": {"x": 25, "y": 391},
+			"callback": "showQueueChanged"
+		},
+
+		{
+			"name": "queueSizeLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "yellow",
+			"text": "vcmi.battleOptions.queueSizeLabel.hover",
+			"position": {"x": 60, "y": 429}
+		},
+
+		{
+			"name": "queueSizePicker",
+			"type": "toggleGroup",
+			"position": {"x": 28, "y": 450},
+			"items":
+			[
+				{
+					"index": 0, //auto
+					"type": "toggleButton",
+					"image": "buttons/triplewide",
+					"help": "vcmi.battleOptions.queueSizeAutoButton",
+					"position": {"x": 0, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeAutoText",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeAutoButton.hover"
+						}
+					]
+				},
+				{
+					"index": 1, //small
+					"type": "toggleButton",
+					"image": "buttons/triplewide",
+					"help": "vcmi.battleOptions.queueSizeSmallButton",
+					"position": {"x": 113, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeSmallText",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeSmallButton.hover"
+						}
+					]
+				},
+				{
+					"index": 2, //large
+					"type": "toggleButton",
+					"image": "buttons/triplewide",
+					"help": "vcmi.battleOptions.queueSizeBigButton",
+					"position": {"x": 226, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeBigText",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeBigButton.hover"
+						}
+					]
+				}
+			],
+			"callback": "queueSizeChanged"
+		},
+
+		{
+			"name": "skipBattleIntroMusicLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
+			"position": {"x": 61, "y": 502}
+		},
+
+		{
+			"name": "skipBattleIntroMusicCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.skipBattleIntroMusic",
+			"position": {"x": 25, "y": 500},
+			"callback": "skipBattleIntroMusicChanged"
+		}
+	]
+}

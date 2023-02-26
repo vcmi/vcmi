@@ -91,6 +91,11 @@ set(client_SRCS
 	windows/GUIClasses.cpp
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
+	windows/settings/GeneralOptionsTab.cpp
+	windows/settings/OtherOptionsTab.cpp
+	windows/settings/SettingsMainWindow.cpp
+	windows/settings/BattleOptionsTab.cpp
+	windows/settings/AdventureOptionsTab.cpp
 
 	CGameInfo.cpp
 	CMT.cpp
@@ -203,6 +208,11 @@ set(client_HEADERS
 	windows/GUIClasses.h
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
+	windows/settings/GeneralOptionsTab.h
+	windows/settings/OtherOptionsTab.h
+	windows/settings/SettingsMainWindow.h
+	windows/settings/BattleOptionsTab.h
+	windows/settings/AdventureOptionsTab.h
 
 	CGameInfo.h
 	CMT.h

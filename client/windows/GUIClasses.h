@@ -198,58 +198,6 @@ public:
 	void keyPressed(const SDL_Keycode & key) override;
 };
 
-class CSystemOptionsWindow : public CWindowObject
-{
-private:
-	std::shared_ptr<CLabel> title;
-	std::shared_ptr<CLabelGroup> leftGroup;
-	std::shared_ptr<CLabelGroup> rightGroup;
-	std::shared_ptr<CButton> load;
-	std::shared_ptr<CButton> save;
-	std::shared_ptr<CButton> restart;
-	std::shared_ptr<CButton> mainMenu;
-	std::shared_ptr<CButton> quitGame;
-	std::shared_ptr<CButton> backToMap; //load and restart are not used yet
-	std::shared_ptr<CToggleGroup> heroMoveSpeed;
-	std::shared_ptr<CToggleGroup> enemyMoveSpeed;
-	std::shared_ptr<CToggleGroup> mapScrollSpeed;
-	std::shared_ptr<CVolumeSlider> musicVolume;
-	std::shared_ptr<CVolumeSlider> effectsVolume;
-
-	std::shared_ptr<CToggleButton> showReminder;
-	std::shared_ptr<CToggleButton> quickCombat;
-	std::shared_ptr<CToggleButton> spellbookAnim;
-	std::shared_ptr<CToggleButton> fullscreen;
-
-	std::shared_ptr<CButton> gameResButton;
-	std::shared_ptr<CLabel> gameResLabel;
-
-	SettingsListener onFullscreenChanged;
-
-	std::vector<Point> supportedResolutions;
-	std::vector<Point> selectableResolutions;
-
-	//functions bound to buttons
-	void bloadf(); //load game
-	void bsavef(); //save game
-	void bquitf(); //quit game
-	void breturnf(); //return to game
-	void brestartf(); //restart game
-	void bmainmenuf(); //return to main menu
-
-	void setFullscreenMode( bool on);
-	void fillSelectableResolutions();
-	bool isResolutionSupported(const Point & resolution);
-	bool isResolutionSupported(const Point & resolution, bool fullscreen);
-
-	void selectGameRes();
-	void setGameRes(int index);
-	void closeAndPushEvent(EUserEvent code);
-
-public:
-	CSystemOptionsWindow();
-};
-
 class CTavernWindow : public CStatusbarWindow
 {
 public:

@@ -920,7 +920,7 @@ void CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingInfo * info)
 	drawOverlayEx(targetSurf);
 
 	// drawDebugGrid()
-	if (settings["session"]["showGrid"].Bool())
+	if (settings["gameTweaks"]["showGrid"].Bool())
 	{
 		for (realPos.x = initPos.x, pos.x = topTile.x; pos.x < topTile.x + tileCount.x; pos.x++, realPos.x += tileSize)
 		{

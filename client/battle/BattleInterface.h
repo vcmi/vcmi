@@ -112,6 +112,7 @@ class BattleInterface
 	/// defender interface, not null if attacker is human in our vcmiclient
 	std::shared_ptr<CPlayerInterface> defenderInt;
 
+	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
 	/// copy of initial armies (for result window)
@@ -169,15 +170,13 @@ public:
 
 	void appendBattleLog(const std::string & newEntry);
 
-	void setPrintCellBorders(bool set); //if true, cell borders will be printed
-	void setPrintStackRange(bool set); //if true,range of active stack will be printed
-	void setPrintMouseShadow(bool set); //if true, hex under mouse will be shaded
-	void setAnimSpeed(int set); //speed of animation; range 1..100
-	int getAnimSpeed() const; //speed of animation; range 1..100
+	void redrawBattlefield(); //refresh GUI after changing stack range / grid settings
 	CPlayerInterface *getCurrentPlayerInterface() const;
 
 	void tacticNextStack(const CStack *current);
 	void tacticPhaseEnd();
+
+	void setBattleQueueVisibility(bool visible);
 
 	/// sets condition to targeted state and executes any awaiting actions
 	void setAnimationCondition( EAnimationEvents event, bool state);

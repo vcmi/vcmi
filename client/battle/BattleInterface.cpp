@@ -97,7 +97,22 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 
 	CCS->musich->stopMusic();
 	setAnimationCondition(EAnimationEvents::OPENING, true);
-	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+
+	GH.pushInt(windowObject);
+	windowObject->blockUI(true);
+	windowObject->updateQueue();
+
+	playIntroSoundAndUnlockInterface();
+}
+
+void BattleInterface::playIntroSoundAndUnlockInterface()
+{
+	if(settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+	{
+		onIntroSoundPlayed();
+		return;
+	}
+
 	auto onIntroPlayed = [this]()
 	{
 		if(LOCPLINT->battleInt)
@@ -107,10 +122,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		}
 	};
 
-	GH.pushInt(windowObject);
-	windowObject->blockUI(true);
-	windowObject->updateQueue();
-
+	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
 	else
@@ -145,28 +157,10 @@ BattleInterface::~BattleInterface()
 	setAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
-void BattleInterface::setPrintCellBorders(bool set)
+void BattleInterface::redrawBattlefield()
 {
-	Settings cellBorders = settings.write["battle"]["cellBorders"];
-	cellBorders->Bool() = set;
-
 	fieldController->redrawBackgroundWithHexes();
 	GH.totalRedraw();
-}
-
-void BattleInterface::setPrintStackRange(bool set)
-{
-	Settings stackRange = settings.write["battle"]["stackRange"];
-	stackRange->Bool() = set;
-
-	fieldController->redrawBackgroundWithHexes();
-	GH.totalRedraw();
-}
-
-void BattleInterface::setPrintMouseShadow(bool set)
-{
-	Settings shadow = settings.write["battle"]["mouseShadow"];
-	shadow->Bool() = set;
 }
 
 void BattleInterface::stackReset(const CStack * stack)
@@ -516,20 +510,6 @@ void BattleInterface::displaySpellHit(const CSpell * spell, BattleHex destinatio
 		displaySpellAnimationQueue(spell, spell->animationInfo.hit, destinationTile, true);
 }
 
-void BattleInterface::setAnimSpeed(int set)
-{
-	Settings speed = settings.write["battle"]["speedFactor"];
-	speed->Float() = float(set);
-}
-
-int BattleInterface::getAnimSpeed() const
-{
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
-		return static_cast<int>(std::round(settings["session"]["spectate-battle-speed"].Float()));
-
-	return static_cast<int>(std::round(settings["battle"]["speedFactor"].Float()));
-}
-
 CPlayerInterface *BattleInterface::getCurrentPlayerInterface() const
 {
 	return curInt.get();
@@ -765,4 +745,12 @@ void BattleInterface::waitForAnimationCondition( EAnimationEvents event, bool st
 void BattleInterface::executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action)
 {
 	awaitingEvents.push_back({action, event, state});
+}
+
+void BattleInterface::setBattleQueueVisibility(bool visible)
+{
+	if(visible)
+		windowObject->showQueue();
+	else
+		windowObject->hideQueue();
 }

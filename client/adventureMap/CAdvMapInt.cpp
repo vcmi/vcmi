@@ -35,6 +35,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
+#include "../windows/settings/SettingsMainWindow.h"
 #include "../CMT.h"
 
 #include "../../CCallback.h"
@@ -346,7 +347,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	GH.pushIntT<CSystemOptionsWindow>();
+	GH.pushIntT<SettingsMainWindow>();
 }
 
 void CAdvMapInt::fnextHero()
@@ -1322,7 +1323,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(mapPos);
 		assert(pathNode);
 
-		if(GH.isKeyboardAltDown() && pathNode->reachable()) //overwrite status bar text with movement info
+		if((GH.isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
 		{
 			showMoveDetailsInStatusbar(*hero, *pathNode);
 		}

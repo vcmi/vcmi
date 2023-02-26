@@ -1,0 +1,10 @@
+{
+	"basepath" : "buttons/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "triplewide-normal.png"},
+		{ "frame" : 1, "file" : "triplewide-pressed-selected.png"},
+		{ "frame" : 2, "file" : "triplewide-pressed.png"},
+		{ "frame" : 3, "file" : "triplewide-normal-selected.png"}
+	]
+}

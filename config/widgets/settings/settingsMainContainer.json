@@ -1,0 +1,165 @@
+{
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "vcmiSettingsWindow",
+			"position": {"x": 0, "y": 0}
+		},
+
+		{
+			"name": "settingsTabs",
+			"type": "toggleGroup",
+			"position": {
+				"x": 0,
+				"y": 0
+			},
+			"items":
+			[
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"position": {"x": 0, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.generalTab",
+					"items":
+					[
+						{
+							"name": "generalTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.settingsMainWindow.generalTab.hover"
+						}
+					]
+				},
+
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"position": {"x": 150, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.adventureTab",
+					"items":
+					[
+						{
+							"name": "generalTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.settingsMainWindow.adventureTab.hover"
+						}
+					]
+				},
+
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"position": {"x": 300, "y": 0},
+					"image": "buttons/quadwide",
+					"help": "vcmi.settingsMainWindow.battleTab",
+					"items":
+					[
+						{
+							"name": "adventureTabButtonTitle",
+							"type": "label",
+							"font": "big",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.settingsMainWindow.battleTab.hover"
+						}
+					]
+				}
+				//disabled, due to being redundant for now
+//				{
+//					"index": 3,
+//					"type": "toggleButton",
+//					"position": {"x": 450, "y": 0},
+//					"image": "buttons/quadwide",
+//					"help": "vcmi.settingsMainWindow.otherTab",
+//					"items":
+//					[
+//						{
+//							"name": "otherTabButtonTitle",
+//							"type": "label",
+//							"font": "big",
+//							"alignment": "center",
+//							"color": "yellow",
+//							"text": "vcmi.settingsMainWindow.otherTab.hover"
+//						}
+//					]
+//				}
+			],
+			"callback": "activateSettingsTab"
+		},
+
+		{
+			"name": "loadButton",
+			"type": "button",
+			"position": {"x": 386, "y": 383},
+			"image": "SOLOAD.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.321",
+			"callback": "loadGame",
+			"hotkey": "l"
+		},
+
+		{
+			"name": "saveButton",
+			"type": "button",
+			"position": {"x": 497, "y": 383},
+			"image": "SOSAVE.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.322",
+			"callback": "saveGame",
+			"hotkey": "s"
+		},
+
+		{
+			"name": "restartButton",
+			"type": "button",
+			"position": {"x": 386, "y": 442},
+			"image": "SORSTRT.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.323",
+			"callback": "restartGame",
+			"hotkey": "r"
+		},
+
+		{
+			"name": "mainMenuButton",
+			"type": "button",
+			"position": {"x": 497, "y": 442},
+			"image": "SOMAIN.DEF",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.320",
+			"callback": "returnToMainMenu",
+			"hotkey": "m"
+		},
+
+		{
+			"name": "quitButton",
+			"type": "button",
+			"position": {"x": 386, "y": 500},
+			"image": "soquit.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.324",
+			"callback": "quitGame",
+			"hotkey": "q"
+		},
+
+		{
+			"name": "closeSettingsButton",
+			"type": "button",
+			"position": {"x": 497, "y": 500},
+			"image": "soretrn.def",
+			"imageOrder": [1, 0, 2, 3],
+			"help": "core.help.325",
+			"callback": "closeWindow",
+			"hotkey": ["esc", "backspace"]
+		}
+	]
+}
