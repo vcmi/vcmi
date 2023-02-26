@@ -29,6 +29,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CGameState.h"
+#include "../../lib/CConfigHandler.h"
 
 void CHoverableArea::hover (bool on)
 {
@@ -256,7 +257,16 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		{
 			//if =0 - we have no information about stack size at all
 			if(slot.second.count)
-				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+			{
+				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+				{
+					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.count);
+				}
+				else
+				{
+					subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+				}
+			}
 		}
 
 		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));

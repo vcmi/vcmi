@@ -23,6 +23,19 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const std::map<CCreature::CreatureQuantityId, std::string> CCreature::creatureQuantityRanges =
+{
+		{CCreature::CreatureQuantityId::FEW, "1-4"},
+		{CCreature::CreatureQuantityId::SEVERAL, "5-9"},
+		{CCreature::CreatureQuantityId::PACK, "10-19"},
+		{CCreature::CreatureQuantityId::LOTS, "20-49"},
+		{CCreature::CreatureQuantityId::HORDE, "50-99"},
+		{CCreature::CreatureQuantityId::THRONG, "100-249"},
+		{CCreature::CreatureQuantityId::SWARM, "250-499"},
+		{CCreature::CreatureQuantityId::ZOUNDS, "500-999"},
+		{CCreature::CreatureQuantityId::LEGION, "1000+"}
+};
+
 int32_t CCreature::getIndex() const
 {
 	return idNumber.toEnum();
@@ -185,25 +198,36 @@ std::string CCreature::getNameSingularTextID() const
 	return TextIdentifier("creatures", modScope, identifier, "name", "singular" ).get();
 }
 
-int CCreature::getQuantityID(const int & quantity)
+CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
-		return 1;
+		return CCreature::CreatureQuantityId::FEW;
 	if (quantity<10)
-		return 2;
+		return CCreature::CreatureQuantityId::SEVERAL;
 	if (quantity<20)
-		return 3;
+		return CCreature::CreatureQuantityId::PACK;
 	if (quantity<50)
-		return 4;
+		return CCreature::CreatureQuantityId::LOTS;
 	if (quantity<100)
-		return 5;
+		return CCreature::CreatureQuantityId::HORDE;
 	if (quantity<250)
-		return 6;
+		return CCreature::CreatureQuantityId::THRONG;
 	if (quantity<500)
-		return 7;
+		return CCreature::CreatureQuantityId::SWARM;
 	if (quantity<1000)
-		return 8;
-	return 9;
+		return CCreature::CreatureQuantityId::ZOUNDS;
+
+	return CCreature::CreatureQuantityId::LEGION;
+}
+
+std::string CCreature::getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId)
+{
+	if(creatureQuantityRanges.find(quantityId) != creatureQuantityRanges.end())
+		return creatureQuantityRanges.at(quantityId);
+
+	logGlobal->error("Wrong quantityId: %d", (int)quantityId);
+	assert(0);
+	return "[ERROR]";
 }
 
 int CCreature::estimateCreatureCount(ui32 countID)

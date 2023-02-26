@@ -3105,7 +3105,7 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 		if(detailed)
 			(*this)[elem.first] = *elem.second;
 		else
-			(*this)[elem.first] = CStackBasicDescriptor(elem.second->type, elem.second->getQuantityID());
+			(*this)[elem.first] = CStackBasicDescriptor(elem.second->type, (int)elem.second->getQuantityID());
 	}
 }
 

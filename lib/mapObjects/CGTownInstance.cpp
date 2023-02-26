@@ -14,6 +14,7 @@
 #include "../spells/CSpellHandler.h"
 
 #include "../NetPacks.h"
+#include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
@@ -190,7 +191,10 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.player = h->tempOwner;
 		bd.text.addTxt(MetaString::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
 		bd.text.addReplacement(ID == Obj::CREATURE_GENERATOR1 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
-		bd.text.addReplacement(MetaString::ARRAY_TXT, 173 + Slots().begin()->second->getQuantityID()*3);
+		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+			bd.text.addReplacement(CCreature::getQuantityRangeStringForId(Slots().begin()->second->getQuantityID()));
+		else
+			bd.text.addReplacement(MetaString::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
 		bd.text.addReplacement(*Slots().begin()->second);
 		cb->showBlockingDialog(&bd);
 		return;
