@@ -1145,28 +1145,41 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() const
 {
 	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
-	if (!skillsInfo.wisdomCounter)
-	{
-		if (canLearnSkill(SecondarySkill::WISDOM))
-			obligatorySkills.emplace_back(SecondarySkill::WISDOM);
-	}
-	if (!skillsInfo.magicSchoolCounter)
-	{
-		std::vector<SecondarySkill> ss =
-		{
-			SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC
-		};
 
+	auto getObligatorySkills = [](CSkill::Obligatory obl){
+		std::vector<SecondarySkill> obligatory = {};
+		for(int i = 0; i < VLC->skillh->size(); i++)
+			if((*VLC->skillh)[SecondarySkill(i)]->obligatory(obl))
+			{
+				obligatory.emplace_back(i);
+				break;
+			}
+		return obligatory;
+	};
+
+	auto selectObligatorySkill = [&](std::vector<SecondarySkill>& ss) -> void
+	{
 		std::shuffle(ss.begin(), ss.end(), skillsInfo.rand.getStdGenerator());
 
 		for(const auto & skill : ss)
 		{
-			if (canLearnSkill(skill)) //only schools hero doesn't know yet
+			if (canLearnSkill(skill)) //only skills hero doesn't know yet
 			{
 				obligatorySkills.push_back(skill);
 				break; //only one
 			}
 		}
+	};
+
+	if (!skillsInfo.wisdomCounter)
+	{
+		auto obligatory = getObligatorySkills(CSkill::Obligatory::MAJOR);
+		selectObligatorySkill(obligatory);
+	}
+	if (!skillsInfo.magicSchoolCounter)
+	{
+		auto obligatory = getObligatorySkills(CSkill::Obligatory::MINOR);
+		selectObligatorySkill(obligatory);
 	}
 
 	std::vector<SecondarySkill> skills;
@@ -1339,20 +1352,12 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 	//deterministic secondary skills
 	skillsInfo.magicSchoolCounter = (skillsInfo.magicSchoolCounter + 1) % maxlevelsToMagicSchool();
 	skillsInfo.wisdomCounter = (skillsInfo.wisdomCounter + 1) % maxlevelsToWisdom();
-	if(vstd::contains(skills, SecondarySkill::WISDOM))
+	for(const auto & skill : skills)
 	{
-		skillsInfo.resetWisdomCounter();
-	}
-
-	SecondarySkill spellSchools[] = {
-		SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC};
-	for(const auto & skill : spellSchools)
-	{
-		if(vstd::contains(skills, skill))
-		{
+		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MAJOR))
+			skillsInfo.resetWisdomCounter();
+		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MINOR))
 			skillsInfo.resetMagicSchoolCounter();
-			break;
-		}
 	}
 
 	//update specialty and other bonuses that scale with level

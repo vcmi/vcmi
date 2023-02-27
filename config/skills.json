@@ -196,6 +196,7 @@
 	},
 	"wisdom" : {
 		"index" : 7,
+		"obligatoryMajor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -401,6 +402,7 @@
 	},
 	"fireMagic" : {
 		"index" : 14,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -428,6 +430,7 @@
 	},
 	"airMagic" : {
 		"index" : 15,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -455,6 +458,7 @@
 	},
 	"waterMagic" : {
 		"index" : 16,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -482,6 +486,7 @@
 	},
 	"earthMagic" : {
 		"index" : 17,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
