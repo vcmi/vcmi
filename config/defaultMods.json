@@ -50,6 +50,11 @@
 			"type" : "SPELL_DAMAGE", //Default spell damage
 			"val" : 100,
 			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
+			"val" : 2,
+			"valueType" : "BASE_NUMBER"
 		}
 	],
 	"heroBaseBonuses":

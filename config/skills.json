@@ -198,8 +198,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.wisdom",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MAX_LEARNABLE_SPELL_LEVEL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

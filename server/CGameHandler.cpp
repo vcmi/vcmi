@@ -682,11 +682,8 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	sss.abs = abs;
 	sendAndApply(&sss);
 
-	if (which == SecondarySkill::WISDOM)
-	{
-		if (hero->visitedTown)
-			giveSpells(hero->visitedTown, hero);
-	}
+	if (hero->visitedTown)
+		giveSpells(hero->visitedTown, hero);
 }
 
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, const CGHeroInstance * heroDefender)

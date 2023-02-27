@@ -1078,7 +1078,7 @@ const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
 
 int CGHeroInstance::maxSpellLevel() const
 {
-	return std::min(GameConstants::SPELL_LEVELS, 2 + valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::WISDOM)));
+	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(Bonus::MAX_LEARNABLE_SPELL_LEVEL)));
 }
 
 void CGHeroInstance::deserializationFix()
