@@ -478,7 +478,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	background.reset();
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
-#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
+#if !defined(VCMI_MOBILE)
 	giveFocus();
 #endif
 }
@@ -495,7 +495,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
-#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
+#if !defined(VCMI_MOBILE)
 	giveFocus();
 #endif
 }
@@ -512,7 +512,7 @@ CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	background->pos = pos;
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
-#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
+#if !defined(VCMI_MOBILE)
 	giveFocus();
 #endif
 }

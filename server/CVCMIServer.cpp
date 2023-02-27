@@ -59,7 +59,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 #include <execinfo.h>
 #endif
 
@@ -169,7 +169,7 @@ void CVCMIServer::run()
 	if(!restartGameplay)
 	{
 		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 		if(cmdLineOptions.count("enable-shm"))
 		{
 			std::string sharedMemoryName = "vcmi_memory";
@@ -999,7 +999,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -1103,7 +1103,7 @@ int main(int argc, const char * argv[])
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 

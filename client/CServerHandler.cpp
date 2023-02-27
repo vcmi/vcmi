@@ -261,7 +261,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 	const ui16 port = shm ? shm->sr->port : 0;
 #else
 	const ui16 port = 0;
@@ -876,7 +876,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 
 void CServerHandler::threadRunServer()
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 	setThreadName("CServerHandler::threadRunServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()

@@ -198,7 +198,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-#if !defined(VCMI_IOS) && !defined(VCMI_ANDROID)
+#if !defined(VCMI_MOBILE)
 	CConsoleHandler * console;
 #endif
 	ELogLevel::ELogLevel threshold;

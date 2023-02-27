@@ -906,7 +906,7 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 
 bool CSDL_Ext::isResolutionSupported(const std::vector<Point> & resolutions, const Point toTest )
 {
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	// ios can use any resolution
 	// presumably, same goes for Android
 	return true;

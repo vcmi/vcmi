@@ -24,7 +24,7 @@ std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
 	if (settings["video"]["cursor"].String() == "auto")
 	{
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 		return std::make_unique<CursorSoftware>();
 #else
 		return std::make_unique<CursorHardware>();

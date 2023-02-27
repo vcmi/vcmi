@@ -60,7 +60,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 //#  warning "Unknown Apple target."?
 #  endif
 #else
-#  error "VCMI supports only Windows, OSX, Linux and Android targets"
+#  error "This platform isn't supported"
+#endif
+
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#define VCMI_MOBILE
 #endif
 
 // Each compiler uses own way to supress fall through warning. Try to find it.
