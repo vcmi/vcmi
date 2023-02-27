@@ -595,9 +595,7 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t
 
 	spell->forEachSchool([&, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		int32_t thisSchool = std::max<int32_t>(
-			valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, cnf.skill),
-			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (static_cast<ui8>(cnf.id)))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int32_t thisSchool = valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (static_cast<ui8>(cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;

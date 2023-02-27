@@ -410,8 +410,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.fireMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 2,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -438,8 +438,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.airMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 1,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -466,8 +466,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.waterMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 4,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -494,8 +494,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.earthMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 8,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
