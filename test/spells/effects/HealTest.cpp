@@ -411,7 +411,7 @@ TEST_P(HealApplyTest, Heals)
 	}
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByConfig1,
 	HealApplyTest,
@@ -422,7 +422,7 @@ INSTANTIATE_TEST_CASE_P
 	)
 );
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByConfig2,
 	HealApplyTest,

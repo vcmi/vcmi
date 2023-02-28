@@ -18,9 +18,15 @@ class FactionID;
 class CreatureMock : public Creature
 {
 public:
+	MOCK_CONST_METHOD0(getNameTranslated, std::string ());
+	MOCK_CONST_METHOD0(getNameTextID, std::string ());
+	MOCK_CONST_METHOD0(getNameSingularTranslated, std::string ());
+	MOCK_CONST_METHOD0(getNameSingularTextID, std::string ());
+	MOCK_CONST_METHOD0(getNamePluralTranslated, std::string ());
+	MOCK_CONST_METHOD0(getNamePluralTextID, std::string ());
 	MOCK_CONST_METHOD0(getIndex, int32_t());
 	MOCK_CONST_METHOD0(getIconIndex, int32_t());
-	MOCK_CONST_METHOD0(getJsonKey, const std::string &());
+	MOCK_CONST_METHOD0(getJsonKey, std::string ());
 	MOCK_CONST_METHOD0(getName, const std::string &());
 	MOCK_CONST_METHOD0(getId, CreatureID());
 	MOCK_CONST_METHOD0(getBonusBearer, const IBonusBearer *());

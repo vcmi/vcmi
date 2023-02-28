@@ -127,7 +127,7 @@ TEST_P(SummonTest, Transform)
 	EXPECT_THAT(transformed, ContainerEq(expected));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByConfig,
 	SummonTest,
@@ -270,7 +270,7 @@ TEST_P(SummonApplyTest, UpdatesOldUnit)
 	subject->apply(&serverMock, &mechanicsMock, target);
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByConfig,
 	SummonApplyTest,

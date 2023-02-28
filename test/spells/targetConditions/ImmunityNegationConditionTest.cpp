@@ -68,7 +68,7 @@ TEST_P(ImmunityNegationConditionTest, WithBattleWideNegation)
 	EXPECT_EQ(!ownerMatches, subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByUnitOwner,
 	ImmunityNegationConditionTest,
