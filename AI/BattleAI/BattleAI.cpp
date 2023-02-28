@@ -117,9 +117,9 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		attemptCastingSpell();
 
-		if(auto ret = cb->battleIsFinished())
+		if(cb->battleIsFinished() || !stack->alive())
 		{
-			//spellcast may finish battle
+			//spellcast may finish battle or kill active stack
 			//send special preudo-action
 			BattleAction cancel;
 			cancel.actionType = EActionType::CANCEL;
