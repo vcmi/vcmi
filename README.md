@@ -36,6 +36,7 @@ Platform support is constantly tested by continuous integration and CMake config
  * [On macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(macOS))
  * [On Windows using MSVC and Vcpkg](https://wiki.vcmi.eu/How_to_build_VCMI_(Windows/Vcpkg))
  * [iOS on macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(iOS))
+ * [Android on any OS](https://wiki.vcmi.eu/How_to_build_VCMI_(Android))
 
 ## Copyright and license
 
