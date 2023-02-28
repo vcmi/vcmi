@@ -1151,8 +1151,7 @@ void CAdvMapInt::onTileHovered(const int3 &mapPos)
 	}
 	else
 	{
-		std::string hlp;
-		CGI->mh->getTerrainDescr(mapPos, hlp, false);
+		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false);
 		statusbar->write(hlp);
 	}
 
@@ -1309,10 +1308,9 @@ void CAdvMapInt::onTileRightClicked(const int3 &mapPos)
 	{
 		// Bare or undiscovered terrain
 		const TerrainTile * tile = LOCPLINT->cb->getTile(mapPos);
-		if (tile)
+		if(tile)
 		{
-			std::string hlp;
-			CGI->mh->getTerrainDescr(mapPos, hlp, true);
+			std::string hlp = CGI->mh->getTerrainDescr(mapPos, true);
 			CRClickPopup::createAndPush(hlp);
 		}
 		return;

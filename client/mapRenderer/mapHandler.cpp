@@ -14,6 +14,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../CCallback.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -40,41 +41,32 @@ void CMapHandler::waitForOngoingAnimations()
 	}
 }
 
-void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRMB) const
+std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) const
 {
 	const TerrainTile & t = map->getTile(pos);
 
 	if(t.hasFavorableWinds())
+		return CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
+
+	std::string result = t.terType->getNameTranslated();
+
+	for(const auto & object : map->objects)
 	{
-		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
-		return;
+		if(object->coveringAt(pos.x, pos.y) && object->pos.z == pos.z && object->isTile2Terrain())
+		{
+			result = object->getObjectName();
+			break;
+		}
 	}
-	//const TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];
-	bool isTile2Terrain = false;
-	out.clear();
 
-	//for(auto & elem : tt.objects)
-	//{
-	//	if(elem.obj)
-	//	{
-	//		out = elem.obj->getObjectName();
-	//		if(elem.obj->ID == Obj::HOLE)
-	//			return;
-
-	//		isTile2Terrain = elem.obj->isTile2Terrain();
-	//		break;
-	//	}
-	//}
-
-	if(!isTile2Terrain || out.empty())
-		out = t.terType->getNameTranslated();
-
-	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
+	if(LOCPLINT->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
 	{
-		out = boost::str(boost::format(isRMB ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
-			% out 
+		return boost::str(boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
+			% result
 			% CGI->generaltexth->allTexts[330]); // 'digging ok'
 	}
+
+	return result;
 }
 
 bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)

@@ -72,7 +72,7 @@ public:
 	void removeMapObserver(IMapObjectObserver * observer);
 
 	/// returns string description for terrain interaction
-	void getTerrainDescr(const int3 & pos, std::string & out, bool isRMB) const;
+	std::string getTerrainDescr(const int3 & pos, bool rightClick) const;
 
 	/// returns list of ambient sounds for specified tile
 	std::vector<std::string> getAmbientSounds(const int3 & tile);
