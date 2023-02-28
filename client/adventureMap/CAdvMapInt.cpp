@@ -725,11 +725,6 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 				return;
 			if(h)
 			{
-				auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-				//TODO!!!!!!! possible freeze, when GS mutex is locked and network thread can't apply package
-				//this thread leaves scope and tries to lock pim while holding gs,
-				//network thread tries to lock gs (appluy cl) while holding pim
-				//this thread should first lock pim, however gs locking/unlocking is done inside cb
 				LOCPLINT->cb->moveHero(h,h->pos);
 			}
 		}
@@ -746,7 +741,8 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 		}
 	case SDLK_ESCAPE:
 		{
-			if(isActive() || GH.topInt().get() != this || !spellBeingCasted)
+			//FIXME: this case is never executed since AdvMapInt is disabled while in spellcasting mode
+			if(!isActive() || GH.topInt().get() != this || !spellBeingCasted)
 				return;
 
 			leaveCastingMode();
@@ -1049,7 +1045,11 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
 		return;
-	if(!LOCPLINT->cb->isVisible(mapPos) || !LOCPLINT->makingTurn)
+
+	//FIXME: this line breaks H3 behavior for Dimension Door
+	if(!LOCPLINT->cb->isVisible(mapPos))
+		return;
+	if(!LOCPLINT->makingTurn)
 		return;
 
 	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);

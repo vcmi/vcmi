@@ -322,6 +322,7 @@ void MapViewController::onBeforeHeroTeleported(const CGHeroInstance * obj, const
 	{
 		// TODO: generate view with old state
 		setViewCenter(obj->getSightCenter());
+		removeObject(obj);
 	}
 }
 
@@ -333,6 +334,7 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 	{
 		// TODO: animation
 		setViewCenter(obj->getSightCenter());
+		addObject(obj);
 	}
 	else
 	{
@@ -344,6 +346,10 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(!hasOngoingAnimations());
+
+	// revisiting via spacebar, no need to animate
+	if (from == dest)
+		return;
 
 	const CGObjectInstance * movingObject = obj;
 	if(obj->boat)

@@ -11,13 +11,16 @@
 
 #include "../../lib/Point.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class ObjectInstanceID;
+VCMI_LIB_NAMESPACE_END
+
 class IImage;
 class CAnimation;
 class Canvas;
 class MapRenderer;
 class IMapRendererContext;
 class MapViewModel;
-class ObjectInstanceID;
 
 /// Class responsible for rendering of entire map view
 /// uses rendering parameters provided by owner class
