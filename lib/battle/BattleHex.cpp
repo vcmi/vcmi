@@ -55,7 +55,7 @@ void BattleHex::setXY(si16 x, si16 y, bool hasToBeValid)
 {
 	if(hasToBeValid)
 	{
-		if(!(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT))
+		if(x < 0 || x >= GameConstants::BFIELD_WIDTH || y < 0 || y >= GameConstants::BFIELD_HEIGHT)
 			throw std::runtime_error("Valid hex required");
 	}
 
@@ -84,7 +84,8 @@ std::pair<si16, si16> BattleHex::getXY() const
 
 BattleHex& BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
 {
-	si16 x(getX()), y(getY());
+	si16 x = getX();
+	si16 y = getY();
 	switch(dir)
 	{
 	case TOP_LEFT:
@@ -135,7 +136,7 @@ std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
 	ret.reserve(6);
-	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+	for(auto dir : hexagonalDirections())
 		checkAndPush(cloneInDirection(dir, false), ret);
 	return ret;
 }
@@ -145,7 +146,7 @@ std::vector<BattleHex> BattleHex::allNeighbouringTiles() const
 	std::vector<BattleHex> ret;
 	ret.resize(6);
 
-	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+	for(auto dir : hexagonalDirections())
 		ret[dir] = cloneInDirection(dir, false);
 
 	return ret;
@@ -153,20 +154,23 @@ std::vector<BattleHex> BattleHex::allNeighbouringTiles() const
 
 BattleHex::EDir BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
-	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
-		if(hex2 == hex1.cloneInDirection(dir,false))
+	for(auto dir : hexagonalDirections())
+		if(hex2 == hex1.cloneInDirection(dir, false))
 			return dir;
 	return NONE;
 }
 
 uint8_t BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 {
-	int y1 = hex1.getY(), y2 = hex2.getY();
+	int y1 = hex1.getY();
+	int y2 = hex2.getY();
 
-	// FIXME: Omit floating point arithmetics
-	int x1 = (int)(hex1.getX() + y1 * 0.5), x2 = (int)(hex2.getX() + y2 * 0.5);
+	// FIXME: why there was * 0.5 instead of / 2?
+	int x1 = static_cast<int>(hex1.getX() + y1 / 2);
+	int x2 = static_cast<int>(hex2.getX() + y2 / 2);
 
-	int xDst = x2 - x1, yDst = y2 - y1;
+	int xDst = x2 - x1;
+	int yDst = y2 - y1;
 
 	if ((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0))
 		return std::max(std::abs(xDst), std::abs(yDst));

@@ -14,21 +14,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-ReachabilityInfo::Parameters::Parameters()
+ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition):
+	perspective(static_cast<BattlePerspective::BattlePerspective>(Stack->unitSide())),
+	startPosition(StartPosition),
+	doubleWide(Stack->doubleWide()),
+	side(Stack->unitSide()),
+	flying(Stack->hasBonusOfType(Bonus::FLYING))
 {
-	perspective = BattlePerspective::ALL_KNOWING;
-	side = 0;
-	doubleWide = flying = false;
-}
-
-ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition)
-{
-	perspective = (BattlePerspective::BattlePerspective)(Stack->unitSide());
-	startPosition = StartPosition;
-	doubleWide = Stack->doubleWide();
-	side = Stack->unitSide();
-	flying = Stack->hasBonusOfType(Bonus::FLYING);
 	knownAccessible = battle::Unit::getHexes(startPosition, doubleWide, side);
 }
 

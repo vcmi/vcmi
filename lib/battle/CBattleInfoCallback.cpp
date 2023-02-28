@@ -66,7 +66,7 @@ static const std::pair<int, EWallPart> wallParts[] =
 
 static EWallPart hexToWallPart(BattleHex hex)
 {
-	for(auto & elem : wallParts)
+	for(const auto & elem : wallParts)
 	{
 		if(elem.first == hex)
 			return elem.second;
@@ -77,7 +77,7 @@ static EWallPart hexToWallPart(BattleHex hex)
 
 static BattleHex WallPartToHex(EWallPart part)
 {
-	for(auto & elem : wallParts)
+	for(const auto & elem : wallParts)
 	{
 		if(elem.second == part)
 			return elem.first;
@@ -117,7 +117,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 		if(battleCastSpells(side.get()) > 0)
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 
-		auto hero = dynamic_cast<const CGHeroInstance *>(caster);
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
 
 		if(!hero)
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
@@ -242,7 +242,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		if(stack->canMove() && stack->Speed(0, true)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
 
-		auto siegedTown = battleGetDefendedTown();
+		const auto * siegedTown = battleGetDefendedTown();
 		if(siegedTown && siegedTown->hasFort() && stack->hasBonusOfType(Bonus::CATAPULT)) //TODO: check shots
 			allowedActionList.push_back(PossiblePlayerBattleAction::CATAPULT);
 		if(stack->hasBonusOfType(Bonus::HEALER))
@@ -315,7 +315,7 @@ SpellID CBattleInfoCallback::battleGetRandomStackSpell(CRandomGenerator & rand, 
 const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyAlive) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
-	for(auto s : battleGetAllStacks(true))
+	for(const auto * s : battleGetAllStacks(true))
 		if(vstd::contains(s->getHexes(), pos) && (!onlyAlive || s->alive()))
 			return s;
 
@@ -484,7 +484,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, c
 		return;
 	}
 
-	for(auto one : all)
+	for(const auto * one : all)
 	{
 		if((actualTurn == 0 && !one->willMove()) //we are considering current round and unit won't move
 		|| (actualTurn > 0 && !one->canMove(turn)) //unit won't be able to move in later rounds
@@ -574,11 +574,11 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 		else
 		{
 			//Not tactics phase -> destination must be reachable and within unit range.
-			if(cache.distances[i] > (int)unitSpeed)
+			if(cache.distances[i] > static_cast<int>(unitSpeed))
 				continue;
 		}
 
-		ret.push_back(i);
+		ret.emplace_back(i);
 	}
 
 	return ret;
@@ -596,6 +596,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 	{
 		std::vector<BattleHex> occupiable;
 
+		occupiable.reserve(ret.size());
 		for(auto hex : ret)
 			occupiable.push_back(unit->occupiedHex(hex));
 
@@ -615,7 +616,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 			});
 			return availableNeighbor != ret.end();
 		};
-		for(auto otherSt : battleAliveUnits(otherSide(unit->unitSide())))
+		for(const auto * otherSt : battleAliveUnits(otherSide(unit->unitSide())))
 		{
 			if(!otherSt->isValidTarget(false))
 				continue;
@@ -852,7 +853,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	}
 
 	//tiles occupied by standing stacks
-	for(auto unit : battleAliveUnits())
+	for(const auto * unit : battleAliveUnits())
 	{
 		for(auto hex : unit->getHexes())
 			if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
@@ -883,7 +884,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			std::make_pair(EWallPart::UPPER_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
 		};
 
-		for(auto & elem : lockedIfNotDestroyed)
+		for(const auto & elem : lockedIfNotDestroyed)
 		{
 			if(battleGetWallState(elem.first) != EWallState::DESTROYED)
 				ret[elem.second] = EAccessibility::DESTRUCTIBLE_WALL;
@@ -928,7 +929,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	hexq.push(params.startPosition);
 	ret.distances[params.startPosition] = 0;
 
-	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache;
+	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache{};
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
 		accessibleCache[hex] = accessibility.accessible(hex, params.doubleWide, params.side);
 
@@ -1032,7 +1033,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 			}
 	}
 
-	if (stackPairs.size())
+	if(!stackPairs.empty())
 	{
 		auto comparator = [](DistStack lhs, DistStack rhs) { return lhs.distanceToPred < rhs.distanceToPred; };
 		auto minimal = boost::min_element(stackPairs, comparator);
@@ -1042,7 +1043,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 		return std::make_pair<const battle::Unit * , BattleHex>(nullptr, BattleHex::INVALID);
 }
 
-BattleHex CBattleInfoCallback::getAvaliableHex(CreatureID creID, ui8 side, int initialPos) const
+BattleHex CBattleInfoCallback::getAvaliableHex(const CreatureID & creID, ui8 side, int initialPos) const
 {
 	bool twoHex = VLC->creh->objects[creID]->isDoubleWide();
 
@@ -1141,7 +1142,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 
 	BattleHex attackOriginHex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 
-	auto defender = battleGetUnitByPos(destinationTile, true);
+	const auto * defender = battleGetUnitByPos(destinationTile, true);
 	if (!defender)
 		return at; // can't attack thin air
 
@@ -1161,7 +1162,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 		{
 			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
-				auto st = battleGetUnitByPos(tile, true);
+				const auto * st = battleGetUnitByPos(tile, true);
 				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
 					at.hostileCreaturePositions.insert(tile);
 			}
@@ -1181,7 +1182,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 		for(BattleHex tile : hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
-			auto st = battleGetUnitByPos(tile, true);
+			const auto * st = battleGetUnitByPos(tile, true);
 			if(st && st != attacker)
 				at.friendlyCreaturePositions.insert(tile);
 		}
@@ -1208,7 +1209,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 			if (nextHex.isValid())
 			{
 				//friendly stacks can also be damaged by Dragon Breath
-				auto st = battleGetUnitByPos(nextHex, true);
+				const auto * st = battleGetUnitByPos(nextHex, true);
 				if(st != nullptr)
 					at.friendlyCreaturePositions.insert(nextHex);
 			}
@@ -1308,7 +1309,7 @@ static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side
 }
 
 //TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverse (const battle::Unit * attacker, const battle::Unit * defender) const
+bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battle::Unit * defender) const
 {
 	BattleHex attackerHex = attacker->getPosition();
 	BattleHex defenderHex = defender->getPosition();
@@ -1316,18 +1317,18 @@ bool CBattleInfoCallback::isToReverse (const battle::Unit * attacker, const batt
 	if (attackerHex < 0 ) //turret
 		return false;
 
-	if (isHexInFront(attackerHex, defenderHex, BattleSide::Type(attacker->unitSide())))
+	if(isHexInFront(attackerHex, defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
 		return false;
 
 	if (defender->doubleWide())
 	{
-		if (isHexInFront(attackerHex,defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+		if(isHexInFront(attackerHex, defender->occupiedHex(), static_cast<BattleSide::Type>(attacker->unitSide())))
 			return false;
 	}
 
 	if (attacker->doubleWide())
 	{
-		if (isHexInFront(attacker->occupiedHex(), defenderHex, BattleSide::Type(attacker->unitSide())))
+		if(isHexInFront(attacker->occupiedHex(), defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
 			return false;
 	}
 
@@ -1335,7 +1336,7 @@ bool CBattleInfoCallback::isToReverse (const battle::Unit * attacker, const batt
 	// but this is how H3 handles it which is important, e.g. for direction of dragon breath attacks
 	if (attacker->doubleWide() && defender->doubleWide())
 	{
-		if (isHexInFront(attacker->occupiedHex(), defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+		if(isHexInFront(attacker->occupiedHex(), defender->occupiedHex(), static_cast<BattleSide::Type>(attacker->unitSide())))
 			return false;
 	}
 	return true;
@@ -1364,7 +1365,7 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	if(shooter->hasBonus(selectorNoDistancePenalty, cachingStrNoDistancePenalty))
 		return false;
 
-	if(auto target = battleGetUnitByPos(destHex, true))
+	if(const auto * target = battleGetUnitByPos(destHex, true))
 	{
 		//If any hex of target creature is within range, there is no penalty
 		int range = GameConstants::BATTLE_PENALTY_DISTANCE;
@@ -1418,14 +1419,14 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	std::vector<BattleHex> attackableBattleHexes;
 	RETURN_IF_NOT_BATTLE(attackableBattleHexes);
 
-	for(auto & wallPartPair : wallParts)
+	for(const auto & wallPartPair : wallParts)
 	{
 		if(isWallPartPotentiallyAttackable(wallPartPair.second))
 		{
 			auto wallState = battleGetWallState(wallPartPair.second);
 			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
-				attackableBattleHexes.push_back(BattleHex(wallPartPair.first));
+				attackableBattleHexes.emplace_back(wallPartPair.first);
 			}
 		}
 	}
@@ -1445,7 +1446,7 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(auto unit : battleAliveUnits())
+	for(const auto * unit : battleAliveUnits())
 	{
 		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(Bonus::CHANGES_SPELL_COST_FOR_ALLY))
 		{
@@ -1472,7 +1473,7 @@ bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 	if(unit->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
 		return false;
 
-	for(auto adjacent : battleAdjacentUnits(unit))
+	for(const auto * adjacent : battleAdjacentUnits(unit))
 	{
 		if(adjacent->unitOwner() != unit->unitOwner()) //blocked by enemy stack
 			return true;
@@ -1487,7 +1488,7 @@ std::set<const battle::Unit *> CBattleInfoCallback::battleAdjacentUnits(const ba
 
 	for(auto hex : unit->getSurroundingHexes())
 	{
-		if(auto neighbour = battleGetUnitByPos(hex, true))
+		if(const auto * neighbour = battleGetUnitByPos(hex, true))
 			ret.insert(neighbour);
 	}
 
@@ -1552,22 +1553,22 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		case SpellID::SHIELD:
 		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
 		{
-			auto walker = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
+			const auto * walker = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 			{
 				return !stack->canShoot();
 			});
 
-			if (!walker)
+			if(!walker)
 				continue;
 		}
 			break;
 		case SpellID::AIR_SHIELD: //only against active shooters
 		{
-			auto shooter = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
+			const auto * shooter = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 			{
 				return stack->canShoot();
 			});
-			if (!shooter)
+			if(!shooter)
 				continue;
 		}
 			break;
@@ -1605,7 +1606,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 			break;
 		case SpellID::SLAYER://only if monsters are present
 		{
-			auto kingMonster = getAliveEnemy([&](const CStack * stack) -> bool //look for enemy, non-shooting stack
+			const auto * kingMonster = getAliveEnemy([&](const CStack * stack) -> bool //look for enemy, non-shooting stack
 			{
 				const auto isKing = Selector::type()(Bonus::KING1)
 									.Or(Selector::type()(Bonus::KING2))
@@ -1640,12 +1641,12 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	if (!bl->size())
 		return SpellID::NONE;
 	int totalWeight = 0;
-	for(auto b : *bl)
+	for(const auto & b : *bl)
 	{
 		totalWeight += std::max(b->additionalInfo[0], 1); //minimal chance to cast is 1
 	}
 	int randomPos = rand.nextInt(totalWeight - 1);
-	for(auto b : *bl)
+	for(const auto & b : *bl)
 	{
 		randomPos -= std::max(b->additionalInfo[0], 1);
 		if(randomPos < 0)
@@ -1657,7 +1658,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	return SpellID::NONE;
 }
 
-int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
+int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) const
 {
 	RETURN_IF_NOT_BATTLE(-3);
 	if(!battleCanSurrender(Player))
@@ -1671,7 +1672,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	int ret = 0;
 	double discount = 0;
 
-	for(auto unit : battleAliveUnits(side))
+	for(const auto * unit : battleAliveUnits(side))
 		ret += unit->getRawSurrenderCost();
 
 	if(const CGHeroInstance * h = battleGetFightingHero(side))

@@ -20,18 +20,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CObstacleInstance::CObstacleInstance()
-{
-	obstacleType = USUAL;
-	uniqueID = -1;
-	ID = -1;
-}
-
-CObstacleInstance::~CObstacleInstance()
-{
-
-}
-
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
 	assert( obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE);

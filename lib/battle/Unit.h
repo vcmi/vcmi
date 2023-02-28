@@ -116,14 +116,12 @@ public:
 class DLL_LINKAGE UnitInfo
 {
 public:
-    uint32_t id;
-	TQuantity count;
+    uint32_t id = 0;
+	TQuantity count = 0;
 	CreatureID type;
-	ui8 side;
+	ui8 side = 0;
 	BattleHex position;
-	bool summoned;
-
-	UnitInfo();
+	bool summoned = false;
 
 	void serializeJson(JsonSerializeFormat & handler);
 

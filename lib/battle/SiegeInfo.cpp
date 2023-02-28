@@ -15,9 +15,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 SiegeInfo::SiegeInfo()
 {
-	for(int i = 0; i < int(EWallPart::PARTS_COUNT); ++i)
+	for(int i = 0; i < static_cast<int>(EWallPart::PARTS_COUNT); ++i)
 	{
-		wallState[EWallPart(i)] = EWallState::NONE;
+		wallState[static_cast<EWallPart>(i)] = EWallState::NONE;
 	}
 	gateState = EGateState::NONE;
 }

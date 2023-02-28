@@ -76,7 +76,7 @@ BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const ba
 	return ba;
 }
 
-BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, SpellID spellID)
+BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
 {
 	BattleAction ba;
 	ba.actionType = EActionType::MONSTER_SPELL;
@@ -170,7 +170,7 @@ battle::Target BattleAction::getTarget(const CBattleInfoCallback * cb) const
 {
 	battle::Target ret;
 
-	for(auto & destination : target)
+	for(const auto & destination : target)
 	{
 		if(destination.unitValue == INVALID_UNIT_ID)
 			ret.emplace_back(destination.hexValue);
@@ -184,7 +184,7 @@ battle::Target BattleAction::getTarget(const CBattleInfoCallback * cb) const
 void BattleAction::setTarget(const battle::Target & target_)
 {
     target.clear();
-	for(auto & destination : target_)
+	for(const auto & destination : target_)
 	{
 		if(destination.unitValue == nullptr)
 			aimToHex(destination.hexValue);

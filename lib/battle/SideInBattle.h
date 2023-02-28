@@ -17,15 +17,14 @@ class CArmedInstance;
 
 struct DLL_LINKAGE SideInBattle
 {
-	PlayerColor color;
-	const CGHeroInstance * hero; //may be NULL if army is not commanded by hero
-	const CArmedInstance * armyObject; //adv. map object with army that participates in battle; may be same as hero
+	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
+	const CGHeroInstance * hero = nullptr; //may be NULL if army is not commanded by hero
+	const CArmedInstance * armyObject = nullptr; //adv. map object with army that participates in battle; may be same as hero
 
-	uint32_t castSpellsCount; //how many spells each side has been cast this turn
+	uint32_t castSpellsCount = 0; //how many spells each side has been cast this turn
 	std::vector<SpellID> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
-	int32_t enchanterCounter; //tends to pass through 0, so sign is needed
+	int32_t enchanterCounter = 0; //tends to pass through 0, so sign is needed
 
-	SideInBattle();
 	void init(const CGHeroInstance * Hero, const CArmedInstance * Army);
 
 

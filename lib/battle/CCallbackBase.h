@@ -23,7 +23,7 @@ class CBattleInfoEssentials;
 //Basic class for various callbacks (interfaces called by players to get info about game and so forth)
 class DLL_LINKAGE CCallbackBase
 {
-	const IBattleInfo * battle; //battle to which the player is engaged, nullptr if none or not applicable
+	const IBattleInfo * battle = nullptr; //battle to which the player is engaged, nullptr if none or not applicable
 
 	const IBattleInfo * getBattle() const;
 
@@ -31,7 +31,7 @@ protected:
 	boost::optional<PlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
 
 	CCallbackBase(boost::optional<PlayerColor> Player);
-	CCallbackBase();
+	CCallbackBase() = default;
 
 	void setBattle(const IBattleInfo * B);
 	bool duringBattle() const;
