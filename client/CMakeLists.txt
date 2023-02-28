@@ -255,6 +255,7 @@ add_dependencies(vcmiclient vcmiserver)
 if(NOT ENABLE_STATIC_AI_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
+		EmptyAI
 		StupidAI
 		VCAI
 	)

@@ -3,6 +3,8 @@ if(ENABLE_STATIC_AI_LIBS)
 	target_compile_definitions(${VCMI_LIB_TARGET} PRIVATE STATIC_AI)
 	target_link_libraries(${VCMI_LIB_TARGET} PRIVATE
 		BattleAI
+		EmptyAI
+		StupidAI
 		VCAI
 	)
 	if(ENABLE_NULLKILLER_AI)

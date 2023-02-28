@@ -1,5 +1,5 @@
 /*
- * exp_funcs.cpp, part of VCMI engine
+ * main.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

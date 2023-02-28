@@ -20,6 +20,8 @@
 # include "AI/VCAI/VCAI.h"
 # include "AI/Nullkiller/AIGateway.h"
 # include "AI/BattleAI/BattleAI.h"
+# include "AI/StupidAI/StupidAI.h"
+# include "AI/EmptyAI/CEmptyAI.h"
 #else
 # ifdef VCMI_WINDOWS
 #  include <windows.h> //for .dll libs
@@ -113,7 +115,11 @@ std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, co
 template<>
 std::shared_ptr<CBattleGameInterface> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	return std::make_shared<CBattleAI>();
+	if(libpath.stem() == "libBattleAI")
+		return std::make_shared<CBattleAI>();
+	else if(libpath.stem() == "libStupidAI")
+		return std::make_shared<CStupidAI>();
+	return std::make_shared<CEmptyAI>();
 }
 
 #endif // STATIC_AI
