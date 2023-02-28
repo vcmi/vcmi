@@ -18,10 +18,14 @@ namespace spells
 class SpellMock : public Spell
 {
 public:
+	MOCK_CONST_METHOD0(getNameTranslated, std::string ());
+	MOCK_CONST_METHOD0(getNameTextID, std::string ());
+	MOCK_CONST_METHOD1(getDescriptionTextID, std::string (int32_t));
+	MOCK_CONST_METHOD1(getDescriptionTranslated, std::string (int32_t));
 	MOCK_CONST_METHOD1(calculateDamage, int64_t(const Caster *));
 	MOCK_CONST_METHOD0(getIndex, int32_t());
 	MOCK_CONST_METHOD0(getIconIndex, int32_t());
-	MOCK_CONST_METHOD0(getJsonKey, const std::string &());
+	MOCK_CONST_METHOD0(getJsonKey, std::string ());
 	MOCK_CONST_METHOD0(getName, const std::string &());
 	MOCK_CONST_METHOD0(getId, SpellID());
 	MOCK_CONST_METHOD0(getLevel, int32_t());

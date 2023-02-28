@@ -123,11 +123,11 @@ TEST_F(CatapultApplyTest, DamageToIntactPart)
 
 	setDefaultExpectations();
 
-	const EWallPart::EWallPart targetPart = EWallPart::BELOW_GATE;
+	const EWallPart targetPart = EWallPart::BELOW_GATE;
 
 	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
-	EXPECT_CALL(*battleFake, getWallState(Eq(int(targetPart)))).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, setWallState(Eq(int(targetPart)), Eq(EWallState::DAMAGED))).Times(1);
+	EXPECT_CALL(*battleFake, getWallState(Eq(targetPart))).WillRepeatedly(Return(EWallState::INTACT));
+	EXPECT_CALL(*battleFake, setWallState(Eq(targetPart), Eq(EWallState::DAMAGED))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack *>(_))).Times(1);
 
     EffectTarget target;

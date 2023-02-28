@@ -1,4 +1,5 @@
 include(GoogleTest)
+include(CheckCXXCompilerFlag)
 
 set(googleTest_Dir ${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 if(EXISTS ${googleTest_Dir})
@@ -147,6 +148,14 @@ set(mock_HEADERS
 
 if(MSVC)
 	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
+endif()
+check_cxx_compiler_flag(-Wimplicit-int-float-conversion CONV)
+if(CONV)
+	add_compile_options(-Wno-error=implicit-int-float-conversion) #Used in googletest
+endif()
+check_cxx_compiler_flag(-Wdeprecated-copy-with-user-provided-copy COPY)
+if(COPY)
+	add_compile_options(-Wno-deprecated-copy-with-user-provided-copy) #Used in googletest
 endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
