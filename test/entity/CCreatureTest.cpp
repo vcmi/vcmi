@@ -35,7 +35,10 @@ TEST_F(CCreatureTest, RegistersIcons)
 	subject->smallIconName = "Test1";
 	subject->largeIconName = "Test2";
 
-	auto cb = std::bind(&CCreatureTest::registarCb, this, _1, _2, _3, _4);
+	auto cb = [this](auto && PH1, auto && PH2, auto && PH3, auto && PH4) 
+	{
+		registarCb(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3), std::forward<decltype(PH4)>(PH4));
+	};
 
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "CPRSMALL", "Test1"));
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "TWCRPORT", "Test2"));
