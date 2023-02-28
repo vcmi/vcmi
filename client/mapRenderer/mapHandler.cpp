@@ -52,7 +52,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 	for(const auto & object : map->objects)
 	{
-		if(object->coveringAt(pos.x, pos.y) && object->pos.z == pos.z && object->isTile2Terrain())
+		if(object && object->coveringAt(pos.x, pos.y) && object->pos.z == pos.z && object->isTile2Terrain())
 		{
 			result = object->getObjectName();
 			break;
@@ -71,36 +71,54 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
 {
-	if (!a)
+	if(!a)
 		return true;
-	if (!b)
+	if(!b)
 		return false;
 
-	if (a->appearance->printPriority != 0 || b->appearance->printPriority != 0)
+	// Background objects will always be placed below foreground objects
+	if(a->appearance->printPriority != 0 || b->appearance->printPriority != 0)
 	{
-		if (a->appearance->printPriority != b->appearance->printPriority)
+		if(a->appearance->printPriority != b->appearance->printPriority)
 			return a->appearance->printPriority > b->appearance->printPriority;
 
-		//H3 behavior: order of two background objects depends on their placement order on map
+		//Two background objects will be placed beased on their placement order on map
 		return a->id < b->id;
 	}
 
+	int aBlocksB = 0;
+	int bBlocksA = 0;
+
+	for(const auto & aOffset : a->getBlockedOffsets())
+	{
+		int3 testTarget = a->pos + aOffset + int3(0, 1, 0);
+		if(b->blockingAt(testTarget.x, testTarget.y))
+			bBlocksA += 1;
+	}
+
+	for(const auto & bOffset : b->getBlockedOffsets())
+	{
+		int3 testTarget = b->pos + bOffset + int3(0, 1, 0);
+		if(a->blockingAt(testTarget.x, testTarget.y))
+			aBlocksB += 1;
+	}
+
+	// Discovered by experimenting with H3 maps - object priority depends on how many tiles of object A are "blocked" by object B
+	// For example if blockmap of two objects looks like this:
+	//  ABB
+	//  AAB
+	// Here, in middle column object A has blocked tile that is immediately below tile blocked by object B
+	// Meaning, object A blocks 1 tile of object B and object B blocks 0 tiles of object A
+	// In this scenario in H3 object A will always appear above object B, irregardless of H3M order
+	if(aBlocksB != bBlocksA)
+		return aBlocksB < bBlocksA;
+
+	// object that don't have clear priority via tile blocking will appear based on their row
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;
 
-	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
-		return true;
-	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
-		return false;
-
-	if(!a->isVisitable() && b->isVisitable())
-		return true;
-	if(!b->isVisitable() && a->isVisitable())
-		return false;
-
-	//H3 behavior: order of two background objects depends on their placement order on map
+	// or, if all other tests fail to determine priority - simply based on H3M order
 	return a->id < b->id;
-
 }
 
 CMapHandler::CMapHandler(const CMap * map)
