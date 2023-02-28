@@ -17,10 +17,12 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/CGameStateFwd.h"
 #include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/StartInfo.h"
 #include "../../../CCallback.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"
+#include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
@@ -87,10 +89,14 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 		return 0; // if we already own it, no additional reward will be received by just visiting it
 
 	auto town = cb->getTown(target->id);
-	auto isNeutral = target->tempOwner == PlayerColor::NEUTRAL;
-	auto isProbablyDeveloped = !isNeutral && town->hasFort();
+	auto fortLevel = town->fortLevel();
 
-	return isProbablyDeveloped ? 1500 : 500;
+	if(town->hasCapitol()) return 4000;
+
+	// probably well developed town will have city hall
+	if(fortLevel == CGTownInstance::CASTLE) return 1500;
+	
+	return town->hasFort() && town->tempOwner != PlayerColor::NEUTRAL  ? 1000 : 500;
 }
 
 TResources getCreatureBankResources(const CGObjectInstance * target, const CGHeroInstance * hero)
@@ -238,7 +244,16 @@ uint64_t RewardEvaluator::getArmyReward(
 	switch(target->ID)
 	{
 	case Obj::TOWN:
-		return target->tempOwner == PlayerColor::NEUTRAL ? 1000 : 10000;
+	{
+		auto town = dynamic_cast<const CGTownInstance *>(target);
+		auto fortLevel = town->fortLevel();
+
+		if(fortLevel < CGTownInstance::CITADEL)
+			return town->hasFort() ? 1000 : 0;
+		else
+			return fortLevel == CGTownInstance::CASTLE ? 10000 : 4000;
+	}
+
 	case Obj::HILL_FORT:
 		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_BANK:
@@ -374,12 +389,20 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	}
 
 	case Obj::TOWN:
+	{
 		if(ai->buildAnalyzer->getDevelopmentInfo().empty())
 			return 1;
 
-		return dynamic_cast<const CGTownInstance *>(target)->hasFort()
-			? (target->tempOwner == PlayerColor::NEUTRAL ? 0.8f : 1.0f)
-			: 0.7f;
+		auto town = dynamic_cast<const CGTownInstance *>(target);
+		auto fortLevel = town->fortLevel();
+
+		if(town->hasCapitol()) return 1;
+
+		if(fortLevel < CGTownInstance::CITADEL)
+			return town->hasFort() ? 0.6 : 0.4;
+		else
+			return fortLevel == CGTownInstance::CASTLE ? 0.9 : 0.8;
+	}
 
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
@@ -448,22 +471,17 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	}
 }
 
-uint64_t RewardEvaluator::getEnemyHeroDanger(const int3 & tile, uint8_t turn) const
+const HitMapInfo & RewardEvaluator::getEnemyHeroDanger(const int3 & tile, uint8_t turn) const
 {
 	auto & treatNode = ai->dangerHitMap->getTileTreat(tile);
 
 	if(treatNode.maximumDanger.danger == 0)
-		return 0;
+		return HitMapInfo::NoTreat;
 
 	if(treatNode.maximumDanger.turn <= turn)
-		return treatNode.maximumDanger.danger;
+		return treatNode.maximumDanger;
 
-	return treatNode.fastestDanger.turn <= turn ? treatNode.fastestDanger.danger : 0;
-}
-
-uint64_t RewardEvaluator::getEnemyHeroDanger(const AIPath & path) const
-{
-	return getEnemyHeroDanger(path.targetTile(), path.turn());
+	return treatNode.fastestDanger.turn <= turn ? treatNode.fastestDanger : HitMapInfo::NoTreat;
 }
 
 int32_t getArmyCost(const CArmedInstance * army)
@@ -564,6 +582,26 @@ public:
 	}
 };
 
+void addTileDanger(EvaluationContext & evaluationContext, const int3 & tile, uint8_t turn, uint64_t ourStrength)
+{
+	HitMapInfo enemyDanger = evaluationContext.evaluator.getEnemyHeroDanger(tile, turn);
+
+	if(enemyDanger.danger)
+	{
+		auto dangerRatio = enemyDanger.danger / (double)ourStrength;
+		auto enemyHero = evaluationContext.evaluator.ai->cb->getObj(enemyDanger.hero.hid, false);
+		bool isAI =enemyHero
+			&& evaluationContext.evaluator.ai->cb->getStartInfo()->getIthPlayersSettings(enemyHero->getOwner()).isControlledByAI();
+
+		if(isAI)
+		{
+			dangerRatio *= 1.5; // lets make AI bit more afraid of other AI.
+		}
+
+		vstd::amax(evaluationContext.enemyHeroDangerRatio, dangerRatio);
+	}
+}
+
 class DefendTownEvaluator : public IEvaluationContextBuilder
 {
 private:
@@ -596,7 +634,7 @@ public:
 		auto armyIncome = townArmyIncome(town);
 		auto dailyIncome = town->dailyIncome()[Res::GOLD];
 
-		auto strategicalValue = std::sqrt(armyIncome / 20000.0f) + dailyIncome / 10000.0f;
+		auto strategicalValue = std::sqrt(armyIncome / 20000.0f) + dailyIncome / 3000.0f;
 
 		float multiplier = 1;
 
@@ -607,9 +645,7 @@ public:
 		evaluationContext.goldReward += dailyIncome * 5 * multiplier;
 		evaluationContext.strategicalValue += strategicalValue * multiplier;
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
-
-		auto enemyDanger = evaluationContext.evaluator.getEnemyHeroDanger(town->visitablePos(), defendTown.getTurn());
-		vstd::amax(evaluationContext.enemyHeroDangerRatio, enemyDanger / (double)defendTown.getDefenceStrength());
+		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}
 };
 
@@ -665,7 +701,7 @@ public:
 
 		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
 		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroPtr);
-		vstd::amax(evaluationContext.enemyHeroDangerRatio, evaluationContext.evaluator.getEnemyHeroDanger(path) / (double)path.getHeroStrength());
+		addTileDanger(evaluationContext, path.targetTile(), path.turn(), path.getHeroStrength());
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
 };
@@ -715,6 +751,27 @@ public:
 
 			if(boost > 8)
 				break;
+		}
+	}
+};
+
+class ExchangeSwapTownHeroesContextBuilder : public IEvaluationContextBuilder
+{
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::EXCHANGE_SWAP_TOWN_HEROES)
+			return;
+
+		Goals::ExchangeSwapTownHeroes & swapCommand = dynamic_cast<Goals::ExchangeSwapTownHeroes &>(*task);
+		const CGHeroInstance * garrisonHero = swapCommand.getGarrisonHero();
+
+		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
+		{
+			auto defenderRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(garrisonHero);
+
+			evaluationContext.movementCost += garrisonHero->movement;
+			evaluationContext.movementCostByRole[defenderRole] += garrisonHero->movement;
 		}
 	}
 };
@@ -783,6 +840,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const

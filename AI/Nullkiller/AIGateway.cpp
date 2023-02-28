@@ -359,6 +359,11 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj)
 	{
 		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is called just before actual deletion
 	}
+
+	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
+	{
+		nullkiller->dangerHitMap->reset();
+	}
 }
 
 void AIGateway::showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor)
@@ -580,27 +585,32 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		requestActionASAP([=]()
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
-			auto answer = 1;
+			bool answer = true;
 			auto objects = cb->getVisitableObjs(target);
 
 			if(hero.validAndSet() && target.valid() && objects.size())
 			{
-				auto objType = objects.front()->ID;
+				auto objType = objects.back()->ID;
 
-				if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
+				auto ratio = (float)nullkiller->dangerEvaluator->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
+				bool dangerUnknown = ratio == 0;
+				bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
+
+				answer = objects.back()->id == nullkiller->getTargetObject(); // no if we do not aim to visit this object
+
+				if(objType == Obj::BORDERGUARD || objType == Obj::QUEST_GUARD)
 				{
-					auto ratio = (float)nullkiller->dangerEvaluator->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
-					bool dangerUnknown = ratio == 0;
-					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
-
+					answer = true;
+				}
+				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
+				{
 					logAi->trace("Guarded object query hook: %s by %s danger ratio %f", target.toString(), hero.name, ratio);
 
-					if(text.find("guarded") != std::string::npos && (dangerUnknown || dangerTooHigh))
-						answer = 0; // no
+					answer = dangerUnknown || dangerTooHigh;
 				}
 			}
 
-			answerQuery(askID, answer);
+			answerQuery(askID, answer ? 1 : 0);
 		});
 
 		return;
@@ -1332,7 +1342,10 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		if(auto visitedObject = vstd::frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
 		{
 			if(visitedObject != *h)
+			{
 				performObjectInteraction(visitedObject, h);
+				ret = true;
+			}
 		}
 	}
 	if(h) //we could have lost hero after last move

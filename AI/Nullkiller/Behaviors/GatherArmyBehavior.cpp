@@ -138,8 +138,8 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
-			hero->name,
-			path.targetHero->name,
+			hero->getObjectName(),
+			path.targetHero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());
@@ -230,6 +230,12 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
+		if(ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN)
+		{
+			upgrade.upgradeValue +=
+				ai->nullkiller->armyManager->howManyReinforcementsCanGet(path.targetHero, path.heroArmy, upgrader);
+		}
+
 		if(armyValue < 0.1f || upgrade.upgradeValue < 300) // avoid small upgrades
 			continue;
 
@@ -242,7 +248,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
 			upgrader->getObjectName(),
-			path.targetHero->name,
+			path.targetHero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());

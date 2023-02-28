@@ -14,6 +14,8 @@
 namespace NKAI
 {
 
+HitMapInfo HitMapInfo::NoTreat;
+
 void DangerHitMapAnalyzer::updateHitMap()
 {
 	if(upToDate)
@@ -47,6 +49,9 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(auto pair : heroes)
 	{
+		if(!pair.first.isValidPlayer())
+			continue;
+
 		if(ai->cb->getPlayerRelations(ai->playerID, pair.first) != PlayerRelations::ENEMIES)
 			continue;
 

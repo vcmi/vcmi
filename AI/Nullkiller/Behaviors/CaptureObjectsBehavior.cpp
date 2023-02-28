@@ -70,7 +70,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
+			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.getHeroStrength());
 #endif
 			continue;
 		}
@@ -113,7 +113,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
 			objToVisit ? objToVisit->getObjectName() : path.targetTile().toString(),
-			hero->name,
+			hero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());
