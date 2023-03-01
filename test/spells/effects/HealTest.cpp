@@ -348,10 +348,13 @@ TEST_P(HealApplyTest, Heals)
 	const int32_t unitAmount = 24;
 	const int32_t unitHP = 100;
 	const uint32_t unitId = 42;
+	const auto pikeman = CreatureID(unitId).toCreature();
+
 
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
+	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
 
 	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
 
@@ -373,6 +376,17 @@ TEST_P(HealApplyTest, Heals)
 	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
+
+	//There should be battle log message if resurrect
+	switch(healLevel) 
+	{
+	case EHealLevel::RESURRECT:
+	case EHealLevel::OVERHEAL:
+		EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage *>(_))).Times(AtLeast(1));
+		break;
+	default:
+		break;
+	}
 
 	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
 
