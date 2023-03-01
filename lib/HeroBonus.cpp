@@ -2044,20 +2044,36 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus )
-	: type(bonus), subtype(0), isSubtypeRelevant(false)
+	: type(bonus), subtype(0), isSubtypeRelevant(false), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus, TBonusSubtype _subtype )
-	: type(bonus), subtype(_subtype), isSubtypeRelevant(true)
+	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), isSourceRelevant(false), isSourceIDRelevant(false)
+{
+}
+
+HasAnotherBonusLimiter::HasAnotherBonusLimiter(Bonus::BonusType bonus, Bonus::BonusSource src)
+	: type(bonus), source(src), isSubtypeRelevant(false), isSourceRelevant(true), isSourceIDRelevant(false)
+{
+}
+
+HasAnotherBonusLimiter::HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype, Bonus::BonusSource src)
+	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), source(src), isSourceRelevant(true), isSourceIDRelevant(false)
 {
 }
 
 int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
-	CSelector mySelector = isSubtypeRelevant
-							? Selector::typeSubtype(type, subtype)
-							: Selector::type()(type);
+	//TODO: proper selector config with parsing of JSON
+	auto mySelector = Selector::type()(type);
+
+	if(isSubtypeRelevant)
+		mySelector = mySelector.And(Selector::subtype()(subtype));
+	if(isSourceRelevant && isSourceIDRelevant)
+		mySelector = mySelector.And(Selector::source(source, sid));
+	else if (isSourceRelevant)
+		mySelector = mySelector.And(Selector::sourceTypeSel(source));
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
@@ -2092,11 +2108,14 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 	std::string typeName = vstd::findKey(bonusNameMap, type);
+	auto sourceTypeName = vstd::findKey(bonusSourceMap, source);
 
 	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(typeName));
 	if(isSubtypeRelevant)
 		root["parameters"].Vector().push_back(JsonUtils::intNode(subtype));
+	if(isSourceRelevant)
+		root["parameters"].Vector().push_back(JsonUtils::stringNode(sourceTypeName));
 
 	return root;
 }

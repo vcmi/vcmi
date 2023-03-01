@@ -1052,10 +1052,16 @@ class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nod
 public:
 	Bonus::BonusType type;
 	TBonusSubtype subtype;
+	Bonus::BonusSource source;
+	si32 sid;
 	bool isSubtypeRelevant; //check for subtype only if this is true
+	bool isSourceRelevant; //check for bonus source only if this is true
+	bool isSourceIDRelevant; //check for bonus source only if this is true
 
 	HasAnotherBonusLimiter(Bonus::BonusType bonus = Bonus::NONE);
 	HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype);
+	HasAnotherBonusLimiter(Bonus::BonusType bonus, Bonus::BonusSource src);
+	HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype, Bonus::BonusSource src);
 
 	int limit(const BonusLimitationContext &context) const override;
 	virtual std::string toString() const override;
@@ -1067,6 +1073,10 @@ public:
 		h & type;
 		h & subtype;
 		h & isSubtypeRelevant;
+		h & source;
+		h & isSourceRelevant;
+		h & sid;
+		h & isSourceIDRelevant;
 	}
 };
 

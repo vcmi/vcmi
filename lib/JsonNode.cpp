@@ -708,10 +708,34 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				{
 					std::shared_ptr<HasAnotherBonusLimiter> bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 					bonusLimiter->type = it->second;
+					auto findSource = [&](const JsonNode & parameter)
+					{
+						if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+						{
+							auto sourceIt = bonusSourceMap.find(parameter["type"].String());
+							if(sourceIt != bonusSourceMap.end())
+							{
+								bonusLimiter->source = sourceIt->second;
+								bonusLimiter->isSourceRelevant = true;
+								if(!parameter["id"].isNull()) {
+									resolveIdentifier(parameter["id"], bonusLimiter->sid);
+									bonusLimiter->isSourceIDRelevant = true;
+								}
+							}
+						}
+						return false;
+					};
 					if(parameters.size() > 1)
 					{
-						resolveIdentifier(parameters[1], bonusLimiter->subtype);
-						bonusLimiter->isSubtypeRelevant = true;
+						if(findSource(parameters[1]) && parameters.size() == 2)
+							return bonusLimiter;
+						else
+						{
+							resolveIdentifier(parameters[1], bonusLimiter->subtype);
+							bonusLimiter->isSubtypeRelevant = true;
+							if(parameters.size() > 2)
+								findSource(parameters[2]);
+						}
 					}
 					return bonusLimiter;
 				}

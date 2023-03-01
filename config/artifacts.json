@@ -915,7 +915,20 @@
 				"subtype" : "skill.archery",
 				"type" : "SECONDARY_SKILL_PREMY",
 				"val" : 5,
-				"valueType" : "ADDITIVE_VALUE"
+				"valueType" : "ADDITIVE_VALUE",
+				"limiters" : [
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [
+							"PERCENTAGE_DAMAGE_BOOST",
+							1,
+							{
+								"type" : "SECONDARY_SKILL",
+								"id" : "skill.archery"
+							}
+						]
+					}
+				]
 			}
 		],
 		"index" : 60,
@@ -928,7 +941,20 @@
 				"subtype" : "skill.archery",
 				"type" : "SECONDARY_SKILL_PREMY",
 				"val" : 10,
-				"valueType" : "ADDITIVE_VALUE"
+				"valueType" : "ADDITIVE_VALUE",
+				"limiters" : [
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [
+							"PERCENTAGE_DAMAGE_BOOST",
+							1,
+							{
+								"type" : "SECONDARY_SKILL",
+								"id" : "skill.archery"
+							}
+						]
+					}
+				]
 			}
 		],
 		"index" : 61,
@@ -941,7 +967,20 @@
 				"subtype" : "skill.archery",
 				"type" : "SECONDARY_SKILL_PREMY",
 				"val" : 15,
-				"valueType" : "ADDITIVE_VALUE"
+				"valueType" : "ADDITIVE_VALUE",
+				"limiters" : [
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [
+							"PERCENTAGE_DAMAGE_BOOST",
+							1,
+							{
+								"type" : "SECONDARY_SKILL",
+								"id" : "skill.archery"
+							}
+						]
+					}
+				]
 			}
 		],
 		"index" : 62,
