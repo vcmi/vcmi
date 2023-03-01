@@ -65,7 +65,8 @@ TEST_P(ImmunityNegationConditionTest, WithBattleWideNegation)
 
 	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, Bonus::OTHER, 0, 0, 0));
 
-	EXPECT_EQ(!ownerMatches, subject->isReceptive(&mechanicsMock, &unitMock));
+	//This should return if ownerMatches, because anyone should cast onto owner's stacks, but not on enemyStacks
+	EXPECT_EQ(ownerMatches, subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
 INSTANTIATE_TEST_SUITE_P
