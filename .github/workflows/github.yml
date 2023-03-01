@@ -70,12 +70,12 @@ jobs:
         include:
           - platform: linux-qt6
             os: ubuntu-22.04
-            test: 0
-            preset: linux-clang-release
+            test: 1
+            preset: linux-clang-test
           - platform: linux
             os: ubuntu-20.04
-            test: 0
-            preset: linux-gcc-release
+            test: 1
+            preset: linux-gcc-test
           - platform: mac-intel
             os: macos-12
             test: 0
