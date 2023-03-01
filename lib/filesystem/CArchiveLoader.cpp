@@ -24,10 +24,10 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive, bool extractArchives) :
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive, bool _extractArchives) :
     archive(std::move(_archive)),
     mountPoint(std::move(_mountPoint)),
-	extractArchives(extractArchives)
+	extractArchives(_extractArchives)
 {
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
