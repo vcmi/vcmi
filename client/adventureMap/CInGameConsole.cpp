@@ -11,12 +11,13 @@
 #include "StdInc.h"
 #include "CInGameConsole.h"
 
-#include "../render/Colors.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
 #include "../ClientCommandManager.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../gui/CGuiHandler.h"
+#include "../render/Colors.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -234,7 +235,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
+			LOCPLINT->cb->sendMessage(txt, adventureInt->curArmy());
 	}
 	enteredText.clear();
 

@@ -215,7 +215,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	curAction = nullptr;
 	playerID=Player;
 	human=true;
-	currentSelection = nullptr;
 	battleInt = nullptr;
 	castleInt = nullptr;
 	makingTurn = false;
@@ -233,9 +232,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 
 CPlayerInterface::~CPlayerInterface()
 {
-	if(CCS && CCS->soundh)
-		CCS->soundh->ambientStopAllChannels();
-
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	delete showingDialog;
 	delete cingconsole;
@@ -341,10 +337,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
-		updateAmbientSounds(false);
-		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->getJsonKey(), true, false);
-
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
 			if(paths.hasPath(hero))
@@ -1542,17 +1534,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 	}
 }
 
-const CArmedInstance * CPlayerInterface::getSelection()
-{
-	return currentSelection;
-}
-
-void CPlayerInterface::setSelection(const CArmedInstance * obj)
-{
-	currentSelection = obj;
-	updateAmbientSounds(true);
-}
-
 void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
@@ -1877,7 +1858,6 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu(bool won)
 {
-	CCS->soundh->ambientStopAllChannels();
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
 	else
@@ -2225,42 +2205,4 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->openWorldView(objectPositions, showTerrain );
-}
-
-void CPlayerInterface::updateAmbientSounds(bool resetAll)
-{
-	if(castleInt || battleInt || !makingTurn || !currentSelection)
-	{
-		CCS->soundh->ambientStopAllChannels();
-		return;
-	}
-	else if(!dynamic_cast<CAdvMapInt *>(GH.topInt().get()))
-	{
-		return;
-	}
-	if(resetAll)
-		CCS->soundh->ambientStopAllChannels();
-
-	std::map<std::string, int> currentSounds;
-	auto updateSounds = [&](std::string soundId, int distance) -> void
-	{
-		if(vstd::contains(currentSounds, soundId))
-			currentSounds[soundId] = std::max(currentSounds[soundId], distance);
-		else
-			currentSounds.insert(std::make_pair(soundId, distance));
-	};
-
-	int3 pos = currentSelection->getSightCenter();
-	std::unordered_set<int3, ShashInt3> tiles;
-	cb->getVisibleTilesInRange(tiles, pos, CCS->soundh->ambientGetRange(), int3::DIST_CHEBYSHEV);
-	for(int3 tile : tiles)
-	{
-		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
-		// We want sound for every special terrain on tile and not just one on top
-
-		for(auto & soundName : CGI->mh->getAmbientSounds(tile))
-			updateSounds(soundName, dist);
-
-	}
-	CCS->soundh->ambientUpdateChannels(currentSounds);
 }

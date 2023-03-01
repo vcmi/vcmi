@@ -1000,10 +1000,6 @@ static void handleEvent(SDL_Event & ev)
 		case EUserEvent::FULLSCREEN_TOGGLED:
 			fullScreenChanged();
 			break;
-		case EUserEvent::INTERFACE_CHANGED:
-			if(LOCPLINT)
-				LOCPLINT->updateAmbientSounds(false);
-			break;
 		default:
 			logGlobal->error("Unknown user event. Code %d", ev.user.code);
 			break;

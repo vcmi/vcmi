@@ -10,6 +10,7 @@ set(client_SRCS
 	adventureMap/CList.cpp
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
+	adventureMap/MapAudioPlayer.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -128,6 +129,7 @@ set(client_HEADERS
 	adventureMap/CList.h
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
+	adventureMap/MapAudioPlayer.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h

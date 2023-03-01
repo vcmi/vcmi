@@ -17,6 +17,7 @@
 #include "CResDataBar.h"
 #include "CList.h"
 #include "CInfoBar.h"
+#include "MapAudioPlayer.h"
 
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
@@ -87,6 +88,7 @@ CAdvMapInt::CAdvMapInt():
 	townList(new CTownList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD)),
 	infoBar(new CInfoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192))),
 	resdatabar(new CResDataBar),
+	mapAudio(new MapAudioPlayer()),
 	terrain(new MapView(Point(ADVOPT.advmapX, ADVOPT.advmapY), Point(ADVOPT.advmapW, ADVOPT.advmapH))),
 	state(NA),
 	spellBeingCasted(nullptr),
@@ -296,6 +298,16 @@ void CAdvMapInt::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 	worldViewUnderground->redraw();
 
 	minimap->onMapViewMoved(visibleArea, mapLevel);
+}
+
+void CAdvMapInt::onAudioResumed()
+{
+	mapAudio->onAudioResumed();
+}
+
+void CAdvMapInt::onAudioPaused()
+{
+	mapAudio->onAudioPaused();
 }
 
 void CAdvMapInt::fshowQuestlog()
@@ -854,15 +866,8 @@ boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
-	LOCPLINT->setSelection(sel);
 	selection = sel;
-	if (LOCPLINT->battleInt == nullptr && LOCPLINT->makingTurn)
-	{
-		auto pos = sel->visitablePos();
-		auto tile = LOCPLINT->cb->getTile(pos);
-		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType->getJsonKey(), true, false);
-	}
+	mapAudio->onSelectionChanged(sel);
 	if(centerView)
 		centerOnObject(sel);
 
@@ -974,6 +979,7 @@ void CAdvMapInt::initializeNewTurn()
 {
 	heroList->update();
 	townList->update();
+	mapAudio->onPlayerTurnStarted();
 
 	const CGHeroInstance * heroToSelect = nullptr;
 
@@ -1021,7 +1027,7 @@ void CAdvMapInt::endingTurn()
 
 	LOCPLINT->makingTurn = false;
 	LOCPLINT->cb->endTurn();
-	CCS->soundh->ambientStopAllChannels();
+	mapAudio->onPlayerTurnEnded();
 }
 
 const CGObjectInstance* CAdvMapInt::getActiveObject(const int3 &mapPos)
@@ -1388,7 +1394,7 @@ void CAdvMapInt::aiTurnStarted()
 		return;
 
 	adjustActiveness(true);
-	CCS->musich->playMusicFromSet("enemy-turn", true, false);
+	mapAudio->onEnemyTurnStarted();
 	adventureInt->minimap->setAIRadar(true);
 	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
 	adventureInt->infoBar->showAll(screen);//force refresh on inactive object

@@ -28,17 +28,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 class CGHeroInstance;
-class CGBoat;
 class CMap;
-struct TerrainTile;
-class PlayerColor;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
-class CAnimation;
-class IImage;
-class CMapHandler;
 class IMapObjectObserver;
 
 class CMapHandler
@@ -73,9 +66,6 @@ public:
 
 	/// returns string description for terrain interaction
 	std::string getTerrainDescr(const int3 & pos, bool rightClick) const;
-
-	/// returns list of ambient sounds for specified tile
-	std::vector<std::string> getAmbientSounds(const int3 & tile);
 
 	/// determines if the map is ready to handle new hero movement (not available during fading animations)
 	bool hasOngoingAnimations();

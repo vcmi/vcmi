@@ -95,7 +95,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	effectsController.reset(new BattleEffectsController(*this));
 	obstacleController.reset(new BattleObstacleController(*this));
 
-	CCS->musich->stopMusic();
+	adventureInt->onAudioPaused();
 	setAnimationCondition(EAnimationEvents::OPENING, true);
 
 	GH.pushInt(windowObject);
@@ -144,12 +144,8 @@ BattleInterface::~BattleInterface()
 	CPlayerInterface::battleInt = nullptr;
 	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
 
-	if (adventureInt && adventureInt->curArmy())
-	{
-		//FIXME: this should be moved to adventureInt which should restore correct track based on selection/active player
-		const auto * terrain = LOCPLINT->cb->getTile(adventureInt->curArmy()->visitablePos())->terType;
-		CCS->musich->playMusicFromSet("terrain", terrain->getJsonKey(), true, false);
-	}
+	if (adventureInt)
+		adventureInt->onAudioResumed();
 
 	// may happen if user decided to close game while in battle
 	if (getAnimationCondition(EAnimationEvents::ACTION) == true)

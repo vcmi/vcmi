@@ -1188,11 +1188,13 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	townlist->onSelect = std::bind(&CCastleInterface::townChange, this);
 
 	recreateIcons();
+	adventureInt->onAudioPaused();
 	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true, false);
 }
 
 CCastleInterface::~CCastleInterface()
 {
+	adventureInt->onAudioResumed();
 	if(LOCPLINT->castleInt == this)
 		LOCPLINT->castleInt = nullptr;
 }

@@ -53,7 +53,6 @@ private:
 	void ambientStopSound(std::string soundId);
 
 	const JsonNode ambientConfig;
-	bool allTilesSource;
 	std::map<std::string, int> ambientChannels;
 
 public:
@@ -75,7 +74,6 @@ public:
 	void soundFinishedCallback(int channel);
 
 	int ambientGetRange() const;
-	bool ambientCheckVisitable() const;
 	void ambientUpdateChannels(std::map<std::string, int> currentSounds);
 	void ambientStopAllChannels();
 

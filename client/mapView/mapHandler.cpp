@@ -136,21 +136,6 @@ bool CMapHandler::isInMap( const int3 & tile)
 	return map->isInTheMap(tile);
 }
 
-std::vector<std::string> CMapHandler::getAmbientSounds(const int3 & tile)
-{
-	std::vector<std::string> result;
-
-	//for(auto & ttObj : ttiles[tile.z][tile.x][tile.y].objects)
-	//{
-	//	if(ttObj.ambientSound)
-	//		result.push_back(ttObj.ambientSound.get());
-	//}
-	if(map->isCoastalTile(tile))
-		result.emplace_back("LOOPOCEA");
-
-	return result;
-}
-
 void CMapHandler::onObjectFadeIn(const CGObjectInstance * obj)
 {
 	for (auto * observer : observers)

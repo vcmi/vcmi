@@ -92,8 +92,6 @@ public:
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
-	const CArmedInstance * currentSelection;
-
 public:
 	HeroPathStorage paths;
 
@@ -262,9 +260,6 @@ public:
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void requestReturningToMainMenu(bool won);
 	void proposeLoadingGame();
-
-	// Ambient sounds
-	void updateAmbientSounds(bool resetAll);
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();

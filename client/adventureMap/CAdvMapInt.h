@@ -39,6 +39,7 @@ class CHeroList;
 class CTownList;
 class CInfoBar;
 class CMinimap;
+class MapAudioPlayer;
 
 struct MapDrawingInfo;
 
@@ -107,6 +108,8 @@ private:
 
 	std::shared_ptr<CAnimation> worldViewIcons;// images for world view overlay
 
+	std::shared_ptr<MapAudioPlayer> mapAudio;
+
 private:
 	//functions bound to buttons
 	void fshowOverview();
@@ -162,6 +165,12 @@ public:
 	/// called by MapView whenever currently visible area changes
 	/// visibleArea describen now visible map section measured in tiles
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
+
+	/// Called when map audio should be paused, e.g. on combat or town scren access
+	void onAudioPaused();
+
+	/// Called when map audio should be resume, opposite to onPaused
+	void onAudioResumed();
 
 	void select(const CArmedInstance *sel, bool centerView = true);
 	void centerOnTile(int3 on);

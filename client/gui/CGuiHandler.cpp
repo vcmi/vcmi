@@ -126,8 +126,6 @@ void CGuiHandler::popInt(std::shared_ptr<IShowActivatable> top)
 	if(!listInt.empty())
 		listInt.front()->activate();
 	totalRedraw();
-
-	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
@@ -145,8 +143,6 @@ void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	newInt->activate();
 	objsToBlit.push_back(newInt);
 	totalRedraw();
-
-	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::popInts(int howMany)
@@ -168,8 +164,6 @@ void CGuiHandler::popInts(int howMany)
 		totalRedraw();
 	}
 	fakeMouseMove();
-
-	pushUserEvent(EUserEvent::INTERFACE_CHANGED);
 }
 
 std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
