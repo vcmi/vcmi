@@ -595,9 +595,9 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 			logGlobal->error("Invalid teams field type");
 
 		mapHeader->howManyTeams = 0;
-		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-			if(mapHeader->players[i].canComputerPlay || mapHeader->players[i].canHumanPlay)
-				mapHeader->players[i].team = TeamID(mapHeader->howManyTeams++);
+		for(auto & player : mapHeader->players)
+			if(player.canAnyonePlay())
+				player.team = TeamID(mapHeader->howManyTeams++);
 	}
 	else
 	{
