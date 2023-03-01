@@ -80,7 +80,7 @@ void JsonComparer::checkEqualInteger(const si64 actual, const si64 expected)
 {
 	if(actual != expected)
 	{
-		check(false, boost::str(boost::format("'%d' != '%d'") % actual % expected));
+		check(false, boost::str(boost::format("actual: '%d' ,expected: '%d'") % actual % expected));
 	}
 }
 
@@ -88,7 +88,7 @@ void JsonComparer::checkEqualFloat(const double actual, const double expected)
 {
 	if(std::abs(actual - expected) > 1e-8)
 	{
-		check(false, boost::str(boost::format("'%d' != '%d' (diff %d)") % actual % expected % (expected - actual)));
+		check(false, boost::str(boost::format("actual: '%lf' ,expected: '%lf' (diff %lf)") % actual % expected % (expected - actual)));
 	}
 }
 
@@ -96,7 +96,7 @@ void JsonComparer::checkEqualString(const std::string & actual, const std::strin
 {
 	if(actual != expected)
 	{
-		check(false, boost::str(boost::format("'%s' != '%s'") % actual % expected));
+		check(false, boost::str(boost::format("actual: '%s' , expected: '%s'") % actual % expected));
 	}
 }
 
