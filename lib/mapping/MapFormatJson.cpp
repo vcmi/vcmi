@@ -1005,27 +1005,20 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		if (startPos >= src.size())
 			return;
 		bool hasRoad = true;
-		//FIXME: check without exceptions?
 		{//road type
 			const std::string typeCode = src.substr(startPos, 2);
 			startPos += 2;
-			try
+			tile.roadType = getRoadByCode(typeCode);
+			if(!tile.roadType) //it's not a road, it's a river
 			{
-				tile.roadType = getRoadByCode(typeCode);
-			}
-			catch (const std::exception&) //it's not a road, it's a river
-			{
-				try
-				{
-					tile.riverType = getRiverByCode(typeCode);
-					hasRoad = false;
-				}
-				catch (const std::exception&)
+				tile.roadType = VLC->roadTypeHandler->getById(Road::NO_ROAD);
+				tile.riverType = getRiverByCode(typeCode);
+				hasRoad = false;
+				if(!tile.riverType)
 				{
 					throw std::runtime_error("Invalid river type in " + src);
 				}
-
-			}	
+			}
 		}
 		if (hasRoad)
 		{//road dir
