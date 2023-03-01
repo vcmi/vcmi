@@ -204,7 +204,7 @@ class VCMI(ConanFile):
             self.requires("qt/[~5.15.2]")
 
         # use Apple system libraries instead of external ones
-        if self.options.with_apple_system_libs and not self.options.default_options_of_requirements and is_apple_os(self):
+        if self.options.with_apple_system_libs and is_apple_os(self):
             systemLibsOverrides = [
                 "bzip2/1.0.8",
                 "libiconv/1.17",
@@ -222,6 +222,12 @@ class VCMI(ConanFile):
         # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm
         if self.options.with_luajit and not str(self.settings.arch).startswith("arm"):
             self.requires("luajit/[~2.0.5]")
+
+    def validate(self):
+        if self.options.with_apple_system_libs and not is_apple_os(self):
+            raise ConanInvalidConfiguration("with_apple_system_libs is only for Apple platforms")
+        if self.options.with_apple_system_libs and self.options.default_options_of_requirements:
+            raise ConanInvalidConfiguration("with_apple_system_libs and default_options_of_requirements can't be True at the same time")
 
     def generate(self):
         tc = CMakeToolchain(self)
