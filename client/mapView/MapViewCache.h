@@ -62,7 +62,7 @@ public:
 	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
 	~MapViewCache();
 
-	void invalidate(const std::shared_ptr<IMapRendererContext> & context, const int3 & tile);
+	/// invalidates cache of specified object
 	void invalidate(const std::shared_ptr<IMapRendererContext> & context, const ObjectInstanceID & object);
 
 	/// updates internal terrain cache according to provided time delta
@@ -70,4 +70,8 @@ public:
 
 	/// renders updated terrain cache onto provided canvas
 	void render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw);
+
+	/// creates snapshot of current view and stores it into internal canvas
+	/// used for view transition, e.g. Dimension Door spell or teleporters (Subterra gates / Monolith)
+	void createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context);
 };

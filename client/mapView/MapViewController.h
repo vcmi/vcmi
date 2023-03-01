@@ -24,6 +24,7 @@ class IMapRendererContext;
 class MapRendererAdventureContext;
 class MapRendererAdventureFadingContext;
 class MapRendererAdventureMovingContext;
+class MapRendererAdventureTransitionContext;
 class MapRendererWorldViewContext;
 class MapRendererSpellViewContext;
 class MapRendererPuzzleMapContext;
@@ -41,7 +42,7 @@ class MapViewController : public IMapObjectObserver
 	// only some are present at any given moment, rest are nullptr's
 	std::shared_ptr<MapRendererAdventureContext> adventureContext;
 	std::shared_ptr<MapRendererAdventureMovingContext> movementContext;
-	//std::shared_ptr<IMapRendererContext> teleportContext;
+	std::shared_ptr<MapRendererAdventureTransitionContext> teleportContext;
 	std::shared_ptr<MapRendererAdventureFadingContext> fadingOutContext;
 	std::shared_ptr<MapRendererAdventureFadingContext> fadingInContext;
 	std::shared_ptr<MapRendererWorldViewContext> worldViewContext;

@@ -84,9 +84,14 @@ void Canvas::draw(const Canvas & image, const Point & pos)
 
 void Canvas::drawTransparent(const Canvas & image, const Point & pos, double transparency)
 {
+	SDL_BlendMode oldMode;
+
+	SDL_GetSurfaceBlendMode(image.surface, &oldMode);
+	SDL_SetSurfaceBlendMode(image.surface, SDL_BLENDMODE_BLEND);
 	SDL_SetSurfaceAlphaMod(image.surface, 255 * transparency);
 	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
 	SDL_SetSurfaceAlphaMod(image.surface, 255);
+	SDL_SetSurfaceBlendMode(image.surface, oldMode);
 }
 
 void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)

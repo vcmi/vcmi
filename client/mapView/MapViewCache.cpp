@@ -30,6 +30,7 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	, iconsStorage(new CAnimation("VwSymbol"))
 	, intermediate(new Canvas(Point(32, 32)))
 	, terrain(new Canvas(model->getCacheDimensionsPixels()))
+	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions()))
 {
 	iconsStorage->preload();
 	for(size_t i = 0; i < iconsStorage->size(); ++i)
@@ -52,17 +53,6 @@ std::shared_ptr<IImage> MapViewCache::getOverlayImageForTile(const std::shared_p
 	if(imageIndex < iconsStorage->size())
 		return iconsStorage->getImage(imageIndex);
 	return nullptr;
-}
-
-void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & context, const int3 & tile)
-{
-	int cacheX = (terrainChecksum.shape()[0] + tile.x) % terrainChecksum.shape()[0];
-	int cacheY = (terrainChecksum.shape()[1] + tile.y) % terrainChecksum.shape()[1];
-
-	auto & entry = terrainChecksum[cacheX][cacheY];
-
-	if(entry.tileX == tile.x && entry.tileY == tile.y)
-		entry = TileChecksum{};
 }
 
 void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & context, const ObjectInstanceID & object)
@@ -145,7 +135,7 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
-	bool lazyUpdate = !mapMoved && !fullRedraw;
+	bool lazyUpdate = !mapMoved && !fullRedraw && context->viewTransitionProgress() == 0;
 
 	Rect dimensions = model->getTilesTotalRect();
 
@@ -164,7 +154,8 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 			Rect targetRect = model->getTargetTileArea(tile);
 			target.draw(source, targetRect.topLeft());
 
-			tilesUpToDate[cacheX][cacheY] = true;
+			if (!fullRedraw)
+				tilesUpToDate[cacheX][cacheY] = true;
 		}
 	}
 
@@ -187,5 +178,14 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
+	if (context->viewTransitionProgress() != 0)
+		target.drawTransparent(*terrainTransition, Point(0,0), 1.0 - context->viewTransitionProgress());
+
 	cachedPosition = model->getMapViewCenter();
+}
+
+void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)
+{
+	update(context);
+	render(context, *terrainTransition, true);
 }

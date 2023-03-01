@@ -67,6 +67,8 @@ public:
 	/// returns animation frame for terrain
 	virtual size_t terrainImageIndex(size_t groupSize) const = 0;
 
+	virtual double viewTransitionProgress() const = 0;
+
 	/// if true, rendered images will be converted to grayscale
 	virtual bool filterGrayscale() const = 0;
 

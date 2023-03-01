@@ -47,6 +47,7 @@ public:
 	size_t terrainImageIndex(size_t groupSize) const override;
 	size_t overlayImageIndex(const int3 & coordinates) const override;
 
+	double viewTransitionProgress() const override;
 	bool filterGrayscale() const override;
 	bool showRoads() const override;
 	bool showRivers() const override;
@@ -77,6 +78,16 @@ public:
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlockable() const override;
+};
+
+class MapRendererAdventureTransitionContext : public MapRendererAdventureContext
+{
+public:
+	double progress = 0;
+
+	explicit MapRendererAdventureTransitionContext(const MapRendererContextState & viewState);
+
+	double viewTransitionProgress() const override;
 };
 
 class MapRendererAdventureFadingContext : public MapRendererAdventureContext

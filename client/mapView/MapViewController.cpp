@@ -99,7 +99,7 @@ void MapViewController::update(uint32_t timeDelta)
 	// - teleporting ( 250 ms)
 	static const double fadeOutDuration = 500;
 	static const double fadeInDuration = 500;
-	//static const double heroTeleportDuration = 250;
+	static const double heroTeleportDuration = 250;
 
 	//FIXME: remove code duplication?
 
@@ -140,13 +140,14 @@ void MapViewController::update(uint32_t timeDelta)
 		}
 	}
 
-	//if(teleportContext)
-	//{
-	//	teleportContext->progress += timeDelta / heroTeleportDuration;
-	//	moveFocusToSelection();
-	//	if(teleportContext->progress >= 1.0)
-	//		teleportContext.reset();
-	//}
+	if(teleportContext)
+	{
+		teleportContext->progress += timeDelta / heroTeleportDuration;
+		if(teleportContext->progress >= 1.0)
+		{
+			activateAdventureContext(teleportContext->animationTime);
+		}
+	}
 
 	if(fadingOutContext)
 	{
@@ -316,9 +317,8 @@ void MapViewController::onBeforeHeroTeleported(const CGHeroInstance * obj, const
 
 	if(isEventVisible(obj, from, dest))
 	{
-		// TODO: generate view with old state
 		setViewCenter(obj->getSightCenter());
-		removeObject(obj);
+		view->createTransitionSnapshot(context);
 	}
 }
 
@@ -326,16 +326,16 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 {
 	assert(!hasOngoingAnimations());
 
+	removeObject(obj);
+	addObject(obj);
+
 	if(isEventVisible(obj, from, dest))
 	{
-		// TODO: animation
+		teleportContext = std::make_shared<MapRendererAdventureTransitionContext>(*state);
+		teleportContext->animationTime = adventureContext->animationTime;
+		adventureContext = teleportContext;
+		context = teleportContext;
 		setViewCenter(obj->getSightCenter());
-		addObject(obj);
-	}
-	else
-	{
-		removeObject(obj);
-		addObject(obj);
 	}
 }
 
@@ -393,6 +393,9 @@ bool MapViewController::hasOngoingAnimations()
 		return true;
 
 	if(fadingInContext)
+		return true;
+
+	if (teleportContext)
 		return true;
 
 	return false;
@@ -458,6 +461,7 @@ void MapViewController::resetContext()
 	movementContext.reset();
 	fadingOutContext.reset();
 	fadingInContext.reset();
+	teleportContext.reset();
 	worldViewContext.reset();
 	spellViewContext.reset();
 	puzzleMapContext.reset();

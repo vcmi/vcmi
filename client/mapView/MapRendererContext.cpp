@@ -139,6 +139,11 @@ size_t MapRendererBaseContext::overlayImageIndex(const int3 & coordinates) const
 	return std::numeric_limits<size_t>::max();
 }
 
+double MapRendererBaseContext::viewTransitionProgress() const
+{
+	return 0;
+}
+
 bool MapRendererBaseContext::filterGrayscale() const
 {
 	return false;
@@ -244,6 +249,16 @@ bool MapRendererAdventureContext::showVisitable() const
 bool MapRendererAdventureContext::showBlockable() const
 {
 	return settingShowBlockable;
+}
+
+MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)
+	: MapRendererAdventureContext(viewState)
+{
+}
+
+double MapRendererAdventureTransitionContext::viewTransitionProgress() const
+{
+	return progress;
 }
 
 MapRendererAdventureFadingContext::MapRendererAdventureFadingContext(const MapRendererContextState & viewState)
