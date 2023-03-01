@@ -13,17 +13,17 @@
 
 #include "MapRendererContext.h"
 #include "MapRendererContextState.h"
-#include "MapViewModel.h"
 #include "MapViewCache.h"
+#include "MapViewModel.h"
 
-#include "../adventureMap/CAdvMapInt.h"
 #include "../CPlayerInterface.h"
+#include "../adventureMap/CAdvMapInt.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CPathfinder.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/ViewSpellInt.h"
-#include "../../lib/CPathfinder.h"
 
 void MapViewController::setViewCenter(const int3 & position)
 {
@@ -34,9 +34,9 @@ void MapViewController::setViewCenter(const int3 & position)
 void MapViewController::setViewCenter(const Point & position, int level)
 {
 	Point upperLimit = Point(context->getMapSize()) * model->getSingleTileSize() + model->getSingleTileSize();
-	Point lowerLimit = Point(0,0);
+	Point lowerLimit = Point(0, 0);
 
-	if (worldViewContext)
+	if(worldViewContext)
 	{
 		Point area = model->getPixelsVisibleDimensions();
 		Point mapCenter = upperLimit / 2;
@@ -44,12 +44,12 @@ void MapViewController::setViewCenter(const Point & position, int level)
 		Point desiredLowerLimit = lowerLimit + area / 2;
 		Point desiredUpperLimit = upperLimit - area / 2;
 
-		Point actualLowerLimit {
+		Point actualLowerLimit{
 			std::min(desiredLowerLimit.x, mapCenter.x),
 			std::min(desiredLowerLimit.y, mapCenter.y)
 		};
 
-		Point actualUpperLimit {
+		Point actualUpperLimit{
 			std::max(desiredUpperLimit.x, mapCenter.x),
 			std::max(desiredUpperLimit.y, mapCenter.y)
 		};
@@ -58,15 +58,12 @@ void MapViewController::setViewCenter(const Point & position, int level)
 		lowerLimit = actualLowerLimit;
 	}
 
-	Point betterPosition = {
-		vstd::clamp(position.x, lowerLimit.x, upperLimit.x),
-		vstd::clamp(position.y, lowerLimit.y, upperLimit.y)
-	};
+	Point betterPosition = {vstd::clamp(position.x, lowerLimit.x, upperLimit.x), vstd::clamp(position.y, lowerLimit.y, upperLimit.y)};
 
 	model->setViewCenter(betterPosition);
 	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
 
-	if (adventureInt) // may be called before adventureInt is initialized
+	if(adventureInt) // may be called before adventureInt is initialized
 		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());
 }
 
@@ -109,17 +106,16 @@ void MapViewController::update(uint32_t timeDelta)
 	if(movementContext)
 	{
 		const auto * object = context->getObject(movementContext->target);
-		const auto * hero = dynamic_cast<const CGHeroInstance*>(object);
-		const auto * boat = dynamic_cast<const CGBoat*>(object);
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
+		const auto * boat = dynamic_cast<const CGBoat *>(object);
 
 		assert(boat || hero);
 
-		if (!hero)
+		if(!hero)
 			hero = boat->hero;
 
-		double heroMoveTime =
-			LOCPLINT->makingTurn ?
-			settings["adventure"]["heroMoveTime"].Float():
+		double heroMoveTime = LOCPLINT->makingTurn ?
+			settings["adventure"]["heroMoveTime"].Float() :
 			settings["adventure"]["enemyMoveTime"].Float();
 
 		movementContext->progress += timeDelta / heroMoveTime;
@@ -174,7 +170,7 @@ void MapViewController::update(uint32_t timeDelta)
 		}
 	}
 
-	if (adventureContext)
+	if(adventureContext)
 	{
 		adventureContext->animationTime += timeDelta;
 		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool();
@@ -188,13 +184,13 @@ void MapViewController::update(uint32_t timeDelta)
 
 bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 {
-	if (adventureContext == nullptr)
+	if(adventureContext == nullptr)
 		return false;
 
-	if (!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if (obj->isVisitable())
+	if(obj->isVisitable())
 		return context->isVisible(obj->visitablePos());
 	else
 		return context->isVisible(obj->pos);
@@ -202,16 +198,16 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 
 bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (adventureContext == nullptr)
+	if(adventureContext == nullptr)
 		return false;
 
-	if (!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if (context->isVisible(obj->convertToVisitablePos(from)))
+	if(context->isVisible(obj->convertToVisitablePos(from)))
 		return true;
 
-	if (context->isVisible(obj->convertToVisitablePos(dest)))
+	if(context->isVisible(obj->convertToVisitablePos(dest)))
 		return true;
 
 	return false;
@@ -253,7 +249,7 @@ void MapViewController::addObject(const CGObjectInstance * obj)
 
 void MapViewController::onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (isEventVisible(obj, from, dest))
+	if(isEventVisible(obj, from, dest))
 	{
 		onObjectFadeOut(obj);
 		setViewCenter(obj->getSightCenter());
@@ -264,19 +260,19 @@ void MapViewController::onBeforeHeroEmbark(const CGHeroInstance * obj, const int
 
 void MapViewController::onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (isEventVisible(obj, from, dest))
+	if(isEventVisible(obj, from, dest))
 		setViewCenter(obj->getSightCenter());
 }
 
 void MapViewController::onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (isEventVisible(obj, from, dest))
+	if(isEventVisible(obj, from, dest))
 		setViewCenter(obj->getSightCenter());
 }
 
 void MapViewController::onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (isEventVisible(obj, from, dest))
+	if(isEventVisible(obj, from, dest))
 	{
 		onObjectFadeIn(obj);
 		setViewCenter(obj->getSightCenter());
@@ -288,7 +284,7 @@ void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
 {
 	assert(!hasOngoingAnimations());
 
-	if (isEventVisible(obj))
+	if(isEventVisible(obj))
 		fadeInObject(obj);
 
 	addObject(obj);
@@ -298,7 +294,7 @@ void MapViewController::onObjectFadeOut(const CGObjectInstance * obj)
 {
 	assert(!hasOngoingAnimations());
 
-	if (isEventVisible(obj))
+	if(isEventVisible(obj))
 		fadeOutObject(obj);
 	else
 		removeObject(obj);
@@ -318,7 +314,7 @@ void MapViewController::onBeforeHeroTeleported(const CGHeroInstance * obj, const
 {
 	assert(!hasOngoingAnimations());
 
-	if (isEventVisible(obj, from, dest))
+	if(isEventVisible(obj, from, dest))
 	{
 		// TODO: generate view with old state
 		setViewCenter(obj->getSightCenter());
@@ -330,7 +326,7 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 {
 	assert(!hasOngoingAnimations());
 
-	if (isEventVisible(obj, from, dest))
+	if(isEventVisible(obj, from, dest))
 	{
 		// TODO: animation
 		setViewCenter(obj->getSightCenter());
@@ -348,7 +344,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 	assert(!hasOngoingAnimations());
 
 	// revisiting via spacebar, no need to animate
-	if (from == dest)
+	if(from == dest)
 		return;
 
 	const CGObjectInstance * movingObject = obj;
@@ -357,15 +353,14 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 
 	removeObject(movingObject);
 
-	if (!isEventVisible(obj, from, dest))
+	if(!isEventVisible(obj, from, dest))
 	{
 		addObject(movingObject);
 		return;
 	}
 
-	double movementTime =
-		LOCPLINT->playerID == obj->tempOwner ?
-		settings["adventure"]["heroMoveTime"].Float():
+	double movementTime = LOCPLINT->playerID == obj->tempOwner ?
+		settings["adventure"]["heroMoveTime"].Float() :
 		settings["adventure"]["enemyMoveTime"].Float();
 
 	if(movementTime > 1)
@@ -419,7 +414,7 @@ void MapViewController::activateAdventureContext()
 
 void MapViewController::activateWorldViewContext()
 {
-	if (worldViewContext)
+	if(worldViewContext)
 		return;
 
 	resetContext();
@@ -430,7 +425,7 @@ void MapViewController::activateWorldViewContext()
 
 void MapViewController::activateSpellViewContext()
 {
-	if (spellViewContext)
+	if(spellViewContext)
 		return;
 
 	resetContext();
@@ -479,4 +474,3 @@ void MapViewController::setOverlayVisibility(const std::vector<ObjectPosInfo> & 
 	assert(spellViewContext);
 	spellViewContext->additionalOverlayIcons = objectPositions;
 }
-

@@ -49,7 +49,7 @@ protected:
 
 public:
 	MapAudioPlayer();
-	~MapAudioPlayer();
+	~MapAudioPlayer() override;
 
 	/// Called whenever current adventure map selection changes
 	void onSelectionChanged(const CArmedInstance * newSelection);

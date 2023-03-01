@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../lib/int3.h"
 #include "../lib/GameConstants.h"
+#include "../lib/int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;

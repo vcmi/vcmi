@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
 #include "../../lib/int3.h"
+#include "../gui/CIntObject.h"
 
 class IMapRendererContext;
 class MapViewModel;
@@ -35,7 +35,7 @@ class MapViewActions : public CIntObject
 	bool handleSwipeStateChange(bool btnPressed);
 
 public:
-	MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel>& model);
+	MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model);
 
 	void setContext(const std::shared_ptr<IMapRendererContext> & context);
 
@@ -45,5 +45,5 @@ public:
 	void clickRight(tribool down, bool previousState) override;
 	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
-	void mouseMoved (const Point & cursorPosition) override;
+	void mouseMoved(const Point & cursorPosition) override;
 };

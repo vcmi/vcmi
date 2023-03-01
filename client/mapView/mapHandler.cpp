@@ -9,24 +9,24 @@
  */
 
 #include "StdInc.h"
-#include "mapHandler.h"
 #include "IMapRendererObserver.h"
+#include "mapHandler.h"
 
+#include "../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CCallback.h"
 
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CObjectClassesHandler.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/TerrainHandler.h"
 
 bool CMapHandler::hasOngoingAnimations()
 {
-	for (auto * observer : observers)
-		if (observer->hasOngoingAnimations())
+	for(auto * observer : observers)
+		if(observer->hasOngoingAnimations())
 			return true;
 
 	return false;
@@ -34,7 +34,7 @@ bool CMapHandler::hasOngoingAnimations()
 
 void CMapHandler::waitForOngoingAnimations()
 {
-	while (CGI->mh->hasOngoingAnimations())
+	while(CGI->mh->hasOngoingAnimations())
 	{
 		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
@@ -61,9 +61,10 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 	if(LOCPLINT->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
 	{
-		return boost::str(boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
-			% result
-			% CGI->generaltexth->allTexts[330]); // 'digging ok'
+		return boost::str(
+			boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
+			% result % CGI->generaltexth->allTexts[330]
+		); // 'digging ok'
 	}
 
 	return result;
@@ -131,77 +132,77 @@ const CMap * CMapHandler::getMap()
 	return map;
 }
 
-bool CMapHandler::isInMap( const int3 & tile)
+bool CMapHandler::isInMap(const int3 & tile)
 {
 	return map->isInTheMap(tile);
 }
 
 void CMapHandler::onObjectFadeIn(const CGObjectInstance * obj)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onObjectFadeIn(obj);
 }
 
 void CMapHandler::onObjectFadeOut(const CGObjectInstance * obj)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onObjectFadeOut(obj);
 }
 
-void CMapHandler::onBeforeHeroEmbark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+void CMapHandler::onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onBeforeHeroEmbark(obj, from, dest);
 }
 
-void CMapHandler::onAfterHeroEmbark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+void CMapHandler::onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onAfterHeroEmbark(obj, from, dest);
 }
 
-void CMapHandler::onBeforeHeroDisembark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+void CMapHandler::onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onBeforeHeroDisembark(obj, from, dest);
 }
 
-void CMapHandler::onAfterHeroDisembark(const CGHeroInstance *obj, const int3 &from, const int3 &dest)
+void CMapHandler::onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onAfterHeroDisembark(obj, from, dest);
 }
 
 void CMapHandler::onObjectInstantAdd(const CGObjectInstance * obj)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onObjectInstantAdd(obj);
 }
 
 void CMapHandler::onObjectInstantRemove(const CGObjectInstance * obj)
 {
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onObjectInstantRemove(obj);
 }
 
 void CMapHandler::onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(obj->pos == dest);
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onAfterHeroTeleported(obj, from, dest);
 }
 
 void CMapHandler::onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(obj->pos == from);
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onBeforeHeroTeleported(obj, from, dest);
 }
 
 void CMapHandler::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
 	assert(obj->pos == dest);
-	for (auto * observer : observers)
+	for(auto * observer : observers)
 		observer->onHeroMoved(obj, from, dest);
 }
 

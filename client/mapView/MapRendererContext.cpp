@@ -19,10 +19,10 @@
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CAdvMapInt.h"
 
+#include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/CPathfinder.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -411,7 +411,7 @@ double MapRendererSpellViewContext::objectTransparency(ObjectInstanceID objectID
 
 bool MapRendererSpellViewContext::isVisible(const int3 & coordinates) const
 {
-	if (showAllTerrain)
+	if(showAllTerrain)
 		return isInMap(coordinates);
 	return MapRendererBaseContext::isVisible(coordinates);
 }

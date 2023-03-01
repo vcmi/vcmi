@@ -73,10 +73,10 @@ public:
 	void onCenteredObject(const CGObjectInstance * target);
 
 	/// Switches view to "View Earth" / "View Air" mode, displaying downscaled map with overlay
-	void onViewSpellActivated( uint32_t tileSize, const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
+	void onViewSpellActivated(uint32_t tileSize, const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain);
 
 	/// Switches view to downscaled View World
-	void onViewWorldActivated( uint32_t tileSize);
+	void onViewWorldActivated(uint32_t tileSize);
 
 	/// Switches view from View World mode back to standard view
 	void onViewMapActivated();

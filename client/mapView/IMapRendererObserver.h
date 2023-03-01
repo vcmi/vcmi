@@ -44,9 +44,9 @@ public:
 	virtual void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 	virtual void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
 
-	virtual void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
-	virtual void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
+	virtual void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
+	virtual void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
 
-	virtual void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
-	virtual void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {};
+	virtual void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
+	virtual void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
 };

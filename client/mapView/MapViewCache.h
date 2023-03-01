@@ -30,9 +30,9 @@ class MapViewCache
 	{
 		int tileX = std::numeric_limits<int>::min();
 		int tileY = std::numeric_limits<int>::min();
-		std::array<uint8_t, 8> checksum {};
+		std::array<uint8_t, 8> checksum{};
 
-		bool operator == (const TileChecksum & other) const
+		bool operator==(const TileChecksum & other) const
 		{
 			return tileX == other.tileX && tileY == other.tileY && checksum == other.checksum;
 		}
@@ -57,6 +57,7 @@ class MapViewCache
 	void updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
 
 	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
+
 public:
 	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
 	~MapViewCache();
@@ -68,5 +69,5 @@ public:
 	void update(const std::shared_ptr<IMapRendererContext> & context);
 
 	/// renders updated terrain cache onto provided canvas
-	void render(const std::shared_ptr<IMapRendererContext> &context, Canvas & target, bool fullRedraw);
+	void render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw);
 };

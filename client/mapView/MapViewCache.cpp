@@ -61,21 +61,21 @@ void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & conte
 
 	auto & entry = terrainChecksum[cacheX][cacheY];
 
-	if (entry.tileX == tile.x && entry.tileY ==tile.y)
+	if(entry.tileX == tile.x && entry.tileY == tile.y)
 		entry = TileChecksum{};
 }
 
 void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & context, const ObjectInstanceID & object)
 {
-	for (size_t cacheY = 0; cacheY < terrainChecksum.shape()[1]; ++cacheY)
+	for(size_t cacheY = 0; cacheY < terrainChecksum.shape()[1]; ++cacheY)
 	{
-		for (size_t cacheX = 0; cacheX < terrainChecksum.shape()[0]; ++cacheX)
+		for(size_t cacheX = 0; cacheX < terrainChecksum.shape()[0]; ++cacheX)
 		{
 			auto & entry = terrainChecksum[cacheX][cacheY];
 
-			int3 tile( entry.tileX, entry.tileY, cachedLevel);
+			int3 tile(entry.tileX, entry.tileY, cachedLevel);
 
-			if (context->isInMap(tile) && vstd::contains(context->getObjects(tile), object))
+			if(context->isInMap(tile) && vstd::contains(context->getObjects(tile), object))
 				entry = TileChecksum{};
 		}
 	}
@@ -108,7 +108,7 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 		target.drawScaled(*intermediate, Point(0, 0), model->getSingleTileSize());
 	}
 
-	if (context->filterGrayscale())
+	if(context->filterGrayscale())
 		target.applyGrayscale();
 
 	oldCacheEntry = newCacheEntry;

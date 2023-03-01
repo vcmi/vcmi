@@ -11,8 +11,8 @@
 #include "MapViewActions.h"
 
 #include "IMapRendererContext.h"
-#include "MapViewModel.h"
 #include "MapView.h"
+#include "MapViewModel.h"
 
 #include "../CGameInfo.h"
 #include "../adventureMap/CAdvMapInt.h"
@@ -21,7 +21,7 @@
 
 #include "../../lib/CConfigHandler.h"
 
-MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel>& model)
+MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, owner(owner)
 	, curHoveredTile(-1, -1, -1)
@@ -51,7 +51,7 @@ void MapViewActions::activate()
 void MapViewActions::deactivate()
 {
 	CIntObject::deactivate();
-	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
+	curHoveredTile = int3(-1, -1, -1); //we lost info about hovered tile when disabling
 }
 
 void MapViewActions::clickLeft(tribool down, bool previousState)
@@ -74,7 +74,7 @@ void MapViewActions::clickLeft(tribool down, bool previousState)
 
 	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
 
-	if (context->isInMap(tile))
+	if(context->isInMap(tile))
 		adventureInt->onTileLeftClicked(tile);
 }
 
@@ -85,7 +85,7 @@ void MapViewActions::clickRight(tribool down, bool previousState)
 
 	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
 
-	if (down && context->isInMap(tile))
+	if(down && context->isInMap(tile))
 		adventureInt->onTileRightClicked(tile);
 }
 
@@ -116,7 +116,7 @@ void MapViewActions::handleSwipeMove(const Point & cursorPosition)
 		Point distance = (cursorPosition - swipeInitialRealPos);
 
 		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if( std::abs(distance.x) + std::abs(distance.y) > touchSwipeSlop)
+		if(std::abs(distance.x) + std::abs(distance.y) > touchSwipeSlop)
 			isSwiping = true;
 	}
 
@@ -155,7 +155,7 @@ void MapViewActions::handleHover(const Point & cursorPosition)
 		return;
 	}
 
-	if (tile != curHoveredTile)
+	if(tile != curHoveredTile)
 	{
 		curHoveredTile = tile;
 		adventureInt->onTileHovered(tile);
@@ -164,7 +164,7 @@ void MapViewActions::handleHover(const Point & cursorPosition)
 
 void MapViewActions::hover(bool on)
 {
-	if (!on)
+	if(!on)
 	{
 		GH.statusbar->clear();
 		CCS->curh->set(Cursor::Map::POINTER);

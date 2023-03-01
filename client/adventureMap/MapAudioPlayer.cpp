@@ -10,16 +10,16 @@
 #include "StdInc.h"
 #include "MapAudioPlayer.h"
 
-#include "../mapView/mapHandler.h"
-#include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 #include "../CCallback.h"
+#include "../CGameInfo.h"
 #include "../CMusicHandler.h"
+#include "../CPlayerInterface.h"
+#include "../mapView/mapHandler.h"
 
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/TerrainHandler.h"
+#include "../../lib/mapping/CMap.h"
 
 bool MapAudioPlayer::hasOngoingAnimations()
 {
@@ -28,25 +28,25 @@ bool MapAudioPlayer::hasOngoingAnimations()
 
 void MapAudioPlayer::onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (obj == currentSelection)
+	if(obj == currentSelection)
 		update();
 }
 
 void MapAudioPlayer::onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (obj == currentSelection)
+	if(obj == currentSelection)
 		update();
 }
 
 void MapAudioPlayer::onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (obj == currentSelection)
+	if(obj == currentSelection)
 		update();
 }
 
 void MapAudioPlayer::onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
 {
-	if (obj == currentSelection)
+	if(obj == currentSelection)
 		update();
 }
 
@@ -72,7 +72,7 @@ void MapAudioPlayer::onObjectInstantRemove(const CGObjectInstance * obj)
 
 void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 {
-	if (obj->isTile2Terrain())
+	if(obj->isTile2Terrain())
 	{
 		// terrain overlay - all covering tiles act as sound source
 		for(int fx = 0; fx < obj->getWidth(); ++fx)
@@ -88,7 +88,7 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 		return;
 	}
 
-	if (obj->isVisitable())
+	if(obj->isVisitable())
 	{
 		// visitable object - visitable tile acts as sound source
 		int3 currTile = obj->visitablePos();
@@ -99,12 +99,12 @@ void MapAudioPlayer::addObject(const CGObjectInstance * obj)
 		return;
 	}
 
-	if (!obj->isVisitable())
+	if(!obj->isVisitable())
 	{
 		// static object - blocking tiles act as sound source
 		auto tiles = obj->getBlockedOffsets();
 
-		for (const auto & tile : tiles)
+		for(const auto & tile : tiles)
 		{
 			int3 currTile = obj->pos + tile;
 
@@ -122,7 +122,6 @@ void MapAudioPlayer::removeObject(const CGObjectInstance * obj)
 			for(int y = 0; y < LOCPLINT->cb->getMapSize().y; y++)
 				vstd::erase(objects[z][x][y], obj->id);
 }
-
 
 std::vector<std::string> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 {
@@ -145,7 +144,7 @@ std::vector<std::string> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 void MapAudioPlayer::updateAmbientSounds()
 {
 	std::map<std::string, int> currentSounds;
-	auto updateSounds = [&](std::string soundId, int distance) -> void
+	auto updateSounds = [&](const std::string& soundId, int distance) -> void
 	{
 		if(vstd::contains(currentSounds, soundId))
 			currentSounds[soundId] = std::min(currentSounds[soundId], distance);
@@ -162,20 +161,19 @@ void MapAudioPlayer::updateAmbientSounds()
 
 		for(auto & soundName : getAmbientSounds(tile))
 			updateSounds(soundName, dist);
-
 	}
 	CCS->soundh->ambientUpdateChannels(currentSounds);
 }
 
 void MapAudioPlayer::updateMusic()
 {
-	if (audioPlaying && playerMakingTurn && currentSelection)
+	if(audioPlaying && playerMakingTurn && currentSelection)
 	{
 		const auto * terrain = LOCPLINT->cb->getTile(currentSelection->visitablePos())->terType;
 		CCS->musich->playMusicFromSet("terrain", terrain->getJsonKey(), true, false);
 	}
 
-	if (audioPlaying && enemyMakingTurn)
+	if(audioPlaying && enemyMakingTurn)
 	{
 		CCS->musich->playMusicFromSet("enemy-turn", true, false);
 	}
@@ -185,7 +183,7 @@ void MapAudioPlayer::update()
 {
 	updateMusic();
 
-	if (audioPlaying && playerMakingTurn && currentSelection)
+	if(audioPlaying && playerMakingTurn && currentSelection)
 		updateAmbientSounds();
 }
 

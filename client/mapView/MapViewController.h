@@ -92,5 +92,4 @@ public:
 
 	void setTerrainVisibility(bool showAllTerrain);
 	void setOverlayVisibility(const std::vector<ObjectPosInfo> & objectPositions);
-
 };

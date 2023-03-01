@@ -125,9 +125,6 @@ public:
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
 
-	const CArmedInstance * getSelection();
-	void setSelection(const CArmedInstance * obj);
-
 	struct SpellbookLastSetting
 	{
 		int spellbookLastPageBattle, spellbokLastPageAdvmap; //on which page we left spellbook
