@@ -26,14 +26,17 @@ class JsonSerializeFormat;
 namespace battle
 {
 
-enum BattlePhases
+namespace BattlePhases
 {
-	SIEGE, // [0] - turrets/catapult,
-	NORMAL, // [1] - normal (unmoved) creatures, other war machines,
-	WAIT_MORALE, // [2] - waited creatures that had morale,
-	WAIT, // [3] - rest of waited creatures
-	MAX_NO_OF_PHASES // [4] - number of phases.
-};
+	enum Type
+	{
+		SIEGE, // turrets/catapult,
+		NORMAL, // normal (unmoved) creatures, other war machines,
+		WAIT_MORALE, // waited creatures that had morale,
+		WAIT, // rest of waited creatures
+		NUMBER_OF_PHASES // number of phases.
+	};
+}
 
 class CUnitState;
 
@@ -89,7 +92,7 @@ public:
 	virtual std::shared_ptr<Unit> acquire() const = 0;
 	virtual std::shared_ptr<CUnitState> acquireState() const = 0;
 
-	virtual BattlePhases battleQueuePhase(int turn) const = 0;
+	virtual BattlePhases::Type battleQueuePhase(int turn) const = 0;
 
 	virtual std::string getDescription() const;
 
