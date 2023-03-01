@@ -525,15 +525,15 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"conflux",
-					"dungeon",
-					"fortress",
-					"inferno",
-					"necropolis",
-					"rampart",
-					"stronghold",
-					"tower"
+					"core:castle",
+					"core:conflux",
+					"core:dungeon",
+					"core:fortress",
+					"core:inferno",
+					"core:necropolis",
+					"core:rampart",
+					"core:stronghold",
+					"core:tower"
 				]
 			},
 			"maxLevel" : 6
@@ -738,9 +738,9 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"dungeon",
-					"fortress"
+					"core:castle",
+					"core:dungeon",
+					"core:fortress"
 				]
 			},
 			"maxLevel" : 6,
@@ -771,15 +771,15 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"conflux",
-					"dungeon",
-					"fortress",
-					"inferno",
-					"necropolis",
-					"rampart",
-					"stronghold",
-					"tower"
+					"core:castle",
+					"core:conflux",
+					"core:dungeon",
+					"core:fortress",
+					"core:inferno",
+					"core:necropolis",
+					"core:rampart",
+					"core:stronghold",
+					"core:tower"
 				]
 			},
 			"maxLevel" : 6
@@ -808,15 +808,15 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"conflux",
-					"dungeon",
-					"fortress",
-					"inferno",
-					"necropolis",
-					"rampart",
-					"stronghold",
-					"tower"
+					"core:castle",
+					"core:conflux",
+					"core:dungeon",
+					"core:fortress",
+					"core:inferno",
+					"core:necropolis",
+					"core:rampart",
+					"core:stronghold",
+					"core:tower"
 				]
 			},
 			"maxLevel" : 6
@@ -845,15 +845,15 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"conflux",
-					"dungeon",
-					"fortress",
-					"inferno",
-					"necropolis",
-					"rampart",
-					"stronghold",
-					"tower"
+					"core:castle",
+					"core:conflux",
+					"core:dungeon",
+					"core:fortress",
+					"core:inferno",
+					"core:necropolis",
+					"core:rampart",
+					"core:stronghold",
+					"core:tower"
 				]
 			},
 			"maxLevel" : 6
@@ -882,15 +882,15 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"conflux",
-					"dungeon",
-					"fortress",
-					"inferno",
-					"necropolis",
-					"rampart",
-					"stronghold",
-					"tower"
+					"core:castle",
+					"core:conflux",
+					"core:dungeon",
+					"core:fortress",
+					"core:inferno",
+					"core:necropolis",
+					"core:rampart",
+					"core:stronghold",
+					"core:tower"
 				]
 			},
 			"maxLevel" : 6
@@ -919,9 +919,9 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"dungeon",
-					"fortress"
+					"core:castle",
+					"core:dungeon",
+					"core:fortress"
 				]
 			},
 			"maxLevel" : 6,
@@ -952,9 +952,9 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"dungeon",
-					"fortress"
+					"core:castle",
+					"core:dungeon",
+					"core:fortress"
 				]
 			},
 			"maxLevel" : 6,
@@ -985,9 +985,9 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"dungeon",
-					"fortress"
+					"core:castle",
+					"core:dungeon",
+					"core:fortress"
 				]
 			},
 			"maxLevel" : 6,
@@ -1018,9 +1018,9 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"castle",
-					"dungeon",
-					"fortress"
+					"core:castle",
+					"core:dungeon",
+					"core:fortress"
 				]
 			},
 			"maxLevel" : 6,
@@ -1073,8 +1073,8 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"conflux",
-					"rampart"
+					"core:conflux",
+					"core:rampart"
 				]
 			},
 			"owner" : "tan"
@@ -1103,8 +1103,8 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"conflux",
-					"rampart"
+					"core:conflux",
+					"core:rampart"
 				]
 			},
 			"owner" : "tan"
@@ -1133,8 +1133,8 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"conflux",
-					"rampart"
+					"core:conflux",
+					"core:rampart"
 				]
 			},
 			"owner" : "tan"
@@ -1163,8 +1163,8 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"conflux",
-					"rampart"
+					"core:conflux",
+					"core:rampart"
 				]
 			},
 			"owner" : "tan"
@@ -1193,8 +1193,8 @@
 		"options" : {
 			"allowedFactions" : {
 				"anyOf" : [
-					"conflux",
-					"rampart"
+					"core:conflux",
+					"core:rampart"
 				]
 			},
 			"owner" : "tan"
@@ -1414,7 +1414,7 @@
 		"x" : 28,
 		"y" : 8,
 		"options" : {
-			"spell" : "haste"
+			"spell" : "core:haste"
 		}
 	},
 	"sign_53" : {
@@ -1523,7 +1523,7 @@
 		"x" : 34,
 		"y" : 8,
 		"options" : {
-			"spell" : "quicksand"
+			"spell" : "core:quicksand"
 		}
 	},
 	"shrineOfMagicLevel3_58" : {
@@ -1566,7 +1566,7 @@
 		"x" : 40,
 		"y" : 8,
 		"options" : {
-			"spell" : "teleport"
+			"spell" : "core:teleport"
 		}
 	},
 	"sign_60" : {
@@ -1774,14 +1774,14 @@
 			"army" : [
 				{
 					"amount" : 100,
-					"type" : "enchanter"
+					"type" : "core:enchanter"
 				},
 				{},
 				{},
 				{},
 				{
 					"amount" : 10,
-					"type" : "azureDragon"
+					"type" : "core:azureDragon"
 				},
 				{},
 				{}
@@ -1834,31 +1834,31 @@
 			"army" : [
 				{
 					"amount" : 11,
-					"type" : "gremlin"
+					"type" : "core:gremlin"
 				},
 				{
 					"amount" : 12,
-					"type" : "masterGremlin"
+					"type" : "core:masterGremlin"
 				},
 				{
 					"amount" : 13,
-					"type" : "stoneGargoyle"
+					"type" : "core:stoneGargoyle"
 				},
 				{
 					"amount" : 14,
-					"type" : "obsidianGargoyle"
+					"type" : "core:obsidianGargoyle"
 				},
 				{
 					"amount" : 15,
-					"type" : "ironGolem"
+					"type" : "core:ironGolem"
 				},
 				{
 					"amount" : 16,
-					"type" : "stoneGolem"
+					"type" : "core:stoneGolem"
 				},
 				{
 					"amount" : 17,
-					"type" : "mage"
+					"type" : "core:mage"
 				}
 			]
 		}
@@ -2285,7 +2285,7 @@
 		"x" : 72,
 		"y" : 10,
 		"options" : {
-			"rewardSpell" : "stoneSkin"
+			"rewardSpell" : "core:stoneSkin"
 		}
 	},
 	"scholar_90" : {
@@ -2308,7 +2308,7 @@
 		"x" : 75,
 		"y" : 10,
 		"options" : {
-			"rewardSpell" : "fly"
+			"rewardSpell" : "core:fly"
 		}
 	},
 	"sign_91" : {
@@ -2494,15 +2494,15 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{
 					"amount" : 1,
-					"type" : "basilisk"
+					"type" : "core:basilisk"
 				},
 				{
 					"amount" : 1,
-					"type" : "pegasus"
+					"type" : "core:pegasus"
 				},
 				{},
 				{},
@@ -2532,12 +2532,12 @@
 		"y" : 18,
 		"options" : {
 			"artifacts" : [
-				"ribCage"
+				"core:ribCage"
 			],
 			"creatures" : [
 				{
 					"amount" : 1,
-					"type" : "troll"
+					"type" : "core:troll"
 				}
 			],
 			"experience" : 99999999,
@@ -2564,7 +2564,7 @@
 				"offence" : "advanced"
 			},
 			"spells" : [
-				"blind"
+				"core:blind"
 			]
 		}
 	},
@@ -2596,31 +2596,31 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				}
 			],
 			"mana" : -777
@@ -2649,27 +2649,27 @@
 			"army" : [
 				{
 					"amount" : 1,
-					"type" : "crystalDragon"
+					"type" : "core:crystalDragon"
 				},
 				{
 					"amount" : 1,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				},
 				{
 					"amount" : 1,
-					"type" : "rustDragon"
+					"type" : "core:rustDragon"
 				},
 				{
 					"amount" : 1,
-					"type" : "azureDragon"
+					"type" : "core:azureDragon"
 				},
 				{},
 				{},
 				{}
 			],
 			"artifacts" : {
-				"feet" : "bootsOfLevitation",
-				"spellbook" : "spellBook"
+				"feet" : "core:bootsOfLevitation",
+				"spellbook" : "core:spellBook"
 			},
 			"biography" : "321",
 			"owner" : "red",
@@ -2680,14 +2680,14 @@
 				"spellpower" : 33
 			},
 			"secondarySkills" : {
-				"wisdom" : "expert",
-				"sorcery" : "expert"
+				"core:wisdom" : "expert",
+				"core:sorcery" : "expert"
 			},
 			"spellBook" : [
-				"fly"
+				"core:fly"
 			],
 			"tightFormation" : true,
-			"type" : "ingham"
+			"type" : "core:ingham"
 		}
 	},
 	"sign_102" : {
@@ -2915,70 +2915,70 @@
 		"y" : 18,
 		"options" : {
 			"artifacts" : [
-				"admiralsHat",
-				"ambassadorsSash",
-				"amuletOfTheUndertaker",
-				"angelFeatherArrows",
-				"angelWings",
-				"angelicAlliance",
-				"angelicAlliance",
-				"armageddonsBlade",
-				"armorOfTheDamned",
-				"armorOfWonder",
-				"badgeOfCourage",
-				"birdOfPerception",
-				"blackshardOfTheDeadKnight",
-				"bootsOfLevitation",
-				"bootsOfPolarity",
-				"bootsOfSpeed",
-				"bowOfElvenCherrywood",
-				"bowOfTheSharpshooter",
-				"bowstringOfTheUnicornsMane",
-				"breastplateOfBrimstone",
-				"breastplateOfPetrifiedWood",
-				"bucklerOfTheGnollKing",
-				"capeOfVelocity",
-				"cardsOfProphecy",
-				"celestialNecklaceOfBliss",
-				"centaurAxe",
-				"charmOfMana",
-				"cloakOfTheUndeadKing",
-				"cloverOfFortune",
-				"collarOfConjuring",
-				"cornucopia",
-				"crestOfValor",
-				"capeOfConjuring",
-				"crownOfDragontooth",
-				"crownOfTheSupremeMagi",
-				"deadMansBoots",
-				"diplomatsRing",
-				"dragonScaleArmor",
-				"dragonScaleShield",
-				"dragonWingTabard",
-				"dragonboneGreaves",
-				"elixirOfLife",
-				"emblemOfCognizance",
-				"endlessPurseOfGold",
-				"endlessSackOfGold",
-				"endlessBagOfGold",
-				"equestriansGloves",
-				"everflowingCrystalCloak",
-				"everpouringVialOfMercury",
-				"eversmokingRingOfSulfur",
-				"garnitureOfInterference",
-				"glyphOfGallantry",
-				"goldenBow",
-				"greaterGnollsFlail",
-				"headOfLegion",
-				"hellstormHelmet",
-				"hellstormHelmet",
-				"helmOfChaos",
-				"helmOfHeavenlyEnlightenment",
-				"helmOfTheAlabasterUnicorn",
-				"helmOfTheAlabasterUnicorn",
-				"hourglassOfTheEvilHour",
-				"inexhaustibleCartOfLumber",
-				"inexhaustibleCartOfOre"
+				"core:admiralsHat",
+				"core:ambassadorsSash",
+				"core:amuletOfTheUndertaker",
+				"core:angelFeatherArrows",
+				"core:angelWings",
+				"core:angelicAlliance",
+				"core:angelicAlliance",
+				"core:armageddonsBlade",
+				"core:armorOfTheDamned",
+				"core:armorOfWonder",
+				"core:badgeOfCourage",
+				"core:birdOfPerception",
+				"core:blackshardOfTheDeadKnight",
+				"core:bootsOfLevitation",
+				"core:bootsOfPolarity",
+				"core:bootsOfSpeed",
+				"core:bowOfElvenCherrywood",
+				"core:bowOfTheSharpshooter",
+				"core:bowstringOfTheUnicornsMane",
+				"core:breastplateOfBrimstone",
+				"core:breastplateOfPetrifiedWood",
+				"core:bucklerOfTheGnollKing",
+				"core:capeOfVelocity",
+				"core:cardsOfProphecy",
+				"core:celestialNecklaceOfBliss",
+				"core:centaurAxe",
+				"core:charmOfMana",
+				"core:cloakOfTheUndeadKing",
+				"core:cloverOfFortune",
+				"core:collarOfConjuring",
+				"core:cornucopia",
+				"core:crestOfValor",
+				"core:capeOfConjuring",
+				"core:crownOfDragontooth",
+				"core:crownOfTheSupremeMagi",
+				"core:deadMansBoots",
+				"core:diplomatsRing",
+				"core:dragonScaleArmor",
+				"core:dragonScaleShield",
+				"core:dragonWingTabard",
+				"core:dragonboneGreaves",
+				"core:elixirOfLife",
+				"core:emblemOfCognizance",
+				"core:endlessPurseOfGold",
+				"core:endlessSackOfGold",
+				"core:endlessBagOfGold",
+				"core:equestriansGloves",
+				"core:everflowingCrystalCloak",
+				"core:everpouringVialOfMercury",
+				"core:eversmokingRingOfSulfur",
+				"core:garnitureOfInterference",
+				"core:glyphOfGallantry",
+				"core:goldenBow",
+				"core:greaterGnollsFlail",
+				"core:headOfLegion",
+				"core:hellstormHelmet",
+				"core:hellstormHelmet",
+				"core:helmOfChaos",
+				"core:helmOfHeavenlyEnlightenment",
+				"core:helmOfTheAlabasterUnicorn",
+				"core:helmOfTheAlabasterUnicorn",
+				"core:hourglassOfTheEvilHour",
+				"core:inexhaustibleCartOfLumber",
+				"core:inexhaustibleCartOfOre"
 			],
 			"removeAfterVisit" : true
 		}
@@ -3004,75 +3004,75 @@
 		"options" : {
 			"removeAfterVisit" : true,
 			"spells" : [
-				"airElemental",
-				"airShield",
-				"animateDead",
-				"antiMagic",
-				"armageddon",
-				"berserk",
-				"bless",
-				"blind",
-				"bloodlust",
-				"chainLightning",
-				"clone",
-				"counterstrike",
-				"cure",
-				"curse",
-				"deathRipple",
-				"destroyUndead",
-				"dimensionDoor",
-				"disguise",
-				"dispel",
-				"disruptingRay",
-				"earthElemental",
-				"earthquake",
-				"fireElemental",
-				"fireShield",
-				"fireWall",
-				"fireball",
-				"fly",
-				"forceField",
-				"forgetfulness",
-				"fortune",
-				"frenzy",
-				"frostRing",
-				"haste",
-				"hypnotize",
-				"iceBolt",
-				"implosion",
-				"inferno",
-				"landMine",
-				"lightningBolt",
-				"magicArrow",
-				"magicMirror",
-				"meteorShower",
-				"mirth",
-				"misfortune",
-				"prayer",
-				"precision",
-				"protectEarth",
-				"protectWater",
-				"protectAir",
-				"protectFire",
-				"quicksand",
-				"removeObstacle",
-				"resurrection",
-				"sacrifice",
-				"scuttleBoat",
-				"shield",
-				"slayer",
-				"slow",
-				"sorrow",
-				"stoneSkin",
-				"summonBoat",
-				"teleport",
-				"townPortal",
-				"viewAir",
-				"viewEarth",
-				"visions",
-				"waterElemental",
-				"waterWalk",
-				"weakness"
+				"core:airElemental",
+				"core:airShield",
+				"core:animateDead",
+				"core:antiMagic",
+				"core:armageddon",
+				"core:berserk",
+				"core:bless",
+				"core:blind",
+				"core:bloodlust",
+				"core:chainLightning",
+				"core:clone",
+				"core:counterstrike",
+				"core:cure",
+				"core:curse",
+				"core:deathRipple",
+				"core:destroyUndead",
+				"core:dimensionDoor",
+				"core:disguise",
+				"core:dispel",
+				"core:disruptingRay",
+				"core:earthElemental",
+				"core:earthquake",
+				"core:fireElemental",
+				"core:fireShield",
+				"core:fireWall",
+				"core:fireball",
+				"core:fly",
+				"core:forceField",
+				"core:forgetfulness",
+				"core:fortune",
+				"core:frenzy",
+				"core:frostRing",
+				"core:haste",
+				"core:hypnotize",
+				"core:iceBolt",
+				"core:implosion",
+				"core:inferno",
+				"core:landMine",
+				"core:lightningBolt",
+				"core:magicArrow",
+				"core:magicMirror",
+				"core:meteorShower",
+				"core:mirth",
+				"core:misfortune",
+				"core:prayer",
+				"core:precision",
+				"core:protectEarth",
+				"core:protectWater",
+				"core:protectAir",
+				"core:protectFire",
+				"core:quicksand",
+				"core:removeObstacle",
+				"core:resurrection",
+				"core:sacrifice",
+				"core:scuttleBoat",
+				"core:shield",
+				"core:slayer",
+				"core:slow",
+				"core:sorrow",
+				"core:stoneSkin",
+				"core:summonBoat",
+				"core:teleport",
+				"core:townPortal",
+				"core:viewAir",
+				"core:viewEarth",
+				"core:visions",
+				"core:waterElemental",
+				"core:waterWalk",
+				"core:weakness"
 			]
 		}
 	},
@@ -3098,31 +3098,31 @@
 			"creatures" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				}
 			],
 			"removeAfterVisit" : true
@@ -3150,31 +3150,31 @@
 			"creatures" : [
 				{
 					"amount" : 9999,
-					"type" : "rustDragon"
+					"type" : "core:rustDragon"
 				},
 				{
 					"amount" : 9999,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				},
 				{
 					"amount" : 9999,
-					"type" : "crystalDragon"
+					"type" : "core:crystalDragon"
 				},
 				{
 					"amount" : 9999,
-					"type" : "azureDragon"
+					"type" : "core:azureDragon"
 				},
 				{
 					"amount" : 9999,
-					"type" : "enchanter"
+					"type" : "core:enchanter"
 				},
 				{
 					"amount" : 9999,
-					"type" : "diamondGolem"
+					"type" : "core:diamondGolem"
 				},
 				{
 					"amount" : 9999,
-					"type" : "troll"
+					"type" : "core:troll"
 				}
 			],
 			"removeAfterVisit" : true
@@ -3585,22 +3585,22 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 2,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 3,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{},
 				{},
 				{},
 				{
 					"amount" : 15,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				}
 			]
 		}
@@ -3629,22 +3629,22 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 2,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 3,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{},
 				{},
 				{},
 				{
 					"amount" : 15,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				}
 			]
 		}
@@ -3673,22 +3673,22 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 2,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 3,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{},
 				{},
 				{},
 				{
 					"amount" : 15,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				}
 			]
 		}
@@ -3717,22 +3717,22 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 2,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 3,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{},
 				{},
 				{},
 				{
 					"amount" : 15,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				}
 			]
 		}
@@ -3761,22 +3761,22 @@
 			"guards" : [
 				{
 					"amount" : 1,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 2,
-					"type" : "halberdier"
+					"type" : "core:halberdier"
 				},
 				{
 					"amount" : 3,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{},
 				{},
 				{},
 				{
 					"amount" : 15,
-					"type" : "fairieDragon"
+					"type" : "core:fairieDragon"
 				}
 			]
 		}
@@ -3957,7 +3957,7 @@
 			"guards" : [
 				{
 					"amount" : 100,
-					"type" : "rustDragon"
+					"type" : "core:rustDragon"
 				},
 				{},
 				{},
@@ -4009,7 +4009,7 @@
 		"x" : 4,
 		"y" : 46,
 		"options" : {
-			"spell" : "magicArrow"
+			"spell" : "core:magicArrow"
 		}
 	},
 	"sign_148" : {
@@ -4054,7 +4054,7 @@
 		"y" : 48,
 		"options" : {
 			"guardMessage" : "prayerspell",
-			"spell" : "prayer"
+			"spell" : "core:prayer"
 		}
 	},
 	"sign_150" : {
@@ -4107,11 +4107,11 @@
 				{},
 				{
 					"amount" : 666,
-					"type" : "devil"
+					"type" : "core:devil"
 				},
 				{}
 			],
-			"spell" : "inferno"
+			"spell" : "core:inferno"
 		}
 	},
 	"artifact_152" : {
@@ -4246,7 +4246,7 @@
 				{},
 				{
 					"amount" : 44,
-					"type" : "troll"
+					"type" : "core:troll"
 				},
 				{},
 				{},
@@ -4417,7 +4417,7 @@
 			"guards" : [
 				{
 					"amount" : 500,
-					"type" : "mage"
+					"type" : "core:mage"
 				},
 				{},
 				{},
@@ -4451,7 +4451,7 @@
 			"guards" : [
 				{
 					"amount" : 500,
-					"type" : "mage"
+					"type" : "core:mage"
 				},
 				{},
 				{},
@@ -4485,7 +4485,7 @@
 			"guards" : [
 				{
 					"amount" : 500,
-					"type" : "mage"
+					"type" : "core:mage"
 				},
 				{},
 				{},
@@ -4519,7 +4519,7 @@
 			"guards" : [
 				{
 					"amount" : 500,
-					"type" : "mage"
+					"type" : "core:mage"
 				},
 				{},
 				{},
@@ -4553,7 +4553,7 @@
 			"guards" : [
 				{
 					"amount" : 500,
-					"type" : "mage"
+					"type" : "core:mage"
 				},
 				{},
 				{},
@@ -4728,7 +4728,7 @@
 				{},
 				{
 					"amount" : 333,
-					"type" : "royalGriffin"
+					"type" : "core:royalGriffin"
 				},
 				{},
 				{},
@@ -4827,7 +4827,7 @@
 				{},
 				{
 					"amount" : 5,
-					"type" : "pixie"
+					"type" : "core:pixie"
 				},
 				{},
 				{}
@@ -4988,23 +4988,23 @@
 		"y" : 74,
 		"options" : {
 			"artifacts" : [
-				"angelWings",
-				"helmOfChaos",
-				"wizardsWell"
+				"core:angelWings",
+				"core:helmOfChaos",
+				"core:wizardsWell"
 			],
 			"creatures" : [
 				{
 					"amount" : 111,
-					"type" : "crusader"
+					"type" : "core:crusader"
 				},
 				{
 					"amount" : 100,
-					"type" : "rogue"
+					"type" : "core:rogue"
 				}
 			],
 			"spells" : [
-				"armageddon",
-				"waterElemental"
+				"core:armageddon",
+				"core:waterElemental"
 			]
 		}
 	},
@@ -5035,31 +5035,31 @@
 			"army" : [
 				{
 					"amount" : 7,
-					"type" : "pikeman"
+					"type" : "core:pikeman"
 				},
 				{
 					"amount" : 6,
-					"type" : "archer"
+					"type" : "core:archer"
 				},
 				{
 					"amount" : 5,
-					"type" : "griffin"
+					"type" : "core:griffin"
 				},
 				{
 					"amount" : 4,
-					"type" : "swordsman"
+					"type" : "core:swordsman"
 				},
 				{
 					"amount" : 3,
-					"type" : "monk"
+					"type" : "core:monk"
 				},
 				{
 					"amount" : 2,
-					"type" : "cavalier"
+					"type" : "core:cavalier"
 				},
 				{
 					"amount" : 1,
-					"type" : "angel"
+					"type" : "core:angel"
 				}
 			],
 			"buildings" : {},
@@ -5116,42 +5116,42 @@
 		"options" : {
 			"buildings" : {
 				"allOf" : [
-					"blacksmith",
-					"capitol",
-					"castle",
-					"citadel",
-					"cityHall",
-					"dwellingLvl1",
-					"dwellingLvl2",
-					"dwellingLvl3",
-					"dwellingLvl4",
-					"dwellingLvl5",
-					"dwellingLvl6",
-					"dwellingLvl7",
-					"dwellingUpLvl1",
-					"dwellingUpLvl2",
-					"dwellingUpLvl3",
-					"dwellingUpLvl4",
-					"dwellingUpLvl5",
-					"dwellingUpLvl6",
-					"dwellingUpLvl7",
-					"fort",
-					"grail",
-					"horde1",
-					"horde2",
-					"horde3",
-					"horde4",
-					"horde5",
-					"mageGuild1",
-					"mageGuild2",
-					"mageGuild3",
-					"mageGuild4",
-					"mageGuild5",
-					"marketplace",
-					"resourceSilo",
-					"shipyard",
-					"tavern",
-					"townHall"
+					"core:blacksmith",
+					"core:capitol",
+					"core:castle",
+					"core:citadel",
+					"core:cityHall",
+					"core:dwellingLvl1",
+					"core:dwellingLvl2",
+					"core:dwellingLvl3",
+					"core:dwellingLvl4",
+					"core:dwellingLvl5",
+					"core:dwellingLvl6",
+					"core:dwellingLvl7",
+					"core:dwellingUpLvl1",
+					"core:dwellingUpLvl2",
+					"core:dwellingUpLvl3",
+					"core:dwellingUpLvl4",
+					"core:dwellingUpLvl5",
+					"core:dwellingUpLvl6",
+					"core:dwellingUpLvl7",
+					"core:fort",
+					"core:grail",
+					"core:horde1",
+					"core:horde2",
+					"core:horde3",
+					"core:horde4",
+					"core:horde5",
+					"core:mageGuild1",
+					"core:mageGuild2",
+					"core:mageGuild3",
+					"core:mageGuild4",
+					"core:mageGuild5",
+					"core:marketplace",
+					"core:resourceSilo",
+					"core:shipyard",
+					"core:tavern",
+					"core:townHall"
 				]
 			},
 			"name" : "TownAsRed",
@@ -5257,23 +5257,23 @@
 		"options" : {
 			"buildings" : {
 				"allOf" : [
-					"grail"
+					"core:grail"
 				],
 				"noneOf" : [
-					"blacksmith",
-					"dwellingLvl1",
-					"dwellingLvl2",
-					"dwellingLvl3",
-					"dwellingLvl4",
-					"dwellingLvl5",
-					"dwellingLvl6",
-					"dwellingLvl7",
-					"fort",
-					"mageGuild1",
-					"marketplace",
-					"shipyard",
-					"tavern",
-					"townHall"
+					"core:blacksmith",
+					"core:dwellingLvl1",
+					"core:dwellingLvl2",
+					"core:dwellingLvl3",
+					"core:dwellingLvl4",
+					"core:dwellingLvl5",
+					"core:dwellingLvl6",
+					"core:dwellingLvl7",
+					"core:fort",
+					"core:mageGuild1",
+					"core:marketplace",
+					"core:shipyard",
+					"core:tavern",
+					"core:townHall"
 				]
 			},
 			"spells" : {}
@@ -5448,7 +5448,7 @@
 				"timeLimit" : 28
 			},
 			"reward" : {
-				"creature.diamondGolem" : 999
+				"core:creature.diamondGolem" : 999
 			}
 		}
 	},
@@ -5822,7 +5822,7 @@
 		"options" : {
 			"quest" : {
 				"artifacts" : [
-					"diplomatsRing"
+					"core:diplomatsRing"
 				],
 				"missionType" : "Artifact"
 			}
@@ -5874,7 +5874,7 @@
 				"creatures" : [
 					{
 						"amount" : 1,
-						"type" : "azureDragon"
+						"type" : "core:azureDragon"
 					}
 				],
 				"missionType" : "Army"
@@ -5924,7 +5924,7 @@
 		"y" : 83,
 		"options" : {
 			"quest" : {
-				"hero" : "solmyr",
+				"hero" : "core:solmyr",
 				"missionType" : "Hero"
 			}
 		}
@@ -6199,7 +6199,7 @@
 		"y" : 95,
 		"options" : {
 			"character" : "aggressive",
-			"rewardArtifact" : "diplomatsRing",
+			"rewardArtifact" : "core:diplomatsRing",
 			"rewardResources" : {
 				"crystal" : 5,
 				"gems" : 6,
@@ -6232,7 +6232,7 @@
 		"y" : 97,
 		"options" : {
 			"character" : "aggressive",
-			"rewardArtifact" : "angelWings"
+			"rewardArtifact" : "core:angelWings"
 		}
 	},
 	"randomMonster_234" : {
@@ -6288,7 +6288,7 @@
 			"character" : "compliant",
 			"neverFlees" : true,
 			"noGrowing" : true,
-			"rewardArtifact" : "spyglass",
+			"rewardArtifact" : "core:spyglass",
 			"rewardMessage" : "test123",
 			"rewardResources" : {
 				"crystal" : 3,
@@ -6633,7 +6633,7 @@
 		"options" : {
 			"quest" : {
 				"artifacts" : [
-					"angelWings"
+					"core:angelWings"
 				],
 				"missionType" : "Artifact"
 			},
@@ -6799,7 +6799,7 @@
 				"creatures" : [
 					{
 						"amount" : 100,
-						"type" : "archer"
+						"type" : "core:archer"
 					}
 				],
 				"missionType" : "Army"
@@ -6873,7 +6873,7 @@
 				"missionType" : "Hero"
 			},
 			"reward" : {
-				"artifact.angelicAlliance" : 1
+				"core:artifact.angelicAlliance" : 1
 			}
 		}
 	},
@@ -6903,7 +6903,7 @@
 				"player" : "purple"
 			},
 			"reward" : {
-				"spell.fly" : 1
+				"core:spell.fly" : 1
 			}
 		}
 	},
@@ -6930,19 +6930,19 @@
 		"options" : {
 			"quest" : {
 				"artifacts" : [
-					"armorOfWonder",
-					"badgeOfCourage",
-					"birdOfPerception",
-					"angelWings",
-					"armsOfLegion",
-					"armageddonsBlade",
-					"angelicAlliance",
-					"armorOfTheDamned"
+					"core:armorOfWonder",
+					"core:badgeOfCourage",
+					"core:birdOfPerception",
+					"core:angelWings",
+					"core:armsOfLegion",
+					"core:armageddonsBlade",
+					"core:angelicAlliance",
+					"core:armorOfTheDamned"
 				],
 				"missionType" : "Artifact"
 			},
 			"reward" : {
-				"creature.cyclopKing" : 777
+				"core:creature.cyclopKing" : 777
 			}
 		}
 	},
@@ -6971,31 +6971,31 @@
 				"creatures" : [
 					{
 						"amount" : 1,
-						"type" : "pikeman"
+						"type" : "core:pikeman"
 					},
 					{
 						"amount" : 1,
-						"type" : "halberdier"
+						"type" : "core:halberdier"
 					},
 					{
 						"amount" : 1,
-						"type" : "archer"
+						"type" : "core:archer"
 					},
 					{
 						"amount" : 1,
-						"type" : "marksman"
+						"type" : "core:marksman"
 					},
 					{
 						"amount" : 1,
-						"type" : "griffin"
+						"type" : "core:griffin"
 					},
 					{
 						"amount" : 1,
-						"type" : "royalGriffin"
+						"type" : "core:royalGriffin"
 					},
 					{
 						"amount" : 1,
-						"type" : "swordsman"
+						"type" : "core:swordsman"
 					}
 				],
 				"missionType" : "Army"
@@ -7049,7 +7049,7 @@
 			"character" : "friendly",
 			"neverFlees" : true,
 			"noGrowing" : true,
-			"rewardArtifact" : "torsoOfLegion",
+			"rewardArtifact" : "core:torsoOfLegion",
 			"rewardMessage" : "peasantmsg",
 			"rewardResources" : {
 				"crystal" : 99999,
@@ -7083,7 +7083,7 @@
 		"x" : 33,
 		"y" : 13,
 		"options" : {
-			"type" : "valeska"
+			"type" : "core:valeska"
 		}
 	},
 	"sign_264" : {
@@ -7132,8 +7132,8 @@
 			"experience" : 99999999,
 			"name" : "Anul",
 			"patrolRadius" : 9,
-			"portrait" : "orrin",
-			"type" : "luna",
+			"portrait" : "core:orrin",
+			"type" : "core:luna",
 			"female" : false
 		}
 	},
@@ -7159,16 +7159,16 @@
 		"y" : 19,
 		"options" : {
 			"secondarySkills" : {
-				"artillery" : "advanced",
-				"learning" : "expert",
-				"offence" : "basic",
-				"armorer" : "advanced",
-				"intelligence" : "expert",
-				"sorcery" : "basic",
-				"resistance" : "advanced",
-				"firstAid" : "expert"
+				"core:artillery" : "advanced",
+				"core:learning" : "expert",
+				"core:offence" : "basic",
+				"core:armorer" : "advanced",
+				"core:intelligence" : "expert",
+				"core:sorcery" : "basic",
+				"core:resistance" : "advanced",
+				"core:firstAid" : "expert"
 			},
-			"type" : "orrin"
+			"type" : "core:orrin"
 		}
 	},
 	"prison_267" : {
@@ -7193,14 +7193,14 @@
 		"y" : 22,
 		"options" : {
 			"artifacts" : {
-				"head" : "admiralsHat",
-				"leftHand" : "shieldOfTheDamned",
-				"rightHand" : "armageddonsBlade",
-				"shoulders" : "angelWings",
-				"spellbook" : "spellBook",
-				"torso" : "armorOfWonder"
+				"head" : "core:admiralsHat",
+				"leftHand" : "core:shieldOfTheDamned",
+				"rightHand" : "core:armageddonsBlade",
+				"shoulders" : "core:angelWings",
+				"spellbook" : "core:spellBook",
+				"torso" : "core:armorOfWonder"
 			},
-			"type" : "edric"
+			"type" : "core:edric"
 		}
 	},
 	"prison_268" : {
@@ -7225,77 +7225,77 @@
 		"y" : 25,
 		"options" : {
 			"spellBook" : [
-				"summonBoat",
-				"scuttleBoat",
-				"visions",
-				"viewEarth",
-				"disguise",
-				"viewAir",
-				"fly",
-				"waterWalk",
-				"dimensionDoor",
-				"townPortal",
-				"quicksand",
-				"landMine",
-				"forceField",
-				"fireWall",
-				"earthquake",
-				"magicArrow",
-				"iceBolt",
-				"lightningBolt",
-				"implosion",
-				"chainLightning",
-				"frostRing",
-				"fireball",
-				"inferno",
-				"meteorShower",
-				"deathRipple",
-				"destroyUndead",
-				"armageddon",
-				"shield",
-				"airShield",
-				"fireShield",
-				"protectAir",
-				"protectFire",
-				"protectWater",
-				"protectEarth",
-				"antiMagic",
-				"dispel",
-				"magicMirror",
-				"cure",
-				"resurrection",
-				"animateDead",
-				"sacrifice",
-				"bless",
-				"curse",
-				"bloodlust",
-				"precision",
-				"weakness",
-				"stoneSkin",
-				"disruptingRay",
-				"prayer",
-				"mirth",
-				"sorrow",
-				"fortune",
-				"misfortune",
-				"haste",
-				"slow",
-				"slayer",
-				"frenzy",
-				"counterstrike",
-				"berserk",
-				"hypnotize",
-				"forgetfulness",
-				"blind",
-				"teleport",
-				"removeObstacle",
-				"clone",
-				"fireElemental",
-				"earthElemental",
-				"waterElemental",
-				"airElemental"
+				"core:summonBoat",
+				"core:scuttleBoat",
+				"core:visions",
+				"core:viewEarth",
+				"core:disguise",
+				"core:viewAir",
+				"core:fly",
+				"core:waterWalk",
+				"core:dimensionDoor",
+				"core:townPortal",
+				"core:quicksand",
+				"core:landMine",
+				"core:forceField",
+				"core:fireWall",
+				"core:earthquake",
+				"core:magicArrow",
+				"core:iceBolt",
+				"core:lightningBolt",
+				"core:implosion",
+				"core:chainLightning",
+				"core:frostRing",
+				"core:fireball",
+				"core:inferno",
+				"core:meteorShower",
+				"core:deathRipple",
+				"core:destroyUndead",
+				"core:armageddon",
+				"core:shield",
+				"core:airShield",
+				"core:fireShield",
+				"core:protectAir",
+				"core:protectFire",
+				"core:protectWater",
+				"core:protectEarth",
+				"core:antiMagic",
+				"core:dispel",
+				"core:magicMirror",
+				"core:cure",
+				"core:resurrection",
+				"core:animateDead",
+				"core:sacrifice",
+				"core:bless",
+				"core:curse",
+				"core:bloodlust",
+				"core:precision",
+				"core:weakness",
+				"core:stoneSkin",
+				"core:disruptingRay",
+				"core:prayer",
+				"core:mirth",
+				"core:sorrow",
+				"core:fortune",
+				"core:misfortune",
+				"core:haste",
+				"core:slow",
+				"core:slayer",
+				"core:frenzy",
+				"core:counterstrike",
+				"core:berserk",
+				"core:hypnotize",
+				"core:forgetfulness",
+				"core:blind",
+				"core:teleport",
+				"core:removeObstacle",
+				"core:clone",
+				"core:fireElemental",
+				"core:earthElemental",
+				"core:waterElemental",
+				"core:airElemental"
 			],
-			"type" : "sorsha"
+			"type" : "core:sorsha"
 		}
 	},
 	"sign_269" : {
