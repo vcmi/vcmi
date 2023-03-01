@@ -43,7 +43,7 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, ui8 side) co
 		auto otherHex = battle::Unit::occupiedHex(tile, doubleWide, side);
 		if(!otherHex.isValid())
 			return false;
-		if(!tileAccessibleWithGate(tile, side))
+		if(!tileAccessibleWithGate(otherHex, side))
 			return false;
 	}
 
