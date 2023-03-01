@@ -14,7 +14,7 @@
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "adventureMap/CAdvMapInt.h"
-#include "mapRenderer/mapHandler.h"
+#include "mapView/mapHandler.h"
 #include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"

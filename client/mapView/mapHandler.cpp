@@ -82,7 +82,7 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 		if(a->appearance->printPriority != b->appearance->printPriority)
 			return a->appearance->printPriority > b->appearance->printPriority;
 
-		//Two background objects will be placed beased on their placement order on map
+		//Two background objects will be placed based on their placement order on map
 		return a->id < b->id;
 	}
 

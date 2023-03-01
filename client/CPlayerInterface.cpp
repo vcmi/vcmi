@@ -12,7 +12,7 @@
 #include <vcmi/Artifact.h>
 
 #include "adventureMap/CAdvMapInt.h"
-#include "mapRenderer/mapHandler.h"
+#include "mapView/mapHandler.h"
 #include "adventureMap/CList.h"
 #include "adventureMap/CInfoBar.h"
 #include "adventureMap/CMinimap.h"

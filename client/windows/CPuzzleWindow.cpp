@@ -16,7 +16,7 @@
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
-#include "../mapRenderer/MapView.h"
+#include "../mapView/MapView.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"

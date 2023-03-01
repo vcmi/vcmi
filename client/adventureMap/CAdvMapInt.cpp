@@ -18,10 +18,8 @@
 #include "CList.h"
 #include "CInfoBar.h"
 
-#include "../mapRenderer/mapHandler.h"
-#include "../mapRenderer/MapView.h"
-#include "../mapRenderer/MapViewModel.h"
-#include "../mapRenderer/MapViewController.h"
+#include "../mapView/mapHandler.h"
+#include "../mapView/MapView.h"
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/CTradeWindow.h"

@@ -46,15 +46,15 @@ set(client_SRCS
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
 
-	mapRenderer/MapRenderer.cpp
-	mapRenderer/MapRendererContext.cpp
-	mapRenderer/MapRendererContextState.cpp
-	mapRenderer/MapView.cpp
-	mapRenderer/MapViewActions.cpp
-	mapRenderer/MapViewCache.cpp
-	mapRenderer/MapViewController.cpp
-	mapRenderer/MapViewModel.cpp
-	mapRenderer/mapHandler.cpp
+	mapView/MapRenderer.cpp
+	mapView/MapRendererContext.cpp
+	mapView/MapRendererContextState.cpp
+	mapView/MapView.cpp
+	mapView/MapViewActions.cpp
+	mapView/MapViewCache.cpp
+	mapView/MapViewController.cpp
+	mapView/MapViewModel.cpp
+	mapView/mapHandler.cpp
 
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
@@ -167,17 +167,17 @@ set(client_HEADERS
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
 
-	mapRenderer/IMapRendererContext.h
-	mapRenderer/IMapRendererObserver.h
-	mapRenderer/MapRenderer.h
-	mapRenderer/MapRendererContext.h
-	mapRenderer/MapRendererContextState.h
-	mapRenderer/MapView.h
-	mapRenderer/MapViewActions.h
-	mapRenderer/MapViewCache.h
-	mapRenderer/MapViewController.h
-	mapRenderer/MapViewModel.h
-	mapRenderer/mapHandler.h
+	mapView/IMapRendererContext.h
+	mapView/IMapRendererObserver.h
+	mapView/MapRenderer.h
+	mapView/MapRendererContext.h
+	mapView/MapRendererContextState.h
+	mapView/MapView.h
+	mapView/MapViewActions.h
+	mapView/MapViewCache.h
+	mapView/MapViewController.h
+	mapView/MapViewModel.h
+	mapView/mapHandler.h
 
 	render/CAnimation.h
 	render/CBitmapHandler.h
