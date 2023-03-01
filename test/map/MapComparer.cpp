@@ -207,7 +207,7 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 	EXPECT_EQ(actualFullID, expectedFullID);
 
 	VCMI_CHECK_FIELD_EQUAL_P(pos);
-	checkEqual(actual->appearance, expected->appearance);
+	checkEqual(*actual->appearance, *expected->appearance);
 }
 
 void MapComparer::compareObjects()
