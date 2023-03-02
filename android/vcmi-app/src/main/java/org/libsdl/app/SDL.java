@@ -5,8 +5,6 @@ import android.content.Context;
 import java.lang.Class;
 import java.lang.reflect.Method;
 
-import eu.vcmi.vcmi.NativeMethods;
-
 /**
     SDL library initialization
 */

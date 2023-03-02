@@ -79,6 +79,13 @@ public class VcmiSDLActivity extends SDLActivity
     }
 
     @Override
+    protected String[] getLibraries() {
+        // SDL is linked statically, no need to load anything
+        return new String[] {
+        };
+    }
+
+    @Override
     protected String getMainSharedObject() {
         String library = "libvcmiclient.so";
 
