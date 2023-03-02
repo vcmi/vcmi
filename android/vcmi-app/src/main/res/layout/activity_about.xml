@@ -64,11 +64,6 @@
             android:text="@string/about_btn_authors" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/about_btn_libs"
-            style="@style/VCMI.Entry.Clickable.AboutSimpleEntry"
-            android:text="@string/about_btn_libs" />
-
-        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/about_btn_privacy"
             style="@style/VCMI.Entry.Clickable.AboutSimpleEntry"
             android:text="@string/about_btn_privacy" />

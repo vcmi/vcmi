@@ -63,7 +63,6 @@
     <string name="about_links_repo">Project repository: %1$s</string>
     <string name="about_links_repo_launcher">Launcher repository: %1$s</string>
     <string name="about_btn_authors">Authors</string>
-    <string name="about_btn_libs">Third party libraries</string>
     <string name="about_btn_privacy">Privacy policy: %1$s</string>
     <string name="about_error_opening_url">Could not open the webpage (no suitable application found)</string>
 

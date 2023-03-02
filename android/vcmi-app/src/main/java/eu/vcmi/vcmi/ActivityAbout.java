@@ -38,7 +38,6 @@ public class ActivityAbout extends ActivityWithToolbar
         initControlUrl(R.id.about_link_repo_main, R.string.about_links_repo, R.string.url_project_repo, this::onUrlPressed);
         initControlUrl(R.id.about_link_repo_launcher, R.string.about_links_repo_launcher, R.string.url_launcher_repo, this::onUrlPressed);
         initControlBtn(R.id.about_btn_authors, this::onBtnAuthorsPressed);
-        initControlBtn(R.id.about_btn_libs, this::onBtnLibsPressed);
         initControlUrl(R.id.about_btn_privacy, R.string.about_btn_privacy, R.string.url_launcher_privacy, this::onUrlPressed);
     }
 
@@ -74,11 +73,6 @@ public class ActivityAbout extends ActivityWithToolbar
     {
         final DialogAuthors dialogAuthors = new DialogAuthors();
         dialogAuthors.show(getSupportFragmentManager(), DIALOG_AUTHORS_TAG);
-    }
-
-    private void onBtnLibsPressed(final View v)
-    {
-        // TODO 3rd party libs view (dialog?)
     }
 
     private void onUrlPressed(final String url)

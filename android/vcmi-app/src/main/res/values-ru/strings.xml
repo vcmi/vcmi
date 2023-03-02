@@ -51,7 +51,6 @@
     <string name="about_links_repo">Репозиторий проекта: %1$s</string>
     <string name="about_links_repo_launcher">Репозиторий лаунчера: %1$s</string>
     <string name="about_btn_authors">Авторы</string>
-    <string name="about_btn_libs">Сторонние библиотеки</string>
     <string name="about_error_opening_url">Не удалось открыть страничку (вероятно не удалось найти браузер)</string>
     <string name="dialog_authors_vcmi">Авторы VCMI</string>
     <string name="dialog_authors_launcher">Авторы лаунчера</string>

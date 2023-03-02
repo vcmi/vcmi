@@ -51,7 +51,6 @@
     <string name="about_links_repo">Projekt-Repository: %1$s</string>
     <string name="about_links_repo_launcher">Starter-Repository: %1$s</string>
     <string name="about_btn_authors">Autoren</string>
-    <string name="about_btn_libs">Bibliotheken von Drittanbietern</string>
     <string name="about_error_opening_url">Die Seite kann nicht geöffnet werden (wahrscheinlich konnte kein Browser gefunden werden)</string>
     <string name="dialog_authors_vcmi">VCMI-Autoren</string>
     <string name="dialog_authors_launcher">Autoren des Starters</string>
