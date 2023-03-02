@@ -81,11 +81,6 @@ public class ActivityAbout extends ActivityWithToolbar
         // TODO 3rd party libs view (dialog?)
     }
 
-    private void onBtnPrivacyPressed(final View v)
-    {
-        // TODO tbd if we even need this in app
-    }
-
     private void onUrlPressed(final String url)
     {
         try
