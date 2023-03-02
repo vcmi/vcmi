@@ -41,9 +41,11 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
+set(singleProcess OFF)
 set(staticAI OFF)
 if(ANDROID)
 	set(staticAI ON)
+	set(singleProcess ON)
 endif()
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
@@ -58,8 +60,10 @@ option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+	set(ENABLE_SINGLE_APP_BUILD ON)
 else()
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+	option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" ${singleProcess})
 endif()
 
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
@@ -67,7 +71,6 @@ option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
-option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" OFF)
 option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
@@ -79,10 +82,6 @@ endif()
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
-
-if(APPLE_IOS AND NOT ENABLE_SINGLE_APP_BUILD)
-	set(ENABLE_SINGLE_APP_BUILD ON)
-endif()
 
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
