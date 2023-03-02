@@ -40,5 +40,7 @@ private:
 	void mainMenuButtonCallback();
 public:
 	SettingsMainWindow(BattleInterface * parentBattleInterface = nullptr);
+
+	void showAll(SDL_Surface * to);
 };
 

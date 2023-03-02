@@ -9,25 +9,24 @@
  */
 
 #include "StdInc.h"
-
 #include "SettingsMainWindow.h"
 
-#include "GeneralOptionsTab.h"
 #include "AdventureOptionsTab.h"
 #include "BattleOptionsTab.h"
+#include "GeneralOptionsTab.h"
 #include "OtherOptionsTab.h"
 
-#include "filesystem/ResourceID.h"
+#include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
+#include "CPlayerInterface.h"
+#include "CServerHandler.h"
+#include "filesystem/ResourceID.h"
 #include "gui/CGuiHandler.h"
 #include "lobby/CSavingScreen.h"
 #include "widgets/Buttons.h"
 #include "widgets/Images.h"
 #include "widgets/ObjectLists.h"
-#include "CGameInfo.h"
-#include "CPlayerInterface.h"
-#include "CServerHandler.h"
-
+#include "windows/CMessage.h"
 
 SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
 {
@@ -43,7 +42,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	addCallback("closeWindow", [this](int) { backButtonCallback(); });
 	build(config);
 
-	std::shared_ptr<CPicture> background = widget<CPicture>("background");
+	std::shared_ptr<CIntObject> background = widget<CIntObject>("background");
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 	pos = center();
@@ -147,4 +146,14 @@ void SettingsMainWindow::closeAndPushEvent(EUserEvent code)
 {
 	close();
 	GH.pushUserEvent(code);
+}
+
+void SettingsMainWindow::showAll(SDL_Surface *to)
+{
+	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	if(settings["session"]["spectate"].Bool())
+		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
+
+	CIntObject::showAll(to);
+	CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }

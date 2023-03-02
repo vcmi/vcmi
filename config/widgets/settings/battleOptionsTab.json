@@ -2,6 +2,25 @@
 	"items":
 	[
 		{
+			"name": "lineCreatureInfo",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 205, "w": 365, "h": 3}
+		},
+		{
+			"name": "lineAnimationSpeed",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 295, "w": 365, "h": 3}
+		},
+		{
+			"name": "lineQueueSize",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 365, "w": 365, "h": 3}
+		},
+
+		{
 			"name": "animationSpeedLabel",
 			"type": "label",
 			"font": "medium",

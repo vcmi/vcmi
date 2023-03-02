@@ -3,10 +3,23 @@
 	[
 		{
 			"name": "background",
-			"type": "picture",
-			"image": "vcmiSettingsWindow",
-			"position": {"x": 0, "y": 0}
+			"type": "texture",
+			"image": "DiBoxBck",
+			"rect": {"w": 600, "h": 480}
 		},
+		{
+			"name": "lineTabs",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 10, "y" : 45, "w": 580, "h": 3}
+		},
+		{
+			"name": "lineColumns",
+			"type": "texture",
+			"image": "settingsWindow/lineVertical",
+			"rect": { "x" : 370, "y" : 50, "w": 3, "h": 420}
+		},
+
 
 		{
 			"name": "settingsTabs",

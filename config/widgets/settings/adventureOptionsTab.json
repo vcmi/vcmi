@@ -2,21 +2,28 @@
 	"items":
 	[
 		{
+			"name": "lineMovementEnd",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 240, "w": 365, "h": 3}
+		},
+		{
 			"name": "frameHeroMovement",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 47 }
-		},		{
+			"position": {"x": 6, "y": 57 }
+		},	
+		{
 			"name": "frameEnemyMovement",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 107 }
+			"position": {"x": 6, "y": 117 }
 		},
 		{
 			"name": "frameMapMovement",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 167 }
+			"position": {"x": 6, "y": 177 }
 		},
 
 		{
@@ -28,15 +35,15 @@
 			"items":
 			[
 				{
-					"position": {"x": 100, "y": 60},
+					"position": {"x": 100, "y": 70},
 					"text": "core.genrltxt.569"
 				},
 				{
-					"position": {"x": 100, "y": 120},
+					"position": {"x": 100, "y": 130},
 					"text": "core.genrltxt.570"
 				},
 				{
-					"position": {"x": 100, "y": 180},
+					"position": {"x": 100, "y": 190},
 					"text": "core.genrltxt.571"
 				}
 			]
@@ -45,7 +52,7 @@
 		{
 			"name": "heroMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 70},
+			"position": {"x": 10, "y": 80},
 			"items":
 			[
 				{
@@ -94,7 +101,7 @@
 		{
 			"name": "enemyMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 130},
+			"position": {"x": 10, "y": 140},
 			"items":
 			[
 				{
@@ -135,7 +142,7 @@
 		{
 			"name": "mapScrollSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 190},
+			"position": {"x": 10, "y": 200},
 			"items":
 			[
 				{
