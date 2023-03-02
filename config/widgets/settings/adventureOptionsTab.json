@@ -2,6 +2,24 @@
 	"items":
 	[
 		{
+			"name": "frameHeroMovement",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 47 }
+		},		{
+			"name": "frameEnemyMovement",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 107 }
+		},
+		{
+			"name": "frameMapMovement",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 167 }
+		},
+
+		{
 			"name": "topSettingsLabels",
 			"type": "labelGroup",
 			"font": "medium",
