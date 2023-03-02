@@ -2198,6 +2198,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		adventureInt->updateNextHero(h);
 	}
 
+	CGI->mh->waitForOngoingAnimations();
 	setMovementStatus(false);
 }
 
