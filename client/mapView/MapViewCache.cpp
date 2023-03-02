@@ -178,8 +178,8 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if (context->viewTransitionProgress() != 0)
-		target.drawTransparent(*terrainTransition, Point(0,0), 1.0 - context->viewTransitionProgress());
+	if(context->viewTransitionProgress() != 0)
+		target.drawTransparent(*terrainTransition, Point(0, 0), 1.0 - context->viewTransitionProgress());
 
 	cachedPosition = model->getMapViewCenter();
 }

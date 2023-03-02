@@ -194,7 +194,8 @@ MapAudioPlayer::MapAudioPlayer()
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
 	for(const auto & obj : CGI->mh->getMap()->objects)
-		addObject(obj);
+		if (obj)
+			addObject(obj);
 }
 
 MapAudioPlayer::~MapAudioPlayer()

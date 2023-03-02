@@ -274,7 +274,6 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 		{
 			int volume = ambientDistToVolume(soundsArg[pair.first]);
 			CCS->soundh->setChannelVolume(pair.second, volume);
-			logGlobal->info("playing sound %s at %d", pair.first, volume);
 		}
 	}
 	for(auto soundId : stoppedSounds)
@@ -289,7 +288,6 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 
 			CCS->soundh->setChannelVolume(channel, volume);
 			CCS->soundh->ambientChannels.insert(std::make_pair(pair.first, channel));
-			logGlobal->info("playing sound %s at %d", pair.first, volume);
 		}
 	}
 }
@@ -488,7 +486,9 @@ void CMusicHandler::musicFinishedCallback()
 			return;
 		}
 		else
+		{
 			current.reset();
+		}
 	}
 
 	if (current.get() == nullptr && next.get() != nullptr)
@@ -514,7 +514,7 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
-	if (playing)
+	if (playing && loop > 0)
 	{
 		assert(0);
 		logGlobal->error("Attempt to delete music while playing!");

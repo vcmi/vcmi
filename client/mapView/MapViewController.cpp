@@ -101,8 +101,6 @@ void MapViewController::update(uint32_t timeDelta)
 	static const double fadeInDuration = 500;
 	static const double heroTeleportDuration = 250;
 
-	//FIXME: remove code duplication?
-
 	if(movementContext)
 	{
 		const auto * object = context->getObject(movementContext->target);
@@ -395,7 +393,7 @@ bool MapViewController::hasOngoingAnimations()
 	if(fadingInContext)
 		return true;
 
-	if (teleportContext)
+	if(teleportContext)
 		return true;
 
 	return false;
