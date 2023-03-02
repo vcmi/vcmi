@@ -120,7 +120,7 @@ void MapView::onMapSwiped(const Point & viewPosition)
 
 void MapView::onMapSwipeEnded()
 {
-	isSwiping = true;
+	isSwiping = false;
 }
 
 void MapView::onCenteredTile(const int3 & tile)

@@ -71,13 +71,13 @@ AdventureOptionsTab::AdventureOptionsTab()
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
-	playerHeroSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["heroSpeed"].Float()));
+	playerHeroSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["heroMoveTime"].Float()));
 
 	std::shared_ptr<CToggleGroup> enemyHeroSpeedToggle = widget<CToggleGroup>("enemyMovementSpeedPicker");
-	enemyHeroSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["enemySpeed"].Float()));
+	enemyHeroSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["enemyMoveTime"].Float()));
 
 	std::shared_ptr<CToggleGroup> mapScrollSpeedToggle = widget<CToggleGroup>("mapScrollSpeedPicker");
-	mapScrollSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["scrollSpeed"].Float()));
+	mapScrollSpeedToggle->setSelected(static_cast<int>(settings["adventure"]["scrollSpeedPixels"].Float()));
 
 	std::shared_ptr<CToggleButton> heroReminderCheckbox = widget<CToggleButton>("heroReminderCheckbox");
 	heroReminderCheckbox->setSelected(settings["adventure"]["heroReminder"].Bool());
