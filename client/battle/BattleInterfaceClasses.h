@@ -35,7 +35,6 @@ class CPicture;
 class CFilledTexture;
 class CButton;
 class CToggleButton;
-class CToggleGroup;
 class CLabel;
 class CTextBox;
 class CAnimImage;

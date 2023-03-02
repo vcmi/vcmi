@@ -457,8 +457,7 @@ void CToggleGroup::selectionChanged(int to)
 		buttons[to]->setSelected(true);
 
 	onChange(to);
-	if (parent)
-		parent->redraw();
+	redraw();
 }
 
 int CToggleGroup::getSelected() const
