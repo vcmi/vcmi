@@ -891,6 +891,8 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		heroList->select(hero);
 		townList->select(nullptr);
 
+		LOCPLINT->paths.verifyPath(hero);
+
 		updateSleepWake(hero);
 		updateMoveHero(hero);
 		updateSpellbook(hero);
