@@ -20,7 +20,6 @@ import eu.vcmi.vcmi.Const;
 import eu.vcmi.vcmi.R;
 import eu.vcmi.vcmi.Storage;
 import eu.vcmi.vcmi.util.FileUtil;
-import eu.vcmi.vcmi.util.LegacyConfigReader;
 import eu.vcmi.vcmi.util.Log;
 import eu.vcmi.vcmi.util.SharedPrefs;
 
