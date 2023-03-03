@@ -7,6 +7,12 @@
 			"image": "DiBoxBck",
 			"rect": {"w": 600, "h": 480}
 		},
+//		{
+//			"name": "debugGrid",
+//			"type": "texture",
+//			"image": "settingsWindow/debugGrid",
+//			"rect": {"w": 600, "h": 480}
+//		},
 		{
 			"name": "lineTabs",
 			"type": "texture",
@@ -91,64 +97,65 @@
 		},
 
 		{
+			"name": "lineButtons",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 375, "y" : 289, "w": 220, "h": 3}
+		},
+		{
 			"name": "loadButton",
 			"type": "button",
-			"position": {"x": 380, "y": 300},
+			"position": {"x": 380, "y": 306},
 			"image": "SOLOAD.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.321",
 			"callback": "loadGame",
 			"hotkey": "l"
 		},
-
 		{
 			"name": "saveButton",
 			"type": "button",
-			"position": {"x": 490, "y": 300},
+			"position": {"x": 490, "y": 306},
 			"image": "SOSAVE.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.322",
 			"callback": "saveGame",
 			"hotkey": "s"
 		},
-
 		{
 			"name": "restartButton",
 			"type": "button",
-			"position": {"x": 380, "y": 360},
+			"position": {"x": 380, "y": 364},
 			"image": "SORSTRT.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.323",
 			"callback": "restartGame",
 			"hotkey": "r"
 		},
-
 		{
 			"name": "mainMenuButton",
 			"type": "button",
-			"position": {"x": 490, "y": 360},
+			"position": {"x": 490, "y": 364},
 			"image": "SOMAIN.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.320",
 			"callback": "returnToMainMenu",
 			"hotkey": "m"
 		},
-
 		{
 			"name": "quitButton",
 			"type": "button",
-			"position": {"x": 380, "y": 420},
+			"position": {"x": 380, "y": 422},
 			"image": "soquit.def",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.324",
 			"callback": "quitGame",
 			"hotkey": "q"
 		},
-
 		{
 			"name": "closeSettingsButton",
 			"type": "button",
-			"position": {"x": 490, "y": 420},
+			"position": {"x": 490, "y": 422},
 			"image": "soretrn.def",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.325",

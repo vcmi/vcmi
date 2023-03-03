@@ -5,25 +5,31 @@
 			"name": "lineMovementEnd",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 240, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 22, "w": 365, "h": 3}
+		},
+		{
+			"name": "lineLabelsEnd",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
 			"name": "frameHeroMovement",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 57 }
+			"position": {"x": 6, "y": 50 }
 		},	
 		{
 			"name": "frameEnemyMovement",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 117 }
+			"position": {"x": 6, "y": 110 }
 		},
 		{
 			"name": "frameMapMovement",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 177 }
+			"position": {"x": 6, "y": 170 }
 		},
 
 		{
@@ -35,15 +41,15 @@
 			"items":
 			[
 				{
-					"position": {"x": 150, "y": 70},
+					"position": {"x": 150, "y": 62},
 					"text": "core.genrltxt.569" // Hero Speed
 				},
 				{
-					"position": {"x": 150, "y": 130},
+					"position": {"x": 150, "y": 122},
 					"text": "core.genrltxt.570" // Enemy Speed
 				},
 				{
-					"position": {"x": 150, "y": 190},
+					"position": {"x": 150, "y": 182},
 					"text": "core.genrltxt.571" // Scrolling Speed
 				}
 			]
@@ -52,7 +58,7 @@
 		{
 			"name": "heroMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 80},
+			"position": {"x": 10, "y": 73},
 			"items":
 			[
 				{
@@ -104,7 +110,7 @@
 		{
 			"name": "enemyMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 140},
+			"position": {"x": 10, "y": 133},
 			"items":
 			[
 				{
@@ -161,7 +167,7 @@
 		{
 			"name": "mapScrollSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 200},
+			"position": {"x": 10, "y": 193},
 			"items":
 			[
 				{
@@ -276,27 +282,27 @@
 			"items":
 			[
 				{
-					"position": {"x": 45, "y": 302},
+					"position": {"x": 45, "y": 295},
 					"text": "core.genrltxt.572" // TODO: show move path
 				},
 				{
-					"position": {"x": 45, "y": 332},
+					"position": {"x": 45, "y": 325},
 					"text": "core.genrltxt.573" // show hero reminder
 				},
 				{
-					"position": {"x": 45, "y": 362},
+					"position": {"x": 45, "y": 355},
 					"text": "core.genrltxt.574" // quick combat
 				},
 				{
-					"position": {"x": 45, "y": 392},
+					"position": {"x": 45, "y": 385},
 					"text": "vcmi.adventureOptions.numericQuantities.hover"
 				},
 				{
-					"position": {"x": 45, "y": 422},
+					"position": {"x": 45, "y": 415},
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"position": {"x": 45, "y": 452},
+					"position": {"x": 45, "y": 445},
 					"text": "vcmi.adventureOptions.showGrid.hover"
 				}
 			]
@@ -306,14 +312,14 @@
 			"name": "showMovePathPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 300},
+			"position": {"x": 10, "y": 293},
 		},
 		{
 			"name": "heroReminderCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.361",
-			"position": {"x": 10, "y": 330},
+			"position": {"x": 10, "y": 323},
 			"callback": "heroReminderChanged"
 		},
 		{
@@ -321,7 +327,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.362",
-			"position": {"x": 10, "y": 360},
+			"position": {"x": 10, "y": 353},
 			"callback": "quickCombatChanged"
 		},
 		{
@@ -329,7 +335,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.numericQuantities",
-			"position": {"x": 10, "y": 390},
+			"position": {"x": 10, "y": 383},
 			"callback": "numericQuantitiesChanged"
 		},
 		{
@@ -337,7 +343,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.forceMovementInfo",
-			"position": {"x": 10, "y": 420},
+			"position": {"x": 10, "y": 413},
 			"callback": "forceMovementInfoChanged"
 		},
 		{
@@ -345,7 +351,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.showGrid",
-			"position": {"x": 10, "y": 450},
+			"position": {"x": 10, "y": 443},
 			"callback": "showGridChanged"
 		}
 	]

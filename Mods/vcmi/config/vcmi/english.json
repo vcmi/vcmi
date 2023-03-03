@@ -50,9 +50,12 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Always show move info in status bar}\n\n Replaces default status bar info with movement points data without need to hold ALT button.",
 	"vcmi.adventureOptions.showGrid.hover" : "Show grid",
 	"vcmi.adventureOptions.showGrid.help" : "{Show grid}\n\n Shows grid overlay, showing borders between adventure map tiles.",
+	"vcmi.adventureOptions.mapScrollSpeed4.hover": "",
+	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
+	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed4.help": "Set map scrolling speed to very fast",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set map scrolling speed to extremely fast",
-	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set map scrolling speed to fast, very fast.",
+	"vcmi.adventureOptions.mapScrollSpeed6.help": "Set map scrolling speed to fast, very fast.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Queue size (takes effect on next battle)",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "OFF",

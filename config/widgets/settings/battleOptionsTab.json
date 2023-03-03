@@ -5,19 +5,13 @@
 			"name": "lineCreatureInfo",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 205, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 199, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 295, "w": 365, "h": 3}
-		},
-		{
-			"name": "lineQueueSize",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 365, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 
 		{
@@ -30,11 +24,11 @@
 			[
 				{
 					"text": "core.genrltxt.396", // Auto-combat options
-					"position": {"x": 380, "y": 60}
+					"position": {"x": 380, "y": 55}
 				},
 				{
 					"text": "core.genrltxt.397", // Creature info
-					"position": {"x": 10, "y": 210}
+					"position": {"x": 10, "y": 205}
 				}
 			]
 		},
@@ -48,23 +42,23 @@
 			[
 				{
 					"text": "core.genrltxt.398", // Creatures
-					"position": {"x": 415, "y": 92}
+					"position": {"x": 415, "y": 85}
 				},
 				{
 					"text": "core.genrltxt.399", // Spells
-					"position": {"x": 415, "y": 122}
+					"position": {"x": 415, "y": 115}
 				},
 				{
 					"text": "core.genrltxt.400", // Catapult
-					"position": {"x": 415, "y": 152}
+					"position": {"x": 415, "y": 145}
 				},
 				{
 					"text": "core.genrltxt.151", // Ballista
-					"position": {"x": 415, "y": 182}
+					"position": {"x": 415, "y": 175}
 				},
 				{
 					"text": "core.genrltxt.401", // First Aid Tent
-					"position": {"x": 415, "y": 212}
+					"position": {"x": 415, "y": 205}
 				}
 			]
 		},
@@ -72,31 +66,31 @@
 			"name": "autoCombatCreaturesPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 90},
+			"position": {"x": 380, "y": 83},
 		},
 		{
 			"name": "autoCombatSpellsPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 120},
+			"position": {"x": 380, "y": 113},
 		},
 		{
 			"name": "autoCombatCatapultPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 150},
+			"position": {"x": 380, "y": 143},
 		},
 		{
 			"name": "autoCombatBallistaPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 180},
+			"position": {"x": 380, "y": 173},
 		},
 		{
 			"name": "autoCombatFirstAidTentPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 210},
+			"position": {"x": 380, "y": 203},
 		},
 
 		{
@@ -109,11 +103,11 @@
 			[
 				{
 					"text": "core.genrltxt.402", // All Stats
-					"position": {"x": 45, "y": 242}
+					"position": {"x": 45, "y": 235}
 				},
 				{
 					"text": "core.genrltxt.403", // Spells only
-					"position": {"x": 45, "y": 272}
+					"position": {"x": 45, "y": 265}
 				}
 			]
 		},
@@ -121,13 +115,13 @@
 			"name": "creatureInfoAllPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 240},
+			"position": {"x": 10, "y": 233},
 		},
 		{
 			"name": "creatureInfoSpellsPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 270},
+			"position": {"x": 10, "y": 263},
 		},
 
 		{
@@ -140,23 +134,23 @@
 			[
 				{
 					"text": "core.genrltxt.404",
-					"position": {"x": 45, "y": 62}
+					"position": {"x": 45, "y": 55}
 				},
 				{
 					"text": "core.genrltxt.405",
-					"position": {"x": 45, "y": 92}
+					"position": {"x": 45, "y": 85}
 				},
 				{
 					"text": "core.genrltxt.406",
-					"position": {"x": 45, "y": 122}
+					"position": {"x": 45, "y": 115}
 				},
 				{
 					"text": "core.genrltxt.407",
-					"position": {"x": 45, "y": 152}
+					"position": {"x": 45, "y": 145}
 				},
 				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-					"position": {"x": 45, "y": 182}
+					"position": {"x": 45, "y": 175}
 				}
 			]
 		},
@@ -166,7 +160,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.427",
-			"position": {"x": 10, "y": 60},
+			"position": {"x": 10, "y": 53},
 			"callback": "viewGridChanged"
 		},
 		{
@@ -174,7 +168,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.428",
-			"position": {"x": 10, "y": 90},
+			"position": {"x": 10, "y": 83},
 			"callback": "movementShadowChanged"
 		},
 		{
@@ -182,24 +176,30 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.429",
-			"position": {"x": 10, "y": 120},
+			"position": {"x": 10, "y": 113},
 			"callback": "mouseShadowChanged"
 		},
 		{
 			"name": "battleFieldCasualtiesPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 150},
+			"position": {"x": 10, "y": 143},
 		},
 		{
 			"name": "skipBattleIntroMusicCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 10, "y": 180},
+			"position": {"x": 10, "y": 173},
 			"callback": "skipBattleIntroMusicChanged"
 		},
 
+		{
+			"name": "frameAnimationSpeed",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 350 }
+		},
 		{
 			"name": "animationSpeedLabel",
 			"type": "label",
@@ -207,18 +207,12 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.393",
-			"position": {"x": 150, "y": 320}
-		},
-		{
-			"name": "frameAnimationSpeed",
-			"type": "picture",
-			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 307 }
+			"position": {"x": 150, "y": 362}
 		},
 		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 330},
+			"position": {"x": 10, "y": 373},
 			"items":
 			[
 				{
@@ -322,19 +316,26 @@
 		},
 
 		{
+			"name": "frameQueueSize",
+			"type": "picture",
+			"image": "settingsWindow/frameStackQueue",
+			"position": {"x": 6, "y": 410 }
+		},
+
+		{
 			"name": "queueSizeLabel",
 			"type": "label",
 			"font": "medium",
-			"alignment": "left",
+			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.battleOptions.queueSizeLabel.hover",
-			"position": {"x": 10, "y": 400}
+			"position": {"x": 170, "y": 422}
 		},
 
 		{
 			"name": "queueSizePicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 430},
+			"position": {"x": 10, "y": 434},
 			"items":
 			[
 				{
