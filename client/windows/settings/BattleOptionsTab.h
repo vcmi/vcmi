@@ -22,12 +22,12 @@ private:
 	int getAnimSpeed() const;
 	int getQueueSizeId() const;
 	std::string getQueueSizeStringFromId(int value) const;
-	void viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
-	void movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
+	void viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface);
+	void movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void mouseShadowChangedCallback(bool value);
 	void animationSpeedChangedCallback(int value);
-	void showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface = nullptr);
-	void queueSizeChangedCallback(int value);
+	void showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface);
+	void queueSizeChangedCallback(int value, BattleInterface * parentBattleInterface);
 	void skipBattleIntroMusicChangedCallback(bool value);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);

@@ -39,7 +39,12 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 
 static std::string resolutionToString(int w, int h)
 {
-	return std::to_string(w) + 'x' + std::to_string(h);
+	auto string = CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
+
+	boost::replace_all(string, "%w", std::to_string(w));
+	boost::replace_all(string, "%h", std::to_string(h));
+
+	return string;
 }
 
 GeneralOptionsTab::GeneralOptionsTab()
@@ -173,11 +178,7 @@ void GeneralOptionsTab::setGameResolution(int index)
 	gameRes["width"].Float() = resolution.x;
 	gameRes["height"].Float() = resolution.y;
 
-	std::string resText;
-	resText += std::to_string(resolution.x);
-	resText += "x";
-	resText += std::to_string(resolution.y);
-	widget<CLabel>("resolutionLabel")->setText(resText);
+	widget<CLabel>("resolutionLabel")->setText(resolutionToString(resolution.x, resolution.y));
 }
 
 void GeneralOptionsTab::setFullscreenMode(bool on)

@@ -19,8 +19,7 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
-		InterfaceObjectConfigurable()
+BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -45,9 +44,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	{
 		showQueueChangedCallback(value, owner);
 	});
-	addCallback("queueSizeChanged", [this](int value)
+	addCallback("queueSizeChanged", [this, owner](int value)
 	{
-		queueSizeChangedCallback(value);
+		queueSizeChangedCallback(value, owner);
 	});
 	addCallback("skipBattleIntroMusicChanged", [this](bool value)
 	{
@@ -155,11 +154,19 @@ void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * pa
 	}
 }
 
-void BattleOptionsTab::queueSizeChangedCallback(int value)
+void BattleOptionsTab::queueSizeChangedCallback(int value, BattleInterface * parentBattleInterface)
 {
+	if (value == -1)
+	{
+		showQueueChangedCallback(false, parentBattleInterface);
+		return;
+	}
+
 	std::string stringifiedValue = getQueueSizeStringFromId(value);
 	Settings size = settings.write["battle"]["queueSize"];
 	size->String() = stringifiedValue;
+
+	showQueueChangedCallback(true, parentBattleInterface);
 }
 
 void BattleOptionsTab::skipBattleIntroMusicChangedCallback(bool value)

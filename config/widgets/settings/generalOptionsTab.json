@@ -8,17 +8,13 @@
 			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
-			"name": "settingGroupTitles",
+			"name": "settingAudioTitles",
 			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
 			"items":
 			[
-				{
-					"position": {"x": 100, "y": 60},
-					"text": "vcmi.systemOptions.resolutionButton.hover"
-				},
 				{
 					"position": {"x": 460, "y": 98},
 					"text": "core.genrltxt.394" // Music Volume
@@ -29,24 +25,90 @@
 				}
 			]
 		},
-
 		{
-			"name": "resolutionButton",
-			"type": "button",
-			"position": {"x": 10, "y": 70},
-			"image": "buttons/resolution",
-			"help": "vcmi.systemOptions.resolutionButton",
-			"callback": "setGameResolution",
-			"hotkey": "g"
+			"name": "settingGroupTitles",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "yellow",
+			"items":
+			[
+				{
+					"position": {"x": 10, "y": 55},
+					"text": "vcmi.systemOptions.videoGroup"
+				}
+				{
+					"position": {"x": 380, "y": 55},
+					"text": "vcmi.systemOptions.audioGroup"
+				}
+				{
+					"position": {"x": 10, "y": 295},
+					"text": "vcmi.systemOptions.otherGroup"
+				}
+			]
 		},
 
 		{
 			"name": "resolutionLabel",
 			"type": "label",
 			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"position": {"x": 160, "y": 85}
+			"alignment": "left",
+			"color": "white",
+			"position": {"x": 45, "y": 85},
+			"text": "vcmi.systemOptions.resolutionButton.hover"
+		},
+		{
+			"name": "resolutionButton",
+			"type": "button",
+			"position": {"x": 10, "y": 82},
+			"image": "settingsWindow/button32",
+			"help": "vcmi.systemOptions.resolutionButton",
+			"callback": "setGameResolution",
+			"hotkey": "g",			
+			"items":
+			[
+				{
+					"name": "gearIcon",
+					"type": "picture",
+					"image": "settingsWindow/gear",
+					"position": {"x": 0, "y": 0 }
+				}
+			]
+		},
+		
+		{
+			"name": "topCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 45, "y": 115},
+					"text": "vcmi.systemOptions.fullscreenButton.hover"
+				},
+				{
+					"position": {"x": 45, "y": 145},
+					"text": "vcmi.systemOptions.framerateButton.hover"
+				}
+			]
+		},
+		{
+			"name": "fullscreenCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.systemOptions.fullscreenButton",
+			"position": {"x": 10, "y": 112},
+			"callback": "fullscreenChanged"
+		},
+		{
+			"name": "framerateCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.systemOptions.framerateButton",
+			"position": {"x": 10, "y": 142},
+			"callback": "framerateChanged"
 		},
 
 		{
@@ -55,7 +117,6 @@
 			"image": "settingsWindow/frameAudio",
 			"position": {"x": 380, "y": 80 }
 		},
-
 		{
 			"name": "musicSlider",
 			"type": "slider",
@@ -66,6 +127,15 @@
 			"itemsVisible": 0,
 			"itemsTotal": 100,
 			"callback": "setMusic"
+		},
+		{
+			"name": "musicValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text" : "10%",
+			"position": {"x": 565, "y": 98}
 		},
 		
 		{
@@ -86,6 +156,15 @@
 			"itemsTotal": 100,
 			"callback": "setVolume"
 		},
+		{
+			"name": "soundValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text" : "10%",
+			"position": {"x": 565, "y": 158}
+		},
 
 		{
 			"name": "bottomCheckboxesLabels",
@@ -100,20 +179,12 @@
 					"text": "core.genrltxt.577"
 				},
 				{
-					"position": {"x": 45, "y": 355},
-					"text": "vcmi.systemOptions.fullscreenButton.hover"
-				},
-				{
-					"position": {"x": 45, "y": 385},
-					"text": "vcmi.systemOptions.framerateButton.hover"
-				},
-				{
 					"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
-					"position": {"x": 45, "y": 415}
+					"position": {"x": 45, "y": 355}
 				},
 				{
 					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
-					"position": {"x": 45, "y": 445}
+					"position": {"x": 45, "y": 385}
 				}
 			]
 		},
@@ -126,40 +197,20 @@
 			"position": {"x": 10, "y": 323},
 			"callback": "spellbookAnimationChanged"
 		},
-
-		{
-			"name": "fullscreenCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.systemOptions.fullscreenButton",
-			"position": {"x": 10, "y": 353},
-			"callback": "fullscreenChanged"
-		},
-
-		{
-			"name": "framerateCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.systemOptions.framerateButton",
-			"position": {"x": 10, "y": 383},
-			"callback": "framerateChanged"
-		},
-
 		{
 			"name": "availableCreaturesAsDwellingLabelCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.otherOptions.availableCreaturesAsDwellingLabel",
-			"position": {"x": 10, "y": 413},
+			"position": {"x": 10, "y": 353},
 			"callback": "availableCreaturesAsDwellingLabelChanged"
 		},
-
 		{
 			"name": "compactTownCreatureInfoCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 443},
+			"position": {"x": 10, "y": 383},
 			"callback": "compactTownCreatureInfoChanged"
 		}
 	]
