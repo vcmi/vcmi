@@ -21,133 +21,100 @@
 		},
 
 		{
-			"name": "animationSpeedLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"text": "core.genrltxt.393",
-			"position": {"x": 100, "y": 310}
-		},
-		{
-			"name": "autoCombatOptionsLabel",
-			"type": "label",
+			"name": "titlesLabels",
+			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "left",
 			"color": "yellow",
-			"text": "core.genrltxt.396",
-			"position": {"x": 380, "y": 60}
+			"items":
+			[
+				{
+					"text": "core.genrltxt.396", // Auto-combat options
+					"position": {"x": 380, "y": 60}
+				},
+				{
+					"text": "core.genrltxt.397", // Creature info
+					"position": {"x": 10, "y": 210}
+				}
+			]
 		},
 		{
-			"name": "creatureInfoLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "yellow",
-			"text": "core.genrltxt.397",
-			"position": {"x": 10, "y": 210}
-		},
-
-		{
-			"name": "creaturesAutoCombatLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.398",
-			"position": {"x": 415, "y": 92}
-		},
-		{
-			"name": "spellsAutoCombatLabel",
-			"type": "label",
+			"name": "autoCombatLabels",
+			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "left",
 			"color": "white",
-			"text": "core.genrltxt.399",
-			"position": {"x": 415, "y": 122}
+			"items":
+			[
+				{
+					"text": "core.genrltxt.398", // Creatures
+					"position": {"x": 415, "y": 92}
+				},
+				{
+					"text": "core.genrltxt.399", // Spells
+					"position": {"x": 415, "y": 122}
+				},
+				{
+					"text": "core.genrltxt.400", // Catapult
+					"position": {"x": 415, "y": 152}
+				},
+				{
+					"text": "core.genrltxt.151", // Ballista
+					"position": {"x": 415, "y": 182}
+				},
+				{
+					"text": "core.genrltxt.401", // First Aid Tent
+					"position": {"x": 415, "y": 212}
+				}
+			]
 		},
 		{
-			"name": "catapultAutoCombatLabel",
-			"type": "label",
+			"name": "creatureInfoLabels",
+			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "left",
 			"color": "white",
-			"text": "core.genrltxt.400",
-			"position": {"x": 415, "y": 152}
+			"items":
+			[
+				{
+					"text": "core.genrltxt.402", // All Stats
+					"position": {"x": 45, "y": 242}
+				},
+				{
+					"text": "core.genrltxt.403", // Spells only
+					"position": {"x": 45, "y": 272}
+				}
+			]
 		},
 		{
-			"name": "ballistaAutoCombatLabel",
-			"type": "label",
+			"name": "generalOptionsLabels",
+			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "left",
 			"color": "white",
-			"text": "core.genrltxt.151",
-			"position": {"x": 415, "y": 182}
-		},
-		{
-			"name": "aidTentAutoCombatLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.401",
-			"position": {"x": 415, "y": 212}
-		},
-
-		{
-			"name": "creatureInfoAllStatsLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.402",
-			"position": {"x": 45, "y": 242}
-		},
-		{
-			"name": "creatureInfoOnlySpellsLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.403",
-			"position": {"x": 45, "y": 272}
-		},
-
-		{
-			"name": "viewGridLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.404",
-			"position": {"x": 45, "y": 62}
-		},
-		{
-			"name": "showMovementRangeLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.405",
-			"position": {"x": 45, "y": 92}
-		},
-		{
-			"name": "mouseShadowLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.406",
-			"position": {"x": 45, "y": 122}
-		},
-		{
-			"name": "battleCasualtiesLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "core.genrltxt.407",
-			"position": {"x": 45, "y": 152}
+			"items":
+			[
+				{
+					"text": "core.genrltxt.404",
+					"position": {"x": 45, "y": 62}
+				},
+				{
+					"text": "core.genrltxt.405",
+					"position": {"x": 45, "y": 92}
+				},
+				{
+					"text": "core.genrltxt.406",
+					"position": {"x": 45, "y": 122}
+				},
+				{
+					"text": "core.genrltxt.407",
+					"position": {"x": 45, "y": 152}
+				},
+				{
+					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
+					"position": {"x": 45, "y": 182}
+				}
+			]
 		},
 
 		{
@@ -174,7 +141,24 @@
 			"position": {"x": 10, "y": 120},
 			"callback": "mouseShadowChanged"
 		},
+		{
+			"name": "skipBattleIntroMusicCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.skipBattleIntroMusic",
+			"position": {"x": 10, "y": 180},
+			"callback": "skipBattleIntroMusicChanged"
+		},
 
+		{
+			"name": "animationSpeedLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "yellow",
+			"text": "core.genrltxt.393",
+			"position": {"x": 10, "y": 305}
+		},
 		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
@@ -371,25 +355,6 @@
 				}
 			],
 			"callback": "queueSizeChanged"
-		},
-
-		{
-			"name": "skipBattleIntroMusicLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-			"position": {"x": 45, "y": 182}
-		},
-
-		{
-			"name": "skipBattleIntroMusicCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 10, "y": 180},
-			"callback": "skipBattleIntroMusicChanged"
 		}
 	]
 }

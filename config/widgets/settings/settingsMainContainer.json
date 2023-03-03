@@ -35,7 +35,6 @@
 					"type": "toggleButton",
 					"position": {"x": 10, "y": 5},
 					"image": "settingsWindow/button190",
-					"transparent" : true,
 					"help": "vcmi.settingsMainWindow.generalTab",
 					"items":
 					[
@@ -55,7 +54,6 @@
 					"type": "toggleButton",
 					"position": {"x": 205, "y": 5},
 					"image": "settingsWindow/button190",
-					"transparent" : true,
 					"help": "vcmi.settingsMainWindow.adventureTab",
 					"items":
 					[
@@ -75,7 +73,6 @@
 					"type": "toggleButton",
 					"position": {"x": 400, "y": 5},
 					"image": "settingsWindow/button190",
-					"transparent" : true,
 					"help": "vcmi.settingsMainWindow.battleTab",
 					"items":
 					[
@@ -89,25 +86,6 @@
 						}
 					]
 				}
-				//disabled, due to being redundant for now
-//				{
-//					"index": 3,
-//					"type": "toggleButton",
-//					"position": {"x": 450, "y": 0},
-//					"image": "buttons/quadwide",
-//					"help": "vcmi.settingsMainWindow.otherTab",
-//					"items":
-//					[
-//						{
-//							"name": "otherTabButtonTitle",
-//							"type": "label",
-//							"font": "big",
-//							"alignment": "center",
-//							"color": "yellow",
-//							"text": "vcmi.settingsMainWindow.otherTab.hover"
-//						}
-//					]
-//				}
 			],
 			"callback": "activateSettingsTab"
 		},

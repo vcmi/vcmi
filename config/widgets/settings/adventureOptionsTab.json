@@ -35,16 +35,16 @@
 			"items":
 			[
 				{
-					"position": {"x": 100, "y": 70},
-					"text": "core.genrltxt.569"
+					"position": {"x": 150, "y": 70},
+					"text": "core.genrltxt.569" // Hero Speed
 				},
 				{
-					"position": {"x": 100, "y": 130},
-					"text": "core.genrltxt.570"
+					"position": {"x": 150, "y": 130},
+					"text": "core.genrltxt.570" // Enemy Speed
 				},
 				{
-					"position": {"x": 100, "y": 190},
-					"text": "core.genrltxt.571"
+					"position": {"x": 150, "y": 190},
+					"text": "core.genrltxt.571" // Scrolling Speed
 				}
 			]
 		},
@@ -62,7 +62,6 @@
 					"help": "core.help.349",
 					"position": {"x": 0, "y": 0}
 				},
-
 				{
 					"index": 150,
 					"type": "toggleButton",
@@ -70,7 +69,6 @@
 					"help": "core.help.350",
 					"position": {"x": 48, "y": 0}
 				},
-
 				{
 					"index": 100,
 					"type": "toggleButton",
@@ -78,23 +76,20 @@
 					"help": "core.help.350",
 					"position": {"x": 96, "y": 0}
 				},
-
 				{
 					"index": 50,
 					"type": "toggleButton",
 					"image": "sysopb3",
 					"help": "core.help.351",
 					"position": {"x": 144, "y": 0}
-				}
-
+				},
 				{
 					"index": 25,
 					"type": "toggleButton",
 					"image": "sysopb3",
 					"help": "core.help.351",
 					"position": {"x": 192, "y": 0}
-				}
-
+				},
 				{
 					"index": 0,
 					"type": "toggleButton",
@@ -280,17 +275,17 @@
 			"color": "white",
 			"items":
 			[
-				{
-					"position": {"x": 45, "y": 302},
-					"text": "core.genrltxt.572"
-				},
+//				{
+//					"position": {"x": 45, "y": 302},
+//					"text": "core.genrltxt.572" // TODO: show move path
+//				},
 				{
 					"position": {"x": 45, "y": 332},
-					"text": "core.genrltxt.573"
+					"text": "core.genrltxt.573" // show hero reminder
 				},
 				{
 					"position": {"x": 45, "y": 362},
-					"text": "core.genrltxt.574"
+					"text": "core.genrltxt.574" // quick combat
 				},
 				{
 					"position": {"x": 45, "y": 392},

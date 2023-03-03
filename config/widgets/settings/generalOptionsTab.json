@@ -2,7 +2,7 @@
 	"items":
 	[
 		{
-			"name": "topSettingsLabels",
+			"name": "settingGroupTitles",
 			"type": "labelGroup",
 			"font": "medium",
 			"alignment": "center",
@@ -15,11 +15,11 @@
 				},
 				{
 					"position": {"x": 455, "y": 78},
-					"text": "core.genrltxt.394"
+					"text": "core.genrltxt.394" // Music Volume
 				},
 				{
 					"position": {"x": 455, "y": 138},
-					"text": "core.genrltxt.395"
+					"text": "core.genrltxt.395" // Effects volume
 				}
 			]
 		},
@@ -63,7 +63,7 @@
 		},
 		
 		{
-			"name": "frameAudio",
+			"name": "frameSound",
 			"type": "picture",
 			"image": "settingsWindow/frameAudio",
 			"position": {"x": 375, "y": 120 }
@@ -100,6 +100,14 @@
 				{
 					"position": {"x": 45, "y": 392},
 					"text": "vcmi.systemOptions.framerateButton.hover"
+				},
+				{
+					"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
+					"position": {"x": 45, "y": 422}
+				},
+				{
+					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
+					"position": {"x": 45, "y": 452}
 				}
 			]
 		},
@@ -132,32 +140,12 @@
 		},
 
 		{
-			"name": "availableCreaturesAsDwellingLabelText",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
-			"position": {"x": 45, "y": 422}
-		},
-
-		{
 			"name": "availableCreaturesAsDwellingLabelCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.otherOptions.availableCreaturesAsDwellingLabel",
 			"position": {"x": 10, "y": 420},
 			"callback": "availableCreaturesAsDwellingLabelChanged"
-		},
-
-		{
-			"name": "compactTownCreatureInfoLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
-			"position": {"x": 45, "y": 452}
 		},
 
 		{
