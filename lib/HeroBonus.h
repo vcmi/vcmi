@@ -59,6 +59,12 @@ public:
 		return [thisCopy, rhs](const Bonus *b) mutable { return thisCopy(b) || rhs(b); };
 	}
 
+	CSelector Not() const
+	{
+		auto thisCopy = *this;
+		return [thisCopy](const Bonus *b) mutable { return !thisCopy(b); };
+	}
+
 	bool operator()(const Bonus *b) const
 	{
 		return TBase::operator()(b);
