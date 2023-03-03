@@ -1,0 +1,49 @@
+{
+    "summonDemons" : {
+		"type": "ability",
+		"targetType" : "CREATURE",
+		"name": "Summon Demons",
+		"school" : {},
+		"level": 2,
+		"power": 50,
+		"defaultGainChance": 0,
+		"gainChance": {},
+		"animation":{
+		},
+		"sounds": {
+			"cast": "RESURECT"
+		},
+		"levels" : {
+			"base": {
+				"description" : "",
+				"aiValue" : 0,
+				"power" : 40,
+				"cost" : 1,
+				"range" : "0",
+				"battleEffects":{
+					"demonSummon":{
+						"id":"demon",
+						"permanent":true,
+						"type":"core:demonSummon"
+					}
+				}
+			},
+			"none" :{},
+			"basic" :{},
+			"advanced" :{},
+			"expert" :{}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.NON_LIVING" : "absolute",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute",
+				"bonus.GARGOYLE" : "absolute"
+			}
+		}
+    }
+}
