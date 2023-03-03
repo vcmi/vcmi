@@ -275,10 +275,10 @@
 			"color": "white",
 			"items":
 			[
-//				{
-//					"position": {"x": 45, "y": 302},
-//					"text": "core.genrltxt.572" // TODO: show move path
-//				},
+				{
+					"position": {"x": 45, "y": 302},
+					"text": "core.genrltxt.572" // TODO: show move path
+				},
 				{
 					"position": {"x": 45, "y": 332},
 					"text": "core.genrltxt.573" // show hero reminder
@@ -303,6 +303,12 @@
 		},
 
 		{
+			"name": "showMovePathPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 300},
+		},
+		{
 			"name": "heroReminderCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
@@ -310,7 +316,6 @@
 			"position": {"x": 10, "y": 330},
 			"callback": "heroReminderChanged"
 		},
-
 		{
 			"name": "quickCombatCheckbox",
 			"type": "toggleButton",
@@ -319,7 +324,6 @@
 			"position": {"x": 10, "y": 360},
 			"callback": "quickCombatChanged"
 		},
-
 		{
 			"name": "numericQuantitiesCheckbox",
 			"type": "toggleButton",
@@ -328,7 +332,6 @@
 			"position": {"x": 10, "y": 390},
 			"callback": "numericQuantitiesChanged"
 		},
-
 		{
 			"name": "forceMovementInfoCheckbox",
 			"type": "toggleButton",

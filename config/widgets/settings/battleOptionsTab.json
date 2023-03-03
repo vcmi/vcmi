@@ -69,6 +69,37 @@
 			]
 		},
 		{
+			"name": "autoCombatCreaturesPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 90},
+		},
+		{
+			"name": "autoCombatSpellsPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 120},
+		},
+		{
+			"name": "autoCombatCatapultPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 150},
+		},
+		{
+			"name": "autoCombatBallistaPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 180},
+		},
+		{
+			"name": "autoCombatFirstAidTentPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 210},
+		},
+
+		{
 			"name": "creatureInfoLabels",
 			"type": "labelGroup",
 			"font": "medium",
@@ -86,6 +117,19 @@
 				}
 			]
 		},
+		{
+			"name": "creatureInfoAllPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 240},
+		},
+		{
+			"name": "creatureInfoSpellsPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 270},
+		},
+
 		{
 			"name": "generalOptionsLabels",
 			"type": "labelGroup",
@@ -142,6 +186,12 @@
 			"callback": "mouseShadowChanged"
 		},
 		{
+			"name": "battleFieldCasualtiesPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 150},
+		},
+		{
 			"name": "skipBattleIntroMusicCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
@@ -154,10 +204,16 @@
 			"name": "animationSpeedLabel",
 			"type": "label",
 			"font": "medium",
-			"alignment": "left",
+			"alignment": "center",
 			"color": "yellow",
 			"text": "core.genrltxt.393",
-			"position": {"x": 10, "y": 305}
+			"position": {"x": 150, "y": 320}
+		},
+		{
+			"name": "frameAnimationSpeed",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 307 }
 		},
 		{
 			"name": "animationSpeedPicker",
