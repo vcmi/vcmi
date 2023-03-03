@@ -34,7 +34,8 @@
 					"index": 0,
 					"type": "toggleButton",
 					"position": {"x": 10, "y": 5},
-					"image": "buttons/quadwide",
+					"image": "settingsWindow/button190",
+					"transparent" : true,
 					"help": "vcmi.settingsMainWindow.generalTab",
 					"items":
 					[
@@ -52,8 +53,9 @@
 				{
 					"index": 1,
 					"type": "toggleButton",
-					"position": {"x": 200, "y": 5},
-					"image": "buttons/quadwide",
+					"position": {"x": 205, "y": 5},
+					"image": "settingsWindow/button190",
+					"transparent" : true,
 					"help": "vcmi.settingsMainWindow.adventureTab",
 					"items":
 					[
@@ -71,8 +73,9 @@
 				{
 					"index": 2,
 					"type": "toggleButton",
-					"position": {"x": 390, "y": 5},
-					"image": "buttons/quadwide",
+					"position": {"x": 400, "y": 5},
+					"image": "settingsWindow/button190",
+					"transparent" : true,
 					"help": "vcmi.settingsMainWindow.battleTab",
 					"items":
 					[

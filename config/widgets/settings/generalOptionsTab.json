@@ -14,11 +14,11 @@
 					"text": "vcmi.systemOptions.resolutionButton.hover"
 				},
 				{
-					"position": {"x": 100, "y": 130},
+					"position": {"x": 455, "y": 78},
 					"text": "core.genrltxt.394"
 				},
 				{
-					"position": {"x": 100, "y": 190},
+					"position": {"x": 455, "y": 138},
 					"text": "core.genrltxt.395"
 				}
 			]
@@ -44,22 +44,36 @@
 		},
 
 		{
+			"name": "frameMusic",
+			"type": "picture",
+			"image": "settingsWindow/frameAudio",
+			"position": {"x": 375, "y": 60 }
+		},
+
+		{
 			"name": "musicSlider",
 			"type": "slider",
-			"position": {"x": 10, "y": 150},
-			"size": 190,
+			"position": {"x": 380, "y": 95},
+			"size": 200,
 			"style": "brown",
 			"orientation": "horizontal",
 			"itemsVisible": 0,
 			"itemsTotal": 100,
 			"callback": "setMusic"
 		},
+		
+		{
+			"name": "frameAudio",
+			"type": "picture",
+			"image": "settingsWindow/frameAudio",
+			"position": {"x": 375, "y": 120 }
+		},
 
 		{
 			"name": "soundVolumeSlider",
 			"type": "slider",
-			"position": {"x": 10, "y": 210},
-			"size": 190,
+			"position": {"x": 380, "y": 155},
+			"size": 200,
 			"style": "brown",
 			"orientation": "horizontal",
 			"itemsVisible": 0,
@@ -76,15 +90,15 @@
 			"items":
 			[
 				{
-					"position": {"x": 45, "y": 330},
+					"position": {"x": 45, "y": 332},
 					"text": "core.genrltxt.577"
 				},
 				{
-					"position": {"x": 45, "y": 360},
+					"position": {"x": 45, "y": 362},
 					"text": "vcmi.systemOptions.fullscreenButton.hover"
 				},
 				{
-					"position": {"x": 45, "y": 390},
+					"position": {"x": 45, "y": 392},
 					"text": "vcmi.systemOptions.framerateButton.hover"
 				}
 			]
@@ -124,7 +138,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
-			"position": {"x": 45, "y": 420}
+			"position": {"x": 45, "y": 422}
 		},
 
 		{
@@ -143,7 +157,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
-			"position": {"x": 45, "y": 450}
+			"position": {"x": 45, "y": 452}
 		},
 
 		{

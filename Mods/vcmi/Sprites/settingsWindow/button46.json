@@ -1,0 +1,10 @@
+{
+	"basepath" : "settingsWindow/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "button46Normal.png"},
+		{ "frame" : 1, "file" : "button46PressedSelected.png"},
+		{ "frame" : 2, "file" : "button46Pressed.png"},
+		{ "frame" : 3, "file" : "button46NormalSelected.png"}
+	]
+}

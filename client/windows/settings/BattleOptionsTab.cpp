@@ -70,9 +70,6 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
 
-	std::shared_ptr<CToggleButton> showQueueCheckbox = widget<CToggleButton>("showQueueCheckbox");
-	showQueueCheckbox->setSelected(settings["battle"]["showQueue"].Bool());
-
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
 }
@@ -88,11 +85,13 @@ int BattleOptionsTab::getAnimSpeed() const
 int BattleOptionsTab::getQueueSizeId() const
 {
 	std::string text = settings["battle"]["queueSize"].String();
+	if(text == "none")
+		return -1;
 	if(text == "auto")
 		return 0;
-	else if(text == "small")
+	if(text == "small")
 		return 1;
-	else if(text == "big")
+	if(text == "big")
 		return 2;
 
 	return 0;
@@ -102,6 +101,8 @@ std::string BattleOptionsTab::getQueueSizeStringFromId(int value) const
 {
 	switch(value)
 	{
+		case -1:
+			return "none";
 		case 0:
 			return "auto";
 		case 1:

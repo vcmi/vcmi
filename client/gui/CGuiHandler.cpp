@@ -593,7 +593,9 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 {
 	//sending active, hovered hoverable objects hover() call
 	std::vector<CIntObject*> hlp;
-	for(auto & elem : hoverable)
+
+	auto hoverableCopy = hoverable;
+	for(auto & elem : hoverableCopy)
 	{
 		if(elem->pos.isInside(getCursorPosition()))
 		{
@@ -606,6 +608,8 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 			(elem)->hovered = false;
 		}
 	}
+	assert(hoverableCopy == hoverable);
+
 	for(auto & elem : hlp)
 	{
 		elem->hover(true);

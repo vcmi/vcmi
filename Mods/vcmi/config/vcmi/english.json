@@ -55,9 +55,9 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "5",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set map scrolling speed to extremely fast",
 
-	"vcmi.battleOptions.showQueue.hover": "Show queue",
-	"vcmi.battleOptions.showQueue.help": "{Show queue}\n\n Show queue that displays movement order of creature stacks.",
 	"vcmi.battleOptions.queueSizeLabel.hover": "Queue size (takes effect on next battle)",
+	"vcmi.battleOptions.queueSizeNoneButton.hover": "NONE",
+	"vcmi.battleOptions.queueSizeNoneButton.help": "Disables visibility of stack queue in battle",
 	"vcmi.battleOptions.queueSizeAutoButton.hover": "AUTO",
 	"vcmi.battleOptions.queueSizeAutoButton.help": "Sets queue size depending on game resolution (small if width < 700 pixels, big otherwise)",
 	"vcmi.battleOptions.queueSizeSmallButton.hover": "SMALL",

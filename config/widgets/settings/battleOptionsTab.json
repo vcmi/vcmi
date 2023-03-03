@@ -55,7 +55,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.398",
-			"position": {"x": 415, "y": 90}
+			"position": {"x": 415, "y": 92}
 		},
 		{
 			"name": "spellsAutoCombatLabel",
@@ -64,7 +64,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.399",
-			"position": {"x": 415, "y": 120}
+			"position": {"x": 415, "y": 122}
 		},
 		{
 			"name": "catapultAutoCombatLabel",
@@ -73,7 +73,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.400",
-			"position": {"x": 415, "y": 150}
+			"position": {"x": 415, "y": 152}
 		},
 		{
 			"name": "ballistaAutoCombatLabel",
@@ -82,7 +82,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.151",
-			"position": {"x": 415, "y": 180}
+			"position": {"x": 415, "y": 182}
 		},
 		{
 			"name": "aidTentAutoCombatLabel",
@@ -91,7 +91,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.401",
-			"position": {"x": 415, "y": 210}
+			"position": {"x": 415, "y": 212}
 		},
 
 		{
@@ -101,7 +101,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.402",
-			"position": {"x": 45, "y": 240}
+			"position": {"x": 45, "y": 242}
 		},
 		{
 			"name": "creatureInfoOnlySpellsLabel",
@@ -110,7 +110,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.403",
-			"position": {"x": 45, "y": 270}
+			"position": {"x": 45, "y": 272}
 		},
 
 		{
@@ -120,7 +120,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.404",
-			"position": {"x": 45, "y": 60}
+			"position": {"x": 45, "y": 62}
 		},
 		{
 			"name": "showMovementRangeLabel",
@@ -129,7 +129,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.405",
-			"position": {"x": 45, "y": 90}
+			"position": {"x": 45, "y": 92}
 		},
 		{
 			"name": "mouseShadowLabel",
@@ -138,7 +138,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.406",
-			"position": {"x": 45, "y": 120}
+			"position": {"x": 45, "y": 122}
 		},
 		{
 			"name": "battleCasualtiesLabel",
@@ -147,7 +147,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "core.genrltxt.407",
-			"position": {"x": 45, "y": 150}
+			"position": {"x": 45, "y": 152}
 		},
 
 		{
@@ -184,101 +184,101 @@
 				{
 					"index": 1,
 					"type": "toggleButton",
-					"image": "sysopb9",
+					"image": "settingsWindow/button46",
 					"help": "core.help.422",
-					"position": {"x": 0, "y": 0}
+					"position": {"x": 0, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed1",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed1",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
 				},
-
 				{
 					"index": 2,
 					"type": "toggleButton",
-					"image": "sysob10",
+					"image": "settingsWindow/button46",
 					"help": "core.help.423",
-					"position": {"x": 64, "y": 0}
+					"position": {"x": 48, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed2",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed2",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
 				},
-
 				{
 					"index": 3,
 					"type": "toggleButton",
-					"image": "sysob11",
+					"image": "settingsWindow/button46",
 					"help": "core.help.424",
-					"position": {"x": 128, "y": 0}
+					"position": {"x":96, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed3",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed3",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
 				},
 				{
 					"index": 6,
 					"type": "toggleButton",
-					"image": "buttons/square",
+					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed4",
-					"position": {"x": 192, "y": 0},
+					"position": {"x": 144, "y": 0},
 					"items":
 					[
 						{
-							"name": "battleAnimationsSpeed4",
-							"type": "label",
-							"font": "big",
-							"alignment": "center",
-							"color": "yellow",
-							"text": "vcmi.battleOptions.animationsSpeed4.hover"
+							"name": "battleScrollSpeed4",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed4",
+							"position": {"x": 0, "y": 0 }
 						}
 					]
 				},
 				{
 					"index": 12,
 					"type": "toggleButton",
-					"image": "buttons/square",
+					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed5",
-					"position": {"x": 229, "y": 0},
+					"position": {"x": 192, "y": 0},
 					"items":
 					[
 						{
-							"name": "battleAnimationsSpeed5",
-							"type": "label",
-							"font": "big",
-							"alignment": "center",
-							"color": "yellow",
-							"text": "vcmi.battleOptions.animationsSpeed5.hover"
+							"name": "battleScrollSpeed5",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed5",
+							"position": {"x": 0, "y": 0 }
 						}
 					]
 				},
 				{
 					"index": 24,
 					"type": "toggleButton",
-					"image": "buttons/square",
+					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed6",
-					"position": {"x": 266, "y": 0},
+					"position": {"x": 240, "y": 0},
 					"items":
 					[
 						{
-							"name": "battleAnimationsSpeed6",
-							"type": "label",
-							"font": "big",
-							"alignment": "center",
-							"color": "yellow",
-							"text": "vcmi.battleOptions.animationsSpeed6.hover"
+							"name": "battleScrollSpeed6",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed6",
+							"position": {"x": 0, "y": 0 }
 						}
 					]
 				}
 			],
 			"callback": "animationSpeedChanged"
-		},
-
-		{
-			"name": "showQueueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"text": "vcmi.battleOptions.showQueue.hover",
-			"position": {"x": 45, "y": 370}
-		},
-
-		{
-			"name": "showQueueCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.battleOptions.showQueue",
-			"position": {"x": 10, "y": 370},
-			"callback": "showQueueChanged"
 		},
 
 		{
@@ -298,17 +298,35 @@
 			"items":
 			[
 				{
-					"index": 0, //auto
+					"index": -1, //off
 					"type": "toggleButton",
-					"image": "buttons/triplewide",
+					"image": "settingsWindow/button80",
 					"help": "vcmi.battleOptions.queueSizeAutoButton",
 					"position": {"x": 0, "y": 0},
 					"items":
 					[
 						{
+							"name": "queueSizeNoneText",
+							"type": "label",
+							"font": "medium",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeNoneButton.hover"
+						}
+					]
+				},
+				{
+					"index": 0, //auto
+					"type": "toggleButton",
+					"image": "settingsWindow/button80",
+					"help": "vcmi.battleOptions.queueSizeAutoButton",
+					"position": {"x": 85, "y": 0},
+					"items":
+					[
+						{
 							"name": "queueSizeAutoText",
 							"type": "label",
-							"font": "big",
+							"font": "medium",
 							"alignment": "center",
 							"color": "yellow",
 							"text": "vcmi.battleOptions.queueSizeAutoButton.hover"
@@ -318,15 +336,15 @@
 				{
 					"index": 1, //small
 					"type": "toggleButton",
-					"image": "buttons/triplewide",
+					"image": "settingsWindow/button80",
 					"help": "vcmi.battleOptions.queueSizeSmallButton",
-					"position": {"x": 113, "y": 0},
+					"position": {"x": 170, "y": 0},
 					"items":
 					[
 						{
 							"name": "queueSizeSmallText",
 							"type": "label",
-							"font": "big",
+							"font": "medium",
 							"alignment": "center",
 							"color": "yellow",
 							"text": "vcmi.battleOptions.queueSizeSmallButton.hover"
@@ -336,15 +354,15 @@
 				{
 					"index": 2, //large
 					"type": "toggleButton",
-					"image": "buttons/triplewide",
+					"image": "settingsWindow/button80",
 					"help": "vcmi.battleOptions.queueSizeBigButton",
-					"position": {"x": 226, "y": 0},
+					"position": {"x": 255, "y": 0},
 					"items":
 					[
 						{
 							"name": "queueSizeBigText",
 							"type": "label",
-							"font": "big",
+							"font": "medium",
 							"alignment": "center",
 							"color": "yellow",
 							"text": "vcmi.battleOptions.queueSizeBigButton.hover"
@@ -362,7 +380,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-			"position": {"x": 45, "y": 180}
+			"position": {"x": 45, "y": 182}
 		},
 
 		{
