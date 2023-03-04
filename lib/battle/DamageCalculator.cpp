@@ -133,24 +133,12 @@ int DamageCalculator::getActorAttackSlayer() const
 	static const auto selectorSlayer = Selector::type()(Bonus::SLAYER);
 
 	auto slayerEffects = info.attacker->getBonuses(selectorSlayer, cachingStrSlayer);
+	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(Bonus::KING));
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
-		std::vector<int32_t> affectedIds;
 		const auto spLevel = slayerEffect->val;
-		const CCreature * defenderType = info.defender->unitType();
-		bool isAffected = false;
-
-		for(const auto & b : defenderType->getBonusList())
-		{
-			if((b->type == Bonus::KING3 && spLevel >= 3) || //expert
-				(b->type == Bonus::KING2 && spLevel >= 2) || //adv +
-				(b->type == Bonus::KING1 && spLevel >= 0)) //none or basic +
-			{
-				isAffected = true;
-				break;
-			}
-		}
+		bool isAffected = spLevel >= slayerAffected;
 
 		if(isAffected)
 		{

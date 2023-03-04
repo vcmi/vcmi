@@ -486,9 +486,9 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
 		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
 		{"const_jousting",         makeBonusNode("JOUSTING", 5)},
-		{"KING_1",                 makeBonusNode("KING1")},
-		{"KING_2",                 makeBonusNode("KING2")},
-		{"KING_3",                 makeBonusNode("KING3")},
+		{"KING_1",                 makeBonusNode("KING")}, // Slayer with no expertise
+		{"KING_2",                 makeBonusNode("KING", 2)}, // Advanced Slayer or better
+		{"KING_3",                 makeBonusNode("KING", 3)}, // Expert Slayer only
 		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
 		{"CATAPULT",               makeBonusNode("CATAPULT")},
 		{"MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT")},

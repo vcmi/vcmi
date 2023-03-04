@@ -1611,9 +1611,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		{
 			const auto * kingMonster = getAliveEnemy([&](const CStack * stack) -> bool //look for enemy, non-shooting stack
 			{
-				const auto isKing = Selector::type()(Bonus::KING1)
-									.Or(Selector::type()(Bonus::KING2))
-									.Or(Selector::type()(Bonus::KING3));
+				const auto isKing = Selector::type()(Bonus::KING);
 
 				return stack->hasBonus(isKing);
 			});

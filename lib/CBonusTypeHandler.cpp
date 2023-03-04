@@ -170,6 +170,14 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		}
 		break;
 	}
+	case Bonus::KING:
+	{
+		if(vstd::iswithin(bonus->val, 0, 3))
+		{
+			fileName = "E_KING" + std::to_string(std::max(1, bonus->val)) + ".bmp";
+		}
+		break;
+	}
 	case Bonus::GENERAL_DAMAGE_REDUCTION:
 	{
 		switch(bonus->subtype)

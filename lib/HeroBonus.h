@@ -220,9 +220,7 @@ public:
 	BONUS_NAME(NO_MELEE_PENALTY)						\
 	BONUS_NAME(JOUSTING) /*for champions*/				\
 	BONUS_NAME(HATE) /*eg. angels hate devils, subtype - ID of hated creature, val - damage bonus percent */ \
-	BONUS_NAME(KING1)									\
-	BONUS_NAME(KING2)									\
-	BONUS_NAME(KING3)									\
+	BONUS_NAME(KING) /* val - required slayer bonus val to affect */\
 	BONUS_NAME(MAGIC_RESISTANCE) /*in % (value)*/		\
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \

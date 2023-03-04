@@ -271,23 +271,7 @@
 		}
 	},
 
-	"KING1":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_KING1"
-		}
-	},
-
-	"KING2":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_KING2"
-		}
-	},
-
-	"KING3":
+	"KING":
 	{
 		"graphics":
 		{
