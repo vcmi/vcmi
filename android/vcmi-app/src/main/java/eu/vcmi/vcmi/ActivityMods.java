@@ -19,6 +19,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,6 +83,14 @@ public class ActivityMods extends ActivityWithToolbar
         mRecycler.setAdapter(mModsAdapter);
 
         new AsyncLoadLocalMods().execute((Void) null);
+
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), this, 0);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e("SecurityException", "Google Play Services not available.");
+        }
     }
 
     private void loadLocalModData() throws IOException, JSONException
