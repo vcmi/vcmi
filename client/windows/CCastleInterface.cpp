@@ -1149,38 +1149,45 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	addUsedEvents(KEYBOARD);
 
 	builds = std::make_shared<CCastleBuildings>(town);
-	panel = std::make_shared<CPicture>("TOWNSCRN", 0, builds->pos.h);
+	int panelShift = builds->pos.w <= 800 ? 0 : (int)(builds->pos.w - 800)/2.);
+	panel = std::make_shared<CPicture>("TOWNSCRN", panelShift , builds->pos.h);
 	panel->colorize(LOCPLINT->playerID);
+	if (panelShift > 0)
+	{
+			Rect barRect(0, 0, panelShift - 1, panel->pos.h);
+			auto leftBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 0, builds->pos.h);
+			auto rightBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, panelShift + panel->pos.w + 1, builds->pos.h);
+	}
 	pos.w = panel->pos.w >= builds->pos.w ? panel->pos.w : builds->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
 	updateShadow();
 
-	garr = std::make_shared<CGarrisonInt>(305, builds->pos.h + 13, 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
+	garr = std::make_shared<CGarrisonInt>(panelShift + 305, builds->pos.h + 13, 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
 	garr->type |= REDRAW_PARENT;
 
-	heroes = std::make_shared<HeroSlots>(town, Point(241, builds->pos.h + 13), Point(241, builds->pos.h + 109), garr, true);
-	title = std::make_shared<CLabel>(85, builds->pos.h + 13, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
-	income = std::make_shared<CLabel>(195, builds->pos.h + 69, FONT_SMALL, ETextAlignment::CENTER);
-	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, builds->pos.h + 13);
+	heroes = std::make_shared<HeroSlots>(town, Point(panelShift + 241, builds->pos.h + 13), Point(panelShift + 241, builds->pos.h + 109), garr, true);
+	title = std::make_shared<CLabel>(panelShift + 85, builds->pos.h + 13, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
+	income = std::make_shared<CLabel>(panelShift + 195, builds->pos.h + 69, FONT_SMALL, ETextAlignment::CENTER);
+	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, panelShift + 15, builds->pos.h + 13);
 
-	exit = std::make_shared<CButton>(Point(744, builds->pos.h + 170), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, SDLK_RETURN);
+	exit = std::make_shared<CButton>(Point(panelShift + 744, builds->pos.h + 170), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	exit->setImageOrder(4, 5, 6, 7);
 
-	auto split = std::make_shared<CButton>(Point(744, builds->pos.h + 170), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
+	auto split = std::make_shared<CButton>(Point(panelShift + 744, builds->pos.h + 170), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
 	{
 		garr->splitClick();
 		heroes->splitClicked();
 	});
 	garr->addSplitBtn(split);
 
-	Rect barRect(9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, builds->pos.h + 182);
+	Rect barRect(panelShift + 9, 182, 732, 18);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, panelShift + 9, builds->pos.h + 182);
 	statusbar = CGStatusBar::create(statusbarBackground);
-	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, builds->pos.h + 201, 32, 2, 85, 85);
+	resdatabar = std::make_shared<CResDataBar>("ARESBAR", panelShift + 3, builds->pos.h + 201, 32, 2, 85, 85);
 
-	townlist = std::make_shared<CTownList>(3, Point(744, builds->pos.h + 40), "IAM014", "IAM015");
+	townlist = std::make_shared<CTownList>(3, Point(panelShift + 744, builds->pos.h + 40), "IAM014", "IAM015");
 	if(from)
 		townlist->select(from);
 
@@ -1258,11 +1265,12 @@ void CCastleInterface::recreateIcons()
 	TResources townIncome = town->dailyIncome();
 	income->setText(boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
 	builds = std::make_shared<CCastleBuildings>(town);
+	int panelShift = builds->pos.w <= 800 ? 0 : (int)(builds->pos.w - 800)/2.);
 	
-	hall = std::make_shared<CTownInfo>(80, builds->pos.h + 39, town, true);
-	fort = std::make_shared<CTownInfo>(122, builds->pos.h + 39, town, false);
+	hall = std::make_shared<CTownInfo>(panelShift + 80, builds->pos.h + 39, town, true);
+	fort = std::make_shared<CTownInfo>(panelShift + 122, builds->pos.h + 39, town, false);
 
-	fastArmyPurchase = std::make_shared<CButton>(Point(122, builds->pos.h + 39), "itmcl.def", CButton::tooltip(), [&](){ builds->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase = std::make_shared<CButton>(Point(panelShift + 122, builds->pos.h + 39), "itmcl.def", CButton::tooltip(), [&](){ builds->enterToTheQuickRecruitmentWindow(); });
 	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
 	fastArmyPurchase->setAnimateLonelyFrame(true);
 
@@ -1272,11 +1280,11 @@ void CCastleInterface::recreateIcons()
 	bool useAvailableCreaturesForLabel = useAvailableAmountAsCreatureLabel();
 
 	for(size_t i=0; i<4; i++)
-		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14 + 55 * (int)i, builds->pos.h + 85), town, (int)i, compactCreatureInfo, useAvailableCreaturesForLabel));
+		creainfo.push_back(std::make_shared<CCreaInfo>(Point(panelShift + 14 + 55 * (int)i, builds->pos.h + 85), town, (int)i, compactCreatureInfo, useAvailableCreaturesForLabel));
 
 
 	for(size_t i=0; i<4; i++)
-		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14 + 55 * (int)i, builds->pos.h + 133), town, (int)i + 4, compactCreatureInfo, useAvailableCreaturesForLabel));
+		creainfo.push_back(std::make_shared<CCreaInfo>(Point(panelShift + 14 + 55 * (int)i, builds->pos.h + 133), town, (int)i + 4, compactCreatureInfo, useAvailableCreaturesForLabel));
 
 }
 
