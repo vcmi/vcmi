@@ -26,7 +26,7 @@
 	"vcmi.server.confirmReconnect"           : "Connect to the last session?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "General",
-	"vcmi.settingsMainWindow.generalTab.help"     : "Switches to System Options tab, which contains settings related to general game client behavior",
+	"vcmi.settingsMainWindow.generalTab.help"     : "Switches to General Options tab, which contains settings related to general game client behavior",
 	"vcmi.settingsMainWindow.battleTab.hover" : "Battle",
 	"vcmi.settingsMainWindow.battleTab.help"     : "Switches to Battle Options tab, which allows configuring game behavior during battles",
 	"vcmi.settingsMainWindow.adventureTab.hover" : "Adventure Map",
@@ -44,10 +44,10 @@
 	"vcmi.systemOptions.resolutionMenu.help"    : "Change in-game screen resolution.",
 	"vcmi.systemOptions.fullscreenFailed"       : "{Fullscreen}\n\n Failed to switch to fullscreen mode! Current resolution is not supported by display!",
 	"vcmi.systemOptions.framerateButton.hover"  : "Show FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\n Toggle on/off showing Frames Per Second counter in corner of game window.",
+	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\n Toggles visibility of Frames Per Second counter in corner of game window.",
 
 	"vcmi.adventureOptions.numericQuantities.hover" : "Numeric Creature Quantities",
-	"vcmi.adventureOptions.numericQuantities.help" : "{Numeric Creature Quantities}\n\n Shows inaccurate enemy creatures quantities in numeric A-B format.",
+	"vcmi.adventureOptions.numericQuantities.help" : "{Numeric Creature Quantities}\n\n Shows approximate enemy creatures quantities in numeric A-B format.",
 	"vcmi.adventureOptions.forceMovementInfo.hover" : "Always Show Move Info",
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Always Show Move Info}\n\n Replaces default status bar info with movement points data without need to hold ALT button.",
 	"vcmi.adventureOptions.showGrid.hover" : "Show Grid",
