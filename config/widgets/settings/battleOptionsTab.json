@@ -227,7 +227,7 @@
 					"index": 1,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
-					"help": "core.help.422",
+					"help": "vcmi.battleOptions.animationsSpeed1",
 					"position": {"x": 0, "y": 0},
 					"items":
 					[
@@ -243,7 +243,7 @@
 					"index": 2,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
-					"help": "core.help.423",
+					"help": "core.help.422",
 					"position": {"x": 48, "y": 0},
 					"items":
 					[
@@ -259,7 +259,7 @@
 					"index": 3,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
-					"help": "core.help.424",
+					"help": "core.help.423",
 					"position": {"x":96, "y": 0},
 					"items":
 					[
@@ -275,7 +275,7 @@
 					"index": 6,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
-					"help": "vcmi.battleOptions.animationsSpeed4",
+					"help": "core.help.424",
 					"position": {"x": 144, "y": 0},
 					"items":
 					[
