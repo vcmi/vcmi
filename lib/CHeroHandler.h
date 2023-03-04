@@ -44,18 +44,6 @@ struct SSpecialtyInfo
 	}
 };
 
-struct SSpecialtyBonus
-/// temporary hold
-{
-	ui8 growsWithLevel;
-	BonusList bonuses;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & growsWithLevel;
-		h & bonuses;
-	}
-};
-
 class DLL_LINKAGE CHero : public HeroType
 {
 	friend class CHeroHandler;
@@ -85,7 +73,6 @@ public:
 	CHeroClass * heroClass;
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> specDeprecated;
-	std::vector<SSpecialtyBonus> specialtyDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
 	bool haveSpellBook;
@@ -147,7 +134,6 @@ public:
 
 // convert deprecated format
 std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid = 0);
-std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec, int sid = 0);
 
 class DLL_LINKAGE CHeroClass : public HeroClass
 {

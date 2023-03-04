@@ -677,58 +677,6 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 	return result;
 }
 
-// convert deprecated format
-std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec, int sid)
-{
-	std::vector<std::shared_ptr<Bonus>> result;
-	for(std::shared_ptr<Bonus> oldBonus : spec.bonuses)
-	{
-		oldBonus->sid = sid;
-		if(oldBonus->type == Bonus::SPECIAL_SPELL_LEV || oldBonus->type == Bonus::SPECIAL_BLESS_DAMAGE)
-		{
-			// these bonuses used to auto-scale with hero level
-			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
-			newBonus->updater = std::make_shared<TimesHeroLevelUpdater>();
-			result.push_back(newBonus);
-		}
-		else if(spec.growsWithLevel)
-		{
-			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
-			switch(newBonus->type)
-			{
-			case Bonus::SECONDARY_SKILL_PREMY:
-				break; // ignore - used to be overwritten based on SPECIAL_SECONDARY_SKILL
-			case Bonus::SPECIAL_SECONDARY_SKILL:
-				newBonus->type = Bonus::SECONDARY_SKILL_PREMY;
-				newBonus->updater = std::make_shared<TimesHeroLevelUpdater>();
-				result.push_back(newBonus);
-				break;
-			case Bonus::PRIMARY_SKILL:
-				if((newBonus->subtype == PrimarySkill::ATTACK || newBonus->subtype == PrimarySkill::DEFENSE) && newBonus->limiter)
-				{
-					std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(newBonus->limiter);
-					if(creatureLimiter)
-					{
-						const CCreature * cre = creatureLimiter->creature;
-						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->getAttack(false) : cre->getDefense(false);
-						int creLevel = cre->level ? cre->level : 5;
-						newBonus->updater = std::make_shared<GrowsWithLevelUpdater>(creStat, creLevel);
-					}
-					result.push_back(newBonus);
-				}
-				break;
-			default:
-				result.push_back(newBonus);
-			}
-		}
-		else
-		{
-			result.push_back(oldBonus);
-		}
-	}
-	return result;
-}
-
 void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
@@ -781,19 +729,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	}
 	//new(er) format, using bonus system
 	const JsonNode & specialtyNode = node["specialty"];
-	if(specialtyNode.getType() == JsonNode::JsonType::DATA_VECTOR)
-	{
-		//deprecated middle-aged format
-		for(const JsonNode & specialty : node["specialty"].Vector())
-		{
-			SSpecialtyBonus hs;
-			hs.growsWithLevel = specialty["growsWithLevel"].Bool();
-			for (const JsonNode & bonus : specialty["bonuses"].Vector())
-				hs.bonuses.push_back(prepSpec(JsonUtils::parseBonus(bonus)));
-			hero->specialtyDeprecated.push_back(hs);
-		}
-	}
-	else if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
+	if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		//creature specialty - alias for simplicity
 		if(!specialtyNode["creature"].isNull())
@@ -813,6 +749,8 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 				hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second)));
 		}
 	}
+	else
+		logMod->error("Unsupported speciality format for hero %s!", hero->getNameTranslated());
 }
 
 void CHeroHandler::loadExperience()
@@ -954,7 +892,7 @@ void CHeroHandler::afterLoadFinalization()
 			bonus->sid = hero->getIndex();
 		}
 
-		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
+		if(hero->specDeprecated.size() > 0)
 		{
 			logMod->debug("Converting specialty format for hero %s(%s)", hero->getNameTranslated(), FactionID::encode(hero->heroClass->faction));
 			std::vector<std::shared_ptr<Bonus>> convertedBonuses;
@@ -963,13 +901,7 @@ void CHeroHandler::afterLoadFinalization()
 				for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, hero->ID.getNum()))
 					convertedBonuses.push_back(b);
 			}
-			for(const SSpecialtyBonus & spec : hero->specialtyDeprecated)
-			{
-				for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(spec, hero->ID.getNum()))
-					convertedBonuses.push_back(b);
-			}
 			hero->specDeprecated.clear();
-			hero->specialtyDeprecated.clear();
 			// store and create json for logging
 			std::vector<JsonNode> specVec;
 			std::vector<std::string> specNames;

@@ -509,10 +509,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 	//copy active (probably growing) bonuses from hero prototype to hero object
 	for(const std::shared_ptr<Bonus> & b : type->specialty)
 		addNewBonus(b);
-	//dito for old-style bonuses -> compatibility for old savegames
-	for(SSpecialtyBonus & sb : type->specialtyDeprecated)
-		for(const std::shared_ptr<Bonus> & b : sb.bonuses)
-			addNewBonus(b);
 	for(SSpecialtyInfo & spec : type->specDeprecated)
 		for(const std::shared_ptr<Bonus> & b : SpecialtyInfoToBonuses(spec, type->getIndex()))
 			addNewBonus(b);

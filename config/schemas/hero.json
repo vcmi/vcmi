@@ -120,48 +120,24 @@
 			"additionalItems" : true
 		},
 		"specialty": {
-			"anyOf" : [
-				{
-					"type":"array",
-					"description": "Description of hero specialty using bonus system (deprecated)",
-					"items": {
-						"type" : "object",
-						"additionalProperties" : false,
-						"required" : [ "bonuses" ],
-						"properties" : {
-							"growsWithLevel" : {
-								"type" : "boolean",
-								"description" : "Specialty growth with level. Deprecated, use bonuses with updaters instead."
-							},
-							"bonuses" : {
-								"type" : "array",
-								"description" : "List of bonuses",
-								"items" : { "$ref" : "bonus.json" }
-							}
-						}
-					}
-				},
-				{
+			"type" : "object",
+			"description": "Description of hero specialty using bonus system",
+			"additionalProperties" : false,
+			"properties" : { 
+				"base" : {
 					"type" : "object",
-					"description": "Description of hero specialty using bonus system",
-					"additionalProperties" : false,
-					"properties" : { 
-						"base" : {
-							"type" : "object",
-							"description" : "Will be merged with all bonuses."
-						},
-						"bonuses" : {
-							"type" : "object",
-							"description" : "Set of bonuses",
-							"additionalProperties" : { "$ref" : "bonus.json" }
-						},
-						"creature" : {
-							"type" : "string",
-							"description" : "Name of base creature to grant standard specialty to."
-						}
-					}
+					"description" : "Will be merged with all bonuses."
+				},
+				"bonuses" : {
+					"type" : "object",
+					"description" : "Set of bonuses",
+					"additionalProperties" : { "$ref" : "bonus.json" }
+				},
+				"creature" : {
+					"type" : "string",
+					"description" : "Name of base creature to grant standard specialty to."
 				}
-			]
+			}
 		},
 		"spellbook": {
 			"type":"array",
