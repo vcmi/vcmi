@@ -1177,7 +1177,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, builds->pos.h + 182);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, panelShift + 9, builds->pos.h + 182);
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", panelShift + 3, builds->pos.h + 201, 32, 2, 85, 85);
 
@@ -1258,7 +1258,6 @@ void CCastleInterface::recreateIcons()
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
 	income->setText(boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
-	builds = std::make_shared<CCastleBuildings>(town);
 	int panelShift = builds->pos.w <= 800 ? 0 : (int)((builds->pos.w - 800)/2.);
 	
 	hall = std::make_shared<CTownInfo>(panelShift + 80, builds->pos.h + 39, town, true);
