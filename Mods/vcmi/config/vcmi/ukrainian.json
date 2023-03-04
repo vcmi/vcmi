@@ -201,7 +201,7 @@
 	"core.bonus.HP_REGENERATION.name" : "Регенерація",
 	"core.bonus.HP_REGENERATION.description" : "Відновлює ${val} очок здоров'я кожного раунду",
 	"core.bonus.JOUSTING.name" : "Турнірна перевага",
-	"core.bonus.JOUSTING.description" : "+5% шкоди за кожен пройдений гекс",
+	"core.bonus.JOUSTING.description" : "+${val}% шкоди за кожен пройдений гекс",
 	"core.bonus.KING1.name" : "Король 1",
 	"core.bonus.KING1.description" : "Вразливий до 1-го рівня закляття Вбивця",
 	"core.bonus.KING2.name" : "Король 2",

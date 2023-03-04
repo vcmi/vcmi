@@ -469,10 +469,11 @@ void CCreatureHandler::loadCommanders()
 
 void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 {
-	auto makeBonusNode = [&](std::string type) -> JsonNode
+	auto makeBonusNode = [&](std::string type, double val = 0) -> JsonNode
 	{
 		JsonNode ret;
 		ret["type"].String() = type;
+		ret["val"].Float() = val;
 		return ret;
 	};
 
@@ -484,7 +485,7 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		{"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
 		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
 		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
-		{"const_jousting",         makeBonusNode("JOUSTING")},
+		{"const_jousting",         makeBonusNode("JOUSTING", 5)},
 		{"KING_1",                 makeBonusNode("KING1")},
 		{"KING_2",                 makeBonusNode("KING2")},
 		{"KING_3",                 makeBonusNode("KING3")},
@@ -1070,7 +1071,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B':
 				b.type = Bonus::TWO_HEX_ATTACK_BREATH; break;
 			case 'c':
-				b.type = Bonus::JOUSTING; break;
+				b.type = Bonus::JOUSTING; 
+				b.val = 5;
+				break;
 			case 'D':
 				b.type = Bonus::ADDITIONAL_ATTACK; break;
 			case 'f':

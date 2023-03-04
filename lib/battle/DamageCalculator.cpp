@@ -258,7 +258,7 @@ double DamageCalculator::getAttackJoustingFactor() const
 
 	//applying jousting bonus
 	if(info.chargeDistance > 0 && info.attacker->hasBonus(selectorJousting, cachingStrJousting) && !info.defender->hasBonus(selectorChargeImmunity, cachingStrChargeImmunity))
-		return info.chargeDistance * 0.05;
+		return info.chargeDistance * (info.attacker->valOfBonuses(selectorJousting))/100.0;
 	return 0.0;
 }
 

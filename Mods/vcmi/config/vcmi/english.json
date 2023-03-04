@@ -213,7 +213,7 @@
 	"core.bonus.HP_REGENERATION.name": "Regeneration",
 	"core.bonus.HP_REGENERATION.description": "Heals ${val} hit points every round",
 	"core.bonus.JOUSTING.name": "Champion Charge",
-	"core.bonus.JOUSTING.description": "+5% damage per hex travelled",
+	"core.bonus.JOUSTING.description": "+${val}% damage per hex travelled",
 	"core.bonus.KING1.name": "King 1",
 	"core.bonus.KING1.description": "Vulnerable to basic SLAYER",
 	"core.bonus.KING2.name": "King 2",

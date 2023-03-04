@@ -141,7 +141,7 @@
 	"core.bonus.HP_REGENERATION.name": "Regeneracja",
 	"core.bonus.HP_REGENERATION.description": "Leczy ${val} punktów zdrowia każdej rundy",
 	"core.bonus.JOUSTING.name": "Szarża Czempiona",
-	"core.bonus.JOUSTING.description": "+5% obrażeń na przebytego heksa",
+	"core.bonus.JOUSTING.description": "+${val}% obrażeń na przebytego heksa",
 	"core.bonus.KING1.name": "Król 1",
 	"core.bonus.KING1.description": "Wrażliwy na podstawowy czar POGROMCA",
 	"core.bonus.KING2.name": "Król 2",

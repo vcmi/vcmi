@@ -211,7 +211,7 @@
 	"core.bonus.HP_REGENERATION.name": "Regeneration",
 	"core.bonus.HP_REGENERATION.description": "Heilt ${val} Trefferpunkte jede Runde",
 	"core.bonus.JOUSTING.name": "Champion Charge",
-	"core.bonus.JOUSTING.description": "+5% Schaden pro zurückgelegtem Feld",
+	"core.bonus.JOUSTING.description": "+${val}% Schaden pro zurückgelegtem Feld",
 	"core.bonus.KING1.name": "König 1",
 	"core.bonus.KING1.description": "Anfällig für grundlegende SLAYER",
 	"core.bonus.KING2.name": "König 2",
