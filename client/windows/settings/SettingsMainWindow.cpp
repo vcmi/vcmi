@@ -56,7 +56,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
 	assert(restartButton);
 
-	if(CSH->isGuest())
+	if(CSH->isGuest() || parentBattleUi)
 	{
 		loadButton->block(true);
 		saveButton->block(true);
@@ -71,6 +71,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 
 	parentBattleInterface = parentBattleUi;
 	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainWindow::createTab, this, _1), Point(0, 0), defaultTabIndex);
+	tabContentArea->type |= REDRAW_PARENT;
 
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);

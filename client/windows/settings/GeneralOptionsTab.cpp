@@ -52,6 +52,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	type |= REDRAW_PARENT;
 
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
@@ -62,11 +63,19 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setIntSetting("general", "music", value);
 		widget<CSlider>("musicSlider")->redraw();
+
+		auto targetLabel = widget<CLabel>("musicValueLabel");
+		if (targetLabel)
+			targetLabel->setText(std::to_string(value) + "%");
 	});
 	addCallback("setVolume", [this](int value)
 	{
 		setIntSetting("general", "sound", value);
 		widget<CSlider>("soundVolumeSlider")->redraw();
+
+		auto targetLabel = widget<CLabel>("soundValueLabel");
+		if (targetLabel)
+			targetLabel->setText(std::to_string(value) + "%");
 	});
 	//settings that do not belong to base game:
 	addCallback("fullscreenChanged", [this](bool value)

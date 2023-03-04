@@ -210,6 +210,14 @@
 			"position": {"x": 150, "y": 362}
 		},
 		{
+			"name": "animationSpeedValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 390}
+		},
+		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
 			"position": {"x": 10, "y": 373},

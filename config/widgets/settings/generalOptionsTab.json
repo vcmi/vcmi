@@ -134,7 +134,6 @@
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
-			"text" : "10%",
 			"position": {"x": 565, "y": 98}
 		},
 		
@@ -162,7 +161,6 @@
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
-			"text" : "10%",
 			"position": {"x": 565, "y": 158}
 		},
 

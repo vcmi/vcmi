@@ -22,6 +22,7 @@
 BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	type |= REDRAW_PARENT;
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)
@@ -139,6 +140,11 @@ void BattleOptionsTab::animationSpeedChangedCallback(int value)
 {
 	Settings speed = settings.write["battle"]["speedFactor"];
 	speed->Float() = static_cast<float>(value);
+
+	auto targetLabel = widget<CLabel>("animationSpeedValueLabel");
+	int valuePercentage = value * 100 / 3; // H3 max value is "3", displaying it to be 100%
+	if (targetLabel)
+		targetLabel->setText(std::to_string(valuePercentage) + "%");
 }
 
 void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface)

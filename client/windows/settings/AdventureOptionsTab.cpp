@@ -34,17 +34,34 @@ AdventureOptionsTab::AdventureOptionsTab()
 		: InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	type |= REDRAW_PARENT;
+
 	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
-	addCallback("playerHeroSpeedChanged", [](int value)
+	addCallback("playerHeroSpeedChanged", [this](int value)
 	{
+		auto targetLabel = widget<CLabel>("heroSpeedValueLabel");
+		int valuePercentage = value / 50; // H3 max value is "50", displaying it to be 100%
+		if (targetLabel)
+			targetLabel->setText(std::to_string(valuePercentage) + "%");
+
 		return setIntSetting("adventure", "heroMoveTime", value);
 	});
-	addCallback("enemyHeroSpeedChanged", [](int value)
+	addCallback("enemyHeroSpeedChanged", [this](int value)
 	{
+		auto targetLabel = widget<CLabel>("enemySpeedValueLabel");
+		int valuePercentage = value / 50; // H3 max value is "50", displaying it to be 100%
+		if (targetLabel)
+			targetLabel->setText(std::to_string(valuePercentage) + "%");
+
 		return setIntSetting("adventure", "enemyMoveTime", value);
 	});
-	addCallback("mapScrollSpeedChanged", [](int value)
+	addCallback("mapScrollSpeedChanged", [this](int value)
 	{
+		auto targetLabel = widget<CLabel>("mapScrollingValueLabel");
+		int valuePercentage = value / 1200; // H3 max value is "1200", displaying it to be 100%
+		if (targetLabel)
+			targetLabel->setText(std::to_string(valuePercentage) + "%");
+
 		return setIntSetting("adventure", "scrollSpeedPixels", value);
 	});
 	addCallback("heroReminderChanged", [](bool value)

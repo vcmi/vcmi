@@ -50,12 +50,11 @@
 		},
 		
 		{
-			"name": "heroSpeedLabel",
+			"name": "heroSpeedValueLabel",
 			"type": "label",
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
-			"text" : "800%",
 			"position": {"x": 324, "y": 90}
 		},
 
@@ -109,6 +108,15 @@
 				}
 			],
 			"callback": "playerHeroSpeedChanged"
+		},
+
+		{
+			"name": "enemySpeedValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 150}
 		},
 
 		{
@@ -168,6 +176,14 @@
 			"callback": "enemyHeroSpeedChanged"
 		},
 
+		{
+			"name": "mapScrollingValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 210}
+		},
 		{
 			"name": "mapScrollSpeedPicker",
 			"type": "toggleGroup",
