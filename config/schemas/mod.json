@@ -141,6 +141,12 @@
 			"description": "List of configuration files for artifacts",
 			"items": { "type":"string", "format" : "textFile" }
 		},
+		"bonuses":{
+			"type":"array",
+			"description": "List of configuration files for bonuses",
+			"items": { "type":"string", "format" : "textFile" }
+
+		},
 		"creatures": {
 			"type":"array",
 			"description": "List of configuration files for creatures",
