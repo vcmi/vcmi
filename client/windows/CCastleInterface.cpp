@@ -1151,7 +1151,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	builds = std::make_shared<CCastleBuildings>(town);
 	panel = std::make_shared<CPicture>("TOWNSCRN", 0, builds->pos.h);
 	panel->colorize(LOCPLINT->playerID);
-	pos.w = panel->pos.w;
+	pos.w = panel->pos.w >= builds->pos.w ? panel->pos.w : builds->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
 	updateShadow();
