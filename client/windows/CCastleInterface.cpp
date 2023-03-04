@@ -1159,7 +1159,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr = std::make_shared<CGarrisonInt>(305, builds->pos.h + 13, 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
 	garr->type |= REDRAW_PARENT;
 
-	heroes = std::make_shared<HeroSlots>(town, Point(241, builds->pos.h + 13), Point(241, builds->pos.h + 9), garr, true);
+	heroes = std::make_shared<HeroSlots>(town, Point(241, builds->pos.h + 13), Point(241, builds->pos.h + 109), garr, true);
 	title = std::make_shared<CLabel>(85, builds->pos.h + 13, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 	income = std::make_shared<CLabel>(195, builds->pos.h + 69, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, builds->pos.h + 13);
@@ -1176,7 +1176,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, builds->pos.h + 182);
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, builds->pos.h + 201, 32, 2, 85, 85);
 
