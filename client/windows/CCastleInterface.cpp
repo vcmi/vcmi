@@ -1152,12 +1152,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	int panelShift = builds->pos.w <= 800 ? 0 : (int)((builds->pos.w - 800)/2.);
 	panel = std::make_shared<CPicture>("TOWNSCRN", panelShift , builds->pos.h);
 	panel->colorize(LOCPLINT->playerID);
-	if (panelShift > 0)
-	{
-			Rect barRect(0, 0, panelShift - 1, panel->pos.h);
-			auto leftBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 0, builds->pos.h);
-			auto rightBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, panelShift + panel->pos.w + 1, builds->pos.h);
-	}
 	pos.w = panel->pos.w >= builds->pos.w ? panel->pos.w : builds->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
@@ -1175,15 +1169,15 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	exit->setImageOrder(4, 5, 6, 7);
 
-	auto split = std::make_shared<CButton>(Point(panelShift + 744, builds->pos.h + 170), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
+	auto split = std::make_shared<CButton>(Point(panelShift + 744, builds->pos.h + 8), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
 	{
 		garr->splitClick();
 		heroes->splitClicked();
 	});
 	garr->addSplitBtn(split);
 
-	Rect barRect(panelShift + 9, 182, 732, 18);
-	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, panelShift + 9, builds->pos.h + 182);
+	Rect barRect(9, 182, 732, 18);
+	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, builds->pos.h + 182);
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", panelShift + 3, builds->pos.h + 201, 32, 2, 85, 85);
 
