@@ -56,12 +56,9 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
 	assert(restartButton);
 
-	if(CSH->isGuest() || parentBattleUi)
-	{
-		loadButton->block(true);
-		saveButton->block(true);
-		restartButton->block(true);
-	}
+	loadButton->block(CSH->isGuest());
+	saveButton->block(CSH->isGuest() || parentBattleUi);
+	restartButton->block(CSH->isGuest() || parentBattleUi);
 
 	int defaultTabIndex = 0;
 	if(parentBattleUi != nullptr)
