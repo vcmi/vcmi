@@ -592,7 +592,7 @@ void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 	std::string str;
 	pack.text.toString(str);
 
-	if(!callInterfaceIfPresent(cl, pack.player, &CGameInterface::showInfoDialog, str, pack.components,(soundBase::soundID)pack.soundID))
+	if(!callInterfaceIfPresent(cl, pack.player, &CGameInterface::showInfoDialog, pack.type, str, pack.components,(soundBase::soundID)pack.soundID))
 		logNetwork->warn("We received InfoWindow for not our player...");
 }
 
@@ -853,11 +853,6 @@ void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & p
 		str << cl.getPlayerState(pack.player)->nodeName() <<": " << pack.text;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
-}
-
-void ApplyClientNetPackVisitor::visitShowInInfobox(ShowInInfobox & pack)
-{
-	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::showComp, pack.c, pack.text.toString());
 }
 
 void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)

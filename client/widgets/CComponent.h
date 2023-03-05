@@ -94,6 +94,14 @@ class CComponentBox : public CIntObject
 	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
 
+	static constexpr int defaultBetweenImagesMin = 20;
+	static constexpr int defaultBetweenSubtitlesMin = 10;
+	static constexpr int defaultBetweenRows = 22;
+
+	int betweenImagesMin;
+	int betweenSubtitlesMin;
+	int betweenRows;
+
 	void selectionChanged(std::shared_ptr<CSelectableComponent> newSelection);
 
 	//get position of "or" text between these comps
@@ -108,11 +116,13 @@ public:
 	/// return index of selected item
 	int selectedIndex();
 
-	/// constructor for non-selectable components
+	/// constructors for non-selectable components
 	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position);
+	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows);
 
 	/// constructor for selectable components
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
 	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
+	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows);
 };

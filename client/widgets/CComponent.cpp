@@ -336,9 +336,6 @@ Point CComponentBox::getOrTextPos(CComponent *left, CComponent *right)
 
 int CComponentBox::getDistance(CComponent *left, CComponent *right)
 {
-	static const int betweenImagesMin = 20;
-	static const int betweenSubtitlesMin = 10;
-
 	int leftSubtitle  = ( left->pos.w -  left->image->pos.w) / 2;
 	int rightSubtitle = (right->pos.w - right->image->pos.w) / 2;
 	int subtitlesOffset = leftSubtitle + rightSubtitle;
@@ -348,8 +345,6 @@ int CComponentBox::getDistance(CComponent *left, CComponent *right)
 
 void CComponentBox::placeComponents(bool selectable)
 {
-	static const int betweenRows = 22;
-
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if (components.empty())
 		return;
@@ -450,7 +445,15 @@ void CComponentBox::placeComponents(bool selectable)
 }
 
 CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _components, Rect position):
-	components(_components)
+	CComponentBox(_components, position, defaultBetweenImagesMin, defaultBetweenSubtitlesMin, defaultBetweenRows)
+{
+}
+
+CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _components, Rect position, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows):
+	components(_components),
+	betweenImagesMin(betweenImagesMin),
+	betweenSubtitlesMin(betweenSubtitlesMin),
+	betweenRows(betweenRows)
 {
 	type |= REDRAW_PARENT;
 	pos = position + pos.topLeft();
@@ -458,8 +461,16 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _component
 }
 
 CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> _components, Rect position, std::function<void(int newID)> _onSelect):
+	CComponentBox(_components, position, _onSelect, defaultBetweenImagesMin, defaultBetweenSubtitlesMin, defaultBetweenRows)
+{
+}
+
+CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> _components, Rect position, std::function<void(int newID)> _onSelect, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows):
 	components(_components.begin(), _components.end()),
-	onSelect(_onSelect)
+	onSelect(_onSelect),
+	betweenImagesMin(betweenImagesMin),
+	betweenSubtitlesMin(betweenSubtitlesMin),
+	betweenRows(betweenRows)
 {
 	type |= REDRAW_PARENT;
 	pos = position + pos.topLeft();

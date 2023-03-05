@@ -21,7 +21,6 @@ struct GiveBonus;
 struct BlockingDialog;
 struct TeleportDialog;
 struct MetaString;
-struct ShowInInfobox;
 struct StackLocation;
 struct ArtifactLocation;
 class CCreatureSet;
@@ -113,7 +112,6 @@ public:
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
 
-	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;

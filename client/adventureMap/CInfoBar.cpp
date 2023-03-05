@@ -163,16 +163,39 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	}
 }
 
-CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDisplay, std::string message)
+CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
+	auto fullRect = Rect(4, 4, 171, 171);
+	auto textRect = fullRect;
+	auto imageRect = fullRect;
 
-	comp = std::make_shared<CComponent>(compToDisplay);
-	comp->moveTo(Point(pos.x+47, pos.y+50));
+	if(!compsToDisplay.empty())
+	{
+		auto size = CComponent::large;
+		if(compsToDisplay.size() > 2)
+			size = CComponent::small;
+		if(message != "")
+		{
+			textRect = Rect(4, 4, 171, 42);
+			imageRect = Rect(4, 42, 171, 121);
+			if(compsToDisplay.size() > 4)
+				size = CComponent::tiny;
+		}
+		else if(compsToDisplay.size() > 4)
+			size = CComponent::small;
 
-	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+		std::vector<std::shared_ptr<CComponent>> vect;
+
+		for(const auto & c : compsToDisplay)
+			vect.emplace_back(std::make_shared<CComponent>(c, size));
+
+		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1);
+	}
+
+	text = std::make_shared<CTextBox>(message, textRect, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 void CInfoBar::playNewDaySound()
@@ -266,11 +289,12 @@ void CInfoBar::showDate()
 	redraw();
 }
 
-void CInfoBar::showComponent(const Component & comp, std::string message)
+void CInfoBar::showComponents(const std::vector<Component> & comps, std::string message)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	state = COMPONENT;
-	visibleInfo = std::make_shared<VisibleComponentInfo>(comp, message);
+	visibleInfo = std::make_shared<VisibleComponentInfo>(comps, message);
+
 	setTimer(3000);
 	redraw();
 }

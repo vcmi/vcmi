@@ -1031,18 +1031,16 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(const Component &comp, std::string message)
+void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog(); //Fix for mantis #98
+	if(type == InfoWindow::INFO) {
+		adventureInt->infoBar->showComponents(components, text);
+		if (makingTurn && GH.listInt.size() && LOCPLINT == this)
+			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		return;
+	}
 
-	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
-	adventureInt->infoBar->showComponent(comp, message);
-}
-
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component> & components, int soundID)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
@@ -1093,7 +1091,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 	std::string str;
 	text.toString(str);
 
-	showInfoDialog(str, components, 0);
+	showInfoDialog(EInfoWindowMode::MODAL, str, components, 0);
 	waitWhileDialog();
 }
 

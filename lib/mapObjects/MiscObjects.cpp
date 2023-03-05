@@ -881,27 +881,30 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 	else
-	{
-		if(message.length())
-		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.text << message;
-			cb->showInfoDialog(&iw);
-		}
 		collectRes(h->getOwner());
-	}
 }
 
 void CGResource::collectRes(const PlayerColor & player) const
 {
 	cb->giveResource(player, static_cast<Res::ERes>(subID), amount);
-	ShowInInfobox sii;
+	InfoWindow sii;
 	sii.player = player;
-	sii.c = Component(Component::RESOURCE,subID,amount,0);
+	if(!message.empty())
+	{
+		sii.type = EInfoWindowMode::AUTO;
+		sii.text << message;
+	}
+	else
+	{
+		sii.type = EInfoWindowMode::INFO;
+		sii.text.addTxt(MetaString::ADVOB_TXT,113);
+		sii.text.addReplacement(MetaString::RES_NAMES, subID);
+	}
+	sii.components.emplace_back(Component::RESOURCE,subID,amount,0);
 	sii.text.addTxt(MetaString::ADVOB_TXT,113);
 	sii.text.addReplacement(MetaString::RES_NAMES, subID);
-	cb->showCompInfo(&sii);
+	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
+	cb->showInfoDialog(&sii);
 	cb->removeObject(this);
 }
 

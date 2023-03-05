@@ -70,7 +70,6 @@ public:
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;}
 
-	void showCompInfo(ShowInInfobox * comp) override {}
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override {}

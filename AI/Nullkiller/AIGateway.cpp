@@ -390,7 +390,7 @@ void AIGateway::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID)
+void AIGateway::showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;

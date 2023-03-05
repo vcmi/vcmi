@@ -23,6 +23,7 @@ VCMI_LIB_NAMESPACE_END
 class CAnimImage;
 class CShowableAnim;
 class CComponent;
+class CComponentBox;
 class CHeroTooltip;
 class CTownTooltip;
 class CLabel;
@@ -97,10 +98,10 @@ class CInfoBar : public CIntObject
 
 	class VisibleComponentInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CComponent> comp;
+		std::shared_ptr<CComponentBox> comps;
 		std::shared_ptr<CTextBox> text;
 	public:
-		VisibleComponentInfo(const Component & compToDisplay, std::string message);
+		VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message);
 	};
 
 	enum EState
@@ -127,8 +128,8 @@ public:
 	/// show new day/week animation
 	void showDate();
 
-	/// show component for 3 seconds. Used to display picked up resources
-	void showComponent(const Component & comp, std::string message);
+	/// show components for 3 seconds. Used to display picked up resources. Can display up to 8 components
+	void showComponents(const std::vector<Component> & comps, std::string message);
 
 	/// print enemy turn progress
 	void startEnemyTurn(PlayerColor color);

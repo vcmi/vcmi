@@ -2657,10 +2657,6 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 	}
 }
 
-void CGameHandler::showCompInfo(ShowInInfobox * comp)
-{
-	sendToAllClients(comp);
-}
 void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
 	HeroVisitCastle vc;

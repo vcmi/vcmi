@@ -35,6 +35,13 @@ struct ArtSlotInfo;
 
 class ICPackVisitor;
 
+enum class EInfoWindowMode : uint8_t
+{
+	AUTO,
+	MODAL,
+	INFO
+};
+
 struct DLL_LINKAGE CPack
 {
 	std::shared_ptr<CConnection> c; // Pointer to connection that pack received from
