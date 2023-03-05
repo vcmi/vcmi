@@ -1149,9 +1149,10 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	addUsedEvents(KEYBOARD);
 
 	builds = std::make_shared<CCastleBuildings>(town);
-	int panelShift = builds->pos.w <= 800 ? 0 : (int)((builds->pos.w - 800)/2.);
-	panel = std::make_shared<CPicture>("TOWNSCRN", panelShift , builds->pos.h);
+	panel = std::make_shared<CPicture>("TOWNSCRN", 0 , builds->pos.h);
 	panel->colorize(LOCPLINT->playerID);
+	int panelShift = builds->pos.w <= panel->pos.w ? 0 : (int)((builds->pos.w - panel->pos.w)/2.);
+	panel->moveBy(Point(panelShift, builds->pos.h), true);
 	pos.w = panel->pos.w >= builds->pos.w ? panel->pos.w : builds->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
@@ -1258,7 +1259,7 @@ void CCastleInterface::recreateIcons()
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
 	income->setText(boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
-	int panelShift = builds->pos.w <= 800 ? 0 : (int)((builds->pos.w - 800)/2.);
+	int panelShift = builds->pos.w <= panel->pos.w ? 0 : (int)((builds->pos.w - panel->pos.w)/2.);
 	
 	hall = std::make_shared<CTownInfo>(panelShift + 80, builds->pos.h + 39, town, true);
 	fort = std::make_shared<CTownInfo>(panelShift + 122, builds->pos.h + 39, town, false);
