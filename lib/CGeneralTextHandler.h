@@ -34,6 +34,7 @@ class DLL_LINKAGE CLegacyConfigParser
 
 	/// reads "raw" string without encoding conversion
 	std::string readRawString();
+
 public:
 	/// read one entry from current line. Return ""/0 if end of line reached
 	std::string readString();
@@ -56,8 +57,6 @@ public:
 	bool endLine();
 
 	explicit CLegacyConfigParser(std::string URI);
-private:
-	explicit CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
 };
 
 class CGeneralTextHandler;
