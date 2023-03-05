@@ -609,22 +609,22 @@ bool CUnitState::waited(int turn) const
 		return false;
 }
 
-int CUnitState::battleQueuePhase(int turn) const
+BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 {
 	if(turn <= 0 && waited()) //consider waiting state only for ongoing round
 	{
 		if(hadMorale)
-			return 2;
+			return BattlePhases::WAIT_MORALE;
 		else
-			return 3;
+			return BattlePhases::WAIT;
 	}
 	else if(creatureIndex() == CreatureID::CATAPULT || isTurret()) //catapult and turrets are first
 	{
-		return 0;
+		return BattlePhases::SIEGE;
 	}
 	else
 	{
-		return 1;
+		return BattlePhases::NORMAL;
 	}
 }
 

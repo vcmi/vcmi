@@ -355,73 +355,81 @@ battle::Units CBattleInfoCallback::battleAliveUnits(ui8 side) const
 	});
 }
 
+using namespace battle;
+
 //T is battle::Unit descendant
 template <typename T>
-const T * takeOneUnit(std::vector<const T*> & all, const int turn, int8_t & lastMoved, int phase)
+const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t & sideThatLastMoved, int phase)
 {
 	const T * returnedUnit = nullptr;
 	size_t currentUnitIndex = 0;
 
-	for(size_t i = 0; i < all.size(); i++)
+	for(size_t i = 0; i < allUnits.size(); i++)
 	{
-		int32_t currentUnitSpeed = -1;
-		int32_t returnedUnitSpeed = -1;
+		int32_t currentUnitInitiative = -1;
+		int32_t returnedUnitInitiative = -1;
+
 		if(returnedUnit)
-			returnedUnitSpeed = returnedUnit->getInitiative(turn);
-		if(all[i])
+			returnedUnitInitiative = returnedUnit->getInitiative(turn);
+
+		if(!allUnits[i])
+			continue;
+
+		auto currentUnit = allUnits[i];
+		currentUnitInitiative = currentUnit->getInitiative(turn);
+
+		switch(phase)
 		{
-			currentUnitSpeed = all[i]->getInitiative(turn);
-			switch(phase)
+		case BattlePhases::NORMAL: // Faster first, attacker priority, higher slot first
+			if(returnedUnit == nullptr || currentUnitInitiative > returnedUnitInitiative)
 			{
-			case 1: // Faster first, attacker priority, higher slot first
-				if(returnedUnit == nullptr || currentUnitSpeed > returnedUnitSpeed)
-				{
-					returnedUnit = all[i];
-					currentUnitIndex = i;
-				}
-				else if(currentUnitSpeed == returnedUnitSpeed)
-				{
-					if(lastMoved == -1 && turn <= 0 && all[i]->unitSide() == BattleSide::ATTACKER
-						&& !(returnedUnit->unitSide() == all[i]->unitSide() && returnedUnit->unitSlot() < all[i]->unitSlot())) // Turn 0 attacker priority
-					{
-						returnedUnit = all[i];
-						currentUnitIndex = i;
-					}
-					else if(lastMoved != -1 && all[i]->unitSide() != lastMoved
-						&& !(returnedUnit->unitSide() == all[i]->unitSide() && returnedUnit->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
-					{
-						returnedUnit = all[i];
-						currentUnitIndex = i;
-					}
-				}
-				break;
-			case 2: // Slower first, higher slot first
-			case 3:
-				if(returnedUnit == nullptr || currentUnitSpeed < returnedUnitSpeed)
-				{
-					returnedUnit = all[i];
-					currentUnitIndex = i;
-				}
-				else if(currentUnitSpeed == returnedUnitSpeed && lastMoved != -1 && all[i]->unitSide() != lastMoved
-					&& !(returnedUnit->unitSide() == all[i]->unitSide() && returnedUnit->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
-				{
-					returnedUnit = all[i];
-					currentUnitIndex = i;
-				}
-				break;
-			default:
-				break;
+				returnedUnit = currentUnit;
+				currentUnitIndex = i;
 			}
+			else if(currentUnitInitiative == returnedUnitInitiative)
+			{
+				if(sideThatLastMoved == -1 && turn <= 0 && currentUnit->unitSide() == BattleSide::ATTACKER
+					&& !(returnedUnit->unitSide() == currentUnit->unitSide() && returnedUnit->unitSlot() < currentUnit->unitSlot())) // Turn 0 attacker priority
+				{
+					returnedUnit = currentUnit;
+					currentUnitIndex = i;
+				}
+				else if(sideThatLastMoved != -1 && currentUnit->unitSide() != sideThatLastMoved
+					&& !(returnedUnit->unitSide() == currentUnit->unitSide() && returnedUnit->unitSlot() < currentUnit->unitSlot())) // Alternate equal speeds units
+				{
+					returnedUnit = currentUnit;
+					currentUnitIndex = i;
+				}
+			}
+			break;
+		case BattlePhases::WAIT_MORALE: // Slower first, higher slot first
+		case BattlePhases::WAIT:
+			if(returnedUnit == nullptr || currentUnitInitiative < returnedUnitInitiative)
+			{
+				returnedUnit = currentUnit;
+				currentUnitIndex = i;
+			}
+			else if(currentUnitInitiative == returnedUnitInitiative && sideThatLastMoved != -1 && currentUnit->unitSide() != sideThatLastMoved
+				&& !(returnedUnit->unitSide() == currentUnit->unitSide() && returnedUnit->unitSlot() < currentUnit->unitSlot())) // Alternate equal speeds units
+			{
+				returnedUnit = currentUnit;
+				currentUnitIndex = i;
+			}
+			break;
+		default:
+			break;
 		}
 	}
 
 	if(!returnedUnit)
 		return nullptr;
-	all[currentUnitIndex] = nullptr;
+
+	allUnits[currentUnitIndex] = nullptr;
+
 	return returnedUnit;
 }
 
-void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn, int8_t lastMoved) const
+void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns, const size_t maxUnits, const int maxTurns, const int turn, int8_t sideThatLastMoved) const
 {
 	RETURN_IF_NOT_BATTLE();
 
@@ -433,106 +441,101 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, c
 
 	auto actualTurn = turn > 0 ? turn : 0;
 
-	auto outputFull = [&]() -> bool
+	auto turnsIsFull = [&]() -> bool
 	{
 		if(maxUnits == 0)
 			return false;//no limit
 
-		size_t outSize = 0;
-		for(const auto & oneTurn : out)
-			outSize += oneTurn.size();
-		return outSize >= maxUnits;
+		size_t turnsSize = 0;
+		for(const auto & oneTurn : turns)
+			turnsSize += oneTurn.size();
+		return turnsSize >= maxUnits;
 	};
 
-	out.emplace_back();
+	turns.emplace_back();
 
-	//We'll split creatures with remaining movement to 4 buckets
-	// [0] - turrets/catapult,
-	// [1] - normal (unmoved) creatures, other war machines,
-	// [2] - waited cres that had morale,
-	// [3] - rest of waited cres
-	std::array<battle::Units, 4> phase;
+	// We'll split creatures with remaining movement to 4 buckets (SIEGE, NORMAL, WAIT_MORALE, WAIT)
+	std::array<battle::Units, BattlePhases::NUMBER_OF_PHASES> phases; // Access using BattlePhases enum
 
-	const battle::Unit * active = battleActiveUnit();
+	const battle::Unit * activeUnit = battleActiveUnit();
 
-	if(active)
+	if(activeUnit)
 	{
 		//its first turn and active unit hasn't taken any action yet - must be placed at the beginning of queue, no matter what
-		if(turn == 0 && active->willMove() && !active->waited())
+		if(turn == 0 && activeUnit->willMove() && !activeUnit->waited())
 		{
-			out.back().push_back(active);
-			if(outputFull())
+			turns.back().push_back(activeUnit);
+			if(turnsIsFull())
 				return;
 		}
 
 		//its first or current turn, turn priority for active stack side
 		//TODO: what if active stack mind-controlled?
-		if(turn <= 0 && lastMoved < 0)
-			lastMoved = active->unitSide();
+		if(turn <= 0 && sideThatLastMoved < 0)
+			sideThatLastMoved = activeUnit->unitSide();
 	}
 
-	auto all = battleGetUnitsIf([](const battle::Unit * unit)
+	auto allUnits = battleGetUnitsIf([](const battle::Unit * unit)
 	{
 		return !unit->isGhost();
 	});
 
-
-	if(!vstd::contains_if(all, [](const battle::Unit * unit) { return unit->willMove(100000); })) //little evil, but 100000 should be enough for all effects to disappear
+	// If no unit will be EVER! able to move, battle is over.
+	if(!vstd::contains_if(allUnits, [](const battle::Unit * unit) { return unit->willMove(100000); })) //little evil, but 100000 should be enough for all effects to disappear
 	{
-		//No unit will be able to move, battle is over.
-		out.clear();
+		turns.clear();
 		return;
 	}
 
-	for(const auto * one : all)
+	for(const auto * unit : allUnits)
 	{
-		if((actualTurn == 0 && !one->willMove()) //we are considering current round and unit won't move
-		|| (actualTurn > 0 && !one->canMove(turn)) //unit won't be able to move in later rounds
-		|| (actualTurn == 0 && one == active && !out.at(0).empty() && one == out.front().front())) //it's active unit already added at the beginning of queue
+		if((actualTurn == 0 && !unit->willMove()) //we are considering current round and unit won't move
+		|| (actualTurn > 0 && !unit->canMove(turn)) //unit won't be able to move in later rounds
+		|| (actualTurn == 0 && unit == activeUnit && !turns.at(0).empty() && unit == turns.front().front())) //it's active unit already added at the beginning of queue
 		{
 			continue;
 		}
 
-		int p = one->battleQueuePhase(turn);
+		int unitPhase = unit->battleQueuePhase(turn);
 
-		phase[p].push_back(one);
+		phases[unitPhase].push_back(unit);
 	}
 
-	boost::sort(phase[0], CMP_stack(0, actualTurn, lastMoved));
-	std::copy(phase[0].begin(), phase[0].end(), std::back_inserter(out.back()));
+	boost::sort(phases[BattlePhases::SIEGE], CMP_stack(BattlePhases::SIEGE, actualTurn, sideThatLastMoved));
+	std::copy(phases[BattlePhases::SIEGE].begin(), phases[BattlePhases::SIEGE].end(), std::back_inserter(turns.back()));
 
-	if(outputFull())
+	if(turnsIsFull())
 		return;
 
-	for(int i = 1; i < 4; i++)
-		boost::sort(phase[i], CMP_stack(i, actualTurn, lastMoved));
+	for(uint8_t phase = BattlePhases::NORMAL; phase < BattlePhases::NUMBER_OF_PHASES; phase++)
+		boost::sort(phases[phase], CMP_stack(phase, actualTurn, sideThatLastMoved));
 
-	int pi = 1;
-	while(!outputFull() && pi < 4)
+	uint8_t phase = BattlePhases::NORMAL;
+	while(!turnsIsFull() && phase < BattlePhases::NUMBER_OF_PHASES)
 	{
-		const battle::Unit * current = nullptr;
-		if(phase[pi].empty())
-			pi++;
+		const battle::Unit * currentUnit = nullptr;
+		if(phases[phase].empty())
+			phase++;
 		else
 		{
-			current = takeOneUnit(phase[pi], actualTurn, lastMoved, pi);
-			if(!current)
+			currentUnit = takeOneUnit(phases[phase], actualTurn, sideThatLastMoved, phase);
+			if(!currentUnit)
 			{
-				pi++;
+				phase++;
 			}
 			else
 			{
-				out.back().push_back(current);
-				lastMoved = current->unitSide();
+				turns.back().push_back(currentUnit);
+				sideThatLastMoved = currentUnit->unitSide();
 			}
 		}
 	}
 
-	if(lastMoved < 0)
-		lastMoved = BattleSide::ATTACKER;
+	if(sideThatLastMoved < 0)
+		sideThatLastMoved = BattleSide::ATTACKER;
 
-	if(!outputFull() && (maxTurns == 0 || out.size() < maxTurns))
-		battleGetTurnOrder(out, maxUnits, maxTurns, actualTurn + 1, lastMoved);
+	if(!turnsIsFull() && (maxTurns == 0 || turns.size() < maxTurns))
+		battleGetTurnOrder(turns, maxUnits, maxTurns, actualTurn + 1, sideThatLastMoved);
 }
 
 std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit) const

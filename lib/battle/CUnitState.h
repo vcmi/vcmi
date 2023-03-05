@@ -225,7 +225,7 @@ public:
 	std::shared_ptr<Unit> acquire() const override;
 	std::shared_ptr<CUnitState> acquireState() const override;
 
-	int battleQueuePhase(int turn) const override;
+	BattlePhases::Type battleQueuePhase(int turn) const override;
 
 	int getTotalAttacks(bool ranged) const override;
 
