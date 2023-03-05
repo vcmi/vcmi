@@ -711,23 +711,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		return bonus;
 	};
 
-	//deprecated, used only for original specialties
-	const JsonNode & specialtiesNode = node["specialties"];
-	if (!specialtiesNode.isNull())
-	{
-		logMod->warn("Hero %s has deprecated specialties format.", hero->getNameTranslated());
-		for(const JsonNode &specialty : specialtiesNode.Vector())
-		{
-			SSpecialtyInfo spec;
-			spec.type =           static_cast<si32>(specialty["type"].Integer());
-			spec.val =            static_cast<si32>(specialty["val"].Integer());
-			spec.subtype =        static_cast<si32>(specialty["subtype"].Integer());
-			spec.additionalinfo = static_cast<si32>(specialty["info"].Integer());
-			//we convert after loading completes, to have all identifiers for json logging
-			hero->specDeprecated.push_back(spec);
-		}
-	}
-	//new(er) format, using bonus system
+	//new format, using bonus system
 	const JsonNode & specialtyNode = node["specialty"];
 	if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{

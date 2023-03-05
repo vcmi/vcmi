@@ -113,12 +113,6 @@
 				}
 			}
 		},
-		"specialties" : 
-		{
-			"type" : "array",
-			"description" : "Specialty format used for OH3 heroes. Use \"specialty\" instead",
-			"additionalItems" : true
-		},
 		"specialty": {
 			"type" : "object",
 			"description": "Description of hero specialty using bonus system",
