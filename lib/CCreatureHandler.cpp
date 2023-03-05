@@ -410,26 +410,6 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CCreature::fillWarMachine()
-{
-	switch (idNumber)
-	{
-	case CreatureID::CATAPULT: //Catapult
-		warMachine = ArtifactID::CATAPULT;
-		break;
-	case CreatureID::BALLISTA: //Ballista
-		warMachine = ArtifactID::BALLISTA;
-		break;
-	case CreatureID::FIRST_AID_TENT: //First Aid tent
-		warMachine = ArtifactID::FIRST_AID_TENT;
-		break;
-	case CreatureID::AMMO_CART: //Ammo cart
-		warMachine = ArtifactID::AMMO_CART;
-		break;
-	}
-	warMachine = ArtifactID::NONE; //this creature is not artifact
-}
-
 CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {

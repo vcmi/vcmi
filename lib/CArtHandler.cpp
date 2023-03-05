@@ -197,28 +197,6 @@ void CArtifact::serializeJson(JsonSerializeFormat & handler)
 
 }
 
-void CArtifact::fillWarMachine()
-{
-	switch(id)
-	{
-	case ArtifactID::CATAPULT:
-		warMachine = CreatureID::CATAPULT;
-		break;
-	case ArtifactID::BALLISTA:
-		warMachine = CreatureID::BALLISTA;
-		break;
-	case ArtifactID::FIRST_AID_TENT:
-		warMachine = CreatureID::FIRST_AID_TENT;
-		break;
-	case ArtifactID::AMMO_CART:
-		warMachine = CreatureID::AMMO_CART;
-		break;
-	default:
-		warMachine = CreatureID::NONE;
-		break;
-	}
-}
-
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 {
 	auto b = std::make_shared<Bonus>();
