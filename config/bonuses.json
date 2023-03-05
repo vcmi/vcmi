@@ -215,14 +215,6 @@
 
 	},
 
-	"FULL_HP_REGENERATION":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_TROLL"
-		}
-	},
-
 	"GARGOYLE":
 	{
 		"graphics":

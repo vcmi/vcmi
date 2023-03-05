@@ -6704,9 +6704,7 @@ void CGameHandler::runBattle()
 						bte.effect = Bonus::HP_REGENERATION;
 
 						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
-						if(stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
-							bte.val = lostHealth;
-						else if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
+						if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
 							bte.val = std::min(lostHealth, stack->valOfBonuses(Bonus::HP_REGENERATION));
 
 						if(bte.val) // anything to heal

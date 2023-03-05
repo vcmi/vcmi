@@ -92,8 +92,8 @@
 		{
 			"regenerate" : 
 			{
-				"type" : "FULL_HP_REGENERATION",
-				"subtype" : 1
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			}
 		},
 		"upgrades": ["wraith"],
@@ -120,8 +120,8 @@
 		{
 			"regenerate" : 
 			{
-				"type" : "FULL_HP_REGENERATION",
-				"subtype" : 1
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			},
 			"drainsMana" :
 			{

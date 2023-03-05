@@ -571,7 +571,8 @@
 		{
 			"regenerates" :
 			{
-				"type" : "FULL_HP_REGENERATION"
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			}
 		},
 		"graphics" :

@@ -249,7 +249,6 @@ public:
 	BONUS_NAME(FIRE_SHIELD)								\
 	BONUS_NAME(UNDEAD)									\
 	BONUS_NAME(HP_REGENERATION) /*creature regenerates val HP every new round*/					\
-	BONUS_NAME(FULL_HP_REGENERATION) /*first creature regenerates all HP every new round; subtype 0 - animation 4 (trolllike), 1 - animation 47 (wightlike)*/		\
 	BONUS_NAME(MANA_DRAIN) /*value - spell points per turn*/ \
 	BONUS_NAME(LIFE_DRAIN)								\
 	BONUS_NAME(DOUBLE_DAMAGE_CHANCE) /*value in %, eg. dread knight*/ \

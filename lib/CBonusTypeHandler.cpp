@@ -85,6 +85,9 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	if (text.find("${MR}") != std::string::npos)
 		boost::algorithm::replace_all(text, "${MR}", std::to_string(bearer->magicResistance()));
 
+	if (text.find("${SHval}") != std::string::npos) //regeneration case
+		boost::algorithm::replace_all(text, "${SHval}", std::to_string(std::min(static_cast<si32>(bearer->MaxHealth()),bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype)))));
+
 	return text;
 }
 
