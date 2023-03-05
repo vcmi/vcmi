@@ -245,7 +245,6 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
-	logMod->trace("%s", skill->toString());
 
 	return skill;
 }
