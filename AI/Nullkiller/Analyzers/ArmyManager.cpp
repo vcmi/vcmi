@@ -182,7 +182,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	{
 		auto weakest = getWeakestCreature(resultingArmy);
 
-		if(weakest->count == 1)
+		if(weakest != resultingArmy.end() && weakest->count == 1) //we check iterator validity for playing with settings that allow 0 stacks armies
 		{
 			resultingArmy.erase(weakest);
 		}

@@ -767,6 +767,14 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
 	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
 
+	settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES = hardcodedFeatures["HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"].convertTo<std::vector<int32_t>>();
+	for (auto const & entry : settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES)
+		logMod->debug("\tHERO_STARTING_ARMY_STACKS_COUNT_CHANCES\t%d", entry);
+
+	settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES = hardcodedFeatures["DEFAULT_BUILDING_SET_DWELLING_CHANCES"].convertTo<std::vector<int32_t>>();
+	for (auto const & entry : settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES)
+		logMod->debug("\tDEFAULT_BUILDING_SET_DWELLING_CHANCES\t%d", entry);
+
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
 	logMod->debug("\tSTACK_EXP\t%d", static_cast<int>(modules.STACK_EXP));

@@ -363,6 +363,8 @@ public:
 		double ATTACK_POINTS_DMG_MULTIPLIER_CAP;
 		double DEFENSE_POINT_DMG_MULTIPLIER;
 		double DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+		std::vector<int32_t> HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
+		std::vector<int32_t> DEFAULT_BUILDING_SET_DWELLING_CHANCES;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -382,6 +384,11 @@ public:
 			h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
 			h & DEFENSE_POINT_DMG_MULTIPLIER;
 			h & DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+			if(version >= 815)
+			{
+				h & HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
+				h & DEFAULT_BUILDING_SET_DWELLING_CHANCES;
+			}
 		}
 	} settings;
 
