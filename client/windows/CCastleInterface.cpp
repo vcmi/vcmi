@@ -1152,7 +1152,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	panel = std::make_shared<CPicture>("TOWNSCRN", 0 , builds->pos.h);
 	panel->colorize(LOCPLINT->playerID);
 	int panelShift = builds->pos.w <= panel->pos.w ? 0 : (int)((builds->pos.w - panel->pos.w)/2.);
-	panel->moveTo(Point(panelShift, builds->pos.h), true);
+	panel->moveBy(Point(panelShift, 0), true);
 	pos.w = panel->pos.w >= builds->pos.w ? panel->pos.w : builds->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
