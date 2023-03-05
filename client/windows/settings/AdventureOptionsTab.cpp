@@ -102,6 +102,14 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("gameTweaks", "showGrid", value);
 	});
+	addCallback("mapSwipeChanged", [](bool value)
+	{
+#if defined(VCMI_MOBILE)
+		setBoolSetting("general", "swipe", value);
+#else
+		setBoolSetting("general", "swipeDesktop", value);
+#endif
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -127,4 +135,11 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> showGridCheckbox = widget<CToggleButton>("showGridCheckbox");
 	showGridCheckbox->setSelected(settings["gameTweaks"]["showGrid"].Bool());
+
+	std::shared_ptr<CToggleButton> mapSwipeCheckbox = widget<CToggleButton>("mapSwipeCheckbox");
+#if defined(VCMI_MOBILE)
+	mapSwipeCheckbox->setSelected(settings["general"]["swipe"].Bool());
+#else
+	mapSwipeCheckbox->setSelected(settings["general"]["swipeDesktop"].Bool());
+#endif
 }

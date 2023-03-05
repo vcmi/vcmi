@@ -293,7 +293,54 @@
 			],
 			"callback": "mapScrollSpeedChanged"
 		},
-/////////////////////////////////////// Bottom section - Checkboxes
+		
+/////////////////////////////////////// Right section - Original H3 options
+		{
+			"name": "rightCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 415, "y": 55},
+					"text": "core.genrltxt.572" // TODO: show move path
+				},
+				{
+					"position": {"x": 415, "y": 85},
+					"text": "core.genrltxt.573" // show hero reminder
+				},
+				{
+					"position": {"x": 415, "y": 115},
+					"text": "core.genrltxt.574" // quick combat
+				}
+			]
+		},
+		{
+			"name": "showMovePathPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 53},
+		},
+		{
+			"name": "heroReminderCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.361",
+			"position": {"x": 380, "y": 83},
+			"callback": "heroReminderChanged"
+		},
+		{
+			"name": "quickCombatCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.362",
+			"position": {"x": 380, "y": 113},
+			"callback": "quickCombatChanged"
+		},
+		
+/////////////////////////////////////// Bottom section - VCMI Options
 		{
 			"name": "bottomCheckboxesLabels",
 			"type": "labelGroup",
@@ -304,59 +351,28 @@
 			[
 				{
 					"position": {"x": 45, "y": 295},
-					"text": "core.genrltxt.572" // TODO: show move path
-				},
-				{
-					"position": {"x": 45, "y": 325},
-					"text": "core.genrltxt.573" // show hero reminder
-				},
-				{
-					"position": {"x": 45, "y": 355},
-					"text": "core.genrltxt.574" // quick combat
-				},
-				{
-					"position": {"x": 45, "y": 385},
 					"text": "vcmi.adventureOptions.numericQuantities.hover"
 				},
 				{
-					"position": {"x": 45, "y": 415},
+					"position": {"x": 45, "y": 325},
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"position": {"x": 45, "y": 445},
+					"position": {"x": 45, "y": 355},
 					"text": "vcmi.adventureOptions.showGrid.hover"
+				},
+				{
+					"position": {"x": 45, "y": 385},
+					"text": "vcmi.adventureOptions.mapSwipe.hover"
 				}
 			]
-		},
-
-		{
-			"name": "showMovePathPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 293},
-		},
-		{
-			"name": "heroReminderCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.361",
-			"position": {"x": 10, "y": 323},
-			"callback": "heroReminderChanged"
-		},
-		{
-			"name": "quickCombatCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.362",
-			"position": {"x": 10, "y": 353},
-			"callback": "quickCombatChanged"
 		},
 		{
 			"name": "numericQuantitiesCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.numericQuantities",
-			"position": {"x": 10, "y": 383},
+			"position": {"x": 10, "y": 293},
 			"callback": "numericQuantitiesChanged"
 		},
 		{
@@ -364,7 +380,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.forceMovementInfo",
-			"position": {"x": 10, "y": 413},
+			"position": {"x": 10, "y": 323},
 			"callback": "forceMovementInfoChanged"
 		},
 		{
@@ -372,8 +388,17 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.showGrid",
-			"position": {"x": 10, "y": 443},
+			"position": {"x": 10, "y": 353},
 			"callback": "showGridChanged"
-		}
+		},
+		{
+			"name": "mapSwipeCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.adventureOptions.mapSwipe",
+			"position": {"x": 10, "y": 383},
+			"callback": "mapSwipeChanged"
+		},
+
 	]
 }
