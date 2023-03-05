@@ -192,7 +192,7 @@
 			"items":
 			[
 				{
-					"index": 400,
+					"index": 200,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.adventureOptions.mapScrollSpeed1",
@@ -209,7 +209,7 @@
 				},
 
 				{
-					"index": 800,
+					"index": 400,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "core.help.357",
@@ -226,7 +226,7 @@
 				},
 
 				{
-					"index": 3,
+					"index": 800,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "core.help.358",
@@ -259,7 +259,7 @@
 					]
 				},
 				{
-					"index": -1, // TODO
+					"index": 2400, // TODO
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.adventureOptions.mapScrollSpeed5",
@@ -275,7 +275,7 @@
 					]
 				},
 				{
-					"index": -2, // TODO
+					"index": 4800, // TODO
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.adventureOptions.mapScrollSpeed6",
