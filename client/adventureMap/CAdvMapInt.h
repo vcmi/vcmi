@@ -33,12 +33,13 @@ class CGStatusBar;
 class CAdvMapPanel;
 class CAdvMapWorldViewPanel;
 class CAnimation;
-class CTerrainRect;
+class MapView;
 class CResDataBar;
 class CHeroList;
 class CTownList;
 class CInfoBar;
 class CMinimap;
+class MapAudioPlayer;
 
 struct MapDrawingInfo;
 
@@ -55,37 +56,13 @@ class CAdvMapInt : public CIntObject
 {
 	//TODO: remove
 	friend class CPlayerInterface;
-	friend class CTerrainRect;
 
 private:
 	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	enum EGameStates {NA, INGAME, WAITING};
 
-	struct WorldViewOptions
-	{
-		bool showAllTerrain; //for expert viewEarth
-		std::vector<ObjectPosInfo> iconPositions;
-		WorldViewOptions();
-		void clear();
-		void adjustDrawingInfo(MapDrawingInfo & info);
-	};
-
-	bool swipeEnabled;
-	bool swipeMovementRequested;
-	int3 swipeTargetPosition;
-
 	EGameStates state;
-
-	ui8 anim, animValHitCount; //animation frame
-	ui8 heroAnim, heroAnimValHitCount; //animation frame
-
-	/// top left corner of visible map part
-	int3 position;
-
 	EAdvMapMode mode;
-	float worldViewScale;
-
-	WorldViewOptions worldViewOptions;
 
 	/// Currently selected object, can be town, hero or null
 	const CArmedInstance *selection;
@@ -117,7 +94,7 @@ private:
 	std::shared_ptr<CButton> endTurn;
 	std::shared_ptr<CButton> worldViewUnderground;
 
-	std::shared_ptr<CTerrainRect> terrain;
+	std::shared_ptr<MapView> terrain;
 	std::shared_ptr<CMinimap> minimap;
 	std::shared_ptr<CHeroList> heroList;
 	std::shared_ptr<CTownList> townList;
@@ -130,6 +107,8 @@ private:
 	std::shared_ptr<CAdvMapPanel> activeMapPanel; // currently active panel (either main or world view, depending on current mode)
 
 	std::shared_ptr<CAnimation> worldViewIcons;// images for world view overlay
+
+	std::shared_ptr<MapAudioPlayer> mapAudio;
 
 private:
 	//functions bound to buttons
@@ -159,7 +138,6 @@ private:
 	void updateSpellbook(const CGHeroInstance *h);
 
 	void handleMapScrollingUpdate();
-	void handleSwipeUpdate();
 
 	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
 
@@ -167,7 +145,6 @@ private:
 
 	boost::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
-	bool redrawOnNextFrame;
 public:
 	CAdvMapInt();
 
@@ -185,12 +162,19 @@ public:
 
 	// public interface
 
-	void requestRedrawMapOnNextFrame();
+	/// called by MapView whenever currently visible area changes
+	/// visibleArea describen now visible map section measured in tiles
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
+
+	/// Called when map audio should be paused, e.g. on combat or town scren access
+	void onAudioPaused();
+
+	/// Called when map audio should be resume, opposite to onPaused
+	void onAudioResumed();
 
 	void select(const CArmedInstance *sel, bool centerView = true);
-	void centerOn(int3 on, bool fade = false);
-	void centerOn(const CGObjectInstance *obj, bool fade = false);
-	int3 verifyPos(int3 ver);
+	void centerOnTile(int3 on);
+	void centerOnObject(const CGObjectInstance *obj);
 
 	bool isHeroSleeping(const CGHeroInstance *hero);
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
@@ -206,9 +190,9 @@ public:
 	void quickCombatLock(); //should be called when quick battle started
 	void quickCombatUnlock();
 
-	void tileLClicked(const int3 &mapPos);
-	void tileHovered(const int3 &mapPos);
-	void tileRClicked(const int3 &mapPos);
+	void onTileLeftClicked(const int3 & mapPos);
+	void onTileHovered(const int3 & mapPos);
+	void onTileRightClicked(const int3 & mapPos);
 
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
@@ -222,11 +206,17 @@ public:
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;
 
-	/// returs visible section of game map, in tiles
-	Rect terrainAreaTiles() const;
+	/// exits currently opened world view mode and returns to normal map
+	void exitWorldView();
 
-	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
-	void changeMode(EAdvMapMode newMode, float newScale);
+	/// opens world view at default scale
+	void openWorldView();
+
+	/// opens world view at specific scale
+	void openWorldView(int tileSize);
+
+	/// opens world view with specific info, e.g. after View Earth/Air is shown
+	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
 };
 
 extern std::shared_ptr<CAdvMapInt> adventureInt;

@@ -480,10 +480,6 @@ int main(int argc, char * argv[])
 
 		CCS->curh = new CursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
-		pomtime.getDiff();
-
-		graphics->load();//must be after Content loading but should be in main thread
-		logGlobal->info("Main graphics: %d ms", pomtime.getDiff());
 
 		CMessage::init();
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
@@ -1003,10 +999,6 @@ static void handleEvent(SDL_Event & ev)
 			break;
 		case EUserEvent::FULLSCREEN_TOGGLED:
 			fullScreenChanged();
-			break;
-		case EUserEvent::INTERFACE_CHANGED:
-			if(LOCPLINT)
-				LOCPLINT->updateAmbientSounds();
 			break;
 		default:
 			logGlobal->error("Unknown user event. Code %d", ev.user.code);

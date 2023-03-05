@@ -489,7 +489,7 @@ void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * 
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
+void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
 {
 	//TODO: AI support for ViewXXX spell
 	LOG_TRACE(logAi);

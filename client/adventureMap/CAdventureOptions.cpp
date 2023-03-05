@@ -29,7 +29,7 @@ CAdventureOptions::CAdventureOptions()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	viewWorld = std::make_shared<CButton>(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_v);
-	viewWorld->addCallback(std::bind(&CPlayerInterface::viewWorldMap, LOCPLINT));
+	viewWorld->addCallback( [] { LOCPLINT->viewWorldMap(); });
 
 	exit = std::make_shared<CButton>(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);

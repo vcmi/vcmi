@@ -380,7 +380,6 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 
 	ObjectInstanceID objid;
 	int3 nPos;
-	ui8 flags = 0; //bit flags: 1 - redraw
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -388,7 +387,6 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 	{
 		h & objid;
 		h & nPos;
-		h & flags;
 	}
 };
 
@@ -583,7 +581,6 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		FAILED,
 		SUCCESS,
 		TELEPORTATION,
-		RESERVED_,
 		BLOCKING_VISIT,
 		EMBARK,
 		DISEMBARK
@@ -595,8 +592,6 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	int3 start, end; //h3m format
 	std::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
 	boost::optional<int3> attackedFrom; // Set when stepping into endangered tile.
-
-	bool humanKnows = false; //used locally during applying to client
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1911,12 +1906,14 @@ protected:
 struct DLL_LINKAGE ShowWorldViewEx : public CPackForClient
 {
 	PlayerColor player;
+	bool showTerrain; // TODO: send terrain state
 
 	std::vector<ObjectPosInfo> objectPositions;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & player;
+		h & showTerrain;
 		h & objectPositions;
 	}
 

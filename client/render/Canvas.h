@@ -24,14 +24,11 @@ class Canvas
 	/// Target surface
 	SDL_Surface * surface;
 
-	/// Clip rect that was in use on surface originally and needs to be restored on destruction
-	boost::optional<Rect> clipRect;
+	/// Current rendering area, all rendering operations will be moved into selected area
+	Rect renderArea;
 
-	/// Current rendering area offset, all rendering operations will be moved into selected area
-	Point renderOffset;
-
-	Canvas & operator = (Canvas & other) = delete;
 public:
+	Canvas & operator = (const Canvas & other) = delete;
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	explicit Canvas(SDL_Surface * surface);
@@ -47,17 +44,26 @@ public:
 
 	~Canvas();
 
+	/// if set to true, drawing this canvas onto another canvas will use alpha channel information
+	void applyTransparency(bool on);
+
+	/// applies grayscale filter onto current image
+	void applyGrayscale();
+
 	/// renders image onto this canvas at specified position
-	void draw(std::shared_ptr<IImage> image, const Point & pos);
+	void draw(const std::shared_ptr<IImage>& image, const Point & pos);
 
 	/// renders section of image bounded by sourceRect at specified position
-	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect);
+	void draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect);
 
 	/// renders another canvas onto this canvas
-	void draw(Canvas & image, const Point & pos);
+	void draw(const Canvas &image, const Point & pos);
+
+	/// renders another canvas onto this canvas with transparency
+	void drawTransparent(const Canvas & image, const Point & pos, double transparency);
 
 	/// renders another canvas onto this canvas with scaling
-	void draw(Canvas & image, const Point & pos, const Point & targetSize);
+	void drawScaled(const Canvas &image, const Point & pos, const Point & targetSize);
 
 	/// renders single pixels with specified color
 	void drawPoint(const Point & dest, const ColorRGBA & color);

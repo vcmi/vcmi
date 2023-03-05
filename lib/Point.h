@@ -22,13 +22,15 @@ public:
 	Point()
 	{
 		x = y = 0;
-	};
+	}
 
 	Point(int X, int Y)
-		:x(X),y(Y)
-	{};
+		: x(X)
+		, y(Y)
+	{
+	}
 
-	Point(const int3 &a);
+	explicit DLL_LINKAGE Point(const int3 &a);
 
 	template<typename T>
 	Point operator+(const T &b) const
@@ -46,6 +48,11 @@ public:
 	Point operator*(const T &mul) const
 	{
 		return Point(x*mul, y*mul);
+	}
+
+	Point operator*(const Point &b) const
+	{
+		return Point(x*b.x,y*b.y);
 	}
 
 	template<typename T>

@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -43,7 +44,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	strongInterest = true;
 
 	//preparing cells and hexes
-	cellBorder = IImage::createFromFile("CCELLGRD.BMP");
+	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
 	cellShade = IImage::createFromFile("CCELLSHD.BMP");
 
 	if(!owner.siegeController)
@@ -53,28 +54,16 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
 		else
-			background = IImage::createFromFile(bfieldType.getInfo()->graphics);
+			background = IImage::createFromFile(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
 	}
 	else
 	{
 		std::string backgroundName = owner.siegeController->getBattleBackgroundName();
-		background = IImage::createFromFile(backgroundName);
+		background = IImage::createFromFile(backgroundName, EImageBlitMode::OPAQUE);
 	}
+
 	pos.w = background->width();
 	pos.h = background->height();
-
-	//preparing graphic with cell borders
-	cellBorders = std::make_unique<Canvas>(Point(background->width(), background->height()));
-
-	for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
-	{
-		if ( i % GameConstants::BFIELD_WIDTH == 0)
-			continue;
-		if ( i % GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_WIDTH - 1)
-			continue;
-
-		cellBorders->draw(cellBorder, hexPositionLocal(i).topLeft());
-	}
 
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
@@ -166,7 +155,17 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 		owner.siegeController->showAbsoluteObstacles(canvas);
 
 	if (settings["battle"]["cellBorders"].Bool())
-		canvas.draw(*cellBorders, Point(0, 0));
+	{
+		for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
+		{
+			if ( i % GameConstants::BFIELD_WIDTH == 0)
+				continue;
+			if ( i % GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_WIDTH - 1)
+				continue;
+
+			canvas.draw(cellBorder, hexPositionLocal(i).topLeft());
+		}
+	}
 }
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
@@ -203,7 +202,17 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	}
 
 	if(settings["battle"]["cellBorders"].Bool())
-		backgroundWithHexes->draw(*cellBorders, Point(0, 0));
+	{
+		for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
+		{
+			if ( i % GameConstants::BFIELD_WIDTH == 0)
+				continue;
+			if ( i % GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_WIDTH - 1)
+				continue;
+
+			backgroundWithHexes->draw(cellBorder, hexPositionLocal(i).topLeft());
+		}
+	}
 }
 
 void BattleFieldController::showHighlightedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
@@ -586,6 +595,7 @@ void BattleFieldController::show(SDL_Surface * to)
 	owner.obstacleController->update();
 
 	Canvas canvas(to);
+	CSDL_Ext::CClipRectGuard guard(to, pos);
 
 	renderBattlefield(canvas);
 }

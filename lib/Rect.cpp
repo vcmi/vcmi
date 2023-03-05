@@ -10,8 +10,15 @@
 
 #include "StdInc.h"
 #include "Rect.h"
+#include "int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+Point::Point(const int3 & a)
+	: x(a.x)
+	, y(a.y)
+{
+}
 
 /// Returns rect union - rect that covers both this rect and provided rect
 Rect Rect::include(const Rect & other) const

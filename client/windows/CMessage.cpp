@@ -88,7 +88,7 @@ void CMessage::init()
 		}
 	}
 
-	background = IImage::createFromFile("DIBOXBCK.BMP");
+	background = IImage::createFromFile("DIBOXBCK.BMP", EImageBlitMode::OPAQUE);
 }
 
 void CMessage::dispose()

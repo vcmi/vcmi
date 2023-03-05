@@ -42,7 +42,6 @@ enum class EUserEvent
 	FULLSCREEN_TOGGLED,
 	CAMPAIGN_START_SCENARIO,
 	FORCE_QUIT, //quit client without question
-	INTERFACE_CHANGED
 };
 
 // A fps manager which holds game updates at a constant rate

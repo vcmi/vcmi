@@ -25,6 +25,7 @@
 				"encoding",
 				"language",
 				"swipe",
+				"swipeDesktop",
 				"saveRandomMaps",
 				"saveFrequency",
 				"notifications",
@@ -57,6 +58,10 @@
 				"swipe" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeDesktop" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"saveRandomMaps" : {
 					"type" : "boolean",
@@ -161,19 +166,19 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation" ],
 			"properties" : {
-				"heroSpeed" : {
+				"heroMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"enemySpeed" : {
+				"enemyMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"scrollSpeed" : {
+				"scrollSpeedPixels" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 800
 				},
 				"heroReminder" : {
 					"type" : "boolean",
@@ -182,6 +187,14 @@
 				"quickCombat" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"objectAnimation" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"terrainAnimation" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},

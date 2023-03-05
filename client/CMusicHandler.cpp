@@ -75,7 +75,6 @@ CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"]),
 	ambientConfig(JsonNode(ResourceID("config/ambientSounds.json")))
 {
-	allTilesSource = ambientConfig["allTilesSource"].Bool();
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
@@ -259,11 +258,6 @@ int CSoundHandler::ambientGetRange() const
 	return static_cast<int>(ambientConfig["range"].Integer());
 }
 
-bool CSoundHandler::ambientCheckVisitable() const
-{
-	return !allTilesSource;
-}
-
 void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 {
 	boost::mutex::scoped_lock guard(mutex);
@@ -278,7 +272,8 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 		}
 		else
 		{
-			CCS->soundh->setChannelVolume(pair.second, ambientDistToVolume(soundsArg[pair.first]));
+			int volume = ambientDistToVolume(soundsArg[pair.first]);
+			CCS->soundh->setChannelVolume(pair.second, volume);
 		}
 	}
 	for(auto soundId : stoppedSounds)
@@ -289,7 +284,9 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 		if(!vstd::contains(ambientChannels, pair.first))
 		{
 			int channel = CCS->soundh->playSound(pair.first, -1);
-			CCS->soundh->setChannelVolume(channel, ambientDistToVolume(pair.second));
+			int volume = ambientDistToVolume(pair.second);
+
+			CCS->soundh->setChannelVolume(channel, volume);
 			CCS->soundh->ambientChannels.insert(std::make_pair(pair.first, channel));
 		}
 	}
@@ -489,7 +486,9 @@ void CMusicHandler::musicFinishedCallback()
 			return;
 		}
 		else
+		{
 			current.reset();
+		}
 	}
 
 	if (current.get() == nullptr && next.get() != nullptr)
@@ -515,7 +514,7 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
-	if (playing)
+	if (playing && loop > 0)
 	{
 		assert(0);
 		logGlobal->error("Attempt to delete music while playing!");

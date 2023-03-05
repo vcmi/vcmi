@@ -21,6 +21,19 @@ struct SDL_Surface;
 struct SDL_Color;
 class ColorFilter;
 
+/// Defines which blit method will be selected when image is used for rendering
+enum class EImageBlitMode : uint8_t
+{
+	/// Image can have no transparency and can be only used as background
+	OPAQUE,
+
+	/// Image can have only a single color as transparency and has no semi-transparent areas
+	COLORKEY,
+
+	/// Image might have full alpha transparency range, e.g. shadows
+	ALPHA
+};
+
 /*
  * Base class for images, can be used for non-animation pictures as well
  */
@@ -51,12 +64,13 @@ public:
 	int height() const;
 
 	//only indexed bitmaps, 16 colors maximum
-	virtual void shiftPalette(int from, int howMany) = 0;
+	virtual void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) = 0;
 	virtual void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) = 0;
 	virtual void resetPalette(int colorID) = 0;
 	virtual void resetPalette() = 0;
 
 	virtual void setAlpha(uint8_t value) = 0;
+	virtual void setBlitMode(EImageBlitMode mode) = 0;
 
 	//only indexed bitmaps with 7 special colors
 	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette) = 0;
@@ -69,6 +83,7 @@ public:
 
 	/// loads image from specified file. Returns 0-sized images on failure
 	static std::shared_ptr<IImage> createFromFile( const std::string & path );
+	static std::shared_ptr<IImage> createFromFile( const std::string & path, EImageBlitMode mode );
 
 	/// temporary compatibility method. Creates IImage from existing SDL_Surface
 	/// Surface will be shared, called must still free it with SDL_FreeSurface

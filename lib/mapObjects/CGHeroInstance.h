@@ -57,7 +57,6 @@ public:
 	//          8 4
 	//          765
 	ui8 moveDir;
-	mutable ui8 isStanding;
 	mutable ui8 tacticFormationEnabled;
 
 	//////////////////////////////////////////////////////////////////////////

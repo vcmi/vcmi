@@ -21,7 +21,6 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CModHandler.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/GameConstants.h"
 #include "../lib/JsonDetail.h"
 
@@ -282,7 +281,7 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, 
 	if(!hero || hero->boat)
 		return std::shared_ptr<QImage>();
 	
-	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, !hero->isStanding);
+	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, true);
 }
 
 std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const

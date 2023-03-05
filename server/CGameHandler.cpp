@@ -2773,12 +2773,11 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player)
 	sendAndApply(&gh);
 }
 
-void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags)
+void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos)
 {
 	ChangeObjPos cop;
 	cop.objid = objid;
 	cop.nPos = newPos;
-	cop.flags = flags;
 	sendAndApply(&cop);
 }
 
@@ -6034,15 +6033,6 @@ void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossC
 
 bool CGameHandler::dig(const CGHeroInstance *h)
 {
-	for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
-	{
-		if (*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->visitablePos())
-		{
-			complain("Cannot dig - there is already a hole under the hero!");
-			return false;
-		}
-	}
-
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
 

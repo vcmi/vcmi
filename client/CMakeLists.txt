@@ -10,8 +10,7 @@ set(client_SRCS
 	adventureMap/CList.cpp
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
-	adventureMap/CTerrainRect.cpp
-	adventureMap/mapHandler.cpp
+	adventureMap/MapAudioPlayer.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -48,10 +47,19 @@ set(client_SRCS
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
 
+	mapView/MapRenderer.cpp
+	mapView/MapRendererContext.cpp
+	mapView/MapRendererContextState.cpp
+	mapView/MapView.cpp
+	mapView/MapViewActions.cpp
+	mapView/MapViewCache.cpp
+	mapView/MapViewController.cpp
+	mapView/MapViewModel.cpp
+	mapView/mapHandler.cpp
+
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
-	render/CFadeAnimation.cpp
 	render/Canvas.cpp
 	render/ColorFilter.cpp
 	render/Colors.cpp
@@ -83,6 +91,7 @@ set(client_SRCS
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
 	windows/CMessage.cpp
+	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTradeWindow.cpp
@@ -120,8 +129,7 @@ set(client_HEADERS
 	adventureMap/CList.h
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
-	adventureMap/CTerrainRect.h
-	adventureMap/mapHandler.h
+	adventureMap/MapAudioPlayer.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
@@ -161,10 +169,21 @@ set(client_HEADERS
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
 
+	mapView/IMapRendererContext.h
+	mapView/IMapRendererObserver.h
+	mapView/MapRenderer.h
+	mapView/MapRendererContext.h
+	mapView/MapRendererContextState.h
+	mapView/MapView.h
+	mapView/MapViewActions.h
+	mapView/MapViewCache.h
+	mapView/MapViewController.h
+	mapView/MapViewModel.h
+	mapView/mapHandler.h
+
 	render/CAnimation.h
 	render/CBitmapHandler.h
 	render/CDefFile.h
-	render/CFadeAnimation.h
 	render/Canvas.h
 	render/ColorFilter.h
 	render/Colors.h
@@ -200,6 +219,7 @@ set(client_HEADERS
 	windows/CHeroWindow.h
 	windows/CKingdomInterface.h
 	windows/CMessage.h
+	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTradeWindow.h

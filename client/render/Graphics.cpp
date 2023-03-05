@@ -159,115 +159,6 @@ Graphics::~Graphics()
 	delete[] neutralColorPalette;
 }
 
-void Graphics::load()
-{
-	heroMoveArrows = std::make_shared<CAnimation>("ADAG");
-	heroMoveArrows->preload();
-
-	loadHeroAnimations();
-	loadHeroFlagAnimations();
-	loadFogOfWar();
-}
-
-void Graphics::loadHeroAnimations()
-{
-	for(auto & elem : CGI->heroh->classes.objects)
-	{
-		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
-		{
-			if (!heroAnimations.count(templ->animationFile))
-				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
-		}
-	}
-
-	boatAnimations[0] = loadHeroAnimation("AB01_.DEF");
-	boatAnimations[1] = loadHeroAnimation("AB02_.DEF");
-	boatAnimations[2] = loadHeroAnimation("AB03_.DEF");
-
-
-	mapObjectAnimations["AB01_.DEF"] = boatAnimations[0];
-	mapObjectAnimations["AB02_.DEF"] = boatAnimations[1];
-	mapObjectAnimations["AB03_.DEF"] = boatAnimations[2];
-}
-void Graphics::loadHeroFlagAnimations()
-{
-	static const std::vector<std::string> HERO_FLAG_ANIMATIONS =
-	{
-		"AF00", "AF01","AF02","AF03",
-		"AF04", "AF05","AF06","AF07"
-	};
-
-	static const std::vector< std::vector<std::string> > BOAT_FLAG_ANIMATIONS =
-	{
-		{
-			"ABF01L", "ABF01G", "ABF01R", "ABF01D",
-			"ABF01B", "ABF01P", "ABF01W", "ABF01K"
-		},
-		{
-			"ABF02L", "ABF02G", "ABF02R", "ABF02D",
-			"ABF02B", "ABF02P", "ABF02W", "ABF02K"
-		},
-		{
-			"ABF03L", "ABF03G", "ABF03R", "ABF03D",
-			"ABF03B", "ABF03P", "ABF03W", "ABF03K"
-		}
-	};
-
-	for(const auto & name : HERO_FLAG_ANIMATIONS)
-		heroFlagAnimations.push_back(loadHeroFlagAnimation(name));
-
-	for(int i = 0; i < BOAT_FLAG_ANIMATIONS.size(); i++)
-		for(const auto & name : BOAT_FLAG_ANIMATIONS[i])
-			boatFlagAnimations[i].push_back(loadHeroFlagAnimation(name));
-}
-
-std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & name)
-{
-	//first - group number to be rotated, second - group number after rotation
-	static const std::vector<std::pair<int,int> > rotations =
-	{
-		{6,10}, {7,11}, {8,12}, {1,13},
-		{2,14}, {3,15}
-	};
-
-	std::shared_ptr<CAnimation> anim = std::make_shared<CAnimation>(name);
-	anim->preload();
-
-	for(const auto & rotation : rotations)
-	{
-		const int sourceGroup = rotation.first;
-		const int targetGroup = rotation.second;
-
-		anim->createFlippedGroup(sourceGroup, targetGroup);
-	}
-
-	return anim;
-}
-
-std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
-{
-	//first - group number to be rotated, second - group number after rotation
-	static const std::vector<std::pair<int,int> > rotations =
-	{
-		{6,10}, {7,11}, {8,12}, {1,13},
-		{2,14}, {3,15}
-	};
-
-	std::shared_ptr<CAnimation> anim = std::make_shared<CAnimation>(name);
-	anim->preload();
-
-
-	for(const auto & rotation : rotations)
-	{
-		const int sourceGroup = rotation.first;
-		const int targetGroup = rotation.second;
-
-		anim->createFlippedGroup(sourceGroup, targetGroup);
-	}
-
-	return anim;
-}
-
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
 	if(sur->format->palette)
@@ -335,26 +226,6 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 	}
 }
 
-void Graphics::loadFogOfWar()
-{
-	fogOfWarFullHide = std::make_shared<CAnimation>("TSHRC");
-	fogOfWarFullHide->preload();
-	fogOfWarPartialHide = std::make_shared<CAnimation>("TSHRE");
-	fogOfWarPartialHide->preload();
-
-	static const int rotations [] = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
-
-	size_t size = fogOfWarPartialHide->size(0);//group size after next rotation
-
-	for(const int rotation : rotations)
-	{
-		fogOfWarPartialHide->duplicateImage(0, rotation, 0);
-		auto image = fogOfWarPartialHide->getImage(size, 0);
-		image->verticalFlip();
-		size++;
-	}
-}
-
 void Graphics::loadFonts()
 {
 	const JsonNode config(ResourceID("config/fonts.json"));
@@ -376,41 +247,6 @@ void Graphics::loadFonts()
 		else
 			fonts[i] = std::make_shared<CBitmapFont>(filename);
 	}
-}
-
-std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
-{
-	return getAnimation(obj->appearance);
-}
-
-std::shared_ptr<CAnimation> Graphics::getAnimation(std::shared_ptr<const ObjectTemplate> info)
-{
-	//the only(?) invisible object
-	if(info->id == Obj::EVENT)
-	{
-		return std::shared_ptr<CAnimation>();
-	}
-
-	if(info->animationFile.empty())
-	{
-		logGlobal->warn("Def name for obj (%d,%d) is empty!", info->id, info->subid);
-		return std::shared_ptr<CAnimation>();
-	}
-
-	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info->animationFile];
-
-	//already loaded
-	if(ret)
-	{
-		ret->preload();
-		return ret;
-	}
-
-	ret = std::make_shared<CAnimation>(info->animationFile);
-	mapObjectAnimations[info->animationFile] = ret;
-
-	ret->preload();
-	return ret;
 }
 
 void Graphics::loadErmuToPicture()

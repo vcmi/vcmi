@@ -625,80 +625,37 @@ void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x,
 }
 
 template<int bpp>
-void CSDL_Ext::applyEffectBpp(SDL_Surface * surf, const Rect & rect, int mode )
+void CSDL_Ext::convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect )
 {
-	switch(mode)
+	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
+
+	for(int yp = rect.top(); yp < rect.bottom(); ++yp)
 	{
-	case 0: //sepia
+		uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
+		uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
+
+		for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
 		{
-			const int sepiaDepth = 20;
-			const int sepiaIntensity = 30;
+			int r = Channels::px<bpp>::r.get(pixel);
+			int g = Channels::px<bpp>::g.get(pixel);
+			int b = Channels::px<bpp>::b.get(pixel);
 
-			for(int xp = rect.x; xp < rect.x + rect.w; ++xp)
-			{
-				for(int yp = rect.y; yp < rect.y + rect.h; ++yp)
-				{
-					uint8_t * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
-					int r = Channels::px<bpp>::r.get(pixel);
-					int g = Channels::px<bpp>::g.get(pixel);
-					int b = Channels::px<bpp>::b.get(pixel);
-					int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 * b);
+			int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
 
-					r = g = b = gray;
-					r = r + (sepiaDepth * 2);
-					g = g + sepiaDepth;
-
-					if (r>255) r=255;
-					if (g>255) g=255;
-					if (b>255) b=255;
-
-					// Darken blue color to increase sepia effect
-					b -= sepiaIntensity;
-
-					// normalize if out of bounds
-					if (b<0) b=0;
-
-					Channels::px<bpp>::r.set(pixel, r);
-					Channels::px<bpp>::g.set(pixel, g);
-					Channels::px<bpp>::b.set(pixel, b);
-				}
-			}
+			Channels::px<bpp>::r.set(pixel, gray);
+			Channels::px<bpp>::g.set(pixel, gray);
+			Channels::px<bpp>::b.set(pixel, gray);
 		}
-		break;
-	case 1: //grayscale
-		{
-			for(int xp = rect.x; xp < rect.x + rect.w; ++xp)
-			{
-				for(int yp = rect.y; yp < rect.y + rect.h; ++yp)
-				{
-					uint8_t * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
-
-					int r = Channels::px<bpp>::r.get(pixel);
-					int g = Channels::px<bpp>::g.get(pixel);
-					int b = Channels::px<bpp>::b.get(pixel);
-
-					int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
-					vstd::amax(gray, 255);
-
-					Channels::px<bpp>::r.set(pixel, gray);
-					Channels::px<bpp>::g.set(pixel, gray);
-					Channels::px<bpp>::b.set(pixel, gray);
-				}
-			}
-		}
-		break;
-	default:
-		throw std::runtime_error("Unsupported effect!");
 	}
 }
 
-void CSDL_Ext::applyEffect( SDL_Surface * surf, const Rect & rect, int mode )
+void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
 {
 	switch(surf->format->BytesPerPixel)
 	{
-		case 2: applyEffectBpp<2>(surf, rect, mode); break;
-		case 3: applyEffectBpp<3>(surf, rect, mode); break;
-		case 4: applyEffectBpp<4>(surf, rect, mode); break;
+		case 2: convertToGrayscaleBpp<2>(surf, rect); break;
+		case 3: convertToGrayscaleBpp<3>(surf, rect); break;
+		case 4: convertToGrayscaleBpp<4>(surf, rect); break;
 	}
 }
 

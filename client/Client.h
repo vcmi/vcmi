@@ -229,7 +229,7 @@ public:
 	void setMovePoints(SetMovePoints * smp) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player) override {};
-	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override {};
+	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {};
 	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 

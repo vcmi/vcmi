@@ -26,12 +26,17 @@ class SDLImageLoader;
 
 std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
 {
-	return std::shared_ptr<IImage>(new SDLImage(path));
+	return createFromFile(path, EImageBlitMode::ALPHA);
+}
+
+std::shared_ptr<IImage> IImage::createFromFile( const std::string & path, EImageBlitMode mode )
+{
+	return std::shared_ptr<IImage>(new SDLImage(path, mode));
 }
 
 std::shared_ptr<IImage> IImage::createFromSurface( SDL_Surface * source )
 {
-	return std::shared_ptr<IImage>(new SDLImage(source, true));
+	return std::shared_ptr<IImage>(new SDLImage(source, EImageBlitMode::ALPHA));
 }
 
 IImage::IImage() = default;
@@ -57,9 +62,10 @@ SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 	data->loadFrame(frame, group, loader);
 
 	savePalette();
+	setBlitMode(EImageBlitMode::ALPHA);
 }
 
-SDLImage::SDLImage(SDL_Surface * from, bool extraRef)
+SDLImage::SDLImage(SDL_Surface * from, EImageBlitMode mode)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -70,14 +76,14 @@ SDLImage::SDLImage(SDL_Surface * from, bool extraRef)
 		return;
 
 	savePalette();
+	setBlitMode(mode);
 
-	if (extraRef)
-		surf->refcount++;
+	surf->refcount++;
 	fullSize.x = surf->w;
 	fullSize.y = surf->h;
 }
 
-SDLImage::SDLImage(const JsonNode & conf)
+SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -91,6 +97,7 @@ SDLImage::SDLImage(const JsonNode & conf)
 		return;
 
 	savePalette();
+	setBlitMode(mode);
 
 	const JsonNode & jsonMargins = conf["margins"];
 
@@ -111,7 +118,7 @@ SDLImage::SDLImage(const JsonNode & conf)
 	}
 }
 
-SDLImage::SDLImage(std::string filename)
+SDLImage::SDLImage(std::string filename, EImageBlitMode mode)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -127,6 +134,7 @@ SDLImage::SDLImage(std::string filename)
 	else
 	{
 		savePalette();
+		setBlitMode(mode);
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 	}
@@ -172,7 +180,7 @@ void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) cons
 	if (SDL_GetSurfaceAlphaMod(surf, &perSurfaceAlpha) != 0)
 		logGlobal->error("SDL_GetSurfaceAlphaMod faied! %s", SDL_GetError());
 
-	if(surf->format->BitsPerPixel == 8 && perSurfaceAlpha == SDL_ALPHA_OPAQUE)
+	if(surf->format->BitsPerPixel == 8 && perSurfaceAlpha == SDL_ALPHA_OPAQUE && blitMode == EImageBlitMode::ALPHA)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
 	}
@@ -196,13 +204,16 @@ std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	SDLImage * ret = new SDLImage(scaled, false);
+	SDLImage * ret = new SDLImage(scaled, EImageBlitMode::ALPHA);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
 
 	ret->margins.x = (int) round((float)margins.x * scaleX);
 	ret->margins.y = (int) round((float)margins.y * scaleY);
+
+	// erase our own reference
+	SDL_FreeSurface(scaled);
 
 	return std::shared_ptr<IImage>(ret);
 }
@@ -220,7 +231,18 @@ void SDLImage::playerColored(PlayerColor player)
 void SDLImage::setAlpha(uint8_t value)
 {
 	CSDL_Ext::setAlpha (surf, value);
-	SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+	if (value != 255)
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+}
+
+void SDLImage::setBlitMode(EImageBlitMode mode)
+{
+	blitMode = mode;
+
+	if (blitMode != EImageBlitMode::OPAQUE && surf->format->Amask != 0)
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 }
 
 void SDLImage::setFlagColor(PlayerColor player)
@@ -272,20 +294,17 @@ void SDLImage::savePalette()
 	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, DEFAULT_PALETTE_COLORS);
 }
 
-void SDLImage::shiftPalette(int from, int howMany)
+void SDLImage::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
 {
-	//works with at most 16 colors, if needed more -> increase values
-	assert(howMany < 16);
-
 	if(surf->format->palette)
 	{
-		SDL_Color palette[16];
+		std::vector<SDL_Color> shifterColors(colorsToMove);
 
-		for(int i=0; i<howMany; ++i)
+		for(uint32_t i=0; i<colorsToMove; ++i)
 		{
-			palette[(i+1)%howMany] = surf->format->palette->colors[from + i];
+			shifterColors[(i+distanceToMove)%colorsToMove] = originalPalette->colors[firstColorID + i];
 		}
-		CSDL_Ext::setColors(surf, palette, from, howMany);
+		CSDL_Ext::setColors(surf, shifterColors.data(), firstColorID, colorsToMove);
 	}
 }
 

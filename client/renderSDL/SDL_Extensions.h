@@ -102,8 +102,8 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	SDL_Surface * scaleSurface(SDL_Surface *surf, int width, int height);
 
 	template<int bpp>
-	void applyEffectBpp( SDL_Surface * surf, const Rect & rect, int mode );
-	void applyEffect(SDL_Surface * surf, const Rect & rect, int mode); //mode: 0 - sepia, 1 - grayscale
+	void convertToGrayscaleBpp( SDL_Surface * surf, const Rect & rect );
+	void convertToGrayscale(SDL_Surface * surf, const Rect & rect);
 
 	bool isResolutionSupported(const std::vector<Point> & resolutions, const Point toTest );
 
@@ -118,7 +118,7 @@ typedef void (*TColorPutterAlpha)(uint8_t *&ptr, const uint8_t & R, const uint8_
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
 
 	/// helper that will safely set and un-set ClipRect for SDL_Surface
-	class CClipRectGuard
+	class CClipRectGuard : boost::noncopyable
 	{
 		SDL_Surface * surf;
 		Rect oldRect;

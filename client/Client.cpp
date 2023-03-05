@@ -14,7 +14,7 @@
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "adventureMap/CAdvMapInt.h"
-#include "adventureMap/mapHandler.h"
+#include "mapView/mapHandler.h"
 #include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
@@ -404,11 +404,8 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler();
-		CGI->mh->map = gs->map;
+		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
-		CGI->mh->init();
-		logNetwork->trace("Initializing mapHandler (together): %d ms", CSH->th->getDiff());
 	}
 
 	pathCache.clear();

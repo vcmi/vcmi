@@ -22,7 +22,6 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../adventureMap/CAdvMapInt.h"
-#include "../adventureMap/CTerrainRect.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"

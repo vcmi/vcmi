@@ -237,7 +237,6 @@ CGHeroInstance::CGHeroInstance():
 	IBoatGenerator(this),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
-	isStanding(true),
 	moveDir(4),
 	mana(UNINITIALIZED_MANA),
 	movement(UNINITIALIZED_MOVEMENT),
@@ -1141,7 +1140,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	if(static_cast<int>(movement) < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 
-	return cb->getTile(visitablePos())->getDiggingStatus();
+	return cb->getTileDigStatus(visitablePos());
 }
 
 ArtBearer::ArtBearer CGHeroInstance::bearerType() const
