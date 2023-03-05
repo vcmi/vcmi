@@ -88,7 +88,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	});
 	addCallback("framerateChanged", [](bool value)
 	{
-		setBoolSetting("general", "showfps", value);
+		setBoolSetting("video", "showfps", value);
 	});
 
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
@@ -119,7 +119,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	});
 
 	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
-	framerateCheckbox->setSelected(settings["general"]["showfps"].Bool());
+	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->moveTo(CCS->musich->getVolume());

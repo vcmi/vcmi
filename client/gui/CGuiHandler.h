@@ -49,17 +49,20 @@ class CFramerateManager
 {
 private:
 	double rateticks;
-	ui32 lastticks, timeElapsed;
+	ui32 lastticks;
+	ui32 timeElapsed;
 	int rate;
-	ui32 accumulatedTime,accumulatedFrames;
-public:
 	int fps; // the actual fps value
+	ui32 accumulatedTime;
+	ui32 accumulatedFrames;
 
-	CFramerateManager(int rate); // initializes the manager with a given fps rate
-	void init(); // needs to be called directly before the main game loop to reset the internal timer
+public:
+	CFramerateManager(); // initializes the manager with a given fps rate
+	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
 	ui32 getFrameNumber() const { return accumulatedFrames; }
+	ui32 getFramerate() const { return fps; };
 };
 
 // Handles GUI logic and drawing
