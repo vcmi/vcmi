@@ -98,12 +98,9 @@ void CGuiHandler::init()
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
 
-static bool debugDetectDeactivationDuringHandle = false;
-
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
-		assert(debugDetectDeactivationDuringHandle == false);
 		lst->push_front(elem);
 	});
 	elem->active_m |= activityFlag;
@@ -112,7 +109,6 @@ void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
 void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
-		assert(debugDetectDeactivationDuringHandle == false);
 		auto hlp = std::find(lst->begin(),lst->end(),elem);
 		assert(hlp != lst->end());
 		lst->erase(hlp);
@@ -598,7 +594,6 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 	//sending active, hovered hoverable objects hover() call
 	std::vector<CIntObject*> hlp;
 
-	debugDetectDeactivationDuringHandle = true;
 	auto hoverableCopy = hoverable;
 	for(auto & elem : hoverableCopy)
 	{
@@ -613,8 +608,6 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 			(elem)->hovered = false;
 		}
 	}
-	debugDetectDeactivationDuringHandle = false;
-	assert(hoverableCopy == hoverable);
 
 	for(auto & elem : hlp)
 	{
