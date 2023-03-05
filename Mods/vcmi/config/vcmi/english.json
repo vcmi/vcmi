@@ -34,7 +34,8 @@
 
 	"vcmi.systemOptions.videoGroup" : "Video Settings",
 	"vcmi.systemOptions.audioGroup" : "Audio Settings",
-	"vcmi.systemOptions.otherGroup" : "Other Settings",
+	"vcmi.systemOptions.otherGroup" : "Other Settings", // unused right now
+	"vcmi.systemOptions.townsGroup" : "Town Screen",
 
 	"vcmi.systemOptions.fullscreenButton.hover" : "Fullscreen",
 	"vcmi.systemOptions.fullscreenButton.help"  : "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, otherwise VCMI will run in window",
@@ -64,7 +65,7 @@
 	"vcmi.battleOptions.queueSizeAutoButton.hover": "AUTO",
 	"vcmi.battleOptions.queueSizeSmallButton.hover": "SMALL",
 	"vcmi.battleOptions.queueSizeBigButton.hover": "BIG",
-	"vcmi.battleOptions.queueSizeNoneButton.help": "Competely disables visibility of creature turn order in battle",
+	"vcmi.battleOptions.queueSizeNoneButton.help": "Completely disables visibility of creature turn order in battle",
 	"vcmi.battleOptions.queueSizeAutoButton.help": "Sets turn order size depending on game resolution (small when playing with screen resolution below 700 pixels high, big otherwise)",
 	"vcmi.battleOptions.queueSizeSmallButton.help": "Sets turn order size to small",
 	"vcmi.battleOptions.queueSizeBigButton.help": "Sets turn order size to big (not supported if game resolution is less than 700 pixels high)",
@@ -77,10 +78,12 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Skip Intro Music",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\n Skip short music that plays at beginning of each battle before action starts. Can also be skipped by pressing ESC key.",
 
-	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures in Town",
-	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures in Town}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",
-	"vcmi.otherOptions.compactTownCreatureInfo.hover": "Compact Creature Info in Town",
-	"vcmi.otherOptions.compactTownCreatureInfo.help": "{Compact Creature Info in Town}\n\n Smaller town creatures information in town summary.",
+	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
+	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",
+	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Show Weekly Growth of Creatures",
+	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.help" : "{Show Weekly Growth of Creatures}\n\n Shows creatures' weekly growth instead of avaialble amount in town summary (bottom-left corner).",
+	"vcmi.otherOptions.compactTownCreatureInfo.hover": "Compact Creature Info",
+	"vcmi.otherOptions.compactTownCreatureInfo.help": "{Compact Creature Info}\n\n Smaller town creatures information in town summary.",
 
 	"vcmi.townHall.missingBase"             : "Base building %s must be built first",
 	"vcmi.townHall.noCreaturesToRecruit"    : "There are no creatures to recruit!",

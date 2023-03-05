@@ -32,6 +32,7 @@
 				}
 			]
 		},
+/////////////////////////////////////// Right section - Auto-combat settings (NOT IMPLEMENTED)
 		{
 			"name": "autoCombatLabels",
 			"type": "labelGroup",
@@ -92,7 +93,7 @@
 			"image": "settingsWindow/checkBoxEmpty",
 			"position": {"x": 380, "y": 203},
 		},
-
+/////////////////////////////////////// Left section - checkboxes
 		{
 			"name": "creatureInfoLabels",
 			"type": "labelGroup",
@@ -193,7 +194,7 @@
 			"position": {"x": 10, "y": 173},
 			"callback": "skipBattleIntroMusicChanged"
 		},
-
+/////////////////////////////////////// Bottom section - Animation Speed and Turn Order
 		{
 			"name": "frameAnimationSpeed",
 			"type": "picture",

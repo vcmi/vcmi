@@ -33,8 +33,8 @@ static void setIntSetting(std::string group, std::string field, int value)
 
 static void setBoolSetting(std::string group, std::string field, bool value)
 {
-	Settings fullscreen = settings.write[group][field];
-	fullscreen->Bool() = value;
+	Settings entry = settings.write[group][field];
+	entry->Bool() = value;
 }
 
 static std::string resolutionToString(int w, int h)
@@ -57,7 +57,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
 	{
-		return setBoolSetting("video", "spellbookAnimation", value);
+		setBoolSetting("video", "spellbookAnimation", value);
 	});
 	addCallback("setMusic", [this](int value)
 	{
@@ -90,21 +90,23 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setBoolSetting("general", "showfps", value);
 	});
+
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
-	addCallback("availableCreaturesAsDwellingLabelChanged", [](bool value)
+	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
 	{
-		setBoolSetting("gameTweaks", "availableCreaturesAsDwellingLabel", value);
+		setBoolSetting("gameTweaks", "availableCreaturesAsDwellingLabel", value > 0);
 	});
+
 	addCallback("compactTownCreatureInfoChanged", [](bool value)
 	{
-		return setBoolSetting("gameTweaks", "compactTownCreatureInfo", value);
+		setBoolSetting("gameTweaks", "compactTownCreatureInfo", value);
 	});
+
 	build(config);
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 	const auto & currentResolution = settings["video"]["screenRes"];
 	resolutionLabel->setText(resolutionToString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
-
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
@@ -125,8 +127,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
 	volumeSlider->moveTo(CCS->soundh->getVolume());
 
-	std::shared_ptr<CToggleButton> availableCreaturesAsDwellingLabelCheckbox = widget<CToggleButton>("availableCreaturesAsDwellingLabelCheckbox");
-	availableCreaturesAsDwellingLabelCheckbox->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
+	std::shared_ptr<CToggleGroup> creatureGrowthAsDwellingPicker = widget<CToggleGroup>("availableCreaturesAsDwellingPicker");
+	creatureGrowthAsDwellingPicker->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
 
 	std::shared_ptr<CToggleButton> compactTownCreatureInfo = widget<CToggleButton>("compactTownCreatureInfoCheckbox");
 	compactTownCreatureInfo->setSelected(settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
