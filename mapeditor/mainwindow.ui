@@ -1096,7 +1096,7 @@
     <string>Erase</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Backspace, Del</string>
+    <string notr="true">Del</string>
    </property>
   </action>
   <action name="actionNeutral">
