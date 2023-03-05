@@ -1649,7 +1649,6 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 		return JsonUtils::stringNode(CSkillHandler::encodeSkillWithType(subtype));
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
-	case Bonus::SPECIAL_BLESS_DAMAGE:
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
@@ -1757,7 +1756,6 @@ std::string Bonus::nameForBonus() const
 		return CSkillHandler::encodeSkill(subtype);
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
-	case Bonus::SPECIAL_BLESS_DAMAGE:
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:

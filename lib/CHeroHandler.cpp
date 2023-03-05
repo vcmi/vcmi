@@ -604,12 +604,16 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		result.push_back(bonus);
 		break;
 	case 6: //damage bonus for bless (Adela)
-		bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
-		bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
-		bonus->additionalInfo = spec.additionalinfo; //damage factor
-		bonus->updater.reset(new TimesHeroLevelUpdater());
-		result.push_back(bonus);
-		break;
+		{
+			auto limiter = std::make_shared<HasAnotherBonusLimiter>(Bonus::GENERAL_DAMAGE_PREMY,Bonus::SPELL_EFFECT);
+			limiter->sid = spec.subtype; //spell id if you ever wanted to use it otherwise
+			limiter->isSourceIDRelevant = true;
+			bonus->type = Bonus::GENERAL_DAMAGE_PREMY;
+			bonus->updater.reset(new TimesHeroLevelUpdater());
+			bonus->addLimiter(limiter);
+			result.push_back(bonus);
+			break;
+		}
 	case 7: //maxed mastery for spell
 		bonus->type = Bonus::SPECIAL_FIXED_VALUE_ENCHANT;
 		bonus->subtype = spec.subtype; //spell id

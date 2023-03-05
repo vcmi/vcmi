@@ -173,9 +173,20 @@
 		"specialty" : {
 			"bonuses" : {
 				"bless" : {
-					"addInfo" : 0,
-					"subtype" : "spell.bless",
-					"type" : "SPECIAL_BLESS_DAMAGE",
+					"type" : "GENERAL_DAMAGE_PREMY",
+					"limiters" : [
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"parameters" : [
+								"GENERAL_DAMAGE_PREMY",
+								1,
+								{
+									"type" : "SPELL_EFFECT",
+									"id" : "spell.bless"
+								}
+							]
+						}
+					],
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
