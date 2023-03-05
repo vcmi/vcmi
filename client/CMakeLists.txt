@@ -245,15 +245,23 @@ endif()
 
 assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
 
-if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
-	return()
+if(ANDROID)
+	add_library(vcmiclient SHARED ${client_SRCS} ${client_HEADERS})
+else()
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
-
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
-if(ENABLE_NULLKILLER_AI)
-	add_dependencies(vcmiclient Nullkiller)
+add_dependencies(vcmiclient vcmiserver)
+if(NOT ENABLE_STATIC_AI_LIBS)
+	add_dependencies(vcmiclient
+		BattleAI
+		EmptyAI
+		StupidAI
+		VCAI
+	)
+	if(ENABLE_NULLKILLER_AI)
+		add_dependencies(vcmiclient Nullkiller)
+	endif()
 endif()
 if(APPLE_IOS)
 	if(ENABLE_ERM)
@@ -362,12 +370,18 @@ if(APPLE_IOS)
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
+elseif(ANDROID)
+	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
+	add_custom_command(TARGET vcmiclient POST_BUILD
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main"
+	)
+	install(TARGETS vcmiclient DESTINATION ${LIB_DIR})
 else()
 	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 endif()
 
 #install icons and desktop file on Linux
-if(NOT WIN32 AND NOT APPLE)
+if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)

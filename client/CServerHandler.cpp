@@ -65,7 +65,7 @@ template<typename T> class CApplyOnLobby;
 
 const std::string CServerHandler::localhostAddress{"127.0.0.1"};
 
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 extern std::atomic_bool androidTestServerReadyFlag;
 #endif
 
@@ -196,12 +196,7 @@ void CServerHandler::startLocalServerAndConnect()
 		//no connection means that port is not busy and we can start local server
 	}
 	
-#ifdef VCMI_ANDROID
-	{
-		CAndroidVMHelper envHelper;
-		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
-	}
-#elif defined(SINGLE_PROCESS_APP)
+#if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
 	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + boost::lexical_cast<std::string>(getHostPort())};
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
@@ -217,6 +212,11 @@ void CServerHandler::startLocalServerAndConnect()
 		onServerFinished();
 	});
 	threadRunLocalServer->detach();
+#elif defined(VCMI_ANDROID)
+	{
+		CAndroidVMHelper envHelper;
+		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
+	}
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
@@ -224,16 +224,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 
-#ifdef VCMI_ANDROID
-	logNetwork->info("waiting for server");
-	while(!androidTestServerReadyFlag.load())
-	{
-		logNetwork->info("still waiting...");
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	}
-	logNetwork->info("waiting for server finished...");
-	androidTestServerReadyFlag = false;
-#elif defined(SINGLE_PROCESS_APP)
+#ifdef SINGLE_PROCESS_APP
 	{
 #ifdef VCMI_IOS
 		dispatch_sync(dispatch_get_main_queue(), ^{
@@ -253,6 +244,15 @@ void CServerHandler::startLocalServerAndConnect()
 		});
 #endif
 	}
+#elif defined(VCMI_ANDROID)
+	logNetwork->info("waiting for server");
+	while(!androidTestServerReadyFlag.load())
+	{
+		logNetwork->info("still waiting...");
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	}
+	logNetwork->info("waiting for server finished...");
+	androidTestServerReadyFlag = false;
 #else
 	if(shm)
 		shm->sr->waitTillReady();
@@ -261,7 +261,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 	const ui16 port = shm ? shm->sr->port : 0;
 #else
 	const ui16 port = 0;
@@ -876,7 +876,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 
 void CServerHandler::threadRunServer()
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 	setThreadName("CServerHandler::threadRunServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()

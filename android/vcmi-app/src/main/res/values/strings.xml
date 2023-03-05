@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="url_project_page" translatable="false">https://vcmi.eu</string>
+    <string name="url_project_repo" translatable="false">https://github.com/vcmi/vcmi</string>
+    <string name="url_launcher_repo" translatable="false">https://github.com/vcmi/vcmi-android</string>
+    <string name="url_launcher_privacy" translatable="false">https://github.com/vcmi/vcmi/wiki/VCMI-App-Privacy-Policy</string>
+
+    <string name="app_name">VCMI</string>
+    <string name="server_name">VCMI Server</string>
+    <string name="launcher_title">VCMI Launcher</string>
+    <string name="launcher_btn_res_title">Change game native resolution</string>
+    <string name="launcher_btn_res_subtitle_unknown">Currently: unknown (probably 800x600)</string>
+    <string name="launcher_btn_res_subtitle">Currently: %1$dx%2$d</string>
+    <string name="launcher_btn_start_title">Start VCMI</string>
+    <string name="launcher_btn_start_subtitle">Current VCMI version: %1$s</string>
+    <string name="launcher_btn_mods_title">Mods</string>
+    <string name="launcher_btn_mods_subtitle">Install new factions, objects, extras</string>
+    <string name="launcher_btn_cp_title">Codepage</string>
+    <string name="launcher_btn_cp_subtitle_unknown">Currently: unknown</string>
+    <string name="launcher_btn_cp_subtitle">Currently: %1$s</string>
+    <string name="launcher_btn_pointermode_title">Change pointer mode</string>
+    <string name="launcher_btn_pointermode_subtitle">Currently: %1$s</string>
+    <string name="launcher_btn_pointermulti_title">Relative pointer speed multiplier</string>
+    <string name="launcher_btn_pointermulti_subtitle">Currently: %1$s</string>
+    <string name="launcher_btn_sound_title">Sound volume</string>
+    <string name="launcher_btn_music_title">Music volume</string>
+    <string name="launcher_btn_adventure_ai">Adventure AI</string>
+    <string name="launcher_btn_adventure_ai_title">Change adventure AI</string>
+    <string name="launcher_btn_import_title">Import VCMI data</string>
+    <string name="launcher_btn_import_description">Copy VCMI files into internal storage. You can import old vcmi-data folder from 0.99 release or HOMM3 files</string>
+    <string name="launcher_btn_export_title">Export VCMI data</string>
+    <string name="launcher_btn_export_description">Make a copy of internal VCMI data before uninstallation or to synchronize saves with desktop version. You can also access the internal storage directly.</string>
+    <string name="launcher_progress_copy">Copying %1$s</string>
+    <string name="launcher_version">Current launcher version: %1$s</string>
+    <string name="launcher_error_vcmi_data_root_failed">Could not create VCMI data folder in %1$s.</string>
+    <string name="launcher_error_h3_data_missing">Could not find data folder in \'%1$s\'. Place your HoMM3 data files there or use a button below to do this for you. You may need to restart the application also.</string>
+    <string name="launcher_error_vcmi_data_internal_missing">Could not find or extract vcmi data from app resources. Try to reinstall the app.</string>
+    <string name="launcher_error_vcmi_data_internal_update">Could not update vcmi data from app resources. Try to reinstall the app.</string>
+    <string name="launcher_error_permissions">This application needs write permissions to use the content stored in external storage</string>
+    <string name="launcher_error_permission_broken">Could not resolve permissions correctly</string>
+    <string name="mods_item_author_template">by %1$s</string>
+    <string name="misc_try_again">Try again</string>
+    <string name="launcher_section_init">Game init</string>
+    <string name="launcher_section_settings">Settings</string>
+    <string name="menu_mods_download_repo">Download repository data</string>
+
+    <string name="misc_pointermode_normal">Normal</string>
+    <string name="misc_pointermode_swipe">Normal with map dragging</string>
+    <string name="misc_pointermode_relative">Relative</string>
+    <string name="menu_launcher_about">About</string>
+
+    <string name="mods_title">Detected mods</string>
+    <string name="mods_failed_mod_loading">Could not load the mod in \'%1$s\' folder</string>
+    <string name="mods_removal_title">Removing %1$s</string>
+    <string name="mods_removal_confirmation">Are you sure you want to remove %1$s</string>
+
+    <string name="about_title">About application</string>
+    <string name="about_version_app">App version: %1$s</string>
+    <string name="about_version_launcher">Launcher version: %1$s</string>
+    <string name="about_section_project">Project</string>
+    <string name="about_section_legal">Legal</string>
+    <string name="about_links_main">Main page: %1$s</string>
+    <string name="about_links_repo">Project repository: %1$s</string>
+    <string name="about_links_repo_launcher">Launcher repository: %1$s</string>
+    <string name="about_btn_authors">Authors</string>
+    <string name="about_btn_privacy">Privacy policy: %1$s</string>
+    <string name="about_error_opening_url">Could not open the webpage (no suitable application found)</string>
+
+    <string name="dialog_authors_vcmi">VCMI authors</string>
+    <string name="dialog_authors_launcher">Launcher authors</string>
+    <string name="launcher_error_config_saving_failed">Could not save vcmi config; reason: %1$s</string>
+</resources>

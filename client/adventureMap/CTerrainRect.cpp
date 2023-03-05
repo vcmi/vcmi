@@ -69,7 +69,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	if(adventureInt->swipeEnabled)
 	{
 		if(handleSwipeStateChange((bool)down == true))
@@ -82,7 +82,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #endif
 		if(down == false)
 			return;
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	}
 #endif
 	int3 mp = whichTileIsIt();
@@ -94,7 +94,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	if(adventureInt->swipeEnabled && isSwiping)
 		return;
 #endif
@@ -123,7 +123,7 @@ void CTerrainRect::mouseMoved(const Point & cursorPosition)
 
 void CTerrainRect::handleSwipeMove(const Point & cursorPosition)
 {
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	if(!GH.isMouseButtonPressed() || GH.multifinger) // any "button" is enough on mobile
 		return;
 #else

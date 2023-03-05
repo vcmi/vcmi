@@ -59,7 +59,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 #include <execinfo.h>
 #endif
 
@@ -169,7 +169,7 @@ void CVCMIServer::run()
 	if(!restartGameplay)
 	{
 		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 		if(cmdLineOptions.count("enable-shm"))
 		{
 			std::string sharedMemoryName = "vcmi_memory";
@@ -188,8 +188,10 @@ void CVCMIServer::run()
 		}
 
 #if defined(VCMI_ANDROID)
+#ifndef SINGLE_PROCESS_APP
 		CAndroidVMHelper vmHelper;
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+#endif
 #elif !defined(VCMI_IOS)
 		if(shm)
 		{
@@ -997,7 +999,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -1024,7 +1026,7 @@ void handleLinuxSignal(int sig)
 }
 #endif
 
-static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
+static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
 	po::options_description opts("Allowed options");
@@ -1084,13 +1086,14 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #ifdef SINGLE_PROCESS_APP
 #define main server_main
 #endif
-#ifdef VCMI_ANDROID
+
+#if VCMI_ANDROID_DUAL_PROCESS
 void CVCMIServer::create()
 {
 	const int argc = 1;
-	char * argv[argc] = { "android-server" };
+	const char * argv[argc] = { "android-server" };
 #else
-int main(int argc, char * argv[])
+int main(int argc, const char * argv[])
 {
 #endif
 
@@ -1100,7 +1103,7 @@ int main(int argc, char * argv[])
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
@@ -1121,7 +1124,7 @@ int main(int argc, char * argv[])
 	srand((ui32)time(nullptr));
 
 #ifdef SINGLE_PROCESS_APP
-	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[0]);
+	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(const_cast<char *>(argv[0]));
 	cond->notify_one();
 #endif
 
@@ -1155,20 +1158,19 @@ int main(int argc, char * argv[])
 		//and return non-zero status so client can detect error
 		throw;
 	}
-#ifdef VCMI_ANDROID
+#if VCMI_ANDROID_DUAL_PROCESS
 	CAndroidVMHelper envHelper;
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
 	logConfig.deconfigure();
 	vstd::clear_pointer(VLC);
 
-#ifndef VCMI_ANDROID
+#if !VCMI_ANDROID_DUAL_PROCESS
 	return 0;
 #endif
 }
 
-#ifdef VCMI_ANDROID
-
+#if VCMI_ANDROID_DUAL_PROCESS
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(JNIEnv * env, jclass cls)
 {
 	__android_log_write(ANDROID_LOG_INFO, "VCMI", "Got jni call to init server");
@@ -1177,12 +1179,24 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(J
 	CVCMIServer::create();
 }
 
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
+{
+	CAndroidVMHelper::initClassloader(baseEnv);
+}
 #elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
 {
 	std::vector<const void *> argv = {cond};
 	for(auto & a : args)
 		argv.push_back(a.c_str());
-	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
+	main(argv.size(), reinterpret_cast<const char **>(&*argv.begin()));
 }
-#endif
+
+#ifdef VCMI_ANDROID
+void CVCMIServer::reuseClientJNIEnv(void * jniEnv)
+{
+	CAndroidVMHelper::initClassloader(jniEnv);
+	CAndroidVMHelper::alwaysUseLoadedClass = true;
+}
+#endif // VCMI_ANDROID
+#endif // VCMI_ANDROID_DUAL_PROCESS

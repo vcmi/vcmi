@@ -1,0 +1,4 @@
+ext {
+	// these values will be retrieved during gradle build
+	gitInfoVcmi = "none"
+}

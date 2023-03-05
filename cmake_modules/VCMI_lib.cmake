@@ -199,8 +199,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/TerrainHandler.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
-
-		${VCMILIB_ADDITIONAL_SOURCES}
 	)
 
 	# Version.cpp is a generated file
@@ -486,10 +484,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 				OUTPUT_NAME "VCMI_lib"
 				PROJECT_LABEL "VCMI_lib"
 		)
-	endif()
-
-	if(ANDROID)
-		return()
 	endif()
 
 	vcmi_set_output_dir(${TARGET_NAME} "")

@@ -13,29 +13,29 @@
 #include "CStack.h"
 #include "VCMIDirs.h"
 
-#ifdef VCMI_WINDOWS
-#include <windows.h> //for .dll libs
-#elif !defined VCMI_ANDROID
-#include <dlfcn.h>
-#endif
-
 #include "serializer/BinaryDeserializer.h"
 #include "serializer/BinarySerializer.h"
 
-#ifdef VCMI_ANDROID
-
-#include "AI/VCAI/VCAI.h"
-#include "AI/Nullkiller/AIGateway.h"
-#include "AI/BattleAI/BattleAI.h"
-
-#endif
+#ifdef STATIC_AI
+# include "AI/VCAI/VCAI.h"
+# include "AI/Nullkiller/AIGateway.h"
+# include "AI/BattleAI/BattleAI.h"
+# include "AI/StupidAI/StupidAI.h"
+# include "AI/EmptyAI/CEmptyAI.h"
+#else
+# ifdef VCMI_WINDOWS
+#  include <windows.h> //for .dll libs
+# else
+#  include <dlfcn.h>
+# endif // VCMI_WINDOWS
+#endif // STATIC_AI
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-#ifdef VCMI_ANDROID
+#ifdef STATIC_AI
 	// android currently doesn't support loading libs dynamically, so the access to the known libraries
 	// is possible only via specializations of this template
 	throw std::runtime_error("Could not resolve ai library " + libpath.generic_string());
@@ -96,10 +96,10 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 		logGlobal->error("Cannot get AI!");
 
 	return ret;
-#endif //!VCMI_ANDROID
+#endif // STATIC_AI
 }
 
-#ifdef VCMI_ANDROID
+#ifdef STATIC_AI
 
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
@@ -115,10 +115,14 @@ std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, co
 template<>
 std::shared_ptr<CBattleGameInterface> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	return std::make_shared<CBattleAI>();
+	if(libpath.stem() == "libBattleAI")
+		return std::make_shared<CBattleAI>();
+	else if(libpath.stem() == "libStupidAI")
+		return std::make_shared<CStupidAI>();
+	return std::make_shared<CEmptyAI>();
 }
 
-#endif
+#endif // STATIC_AI
 
 template<typename rett>
 std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string & methodName)

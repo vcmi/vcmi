@@ -9,6 +9,7 @@ The following platforms are supported and known to work, others might require ch
 - **macOS**: x86_64 (Intel) - target 10.13 (High Sierra), arm64 (Apple Silicon) - target 11.0 (Big Sur)
 - **iOS**: arm64 - target 12.0
 - **Windows**: x86_64 and x86 fully supported with building from Linux
+- **Android**: armeabi-v7a (32-bit ARM) - target 4.4 (API level 19), aarch64-v8a (64-bit ARM) - target 5.0 (API level 21)
 
 ## Getting started
 
@@ -21,16 +22,18 @@ The following platforms are supported and known to work, others might require ch
 
 1. Check if your build environment can use the prebuilt binaries: basically, that your compiler version (or Xcode major version) matches the information below. If you're unsure, simply advance to the next step.
 
-    - macOS: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode and Xcode CLT 14.x (older library versions are also available for Xcode 13, see Releases in the respective repo)
-    - iOS: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode 14.x (older library versions are also available for Xcode 13, see Releases in the respective repo)
-    - Windows: libraries are built with x86_64-mingw-w64-gcc version 10 (which is available in repositories of Ubuntu 22.04)
+    - **macOS**: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode and Xcode CLT 14.x (older library versions are also available for Xcode 13, see Releases in the respective repo)
+    - **iOS**: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode 14.x (older library versions are also available for Xcode 13, see Releases in the respective repo)
+    - **Windows**: libraries are built with x86_64-mingw-w64-gcc version 10 (which is available in repositories of Ubuntu 22.04)
+    - **Android**: libraries are built with NDK r25c (25.2.9519653)
 
 2. Download the binaries archive and unpack it to `~/.conan` directory:
 
     - [macOS](https://github.com/vcmi/vcmi-deps-macos/releases/latest): pick **intel.txz** if you have Intel Mac, otherwise - **intel-cross-arm.txz**
     - [iOS](https://github.com/vcmi/vcmi-ios-deps/releases/latest)
-    - [Windows] (https://github.com/vcmi/vcmi-deps-windows-conan/releases/latest): pick **vcmi-deps-windows-conan-w64.tgz**
+    - [Windows](https://github.com/vcmi/vcmi-deps-windows-conan/releases/latest): pick **vcmi-deps-windows-conan-w64.tgz**
     if you want x86, otherwise pick **vcmi-deps-windows-conan.tgz**
+    - [Android](https://github.com/vcmi/vcmi-dependencies/releases)
 
 3. Only if you have Apple Silicon Mac and trying to build for macOS or iOS: follow [instructions how to build Qt host tools for Apple Silicon](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs), on step 3 copy them to `~/.conan/data/qt/5.15.x/_/_/package/SOME_HASH/bin` (`5.15.x` and `SOME_HASH` are placeholders).
 
@@ -38,7 +41,7 @@ The following platforms are supported and known to work, others might require ch
 
 Conan needs to generate CMake toolchain file to make dependencies available to CMake. See `CMakeDeps` and `CMakeToolchain` [in the official documentation](https://docs.conan.io/en/latest/reference/conanfile/tools/cmake.html) for details.
 
-In terminal `cd` to the VCMI source directory and run the following command. If you want to download prebuilt binaries from ConanCenter, also read the [next section](#using-prebuilt-binaries-from-conancenter).
+In terminal `cd` to the VCMI source directory and run the following command. Also check subsections for additional requirements on consuming prebuilt binaries.
 
 <pre>
 conan install . \
@@ -62,6 +65,10 @@ VCMI "recipe" also has some options that you can specify. For example, if you do
 
 _Note_: you can find full reference of this command [in the official documentation](https://docs.conan.io/en/latest/reference/commands/consumer/install.html) or by executing `conan help install`.
 
+### Using our prebuilt binaries for macOS/iOS
+
+We use custom recipes for some libraries that are provided by the OS. You must additionally pass `-o with_apple_system_libs=True` for `conan install` to use them.
+
 ### Using prebuilt binaries from ConanCenter
 
 First, check if binaries for [your platform](https://github.com/conan-io/conan-center-index/blob/master/docs/supported_platforms_and_configurations.md) are produced.
@@ -70,6 +77,25 @@ You must adjust the above `conan install` command:
 
 1. Replace ***CI/conan/PROFILE*** with `default`.
 2. Additionally pass `-o default_options_of_requirements=True`: this disables all custom options of our `conanfile.py` to match ConanCenter builds.
+
+### Building dependencies from source
+
+This subsection describes platform specifics to build libraries from source properly.
+
+#### Building for macOS/iOS
+
+- To build Locale module of Boost in versions >= 1.81, you must use `compiler.cppstd=11` Conan setting (our profiles already contain it). To use it with another profile, either add this setting to your _host_ profile or pass `-s compiler.cppstd=11` on the command line.
+- If you wish to build dependencies against system libraries (like our prebuilt ones do), follow [below instructions](#using-recipes-for-system-libraries) executing `conan create` for all directories. Don't forget to pass `-o with_apple_system_libs=True` to `conan install` afterwards.
+
+#### Building for Android
+
+Android has issues loading self-built shared Zlib library because binary name is identical to the system one, so we enforce using the OS-provided library. To achieve that, follow [below instructions](#using-recipes-for-system-libraries), you only need `zlib` directory.
+
+##### Using recipes for system libraries
+
+1. Clone/download https://github.com/kambala-decapitator/conan-system-libs
+2. Execute `conan create PACKAGE vcmi/apple`, where `PACKAGE` is a directory path in that repository. Do it for each library you need.
+3. Now you can execute `conan install` to build all dependencies.
 
 ## Configure project for building
 
@@ -177,4 +203,3 @@ cmake --preset windows-mingw-conan-linux
 cmake --build --preset windows-mingw-conan-linux --target package
 ```
 After that, you will have functional VCMI installer for 32-bit windows.
-

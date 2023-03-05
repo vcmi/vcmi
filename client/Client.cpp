@@ -52,10 +52,10 @@
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
-#endif
 
-#ifdef VCMI_ANDROID
+#ifndef SINGLE_PROCESS_APP
 std::atomic_bool androidTestServerReadyFlag;
+#endif
 #endif
 
 ThreadSafeVector<int> CClient::waitingRequest;
@@ -778,13 +778,7 @@ void CClient::removeGUI()
 }
 
 #ifdef VCMI_ANDROID
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jclass cls)
-{
-	logNetwork->info("Received clientSetupJNI");
-
-	CAndroidVMHelper::cacheVM(env);
-}
-
+#ifndef SINGLE_PROCESS_APP
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server closed signal");
@@ -798,6 +792,7 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerRe
 	logNetwork->info("Received server ready signal");
 	androidTestServerReadyFlag.store(true);
 }
+#endif
 
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {

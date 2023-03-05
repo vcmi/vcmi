@@ -36,6 +36,11 @@ class BattleStateInfoForRetreat;
 
 VCMI_LIB_NAMESPACE_END
 
+// in static AI build this file gets included into libvcmi
+#ifdef STATIC_AI
+VCMI_LIB_USING_NAMESPACE
+#endif
+
 class CClient;
 struct lua_State;
 

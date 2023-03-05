@@ -578,7 +578,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		handleSwipeUpdate();
 	}
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS) // on mobile, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
+#if defined(VCMI_MOBILE) // on mobile, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
 	else
 #endif
 	{
@@ -1004,7 +1004,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 
 void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 {
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	if(swipeEnabled)
 		return;
 #endif

@@ -34,7 +34,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #elif defined(__linux__) || defined(__gnu_linux__) || defined(linux) || defined(__linux)
 #  define VCMI_UNIX
 #  define VCMI_XDG
-#  ifdef __ANDROID__
+#  if defined(__ANDROID__) || defined(ANDROID)
 #    define VCMI_ANDROID
 #  endif
 #elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
@@ -60,7 +60,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 //#  warning "Unknown Apple target."?
 #  endif
 #else
-#  error "VCMI supports only Windows, OSX, Linux and Android targets"
+#  error "This platform isn't supported"
+#endif
+
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#define VCMI_MOBILE
 #endif
 
 // Each compiler uses own way to supress fall through warning. Try to find it.
@@ -756,6 +760,9 @@ namespace vstd
 }
 using vstd::operator-=;
 
+VCMI_LIB_NAMESPACE_END
+
+
 #ifdef NO_STD_TOSTRING
 namespace std
 {
@@ -768,5 +775,3 @@ namespace std
 	}
 }
 #endif // NO_STD_TOSTRING
-
-VCMI_LIB_NAMESPACE_END

@@ -41,18 +41,29 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
+set(singleProcess OFF)
+set(staticAI OFF)
+if(ANDROID)
+	set(staticAI ON)
+	set(singleProcess ON)
+endif()
+
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
-option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+if(NOT ANDROID)
+	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+endif()
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+	set(ENABLE_SINGLE_APP_BUILD ON)
 else()
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+	option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" ${singleProcess})
 endif()
 
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
@@ -60,11 +71,11 @@ option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
-option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" OFF)
 option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
+option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
 # Used for Snap packages and also useful for debugging
-if(NOT APPLE_IOS)
+if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
@@ -72,17 +83,13 @@ endif()
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
-if(APPLE_IOS AND NOT ENABLE_SINGLE_APP_BUILD)
-	set(ENABLE_SINGLE_APP_BUILD ON)
-endif()
-
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
 endif()
 
-# We don't want to deploy assets into build directory for iOS build
-if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
+# We don't want to deploy assets into build directory for android/iOS build
+if((APPLE_IOS OR ANDROID) AND COPY_CONFIG_ON_BUILD)
 	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
@@ -95,6 +102,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR
 
 include(VCMIUtils)
 include(VersionDefinition)
+if(ANDROID)
+	set(VCMI_VERSION "${APP_SHORT_VERSION}")
+	configure_file("android/GeneratedVersion.java.in" "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main/java/eu/vcmi/vcmi/util/GeneratedVersion.java" @ONLY)
+endif()
 
 vcmi_print_important_variables()
 
@@ -280,6 +291,15 @@ if(MINGW OR MSVC)
 	endif(MINGW)
 endif(MINGW OR MSVC)
 
+if(ANDROID)
+	if(ANDROID_NDK_MAJOR LESS 23 AND ANDROID_ABI MATCHES "^armeabi")
+		# libunwind must come before other shared libs:
+		# https://android.googlesource.com/platform/ndk/+/master/docs/BuildSystemMaintainers.md#Unwinding
+		list(APPEND SYSTEM_LIBS unwind)
+	endif()
+	list(APPEND SYSTEM_LIBS log)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
@@ -447,6 +467,10 @@ elseif(APPLE)
 			set(DATA_DIR ".")
 		endif()
 	endif()
+elseif(ANDROID)
+	include(GNUInstallDirs)
+	set(LIB_DIR "jniLibs/${ANDROID_ABI}")
+	set(DATA_DIR "assets")
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -482,8 +506,8 @@ else()
 	endif()
 endif()
 
-# iOS has flat libs directory structure
-if(APPLE_IOS)
+# iOS/Android have flat libs directory structure
+if(APPLE_IOS OR ANDROID)
 	set(AI_LIB_DIR "${LIB_DIR}")
 	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
 else()
@@ -500,6 +524,8 @@ if(APPLE_IOS)
 endif()
 
 set(VCMI_LIB_TARGET vcmi)
+add_subdirectory_with_folder("AI" AI)
+
 include(VCMI_lib)
 add_subdirectory(lib)
 if(ENABLE_SINGLE_APP_BUILD)
@@ -525,7 +551,6 @@ if(ENABLE_EDITOR)
 endif()
 add_subdirectory(client)
 add_subdirectory(server)
-add_subdirectory_with_folder("AI" AI)
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test)
@@ -535,14 +560,48 @@ endif()
 #        Installation section         #
 #######################################
 
-install(DIRECTORY config DESTINATION ${DATA_DIR})
-install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+if(ANDROID)
+	if(ANDROID_STL MATCHES "_shared$")
+		set(stlLibName "${CMAKE_SHARED_LIBRARY_PREFIX}${ANDROID_STL}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+		install(FILES "${CMAKE_SYSROOT}/usr/lib/${ANDROID_SYSROOT_LIB_SUBDIR}/${stlLibName}"
+			DESTINATION ${LIB_DIR}
+		)
+	endif()
+
+	install(FILES AUTHORS
+		DESTINATION res/raw
+		RENAME authors.txt
+	)
+
+	# zip internal assets - 'config' and 'Mods' dirs, save md5 of the zip
+	install(CODE "
+		cmake_path(ABSOLUTE_PATH CMAKE_INSTALL_PREFIX
+			OUTPUT_VARIABLE absolute_install_prefix
+		)
+		set(absolute_data_dir \"\${absolute_install_prefix}/${DATA_DIR}\")
+		file(MAKE_DIRECTORY \"\${absolute_data_dir}\")
+
+		set(internal_data_zip \"\${absolute_data_dir}/internalData.zip\")
+		execute_process(COMMAND
+			\"${CMAKE_COMMAND}\" -E tar c \"\${internal_data_zip}\" --format=zip -- config Mods
+			WORKING_DIRECTORY \"${CMAKE_SOURCE_DIR}\"
+		)
+
+		file(MD5 \"\${internal_data_zip}\" internal_data_zip_md5)
+		file(WRITE \"\${absolute_data_dir}/internalDataHash.txt\"
+			\${internal_data_zip_md5}
+		)
+	")
+else()
+	install(DIRECTORY config DESTINATION ${DATA_DIR})
+	install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+endif()
 if(ENABLE_LUA)
 	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 endif()
 
-# that script is useless for Windows and iOS
-if(NOT WIN32 AND NOT APPLE_IOS)
+# that script is useless for Windows / iOS / Android
+if(NOT WIN32 AND NOT APPLE_IOS AND NOT ANDROID)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
 					GROUP_READ GROUP_EXECUTE

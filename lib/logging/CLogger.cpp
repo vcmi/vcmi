@@ -13,6 +13,8 @@
 #ifdef VCMI_ANDROID
 #include <android/log.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace ELogLevel
 {
 	int toAndroid(ELogLevel logLevel)
@@ -30,6 +32,8 @@ namespace ELogLevel
 		return ANDROID_LOG_UNKNOWN;
 	}
 }
+
+VCMI_LIB_NAMESPACE_END
 #elif defined(VCMI_IOS)
 #import "iOS_utils.h"
 extern "C" {
@@ -348,7 +352,7 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 }
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) :
-#ifndef VCMI_IOS
+#if !defined(VCMI_MOBILE)
 	console(console),
 #endif
 	threshold(ELogLevel::INFO), coloredOutputEnabled(true)

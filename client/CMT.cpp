@@ -57,7 +57,7 @@
 #include <SDL_syswm.h>
 #endif
 #ifdef VCMI_ANDROID
-#include "lib/CAndroidVMHelper.h"
+#include "../lib/CAndroidVMHelper.h"
 #endif
 
 #include "CMT.h"
@@ -149,18 +149,19 @@ static void SDLLogCallback(void*           userdata,
 
 #if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(VCMI_IOS) || defined(VCMI_ANDROID)
+#elif defined(VCMI_MOBILE)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char * argv[])
 #endif
 {
 #ifdef VCMI_ANDROID
+	CAndroidVMHelper::initClassloader(SDL_AndroidGetJNIEnv());
 	// boost will crash without this
 	setenv("LANG", "C", 1);
 #endif
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
@@ -580,7 +581,7 @@ void playIntro()
 	}
 }
 
-#ifndef VCMI_IOS
+#if !defined(VCMI_MOBILE)
 static bool checkVideoMode(int monitorIndex, int w, int h)
 {
 	//we only check that our desired window size fits on screen
@@ -643,7 +644,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 			displayIndex = 0;
 	}
 
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 	SDL_GetWindowSize(mainWindow, &w, &h);
 #else
 	if(!checkVideoMode(displayIndex, w, h))
@@ -707,7 +708,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	if(nullptr == mainWindow)
 	{
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#if defined(VCMI_MOBILE)
 		auto createWindow = [displayIndex](uint32_t extraFlags) -> bool {
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
 			return mainWindow != nullptr;
@@ -770,7 +771,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
 		}
-#endif // defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#endif // defined(VCMI_MOBILE)
 
 		if(nullptr == mainWindow)
 		{
@@ -793,7 +794,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 	else
 	{
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_MOBILE)
 
 		if(fullscreen)
 		{
