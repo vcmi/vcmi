@@ -81,7 +81,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && path.exchangeCount > 1)
 			continue;
 
 		auto firstBlockedAction = path.getFirstBlockedAction();
@@ -126,8 +126,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 			sharedPtr.reset(newWay);
 
-			if(!closestWay || closestWay->movementCost() > path.movementCost())
+			auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+
+			if(heroRole == HeroRole::SCOUT
+				&& (!closestWay || closestWay->movementCost() > path.movementCost()))
+			{
 				closestWay = &path;
+			}
 
 			if(!ai->nullkiller->arePathHeroesLocked(path))
 			{
@@ -137,11 +142,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		}
 	}
 
-	assert(closestWay || waysToVisitObj.empty());
-	for(auto way : waysToVisitObj)
+	if(closestWay)
 	{
-		way->closestWayRatio
-			= closestWay->movementCost() / way->getPath().movementCost();
+		for(auto way : waysToVisitObj)
+		{
+			way->closestWayRatio
+				= closestWay->movementCost() / way->getPath().movementCost();
+		}
 	}
 
 	return tasks;

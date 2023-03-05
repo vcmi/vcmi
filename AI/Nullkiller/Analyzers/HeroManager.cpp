@@ -109,7 +109,7 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 100 + 1);
+	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 50 + 1);
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
 

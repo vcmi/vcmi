@@ -590,13 +590,18 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 			if(hero.validAndSet() && target.valid() && objects.size())
 			{
-				auto objType = objects.back()->ID;
-
+				auto topObj = objects.front()->id == hero->id ? objects.back() : objects.front();
+				auto objType = topObj->ID; // top object should be our hero
+				auto goalObjectID = nullkiller->getTargetObject();
 				auto ratio = (float)nullkiller->dangerEvaluator->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
-				bool dangerUnknown = ratio == 0;
-				bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
 
-				answer = objects.back()->id == nullkiller->getTargetObject(); // no if we do not aim to visit this object
+				answer = topObj->id == goalObjectID; // no if we do not aim to visit this object
+				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name, ratio);
+
+				if(cb->getObj(goalObjectID, false))
+				{
+					logAi->trace("AI expected %s", cb->getObj(goalObjectID, false)->getObjectName());
+				}
 
 				if(objType == Obj::BORDERGUARD || objType == Obj::QUEST_GUARD)
 				{
@@ -604,9 +609,10 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				}
 				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
 				{
-					logAi->trace("Guarded object query hook: %s by %s danger ratio %f", target.toString(), hero.name, ratio);
+					bool dangerUnknown = ratio == 0;
+					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
 
-					answer = dangerUnknown || dangerTooHigh;
+					answer = !dangerUnknown && !dangerTooHigh;
 				}
 			}
 

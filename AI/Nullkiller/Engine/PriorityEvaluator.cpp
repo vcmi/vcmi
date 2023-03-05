@@ -81,6 +81,12 @@ void PriorityEvaluator::initVisitTile()
 	value = engine->getOutputVariable("Value");
 }
 
+bool isAnotherAi(const CGObjectInstance * obj, const CPlayerSpecificInfoCallback & cb)
+{
+	return obj->getOwner().isValidPlayer()
+		&& cb.getStartInfo()->getIthPlayersSettings(obj->getOwner()).isControlledByAI();
+}
+
 int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, const CGHeroInstance * hero)
 {
 	auto relations = cb->getPlayerRelations(hero->tempOwner, target->tempOwner);
@@ -88,15 +94,17 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 	if(relations != PlayerRelations::ENEMIES)
 		return 0; // if we already own it, no additional reward will be received by just visiting it
 
+	auto booster = isAnotherAi(target, *cb) ? 1 : 2;
+
 	auto town = cb->getTown(target->id);
 	auto fortLevel = town->fortLevel();
 
-	if(town->hasCapitol()) return 4000;
+	if(town->hasCapitol()) return booster * 2000;
 
 	// probably well developed town will have city hall
-	if(fortLevel == CGTownInstance::CASTLE) return 1500;
+	if(fortLevel == CGTownInstance::CASTLE) return booster * 750;
 	
-	return town->hasFort() && town->tempOwner != PlayerColor::NEUTRAL  ? 1000 : 500;
+	return booster * (town->hasFort() && town->tempOwner != PlayerColor::NEUTRAL  ? booster * 500 : 250);
 }
 
 TResources getCreatureBankResources(const CGObjectInstance * target, const CGHeroInstance * hero)
@@ -247,11 +255,12 @@ uint64_t RewardEvaluator::getArmyReward(
 	{
 		auto town = dynamic_cast<const CGTownInstance *>(target);
 		auto fortLevel = town->fortLevel();
+		auto booster = isAnotherAi(town, *ai->cb) ? 1 : 2;
 
 		if(fortLevel < CGTownInstance::CITADEL)
-			return town->hasFort() ? 1000 : 0;
+			return town->hasFort() ? booster * 500 : 0;
 		else
-			return fortLevel == CGTownInstance::CASTLE ? 10000 : 4000;
+			return booster * (fortLevel == CGTownInstance::CASTLE ? 5000 : 2000);
 	}
 
 	case Obj::HILL_FORT:
@@ -395,13 +404,14 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 
 		auto town = dynamic_cast<const CGTownInstance *>(target);
 		auto fortLevel = town->fortLevel();
+		auto booster = isAnotherAi(town, *ai->cb) ? 0.3 : 1;
 
 		if(town->hasCapitol()) return 1;
 
 		if(fortLevel < CGTownInstance::CITADEL)
-			return town->hasFort() ? 0.6 : 0.4;
+			return booster * (town->hasFort() ? 0.6 : 0.4);
 		else
-			return fortLevel == CGTownInstance::CASTLE ? 0.9 : 0.8;
+			return booster * (fortLevel == CGTownInstance::CASTLE ? 0.9 : 0.8);
 	}
 
 	case Obj::HERO:
@@ -579,6 +589,7 @@ public:
 		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
 
 		evaluationContext.armyReward += upgradeValue;
+		evaluationContext.strategicalValue += upgradeValue / armyUpgrade.hero->getTotalStrength();
 	}
 };
 
@@ -590,8 +601,7 @@ void addTileDanger(EvaluationContext & evaluationContext, const int3 & tile, uin
 	{
 		auto dangerRatio = enemyDanger.danger / (double)ourStrength;
 		auto enemyHero = evaluationContext.evaluator.ai->cb->getObj(enemyDanger.hero.hid, false);
-		bool isAI =enemyHero
-			&& evaluationContext.evaluator.ai->cb->getStartInfo()->getIthPlayersSettings(enemyHero->getOwner()).isControlledByAI();
+		bool isAI = enemyHero && isAnotherAi(enemyHero, *evaluationContext.evaluator.ai->cb);
 
 		if(isAI)
 		{

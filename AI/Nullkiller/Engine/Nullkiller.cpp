@@ -222,7 +222,7 @@ void Nullkiller::makeTurn()
 	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
-	const int FAST_TASK_MINIMAL_PRIORITY = 0.7;
+	const float FAST_TASK_MINIMAL_PRIORITY = 0.7;
 
 	resetAiState();
 
