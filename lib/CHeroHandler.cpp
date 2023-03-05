@@ -555,12 +555,17 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		AddSpecialtyForCreature(spec.additionalinfo, bonus, result);
 		break;
 	case 2: //secondary skill
-		bonus->type = Bonus::SECONDARY_SKILL_PREMY;
-		bonus->valType = Bonus::PERCENT_TO_BASE;
-		bonus->subtype = spec.subtype;
-		bonus->updater.reset(new TimesHeroLevelUpdater());
-		result.push_back(bonus);
-		break;
+		{
+			auto params = BonusParams("SECONDARY_SKILL_PREMY", "", spec.subtype);
+			bonus->type = params.type;
+			if(params.subtypeRelevant)
+				bonus->subtype = params.subtype;
+			bonus->valType = Bonus::PERCENT_TO_TARGET_TYPE;
+			bonus->targetSourceType = Bonus::SECONDARY_SKILL;
+			bonus->updater.reset(new TimesHeroLevelUpdater());
+			result.push_back(bonus);
+			break;
+		}
 	case 3: //spell damage bonus, level dependent but calculated elsewhere
 		bonus->type = Bonus::SPECIAL_SPELL_LEV;
 		bonus->subtype = spec.subtype;

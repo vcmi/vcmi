@@ -179,7 +179,6 @@ public:
 	BONUS_NAME(MANA_REGENERATION) /*points per turn apart from normal (1 + mysticism)*/  \
 	BONUS_NAME(FULL_MANA_REGENERATION) /*all mana points are replenished every day*/  \
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
-	BONUS_NAME(SECONDARY_SKILL_PREMY) /*%*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
@@ -209,7 +208,6 @@ public:
 	BONUS_NAME(IMPROVED_NECROMANCY) /* raise more powerful creatures: subtype - creature type raised, addInfo - [required necromancy level, required stack level], val - necromancy level for this purpose */ \
 	BONUS_NAME(CREATURE_GROWTH_PERCENT) /*increases growth of all units in all towns, val - percentage*/ \
 	BONUS_NAME(FREE_SHIP_BOARDING) /*movement points preserved with ship boarding and landing*/  \
-	BONUS_NAME(NO_TYPE)									\
 	BONUS_NAME(FLYING)									\
 	BONUS_NAME(SHOOTER)									\
 	BONUS_NAME(CHARGE_IMMUNITY)							\
@@ -281,7 +279,6 @@ public:
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
 	BONUS_NAME(DARKNESS) /*val = radius */ \
-	BONUS_NAME(SPECIAL_SECONDARY_SKILL) /*subtype = id, val = value per level in percent*/ \
 	BONUS_NAME(SPECIAL_SPELL_LEV) /*subtype = id, val = value per level in percent*/\
 	BONUS_NAME(SPELL_DAMAGE) /*val = value, now works for sorcery*/\
 	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*subtype = id of spell, val = value*/\
@@ -315,7 +312,6 @@ public:
 	BONUS_NAME(CATAPULT_EXTRA_SHOTS) /*val - power of catapult effect, requires CATAPULT bonus to work*/\
 	BONUS_NAME(RANGED_RETALIATION) /*allows shooters to perform ranged retaliation*/\
 	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/\
-	BONUS_NAME(SECONDARY_SKILL_VAL2) /*deprecated. has no effect, will be converted to actual bonus*/  \
 	BONUS_NAME(MANUAL_CONTROL) /* manually control warmachine with id = subtype, chance = val */  \
 	BONUS_NAME(WIDE_BREATH) /* initial desigh: dragon breath affecting multiple nearby hexes */\
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
@@ -541,6 +537,27 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
+
+struct DLL_LINKAGE BonusParams {
+	bool isConverted;
+	Bonus::BonusType type = Bonus::NONE;
+	TBonusSubtype subtype = -1;
+	std::string subtypeStr = "";
+	bool subtypeRelevant = false;
+	Bonus::ValueType valueType = Bonus::BASE_NUMBER;
+	bool valueTypeRelevant = false;
+	si32 val = 0;
+	bool valRelevant = false;
+	Bonus::BonusSource targetType = Bonus::SECONDARY_SKILL;
+	bool targetTypeRelevant = false;
+
+	BonusParams(bool isConverted = true) : isConverted(isConverted) {};
+	BonusParams(std::string deprecatedTypeStr, std::string deprecatedSubtypeStr = "", int deprecatedSubtype = 0);
+	const JsonNode & toJson();
+private:
+	JsonNode ret;
+	bool jsonCreated = false;
+};
 
 class DLL_LINKAGE BonusList
 {
@@ -1232,6 +1249,7 @@ extern DLL_LINKAGE const std::map<std::string, Bonus::LimitEffect> bonusLimitEff
 extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
 extern DLL_LINKAGE const std::map<std::string, TPropagatorPtr> bonusPropagatorMap;
 extern DLL_LINKAGE const std::map<std::string, TUpdaterPtr> bonusUpdaterMap;
+extern DLL_LINKAGE const std::set<std::string> deprecatedBonusSet;
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>

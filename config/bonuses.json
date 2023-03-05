@@ -1,5 +1,4 @@
 //TODO: selector-based config
-// SECONDARY_SKILL_PREMY
 // school immunities
 // LEVEL_SPELL_IMMUNITY
 
@@ -430,12 +429,6 @@
 		{
 			"icon":  "zvs/Lib1.res/E_HARPY"
 		}
-	},
-
-	"SECONDARY_SKILL_PREMY":
-	{
-		"hidden": true
-		//todo: selector based config
 	},
 
 	"SELF_LUCK":
