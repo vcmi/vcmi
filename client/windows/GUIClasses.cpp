@@ -63,6 +63,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
+#include "../lib/TextOperations.h"
 
 #include <SDL_surface.h>
 
@@ -407,8 +408,12 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->getNameTranslated()));
 
 	//%s is now a level %d %s.
-	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->getNameTranslated() % hero->level % hero->type->heroClass->getNameTranslated()));
+	std::string levelTitleText = CGI->generaltexth->translate("core.genrltxt.445");
+	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
+	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
+	boost::replace_first(levelTitleText, "%s", hero->type->heroClass->getNameTranslated());
+
+	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 
 	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
 
@@ -1066,8 +1071,8 @@ void CExchangeWindow::updateWidgets()
 			secSkillIcons[leftRight][m]->setFrame(2 + id * 3 + level);
 		}
 
-		expValues[leftRight]->setText(vstd::formatMetric(hero->exp, 3));
-		manaValues[leftRight]->setText(vstd::formatMetric(hero->mana, 3));
+		expValues[leftRight]->setText(TextOperations::formatMetric(hero->exp, 3));
+		manaValues[leftRight]->setText(TextOperations::formatMetric(hero->mana, 3));
 
 		morale[leftRight]->set(hero);
 		luck[leftRight]->set(hero);

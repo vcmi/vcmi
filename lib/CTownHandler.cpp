@@ -604,8 +604,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->modScope = source.meta;
 	ret->town = town;
 
-	VLC->generaltexth->registerString(ret->getNameTextID(), source["name"].String());
-	VLC->generaltexth->registerString(ret->getDescriptionTextID(), source["description"].String());
+	VLC->generaltexth->registerString(source.meta, ret->getNameTextID(), source["name"].String());
+	VLC->generaltexth->registerString(source.meta, ret->getDescriptionTextID(), source["description"].String());
 
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
@@ -890,7 +890,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	town->namesCount = 0;
 	for (auto const & name : source["names"].Vector())
 	{
-		VLC->generaltexth->registerString(town->getRandomNameTextID(town->namesCount), name.String());
+		VLC->generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name.String());
 		town->namesCount += 1;
 	}
 
@@ -990,7 +990,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->modScope = scope;
 	faction->identifier = identifier;
 
-	VLC->generaltexth->registerString(faction->getNameTextID(), source["name"].String());
+	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"].String());
 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();

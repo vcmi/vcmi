@@ -987,11 +987,13 @@ void CGHeroInstance::initExp(CRandomGenerator & rand)
 
 std::string CGHeroInstance::nodeName() const
 {
-	return "Hero " + getNameTextID();
+	return "Hero " + getNameTranslated();
 }
 
 std::string CGHeroInstance::getNameTranslated() const
 {
+	if (!nameCustom.empty())
+		return nameCustom;
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
@@ -1009,6 +1011,9 @@ std::string CGHeroInstance::getNameTextID() const
 
 std::string CGHeroInstance::getBiographyTranslated() const
 {
+	if (!biographyCustom.empty())
+		return biographyCustom;
+
 	return VLC->generaltexth->translate(getBiographyTextID());
 }
 

@@ -21,12 +21,13 @@ class DLL_LINKAGE RiverType : public EntityT<RiverId>
 {
 	friend class RiverTypeHandler;
 	std::string identifier;
+	std::string modScope;
 	RiverId id;
 
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	std::string getJsonKey() const override { return identifier;}
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
 	void updateFrom(const JsonNode & data) {};
@@ -44,6 +45,7 @@ public:
 	{
 		h & tilesFilename;
 		h & identifier;
+		h & modScope;
 		h & deltaName;
 		h & id;
 	}

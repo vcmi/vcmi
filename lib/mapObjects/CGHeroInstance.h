@@ -151,11 +151,13 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	std::string getNameTranslated() const;
-	std::string getNameTextID() const;
-
 	std::string getBiographyTranslated() const;
+	std::string getNameTranslated() const;
+
+private:
+	std::string getNameTextID() const;
 	std::string getBiographyTextID() const;
+public:
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;

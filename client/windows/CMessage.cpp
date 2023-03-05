@@ -13,6 +13,7 @@
 
 #include "../CGameInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 
 #include "../windows/InfoWindows.h"
 #include "../widgets/Buttons.h"
@@ -132,7 +133,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 		// loops till line is full or end of text reached
 		while(currPos < text.length()  &&  text[currPos] != 0x0a  &&  lineWidth < maxLineWidth)
 		{
-			symbolSize = Unicode::getCharacterSize(text[currPos]);
+			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
 			glyphWidth = graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
 
 			// candidate for line break

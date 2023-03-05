@@ -14,6 +14,7 @@
 #include "CMapGenOptions.h"
 #include "Zone.h"
 #include "../mapping/CMapEditManager.h"
+#include "../mapping/CMap.h"
 #include "../CTownHandler.h"
 #include "ObjectManager.h"
 #include "RoadPlacer.h"

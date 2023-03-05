@@ -219,6 +219,9 @@ public:
 	
 	/// version of the mod
 	Version version;
+
+	/// Base language of mod, all mod strings are assumed to be in this language
+	std::string baseLanguage;
 	
 	/// vcmi versions compatible with the mod
 
@@ -283,6 +286,8 @@ class DLL_LINKAGE CModHandler
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadTranslation(TModID modName);
+
+	bool validateTranslations(TModID modName) const;
 public:
 
 	/// returns true if scope is reserved for internal use and can not be used by mods
@@ -334,7 +339,12 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	std::set<TModID> getModDependencies(TModID modId, bool & isModFound);
+	/// returns ID of mod that provides selected file resource
+	TModID findResourceOrigin(const ResourceID & name);
+
+	std::string getModLanguage(const TModID& modId) const;
+
+	std::set<TModID> getModDependencies(TModID modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();

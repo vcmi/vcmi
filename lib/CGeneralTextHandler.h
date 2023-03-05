@@ -9,51 +9,19 @@
  */
 #pragma once
 
-#include "JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// Namespace that provides utilites for unicode support (UTF-8)
-namespace Unicode
-{
-	/// evaluates size of UTF-8 character
-	size_t DLL_LINKAGE getCharacterSize(char firstByte);
-
-	/// test if character is a valid UTF-8 symbol
-	/// maxSize - maximum number of bytes this symbol may consist from ( = remainer of string)
-	bool DLL_LINKAGE isValidCharacter(const char * character, size_t maxSize);
-
-	/// test if text contains ASCII-string (no need for unicode conversion)
-	bool DLL_LINKAGE isValidASCII(const std::string & text);
-	bool DLL_LINKAGE isValidASCII(const char * data, size_t size);
-
-	/// test if text contains valid UTF-8 sequence
-	bool DLL_LINKAGE isValidString(const std::string & text);
-	bool DLL_LINKAGE isValidString(const char * data, size_t size);
-
-	/// converts text to unicode from specified encoding or from one specified in settings
-	std::string DLL_LINKAGE toUnicode(const std::string & text);
-	std::string DLL_LINKAGE toUnicode(const std::string & text, const std::string & encoding);
-
-	/// converts text from unicode to specified encoding or to one specified in settings
-	/// NOTE: usage of these functions should be avoided if possible
-	std::string DLL_LINKAGE fromUnicode(const std::string & text);
-	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
-
-	///delete (amount) UTF characters from right
-	DLL_LINKAGE void trimRight(std::string & text, const size_t amount = 1);
-};
-
 class CInputStream;
+class JsonNode;
 
 /// Parser for any text files from H3
 class DLL_LINKAGE CLegacyConfigParser
 {
+	std::string fileEncoding;
+
 	std::unique_ptr<char[]> data;
 	char * curr;
 	char * end;
-
-	void init(const std::unique_ptr<CInputStream> & input);
 
 	/// extracts part of quoted string.
 	std::string extractQuotedPart();
@@ -87,8 +55,9 @@ public:
 	/// end current line
 	bool endLine();
 
-	CLegacyConfigParser(std::string URI);
-	CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
+	explicit CLegacyConfigParser(std::string URI);
+private:
+	explicit CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
 };
 
 class CGeneralTextHandler;
@@ -146,30 +115,49 @@ public:
 /// Handles all text-related data in game
 class DLL_LINKAGE CGeneralTextHandler
 {
-	/// map identifier -> localization
-	std::unordered_map<std::string, std::string> stringsLocalizations;
+	struct StringState
+	{
+		/// Human-readable string that was added on registration
+		std::string baseValue;
 
-	/// map identifier -> localization, high-priority strings from translation json
-	std::unordered_map<std::string, std::string> stringsOverrides;
+		/// Language of base string
+		std::string baseLanguage;
+
+		/// Translated human-readable string
+		std::string overrideValue;
+
+		/// Language of the override string
+		std::string overrideLanguage;
+
+		/// ID of mod that created this string
+		std::string modContext;
+	};
+
+	/// map identifier -> localization
+	std::unordered_map<std::string, StringState> stringsLocalizations;
 
 	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
 	/// number of scenarios in specific campaign. TODO: move to a better location
 	std::vector<size_t> scenariosCountPerCampaign;
 
-	/// Attempts to detect encoding & language of H3 files
-	void detectInstallParameters() const;
+	std::string getModLanguage(const std::string & modContext);
 public:
+
+	/// validates translation of specified language for specified mod
+	/// returns true if localization is valid and complete
+	/// any error messages will be written to log file
+	bool validateTranslation(const std::string & language, const std::string & modContext, JsonNode const & file) const;
 
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
-	void loadTranslationOverrides(JsonNode const & file);
+	void loadTranslationOverrides(const std::string & language, const std::string & modContext, JsonNode const & file);
 
 	/// add selected string to internal storage
-	void registerString(const TextIdentifier & UID, const std::string & localized);
+	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 
 	/// add selected string to internal storage as high-priority strings
-	void registerStringOverride(const TextIdentifier & UID, const std::string & localized);
+	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
 
 	// returns true if identifier with such name was registered, even if not translated to current language
 	// not required right now, can be added if necessary
@@ -226,7 +214,7 @@ public:
 
 	std::vector<std::string> findStringsWithPrefix(std::string const & prefix);
 
-	int32_t pluralText(const int32_t textIndex, const int32_t count) const;
+	int32_t pluralText(int32_t textIndex, int32_t count) const;
 
 	size_t getCampaignLength(size_t campaignID) const;
 
@@ -234,7 +222,13 @@ public:
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
 
+	/// Attempts to detect encoding & language of H3 files
+	static void detectInstallParameters();
+
 	/// Returns name of language preferred by user
+	static std::string getPreferredLanguage();
+
+	/// Returns name of language of Heroes III text files
 	static std::string getInstalledLanguage();
 
 	/// Returns name of encoding of Heroes III text files

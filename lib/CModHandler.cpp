@@ -25,6 +25,7 @@
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
+#include "Languages.h"
 #include "ScriptHandler.h"
 #include "RoadHandler.h"
 #include "RiverHandler.h"
@@ -216,7 +217,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// special scope that should have access to all in-game objects
 		if (request.localScope == CModHandler::scopeGame())
 		{
-			for (auto const & modName : VLC->modh->getActiveMods())
+			for(const auto & modName : VLC->modh->getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
@@ -638,6 +639,12 @@ CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode
 		vcmiCompatibleMin = Version::fromString(config["compatibility"]["min"].String());
 		vcmiCompatibleMax = Version::fromString(config["compatibility"]["max"].String());
 	}
+
+	if (!config["language"].isNull())
+		baseLanguage = config["language"].String();
+	else
+		baseLanguage = "english";
+
 	loadLocalData(local);
 }
 
@@ -936,8 +943,9 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 
 bool CModHandler::isScopeReserved(const TModID & scope)
 {
-	static const std::array<TModID, 3> reservedScopes = {
-		"core", "map", "game"
+	//following scopes are reserved - either in use by mod system or by filesystem
+	static const std::array<TModID, 9> reservedScopes = {
+		"core", "map", "game", "root", "saves", "config", "local", "initial", "mapEditor"
 	};
 
 	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
@@ -1090,7 +1098,29 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound)
+TModID CModHandler::findResourceOrigin(const ResourceID & name)
+{
+	for(const auto & modID : boost::adaptors::reverse(activeMods))
+	{
+		if(CResourceHandler::get(modID)->existsResource(name))
+			return modID;
+	}
+
+	if(CResourceHandler::get("core")->existsResource(name))
+		return "core";
+
+	assert(0);
+	return "";
+}
+
+std::string CModHandler::getModLanguage(const TModID& modId) const
+{
+	if ( modId == "core")
+		return VLC->generaltexth->getInstalledLanguage();
+	return allMods.at(modId).baseLanguage;
+}
+
+std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound) const
 {
 	auto it = allMods.find(modId);
 	isModFound = (it != allMods.end());
@@ -1099,7 +1129,7 @@ std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound
 		return it->second.dependencies;
 
 	logMod->error("Mod not found: '%s'", modId);
-	return std::set<TModID>();
+	return {};
 }
 
 void CModHandler::initializeConfig()
@@ -1107,21 +1137,54 @@ void CModHandler::initializeConfig()
 	loadConfigFromFile("defaultMods.json");
 }
 
+bool CModHandler::validateTranslations(TModID modName) const
+{
+	bool result = true;
+	const auto & mod = allMods.at(modName);
+
+	{
+		auto fileList = mod.config["translations"].convertTo<std::vector<std::string> >();
+		JsonNode json = JsonUtils::assembleFromFiles(fileList);
+		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
+	}
+
+	for(const auto & language : Languages::getLanguageList())
+	{
+		if (!language.hasTranslation)
+			continue;
+
+		if (mod.config[language.identifier].isNull())
+			continue;
+
+		auto fileList = mod.config[language.identifier]["translations"].convertTo<std::vector<std::string> >();
+		JsonNode json = JsonUtils::assembleFromFiles(fileList);
+		result |= VLC->generaltexth->validateTranslation(language.identifier, modName, json);
+	}
+
+	return result;
+}
+
 void CModHandler::loadTranslation(TModID modName)
 {
-	auto const & mod = allMods[modName];
-	std::string language = VLC->generaltexth->getInstalledLanguage();
+	const auto & mod = allMods[modName];
 
-	for (auto const & config : mod.config["translations"].Vector())
-		VLC->generaltexth->loadTranslationOverrides(JsonNode(ResourceID(config.String(), EResType::TEXT)));
+	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+	std::string modBaseLanguage = allMods[modName].baseLanguage;
 
-	for (auto const & config : mod.config[language]["translations"].Vector())
-		VLC->generaltexth->loadTranslationOverrides(JsonNode(ResourceID(config.String(), EResType::TEXT)));
+	auto baseTranslationList = mod.config["translations"].convertTo<std::vector<std::string> >();
+	auto extraTranslationList = mod.config[preferredLanguage]["translations"].convertTo<std::vector<std::string> >();
+
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(baseTranslationList);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(extraTranslationList);
+
+	VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, modName, baseTranslation);
+	VLC->generaltexth->loadTranslationOverrides(preferredLanguage, modName, extraTranslation);
 }
 
 void CModHandler::load()
 {
-	CStopWatch totalTime, timer;
+	CStopWatch totalTime;
+	CStopWatch timer;
 
 	logMod->info("\tInitializing content handler: %d ms", timer.getDiff());
 
@@ -1144,14 +1207,18 @@ void CModHandler::load()
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
 
-	for(const TModID & modName : activeMods)
-		loadTranslation(modName);
-
 #if SCRIPTING_ENABLED
 	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
 #endif
 
 	content->loadCustom();
+
+	for(const TModID & modName : activeMods)
+		loadTranslation(modName);
+
+	for(const TModID & modName : activeMods)
+		if (!validateTranslations(modName))
+			allMods[modName].validation = CModInfo::FAILED;
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 

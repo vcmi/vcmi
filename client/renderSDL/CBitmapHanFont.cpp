@@ -15,7 +15,7 @@
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/Rect.h"
 
 #include <SDL_surface.h>
@@ -83,9 +83,9 @@ void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data,
 
 	SDL_LockSurface(surface);
 
-	for(size_t i=0; i<data.size(); i += Unicode::getCharacterSize(data[i]))
+	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		std::string localChar = Unicode::fromUnicode(data.substr(i, Unicode::getCharacterSize(data[i])));
+		std::string localChar = TextOperations::fromUnicode(data.substr(i, TextOperations::getUnicodeCharacterSize(data[i])), "GBK");
 
 		if (localChar.size() == 1)
 			fallback->renderCharacter(surface, fallback->chars[ui8(localChar[0])], color, posX, posY);
@@ -115,7 +115,7 @@ size_t CBitmapHanFont::getLineHeight() const
 
 size_t CBitmapHanFont::getGlyphWidth(const char * data) const
 {
-	std::string localChar = Unicode::fromUnicode(std::string(data, Unicode::getCharacterSize(data[0])));
+	std::string localChar = TextOperations::fromUnicode(std::string(data, TextOperations::getUnicodeCharacterSize(data[0])), "GBK");
 
 	if (localChar.size() == 1)
 		return fallback->getGlyphWidth(data);

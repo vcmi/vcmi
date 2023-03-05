@@ -15,6 +15,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMap.h"
 #include "../gui/CGuiHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

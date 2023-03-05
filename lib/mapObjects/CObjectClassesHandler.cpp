@@ -233,7 +233,7 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 	obj->base = json["base"];
 	obj->id = index;
 
-	VLC->generaltexth->registerString(obj->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, obj->getNameTextID(), json["name"].String());
 
 	obj->objects.resize(json["lastReservedIndex"].Float() + 1);
 

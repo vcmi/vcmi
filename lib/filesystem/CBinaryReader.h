@@ -73,7 +73,8 @@ public:
 	ui64 readUInt64();
 	si64 readInt64();
 
-	std::string readString();
+	/// Reads string without any encoding conversions
+	std::string readBaseString();
 
 	inline bool readBool()
 	{

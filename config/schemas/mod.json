@@ -8,7 +8,7 @@
 		"localizable" : {
 			"type":"object",
 			"additionalProperties" : false,
-			"required" : [ "name", "description", "modType" ],
+			"required" : [ "name", "description" ],
 			"properties":{
 				"name": {
 					"type":"string",
@@ -84,6 +84,11 @@
 			"description": "Home page of mod or link to forum thread"
 		},
 
+		"language" : {
+			"type":"string",
+			"description": "Base language of the mod, before applying localizations. By default vcmi assumes English",
+			"enum" : [ "english", "german", "polish", "russian", "ukrainian" ],
+		},
 		"depends": {
 			"type":"array",
 			"description": "List of mods that are required to run this one",

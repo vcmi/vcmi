@@ -840,6 +840,10 @@
 			}
 		}
 	},
+	"marketOfTime" : { // Unused/not implemented H3 object present on some maps RoE maps
+		"index" :50,
+		"handler": "generic"
+	},
 	"tavern" : {
 		"index" :95,
 		"handler": "generic",

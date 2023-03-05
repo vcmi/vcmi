@@ -198,7 +198,7 @@ void ObjectTemplate::readMsk()
 
 void ObjectTemplate::readMap(CBinaryReader & reader)
 {
-	animationFile = reader.readString();
+	animationFile = reader.readBaseString();
 
 	setSize(8, 6);
 	ui8 blockMask[6];

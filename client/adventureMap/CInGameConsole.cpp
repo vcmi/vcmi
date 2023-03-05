@@ -20,7 +20,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 
 #include <SDL_timer.h>
@@ -127,7 +127,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 		{
 			if(enteredText.size() > 1)
 			{
-				Unicode::trimRight(enteredText,2);
+				TextOperations::trimRightUnicode(enteredText,2);
 				enteredText += '_';
 				refreshEnteredText();
 			}

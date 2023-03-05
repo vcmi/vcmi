@@ -211,7 +211,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier);
 	skill->modScope = scope;
 
-	VLC->generaltexth->registerString(skill->getNameTextID(), json["name"].String());
+	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -236,7 +236,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		VLC->generaltexth->registerString(skill->getDescriptionTextID(level), levelNode["description"].String());
+		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"].String());
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();

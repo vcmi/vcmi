@@ -33,6 +33,8 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CCampaignHandler.h"
 #include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb)

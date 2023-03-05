@@ -346,9 +346,9 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 	const JsonNode & text = node["text"];
 
-	VLC->generaltexth->registerString(art->getNameTextID(), text["name"].String());
-	VLC->generaltexth->registerString(art->getDescriptionTextID(), text["description"].String());
-	VLC->generaltexth->registerString(art->getEventTextID(), text["event"].String());
+	VLC->generaltexth->registerString(scope, art->getNameTextID(), text["name"].String());
+	VLC->generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"].String());
+	VLC->generaltexth->registerString(scope, art->getEventTextID(), text["event"].String());
 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();

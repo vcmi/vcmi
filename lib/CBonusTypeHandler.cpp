@@ -240,8 +240,8 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 
 	if (!dest.hidden)
 	{
-		VLC->generaltexth->registerString(dest.getNameTextID(), source["name"].String());
-		VLC->generaltexth->registerString(dest.getDescriptionTextID(), source["description"].String());
+		VLC->generaltexth->registerString( "core", dest.getNameTextID(), source["name"].String());
+		VLC->generaltexth->registerString( "core", dest.getDescriptionTextID(), source["description"].String());
 	}
 
 	const JsonNode & graphics = source["graphics"];

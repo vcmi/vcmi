@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 RoadTypeHandler::RoadTypeHandler()
 {
 	objects.push_back(new RoadType);
+
+	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 RoadType * RoadTypeHandler::loadFromJson(
@@ -31,16 +33,13 @@ RoadType * RoadTypeHandler::loadFromJson(
 	RoadType * info = new RoadType;
 
 	info->id              = RoadId(index);
-	if (identifier.find(':') == std::string::npos)
-		info->identifier = scope + ":" + identifier;
-	else
-		info->identifier = identifier;
-
+	info->identifier      = identifier;
+	info->modScope        = scope;
 	info->tilesFilename   = json["tilesFilename"].String();
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 
-	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope,info->getNameTextID(), json["text"].String());
 
 	return info;
 }
@@ -62,9 +61,14 @@ std::vector<bool> RoadTypeHandler::getDefaultAllowed() const
 	return {};
 }
 
+std::string RoadType::getJsonKey() const
+{
+	return modScope + ":" + identifier;
+}
+
 std::string RoadType::getNameTextID() const
 {
-	return TextIdentifier( "road", identifier,  "name" ).get();
+	return TextIdentifier( "road", modScope, identifier, "name" ).get();
 }
 
 std::string RoadType::getNameTranslated() const
@@ -74,7 +78,8 @@ std::string RoadType::getNameTranslated() const
 
 RoadType::RoadType():
 	id(Road::NO_ROAD),
-	identifier("core:empty"),
+	identifier("empty"),
+	modScope("core"),
 	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {}
 VCMI_LIB_NAMESPACE_END

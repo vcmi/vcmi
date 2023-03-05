@@ -480,7 +480,7 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(factory->getNameTranslated());
+		auto subGroupName = QString::fromStdString(VLC->objtypeh->getObjectName(ID, secondaryID));
 		
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)

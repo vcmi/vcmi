@@ -1615,7 +1615,7 @@ std::string CGShrine::getHoverText(PlayerColor player) const
 	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->getNameTextID());
+		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->getNameTranslated());
 	}
 	return hoverName;
 }

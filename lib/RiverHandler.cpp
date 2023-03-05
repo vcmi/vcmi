@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 RiverTypeHandler::RiverTypeHandler()
 {
 	objects.push_back(new RiverType);
+
+	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 RiverType * RiverTypeHandler::loadFromJson(
@@ -31,16 +33,13 @@ RiverType * RiverTypeHandler::loadFromJson(
 	RiverType * info = new RiverType;
 
 	info->id              = RiverId(index);
-	if (identifier.find(':') == std::string::npos)
-		info->identifier = scope + ":" + identifier;
-	else
-		info->identifier = identifier;
-
+	info->identifier      = identifier;
+	info->modScope        = scope;
 	info->tilesFilename   = json["tilesFilename"].String();
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->deltaName       = json["delta"].String();
 
-	VLC->generaltexth->registerString(info->getNameTextID(), json["text"].String());
+	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
 
 	return info;
 }
@@ -62,9 +61,14 @@ std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
 	return {};
 }
 
+std::string RiverType::getJsonKey() const
+{
+	return modScope + ":" + identifier;
+}
+
 std::string RiverType::getNameTextID() const
 {
-	return TextIdentifier( "river", identifier,  "name" ).get();
+	return TextIdentifier( "river", modScope, identifier, "name" ).get();
 }
 
 std::string RiverType::getNameTranslated() const
@@ -74,7 +78,8 @@ std::string RiverType::getNameTranslated() const
 
 RiverType::RiverType():
 	id(River::NO_RIVER),
-	identifier("core:empty")
+	identifier("empty"),
+	modScope("core")
 {}
 
 VCMI_LIB_NAMESPACE_END

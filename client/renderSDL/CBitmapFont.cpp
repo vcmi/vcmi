@@ -11,58 +11,86 @@
 #include "CBitmapFont.h"
 
 #include "SDL_Extensions.h"
+#include "../CGameInfo.h"
+#include "../render/Colors.h"
 
-#include "../../lib/vcmi_endian.h"
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CModHandler.h"
+#include "../../lib/Languages.h"
 #include "../../lib/Rect.h"
+#include "../../lib/TextOperations.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/vcmi_endian.h"
 
 #include <SDL_surface.h>
 
-std::array<CBitmapFont::BitmapChar, CBitmapFont::totalChars> CBitmapFont::loadChars() const
+void CBitmapFont::loadModFont(const std::string & modName, const ResourceID & resource)
 {
-	std::array<BitmapChar, totalChars> ret;
+	auto data = CResourceHandler::get(modName)->load(resource)->readAll();
+	std::string modLanguage = CGI->modh->getModLanguage(modName);
+	std::string modEncoding = Languages::getLanguageOptions(modLanguage).encoding;
 
-	size_t offset = 32;
+	uint32_t dataHeight = data.first[5];
 
-	for (auto & elem : ret)
+	maxHeight = std::max(maxHeight, dataHeight);
+
+	constexpr size_t symbolsInFile = 0x100;
+	constexpr size_t baseIndex = 32;
+	constexpr size_t offsetIndex = baseIndex + symbolsInFile*12;
+	constexpr size_t dataIndex = offsetIndex + symbolsInFile*4;
+
+	for (uint32_t charIndex = 0; charIndex < symbolsInFile; ++charIndex)
 	{
-		elem.leftOffset =  read_le_u32(data.first.get() + offset); offset+=4;
-		elem.width =       read_le_u32(data.first.get() + offset); offset+=4;
-		elem.rightOffset = read_le_u32(data.first.get() + offset); offset+=4;
-	}
+		CodePoint codepoint = TextOperations::getUnicodeCodepoint(static_cast<char>(charIndex), modEncoding);
 
-	for (auto & elem : ret)
-	{
-		int pixelOffset =  read_le_u32(data.first.get() + offset); offset+=4;
-		elem.pixels = data.first.get() + 4128 + pixelOffset;
+		BitmapChar symbol;
 
-		assert(pixelOffset + 4128 < data.second);
+		symbol.leftOffset =  read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 0);
+		symbol.width =       read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 4);
+		symbol.rightOffset = read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 8);
+		symbol.height = dataHeight;
+
+		uint32_t pixelDataOffset = read_le_u32(data.first.get() + offsetIndex + charIndex * 4);
+		uint32_t pixelsCount = dataHeight * symbol.width;
+
+		symbol.pixels.resize(pixelsCount);
+
+		uint8_t * pixelData = data.first.get() + dataIndex + pixelDataOffset;
+
+		std::copy_n(pixelData, pixelsCount, symbol.pixels.data() );
+
+		chars[codepoint] = symbol;
 	}
-	return ret;
 }
 
 CBitmapFont::CBitmapFont(const std::string & filename):
-	data(CResourceHandler::get()->load(ResourceID("data/" + filename, EResType::BMP_FONT))->readAll()),
-	chars(loadChars()),
-	height(data.first.get()[5])
-{}
+	maxHeight(0)
+{
+	ResourceID resource("data/" + filename, EResType::BMP_FONT);
+
+	loadModFont("core", resource);
+
+	for (auto const & modName : VLC->modh->getActiveMods())
+	{
+		if (CResourceHandler::get(modName)->existsResource(resource))
+			loadModFont(modName, resource);
+	}
+}
 
 size_t CBitmapFont::getLineHeight() const
 {
-	return height;
+	return maxHeight;
 }
 
 size_t CBitmapFont::getGlyphWidth(const char * data) const
 {
-	std::string localChar = Unicode::fromUnicode(std::string(data, Unicode::getCharacterSize(data[0])));
+	CodePoint localChar = TextOperations::getUnicodeCodepoint(data, 4);
 
-	if (localChar.size() == 1)
-	{
-		const BitmapChar & ch = chars[ui8(localChar[0])];
-		return ch.leftOffset + ch.width + ch.rightOffset;
-	}
-	return 0;
+	auto iter = chars.find(localChar);
+
+	if (iter == chars.end())
+		return 0;
+
+	return iter->second.leftOffset + iter->second.width + iter->second.rightOffset;
 }
 
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const
@@ -78,7 +106,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 
 	// start of line, may differ from 0 due to end of surface or clipped surface
 	int lineBegin = std::max<int>(0, clipRect.y - posY);
-	int lineEnd   = std::min<int>(height, clipRect.y + clipRect.h - posY - 1);
+	int lineEnd   = std::min<int>(character.height, clipRect.y + clipRect.h - posY - 1);
 
 	// start end end of each row, may differ from 0
 	int rowBegin = std::max<int>(0, clipRect.x - posX);
@@ -88,7 +116,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 	for(int dy = lineBegin; dy <lineEnd; dy++)
 	{
 		uint8_t *dstLine = (uint8_t*)surface->pixels;
-		uint8_t *srcLine = character.pixels;
+		const uint8_t *srcLine = character.pixels.data();
 
 		// shift source\destination pixels to current position
 		dstLine += (posY+dy) * surface->pitch + posX * bpp;
@@ -131,12 +159,14 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 
 	SDL_LockSurface(surface);
 
-	for(size_t i=0; i<data.size(); i += Unicode::getCharacterSize(data[i]))
+	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		std::string localChar = Unicode::fromUnicode(data.substr(i, Unicode::getCharacterSize(data[i])));
+		CodePoint codepoint = TextOperations::getUnicodeCodepoint(data.data() + i, data.size() - i);
 
-		if (localChar.size() == 1)
-			renderCharacter(surface, chars[ui8(localChar[0])], color, posX, posY);
+		auto iter = chars.find(codepoint);
+
+		if (iter != chars.end())
+			renderCharacter(surface, iter->second, color, posX, posY);
 	}
 	SDL_UnlockSurface(surface);
 }

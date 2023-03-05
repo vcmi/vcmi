@@ -13,6 +13,8 @@
 #include "CGeneralTextHandler.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
+#include "mapping/CCampaignHandler.h"
+#include "mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

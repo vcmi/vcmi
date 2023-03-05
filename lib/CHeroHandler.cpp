@@ -246,7 +246,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
-	VLC->generaltexth->registerString( heroClass->getNameTextID(), node["name"].String());
+	VLC->generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
 
 	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
 
@@ -421,11 +421,11 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
 
-	VLC->generaltexth->registerString( hero->getNameTextID(), node["texts"]["name"].String());
-	VLC->generaltexth->registerString( hero->getBiographyTextID(), node["texts"]["biography"].String());
-	VLC->generaltexth->registerString( hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"].String());
-	VLC->generaltexth->registerString( hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"].String());
-	VLC->generaltexth->registerString( hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"].String());
+	VLC->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"].String());
+	VLC->generaltexth->registerString(scope, hero->getBiographyTextID(), node["texts"]["biography"].String());
+	VLC->generaltexth->registerString(scope, hero->getSpecialtyNameTextID(), node["texts"]["specialty"]["name"].String());
+	VLC->generaltexth->registerString(scope, hero->getSpecialtyTooltipTextID(), node["texts"]["specialty"]["tooltip"].String());
+	VLC->generaltexth->registerString(scope, hero->getSpecialtyDescriptionTextID(), node["texts"]["specialty"]["description"].String());
 
 	hero->iconSpecSmall = node["images"]["specialtySmall"].String();
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
