@@ -283,7 +283,7 @@ double MapRendererAdventureFadingContext::objectTransparency(ObjectInstanceID ob
 	if(objectID == target)
 		return progress;
 
-	return 1.0;
+	return MapRendererAdventureContext::objectTransparency(objectID, coordinates);
 }
 
 MapRendererAdventureMovingContext::MapRendererAdventureMovingContext(const MapRendererContextState & viewState)
