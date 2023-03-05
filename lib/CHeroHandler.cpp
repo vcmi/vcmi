@@ -615,9 +615,10 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 			break;
 		}
 	case 7: //maxed mastery for spell
-		bonus->type = Bonus::SPECIAL_FIXED_VALUE_ENCHANT;
+		bonus->type = Bonus::SPELL;
 		bonus->subtype = spec.subtype; //spell id
-		bonus->val = 3; //to match MAXED_BONUS
+		bonus->val = 3; //to match MAXED_SPELL
+		bonus->valType = Bonus::INDEPENDENT_MAX;
 		result.push_back(bonus);
 		break;
 	case 8: //peculiar spells - enchantments
