@@ -253,7 +253,6 @@ public:
 	CCreature();
 
 private:
-	void fillWarMachine();
 	static const std::map<CreatureQuantityId, std::string> creatureQuantityRanges;
 };
 

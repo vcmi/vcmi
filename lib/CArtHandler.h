@@ -115,8 +115,6 @@ public:
 	~CArtifact();
 
 	friend class CArtHandler;
-private:
-	void fillWarMachine();
 };
 
 class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander artifacts getting bonuses after battle
