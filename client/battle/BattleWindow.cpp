@@ -72,6 +72,20 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	owner.fieldController.reset( new BattleFieldController(owner));
 	owner.fieldController->createHeroes();
 
+	createQueue();
+
+	if ( owner.tacticsMode )
+		tacticPhaseStarted();
+	else
+		tacticPhaseEnded();
+
+	addUsedEvents(RCLICK | KEYBOARD);
+}
+
+void BattleWindow::createQueue()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
 	//create stack queue and adjust our own position
 	bool embedQueue;
 	std::string queueSize = settings["battle"]["queueSize"].String();
@@ -89,13 +103,6 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 		pos.h += queue->pos.h;
 		pos = center();
 	}
-
-	if ( owner.tacticsMode )
-		tacticPhaseStarted();
-	else
-		tacticPhaseEnded();
-
-	addUsedEvents(RCLICK | KEYBOARD);
 }
 
 BattleWindow::~BattleWindow()
@@ -147,16 +154,9 @@ void BattleWindow::showQueue()
 	Settings showQueue = settings.write["battle"]["showQueue"];
 	showQueue->Bool() = true;
 
-	queue->enable();
-
-	if (!queue->embedded)
-	{
-		//re-center, taking into account stack queue position
-		pos.y -= queue->pos.h;
-		pos.h += queue->pos.h;
-		pos = center();
-		GH.totalRedraw();
-	}
+	createQueue();
+	updateQueue();
+	GH.totalRedraw();
 }
 
 void BattleWindow::updateQueue()

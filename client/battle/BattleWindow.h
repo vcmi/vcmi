@@ -57,7 +57,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	/// flip battle queue visibility to opposite
 	void toggleQueueVisibility();
-
+	void createQueue();
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 

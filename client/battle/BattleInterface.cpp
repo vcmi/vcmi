@@ -745,8 +745,7 @@ void BattleInterface::executeOnAnimationCondition( EAnimationEvents event, bool 
 
 void BattleInterface::setBattleQueueVisibility(bool visible)
 {
+	windowObject->hideQueue();
 	if(visible)
 		windowObject->showQueue();
-	else
-		windowObject->hideQueue();
 }
