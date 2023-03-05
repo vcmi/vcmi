@@ -156,6 +156,8 @@ MainWindow::MainWindow(QWidget* parent) :
 		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
 	
+	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
+	
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
