@@ -19,11 +19,11 @@
 				{
 					"position": {"x": 10, "y": 55},
 					"text": "vcmi.systemOptions.videoGroup"
-				}
+				},
 				{
 					"position": {"x": 380, "y": 55},
 					"text": "vcmi.systemOptions.audioGroup"
-				}
+				},
 				{
 					"position": {"x": 10, "y": 295},
 					"text": "vcmi.systemOptions.townsGroup"
@@ -74,7 +74,7 @@
 				{
 					"position": {"x": 45, "y": 145},
 					"text": "vcmi.systemOptions.framerateButton.hover"
-				}
+				},
 				{
 					"position": {"x": 45, "y": 175},
 					"text": "core.genrltxt.577"
@@ -216,7 +216,7 @@
 					"image": "sysopchk.def",
 					"help": "vcmi.otherOptions.creatureGrowthAsDwellingLabel",
 					"position": {"x": 0, "y": 0}
-				}
+				},
 				{
 					"index": 1,
 					"type": "toggleButton",
