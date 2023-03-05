@@ -131,8 +131,9 @@ public:
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
+	void bulkArtMovementStart(size_t numOfArts) override;
 	void artifactAssembled(const ArtifactLocation &al) override;
-	void artifactPossibleAssembling(const ArtifactLocation & dst) override;
+	void askToAssembleArtifact(const ArtifactLocation & dst) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
@@ -276,10 +277,10 @@ private:
 
 	bool duringMovement;
 	bool ignoreEvents;
+	size_t numOfMovedArts;
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
-	void askToAssembleArtifact(const ArtifactLocation &al);
 };
 
 extern CPlayerInterface * LOCPLINT;

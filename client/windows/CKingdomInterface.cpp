@@ -668,10 +668,10 @@ void CKingdomInterface::artifactDisassembled(const ArtifactLocation& artLoc)
 		arts->artifactDisassembled(artLoc);
 }
 
-void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc)
+void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc, bool withRedraw)
 {
 	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
-		arts->artifactMoved(artLoc, destLoc);
+		arts->artifactMoved(artLoc, destLoc, withRedraw);
 }
 
 void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
