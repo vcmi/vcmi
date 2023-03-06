@@ -93,7 +93,8 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
-	mainFPSmng->init();
+	mainFPSmng = new CFramerateManager();
+	mainFPSmng->init(settings["video"]["targetfps"].Integer());
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
@@ -593,7 +594,9 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 {
 	//sending active, hovered hoverable objects hover() call
 	std::vector<CIntObject*> hlp;
-	for(auto & elem : hoverable)
+
+	auto hoverableCopy = hoverable;
+	for(auto & elem : hoverableCopy)
 	{
 		if(elem->pos.isInside(getCursorPosition()))
 		{
@@ -606,6 +609,7 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 			(elem)->hovered = false;
 		}
 	}
+
 	for(auto & elem : hlp)
 	{
 		elem->hover(true);
@@ -660,7 +664,7 @@ void CGuiHandler::renderFrame()
 		if(nullptr != curInt)
 			curInt->update();
 
-		if(settings["general"]["showfps"].Bool())
+		if(settings["video"]["showfps"].Bool())
 			drawFPSCounter();
 
 		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
@@ -688,12 +692,9 @@ CGuiHandler::CGuiHandler()
 	, mouseButtonsMask(0)
 	, continueEventHandling(true)
 	, curInt(nullptr)
+	, mainFPSmng(nullptr)
 	, statusbar(nullptr)
 {
-	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
-	mainFPSmng = new CFramerateManager(60);
-	//do not init CFramerateManager here --AVS
-
 	terminate_cond = new CondSh<bool>(false);
 }
 
@@ -761,7 +762,7 @@ void CGuiHandler::drawFPSCounter()
 	static SDL_Rect overlay = { 0, 0, 64, 32};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = boost::lexical_cast<std::string>(mainFPSmng->fps);
+	std::string fps = boost::lexical_cast<std::string>(mainFPSmng->getFramerate());
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
 }
 
@@ -847,19 +848,20 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-CFramerateManager::CFramerateManager(int rate)
-{
-	this->rate = rate;
-	this->rateticks = (1000.0 / rate);
-	this->fps = 0;
-	this->accumulatedFrames = 0;
-	this->accumulatedTime = 0;
-	this->lastticks = 0;
-	this->timeElapsed = 0;
-}
+CFramerateManager::CFramerateManager()
+	: rate(0)
+	, rateticks(0)
+	, fps(0)
+	, accumulatedFrames(0)
+	, accumulatedTime(0)
+	, lastticks(0)
+	, timeElapsed(0)
+{}
 
-void CFramerateManager::init()
+void CFramerateManager::init(int newRate)
 {
+	rate = newRate;
+	rateticks = 1000.0 / rate;
 	this->lastticks = SDL_GetTicks();
 }
 

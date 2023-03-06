@@ -48,12 +48,12 @@
 
 static bool useCompactCreatureBox()
 {
-	return settings["gameTweaks"]["compactTownCreatureInfo"].isNumber() ? settings["gameTweaks"]["compactTownCreatureInfo"].Bool() : false;
+	return settings["gameTweaks"]["compactTownCreatureInfo"].Bool();
 }
 
 static bool useAvailableAmountAsCreatureLabel()
 {
-	return settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].isNumber() ? settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool() : false;
+	return settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool();
 }
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)

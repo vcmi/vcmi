@@ -2,6 +2,32 @@
 	"items":
 	[
 		{
+			"name": "lineLabelsEnd",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+		},
+/////////////////////////////////////// Left section - Hero Speed and Map Scrolling
+		{
+			"name": "frameHeroMovement",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 50 }
+		},	
+		{
+			"name": "frameEnemyMovement",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 110 }
+		},
+		{
+			"name": "frameMapMovement",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 170 }
+		},
+
+		{
 			"name": "topSettingsLabels",
 			"type": "labelGroup",
 			"font": "medium",
@@ -10,24 +36,33 @@
 			"items":
 			[
 				{
-					"position": {"x": 122, "y": 52},
-					"text": "core.genrltxt.569"
+					"position": {"x": 150, "y": 62},
+					"text": "core.genrltxt.569" // Hero Speed
 				},
 				{
-					"position": {"x": 122, "y": 118},
-					"text": "core.genrltxt.570"
+					"position": {"x": 150, "y": 122},
+					"text": "core.genrltxt.570" // Enemy Speed
 				},
 				{
-					"position": {"x": 122, "y": 184},
-					"text": "core.genrltxt.571"
+					"position": {"x": 150, "y": 182},
+					"text": "core.genrltxt.571" // Scrolling Speed
 				}
 			]
+		},
+		
+		{
+			"name": "heroSpeedValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 90}
 		},
 
 		{
 			"name": "heroMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 65},
+			"position": {"x": 10, "y": 73},
 			"items":
 			[
 				{
@@ -37,7 +72,6 @@
 					"help": "core.help.349",
 					"position": {"x": 0, "y": 0}
 				},
-
 				{
 					"index": 150,
 					"type": "toggleButton",
@@ -45,44 +79,57 @@
 					"help": "core.help.350",
 					"position": {"x": 48, "y": 0}
 				},
-
 				{
 					"index": 100,
 					"type": "toggleButton",
-					"image": "sysopb3",
-					"help": "core.help.351",
+					"image": "sysopb5",
+					"help": "core.help.350",
 					"position": {"x": 96, "y": 0}
 				},
-
+				{
+					"index": 50,
+					"type": "toggleButton",
+					"image": "sysopb6",
+					"help": "core.help.351",
+					"position": {"x": 144, "y": 0}
+				},
+				{
+					"index": 25,
+					"type": "toggleButton",
+					"image": "sysopb3",
+					"help": "core.help.351",
+					"position": {"x": 192, "y": 0}
+				},
 				{
 					"index": 0,
 					"type": "toggleButton",
 					"image": "sysopb4",
 					"help": "core.help.352",
-					"position": {"x": 144, "y": 0}
+					"position": {"x": 240, "y": 0}
 				}
-				//barely any difference compared to index 16 for now
-//				{
-//					"index": 9999,
-//					"type": "toggleButton",
-//					"image": "sysopb8",
-//					"help": "core.help.356",
-//					"position": {"x": 192, "y": 0}
-//				}
 			],
 			"callback": "playerHeroSpeedChanged"
 		},
 
 		{
+			"name": "enemySpeedValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 150}
+		},
+
+		{
 			"name": "enemyMovementSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 132},
+			"position": {"x": 10, "y": 133},
 			"items":
 			[
 				{
 					"index": 150,
 					"type": "toggleButton",
-					"image": "sysopb5",
+					"image": "sysopb1",
 					"help": "core.help.353",
 					"position": {"x": 0, "y": 0}
 				},
@@ -90,9 +137,25 @@
 				{
 					"index": 100,
 					"type": "toggleButton",
+					"image": "sysopb5",
+					"help": "core.help.353",
+					"position": {"x": 48, "y": 0}
+				},
+
+				{
+					"index": 50,
+					"type": "toggleButton",
 					"image": "sysopb6",
 					"help": "core.help.354",
-					"position": {"x": 48, "y": 0}
+					"position": {"x": 96, "y": 0}
+				},
+
+				{
+					"index": 25,
+					"type": "toggleButton",
+					"image": "sysopb3",
+					"help": "core.help.354",
+					"position": {"x": 144, "y": 0}
 				},
 
 				{
@@ -100,7 +163,7 @@
 					"type": "toggleButton",
 					"image": "sysopb7",
 					"help": "core.help.355",
-					"position": {"x": 96, "y": 0}
+					"position": {"x": 192, "y": 0}
 				},
 
 				{
@@ -108,83 +171,176 @@
 					"type": "toggleButton",
 					"image": "sysopb8",
 					"help": "core.help.356",
-					"position": {"x": 144, "y": 0}
+					"position": {"x": 240, "y": 0}
 				}
 			],
 			"callback": "enemyHeroSpeedChanged"
 		},
 
 		{
+			"name": "mapScrollingValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 210}
+		},
+		{
 			"name": "mapScrollSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 28, "y": 198},
+			"position": {"x": 10, "y": 193},
 			"items":
 			[
 				{
+					"index": 200,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "vcmi.adventureOptions.mapScrollSpeed1",
+					"position": {"x": 0, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed1",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed1",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+
+				{
 					"index": 400,
 					"type": "toggleButton",
-					"image": "sysopb9",
+					"image": "settingsWindow/button46",
 					"help": "core.help.357",
-					"position": {"x": 0, "y": 0}
+					"position": {"x": 48, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed2",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed2",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
 				},
 
 				{
 					"index": 800,
 					"type": "toggleButton",
-					"image": "sysob10",
+					"image": "settingsWindow/button46",
 					"help": "core.help.358",
-					"position": {"x": 64, "y": 0}
+					"position": {"x": 96, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed3",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed3",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
 				},
 
 				{
 					"index": 1200,
 					"type": "toggleButton",
-					"image": "sysob11",
+					"image": "settingsWindow/button46",
 					"help": "core.help.359",
-					"position": {"x": 128, "y": 0}
+					"position": {"x": 144, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed4",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed4",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 2400, // TODO
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "vcmi.adventureOptions.mapScrollSpeed5",
+					"position": {"x": 192, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed5",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed5",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 4800, // TODO
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "vcmi.adventureOptions.mapScrollSpeed6",
+					"position": {"x": 240, "y": 0},
+					"items":
+					[
+						{
+							"name": "mapScrollSpeed6",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed6",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
 				}
-
-				//not really functional yet...
-//				{
-//					"index": 6,
-//					"type": "toggleButton",
-//					"image": "buttons/square",
-//					"help": "vcmi.adventureOptions.mapScrollSpeed4",
-//					"position": {"x": 192, "y": 0},
-//					"items":
-//					[
-//						{
-//							"name": "mapScrollSpeed4",
-//							"type": "label",
-//							"font": "big",
-//							"alignment": "center",
-//							"color": "yellow",
-//							"text": "vcmi.adventureOptions.mapScrollSpeed4.hover"
-//						}
-//					]
-//				},
-//				{
-//					"index": 8,
-//					"type": "toggleButton",
-//					"image": "buttons/square",
-//					"help": "vcmi.adventureOptions.mapScrollSpeed5",
-//					"position": {"x": 224, "y": 0},
-//					"items":
-//					[
-//						{
-//							"name": "mapScrollSpeed5",
-//							"type": "label",
-//							"font": "big",
-//							"alignment": "center",
-//							"color": "yellow",
-//							"text": "vcmi.adventureOptions.mapScrollSpeed5.hover"
-//						}
-//					]
-//				}
 			],
 			"callback": "mapScrollSpeedChanged"
 		},
-
+		
+/////////////////////////////////////// Right section - Original H3 options
+		{
+			"name": "rightCheckboxesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 415, "y": 55},
+					"text": "core.genrltxt.572" // TODO: show move path
+				},
+				{
+					"position": {"x": 415, "y": 85},
+					"text": "core.genrltxt.573" // show hero reminder
+				},
+				{
+					"position": {"x": 415, "y": 115},
+					"text": "core.genrltxt.574" // quick combat
+				}
+			]
+		},
+		{
+			"name": "showMovePathPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 53},
+		},
+		{
+			"name": "heroReminderCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.361",
+			"position": {"x": 380, "y": 83},
+			"callback": "heroReminderChanged"
+		},
+		{
+			"name": "quickCombatCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.362",
+			"position": {"x": 380, "y": 113},
+			"callback": "quickCombatChanged"
+		},
+		
+/////////////////////////////////////// Bottom section - VCMI Options
 		{
 			"name": "bottomCheckboxesLabels",
 			"type": "labelGroup",
@@ -194,65 +350,37 @@
 			"items":
 			[
 				{
-					"position": {"x": 64, "y": 278},
-					"text": "core.genrltxt.572"
-				},
-				{
-					"position": {"x": 64, "y": 314},
-					"text": "core.genrltxt.573"
-				},
-				{
-					"position": {"x": 64, "y": 350},
-					"text": "core.genrltxt.574"
-				},
-				{
-					"position": {"x": 64, "y": 386},
+					"position": {"x": 45, "y": 295},
 					"text": "vcmi.adventureOptions.numericQuantities.hover"
 				},
 				{
-					"position": {"x": 64, "y": 422},
+					"position": {"x": 45, "y": 325},
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"position": {"x": 64, "y": 458},
+					"position": {"x": 45, "y": 355},
 					"text": "vcmi.adventureOptions.showGrid.hover"
+				},
+				{
+					"position": {"x": 45, "y": 385},
+					"text": "vcmi.adventureOptions.mapSwipe.hover"
 				}
 			]
 		},
-
-		{
-			"name": "heroReminderCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.361",
-			"position": {"x": 28, "y": 312},
-			"callback": "heroReminderChanged"
-		},
-
-		{
-			"name": "quickCombatCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.362",
-			"position": {"x": 28, "y": 348},
-			"callback": "quickCombatChanged"
-		},
-
 		{
 			"name": "numericQuantitiesCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.numericQuantities",
-			"position": {"x": 28, "y": 384},
+			"position": {"x": 10, "y": 293},
 			"callback": "numericQuantitiesChanged"
 		},
-
 		{
 			"name": "forceMovementInfoCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.forceMovementInfo",
-			"position": {"x": 28, "y": 420},
+			"position": {"x": 10, "y": 323},
 			"callback": "forceMovementInfoChanged"
 		},
 		{
@@ -260,8 +388,17 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.adventureOptions.showGrid",
-			"position": {"x": 28, "y": 456},
+			"position": {"x": 10, "y": 353},
 			"callback": "showGridChanged"
-		}
+		},
+		{
+			"name": "mapSwipeCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.adventureOptions.mapSwipe",
+			"position": {"x": 10, "y": 383},
+			"callback": "mapSwipeChanged"
+		},
+
 	]
 }

@@ -18,7 +18,6 @@ class MapView;
 
 class MapViewActions : public CIntObject
 {
-	bool swipeEnabled;
 	bool isSwiping;
 
 	Point swipeInitialViewPos;
@@ -33,6 +32,7 @@ class MapViewActions : public CIntObject
 	void handleHover(const Point & cursorPosition);
 	void handleSwipeMove(const Point & cursorPosition);
 	bool handleSwipeStateChange(bool btnPressed);
+	bool swipeEnabled() const;
 
 public:
 	MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model);

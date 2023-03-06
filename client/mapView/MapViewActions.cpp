@@ -26,16 +26,20 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	, owner(owner)
 	, curHoveredTile(-1, -1, -1)
 	, isSwiping(false)
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	, swipeEnabled(settings["general"]["swipe"].Bool())
-#else
-	, swipeEnabled(settings["general"]["swipeDesktop"].Bool())
-#endif
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
 	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE);
+}
+
+bool MapViewActions::swipeEnabled() const
+{
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+	return settings["general"]["swipe"].Bool();
+#else
+	return settings["general"]["swipeDesktop"].Bool();
+#endif
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
@@ -59,7 +63,7 @@ void MapViewActions::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-	if(swipeEnabled)
+	if(swipeEnabled())
 	{
 		if(handleSwipeStateChange(static_cast<bool>(down)))
 		{
@@ -103,11 +107,11 @@ void MapViewActions::mouseMoved(const Point & cursorPosition)
 void MapViewActions::handleSwipeMove(const Point & cursorPosition)
 {
 	// unless swipe is enabled, swipe move only works with middle mouse button
-	if(!swipeEnabled && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
+	if(!swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
 		return;
 
 	// on mobile platforms with enabled swipe any button is enough
-	if(swipeEnabled && (!GH.isMouseButtonPressed() || GH.multifinger))
+	if(swipeEnabled() && (!GH.isMouseButtonPressed() || GH.multifinger))
 		return;
 
 	if(!isSwiping)

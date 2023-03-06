@@ -19,10 +19,10 @@
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
-		InterfaceObjectConfigurable()
+BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	type |= REDRAW_PARENT;
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)
@@ -45,9 +45,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	{
 		showQueueChangedCallback(value, owner);
 	});
-	addCallback("queueSizeChanged", [this](int value)
+	addCallback("queueSizeChanged", [this, owner](int value)
 	{
-		queueSizeChangedCallback(value);
+		queueSizeChangedCallback(value, owner);
 	});
 	addCallback("skipBattleIntroMusicChanged", [this](bool value)
 	{
@@ -70,9 +70,6 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner):
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
 
-	std::shared_ptr<CToggleButton> showQueueCheckbox = widget<CToggleButton>("showQueueCheckbox");
-	showQueueCheckbox->setSelected(settings["battle"]["showQueue"].Bool());
-
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
 }
@@ -88,11 +85,13 @@ int BattleOptionsTab::getAnimSpeed() const
 int BattleOptionsTab::getQueueSizeId() const
 {
 	std::string text = settings["battle"]["queueSize"].String();
+	if(text == "none")
+		return -1;
 	if(text == "auto")
 		return 0;
-	else if(text == "small")
+	if(text == "small")
 		return 1;
-	else if(text == "big")
+	if(text == "big")
 		return 2;
 
 	return 0;
@@ -102,6 +101,8 @@ std::string BattleOptionsTab::getQueueSizeStringFromId(int value) const
 {
 	switch(value)
 	{
+		case -1:
+			return "none";
 		case 0:
 			return "auto";
 		case 1:
@@ -139,6 +140,11 @@ void BattleOptionsTab::animationSpeedChangedCallback(int value)
 {
 	Settings speed = settings.write["battle"]["speedFactor"];
 	speed->Float() = static_cast<float>(value);
+
+	auto targetLabel = widget<CLabel>("animationSpeedValueLabel");
+	int valuePercentage = value * 100 / 3; // H3 max value is "3", displaying it to be 100%
+	if (targetLabel)
+		targetLabel->setText(std::to_string(valuePercentage) + "%");
 }
 
 void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface)
@@ -154,11 +160,19 @@ void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * pa
 	}
 }
 
-void BattleOptionsTab::queueSizeChangedCallback(int value)
+void BattleOptionsTab::queueSizeChangedCallback(int value, BattleInterface * parentBattleInterface)
 {
+	if (value == -1)
+	{
+		showQueueChangedCallback(false, parentBattleInterface);
+		return;
+	}
+
 	std::string stringifiedValue = getQueueSizeStringFromId(value);
 	Settings size = settings.write["battle"]["queueSize"];
 	size->String() = stringifiedValue;
+
+	showQueueChangedCallback(true, parentBattleInterface);
 }
 
 void BattleOptionsTab::skipBattleIntroMusicChangedCallback(bool value)

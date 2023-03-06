@@ -3,9 +3,21 @@
 	[
 		{
 			"name": "background",
-			"type": "picture",
-			"image": "vcmiSettingsWindow",
-			"position": {"x": 0, "y": 0}
+			"type": "texture",
+			"image": "DiBoxBck",
+			"rect": {"w": 600, "h": 480}
+		},
+		{
+			"name": "lineTabs",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 10, "y" : 45, "w": 580, "h": 3}
+		},
+		{
+			"name": "lineColumns",
+			"type": "texture",
+			"image": "settingsWindow/lineVertical",
+			"rect": { "x" : 370, "y" : 50, "w": 3, "h": 420}
 		},
 
 		{
@@ -20,8 +32,8 @@
 				{
 					"index": 0,
 					"type": "toggleButton",
-					"position": {"x": 0, "y": 0},
-					"image": "buttons/quadwide",
+					"position": {"x": 10, "y": 5},
+					"image": "settingsWindow/button190",
 					"help": "vcmi.settingsMainWindow.generalTab",
 					"items":
 					[
@@ -39,8 +51,8 @@
 				{
 					"index": 1,
 					"type": "toggleButton",
-					"position": {"x": 150, "y": 0},
-					"image": "buttons/quadwide",
+					"position": {"x": 205, "y": 5},
+					"image": "settingsWindow/button190",
 					"help": "vcmi.settingsMainWindow.adventureTab",
 					"items":
 					[
@@ -58,8 +70,8 @@
 				{
 					"index": 2,
 					"type": "toggleButton",
-					"position": {"x": 300, "y": 0},
-					"image": "buttons/quadwide",
+					"position": {"x": 400, "y": 5},
+					"image": "settingsWindow/button190",
 					"help": "vcmi.settingsMainWindow.battleTab",
 					"items":
 					[
@@ -73,88 +85,70 @@
 						}
 					]
 				}
-				//disabled, due to being redundant for now
-//				{
-//					"index": 3,
-//					"type": "toggleButton",
-//					"position": {"x": 450, "y": 0},
-//					"image": "buttons/quadwide",
-//					"help": "vcmi.settingsMainWindow.otherTab",
-//					"items":
-//					[
-//						{
-//							"name": "otherTabButtonTitle",
-//							"type": "label",
-//							"font": "big",
-//							"alignment": "center",
-//							"color": "yellow",
-//							"text": "vcmi.settingsMainWindow.otherTab.hover"
-//						}
-//					]
-//				}
 			],
 			"callback": "activateSettingsTab"
 		},
 
 		{
+			"name": "lineButtons",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 375, "y" : 289, "w": 220, "h": 3}
+		},
+		{
 			"name": "loadButton",
 			"type": "button",
-			"position": {"x": 386, "y": 383},
+			"position": {"x": 380, "y": 306},
 			"image": "SOLOAD.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.321",
 			"callback": "loadGame",
 			"hotkey": "l"
 		},
-
 		{
 			"name": "saveButton",
 			"type": "button",
-			"position": {"x": 497, "y": 383},
+			"position": {"x": 490, "y": 306},
 			"image": "SOSAVE.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.322",
 			"callback": "saveGame",
 			"hotkey": "s"
 		},
-
 		{
 			"name": "restartButton",
 			"type": "button",
-			"position": {"x": 386, "y": 442},
+			"position": {"x": 380, "y": 364},
 			"image": "SORSTRT.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.323",
 			"callback": "restartGame",
 			"hotkey": "r"
 		},
-
 		{
 			"name": "mainMenuButton",
 			"type": "button",
-			"position": {"x": 497, "y": 442},
+			"position": {"x": 490, "y": 364},
 			"image": "SOMAIN.DEF",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.320",
 			"callback": "returnToMainMenu",
 			"hotkey": "m"
 		},
-
 		{
 			"name": "quitButton",
 			"type": "button",
-			"position": {"x": 386, "y": 500},
+			"position": {"x": 380, "y": 422},
 			"image": "soquit.def",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.324",
 			"callback": "quitGame",
 			"hotkey": "q"
 		},
-
 		{
 			"name": "closeSettingsButton",
 			"type": "button",
-			"position": {"x": 497, "y": 500},
+			"position": {"x": 490, "y": 422},
 			"image": "soretrn.def",
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.325",
