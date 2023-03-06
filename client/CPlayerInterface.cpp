@@ -1963,7 +1963,8 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 	else
 	{
-		adventureInt->infoBar->showSelection();
+		if (player == playerID)
+			adventureInt->infoBar->showSelection();
 		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front().get())) //don't remove dialogs that expect query answer
 			GH.popInts(1);
 	}
