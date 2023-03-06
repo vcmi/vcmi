@@ -26,6 +26,10 @@
 					"type":"string",
 					"description": "Author of the mod. Can be nickname, real name or name of team"
 				},
+				"skipValidation" : {
+					"type":"boolean",
+					"description": "If set to true, vcmi will skip validation of current translation json files"
+				},
 				"translations":{
 					"type":"array",
 					"description": "List of files with translations for this language",
