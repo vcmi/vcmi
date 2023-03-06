@@ -222,7 +222,7 @@
 					},
 					{
 						"message" : 152,
-						"appearChance" : { "min" : 67, "max" : 67 }
+						"appearChance" : { "min" : 67 }
 					}
 				],
 				"onVisitedMessage" : 147,
