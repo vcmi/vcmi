@@ -237,7 +237,11 @@ jobs:
       if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
       continue-on-error: true
       run: |
-        cd '${{github.workspace}}/android/vcmi-app/build/outputs/apk/daily' || cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        if cd '${{github.workspace}}/android/vcmi-app/build/outputs/apk/daily' ; then
+          mv '${{ env.ANDROID_APK_PATH }}' "$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
+        else
+          cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        fi
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
