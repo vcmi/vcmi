@@ -257,27 +257,35 @@ const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & iden
 
 void CGeneralTextHandler::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
 {
+	assert(!modContext.empty());
+	assert(!getModLanguage(modContext).empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
 	//assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
 
-	if (stringsLocalizations.count(UID.get()) > 0)
+	if(stringsLocalizations.count(UID.get()) > 0)
 	{
-		std::string oldValue = stringsLocalizations[UID.get()].baseValue;
+		auto & value = stringsLocalizations[UID.get()];
 
-		if (oldValue != localized)
-			logMod->warn("Duplicate registered string '%s' found! Old value: '%s', new value: '%s'", UID.get(), oldValue, localized);
-		return;
+		if(value.baseLanguage.empty())
+		{
+			value.baseLanguage = getModLanguage(modContext);
+			value.baseValue = localized;
+		}
+		else
+		{
+			if(value.baseValue != localized)
+				logMod->warn("Duplicate registered string '%s' found! Old value: '%s', new value: '%s'", UID.get(), value.baseValue, localized);
+		}
 	}
+	else
+	{
+		StringState result;
+		result.baseLanguage = getModLanguage(modContext);
+		result.baseValue = localized;
+		result.modContext = modContext;
 
-	assert(!modContext.empty());
-	assert(!getModLanguage(modContext).empty());
-
-	StringState result;
-	result.baseLanguage = getModLanguage(modContext);
-	result.baseValue = localized;
-	result.modContext = modContext;
-
-	stringsLocalizations[UID.get()] = result;
+		stringsLocalizations[UID.get()] = result;
+	}
 }
 
 void CGeneralTextHandler::registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized)
