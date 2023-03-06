@@ -142,5 +142,8 @@ public:
 
 	/// for 3 seconds shows amount of town halls and players status
 	void showGameStatus();
+
+	/// check if infobar is showed something about pickups
+	bool showingComponents();
 };
 

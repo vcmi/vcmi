@@ -275,6 +275,11 @@ void CInfoBar::showComponent(const Component & comp, std::string message)
 	redraw();
 }
 
+bool CInfoBar::showingComponents()
+{
+	return state == COMPONENT;
+}
+
 void CInfoBar::startEnemyTurn(PlayerColor color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);

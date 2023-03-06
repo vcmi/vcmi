@@ -1773,6 +1773,16 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 
 void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 {
+	bool isHero = dynamic_cast<const CGHeroInstance *>(specific) != nullptr;
+	bool changedHero = dynamic_cast<const CGHeroInstance *>(specific) != adventureInt->curHero();
+	bool isTown = dynamic_cast<const CGTownInstance *>(specific) != nullptr;
+
+	bool update = (isHero && changedHero) || (isTown);
+	// If infobar is showing components and we request an update to hero
+	// do not force infobar tick here, it will prevents us to show components just picked up
+	if(adventureInt->infoBar->showingComponents() && !update)
+		return;
+
 	adventureInt->infoBar->showSelection();
 }
 
@@ -1883,14 +1893,16 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	askToAssembleArtifact(al);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -1904,7 +1916,8 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), dst.artHolder);
+	updateInfo(hero);
 
 	bool redraw = true;
 	// If a bulk transfer has arrived, then redrawing only the last art movement.
@@ -1932,7 +1945,8 @@ void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -1944,7 +1958,8 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
