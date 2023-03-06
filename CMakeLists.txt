@@ -300,7 +300,7 @@ if(ANDROID)
 	list(APPEND SYSTEM_LIBS log)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuninitialized")
@@ -318,6 +318,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
 	if(ENABLE_STRICT_COMPILATION)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
+	endif()
+
+	# Fix string inspection with lldb
+	# https://stackoverflow.com/questions/58578615/cannot-inspect-a-stdstring-variable-in-lldb
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
 	endif()
 
 	if(UNIX)
