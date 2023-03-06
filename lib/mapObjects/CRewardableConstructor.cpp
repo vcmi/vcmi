@@ -231,6 +231,8 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 	object->canRefuse = parameters["canRefuse"].Bool();
 	
+	object->showInInfobox = parameters["showInInfobox"].Bool();
+	
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{

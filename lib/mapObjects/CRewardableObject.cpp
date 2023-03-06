@@ -134,13 +134,15 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	{
 		auto vi = info[index];
 		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
-		// show message only if it is not empty
-		if (!vi.message.toString().empty())
+		if (showInInfobox || !vi.message.toString().empty()) // show message only if it is not empty or in infobox
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text = vi.message;
 			vi.reward.loadComponents(iw.components, h);
+			iw.type = EInfoWindowMode::AUTO;
+			if(showInInfobox)
+				iw.type = EInfoWindowMode::INFO;
 			cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
