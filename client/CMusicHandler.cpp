@@ -77,13 +77,6 @@ CSoundHandler::CSoundHandler():
 {
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
-	// Vectors for helper(s)
-	pickupSounds =
-	{
-		soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
-		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
-	};
-
 	battleIntroSounds =
 	{
 		soundBase::battle00, soundBase::battle01,
