@@ -21,7 +21,6 @@
 				"playerName",
 				"music",
 				"sound",
-				"encoding",
 				"language",
 				"swipe",
 				"swipeDesktop",
@@ -45,10 +44,6 @@
 				"sound" : {
 					"type" : "number",
 					"default" : 88
-				},
-				"encoding" : {
-					"type" : "string",
-					"default" : "auto"
 				},
 				"swipe" : {
 					"type" : "boolean",

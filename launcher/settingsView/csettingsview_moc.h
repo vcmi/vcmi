@@ -49,8 +49,6 @@ private slots:
 
 	void on_plainTextEditRepos_textChanged();
 
-	void on_comboBoxEncoding_currentIndexChanged(int index);
-
 	void on_openTempDir_clicked();
 
 	void on_openUserDataDir_clicked();
