@@ -613,7 +613,7 @@ bool MusicEntry::stop(int fade_ms)
 		assert(startTime != uint32_t(-1));
 		float playDuration = (endTime - startTime + startPosition) / 1000.f;
 		owner->trackPositions[currentName] = playDuration;
-		logGlobal->info("Stopping music file %s at %f", currentName, playDuration);
+		logGlobal->trace("Stopping music file %s at %f", currentName, playDuration);
 
 		Mix_FadeOutMusic(fade_ms);
 		return true;

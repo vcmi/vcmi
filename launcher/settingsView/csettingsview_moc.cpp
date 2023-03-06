@@ -31,26 +31,10 @@ QString resolutionToString(const QSize & resolution)
 }
 }
 
-/// List of encoding which can be selected from Launcher.
-/// Note that it is possible to specify enconding manually in settings.json
-static const std::string knownEncodingsList[] = //TODO: remove hardcode
-{
-	// Asks vcmi to automatically detect encoding
-	"auto",
-	// European Windows-125X encodings
-	"CP1250", // West European, covers mostly Slavic languages that use latin script
-	"CP1251", // Covers languages that use cyrillic scrypt
-	"CP1252", // Latin/East European, covers most of latin languages
-	// Chinese encodings
-	"GBK", // extension of GB2312, also known as CP936
-	"GB2312", // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
-	// Korean encodings
-	"CP949" // extension of EUC-KR.
-};
-
 /// List of tags of languages that can be selected from Launcher (and have translation for Launcher)
 static const std::string languageTagList[] =
 {
+	"chinese",
 	"english",
 	"german",
 	"polish",
@@ -119,10 +103,6 @@ void CSettingsView::loadSettings()
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
 	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
 
-	std::string encoding = settings["general"]["encoding"].String();
-	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;
-	if(encodingIndex < ui->comboBoxEncoding->count())
-		ui->comboBoxEncoding->setCurrentIndex((int)encodingIndex);
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
 	std::string language = settings["general"]["language"].String();
@@ -289,12 +269,6 @@ void CSettingsView::on_plainTextEditRepos_textChanged()
 			node->Vector().push_back(entry);
 		}
 	}
-}
-
-void CSettingsView::on_comboBoxEncoding_currentIndexChanged(int index)
-{
-	Settings node = settings.write["general"]["encoding"];
-	node->String() = knownEncodingsList[index];
 }
 
 void CSettingsView::on_openTempDir_clicked()

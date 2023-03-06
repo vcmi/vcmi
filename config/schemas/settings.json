@@ -21,7 +21,6 @@
 				"playerName",
 				"music",
 				"sound",
-				"encoding",
 				"language",
 				"swipe",
 				"swipeDesktop",
@@ -46,10 +45,6 @@
 					"type" : "number",
 					"default" : 88
 				},
-				"encoding" : {
-					"type" : "string",
-					"default" : "auto"
-				},
 				"swipe" : {
 					"type" : "boolean",
 					"default" : true
@@ -68,7 +63,7 @@
 				},
 				"language" : {
 					"type":"string",
-					"enum" : [ "english", "german", "polish", "russian", "ukrainian" ],
+					"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
 					"default" : "english"
 				},
 				"lastSave" : {

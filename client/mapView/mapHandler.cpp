@@ -118,6 +118,12 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;
 
+	// heroes should appear on top of objects on the same tile
+	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
+		return true;
+	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
+		return false;
+
 	// or, if all other tests fail to determine priority - simply based on H3M order
 	return a->id < b->id;
 }

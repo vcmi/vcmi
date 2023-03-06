@@ -46,6 +46,11 @@ public:
 	void configureObject(CRewardableObject * object, CRandomGenerator & rng) const;
 
 	void init(const JsonNode & objectConfig);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & parameters;
+	}
 };
 
 class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
@@ -60,6 +65,14 @@ public:
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		AObjectTypeHandler::serialize(h, version);
+
+		if (version >= 816)
+			h & objectInfo;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

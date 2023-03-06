@@ -14,6 +14,7 @@ namespace Languages
 
 enum class ELanguages
 {
+	CHINESE,
 	ENGLISH,
 	FRENCH,
 	GERMAN,
@@ -47,11 +48,13 @@ struct Options
 
 inline auto const & getLanguageList( )
 {
-	static const std::array<Options, 6> languages
+	static const std::array<Options, 7> languages
 	{ {
+		{ "chinese",   "Chinese",   "简体中文",       "GBK",    true, true },
 		{ "english",   "English",   "English",    "CP1252", true,  true },
-		{ "french",    "French",    "Français",   "CP1252", true, false },
+		{ "french",    "French",    "Français",   "CP1252", true,  true },
 		{ "german",    "German",    "Deutsch",    "CP1252", true,  true },
+			//TODO: korean - CP949 encoding
 		{ "polish",    "Polish",    "Polski",     "CP1250", true,  true },
 		{ "russian",   "Russian",   "Русский",    "CP1251", true,  true },
 		{ "ukrainian", "Ukrainian", "Українська", "CP1251", true,  true }

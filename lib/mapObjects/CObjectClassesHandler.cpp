@@ -404,7 +404,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 {
 	const auto handler = getHandlerFor(type, subtype);
-	if (handler->hasNameTextID())
+	if (handler && handler->hasNameTextID())
 		return handler->getNameTranslated();
 	else
 		return objects[type]->getNameTranslated();

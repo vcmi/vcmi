@@ -1156,6 +1156,9 @@ bool CModHandler::validateTranslations(TModID modName) const
 		if (mod.config[language.identifier].isNull())
 			continue;
 
+		if (mod.config[language.identifier]["skipValidation"].Bool())
+			continue;
+
 		auto fileList = mod.config[language.identifier]["translations"].convertTo<std::vector<std::string> >();
 		JsonNode json = JsonUtils::assembleFromFiles(fileList);
 		result |= VLC->generaltexth->validateTranslation(language.identifier, modName, json);

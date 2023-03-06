@@ -161,7 +161,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			if(node.turns == 0)
 			{
 				logAi->error(
-					"Enable to complete chain. Expected hero %s to arive to %s but he is at %s", 
+					"Unable to complete chain. Expected hero %s to arive to %s but he is at %s",
 					hero->getNameTranslated(),
 					node.coord.toString(),
 					hero->visitablePos().toString());
@@ -169,7 +169,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				return;
 			}
 			
-			// no exception means we were not able to rich the tile
+			// no exception means we were not able to reach the tile
 			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node.parentIndex);
 		}
@@ -177,7 +177,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 		{
 			if(!heroPtr.validAndSet())
 			{
-				logAi->debug("Hero %s was killed while attempting to rich %s", heroPtr.name, node.coord.toString());
+				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name, node.coord.toString());
 
 				return;
 			}

@@ -8,6 +8,7 @@
 		"author" : "VCMI-Team",
 		"modType" : "Grafik",
 		
+		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/german.json"
 		]
@@ -19,6 +20,7 @@
 		"author" : "Zespół VCMI",
 		"modType" : "Graficzny",
 		
+		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/polish.json"
 		]
@@ -30,6 +32,7 @@
 		"author" : "Команда VCMI",
 		"modType" : "Графический",
 
+		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/russian.json"
 		]
