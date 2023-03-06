@@ -50,7 +50,7 @@ inline auto const & getLanguageList( )
 {
 	static const std::array<Options, 7> languages
 	{ {
-		{ "chinese",   "Chinese",   "简体中文",       "GBK",    false, true },
+		{ "chinese",   "Chinese",   "简体中文",       "GBK",    true, true },
 		{ "english",   "English",   "English",    "CP1252", true,  true },
 		{ "french",    "French",    "Français",   "CP1252", true,  true },
 		{ "german",    "German",    "Deutsch",    "CP1252", true,  true },

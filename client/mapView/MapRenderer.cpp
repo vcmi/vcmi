@@ -617,7 +617,18 @@ void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target
 
 uint8_t MapRendererDebug::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
-	return 0;
+	uint8_t result = 0;
+
+	if (context.showVisitable())
+		result += 1;
+
+	if (context.showBlockable())
+		result += 2;
+
+	if (context.showGrid())
+		result += 4;
+
+	return result;
 }
 
 MapRendererPath::MapRendererPath()
