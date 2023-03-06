@@ -109,7 +109,9 @@ const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 		}
 		else
 		{
-			assert(obj);
+			if (!obj)
+				logAi->error("Accessing no longer accessible hero %s!", h->getNameTranslated());
+			//assert(obj);
 			//assert(owned);
 		}
 	}
