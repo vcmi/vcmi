@@ -87,7 +87,7 @@
 		"language" : {
 			"type":"string",
 			"description": "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "english", "german", "polish", "russian", "ukrainian" ],
+			"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
 		},
 		"depends": {
 			"type":"array",

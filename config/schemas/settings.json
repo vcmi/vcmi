@@ -68,7 +68,7 @@
 				},
 				"language" : {
 					"type":"string",
-					"enum" : [ "english", "german", "polish", "russian", "ukrainian" ],
+					"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
 					"default" : "english"
 				},
 				"lastSave" : {
