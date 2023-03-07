@@ -37,9 +37,19 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	entry->Bool() = value;
 }
 
-static std::string resolutionToString(int w, int h)
+static std::string resolutionToEntryString( int w, int h)
 {
-	auto string = CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
+	std::string string = "%wx%h";
+
+	boost::replace_all(string, "%w", std::to_string(w));
+	boost::replace_all(string, "%h", std::to_string(h));
+
+	return string;
+}
+
+static std::string resolutionToLabelString( int w, int h)
+{
+	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
 
 	boost::replace_all(string, "%w", std::to_string(w));
 	boost::replace_all(string, "%h", std::to_string(h));
@@ -106,7 +116,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 	const auto & currentResolution = settings["video"]["screenRes"];
-	resolutionLabel->setText(resolutionToString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
+	resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
@@ -159,8 +169,8 @@ void GeneralOptionsTab::selectGameResolution()
 	size_t i = 0;
 	for(const auto & it : selectableResolutions)
 	{
-		auto resolutionStr = resolutionToString(it.x, it.y);
-		if(widget<CLabel>("resolutionLabel")->getText() == resolutionStr)
+		auto resolutionStr = resolutionToEntryString(it.x, it.y);
+		if(widget<CLabel>("resolutionLabel")->getText() == resolutionToLabelString(it.x, it.y))
 			currentResolutionIndex = i;
 
 		items.push_back(std::move(resolutionStr));
@@ -189,7 +199,7 @@ void GeneralOptionsTab::setGameResolution(int index)
 	gameRes["width"].Float() = resolution.x;
 	gameRes["height"].Float() = resolution.y;
 
-	widget<CLabel>("resolutionLabel")->setText(resolutionToString(resolution.x, resolution.y));
+	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 }
 
 void GeneralOptionsTab::setFullscreenMode(bool on)
@@ -218,7 +228,7 @@ void GeneralOptionsTab::setFullscreenMode(bool on)
 		gameRes["width"].Float() = currentResolution.x;
 		gameRes["height"].Float() = currentResolution.y;
 
-		widget<CLabel>("resolutionLabel")->setText(resolutionToString(currentResolution.x, currentResolution.y));
+		widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(currentResolution.x, currentResolution.y));
 	}
 }
 
