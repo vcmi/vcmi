@@ -25,23 +25,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-///helpers
-static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID)
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.soundID = soundID;
-	iw.player = playerID;
-	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
-	IObjectInterface::cb->sendAndApply(&iw);
-}
-
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
-{
-	const PlayerColor playerID = h->getOwner();
-	showInfoDialog(playerID,txtID,soundID);
-}
-
 void CGPandoraBox::initObj(CRandomGenerator & rand)
 {
 	blockVisit = (ID==Obj::PANDORAS_BOX); //block only if it's really pandora's box (events also derive from that class)
@@ -342,7 +325,7 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 	{
 		if(stacksCount() > 0) //if pandora's box is protected by army
 		{
-			showInfoDialog(hero,16,0);
+			hero->showInfoDialog(16, 0, EInfoWindowMode::MODAL);
 			cb->startBattleI(hero, this); //grants things after battle
 		}
 		else if(message.empty() && resources.empty()
@@ -351,7 +334,7 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 			&& spells.empty() && creatures.stacksCount() > 0
 			&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
-			showInfoDialog(hero,15,0);
+			hero->showInfoDialog(15);
 			cb->removeObject(this);
 		}
 		else //if it gives something without battle

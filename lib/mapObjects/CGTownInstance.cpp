@@ -383,8 +383,8 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		ow.id1 = id.getNum();
 		ow.id2 = h->id.getNum();
 		ow.window = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP)
-			? OpenWindow::RECRUITMENT_FIRST
-			: OpenWindow::RECRUITMENT_ALL;
+			? EOpenWindowMode::RECRUITMENT_FIRST
+			: EOpenWindowMode::RECRUITMENT_ALL;
 		cb->sendAndApply(&ow);
 	}
 }

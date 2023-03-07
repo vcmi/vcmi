@@ -50,22 +50,6 @@ CQuest::CQuest():
 {
 }
 
-///helpers
-static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID = 0)
-{
-	InfoWindow iw;
-	iw.soundID = soundID;
-	iw.player = playerID;
-	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
-	IObjectInterface::cb->sendAndApply(&iw);
-}
-
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
-{
-	const PlayerColor playerID = h->getOwner();
-	showInfoDialog(playerID,txtID,soundID);
-}
-
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
@@ -1146,7 +1130,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 		txt_id=20;
-	showInfoDialog(h, txt_id);
+	h->showInfoDialog(txt_id);
 }
 
 void CGBorderGuard::initObj(CRandomGenerator & rand)
@@ -1182,7 +1166,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		showInfoDialog(h, 18);
+		h->showInfoDialog(18);
 
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
@@ -1207,7 +1191,7 @@ void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passabili
 {
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		showInfoDialog(h,18,0);
+		h->showInfoDialog(18);
 
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());

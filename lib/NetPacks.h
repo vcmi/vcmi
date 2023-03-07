@@ -718,12 +718,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 
 struct DLL_LINKAGE OpenWindow : public CPackForClient
 {
-	enum EWindow
-	{
-		EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD,
-		UNIVERSITY_WINDOW, HILL_FORT_WINDOW, MARKET_WINDOW, PUZZLE_MAP, TAVERN_WINDOW
-	};
-	ui8 window;
+	EOpenWindowMode window;
 	si32 id1 = -1;
 	si32 id2 = -1;
 

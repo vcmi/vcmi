@@ -42,6 +42,20 @@ enum class EInfoWindowMode : uint8_t
 	INFO
 };
 
+enum class EOpenWindowMode : uint8_t
+{
+	EXCHANGE_WINDOW,
+	RECRUITMENT_FIRST,
+	RECRUITMENT_ALL,
+	SHIPYARD_WINDOW,
+	THIEVES_GUILD,
+	UNIVERSITY_WINDOW,
+	HILL_FORT_WINDOW,
+	MARKET_WINDOW,
+	PUZZLE_MAP,
+	TAVERN_WINDOW
+};
+
 struct DLL_LINKAGE CPack
 {
 	std::shared_ptr<CConnection> c; // Pointer to connection that pack received from

@@ -32,7 +32,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 IGameCallback * IObjectInterface::cb = nullptr;
 
 ///helpers
-static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
+void IObjectInterface::openWindow(const EOpenWindowMode type, const int id1, const int id2)
 {
 	OpenWindow ow;
 	ow.window = type;
@@ -41,25 +41,14 @@ static void openWindow(const OpenWindow::EWindow type, const int id1, const int 
 	IObjectInterface::cb->sendAndApply(&ow);
 }
 
-static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID)
+void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
-	iw.player = playerID;
+	iw.player = getOwner();
+	iw.type = mode;
 	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
 	IObjectInterface::cb->sendAndApply(&iw);
-}
-
-/*static void showInfoDialog(const ObjectInstanceID heroID, const ui32 txtID, const ui16 soundID)
-{
-	const PlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
-	showInfoDialog(playerID,txtID,soundID);
-}*/
-
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
-{
-	const PlayerColor playerID = h->getOwner();
-	showInfoDialog(playerID,txtID,soundID);
 }
 
 ///IObjectInterface
@@ -340,18 +329,18 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case Obj::HILL_FORT:
 		{
-			openWindow(OpenWindow::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
+			openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
 		}
 		break;
 	case Obj::SANCTUARY:
 		{
 			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
-			showInfoDialog(h, 114);
+			h->showInfoDialog(114);
 		}
 		break;
 	case Obj::TAVERN:
 		{
-			openWindow(OpenWindow::TAVERN_WINDOW,h->id.getNum(),id.getNum());
+			openWindow(EOpenWindowMode::TAVERN_WINDOW,h->id.getNum(),id.getNum());
 		}
 		break;
 	}

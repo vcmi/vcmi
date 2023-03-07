@@ -34,32 +34,6 @@ ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
 ///helpers
-static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
-{
-	OpenWindow ow;
-	ow.window = type;
-	ow.id1 = id1;
-	ow.id2 = id2;
-	IObjectInterface::cb->sendAndApply(&ow);
-}
-
-static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID = 0)
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	if(soundID)
-		iw.soundID = soundID;
-	iw.player = playerID;
-	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
-	IObjectInterface::cb->sendAndApply(&iw);
-}
-
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
-{
-	const PlayerColor playerID = h->getOwner();
-	showInfoDialog(playerID,txtID,soundID);
-}
-
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
@@ -386,7 +360,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		}
 		else //they fight
 		{
-			showInfoDialog(h,87,0);//Insulted by your refusal of their offer, the monsters attack!
+			h->showInfoDialog(87, 0, EInfoWindowMode::MODAL);//Insulted by your refusal of their offer, the monsters attack!
 			fight(h);
 		}
 	}
@@ -600,6 +574,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(!iw.components.empty())
 	{
+		iw.type = EInfoWindowMode::AUTO;
 		iw.text.addTxt(MetaString::ADVOB_TXT, 183); // % has found treasure
 		iw.text.addReplacement(h->getNameTranslated());
 		cb->showInfoDialog(&iw);
@@ -769,7 +744,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 	{
 		if(isAbandoned())
 		{
-			showInfoDialog(hero->tempOwner, 85, 0);
+			hero->showInfoDialog(85);
 		}
 		flagMine(hero->tempOwner);
 	}
@@ -1080,7 +1055,7 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), pos.toString());
 	}
 	else
-		showInfoDialog(h, 70, 0);
+		h->showInfoDialog(70);
 
 	cb->showTeleportDialog(&td);
 }
@@ -1136,7 +1111,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	TeleportDialog td(h->tempOwner, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
-		showInfoDialog(h,153,0);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
+		h->showInfoDialog(153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
 		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), pos.toString());
 		td.impassable = true;
 	}
@@ -1860,7 +1835,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
-		showInfoDialog(h, 61);
+		h->showInfoDialog(61);
 
 		if (!eyelist[subID].empty())
 		{
@@ -1890,7 +1865,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
 	{
-		showInfoDialog(h, 48);
+		h->showInfoDialog(48);
 	}
 
 }
@@ -1988,7 +1963,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		openWindow(OpenWindow::SHIPYARD_WINDOW,id.getNum(),h->id.getNum());
+		openWindow(EOpenWindowMode::SHIPYARD_WINDOW,id.getNum(),h->id.getNum());
 	}
 }
 
@@ -2028,12 +2003,12 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		else //if he cannot afford
 		{
-			showInfoDialog(h, 28);
+			h->showInfoDialog(28);
 		}
 	}
 	else //if he already visited carographer
 	{
-		showInfoDialog(h, 24);
+		h->showInfoDialog(24);
 	}
 }
 
@@ -2092,7 +2067,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 		// increment general visited obelisks counter
 		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
 
-		openWindow(OpenWindow::PUZZLE_MAP, h->tempOwner.getNum());
+		openWindow(EOpenWindowMode::PUZZLE_MAP, h->tempOwner.getNum());
 
 		// mark that particular obelisk as visited for all players in the team
 		for(const auto & color : ts->players)
@@ -2153,7 +2128,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		PlayerColor oldOwner = tempOwner;
 		cb->setOwner(this,h->tempOwner); //not ours? flag it!
-		showInfoDialog(h, 69);
+		h->showInfoDialog(69);
 		giveBonusTo(h->tempOwner);
 
 		if(oldOwner < PlayerColor::PLAYER_LIMIT) //remove bonus from old owner

@@ -5721,7 +5721,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 void CGameHandler::showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId)
 {
 	OpenWindow ow;
-	ow.window = OpenWindow::THIEVES_GUILD;
+	ow.window = EOpenWindowMode::THIEVES_GUILD;
 	ow.id1 = player.getNum();
 	ow.id2 = requestingObjId.getNum();
 	sendAndApply(&ow);
