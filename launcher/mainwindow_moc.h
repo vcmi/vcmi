@@ -44,8 +44,8 @@ private:
 
 	void changeEvent(QEvent *event) override;
 public:
-	explicit MainWindow(QWidget * parent = 0);
-	~MainWindow();
+	explicit MainWindow(QWidget * parent = nullptr);
+	~MainWindow() override;
 
 	const CModList & getModList() const;
 

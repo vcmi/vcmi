@@ -10,6 +10,7 @@ set(launcher_SRCS
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
 		mainwindow_moc.cpp
+		languages.cpp
 		launcherdirs.cpp
 		jsonutils.cpp
 		updatedialog_moc.cpp
@@ -29,6 +30,7 @@ set(launcher_HEADERS
 		settingsView/csettingsview_moc.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
+		languages.h
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h

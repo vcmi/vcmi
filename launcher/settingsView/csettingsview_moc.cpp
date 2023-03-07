@@ -14,6 +14,7 @@
 #include "mainwindow_moc.h"
 
 #include "../jsonutils.h"
+#include "../languages.h"
 #include "../launcherdirs.h"
 #include "../updatedialog_moc.h"
 
@@ -29,18 +30,6 @@ QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
-}
-
-/// List of tags of languages that can be selected from Launcher (and have translation for Launcher)
-static const std::string languageTagList[] =
-{
-	"chinese",
-	"english",
-	"german",
-	"polish",
-	"russian",
-	"ukrainian",
-};
 
 static const std::string cursorTypesList[] =
 {
@@ -48,6 +37,8 @@ static const std::string cursorTypesList[] =
 	"hardware",
 	"software"
 };
+
+}
 
 void CSettingsView::setDisplayList()
 {
@@ -105,10 +96,7 @@ void CSettingsView::loadSettings()
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
-	std::string language = settings["general"]["language"].String();
-	size_t languageIndex = boost::range::find(languageTagList, language) - languageTagList;
-	if(languageIndex < ui->comboBoxLanguage->count())
-		ui->comboBoxLanguage->setCurrentIndex((int)languageIndex);
+	Languages::fillLanguages(ui->comboBoxLanguage);
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
@@ -308,13 +296,13 @@ void CSettingsView::on_updatesButton_clicked()
 	UpdateDialog::showUpdateDialog(true);
 }
 
-
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 {
 	Settings node = settings.write["general"]["language"];
-	node->String() = languageTagList[index];
+	QString selectedLanguage = ui->comboBoxLanguage->itemData(index).toString();
+	node->String() = selectedLanguage.toStdString();
 
-	if ( auto mainWindow = dynamic_cast<MainWindow*>(qApp->activeWindow()) )
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
 		mainWindow->updateTranslation();
 }
 
@@ -323,6 +311,7 @@ void CSettingsView::changeEvent(QEvent *event)
 	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
+		Languages::fillLanguages(ui->comboBoxLanguage);
 	}
 	QWidget::changeEvent(event);
 }
@@ -332,7 +321,6 @@ void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[index];
 }
-
 
 void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
 {

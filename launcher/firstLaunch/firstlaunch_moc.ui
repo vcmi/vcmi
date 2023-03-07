@@ -140,7 +140,7 @@
    <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">

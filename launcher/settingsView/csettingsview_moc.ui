@@ -509,38 +509,7 @@
         </widget>
        </item>
        <item row="1" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxLanguage">
-         <item>
-          <property name="text">
-           <string>English</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>简体中文 (Simplified Chinese)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Deutsch (German)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Polska (Polish)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Русский (Russian)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Українська (Ukrainian)</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="QComboBox" name="comboBoxLanguage"/>
        </item>
        <item row="16" column="0">
         <widget class="QLabel" name="labelDataDirs">
