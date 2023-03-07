@@ -279,6 +279,10 @@ CInfoBar::CInfoBar(const Rect & position)
 	reset();
 }
 
+CInfoBar::CInfoBar(const Point & position): CInfoBar(Rect(position.x, position.y, width, height))
+{
+}
+
 void CInfoBar::showDate()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);

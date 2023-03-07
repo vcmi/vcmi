@@ -32,6 +32,13 @@ class CTextBox;
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
 {
+private:
+	/// Infobar actually have a fixed size
+	/// Declare before to compute correct size of widgets
+	static constexpr int width = 192;
+	static constexpr int height = 192;
+	static constexpr int component_offset = 8;
+
 	//all visible information located in one object - for ease of replacing
 	class CVisibleInfo : public CIntObject
 	{
@@ -124,6 +131,7 @@ class CInfoBar : public CIntObject
 	void playNewDaySound();
 public:
 	CInfoBar(const Rect & pos);
+	CInfoBar(const Point & pos);
 
 	/// show new day/week animation
 	void showDate();
