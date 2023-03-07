@@ -122,10 +122,11 @@
 	"vcmi.questLog.hideComplete.hover" : "Приховати завершені квести",
 	"vcmi.questLog.hideComplete.help"  : "Приховує всі квести, які вже мають стан виконаних",
 	
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "за замовчуванням",
+	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(за замовчуванням)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Шаблон",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
+	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
 	
 	"core.bonus.ADDITIONAL_ATTACK.name" : "Подвійний удар",
 	"core.bonus.ADDITIONAL_ATTACK.description" : "Атакує двічі",
