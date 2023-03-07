@@ -133,7 +133,7 @@ class MapRendererDebug
 {
 	std::shared_ptr<IImage> imageGrid;
 	std::shared_ptr<IImage> imageVisitable;
-	std::shared_ptr<IImage> imageBlockable;
+	std::shared_ptr<IImage> imageBlocked;
 public:
 	MapRendererDebug();
 

@@ -179,7 +179,7 @@ bool MapRendererBaseContext::showVisitable() const
 	return false;
 }
 
-bool MapRendererBaseContext::showBlockable() const
+bool MapRendererBaseContext::showBlocked() const
 {
 	return false;
 }
@@ -246,9 +246,9 @@ bool MapRendererAdventureContext::showVisitable() const
 	return settingShowVisitable;
 }
 
-bool MapRendererAdventureContext::showBlockable() const
+bool MapRendererAdventureContext::showBlocked() const
 {
-	return settingShowBlockable;
+	return settingShowBlocked;
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)

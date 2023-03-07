@@ -55,7 +55,7 @@ public:
 	bool showOverlay() const override;
 	bool showGrid() const override;
 	bool showVisitable() const override;
-	bool showBlockable() const override;
+	bool showBlocked() const override;
 };
 
 class MapRendererAdventureContext : public MapRendererBaseContext
@@ -64,7 +64,7 @@ public:
 	uint32_t animationTime = 0;
 	bool settingShowGrid = false;
 	bool settingShowVisitable = false;
-	bool settingShowBlockable = false;
+	bool settingShowBlocked = false;
 	bool settingsAdventureObjectAnimation = true;
 	bool settingsAdventureTerrainAnimation = true;
 
@@ -77,7 +77,7 @@ public:
 	bool showBorder() const override;
 	bool showGrid() const override;
 	bool showVisitable() const override;
-	bool showBlockable() const override;
+	bool showBlocked() const override;
 };
 
 class MapRendererAdventureTransitionContext : public MapRendererAdventureContext
