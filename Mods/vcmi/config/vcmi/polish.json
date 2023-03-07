@@ -27,7 +27,7 @@
 
 	"vcmi.systemOptions.fullscreenButton.hover" : "Pełny ekran",
 	"vcmi.systemOptions.fullscreenButton.help"  : "{Fullscreen}\n\n Po wybraniu VCMI uruchomi się w trybie pełnoekranowym, w przeciwnym wypadku uruchomi się w oknie",
-	"vcmi.systemOptions.resolutionButton.hover" : "Rozdzielczość",
+	"vcmi.systemOptions.resolutionButton.hover" : "Rozdzielczość: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Select resolution}\n\n Zmień rozdzielczość ekranu w grze. Restart gry jest wymagany, by zmiany zostały uwzględnione.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Wybierz rozdzielczość",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Zmień rozdzielczość ekranu w grze.",

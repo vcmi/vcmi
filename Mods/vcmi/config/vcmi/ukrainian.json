@@ -42,7 +42,7 @@
 	"vcmi.systemOptions.fullscreenButton.help"  : "{Повноекранний режим}\n\n Якщо обрано, VCMI буде запускатися в режимі на весь екран, інакше — віконний режим",
 	"vcmi.systemOptions.resolutionButton.hover" : "Роздільна здатність: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Роздільна здатність}\n\n Зміна розширення екрану в грі. Аби зміни набули чинності необхідно перезавантажити гру.",
-	"vcmi.systemOptions.resolutionMenu.hover"   : "Обрати роздільну здатність екрану",
+	"vcmi.systemOptions.resolutionMenu.hover"   : "Обрати роздільну здатність",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Змінити роздільну здатність екрану в грі.",
 	"vcmi.systemOptions.fullscreenFailed"       : "{Повноекранний режим}\n\n Не вдалося перейти в повноекранний режим! Поточна роздільна здатність не підтримується дисплеєм!",
 	"vcmi.systemOptions.framerateButton.hover"  : "Лічильник кадрів",

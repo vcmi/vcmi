@@ -25,7 +25,7 @@
 
 	"vcmi.systemOptions.fullscreenButton.hover" : "Vollbild",
 	"vcmi.systemOptions.fullscreenButton.help"  : "{Fullscreen}\n\n Wenn ausgewählt wird VCMI im Vollbildmodus laufen, ansonsten im Fenstermodus",
-	"vcmi.systemOptions.resolutionButton.hover" : "Auflösung",
+	"vcmi.systemOptions.resolutionButton.hover" : "Auflösung: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Select resolution}\n\n Ändert die Spielauflösung. Spielneustart ist erforderlich um neue Auflösung zu übernehmen.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Wähle Auflösung",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Ändere die Spielauflösung.",
