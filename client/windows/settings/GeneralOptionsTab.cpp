@@ -170,7 +170,7 @@ void GeneralOptionsTab::selectGameResolution()
 	for(const auto & it : selectableResolutions)
 	{
 		auto resolutionStr = resolutionToEntryString(it.x, it.y);
-		if(widget<CLabel>("resolutionLabel")->getText() == resolutionStr)
+		if(widget<CLabel>("resolutionLabel")->getText() == resolutionToLabelString(it.x, it.y))
 			currentResolutionIndex = i;
 
 		items.push_back(std::move(resolutionStr));
