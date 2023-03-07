@@ -47,6 +47,8 @@
 	"vcmi.systemOptions.framerateButton.hover"  : "Показывать частоту кадров",
 	"vcmi.systemOptions.framerateButton.help"   : "{Показывать частоту кадров}\n\n Включить счетчик частоты кадров в углу игрового клиента",
 
+	"vcmi.adventureOptions.infoBarPick.hover" : "Сообщения в информационной панели",
+	"vcmi.adventureOptions.infoBarPick.help" : "{Сообщения в информационной панели}\n\n Если сообщения помещаются, то показывать их в информационной панели (только на интерфейсе карты).",
 	"vcmi.adventureOptions.numericQuantities.hover" : "Приблизительное число существ",
 	"vcmi.adventureOptions.numericQuantities.help" : "{Приблизительное число существ}\n\n Показывать приблизительное число существ в формате A-B вместо словесный обозначений",
 	"vcmi.adventureOptions.forceMovementInfo.hover" : "Всегда показывать стоимость перемещения",

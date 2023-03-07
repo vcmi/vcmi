@@ -1034,11 +1034,18 @@ void CPlayerInterface::yourTacticPhase(int distance)
 void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(type == InfoWindow::INFO) {
-		adventureInt->infoBar->showComponents(components, text);
-		if (makingTurn && GH.listInt.size() && LOCPLINT == this)
-			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
-		return;
+
+	bool autoTryHover = settings["gameTweaks"]["infoBarPick"].Bool() && type == EInfoWindowMode::AUTO;
+	auto timer = type == EInfoWindowMode::INFO ? 3000 : 4500; //Implement long info windows like in HD mod
+
+	if(autoTryHover || type == EInfoWindowMode::INFO)
+	{
+		if(adventureInt->infoBar->tryShowComponents(components, text, timer))
+		{
+			if (makingTurn && GH.listInt.size() && LOCPLINT == this)
+				CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+			return;
+		}
 	}
 
 	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())

@@ -503,6 +503,7 @@
 				"numericCreaturesQuantities",
 				"availableCreaturesAsDwellingLabel",
 				"compactTownCreatureInfo",
+				"infoBarPick",
 				"skipBattleIntroMusic"
 			],
 			"properties": {
@@ -523,6 +524,10 @@
 					"default" : false
 				},
 				"compactTownCreatureInfo" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"infoBarPick" : {
 					"type" : "boolean",
 					"default" : false
 				},

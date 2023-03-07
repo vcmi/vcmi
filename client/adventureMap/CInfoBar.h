@@ -37,12 +37,15 @@ private:
 	/// Declare before to compute correct size of widgets
 	static constexpr int width = 192;
 	static constexpr int height = 192;
-	static constexpr int component_offset = 8;
+	static constexpr int offset = 4;
 
 	//all visible information located in one object - for ease of replacing
 	class CVisibleInfo : public CIntObject
 	{
 	public:
+		static constexpr int offset_x = 8;
+		static constexpr int offset_y = 12;
+
 		void show(SDL_Surface * to) override;
 
 	protected:
@@ -51,6 +54,9 @@ private:
 
 		CVisibleInfo();
 	};
+
+	static constexpr int data_width = width - 2 * CVisibleInfo::offset_x;
+	static constexpr int data_height = height - 2 * CVisibleInfo::offset_y + 4; //yes, +4 is required
 
 	class EmptyVisibleInfo : public CVisibleInfo
 	{
@@ -108,7 +114,7 @@ private:
 		std::shared_ptr<CComponentBox> comps;
 		std::shared_ptr<CTextBox> text;
 	public:
-		VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message);
+		VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny);
 	};
 
 	enum EState
@@ -118,6 +124,9 @@ private:
 
 	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
+
+	//private helper for showing components
+	void showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny = false, int timer = 3000);
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
@@ -137,7 +146,7 @@ public:
 	void showDate();
 
 	/// show components for 3 seconds. Used to display picked up resources. Can display up to 8 components
-	void showComponents(const std::vector<Component> & comps, std::string message);
+	bool tryShowComponents(const std::vector<Component> & comps, std::string message, int timer = 3000);
 
 	/// print enemy turn progress
 	void startEnemyTurn(PlayerColor color);
@@ -154,5 +163,8 @@ public:
 
 	/// check if infobar is showed something about pickups
 	bool showingComponents();
+
+	/// get estimated component height for InfoBar
+	int getEstimatedComponentHeight(int numComps) const;
 };
 

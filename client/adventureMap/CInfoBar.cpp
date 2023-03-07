@@ -15,6 +15,7 @@
 
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
+#include "../windows/CMessage.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
@@ -29,7 +30,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CInfoBar::CVisibleInfo::CVisibleInfo()
-	: CIntObject(0, Point(8, 12))
+	: CIntObject(0, Point(offset_x, offset_y))
 {
 }
 
@@ -163,24 +164,31 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	}
 }
 
-CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message)
+CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
-	auto fullRect = Rect(4, 4, 171, 171);
+	auto fullRect = Rect(0, 0, data_width, data_height);
 	auto textRect = fullRect;
 	auto imageRect = fullRect;
+	auto font = FONT_SMALL;
 
 	if(!compsToDisplay.empty())
 	{
 		auto size = CComponent::large;
 		if(compsToDisplay.size() > 2)
 			size = CComponent::small;
-		if(message != "")
+		if(!message.empty())
 		{
-			textRect = Rect(4, 4, 171, 42);
-			imageRect = Rect(4, 42, 171, 121);
+			textRect = Rect(CInfoBar::offset,
+							CInfoBar::offset,
+							data_width - 2 * CInfoBar::offset,
+							textH);
+			imageRect = Rect(CInfoBar::offset,
+							 textH + CInfoBar::offset,
+							 data_width - 2 * CInfoBar::offset,
+							 CInfoBar::data_height - 2* CInfoBar::offset - textH);
 			if(compsToDisplay.size() > 4)
 				size = CComponent::tiny;
 		}
@@ -194,8 +202,24 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 
 		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1);
 	}
+	else
+		font = tiny ? FONT_TINY : font;
 
-	text = std::make_shared<CTextBox>(message, textRect, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	if(!message.empty())
+		text = std::make_shared<CTextBox>(message, textRect, 0, font, ETextAlignment::CENTER, Colors::WHITE);
+}
+
+int CInfoBar::getEstimatedComponentHeight(int numComps) const
+{
+	if (numComps > 8) //Bigger than 8 components - return invalid value
+		return std::numeric_limits<int>::max();
+	else if (numComps > 4)
+		return 48 + 20; // 24px * 2 rows + 20 to offset
+	else if (numComps > 2)
+		return 32 + 20; // 32px * 1 row + 20 to offset
+	else if (numComps)
+		return 128; // 128 px to offset
+	return 0;
 }
 
 void CInfoBar::playNewDaySound()
@@ -293,13 +317,36 @@ void CInfoBar::showDate()
 	redraw();
 }
 
-void CInfoBar::showComponents(const std::vector<Component> & comps, std::string message)
+bool CInfoBar::tryShowComponents(const std::vector<Component> & components, std::string message, int timer)
+{
+	auto imageH = getEstimatedComponentHeight(components.size()) + (components.empty() ? 0 : 2 * CInfoBar::offset);
+	auto textH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
+	auto tinyH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_TINY);
+	auto header = CMessage::guessHeader(message);
+	auto headerH = CMessage::guessHeight(header, CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
+
+	// Order matters - priority form should be chosen first
+	if(imageH + textH < CInfoBar::data_height)
+		showComponents(components, message, textH, false, timer);
+	else if(!imageH && tinyH < CInfoBar::data_height)
+		showComponents(components, message, tinyH, true, timer);
+	else if(imageH + headerH < CInfoBar::data_height)
+		showComponents(components, header, headerH, false, timer);
+	else if(imageH < CInfoBar::data_height)
+		showComponents(components, "", 0, false, timer);
+	else
+		return false; //We cannot fit message to infobar, fallback to window
+
+	return true;
+}
+
+void CInfoBar::showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	state = COMPONENT;
-	visibleInfo = std::make_shared<VisibleComponentInfo>(comps, message);
+	visibleInfo = std::make_shared<VisibleComponentInfo>(comps, message, textH, tiny);
 
-	setTimer(3000);
+	setTimer(timer);
 	redraw();
 }
 

@@ -105,10 +105,14 @@ AdventureOptionsTab::AdventureOptionsTab()
 	addCallback("mapSwipeChanged", [](bool value)
 	{
 #if defined(VCMI_MOBILE)
-		setBoolSetting("general", "swipe", value);
+		return setBoolSetting("general", "swipe", value);
 #else
-		setBoolSetting("general", "swipeDesktop", value);
+		return setBoolSetting("general", "swipeDesktop", value);
 #endif
+	});
+	addCallback("infoBarPickChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "infoBarPick", value);
 	});
 	build(config);
 
@@ -142,4 +146,6 @@ AdventureOptionsTab::AdventureOptionsTab()
 #else
 	mapSwipeCheckbox->setSelected(settings["general"]["swipeDesktop"].Bool());
 #endif
+	std::shared_ptr<CToggleButton> infoBarPickCheckbox = widget<CToggleButton>("infoBarPickCheckbox");
+	infoBarPickCheckbox->setSelected(settings["gameTweaks"]["infoBarPick"].Bool());
 }
