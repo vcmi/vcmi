@@ -270,7 +270,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			}
 		}
 
-		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
+		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
 	}
 
 }
