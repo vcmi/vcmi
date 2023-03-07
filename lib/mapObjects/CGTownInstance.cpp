@@ -173,6 +173,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	if(ID == Obj::REFUGEE_CAMP && !creatures[0].first) //Refugee Camp, no available cres
 	{
 		InfoWindow iw;
+		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.addTxt(MetaString::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
 		iw.text.addReplacement(MetaString::OBJ_NAMES, ID);
@@ -328,6 +329,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			if(!slot.validSlot()) //no available slot
 			{
 				InfoWindow iw;
+				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
 				iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
@@ -342,6 +344,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 
 				InfoWindow iw;
+				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 423); //%d %s join your army.
 				iw.text.addReplacement(count);
@@ -355,6 +358,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		else //there no creatures
 		{
 			InfoWindow iw;
+			iw.type = EInfoWindowMode::AUTO;
 			iw.text.addTxt(MetaString::GENERAL_TXT, 422); //There are no %s here to recruit.
 			iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
 			iw.player = h->tempOwner;

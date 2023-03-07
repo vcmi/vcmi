@@ -6046,6 +6046,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	sendAndApply(&smp);
 
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
 	if (gs->map->grailPos == h->visitablePos())
 	{

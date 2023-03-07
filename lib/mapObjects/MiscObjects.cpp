@@ -46,6 +46,7 @@ static void openWindow(const OpenWindow::EWindow type, const int id1, const int 
 static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID = 0)
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	if(soundID)
 		iw.soundID = soundID;
 	iw.player = playerID;
@@ -740,6 +741,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	cb->setOwner(this, player); //not ours? flag it!
 
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::FLAGMINE;
 	iw.text.addTxt(MetaString::MINE_EVNTS,producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
@@ -901,8 +903,6 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	}
 	sii.components.emplace_back(Component::RESOURCE,subID,amount,0);
-	sii.text.addTxt(MetaString::ADVOB_TXT,113);
-	sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this);
@@ -1239,6 +1239,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		vstd::amax(countToTake, 1);
 
 		InfoWindow iw;
+		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.addTxt(MetaString::ADVOB_TXT, 168);
 		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), countToTake));
@@ -1321,6 +1322,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 	if(!stacksCount())
 	{
 		InfoWindow iw;
+		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		switch(ID)
 		{
@@ -1449,6 +1451,7 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id, CGWitchHut::OBJPROP_VISITED, h->tempOwner.getNum());
@@ -1523,6 +1526,7 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
 	switch (ID)
 	{
@@ -1565,6 +1569,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 		cb->setObjProperty(id, CGShrine::OBJPROP_VISITED, h->tempOwner.getNum());
 
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
 	iw.text.addTxt(MetaString::ADVOB_TXT,127 + ID - 88);
 	iw.text.addTxt(MetaString::SPELL_NAME,spell);
@@ -1682,6 +1687,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
 	iw.text.addTxt(MetaString::ADVOB_TXT,115);
 
@@ -1909,6 +1915,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->tempOwner;
 	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Sirens
 	{
+		iw.type = EInfoWindowMode::AUTO;
 		iw.text.addTxt(MetaString::ADVOB_TXT,133);
 	}
 	else
@@ -1974,6 +1981,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	if(s != IBoatGenerator::GOOD)
 	{
 		InfoWindow iw;
+		iw.type = EInfoWindowMode::AUTO;
 		iw.player = tempOwner;
 		getProblemText(iw.text, h);
 		cb->showInfoDialog(&iw);
@@ -2070,6 +2078,7 @@ void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
 	TeamState *ts = cb->gameState()->getPlayerTeam(h->tempOwner);
 	assert(ts);

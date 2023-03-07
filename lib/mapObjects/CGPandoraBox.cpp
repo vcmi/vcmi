@@ -29,6 +29,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID)
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundID;
 	iw.player = playerID;
 	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
@@ -60,6 +61,7 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 	afterSuccessfulVisit();
 
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
 
 	bool changesPrimSkill = false;
@@ -139,6 +141,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 
 	std::string msg = message; //in case box is removed in the meantime
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
 
 	//TODO: reuse this code for Scholar skill

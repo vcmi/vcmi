@@ -876,6 +876,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
 	iw.player = tempOwner;
 	iw.components.emplace_back(raisedStack);

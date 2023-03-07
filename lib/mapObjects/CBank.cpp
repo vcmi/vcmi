@@ -132,6 +132,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 {
 	int textID = -1;
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = hero->getOwner();
 	MetaString loot;
 
