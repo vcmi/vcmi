@@ -73,7 +73,13 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 
 	pos.h += 4; //distance between text and image
 
-	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), font);
+	auto max = 80;
+	if (size < medium)
+		max = 40;
+	if (size < small)
+		max = 30;
+
+	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
 	for(auto & line : textLines)
 	{
 		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
