@@ -4005,36 +4005,45 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 
+	// Temporary fitting set for artifacts. Used to select available slots before sending data.
+	CArtifactFittingSet artFittingSet(pdstHero->bearerType());
+
+	auto moveArtifact = [this, &artFittingSet](const CArtifactInstance * artifact,
+		ArtifactPosition srcSlot, const CGHeroInstance * dstHero,
+		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+	{
+		assert(artifact);
+		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet);
+		artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
+		slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+
+		if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->artType->getId(), dstSlot))
+			giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+	};
+
 	if(swap)
 	{
-		auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
+		auto moveArtsWorn = [moveArtifact](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
 			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 		{
 			for(auto & artifact : srcHero->artifactsWorn)
 			{
-				if(artifact.second.locked)
-					continue;
-				if(!ArtifactUtils::isArtRemovable(artifact))
-					continue;
-				slots.push_back(BulkMoveArtifacts::LinkedSlots(artifact.first, artifact.first));
-
-				auto art = artifact.second.getArt();
-				assert(art);
-				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, art->artType->getId(), artifact.first))
-					giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+				if(ArtifactUtils::isArtRemovable(artifact))
+					moveArtifact(artifact.second.getArt(), artifact.first, dstHero, slots);
 			}
 		};
-		auto moveArtsInBackpack = [](const CGHeroInstance * pHero,
+		auto moveArtsInBackpack = [](const CArtifactSet * artSet,
 			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 		{
-			for(auto & slotInfo : pHero->artifactsInBackpack)
+			for(auto & slotInfo : artSet->artifactsInBackpack)
 			{
-				auto slot = pHero->getArtPos(slotInfo.artifact);
+				auto slot = artSet->getArtPos(slotInfo.artifact);
 				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
 			}
 		};
 		// Move over artifacts that are worn srcHero -> dstHero
 		moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
+		artFittingSet.artifactsWorn.clear();
 		// Move over artifacts that are worn dstHero -> srcHero
 		moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
 		// Move over artifacts that are in backpack srcHero -> dstHero
@@ -4044,35 +4053,22 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	}
 	else
 	{
-		// Temporary fitting set for artifacts. Used to select available slots before sending data.
-		CArtifactFittingSet artFittingSet(pdstHero->bearerType());
 		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
 		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
-
-		auto moveArtifact = [this, &artFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
-			ArtifactPosition srcSlot, const CGHeroInstance * pdstHero) -> void
-		{
-			assert(artifact);
-			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet, pdstHero->bearerType());
-			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
-			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
-
-			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->getId(), dstSlot))
-				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
-		};
 
 		// Move over artifacts that are worn
 		for(auto & artInfo : psrcHero->artifactsWorn)
 		{
 			if(ArtifactUtils::isArtRemovable(artInfo))
 			{
-				moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero);
+				moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero, slotsSrcDst);
 			}
 		}
 		// Move over artifacts that are in backpack
 		for(auto & slotInfo : psrcHero->artifactsInBackpack)
 		{
-			moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)), psrcHero->getArtPos(slotInfo.artifact), pdstHero);
+			moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)),
+				psrcHero->getArtPos(slotInfo.artifact), pdstHero, slotsSrcDst);
 		}
 	}
 	sendAndApply(&ma);

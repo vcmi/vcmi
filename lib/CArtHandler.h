@@ -384,9 +384,8 @@ protected:
 namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(	const CArtifactInstance * artifact, 
-								const CArtifactSet * target,
-								ArtBearer::ArtBearer bearer);
+	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(const CArtifactInstance * artifact, 
+		const CArtifactSet * target);
 	// TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
 	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();

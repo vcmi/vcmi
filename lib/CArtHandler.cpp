@@ -410,7 +410,7 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 
 	static const std::vector<ArtifactPosition> ringSlots =
 	{
-		ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING
+		ArtifactPosition::RIGHT_RING, ArtifactPosition::LEFT_RING
 	};
 
 	if (slotID == "MISC")
@@ -425,7 +425,7 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 	{
 		auto slot = ArtifactPosition(slotID);
 		if (slot != ArtifactPosition::PRE_FIRST)
-			art->possibleSlots[ArtBearer::HERO].push_back (slot);
+			art->possibleSlots[ArtBearer::HERO].push_back(slot);
 	}
 }
 
@@ -440,6 +440,7 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
 			for (const JsonNode & slot : node["slot"].Vector())
 				addSlot(art, slot.String());
 		}
+		std::sort(art->possibleSlots.at(ArtBearer::HERO).begin(), art->possibleSlots.at(ArtBearer::HERO).end());
 	}
 }
 
@@ -1565,17 +1566,14 @@ ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 	return this->Bearer;
 }
 
-DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtifactInstance * artifact,
-									const CArtifactSet * target, 
-									ArtBearer::ArtBearer bearer)
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const CArtifactInstance * artifact,
+	const CArtifactSet * target)
 {
-	for(auto slot : artifact->artType->possibleSlots.at(bearer))
+	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
 	{
-		auto existingArtifact = target->getArt(slot);
 		auto existingArtInfo = target->getSlot(slot);
 
-		if(!existingArtifact
-			&& (!existingArtInfo || !existingArtInfo->locked)
+		if((!existingArtInfo || !existingArtInfo->locked)
 			&& artifact->canBePutAt(target, slot))
 		{
 			return slot;
