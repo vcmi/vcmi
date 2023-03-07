@@ -178,6 +178,8 @@ public:
 	                            const CGHeroInstance * h) const;
 	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
+	si32 calculateManaPoints(const CGHeroInstance * h) const;
+
 	CRewardInfo() :
 		heroExperience(0),
 		heroLevel(0),
