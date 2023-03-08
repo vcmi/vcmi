@@ -158,7 +158,7 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::EDateType::DAY) == 1)
+	if(ai->cb->getDate(Date::EDateType::DAY) == 1 && dailyIncome[Res::GOLD] <= 500)
 	{
 		goldPreasure = 1;
 	}
