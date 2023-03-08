@@ -601,7 +601,7 @@ void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target
 		{
 			const auto * object = context.getObject(objectID);
 
-			if (context.objectTransparency(objectID, coordinates) > 0)
+			if(context.objectTransparency(objectID, coordinates) > 0 && !context.isActiveHero(object))
 			{
 				visitable |= object->visitableAt(coordinates.x, coordinates.y);
 				blocking |= object->blockingAt(coordinates.x, coordinates.y);
