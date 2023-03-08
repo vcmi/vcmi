@@ -42,11 +42,11 @@ QString Languages::generateLanguageName(const Languages::Options & language)
 	QString localizedName = QApplication::translate("Language", language.nameEnglish.c_str());
 	QString nativeName = language.nameNative.c_str();
 
-	if(activeLanguage == language.identifier)
-		return nativeName;
-
 	if(!language.hasTranslation)
 		return localizedName;
+
+	if(activeLanguage == language.identifier)
+		return nativeName;
 
 	QString displayName = QString("%1 (%2)").arg(localizedName, nativeName);
 

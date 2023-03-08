@@ -67,7 +67,7 @@ inline const auto & getLanguageList()
 
 		{ "other_cp1250", "Other (East European)",   "", "CP1251", false, false },
 		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1250", false, false },
-		{ "other_cp1250", "Other (West European)",   "", "CP1252", false, false }
+		{ "other_cp1252", "Other (West European)",   "", "CP1252", false, false }
 	} };
 	static_assert(languages.size() == static_cast<size_t>(ELanguages::COUNT), "Languages array is missing a value!");
 

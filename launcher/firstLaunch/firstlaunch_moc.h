@@ -19,6 +19,7 @@ class FirstLaunchView : public QWidget
 {
 	Q_OBJECT
 
+	void changeEvent(QEvent *event);
 public:
 	explicit FirstLaunchView(QWidget * parent = 0);
 	~FirstLaunchView();
@@ -34,6 +35,8 @@ private slots:
 	void on_buttonTabModPreset_clicked();
 
 	void on_buttonTabFinish_clicked();
+
+	void on_listWidgetLanguage_currentRowChanged(int currentRow);
 
 private:
 	Ui::FirstLaunchView * ui;

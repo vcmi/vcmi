@@ -157,7 +157,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="labelLanguageTitle">
          <property name="font">
           <font>
            <weight>75</weight>
@@ -170,7 +170,7 @@
         </widget>
        </item>
        <item row="2" column="2">
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="pushButtonLanguageNext">
          <property name="text">
           <string>Next</string>
          </property>
@@ -203,35 +203,10 @@
         </spacer>
        </item>
        <item row="1" column="0" rowspan="2">
-        <widget class="QListWidget" name="listWidget">
+        <widget class="QListWidget" name="listWidgetLanguage">
          <property name="spacing">
           <number>5</number>
          </property>
-         <item>
-          <property name="text">
-           <string>English</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>German</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Polish</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Russian</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Ukrainian</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>
@@ -254,7 +229,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="labelDataTitle">
          <property name="font">
           <font>
            <weight>75</weight>
@@ -285,7 +260,7 @@
           <number>6</number>
          </property>
          <item row="4" column="3">
-          <widget class="QPushButton" name="pushButton_11">
+          <widget class="QPushButton" name="pushButtonDataHelp">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>25</horstretch>
@@ -298,7 +273,7 @@
           </widget>
          </item>
          <item row="2" column="3">
-          <widget class="QPushButton" name="pushButton_8">
+          <widget class="QPushButton" name="pushButtonDataSearch">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>25</horstretch>
@@ -311,7 +286,7 @@
           </widget>
          </item>
          <item row="1" column="1" colspan="3">
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="lineEditData1">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>50</horstretch>
@@ -321,7 +296,7 @@
           </widget>
          </item>
          <item row="0" column="1" colspan="3">
-          <widget class="QLineEdit" name="lineEdit_2">
+          <widget class="QLineEdit" name="lineEditData2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>50</horstretch>
@@ -331,7 +306,7 @@
           </widget>
          </item>
          <item row="4" column="0" colspan="3">
-          <widget class="QLabel" name="label_14">
+          <widget class="QLabel" name="labelDataHelp">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -347,7 +322,7 @@
           </widget>
          </item>
          <item row="2" column="0" colspan="3">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="labelDataSearch">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -363,7 +338,7 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_23">
+          <widget class="QLabel" name="labelDataFiles">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>50</horstretch>
@@ -382,7 +357,7 @@
           </widget>
          </item>
          <item row="3" column="0" colspan="3">
-          <widget class="QLabel" name="label_13">
+          <widget class="QLabel" name="labelDataCopy">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -398,7 +373,7 @@
           </widget>
          </item>
          <item row="3" column="3">
-          <widget class="QPushButton" name="pushButton_10">
+          <widget class="QPushButton" name="pushButtonDataCopy">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>25</horstretch>
@@ -411,7 +386,7 @@
           </widget>
          </item>
          <item row="5" column="0" colspan="4">
-          <widget class="QLabel" name="label_15">
+          <widget class="QLabel" name="labelDataFound">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -447,7 +422,7 @@
           <number>6</number>
          </property>
          <item row="1" column="0" colspan="2">
-          <widget class="QLabel" name="label_25">
+          <widget class="QLabel" name="labelDataSuccess">
            <property name="text">
             <string>You Heroes III language was succesfully detected automatically.</string>
            </property>
@@ -457,7 +432,7 @@
           </widget>
          </item>
          <item row="2" column="0" colspan="2">
-          <widget class="QLabel" name="label_24">
+          <widget class="QLabel" name="labelDataFailure">
            <property name="text">
             <string>Automatic detection of language failed. Please select language of your Heroes III copy</string>
            </property>
@@ -467,10 +442,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="comboBox"/>
+          <widget class="QComboBox" name="comboBoxLanguage"/>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="labelDataLanguage">
            <property name="font">
             <font>
              <weight>75</weight>
@@ -519,14 +494,14 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="pushButtonDataBack">
            <property name="text">
             <string>Back</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="pushButtonDataNext">
            <property name="text">
             <string>Next</string>
            </property>
@@ -551,7 +526,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="labelPresetTitle">
          <property name="font">
           <font>
            <weight>75</weight>
@@ -579,7 +554,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_4" rowstretch="1,0,0,0">
          <item row="2" column="0">
-          <widget class="QLabel" name="label_11">
+          <widget class="QLabel" name="labelPresetHota">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -595,7 +570,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QToolButton" name="toolButton">
+          <widget class="QToolButton" name="toolButtonPresetLanguage">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
@@ -603,7 +578,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Localization to (language)</string>
+            <string>Localization to English</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextOnly</enum>
@@ -611,7 +586,7 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_12">
+          <widget class="QLabel" name="labelPresetWog">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -627,7 +602,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QToolButton" name="toolButton_3">
+          <widget class="QToolButton" name="toolButtonPresetHota">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
@@ -643,7 +618,7 @@
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QToolButton" name="toolButton_4">
+          <widget class="QToolButton" name="toolButtonPresetWog">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
@@ -659,7 +634,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_10">
+          <widget class="QLabel" name="labelPresetExtras">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -675,7 +650,7 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_9">
+          <widget class="QLabel" name="labelPresetLanguage">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -683,7 +658,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>VCMI provides translations of Heroes III into a different languages. If you wish, you can install translation to (your language)</string>
+            <string>VCMI provides translations of Heroes III into a different languages. If you wish, you can install translation to English</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -691,7 +666,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QToolButton" name="toolButton_2">
+          <widget class="QToolButton" name="toolButtonPresetExtras">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
@@ -737,14 +712,14 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_9">
+          <widget class="QPushButton" name="pushButtonPresetBack">
            <property name="text">
             <string>Back</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_13">
+          <widget class="QPushButton" name="pushButtonPresetNext">
            <property name="text">
             <string>Skip</string>
            </property>
@@ -810,14 +785,14 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_14">
+          <widget class="QPushButton" name="pushButtonFinishBack">
            <property name="text">
             <string>Back</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_15">
+          <widget class="QPushButton" name="pushButtonFinishExit">
            <property name="text">
             <string>Finish</string>
            </property>
