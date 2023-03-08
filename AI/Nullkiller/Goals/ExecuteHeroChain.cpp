@@ -52,6 +52,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
 
 	ai->nullkiller->setActive(chainPath.targetHero, tile);
+	ai->nullkiller->setTargetObject(objid);
 
 	std::set<int> blockedIndexes;
 

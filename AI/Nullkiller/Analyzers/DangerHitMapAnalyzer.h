@@ -16,9 +16,16 @@ namespace NKAI
 
 struct HitMapInfo
 {
+	static HitMapInfo NoTreat;
+
 	uint64_t danger;
 	uint8_t turn;
 	HeroPtr hero;
+
+	HitMapInfo()
+	{
+		reset();
+	}
 
 	void reset()
 	{
@@ -32,6 +39,8 @@ struct HitMapNode
 {
 	HitMapInfo maximumDanger;
 	HitMapInfo fastestDanger;
+
+	HitMapNode() = default;
 
 	void reset()
 	{

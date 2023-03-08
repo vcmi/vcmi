@@ -23,6 +23,7 @@ namespace NKAI
 
 class BuildingInfo;
 class Nullkiller;
+struct HitMapInfo;
 
 class RewardEvaluator
 {
@@ -41,8 +42,7 @@ public:
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
 	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
-	uint64_t getEnemyHeroDanger(const AIPath & path) const;
-	uint64_t getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
+	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 };
 
 struct DLL_EXPORT EvaluationContext

@@ -92,37 +92,6 @@ float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->level * 1.5f;
 }
 
-std::vector<std::vector<const CGHeroInstance *>> clusterizeHeroes(CCallback * cb, std::vector<const CGHeroInstance *> heroes)
-{
-	std::vector<std::vector<const CGHeroInstance *>> clusters;
-
-	for(auto hero : heroes)
-	{
-		auto paths = cb->getPathsInfo(hero);
-		std::vector<const CGHeroInstance *> newCluster = {hero};
-
-		for(auto cluster = clusters.begin(); cluster != clusters.end();)
-		{
-			auto hero = std::find_if(cluster->begin(), cluster->end(), [&](const CGHeroInstance * h) -> bool
-			{
-				return paths->getNode(h->visitablePos())->turns < SCOUT_TURN_DISTANCE_LIMIT;
-			});
-
-			if(hero != cluster->end())
-			{
-				vstd::concatenate(newCluster, *cluster);
-				clusters.erase(cluster);
-			}
-			else
-				cluster++;
-		}
-
-		clusters.push_back(newCluster);
-	}
-
-	return clusters;
-}
-
 void HeroManager::update()
 {
 	logAi->trace("Start analysing our heroes");
@@ -140,34 +109,13 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 100 + 1);
+	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 50 + 1);
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
 
 	for(auto hero : myHeroes)
 	{
 		heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
-	}
-
-	for(auto cluster : clusterizeHeroes(cb, myHeroes))
-	{
-		std::sort(cluster.begin(), cluster.end(), scoreSort);
-
-		auto localMainCountMax = (cluster.size() + 2) / 3;
-
-		for(auto hero : cluster)
-		{
-			if(heroRoles[hero] != HeroRole::MAIN)
-			{
-				heroRoles[hero] = HeroRole::MAIN;
-				break;
-			}
-			
-			localMainCountMax--;
-
-			if(localMainCountMax == 0)
-				break;
-		}
 	}
 
 	for(auto hero : myHeroes)

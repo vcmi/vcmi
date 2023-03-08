@@ -83,7 +83,10 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 	
 	cb->swapGarrisonHero(town);
 
-	ai->nullkiller->lockHero(garrisonHero, lockingReason);
+	if(lockingReason != HeroLockedReason::NOT_LOCKED)
+	{
+		ai->nullkiller->lockHero(garrisonHero, lockingReason);
+	}
 
 	if(town->visitingHero && town->visitingHero != garrisonHero)
 	{
