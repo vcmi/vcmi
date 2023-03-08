@@ -331,6 +331,9 @@ void CAdvMapInt::fsleepWake()
 		//uncomment to enable original HoMM3 behaviour:
 		//move button is disabled for hero going to sleep, even though it's enabled when you reselect him
 	}
+
+	// redraw to update the image of sleep/wake button
+	panelMain->redraw();
 }
 
 void CAdvMapInt::fmoveHero()
