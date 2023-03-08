@@ -969,6 +969,119 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	return true;
 }
 
+CSelector JsonUtils::parseSelector(const JsonNode & ability)
+{
+	CSelector ret = Selector::all;
+
+	// Recursive parsers for anyOf, allOf, noneOf
+	const auto * value = &ability["allOf"];
+	if(value->isVector())
+	{
+		for(const auto & andN : value->Vector())
+			ret = ret.And(parseSelector(andN));
+	}
+
+	value = &ability["anyOf"];
+	if(value->isVector())
+	{
+		CSelector base = Selector::none;
+		for(const auto & andN : value->Vector())
+			base.Or(parseSelector(andN));
+		
+		ret = ret.And(base);
+	}
+
+	value = &ability["noneOf"];
+	if(value->isVector())
+	{
+		CSelector base = Selector::all;
+		for(const auto & andN : value->Vector())
+			base.And(parseSelector(andN));
+		
+		ret = ret.And(base.Not());
+	}
+
+	// Actual selector parser
+	value = &ability["type"];
+	if(value->isString())
+	{
+		auto it = bonusNameMap.find(value->String());
+		if(it != bonusNameMap.end())
+			ret = ret.And(Selector::type()(it->second));
+	}
+	value = &ability["subtype"];
+	if(!value->isNull())
+	{
+		TBonusSubtype subtype;
+		resolveIdentifier(subtype, ability, "subtype");
+		ret = ret.And(Selector::subtype()(subtype));
+	}
+	value = &ability["sourceType"];
+	Bonus::BonusSource src = Bonus::OTHER; //Fixes for GCC false maybe-uninitialized
+	si32 id = 0;
+	auto sourceIDRelevant = false;
+	auto sourceTypeRelevant = false;
+	if(value->isString())
+	{
+		auto it = bonusSourceMap.find(value->String());
+		if(it != bonusSourceMap.end())
+		{
+			src = it->second;
+			sourceTypeRelevant = true;
+		}
+
+	}
+	value = &ability["sourceID"];
+	if(!value->isNull())
+	{
+		sourceIDRelevant = true;
+		resolveIdentifier(id, ability, "sourceID");
+	}
+
+	if(sourceIDRelevant && sourceTypeRelevant)
+		ret = ret.And(Selector::source(src, id));
+	else if(sourceTypeRelevant)
+		ret = ret.And(Selector::sourceTypeSel(src));
+
+	
+	value = &ability["targetSourceType"];
+	if(value->isString())
+	{
+		auto it = bonusSourceMap.find(value->String());
+		if(it != bonusSourceMap.end())
+			ret = ret.And(Selector::targetSourceType()(it->second));
+	}
+	value = &ability["valueType"];
+	if(value->isString())
+	{
+		auto it = bonusValueMap.find(value->String());
+		if(it != bonusValueMap.end())
+			ret = ret.And(Selector::valueType(it->second));
+	}
+	CAddInfo info;
+	value = &ability["addInfo"];
+	if(!value->isNull())
+	{
+		resolveAddInfo(info, ability["addInfo"]);
+		ret = ret.And(Selector::info()(info));
+	}
+	value = &ability["effectRange"];
+	if(value->isString())
+	{
+		auto it = bonusLimitEffect.find(value->String());
+		if(it != bonusLimitEffect.end())
+			ret = ret.And(Selector::effectRange()(it->second));
+	}
+	value = &ability["lastsTurns"];
+	if(value->isNumber())
+		ret = ret.And(Selector::turns(value->Integer()));
+	value = &ability["lastsDays"];
+	if(value->isNumber())
+		ret = ret.And(Selector::days(value->Integer()));
+
+	return ret;
+}
+
 //returns first Key with value equal to given one
 template<class Key, class Val>
 Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
