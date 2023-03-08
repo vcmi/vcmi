@@ -177,7 +177,7 @@ void MapViewController::update(uint32_t timeDelta)
 		adventureContext->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
-		adventureContext->settingShowBlockable = settings["session"]["showBlockable"].Bool();
+		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 	}
 }
 

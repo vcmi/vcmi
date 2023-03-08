@@ -581,7 +581,7 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 
 MapRendererDebug::MapRendererDebug()
 	: imageGrid(IImage::createFromFile("debug/grid", EImageBlitMode::ALPHA))
-	, imageBlockable(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
+	, imageBlocked(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
 	, imageVisitable(IImage::createFromFile("debug/visitable", EImageBlitMode::ALPHA))
 {
 
@@ -592,9 +592,9 @@ void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
-	if(context.showVisitable() || context.showBlockable())
+	if(context.showVisitable() || context.showBlocked())
 	{
-		bool blockable = false;
+		bool blocking = false;
 		bool visitable = false;
 
 		for(const auto & objectID : context.getObjects(coordinates))
@@ -604,12 +604,12 @@ void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target
 			if (context.objectTransparency(objectID, coordinates) > 0)
 			{
 				visitable |= object->visitableAt(coordinates.x, coordinates.y);
-				blockable |= object->blockingAt(coordinates.x, coordinates.y);
+				blocking |= object->blockingAt(coordinates.x, coordinates.y);
 			}
 		}
 
-		if (context.showBlockable() && blockable)
-			target.draw(imageBlockable, Point(0,0));
+		if (context.showBlocked() && blocking)
+			target.draw(imageBlocked, Point(0,0));
 		if (context.showVisitable() && visitable)
 			target.draw(imageVisitable, Point(0,0));
 	}
@@ -622,7 +622,7 @@ uint8_t MapRendererDebug::checksum(IMapRendererContext & context, const int3 & c
 	if (context.showVisitable())
 		result += 1;
 
-	if (context.showBlockable())
+	if (context.showBlocked())
 		result += 2;
 
 	if (context.showGrid())
