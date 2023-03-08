@@ -4,257 +4,223 @@
 <context>
     <name>CModListModel</name>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="150"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="142"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="153"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="145"/>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="154"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="146"/>
         <source>Version</source>
         <translation>Версия</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="155"/>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="156"/>
-        <source>Author</source>
-        <translation>Автор</translation>
     </message>
 </context>
 <context>
     <name>CModListView</name>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="61"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="333"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="58"/>
         <source>Filter</source>
         <translation>Фильтр</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="84"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="334"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="81"/>
         <source>All mods</source>
         <translation>Все моды</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="335"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
         <source>Downloadable</source>
         <translation>Доступные</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="336"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="91"/>
         <source>Installed</source>
         <translation>Установленные</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="99"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="337"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="96"/>
         <source>Updatable</source>
         <translation>Обновления</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="104"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="101"/>
         <source>Active</source>
         <translation>Активны</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="109"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="339"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="106"/>
         <source>Inactive</source>
         <translation>Неактивны</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="123"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="341"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="120"/>
         <source>Download &amp;&amp; refresh repositories</source>
         <translation>Обновить репозиторий</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="228"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="288"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="343"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
         <source>Description</source>
         <translation>Описание</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="273"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="208"/>
         <source>Changelog</source>
         <translation>Изменения</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="295"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="345"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="230"/>
         <source>Screenshots</source>
         <translation>Скриншоты</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="368"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="346"/>
-        <source>Show details</source>
-        <translation>Подробности</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="409"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="347"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="389"/>
         <source>Uninstall</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="434"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="348"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
         <source>Enable</source>
         <translation>Включить</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="349"/>
         <source>Disable</source>
         <translation>Отключить</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="484"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="494"/>
         <source>Update</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="509"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="351"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="529"/>
         <source>Install</source>
         <translation>Установить</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="563"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
         <source> %p% (%v KB out of %m KB)</source>
         <translation> %p% (%v КБ з %m КБ)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="576"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_cmodlistview_moc.h" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
         <source>Abort</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="228"/>
         <source>Mod name</source>
         <translation>Название мода</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="229"/>
         <source>Installed version</source>
         <translation>Установленная версия</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="230"/>
         <source>Latest version</source>
         <translation>Последняя версия</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="233"/>
         <source>Download size</source>
         <translation>Размер загрузки</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="252"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="234"/>
         <source>Authors</source>
         <translation>Авторы</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
         <source>License</source>
         <translation>Лицензия</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="258"/>
-        <source>Home</source>
-        <translation>Домашняя страница</translation>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
+        <source>Contact</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="262"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="269"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="244"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <source>Compatibility</source>
         <translation>Совместимость</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
         <source>Required VCMI version</source>
         <translation>Требуемая версия VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="277"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
         <source>Supported VCMI version</source>
         <translation>Поддерживаемая версия VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="264"/>
         <source>Supported VCMI versions</source>
         <translation>Поддерживаемые версии VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="268"/>
         <source>Required mods</source>
         <translation>Зависимости</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="269"/>
         <source>Conflicting mods</source>
         <translation>Конфликтующие моды</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="274"/>
         <source>This mod can not be installed or enabled because following dependencies are not present</source>
         <translation>Этот мод не может быть установлен или активирован, так как отсутствуют следующие зависимости</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="275"/>
         <source>This mod can not be enabled because following mods are incompatible with this mod</source>
         <translation>Этот мод не может быть установлен или активирован, так как следующие моды несовместимы с этим</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <source>This mod can not be disabled because it is required to run following mods</source>
         <translation>Этот мод не может быть выключен, так как он является зависимостью для следующих</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="277"/>
         <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
         <translation>Этот мод не может быть удален или обновлен, так как является зависимостью для следующих модов</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
         <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
         <translation>Это вложенный мод, он не может быть установлен или удален отдельно от родительского</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <source>Notes</source>
         <translation>Замечания</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="846"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="795"/>
         <source>Screenshot %1</source>
         <translation>Скриншот %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="222"/>
         <source>Mod is compatible</source>
         <translation>Мод совместим</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="241"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="223"/>
         <source>Mod is incompatible</source>
         <translation>Мод несовместим</translation>
     </message>
@@ -262,305 +228,400 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="80"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="434"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="580"/>
         <source>Change</source>
         <translation>Изменить</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="104"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="205"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="396"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="438"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="449"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="467"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="223"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="356"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="450"/>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="445"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="470"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="507"/>
+        <source>Adventure Map AI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="543"/>
         <source>User data directory</source>
         <translation>Данные пользователя</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="91"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="129"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="312"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="435"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="441"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="458"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="254"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="296"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="377"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="494"/>
         <source>Off</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="96"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="134"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="339"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="436"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="442"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="459"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="463"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="259"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="301"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="382"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="499"/>
         <source>On</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="118"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="440"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="443"/>
+        <source>Check on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="457"/>
         <source>Fullscreen</source>
         <translation>Полноэкранный режим</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="181"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="446"/>
-        <source>Repositories</source>
-        <translation>Репозитории</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="188"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="447"/>
-        <source>Check for updates</source>
-        <translation>Проверить обновления</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="554"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="487"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="417"/>
         <source>Neutral AI</source>
         <translation>Нейтральный ИИ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="322"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="460"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="264"/>
         <source>Real</source>
         <translation>Полный</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="257"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="453"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
         <source>General</source>
         <translation>Общее</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="212"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="450"/>
-        <source>Player AI</source>
-        <translation>ИИ игроков</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="472"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="472"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="483"/>
         <source>VCMI Language</source>
         <translation>Язык VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="487"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="473"/>
-        <source>Automatic detection</source>
-        <translation>Автоматическое определение</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="492"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="474"/>
-        <source>Central European (Windows 1250)</source>
-        <translation>Центральноевропейская (Windows-1250)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="475"/>
-        <source>Cyrillic script (Windows 1251)</source>
-        <translation>Кириллица (Windows 1251)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="502"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="476"/>
-        <source>Western European (Windows 1252)</source>
-        <translation>Западноевропейская (Windows 1252)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="507"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="477"/>
-        <source>Simplified Chinese (GBK)</source>
-        <translation>Упрощенная китайская (GBK)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="512"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="478"/>
-        <source>Simplified Chinese (GB2312)</source>
-        <translation>Упрощенная китайская (GB2312)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="517"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="479"/>
-        <source>Korean (Windows 949)</source>
-        <translation>Корейская (Windows 949)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="526"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="481"/>
-        <source>English</source>
-        <translation>English (Английский)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="531"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="482"/>
-        <source>Deutsch (German)</source>
-        <translation>Deutsch (Немецкий)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="483"/>
-        <source>Polska (Polish)</source>
-        <translation>Polska (Польский)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="541"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="484"/>
-        <source>Русский (Russian)</source>
-        <translation>Русский</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="546"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="485"/>
-        <source>Українська (Ukrainian)</source>
-        <translation>Українська (Украинский)</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="584"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="489"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
         <source>Friendly AI</source>
         <translation>Дружественный ИИ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="644"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="493"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="410"/>
         <source>Cursor</source>
         <translation>Курсор</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="652"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="494"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="396"/>
+        <source>Artificial Intelligence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="278"/>
+        <source>Mod Repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
+        <source>Update now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="425"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="657"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="495"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="430"/>
         <source>Hardware</source>
         <translation>Аппаратный</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="496"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="435"/>
         <source>Software</source>
         <translation>Программный</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="301"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="457"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="403"/>
         <source>Resolution</source>
         <translation>Разрешение экрана</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="353"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="465"/>
-        <source>AI on the map</source>
-        <translation>ИИ на карте приключений</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="168"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="445"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="209"/>
         <source>Autosave</source>
         <translation>Автосохранение</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="219"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="451"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="285"/>
         <source>Display index</source>
         <translation>Дисплей</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="198"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="448"/>
-        <source>Check repositories on startup</source>
-        <translation>Проверка репозиториев при запуске</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="452"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="471"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="165"/>
         <source>Network port</source>
         <translation>Сетевой порт</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="422"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="469"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
         <source>Data Directories</source>
         <translation>Директории данных</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="409"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="468"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="315"/>
         <source>Video</source>
         <translation>Графика</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="111"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="439"/>
-        <source>Heroes III character set</source>
-        <translation>Кодировка Героев III</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="294"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
         <source>Extra data directory</source>
         <translation>Дополнительные данные</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="142"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="444"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="322"/>
         <source>Log files directory</source>
         <translation>Журналы</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="264"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="454"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="230"/>
         <source>Show intro</source>
         <translation>Вступление</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="57"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="433"/>
-        <source>Launcher Settings</source>
-        <translation>Настройки загрузчика</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="287"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
         <source>Build version</source>
         <translation>Версия сборки</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="637"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="492"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
         <source>Enemy AI</source>
         <translation>Вражеский ИИ</translation>
     </message>
+</context>
+<context>
+    <name>FirstLaunchView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="234"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_csettingsview_moc.h" line="452"/>
-        <source>AI in the battlefield</source>
-        <translation>ИИ на поле боя</translation>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="28"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
+        <source>Heroes III Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
+        <source>Mods Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="103"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="797"/>
+        <source>Finish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="136"/>
+        <source>Step %v out of %m</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="168"/>
+        <source>Choose your language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="506"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="240"/>
+        <source>Find Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="271"/>
+        <source>Open help in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="284"/>
+        <source>Search again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="317"/>
+        <source>If you don&apos;t have installed Heroes III copy, it is possible to use our automatic installation tool &apos;vcmibuilder&apos; to extract data from GoG.com installer. Visit our wiki for detailed instructions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="333"/>
+        <source>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
+        <source>Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="368"/>
+        <source>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
+        <source>Copy existing data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="397"/>
+        <source>Your Heroes III data files have been succesfully found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="427"/>
+        <source>You Heroes III language was succesfully detected automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="437"/>
+        <source>Automatic detection of language failed. Please select language of your Heroes III copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="456"/>
+        <source>Heroes III language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="499"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="717"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="790"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="537"/>
+        <source>Install VCMI Mod Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="565"/>
+        <source>VCMI provides its own version of Horn of the Abyss fan-made addon. If you wish you can install it right now. For more information about mod visit hota website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="581"/>
+        <source>Localization to English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="661"/>
+        <source>VCMI provides translations of Heroes III into a different languages. If you wish, you can install translation to English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="597"/>
+        <source>Install VCMI-compatible version of the &quot;In The Wake of Gods&quot; fan-made addon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="613"/>
+        <source>Heroes III + HotA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="629"/>
+        <source>Heroes III + WoG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="645"/>
+        <source>VCMI provides support for playing Heroes III in resolutions other than 800x600. If you wish, you can install this support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="677"/>
+        <source>HD support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="755"/>
+        <source>Join community / get help</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImageViewer</name>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_imageviewer_moc.h" line="59"/>
         <source>Image Viewer</source>
         <translation>Просмотр изображений</translation>
+    </message>
+</context>
+<context>
+    <name>Language</name>
+    <message>
+        <location filename="../languages.cpp" line="22"/>
+        <source>Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="23"/>
+        <source>English</source>
+        <translation type="unfinished">English (Английский)</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="24"/>
+        <source>French</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="25"/>
+        <source>German</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="26"/>
+        <source>Korean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="27"/>
+        <source>Polish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="28"/>
+        <source>Russian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="29"/>
+        <source>Ukrainian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="30"/>
+        <source>Other (East European)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="31"/>
+        <source>Other (Cyrillic Script)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="32"/>
+        <source>Other (West European)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -568,103 +629,86 @@
     <message>
         <location filename="../lobby/lobby_moc.ui" line="39"/>
         <location filename="../lobby/lobby_moc.cpp" line="401"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="284"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="26"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="283"/>
         <source>Username</source>
         <translation>Имя пользователя</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="56"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="285"/>
         <source>Server</source>
         <translation>Сервер</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="76"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="286"/>
         <source>People in lobby</source>
         <translation>Люди в лобби</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="114"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="287"/>
         <source>Lobby chat</source>
         <translation>Чат лобби</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="194"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="291"/>
         <source>Session</source>
         <translation>Сессия</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="199"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="293"/>
         <source>Players</source>
         <translation>Игроки</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="274"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="299"/>
         <source>Resolve</source>
         <translation>Скорректировать</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="286"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="300"/>
         <source>New game</source>
         <translation>Новая игра</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="293"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="301"/>
         <source>Load game</source>
         <translation>Загрузить игру</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="149"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="288"/>
         <source>New room</source>
         <translation>Создать комнату</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="159"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="289"/>
         <source>Join room</source>
         <translation>Присоединиться к комнате</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="267"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="298"/>
         <source>Ready</source>
         <translation>Готово</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="250"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="297"/>
         <source>Mods mismatch</source>
         <translation>Моды не совпадают</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="243"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="296"/>
         <source>Leave</source>
         <translation>Выйти</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="216"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="294"/>
         <source>Kick player</source>
         <translation>Выгнать игрока</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="236"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobby_moc.h" line="295"/>
         <source>Players in the room</source>
         <translation>Игроки в комнате</translation>
     </message>
@@ -683,25 +727,21 @@
     <name>LobbyRoomRequest</name>
     <message>
         <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobbyroomrequest_moc.h" line="108"/>
         <source>Room settings</source>
         <translation>Настройки комнаты</translation>
     </message>
     <message>
         <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobbyroomrequest_moc.h" line="109"/>
         <source>Room name</source>
         <translation>Название</translation>
     </message>
     <message>
         <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobbyroomrequest_moc.h" line="110"/>
         <source>Maximum players</source>
         <translation>Максимум игроков</translation>
     </message>
     <message>
         <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_lobbyroomrequest_moc.h" line="112"/>
         <source>Password (optional)</source>
         <translation>Пароль (не обязательно)</translation>
     </message>
@@ -710,37 +750,36 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_mainwindow_moc.h" line="203"/>
         <source>VCMI Launcher</source>
         <translation>Запуск VCMI</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="107"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_mainwindow_moc.h" line="205"/>
         <source>Settings</source>
         <translation>Параметры</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="226"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_mainwindow_moc.h" line="207"/>
+        <location filename="../mainwindow_moc.ui" line="207"/>
+        <source>Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.ui" line="272"/>
         <source>Map Editor</source>
         <translation>Редактор карт</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="279"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_mainwindow_moc.h" line="208"/>
+        <location filename="../mainwindow_moc.ui" line="325"/>
         <source>Start game</source>
         <translation>Играть</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="157"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_mainwindow_moc.h" line="206"/>
         <source>Lobby</source>
         <translation>Лобби</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="57"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_mainwindow_moc.h" line="204"/>
         <source>Mods</source>
         <translation>Моды</translation>
     </message>
@@ -749,19 +788,16 @@
     <name>UpdateDialog</name>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_updatedialog_moc.h" line="107"/>
         <source>You have latest version</source>
         <translation>У вас уже последняя версия</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_updatedialog_moc.h" line="109"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_updatedialog_moc.h" line="110"/>
         <source>Check updates on startup</source>
         <translation>Проверять обновления при запуске</translation>
     </message>
