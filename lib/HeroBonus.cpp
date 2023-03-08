@@ -1998,6 +1998,22 @@ const JsonNode & BonusParams::toJson()
 	return ret;
 };
 
+CSelector BonusParams::toSelector()
+{
+	assert(isConverted);
+	if(subtypeRelevant && !subtypeStr.empty())
+		JsonUtils::resolveIdentifier(subtype, toJson(), "subtype");
+
+	auto ret = Selector::type()(type);
+	if(subtypeRelevant)
+		ret = ret.And(Selector::subtype()(subtype));
+	if(valueTypeRelevant)
+		ret = ret.And(Selector::valueType(valueType));
+	if(targetTypeRelevant)
+		ret = ret.And(Selector::targetSourceType()(targetType));
+	return ret;
+}
+
 Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
 	: duration((ui16)Duration), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {

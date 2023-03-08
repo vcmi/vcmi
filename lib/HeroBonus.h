@@ -554,6 +554,7 @@ struct DLL_LINKAGE BonusParams {
 	BonusParams(bool isConverted = true) : isConverted(isConverted) {};
 	BonusParams(std::string deprecatedTypeStr, std::string deprecatedSubtypeStr = "", int deprecatedSubtype = 0);
 	const JsonNode & toJson();
+	CSelector toSelector();
 private:
 	JsonNode ret;
 	bool jsonCreated = false;
