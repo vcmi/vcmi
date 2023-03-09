@@ -33,22 +33,22 @@
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/CArtHandler.h"
 
-CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize)
-	: perDay(false)
+CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font):
+	perDay(false)
 {
-	init(Type, Subtype, Val, imageSize);
+	init(Type, Subtype, Val, imageSize, font);
 }
 
-CComponent::CComponent(const Component & c, ESize imageSize)
+CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 	: perDay(false)
 {
 	if(c.id == Component::RESOURCE && c.when==-1)
 		perDay = true;
 
-	init((Etype)c.id, c.subtype, c.val, imageSize);
+	init((Etype)c.id, c.subtype, c.val, imageSize, font);
 }
 
-void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
+void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts fnt)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -58,6 +58,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	subtype = Subtype;
 	val = Val;
 	size = imageSize;
+	font = fnt;
 
 	assert(compType < typeInvalid);
 	assert(size < sizeInvalid);
@@ -67,13 +68,14 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
 
-	EFonts font = FONT_SMALL;
 	if (imageSize < small)
-		font = FONT_TINY; //other sizes?
+		font = FONT_TINY; //for tiny images - tiny font
 
 	pos.h += 4; //distance between text and image
 
 	auto max = 80;
+	if (size < large)
+		max = 60;
 	if (size < medium)
 		max = 40;
 	if (size < small)

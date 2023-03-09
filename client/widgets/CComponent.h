@@ -47,13 +47,14 @@ private:
 	void setSurface(std::string defName, int imgPos);
 	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val, ESize imageSize);
+	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL);
 
 public:
 	std::shared_ptr<CAnimImage> image;
 
 	Etype compType; //component type
 	ESize size; //component size.
+	EFonts font; //Font size of label
 	int subtype; //type-dependant subtype. See getSomething methods for details
 	int val; // value \ strength \ amount of component. See getSomething methods for details
 	bool perDay; // add "per day" text to subtitle
@@ -61,8 +62,8 @@ public:
 	std::string getDescription();
 	std::string getSubtitle();
 
-	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);
-	CComponent(const Component &c, ESize imageSize=large);
+	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
 	void clickRight(tribool down, bool previousState) override; //call-in
 };
