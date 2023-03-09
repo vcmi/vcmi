@@ -366,9 +366,11 @@
 			"descreaseLuck" :
 			{
 				"type" : "LUCK",
-				"effectRange" : "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Devils"
+				"stacking" : "Devils",
+				"propagator": "BATTLE_WIDE",
+				"updater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"blockRetaliation" :
 			{
@@ -418,9 +420,11 @@
 			"descreaseLuck" :
 			{
 				"type" : "LUCK",
-				"effectRange" : "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Devils"
+				"stacking" : "Devils",
+				"propagator": "BATTLE_WIDE",
+				"updater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"blockRetaliation" :
 			{

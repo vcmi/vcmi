@@ -342,10 +342,12 @@
 			"decreaseMorale" :
 			{
 				"type" : "MORALE",
-				"effectRange": "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Undead Dragons"
-			},
+				"stacking" : "Undead Dragons",
+				"propagator": "BATTLE_WIDE",
+				"updater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
+			}
 		},
 		"upgrades": ["ghostDragon"],
 		"graphics" :
@@ -375,9 +377,11 @@
 			"decreaseMorale" :
 			{
 				"type" : "MORALE",
-				"effectRange": "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Undead Dragons"
+				"stacking" : "Undead Dragons",
+				"propagator": "BATTLE_WIDE",
+				"updater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"age" :
 			{
