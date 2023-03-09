@@ -247,7 +247,6 @@ public:
 	BONUS_NAME(LIFE_DRAIN)								\
 	BONUS_NAME(DOUBLE_DAMAGE_CHANCE) /*value in %, eg. dread knight*/ \
 	BONUS_NAME(RETURN_AFTER_STRIKE)						\
-	BONUS_NAME(SELF_MORALE) /*eg. minotaur*/			\
 	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school, additional info - weighted chance. use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER for calculating the power*/ \
 	BONUS_NAME(CATAPULT)								\
 	BONUS_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
@@ -710,8 +709,6 @@ private:
 	CTotalsProxy moraleValue;
 	static CSelector luckSelector;
 	CTotalsProxy luckValue;
-	static CSelector selfMoraleSelector;
-	CCheckProxy selfMorale;
 	static CSelector selfLuckSelector;
 	CCheckProxy selfLuck;
 

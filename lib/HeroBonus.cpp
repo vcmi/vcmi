@@ -113,6 +113,7 @@ const std::set<std::string> deprecatedBonusSet = {
 	"KING3",
 	"BLOCK_MORALE",
 	"BLOCK_LUCK",
+	"SELF_MORALE",
 };
 
 ///CBonusProxy
@@ -669,14 +670,12 @@ Selector::type()(Bonus::NON_LIVING)
 
 CSelector IBonusBearer::moraleSelector = Selector::type()(Bonus::MORALE);
 CSelector IBonusBearer::luckSelector = Selector::type()(Bonus::LUCK);
-CSelector IBonusBearer::selfMoraleSelector = Selector::type()(Bonus::SELF_MORALE);
 CSelector IBonusBearer::selfLuckSelector = Selector::type()(Bonus::SELF_LUCK);
 
 IBonusBearer::IBonusBearer()
 	:anaffectedByMorale(this, anaffectedByMoraleSelector),
 	moraleValue(this, moraleSelector, 0),
 	luckValue(this, luckSelector, 0),
-	selfMorale(this, selfMoraleSelector),
 	selfLuck(this, selfLuckSelector)
 {
 }
@@ -752,9 +751,6 @@ int IBonusBearer::MoraleVal() const
 
 	int ret = moraleValue.getValue();
 
-	if(selfMorale.getHasBonus()) //eg. minotaur
-		vstd::amax(ret, +1);
-
 	return vstd::abetween(ret, -3, +3);
 }
 
@@ -780,9 +776,6 @@ int IBonusBearer::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
 		return 0;
 	}
 	int ret = moraleValue.getValueAndList(bonusList);
-
-	if(selfMorale.getHasBonus()) //eg. minotaur
-		vstd::amax(ret, +1);
 
 	return vstd::abetween(ret, -3, +3);
 }
@@ -1974,6 +1967,14 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "SIGHT_RADIOUS")
 		type = Bonus::SIGHT_RADIUS;
+	else if (deprecatedTypeStr == "SELF_MORALE")
+	{
+		type = Bonus::MORALE;
+		val = 1;
+		valRelevant = true;
+		valueType = Bonus::INDEPENDENT_MAX;
+		valueTypeRelevant = true;
+	}
 	else
 		isConverted = false;
 }

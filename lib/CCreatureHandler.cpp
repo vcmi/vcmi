@@ -1080,7 +1080,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'F':
 				b.type = Bonus::FLYING; break;
 			case 'm':
-				b.type = Bonus::SELF_MORALE; break;
+				b.type = Bonus::MORALE; break;
+				b.val = 1;
+				b.valType = Bonus::INDEPENDENT_MAX;
+				break;
 			case 'M':
 				b.type = Bonus::NO_MORALE; break;
 			case 'p': //Mind spells
