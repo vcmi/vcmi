@@ -1245,9 +1245,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "BLOCK_MORALE",
+				"type" : "MORALE",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
 			}
 		],
 		"index" : 84,
