@@ -1025,20 +1025,15 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	const int attackerLuck = attacker->LuckVal();
 
-	auto sideHeroBlocksLuck = [](const SideInBattle &side){ return NBonus::hasOfType(side.hero, Bonus::BLOCK_LUCK); };
-
-	if (!vstd::contains_if (gs->curB->sides, sideHeroBlocksLuck))
+	if (attackerLuck > 0  && getRandomGenerator().nextInt(23) < attackerLuck)
 	{
-		if (attackerLuck > 0  && getRandomGenerator().nextInt(23) < attackerLuck)
+		bat.flags |= BattleAttack::LUCKY;
+	}
+	if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
+	{
+		if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
 		{
-			bat.flags |= BattleAttack::LUCKY;
-		}
-		if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
-		{
-			if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
-			{
-				bat.flags |= BattleAttack::UNLUCKY;
-			}
+			bat.flags |= BattleAttack::UNLUCKY;
 		}
 	}
 

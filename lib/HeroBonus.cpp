@@ -112,6 +112,7 @@ const std::set<std::string> deprecatedBonusSet = {
 	"KING2",
 	"KING3",
 	"BLOCK_MORALE",
+	"BLOCK_LUCK",
 };
 
 ///CBonusProxy
