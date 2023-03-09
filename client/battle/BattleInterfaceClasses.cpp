@@ -522,7 +522,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		{
 			str += CGI->generaltexth->allTexts[305];
 			boost::algorithm::replace_first(str, "%s", ourHero->getNameTranslated());
-			boost::algorithm::replace_first(str, "%d", boost::lexical_cast<std::string>(br.exp[weAreAttacker ? 0 : 1]));
+			boost::algorithm::replace_first(str, "%d", std::to_string(br.exp[weAreAttacker ? 0 : 1]));
 		}
 
 		description = std::make_shared<CTextBox>(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);

@@ -66,8 +66,8 @@ void CreaturePurchaseCard::initAmountInfo()
 
 void CreaturePurchaseCard::updateAmountInfo(int value)
 {
-	availableAmount->setText(boost::lexical_cast<std::string>(maxAmount-value));
-	purchaseAmount->setText(boost::lexical_cast<std::string>(value));
+	availableAmount->setText(std::to_string(maxAmount-value));
+	purchaseAmount->setText(std::to_string(value));
 }
 
 void CreaturePurchaseCard::initSlider()

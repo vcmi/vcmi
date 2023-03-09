@@ -166,7 +166,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 	{
 		if(vstd::iswithin(bonus->val, 1, 5))
 		{
-			fileName = "E_SPLVL" + boost::lexical_cast<std::string>(bonus->val) + ".bmp";
+			fileName = "E_SPLVL" + std::to_string(bonus->val) + ".bmp";
 		}
 		break;
 	}

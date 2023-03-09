@@ -275,13 +275,13 @@ void CPlayerInterface::yourTurn()
 			{
 				int index = getLastIndex(prefix + "Newgame_");
 				index %= SAVES_COUNT;
-				cb->save("Saves/" + prefix + "Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
+				cb->save("Saves/" + prefix + "Newgame_Autosave_" + std::to_string(index + 1));
 			}
 			firstCall = 0;
 		}
 		else if(frequency > 0 && cb->getDate() % frequency == 0)
 		{
-			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
 			autosaveCount %= 5;
 		}
 

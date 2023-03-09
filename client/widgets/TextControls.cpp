@@ -669,9 +669,9 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	{
 		int value = boost::lexical_cast<int>(text);
 		if(value < minValue)
-			text = boost::lexical_cast<std::string>(minValue);
+			text = std::to_string(minValue);
 		else if(value > maxValue)
-			text = boost::lexical_cast<std::string>(maxValue);
+			text = std::to_string(maxValue);
 	}
 	catch(boost::bad_lexical_cast &)
 	{

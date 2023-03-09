@@ -135,9 +135,9 @@ public:
 
 	std::string toString() const
 	{
-		return	"(" + boost::lexical_cast<std::string>(x) +
-				" " + boost::lexical_cast<std::string>(y) +
-				" " + boost::lexical_cast<std::string>(z) + ")";
+		return	"(" + std::to_string(x) +
+				" " + std::to_string(y) +
+				" " + std::to_string(z) + ")";
 	}
 
 	bool valid() const

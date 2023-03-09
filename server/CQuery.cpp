@@ -23,11 +23,11 @@ std::string formatContainer(const Container & c, std::string delimeter = ", ", s
 	auto itr = std::begin(c);
 	if(itr != std::end(c))
 	{
-		ret += boost::lexical_cast<std::string>(*itr);
+		ret += std::to_string(*itr);
 		while(++itr != std::end(c))
 		{
 			ret += delimeter;
-			ret += boost::lexical_cast<std::string>(*itr);
+			ret += std::to_string(*itr);
 		}
 	}
 	ret += closer;

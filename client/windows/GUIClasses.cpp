@@ -291,8 +291,8 @@ void CRecruitmentWindow::sliderMoved(int to)
 		return;
 
 	buyButton->block(!to);
-	availableValue->setText(boost::lexical_cast<std::string>(selected->amount - to));
-	toRecruitValue->setText(boost::lexical_cast<std::string>(to));
+	availableValue->setText(std::to_string(selected->amount - to));
+	toRecruitValue->setText(std::to_string(to));
 
 	totalCostValue->set(selected->creature->cost * to);
 }
@@ -323,8 +323,8 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	leftInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax);
 	rightInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax);
 
-	leftInput->setText(boost::lexical_cast<std::string>(leftAmount), false);
-	rightInput->setText(boost::lexical_cast<std::string>(rightAmount), false);
+	leftInput->setText(std::to_string(leftAmount), false);
+	rightInput->setText(std::to_string(rightAmount), false);
 
 	animLeft = std::make_shared<CCreaturePic>(20, 54, creature, true, false);
 	animRight = std::make_shared<CCreaturePic>(177, 54,creature, true, false);
@@ -365,8 +365,8 @@ void CSplitWindow::setAmount(int value, bool left)
 	leftAmount  = left ? value : total - value;
 	rightAmount = left ? total - value : value;
 
-	leftInput->setText(boost::lexical_cast<std::string>(leftAmount));
-	rightInput->setText(boost::lexical_cast<std::string>(rightAmount));
+	leftInput->setText(std::to_string(leftAmount));
+	rightInput->setText(std::to_string(rightAmount));
 }
 
 void CSplitWindow::apply()
@@ -451,7 +451,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1]);
 
 	title = std::make_shared<CLabel>(200, 35, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
-	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
+	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
 
 	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
 	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -570,9 +570,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 
 		description = CGI->generaltexth->allTexts[215];
 		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
-		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(h->level));
+		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
 		boost::algorithm::replace_first(description, "%s", h->type->heroClass->getNameTranslated());
-		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(artifs));
+		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
 
 		portrait = std::make_shared<CAnimImage>("portraitsLarge", h->portrait);
 	}
@@ -968,17 +968,17 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
+		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(hero->level));
+		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(CGI->heroh->reqExp(hero->level+1)));
+		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
 		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->mana));
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
+		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->mana));
+		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->manaLimit()));
 
 		morale[b] = std::make_shared<MoraleLuckBox>(true, Rect(Point(176 + 490 * b, 39), Point(32, 32)), true);
 		luck[b] = std::make_shared<MoraleLuckBox>(false,  Rect(Point(212 + 490 * b, 39), Point(32, 32)), true);
@@ -1058,7 +1058,7 @@ void CExchangeWindow::updateWidgets()
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
 		{
 			auto value = herosWArt[leftRight]->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m));
-			primSkillValues[leftRight][m]->setText(boost::lexical_cast<std::string>(value));
+			primSkillValues[leftRight][m]->setText(std::to_string(value));
 		}
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
@@ -1091,8 +1091,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 	bgShip->center(waterCenter);
 
 	// Create resource icons and costs.
-	std::string goldValue = boost::lexical_cast<std::string>(cost[Res::GOLD]);
-	std::string woodValue = boost::lexical_cast<std::string>(cost[Res::WOOD]);
+	std::string goldValue = std::to_string(cost[Res::GOLD]);
+	std::string woodValue = std::to_string(cost[Res::WOOD]);
 
 	goldCost = std::make_shared<CLabel>(118, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, goldValue);
 	woodCost = std::make_shared<CLabel>(212, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, woodValue);
@@ -1156,7 +1156,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
 	icon = std::make_shared<CAnimImage>("TWCRPORT", parent->army->getCreature(SlotID(id))->idNumber + 2);
-	count = std::make_shared<CLabel>(28, 76,FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size));
+	count = std::make_shared<CLabel>(28, 76,FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(size));
 }
 
 void CTransformerWindow::makeDeal()
@@ -1526,7 +1526,7 @@ void CHillFortWindow::updateGarrisons()
 					slotIcons[i][j]->visible = true;
 					slotIcons[i][j]->setFrame(res);
 
-					slotLabels[i][j]->setText(boost::lexical_cast<std::string>(val));
+					slotLabels[i][j]->setText(std::to_string(val));
 					j++;
 				}
 			}
@@ -1549,7 +1549,7 @@ void CHillFortWindow::updateGarrisons()
 		else
 		{
 			totalIcons[i]->visible = true;
-			totalLabels[i]->setText(boost::lexical_cast<std::string>(totalSumm[i]));
+			totalLabels[i]->setText(std::to_string(totalSumm[i]));
 		}
 	}
 }
@@ -1712,7 +1712,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 				for(int i=0; i<iter.second.details->primskills.size(); ++i)
 				{
 					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11*i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
-							   boost::lexical_cast<std::string>(iter.second.details->primskills[i])));
+							   std::to_string(iter.second.details->primskills[i])));
 				}
 			}
 		}

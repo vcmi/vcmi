@@ -82,7 +82,7 @@ void CResDataBar::draw(SDL_Surface * to)
 	//TODO: all this should be labels, but they require proper text update on change
 	for (auto i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
-		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
+		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
 		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, Point(txtpos[i].first, txtpos[i].second));
 	}

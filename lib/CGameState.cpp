@@ -191,7 +191,7 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			}
 			break;
 		case TNUMBER:
-			dst += boost::lexical_cast<std::string>(numbers[nums++]);
+			dst += std::to_string(numbers[nums++]);
 			break;
 		case TREPLACE_ESTRING:
 			boost::replace_first(dst, "%s", exactStrings[exSt++]);
@@ -204,10 +204,10 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			}
 			break;
 		case TREPLACE_NUMBER:
-			boost::replace_first(dst, "%d", boost::lexical_cast<std::string>(numbers[nums++]));
+			boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
 			break;
 		case TREPLACE_PLUSNUMBER:
-			boost::replace_first(dst, "%+d", '+' + boost::lexical_cast<std::string>(numbers[nums++]));
+			boost::replace_first(dst, "%+d", '+' + std::to_string(numbers[nums++]));
 			break;
 		default:
 			logGlobal->error("MetaString processing error! Received message of type %d", int(elem));
@@ -251,7 +251,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 			}
 				break;
 			case TNUMBER:
-				lista += boost::lexical_cast<std::string>(numbers[nums++]);
+				lista += std::to_string(numbers[nums++]);
 				break;
 			case TREPLACE_ESTRING:
 				lista.replace (lista.find("%s"), 2, exactStrings[exSt++]);
@@ -264,7 +264,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 			}
 				break;
 			case TREPLACE_NUMBER:
-				lista.replace (lista.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
+				lista.replace (lista.find("%d"), 2, std::to_string(numbers[nums++]));
 				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d",int(message[i]));

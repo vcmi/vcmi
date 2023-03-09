@@ -162,7 +162,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 			break;
 		default:
 			if (inflateState->msg == nullptr)
-				throw std::runtime_error("Decompression error. Return code was " + boost::lexical_cast<std::string>(ret));
+				throw std::runtime_error("Decompression error. Return code was " + std::to_string(ret));
 			else
 				throw std::runtime_error(std::string("Decompression error: ") + inflateState->msg);
 		}

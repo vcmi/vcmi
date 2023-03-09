@@ -33,7 +33,7 @@ bool GatherArmy::operator==(const GatherArmy & other) const
 
 std::string GatherArmy::completeMessage() const
 {
-	return "Hero " + hero.get()->getNameTranslated() + " gathered army of value " + boost::lexical_cast<std::string>(value);
+	return "Hero " + hero.get()->getNameTranslated() + " gathered army of value " + std::to_string(value);
 }
 
 TSubgoal GatherArmy::whatToDoToAchieve()

@@ -198,12 +198,12 @@ void CServerHandler::startLocalServerAndConnect()
 	
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
-	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + boost::lexical_cast<std::string>(getHostPort())};
+	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPort())};
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
 		args.push_back("--lobby=" + settings["session"]["address"].String());
 		args.push_back("--connections=" + settings["session"]["hostConnections"].String());
-		args.push_back("--lobby-port=" + boost::lexical_cast<std::string>(settings["session"]["port"].Integer()));
+		args.push_back("--lobby-port=" + std::to_string(settings["session"]["port"].Integer()));
 		args.push_back("--lobby-uuid=" + settings["session"]["hostUuid"].String());
 	}
 	threadRunLocalServer = std::make_shared<boost::thread>([&cond, args, this] {
@@ -384,7 +384,7 @@ ui16 CServerHandler::getDefaultPort()
 
 std::string CServerHandler::getDefaultPortStr()
 {
-	return boost::lexical_cast<std::string>(getDefaultPort());
+	return std::to_string(getDefaultPort());
 }
 
 std::string CServerHandler::getHostAddress() const
@@ -880,14 +880,14 @@ void CServerHandler::threadRunServer()
 	setThreadName("CServerHandler::threadRunServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + boost::lexical_cast<std::string>(getHostPort())
+		+ " --port=" + std::to_string(getHostPort())
 		+ " --run-by-client"
 		+ " --uuid=" + uuid;
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
 		comm += " --lobby=" + settings["session"]["address"].String();
 		comm += " --connections=" + settings["session"]["hostConnections"].String();
-		comm += " --lobby-port=" + boost::lexical_cast<std::string>(settings["session"]["port"].Integer());
+		comm += " --lobby-port=" + std::to_string(settings["session"]["port"].Integer());
 		comm += " --lobby-uuid=" + settings["session"]["hostUuid"].String();
 	}
 		

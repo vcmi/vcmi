@@ -158,7 +158,7 @@ static std::string skillToFile(int skill, int level, bool selected)
 	if (level == 0)
 		sufix = "no"; //not avaliable - no number
 	else
-		sufix = boost::lexical_cast<std::string>(level-1);
+		sufix = std::to_string(level-1);
 	if (selected)
 		sufix += "="; //level-up highlight
 
@@ -209,7 +209,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
-			boost::replace_first(spellText, "%d", boost::lexical_cast<std::string>(duration));
+			boost::replace_first(spellText, "%d", std::to_string(duration));
 
 			spellIcons.push_back(std::make_shared<CAnimImage>("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			clickableAreas.push_back(std::make_shared<LRClickableAreaWText>(Rect(firstPos + offset * printed, Point(50, 38)), spellText, spellText));
@@ -571,9 +571,9 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			expArea = area;
 			area->text = CGI->generaltexth->allTexts[2];
 			area->bonusValue =	commander->getExpRank();
-			boost::replace_first(area->text, "%d", boost::lexical_cast<std::string>(commander->getExpRank()));
-			boost::replace_first(area->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(commander->getExpRank() + 1)));
-			boost::replace_first(area->text, "%d", boost::lexical_cast<std::string>(commander->experience));
+			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
+			boost::replace_first(area->text, "%d", std::to_string(CGI->heroh->reqExp(commander->getExpRank() + 1)));
+			boost::replace_first(area->text, "%d", std::to_string(commander->experience));
 		}
 		else
 		{
@@ -868,32 +868,32 @@ std::string CStackWindow::generateStackExpDescription()
 	std::string expText = CGI->generaltexth->translate("vcmi.stackExperience.description");
 	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
 	boost::replace_first(expText, "%s", CGI->generaltexth->translate("vcmi.stackExperience.rank", rank));
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));
+	boost::replace_first(expText, "%i", std::to_string(rank));
+	boost::replace_first(expText, "%i", std::to_string(stack->experience));
 	number = static_cast<int>(CGI->creh->expRanks[tier][rank] - stack->experience);
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number));
+	boost::replace_first(expText, "%i", std::to_string(number));
 
 	number = CGI->creh->maxExpPerBattle[tier]; //percent
-	boost::replace_first(expText, "%i%", boost::lexical_cast<std::string>(number));
+	boost::replace_first(expText, "%i%", std::to_string(number));
 	number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number));
+	boost::replace_first(expText, "%i", std::to_string(number));
 
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
+	boost::replace_first(expText, "%i", std::to_string(stack->count)); //Number of Creatures in stack
 
 	int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
 	number = static_cast<int>((stack->count * (stack->experience - expmin)) / expmin); //Maximum New Recruits without losing current Rank
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
+	boost::replace_first(expText, "%i", std::to_string(number)); //TODO
 
-	boost::replace_first(expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
+	boost::replace_first(expText, "%.2f", std::to_string(1)); //TODO Experience Multiplier
 	number = CGI->creh->expAfterUpgrade;
-	boost::replace_first(expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
+	boost::replace_first(expText, "%.2f", std::to_string(number) + "%"); //Upgrade Multiplier
 
 	expmin = CGI->creh->expRanks[tier][9];
 	int expmax = CGI->creh->expRanks[tier][10];
 	number = expmax - expmin;
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
+	boost::replace_first(expText, "%i", std::to_string(number)); //Experience after Rank 10
 	number = (stack->count * (expmax - expmin)) / expmin;
-	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
+	boost::replace_first(expText, "%i", std::to_string(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
 
 	return expText;
 }
