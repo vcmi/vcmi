@@ -114,6 +114,7 @@ const std::set<std::string> deprecatedBonusSet = {
 	"BLOCK_MORALE",
 	"BLOCK_LUCK",
 	"SELF_MORALE",
+	"SELF_LUCK"
 };
 
 ///CBonusProxy
@@ -670,13 +671,11 @@ Selector::type()(Bonus::NON_LIVING)
 
 CSelector IBonusBearer::moraleSelector = Selector::type()(Bonus::MORALE);
 CSelector IBonusBearer::luckSelector = Selector::type()(Bonus::LUCK);
-CSelector IBonusBearer::selfLuckSelector = Selector::type()(Bonus::SELF_LUCK);
 
 IBonusBearer::IBonusBearer()
 	:anaffectedByMorale(this, anaffectedByMoraleSelector),
 	moraleValue(this, moraleSelector, 0),
-	luckValue(this, luckSelector, 0),
-	selfLuck(this, selfLuckSelector)
+	luckValue(this, luckSelector, 0)
 {
 }
 
@@ -761,9 +760,6 @@ int IBonusBearer::LuckVal() const
 
 	int ret = luckValue.getValue();
 
-	if(selfLuck.getHasBonus()) //eg. halfling
-		vstd::amax(ret, +1);
-
 	return vstd::abetween(ret, -3, +3);
 }
 
@@ -789,9 +785,6 @@ int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
 		return 0;
 	}
 	int ret = luckValue.getValueAndList(bonusList);
-
-	if(selfLuck.getHasBonus()) //eg. halfling
-		vstd::amax(ret, +1);
 
 	return vstd::abetween(ret, -3, +3);
 }
@@ -1970,6 +1963,14 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	else if (deprecatedTypeStr == "SELF_MORALE")
 	{
 		type = Bonus::MORALE;
+		val = 1;
+		valRelevant = true;
+		valueType = Bonus::INDEPENDENT_MAX;
+		valueTypeRelevant = true;
+	}
+	else if (deprecatedTypeStr == "SELF_LUCK")
+	{
+		type = Bonus::LUCK;
 		val = 1;
 		valRelevant = true;
 		valueType = Bonus::INDEPENDENT_MAX;

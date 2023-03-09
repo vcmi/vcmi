@@ -258,7 +258,6 @@ public:
 	BONUS_NAME(FEAR)									\
 	BONUS_NAME(FEARLESS)								\
 	BONUS_NAME(NO_DISTANCE_PENALTY)						\
-	BONUS_NAME(SELF_LUCK) /*halfling*/					\
 	BONUS_NAME(ENCHANTER)/* for Enchanter spells, val - skill level, subtype - spell id, additionalInfo - cooldown */ \
 	BONUS_NAME(HEALER)									\
 	BONUS_NAME(SIEGE_WEAPON)							\
@@ -709,8 +708,6 @@ private:
 	CTotalsProxy moraleValue;
 	static CSelector luckSelector;
 	CTotalsProxy luckValue;
-	static CSelector selfLuckSelector;
-	CCheckProxy selfLuck;
 
 public:
 	//new bonusing node interface
