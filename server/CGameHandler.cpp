@@ -6571,10 +6571,7 @@ void CGameHandler::runBattle()
 
 			//check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
-			if (nextStackMorale < 0 &&
-				!(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
-				   || NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
-				)
+			if (nextStackMorale < 0)
 			{
 				if (getRandomGenerator().nextInt(23) < -2 * nextStackMorale)
 				{
@@ -6762,10 +6759,7 @@ void CGameHandler::runBattle()
 						&& !next->waited()
 						&& !next->fear
 						&&  next->alive()
-						&&  nextStackMorale > 0
-						&& !(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
-							|| NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
-						)
+						&&  nextStackMorale > 0)
 					{
 						if(getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
 						{

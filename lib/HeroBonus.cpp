@@ -111,6 +111,7 @@ const std::set<std::string> deprecatedBonusSet = {
 	"KING1",
 	"KING2",
 	"KING3",
+	"BLOCK_MORALE",
 };
 
 ///CBonusProxy
@@ -663,8 +664,7 @@ CSelector IBonusBearer::anaffectedByMoraleSelector =
 Selector::type()(Bonus::NON_LIVING)
 .Or(Selector::type()(Bonus::UNDEAD))
 .Or(Selector::type()(Bonus::SIEGE_WEAPON))
-.Or(Selector::type()(Bonus::NO_MORALE))
-.Or(Selector::type()(Bonus::BLOCK_MORALE));
+.Or(Selector::type()(Bonus::NO_MORALE));
 
 CSelector IBonusBearer::moraleSelector = Selector::type()(Bonus::MORALE);
 CSelector IBonusBearer::luckSelector = Selector::type()(Bonus::LUCK);
