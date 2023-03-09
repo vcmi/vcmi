@@ -166,7 +166,7 @@ std::streamoff FileBuf::seek(std::streamoff off, std::ios_base::seekdir way)
 			throw std::ios_base::failure("bad seek direction");
 		}
 	}();
-	if(std::fseek(GETFILE, (long)off, src))
+	if(std::fseek(GETFILE, static_cast<long>(off), src))
 		throw std::ios_base::failure("bad seek offset");
 
 	return static_cast<std::streamsize>(std::ftell(GETFILE));
