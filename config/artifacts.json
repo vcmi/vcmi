@@ -1258,9 +1258,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "BLOCK_LUCK",
+				"type" : "LUCK",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
 			}
 		],
 		"index" : 85,
