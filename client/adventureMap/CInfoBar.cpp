@@ -178,7 +178,10 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 	{
 		auto size = CComponent::large;
 		if(compsToDisplay.size() > 2)
+		{
 			size = CComponent::small;
+			font = FONT_TINY;
+		}
 		if(!message.empty())
 		{
 			textRect = Rect(CInfoBar::offset,
@@ -192,13 +195,11 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 			if(compsToDisplay.size() > 4)
 				size = CComponent::tiny;
 		}
-		else if(compsToDisplay.size() > 4)
-			size = CComponent::small;
 
 		std::vector<std::shared_ptr<CComponent>> vect;
 
 		for(const auto & c : compsToDisplay)
-			vect.emplace_back(std::make_shared<CComponent>(c, size));
+			vect.emplace_back(std::make_shared<CComponent>(c, size, font));
 
 		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1);
 	}
@@ -263,7 +264,7 @@ void CInfoBar::tick()
 {
 	removeUsedEvents(TIME);
 	if(GH.topInt() == adventureInt)
-		showSelection();
+		popComponents();
 }
 
 void CInfoBar::clickLeft(tribool down, bool previousState)
@@ -275,7 +276,7 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 		else if(state == GAME)
 			showDate();
 		else
-			showSelection();
+			popComponents();
 	}
 }
 
@@ -317,7 +318,24 @@ void CInfoBar::showDate()
 	redraw();
 }
 
-bool CInfoBar::tryShowComponents(const std::vector<Component> & components, std::string message, int timer)
+void CInfoBar::pushComponents(const std::vector<Component> & components, std::string message, int timer)
+{
+	if(components.empty())
+		prepareComponents(components, message, timer);
+	else
+	{
+		std::vector<Component> vect = components; //I do not know currently how to avoid copy here
+		while(!vect.empty())
+		{
+			std::vector<Component> sender =  {vect.begin(), vect.begin() + std::min(vect.size(), 8ul)};
+			prepareComponents(sender, message, timer);
+			vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), 8ul));
+		}
+	}
+	popComponents();
+}
+
+void CInfoBar::prepareComponents(const std::vector<Component> & components, std::string message, int timer)
 {
 	auto imageH = getEstimatedComponentHeight(components.size()) + (components.empty() ? 0 : 2 * CInfoBar::offset);
 	auto textH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
@@ -327,27 +345,42 @@ bool CInfoBar::tryShowComponents(const std::vector<Component> & components, std:
 
 	// Order matters - priority form should be chosen first
 	if(imageH + textH < CInfoBar::data_height)
-		showComponents(components, message, textH, false, timer);
+		pushComponents(components, message, textH, false, timer);
 	else if(!imageH && tinyH < CInfoBar::data_height)
-		showComponents(components, message, tinyH, true, timer);
+		pushComponents(components, message, tinyH, true, timer);
 	else if(imageH + headerH < CInfoBar::data_height)
-		showComponents(components, header, headerH, false, timer);
-	else if(imageH < CInfoBar::data_height)
-		showComponents(components, "", 0, false, timer);
+		pushComponents(components, header, headerH, false, timer);
 	else
-		return false; //We cannot fit message to infobar, fallback to window
+		pushComponents(components, "", 0, false, timer);
 
-	return true;
+	return;
 }
 
-void CInfoBar::showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer)
+void CInfoBar::popAll()
+{
+	componentsQueue = {};
+}
+
+void CInfoBar::popComponents()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	state = COMPONENT;
-	visibleInfo = std::make_shared<VisibleComponentInfo>(comps, message, textH, tiny);
+	if(!componentsQueue.empty())
+	{
+		state = COMPONENT;
+		const auto & extracted = componentsQueue.front();
+		visibleInfo = extracted.first;
+		setTimer(extracted.second);
+		componentsQueue.pop();
+		redraw();
+		return;
+	}
+	showSelection();
+}
 
-	setTimer(timer);
-	redraw();
+void CInfoBar::pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer)
+{
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	componentsQueue.emplace(std::make_shared<VisibleComponentInfo>(comps, message, textH, tiny), timer);
 }
 
 bool CInfoBar::showingComponents()

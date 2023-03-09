@@ -869,6 +869,8 @@ boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
+	if(selection != sel)
+		infoBar->popAll();
 	selection = sel;
 	mapAudio->onSelectionChanged(sel);
 	if(centerView)

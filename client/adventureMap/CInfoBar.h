@@ -125,8 +125,13 @@ private:
 	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
 
+	std::queue<std::pair<std::shared_ptr<VisibleComponentInfo>, int>> componentsQueue;
+
 	//private helper for showing components
-	void showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny = false, int timer = 3000);
+	void showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);
+	void pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);
+	void prepareComponents(const std::vector<Component> & comps, std::string message, int timer);
+	void popComponents();
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
@@ -146,7 +151,10 @@ public:
 	void showDate();
 
 	/// show components for 3 seconds. Used to display picked up resources. Can display up to 8 components
-	bool tryShowComponents(const std::vector<Component> & comps, std::string message, int timer = 3000);
+	void pushComponents(const std::vector<Component> & comps, std::string message, int timer = 3000);
+
+	/// Remove all queued components
+	void popAll();
 
 	/// print enemy turn progress
 	void startEnemyTurn(PlayerColor color);

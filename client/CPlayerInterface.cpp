@@ -1040,12 +1040,11 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 
 	if(autoTryHover || type == EInfoWindowMode::INFO)
 	{
-		if(adventureInt->infoBar->tryShowComponents(components, text, timer))
-		{
-			if (makingTurn && GH.listInt.size() && LOCPLINT == this)
-				CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
-			return;
-		}
+		adventureInt->infoBar->pushComponents(components, text, timer);
+
+		if (makingTurn && GH.listInt.size() && LOCPLINT == this)
+			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		return;
 	}
 
 	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
