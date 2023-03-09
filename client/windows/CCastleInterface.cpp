@@ -804,10 +804,25 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
 		return;
 	}
-	auto art = artifactID.toArtifact(CGI->artifacts());
+	auto art = dynamic_cast<const CArtifact*>(artifactID.toArtifact(CGI->artifacts()));
 
 	int price = art->getPrice();
-	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(artifactID);
+	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price;
+	if(possible)
+	{
+		for(auto slot : art->possibleSlots.at(ArtBearer::HERO))
+		{
+			if(hero->getArt(slot) == nullptr)
+			{
+				possible = true;
+				break;
+			}
+			else
+			{
+				possible = false;
+			}
+		}
+	}
 	CreatureID cre = art->getWarMachine();
 	GH.pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
 }
