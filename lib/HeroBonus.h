@@ -406,7 +406,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	{
 		NO_LIMIT = 0,
 		ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
-		ONLY_ENEMY_ARMY
 	};
 
 	enum ValueType
@@ -529,7 +528,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(TUpdaterPtr Updater); //returns this for convenient chain-calls
-	void updateOppositeBonuses();
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);

@@ -1225,13 +1225,6 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 		for(auto & bonus : building->buildingBonuses)
 		{
-			if(bonus->limiter && bonus->effectRange == Bonus::ONLY_ENEMY_ARMY) //ONLY_ENEMY_ARMY is only mark for OppositeSide limiter to avoid extra dynamic_cast.
-			{
-				auto bCopy = std::make_shared<Bonus>(*bonus); //just a copy of the shared_ptr has been changed and reassigned.
-				bCopy->limiter = std::make_shared<OppositeSideLimiter>(this->getOwner());
-				addNewBonus(bCopy);
-				continue;
-			}
 			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
 				VLC->creh->addBonusForAllCreatures(bonus);
 			else

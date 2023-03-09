@@ -847,6 +847,30 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 	return ret;
 }
 
+static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
+{
+	switch(updaterJson.getType())
+	{
+	case JsonNode::JsonType::DATA_STRING:
+		return parseByMap(bonusUpdaterMap, &updaterJson, "updater type ");
+		break;
+	case JsonNode::JsonType::DATA_STRUCT:
+		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+		{
+			std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
+			const JsonVector param = updaterJson["parameters"].Vector();
+			updater->valPer20 = static_cast<int>(param[0].Integer());
+			if(param.size() > 1)
+				updater->stepSize = static_cast<int>(param[1].Integer());
+			return updater;
+		}
+		else
+			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+		break;
+	}
+	return nullptr;
+}
+
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
 	const JsonNode *value;
@@ -943,29 +967,10 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["updater"];
 	if(!value->isNull())
-	{
-		const JsonNode & updaterJson = *value;
-		switch(updaterJson.getType())
-		{
-		case JsonNode::JsonType::DATA_STRING:
-			b->addUpdater(parseByMap(bonusUpdaterMap, &updaterJson, "updater type "));
-			break;
-		case JsonNode::JsonType::DATA_STRUCT:
-			if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
-			{
-				std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
-				const JsonVector param = updaterJson["parameters"].Vector();
-				updater->valPer20 = static_cast<int>(param[0].Integer());
-				if(param.size() > 1)
-					updater->stepSize = static_cast<int>(param[1].Integer());
-				b->addUpdater(updater);
-			}
-			else
-				logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
-			break;
-		}
-	}
-	b->updateOppositeBonuses();
+		b->addUpdater(parseUpdater(*value));
+	value = &ability["propagationUpdater"];
+	if(!value->isNull())
+		b->propagationUpdater = parseUpdater(*value);
 	return true;
 }
 

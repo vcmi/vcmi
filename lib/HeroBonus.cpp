@@ -67,7 +67,6 @@ const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect =
 	BONUS_ITEM(NO_LIMIT)
 	BONUS_ITEM(ONLY_DISTANCE_FIGHT)
 	BONUS_ITEM(ONLY_MELEE_FIGHT)
-	BONUS_ITEM(ONLY_ENEMY_ARMY)
 };
 
 const std::map<std::string, TLimiterPtr> bonusLimiterMap =
@@ -95,7 +94,8 @@ const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
 {
 	{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
 	{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
-	{"ARMY_MOVEMENT", std::make_shared<ArmyMovementUpdater>()}
+	{"ARMY_MOVEMENT", std::make_shared<ArmyMovementUpdater>()},
+	{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>()}
 };
 
 const std::set<std::string> deprecatedBonusSet = {
@@ -590,7 +590,7 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSe
 	for (auto & b : bonuses)
 	{
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
-		auto noFightLimit = b->effectRange == Bonus::NO_LIMIT || b->effectRange == Bonus::ONLY_ENEMY_ARMY;
+		auto noFightLimit = b->effectRange == Bonus::NO_LIMIT;
 		if(selector(b.get()) && ((!limit && noFightLimit) || ((bool)limit && limit(b.get()))))
 			out.push_back(b);
 	}
@@ -2675,40 +2675,6 @@ std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
 {
 	updater = Updater;
 	return this->shared_from_this();
-}
-
-// Update ONLY_ENEMY_ARMY bonuses from old saves to make them workable.
-// Also, we should foreseen possible errors in bonus configuration and fix them.
-void Bonus::updateOppositeBonuses()
-{
-	if(effectRange != Bonus::ONLY_ENEMY_ARMY)
-		return;
-
-	if(propagator)
-	{
-		if(propagator->getPropagatorType() != CBonusSystemNode::BATTLE)
-		{
-			logMod->error("Wrong Propagator will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'BATTLE_WIDE' propagator.");
-			propagator.reset(new CPropagatorNodeType(CBonusSystemNode::BATTLE));
-		}
-	}
-	else
-	{
-		propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
-	}
-	if(limiter)
-	{
-		if(!dynamic_cast<OppositeSideLimiter*>(limiter.get()))
-		{
-			logMod->error("Wrong Limiter will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'OPPOSITE_SIDE' limiter.");
-			limiter.reset(new OppositeSideLimiter());
-		}
-	}
-	else
-	{
-		limiter = std::make_shared<OppositeSideLimiter>();
-	}
-	propagationUpdater = std::make_shared<OwnerUpdater>();
 }
 
 IUpdater::~IUpdater()

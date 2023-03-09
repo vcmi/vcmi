@@ -345,7 +345,7 @@
 				"val" : -1,
 				"stacking" : "Undead Dragons",
 				"propagator": "BATTLE_WIDE",
-				"updater" : "BONUS_OWNER_UPDATER",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			}
 		},
@@ -380,7 +380,7 @@
 				"val" : -1,
 				"stacking" : "Undead Dragons",
 				"propagator": "BATTLE_WIDE",
-				"updater" : "BONUS_OWNER_UPDATER",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"age" :
