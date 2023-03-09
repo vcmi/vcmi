@@ -68,6 +68,21 @@ bool MapRendererBaseContext::isVisible(const int3 & coordinates) const
 		return LOCPLINT->cb->isVisible(coordinates);
 }
 
+bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
+{
+	if(obj->ID == Obj::HERO)
+	{
+		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
+		if(adventureInt->curHero() != nullptr)
+		{
+			if(obj->id == adventureInt->curHero()->id)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const
 {
 	return false;
