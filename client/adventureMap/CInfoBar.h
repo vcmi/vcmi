@@ -114,6 +114,20 @@ private:
 		std::shared_ptr<CComponentBox> comps;
 		std::shared_ptr<CTextBox> text;
 	public:
+		struct Cache 
+		{
+			std::vector<Component> compsToDisplay;
+			std::string message;
+			int textH;
+			bool tiny;
+			Cache(std::vector<Component> comps, std::string msg, int textH, bool tiny):
+				compsToDisplay(std::move(comps)),
+				message(std::move(msg)),
+				textH(textH),
+				tiny(tiny)
+			{}
+		};
+		VisibleComponentInfo(const Cache & c): VisibleComponentInfo(c.compsToDisplay, c.message, c.textH, c.tiny) {}
 		VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny);
 	};
 
@@ -125,7 +139,7 @@ private:
 	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
 
-	std::queue<std::pair<std::shared_ptr<VisibleComponentInfo>, int>> componentsQueue;
+	std::queue<std::pair<VisibleComponentInfo::Cache, int>> componentsQueue;
 
 	//private helper for showing components
 	void showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);

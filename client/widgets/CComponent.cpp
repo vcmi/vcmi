@@ -101,7 +101,7 @@ const std::vector<std::string> CComponent::getFileName()
 {
 	static const std::string  primSkillsArr [] = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
 	static const std::string  secSkillsArr [] =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
-	static const std::string  resourceArr [] =   {"SMALRES",        "RESOURCE",       "RESOUR82",       "RESOUR82"};
+	static const std::string  resourceArr [] =   {"SMALRES",        "RESOURCE",       "RESOURCE",       "RESOUR82"};
 	static const std::string  creatureArr [] =   {"CPRSMALL",       "CPRSMALL",       "TWCRPORT",       "TWCRPORT"};
 	static const std::string  artifactArr[]  =   {"Artifact",       "Artifact",       "Artifact",       "Artifact"};
 	static const std::string  spellsArr [] =     {"SpellInt",       "SpellInt",       "SPELLSCR",       "SPELLSCR"};

@@ -179,7 +179,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 		auto size = CComponent::large;
 		if(compsToDisplay.size() > 2)
 		{
-			size = CComponent::small;
+			size = CComponent::medium;
 			font = FONT_TINY;
 		}
 		if(!message.empty())
@@ -195,6 +195,8 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 			if(compsToDisplay.size() > 4)
 				size = CComponent::tiny;
 		}
+		if(compsToDisplay.size() > 6)
+			size = CComponent::small;
 
 		std::vector<std::shared_ptr<CComponent>> vect;
 
@@ -217,7 +219,7 @@ int CInfoBar::getEstimatedComponentHeight(int numComps) const
 	else if (numComps > 4)
 		return 48 + 20; // 24px * 2 rows + 20 to offset
 	else if (numComps > 2)
-		return 32 + 20; // 32px * 1 row + 20 to offset
+		return 96 + 20; // 32px * 1 row + 20 to offset
 	else if (numComps)
 		return 128; // 128 px to offset
 	return 0;
@@ -318,18 +320,30 @@ void CInfoBar::showDate()
 	redraw();
 }
 
+
 void CInfoBar::pushComponents(const std::vector<Component> & components, std::string message, int timer)
 {
+	auto actualPush = [&](const std::vector<Component> & components, std::string message, int timer, size_t max){
+		std::vector<Component> vect = components; //I do not know currently how to avoid copy here
+		while(!vect.empty())
+		{
+			std::vector<Component> sender =  {vect.begin(), vect.begin() + std::min(vect.size(), max)};
+			prepareComponents(sender, message, timer);
+			vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), max));
+		};
+	};
 	if(components.empty())
 		prepareComponents(components, message, timer);
 	else
 	{
-		std::vector<Component> vect = components; //I do not know currently how to avoid copy here
-		while(!vect.empty())
+		std::map<Component::EComponentType, std::vector<Component>> reward_map;
+		for(const auto & c : components)
+			reward_map[static_cast<Component::EComponentType>(c.id)].push_back(c);
+		
+		for(const auto & kv : reward_map)
 		{
-			std::vector<Component> sender =  {vect.begin(), vect.begin() + std::min(vect.size(), 8ul)};
-			prepareComponents(sender, message, timer);
-			vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), 8ul));
+			auto vector = kv.second;
+			actualPush(kv.second, message, timer, kv.first == Component::ARTIFACT ? 6 : 8);
 		}
 	}
 	popComponents();
@@ -368,9 +382,9 @@ void CInfoBar::popComponents()
 	{
 		state = COMPONENT;
 		const auto & extracted = componentsQueue.front();
-		visibleInfo = extracted.first;
-		setTimer(extracted.second);
+		visibleInfo = std::make_shared<VisibleComponentInfo>(extracted.first);
 		componentsQueue.pop();
+		setTimer(extracted.second);
 		redraw();
 		return;
 	}
@@ -380,7 +394,7 @@ void CInfoBar::popComponents()
 void CInfoBar::pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	componentsQueue.emplace(std::make_shared<VisibleComponentInfo>(comps, message, textH, tiny), timer);
+	componentsQueue.emplace(VisibleComponentInfo::Cache(comps, message, textH, tiny), timer);
 }
 
 bool CInfoBar::showingComponents()
