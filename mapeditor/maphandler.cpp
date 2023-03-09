@@ -117,7 +117,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
 	
-	if(tinfoUpper && tinfoUpper->roadType->getId() != Road::NO_ROAD)
+	if(tinfoUpper && tinfoUpper->roadType)
 	{
 		auto roadName = tinfoUpper->roadType->getJsonKey();
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
@@ -129,7 +129,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		}
 	}
 	
-	if(tinfo.roadType->getId() != Road::NO_ROAD) //print road from this tile
+	if(tinfo.roadType) //print road from this tile
 	{
 		auto roadName = tinfo.roadType->getJsonKey();;
 		QRect source(0, 0, tileSize, tileSize / 2);
