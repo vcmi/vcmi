@@ -324,6 +324,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (!hero)
 		return;
 
+	adventureInt->infoBar->requestPopAll();
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
 		if (hero->getRemovalSound())

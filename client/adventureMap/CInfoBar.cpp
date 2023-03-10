@@ -268,7 +268,7 @@ void CInfoBar::tick()
 {
 	removeUsedEvents(TIME);
 	if(GH.topInt() == adventureInt)
-		popComponents();
+		popComponents(true);
 }
 
 void CInfoBar::clickLeft(tribool down, bool previousState)
@@ -280,7 +280,7 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 		else if(state == GAME)
 			showDate();
 		else
-			popComponents();
+			popComponents(true);
 	}
 }
 
@@ -334,6 +334,8 @@ void CInfoBar::pushComponents(const std::vector<Component> & components, std::st
 			vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), max));
 		};
 	};
+	if(shouldPopAll)
+		popAll();
 	if(components.empty())
 		prepareComponents(components, message, timer);
 	else
@@ -421,20 +423,27 @@ void CInfoBar::prepareComponents(const std::vector<Component> & components, std:
 	return;
 }
 
+void CInfoBar::requestPopAll()
+{
+	shouldPopAll = true;
+}
+
 void CInfoBar::popAll()
 {
 	componentsQueue = {};
+	shouldPopAll = false;
 }
 
-void CInfoBar::popComponents()
+void CInfoBar::popComponents(bool remove)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	if(remove && !componentsQueue.empty())
+		componentsQueue.pop();
 	if(!componentsQueue.empty())
 	{
 		state = COMPONENT;
 		const auto & extracted = componentsQueue.front();
 		visibleInfo = std::make_shared<VisibleComponentInfo>(extracted.first);
-		componentsQueue.pop();
 		setTimer(extracted.second);
 		redraw();
 		return;

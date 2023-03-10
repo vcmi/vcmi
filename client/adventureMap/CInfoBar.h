@@ -138,6 +138,7 @@ private:
 
 	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
+	bool shouldPopAll = false;
 
 	std::queue<std::pair<VisibleComponentInfo::Cache, int>> componentsQueue;
 
@@ -145,7 +146,7 @@ private:
 	void showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);
 	void pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);
 	void prepareComponents(const std::vector<Component> & comps, std::string message, int timer);
-	void popComponents();
+	void popComponents(bool remove = false);
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
@@ -169,6 +170,9 @@ public:
 
 	/// Remove all queued components
 	void popAll();
+
+	/// Request infobar to pop all after next InfoWindow arrives.
+	void requestPopAll();
 
 	/// print enemy turn progress
 	void startEnemyTurn(PlayerColor color);
