@@ -144,7 +144,7 @@ size_t CComponent::getIndex()
 	case creature:   return CGI->creatures()->getByIndex(subtype)->getIconIndex();
 	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getIconIndex();
 	case experience: return 4;
-	case spell:      return subtype;
+	case spell:      return (size < large) ? subtype + 1 : subtype;
 	case morale:     return val+3;
 	case luck:       return val+3;
 	case building:   return val;
