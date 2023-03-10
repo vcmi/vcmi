@@ -26,7 +26,7 @@ CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
 void CreatureCostBox::set(TResources res)
 {
 	for(auto & item : resources)
-		item.second.first->setText(boost::lexical_cast<std::string>(res[item.first]));
+		item.second.first->setText(std::to_string(res[item.first]));
 }
 
 void CreatureCostBox::createItems(TResources res)

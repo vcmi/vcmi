@@ -252,7 +252,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
 		primSkillAreas[g]->bonusValue = heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(g));
-		primSkillValues[g]->setText(boost::lexical_cast<std::string>(primSkillAreas[g]->bonusValue));
+		primSkillValues[g]->setText(std::to_string(primSkillAreas[g]->bonusValue));
 	}
 
 	//secondary skills support
@@ -282,15 +282,15 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//printing experience - original format does not support ui64
 	expArea->text = CGI->generaltexth->allTexts[2];
-	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(curHero->level));
-	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(curHero->level+1)));
-	boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(curHero->exp));
+	boost::replace_first(expArea->text, "%d", std::to_string(curHero->level));
+	boost::replace_first(expArea->text, "%d", std::to_string(CGI->heroh->reqExp(curHero->level+1)));
+	boost::replace_first(expArea->text, "%d", std::to_string(curHero->exp));
 
 	//printing spell points, boost::format can't be used due to locale issues
 	spellPointsArea->text = CGI->generaltexth->allTexts[205];
-	boost::replace_first(spellPointsArea->text, "%s", boost::lexical_cast<std::string>(curHero->getNameTranslated()));
-	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(curHero->mana));
-	boost::replace_first(spellPointsArea->text, "%d", boost::lexical_cast<std::string>(heroWArt.manaLimit()));
+	boost::replace_first(spellPointsArea->text, "%s", curHero->getNameTranslated());
+	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->mana));
+	boost::replace_first(spellPointsArea->text, "%d", std::to_string(heroWArt.manaLimit()));
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;

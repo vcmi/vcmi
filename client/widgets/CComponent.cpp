@@ -199,12 +199,12 @@ std::string CComponent::getSubtitleInternal()
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->getByIndex(subtype)->getNameTranslated();
-	case resource:   return boost::lexical_cast<std::string>(val);
+	case resource:   return std::to_string(val);
 	case creature:
 		{
 			auto creature = CGI->creh->getByIndex(subtype);
 			if ( val )
-				return boost::lexical_cast<std::string>(val) + " " + (val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
+				return std::to_string(val) + " " + (val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
 			else
 				return val > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated();
 		}
@@ -214,12 +214,12 @@ std::string CComponent::getSubtitleInternal()
 			if(subtype == 1) //+1 level - tree of knowledge
 			{
 				std::string level = CGI->generaltexth->allTexts[442];
-				boost::replace_first(level, "1", boost::lexical_cast<std::string>(val));
+				boost::replace_first(level, "1", std::to_string(val));
 				return level;
 			}
 			else
 			{
-				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
+				return std::to_string(val); //amount of experience OR level required for seer hut;
 			}
 		}
 	case spell:      return CGI->spells()->getByIndex(subtype)->getNameTranslated();

@@ -66,9 +66,9 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 
 	std::string labelText;
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
-		labelText = CGI->generaltexth->allTexts[63] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::WEEK));
+		labelText = CGI->generaltexth->allTexts[63] + " " + std::to_string(LOCPLINT->cb->getDate(Date::WEEK));
 	else
-		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
+		labelText = CGI->generaltexth->allTexts[64] + " " + std::to_string(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
 
 	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, labelText);
 
@@ -159,7 +159,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	{
 		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * (int)i , 11));
 		if(halls[i])
-			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
+			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(halls[i])));
 	}
 }
 

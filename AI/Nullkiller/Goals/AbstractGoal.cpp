@@ -47,7 +47,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 	switch(goalType)
 	{
 	case COLLECT_RES:
-		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + boost::lexical_cast<std::string>(value) + ")";
+		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + std::to_string(value) + ")";
 		break;
 	case TRADE:
 	{
@@ -66,7 +66,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 		desc = "DIG AT TILE " + tile.toString();
 		break;
 	default:
-		return boost::lexical_cast<std::string>(goalType);
+		return std::to_string(goalType);
 	}
 	if(hero.get(true)) //FIXME: used to crash when we lost hero and failed goal
 		desc += " (" + hero->getNameTranslated() + ")";

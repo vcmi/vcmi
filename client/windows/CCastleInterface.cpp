@@ -285,7 +285,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getNamePluralTranslated());
 	animation = std::make_shared<CCreaturePic>(30, 44, creature, true, true);
 
-	std::string text = boost::lexical_cast<std::string>(Town->creatures.at(level).first);
+	std::string text = std::to_string(Town->creatures.at(level).first);
 	available = std::make_shared<CLabel>(80,190, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[217] + text);
 	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[346]);
 
@@ -294,7 +294,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 		if(creature->cost[i])
 		{
 			resPicture.push_back(std::make_shared<CAnimImage>("RESOURCE", i, 0, 0, 0));
-			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(creature->cost[i])));
+			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(creature->cost[i])));
 		}
 	}
 
@@ -410,7 +410,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
-					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
+					boost::algorithm::replace_first(tmp,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
 					LOCPLINT->showInfoDialog(tmp, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 					allow = false;
 				}
@@ -918,7 +918,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		{
 			descr += "\n\n" + hasProduced;
 			boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
-			boost::algorithm::replace_first(descr,"%d",boost::lexical_cast<std::string>(town->bonusValue.second));
+			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
 		}
 	}
 	LOCPLINT->showInfoDialog(descr, comps);
@@ -1017,9 +1017,9 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 
 	std::string value;
 	if(showAvailable)
-		value = boost::lexical_cast<std::string>(town->creatures[level].first);
+		value = std::to_string(town->creatures[level].first);
 	else
-		value = std::string("+") + boost::lexical_cast<std::string>(town->creatureGrowth(level));
+		value = std::string("+") + std::to_string(town->creatureGrowth(level));
 
 	if(compact)
 	{
@@ -1042,9 +1042,9 @@ void CCreaInfo::update()
 	{
 		std::string value;
 		if(showAvailable)
-			value = boost::lexical_cast<std::string>(town->creatures[level].first);
+			value = std::to_string(town->creatures[level].first);
 		else
-			value = std::string("+") + boost::lexical_cast<std::string>(town->creatureGrowth(level));
+			value = std::string("+") + std::to_string(town->creatureGrowth(level));
 
 		if(value != label->getText())
 			label->setText(value);
@@ -1273,7 +1273,7 @@ void CCastleInterface::recreateIcons()
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
-	income->setText(boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
+	income->setText(std::to_string(townIncome[Res::GOLD]));
 
 	hall = std::make_shared<CTownInfo>(80, 413, town, true);
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
@@ -1551,9 +1551,9 @@ void LabeledValue::init(std::string nameText, std::string descr, int min, int ma
 	std::string valueText;
 	if(min && max)
 	{
-		valueText = boost::lexical_cast<std::string>(min);
+		valueText = std::to_string(min);
 		if(min != max)
-			valueText += '-' + boost::lexical_cast<std::string>(max);
+			valueText += '-' + std::to_string(max);
 	}
 	name = std::make_shared<CLabel>(3, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, nameText);
 	value = std::make_shared<CLabel>(pos.w-3, pos.h-2, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, valueText);
@@ -1675,7 +1675,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		if(vstd::contains(town->builtBuildings, getMyBuilding()->bid))
 		{
 			ui32 available = town->creatures[level].first;
-			std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
+			std::string availableText = CGI->generaltexth->allTexts[217]+ std::to_string(available);
 			availableCount = std::make_shared<CLabel>(78, 119, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, availableText);
 		}
 	}
@@ -1742,7 +1742,7 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 {
 	if(availableCount)
 	{
-		std::string availableText = CGI->generaltexth->allTexts[217] + boost::lexical_cast<std::string>(town->creatures[level].first);
+		std::string availableText = CGI->generaltexth->allTexts[217] + std::to_string(town->creatures[level].first);
 		availableCount->setText(availableText);
 	}
 }
@@ -1851,7 +1851,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->getNameSingularTranslated()));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
 	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
-	                boost::lexical_cast<std::string>(aid.toArtifact(CGI->artifacts())->getPrice()));
+	                std::to_string(aid.toArtifact(CGI->artifacts())->getPrice()));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
 	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);

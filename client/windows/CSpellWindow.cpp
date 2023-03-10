@@ -181,7 +181,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
+	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
 	statusBar = CGStatusBar::create(7, 569, "Spelroll.bmp");
 
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
@@ -393,7 +393,7 @@ void CSpellWindow::setCurrentPage(int value)
 	leftCorner->visible = currentPage != 0;
 	rightCorner->visible = (currentPage+1) < pagesWithinCurrentTab();
 
-	mana->setText(boost::lexical_cast<std::string>(myHero->mana));//just in case, it will be possible to cast spell without closing book
+	mana->setText(std::to_string(myHero->mana));//just in case, it will be possible to cast spell without closing book
 }
 
 void CSpellWindow::turnPageLeft()
@@ -581,7 +581,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 		else
 		{
 			dmgInfo = CGI->generaltexth->allTexts[343];
-			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
+			boost::algorithm::replace_first(dmgInfo, "%d", std::to_string(causedDmg));
 		}
 
 		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));

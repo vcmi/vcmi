@@ -253,7 +253,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+		std::string temp =  name+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
 		clone["file"].String() = temp;
 	}
 

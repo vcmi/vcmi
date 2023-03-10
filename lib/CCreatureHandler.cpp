@@ -420,7 +420,7 @@ CCreatureHandler::CCreatureHandler()
 	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
 
 	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
-		creaturesOfLevel[i].setDescription("Creatures of tier " + boost::lexical_cast<std::string>(i));
+		creaturesOfLevel[i].setDescription("Creatures of tier " + std::to_string(i));
 	loadCommanders();
 }
 

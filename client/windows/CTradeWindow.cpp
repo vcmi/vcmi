@@ -532,10 +532,10 @@ void CTradeWindow::initSubs(bool Left)
 			switch(itemsType[1])
 			{
 			case CREATURE:
-				item->subtitle = boost::lexical_cast<std::string>(hero->getStackCount(SlotID(item->serial)));
+				item->subtitle = std::to_string(hero->getStackCount(SlotID(item->serial)));
 				break;
 			case RESOURCE:
-				item->subtitle = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(item->serial)));
+				item->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(item->serial)));
 				break;
 			}
 		}
@@ -940,7 +940,7 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 					? slider->getValue() * r1
 					: (((deal->isBlocked())) ? 0 : r1);
 
-				return boost::lexical_cast<std::string>(val);
+				return std::to_string(val);
 			}
 		case ARTIFACT_INSTANCE:
 			return ((deal->isBlocked()) ? "0" : "1");
@@ -952,9 +952,9 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 		{
 		case RESOURCE:
 			if(slider)
-				return boost::lexical_cast<std::string>( slider->getValue() * r2 );
+				return std::to_string( slider->getValue() * r2 );
 			else
-				return boost::lexical_cast<std::string>(r2);
+				return std::to_string(r2);
 		case ARTIFACT_TYPE:
 			return ((deal->isBlocked()) ? "0" : "1");
 		case PLAYER:
@@ -1353,7 +1353,7 @@ Point CAltarWindow::selectionOffset(bool Left) const
 std::string CAltarWindow::selectionSubtitle(bool Left) const
 {
 	if(Left && slider && hLeft)
-		return boost::lexical_cast<std::string>(slider->getValue());
+		return std::to_string(slider->getValue());
 	else if(!Left && hRight)
 		return hRight->subtitle;
 	else
@@ -1409,12 +1409,12 @@ void CAltarWindow::calcTotalExp()
 		}
 	}
 	val = static_cast<int>(hero->calculateXp(val));
-	expOnAltar->setText(boost::lexical_cast<std::string>(val));
+	expOnAltar->setText(std::to_string(val));
 }
 
 void CAltarWindow::setExpToLevel()
 {
-	expToLevel->setText(boost::lexical_cast<std::string>(CGI->heroh->reqExp(CGI->heroh->level(hero->exp)+1) - hero->exp));
+	expToLevel->setText(std::to_string(CGI->heroh->reqExp(CGI->heroh->level(hero->exp)+1) - hero->exp));
 }
 
 void CAltarWindow::blockTrade()
@@ -1433,7 +1433,7 @@ void CAltarWindow::updateRight(std::shared_ptr<CTradeableItem> toUpdate)
 {
 	int val = sacrificedUnits[toUpdate->serial];
 	toUpdate->setType(val ? CREATURE : CREATURE_PLACEHOLDER);
-	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(hero->calculateXp(val * expPerUnit[toUpdate->serial]))) : ""; //%s exp
+	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(val * expPerUnit[toUpdate->serial]))) : ""; //%s exp
 }
 
 int CAltarWindow::firstFreeSlot()
@@ -1479,7 +1479,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 		val = static_cast<int>(hero->calculateXp(val));
-		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+		printAtMiddleLoc(std::to_string(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
 }
 
@@ -1508,7 +1508,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->setArtInstance(art);
-	altarSlot->subtitle = boost::lexical_cast<std::string>(val);
+	altarSlot->subtitle = std::to_string(val);
 
 	deal->block(false);
 	return true;

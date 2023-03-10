@@ -201,7 +201,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 
 	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
-		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
+		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
 		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * i, pos.y + pos.h/2));
 	}
@@ -296,9 +296,9 @@ void CHeroTooltip::init(const InfoAboutHero & hero)
 	{
 		for(size_t i = 0; i < hero.details->primskills.size(); i++)
 			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-					   boost::lexical_cast<std::string>(hero.details->primskills[i])));
+					   std::to_string(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
 
 		morale = std::make_shared<CAnimImage>("IMRL22", hero.details->morale + 3, 0, 5, 74);
 		luck = std::make_shared<CAnimImage>("ILCK22", hero.details->luck + 3, 0, 5, 91);
@@ -339,7 +339,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 		if(town.details->goldIncome)
 		{
 			income = std::make_shared<CLabel>(157, 58, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE,
-					   boost::lexical_cast<std::string>(town.details->goldIncome));
+					   std::to_string(town.details->goldIncome));
 		}
 		if(town.details->garrisonedHero) //garrisoned hero icon
 			garrisonedHero = std::make_shared<CPicture>("TOWNQKGH", 149, 76);
@@ -483,7 +483,7 @@ void CCreaturePic::show(SDL_Surface * to)
 void CCreaturePic::setAmount(int newAmount)
 {
 	if(newAmount != 0)
-		amount->setText(boost::lexical_cast<std::string>(newAmount));
+		amount->setText(std::to_string(newAmount));
 	else
 		amount->setText("");
 }

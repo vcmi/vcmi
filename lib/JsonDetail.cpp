@@ -1177,7 +1177,7 @@ namespace Validation
 				if (path.getType() == JsonNode::JsonType::DATA_STRING)
 					errors += path.String();
 				else
-					errors += boost::lexical_cast<std::string>(static_cast<unsigned>(path.Float()));
+					errors += std::to_string(static_cast<unsigned>(path.Float()));
 			}
 		}
 		else

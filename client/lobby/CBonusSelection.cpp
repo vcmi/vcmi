@@ -98,7 +98,7 @@ CBonusSelection::CBonusSelection()
 
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
 	{
-		difficultyIcons[b] = std::make_shared<CAnimImage>("GSPBUT" + boost::lexical_cast<std::string>(b + 3) + ".DEF", 0, 0, 709, 455);
+		difficultyIcons[b] = std::make_shared<CAnimImage>("GSPBUT" + std::to_string(b + 3) + ".DEF", 0, 0, 709, 455);
 	}
 
 	if(getCampaign()->camp->header.difficultyChoosenByPlayer)
@@ -179,7 +179,7 @@ void CBonusSelection::createBonusesIcons()
 		case CScenarioTravel::STravelBonus::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
 			desc = CGI->generaltexth->allTexts[717];
-			boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info3));
+			boost::algorithm::replace_first(desc, "%d", std::to_string(bonDescs[i].info3));
 			boost::algorithm::replace_first(desc, "%s", CGI->creatures()->getByIndex(bonDescs[i].info2)->getNamePluralTranslated());
 			break;
 		case CScenarioTravel::STravelBonus::BUILDING:
@@ -235,7 +235,7 @@ void CBonusSelection::createBonusesIcons()
 			std::string substitute; //text to be printed instead of %s
 			for(int v = 0; v < toPrint.size(); ++v)
 			{
-				substitute += boost::lexical_cast<std::string>(toPrint[v].second);
+				substitute += std::to_string(toPrint[v].second);
 				substitute += " " + CGI->generaltexth->primarySkillNames[toPrint[v].first];
 				if(v != toPrint.size() - 1)
 				{
@@ -278,7 +278,7 @@ void CBonusSelection::createBonusesIcons()
 			picNumber = serialResID;
 
 			desc = CGI->generaltexth->allTexts[717];
-			boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info2));
+			boost::algorithm::replace_first(desc, "%d", std::to_string(bonDescs[i].info2));
 			std::string replacement;
 			if(serialResID <= 6)
 			{
@@ -324,7 +324,7 @@ void CBonusSelection::createBonusesIcons()
 		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), "", CButton::tooltip(desc, desc));
 
 		if(picNumber != -1)
-			picName += ":" + boost::lexical_cast<std::string>(picNumber);
+			picName += ":" + std::to_string(picNumber);
 
 		auto anim = std::make_shared<CAnimation>();
 		anim->setCustom(picName, 0);

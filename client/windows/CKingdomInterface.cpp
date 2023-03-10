@@ -138,7 +138,7 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	case HERO_MANA:
 	case HERO_EXPERIENCE:
 	case HERO_PRIMARY_SKILL:
-		return boost::lexical_cast<std::string>(getValue());
+		return std::to_string(getValue());
 	case HERO_SPECIAL:
 		return CGI->generaltexth->jktexts[5];
 	case HERO_SECONDARY_SKILL:
@@ -377,10 +377,10 @@ std::string InfoBoxHeroData::getValueText()
 		switch (type)
 		{
 		case HERO_MANA:
-			return boost::lexical_cast<std::string>(hero->mana) + '/' +
-				boost::lexical_cast<std::string>(hero->manaLimit());
+			return std::to_string(hero->mana) + '/' +
+				std::to_string(hero->manaLimit());
 		case HERO_EXPERIENCE:
-			return boost::lexical_cast<std::string>(hero->exp);
+			return std::to_string(hero->exp);
 		}
 	}
 	return InfoBoxAbstractHeroData::getValueText();
@@ -393,15 +393,15 @@ void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CCompon
 	{
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[205];
-		boost::replace_first(text, "%s", boost::lexical_cast<std::string>(hero->getNameTranslated()));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->mana));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
+		boost::replace_first(text, "%s", hero->getNameTranslated());
+		boost::replace_first(text, "%d", std::to_string(hero->mana));
+		boost::replace_first(text, "%d", std::to_string(hero->manaLimit()));
 		break;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[2];
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->level));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->exp));
+		boost::replace_first(text, "%d", std::to_string(hero->level));
+		boost::replace_first(text, "%d", std::to_string(CGI->heroh->reqExp(hero->level+1)));
+		boost::replace_first(text, "%d", std::to_string(hero->exp));
 		break;
 	default:
 		InfoBoxAbstractHeroData::prepareMessage(text, comp);
@@ -539,7 +539,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 	if(index < objects.size())
 	{
 		OwnedObjectInfo & obj = objects[index];
-		std::string value = boost::lexical_cast<std::string>(obj.count);
+		std::string value = std::to_string(obj.count);
 		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
@@ -596,7 +596,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	}
 	for(int i=0; i<7; i++)
 	{
-		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
+		std::string value = std::to_string(minesCount[i]);
 		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->translate("core.minename", i));
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
@@ -604,7 +604,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	incomeArea = std::make_shared<CHoverableArea>();
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
-	incomeAmount = std::make_shared<CLabel>(628, footerPos + 70, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, boost::lexical_cast<std::string>(totalIncome));
+	incomeAmount = std::make_shared<CLabel>(628, footerPos + 70, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(totalIncome));
 }
 
 void CKingdomInterface::generateButtons()
@@ -772,7 +772,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	background = std::make_shared<CAnimImage>("OVSLOT", 6);
 	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 
-	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]));
+	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(town->dailyIncome()[Res::GOLD]));
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
 	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
@@ -801,7 +801,7 @@ void CTownItem::updateGarrisons()
 
 void CTownItem::update()
 {
-	std::string incomeVal = boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]);
+	std::string incomeVal = std::to_string(town->dailyIncome()[Res::GOLD]);
 	if (incomeVal != income->getText())
 		income->setText(incomeVal);
 

@@ -59,7 +59,7 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 	};
 
 	const std::string & prefix = town->town->clientInfo.siegePrefix;
-	std::string addit = boost::lexical_cast<std::string>(getImageIndex());
+	std::string addit = std::to_string(getImageIndex());
 
 	switch(what)
 	{

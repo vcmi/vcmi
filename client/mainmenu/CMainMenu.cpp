@@ -476,7 +476,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputAddress->giveFocus();
 	}
 	inputAddress->setText(host ? CServerHandler::localhostAddress : CSH->getHostAddress(), true);
-	inputPort->setText(boost::lexical_cast<std::string>(CSH->getHostPort()), true);
+	inputPort->setText(std::to_string(CSH->getHostPort()), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
