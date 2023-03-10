@@ -6057,6 +6057,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
+		iw.components.emplace_back(Component::EComponentType::ARTIFACT, ArtifactID::GRAIL, 0, 0);
 		iw.text.clear();
 		iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
 		sendAndApply(&iw);
