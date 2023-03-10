@@ -82,6 +82,12 @@ public:
 	static void initialize();
 
 	/**
+	 * Destroys all existing data in filesystem, bringing it into uninitialized state
+	 *
+	 */
+	static void destroy();
+
+	/**
 	 * Will load all filesystem data from Json data at this path (normally - config/filesystem.json)
 	 * @param fsConfigURI - URI from which data will be loaded
 	 */

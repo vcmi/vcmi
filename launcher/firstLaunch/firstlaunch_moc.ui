@@ -119,7 +119,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QProgressBar" name="progressBar">
+    <widget class="QProgressBar" name="setupProgressBar">
      <property name="minimum">
       <number>0</number>
      </property>
@@ -140,7 +140,7 @@
    <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -286,22 +286,34 @@
           </widget>
          </item>
          <item row="1" column="1" colspan="3">
-          <widget class="QLineEdit" name="lineEditData1">
+          <widget class="QLineEdit" name="lineEditDataSystem">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>50</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="1" colspan="3">
-          <widget class="QLineEdit" name="lineEditData2">
+          <widget class="QLineEdit" name="lineEditDataUser">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>50</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -424,7 +436,7 @@
          <item row="1" column="0" colspan="2">
           <widget class="QLabel" name="labelDataSuccess">
            <property name="text">
-            <string>You Heroes III language was succesfully detected automatically.</string>
+            <string>Your Heroes III language has been succesfully detected.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -562,7 +574,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>VCMI provides its own version of Horn of the Abyss fan-made addon. If you wish you can install it right now. For more information about mod visit hota website</string>
+            <string>VCMI provides support for Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -578,7 +590,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Localization to English</string>
+            <string>Install localization</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextOnly</enum>
@@ -594,7 +606,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install VCMI-compatible version of the &quot;In The Wake of Gods&quot; fan-made addon</string>
+            <string>VCMI provides compatible version of the &quot;In The Wake of Gods&quot; fan-made addon</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -610,7 +622,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Heroes III + HotA</string>
+            <string>Install Horn of the Abyss</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextOnly</enum>
@@ -626,7 +638,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Heroes III + WoG</string>
+            <string>Install In the Wake of Gods</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextOnly</enum>
@@ -674,7 +686,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>HD support</string>
+            <string>Install HD support</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextOnly</enum>

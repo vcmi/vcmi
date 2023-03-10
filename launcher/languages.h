@@ -13,8 +13,6 @@ class QString;
 class QComboBox;
 class QListWidget;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace Languages
 {
 	struct Options;
@@ -25,4 +23,3 @@ namespace Languages
 	void fillLanguages(QListWidget * widget);
 }
 
-VCMI_LIB_NAMESPACE_END

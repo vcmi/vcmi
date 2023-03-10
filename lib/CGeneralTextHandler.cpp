@@ -49,7 +49,7 @@ void CGeneralTextHandler::detectInstallParameters()
 
 	// load file that will be used for footprint generation
 	// this is one of the most text-heavy files in game and consists solely from translated texts
-	auto resource = CResourceHandler::get()->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
+	auto resource = CResourceHandler::get("core")->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
 
 	std::array<size_t, 256> charCount{};
 	std::array<double, 16> footprint{};
@@ -86,6 +86,9 @@ void CGeneralTextHandler::detectInstallParameters()
 
 	Settings language = settings.write["session"]["language"];
 	language->String() = knownLanguages[bestIndex];
+
+	Settings confidence = settings.write["session"]["languageDeviation"];
+	confidence->Float() = deviations[bestIndex];
 
 	Settings encoding = settings.write["session"]["encoding"];
 	encoding->String() =  Languages::getLanguageOptions(knownLanguages[bestIndex]).encoding;

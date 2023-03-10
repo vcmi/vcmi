@@ -440,7 +440,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
+			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -450,6 +450,10 @@
 					"items" : {
 						"type" : "string"
 					}
+				},
+				"setupCompleted" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"enableInstalledMods" : {
 					"type" : "boolean",

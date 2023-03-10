@@ -74,7 +74,6 @@ public:
 
 	void loadScreenshots();
 
-	void enableModInfo();
 	void disableModInfo();
 
 	void selectMod(const QModelIndex & index);
@@ -82,6 +81,17 @@ public:
 
 	const CModList & getModList() const;
 	
+	// First Launch View interface
+
+	/// install mod by name
+	void doInstallMod(const QString & modName);
+
+	/// returns true if mod is currently installed
+	bool isModInstalled(const QString & modName);
+
+	/// finds translation mod for specified languages. Returns empty string on error
+	QString getTranslationModName(const QString & language);
+
 public slots:
 	void enableModByName(QString modName);
 	void disableModByName(QString modName);

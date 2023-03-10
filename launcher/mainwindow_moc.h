@@ -21,7 +21,7 @@ const QString appName = "VCMI Launcher";
 
 class QTableWidgetItem;
 class CModList;
-
+class CModListView;
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +48,7 @@ public:
 	~MainWindow() override;
 
 	const CModList & getModList() const;
+	CModListView * getModView();
 
 	void updateTranslation();
 	void computeSidePanelSizes();
@@ -60,5 +61,4 @@ private slots:
 	void on_settingsButton_clicked();
 	void on_lobbyButton_clicked();
 	void on_startEditorButton_clicked();
-	void on_setupButton_clicked();
 };

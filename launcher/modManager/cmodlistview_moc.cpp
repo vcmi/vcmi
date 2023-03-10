@@ -102,7 +102,7 @@ CModListView::CModListView(QWidget * parent)
 
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
-	disableModInfo();
+
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 	{
 		loadRepositories();
@@ -813,4 +813,40 @@ const CModList & CModListView::getModList() const
 {
 	assert(modModel);
 	return *modModel;
+}
+
+void CModListView::doInstallMod(const QString & modName)
+{
+	assert(findInvalidDependencies(modName).empty());
+
+	for(auto & name : modModel->getRequirements(modName))
+	{
+		auto mod = modModel->getMod(name);
+		if(!mod.isInstalled())
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+	}
+}
+
+bool CModListView::isModInstalled(const QString & modName)
+{
+	auto mod = modModel->getMod(modName);
+	return mod.isInstalled();
+}
+
+QString CModListView::getTranslationModName(const QString & language)
+{
+	for (auto const & modName : modModel->getModList())
+	{
+		auto mod = modModel->getMod(modName);
+
+		if (mod.getValue("type") != "localization")
+			continue;
+
+		if (mod.getValue("language") != language)
+			continue;
+
+		return modName;
+	}
+
+	return QString();
 }

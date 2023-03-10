@@ -102,7 +102,22 @@ MainWindow::MainWindow(QWidget * parent)
 
 	computeSidePanelSizes();
 
-	ui->tabListWidget->setCurrentIndex(0);
+	bool h3DataFound = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
+	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
+
+	if (h3DataFound && setupCompleted)
+	{
+		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	}
+	else
+	{
+		ui->startGameButton->setEnabled(false);
+		ui->startEditorButton->setEnabled(false);
+		ui->lobbyButton->setEnabled(false);
+		ui->settingsButton->setEnabled(false);
+		ui->modslistButton->setEnabled(false);
+		ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
+	}
 
 	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
@@ -145,6 +160,11 @@ void MainWindow::on_startEditorButton_clicked()
 const CModList & MainWindow::getModList() const
 {
 	return ui->modlistView->getModList();
+}
+
+CModListView * MainWindow::getModView()
+{
+	return ui->modlistView;
 }
 
 void MainWindow::on_modslistButton_clicked()
@@ -197,10 +217,3 @@ void MainWindow::updateTranslation()
 
 #endif
 }
-
-void MainWindow::on_setupButton_clicked()
-{
-	ui->startGameButton->setEnabled(false);
-	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
-}
-
