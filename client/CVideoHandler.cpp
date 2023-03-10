@@ -364,7 +364,12 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	if (sws == nullptr)
 		return;
 
-	double frameEndTime = (frame->pts + frame->pkt_duration) * av_q2d(format->streams[stream]->time_base);
+#if (LIBAVUTIL_VERSION_MAJOR < 58)   
+	auto packet_duration = frame->pkt_duration;
+#else
+	auto packet_duration = frame->duration;
+#endif
+	double frameEndTime = (frame->pts + packet_duration) * av_q2d(format->streams[stream]->time_base);
 	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.0;
 
 	if (frameTime >= frameEndTime )
