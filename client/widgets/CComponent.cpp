@@ -102,12 +102,12 @@ const std::vector<std::string> CComponent::getFileName()
 	static const std::string  primSkillsArr [] = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
 	static const std::string  secSkillsArr [] =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
 	static const std::string  resourceArr [] =   {"SMALRES",        "RESOURCE",       "RESOURCE",       "RESOUR82"};
-	static const std::string  creatureArr [] =   {"CPRSMALL",       "CPRSMALL",       "TWCRPORT",       "TWCRPORT"};
+	static const std::string  creatureArr [] =   {"CPRSMALL",       "CPRSMALL",       "CPRSMALL",       "TWCRPORT"};
 	static const std::string  artifactArr[]  =   {"Artifact",       "Artifact",       "Artifact",       "Artifact"};
-	static const std::string  spellsArr [] =     {"SpellInt",       "SpellInt",       "SPELLSCR",       "SPELLSCR"};
+	static const std::string  spellsArr [] =     {"SpellInt",       "SpellInt",       "SpellInt",       "SPELLSCR"};
 	static const std::string  moraleArr [] =     {"IMRL22",         "IMRL30",         "IMRL42",         "imrl82"};
 	static const std::string  luckArr [] =       {"ILCK22",         "ILCK30",         "ILCK42",         "ilck82"};
-	static const std::string  heroArr [] =       {"PortraitsSmall", "PortraitsSmall", "PortraitsLarge", "PortraitsLarge"};
+	static const std::string  heroArr [] =       {"PortraitsSmall", "PortraitsSmall", "PortraitsSmall", "PortraitsLarge"};
 	static const std::string  flagArr [] =       {"CREST58",        "CREST58",        "CREST58",        "CREST58"};
 
 	auto gen = [](const std::string * arr)
