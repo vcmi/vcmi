@@ -173,6 +173,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 	auto textRect = fullRect;
 	auto imageRect = fullRect;
 	auto font = FONT_SMALL;
+	auto maxComponents = 2; 
 
 	if(!compsToDisplay.empty())
 	{
@@ -189,21 +190,24 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 							data_width - 2 * CInfoBar::offset,
 							textH);
 			imageRect = Rect(CInfoBar::offset,
-							 textH + CInfoBar::offset,
+							 textH,
 							 data_width - 2 * CInfoBar::offset,
 							 CInfoBar::data_height - 2* CInfoBar::offset - textH);
-			if(compsToDisplay.size() > 4)
-				size = CComponent::tiny;
+		}
+		
+		if(compsToDisplay.size() > 4) {
+			maxComponents = 3; 
+			size = CComponent::small;
 		}
 		if(compsToDisplay.size() > 6)
-			size = CComponent::small;
+			maxComponents = 4;
 
 		std::vector<std::shared_ptr<CComponent>> vect;
 
 		for(const auto & c : compsToDisplay)
 			vect.emplace_back(std::make_shared<CComponent>(c, size, font));
 
-		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1);
+		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1, maxComponents);
 	}
 	else
 		font = tiny ? FONT_TINY : font;
@@ -216,12 +220,10 @@ int CInfoBar::getEstimatedComponentHeight(int numComps) const
 {
 	if (numComps > 8) //Bigger than 8 components - return invalid value
 		return std::numeric_limits<int>::max();
-	else if (numComps > 4)
-		return 48 + 20; // 24px * 2 rows + 20 to offset
 	else if (numComps > 2)
-		return 96 + 20; // 32px * 1 row + 20 to offset
+		return 160; // 32px * 1 row + 20 to offset
 	else if (numComps)
-		return 128; // 128 px to offset
+		return 118; // 118 px to offset
 	return 0;
 }
 
@@ -344,23 +346,23 @@ void CInfoBar::pushComponents(const std::vector<Component> & components, std::st
 				case Component::EComponentType::PRIM_SKILL:
 				case Component::EComponentType::EXPERIENCE: 
 					reward_map.at(0).first.push_back(c);
-					reward_map.at(0).second = 6; //At most 6, cannot be more
+					reward_map.at(0).second = 8; //At most 8, cannot be more
 					break;
 				case Component::EComponentType::SEC_SKILL:
 					reward_map.at(1).first.push_back(c);
-					reward_map.at(1).second = 8; //At most 8
+					reward_map.at(1).second = 4; //At most 4
 					break;
 				case Component::EComponentType::SPELL: 
 					reward_map.at(2).first.push_back(c);
-					reward_map.at(2).second = 6; //At most 6
+					reward_map.at(2).second = 4; //At most 4
 					break;
 				case Component::EComponentType::ARTIFACT:
 					reward_map.at(3).first.push_back(c);
-					reward_map.at(3).second = 6; //At most 6
+					reward_map.at(3).second = 4; //At most 4, too long names
 					break;
 				case Component::EComponentType::CREATURE:
 					reward_map.at(4).first.push_back(c);
-					reward_map.at(4).second = 8; //At most 8
+					reward_map.at(4).second = 4; //At most 4, too long names
 					break;
 				case Component::EComponentType::RESOURCE:
 					reward_map.at(5).first.push_back(c);
@@ -402,6 +404,7 @@ void CInfoBar::prepareComponents(const std::vector<Component> & components, std:
 	auto tinyH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_TINY);
 	auto header = CMessage::guessHeader(message);
 	auto headerH = CMessage::guessHeight(header, CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
+	auto headerTinyH = CMessage::guessHeight(header, CInfoBar::data_width - 2 * CInfoBar::offset, FONT_TINY);
 
 	// Order matters - priority form should be chosen first
 	if(imageH + textH < CInfoBar::data_height)
@@ -410,6 +413,8 @@ void CInfoBar::prepareComponents(const std::vector<Component> & components, std:
 		pushComponents(components, message, tinyH, true, timer);
 	else if(imageH + headerH < CInfoBar::data_height)
 		pushComponents(components, header, headerH, false, timer);
+	else if(imageH + headerTinyH < CInfoBar::data_height - 2 * CInfoBar::offset)
+		pushComponents(components, header, headerTinyH, true, timer);
 	else
 		pushComponents(components, "", 0, false, timer);
 

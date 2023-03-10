@@ -56,7 +56,7 @@ private:
 	};
 
 	static constexpr int data_width = width - 2 * CVisibleInfo::offset_x;
-	static constexpr int data_height = height - 2 * CVisibleInfo::offset_y + 4; //yes, +4 is required
+	static constexpr int data_height = height - 2 * CVisibleInfo::offset_y;
 
 	class EmptyVisibleInfo : public CVisibleInfo
 	{

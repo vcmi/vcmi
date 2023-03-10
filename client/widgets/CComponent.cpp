@@ -75,7 +75,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 
 	auto max = 80;
 	if (size < large)
-		max = 60;
+		max = 72;
 	if (size < medium)
 		max = 40;
 	if (size < small)
@@ -387,7 +387,7 @@ void CComponentBox::placeComponents(bool selectable)
 
 		//start next row
 		if ((pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w) // row is full
-			|| rows.back().comps >= 4) // no more than 4 comps per row
+			|| rows.back().comps >= componentsInRow)
 		{
 			prevComp = nullptr;
 			rows.push_back (RowData (0,0,0));
@@ -453,15 +453,16 @@ void CComponentBox::placeComponents(bool selectable)
 }
 
 CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _components, Rect position):
-	CComponentBox(_components, position, defaultBetweenImagesMin, defaultBetweenSubtitlesMin, defaultBetweenRows)
+	CComponentBox(_components, position, defaultBetweenImagesMin, defaultBetweenSubtitlesMin, defaultBetweenRows, defaultComponentsInRow)
 {
 }
 
-CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _components, Rect position, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows):
+CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _components, Rect position, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows, int componentsInRow):
 	components(_components),
 	betweenImagesMin(betweenImagesMin),
 	betweenSubtitlesMin(betweenSubtitlesMin),
-	betweenRows(betweenRows)
+	betweenRows(betweenRows),
+	componentsInRow(componentsInRow)
 {
 	type |= REDRAW_PARENT;
 	pos = position + pos.topLeft();
@@ -469,16 +470,17 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _component
 }
 
 CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> _components, Rect position, std::function<void(int newID)> _onSelect):
-	CComponentBox(_components, position, _onSelect, defaultBetweenImagesMin, defaultBetweenSubtitlesMin, defaultBetweenRows)
+	CComponentBox(_components, position, _onSelect, defaultBetweenImagesMin, defaultBetweenSubtitlesMin, defaultBetweenRows, defaultComponentsInRow)
 {
 }
 
-CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> _components, Rect position, std::function<void(int newID)> _onSelect, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows):
+CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> _components, Rect position, std::function<void(int newID)> _onSelect, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows, int componentsInRow):
 	components(_components.begin(), _components.end()),
 	onSelect(_onSelect),
 	betweenImagesMin(betweenImagesMin),
 	betweenSubtitlesMin(betweenSubtitlesMin),
-	betweenRows(betweenRows)
+	betweenRows(betweenRows),
+	componentsInRow(componentsInRow)
 {
 	type |= REDRAW_PARENT;
 	pos = position + pos.topLeft();
