@@ -336,15 +336,61 @@ void CInfoBar::pushComponents(const std::vector<Component> & components, std::st
 		prepareComponents(components, message, timer);
 	else
 	{
-		std::map<Component::EComponentType, std::vector<Component>> reward_map;
+		std::array<std::pair<std::vector<Component>, int>, 10> reward_map;
 		for(const auto & c : components)
-			reward_map[static_cast<Component::EComponentType>(c.id)].push_back(c);
+		{
+			switch(c.id)
+			{
+				case Component::EComponentType::PRIM_SKILL:
+				case Component::EComponentType::EXPERIENCE: 
+					reward_map.at(0).first.push_back(c);
+					reward_map.at(0).second = 6; //At most 6, cannot be more
+					break;
+				case Component::EComponentType::SEC_SKILL:
+					reward_map.at(1).first.push_back(c);
+					reward_map.at(1).second = 8; //At most 8
+					break;
+				case Component::EComponentType::SPELL: 
+					reward_map.at(2).first.push_back(c);
+					reward_map.at(2).second = 6; //At most 6
+					break;
+				case Component::EComponentType::ARTIFACT:
+					reward_map.at(3).first.push_back(c);
+					reward_map.at(3).second = 6; //At most 6
+					break;
+				case Component::EComponentType::CREATURE:
+					reward_map.at(4).first.push_back(c);
+					reward_map.at(4).second = 8; //At most 8
+					break;
+				case Component::EComponentType::RESOURCE:
+					reward_map.at(5).first.push_back(c);
+					reward_map.at(5).second = 7; //At most 7
+					break;
+				case Component::EComponentType::MORALE: 
+				case Component::EComponentType::LUCK:
+					reward_map.at(6).first.push_back(c);
+					reward_map.at(6).second = 2; //At most 2 - 1 for morale + 1 for luck
+					break;
+				case Component::EComponentType::BUILDING:
+					reward_map.at(7).first.push_back(c);
+					reward_map.at(7).second = 1; //At most 1 - only large icons available AFAIK
+					break;
+				case Component::EComponentType::HERO_PORTRAIT:
+					reward_map.at(8).first.push_back(c);
+					reward_map.at(8).second = 1; //I do not think than we even can get more than 1 hero
+					break;
+				case Component::EComponentType::FLAG:
+					reward_map.at(9).first.push_back(c);
+					reward_map.at(9).second = 1; //I do not think than we even can get more than 1 player in notification
+					break;
+				default:
+					logGlobal->warn("Invalid component received!");
+			}
+		}
 		
 		for(const auto & kv : reward_map)
-		{
-			auto vector = kv.second;
-			actualPush(kv.second, message, timer, kv.first == Component::ARTIFACT ? 6 : 8);
-		}
+			if(!kv.first.empty())
+				actualPush(kv.first, message, timer, kv.second);
 	}
 	popComponents();
 }

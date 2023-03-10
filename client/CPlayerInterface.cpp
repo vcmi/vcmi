@@ -1719,7 +1719,7 @@ void CPlayerInterface::acceptTurn()
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
-		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
+		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
 		MetaString text;
 
 		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;

@@ -2498,7 +2498,7 @@ void YourTurn::applyGs(CGameState * gs) const
 }
 
 Component::Component(const CStackBasicDescriptor & stack)
-	: id(CREATURE)
+	: id(EComponentType::CREATURE)
 	, subtype(stack.type->idNumber)
 	, val(stack.count)
 {

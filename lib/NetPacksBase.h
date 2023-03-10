@@ -197,8 +197,24 @@ public:
 
 struct Component
 {
-	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE, LUCK, BUILDING, HERO_PORTRAIT, FLAG};
-	ui16 id = 0, subtype = 0; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
+	enum class EComponentType : uint8_t 
+	{
+		PRIM_SKILL,
+		SEC_SKILL,
+		RESOURCE,
+		CREATURE,
+		ARTIFACT,
+		EXPERIENCE,
+		SPELL,
+		MORALE,
+		LUCK,
+		BUILDING,
+		HERO_PORTRAIT,
+		FLAG,
+		INVALID //should be last
+	};
+	EComponentType id = EComponentType::INVALID;
+	ui16 subtype = 0; //id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels
 	si32 val = 0; // + give; - take
 	si16 when = 0; // 0 - now; +x - within x days; -x - per x days
 

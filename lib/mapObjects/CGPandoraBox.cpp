@@ -83,14 +83,14 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 		iw.text.addReplacement(h->getNameTranslated());
 
 		if(expVal)
-			iw.components.emplace_back(Component::EXPERIENCE, 0, static_cast<si32>(expVal), 0);
+			iw.components.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(expVal), 0);
 
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
-				iw.components.emplace_back(Component::PRIM_SKILL, i, primskills[i], 0);
+				iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, i, primskills[i], 0);
 
 		for(const auto & abilityData : unpossessedAbilities)
-			iw.components.emplace_back(Component::SEC_SKILL, abilityData.first, abilityData.second, 0);
+			iw.components.emplace_back(Component::EComponentType::SEC_SKILL, abilityData.first, abilityData.second, 0);
 
 		cb->showInfoDialog(&iw);
 
@@ -144,7 +144,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 				const auto * spell = (*i).toSpell(VLC->spells());
 				if(h->canLearnSpell(spell))
 				{
-					iw.components.emplace_back(Component::SPELL, *i, 0, 0);
+					iw.components.emplace_back(Component::EComponentType::SPELL, *i, 0, 0);
 					spellsToGive.insert(*i);
 				}
 				if(spellsToGive.size() == 8) //display up to 8 spells at once
@@ -172,7 +172,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(manaDiff)
 	{
 		getText(iw,hadGuardians,manaDiff,176,177,h);
-		iw.components.emplace_back(Component::PRIM_SKILL, 5, manaDiff, 0);
+		iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 5, manaDiff, 0);
 		cb->showInfoDialog(&iw);
 		cb->setManaPoints(h->id, h->mana + manaDiff);
 	}
@@ -180,7 +180,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(moraleDiff)
 	{
 		getText(iw,hadGuardians,moraleDiff,178,179,h);
-		iw.components.emplace_back(Component::MORALE, 0, moraleDiff, 0);
+		iw.components.emplace_back(Component::EComponentType::MORALE, 0, moraleDiff, 0);
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
 		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,moraleDiff,id.getNum(),"");
@@ -191,7 +191,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if(luckDiff)
 	{
 		getText(iw,hadGuardians,luckDiff,180,181,h);
-		iw.components.emplace_back(Component::LUCK, 0, luckDiff, 0);
+		iw.components.emplace_back(Component::EComponentType::LUCK, 0, luckDiff, 0);
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
 		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,luckDiff,id.getNum(),"");
@@ -204,7 +204,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	for(int i=0; i<resources.size(); i++)
 	{
 		if(resources[i] < 0)
-			iw.components.emplace_back(Component::RESOURCE, i, resources[i], 0);
+			iw.components.emplace_back(Component::EComponentType::RESOURCE, i, resources[i], 0);
 	}
 	if(!iw.components.empty())
 	{
@@ -217,7 +217,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	for(int i=0; i<resources.size(); i++)
 	{
 		if(resources[i] > 0)
-			iw.components.emplace_back(Component::RESOURCE, i, resources[i], 0);
+			iw.components.emplace_back(Component::EComponentType::RESOURCE, i, resources[i], 0);
 	}
 	if(!iw.components.empty())
 	{
@@ -231,7 +231,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	iw.text.addReplacement(h->getNameTranslated());
 	for(const auto & elem : artifacts)
 	{
-		iw.components.emplace_back(Component::ARTIFACT, elem, 0, 0);
+		iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
 		if(iw.components.size() >= 14)
 		{
 			cb->showInfoDialog(&iw);

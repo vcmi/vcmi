@@ -42,7 +42,7 @@ CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts
 CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 	: perDay(false)
 {
-	if(c.id == Component::RESOURCE && c.when==-1)
+	if(c.id == Component::EComponentType::RESOURCE && c.when==-1)
 		perDay = true;
 
 	init((Etype)c.id, c.subtype, c.val, imageSize, font);

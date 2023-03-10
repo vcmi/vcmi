@@ -562,14 +562,14 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 		for(int i = 0; i < resources.size(); i++)
 		{
 			if(resources[i] > 0)
-				iw.components.emplace_back(Component::RESOURCE, i, resources[i], 0);
+				iw.components.emplace_back(Component::EComponentType::RESOURCE, i, resources[i], 0);
 		}
 	}
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
 		cb->giveHeroNewArtifact(h, VLC->arth->objects[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
-		iw.components.emplace_back(Component::ARTIFACT, gainedArtifact, 0, 0);
+		iw.components.emplace_back(Component::EComponentType::ARTIFACT, gainedArtifact, 0, 0);
 	}
 
 	if(!iw.components.empty())
@@ -720,7 +720,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	iw.soundID = soundBase::FLAGMINE;
 	iw.text.addTxt(MetaString::MINE_EVNTS,producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.emplace_back(Component::RESOURCE, producedResource, producedQuantity, -1);
+	iw.components.emplace_back(Component::EComponentType::RESOURCE, producedResource, producedQuantity, -1);
 	cb->showInfoDialog(&iw);
 }
 
@@ -877,7 +877,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.addTxt(MetaString::ADVOB_TXT,113);
 		sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	}
-	sii.components.emplace_back(Component::RESOURCE,subID,amount,0);
+	sii.components.emplace_back(Component::EComponentType::RESOURCE,subID,amount,0);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this);
@@ -1303,7 +1303,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		{
 		case Obj::ARTIFACT:
 			{
-				iw.components.emplace_back(Component::ARTIFACT, subID, 0, 0);
+				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
 				if(message.length())
 					iw.text << message;
 				else
@@ -1313,7 +1313,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		case Obj::SPELL_SCROLL:
 			{
 				int spellID = storedArtifact->getGivenSpellID();
-				iw.components.emplace_back(Component::SPELL, spellID, 0, 0);
+				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
 				if(message.length())
 					iw.text << message;
 				else
@@ -1441,7 +1441,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else //give sec skill
 	{
-		iw.components.emplace_back(Component::SEC_SKILL, ability, 1, 0);
+		iw.components.emplace_back(Component::EComponentType::SEC_SKILL, ability, 1, 0);
 		txt_id = 171;
 		cb->changeSecSkill(h, SecondarySkill(ability), 1, true);
 	}
@@ -1568,7 +1568,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 		spells.insert(spell);
 		cb->changeSpells(h, true, spells);
 
-		iw.components.emplace_back(Component::SPELL, spell, 0, 0);
+		iw.components.emplace_back(Component::EComponentType::SPELL, spell, 0, 0);
 	}
 
 	cb->showInfoDialog(&iw);
@@ -1670,18 +1670,18 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case PRIM_SKILL:
 		cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
-		iw.components.emplace_back(Component::PRIM_SKILL, bid, +1, 0);
+		iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, bid, +1, 0);
 		break;
 	case SECONDARY_SKILL:
 		cb->changeSecSkill(h,SecondarySkill(bid),+1);
-		iw.components.emplace_back(Component::SEC_SKILL, bid, ssl + 1, 0);
+		iw.components.emplace_back(Component::EComponentType::SEC_SKILL, bid, ssl + 1, 0);
 		break;
 	case SPELL:
 		{
 			std::set<SpellID> hlp;
 			hlp.insert(SpellID(bid));
 			cb->changeSpells(h,true,hlp);
-			iw.components.emplace_back(Component::SPELL, bid, 0, 0);
+			iw.components.emplace_back(Component::EComponentType::SPELL, bid, 0, 0);
 		}
 		break;
 	default:

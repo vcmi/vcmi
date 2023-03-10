@@ -116,9 +116,9 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 		bonus.sid = object->ID;
 		//TODO: bonus.description = object->getObjectName();
 		if (bonus.type == Bonus::MORALE)
-			reward.extraComponents.emplace_back(Component::MORALE, 0, bonus.val, 0);
+			reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
 		if (bonus.type == Bonus::LUCK)
-			reward.extraComponents.emplace_back(Component::LUCK, 0, bonus.val, 0);
+			reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
 	}
 
 	reward.primary = JsonRandom::loadPrimary(source["primary"], rng);
@@ -137,7 +137,7 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 		CreatureID from (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.first) .get());
 		CreatureID dest (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.second.String()).get());
 
-		reward.extraComponents.emplace_back(Component::CREATURE, dest.getNum(), 0, 0);
+		reward.extraComponents.emplace_back(Component::EComponentType::CREATURE, dest.getNum(), 0, 0);
 
 		reward.creaturesChange[from] = dest;
 	}

@@ -188,7 +188,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			components.emplace_back(Component::EXPERIENCE, 0, m13489val, 0);
+			components.emplace_back(Component::EComponentType::EXPERIENCE, 0, m13489val, 0);
 			if(!isCustom)
 				iwText.addReplacement(m13489val);
 			break;
@@ -199,7 +199,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m2stats[i])
 				{
-					components.emplace_back(Component::PRIM_SKILL, i, m2stats[i], 0);
+					components.emplace_back(Component::EComponentType::PRIM_SKILL, i, m2stats[i], 0);
 					loot << "%d %s";
 					loot.addReplacement(m2stats[i]);
 					loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
@@ -210,13 +210,13 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_KILL_HERO:
-			components.emplace_back(Component::HERO_PORTRAIT, heroPortrait, 0, 0);
+			components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
 			if(!isCustom)
 				addReplacements(iwText, text);
 			break;
 		case MISSION_HERO:
 			//FIXME: portrait may not match hero, if custom portrait was set in map editor
-			components.emplace_back(Component::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0);
+			components.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0);
 			if(!isCustom)
 				iwText.addReplacement(VLC->heroh->objects[m13489val]->getNameTranslated());
 			break;
@@ -234,7 +234,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			MetaString loot;
 			for(const auto & elem : m5arts)
 			{
-				components.emplace_back(Component::ARTIFACT, elem, 0, 0);
+				components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
 				loot << "%s";
 				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
@@ -262,7 +262,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m7resources[i])
 				{
-					components.emplace_back(Component::RESOURCE, i, m7resources[i], 0);
+					components.emplace_back(Component::EComponentType::RESOURCE, i, m7resources[i], 0);
 					loot << "%d %s";
 					loot.addReplacement(m7resources[i]);
 					loot.addReplacement(MetaString::RES_NAMES, i);
@@ -273,7 +273,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_PLAYER:
-			components.emplace_back(Component::FLAG, m13489val, 0, 0);
+			components.emplace_back(Component::EComponentType::FLAG, m13489val, 0, 0);
 			if(!isCustom)
 				iwText.addReplacement(VLC->generaltexth->colors[m13489val]);
 			break;
@@ -646,34 +646,34 @@ void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &comp
 	switch(rewardType)
 	{
 	case EXPERIENCE:
-		components.emplace_back(Component::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(rVal)), 0);
+		components.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(rVal)), 0);
 		break;
 	case MANA_POINTS:
-		components.emplace_back(Component::PRIM_SKILL, 5, rVal, 0);
+		components.emplace_back(Component::EComponentType::PRIM_SKILL, 5, rVal, 0);
 		break;
 	case MORALE_BONUS:
-		components.emplace_back(Component::MORALE, 0, rVal, 0);
+		components.emplace_back(Component::EComponentType::MORALE, 0, rVal, 0);
 		break;
 	case LUCK_BONUS:
-		components.emplace_back(Component::LUCK, 0, rVal, 0);
+		components.emplace_back(Component::EComponentType::LUCK, 0, rVal, 0);
 		break;
 	case RESOURCES:
-		components.emplace_back(Component::RESOURCE, rID, rVal, 0);
+		components.emplace_back(Component::EComponentType::RESOURCE, rID, rVal, 0);
 		break;
 	case PRIMARY_SKILL:
-		components.emplace_back(Component::PRIM_SKILL, rID, rVal, 0);
+		components.emplace_back(Component::EComponentType::PRIM_SKILL, rID, rVal, 0);
 		break;
 	case SECONDARY_SKILL:
-		components.emplace_back(Component::SEC_SKILL, rID, rVal, 0);
+		components.emplace_back(Component::EComponentType::SEC_SKILL, rID, rVal, 0);
 		break;
 	case ARTIFACT:
-		components.emplace_back(Component::ARTIFACT, rID, 0, 0);
+		components.emplace_back(Component::EComponentType::ARTIFACT, rID, 0, 0);
 		break;
 	case SPELL:
-		components.emplace_back(Component::SPELL, rID, 0, 0);
+		components.emplace_back(Component::EComponentType::SPELL, rID, 0, 0);
 		break;
 	case CREATURE:
-		components.emplace_back(Component::CREATURE, rID, rVal, 0);
+		components.emplace_back(Component::EComponentType::CREATURE, rID, rVal, 0);
 		break;
 	}
 }

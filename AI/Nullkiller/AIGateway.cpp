@@ -632,7 +632,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		// TODO: Find better way to understand it is Chest of Treasures
 		if(hero.validAndSet()
 			&& components.size() == 2
-			&& components.front().id == Component::RESOURCE
+			&& components.front().id == Component::EComponentType::RESOURCE
 			&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
 			|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
 		{
