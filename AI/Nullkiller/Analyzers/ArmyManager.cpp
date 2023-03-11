@@ -58,7 +58,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 		}
 	}
 
-	for(auto pair : creToPower)
+	for(auto & pair : creToPower)
 		resultingArmy.push_back(pair.second);
 
 	boost::sort(resultingArmy, [](const SlotInfo & left, const SlotInfo & right) -> bool
@@ -112,7 +112,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	for(auto bonus : *bonusModifiers)
 	{
 		// army bonuses will change and object bonuses are temporary
-		if(bonus->source != Bonus::ARMY || bonus->source != Bonus::OBJECT)
+		if(bonus->source != Bonus::ARMY && bonus->source != Bonus::OBJECT)
 		{
 			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
 		}

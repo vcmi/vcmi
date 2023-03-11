@@ -549,7 +549,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::SEA_CHEST:
 		return 1500;
 	case Obj::PANDORAS_BOX:
-		return 5000;
+		return 2500;
 	case Obj::PRISON:
 		//Objectively saves us 2500 to hire hero
 		return GameConstants::HERO_GOLD_COST;

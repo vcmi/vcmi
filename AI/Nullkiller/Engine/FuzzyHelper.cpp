@@ -130,6 +130,9 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 
 		return danger;
 	}
+	case Obj::PANDORAS_BOX:
+		return 10000; //Who knows what awaits us there
+
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{

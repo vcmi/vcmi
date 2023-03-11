@@ -855,6 +855,10 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 	for(auto & hero : heroes)
 	{
+		// do not allow our own heroes in garrison to act on map
+		if(hero.first->getOwner() == ai->playerID && hero.first->inTownGarrison)
+			continue;
+
 		uint64_t mask = FirstActorMask << actors.size();
 		auto actor = std::make_shared<HeroActor>(hero.first, hero.second, mask, ai);
 
