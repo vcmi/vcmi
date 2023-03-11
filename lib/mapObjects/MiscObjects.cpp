@@ -1217,7 +1217,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.addTxt(MetaString::ADVOB_TXT, 168);
-		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), countToTake));
+		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), -countToTake));
 		cb->showInfoDialog(&iw);
 		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
 	}
