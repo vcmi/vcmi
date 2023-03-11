@@ -274,12 +274,12 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			return result;
 		}
 
-	if(other->isMovable && other->armyValue <= actor->armyValue / 10 && other->armyValue < MIN_ARMY_STRENGTH_FOR_CHAIN)
-		return result;
+		if(other->isMovable && other->armyValue <= actor->armyValue / 10 && other->armyValue < MIN_ARMY_STRENGTH_FOR_CHAIN)
+			return result;
 
-	TResources availableResources = resources - actor->armyCost - other->armyCost;
-	HeroExchangeArmy * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
-	HeroExchangeArmy * newArmy;
+		TResources availableResources = resources - actor->armyCost - other->armyCost;
+		HeroExchangeArmy * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
+		HeroExchangeArmy * newArmy;
 
 		if(other->creatureSet->Slots().size())
 		{
@@ -303,20 +303,25 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		if(!newArmy) return result;
 
-		auto reinforcement = newArmy->getArmyStrength() - actor->creatureSet->getArmyStrength();
+		auto newArmyStrength = newArmy->getArmyStrength();
+		auto oldArmyStrength = actor->creatureSet->getArmyStrength();
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+		if(newArmyStrength <= oldArmyStrength) return result;
+
+		auto reinforcement = newArmyStrength - oldArmyStrength;
+
+	#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Exchange %s->%s reinforcement: %d, %f%%",
 			actor->toString(),
 			other->toString(),
 			reinforcement,
 			100.0f * reinforcement / actor->armyValue);
-#endif
+	#endif
 
-	if(reinforcement <= actor->armyValue / 10 && reinforcement < MIN_ARMY_STRENGTH_FOR_CHAIN)
-	{
-		delete newArmy;
+		if(reinforcement <= actor->armyValue / 10 && reinforcement < MIN_ARMY_STRENGTH_FOR_CHAIN)
+		{
+			delete newArmy;
 
 			return result;
 		}
@@ -365,7 +370,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	{
 		auto buyArmy = ai->armyManager->getArmyAvailableToBuy(target, ai->cb->getTown(upgrader->id), resources);
 
-		for(auto creatureToBuy : buyArmy)
+		for(auto & creatureToBuy : buyArmy)
 		{
 			auto targetSlot = target->getSlotFor(creatureToBuy.cre);
 
