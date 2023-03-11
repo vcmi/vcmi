@@ -307,7 +307,7 @@ protected:
 	bool canRefuse;
 
 	/// if true - object info will shown in infobox (like resource pickup)
-	bool showInInfobox;
+	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
 
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
@@ -348,13 +348,14 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & info;
 		h & canRefuse;
-		h & showInInfobox;
 		h & resetParameters;
 		h & onSelect;
 		h & visitMode;
 		h & selectMode;
 		h & selectedReward;
 		h & onceVisitableObjectCleared;
+		if (version >= 817)
+			h & infoWindowType;
 	}
 
 	// for configuration/object setup

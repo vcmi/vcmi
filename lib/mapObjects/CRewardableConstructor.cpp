@@ -230,8 +230,11 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 	configureResetInfo(object, rng, object->resetParameters, parameters["resetParameters"]);
 
 	object->canRefuse = parameters["canRefuse"].Bool();
-	
-	object->showInInfobox = parameters["showInInfobox"].Bool();
+
+	if(parameters["showInInfobox"].isNull())
+		object->infoWindowType = EInfoWindowMode::AUTO;
+	else
+		object->infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
 	
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
