@@ -188,19 +188,17 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	return maxMovePointsCached(onLand, &ti);
 }
 
-int CGHeroInstance::getArmyMovementBonus() const
+int CGHeroInstance::getLowestCreatureSpeed() const
 {
-	return armyMovementVal;
+	return lowestCreatureSpeed;
 }
 
 void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const
 {
-	int armySpeed = lowestSpeed(this) * 20 / 3;
-
-	auto base = armySpeed * 10; // separate *10 is intentional to receive same rounding as in h3
-	if(armyMovementVal != vstd::abetween(base, 200, 700)) // army modifier speed is limited by these values
+	auto realLowestSpeed = lowestSpeed(this);
+	if(lowestCreatureSpeed != realLowestSpeed)
 	{
-		armyMovementVal = base;
+		lowestCreatureSpeed = realLowestSpeed;
 		ti->updateHeroBonuses(Bonus::MOVEMENT, Selector::subtype()(!!onLand).And(Selector::sourceTypeSel(Bonus::ARMY)));
 	}
 }
@@ -208,7 +206,7 @@ void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) c
 int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 {
 	updateArmyMovementBonus(onLand, ti);
-	return ti->valOfBonuses(Bonus::MOVEMENT, !!onLand);;
+	return ti->valOfBonuses(Bonus::MOVEMENT, !!onLand);
 }
 
 CGHeroInstance::CGHeroInstance():
@@ -222,7 +220,7 @@ CGHeroInstance::CGHeroInstance():
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
 	sex(std::numeric_limits<ui8>::max()),
-	armyMovementVal(0)
+	lowestCreatureSpeed(0)
 {
 	setNodeType(HERO);
 	ID = Obj::HERO;

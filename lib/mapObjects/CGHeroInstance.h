@@ -49,7 +49,7 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
-	mutable int armyMovementVal;
+	mutable int lowestCreatureSpeed;
 
 public:
 
@@ -171,7 +171,7 @@ public:
 
 	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	TerrainId getNativeTerrain() const;
-	ui32 getLowestCreatureSpeed() const;
+	int getLowestCreatureSpeed() const;
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
 	int getCurrentLuck(int stack=-1, bool town=false) const;
@@ -213,7 +213,6 @@ public:
 	int maxMovePointsCached(bool onLand, const TurnInfo * ti) const;
 	//update army movement bonus
 	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
-	int getArmyMovementBonus() const;
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 

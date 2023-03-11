@@ -88,9 +88,11 @@
 		{
 			"type" : "MOVEMENT", //Enable army movement bonus
 			"subtype" : 1,
-			"val" : 0,
 			"valueType" : "BASE_NUMBER",
-			"updater" : "ARMY_MOVEMENT"
+			"updater" : {
+				"type" : "ARMY_MOVEMENT",
+				"parameters" : [ 20, 3, 10, 700]
+			}
 		},
 		{
 			"type" : "MOVEMENT", //Basic sea movement

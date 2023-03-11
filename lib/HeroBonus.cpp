@@ -2763,13 +2763,32 @@ JsonNode TimesHeroLevelUpdater::toJsonNode() const
 	return JsonUtils::stringNode("TIMES_HERO_LEVEL");
 }
 
+ArmyMovementUpdater::ArmyMovementUpdater():
+	base(20),
+	divider(3),
+	multiplier(10),
+	max(700)
+{
+}
+
+ArmyMovementUpdater::ArmyMovementUpdater(int base, int divider, int multiplier, int max):
+	base(base),
+	divider(divider),
+	multiplier(multiplier),
+	max(max)
+{
+}
+
 std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(b->type == Bonus::MOVEMENT && context.getNodeType() == CBonusSystemNode::HERO)
 	{
+		auto speed = static_cast<const CGHeroInstance &>(context).getLowestCreatureSpeed();
+		si32 armySpeed = speed * base / divider;
+		auto counted = armySpeed * multiplier;
 		auto newBonus = std::make_shared<Bonus>(*b);
 		newBonus->source = Bonus::ARMY;
-		newBonus->val = static_cast<const CGHeroInstance &>(context).getArmyMovementBonus();
+		newBonus->val = vstd::amin(counted, max);
 		return newBonus;
 	}
 	if(b->type != Bonus::MOVEMENT)
@@ -2784,7 +2803,15 @@ std::string ArmyMovementUpdater::toString() const
 
 JsonNode ArmyMovementUpdater::toJsonNode() const
 {
-	return JsonUtils::stringNode("ARMY_MOVEMENT");
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "ARMY_MOVEMENT";
+	root["parameters"].Vector().push_back(JsonUtils::intNode(base));
+	root["parameters"].Vector().push_back(JsonUtils::intNode(divider));
+	root["parameters"].Vector().push_back(JsonUtils::intNode(multiplier));
+	root["parameters"].Vector().push_back(JsonUtils::intNode(max));
+
+	return root;
 }
 
 TimesStackLevelUpdater::TimesStackLevelUpdater()

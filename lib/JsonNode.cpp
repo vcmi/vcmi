@@ -864,6 +864,24 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 				updater->stepSize = static_cast<int>(param[1].Integer());
 			return updater;
 		}
+		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
+		{
+			std::shared_ptr<ArmyMovementUpdater> updater = std::make_shared<ArmyMovementUpdater>();
+			if(updaterJson["parameters"].isVector())
+			{
+				const auto & param = updaterJson["parameters"].Vector();
+				if(param.size() < 4)
+					logMod->warn("Invalid ARMY_MOVEMENT parameters, using default!");
+				else
+				{
+					updater->base = static_cast<si32>(param.at(0).Integer());
+					updater->divider = static_cast<si32>(param.at(1).Integer());
+					updater->multiplier = static_cast<si32>(param.at(2).Integer());
+					updater->max = static_cast<si32>(param.at(3).Integer());
+				}
+				return updater;
+			}
+		}
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
 		break;

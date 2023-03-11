@@ -1320,9 +1320,19 @@ public:
 class DLL_LINKAGE ArmyMovementUpdater : public IUpdater
 {
 public:
+	si32 base;
+	si32 divider;
+	si32 multiplier;
+	si32 max;
+	ArmyMovementUpdater();
+	ArmyMovementUpdater(int base, int divider, int multiplier, int max);
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<IUpdater &>(*this);
+		h & base;
+		h & divider;
+		h & multiplier;
+		h & max;
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
