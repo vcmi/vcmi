@@ -63,7 +63,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="272"/>
         <source>Description</source>
         <translation>Описание</translation>
     </message>
@@ -113,114 +113,114 @@
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="228"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="230"/>
         <source>Mod name</source>
         <translation>Название мода</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="231"/>
         <source>Installed version</source>
         <translation>Установленная версия</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="230"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="232"/>
         <source>Latest version</source>
         <translation>Последняя версия</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="233"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="235"/>
         <source>Download size</source>
         <translation>Размер загрузки</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="234"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="236"/>
         <source>Authors</source>
         <translation>Авторы</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="239"/>
         <source>License</source>
         <translation>Лицензия</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="240"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="242"/>
         <source>Contact</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="244"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="246"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
         <source>Compatibility</source>
         <translation>Совместимость</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="263"/>
         <source>Required VCMI version</source>
         <translation>Требуемая версия VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="261"/>
         <source>Supported VCMI version</source>
         <translation>Поддерживаемая версия VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="264"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="266"/>
         <source>Supported VCMI versions</source>
         <translation>Поддерживаемые версии VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="268"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="270"/>
         <source>Required mods</source>
         <translation>Зависимости</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="269"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
         <source>Conflicting mods</source>
         <translation>Конфликтующие моды</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="274"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <source>This mod can not be installed or enabled because following dependencies are not present</source>
         <translation>Этот мод не может быть установлен или активирован, так как отсутствуют следующие зависимости</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="275"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="277"/>
         <source>This mod can not be enabled because following mods are incompatible with this mod</source>
         <translation>Этот мод не может быть установлен или активирован, так как следующие моды несовместимы с этим</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
         <source>This mod can not be disabled because it is required to run following mods</source>
         <translation>Этот мод не может быть выключен, так как он является зависимостью для следующих</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="277"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
         <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
         <translation>Этот мод не может быть удален или обновлен, так как является зависимостью для следующих модов</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="280"/>
         <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
         <translation>Это вложенный мод, он не может быть установлен или удален отдельно от родительского</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <source>Notes</source>
         <translation>Замечания</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="795"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="797"/>
         <source>Screenshot %1</source>
         <translation>Скриншот %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="222"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="224"/>
         <source>Mod is compatible</source>
         <translation>Мод совместим</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="223"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="225"/>
         <source>Mod is incompatible</source>
         <translation>Мод несовместим</translation>
     </message>
@@ -414,147 +414,125 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="103"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="797"/>
-        <source>Finish</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="414"/>
+        <source>Your Heroes III language has been succesfully detected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="136"/>
-        <source>Step %v out of %m</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="552"/>
+        <source>Optionally, you can install additional mods either now or at any point later:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="168"/>
-        <source>Choose your language</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="584"/>
+        <source>Install English translation of Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="506"/>
-        <source>Next</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="240"/>
-        <source>Find Heroes III data files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="271"/>
-        <source>Open help in browser</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="284"/>
-        <source>Search again</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="317"/>
-        <source>If you don&apos;t have installed Heroes III copy, it is possible to use our automatic installation tool &apos;vcmibuilder&apos; to extract data from GoG.com installer. Visit our wiki for detailed instructions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="333"/>
-        <source>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
-        <source>Heroes III data files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="368"/>
-        <source>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
-        <source>Copy existing data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="397"/>
-        <source>Your Heroes III data files have been succesfully found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="427"/>
-        <source>You Heroes III language was succesfully detected automatically.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="437"/>
-        <source>Automatic detection of language failed. Please select language of your Heroes III copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="456"/>
-        <source>Heroes III language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="499"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="717"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="790"/>
-        <source>Back</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="537"/>
-        <source>Install VCMI Mod Preset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="565"/>
-        <source>VCMI provides its own version of Horn of the Abyss fan-made addon. If you wish you can install it right now. For more information about mod visit hota website</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="581"/>
-        <source>Localization to English</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="661"/>
-        <source>VCMI provides translations of Heroes III into a different languages. If you wish, you can install translation to English</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="597"/>
-        <source>Install VCMI-compatible version of the &quot;In The Wake of Gods&quot; fan-made addon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="613"/>
-        <source>Heroes III + HotA</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="629"/>
-        <source>Heroes III + WoG</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="616"/>
+        <source>Install support for playing Heroes III in resolutions other than 800x600.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="645"/>
-        <source>VCMI provides support for playing Heroes III in resolutions other than 800x600. If you wish, you can install this support</source>
+        <source>Install compatible version of addon Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="677"/>
-        <source>HD support</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="674"/>
+        <source>Install compatible version of addon &quot;In The Wake of Gods&quot;: fan-made Heroes III expansion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
-        <source>Skip</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="721"/>
+        <source>Finish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="755"/>
-        <source>Join community / get help</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
+        <source>Step %v out of %m</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="143"/>
+        <source>Choose your language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="150"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="493"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="215"/>
+        <source>Find Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="246"/>
+        <source>Open help in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="259"/>
+        <source>Search again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="304"/>
+        <source>If you don&apos;t have installed Heroes III copy, it is possible to use our automatic installation tool &apos;vcmibuilder&apos; to extract data from GoG.com installer. Visit our wiki for detailed instructions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="320"/>
+        <source>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="342"/>
+        <source>Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
+        <source>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="371"/>
+        <source>Copy existing data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
+        <source>Your Heroes III data files have been succesfully found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="424"/>
+        <source>Automatic detection of language failed. Please select language of your Heroes III copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="443"/>
+        <source>Heroes III language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="486"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="714"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="524"/>
+        <source>Install VCMI Mod Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="264"/>
+        <source>Auto (%1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -605,21 +583,26 @@
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
-        <source>Ukrainian</source>
+        <source>Spanish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
-        <source>Other (East European)</source>
+        <source>Ukrainian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
-        <source>Other (Cyrillic Script)</source>
+        <source>Other (East European)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
+        <source>Other (Cyrillic Script)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="33"/>
         <source>Other (West European)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -759,17 +742,12 @@
         <translation>Параметры</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
-        <source>Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="272"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation>Редактор карт</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="325"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
         <translation>Играть</translation>
     </message>

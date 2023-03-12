@@ -62,17 +62,17 @@
     <message>
         <location filename="../mainwindow.ui" line="117"/>
         <source>Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Панель інструментів</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="163"/>
         <source>Minimap</source>
-        <translation type="unfinished"></translation>
+        <translation>Мінімапа</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="239"/>
         <source>Map Objects View</source>
-        <translation type="unfinished"></translation>
+        <translation>Перегляд об&apos;єктів мапи</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="283"/>
@@ -97,7 +97,7 @@
     <message>
         <location filename="../mainwindow.ui" line="432"/>
         <source>Terrains View</source>
-        <translation type="unfinished"></translation>
+        <translation>Перегляд поверхні</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="484"/>
@@ -339,53 +339,53 @@
     <message>
         <location filename="../mapsettings.ui" line="66"/>
         <source>Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Складність</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="111"/>
         <source>Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Події</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="121"/>
         <source>Victory</source>
-        <translation type="unfinished"></translation>
+        <translation>Перемога</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="135"/>
         <source>Victory message</source>
-        <translation type="unfinished"></translation>
+        <translation>Повідомлення про перемогу</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="150"/>
         <source>Only for human players</source>
-        <translation type="unfinished"></translation>
+        <translation>Тільки для гравців-людей</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="157"/>
         <source>Allow standard victory</source>
-        <translation type="unfinished"></translation>
+        <translation>Дозволити типову перемогу</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="170"/>
         <location filename="../mapsettings.ui" line="218"/>
         <source>Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="186"/>
         <source>Loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Програш</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="195"/>
         <source>7 days without town</source>
-        <translation type="unfinished"></translation>
+        <translation>7 днів без міста</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="202"/>
         <source>Defeat message</source>
-        <translation type="unfinished"></translation>
+        <translation>Повідомлення про програш</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="235"/>
@@ -415,67 +415,67 @@
     <message>
         <location filename="../mapsettings.cpp" line="163"/>
         <source>No special victory</source>
-        <translation type="unfinished"></translation>
+        <translation>Немає особливої перемоги</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="164"/>
         <source>Capture artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Отримати артефакт</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="165"/>
         <source>Hire creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Найняти істот</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="166"/>
         <source>Accumulate resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Накопичити ресурси</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="167"/>
         <source>Construct building</source>
-        <translation type="unfinished"></translation>
+        <translation>Побудувати будівлю</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="168"/>
         <source>Capture town</source>
-        <translation type="unfinished"></translation>
+        <translation>Захопити місто</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="169"/>
         <source>Defeat hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Перемогти героя</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="170"/>
         <source>Transport artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Доставити артефакт</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="173"/>
         <source>No special loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Немає особливої поразки</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="174"/>
         <source>Lose castle</source>
-        <translation type="unfinished"></translation>
+        <translation>Втратити місто</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="175"/>
         <source>Lose hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Втратити героя</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="176"/>
         <source>Time expired</source>
-        <translation type="unfinished"></translation>
+        <translation>Закінчився час</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="177"/>
         <source>Days without town</source>
-        <translation type="unfinished"></translation>
+        <translation>Дні без міста</translation>
     </message>
 </context>
 <context>
@@ -751,7 +751,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="98"/>
         <source>Filepath of the map to open.</source>
-        <translation>Файл мапи, який слід відкрити</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="101"/>
