@@ -32,7 +32,6 @@
 		"author" : "Команда VCMI",
 		"modType" : "Графический",
 
-		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/russian.json"
 		]

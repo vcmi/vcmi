@@ -132,6 +132,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 {
 	int textID = -1;
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = hero->getOwner();
 	MetaString loot;
 
@@ -189,7 +190,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
-			iw.components.emplace_back(Component::MORALE, 0, -1, 0);
+			iw.components.emplace_back(Component::EComponentType::MORALE, 0, -1, 0);
 			iw.soundID = soundBase::GRAVEYARD;
 			break;
 		}
@@ -200,7 +201,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gb.id = hero->id.getNum();
 			cb->giveHeroBonus(&gb);
 			textID = 107;
-			iw.components.emplace_back(Component::LUCK, 0, -2, 0);
+			iw.components.emplace_back(Component::EComponentType::LUCK, 0, -2, 0);
 			break;
 		}
 		case Obj::CREATURE_BANK:
@@ -224,7 +225,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 			if (bc->resources[it] != 0)
 			{
-				iw.components.emplace_back(Component::RESOURCE, it, bc->resources[it], 0);
+				iw.components.emplace_back(Component::EComponentType::RESOURCE, it, bc->resources[it], 0);
 				loot << "%d %s";
 				loot.addReplacement(iw.components.back().val);
 				loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
@@ -234,7 +235,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		//grant artifacts
 		for (auto & elem : bc->artifacts)
 		{
-			iw.components.emplace_back(Component::ARTIFACT, elem, 0, 0);
+			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
 			loot << "%s";
 			loot.addReplacement(MetaString::ART_NAMES, elem);
 			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
@@ -278,7 +279,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					if(hero->canLearnSpell(spell))
 					{
 						spells.insert(spellId);
-						iw.components.emplace_back(Component::SPELL, spellId, 0, 0);
+						iw.components.emplace_back(Component::EComponentType::SPELL, spellId, 0, 0);
 					}
 				}
 				else

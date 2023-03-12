@@ -492,11 +492,6 @@ void BattleUpdateGateState::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBattleUpdateGateState(*this);
 }
 
-void ShowInInfobox::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitShowInInfobox(*this);
-}
-
 void AdvmapSpellCast::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAdvmapSpellCast(*this);
@@ -2503,7 +2498,7 @@ void YourTurn::applyGs(CGameState * gs) const
 }
 
 Component::Component(const CStackBasicDescriptor & stack)
-	: id(CREATURE)
+	: id(EComponentType::CREATURE)
 	, subtype(stack.type->idNumber)
 	, val(stack.count)
 {

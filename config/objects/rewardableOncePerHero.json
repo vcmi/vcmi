@@ -125,7 +125,7 @@
 								{ "heroLevel" :  4, "secondary" : { "diplomacy" : 3 } }
 							]
 						},
-						"message" : 59,
+						"message" : 66,
 						"primary" : { 
 							"attack" : 2,
 							"defence" : 2,

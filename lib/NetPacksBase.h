@@ -35,6 +35,27 @@ struct ArtSlotInfo;
 
 class ICPackVisitor;
 
+enum class EInfoWindowMode : uint8_t
+{
+	AUTO,
+	MODAL,
+	INFO
+};
+
+enum class EOpenWindowMode : uint8_t
+{
+	EXCHANGE_WINDOW,
+	RECRUITMENT_FIRST,
+	RECRUITMENT_ALL,
+	SHIPYARD_WINDOW,
+	THIEVES_GUILD,
+	UNIVERSITY_WINDOW,
+	HILL_FORT_WINDOW,
+	MARKET_WINDOW,
+	PUZZLE_MAP,
+	TAVERN_WINDOW
+};
+
 struct DLL_LINKAGE CPack
 {
 	std::shared_ptr<CConnection> c; // Pointer to connection that pack received from
@@ -176,8 +197,24 @@ public:
 
 struct Component
 {
-	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE, LUCK, BUILDING, HERO_PORTRAIT, FLAG};
-	ui16 id = 0, subtype = 0; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
+	enum class EComponentType : uint8_t 
+	{
+		PRIM_SKILL,
+		SEC_SKILL,
+		RESOURCE,
+		CREATURE,
+		ARTIFACT,
+		EXPERIENCE,
+		SPELL,
+		MORALE,
+		LUCK,
+		BUILDING,
+		HERO_PORTRAIT,
+		FLAG,
+		INVALID //should be last
+	};
+	EComponentType id = EComponentType::INVALID;
+	ui16 subtype = 0; //id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels
 	si32 val = 0; // + give; - take
 	si16 when = 0; // 0 - now; +x - within x days; -x - per x days
 

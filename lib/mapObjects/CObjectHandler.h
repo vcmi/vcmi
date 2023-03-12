@@ -13,6 +13,7 @@
 
 #include "../int3.h"
 #include "../HeroBonus.h"
+#include "../NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,7 +58,13 @@ public:
 	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
 	virtual void heroLevelUpDone(const CGHeroInstance *hero) const;
 
-//unified interface, AI helpers
+	//unified helper to show info dialog for object owner
+	virtual void showInfoDialog(const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;
+
+	//unified helper to show a specific window
+	static void openWindow(const EOpenWindowMode type, const int id1, const int id2 = -1);
+
+	//unified interface, AI helpers
 	virtual bool wasVisited (PlayerColor player) const;
 	virtual bool wasVisited (const CGHeroInstance * h) const;
 

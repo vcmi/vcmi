@@ -364,6 +364,10 @@
 				{
 					"position": {"x": 45, "y": 385},
 					"text": "vcmi.adventureOptions.mapSwipe.hover"
+				},
+				{
+					"position": {"x": 45, "y": 415},
+					"text": "vcmi.adventureOptions.infoBarPick.hover"
 				}
 			]
 		},
@@ -399,6 +403,13 @@
 			"position": {"x": 10, "y": 383},
 			"callback": "mapSwipeChanged"
 		},
-
+		{
+			"name": "infoBarPickCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.adventureOptions.infoBarPick",
+			"position": {"x": 10, "y": 413},
+			"callback": "infoBarPickChanged"
+		}
 	]
 }

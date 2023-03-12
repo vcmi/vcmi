@@ -173,6 +173,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	if(ID == Obj::REFUGEE_CAMP && !creatures[0].first) //Refugee Camp, no available cres
 	{
 		InfoWindow iw;
+		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.addTxt(MetaString::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
 		iw.text.addReplacement(MetaString::OBJ_NAMES, ID);
@@ -328,6 +329,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			if(!slot.validSlot()) //no available slot
 			{
 				InfoWindow iw;
+				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
 				iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
@@ -342,6 +344,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 
 				InfoWindow iw;
+				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
 				iw.text.addTxt(MetaString::GENERAL_TXT, 423); //%d %s join your army.
 				iw.text.addReplacement(count);
@@ -355,6 +358,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		else //there no creatures
 		{
 			InfoWindow iw;
+			iw.type = EInfoWindowMode::AUTO;
 			iw.text.addTxt(MetaString::GENERAL_TXT, 422); //There are no %s here to recruit.
 			iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
 			iw.player = h->tempOwner;
@@ -379,8 +383,8 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		ow.id1 = id.getNum();
 		ow.id2 = h->id.getNum();
 		ow.window = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP)
-			? OpenWindow::RECRUITMENT_FIRST
-			: OpenWindow::RECRUITMENT_ALL;
+			? EOpenWindowMode::RECRUITMENT_FIRST
+			: EOpenWindowMode::RECRUITMENT_ALL;
 		cb->sendAndApply(&ow);
 	}
 }
@@ -1731,31 +1735,31 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
 			what = PrimarySkill::KNOWLEDGE;
 			val = 1;
-			iw.components.emplace_back(Component::PRIM_SKILL, 3, 1, 0);
+			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 3, 1, 0);
 			break;
 
 		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
 			what = PrimarySkill::SPELL_POWER;
 			val = 1;
-			iw.components.emplace_back(Component::PRIM_SKILL, 2, 1, 0);
+			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 2, 1, 0);
 			break;
 
 		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
 			what = PrimarySkill::ATTACK;
 			val = 1;
-			iw.components.emplace_back(Component::PRIM_SKILL, 0, 1, 0);
+			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 0, 1, 0);
 			break;
 
 		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
 			what = PrimarySkill::EXPERIENCE;
 			val = static_cast<int>(h->calculateXp(1000));
-			iw.components.emplace_back(Component::EXPERIENCE, 0, val, 0);
+			iw.components.emplace_back(Component::EComponentType::EXPERIENCE, 0, val, 0);
 			break;
 
 		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
 			what = PrimarySkill::DEFENSE;
 			val = 1;
-			iw.components.emplace_back(Component::PRIM_SKILL, 1, 1, 0);
+			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 1, 1, 0);
 			break;
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:

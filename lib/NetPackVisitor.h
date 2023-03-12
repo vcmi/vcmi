@@ -106,7 +106,6 @@ public:
 	virtual void visitBattleSetStackProperty(BattleSetStackProperty & pack) {}
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}
 	virtual void visitBattleUpdateGateState(BattleUpdateGateState & pack) {}
-	virtual void visitShowInInfobox(ShowInInfobox & pack) {}
 	virtual void visitAdvmapSpellCast(AdvmapSpellCast & pack) {}
 	virtual void visitShowWorldViewEx(ShowWorldViewEx & pack) {}
 	virtual void visitEndTurn(EndTurn & pack) {}

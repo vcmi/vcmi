@@ -86,7 +86,7 @@ CAdvMapInt::CAdvMapInt():
 	statusbar(CGStatusBar::create(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG)),
 	heroList(new CHeroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD)),
 	townList(new CTownList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD)),
-	infoBar(new CInfoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192))),
+	infoBar(new CInfoBar(Point(ADVOPT.infoboxX, ADVOPT.infoboxY))),
 	resdatabar(new CResDataBar),
 	mapAudio(new MapAudioPlayer()),
 	terrain(new MapView(Point(ADVOPT.advmapX, ADVOPT.advmapY), Point(ADVOPT.advmapW, ADVOPT.advmapH))),
@@ -869,6 +869,8 @@ boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
+	if(selection != sel)
+		infoBar->popAll();
 	selection = sel;
 	mapAudio->onSelectionChanged(sel);
 	if(centerView)

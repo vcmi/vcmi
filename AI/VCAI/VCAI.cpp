@@ -20,6 +20,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CGameState.h"
+#include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
@@ -475,7 +476,7 @@ void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID)
+void VCAI::showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;

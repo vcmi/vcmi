@@ -718,12 +718,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 
 struct DLL_LINKAGE OpenWindow : public CPackForClient
 {
-	enum EWindow
-	{
-		EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD,
-		UNIVERSITY_WINDOW, HILL_FORT_WINDOW, MARKET_WINDOW, PUZZLE_MAP, TAVERN_WINDOW
-	};
-	ui8 window;
+	EOpenWindowMode window;
 	si32 id1 = -1;
 	si32 id2 = -1;
 
@@ -1150,6 +1145,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 
 struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple info window
 {
+	EInfoWindowMode type = EInfoWindowMode::MODAL;
 	MetaString text;
 	std::vector<Component> components;
 	PlayerColor player;
@@ -1159,6 +1155,7 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple i
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & type;
 		h & text;
 		h & components;
 		h & player;
@@ -1867,22 +1864,6 @@ struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & state;
-	}
-
-protected:
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-};
-
-struct DLL_LINKAGE ShowInInfobox : public CPackForClient
-{
-	PlayerColor player;
-	Component c;
-	MetaString text;
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & player;
-		h & c;
-		h & text;
 	}
 
 protected:

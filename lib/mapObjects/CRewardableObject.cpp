@@ -134,13 +134,14 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	{
 		auto vi = info[index];
 		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
-		// show message only if it is not empty
-		if (!vi.message.toString().empty())
+ 		// show message only if it is not empty or in infobox
+		if (infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text = vi.message;
 			vi.reward.loadComponents(iw.components, h);
+			iw.type = infoWindowType;
 			cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
@@ -297,19 +298,7 @@ void CRewardableObject::grantRewardBeforeLevelup(const CRewardVisitInfo & info, 
 void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, const CGHeroInstance * hero) const
 {
 	if(info.reward.manaDiff || info.reward.manaPercentage >= 0)
-	{
-		si32 manaScaled = hero->mana;
-		if (info.reward.manaPercentage >= 0)
-			manaScaled = hero->manaLimit() * info.reward.manaPercentage / 100;
-
-		si32 manaMissing   = std::max(0, hero->manaLimit() - manaScaled);
-		si32 manaGranted   = std::min(manaMissing, info.reward.manaDiff);
-		si32 manaOverflow  = info.reward.manaDiff - manaGranted;
-		si32 manaOverLimit = manaOverflow * info.reward.manaOverflowFactor / 100;
-		si32 manaOutput    = manaScaled + manaGranted + manaOverLimit;
-
-		cb->setManaPoints(hero->id, manaOutput);
-	}
+		cb->setManaPoints(hero->id, info.reward.calculateManaPoints(hero));
 
 	if(info.reward.movePoints || info.reward.movePercentage >= 0)
 	{
@@ -442,37 +431,52 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 
 	if (heroExperience)
 	{
-		comps.emplace_back(Component::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
 	}
 	if (heroLevel)
-		comps.emplace_back(Component::EXPERIENCE, 1, heroLevel, 0);
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
 
 	if (manaDiff || manaPercentage >= 0)
-		comps.emplace_back(Component::PRIM_SKILL, 5, manaDiff, 0);
+		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, calculateManaPoints(h) - h->mana, 0);
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.emplace_back(Component::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
+			comps.emplace_back(Component::EComponentType::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
 	}
 
 	for(const auto & entry : secondary)
-		comps.emplace_back(Component::SEC_SKILL, entry.first, entry.second, 0);
+		comps.emplace_back(Component::EComponentType::SEC_SKILL, entry.first, entry.second, 0);
 
 	for(const auto & entry : artifacts)
-		comps.emplace_back(Component::ARTIFACT, entry, 1, 0);
+		comps.emplace_back(Component::EComponentType::ARTIFACT, entry, 1, 0);
 
 	for(const auto & entry : spells)
-		comps.emplace_back(Component::SPELL, entry, 1, 0);
+		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(Component::CREATURE, entry.type->idNumber, entry.count, 0);
+		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->idNumber, entry.count, 0);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.emplace_back(Component::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
 	}
+}
+
+si32 CRewardInfo::calculateManaPoints(const CGHeroInstance * hero) const
+{
+	si32 manaScaled = hero->mana;
+	if (manaPercentage >= 0)
+		manaScaled = hero->manaLimit() * manaPercentage / 100;
+
+	si32 manaMissing   = std::max(0, hero->manaLimit() - manaScaled);
+	si32 manaGranted   = std::min(manaMissing, manaDiff);
+	si32 manaOverflow  = manaDiff - manaGranted;
+	si32 manaOverLimit = manaOverflow * manaOverflowFactor / 100;
+	si32 manaOutput    = manaScaled + manaGranted + manaOverLimit;
+
+	return manaOutput;
 }
 
 Component CRewardInfo::getDisplayedComponent(const CGHeroInstance * h) const

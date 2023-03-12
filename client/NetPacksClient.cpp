@@ -592,7 +592,7 @@ void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 	std::string str;
 	pack.text.toString(str);
 
-	if(!callInterfaceIfPresent(cl, pack.player, &CGameInterface::showInfoDialog, str, pack.components,(soundBase::soundID)pack.soundID))
+	if(!callInterfaceIfPresent(cl, pack.player, &CGameInterface::showInfoDialog, pack.type, str, pack.components,(soundBase::soundID)pack.soundID))
 		logNetwork->warn("We received InfoWindow for not our player...");
 }
 
@@ -855,11 +855,6 @@ void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & p
 		LOCPLINT->cingconsole->print(str.str());
 }
 
-void ApplyClientNetPackVisitor::visitShowInInfobox(ShowInInfobox & pack)
-{
-	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::showComp, pack.c, pack.text.toString());
-}
-
 void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)
 {
 	cl.invalidatePaths();
@@ -880,28 +875,28 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 {
 	switch(pack.window)
 	{
-	case OpenWindow::RECRUITMENT_FIRST:
-	case OpenWindow::RECRUITMENT_ALL:
+	case EOpenWindowMode::RECRUITMENT_FIRST:
+	case EOpenWindowMode::RECRUITMENT_ALL:
 		{
 			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl.getObj(ObjectInstanceID(pack.id1)));
 			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl.getObj(ObjectInstanceID(pack.id2)));
-			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == OpenWindow::RECRUITMENT_FIRST ? 0 : -1);
+			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1);
 		}
 		break;
-	case OpenWindow::SHIPYARD_WINDOW:
+	case EOpenWindowMode::SHIPYARD_WINDOW:
 		{
 			const IShipyard *sy = IShipyard::castFrom(cl.getObj(ObjectInstanceID(pack.id1)));
 			callInterfaceIfPresent(cl, sy->o->tempOwner, &IGameEventsReceiver::showShipyardDialog, sy);
 		}
 		break;
-	case OpenWindow::THIEVES_GUILD:
+	case EOpenWindowMode::THIEVES_GUILD:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.id2));
 			callInterfaceIfPresent(cl, PlayerColor(pack.id1), &IGameEventsReceiver::showThievesGuildWindow, obj);
 		}
 		break;
-	case OpenWindow::UNIVERSITY_WINDOW:
+	case EOpenWindowMode::UNIVERSITY_WINDOW:
 		{
 			//displays University window (when hero enters University on adventure map)
 			const IMarket *market = IMarket::castFrom(cl.getObj(ObjectInstanceID(pack.id1)));
@@ -909,7 +904,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showUniversityWindow, market, hero);
 		}
 		break;
-	case OpenWindow::MARKET_WINDOW:
+	case EOpenWindowMode::MARKET_WINDOW:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.id1));
@@ -918,7 +913,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero);
 		}
 		break;
-	case OpenWindow::HILL_FORT_WINDOW:
+	case EOpenWindowMode::HILL_FORT_WINDOW:
 		{
 			//displays Hill fort window
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.id1));
@@ -926,12 +921,12 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showHillFortWindow, obj, hero);
 		}
 		break;
-	case OpenWindow::PUZZLE_MAP:
+	case EOpenWindowMode::PUZZLE_MAP:
 		{
 			callInterfaceIfPresent(cl, PlayerColor(pack.id1), &IGameEventsReceiver::showPuzzleMap);
 		}
 		break;
-	case OpenWindow::TAVERN_WINDOW:
+	case EOpenWindowMode::TAVERN_WINDOW:
 		const CGObjectInstance *obj1 = cl.getObj(ObjectInstanceID(pack.id1)),
 								*obj2 = cl.getObj(ObjectInstanceID(pack.id2));
 		callInterfaceIfPresent(cl, obj1->tempOwner, &IGameEventsReceiver::showTavernWindow, obj2);

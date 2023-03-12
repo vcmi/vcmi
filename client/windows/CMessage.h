@@ -32,6 +32,12 @@ public:
 	/// split text in lines
 	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);
 
+	/// Try to guess a header of a message
+	static std::string guessHeader(const std::string & msg);
+
+	/// For convenience
+	static int guessHeight(const std::string & string, int width, EFonts fnt);
+
 	/// constructor
 	static void init();
 	/// destructor

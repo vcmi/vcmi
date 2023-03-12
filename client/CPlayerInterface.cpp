@@ -324,6 +324,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (!hero)
 		return;
 
+	adventureInt->infoBar->requestPopAll();
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
 		if (hero->getRemovalSound())
@@ -1031,18 +1032,23 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(const Component &comp, std::string message)
+void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog(); //Fix for mantis #98
 
-	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
-	adventureInt->infoBar->showComponent(comp, message);
-}
+	bool autoTryHover = settings["gameTweaks"]["infoBarPick"].Bool() && type == EInfoWindowMode::AUTO;
+	auto timer = type == EInfoWindowMode::INFO ? 3000 : 4500; //Implement long info windows like in HD mod
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component> & components, int soundID)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(autoTryHover || type == EInfoWindowMode::INFO)
+	{
+		waitWhileDialog(); //Fix for mantis #98
+		adventureInt->infoBar->pushComponents(components, text, timer);
+
+		if (makingTurn && GH.listInt.size() && LOCPLINT == this)
+			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		return;
+	}
+
 	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
@@ -1093,7 +1099,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 	std::string str;
 	text.toString(str);
 
-	showInfoDialog(str, components, 0);
+	showInfoDialog(EInfoWindowMode::MODAL, str, components, 0);
 	waitWhileDialog();
 }
 
@@ -1715,7 +1721,7 @@ void CPlayerInterface::acceptTurn()
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
-		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
+		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
 		MetaString text;
 
 		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
@@ -1773,6 +1779,16 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 
 void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 {
+	bool isHero = dynamic_cast<const CGHeroInstance *>(specific) != nullptr;
+	bool changedHero = dynamic_cast<const CGHeroInstance *>(specific) != adventureInt->curHero();
+	bool isTown = dynamic_cast<const CGTownInstance *>(specific) != nullptr;
+
+	bool update = (isHero && changedHero) || (isTown);
+	// If infobar is showing components and we request an update to hero
+	// do not force infobar tick here, it will prevents us to show components just picked up
+	if(adventureInt->infoBar->showingComponents() && !update)
+		return;
+
 	adventureInt->infoBar->showSelection();
 }
 
@@ -1883,14 +1899,16 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	askToAssembleArtifact(al);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -1904,7 +1922,8 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), dst.artHolder);
+	updateInfo(hero);
 
 	bool redraw = true;
 	// If a bulk transfer has arrived, then redrawing only the last art movement.
@@ -1932,7 +1951,8 @@ void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -1944,7 +1964,8 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar->showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());

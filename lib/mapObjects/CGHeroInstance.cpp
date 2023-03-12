@@ -36,23 +36,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-///helpers
-static void showInfoDialog(const PlayerColor & playerID, const ui32 txtID, const ui16 soundID = 0)
-{
-	InfoWindow iw;
-	iw.soundID = soundID;
-	iw.player = playerID;
-	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
-	IObjectInterface::cb->sendAndApply(&iw);
-}
-
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
-{
-	const PlayerColor playerID = h->getOwner();
-	showInfoDialog(playerID,txtID,soundID);
-}
-
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
@@ -462,7 +445,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			txt_id = 103;
 		}
 
-		showInfoDialog(h,txt_id);
+		h->showInfoDialog(txt_id);
 	}
 }
 
@@ -876,6 +859,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const
 {
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
 	iw.player = tempOwner;
 	iw.components.emplace_back(raisedStack);

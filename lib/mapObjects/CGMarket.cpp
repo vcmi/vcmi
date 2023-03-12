@@ -22,16 +22,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-///helpers
-static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
-{
-	OpenWindow ow;
-	ow.window = type;
-	ow.id1 = id1;
-	ow.id2 = id2;
-	IObjectInterface::cb->sendAndApply(&ow);
-}
-
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
@@ -205,7 +195,7 @@ std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
 
 void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(OpenWindow::MARKET_WINDOW,id.getNum(),h->id.getNum());
+	openWindow(EOpenWindowMode::MARKET_WINDOW,id.getNum(),h->id.getNum());
 }
 
 int CGMarket::getMarketEfficiency() const
@@ -339,7 +329,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) 
 
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(OpenWindow::UNIVERSITY_WINDOW,id.getNum(),h->id.getNum());
+	openWindow(EOpenWindowMode::UNIVERSITY_WINDOW,id.getNum(),h->id.getNum());
 }
 
 VCMI_LIB_NAMESPACE_END

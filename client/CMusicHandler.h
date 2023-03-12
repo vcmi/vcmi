@@ -78,7 +78,6 @@ public:
 	void ambientStopAllChannels();
 
 	// Sets
-	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
 };
 

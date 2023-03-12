@@ -837,9 +837,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 		for (auto art : arts) //TODO; separate function to display loot for various ojects?
 		{
-			iw.components.push_back(Component(
-				Component::ARTIFACT, art->artType->getId(),
-				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0));
+			iw.components.emplace_back(
+				Component::EComponentType::ARTIFACT, art->artType->getId(),
+				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0);
 			if (iw.components.size() >= 14)
 			{
 				sendAndApply(&iw);
@@ -881,7 +881,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 			iw.text.addReplacement(MetaString::SPELL_NAME, it->toEnum());
 			if (i == cs.spells.size() - 2) //we just added pre-last name
 				iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
-			iw.components.push_back(Component(Component::SPELL, *it, 0, 0));
+			iw.components.emplace_back(Component::EComponentType::SPELL, *it, 0, 0);
 		}
 		sendAndApply(&iw);
 		sendAndApply(&cs);
@@ -2657,10 +2657,6 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 	}
 }
 
-void CGameHandler::showCompInfo(ShowInInfobox * comp)
-{
-	sendToAllClients(comp);
-}
 void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
 	HeroVisitCastle vc;
@@ -2822,7 +2818,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		                                 h2->getSecSkillLevel(SecondarySkill::SCHOLAR));
 		InfoWindow iw;
 		iw.player = h1->tempOwner;
-		iw.components.push_back(Component(Component::SEC_SKILL, 18, ScholarSkillLevel, 0));
+		iw.components.emplace_back(Component::EComponentType::SEC_SKILL, 18, ScholarSkillLevel, 0);
 
 		iw.text.addTxt(MetaString::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
 		iw.text.addReplacement(h1->getNameTranslated());
@@ -2833,7 +2829,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			int size = static_cast<int>(cs2.spells.size());
 			for (auto it : cs2.spells)
 			{
-				iw.components.push_back(Component(Component::SPELL, it, 1, 0));
+				iw.components.emplace_back(Component::EComponentType::SPELL, it, 1, 0);
 				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
@@ -2858,7 +2854,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			int size = static_cast<int>(cs1.spells.size());
 			for (auto it : cs1.spells)
 			{
-				iw.components.push_back(Component(Component::SPELL, it, 1, 0));
+				iw.components.emplace_back(Component::EComponentType::SPELL, it, 1, 0);
 				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
@@ -5582,7 +5578,7 @@ void CGameHandler::handleTimeEvents()
 				for (int i=0; i<ev.resources.size(); i++)
 				{
 					if (ev.resources.at(i)) //if resource is changed, we add it to the dialog
-						iw.components.push_back(Component(Component::RESOURCE,i,ev.resources.at(i),0));
+						iw.components.emplace_back(Component::EComponentType::RESOURCE,i,ev.resources.at(i),0);
 				}
 
 				sendAndApply(&iw); //show dialog
@@ -5640,7 +5636,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 				for (int i=0; i<ev.resources.size(); i++)
 					if (ev.resources.at(i) && pinfo->resources.at(i) != n.res.at(player).at(i)) //if resource had changed, we add it to the dialog
-						iw.components.push_back(Component(Component::RESOURCE,i,n.res.at(player).at(i)-was.at(i),0));
+						iw.components.emplace_back(Component::EComponentType::RESOURCE,i,n.res.at(player).at(i)-was.at(i),0);
 
 			}
 
@@ -5649,7 +5645,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 				if (!town->hasBuilt(i))
 				{
 					buildStructure(town->id, i, true);
-					iw.components.push_back(Component(Component::BUILDING, town->subID, i, 0));
+					iw.components.emplace_back(Component::EComponentType::BUILDING, town->subID, i, 0);
 				}
 			}
 
@@ -5665,8 +5661,8 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 				if (!town->creatures.at(i).second.empty() && ev.creatures.at(i) > 0)//there is dwelling
 				{
 					sac.creatures[i].first += ev.creatures.at(i);
-					iw.components.push_back(Component(Component::CREATURE,
-							town->creatures.at(i).second.back(), ev.creatures.at(i), 0));
+					iw.components.emplace_back(Component::EComponentType::CREATURE,
+							town->creatures.at(i).second.back(), ev.creatures.at(i), 0);
 				}
 			}
 			sendAndApply(&iw); //show dialog
@@ -5725,7 +5721,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 void CGameHandler::showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId)
 {
 	OpenWindow ow;
-	ow.window = OpenWindow::THIEVES_GUILD;
+	ow.window = EOpenWindowMode::THIEVES_GUILD;
 	ow.id1 = player.getNum();
 	ow.id2 = requestingObjId.getNum();
 	sendAndApply(&ow);
@@ -6028,7 +6024,7 @@ void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossC
 	if (victoryLossCheckResult.messageToSelf.find("%s") != std::string::npos)
 		out.text.addReplacement(MetaString::COLOR, player.getNum());
 
-	out.components.push_back(Component(Component::FLAG, player.getNum(), 0, 0));
+	out.components.emplace_back(Component::EComponentType::FLAG, player.getNum(), 0, 0);
 }
 
 bool CGameHandler::dig(const CGHeroInstance *h)
@@ -6050,6 +6046,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	sendAndApply(&smp);
 
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
 	if (gs->map->grailPos == h->visitablePos())
 	{
@@ -6060,6 +6057,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
+		iw.components.emplace_back(Component::EComponentType::ARTIFACT, ArtifactID::GRAIL, 0, 0);
 		iw.text.clear();
 		iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
 		sendAndApply(&iw);

@@ -47,6 +47,8 @@
 	"vcmi.systemOptions.framerateButton.hover"  : "Show FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\n Toggles visibility of Frames Per Second counter in corner of game window.",
 
+	"vcmi.adventureOptions.infoBarPick.hover" : "Show Messages in Info Panel",
+	"vcmi.adventureOptions.infoBarPick.help" : "{Show Messages in Info Panel}\n\nWhenever possible, game messages from visiting map objects will be shown in info bar instead of showing up as popup windows",
 	"vcmi.adventureOptions.numericQuantities.hover" : "Numeric Creature Quantities",
 	"vcmi.adventureOptions.numericQuantities.help" : "{Numeric Creature Quantities}\n\n Shows approximate enemy creatures quantities in numeric A-B format.",
 	"vcmi.adventureOptions.forceMovementInfo.hover" : "Always Show Movement Cost",

@@ -186,7 +186,7 @@ public:
 	void playerBonusChanged(const Bonus & bonus, bool gain) override;
 	void heroCreated(const CGHeroInstance *) override;
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
-	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
 	void objectRemoved(const CGObjectInstance * obj) override;

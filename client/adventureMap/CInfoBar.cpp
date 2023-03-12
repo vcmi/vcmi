@@ -15,6 +15,7 @@
 
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
+#include "../windows/CMessage.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
@@ -29,7 +30,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CInfoBar::CVisibleInfo::CVisibleInfo()
-	: CIntObject(0, Point(8, 12))
+	: CIntObject(0, Point(offset_x, offset_y))
 {
 }
 
@@ -163,16 +164,67 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	}
 }
 
-CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDisplay, std::string message)
+CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
+	auto fullRect = Rect(0, 0, data_width, data_height);
+	auto textRect = fullRect;
+	auto imageRect = fullRect;
+	auto font = FONT_SMALL;
+	auto maxComponents = 2; 
 
-	comp = std::make_shared<CComponent>(compToDisplay);
-	comp->moveTo(Point(pos.x+47, pos.y+50));
+	if(!compsToDisplay.empty())
+	{
+		auto size = CComponent::large;
+		if(compsToDisplay.size() > 2)
+		{
+			size = CComponent::medium;
+			font = FONT_TINY;
+		}
+		if(!message.empty())
+		{
+			textRect = Rect(CInfoBar::offset,
+							CInfoBar::offset,
+							data_width - 2 * CInfoBar::offset,
+							textH);
+			imageRect = Rect(CInfoBar::offset,
+							 textH,
+							 data_width - 2 * CInfoBar::offset,
+							 CInfoBar::data_height - 2* CInfoBar::offset - textH);
+		}
+		
+		if(compsToDisplay.size() > 4) {
+			maxComponents = 3; 
+			size = CComponent::small;
+		}
+		if(compsToDisplay.size() > 6)
+			maxComponents = 4;
 
-	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+		std::vector<std::shared_ptr<CComponent>> vect;
+
+		for(const auto & c : compsToDisplay)
+			vect.emplace_back(std::make_shared<CComponent>(c, size, font));
+
+		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1, maxComponents);
+	}
+	else
+		font = tiny ? FONT_TINY : font;
+
+	if(!message.empty())
+		text = std::make_shared<CTextBox>(message, textRect, 0, font, ETextAlignment::CENTER, Colors::WHITE);
+}
+
+int CInfoBar::getEstimatedComponentHeight(int numComps) const
+{
+	if (numComps > 8) //Bigger than 8 components - return invalid value
+		return std::numeric_limits<int>::max();
+	else if (numComps > 2)
+		return 160; // 32px * 1 row + 20 to offset
+	else if (numComps)
+		return 118; // 118 px to offset
+	return 0;
 }
 
 void CInfoBar::playNewDaySound()
@@ -216,7 +268,7 @@ void CInfoBar::tick()
 {
 	removeUsedEvents(TIME);
 	if(GH.topInt() == adventureInt)
-		showSelection();
+		popComponents(true);
 }
 
 void CInfoBar::clickLeft(tribool down, bool previousState)
@@ -228,7 +280,7 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 		else if(state == GAME)
 			showDate();
 		else
-			showSelection();
+			popComponents(true);
 	}
 }
 
@@ -256,6 +308,10 @@ CInfoBar::CInfoBar(const Rect & position)
 	reset();
 }
 
+CInfoBar::CInfoBar(const Point & position): CInfoBar(Rect(position.x, position.y, width, height))
+{
+}
+
 void CInfoBar::showDate()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
@@ -266,13 +322,144 @@ void CInfoBar::showDate()
 	redraw();
 }
 
-void CInfoBar::showComponent(const Component & comp, std::string message)
+
+void CInfoBar::pushComponents(const std::vector<Component> & components, std::string message, int timer)
+{
+	auto actualPush = [&](const std::vector<Component> & components, std::string message, int timer, size_t max){
+		std::vector<Component> vect = components; //I do not know currently how to avoid copy here
+		while(!vect.empty())
+		{
+			std::vector<Component> sender =  {vect.begin(), vect.begin() + std::min(vect.size(), max)};
+			prepareComponents(sender, message, timer);
+			vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), max));
+		};
+	};
+	if(shouldPopAll)
+		popAll();
+	if(components.empty())
+		prepareComponents(components, message, timer);
+	else
+	{
+		std::array<std::pair<std::vector<Component>, int>, 10> reward_map;
+		for(const auto & c : components)
+		{
+			switch(c.id)
+			{
+				case Component::EComponentType::PRIM_SKILL:
+				case Component::EComponentType::EXPERIENCE: 
+					reward_map.at(0).first.push_back(c);
+					reward_map.at(0).second = 8; //At most 8, cannot be more
+					break;
+				case Component::EComponentType::SEC_SKILL:
+					reward_map.at(1).first.push_back(c);
+					reward_map.at(1).second = 4; //At most 4
+					break;
+				case Component::EComponentType::SPELL: 
+					reward_map.at(2).first.push_back(c);
+					reward_map.at(2).second = 4; //At most 4
+					break;
+				case Component::EComponentType::ARTIFACT:
+					reward_map.at(3).first.push_back(c);
+					reward_map.at(3).second = 4; //At most 4, too long names
+					break;
+				case Component::EComponentType::CREATURE:
+					reward_map.at(4).first.push_back(c);
+					reward_map.at(4).second = 4; //At most 4, too long names
+					break;
+				case Component::EComponentType::RESOURCE:
+					reward_map.at(5).first.push_back(c);
+					reward_map.at(5).second = 7; //At most 7
+					break;
+				case Component::EComponentType::MORALE: 
+				case Component::EComponentType::LUCK:
+					reward_map.at(6).first.push_back(c);
+					reward_map.at(6).second = 2; //At most 2 - 1 for morale + 1 for luck
+					break;
+				case Component::EComponentType::BUILDING:
+					reward_map.at(7).first.push_back(c);
+					reward_map.at(7).second = 1; //At most 1 - only large icons available AFAIK
+					break;
+				case Component::EComponentType::HERO_PORTRAIT:
+					reward_map.at(8).first.push_back(c);
+					reward_map.at(8).second = 1; //I do not think than we even can get more than 1 hero
+					break;
+				case Component::EComponentType::FLAG:
+					reward_map.at(9).first.push_back(c);
+					reward_map.at(9).second = 1; //I do not think than we even can get more than 1 player in notification
+					break;
+				default:
+					logGlobal->warn("Invalid component received!");
+			}
+		}
+		
+		for(const auto & kv : reward_map)
+			if(!kv.first.empty())
+				actualPush(kv.first, message, timer, kv.second);
+	}
+	popComponents();
+}
+
+void CInfoBar::prepareComponents(const std::vector<Component> & components, std::string message, int timer)
+{
+	auto imageH = getEstimatedComponentHeight(components.size()) + (components.empty() ? 0 : 2 * CInfoBar::offset);
+	auto textH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
+	auto tinyH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_TINY);
+	auto header = CMessage::guessHeader(message);
+	auto headerH = CMessage::guessHeight(header, CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
+	auto headerTinyH = CMessage::guessHeight(header, CInfoBar::data_width - 2 * CInfoBar::offset, FONT_TINY);
+
+	// Order matters - priority form should be chosen first
+	if(imageH + textH < CInfoBar::data_height)
+		pushComponents(components, message, textH, false, timer);
+	else if(!imageH && tinyH < CInfoBar::data_height)
+		pushComponents(components, message, tinyH, true, timer);
+	else if(imageH + headerH < CInfoBar::data_height)
+		pushComponents(components, header, headerH, false, timer);
+	else if(imageH + headerTinyH < CInfoBar::data_height - 2 * CInfoBar::offset)
+		pushComponents(components, header, headerTinyH, true, timer);
+	else
+		pushComponents(components, "", 0, false, timer);
+
+	return;
+}
+
+void CInfoBar::requestPopAll()
+{
+	shouldPopAll = true;
+}
+
+void CInfoBar::popAll()
+{
+	componentsQueue = {};
+	shouldPopAll = false;
+}
+
+void CInfoBar::popComponents(bool remove)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	state = COMPONENT;
-	visibleInfo = std::make_shared<VisibleComponentInfo>(comp, message);
-	setTimer(3000);
-	redraw();
+	if(remove && !componentsQueue.empty())
+		componentsQueue.pop();
+	if(!componentsQueue.empty())
+	{
+		state = COMPONENT;
+		const auto & extracted = componentsQueue.front();
+		visibleInfo = std::make_shared<VisibleComponentInfo>(extracted.first);
+		setTimer(extracted.second);
+		redraw();
+		return;
+	}
+	showSelection();
+}
+
+void CInfoBar::pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer)
+{
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	componentsQueue.emplace(VisibleComponentInfo::Cache(comps, message, textH, tiny), timer);
+}
+
+bool CInfoBar::showingComponents()
+{
+	return state == COMPONENT;
 }
 
 void CInfoBar::startEnemyTurn(PlayerColor color)

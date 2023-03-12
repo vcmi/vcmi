@@ -23,6 +23,7 @@ VCMI_LIB_NAMESPACE_END
 class CAnimImage;
 class CShowableAnim;
 class CComponent;
+class CComponentBox;
 class CHeroTooltip;
 class CTownTooltip;
 class CLabel;
@@ -31,10 +32,20 @@ class CTextBox;
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
 {
+private:
+	/// Infobar actually have a fixed size
+	/// Declare before to compute correct size of widgets
+	static constexpr int width = 192;
+	static constexpr int height = 192;
+	static constexpr int offset = 4;
+
 	//all visible information located in one object - for ease of replacing
 	class CVisibleInfo : public CIntObject
 	{
 	public:
+		static constexpr int offset_x = 8;
+		static constexpr int offset_y = 12;
+
 		void show(SDL_Surface * to) override;
 
 	protected:
@@ -43,6 +54,9 @@ class CInfoBar : public CIntObject
 
 		CVisibleInfo();
 	};
+
+	static constexpr int data_width = width - 2 * CVisibleInfo::offset_x;
+	static constexpr int data_height = height - 2 * CVisibleInfo::offset_y;
 
 	class EmptyVisibleInfo : public CVisibleInfo
 	{
@@ -97,10 +111,24 @@ class CInfoBar : public CIntObject
 
 	class VisibleComponentInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CComponent> comp;
+		std::shared_ptr<CComponentBox> comps;
 		std::shared_ptr<CTextBox> text;
 	public:
-		VisibleComponentInfo(const Component & compToDisplay, std::string message);
+		struct Cache 
+		{
+			std::vector<Component> compsToDisplay;
+			std::string message;
+			int textH;
+			bool tiny;
+			Cache(std::vector<Component> comps, std::string msg, int textH, bool tiny):
+				compsToDisplay(std::move(comps)),
+				message(std::move(msg)),
+				textH(textH),
+				tiny(tiny)
+			{}
+		};
+		VisibleComponentInfo(const Cache & c): VisibleComponentInfo(c.compsToDisplay, c.message, c.textH, c.tiny) {}
+		VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny);
 	};
 
 	enum EState
@@ -110,6 +138,15 @@ class CInfoBar : public CIntObject
 
 	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
+	bool shouldPopAll = false;
+
+	std::queue<std::pair<VisibleComponentInfo::Cache, int>> componentsQueue;
+
+	//private helper for showing components
+	void showComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);
+	void pushComponents(const std::vector<Component> & comps, std::string message, int textH, bool tiny, int timer);
+	void prepareComponents(const std::vector<Component> & comps, std::string message, int timer);
+	void popComponents(bool remove = false);
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
@@ -123,12 +160,19 @@ class CInfoBar : public CIntObject
 	void playNewDaySound();
 public:
 	CInfoBar(const Rect & pos);
+	CInfoBar(const Point & pos);
 
 	/// show new day/week animation
 	void showDate();
 
-	/// show component for 3 seconds. Used to display picked up resources
-	void showComponent(const Component & comp, std::string message);
+	/// show components for 3 seconds. Used to display picked up resources. Can display up to 8 components
+	void pushComponents(const std::vector<Component> & comps, std::string message, int timer = 3000);
+
+	/// Remove all queued components
+	void popAll();
+
+	/// Request infobar to pop all after next InfoWindow arrives.
+	void requestPopAll();
 
 	/// print enemy turn progress
 	void startEnemyTurn(PlayerColor color);
@@ -142,5 +186,11 @@ public:
 
 	/// for 3 seconds shows amount of town halls and players status
 	void showGameStatus();
+
+	/// check if infobar is showed something about pickups
+	bool showingComponents();
+
+	/// get estimated component height for InfoBar
+	int getEstimatedComponentHeight(int numComps) const;
 };
 

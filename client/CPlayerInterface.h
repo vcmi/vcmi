@@ -168,7 +168,7 @@ public:
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
 	void receivedResource() override;
-	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
@@ -201,7 +201,6 @@ public:
 	void playerBlocked(int reason, bool start) override;
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
-	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
 	void saveGame(BinarySerializer & h, const int version) override; //saving
 	void loadGame(BinaryDeserializer & h, const int version) override; //loading
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;

@@ -390,7 +390,7 @@ void AIGateway::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID)
+void AIGateway::showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;
@@ -632,7 +632,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		// TODO: Find better way to understand it is Chest of Treasures
 		if(hero.validAndSet()
 			&& components.size() == 2
-			&& components.front().id == Component::RESOURCE
+			&& components.front().id == Component::EComponentType::RESOURCE
 			&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
 			|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
 		{
