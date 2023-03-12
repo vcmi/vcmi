@@ -90,11 +90,13 @@ void CModListView::setupModsView()
 }
 
 CModListView::CModListView(QWidget * parent)
-	: QWidget(parent), settingsListener(settings.listen["launcher"]["repositoryURL"]), ui(new Ui::CModListView)
+	: QWidget(parent)
+	, settingsListener(settings.listen["launcher"]["repositoryURL"])
+	, ui(new Ui::CModListView)
+	, repositoriesChanged(false)
 {
 	settingsListener([&](const JsonNode &){ repositoriesChanged = true; });
 	ui->setupUi(this);
-
 
 	setupModModel();
 	setupFilterModel();
@@ -835,7 +837,7 @@ bool CModListView::isModInstalled(const QString & modName)
 
 QString CModListView::getTranslationModName(const QString & language)
 {
-	for (auto const & modName : modModel->getModList())
+	for(const auto & modName : modModel->getModList())
 	{
 		auto mod = modModel->getMod(modName);
 

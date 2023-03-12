@@ -106,18 +106,9 @@ MainWindow::MainWindow(QWidget * parent)
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 
 	if (h3DataFound && setupCompleted)
-	{
 		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
-	}
 	else
-	{
-		ui->startGameButton->setEnabled(false);
-		ui->startEditorButton->setEnabled(false);
-		ui->lobbyButton->setEnabled(false);
-		ui->settingsButton->setEnabled(false);
-		ui->modslistButton->setEnabled(false);
-		ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
-	}
+		enterSetup();
 
 	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
@@ -126,6 +117,29 @@ MainWindow::MainWindow(QWidget * parent)
 	
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::enterSetup()
+{
+	ui->startGameButton->setEnabled(false);
+	ui->startEditorButton->setEnabled(false);
+	ui->lobbyButton->setEnabled(false);
+	ui->settingsButton->setEnabled(false);
+	ui->modslistButton->setEnabled(false);
+	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
+}
+
+void MainWindow::exitSetup()
+{
+	Settings writer = settings.write["launcher"]["setupCompleted"];
+	writer->Bool() = true;
+
+	ui->startGameButton->setEnabled(true);
+	ui->startEditorButton->setEnabled(true);
+	ui->lobbyButton->setEnabled(true);
+	ui->settingsButton->setEnabled(true);
+	ui->modslistButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
 void MainWindow::changeEvent(QEvent *event)

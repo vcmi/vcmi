@@ -53,6 +53,9 @@ public:
 	void updateTranslation();
 	void computeSidePanelSizes();
 	
+	void enterSetup();
+	void exitSetup();
+
 public slots:
 	void on_startGameButton_clicked();
 	

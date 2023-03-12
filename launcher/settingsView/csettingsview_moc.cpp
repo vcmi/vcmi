@@ -83,12 +83,13 @@ void CSettingsView::loadSettings()
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
-	// all calls to plainText will trigger textChanged() signal overwriting config. Create backup before editing widget
-	JsonNode urls = settings["launcher"]["repositoryURL"];
 
+	JsonNode urls = settings["launcher"]["repositoryURL"];
+	ui->plainTextEditRepos->blockSignals(true); // Do not report loading as change of data
 	ui->plainTextEditRepos->clear();
 	for(auto entry : urls.Vector())
 		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
+	ui->plainTextEditRepos->blockSignals(false);
 
 	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));

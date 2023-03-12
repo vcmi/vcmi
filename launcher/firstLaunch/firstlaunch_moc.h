@@ -65,10 +65,6 @@ class FirstLaunchView : public QWidget
 	bool checkCanInstallExtras();
 	bool checkCanInstallMod(const QString & modID);
 
-	void installTranslation();
-	void installWog();
-	void installHota();
-	void instalExtras();
 	void installMod(const QString & modID);
 
 public:

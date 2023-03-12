@@ -30,8 +30,8 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	enterSetup();
 	activateTabLanguage();
 
-	ui->lineEditDataSystem->setText(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front()).c_str());
-	ui->lineEditDataUser->setText(boost::filesystem::absolute(VCMIDirs::get().userDataPath()).c_str());
+	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
+	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
 }
 
 void FirstLaunchView::on_buttonTabLanguage_clicked()
@@ -156,7 +156,8 @@ void FirstLaunchView::activateTabModPreset()
 
 void FirstLaunchView::exitSetup()
 {
-	//TODO: unlock UI, switch to another tab (mods?)
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
+		mainWindow->exitSetup();
 }
 
 // Tab Language
@@ -279,38 +280,37 @@ void FirstLaunchView::forceHeroesLanguage(const QString & language)
 
 void FirstLaunchView::copyHeroesData()
 {
-	assert(0); // TODO: test
+	QDir sourceRoot = QFileDialog::getExistingDirectory(this, "", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-	QDir dir = QFileDialog::getExistingDirectory(this, "", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-
-	if(!dir.exists())
+	if(!sourceRoot.exists())
 		return;
 
-	QStringList dirData = dir.entryList({"data"}, QDir::Filter::Dirs);
-	QStringList dirMaps = dir.entryList({"maps"}, QDir::Filter::Dirs);
-	QStringList dirMp3 = dir.entryList({"mp3"}, QDir::Filter::Dirs);
+	QStringList dirData = sourceRoot.entryList({"data"}, QDir::Filter::Dirs);
+	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
+	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
 	if(dirData.empty() || dirMaps.empty() || dirMp3.empty())
 		return;
 
-	QStringList lodArchives = QDir(dirData.front()).entryList({"*.lod"}, QDir::Filter::Files);
+	QDir sourceData = sourceRoot.filePath(dirData.front());
+	QStringList lodArchives = sourceData.entryList({"*.lod"}, QDir::Filter::Files);
 
 	if(lodArchives.empty())
 		return;
 
 	QStringList copyDirectories = {dirData.front(), dirMaps.front(), dirMp3.front()};
 
-	QDir targetRoot = QString(VCMIDirs::get().userDataPath().c_str());
+	QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
 
-	for(QDir sourceDir : copyDirectories)
+	for(const QString & dirName : copyDirectories)
 	{
-		QString dirName = sourceDir.dirName();
+		QDir sourceDir = sourceRoot.filePath(dirName);
 		QDir targetDir = targetRoot.filePath(dirName);
 
 		if(!targetRoot.exists(dirName))
 			targetRoot.mkdir(dirName);
 
-		for(QString filename : sourceDir.entryList(QDir::Filter::Files))
+		for(const QString & filename : sourceDir.entryList(QDir::Filter::Files))
 		{
 			QFile sourceFile(sourceDir.filePath(filename));
 			sourceFile.copy(targetDir.filePath(filename));
@@ -326,12 +326,12 @@ void FirstLaunchView::modPresetUpdate()
 	bool translationExists = !findTranslationModName().isEmpty();
 
 	ui->labelPresetLanguage->setVisible(translationExists);
-	ui->toolButtonPresetLanguage->setVisible(translationExists);
+	ui->checkBoxPresetLanguage->setVisible(translationExists);
 
-	ui->toolButtonPresetLanguage->setEnabled(checkCanInstallTranslation());
-	ui->toolButtonPresetExtras->setEnabled(checkCanInstallExtras());
-	ui->toolButtonPresetHota->setEnabled(checkCanInstallHota());
-	ui->toolButtonPresetWog->setEnabled(checkCanInstallWog());
+	ui->checkBoxPresetLanguage->setEnabled(checkCanInstallTranslation());
+	ui->checkBoxPresetExtras->setEnabled(checkCanInstallExtras());
+	ui->checkBoxPresetHota->setEnabled(checkCanInstallHota());
+	ui->checkBoxPresetWog->setEnabled(checkCanInstallWog());
 }
 
 QString FirstLaunchView::findTranslationModName()
@@ -389,41 +389,30 @@ bool FirstLaunchView::checkCanInstallMod(const QString & modID)
 	return getModView() && !getModView()->isModInstalled(modID);
 }
 
-void FirstLaunchView::installTranslation()
-{
-	installMod(findTranslationModName());
-}
-
-void FirstLaunchView::installWog()
-{
-	installMod("wake-of-gods");
-}
-
-void FirstLaunchView::installHota()
-{
-	installMod("hota");
-}
-
-void FirstLaunchView::instalExtras()
-{
-	installMod("vcmi-extras");
-}
-
-void FirstLaunchView::installMod(const QString & modID)
-{
-	assert(0); // TODO: test
-
-	return getModView()->doInstallMod(modID);
-}
-
 void FirstLaunchView::on_pushButtonPresetBack_clicked()
 {
 	activateTabHeroesData();
 }
 
-
 void FirstLaunchView::on_pushButtonPresetNext_clicked()
 {
+	QStringList modsToInstall;
+
+	if (ui->checkBoxPresetLanguage && checkCanInstallTranslation())
+		modsToInstall.push_back(findTranslationModName());
+
+	if (ui->checkBoxPresetExtras && checkCanInstallExtras())
+		modsToInstall.push_back("vcmi-extras");
+
+	if (ui->checkBoxPresetWog && checkCanInstallWog())
+		modsToInstall.push_back("wake-of-gods");
+
+	if (ui->checkBoxPresetHota && checkCanInstallHota())
+		modsToInstall.push_back("hota");
+
 	exitSetup();
+
+	for (auto const & modName : modsToInstall)
+		getModView()->doInstallMod(modName);
 }
 
