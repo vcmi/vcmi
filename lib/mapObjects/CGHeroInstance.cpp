@@ -66,10 +66,10 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 {
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
-	//if there is road both on dest and src tiles - use road movement cost
+	//if there is road both on dest and src tiles - use src road movement cost
 	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
 	{
-		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
+		ret = from.roadType->movementCost;
 	}
 	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
 			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
