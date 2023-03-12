@@ -1163,8 +1163,8 @@ int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const
 }
 
 void CPathfinderHelper::getNeighbours(
-	const TerrainTile & srct,
-	const int3 & tile,
+	const TerrainTile & srcTile,
+	const int3 & srcCoord,
 	std::vector<int3> & vec,
 	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
@@ -1179,35 +1179,32 @@ void CPathfinderHelper::getNeighbours(
 
 	for(const auto & dir : dirs)
 	{
-		const int3 hlp = tile + dir;
-		if(!map->isInTheMap(hlp))
+		const int3 destCoord = srcCoord + dir;
+		if(!map->isInTheMap(destCoord))
 			continue;
 
-		const TerrainTile & hlpt = map->getTile(hlp);
-		if(!hlpt.terType->isPassable())
+		const TerrainTile & destTile = map->getTile(destCoord);
+		if(!destTile.terType->isPassable())
 			continue;
 
 // 		//we cannot visit things from blocked tiles
-// 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
+// 		if(srcTile.blocked && !srcTile.visitable && destTile.visitable && srcTile.blockingObjects.front()->ID != HEROI_TYPE)
 // 		{
 // 			continue;
 // 		}
 
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srct.terType->isWater() && limitCoastSailing && hlpt.terType->isWater() && dir.x && dir.y) //diagonal move through water
+		if(srcTile.terType->isWater() && limitCoastSailing && destTile.terType->isWater() && dir.x && dir.y) //diagonal move through water
 		{
-			int3 hlp1 = tile;
-			int3 hlp2 = tile;
-			hlp1.x += dir.x;
-			hlp2.y += dir.y;
-
-			if(map->getTile(hlp1).terType->isLand() || map->getTile(hlp2).terType->isLand())
+			const int3 horizontalNeighbour = srcCoord + int3{dir.x, 0, 0};
+			const int3 verticalNeighbour = srcCoord + int3{0, dir.y, 0};
+			if(map->getTile(horizontalNeighbour).terType->isLand() || map->getTile(verticalNeighbour).terType->isLand())
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == hlpt.terType->isLand())
+		if(indeterminate(onLand) || onLand == destTile.terType->isLand())
 		{
-			vec.push_back(hlp);
+			vec.push_back(destCoord);
 		}
 	}
 }

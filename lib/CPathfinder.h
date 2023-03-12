@@ -580,8 +580,8 @@ public:
 	std::vector<int3> getTeleportExits(const PathNodeInfo & source) const;
 
 	void getNeighbours(
-		const TerrainTile & srct,
-		const int3 & tile,
+		const TerrainTile & srcTile,
+		const int3 & srcCoord,
 		std::vector<int3> & vec,
 		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
