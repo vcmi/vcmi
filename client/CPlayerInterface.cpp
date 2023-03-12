@@ -1041,6 +1041,7 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 
 	if(autoTryHover || type == EInfoWindowMode::INFO)
 	{
+		waitWhileDialog(); //Fix for mantis #98
 		adventureInt->infoBar->pushComponents(components, text, timer);
 
 		if (makingTurn && GH.listInt.size() && LOCPLINT == this)
