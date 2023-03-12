@@ -49,11 +49,6 @@ void FirstLaunchView::on_buttonTabModPreset_clicked()
 	activateTabModPreset();
 }
 
-void FirstLaunchView::on_buttonTabFinish_clicked()
-{
-	activateTabFinish();
-}
-
 void FirstLaunchView::on_listWidgetLanguage_currentRowChanged(int currentRow)
 {
 	languageSelected(ui->listWidgetLanguage->item(currentRow)->data(Qt::UserRole).toString());
@@ -121,7 +116,6 @@ void FirstLaunchView::setSetupProgress(int progress)
 	ui->buttonTabLanguage->setDisabled(value < 1);
 	ui->buttonTabHeroesData->setDisabled(value < 2);
 	ui->buttonTabModPreset->setDisabled(value < 3);
-	ui->buttonTabFinish->setDisabled(value < 4);
 }
 
 void FirstLaunchView::activateTabLanguage()
@@ -131,7 +125,6 @@ void FirstLaunchView::activateTabLanguage()
 	ui->buttonTabLanguage->setChecked(true);
 	ui->buttonTabHeroesData->setChecked(false);
 	ui->buttonTabModPreset->setChecked(false);
-	ui->buttonTabFinish->setChecked(false);
 }
 
 void FirstLaunchView::activateTabHeroesData()
@@ -141,7 +134,6 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabLanguage->setChecked(false);
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
-	ui->buttonTabFinish->setChecked(false);
 
 	if(!hasVCMIBuilderScript)
 	{
@@ -158,19 +150,8 @@ void FirstLaunchView::activateTabModPreset()
 	ui->buttonTabLanguage->setChecked(false);
 	ui->buttonTabHeroesData->setChecked(false);
 	ui->buttonTabModPreset->setChecked(true);
-	ui->buttonTabFinish->setChecked(false);
 
 	modPresetUpdate();
-}
-
-void FirstLaunchView::activateTabFinish()
-{
-	setSetupProgress(4);
-	ui->installerTabs->setCurrentIndex(3);
-	ui->buttonTabLanguage->setChecked(false);
-	ui->buttonTabModPreset->setChecked(false);
-	ui->buttonTabHeroesData->setChecked(false);
-	ui->buttonTabFinish->setChecked(true);
 }
 
 void FirstLaunchView::exitSetup()
@@ -443,6 +424,6 @@ void FirstLaunchView::on_pushButtonPresetBack_clicked()
 
 void FirstLaunchView::on_pushButtonPresetNext_clicked()
 {
-	activateTabFinish();
+	exitSetup();
 }
 

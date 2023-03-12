@@ -36,7 +36,6 @@ class FirstLaunchView : public QWidget
 	void activateTabLanguage();
 	void activateTabHeroesData();
 	void activateTabModPreset();
-	void activateTabFinish();
 	void exitSetup();
 
 	// Tab Language
@@ -82,7 +81,6 @@ private slots:
 	void on_buttonTabLanguage_clicked();
 	void on_buttonTabHeroesData_clicked();
 	void on_buttonTabModPreset_clicked();
-	void on_buttonTabFinish_clicked();
 	void on_listWidgetLanguage_currentRowChanged(int currentRow);
 	void on_pushButtonLanguageNext_clicked();
 	void on_pushButtonDataNext_clicked();
