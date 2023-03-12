@@ -529,6 +529,7 @@ struct DLL_LINKAGE TurnInfo
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
 	TerrainId nativeTerrain;
+	int turn;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;

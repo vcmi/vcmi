@@ -789,7 +789,7 @@ private:
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
 	mutable boost::mutex sync;
 
-	void getAllBonusesRec(BonusList &out) const;
+	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr updater) const;
 
@@ -805,7 +805,6 @@ public:
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
-	TConstBonusListPtr getUpdatedBonusList(const BonusList& out, const CSelector &sel) const; //update bonuses in list with builtin updaters, passes this as context
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)

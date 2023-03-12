@@ -1014,8 +1014,11 @@ TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 	pathfindingVal = bl->valOfBonuses(Selector::type()(Bonus::ROUGH_TERRAIN_DISCOUNT));
 }
 
-TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
-	: hero(Hero), maxMovePointsLand(-1), maxMovePointsWater(-1)
+TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn):
+	hero(Hero),
+	maxMovePointsLand(-1),
+	maxMovePointsWater(-1),
+	turn(turn)
 {
 	bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, nullptr, "");
 	bonusCache = std::make_unique<BonusCache>(bonuses);
@@ -1104,7 +1107,7 @@ void TurnInfo::updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) co
 		bonusCache->pathfindingVal = bonuses->valOfBonuses(Selector::type()(Bonus::ROUGH_TERRAIN_DISCOUNT));
 		break;
 	default:
-		bonuses = hero->getUpdatedBonusList(*bonuses, Selector::type()(type).And(sel));
+		bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, nullptr, "");
 	}
 }
 

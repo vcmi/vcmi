@@ -83,15 +83,10 @@
 			"type" : "MOVEMENT", //Basic land movement
 			"subtype" : 1,
 			"val" : 1300,
-			"valueType" : "BASE_NUMBER"
-		},
-		{
-			"type" : "MOVEMENT", //Enable army movement bonus
-			"subtype" : 1,
 			"valueType" : "BASE_NUMBER",
 			"updater" : {
-				"type" : "ARMY_MOVEMENT",
-				"parameters" : [ 20, 3, 10, 700]
+				"type" : "ARMY_MOVEMENT", //Enable army movement bonus
+				"parameters" : [20, 3, 10, 700]
 			}
 		},
 		{

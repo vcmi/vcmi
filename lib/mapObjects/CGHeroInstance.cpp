@@ -199,7 +199,9 @@ void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) c
 	if(lowestCreatureSpeed != realLowestSpeed)
 	{
 		lowestCreatureSpeed = realLowestSpeed;
-		ti->updateHeroBonuses(Bonus::MOVEMENT, Selector::subtype()(!!onLand).And(Selector::sourceTypeSel(Bonus::ARMY)));
+		//Let updaters run again
+		treeHasChanged();
+		ti->updateHeroBonuses(Bonus::MOVEMENT, Selector::subtype()(!!onLand));
 	}
 }
 

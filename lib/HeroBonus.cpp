@@ -960,7 +960,7 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 	}
 }
 
-void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
+void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & selector) const
 {
 	//out has been reserved sufficient capacity at getAllBonuses() call
 
@@ -980,13 +980,14 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 
 	for (auto parent : lparents)
 	{
-		parent->getAllBonusesRec(beforeUpdate);
+		parent->getAllBonusesRec(beforeUpdate, selector);
 	}
 	bonuses.getAllBonuses(beforeUpdate);
 
 	for(const auto & b : beforeUpdate)
 	{
-		auto updated = b->updater
+		//We should not run updaters on non-selected bonuses
+		auto updated = selector(b.get()) && b->updater
 			? getUpdatedBonus(b, b->updater)
 			: b;
 
@@ -1023,7 +1024,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 			cachedBonuses.clear();
 			cachedRequests.clear();
 
-			getAllBonusesRec(allBonuses);
+			getAllBonusesRec(allBonuses, Selector::all);
 			limitBonuses(allBonuses, cachedBonuses);
 			cachedBonuses.stackBonuses();
 
@@ -1065,7 +1066,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector
 
 	// Get bonus results without caching enabled.
 	BonusList beforeLimiting, afterLimiting;
-	getAllBonusesRec(beforeLimiting);
+	getAllBonusesRec(beforeLimiting, selector);
 
 	if(!root || root == this)
 	{
@@ -1076,7 +1077,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector
 		//We want to limit our query against an external node. We get all its bonuses,
 		// add the ones we're considering and see if they're cut out by limiters
 		BonusList rootBonuses, limitedRootBonuses;
-		getAllBonusesRec(rootBonuses);
+		getAllBonusesRec(rootBonuses, selector);
 
 		for(auto b : beforeLimiting)
 			rootBonuses.push_back(b);
@@ -1097,19 +1098,6 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 {
 	assert(updater);
 	return updater->createUpdatedBonus(b, * this);
-}
-
-TConstBonusListPtr CBonusSystemNode::getUpdatedBonusList(const BonusList & out, const CSelector & sel) const
-{
-	auto ret = std::make_shared<BonusList>();
-	for(const auto & b : out)
-	{
-		if(sel(b.get()) && b->updater)
-			ret->push_back(getUpdatedBonus(b, b->updater));
-		else
-			ret->push_back(b);
-	}
-	return ret;
 }
 
 CBonusSystemNode::CBonusSystemNode()
@@ -2788,7 +2776,7 @@ std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared
 		auto counted = armySpeed * multiplier;
 		auto newBonus = std::make_shared<Bonus>(*b);
 		newBonus->source = Bonus::ARMY;
-		newBonus->val = vstd::amin(counted, max);
+		newBonus->val += vstd::amin(counted, max);
 		return newBonus;
 	}
 	if(b->type != Bonus::MOVEMENT)
