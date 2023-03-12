@@ -221,6 +221,17 @@ int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 	return lineHeight * (int)lines.size();
 }
 
+int CMessage::getEstimatedComponentHeight(int numComps)
+{
+	if (numComps > 8) //Bigger than 8 components - return invalid value
+		return std::numeric_limits<int>::max();
+	else if (numComps > 2)
+		return 160; // 32px * 1 row + 20 to offset
+	else if (numComps)
+		return 118; // 118 px to offset
+	return 0;
+}
+
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player)
 {
 	bool blitOr = false;

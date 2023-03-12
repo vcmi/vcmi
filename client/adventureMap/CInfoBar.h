@@ -189,8 +189,5 @@ public:
 
 	/// check if infobar is showed something about pickups
 	bool showingComponents();
-
-	/// get estimated component height for InfoBar
-	int getEstimatedComponentHeight(int numComps) const;
 };
 
