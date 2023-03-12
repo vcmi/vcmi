@@ -169,6 +169,9 @@ public:
 	//set frame to first, call callback
 	virtual void reset();
 
+	//set animation duration
+	void setDuration(int durationMs);
+
 	//show current frame and increase counter
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
