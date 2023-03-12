@@ -59,7 +59,7 @@ void FirstLaunchView::changeEvent(QEvent * event)
 	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
-		Languages::fillLanguages(ui->listWidgetLanguage);
+		Languages::fillLanguages(ui->listWidgetLanguage, false);
 	}
 	QWidget::changeEvent(event);
 }
@@ -102,9 +102,7 @@ void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
 
 void FirstLaunchView::enterSetup()
 {
-	// TODO: block all UI except FirstLaunchView
-	Languages::fillLanguages(ui->listWidgetLanguage);
-	Languages::fillLanguages(ui->comboBoxLanguage);
+	Languages::fillLanguages(ui->listWidgetLanguage, false);
 }
 
 void FirstLaunchView::setSetupProgress(int progress)
@@ -253,6 +251,8 @@ QString FirstLaunchView::heroesLanguageDetect()
 
 void FirstLaunchView::heroesLanguageUpdate()
 {
+	Languages::fillLanguages(ui->comboBoxLanguage, true);
+
 	QString language = heroesLanguageDetect();
 
 	bool success = !language.isEmpty();
@@ -266,6 +266,7 @@ void FirstLaunchView::heroesLanguageUpdate()
 		ui->comboBoxLanguage->insertItem(0, itemName, QString("auto"));
 		ui->comboBoxLanguage->setCurrentIndex(0);
 	}
+
 	ui->labelDataFailure->setVisible(!success);
 	ui->labelDataSuccess->setVisible(success);
 	ui->pushButtonDataNext->setEnabled(success);

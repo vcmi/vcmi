@@ -19,7 +19,8 @@ namespace Languages
 
 	QString generateLanguageName(const Languages::Options & identifier);
 
-	void fillLanguages(QComboBox * widget);
-	void fillLanguages(QListWidget * widget);
+	/// if includeAll is set, all languages including encoding placeholders will be included into widget
+	void fillLanguages(QComboBox * widget, bool includeAll);
+	void fillLanguages(QListWidget * widget, bool includeAll);
 }
 

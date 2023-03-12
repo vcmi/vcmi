@@ -97,7 +97,7 @@ void CSettingsView::loadSettings()
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
-	Languages::fillLanguages(ui->comboBoxLanguage);
+	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
@@ -312,7 +312,7 @@ void CSettingsView::changeEvent(QEvent *event)
 	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
-		Languages::fillLanguages(ui->comboBoxLanguage);
+		Languages::fillLanguages(ui->comboBoxLanguage, false);
 	}
 	QWidget::changeEvent(event);
 }

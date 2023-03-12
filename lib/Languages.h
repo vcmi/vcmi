@@ -18,9 +18,10 @@ enum class ELanguages
 	ENGLISH,
 	FRENCH,
 	GERMAN,
-	KOREAN,
+	KOREAN, // currently has no translations or detection
 	POLISH,
 	RUSSIAN,
+	SPANISH,
 	UKRAINIAN,
 
 	// Pseudo-languages, that have no translations but can define H3 encoding to use
@@ -54,15 +55,16 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 11> languages
+	static const std::array<Options, 12> languages
 	{ {
-		{ "chinese",   "Chinese",   "简体中文",       "GBK",    true,  true },
+		{ "chinese",   "Chinese",   "简体中文",       "GBK",    true,  true }, // Note: actually Simplified Chinese
 		{ "english",   "English",   "English",    "CP1252", true,  true },
 		{ "french",    "French",    "Français",   "CP1252", true,  true },
 		{ "german",    "German",    "Deutsch",    "CP1252", true,  true },
-		{ "korean",    "Korean",    "한국어",        "CP949",  false, true },
+		{ "korean",    "Korean",    "한국어",        "CP949",  false, false },
 		{ "polish",    "Polish",    "Polski",     "CP1250", true,  true },
 		{ "russian",   "Russian",   "Русский",    "CP1251", true,  true },
+		{ "spanish",   "Spanish",   "Español",    "CP1252", false, true },
 		{ "ukrainian", "Ukrainian", "Українська", "CP1251", true,  true },
 
 		{ "other_cp1250", "Other (East European)",   "", "CP1251", false, false },
