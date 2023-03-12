@@ -65,7 +65,7 @@ struct DLL_LINKAGE CGPathNode
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighboring tile but not passable
 		FLYABLE, //can only be accessed in air layer
-		BLOCKED //tile can't be entered nor visited
+		BLOCKED //tile can be neither entered nor visited
 	};
 
 	CGPathNode * theNodeBefore;

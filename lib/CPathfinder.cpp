@@ -117,7 +117,7 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
 {
 	std::vector<int3> neighbourTiles;
-	neighbourTiles.reserve(16);
+	neighbourTiles.reserve(8);
 
 	getNeighbours(
 		*source.tile,
@@ -721,7 +721,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 	switch(destination.action)
 	{
 	/// TODO: Investigate what kind of limitation is possible to apply on movement from visitable tiles
-	/// Likely in many cases we don't need to add visitable tile to queue when hero don't fly
+	/// Likely in many cases we don't need to add visitable tile to queue when hero doesn't fly
 	case CGPathNode::VISIT:
 	{
 		/// For now we only add visitable tile into queue when it's teleporter that allow transit
@@ -730,7 +730,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 		if(pathfinderHelper->isAllowedTeleportEntrance(objTeleport))
 		{
 			/// For now we'll always allow transit over teleporters
-			/// Transit over whirlpools only allowed when hero protected
+			/// Transit over whirlpools only allowed when hero is protected
 			return BlockingReason::NONE;
 		}
 		else if(destination.nodeObject->ID == Obj::GARRISON
@@ -1258,7 +1258,7 @@ int CPathfinderHelper::getMovementCost(
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
 		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
-		for(auto & elem : vec)
+		for(const auto & elem : vec)
 		{
 			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);
 			if(fcost <= left)
