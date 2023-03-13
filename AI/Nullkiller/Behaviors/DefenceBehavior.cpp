@@ -30,7 +30,7 @@ namespace NKAI
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
-const double TREAT_IGNORE_RATIO = 0.5;
+const float TREAT_IGNORE_RATIO = 2;
 
 using namespace Goals;
 
@@ -133,7 +133,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				tasks.push_back(Goals::sptr(composition));
 			}
 
-			bool treatIsWeak = path.getHeroStrength() / treat.danger > TREAT_IGNORE_RATIO;
+			bool treatIsWeak = path.getHeroStrength() / (float)treat.danger > TREAT_IGNORE_RATIO;
 			bool needToSaveGrowth = treat.turn == 0 && dayOfWeek == 7;
 
 			if(treatIsWeak && !needToSaveGrowth)
