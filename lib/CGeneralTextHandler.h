@@ -68,7 +68,7 @@ class DLL_LINKAGE LegacyTextContainer
 	std::string basePath;
 
 public:
-	LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath);
+	LegacyTextContainer(CGeneralTextHandler & owner, std::string basePath);
 	std::string operator [](size_t index) const;
 };
 
@@ -79,7 +79,7 @@ class DLL_LINKAGE LegacyHelpContainer
 	std::string basePath;
 
 public:
-	LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath);
+	LegacyHelpContainer(CGeneralTextHandler & owner, std::string basePath);
 	std::pair<std::string, std::string> operator[](size_t index) const;
 };
 
@@ -87,7 +87,7 @@ class TextIdentifier
 {
 	std::string identifier;
 public:
-	std::string const & get() const
+	const std::string & get() const 
 	{
 		return identifier;
 	}
@@ -96,18 +96,18 @@ public:
 		identifier(id)
 	{}
 
-	TextIdentifier(std::string const & id):
-		identifier(id)
+	TextIdentifier(const std::string & id):
+		identifier(id) 
 	{}
 
-	template<typename ... T>
-	TextIdentifier(std::string const & id, size_t index, T ... rest):
-		TextIdentifier(id + '.' + std::to_string(index), rest ... )
+	template<typename... T>
+	TextIdentifier(const std::string & id, size_t index, T... rest):
+		TextIdentifier(id + '.' + std::to_string(index), rest...)
 	{}
 
-	template<typename ... T>
-	TextIdentifier(std::string const & id, std::string const & id2, T ... rest):
-		TextIdentifier(id + '.' + id2, rest ... )
+	template<typename... T>
+	TextIdentifier(const std::string & id, const std::string & id2, T... rest):
+		TextIdentifier(id + '.' + id2, rest...)
 	{}
 };
 
@@ -211,7 +211,7 @@ public:
 	//commanders
 	LegacyTextContainer znpc00; //more or less useful content of that file
 
-	std::vector<std::string> findStringsWithPrefix(std::string const & prefix);
+	std::vector<std::string> findStringsWithPrefix(const std::string & prefix);
 
 	int32_t pluralText(int32_t textIndex, int32_t count) const;
 

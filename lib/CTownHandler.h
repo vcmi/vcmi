@@ -91,7 +91,7 @@ public:
 	BuildingID getBase() const;
 
 	// returns how many times build has to be upgraded to become build
-	si32 getDistance(BuildingID build) const;
+	si32 getDistance(const BuildingID & build) const;
 
 	STRONG_INLINE
 	bool IsTradeBuilding() const
@@ -116,7 +116,7 @@ public:
 			subId == BuildingSubID::CUSTOM_VISITING_BONUS;
 	}
 
-	void addNewBonus(std::shared_ptr<Bonus> b, BonusList & bonusList);
+	void addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusList) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -190,21 +190,21 @@ class DLL_LINKAGE CFaction : public Faction
 	std::string modScope;
 	std::string identifier;
 
-	TFaction index;
+	TFaction index = 0;
 
 public:
 	TerrainId nativeTerrain;
-	EAlignment::EAlignment alignment;
-	bool preferUndergroundPlacement;
+	EAlignment::EAlignment alignment = EAlignment::NEUTRAL;
+	bool preferUndergroundPlacement = false;
 
-	CTown * town; //NOTE: can be null
+	CTown * town = nullptr; //NOTE: can be null
 
 	std::string creatureBg120;
 	std::string creatureBg130;
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
-	CFaction();
+	CFaction() = default;
 	~CFaction();
 
 	int32_t getIndex() const override;
@@ -238,7 +238,7 @@ public:
 class DLL_LINKAGE CTown
 {
 	friend class CTownHandler;
-	size_t namesCount;
+	size_t namesCount = 0;
 
 public:
 	CTown();
@@ -247,8 +247,8 @@ public:
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
-	const std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
-	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string message) const; //may affect only mutable field
+	std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
+	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const; //may affect only mutable field
 	BuildingID::EBuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
 	std::string getRandomNameTranslated(size_t index) const;
@@ -369,27 +369,32 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void initializeWarMachines();
 
 	/// loads CBuilding's into town
-	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad);
+	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
 
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype = -1);
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1);
-	std::shared_ptr<Bonus> createBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype = -1);
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype = -1) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1) const;
+	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
+												  Bonus::BonusType type,
+												  int val,
+												  TPropagatorPtr & prop,
+												  const std::string & description,
+												  int subtype = -1) const;
 
 	/// loads CStructure's into town
-	void loadStructure(CTown &town, const std::string & stringID, const JsonNode & source);
-	void loadStructures(CTown &town, const JsonNode & source);
+	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;
+	void loadStructures(CTown & town, const JsonNode & source) const;
 
 	/// loads town hall vector (hallSlots)
-	void loadTownHall(CTown &town, const JsonNode & source);
-	void loadSiegeScreen(CTown &town, const JsonNode & source);
+	void loadTownHall(CTown & town, const JsonNode & source) const;
+	void loadSiegeScreen(CTown & town, const JsonNode & source) const;
 
-	void loadClientData(CTown &town, const JsonNode & source);
+	void loadClientData(CTown & town, const JsonNode & source) const;
 
 	void loadTown(CTown * town, const JsonNode & source);
 
-	void loadPuzzle(CFaction & faction, const JsonNode & source);
+	void loadPuzzle(CFaction & faction, const JsonNode & source) const;
 
 	void loadRandomFaction();
 
@@ -410,7 +415,7 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-	void addBonusesForVanilaBuilding(CBuilding * building);
+	void addBonusesForVanilaBuilding(CBuilding * building) const;
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;

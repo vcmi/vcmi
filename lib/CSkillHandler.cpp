@@ -24,24 +24,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-///CSkill
-CSkill::LevelInfo::LevelInfo()
-{
-}
-
-CSkill::LevelInfo::~LevelInfo()
-{
-}
-
-CSkill::CSkill(SecondarySkill id, std::string identifier, bool obligatoryMajor, bool obligatoryMinor)
-	: id(id), identifier(identifier), obligatoryMajor(obligatoryMajor), obligatoryMinor(obligatoryMinor)
+CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligatoryMajor, bool obligatoryMinor):
+	id(id),
+	identifier(std::move(identifier)),
+	obligatoryMajor(obligatoryMajor),
+	obligatoryMinor(obligatoryMinor)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
-}
-
-CSkill::~CSkill()
-{
 }
 
 int32_t CSkill::getIndex() const
@@ -151,12 +141,7 @@ void CSkill::serializeJson(JsonSerializeFormat & handler)
 
 }
 
-
 ///CSkillHandler
-CSkillHandler::CSkillHandler()
-{
-}
-
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 {
 	CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
@@ -170,7 +155,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 	do
 	{
 		skillNames.push_back(parser.readString());
-		skillInfoTexts.push_back(std::vector<std::string>());
+		skillInfoTexts.emplace_back();
 		for(int i = 0; i < 3; i++)
 			skillInfoTexts.back().push_back(parser.readString());
 	}
@@ -211,7 +196,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();
-	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
+	auto * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
 	skill->modScope = scope;
 
 	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
@@ -233,7 +218,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 		const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
 		const JsonNode & levelNode = json[levelName];
 		// parse bonus effects
-		for(auto b : levelNode["effects"].Struct())
+		for(const auto & b : levelNode["effects"].Struct())
 		{
 			auto bonus = JsonUtils::parseBonus(b.second);
 			skill->addNewBonus(bonus, level);
@@ -265,10 +250,6 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
-}
-
-CSkillHandler::~CSkillHandler()
-{
 }
 
 std::vector<bool> CSkillHandler::getDefaultAllowed() const

@@ -22,7 +22,7 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 VCMI_LIB_NAMESPACE_END
 
 #ifndef VCMI_WINDOWS
-	typedef std::string TColor;
+	using TColor = std::string;
 	#define CONSOLE_GREEN "\x1b[1;32m"
 	#define CONSOLE_RED "\x1b[1;31m"
 	#define CONSOLE_MAGENTA "\x1b[1;35m"
@@ -212,7 +212,7 @@ void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 #endif
 }
 
-int CConsoleHandler::run()
+int CConsoleHandler::run() const
 {
 	setThreadName("CConsoleHandler::run");
 	//disabling sync to make in_avail() work (othervice always returns 0)
@@ -244,7 +244,9 @@ int CConsoleHandler::run()
 	}
 	return -1;
 }
-CConsoleHandler::CConsoleHandler() : thread(nullptr)
+CConsoleHandler::CConsoleHandler():
+	cb(new std::function<void(const std::string &, bool)>), 
+	thread(nullptr)
 {
 #ifdef VCMI_WINDOWS
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -263,7 +265,6 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 #else
 	defColor = "\x1b[0m";
 #endif
-	cb = new std::function<void(const std::string &, bool)>;
 }
 CConsoleHandler::~CConsoleHandler()
 {

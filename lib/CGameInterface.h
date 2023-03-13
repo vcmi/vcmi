@@ -121,8 +121,8 @@ public:
 class DLL_LINKAGE CDynLibHandler
 {
 public:
-	static std::shared_ptr<CGlobalAI> getNewAI(std::string dllname);
-	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
+	static std::shared_ptr<CGlobalAI> getNewAI(const std::string & dllname);
+	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(const std::string & dllname);
 #if SCRIPTING_ENABLED
 	static std::shared_ptr<scripting::Module> getNewScriptingModule(const boost::filesystem::path & dllname);
 #endif
@@ -140,7 +140,7 @@ public:
 class DLL_LINKAGE CAdventureAI : public CGlobalAI
 {
 public:
-	CAdventureAI() {};
+	CAdventureAI() = default;
 
 	std::shared_ptr<CBattleGameInterface> battleAI;
 	std::shared_ptr<CBattleCallback> cbc;

@@ -132,7 +132,7 @@ class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase, public IGame
 protected:
 	CGameState * gs;//todo: replace with protected const getter, only actual Server and Client objects should hold game state
 
-	CGameInfoCallback();
+	CGameInfoCallback() = default;
 	CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player);
 	bool hasAccess(boost::optional<PlayerColor> playerId) const;
 
@@ -157,8 +157,8 @@ public:
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 
 	//map
-	virtual bool isVisible(int3 pos, boost::optional<PlayerColor> Player) const;
-	virtual bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> Player) const;
+	virtual bool isVisible(int3 pos, const boost::optional<PlayerColor> & Player) const;
+	virtual bool isVisible(const CGObjectInstance *obj, const boost::optional<PlayerColor> & Player) const;
 	virtual bool isVisible(const CGObjectInstance *obj) const;
 	virtual bool isVisible(int3 pos) const;
 
@@ -195,7 +195,7 @@ public:
 	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
-	virtual void calculatePaths(std::shared_ptr<PathfinderConfig> config);
+	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config);
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const;
 

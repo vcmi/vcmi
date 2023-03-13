@@ -412,7 +412,7 @@ private:
 	CPathsInfo & out;
 
 	STRONG_INLINE
-	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+	void resetTile(const int3 & tile, const EPathfindingLayer & layer, CGPathNode::EAccessibility accessibility);
 
 public:
 	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
@@ -520,7 +520,7 @@ struct DLL_LINKAGE TurnInfo
 		int waterWalkingVal;
 		int pathfindingVal;
 
-		BonusCache(TConstBonusListPtr bonusList);
+		BonusCache(const TConstBonusListPtr & bonusList);
 	};
 	std::unique_ptr<BonusCache> bonusCache;
 
@@ -532,11 +532,11 @@ struct DLL_LINKAGE TurnInfo
 	int turn;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
-	bool isLayerAvailable(const EPathfindingLayer layer) const;
+	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int valOfBonuses(const Bonus::BonusType type, const int subtype = -1) const;
 	void updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) const;
-	int getMaxMovePoints(const EPathfindingLayer layer) const;
+	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };
 
 class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
@@ -562,14 +562,14 @@ public:
 	bool isHeroPatrolLocked() const;
 	bool isPatrolMovementAllowed(const int3 & dst) const;
 	void updateTurnInfo(const int turn = 0);
-	bool isLayerAvailable(const EPathfindingLayer layer) const;
+	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
-	int getMaxMovePoints(const EPathfindingLayer layer) const;
+	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	std::vector<int3> getCastleGates(const PathNodeInfo & source) const;
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
-	std::vector<int3> getAllowedTeleportChannelExits(TeleportChannelID channelID) const;
+	std::vector<int3> getAllowedTeleportChannelExits(const TeleportChannelID & channelID) const;
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;

@@ -77,7 +77,8 @@ void JsonWriter::writeString(const std::string &string)
 	static const std::array<char, 8> escaped_code = {'\"', '\\', 'b', 'f', 'n', 'r', 't', '/'};
 
 	out <<'\"';
-	size_t pos=0, start=0;
+	size_t pos = 0;
+	size_t start = 0;
 	for (; pos<string.size(); pos++)
 	{
 		//we need to check if special character was been already escaped
@@ -159,7 +160,7 @@ JsonParser::JsonParser(const char * inputString, size_t stringSize):
 {
 }
 
-JsonNode JsonParser::parse(std::string fileName)
+JsonNode JsonParser::parse(const std::string & fileName)
 {
 	JsonNode root;
 
@@ -232,7 +233,7 @@ bool JsonParser::extractWhitespace(bool verbose)
 {
 	while (true)
 	{
-		while (pos < input.size() && (ui8)input[pos] <= ' ')
+		while(pos < input.size() && static_cast<ui8>(input[pos]) <= ' ')
 		{
 			if (input[pos] == '\n')
 			{
@@ -308,7 +309,7 @@ bool JsonParser::extractString(std::string &str)
 			str.append( &input[first], pos-first);
 			return error("Closing quote not found!", true);
 		}
-		if ((unsigned char)(input[pos]) < ' ') // control character
+		if(static_cast<unsigned char>(input[pos]) < ' ') // control character
 		{
 			str.append( &input[first], pos-first);
 			first = pos+1;
@@ -616,24 +617,31 @@ namespace
 {
 	namespace Common
 	{
-		std::string emptyCheck(Validation::ValidationData &, const JsonNode &, const JsonNode &, const JsonNode &)
+		std::string emptyCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			// check is not needed - e.g. incorporated into another check
 			return "";
 		}
 
-		std::string notImplementedCheck(Validation::ValidationData &, const JsonNode &, const JsonNode &, const JsonNode &)
+		std::string notImplementedCheck(Validation::ValidationData & validator,
+										const JsonNode & baseSchema,
+										const JsonNode & schema,
+										const JsonNode & data)
 		{
 			return "Not implemented entry in schema";
 		}
 
-		std::string schemaListCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data,
-									std::string errorMsg, std::function<bool(size_t)> isValid)
+		std::string schemaListCheck(Validation::ValidationData & validator,
+									const JsonNode & baseSchema,
+									const JsonNode & schema,
+									const JsonNode & data,
+									const std::string & errorMsg,
+									const std::function<bool(size_t)> & isValid)
 		{
 			std::string errors = "<tested schemas>\n";
 			size_t result = 0;
 
-			for(auto & schemaEntry : schema.Vector())
+			for(const auto & schemaEntry : schema.Vector())
 			{
 				std::string error = check(schemaEntry, data, validator);
 				if (error.empty())
@@ -685,7 +693,7 @@ namespace
 
 		std::string enumCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			for(auto & enumEntry : schema.Vector())
+			for(const auto & enumEntry : schema.Vector())
 			{
 				if (data == enumEntry)
 					return "";
@@ -695,7 +703,7 @@ namespace
 
 		std::string typeCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			const auto typeName = schema.String();
+			const auto & typeName = schema.String();
 			auto it = stringToType.find(typeName);
 			if(it == stringToType.end())
 			{
@@ -801,9 +809,9 @@ namespace
 
 	namespace Vector
 	{
-		std::string itemEntryCheck(Validation::ValidationData & validator, const JsonVector items, const JsonNode & schema, size_t index)
+		std::string itemEntryCheck(Validation::ValidationData & validator, const JsonVector & items, const JsonNode & schema, size_t index)
 		{
-			validator.currentPath.push_back(JsonNode());
+			validator.currentPath.emplace_back();
 			validator.currentPath.back().Float() = static_cast<double>(index);
 			auto onExit = vstd::makeScopeGuard([&]()
 			{
@@ -845,7 +853,7 @@ namespace
 			{
 				if (schema.getType() == JsonNode::JsonType::DATA_STRUCT)
 					errors += itemEntryCheck(validator, data.Vector(), schema, i);
-				else if (!schema.isNull() && schema.Bool() == false)
+				else if(!schema.isNull() && !schema.Bool())
 					errors += validator.makeErrorMessage("Unknown entry found");
 			}
 			return errors;
@@ -916,7 +924,7 @@ namespace
 		std::string requiredCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			std::string errors;
-			for(auto & required : schema.Vector())
+			for(const auto & required : schema.Vector())
 			{
 				if (data[required.String()].isNull())
 					errors += validator.makeErrorMessage("Required entry " + required.String() + " is missing");
@@ -927,7 +935,7 @@ namespace
 		std::string dependenciesCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			std::string errors;
-			for(auto & deps : schema.Struct())
+			for(const auto & deps : schema.Struct())
 			{
 				if (!data[deps.first].isNull())
 				{
@@ -950,9 +958,9 @@ namespace
 			return errors;
 		}
 
-		std::string propertyEntryCheck(Validation::ValidationData & validator, const JsonNode &node, const JsonNode & schema, std::string nodeName)
+		std::string propertyEntryCheck(Validation::ValidationData & validator, const JsonNode &node, const JsonNode & schema, const std::string & nodeName)
 		{
-			validator.currentPath.push_back(JsonNode());
+			validator.currentPath.emplace_back();
 			validator.currentPath.back().String() = nodeName;
 			auto onExit = vstd::makeScopeGuard([&]()
 			{
@@ -969,7 +977,7 @@ namespace
 		{
 			std::string errors;
 
-			for(auto & entry : data.Struct())
+			for(const auto & entry : data.Struct())
 				errors += propertyEntryCheck(validator, entry.second, schema[entry.first], entry.first);
 			return errors;
 		}
@@ -977,7 +985,7 @@ namespace
 		std::string additionalPropertiesCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			std::string errors;
-			for(auto & entry : data.Struct())
+			for(const auto & entry : data.Struct())
 			{
 				if (baseSchema["properties"].Struct().count(entry.first) == 0)
 				{
@@ -986,7 +994,7 @@ namespace
 						errors += propertyEntryCheck(validator, entry.second, schema, entry.first);
 
 					// or, additionalItems field can be bool which indicates if such items are allowed
-					else if (!schema.isNull() && schema.Bool() == false) // present and set to false - error
+					else if(!schema.isNull() && !schema.Bool()) // present and set to false - error
 						errors += validator.makeErrorMessage("Unknown entry found: " + entry.first);
 				}
 			}
@@ -996,7 +1004,7 @@ namespace
 
 	namespace Formats
 	{
-		bool testFilePresence(std::string scope, ResourceID resource)
+		bool testFilePresence(const std::string & scope, const ResourceID & resource)
 		{
 			std::set<std::string> allowedScopes;
 			if(scope != CModHandler::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
@@ -1012,7 +1020,7 @@ namespace
 			}
 			allowedScopes.insert(scope); // mods can use their own files
 
-			for (auto & entry : allowedScopes)
+			for(const auto & entry : allowedScopes)
 			{
 				if (CResourceHandler::get(entry)->existsResource(resource))
 					return true;
@@ -1024,7 +1032,7 @@ namespace
 			if (testFilePresence(scope, ResourceID(prefix + file, type))) \
 				return ""
 
-		std::string testAnimation(std::string path, std::string scope)
+		std::string testAnimation(const std::string & path, const std::string & scope)
 		{
 			TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
 			TEST_FILE(scope, "Sprites/", path, EResType::TEXT);
@@ -1186,13 +1194,13 @@ namespace Validation
 		return errors;
 	}
 
-	std::string check(std::string schemaName, const JsonNode & data)
+	std::string check(const std::string & schemaName, const JsonNode & data)
 	{
 		ValidationData validator;
 		return check(schemaName, data, validator);
 	}
 
-	std::string check(std::string schemaName, const JsonNode & data, ValidationData & validator)
+	std::string check(const std::string & schemaName, const JsonNode & data, ValidationData & validator)
 	{
 		validator.usedSchemas.push_back(schemaName);
 		auto onscopeExit = vstd::makeScopeGuard([&]()
@@ -1206,7 +1214,7 @@ namespace Validation
 	{
 		const TValidatorMap & knownFields = getKnownFieldsFor(data.getType());
 		std::string errors;
-		for(auto & entry : schema.Struct())
+		for(const auto & entry : schema.Struct())
 		{
 			auto checker = knownFields.find(entry.first);
 			if (checker != knownFields.end())

@@ -56,7 +56,7 @@ class DLL_LINKAGE LibClasses : public Services
 	void setContent(std::shared_ptr<CContentHandler> content);
 
 public:
-	bool IS_AI_ENABLED; //unused?
+	bool IS_AI_ENABLED = false; //unused?
 
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;

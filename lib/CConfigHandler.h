@@ -27,7 +27,7 @@ class DLL_LINKAGE SettingsStorage
 		std::vector<std::string> path;
 
 		NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path);
-		NodeAccessor<Accessor> operator [] (std::string nextNode) const;
+		NodeAccessor<Accessor> operator[](const std::string & nextNode) const;
 		NodeAccessor<Accessor> operator () (std::vector<std::string> _path) const;
 		operator Accessor() const;
 	};
@@ -35,12 +35,13 @@ class DLL_LINKAGE SettingsStorage
 	std::set<SettingsListener*> listeners;
 	JsonNode config;
 
-	JsonNode & getNode(std::vector<std::string> path);
+	JsonNode & getNode(const std::vector<std::string> & path);
 
 	// Calls all required listeners
 	void invalidateNode(const std::vector<std::string> &changedPath);
 
-	Settings get(std::vector<std::string> path);
+	Settings get(const std::vector<std::string> & path);
+
 public:
 	// Initialize config structure
 	SettingsStorage();
@@ -53,7 +54,7 @@ public:
 	const NodeAccessor<SettingsListener> listen;
 
 	//Read access, see JsonNode::operator[]
-	const JsonNode & operator [](std::string value) const;
+	const JsonNode & operator[](const std::string & value) const;
 	const JsonNode & toJsonNode() const;
 
 	friend class SettingsListener;
@@ -69,7 +70,7 @@ class DLL_LINKAGE SettingsListener
 	// Callback
 	std::function<void(const JsonNode&)> callback;
 
-	SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path);
+	SettingsListener(SettingsStorage & _parent, std::vector<std::string> _path);
 
 	// Executes callback if changedpath begins with path
 	void nodeInvalidated(const std::vector<std::string> & changedPath);
@@ -105,8 +106,8 @@ public:
 	const JsonNode* operator ->() const;
 
 	//Helper, replaces JsonNode::operator[]
-	JsonNode& operator [](std::string value);
-	const JsonNode& operator [](std::string value) const;
+	JsonNode & operator[](const std::string & value);
+	const JsonNode & operator[](const std::string & value) const;
 
 	friend class SettingsStorage;
 };
@@ -174,7 +175,6 @@ namespace config
 		GuiOptionsMap guiOptions;
 		void init();
 		CConfigHandler();
-		~CConfigHandler();
 
 		GUIOptions *go() { return current; };
 		void SetResolution(int x, int y)
