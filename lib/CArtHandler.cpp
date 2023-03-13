@@ -139,6 +139,71 @@ bool CArtifact::isTradable() const
 	}
 }
 
+bool CArtifact::canBeDisassembled() const
+{
+	return !(constituents == nullptr);
+}
+
+bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
+{
+	if(slot == ArtifactPosition::TRANSITION_POS)
+		return true;
+
+	auto simpleArtCanBePutAt = [this](const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) -> bool
+	{
+		if(ArtifactUtils::isSlotBackpack(slot))
+		{
+			if(isBig())
+				return false;
+
+			//TODO backpack limit
+			return true;
+		}
+
+		auto bearerPossibleSlots = possibleSlots.at(artSet->bearerType());
+		if(bearerPossibleSlots.empty())
+		{
+			logMod->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", getNameTranslated(), artSet->bearerType());
+			return false;
+		}
+		if(!vstd::contains(bearerPossibleSlots, slot))
+			return false;
+
+		return artSet->isPositionFree(slot, assumeDestRemoved);
+	};
+
+	if(canBeDisassembled())
+	{
+		if(!simpleArtCanBePutAt(artSet, slot, assumeDestRemoved))
+			return false;
+		if(ArtifactUtils::isSlotBackpack(slot))
+			return true; //TODO backpack limit
+
+		CArtifactFittingSet fittingSet(artSet->bearerType());
+		fittingSet.artifactsWorn = artSet->artifactsWorn;
+		if(assumeDestRemoved)
+			fittingSet.removeArtifact(slot);
+		assert(constituents);
+		for(const auto art : *constituents)
+		{
+			auto possibleSlot = ArtifactUtils::getArtifactDstPosition(art->getId(), &fittingSet);
+			if(ArtifactUtils::isSlotEquipment(possibleSlot))
+			{
+				fittingSet.setNewArtSlot(possibleSlot, nullptr, true);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	else
+	{
+		return simpleArtCanBePutAt(artSet, slot, assumeDestRemoved);
+	}
+}
+
 CArtifact::CArtifact()
 {
 	setNodeType(ARTIFACT);
@@ -800,15 +865,12 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 	return text;
 }
 
-ArtifactPosition CArtifactInstance::firstAvailableSlot(const CArtifactSet *h) const
+ArtifactPosition CArtifactInstance::firstAvailableSlot(const CArtifactSet * h) const
 {
 	for(const auto & slot : artType->possibleSlots.at(h->bearerType()))
 	{
-		if(canBePutAt(h, slot)) //if(artType->fitsAt(h->artifWorn, slot))
-		{
-			//we've found a free suitable slot.
+		if(artType->canBePutAt(h, slot))
 			return slot;
-		}
 	}
 
 	//if haven't find proper slot, use backpack
@@ -825,36 +887,7 @@ ArtifactPosition CArtifactInstance::firstBackpackSlot(const CArtifactSet *h) con
 
 bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved) const
 {
-	return canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
-}
-
-bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
-{
-	if(slot == ArtifactPosition::TRANSITION_POS)
-	{
-		return true;
-	}
-
-	if(ArtifactUtils::isSlotBackpack(slot))
-	{
-		if(artType->isBig())
-			return false;
-
-		//TODO backpack limit
-		return true;
-	}
-
- 	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
- 	if(possibleSlots == artType->possibleSlots.end())
- 	{
-		logMod->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", artType->getNameTranslated(), artSet->bearerType());
-		return false;
-	}
-
-	if(!vstd::contains(possibleSlots->second, slot))
-		return false;
-
-	return artSet->isPositionFree(slot, assumeDestRemoved);
+	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }
 
 void CArtifactInstance::putAt(ArtifactLocation al)
@@ -876,7 +909,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 
 bool CArtifactInstance::canBeDisassembled() const
 {
-	return bool(artType->constituents);
+	return artType->canBeDisassembled();
 }
 
 std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CArtifactSet * h, bool equipped) const
@@ -1005,53 +1038,6 @@ SpellID CArtifactInstance::getGivenSpellID() const
 bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 {
 	return supposedPart == this;
-}
-
-bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
-{
-	if(slot == ArtifactPosition::TRANSITION_POS)
-		return true;
-	if(!CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved))
-		return false;
-	if(ArtifactUtils::isSlotBackpack(slot))
-		return true; //we can always remove combined art to the backapck
-
-	CArtifactFittingSet fittingSet(artSet->bearerType());
-	fittingSet.artifactsWorn = artSet->artifactsWorn;
-	auto artToRemove = fittingSet.getArt(slot);
-	if(assumeDestRemoved && artToRemove)
-	{
-		if(artToRemove->canBeDisassembled())
-		{
-			auto combinedArtToRemove = dynamic_cast<CCombinedArtifactInstance*>(artToRemove);
-			for(auto & part : combinedArtToRemove->constituentsInfo)
-			{
-				if(ArtifactUtils::isSlotEquipment(part.slot))
-				{
-					fittingSet.eraseArtSlot(part.slot);
-				}
-			}
-		}
-		fittingSet.eraseArtSlot(slot);
-	}
-	for(auto & art : constituentsInfo)
-	{
-		auto possibleSlot = art.art->firstAvailableSlot(&fittingSet);
-		if(ArtifactUtils::isSlotEquipment(possibleSlot))
-		{
-			fittingSet.setNewArtSlot(possibleSlot, nullptr, true);
-		}
-		else
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-bool CCombinedArtifactInstance::canBeDisassembled() const
-{
-	return true;
 }
 
 CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
@@ -1478,8 +1464,8 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 		for(const ArtifactID & artifactID : backpackTemp)
 		{
 			auto * artifact = CArtifactInstance::createArtifact(map, artifactID.toEnum());
-			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + static_cast<si32>(artifactsInBackpack.size()));
-			if(artifact->canBePutAt(this, slot))
+			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + (si32)artifactsInBackpack.size());
+			if(artifact->artType->canBePutAt(this, slot))
 				putArtifact(slot, artifact);
 		}
 	}
@@ -1517,7 +1503,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		{
 			auto * artifact = CArtifactInstance::createArtifact(map, artifactID.toEnum());
 
-			if(artifact->canBePutAt(this, slot))
+			if(artifact->artType->canBePutAt(this, slot))
 			{
 				putArtifact(slot, artifact);
 			}
@@ -1550,25 +1536,45 @@ void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * 
 	}
 }
 
+void CArtifactFittingSet::removeArtifact(ArtifactPosition pos)
+{
+	// Removes the art from the CartifactSet, but does not remove it from art->constituentsInfo.
+	// removeArtifact is for CArtifactFittingSet only. Do not move it to the parent class.
+
+	auto art = getArt(pos);
+	if(art == nullptr)
+		return;
+	if(art->canBeDisassembled())
+	{
+		auto combinedArt = dynamic_cast<CCombinedArtifactInstance*>(art);
+		for(const auto & part : combinedArt->constituentsInfo)
+		{
+			if(ArtifactUtils::isSlotEquipment(part.slot))
+				eraseArtSlot(part.slot);
+		}
+	}
+	eraseArtSlot(pos);
+}
+
 ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 {
 	return this->Bearer;
 }
 
-DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const CArtifactInstance * artifact,
-	const CArtifactSet * target)
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const ArtifactID & aid, const CArtifactSet * target)
 {
-	for(const auto & slot : artifact->artType->possibleSlots.at(target->bearerType()))
+	const auto * art = aid.toArtifact();
+	for(const auto & slot : art->possibleSlots.at(target->bearerType()))
 	{
 		const auto * existingArtInfo = target->getSlot(slot);
 
 		if((!existingArtInfo || !existingArtInfo->locked)
-			&& artifact->canBePutAt(target, slot))
+			&& art->canBePutAt(target, slot))
 		{
 			return slot;
 		}
 	}
-	return ArtifactPosition(GameConstants::BACKPACK_START);
+	return GameConstants::BACKPACK_START;
 }
 
 DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::unmovableSlots()

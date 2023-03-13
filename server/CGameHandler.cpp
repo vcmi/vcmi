@@ -4002,7 +4002,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 	{
 		assert(artifact);
-		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet);
+		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact->artType->getId(), &artFittingSet);
 		artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 		slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 

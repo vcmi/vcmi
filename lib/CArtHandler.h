@@ -90,6 +90,8 @@ public:
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
+	virtual bool canBeDisassembled() const;
+	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const;
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
@@ -155,7 +157,6 @@ public:
 	ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
 	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
-	virtual bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const;
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(ArtifactLocation al);
@@ -209,8 +210,6 @@ public:
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const override;
-	bool canBeDisassembled() const override;
 	void putAt(ArtifactLocation al) override;
 	void removeFrom(ArtifactLocation al) override;
 	bool isPart(const CArtifactInstance *supposedPart) const override;
@@ -371,6 +370,7 @@ class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
 public:
 	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
 	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
+	void removeArtifact(ArtifactPosition pos);
 	ArtBearer::ArtBearer bearerType() const override;
 
 protected:
@@ -380,8 +380,7 @@ protected:
 namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(const CArtifactInstance * artifact, 
-		const CArtifactSet * target);
+	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(const ArtifactID & aid, const CArtifactSet * target);
 	// TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
 	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();

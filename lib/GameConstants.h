@@ -47,7 +47,6 @@ namespace GameConstants
 
 	const int ALL_PLAYERS = 255; //bitfield
 
-	const ui16 BACKPACK_START = 19;
 	const int CREATURES_PER_TOWN = 7; //without upgrades
 	const int SPELL_LEVELS = 5;
 	const int SPELL_SCHOOL_LEVELS = 4;
@@ -1043,6 +1042,11 @@ public:
 };
 
 ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
+
+namespace GameConstants
+{
+	const auto BACKPACK_START = ArtifactPosition::AFTER_LAST;
+}
 
 class ArtifactID
 {
