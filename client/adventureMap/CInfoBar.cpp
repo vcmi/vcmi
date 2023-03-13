@@ -64,6 +64,7 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE, 180);// H3 uses around 175-180 ms per frame
+	animation->setDuration(1500);
 
 	std::string labelText;
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
@@ -81,7 +82,7 @@ std::string CInfoBar::VisibleDateInfo::getNewDayName()
 	if(LOCPLINT->cb->getDate(Date::DAY) == 1)
 		return "NEWDAY";
 
-	if(LOCPLINT->cb->getDate(Date::DAY) != 1)
+	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1)
 		return "NEWDAY";
 
 	switch(LOCPLINT->cb->getDate(Date::WEEK))

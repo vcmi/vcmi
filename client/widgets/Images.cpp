@@ -392,6 +392,11 @@ void CShowableAnim::rotate(bool on, bool vertical)
 		flags &= ~flag;
 }
 
+void CShowableAnim::setDuration(int durationMs)
+{
+	frameTimeTotal = durationMs/(last - first);
+}
+
 CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType type):
 	CShowableAnim(x, y, name, flags, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
