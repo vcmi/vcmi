@@ -217,17 +217,6 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 		text = std::make_shared<CTextBox>(message, textRect, 0, font, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-int CInfoBar::getEstimatedComponentHeight(int numComps) const
-{
-	if (numComps > 8) //Bigger than 8 components - return invalid value
-		return std::numeric_limits<int>::max();
-	else if (numComps > 2)
-		return 160; // 32px * 1 row + 20 to offset
-	else if (numComps)
-		return 118; // 118 px to offset
-	return 0;
-}
-
 void CInfoBar::playNewDaySound()
 {
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
@@ -402,7 +391,7 @@ void CInfoBar::pushComponents(const std::vector<Component> & components, std::st
 
 void CInfoBar::prepareComponents(const std::vector<Component> & components, std::string message, int timer)
 {
-	auto imageH = getEstimatedComponentHeight(components.size()) + (components.empty() ? 0 : 2 * CInfoBar::offset);
+	auto imageH = CMessage::getEstimatedComponentHeight(components.size()) + (components.empty() ? 0 : 2 * CInfoBar::offset);
 	auto textH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_SMALL);
 	auto tinyH = CMessage::guessHeight(message,CInfoBar::data_width - 2 * CInfoBar::offset, FONT_TINY);
 	auto header = CMessage::guessHeader(message);

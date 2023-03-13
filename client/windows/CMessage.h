@@ -38,6 +38,7 @@ public:
 	/// For convenience
 	static int guessHeight(const std::string & string, int width, EFonts fnt);
 
+	static int getEstimatedComponentHeight(int numComps);
 	/// constructor
 	static void init();
 	/// destructor

@@ -1053,11 +1053,17 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 	{
 		return;
 	}
-	std::vector<std::shared_ptr<CComponent>> intComps;
-	for (auto & component : components)
-		intComps.push_back(std::make_shared<CComponent>(component));
-	showInfoDialog(text,intComps,soundID);
-
+	std::vector<Component> vect = components; //I do not know currently how to avoid copy here
+	do
+	{
+		std::vector<Component> sender = {vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8))};
+		std::vector<std::shared_ptr<CComponent>> intComps;
+		for (auto & component : sender)
+			intComps.push_back(std::make_shared<CComponent>(component));
+		showInfoDialog(text,intComps,soundID);
+		vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8)));
+	}
+	while(!vect.empty());
 }
 
 void CPlayerInterface::showInfoDialog(const std::string & text, std::shared_ptr<CComponent> component)
