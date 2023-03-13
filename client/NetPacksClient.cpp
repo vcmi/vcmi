@@ -833,7 +833,6 @@ void ApplyClientNetPackVisitor::visitSaveGameClient(SaveGameClient & pack)
 	try
 	{
 		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::CLIENT_SAVEGAME)));
-		cl.saveCommonState(save);
 		save << cl;
 	}
 	catch(std::exception &e)

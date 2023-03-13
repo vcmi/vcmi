@@ -201,9 +201,21 @@ void CClient::newGame(CGameState * initializedGameState)
 void CClient::loadGame(CGameState * initializedGameState)
 {
 	logNetwork->info("Loading procedure started!");
+
+	logNetwork->info("Game state was transferred over network, loading.");
+	gs = initializedGameState;
+
+	gs->preInit(VLC);
+	gs->updateOnLoad(CSH->si.get());
+	logNetwork->info("Game loaded, initialize interfaces.");
+
+	initMapHandler();
+
+	reinitScripting();
+
+	initPlayerEnvironments();
 	
-	std::unique_ptr<CLoadFile> loader;
-	// try to assign loader, which is needed to deserialize data such as sleepingHeroes
+	// try to deserialize client data including sleepingHeroes
 	try
 	{
 		boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
@@ -225,39 +237,15 @@ void CClient::loadGame(CGameState * initializedGameState)
 			throw std::runtime_error("Cannot open server part of " + CSH->si->mapname);
 
 		CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
-		loadCommonState(checkingLoader);
-		loader = checkingLoader.decay();
+		std::unique_ptr<CLoadFile> loader = checkingLoader.decay();
+		serialize(loader->serializer, loader->serializer.fileVersion);
 
-		logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
+		logNetwork->info("Client data loaded.");
 	}
 	catch(std::exception & e)
 	{
-		if(initializedGameState)
-		{
-			logNetwork->info("Game state was transferred over network, loading.");
-			// if loader can't be assigned, use the game state transferred from network if exist
-			gs = initializedGameState;
-		}
-		else
-		{
-			logGlobal->error("Cannot load game %s. Error: %s", CSH->si->mapname, e.what());
-			throw; //obviously we cannot continue here
-		}
+		logGlobal->info("Cannot load client data for game %s. Error: %s", CSH->si->mapname, e.what());
 	}
-
-	gs->preInit(VLC);
-	gs->updateOnLoad(CSH->si.get());
-	logNetwork->info("Game loaded, initialize interfaces.");
-	
-	initMapHandler();
-
-	reinitScripting();
-
-	initPlayerEnvironments();
-	
-	// deserialize data including sleepingHeroes
-	if(loader)
-		serialize(loader->serializer, loader->serializer.fileVersion);
 
 	initPlayerInterfaces();
 }

@@ -224,11 +224,11 @@ void SelectionTab::toggleMode()
 
 		case ESelectionScreen::loadGame:
 			inputName->disable();
-			parseSaves(getFiles("Saves/", EResType::CLIENT_SAVEGAME));
+			parseSaves(getFiles("Saves/", EResType::SERVER_SAVEGAME));
 			break;
 
 		case ESelectionScreen::saveGame:
-			parseSaves(getFiles("Saves/", EResType::CLIENT_SAVEGAME));
+			parseSaves(getFiles("Saves/", EResType::SERVER_SAVEGAME));
 			inputName->enable();
 			restoreLastSelection();
 			break;
