@@ -10,27 +10,16 @@
 #include "StdInc.h"
 #include "Client.h"
 
-#include "CMusicHandler.h"
-#include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "adventureMap/CAdvMapInt.h"
 #include "mapView/mapHandler.h"
-#include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
 #include "../lib/StartInfo.h"
 #include "../lib/battle/BattleInfo.h"
-#include "../lib/CModHandler.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/CTownHandler.h"
-#include "../lib/CBuildingHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
-#include "../lib/serializer/CLoadIntegrityValidator.h"
 #include "../lib/NetPacks.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/VCMI_Lib.h"
@@ -39,15 +28,12 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CConfigHandler.h"
-#include "mainmenu/CMainMenu.h"
-#include "mainmenu/CCampaignScreen.h"
-#include "lobby/CBonusSelection.h"
 #include "battle/BattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
 #include "CServerHandler.h"
-#include "../lib/ScriptHandler.h"
+#include "serializer/BinaryDeserializer.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
@@ -219,25 +205,11 @@ void CClient::loadGame(CGameState * initializedGameState)
 	try
 	{
 		boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
-		boost::filesystem::path controlServerSaveName;
-
-		if(CResourceHandler::get("local")->existsResource(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME)))
-		{
-			controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME));
-		}
-		else // create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
-		{
-			controlServerSaveName = boost::filesystem::path(clientSaveName).replace_extension(".vsgm1");
-			CResourceHandler::get("local")->createResource(controlServerSaveName.string(), true);
-		}
 
 		if(clientSaveName.empty())
 			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
-		if(controlServerSaveName.empty() || !boost::filesystem::exists(controlServerSaveName))
-			throw std::runtime_error("Cannot open server part of " + CSH->si->mapname);
 
-		CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
-		std::unique_ptr<CLoadFile> loader = checkingLoader.decay();
+		std::unique_ptr<CLoadFile> loader (new CLoadFile(clientSaveName));
 		serialize(loader->serializer, loader->serializer.fileVersion);
 
 		logNetwork->info("Client data loaded.");
