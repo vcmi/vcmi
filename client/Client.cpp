@@ -310,8 +310,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		nInt->human = isHuman;
 		nInt->playerID = pid;
 
-		nInt->loadGame(h, version);
-
+		bool shouldResetInterface = true;
 		// Client no longer handle this player at all
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), pid))
 		{
@@ -328,10 +327,18 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		else
 		{
 			installNewPlayerInterface(nInt, pid);
-			continue;
+			shouldResetInterface = false;
 		}
-		nInt.reset();
-		LOCPLINT = prevInt;
+
+		// loadGame needs to be called after initGameInterface to load paths correctly
+		// initGameInterface is called in installNewPlayerInterface
+		nInt->loadGame(h, version);
+
+		if (shouldResetInterface)
+		{
+			nInt.reset();
+			LOCPLINT = prevInt;
+		}
 	}
 
 #if SCRIPTING_ENABLED
