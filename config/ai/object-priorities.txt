@@ -86,8 +86,8 @@ InputVariable: strategicalValue
   lock-range: false
   term: NONE Ramp 0.200 0.000
   term: LOWEST Triangle 0.000 0.010 0.250
-  term: LOW Triangle 0.000 0.400 0.700
-  term: MEDIUM Triangle 0.400 0.700 1.000
+  term: LOW Triangle 0.000 0.250 0.700
+  term: MEDIUM Triangle 0.250 0.700 1.000
   term: HIGH Ramp 0.700 1.000
 InputVariable: goldPreasure
   description: Ratio between weekly army cost and gold income
@@ -189,10 +189,10 @@ RuleBlock: gold reward
   rule: if armyReward is LOW and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is HIGH
   rule: if armyReward is LOW and heroRole is MAIN and danger is NONE then Value is BITLOW with 0.5
   rule: if armyReward is LOW and heroRole is MAIN and danger is NONE and mainTurnDistance is LOWEST then Value is HIGH
-  rule: if skillReward is LOW and heroRole is MAIN and armyLoss is LOW then Value is BITHIGH with 0.5
-  rule: if skillReward is MEDIUM and heroRole is MAIN and armyLoss is LOW and fear is not HIGH then Value is HIGH with 0.5
+  rule: if skillReward is LOW and heroRole is MAIN and armyLoss is LOW then Value is BITHIGH
+  rule: if skillReward is MEDIUM and heroRole is MAIN and armyLoss is LOW and fear is not HIGH then Value is BITHIGH
   rule: if skillReward is HIGH and heroRole is MAIN and armyLoss is LOW and fear is not HIGH then Value is HIGH
-  rule: if strategicalValue is LOW and heroRole is MAIN and armyLoss is LOW then Value is BITLOW
+  rule: if strategicalValue is LOW and heroRole is MAIN and armyLoss is LOW then Value is BITHIGH
   rule: if strategicalValue is LOWEST and heroRole is MAIN and armyLoss is LOW then Value is LOW
   rule: if strategicalValue is LOW and heroRole is SCOUT and armyLoss is LOW and fear is not HIGH then Value is HIGH with 0.5
   rule: if strategicalValue is MEDIUM and heroRole is SCOUT and danger is NONE and fear is not HIGH then Value is HIGH
@@ -211,9 +211,13 @@ RuleBlock: gold reward
   rule: if heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is BITHIGH with 0.2
   rule: if heroRole is SCOUT then Value is BITLOW
   rule: if goldCost is not NONE and goldReward is NONE and goldPreasure is HIGH then Value is LOWEST
-  rule: if turn is NOW then Value is BITHIGH with 0.2
-  rule: if goldPreasure is HIGH and goldReward is HIGH and armyLoss is LOW and fear is not HIGH then Value is HIGHEST
-  rule: if goldPreasure is HIGH and goldReward is MEDIUM and armyLoss is LOW and fear is not HIGH then Value is HIGH
-  rule: if goldPreasure is HIGH and goldReward is LOW and armyLoss is LOW then Value is BITHIGH
+  rule: if turn is NOW then Value is LOW with 0.3
+  rule: if turn is not NOW then Value is LOW with 0.4
+  rule: if goldPreasure is HIGH and goldReward is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW and fear is not HIGH then Value is HIGHEST
+  rule: if goldPreasure is HIGH and goldReward is MEDIUM and heroRole is MAIN and danger is not NONE and armyLoss is LOW and fear is not HIGH then Value is HIGH
+  rule: if goldPreasure is HIGH and goldReward is HIGH and heroRole is SCOUT and danger is NONE and armyLoss is LOW and fear is not HIGH then Value is HIGHEST
+  rule: if goldPreasure is HIGH and goldReward is MEDIUM and heroRole is SCOUT and danger is NONE and armyLoss is LOW and fear is not HIGH then Value is HIGH
+  rule: if goldPreasure is HIGH and goldReward is LOW and heroRole is SCOUT and armyLoss is LOW then Value is BITHIGH
+  rule: if goldPreasure is HIGH and goldReward is LOW and heroRole is SCOUT and scoutTurnDistance is LOW and armyLoss is LOW then Value is HIGH with 0.5
   rule: if fear is MEDIUM then Value is LOW
   rule: if fear is HIGH then Value is LOWEST

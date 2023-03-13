@@ -361,8 +361,8 @@ float RewardEvaluator::getTotalResourceRequirementStrength(int resType) const
 		return 0;
 
 	float ratio = dailyIncome[resType] == 0
-		? requiredResources[resType] / 50
-		: (float)requiredResources[resType] / dailyIncome[resType] / 50;
+		? (float)requiredResources[resType] / 50.0f
+		: (float)requiredResources[resType] / dailyIncome[resType] / 50.0f;
 
 	return std::min(ratio, 1.0f);
 }
@@ -377,10 +377,12 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	case Obj::MINE:
 		return target->subID == Res::GOLD 
 			? 0.5f 
-			: 0.02f * getTotalResourceRequirementStrength(target->subID) + 0.02f * getResourceRequirementStrength(target->subID);
+			: 0.4f * getTotalResourceRequirementStrength(target->subID) + 0.1f * getResourceRequirementStrength(target->subID);
 
 	case Obj::RESOURCE:
-		return target->subID == Res::GOLD ? 0 : 0.1f * getResourceRequirementStrength(target->subID);
+		return target->subID == Res::GOLD
+			? 0
+			: 0.2f * getTotalResourceRequirementStrength(target->subID) + 0.4f * getResourceRequirementStrength(target->subID);
 
 	case Obj::CREATURE_BANK:
 	{
@@ -547,7 +549,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::SEA_CHEST:
 		return 1500;
 	case Obj::PANDORAS_BOX:
-		return 5000;
+		return 2500;
 	case Obj::PRISON:
 		//Objectively saves us 2500 to hire hero
 		return GameConstants::HERO_GOLD_COST;
@@ -800,21 +802,23 @@ public:
 		evaluationContext.goldReward += 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
-		evaluationContext.strategicalValue += buildThis.townInfo.armyStrength / 50000.0;
 		evaluationContext.goldCost += bi.buildCostWithPrerequisits[Res::GOLD];
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
+			evaluationContext.strategicalValue += buildThis.townInfo.armyStrength / 50000.0;
+
 			if(bi.baseCreatureID == bi.creatureID)
 			{
-				evaluationContext.strategicalValue += 0.5f + 0.1f * bi.creatureLevel / (float)bi.prerequisitesCount;
+				evaluationContext.strategicalValue += (0.5f + 0.1f * bi.creatureLevel) / (float)bi.prerequisitesCount;
 				evaluationContext.armyReward += bi.armyStrength;
 			}
 			else
 			{
 				auto potentialUpgradeValue = evaluationContext.evaluator.getUpgradeArmyReward(buildThis.town, bi);
-				//evaluationContext.strategicalValue += 0.05f * bi.creatureLevel / (float)bi.prerequisitesCount;
-				evaluationContext.armyReward += 0.3f * potentialUpgradeValue / (float)bi.prerequisitesCount;
+				
+				evaluationContext.strategicalValue += potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount;
+				evaluationContext.armyReward += potentialUpgradeValue / (float)bi.prerequisitesCount;
 			}
 		}
 		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
@@ -824,7 +828,14 @@ public:
 		}
 		else
 		{
-			evaluationContext.strategicalValue += evaluationContext.evaluator.ai->buildAnalyzer->getGoldPreasure() * evaluationContext.goldReward / 2200.0f;
+			auto goldPreasure = evaluationContext.evaluator.ai->buildAnalyzer->getGoldPreasure();
+
+			evaluationContext.strategicalValue += evaluationContext.goldReward * goldPreasure / 3500.0f / bi.prerequisitesCount;
+		}
+
+		if(bi.notEnoughRes && bi.prerequisitesCount == 1)
+		{
+			evaluationContext.strategicalValue /= 2;
 		}
 	}
 };

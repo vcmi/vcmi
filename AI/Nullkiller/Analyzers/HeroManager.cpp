@@ -111,6 +111,12 @@ void HeroManager::update()
 
 	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 50 + 1);
 
+	//vstd::amin(globalMainCount, 1 + (cb->getTownsInfo().size() / 3));
+	if(cb->getTownsInfo().size() < 4 && globalMainCount > 2)
+	{
+		globalMainCount = 2;
+	}
+
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
 
 	for(auto hero : myHeroes)

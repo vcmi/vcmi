@@ -236,7 +236,6 @@ void Nullkiller::makeTurn()
 		{
 			Goals::TTaskVec fastTasks = {
 				choseBestTask(sptr(BuyArmyBehavior()), 1),
-				choseBestTask(sptr(RecruitHeroBehavior()), 1),
 				choseBestTask(sptr(BuildingBehavior()), 1)
 			};
 
@@ -251,6 +250,7 @@ void Nullkiller::makeTurn()
 
 		Goals::TTaskVec bestTasks = {
 			bestTask,
+			choseBestTask(sptr(RecruitHeroBehavior()), 1),
 			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
 			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
 			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),

@@ -250,10 +250,13 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
-		if(ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN)
+		if(!upgrader->garrisonHero && ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN)
 		{
 			upgrade.upgradeValue +=	
-				ai->nullkiller->armyManager->howManyReinforcementsCanGet(path.targetHero, path.heroArmy, upgrader);	
+				ai->nullkiller->armyManager->howManyReinforcementsCanGet(
+					path.targetHero,
+					path.heroArmy,
+					upgrader->getUpperArmy());	
 		}
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();

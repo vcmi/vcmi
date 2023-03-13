@@ -1301,7 +1301,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			if(path.nodes[i - 1].turns)
 			{
 				//blockedHeroes.insert(h); //to avoid attempts of moving heroes with very little MPs
-				break;
+				return false;
 			}
 
 			int3 endpos = path.nodes[i - 1].coord;
