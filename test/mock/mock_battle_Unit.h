@@ -77,7 +77,7 @@ public:
 	MOCK_CONST_METHOD1(willMove, bool(int));
 	MOCK_CONST_METHOD1(waited, bool(int));
 
-	MOCK_CONST_METHOD1(battleQueuePhase, int(int));
+	MOCK_CONST_METHOD1(battleQueuePhase, battle::BattlePhases::Type(int));
 
 	MOCK_CONST_METHOD0(acquire, std::shared_ptr<battle::Unit>());
 	MOCK_CONST_METHOD0(acquireState, std::shared_ptr<battle::CUnitState>());
