@@ -156,6 +156,7 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 //	}
 	else if(message=="convert txt")
 	{
+		logGlobal->info("Searching for available maps");
 		std::unordered_set<ResourceID> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
 		{
 			return ident.getType() == EResType::MAP;
@@ -168,9 +169,21 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 
 		CMapService mapService;
 
+		logGlobal->info("Loading maps for export");
 		for (auto const & mapName : mapList)
-			mapService.loadMap(mapName); // load and drop loaded map - we only need loader to run over all maps
+		{
+			try
+			{
+				// load and drop loaded map - we only need loader to run over all maps
+				mapService.loadMap(mapName);
+			}
+			catch(std::exception & e)
+			{
+				logGlobal->error("Map %s is invalid. Message: %s", mapName.getName(), e.what());
+			}
+		}
 
+		logGlobal->info("Loading campaigns for export");
 		for (auto const & campaignName : campaignList)
 		{
 			CCampaignState state(CCampaignHandler::getCampaign(campaignName.getName()));

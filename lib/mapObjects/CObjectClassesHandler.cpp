@@ -339,10 +339,13 @@ std::set<si32> CObjectClassesHandler::knownObjects() const
 
 std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
 {
-	assert(primaryID < objects.size());
-	assert(objects[primaryID]);
-
 	std::set<si32> ret;
+
+	if (!objects.at(primaryID))
+	{
+		logGlobal->error("Failed to find object %d", primaryID);
+		return ret;
+	}
 
 	for(const auto & entry : objects.at(primaryID)->objects)
 		if (entry)
