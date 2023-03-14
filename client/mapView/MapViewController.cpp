@@ -219,7 +219,15 @@ void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 	adventureContext = fadingOutContext;
 	context = fadingOutContext;
 
-	fadingOutContext->target = obj->id;
+	const CGObjectInstance * movingObject = obj;
+	if (obj->ID == Obj::HERO)
+	{
+		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
+		if (hero->boat)
+			movingObject = hero->boat;
+	}
+
+	fadingOutContext->target = movingObject->id;
 	fadingOutContext->progress = 1.0;
 }
 
@@ -230,7 +238,15 @@ void MapViewController::fadeInObject(const CGObjectInstance * obj)
 	adventureContext = fadingInContext;
 	context = fadingInContext;
 
-	fadingInContext->target = obj->id;
+	const CGObjectInstance * movingObject = obj;
+	if (obj->ID == Obj::HERO)
+	{
+		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
+		if (hero->boat)
+			movingObject = hero->boat;
+	}
+
+	fadingInContext->target = movingObject->id;
 	fadingInContext->progress = 0.0;
 }
 
@@ -324,8 +340,12 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 {
 	assert(!hasOngoingAnimations());
 
-	removeObject(obj);
-	addObject(obj);
+	const CGObjectInstance * movingObject = obj;
+	if(obj->boat)
+		movingObject = obj->boat;
+
+	removeObject(movingObject);
+	addObject(movingObject);
 
 	if(isEventVisible(obj, from, dest))
 	{
@@ -333,7 +353,7 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 		teleportContext->animationTime = adventureContext->animationTime;
 		adventureContext = teleportContext;
 		context = teleportContext;
-		setViewCenter(obj->getSightCenter());
+		setViewCenter(movingObject->getSightCenter());
 	}
 }
 
