@@ -604,6 +604,13 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
 			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::objectPropertyChanged, &pack);
 	}
+
+	if (pack.what == ObjProperty::OWNER)
+	{
+		// invalidate section of map view with our objec and force an update with new flag color
+		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
+		CGI->mh->onObjectInstantAdd(gs.getObjInstance(pack.id));
+	}
 }
 
 void ApplyClientNetPackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
