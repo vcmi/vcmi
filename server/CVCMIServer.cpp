@@ -1117,7 +1117,6 @@ int main(int argc, const char * argv[])
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
 	preinitDLL(console);
-	settings.init();
 	logConfig.configure();
 
 	loadDLLClasses();

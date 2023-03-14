@@ -139,6 +139,11 @@ bool CModEntry::isValid() const
 	return !localData.isEmpty() || !repository.isEmpty();
 }
 
+bool CModEntry::isTranslation() const
+{
+	return getBaseValue("modType").toString().toLower() == "translation";
+}
+
 int CModEntry::getModStatus() const
 {
 	int status = 0;

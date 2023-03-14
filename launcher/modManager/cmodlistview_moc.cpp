@@ -847,7 +847,7 @@ QString CModListView::getTranslationModName(const QString & language)
 	{
 		auto mod = modModel->getMod(modName);
 
-		if (mod.getBaseValue("modType").toString().toLower() != "translation")
+		if (!mod.isTranslation())
 			continue;
 
 		if (mod.getBaseValue("language").toString() != language)

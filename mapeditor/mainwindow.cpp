@@ -170,7 +170,6 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	//init
 	preinitDLL(::console, false, extractionOptions.extractArchives);
-	settings.init();
 
 	// Initialize logging based on settings
 	logConfig->configure();

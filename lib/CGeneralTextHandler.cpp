@@ -387,8 +387,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	znpc00           (*this, "vcmi.znpc00"  ), // technically - wog
 	qeModCommands    (*this, "vcmi.quickExchange" )
 {
-	detectInstallParameters();
-
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
 	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );
@@ -605,16 +603,19 @@ std::string CGeneralTextHandler::getModLanguage(const std::string & modContext)
 
 std::string CGeneralTextHandler::getPreferredLanguage()
 {
+	assert(!settings["general"]["language"].String().empty());
 	return settings["general"]["language"].String();
 }
 
 std::string CGeneralTextHandler::getInstalledLanguage()
 {
+	assert(!settings["session"]["language"].String().empty());
 	return settings["session"]["language"].String();
 }
 
 std::string CGeneralTextHandler::getInstalledEncoding()
 {
+	assert(!settings["session"]["encoding"].String().empty());
 	return settings["session"]["encoding"].String();
 }
 

@@ -62,6 +62,8 @@ public:
 	bool isCompatible() const;
 	// returns if has any data
 	bool isValid() const;
+	// installed and enabled
+	bool isTranslation() const;
 
 	// see ModStatus enum
 	int getModStatus() const;

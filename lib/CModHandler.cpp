@@ -616,7 +616,8 @@ bool CModInfo::Version::isNull() const
 
 CModInfo::CModInfo():
 	checksum(0),
-	enabled(false),
+	explicitlyEnabled(false),
+	implicitlyEnabled(true),
 	validation(PENDING)
 {
 
@@ -629,7 +630,8 @@ CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode
 	dependencies(config["depends"].convertTo<std::set<std::string> >()),
 	conflicts(config["conflicts"].convertTo<std::set<std::string> >()),
 	checksum(0),
-	enabled(false),
+	explicitlyEnabled(false),
+	implicitlyEnabled(true),
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
@@ -654,7 +656,7 @@ JsonNode CModInfo::saveLocalData() const
 	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << checksum;
 
 	JsonNode conf;
-	conf["active"].Bool() = enabled;
+	conf["active"].Bool() = explicitlyEnabled;
 	conf["validated"].Bool() = validation != FAILED;
 	conf["checksum"].String() = stream.str();
 	return conf;
@@ -683,31 +685,50 @@ void CModInfo::updateChecksum(ui32 newChecksum)
 void CModInfo::loadLocalData(const JsonNode & data)
 {
 	bool validated = false;
-	enabled = true;
+	implicitlyEnabled = true;
+	explicitlyEnabled = true;
 	checksum = 0;
 	if (data.getType() == JsonNode::JsonType::DATA_BOOL)
 	{
-		enabled = data.Bool();
+		explicitlyEnabled = data.Bool();
 	}
 	if (data.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
-		enabled   = data["active"].Bool();
+		explicitlyEnabled = data["active"].Bool();
 		validated = data["validated"].Bool();
 		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
 	}
 
 	//check compatibility
-	bool wasEnabled = enabled;
-	enabled = enabled && (vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin));
-	enabled = enabled && (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(Version::GameVersion()));
+	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin));
+	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(Version::GameVersion()));
 
-	if(wasEnabled && !enabled)
+	if(!implicitlyEnabled)
 		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);
 
-	if (enabled)
+	if (boost::iequals(config["modType"].String(), "translation")) // compatibility code - mods use "Translation" type at the moment
+	{
+		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
+		{
+			logGlobal->warn("Translation mod %s was not loaded: language mismatch!", name);
+			implicitlyEnabled = false;
+		}
+	}
+
+	if (isEnabled())
 		validation = validated ? PASSED : PENDING;
 	else
 		validation = validated ? PASSED : FAILED;
+}
+
+bool CModInfo::isEnabled() const
+{
+	return implicitlyEnabled && explicitlyEnabled;
+}
+
+void CModInfo::setEnabled(bool on)
+{
+	explicitlyEnabled = on;
 }
 
 CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
@@ -818,36 +839,6 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 		}
 	}
 	return false;
-}
-
-bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
-{
-	for(const TModID & id : input)
-	{
-		const CModInfo & mod = allMods.at(id);
-
-		for(const TModID & dep : mod.dependencies)
-		{
-			if(!vstd::contains(input, dep))
-			{
-				logMod->error("Error: Mod %s requires missing %s!", mod.name, dep);
-				return false;
-			}
-		}
-
-		for(const TModID & conflicting : mod.conflicts)
-		{
-			if(vstd::contains(input, conflicting))
-			{
-				logMod->error("Error: Mod %s conflicts with %s!", mod.name, allMods.at(conflicting).name);
-				return false;
-			}
-		}
-
-		if(hasCircularDependency(id))
-			return false;
-	}
-	return true;
 }
 
 // Returned vector affects the resource loaders call order (see CFilesystemList::load).
@@ -995,10 +986,10 @@ void CModHandler::loadOneMod(std::string modName, std::string parent, const Json
 			mod.dependencies.insert(parent);
 
 		allMods[modFullName] = mod;
-		if (mod.enabled && enableMods)
+		if (mod.isEnabled() && enableMods)
 			activeMods.push_back(modFullName);
 
-		loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], enableMods && mod.enabled);
+		loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], enableMods && mod.isEnabled());
 	}
 }
 
@@ -1087,6 +1078,8 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 void CModHandler::loadModFilesystems()
 {
+	CGeneralTextHandler::detectInstallParameters();
+
 	activeMods = validateAndSortDependencies(activeMods);
 
 	coreMod.updateChecksum(calculateModChecksum(CModHandler::scopeBuiltin(), CResourceHandler::get(CModHandler::scopeBuiltin())));
@@ -1108,6 +1101,9 @@ TModID CModHandler::findResourceOrigin(const ResourceID & name)
 
 	if(CResourceHandler::get("core")->existsResource(name))
 		return "core";
+
+	if(CResourceHandler::get("mapEditor")->existsResource(name))
+		return "core"; // Workaround for loading maps via map editor
 
 	assert(0);
 	return "";

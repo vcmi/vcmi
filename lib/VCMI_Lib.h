@@ -107,7 +107,8 @@ public:
 	void clear(); //deletes all handlers and its data
 
 	// basic initialization. should be called before init(). Can also extract original H3 archives
-	void loadFilesystem(bool onlyEssential, bool extractArchives = false);
+	void loadFilesystem(bool extractArchives);
+	void loadModFilesystem(bool onlyEssential);
 
 #if SCRIPTING_ENABLED
 	void scriptsLoaded();
