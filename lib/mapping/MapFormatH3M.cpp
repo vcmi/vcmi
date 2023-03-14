@@ -1449,11 +1449,11 @@ void CMapLoaderH3M::readObjects()
 				if(htid == 0xff)
 				{
 					hp->power = reader->readUInt8();
-					logGlobal->info("Hero placeholder: by power at %s", objPos.toString());
+					logGlobal->debug("Hero placeholder: by power at %s", objPos.toString());
 				}
 				else
 				{
-					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->getNameTranslated(), objPos.toString());
+					logGlobal->debug("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->getNameTranslated(), objPos.toString());
 					hp->power = 0;
 				}
 
@@ -1705,7 +1705,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 		if(!nhi->spells.empty())
 		{
 			nhi->clear();
-			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
+			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTextID(), nhi->subID);
 		}
 
 		if(hasCustomSpells)

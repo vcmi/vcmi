@@ -970,7 +970,7 @@ void CGHeroInstance::initExp(CRandomGenerator & rand)
 
 std::string CGHeroInstance::nodeName() const
 {
-	return "Hero " + getNameTranslated();
+	return "Hero " + getNameTextID();
 }
 
 std::string CGHeroInstance::getNameTranslated() const
