@@ -115,6 +115,39 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 	auto destination = target.at(0).hexValue;
 	auto desiredTarget = m->battle()->battleHexToWallPart(destination);
 
+	auto nearestAttackableWall = [&m,&server](EWallPart part) {
+		auto choosePart = [&] (EWallPart left, EWallPart right, int max = 2) {
+			bool bothSidesAttackable = m->battle()->isWallPartAttackable(left)
+										&& m->battle()->isWallPartAttackable(right);
+			if(bothSidesAttackable)
+				return server->getRNG()->getInt64Range(0, max)() < max ? left : right;
+			else if(m->battle()->isWallPartAttackable(left))
+				return left;
+			else if(m->battle()->isWallPartAttackable(right))
+				return right;
+			return EWallPart::INVALID;
+		};
+		switch (part)
+		{
+			case EWallPart::BOTTOM_TOWER:
+				return choosePart(EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE);
+			case EWallPart::BOTTOM_WALL:
+				return choosePart(EWallPart::BELOW_GATE, EWallPart::OVER_GATE);
+			case EWallPart::BELOW_GATE:
+				return choosePart(EWallPart::BOTTOM_WALL, EWallPart::OVER_GATE);
+			case EWallPart::OVER_GATE:
+				return choosePart(EWallPart::UPPER_WALL, EWallPart::BELOW_GATE);
+			case EWallPart::UPPER_WALL:
+				return choosePart(EWallPart::OVER_GATE, EWallPart::BELOW_GATE);
+			case EWallPart::UPPER_TOWER:
+				return choosePart(EWallPart::UPPER_WALL, EWallPart::OVER_GATE);
+			case EWallPart::GATE:
+				return choosePart(EWallPart::OVER_GATE, EWallPart::BELOW_GATE, 1);
+			default:
+				return EWallPart::INVALID;
+		}
+	};
+
 	for(int i = 0; i < targetsToAttack; i++)
 	{
 		auto actualTarget = EWallPart::INVALID;
@@ -123,6 +156,10 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 				server->getRNG()->getInt64Range(0, 99)() < getCatapultHitChance(desiredTarget))
 		{
 			actualTarget = desiredTarget;
+		}
+		else if(nearestAttackableWall(desiredTarget) != EWallPart::INVALID)
+		{
+			actualTarget = nearestAttackableWall(desiredTarget);
 		}
 		else
 		{
