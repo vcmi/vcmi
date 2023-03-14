@@ -327,7 +327,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	adventureInt->infoBar->requestPopAll();
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
-		if (hero->getRemovalSound())
+		if(hero->getRemovalSound() && hero->tempOwner == playerID)
 			CCS->soundh->playSound(hero->getRemovalSound().get());
 	}
 
