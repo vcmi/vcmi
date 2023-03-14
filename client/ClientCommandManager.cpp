@@ -23,6 +23,9 @@
 #include "../lib/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/StringConstants.h"
+#include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CCampaignHandler.h"
 #include "windows/CCastleInterface.h"
 #include "render/CAnimation.h"
 #include "../CCallback.h"
@@ -153,6 +156,29 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 //	}
 	else if(message=="convert txt")
 	{
+		std::unordered_set<ResourceID> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+		{
+			return ident.getType() == EResType::MAP;
+		});
+
+		//std::unordered_set<ResourceID> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+		//{
+		//	return ident.getType() == EResType::CAMPAIGN;
+		//});
+
+		CMapService mapService;
+
+		for (auto const & mapName : mapList)
+			mapService.loadMap(mapName); // load and drop loaded map - we only need loader to run over all maps
+
+		// TODO:
+		//for (auto const & campaignName : campaignList)
+		//{
+		//	CCampaignState state(CCampaignHandler::getCampaign(campaignName.getName()));
+		//	for (auto const & part : state.camp->mapPieces)
+		//		delete state.getMap(part.first);
+		//}
+
 		VLC->generaltexth->dumpAllTexts();
 	}
 	else if(message=="get config")

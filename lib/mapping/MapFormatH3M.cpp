@@ -35,11 +35,24 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
+static std::string convertMapName(std::string input)
+{
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+
+	size_t slashPos = input.find_last_of("/");
+
+	if (slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
+}
+
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new CBinaryReader(stream))
 	, inputStream(stream)
-	, mapName(boost::algorithm::to_lower_copy(mapName))
+	, mapName(convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
 {
@@ -2252,7 +2265,7 @@ std::string CMapLoaderH3M::readBasicString()
 std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIdentifier)
 {
 	std::string mapString = TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
-	TextIdentifier fullIdentifier(mapName, stringIdentifier.get());
+	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
 	if (mapString.empty())
 		return "";
