@@ -72,7 +72,7 @@ bool RemoveObstacle::canRemove(const CObstacleInstance * obstacle) const
 		return true;
 	const auto *spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle);
 
-	if(removeAllSpells && spellObstacle)
+	if(removeAllSpells && obstacle->obstacleType == CObstacleInstance::SPELL_CREATED)
 		return true;
 
 	if(spellObstacle && !removeSpells.empty())
