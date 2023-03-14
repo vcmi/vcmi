@@ -313,8 +313,8 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 		if (string.second.modContext != modContext)
 			continue; // Not our mod
 
-		if (string.second.baseLanguage.empty())
-			continue; // No base string
+		if (string.second.overrideLanguage == language)
+			continue; // Already translated
 
 		if (string.second.baseLanguage == language && !string.second.baseValue.empty())
 			continue; // Base string already uses our language
