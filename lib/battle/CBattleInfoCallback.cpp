@@ -1416,10 +1416,12 @@ bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart wallPart) co
 bool CBattleInfoCallback::isWallPartAttackable(EWallPart wallPart) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	auto wallState = battleGetWallState(wallPart);
 
 	if(isWallPartPotentiallyAttackable(wallPart))
+	{
+		auto wallState = battleGetWallState(wallPart);
 		return (wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED);
+	}
 	return false;
 }
 
