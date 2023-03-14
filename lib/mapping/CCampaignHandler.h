@@ -220,10 +220,10 @@ class DLL_LINKAGE CCampaignHandler
 {
 	std::vector<size_t> scenariosCountPerCampaign;
 
-	static std::string readLocalizedString(CBinaryReader & reader, std::string encoding);
+	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
 
 	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string encoding, int version, int mapVersion );
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps

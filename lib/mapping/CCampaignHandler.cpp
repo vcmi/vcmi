@@ -53,7 +53,7 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 
 	CMemoryStream stream(cmpgn.data(), cmpgn.size());
 	CBinaryReader reader(&stream);
-	CCampaignHeader ret = readHeaderFromMemory(reader, name, modName, encoding);
+	CCampaignHeader ret = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
 
 	return ret;
 }
@@ -72,12 +72,12 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 
 	CMemoryStream stream(file[0].data(), file[0].size());
 	CBinaryReader reader(&stream);
-	ret->header = readHeaderFromMemory(reader, name, modName, encoding);
+	ret->header = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
 
 	int howManyScenarios = static_cast<int>(VLC->generaltexth->getCampaignLength(ret->header.mapVersion));
 	for(int g=0; g<howManyScenarios; ++g)
 	{
-		CCampaignScenario sc = readScenarioFromMemory(reader, encoding, ret->header.version, ret->header.mapVersion);
+		CCampaignScenario sc = readScenarioFromMemory(reader, resourceID.getName(), modName, encoding, ret->header.version, ret->header.mapVersion);
 		ret->scenarios.push_back(sc);
 	}
 
@@ -91,7 +91,7 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 			scenarioID++;
 		}
 
-		std::string scenarioName = name.substr(0, name.find('.'));
+		std::string scenarioName = resourceID.getName();
 		boost::to_lower(scenarioName);
 		scenarioName += ':' + std::to_string(g - 1);
 
@@ -109,11 +109,11 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	}
 
 	// handle campaign specific discrepancies
-	if(name == "DATA/AB.H3C")
+	if(resourceID.getName() == "DATA/AB")
 	{
 		ret->scenarios[6].keepHeroes.emplace_back(155); // keep hero Xeron for map 7 To Kill A Hero
 	}
-	else if(name == "DATA/FINAL.H3C")
+	else if(resourceID.getName() == "DATA/FINAL")
 	{
 		// keep following heroes for map 8 Final H
 		ret->scenarios[7].keepHeroes.emplace_back(148); // Gelu
@@ -125,9 +125,30 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	return ret;
 }
 
-std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::string encoding)
+static std::string convertMapName(std::string input)
 {
-	return TextOperations::toUnicode(reader.readBaseString(), encoding);
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+
+	size_t slashPos = input.find_last_of("/");
+
+	if (slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
+}
+
+std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
+{
+	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
+
+	std::string input = TextOperations::toUnicode(reader.readBaseString(), encoding);
+
+	if (input.empty())
+		return "";
+
+	VLC->generaltexth->registerString(modName, stringID, input);
+	return VLC->generaltexth->translate(stringID.get());
 }
 
 CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
@@ -136,8 +157,8 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 
 	ret.version = reader.readUInt32();
 	ret.mapVersion = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	ret.name = readLocalizedString(reader, encoding);
-	ret.description = readLocalizedString(reader, encoding);
+	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
+	ret.description = readLocalizedString(reader, filename, modName, encoding, "description");
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
@@ -149,9 +170,9 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, std::string encoding, int version, int mapVersion )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion )
 {
-	auto prologEpilogReader = [&]() -> CCampaignScenario::SScenarioPrologEpilog
+	auto prologEpilogReader = [&](const std::string & identifier) -> CCampaignScenario::SScenarioPrologEpilog
 	{
 		CCampaignScenario::SScenarioPrologEpilog ret;
 		ret.hasPrologEpilog = reader.readUInt8();
@@ -159,14 +180,14 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 		{
 			ret.prologVideo = reader.readUInt8();
 			ret.prologMusic = reader.readUInt8();
-			ret.prologText = readLocalizedString(reader, encoding);
+			ret.prologText = readLocalizedString(reader, filename, modName, encoding, identifier);
 		}
 		return ret;
 	};
 
 	CCampaignScenario ret;
 	ret.conquered = false;
-	ret.mapName = readLocalizedString(reader, encoding);
+	ret.mapName = reader.readBaseString();
 	ret.packedMapSize = reader.readUInt32();
 	if(mapVersion == 18)//unholy alliance
 	{
@@ -178,9 +199,9 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText = readLocalizedString(reader, encoding);
-	ret.prolog = prologEpilogReader();
-	ret.epilog = prologEpilogReader();
+	ret.regionText = readLocalizedString(reader, filename, modName, encoding, ret.mapName + ".region");
+	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
+	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
 
 	ret.travelOptions = readScenarioTravelFromMemory(reader, version);
 

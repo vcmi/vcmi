@@ -161,23 +161,22 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 			return ident.getType() == EResType::MAP;
 		});
 
-		//std::unordered_set<ResourceID> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
-		//{
-		//	return ident.getType() == EResType::CAMPAIGN;
-		//});
+		std::unordered_set<ResourceID> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+		{
+			return ident.getType() == EResType::CAMPAIGN;
+		});
 
 		CMapService mapService;
 
 		for (auto const & mapName : mapList)
 			mapService.loadMap(mapName); // load and drop loaded map - we only need loader to run over all maps
 
-		// TODO:
-		//for (auto const & campaignName : campaignList)
-		//{
-		//	CCampaignState state(CCampaignHandler::getCampaign(campaignName.getName()));
-		//	for (auto const & part : state.camp->mapPieces)
-		//		delete state.getMap(part.first);
-		//}
+		for (auto const & campaignName : campaignList)
+		{
+			CCampaignState state(CCampaignHandler::getCampaign(campaignName.getName()));
+			for (auto const & part : state.camp->mapPieces)
+				delete state.getMap(part.first);
+		}
 
 		VLC->generaltexth->dumpAllTexts();
 	}
