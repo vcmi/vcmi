@@ -92,6 +92,9 @@ public:
 	/// finds translation mod for specified languages. Returns empty string on error
 	QString getTranslationModName(const QString & language);
 
+	/// returns true if mod is currently enabled
+	bool isModEnabled(const QString & modName);
+
 public slots:
 	void enableModByName(QString modName);
 	void disableModByName(QString modName);

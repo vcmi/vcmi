@@ -115,7 +115,7 @@
    <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -381,7 +381,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Your Heroes III data files have been succesfully found.</string>
+            <string>Your Heroes III data files have been successfully found.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -411,7 +411,7 @@
          <item row="1" column="0" colspan="2">
           <widget class="QLabel" name="labelDataSuccess">
            <property name="text">
-            <string>Your Heroes III language has been succesfully detected.</string>
+            <string>Your Heroes III language has been successfully detected.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -581,7 +581,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install English translation of Heroes III</string>
+            <string>Install translation of Heroes III to your language</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

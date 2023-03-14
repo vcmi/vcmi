@@ -159,6 +159,17 @@ QString CModEntry::getName() const
 
 QVariant CModEntry::getValue(QString value) const
 {
+	return getValueImpl(value, true);
+}
+
+QVariant CModEntry::getBaseValue(QString value) const
+{
+	return getValueImpl(value, false);
+}
+
+QVariant CModEntry::getValueImpl(QString value, bool localized) const
+
+{
 	QString langValue = QString::fromStdString(settings["general"]["language"].String());
 
 	// Priorities
@@ -178,7 +189,7 @@ QVariant CModEntry::getValue(QString value) const
 
 	auto & storage = useRepositoryData ? repository : localData;
 
-	if(storage.contains(langValue))
+	if(localized && storage.contains(langValue))
 	{
 		auto langStorage = storage[langValue].toMap();
 		if (langStorage.contains(value))

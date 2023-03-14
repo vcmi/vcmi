@@ -55,6 +55,7 @@ public:
 	
 	void enterSetup();
 	void exitSetup();
+	void switchToModsTab();
 
 public slots:
 	void on_startGameButton_clicked();

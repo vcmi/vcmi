@@ -12,6 +12,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/Languages.h"
+#include "../lib/CGeneralTextHandler.h"
 
 #include <QComboBox>
 #include <QListWidget>
@@ -36,6 +37,27 @@ static const std::array<std::string, 12> languageTranslatedNamesGenerator = {
 
 static_assert(languageTranslatedNamesGenerator.size() == static_cast<size_t>(Languages::ELanguages::COUNT), "Languages array is missing a value!");
 
+QString Languages::getHeroesDataLanguage()
+{
+	CGeneralTextHandler::detectInstallParameters();
+
+	QString language = QString::fromStdString(settings["session"]["language"].String());
+	double deviation = settings["session"]["languageDeviation"].Float();
+
+	if(deviation > 0.05)
+		return QString();
+	return language;
+}
+
+QString generateAutodetectedLanguageName(QString const & language)
+{
+	std::string languageNameEnglish = Languages::getLanguageOptions(language.toStdString()).nameEnglish;
+	QString languageName = QApplication::translate( "Language", languageNameEnglish.c_str());
+	QString itemName = QApplication::translate("Language", "Auto (%1)").arg(languageName);
+
+	return itemName;
+}
+
 QString Languages::generateLanguageName(const Languages::Options & language)
 {
 	std::string activeLanguage = settings["general"]["language"].String();
@@ -59,7 +81,19 @@ void Languages::fillLanguages(QComboBox * widget, bool includeAll)
 	widget->blockSignals(true); // we do not want calls caused by initialization
 	widget->clear();
 
-	std::string activeLanguage = settings["general"]["language"].String();
+	std::string activeLanguage = includeAll ?
+		settings["general"]["gameDataLanguage"].String():
+		settings["general"]["language"].String();
+
+	if (includeAll)
+	{
+		QString language = getHeroesDataLanguage();
+		if (!language.isEmpty())
+			widget->addItem(generateAutodetectedLanguageName(language), QString("auto"));
+
+		if (activeLanguage == "auto")
+			widget->setCurrentIndex(0);
+	}
 
 	for(const auto & language : Languages::getLanguageList())
 	{
@@ -82,7 +116,22 @@ void Languages::fillLanguages(QListWidget * widget, bool includeAll)
 	widget->blockSignals(true); // we do not want calls caused by initialization
 	widget->clear();
 
-	std::string activeLanguage = settings["general"]["language"].String();
+	std::string activeLanguage = includeAll ?
+		settings["general"]["gameDataLanguage"].String():
+		settings["general"]["language"].String();
+
+	if (includeAll)
+	{
+		QString language = getHeroesDataLanguage();
+		if (!language.isEmpty())
+		{
+			widget->addItem(generateAutodetectedLanguageName(language));
+			widget->item(widget->count() - 1)->setData(Qt::UserRole, QString("auto"));
+
+			if (activeLanguage == "auto")
+				widget->setCurrentRow(0);
+		}
+	}
 
 	for(const auto & language : Languages::getLanguageList())
 	{

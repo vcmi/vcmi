@@ -48,7 +48,6 @@ class FirstLaunchView : public QWidget
 	void heroesDataMissing();
 	void heroesDataDetected();
 
-	QString heroesLanguageDetect();
 	void heroesLanguageUpdate();
 	void forceHeroesLanguage(const QString & language);
 

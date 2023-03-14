@@ -18,9 +18,10 @@ namespace Languages
 	struct Options;
 
 	QString generateLanguageName(const Languages::Options & identifier);
+	QString getHeroesDataLanguage();
 
 	/// if includeAll is set, all languages including encoding placeholders will be included into widget
 	void fillLanguages(QComboBox * widget, bool includeAll);
 	void fillLanguages(QListWidget * widget, bool includeAll);
-}
 
+}

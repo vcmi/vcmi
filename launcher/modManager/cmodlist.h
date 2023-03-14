@@ -42,6 +42,7 @@ class CModEntry
 
 	QString modname;
 
+	QVariant getValueImpl(QString value, bool localized) const;
 public:
 	CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname);
 
@@ -69,6 +70,7 @@ public:
 
 	// get value of some field in mod structure. Returns empty optional if value is not present
 	QVariant getValue(QString value) const;
+	QVariant getBaseValue(QString value) const;
 
 	// returns true if less < greater comparing versions section by section
 	static bool compareVersions(QString lesser, QString greater);

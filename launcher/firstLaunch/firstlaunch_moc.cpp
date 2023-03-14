@@ -237,35 +237,12 @@ bool FirstLaunchView::heroesDataDetect()
 	return heroesDataFound;
 }
 
-QString FirstLaunchView::heroesLanguageDetect()
-{
-	CGeneralTextHandler::detectInstallParameters();
-
-	QString language = QString::fromStdString(settings["session"]["language"].String());
-	double deviation = settings["session"]["languageDeviation"].Float();
-
-	if(deviation > 0.05)
-		return QString();
-	return language;
-}
-
 void FirstLaunchView::heroesLanguageUpdate()
 {
 	Languages::fillLanguages(ui->comboBoxLanguage, true);
 
-	QString language = heroesLanguageDetect();
-
+	QString language = Languages::getHeroesDataLanguage();
 	bool success = !language.isEmpty();
-
-	if(!language.isEmpty())
-	{
-		std::string languageNameEnglish = Languages::getLanguageOptions(language.toStdString()).nameEnglish;
-		QString languageName = QApplication::translate( "Languages", languageNameEnglish.c_str());
-		QString itemName = tr("Auto (%1)").arg(languageName);
-
-		ui->comboBoxLanguage->insertItem(0, itemName, QString("auto"));
-		ui->comboBoxLanguage->setCurrentIndex(0);
-	}
 
 	ui->labelDataFailure->setVisible(!success);
 	ui->labelDataSuccess->setVisible(success);

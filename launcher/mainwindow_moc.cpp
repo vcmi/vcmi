@@ -142,6 +142,12 @@ void MainWindow::exitSetup()
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
+void MainWindow::switchToModsTab()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+}
+
 void MainWindow::changeEvent(QEvent *event)
 {
 	if(event->type() == QEvent::LanguageChange)
@@ -183,8 +189,7 @@ CModListView * MainWindow::getModView()
 
 void MainWindow::on_modslistButton_clicked()
 {
-	ui->startGameButton->setEnabled(true);
-	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	switchToModsTab();
 }
 
 void MainWindow::on_settingsButton_clicked()
