@@ -228,172 +228,207 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="580"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
         <source>Change</source>
         <translation>Изменить</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="223"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="356"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="287"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="473"/>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="507"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
         <source>Adventure Map AI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="543"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>User data directory</source>
         <translation>Данные пользователя</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="254"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="296"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="377"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="494"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="256"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="298"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="487"/>
         <source>Off</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="259"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="301"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="382"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="499"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="261"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="445"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="492"/>
         <source>On</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="443"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
         <source>Check on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="457"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
         <source>Fullscreen</source>
         <translation>Полноэкранный режим</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="417"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="172"/>
         <source>Neutral AI</source>
         <translation>Нейтральный ИИ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="264"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="266"/>
         <source>Real</source>
         <translation>Полный</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="536"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="354"/>
         <source>General</source>
         <translation>Общее</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="483"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
         <source>VCMI Language</source>
         <translation>Язык VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="422"/>
         <source>Friendly AI</source>
         <translation>Дружественный ИИ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="410"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="215"/>
         <source>Cursor</source>
         <translation>Курсор</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="396"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
         <source>Artificial Intelligence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="278"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="415"/>
         <source>Mod Repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="368"/>
         <source>Update now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="425"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="500"/>
+        <source>Heroes III Data Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="430"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
         <source>Hardware</source>
         <translation>Аппаратный</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="435"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
         <source>Software</source>
         <translation>Программный</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="403"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
+        <source>Heroes III Translation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="165"/>
         <source>Resolution</source>
         <translation>Разрешение экрана</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="209"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
         <source>Autosave</source>
         <translation>Автосохранение</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="285"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="375"/>
         <source>Display index</source>
         <translation>Дисплей</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="165"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
         <source>Network port</source>
         <translation>Сетевой порт</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
         <source>Data Directories</source>
         <translation>Директории данных</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="315"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="192"/>
         <source>Video</source>
         <translation>Графика</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="466"/>
         <source>Extra data directory</source>
         <translation>Дополнительные данные</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="322"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="583"/>
         <source>Log files directory</source>
         <translation>Журналы</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="230"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="361"/>
         <source>Show intro</source>
         <translation>Вступление</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="341"/>
         <source>Build version</source>
         <translation>Версия сборки</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="534"/>
         <source>Enemy AI</source>
         <translation>Вражеский ИИ</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="385"/>
+        <source>Active</source>
+        <translation type="unfinished">Активны</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="390"/>
+        <source>Disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="391"/>
+        <source>Enable</source>
+        <translation type="unfinished">Включить</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="396"/>
+        <source>Not Installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="397"/>
+        <source>Install</source>
+        <translation type="unfinished">Установить</translation>
     </message>
 </context>
 <context>
@@ -414,18 +449,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="414"/>
-        <source>Your Heroes III language has been succesfully detected.</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
+        <source>Your Heroes III data files have been successfully found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="552"/>
         <source>Optionally, you can install additional mods either now or at any point later:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="584"/>
-        <source>Install English translation of Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -505,8 +535,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
-        <source>Your Heroes III data files have been succesfully found.</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="414"/>
+        <source>Your Heroes III language has been successfully detected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -531,8 +561,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="264"/>
-        <source>Auto (%1)</source>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="584"/>
+        <source>Install translation of Heroes III to your language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -547,63 +577,68 @@
 <context>
     <name>Language</name>
     <message>
-        <location filename="../languages.cpp" line="22"/>
+        <location filename="../languages.cpp" line="23"/>
         <source>Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="23"/>
+        <location filename="../languages.cpp" line="24"/>
         <source>English</source>
         <translation type="unfinished">English (Английский)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="24"/>
+        <location filename="../languages.cpp" line="25"/>
         <source>French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="25"/>
+        <location filename="../languages.cpp" line="26"/>
         <source>German</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="26"/>
+        <location filename="../languages.cpp" line="27"/>
         <source>Korean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="27"/>
+        <location filename="../languages.cpp" line="28"/>
         <source>Polish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="28"/>
+        <location filename="../languages.cpp" line="29"/>
         <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="29"/>
+        <location filename="../languages.cpp" line="30"/>
         <source>Spanish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="30"/>
+        <location filename="../languages.cpp" line="31"/>
         <source>Ukrainian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="31"/>
+        <location filename="../languages.cpp" line="32"/>
         <source>Other (East European)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="32"/>
+        <location filename="../languages.cpp" line="33"/>
         <source>Other (Cyrillic Script)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="33"/>
+        <location filename="../languages.cpp" line="34"/>
         <source>Other (West European)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="56"/>
+        <source>Auto (%1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
