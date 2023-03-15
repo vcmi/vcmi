@@ -54,22 +54,22 @@ public:
 
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
+	virtual void placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
 
-private:
 	bool hidden = false;
 	bool passable = false;
 	bool trigger = false;
 	bool trap = false;
 	bool removeOnTrigger = false;
-	int32_t patchCount = 1;//random patches to place, only for massive spells
+	bool hideNative = false;
+private:
+	int32_t patchCount = 0; //random patches to place, for massive spells should be >= 1, for non-massive ones if >= 1, then place only this number inside a target (like H5 landMine)
 	int32_t turnsRemaining = -1;
 
 	std::array<ObstacleSideOptions, 2> sideOptions;
 
 	static bool isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear);
 	static bool noRoomToPlace(Problem & problem, const Mechanics * m);
-
-	void placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
 };
 
 }

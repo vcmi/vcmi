@@ -147,6 +147,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Effects.cpp
 		${MAIN_LIB_DIR}/spells/effects/Heal.cpp
 		${MAIN_LIB_DIR}/spells/effects/LocationEffect.cpp
+		${MAIN_LIB_DIR}/spells/effects/Moat.cpp
 		${MAIN_LIB_DIR}/spells/effects/Obstacle.cpp
 		${MAIN_LIB_DIR}/spells/effects/Registry.cpp
 		${MAIN_LIB_DIR}/spells/effects/UnitEffect.cpp

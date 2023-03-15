@@ -77,6 +77,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	bool removeOnTrigger;
 
 	bool revealed;
+	bool nativeVisible; //Should native terrain creatures reveal obstacle
 
 	std::string appearSound;
 	std::string appearAnimation;
@@ -115,6 +116,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 		h & casterSide;
 
 		h & hidden;
+		h & nativeVisible;
 		h & passable;
 		h & trigger;
 		h & trap;

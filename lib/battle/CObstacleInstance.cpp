@@ -97,7 +97,8 @@ SpellCreatedObstacle::SpellCreatedObstacle()
 	trap(false),
 	removeOnTrigger(false),
 	revealed(false),
-	animationYOffset(0)
+	animationYOffset(0),
+	nativeVisible(true)
 {
 	obstacleType = SPELL_CREATED;
 }
@@ -107,8 +108,11 @@ bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
 	//we hide mines and not discovered quicksands
 	//quicksands are visible to the caster or if owned unit stepped into that particular patch
 	//additionally if side has a native unit, mines/quicksands will be visible
+	//but it is not a case for a moat, so, hasNativeStack should not work for moats
 
-	return casterSide == side || !hidden || revealed || hasNativeStack;
+	auto nativeVis = hasNativeStack && nativeVisible;
+
+	return casterSide == side || !hidden || revealed || nativeVis;
 }
 
 bool SpellCreatedObstacle::blocksTiles() const
@@ -163,6 +167,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("nativeVisible", nativeVisible);
 
 	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
@@ -202,11 +207,6 @@ int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
 	}
 
 	return offset;
-}
-
-std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
-{
-	return (*VLC->townh)[ID]->town->moatHexes;
 }
 
 VCMI_LIB_NAMESPACE_END

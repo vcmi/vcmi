@@ -181,30 +181,33 @@ EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPo
 
 void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
-	if(m->isMassive())
+	if(patchCount > 0)
 	{
 		std::vector<BattleHex> availableTiles;
-		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+		auto insertAvailable = [&m](const BattleHex & hex, std::vector<BattleHex> & availableTiles)
 		{
-			BattleHex hex = i;
 			if(isHexAvailable(m->battle(), hex, true))
 				availableTiles.push_back(hex);
-		}
+		};
+
+		if(m->isMassive())
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+				insertAvailable(BattleHex(i), availableTiles);
+		else
+			for(const auto & destination : target)
+				insertAvailable(destination.hexValue, availableTiles);
+
 		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
-
 		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
-
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);
 		for(int i = 0; i < patchesToPut; i++)
 			randomTarget.emplace_back(availableTiles.at(i));
-
 		placeObstacles(server, m, randomTarget);
+		return;
 	}
-	else
-	{
-		placeObstacles(server, m, target);
-	}
+
+	placeObstacles(server, m, target);
 }
 
 void Obstacle::serializeJsonEffect(JsonSerializeFormat & handler)
@@ -213,7 +216,8 @@ void Obstacle::serializeJsonEffect(JsonSerializeFormat & handler)
 	handler.serializeBool("passable", passable);
 	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
-    handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("hideNative", hideNative);
 
 	handler.serializeInt("patchCount", patchCount);
 	handler.serializeInt("turnsRemaining", turnsRemaining, -1);
@@ -293,6 +297,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.spellLevel = m->getEffectLevel();//todo: level of indirect effect should be also configurable
 		obstacle.casterSide = m->casterSide;
 
+		obstacle.nativeVisible = !hideNative;
 		obstacle.hidden = hidden;
 		obstacle.passable = passable;
 		obstacle.trigger = trigger;
@@ -327,7 +332,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	if(!pack.changes.empty())
 		server->apply(&pack);
 }
-
 
 }
 }

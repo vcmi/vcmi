@@ -139,7 +139,6 @@
 						"passable" : false,
 						"trap" : false,
 						"trigger" : false,
-						"patchCount" : 1,
 						"turnsRemaining" : 2,
 						"attacker" :{
 							"range" : [[""]],
@@ -213,7 +212,6 @@
 						"passable" : true,
 						"trap" : false,
 						"trigger" : true,
-						"patchCount" : 1,
 						"turnsRemaining" : 2,
 						"attacker" :{
 							"shape" : [[""]],
