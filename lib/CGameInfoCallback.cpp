@@ -17,6 +17,7 @@
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
 #include "CModHandler.h"
+#include "GameSettings.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "mapping/CMap.h"
@@ -603,7 +604,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if (!t->genBuildingRequirements(ID).test(buildTest))
 		return EBuildingState::PREREQUIRES;
 
-	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
+	if(t->builded >= VLC->settings()->getInteger(EGameSettings::INT_MAX_BUILDING_PER_TURN))
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	//checking resources

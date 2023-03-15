@@ -223,7 +223,7 @@ std::vector<bool> ScriptHandler::getDefaultAllowed() const
 	return std::vector<bool>();
 }
 
-std::vector<JsonNode> ScriptHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> ScriptHandler::loadLegacyData()
 {
 	return std::vector<JsonNode>();
 }

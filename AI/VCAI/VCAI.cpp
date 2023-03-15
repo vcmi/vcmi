@@ -18,7 +18,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
@@ -1318,7 +1318,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
-	if(cb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;
@@ -2851,12 +2851,12 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
+		return ai->myCb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER);
 	case Obj::TAVERN:
 	{
 		//TODO: make AI actually recruit heroes
 		//TODO: only on request
-		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+		if(ai->myCb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))
 			return false;
 		else if(ai->ah->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;

@@ -104,5 +104,121 @@
 	"obstacles":
 	[
 		"config/obstacles.json"
-	]
+	],
+	
+	"settings":
+	{
+		"textData" :
+		{
+			"heroClass"  : 18,
+			"artifact"   : 144,
+			"creature"   : 150,
+			"faction"    : 9,
+			"hero"       : 156,
+			"spell"      : 81,
+			"object"     : 256,
+			"terrain"    : 10,
+			"river"      : 5,
+			"road"       : 4,
+			"mapVersion" : 28 // max supported version, SoD
+		},
+
+		"hardcodedFeatures" :
+		{
+			"CREEP_SIZE": 4000,
+			"WEEKLY_GROWTH_PERCENT" : 10,
+			"NEUTRAL_STACK_EXP_DAILY" : 500,
+			"MAX_BUILDING_PER_TURN" : 1,
+			"DWELLINGS_ACCUMULATE_CREATURES" : false,
+			"ALL_CREATURES_GET_DOUBLE_MONTHS" : false,
+			"NEGATIVE_LUCK" : false,
+			"MAX_HEROES_AVAILABLE_PER_PLAYER" : 16,
+			"MAX_HEROES_ON_MAP_PER_PLAYER" : 8,
+			"WINNING_HERO_WITH_NO_TROOPS_RETREATS": true,
+			"BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE": true,
+			"NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS": false,
+			"ATTACK_POINT_DMG_MULTIPLIER": 0.05, //every 1 attack point damage influence in battle when attack points > defense points during creature attack
+			"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0, //limit of damage increase that can be achieved by overpowering attack points
+			"DEFENSE_POINT_DMG_MULTIPLIER": 0.025, //every 1 defense point damage influence in battle when defense points > attack points during creature attack
+			"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7, //limit of damage reduction that can be achieved by overpowering defense points
+			//chances for new hero units count - technically random number 1-100, first element in list below generated number sets count, if none then result is number of elements + 1
+			"HERO_STARTING_ARMY_STACKS_COUNT_CHANCES": [10, 80], //example: [10,80] gives 10% chance for 1 stack, 70% for 2, 20% for 3. Additionally you can add -1 as last special value to start counting from 0 and allowing empty armies
+			"DEFAULT_BUILDING_SET_DWELLING_CHANCES": [100, 50] //percent chance for dwellings to appear - for example [30,10,0,100] means 30% chance for 1st level dwelling, 10% for 2nd, 0% for 3rd, and guaranteed 4th level, no 5th, no 6th, no 7th
+		},
+		"modules":
+		{
+			"STACK_EXPERIENCE": false,
+			"STACK_ARTIFACTS": false,
+			"COMMANDERS": false
+		},
+		
+		"bonuses" : 
+		{
+			"global" : 
+			{
+				"spellDamage" : 
+				{
+					"type" : "SPELL_DAMAGE", //Default spell damage
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				},
+				"wisdomBase" : 
+				{
+					"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
+					"val" : 2,
+					"valueType" : "BASE_NUMBER"
+				}
+			},
+			"heroes":
+			{
+				"manaRegeneration" :
+				{
+					"type" : "MANA_REGENERATION", //default mana regeneration
+					"val" : 1,
+					"valueType" : "BASE_NUMBER"
+				},
+				"sightRadius" :
+				{
+					"type" : "SIGHT_RADIUS", //default sight radius
+					"val" : 5,
+					"valueType" : "BASE_NUMBER"
+				},
+				"experienceGain" : 
+				{
+					"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				},
+				"manaPerKnowledge" :
+				{
+					"type" : "MANA_PER_KNOWLEDGE", //10 knowledge to 100 mana is default
+					"val" : 10,
+					"valueType" : "BASE_NUMBER"
+				},
+				"landMovement" :
+				{
+					"type" : "MOVEMENT", //Basic land movement
+					"subtype" : 1,
+					"val" : 1300,
+					"valueType" : "BASE_NUMBER",
+					"updater" : {
+						"type" : "ARMY_MOVEMENT", //Enable army movement bonus
+						"parameters" : [
+							20, // Movement points for lowest speed numerator
+							3,  // Movement points for lowest speed denominator
+							10, // Resulting value, rounded down, will be multiplied by this number
+							700 // All army movement bonus cannot be higher than this value (so, max movement will be 1300 + 700 for this settings)
+						]
+					}
+				},
+				"seaMovement" :
+				{
+					"type" : "MOVEMENT", //Basic sea movement
+					"subtype" : 0,
+					"val" : 1500,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		}
+	}
 }

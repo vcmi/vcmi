@@ -28,6 +28,7 @@
 #include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -328,7 +329,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 	assert(town.tType);
 
-	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
+	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->settings()->getInteger(EGameSettings::INT_MAX_BUILDING_PER_TURN)];
 
 	build = std::make_shared<CAnimImage>("itpt", iconIndex, 0, 3, 2);
 

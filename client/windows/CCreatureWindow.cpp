@@ -29,6 +29,7 @@
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/TextOperations.h"
@@ -777,8 +778,8 @@ void CStackWindow::initSections()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-	bool showArt = CGI->modh->modules.STACK_ARTIFACT && info->commander == nullptr && info->stackNode;
-	bool showExp = (CGI->modh->modules.STACK_EXP || info->commander != nullptr) && info->stackNode;
+	bool showArt = CGI->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
+	bool showExp = (CGI->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
 
 	mainSection = std::make_shared<MainSection>(this, pos.h, showExp, showArt);
 

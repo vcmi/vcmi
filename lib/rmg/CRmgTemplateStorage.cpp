@@ -49,7 +49,7 @@ std::vector<bool> CRmgTemplateStorage::getDefaultAllowed() const
 	return std::vector<bool>();
 }
 
-std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData()
 {
 	return std::vector<JsonNode>();
 	//it would be cool to load old rmg.txt files

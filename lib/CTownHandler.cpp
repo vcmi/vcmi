@@ -18,6 +18,7 @@
 #include "CModHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
+#include "GameSettings.h"
 #include "spells/CSpellHandler.h"
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
@@ -284,8 +285,10 @@ TPropagatorPtr & CTownHandler::emptyPropagator()
 	return emptyProp;
 }
 
-std::vector<JsonNode> CTownHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CTownHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_FACTION);
+
 	std::vector<JsonNode> dest(dataSize);
 	objects.resize(dataSize);
 

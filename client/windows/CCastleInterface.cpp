@@ -37,6 +37,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/GameConstants.h"
@@ -407,7 +408,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			bool allow = true;
 			if(upg) //moving hero out of town - check if it is allowed
 			{
-				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
 					boost::algorithm::replace_first(tmp,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
@@ -1269,7 +1270,7 @@ void CCastleInterface::removeBuilding(BuildingID bid)
 void CCastleInterface::recreateIcons()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::INT_MAX_BUILDING_PER_TURN)];
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();

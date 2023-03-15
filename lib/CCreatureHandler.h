@@ -317,7 +317,7 @@ public:
 
 	void afterLoadFinalization() override;
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
 

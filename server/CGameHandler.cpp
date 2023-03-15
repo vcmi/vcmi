@@ -28,6 +28,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CStack.h"
+#include "../lib/GameSettings.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/CondSh.h"
 #include "ServerNetPackVisitors.h"
@@ -987,7 +988,7 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 		RemoveObject ro(finishingBattle->winnerHero->id);
 		sendAndApply(&ro);
 
-		if (VLC->modh->settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS)
+		if (VLC->settings()->getBoolean(EGameSettings::BOOL_WINNING_HERO_WITH_NO_TROOPS_RETREATS))
 		{
 			SetAvailableHeroes sah;
 			sah.player = finishingBattle->victor;
@@ -1029,7 +1030,8 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	{
 		bat.flags |= BattleAttack::LUCKY;
 	}
-	if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
+
+	if (VLC->settings()->getBoolean(EGameSettings::BOOL_NEGATIVE_LUCK)) // negative luck enabled
 	{
 		if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
 		{
@@ -1777,7 +1779,7 @@ void CGameHandler::newTurn()
 			n.specialWeek = NewTurn::DEITYOFFIRE;
 			n.creatureid = CreatureID::IMP;
 		}
-		else if(!VLC->modh->settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS)
+		else if(!VLC->settings()->getBoolean(EGameSettings::BOOL_NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS))
 		{
 			int monthType = getRandomGenerator().nextInt(99);
 			if (newMonth) //new month
@@ -1785,7 +1787,7 @@ void CGameHandler::newTurn()
 				if (monthType < 40) //double growth
 				{
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
-					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
+					if (VLC->settings()->getBoolean(EGameSettings::BOOL_ALL_CREATURES_GET_DOUBLE_MONTHS))
 					{
 						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(getRandomGenerator()));
 						n.creatureid = newMonster.second;
@@ -4364,8 +4366,8 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 //	if ((p->resources.at(Res::GOLD)<GOLD_NEEDED  && complain("Not enough gold for buying hero!"))
 //		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 	if ((p->resources.at(Res::GOLD) < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
-		|| ((getHeroCount(player, false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER && complain("Cannot hire hero, too many wandering heroes already!")))
-		|| ((getHeroCount(player, true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))))
+		|| ((getHeroCount(player, false) >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER) && complain("Cannot hire hero, too many wandering heroes already!")))
+		|| ((getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_AVAILABLE_PER_PLAYER) && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))))
 	{
 		return false;
 	}

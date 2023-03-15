@@ -15,6 +15,7 @@
 #include "CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
+#include "GameSettings.h"
 #include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
 #include "mapObjects/MapObjects.h"
@@ -219,8 +220,10 @@ void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 
 CArtHandler::~CArtHandler() = default;
 
-std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CArtHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
+
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
@@ -300,7 +303,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 	CArtifact * art = nullptr;
 
-	if(!VLC->modh->modules.COMMANDERS || node["growing"].isNull())
+	if(!VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) || node["growing"].isNull())
 	{
 		art = new CArtifact();
 	}
@@ -604,12 +607,23 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 {
 	auto art = objects[id];
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
-	return ((!art->possibleSlots[ArtBearer::HERO].empty() ||
-		(!art->possibleSlots[ArtBearer::COMMANDER].empty() && VLC->modh->modules.COMMANDERS) ||
-		(!art->possibleSlots[ArtBearer::CREATURE].empty() && VLC->modh->modules.STACK_ARTIFACT)) &&
-		!(art->constituents) && //no combo artifacts spawning
-		art->aClass >= CArtifact::ART_TREASURE &&
-		art->aClass <= CArtifact::ART_RELIC);
+
+	if(art->constituents)
+		return false; //no combo artifacts spawning
+
+	if(art->aClass < CArtifact::ART_TREASURE || art->aClass > CArtifact::ART_RELIC)
+		return false; // invalid class
+
+	if(!art->possibleSlots[ArtBearer::HERO].empty())
+		return true;
+
+	if(!art->possibleSlots[ArtBearer::CREATURE].empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
+		return true;
+
+	if(!art->possibleSlots[ArtBearer::COMMANDER].empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+		return true;
+
+	return false;
 }
 
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)

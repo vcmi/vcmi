@@ -17,6 +17,7 @@
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"
 #include "../CModHandler.h"
+#include "../GameSettings.h"
 #include "../JsonNode.h"
 #include "../CSoundBase.h"
 
@@ -95,8 +96,10 @@ CObjectClassesHandler::~CObjectClassesHandler()
 		delete p;
 }
 
-std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_OBJECT);
+
 	CLegacyConfigParser parser("Data/Objects.txt");
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();

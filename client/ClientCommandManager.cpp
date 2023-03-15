@@ -30,6 +30,7 @@
 #include "render/CAnimation.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CModHandler.h"
 #include "../lib/VCMIDirs.h"

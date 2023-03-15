@@ -365,7 +365,7 @@ class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSp
 {
 public:
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 

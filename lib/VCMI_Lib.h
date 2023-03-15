@@ -36,6 +36,8 @@ class ObstacleHandler;
 class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
 class IHandlerBase;
+class IGameSettings;
+class GameSettings;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -70,6 +72,7 @@ public:
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
+	const IGameSettings * settings() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -97,6 +100,7 @@ public:
 	CRmgTemplateStorage * tplh;
 	BattleFieldHandler * battlefieldsHandler;
 	ObstacleHandler * obstacleHandler;
+	GameSettings * settingsHandler;
 #if SCRIPTING_ENABLED
 	scripting::ScriptHandler * scriptHandler;
 #endif

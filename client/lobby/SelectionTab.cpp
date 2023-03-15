@@ -31,6 +31,7 @@
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMap.h"
@@ -538,7 +539,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 
 			// ignore unsupported map versions (e.g. WoG maps without WoG)
 			// but accept VCMI maps
-			if((mapInfo->mapHeader->version >= EMapFormat::VCMI) || (mapInfo->mapHeader->version <= CGI->modh->settings.data["textData"]["mapVersion"].Float()))
+			if((mapInfo->mapHeader->version >= EMapFormat::VCMI) || (mapInfo->mapHeader->version <= CGI->settings()->getInteger(EGameSettings::TEXTS_MAP_VERSION)))
 				allItems.push_back(mapInfo);
 		}
 		catch(std::exception & e)

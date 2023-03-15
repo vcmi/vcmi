@@ -13,6 +13,7 @@
 #include "filesystem/Filesystem.h"
 #include "CConfigHandler.h"
 #include "CModHandler.h"
+#include "GameSettings.h"
 #include "mapObjects/CQuest.h"
 #include "VCMI_Lib.h"
 #include "Languages.h"
@@ -555,7 +556,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 			scenariosCountPerCampaign.push_back(region);
 		}
 	}
-	if (VLC->modh->modules.COMMANDERS)
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 	{
 		if(CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
 			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
