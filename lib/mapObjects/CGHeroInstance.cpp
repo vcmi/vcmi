@@ -313,7 +313,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
-	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_LIST_HERO);
+	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_PER_HERO);
 	for(const auto & b : baseBonuses.Struct())
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
@@ -341,27 +341,16 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 
 	int warMachinesGiven = 0;
 
-	auto stacksCountChances = VLC->settings()->getValue(EGameSettings::VECTOR_HERO_STARTING_ARMY_STACKS_COUNT_CHANCES).convertTo<std::vector<int32_t>>();
-
-	const int zeroStacksAllowingValue = -1;
-	bool allowZeroStacksArmy = !stacksCountChances.empty() && stacksCountChances.back() == zeroStacksAllowingValue;
-	if(allowZeroStacksArmy)
-		stacksCountChances.pop_back();
-
+	auto stacksCountChances = VLC->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
-	auto stacksCountElementIndex = vstd::find_pos_if(stacksCountChances, [stacksCountInitRandomNumber](int element){ return stacksCountInitRandomNumber < element; });
-	if(stacksCountElementIndex == -1)
-		stacksCountElementIndex = stacksCountChances.size();
+	size_t maxStacksCount = std::min(stacksCountChances.size(), type->initialArmy.size());
 
-	int howManyStacks = stacksCountElementIndex;
-	if(!allowZeroStacksArmy)
-		howManyStacks++;
-
-	vstd::amin(howManyStacks, type->initialArmy.size());
-
-	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
+	for(int stackNo=0; stackNo < maxStacksCount; stackNo++)
 	{
+		if (stacksCountInitRandomNumber > stacksCountChances[stackNo])
+			continue;
+
 		auto & stack = type->initialArmy[stackNo];
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
@@ -438,7 +427,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))//free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
 		{
 			//update hero parameters
 			SetMovePoints smp;

@@ -988,7 +988,7 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 		RemoveObject ro(finishingBattle->winnerHero->id);
 		sendAndApply(&ro);
 
-		if (VLC->settings()->getBoolean(EGameSettings::BOOL_WINNING_HERO_WITH_NO_TROOPS_RETREATS))
+		if (VLC->settings()->getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 		{
 			SetAvailableHeroes sah;
 			sah.player = finishingBattle->victor;
@@ -1026,17 +1026,22 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	const int attackerLuck = attacker->LuckVal();
 
-	if (attackerLuck > 0  && getRandomGenerator().nextInt(23) < attackerLuck)
+	if(attackerLuck > 0)
 	{
-		bat.flags |= BattleAttack::LUCKY;
+		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE);
+		size_t diceIndex = std::min<size_t>(diceSize.size() - 1, attackerLuck);
+
+		if(diceSize.size() > 0 && getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
+			bat.flags |= BattleAttack::LUCKY;
 	}
 
-	if (VLC->settings()->getBoolean(EGameSettings::BOOL_NEGATIVE_LUCK)) // negative luck enabled
+	if(attackerLuck < 0)
 	{
-		if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
-		{
+		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE);
+		size_t diceIndex = std::min<size_t>(diceSize.size() - 1, -attackerLuck);
+
+		if(diceSize.size() > 0 && getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 			bat.flags |= BattleAttack::UNLUCKY;
-		}
 	}
 
 	if (getRandomGenerator().nextInt(99) < attacker->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
@@ -1779,7 +1784,7 @@ void CGameHandler::newTurn()
 			n.specialWeek = NewTurn::DEITYOFFIRE;
 			n.creatureid = CreatureID::IMP;
 		}
-		else if(!VLC->settings()->getBoolean(EGameSettings::BOOL_NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS))
+		else if(!VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
 		{
 			int monthType = getRandomGenerator().nextInt(99);
 			if (newMonth) //new month
@@ -1787,15 +1792,13 @@ void CGameHandler::newTurn()
 				if (monthType < 40) //double growth
 				{
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
-					if (VLC->settings()->getBoolean(EGameSettings::BOOL_ALL_CREATURES_GET_DOUBLE_MONTHS))
+					if (VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 					{
-						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(getRandomGenerator()));
-						n.creatureid = newMonster.second;
+						n.creatureid = VLC->creh->pickRandomMonster(getRandomGenerator());
 					}
 					else if (VLC->creh->doubledCreatures.size())
 					{
-						const std::vector<CreatureID> doubledCreatures (VLC->creh->doubledCreatures.begin(), VLC->creh->doubledCreatures.end());
-						n.creatureid = *RandomGeneratorUtil::nextItem(doubledCreatures, getRandomGenerator());
+						n.creatureid = *RandomGeneratorUtil::nextItem(VLC->creh->doubledCreatures, getRandomGenerator());
 					}
 					else
 					{
@@ -3962,7 +3965,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dst.slot))
 				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
-		catch (boost::bad_get const &)
+		catch(const boost::bad_get &)
 		{
 			// object other than hero received an art - ignore
 		}
@@ -4366,8 +4369,8 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 //	if ((p->resources.at(Res::GOLD)<GOLD_NEEDED  && complain("Not enough gold for buying hero!"))
 //		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 	if ((p->resources.at(Res::GOLD) < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
-		|| ((getHeroCount(player, false) >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER) && complain("Cannot hire hero, too many wandering heroes already!")))
-		|| ((getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_AVAILABLE_PER_PLAYER) && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))))
+		|| ((getHeroCount(player, false) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && complain("Cannot hire hero, too many wandering heroes already!")))
+		|| ((getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))))
 	{
 		return false;
 	}
@@ -6570,7 +6573,10 @@ void CGameHandler::runBattle()
 			int nextStackMorale = next->MoraleVal();
 			if (nextStackMorale < 0)
 			{
-				if (getRandomGenerator().nextInt(23) < -2 * nextStackMorale)
+				auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
+				size_t diceIndex = std::min<size_t>(diceSize.size()-1, -nextStackMorale);
+
+				if(diceSize.size() > 0 && getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 				{
 					//unit loses its turn - empty freeze action
 					BattleAction ba;
@@ -6758,7 +6764,10 @@ void CGameHandler::runBattle()
 						&&  next->alive()
 						&&  nextStackMorale > 0)
 					{
-						if(getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
+						auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
+						size_t diceIndex = std::min<size_t>(diceSize.size()-1, nextStackMorale);
+
+						if(diceSize.size() > 0 && getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 						{
 							BattleTriggerEffect bte;
 							bte.stackID = next->ID;

@@ -277,10 +277,12 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode)
 
 void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 {
-	if(!VLC->settings()->getBoolean(EGameSettings::BOOL_BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE)) //check if feature changing OH3 behavior is enabled
+	int resetPeriod = VLC->settings()->getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
+
+	if(resetPeriod == 0) //check if feature changing OH3 behavior is enabled
 		return;
 
-	if(cb->getDate(Date::DAY_OF_MONTH) != 1) //new month
+	if (((cb->getDate(Date::DAY)-1) % resetPeriod) != 0)
 		return;
 
 	SetAvailableArtifacts saa;

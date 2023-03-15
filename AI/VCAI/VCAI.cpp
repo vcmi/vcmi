@@ -1318,7 +1318,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
-	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))
+	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;
@@ -2851,12 +2851,12 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->myCb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER);
+		return ai->myCb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 	case Obj::TAVERN:
 	{
 		//TODO: make AI actually recruit heroes
 		//TODO: only on request
-		if(ai->myCb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))
+		if(ai->myCb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 			return false;
 		else if(ai->ah->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;

@@ -128,6 +128,7 @@ public:
 		}
 #endif
 
+		h & settingsHandler;
 		h & heroh;
 		h & arth;
 		h & creh;

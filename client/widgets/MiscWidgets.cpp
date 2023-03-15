@@ -329,7 +329,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 	assert(town.tType);
 
-	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->settings()->getInteger(EGameSettings::INT_MAX_BUILDING_PER_TURN)];
+	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>("itpt", iconIndex, 0, 3, 2);
 

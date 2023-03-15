@@ -183,8 +183,8 @@ double DamageCalculator::getAttackSkillFactor() const
 
 	if(attackAdvantage > 0)
 	{
-		const double attackMultiplier = VLC->settings()->getDouble(EGameSettings::DOUBLE_ATTACK_POINT_DMG_MULTIPLIER);
-		const double attackMultiplierCap = VLC->settings()->getDouble(EGameSettings::DOUBLE_ATTACK_POINTS_DMG_MULTIPLIER_CAP);
+		const double attackMultiplier = VLC->settings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
+		const double attackMultiplierCap = VLC->settings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
 		const double attackFactor = std::min(attackMultiplier * attackAdvantage, attackMultiplierCap);
 
 		return attackFactor;
@@ -269,8 +269,8 @@ double DamageCalculator::getDefenseSkillFactor() const
 	//bonus from attack/defense skills
 	if(defenseAdvantage > 0) //decreasing dmg
 	{
-		const double defenseMultiplier = VLC->settings()->getDouble(EGameSettings::DOUBLE_DEFENSE_POINT_DMG_MULTIPLIER);
-		const double defenseMultiplierCap = VLC->settings()->getDouble(EGameSettings::DOUBLE_DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
+		const double defenseMultiplier = VLC->settings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
+		const double defenseMultiplierCap = VLC->settings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
 
 		const double dec = std::min(defenseMultiplier * defenseAdvantage, defenseMultiplierCap);
 		return dec;

@@ -233,15 +233,15 @@ void CGCreature::newTurn(CRandomGenerator & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::INT_CREEP_SIZE) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
-			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::INT_WEEKLY_GROWTH)) / 100);
-			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::INT_CREEP_SIZE))); //set new amount
+			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
+			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT))); //set new amount
 			cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::INT_NEUTRAL_STACK_EXP)); //for testing purpose
+		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)
 {

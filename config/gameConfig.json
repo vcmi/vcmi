@@ -108,6 +108,7 @@
 	
 	"settings":
 	{
+		// Number of entries of each type to load from Heroes III text files
 		"textData" :
 		{
 			"heroClass"  : 18,
@@ -123,33 +124,79 @@
 			"mapVersion" : 28 // max supported version, SoD
 		},
 
-		"hardcodedFeatures" :
+		"heroes" :
 		{
-			"CREEP_SIZE": 4000,
-			"WEEKLY_GROWTH_PERCENT" : 10,
-			"NEUTRAL_STACK_EXP_DAILY" : 500,
-			"MAX_BUILDING_PER_TURN" : 1,
-			"DWELLINGS_ACCUMULATE_CREATURES" : false,
-			"ALL_CREATURES_GET_DOUBLE_MONTHS" : false,
-			"NEGATIVE_LUCK" : false,
-			"MAX_HEROES_AVAILABLE_PER_PLAYER" : 16,
-			"MAX_HEROES_ON_MAP_PER_PLAYER" : 8,
-			"WINNING_HERO_WITH_NO_TROOPS_RETREATS": true,
-			"BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE": true,
-			"NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS": false,
-			"ATTACK_POINT_DMG_MULTIPLIER": 0.05, //every 1 attack point damage influence in battle when attack points > defense points during creature attack
-			"ATTACK_POINTS_DMG_MULTIPLIER_CAP": 4.0, //limit of damage increase that can be achieved by overpowering attack points
-			"DEFENSE_POINT_DMG_MULTIPLIER": 0.025, //every 1 defense point damage influence in battle when defense points > attack points during creature attack
-			"DEFENSE_POINTS_DMG_MULTIPLIER_CAP": 0.7, //limit of damage reduction that can be achieved by overpowering defense points
-			//chances for new hero units count - technically random number 1-100, first element in list below generated number sets count, if none then result is number of elements + 1
-			"HERO_STARTING_ARMY_STACKS_COUNT_CHANCES": [10, 80], //example: [10,80] gives 10% chance for 1 stack, 70% for 2, 20% for 3. Additionally you can add -1 as last special value to start counting from 0 and allowing empty armies
-			"DEFAULT_BUILDING_SET_DWELLING_CHANCES": [100, 50] //percent chance for dwellings to appear - for example [30,10,0,100] means 30% chance for 1st level dwelling, 10% for 2nd, 0% for 3rd, and guaranteed 4th level, no 5th, no 6th, no 7th
+			// number of heroes that player can have active on map at the same time
+			"perPlayerOnMapCap" : 8,
+			// number of heroes that player can have in total, including garrisoned
+			"perPlayerTotalCap" : 16,
+			// if hero wins a battle without any non-summoned troops left, he will retreat and become available in tavern instead of being lost
+			"retreatOnWinWithoutTroops" : true,
+			// Chances for a hero with default army to receive corresponding stack out of his predefined starting troops
+			"startingStackChances": [ 100, 88, 25]
 		},
+
+		"towns":
+		{
+			// How many new building can be built in a town per day
+			"buildingsPerTurnCap" : 1,
+			// Chances for a town with default buildings to receive corresponding dwelling level built in start
+			"startingDwellingChances": [100, 50] 
+		},
+
+		"combat":
+		{
+			//defines dice size of a morale roll, based on creature's morale
+			"goodMoraleDice" : [ 24, 12, 8 ],
+			"badMoraleDice" : [ 12, 6, 4],
+
+			//defines dice size of a luck roll, based on creature's luck
+			"goodLuckDice" : [ 24, 12, 8 ],
+			"badLuckDice" : [],
+			
+			//every 1 attack point damage influence in battle when attack points > defense points during creature attack
+			"attackPointDamageFactor": 0.05, 
+			//limit of damage increase that can be achieved by overpowering attack points
+			"attackPointDamageFactorCap": 4.0, 
+			//every 1 defense point damage influence in battle when defense points > attack points during creature attack
+			"defensePointDamageFactor": 0.025, 
+			//limit of damage reduction that can be achieved by overpowering defense points
+			"defensePointDamageFactorCap": 0.7
+		},	
+
+		"creatures":
+		{
+			// creatures on map will grow by specific percentage each week
+			"weeklyGrowthPercent" : 10,
+			// creatures on map will not grow if their quantity is greater than this value
+			"weeklyGrowthCap" : 4000,
+			// if stack experience is on, creatures on map will get specified amount of experience daily 
+			"dailyStackExperience" : 100,
+			// if set to true, double growth, plague and creature weeks can happen randomly. Has no effect on "Deity of Fire"
+			"allowRandomSpecialWeeks" : true,
+			// if set to true, every creature can get double growth month, ignoring predefined list
+			"allowAllForDoubleMonth" : false,
+		},
+		
+		"dwellings" :
+		{
+			// If true, neutral dwellings will accumulate creatures 
+			"accumulateWhenNeutral" : false,
+			// If true, dwellings owned by players will accumulate creatures 
+			"accumulateWhenOwned" : false
+		},
+		
+		"markets" : 
+		{
+			// period between restocking of "Black Market" object found on adventure map
+			"blackMarketRestockPeriod" : 0,
+		},
+
 		"modules":
 		{
-			"STACK_EXPERIENCE": false,
-			"STACK_ARTIFACTS": false,
-			"COMMANDERS": false
+			"stackExperience": false,
+			"stackArtifact": false,
+			"commanders": false
 		},
 		
 		"bonuses" : 
@@ -158,18 +205,18 @@
 			{
 				"spellDamage" : 
 				{
-					"type" : "SPELL_DAMAGE", //Default spell damage
+					"type" : "SPELL_DAMAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},
-				"wisdomBase" : 
+				"wisdom" : 
 				{
 					"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				}
 			},
-			"heroes":
+			"perHero":
 			{
 				"manaRegeneration" :
 				{
@@ -191,7 +238,7 @@
 				},
 				"manaPerKnowledge" :
 				{
-					"type" : "MANA_PER_KNOWLEDGE", //10 knowledge to 100 mana is default
+					"type" : "MANA_PER_KNOWLEDGE", //10 mana per knowledge
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},

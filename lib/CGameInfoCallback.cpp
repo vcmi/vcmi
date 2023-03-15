@@ -604,7 +604,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if (!t->genBuildingRequirements(ID).test(buildTest))
 		return EBuildingState::PREREQUIRES;
 
-	if(t->builded >= VLC->settings()->getInteger(EGameSettings::INT_MAX_BUILDING_PER_TURN))
+	if(t->builded >= VLC->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	//checking resources

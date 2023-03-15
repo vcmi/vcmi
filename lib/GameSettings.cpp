@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "GameSettings.h"
-
 #include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -29,61 +28,72 @@ double IGameSettings::getDouble(EGameSettings option) const
 	return getValue(option).Float();
 }
 
-GameSettings::GameSettings():
-	gameSettings(static_cast<size_t>(EGameSettings::OPTIONS_COUNT))
+std::vector<int> IGameSettings::getVector(EGameSettings option) const
+{
+	return getValue(option).convertTo<std::vector<int>>();
+}
+
+GameSettings::GameSettings()
+	: gameSettings(static_cast<size_t>(EGameSettings::OPTIONS_COUNT))
 {
 }
 
 void GameSettings::load(const JsonNode & input)
 {
-	static std::array<std::array<std::string, 2>, 34> optionPath =
-	{ {
-		{"textData", "heroClass"},
-		{"textData", "artifact"},
-		{"textData", "creature"},
-		{"textData", "faction"},
-		{"textData", "hero"},
-		{"textData", "spell"},
-		{"textData", "object"},
-		{"textData", "terrain"},
-		{"textData", "river"},
-		{"textData", "road"},
-		{"textData", "mapVersion"},
-		{"modules", "STACK_EXPERIENCE"},
-		{"modules", "STACK_ARTIFACTS"},
-		{"modules", "COMMANDERS"},
-		{"hardcodedFeatures", "DWELLINGS_ACCUMULATE_CREATURES"},
-		{"hardcodedFeatures", "NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS"},
-		{"hardcodedFeatures", "BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"},
-		{"hardcodedFeatures", "WINNING_HERO_WITH_NO_TROOPS_RETREATS"},
-		{"hardcodedFeatures", "ALL_CREATURES_GET_DOUBLE_MONTHS"},
-		{"hardcodedFeatures", "NEGATIVE_LUCK"},
-		{"hardcodedFeatures", "CREEP_SIZE"},
-		{"hardcodedFeatures", "WEEKLY_GROWTH"},
-		{"hardcodedFeatures", "NEUTRAL_STACK_EXP"},
-		{"hardcodedFeatures", "MAX_BUILDING_PER_TURN"},
-		{"hardcodedFeatures", "MAX_HEROES_AVAILABLE_PER_PLAYER"},
-		{"hardcodedFeatures", "MAX_HEROES_ON_MAP_PER_PLAYER"},
-		{"hardcodedFeatures", "ATTACK_POINT_DMG_MULTIPLIER"},
-		{"hardcodedFeatures", "ATTACK_POINTS_DMG_MULTIPLIER_CAP"},
-		{"hardcodedFeatures", "DEFENSE_POINT_DMG_MULTIPLIER"},
-		{"hardcodedFeatures", "DEFENSE_POINTS_DMG_MULTIPLIER_CAP"},
-		{"hardcodedFeatures", "HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"},
-		{"hardcodedFeatures", "DEFAULT_BUILDING_SET_DWELLING_CHANCES"},
-		{"bonuses", "global"},
-		{"bonuses", "heroes"},
-	} };
-	static_assert(static_cast<size_t>(EGameSettings::OPTIONS_COUNT) == optionPath.size(), "Missing option path");
-
-	for (size_t i = 0; i < optionPath.size(); ++i)
+	struct SettingOption
 	{
-		const std::string & group = optionPath[i][0];
-		const std::string & key = optionPath[i][1];
+		EGameSettings setting;
+		std::string group;
+		std::string key;
+	};
 
-		const JsonNode & optionValue = input[group][key];
+	static const std::vector<SettingOption> optionPath = {
+		{EGameSettings::BONUSES_GLOBAL,                         "bonuses",   "global"                     },
+		{EGameSettings::BONUSES_PER_HERO,                       "bonuses",   "perHero"                    },
+		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR,      "combat",    "attackPointDamageFactor"    },
+		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP,  "combat",    "attackPointDamageFactorCap" },
+		{EGameSettings::COMBAT_BAD_LUCK_DICE,                   "combat",    "badLuckDice"                },
+		{EGameSettings::COMBAT_BAD_MORALE_DICE,                 "combat",    "badMoraleDice"              },
+		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR,     "combat",    "defensePointDamageFactor"   },
+		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP, "combat",    "defensePointDamageFactorCap"},
+		{EGameSettings::COMBAT_GOOD_LUCK_DICE,                  "combat",    "goodLuckDice"               },
+		{EGameSettings::COMBAT_GOOD_MORALE_DICE,                "combat",    "goodMoraleDice"             },
+		{EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,   "creatures", "allowAllForDoubleMonth"     },
+		{EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,   "creatures", "allowRandomSpecialWeeks"    },
+		{EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE,       "creatures", "dailyStackExperience"       },
+		{EGameSettings::CREATURES_WEEKLY_GROWTH_CAP,            "creatures", "weeklyGrowthCap"            },
+		{EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT,        "creatures", "weeklyGrowthPercent"        },
+		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL,      "dwellings", "accumulateWhenNeutral"      },
+		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED,        "dwellings", "accumulateWhenOwned"        },
+		{EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP,           "heroes",    "perPlayerOnMapCap"          },
+		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,            "heroes",    "perPlayerTotalCap"          },
+		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,   "heroes",    "retreatOnWinWithoutTroops"  },
+		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,         "heroes",    "startingStackChances"       },
+		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,    "markets",   "blackMarketRestockPeriod"   },
+		{EGameSettings::MODULE_COMMANDERS,                      "modules",   "commanders"                 },
+		{EGameSettings::MODULE_STACK_ARTIFACT,                  "modules",   "stackArtifact"              },
+		{EGameSettings::MODULE_STACK_EXPERIENCE,                "modules",   "stackExperience"            },
+		{EGameSettings::TEXTS_ARTIFACT,                         "textData",  "artifact"                   },
+		{EGameSettings::TEXTS_CREATURE,                         "textData",  "creature"                   },
+		{EGameSettings::TEXTS_FACTION,                          "textData",  "faction"                    },
+		{EGameSettings::TEXTS_HERO,                             "textData",  "hero"                       },
+		{EGameSettings::TEXTS_HERO_CLASS,                       "textData",  "heroClass"                  },
+		{EGameSettings::TEXTS_MAP_VERSION,                      "textData",  "mapVersion"                 },
+		{EGameSettings::TEXTS_OBJECT,                           "textData",  "object"                     },
+		{EGameSettings::TEXTS_RIVER,                            "textData",  "river"                      },
+		{EGameSettings::TEXTS_ROAD,                             "textData",  "road"                       },
+		{EGameSettings::TEXTS_SPELL,                            "textData",  "spell"                      },
+		{EGameSettings::TEXTS_TERRAIN,                          "textData",  "terrain"                    },
+		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"        },
+		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"    },
+	};
 
-		if (!optionValue.isNull())
-			gameSettings[i] = optionValue;
+	for(const auto & option : optionPath)
+	{
+		const JsonNode & optionValue = input[option.group][option.key];
+
+		if(!optionValue.isNull())
+			gameSettings[static_cast<size_t>(option.setting)] = optionValue;
 	}
 }
 
@@ -92,8 +102,8 @@ const JsonNode & GameSettings::getValue(EGameSettings option) const
 	assert(option < EGameSettings::OPTIONS_COUNT);
 	auto index = static_cast<size_t>(option);
 
+	assert(!gameSettings[index].isNull());
 	return gameSettings[index];
 }
-
 
 VCMI_LIB_NAMESPACE_END

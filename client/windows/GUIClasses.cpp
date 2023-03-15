@@ -468,13 +468,13 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::INT_MAX_HEROES_AVAILABLE_PER_PLAYER))
+	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
 		//Cannot recruit. You already have %d Heroes.
 		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(true)));
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::INT_MAX_HEROES_ON_MAP_PER_PLAYER))
+	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
 		//Cannot recruit. You already have %d Heroes.
 		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));

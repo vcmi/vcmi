@@ -949,7 +949,7 @@ void CGameState::checkMapChecksum()
 
 void CGameState::initGlobalBonuses()
 {
-	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_LIST_GLOBAL);
+	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_GLOBAL);
 	logGlobal->debug("\tLoading global bonuses");
 	for(const auto & b : baseBonuses.Struct())
 	{
@@ -1748,7 +1748,7 @@ void CGameState::initTowns()
 			if(vti->tempOwner != PlayerColor::NEUTRAL)
 				vti->builtBuildings.insert(BuildingID::TAVERN);
 
-			auto definesBuildingsChances = VLC->settings()->getValue(EGameSettings::VECTOR_DEFAULT_BUILDING_SET_DWELLING_CHANCES).convertTo<std::vector<int32_t>>();
+			auto definesBuildingsChances = VLC->settings()->getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
 
 			BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
 
