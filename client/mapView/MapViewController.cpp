@@ -27,13 +27,12 @@
 
 void MapViewController::setViewCenter(const int3 & position)
 {
-	assert(context->isInMap(position));
 	setViewCenter(Point(position) * model->getSingleTileSize() + model->getSingleTileSize() / 2, position.z);
 }
 
 void MapViewController::setViewCenter(const Point & position, int level)
 {
-	Point upperLimit = Point(context->getMapSize()) * model->getSingleTileSize() + model->getSingleTileSize();
+	Point upperLimit = Point(context->getMapSize()) * model->getSingleTileSize();
 	Point lowerLimit = Point(0, 0);
 
 	if(worldViewContext)
