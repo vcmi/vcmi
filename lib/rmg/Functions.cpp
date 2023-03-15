@@ -21,6 +21,7 @@
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
+#include "../TerrainHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
@@ -58,7 +59,7 @@ void createModificators(RmgMap & map)
 
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
-	int distanceSq = distance * distance;
+	uint32_t distanceSq = distance * distance;
 	auto subarea = zone.getArea().getSubarea([&zone, distanceSq](const int3 & t)
 	{
 		return t.dist2dSQ(zone.getPos()) > distanceSq;
@@ -75,8 +76,8 @@ void createBorder(RmgMap & gen, Zone & zone)
 		auto tile = borderOutsideArea.nearest(t);
 		return gen.isOnMap(tile) && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
 	});
-	
-	for(auto & tile : blockBorder.getTilesVector())
+
+	for(const auto & tile : blockBorder.getTilesVector())
 	{
 		if(gen.isPossible(tile))
 		{
@@ -119,9 +120,9 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	{
 		//collect all water terrain types
 		std::vector<TerrainId> waterTerrains;
-		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-			if(terrain.isWater())
-				waterTerrains.push_back(terrain.id);
+		for(const auto & terrain : VLC->terrainTypeHandler->objects)
+			if(terrain->isWater())
+				waterTerrains.push_back(terrain->getId());
 		
 		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
@@ -137,20 +138,20 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		}
 		
 		//Now, replace disallowed terrains on surface and in the underground
-		const auto & terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
+		const auto & terrainType = VLC->terrainTypeHandler->getById(zone.getTerrainType());
 
 		if(zone.isUnderground())
 		{
-			if(!terrainType.isUnderground())
+			if(!terrainType->isUnderground())
 			{
-				zone.setTerrainType(Terrain::SUBTERRANEAN);
+				zone.setTerrainType(ETerrainId::SUBTERRANEAN);
 			}
 		}
 		else
 		{
-			if (!terrainType.isSurface())
+			if (!terrainType->isSurface())
 			{
-				zone.setTerrainType(Terrain::DIRT);
+				zone.setTerrainType(ETerrainId::DIRT);
 			}
 		}
 	}

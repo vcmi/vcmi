@@ -143,7 +143,7 @@ public:
 
 	std::string getBattleAIName() const override;
 
-	void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
+	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 	void yourTurn() override;
 
 	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
@@ -186,7 +186,7 @@ public:
 	void playerBonusChanged(const Bonus & bonus, bool gain) override;
 	void heroCreated(const CGHeroInstance *) override;
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
-	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
 	void objectRemoved(const CGObjectInstance * obj) override;
@@ -198,7 +198,7 @@ public:
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
 	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
 	void battleEnd(const BattleResult * br) override;

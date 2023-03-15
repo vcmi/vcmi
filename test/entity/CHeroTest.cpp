@@ -19,7 +19,7 @@ using namespace ::testing;
 class CHeroTest : public Test
 {
 public:
-	MOCK_METHOD3(registarCb, void(int32_t, const std::string &, const std::string &));
+	MOCK_METHOD4(registarCb, void(int32_t, int32_t, const std::string &, const std::string &));
 
 protected:
 	std::shared_ptr<CHero> subject;
@@ -39,12 +39,12 @@ TEST_F(CHeroTest, RegistersIcons)
 	subject->portraitSmall = "Test3";
 	subject->portraitLarge = "Test4";
 
-	auto cb = std::bind(&CHeroTest::registarCb, this, _1, _2, _3);
+	auto cb = std::bind(&CHeroTest::registarCb, this, _1, _2, _3, _4);
 
-	EXPECT_CALL(*this, registarCb(Eq(4242), "UN32", "Test1"));
-	EXPECT_CALL(*this, registarCb(Eq(4242), "UN44", "Test2"));
-	EXPECT_CALL(*this, registarCb(Eq(4242), "PORTRAITSSMALL", "Test3"));
-	EXPECT_CALL(*this, registarCb(Eq(4242), "PORTRAITSLARGE", "Test4"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "UN32", "Test1"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "UN44", "Test2"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "PORTRAITSSMALL", "Test3"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "PORTRAITSLARGE", "Test4"));
 
 	subject->registerIcons(cb);
 }

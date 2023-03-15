@@ -21,7 +21,6 @@ struct GiveBonus;
 struct BlockingDialog;
 struct TeleportDialog;
 struct MetaString;
-struct ShowInInfobox;
 struct StackLocation;
 struct ArtifactLocation;
 class CCreatureSet;
@@ -40,11 +39,31 @@ namespace scripting
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
-	CGameState * gameState();
-	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
-	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0, int3::EDistanceFormula formula = int3::DIST_2D) const; //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
-	void getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
-	void pickAllowedArtsSet(std::vector<const CArtifact*> &out, CRandomGenerator & rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	enum class MapTerrainFilterMode
+	{
+		NONE = 0,
+		LAND = 1,
+		WATER = 2,
+		LAND_CARTOGRAPHER = 3,
+		UNDERGROUND_CARTOGRAPHER = 4
+	};
+
+	CGameState *gameState();
+
+	//used for random spawns
+	void getFreeTiles(std::vector<int3> &tiles) const;
+
+	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
+	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious,
+						 boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0,
+						 int3::EDistanceFormula formula = int3::DIST_2D) const;
+
+	//returns all tiles on given level (-1 - both levels, otherwise number of level)
+	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
+
+	void pickAllowedArtsSet(std::vector<const CArtifact *> &out,
+							CRandomGenerator &rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
 
 	template<typename Saver>
@@ -93,7 +112,6 @@ public:
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
 
-	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
@@ -106,7 +124,7 @@ public:
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player)=0;
-	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags)=0;
+	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos)=0;
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
@@ -116,6 +134,16 @@ public:
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback
 {
 public:
+	//keep const version of callback accessible
+	using CGameInfoCallback::getPlayerState;
+	using CGameInfoCallback::getTeam;
+	using CGameInfoCallback::getPlayerTeam;
+	using CGameInfoCallback::getHero;
+	using CGameInfoCallback::getTown;
+	using CGameInfoCallback::getTile;
+	using CGameInfoCallback::getArtInstance;
+	using CGameInfoCallback::getObjInstance;
+
 	PlayerState * getPlayerState(PlayerColor color, bool verbose = true);
 	TeamState *getTeam(TeamID teamID);//get team by team ID
 	TeamState *getPlayerTeam(PlayerColor color);// get team by player color

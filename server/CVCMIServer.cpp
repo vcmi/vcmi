@@ -27,6 +27,8 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
+#include "../lib/NetPackVisitor.h"
+#include "LobbyNetPackVisitors.h"
 #ifdef VCMI_ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -57,7 +59,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 #include <execinfo.h>
 #endif
 
@@ -81,10 +83,17 @@ public:
 	bool applyOnServerBefore(CVCMIServer * srv, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		if(ptr->checkClientPermissions(srv))
+		ClientPermissionsCheckerNetPackVisitor checker(*srv);
+		ptr->visit(checker);
+
+		if(checker.getResult())
 		{
 			boost::unique_lock<boost::mutex> stateLock(srv->stateMutex);
-			return ptr->applyOnServer(srv);
+			ApplyOnServerNetPackVisitor applier(*srv);
+			
+			ptr->visit(applier);
+
+			return applier.getResult();
 		}
 		else
 			return false;
@@ -93,7 +102,8 @@ public:
 	void applyOnServerAfter(CVCMIServer * srv, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyOnServerAfterAnnounce(srv);
+		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
+		ptr->visit(applier);
 	}
 };
 
@@ -158,8 +168,8 @@ void CVCMIServer::run()
 {
 	if(!restartGameplay)
 	{
-		this->announceLobbyThread = vstd::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
+#if !defined(VCMI_MOBILE)
 		if(cmdLineOptions.count("enable-shm"))
 		{
 			std::string sharedMemoryName = "vcmi_memory";
@@ -174,12 +184,14 @@ void CVCMIServer::run()
 		startAsyncAccept();
 		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
-			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
+			remoteConnectionsThread = std::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
 		}
 
 #if defined(VCMI_ANDROID)
+#ifndef SINGLE_PROCESS_APP
 		CAndroidVMHelper vmHelper;
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+#endif
 #elif !defined(VCMI_IOS)
 		if(shm)
 		{
@@ -203,6 +215,10 @@ void CVCMIServer::run()
 
 void CVCMIServer::establishRemoteConnections()
 {
+	//wait for host connection
+	while(connections.empty())
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
 	auto address = cmdLineOptions["lobby"].as<std::string>();
@@ -359,6 +375,35 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	startAsyncAccept();
 }
 
+class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+{
+private:
+	CVCMIServer & handler;
+	CGameHandler & gh;
+
+public:
+	CVCMIServerPackVisitor(CVCMIServer & handler, CGameHandler & gh)
+			:handler(handler), gh(gh)
+	{
+	}
+
+	virtual bool callTyped() override { return false; }
+
+	virtual void visitForLobby(CPackForLobby & packForLobby) override
+	{
+		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
+	}
+
+	virtual void visitForServer(CPackForServer & serverPack) override
+	{
+		gh.handleReceivedPack(&serverPack);
+	}
+
+	virtual void visitForClient(CPackForClient & clientPack) override
+	{
+	}
+};
+
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
 	setThreadName("CVCMIServer::handleConnection");
@@ -390,15 +435,9 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 				}
 				break;
 			}
-			
-			if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
-			{
-				handleReceivedPack(std::unique_ptr<CPackForLobby>(lobbyPack));
-			}
-			else if(auto serverPack = dynamic_ptr_cast<CPackForServer>(pack))
-			{
-				gh->handleReceivedPack(serverPack);
-			}
+
+			CVCMIServerPackVisitor visitor(*this, *this->gh);
+			pack->visit(visitor);
 		}
 #ifndef _MSC_VER
 	 }
@@ -420,7 +459,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 //	if(state != ENDING_AND_STARTING_GAME)
 	if(c->connected)
 	{
-		auto lcd = vstd::make_unique<LobbyClientDisconnected>();
+		auto lcd = std::make_unique<LobbyClientDisconnected>();
 		lcd->c = c;
 		lcd->clientId = c->connectionID;
 		handleReceivedPack(std::move(lcd));
@@ -455,7 +494,7 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 void CVCMIServer::announceMessage(const std::string & txt)
 {
 	logNetwork->info("Show message: %s", txt);
-	auto cm = vstd::make_unique<LobbyShowMessage>();
+	auto cm = std::make_unique<LobbyShowMessage>();
 	cm->message = txt;
 	addToAnnounceQueue(std::move(cm));
 }
@@ -463,7 +502,7 @@ void CVCMIServer::announceMessage(const std::string & txt)
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt);
-	auto cm = vstd::make_unique<LobbyChatMessage>();
+	auto cm = std::make_unique<LobbyChatMessage>();
 	cm->playerName = playerName;
 	cm->message = txt;
 	addToAnnounceQueue(std::move(cm));
@@ -711,7 +750,7 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		}
 	}
 
-	auto lus = vstd::make_unique<LobbyUpdateState>();
+	auto lus = std::make_unique<LobbyUpdateState>();
 	lus->state = *this;
 	addToAnnounceQueue(std::move(lus));
 }
@@ -960,7 +999,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -987,7 +1026,7 @@ void handleLinuxSignal(int sig)
 }
 #endif
 
-static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
+static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
 	po::options_description opts("Allowed options");
@@ -1047,15 +1086,24 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #ifdef SINGLE_PROCESS_APP
 #define main server_main
 #endif
-int main(int argc, char * argv[])
+
+#if VCMI_ANDROID_DUAL_PROCESS
+void CVCMIServer::create()
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+	const int argc = 1;
+	const char * argv[argc] = { "android-server" };
+#else
+int main(int argc, const char * argv[])
+{
+#endif
+
+#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
@@ -1076,7 +1124,7 @@ int main(int argc, char * argv[])
 	srand((ui32)time(nullptr));
 
 #ifdef SINGLE_PROCESS_APP
-	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[0]);
+	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(const_cast<char *>(argv[0]));
 	cond->notify_one();
 #endif
 
@@ -1110,37 +1158,45 @@ int main(int argc, char * argv[])
 		//and return non-zero status so client can detect error
 		throw;
 	}
-#ifdef VCMI_ANDROID
+#if VCMI_ANDROID_DUAL_PROCESS
 	CAndroidVMHelper envHelper;
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
 	logConfig.deconfigure();
 	vstd::clear_pointer(VLC);
+
+#if !VCMI_ANDROID_DUAL_PROCESS
 	return 0;
+#endif
 }
 
-#ifdef VCMI_ANDROID
-
+#if VCMI_ANDROID_DUAL_PROCESS
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(JNIEnv * env, jclass cls)
 {
 	__android_log_write(ANDROID_LOG_INFO, "VCMI", "Got jni call to init server");
 	CAndroidVMHelper::cacheVM(env);
+
 	CVCMIServer::create();
 }
 
-void CVCMIServer::create()
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
 {
-	const char * foo = "android-server";
-	std::vector<const void *> argv = {foo};
-	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
+	CAndroidVMHelper::initClassloader(baseEnv);
 }
-
 #elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
 {
 	std::vector<const void *> argv = {cond};
 	for(auto & a : args)
 		argv.push_back(a.c_str());
-	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
+	main(argv.size(), reinterpret_cast<const char **>(&*argv.begin()));
 }
-#endif
+
+#ifdef VCMI_ANDROID
+void CVCMIServer::reuseClientJNIEnv(void * jniEnv)
+{
+	CAndroidVMHelper::initClassloader(jniEnv);
+	CAndroidVMHelper::alwaysUseLoadedClass = true;
+}
+#endif // VCMI_ANDROID
+#endif // VCMI_ANDROID_DUAL_PROCESS

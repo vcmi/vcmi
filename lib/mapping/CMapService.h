@@ -58,7 +58,7 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name) const = 0;
+	virtual std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map header from a buffer. This method is temporarily
@@ -72,7 +72,7 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name) const = 0;
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
 
 	virtual void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const = 0;
 };
@@ -85,8 +85,8 @@ public:
 
 	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
-	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name) const override;
+	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
 private:
 	/**
@@ -113,7 +113,7 @@ private:
 	 * @param stream the input map stream
 	 * @return the constructed map loader
 	 */
-	static std::unique_ptr<IMapLoader> getMapLoader(std::unique_ptr<CInputStream> & stream);
+	static std::unique_ptr<IMapLoader> getMapLoader(std::unique_ptr<CInputStream> & stream, std::string mapName, std::string modName, std::string encoding);
 
 	/**
 	 * Gets a map patcher for specified scenario

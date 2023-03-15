@@ -9,51 +9,19 @@
  */
 #pragma once
 
-#include "JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// Namespace that provides utilites for unicode support (UTF-8)
-namespace Unicode
-{
-	/// evaluates size of UTF-8 character
-	size_t DLL_LINKAGE getCharacterSize(char firstByte);
-
-	/// test if character is a valid UTF-8 symbol
-	/// maxSize - maximum number of bytes this symbol may consist from ( = remainer of string)
-	bool DLL_LINKAGE isValidCharacter(const char * character, size_t maxSize);
-
-	/// test if text contains ASCII-string (no need for unicode conversion)
-	bool DLL_LINKAGE isValidASCII(const std::string & text);
-	bool DLL_LINKAGE isValidASCII(const char * data, size_t size);
-
-	/// test if text contains valid UTF-8 sequence
-	bool DLL_LINKAGE isValidString(const std::string & text);
-	bool DLL_LINKAGE isValidString(const char * data, size_t size);
-
-	/// converts text to unicode from specified encoding or from one specified in settings
-	std::string DLL_LINKAGE toUnicode(const std::string & text);
-	std::string DLL_LINKAGE toUnicode(const std::string & text, const std::string & encoding);
-
-	/// converts text from unicode to specified encoding or to one specified in settings
-	/// NOTE: usage of these functions should be avoided if possible
-	std::string DLL_LINKAGE fromUnicode(const std::string & text);
-	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
-
-	///delete (amount) UTF characters from right
-	DLL_LINKAGE void trimRight(std::string & text, const size_t amount = 1);
-};
-
 class CInputStream;
+class JsonNode;
 
 /// Parser for any text files from H3
 class DLL_LINKAGE CLegacyConfigParser
 {
+	std::string fileEncoding;
+
 	std::unique_ptr<char[]> data;
 	char * curr;
 	char * end;
-
-	void init(const std::unique_ptr<CInputStream> & input);
 
 	/// extracts part of quoted string.
 	std::string extractQuotedPart();
@@ -66,6 +34,7 @@ class DLL_LINKAGE CLegacyConfigParser
 
 	/// reads "raw" string without encoding conversion
 	std::string readRawString();
+
 public:
 	/// read one entry from current line. Return ""/0 if end of line reached
 	std::string readString();
@@ -87,69 +56,182 @@ public:
 	/// end current line
 	bool endLine();
 
-	CLegacyConfigParser(std::string URI);
-	CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
+	explicit CLegacyConfigParser(std::string URI);
 };
 
-class DLL_LINKAGE CGeneralTextHandler //Handles general texts
+class CGeneralTextHandler;
+
+/// Small wrapper that provides text access API compatible with old code
+class DLL_LINKAGE LegacyTextContainer
 {
+	CGeneralTextHandler & owner;
+	std::string basePath;
+
 public:
-	JsonNode localizedTexts;
+	LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath);
+	std::string operator [](size_t index) const;
+};
 
-	std::vector<std::string> allTexts;
+/// Small wrapper that provides help text access API compatible with old code
+class DLL_LINKAGE LegacyHelpContainer
+{
+	CGeneralTextHandler & owner;
+	std::string basePath;
 
-	std::vector<std::string> arraytxt;
-	std::vector<std::string> primarySkillNames;
-	std::vector<std::string> jktexts;
-	std::vector<std::string> heroscrn;
-	std::vector<std::string> overview;//text for Kingdom Overview window
-	std::vector<std::string> colors; //names of player colors ("red",...)
-	std::vector<std::string> capColors; //names of player colors with first letter capitalized ("Red",...)
-	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
+public:
+	LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath);
+	std::pair<std::string, std::string> operator[](size_t index) const;
+};
+
+class TextIdentifier
+{
+	std::string identifier;
+public:
+	std::string const & get() const
+	{
+		return identifier;
+	}
+
+	TextIdentifier(const char * id):
+		identifier(id)
+	{}
+
+	TextIdentifier(std::string const & id):
+		identifier(id)
+	{}
+
+	template<typename ... T>
+	TextIdentifier(std::string const & id, size_t index, T ... rest):
+		TextIdentifier(id + '.' + std::to_string(index), rest ... )
+	{}
+
+	template<typename ... T>
+	TextIdentifier(std::string const & id, std::string const & id2, T ... rest):
+		TextIdentifier(id + '.' + id2, rest ... )
+	{}
+};
+
+/// Handles all text-related data in game
+class DLL_LINKAGE CGeneralTextHandler
+{
+	struct StringState
+	{
+		/// Human-readable string that was added on registration
+		std::string baseValue;
+
+		/// Language of base string
+		std::string baseLanguage;
+
+		/// Translated human-readable string
+		std::string overrideValue;
+
+		/// Language of the override string
+		std::string overrideLanguage;
+
+		/// ID of mod that created this string
+		std::string modContext;
+	};
+
+	/// map identifier -> localization
+	std::unordered_map<std::string, StringState> stringsLocalizations;
+
+	void readToVector(const std::string & sourceID, const std::string & sourceName);
+
+	/// number of scenarios in specific campaign. TODO: move to a better location
+	std::vector<size_t> scenariosCountPerCampaign;
+
+	std::string getModLanguage(const std::string & modContext);
+public:
+
+	/// validates translation of specified language for specified mod
+	/// returns true if localization is valid and complete
+	/// any error messages will be written to log file
+	bool validateTranslation(const std::string & language, const std::string & modContext, JsonNode const & file) const;
+
+	/// Loads translation from provided json
+	/// Any entries loaded by this will have priority over texts registered normally
+	void loadTranslationOverrides(const std::string & language, const std::string & modContext, JsonNode const & file);
+
+	/// add selected string to internal storage
+	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
+
+	/// add selected string to internal storage as high-priority strings
+	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
+
+	// returns true if identifier with such name was registered, even if not translated to current language
+	// not required right now, can be added if necessary
+	// bool identifierExists( const std::string identifier) const;
+
+	/// returns translated version of a string that can be displayed to user
+	template<typename  ... Args>
+	std::string translate(std::string arg1, Args ... args) const
+	{
+		TextIdentifier id(arg1, args ...);
+		return deserialize(id);
+	}
+
+	/// converts identifier into user-readable string
+	const std::string & deserialize(const TextIdentifier & identifier) const;
+
+	/// Debug method, dumps all currently known texts into console using Json-like format
+	void dumpAllTexts();
+
+	LegacyTextContainer allTexts;
+
+	LegacyTextContainer arraytxt;
+	LegacyTextContainer primarySkillNames;
+	LegacyTextContainer jktexts;
+	LegacyTextContainer heroscrn;
+	LegacyTextContainer overview;//text for Kingdom Overview window
+	LegacyTextContainer colors; //names of player colors ("red",...)
+	LegacyTextContainer capColors; //names of player colors with first letter capitalized ("Red",...)
+	LegacyTextContainer turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
 
 	//towns
-	std::vector<std::string> tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
-	std::vector<std::string> tavernInfo;
-	std::vector<std::string> tavernRumors;
+	LegacyTextContainer tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
+	LegacyTextContainer tavernInfo;
+	LegacyTextContainer tavernRumors;
 
-	std::vector<std::string> qeModCommands;
+	LegacyTextContainer qeModCommands;
 
-	std::vector<std::pair<std::string,std::string>> zelp;
-	std::vector<std::string> lossCondtions;
-	std::vector<std::string> victoryConditions;
+	LegacyHelpContainer zelp;
+	LegacyTextContainer lossCondtions;
+	LegacyTextContainer victoryConditions;
 
 	//objects
-	std::vector<std::string> creGens; //names of creatures' generators
-	std::vector<std::string> creGens4; //names of multiple creatures' generators
-	std::vector<std::string> advobtxt;
-	std::vector<std::string> xtrainfo;
-	std::vector<std::string> restypes; //names of resources
-	std::map<TerrainId, std::string> terrainNames;
-	std::vector<std::string> randsign;
-	std::vector<std::pair<std::string,std::string>> mines; //first - name; second - event description
-	std::vector<std::string> seerEmpty;
-	std::vector<std::vector<std::vector<std::string>>>  quests; //[quest][type][index]
-	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
-	std::vector<std::string> seerNames;
-	std::vector<std::string> tentColors;
+	LegacyTextContainer advobtxt;
+	LegacyTextContainer restypes; //names of resources
+	LegacyTextContainer randsign;
+	LegacyTextContainer seerEmpty;
+	LegacyTextContainer seerNames;
+	LegacyTextContainer tentColors;
 
 	//sec skills
-	std::vector<std::string> levels;
-	std::vector<std::string> zcrexp; //more or less useful content of that file
+	LegacyTextContainer levels;
 	//commanders
-	std::vector<std::string> znpc00; //more or less useful content of that file
+	LegacyTextContainer znpc00; //more or less useful content of that file
 
-	//campaigns
-	std::vector<std::string> campaignMapNames;
-	std::vector<std::vector<std::string>> campaignRegionNames;
+	std::vector<std::string> findStringsWithPrefix(std::string const & prefix);
 
-	static void readToVector(std::string sourceName, std::vector<std::string> &dest);
+	int32_t pluralText(int32_t textIndex, int32_t count) const;
 
-	int32_t pluralText(const int32_t textIndex, const int32_t count) const;
+	size_t getCampaignLength(size_t campaignID) const;
 
 	CGeneralTextHandler();
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
+
+	/// Attempts to detect encoding & language of H3 files
+	static void detectInstallParameters();
+
+	/// Returns name of language preferred by user
+	static std::string getPreferredLanguage();
+
+	/// Returns name of language of Heroes III text files
+	static std::string getInstalledLanguage();
+
+	/// Returns name of encoding of Heroes III text files
+	static std::string getInstalledEncoding();
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -37,12 +37,10 @@ struct CPathsInfo;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-class CToggleGroup;
 class CAdvMapInt;
 class CCastleInterface;
-class CBattleInterface;
+class BattleInterface;
 class CComponent;
-class CCreatureAnimation;
 class CSelectableComponent;
 class CSlider;
 class CInGameConsole;
@@ -65,12 +63,37 @@ namespace boost
 	class recursive_mutex;
 }
 
+class CPlayerInterface;
+
+class HeroPathStorage
+{
+	CPlayerInterface & owner;
+
+	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
+
+public:
+	explicit HeroPathStorage(CPlayerInterface &owner);
+
+	void setPath(const CGHeroInstance *h, const CGPath & path);
+	bool setPath(const CGHeroInstance *h, const int3 & destination);
+
+	const CGPath & getPath(const CGHeroInstance *h) const;
+	bool hasPath(const CGHeroInstance *h) const;
+
+	void removeLastNode(const CGHeroInstance *h);
+	void erasePath(const CGHeroInstance *h);
+	void verifyPath(const CGHeroInstance *h);
+
+	template <typename Handler>
+	void serialize( Handler &h, int version );
+};
+
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
-	const CArmedInstance * currentSelection;
-
 public:
+	HeroPathStorage paths;
+
 	std::shared_ptr<Environment> env;
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
 	int3 destinationTeleportPos;
@@ -85,7 +108,7 @@ public:
 	static const int SAVES_COUNT = 5;
 
 	CCastleInterface * castleInt; //nullptr if castle window isn't opened
-	static CBattleInterface * battleInt; //nullptr if no battle
+	static std::shared_ptr<BattleInterface> battleInt; //nullptr if no battle
 	CInGameConsole * cingconsole;
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
@@ -95,15 +118,11 @@ public:
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
-	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
-
-	const CArmedInstance * getSelection();
-	void setSelection(const CArmedInstance * obj);
 
 	struct SpellbookLastSetting
 	{
@@ -132,8 +151,9 @@ public:
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
+	void bulkArtMovementStart(size_t numOfArts) override;
 	void artifactAssembled(const ArtifactLocation &al) override;
-	void artifactPossibleAssembling(const ArtifactLocation & dst) override;
+	void askToAssembleArtifact(const ArtifactLocation & dst) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
@@ -148,7 +168,7 @@ public:
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
 	void receivedResource() override;
-	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
@@ -177,13 +197,13 @@ public:
 	void centerView (int3 pos, int focusTime) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectRemoved(const CGObjectInstance *obj) override;
+	void objectRemovedAfter() override;
 	void playerBlocked(int reason, bool start) override;
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
-	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
 	void saveGame(BinarySerializer & h, const int version) override; //saving
 	void loadGame(BinaryDeserializer & h, const int version) override; //loading
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	//for battles
 	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
@@ -194,14 +214,14 @@ public:
 	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleLogMessage(const std::vector<MetaString> & lines) override;
-	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
+	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	void battleSpellCast(const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleTriggerEffect & bte) override; //various one-shot effect
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
+	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
-	void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
+	void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 	void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
@@ -214,15 +234,11 @@ public:
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog(bool unlockPim = true);
 	void waitForAllDialogs(bool unlockPim = true);
-	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
-	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
-	bool altPressed() const; //determines if alt key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
-	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
+	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
 	// show dialogs
@@ -232,23 +248,13 @@ public:
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
 	void stopMovement();
-	void moveHero(const CGHeroInstance *h, CGPath path);
-	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
-	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
-	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
-	void eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath = true );
+	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
-	void removeLastNodeFromPath(const CGHeroInstance *ho);
-	CGPath *getAndVerifyPath( const CGHeroInstance * h );
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void requestReturningToMainMenu(bool won);
-	void sendCustomEvent(int code);
 	void proposeLoadingGame();
-
-	// Ambient sounds
-	void updateAmbientSounds(bool resetAll = false);
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
@@ -280,10 +286,10 @@ private:
 
 	bool duringMovement;
 	bool ignoreEvents;
+	size_t numOfMovedArts;
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
-	void askToAssembleArtifact(const ArtifactLocation &al);
 };
 
 extern CPlayerInterface * LOCPLINT;

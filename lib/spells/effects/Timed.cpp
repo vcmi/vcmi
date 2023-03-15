@@ -29,14 +29,73 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Timed, EFFECT_NAME);
 
-Timed::Timed()
-	: UnitEffect(),
-	cumulative(false),
-	bonus()
+static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target) 
 {
-}
+	auto addLogLine = [&](const int32_t baseTextID, const boost::logic::tribool & plural)
+	{
+		MetaString line;
+		target->addText(line, MetaString::GENERAL_TXT, baseTextID, plural);
+		target->addNameReplacement(line, plural);
+		log.push_back(std::move(line));
+	};
 
-Timed::~Timed() = default;
+	if(m->getSpellIndex() == SpellID::DISEASE)
+	{
+		addLogLine(553, boost::logic::indeterminate);
+		return;
+	}
+
+	for(const auto & bonus : bonuses)
+	{
+		switch(bonus.type)
+		{
+		case Bonus::NOT_ACTIVE:
+			{
+				switch(bonus.subtype)
+				{
+				case SpellID::STONE_GAZE:
+					addLogLine(558, boost::logic::indeterminate);
+					return;
+				case SpellID::PARALYZE:
+					addLogLine(563, boost::logic::indeterminate);
+					return;
+				default:
+					break;
+				}
+			}
+			break;
+		case Bonus::POISON:
+			addLogLine(561, boost::logic::indeterminate);
+			return;
+		case Bonus::BIND_EFFECT:
+			addLogLine(-560, true);
+			return;
+		case Bonus::STACK_HEALTH:
+			{
+				if(bonus.val < 0)
+				{
+					BonusList unitHealth = *target->getBonuses(Selector::type()(Bonus::STACK_HEALTH));
+
+					auto oldHealth = unitHealth.totalValue();
+					unitHealth.push_back(std::make_shared<Bonus>(bonus));
+					auto newHealth = unitHealth.totalValue();
+
+					//"The %s shrivel with age, and lose %d hit points."
+					MetaString line;
+					target->addText(line, MetaString::GENERAL_TXT, 551);
+					target->addNameReplacement(line);
+
+					line.addReplacement(oldHealth - newHealth);
+					log.push_back(std::move(line));
+					return;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
 
 void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
@@ -50,7 +109,7 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	std::shared_ptr<const Bonus> addedValueBonus = nullptr;
 	std::shared_ptr<const Bonus> fixedValueBonus = nullptr; 
 
-	auto casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
+	const auto *casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 	{ 
 		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
@@ -62,7 +121,7 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	SetStackEffect sse;
 	BattleLogMessage blm;
 
-	for(auto & t : target)
+	for(const auto & t : target)
 	{
 		std::vector<Bonus> buffer;
 		std::copy(converted.begin(), converted.end(), std::back_inserter(buffer));
@@ -141,15 +200,15 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		if(casterHero && casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, m->getSpellIndex())) //TODO: better handling of bonus percentages
 		{
 			int damagePercent = casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, m->getSpellIndex()) / tier;
-			Bonus specialBonus(Bonus::N_TURNS, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, damagePercent, m->getSpellIndex(), 0, Bonus::PERCENT_TO_ALL);
+			Bonus specialBonus(Bonus::N_TURNS, Bonus::GENERAL_DAMAGE_PREMY, Bonus::SPELL_EFFECT, damagePercent, m->getSpellIndex());
 			specialBonus.turnsRemain = duration;
 			buffer.push_back(specialBonus);
 		}
 
 		if(cumulative)
-			sse.toAdd.push_back(std::make_pair(affected->unitId(), buffer));
+			sse.toAdd.emplace_back(affected->unitId(), buffer);
 		else
-			sse.toUpdate.push_back(std::make_pair(affected->unitId(), buffer));
+			sse.toUpdate.emplace_back(affected->unitId(), buffer);
 	}
 
 	if(!(sse.toAdd.empty() && sse.toUpdate.empty()))
@@ -163,7 +222,7 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 {
 	int32_t maxDuration = 0;
 
-	for(const std::shared_ptr<Bonus> & b : bonus)
+	for(const auto & b : bonus)
 	{
 		Bonus nb(*b);
 
@@ -187,74 +246,6 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 
 	//if all spell effects have special duration, use it later for special bonuses
 	duration = maxDuration;
-}
-
-void Timed::describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target) const
-{
-	auto addLogLine = [&](const int32_t baseTextID, const boost::logic::tribool & plural)
-	{
-		MetaString line;
-		target->addText(line, MetaString::GENERAL_TXT, baseTextID, plural);
-		target->addNameReplacement(line, plural);
-		log.push_back(std::move(line));
-	};
-
-	if(m->getSpellIndex() == SpellID::DISEASE)
-	{
-		addLogLine(553, boost::logic::indeterminate);
-		return;
-	}
-
-	for(const auto & bonus : bonuses)
-	{
-		switch(bonus.type)
-		{
-		case Bonus::NOT_ACTIVE:
-			{
-				switch(bonus.subtype)
-				{
-				case SpellID::STONE_GAZE:
-					addLogLine(558, boost::logic::indeterminate);
-					return;
-				case SpellID::PARALYZE:
-					addLogLine(563, boost::logic::indeterminate);
-					return;
-				default:
-					break;
-				}
-			}
-			break;
-		case Bonus::POISON:
-			addLogLine(561, boost::logic::indeterminate);
-			return;
-		case Bonus::BIND_EFFECT:
-			addLogLine(-560, true);
-			return;
-		case Bonus::STACK_HEALTH:
-			{
-				if(bonus.val < 0)
-				{
-					BonusList unitHealth = *target->getBonuses(Selector::type()(Bonus::STACK_HEALTH));
-
-					auto oldHealth = unitHealth.totalValue();
-					unitHealth.push_back(std::make_shared<Bonus>(bonus));
-					auto newHealth = unitHealth.totalValue();
-
-					//"The %s shrivel with age, and lose %d hit points."
-					MetaString line;
-					target->addText(line, MetaString::GENERAL_TXT, 551);
-					target->addNameReplacement(line);
-
-					line.addReplacement(oldHealth - newHealth);
-					log.push_back(std::move(line));
-					return;
-				}
-			}
-			break;
-		default:
-			break;
-		}
-	}
 }
 
 void Timed::serializeJsonUnitEffect(JsonSerializeFormat & handler)

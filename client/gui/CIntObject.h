@@ -9,15 +9,15 @@
  */
 #pragma once
 
-#include <SDL_events.h>
-#include "Geometries.h"
-#include "../Graphics.h"
+#include "MouseButton.h"
+#include "../render/Graphics.h"
+#include "../../lib/Rect.h"
 
 struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
 
-struct SDL_KeyboardEvent;
+typedef int32_t SDL_Keycode;
 
 using boost::logic::tribool;
 
@@ -60,9 +60,6 @@ public:
 	virtual ~IShowActivatable(){};
 };
 
-enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
-//typedef ui16 ActivityFlag;
-
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
@@ -72,7 +69,7 @@ class CIntObject : public IShowActivatable //interface object
 	int toNextTick;
 	int timerDelay;
 
-	std::map<EIntObjMouseBtnType, bool> currentMouseState;
+	std::map<MouseButton, bool> currentMouseState;
 
 	void onTimer(int timePassed);
 
@@ -106,10 +103,10 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
-	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
+	void updateMouseState(MouseButton btn, bool state) { currentMouseState[btn] = state; }
+	bool mouseState(MouseButton btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
-	virtual void click(EIntObjMouseBtnType btn, tribool down, bool previousState);
+	virtual void click(MouseButton btn, tribool down, bool previousState);
 	virtual void clickLeft(tribool down, bool previousState) {}
 	virtual void clickRight(tribool down, bool previousState) {}
 	virtual void clickMiddle(tribool down, bool previousState) {}
@@ -120,15 +117,16 @@ public:
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyPressed(const SDL_KeyboardEvent & key){}
-	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	virtual void keyPressed(const SDL_Keycode & key){}
+	virtual void keyReleased(const SDL_Keycode & key){}
+	virtual bool captureThisKey(const SDL_Keycode & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-	virtual void textInputed(const SDL_TextInputEvent & event){};
-	virtual void textEdited(const SDL_TextEditingEvent & event){};
+	virtual void textInputed(const std::string & enteredText){};
+	virtual void textEdited(const std::string & enteredText){};
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent){}
+	virtual void mouseMoved (const Point & cursorPosition){}
 
 	//time handling
 	void setTimer(int msToTrigger);//set timer delay and activate timer if needed.
@@ -165,10 +163,6 @@ public:
 	//request complete redraw of this object
 	void redraw() override;
 
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
-
-	bool isItInLoc(const SDL_Rect &rect, int x, int y);
-	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
@@ -207,7 +201,9 @@ public:
 	CKeyShortcut();
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
-	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
+	void keyPressed(const SDL_Keycode & key) override;
+	void keyReleased(const SDL_Keycode & key) override;
+
 };
 
 class WindowBase : public CIntObject
@@ -216,4 +212,26 @@ public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
 protected:
 	void close();
+};
+
+class IStatusBar
+{
+public:
+	virtual ~IStatusBar();
+
+	/// set current text for the status bar
+	virtual void write(const std::string & text) = 0;
+
+	/// remove any current text from the status bar
+	virtual void clear() = 0;
+
+	/// remove text from status bar if current text matches tested text
+	virtual void clearIfMatching(const std::string & testedText) = 0;
+
+	/// enables mode for entering text instead of showing hover text
+	virtual void setEnteringMode(bool on) = 0;
+
+	/// overrides hover text from controls with text entered into in-game console (for chat/cheats)
+	virtual void setEnteredText(const std::string & text) = 0;
+
 };

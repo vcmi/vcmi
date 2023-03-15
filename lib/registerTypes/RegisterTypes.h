@@ -45,7 +45,6 @@ void registerTypesMapObjects1(Serializer &s)
 			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
-	s.template registerType<CGObjectInstance, CGMagicWell>();
 	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
 		s.template registerType<CGKeys, CGKeymasterTent>();
@@ -99,7 +98,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
 	REGISTER_GENERIC_HANDLER(CGBoat);
-	REGISTER_GENERIC_HANDLER(CGBonusingObject);
 	REGISTER_GENERIC_HANDLER(CGBorderGate);
 	REGISTER_GENERIC_HANDLER(CGBorderGuard);
 	REGISTER_GENERIC_HANDLER(CGCreature);
@@ -113,15 +111,11 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGLighthouse);
 	REGISTER_GENERIC_HANDLER(CGTerrainPatch);
 	REGISTER_GENERIC_HANDLER(CGMagi);
-	REGISTER_GENERIC_HANDLER(CGMagicSpring);
-	REGISTER_GENERIC_HANDLER(CGMagicWell);
 	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CGMine);
 	REGISTER_GENERIC_HANDLER(CGObelisk);
 	REGISTER_GENERIC_HANDLER(CGObservatory);
-	REGISTER_GENERIC_HANDLER(CGOnceVisitable);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
-	REGISTER_GENERIC_HANDLER(CGPickable);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
 	REGISTER_GENERIC_HANDLER(CGScholar);
@@ -135,8 +129,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGWhirlpool);
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
-	REGISTER_GENERIC_HANDLER(CGVisitableOPH);
-	REGISTER_GENERIC_HANDLER(CGVisitableOPW);
 	REGISTER_GENERIC_HANDLER(CGWitchHut);
 
 #undef REGISTER_GENERIC_HANDLER
@@ -162,12 +154,6 @@ void registerTypesMapObjects2(Serializer &s)
 			s.template registerType<CGTownBuilding, COPWBonus>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
-		s.template registerType<CRewardableObject, CGPickable>();
-		s.template registerType<CRewardableObject, CGBonusingObject>();
-		s.template registerType<CRewardableObject, CGVisitableOPH>();
-		s.template registerType<CRewardableObject, CGVisitableOPW>();
-		s.template registerType<CRewardableObject, CGOnceVisitable>();
-			s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
 		s.template registerType<CTeamVisited, CGWitchHut>();
@@ -257,7 +243,6 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, NewTurn>();
 	s.template registerType<CPackForClient, InfoWindow>();
 	s.template registerType<CPackForClient, SetObjectProperty>();
-	s.template registerType<CPackForClient, ShowInInfobox>();
 	s.template registerType<CPackForClient, AdvmapSpellCast>();
 	s.template registerType<CPackForClient, OpenWindow>();
 	s.template registerType<CPackForClient, NewObject>();

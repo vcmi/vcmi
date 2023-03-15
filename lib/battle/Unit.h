@@ -25,6 +25,19 @@ class JsonSerializeFormat;
 
 namespace battle
 {
+
+namespace BattlePhases
+{
+	enum Type
+	{
+		SIEGE, // turrets/catapult,
+		NORMAL, // normal (unmoved) creatures, other war machines,
+		WAIT_MORALE, // waited creatures that had morale,
+		WAIT, // rest of waited creatures
+		NUMBER_OF_PHASES // number of phases.
+	};
+}
+
 class CUnitState;
 
 class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer
@@ -43,6 +56,7 @@ public:
 	virtual bool ableToRetaliate() const = 0;
 	virtual bool alive() const = 0;
 	virtual bool isGhost() const = 0;
+	virtual bool isFrozen() const = 0;
 
 	bool isDead() const;
 	bool isTurret() const;
@@ -78,7 +92,7 @@ public:
 	virtual std::shared_ptr<Unit> acquire() const = 0;
 	virtual std::shared_ptr<CUnitState> acquireState() const = 0;
 
-	virtual int battleQueuePhase(int turn) const = 0;
+	virtual BattlePhases::Type battleQueuePhase(int turn) const = 0;
 
 	virtual std::string getDescription() const;
 
@@ -115,14 +129,12 @@ public:
 class DLL_LINKAGE UnitInfo
 {
 public:
-    uint32_t id;
-	TQuantity count;
+    uint32_t id = 0;
+	TQuantity count = 0;
 	CreatureID type;
-	ui8 side;
+	ui8 side = 0;
 	BattleHex position;
-	bool summoned;
-
-	UnitInfo();
+	bool summoned = false;
 
 	void serializeJson(JsonSerializeFormat & handler);
 

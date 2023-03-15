@@ -12,7 +12,7 @@
 #include "JsonDetail.h"
 
 #include "VCMI_Lib.h"
-#include "CGeneralTextHandler.h"
+#include "TextOperations.h"
 #include "CModHandler.h"
 
 #include "filesystem/Filesystem.h"
@@ -169,7 +169,7 @@ JsonNode JsonParser::parse(std::string fileName)
 	}
 	else
 	{
-		if (!Unicode::isValidString(&input[0], input.size()))
+		if (!TextOperations::isValidUnicodeString(&input[0], input.size()))
 			error("Not a valid UTF-8 file", false);
 
 		extractValue(root);
@@ -1177,7 +1177,7 @@ namespace Validation
 				if (path.getType() == JsonNode::JsonType::DATA_STRING)
 					errors += path.String();
 				else
-					errors += boost::lexical_cast<std::string>(static_cast<unsigned>(path.Float()));
+					errors += std::to_string(static_cast<unsigned>(path.Float()));
 			}
 		}
 		else

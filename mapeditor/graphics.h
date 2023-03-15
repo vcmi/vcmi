@@ -13,16 +13,21 @@
 #include "../lib/GameConstants.h"
 #include <QImage>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGTownInstance;
+class CGObjectInstance;
+class EntityService;
+class JsonNode;
+class ObjectTemplate;
+
+VCMI_LIB_NAMESPACE_END
+
 class CHeroClass;
 struct InfoAboutHero;
 struct InfoAboutTown;
-class CGObjectInstance;
-class ObjectTemplate;
 class Animation;
-class EntityService;
-class JsonNode;
 
 /// Handles fonts, hero images, town images, various graphics
 class Graphics

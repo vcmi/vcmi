@@ -13,30 +13,31 @@
 #include "CComponent.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
 
-#include "../CBitmapHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CGameInfo.h"
-#include "../windows/CAdvmapInterface.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/TextOperations.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar->setText(hoverText);
-	else if (GH.statusbar->getText()==hoverText)
-		GH.statusbar->clear();
+		GH.statusbar->write(hoverText);
+	else
+		GH.statusbar->clearIfMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()
@@ -57,8 +58,8 @@ void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
-	if (!text.empty())
-		adventureInt->handleRightClick(text, down);
+	if (down && !text.empty())
+		CRClickPopup::createAndPush(text);
 }
 
 LRClickableAreaWText::LRClickableAreaWText()
@@ -69,7 +70,7 @@ LRClickableAreaWText::LRClickableAreaWText()
 LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText, const std::string &ClickText)
 {
 	init();
-	pos = Pos + pos;
+	pos = Pos + pos.topLeft();
 	hoverText = HoverText;
 	text = ClickText;
 }
@@ -150,7 +151,7 @@ void CHeroArea::clickRight(tribool down, bool previousState)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->setText(hero->getObjectName());
+		GH.statusbar->write(hero->getObjectName());
 	else
 		GH.statusbar->clear();
 }
@@ -182,26 +183,29 @@ void CMinorResDataBar::show(SDL_Surface * to)
 {
 }
 
+std::string CMinorResDataBar::buildDateString()
+{
+	std::string pattern = "%s: %d, %s: %d, %s: %d";
+
+	auto formatted = boost::format(pattern)
+		% CGI->generaltexth->translate("core.genrltxt.62") % LOCPLINT->cb->getDate(Date::MONTH)
+		% CGI->generaltexth->translate("core.genrltxt.63") % LOCPLINT->cb->getDate(Date::WEEK)
+		% CGI->generaltexth->translate("core.genrltxt.64") % LOCPLINT->cb->getDate(Date::DAY_OF_WEEK);
+
+	return boost::str(formatted);
+}
+
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
 	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
-		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
+		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
 		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * i, pos.y + pos.h/2));
 	}
-	std::vector<std::string> temp;
-
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::MONTH)));
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::WEEK)));
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK)));
-
-	std::string datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
-							+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
-
-	graphics->fonts[FONT_SMALL]->renderTextCenter(to, CSDL_Ext::processStr(datetext,temp), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
+	graphics->fonts[FONT_SMALL]->renderTextCenter(to, buildDateString(), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -224,7 +228,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, TOPLEFT, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36, 73));
@@ -248,16 +252,25 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
-			subtitle = boost::lexical_cast<std::string>(slot.second.count);
+			subtitle = TextOperations::formatMetric(slot.second.count, 4);
 		}
 		else
 		{
 			//if =0 - we have no information about stack size at all
 			if(slot.second.count)
-				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+			{
+				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+				{
+					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.count);
+				}
+				else
+				{
+					subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+				}
+			}
 		}
 
-		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle));
+		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
 	}
 
 }
@@ -282,10 +295,10 @@ void CHeroTooltip::init(const InfoAboutHero & hero)
 	if(hero.details)
 	{
 		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, CENTER, Colors::WHITE,
-					   boost::lexical_cast<std::string>(hero.details->primskills[i])));
+			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
+					   std::to_string(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
 
 		morale = std::make_shared<CAnimImage>("IMRL22", hero.details->morale + 3, 0, 5, 74);
 		luck = std::make_shared<CAnimImage>("ILCK22", hero.details->luck + 3, 0, 5, 91);
@@ -325,8 +338,8 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 		if(town.details->goldIncome)
 		{
-			income = std::make_shared<CLabel>(157, 58, FONT_TINY, CENTER, Colors::WHITE,
-					   boost::lexical_cast<std::string>(town.details->goldIncome));
+			income = std::make_shared<CLabel>(157, 58, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE,
+					   std::to_string(town.details->goldIncome));
 		}
 		if(town.details->garrisonedHero) //garrisoned hero icon
 			garrisonedHero = std::make_shared<CPicture>("TOWNQKGH", 149, 76);
@@ -431,7 +444,7 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 	small(Small)
 {
 	bonusValue = 0;
-	pos = r + pos;
+	pos = r + pos.topLeft();
 	defActions = 255-DISPOSE;
 }
 
@@ -453,7 +466,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
 
-	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
@@ -470,7 +483,7 @@ void CCreaturePic::show(SDL_Surface * to)
 void CCreaturePic::setAmount(int newAmount)
 {
 	if(newAmount != 0)
-		amount->setText(boost::lexical_cast<std::string>(newAmount));
+		amount->setText(std::to_string(newAmount));
 	else
 		amount->setText("");
 }

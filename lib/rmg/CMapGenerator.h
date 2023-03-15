@@ -65,8 +65,8 @@ public:
 	int getPrisonsRemaning() const;
 	void decreasePrisonsRemaining();
 	const std::vector<ArtifactID> & getQuestArtsRemaning() const;
-	void banQuestArt(ArtifactID id);
-	
+	void banQuestArt(const ArtifactID & id);
+
 	Zone * getZoneWater() const;
 	void createWaterTreasures();
 

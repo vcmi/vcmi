@@ -19,20 +19,30 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CRandomRewardObjectInfo;
 
+class CRewardLimiter;
+using TRewardLimitersList = std::vector<std::shared_ptr<CRewardLimiter>>;
+
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
 /// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
 /// NOTE: in future should (partially) replace seer hut/quest guard quests checks
 class DLL_LINKAGE CRewardLimiter
 {
 public:
-	/// how many times this reward can be granted, 0 for unlimited
-	si32 numOfGrants;
-
 	/// day of week, unused if 0, 1-7 will test for current day of week
 	si32 dayOfWeek;
+	si32 daysPassed;
+
+	/// total experience that hero needs to have
+	si32 heroExperience;
 
 	/// level that hero needs to have
-	si32 minLevel;
+	si32 heroLevel;
+
+	/// mana points that hero needs to have
+	si32 manaPoints;
+
+	/// percentage of mana points that hero needs to have
+	si32 manaPercentage;
 
 	/// resources player needs to have in order to trigger reward
 	TResources resources;
@@ -45,13 +55,25 @@ public:
 	/// Note: does not checks for multiple copies of the same arts
 	std::vector<ArtifactID> artifacts;
 
+	/// Spells that hero must have in the spellbook
+	std::vector<SpellID> spells;
+
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 
+	/// sub-limiters, all must pass for this limiter to pass
+	TRewardLimitersList allOf;
+
+	/// sub-limiters, at least one should pass for this limiter to pass
+	TRewardLimitersList anyOf;
+
+	/// sub-limiters, none should pass for this limiter to pass
+	TRewardLimitersList noneOf;
+
 	CRewardLimiter():
-		numOfGrants(0),
 		dayOfWeek(0),
-		minLevel(0),
+		daysPassed(0),
+		heroLevel(0),
 		primary(4, 0)
 	{}
 
@@ -59,14 +81,47 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & numOfGrants;
 		h & dayOfWeek;
-		h & minLevel;
+		h & daysPassed;
+		h & heroExperience;
+		h & heroLevel;
+		h & manaPoints;
+		h & manaPercentage;
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
 		h & creatures;
+		h & allOf;
+		h & anyOf;
+		h & noneOf;
+	}
+};
+
+class DLL_LINKAGE CRewardResetInfo
+{
+public:
+	CRewardResetInfo()
+		: period(0)
+		, visitors(false)
+		, rewards(false)
+	{}
+
+	/// if above zero, object state will be reset each resetDuration days
+	ui32 period;
+
+	/// if true - reset list of visitors (heroes & players) on reset
+	bool visitors;
+
+
+	/// if true - re-randomize rewards on a new week
+	bool rewards;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & period;
+		h & visitors;
+		h & rewards;
 	}
 };
 
@@ -79,12 +134,16 @@ public:
 	TResources resources;
 
 	/// received experience
-	ui32 gainedExp;
+	si32 heroExperience;
 	/// received levels (converted into XP during grant)
-	ui32 gainedLevels;
+	si32 heroLevel;
 
 	/// mana given to/taken from hero, fixed value
 	si32 manaDiff;
+
+	/// if giving mana points puts hero above mana pool, any overflow will be multiplied by specified percentage
+	si32 manaOverflowFactor;
+
 	/// fixed value, in form of percentage from max
 	si32 manaPercentage;
 
@@ -99,6 +158,9 @@ public:
 	/// skills that hero may receive or lose
 	std::vector<si32> primary;
 	std::map<SecondarySkill, si32> secondary;
+
+	/// creatures that will be changed in hero's army
+	std::map<CreatureID, CreatureID> creaturesChange;
 
 	/// objects that hero may receive
 	std::vector<ArtifactID> artifacts;
@@ -116,9 +178,11 @@ public:
 	                            const CGHeroInstance * h) const;
 	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
+	si32 calculateManaPoints(const CGHeroInstance * h) const;
+
 	CRewardInfo() :
-		gainedExp(0),
-		gainedLevels(0),
+		heroExperience(0),
+		heroLevel(0),
 		manaDiff(0),
 		manaPercentage(-1),
 		movePoints(0),
@@ -134,9 +198,10 @@ public:
 		h & removeObject;
 		h & manaPercentage;
 		h & movePercentage;
-		h & gainedExp;
-		h & gainedLevels;
+		h & heroExperience;
+		h & heroLevel;
 		h & manaDiff;
+		h & manaOverflowFactor;
 		h & movePoints;
 		h & primary;
 		h & secondary;
@@ -144,42 +209,44 @@ public:
 		h & artifacts;
 		h & spells;
 		h & creatures;
+		h & creaturesChange;
 	}
 };
 
-class DLL_LINKAGE CVisitInfo
+class DLL_LINKAGE CRewardVisitInfo
 {
 public:
+	enum ERewardEventType
+	{
+		EVENT_INVALID,
+		EVENT_FIRST_VISIT,
+		EVENT_ALREADY_VISITED,
+		EVENT_NOT_AVAILABLE
+	};
+
 	CRewardLimiter limiter;
 	CRewardInfo reward;
 
 	/// Message that will be displayed on granting of this reward, if not empty
 	MetaString message;
 
-	/// Chance for this reward to be selected in case of random choice
-	si32 selectChance;
+	/// Event to which this reward is assigned
+	ERewardEventType visitType;
 
-	/// How many times this reward has been granted since last reset
-	si32 numOfGrants;
-
-	CVisitInfo():
-		selectChance(0),
-		numOfGrants(0)
-	{}
+	CRewardVisitInfo() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & limiter;
 		h & reward;
 		h & message;
-		h & selectChance;
-		h & numOfGrants;
+		h & visitType;
 	}
 };
 
 namespace Rewardable
 {
-	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer", "selectRandom"};
+	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer"};
 	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
 }
 
@@ -188,20 +255,12 @@ namespace Rewardable
 class DLL_LINKAGE CRewardableObject : public CArmedInstance
 {
 	/// function that must be called if hero got level-up during grantReward call
-	void grantRewardAfterLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+	void grantRewardAfterLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 
 	/// grants reward to hero
-	void grantRewardBeforeLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+	void grantRewardBeforeLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 
-protected:
-	/// controls selection of reward granted to player
-	enum ESelectMode
-	{
-		SELECT_FIRST,  // first reward that matches limiters
-		SELECT_PLAYER, // player can select from all allowed rewards
-		SELECT_RANDOM  // reward will be selected from allowed randomly
-	};
-
+public:
 	enum EVisitMode
 	{
 		VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
@@ -211,37 +270,55 @@ protected:
 		VISIT_PLAYER     // every player can visit object once
 	};
 
+protected:
+	/// controls selection of reward granted to player
+	enum ESelectMode
+	{
+		SELECT_FIRST,  // first reward that matches limiters
+		SELECT_PLAYER, // player can select from all allowed rewards
+	};
+
 	/// filters list of visit info and returns rewards that can be granted to current hero
-	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
+	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event ) const;
 
-	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero, bool markVisited) const;
 
-	virtual CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
+	virtual void triggerReset() const;
 
-	virtual void triggerRewardReset() const;
-
-	/// Rewards that can be granted by an object
-	std::vector<CVisitInfo> info;
-
-	/// MetaString's that contain text for messages for specific situations
+	/// Message that will be shown if player needs to select one of multiple rewards
 	MetaString onSelect;
-	MetaString onVisited;
-	MetaString onEmpty;
+
+	/// Rewards that can be applied by an object
+	std::vector<CRewardVisitInfo> info;
 
 	/// how reward will be selected, uses ESelectMode enum
 	ui8 selectMode;
+
 	/// contols who can visit an object, uses EVisitMode enum
 	ui8 visitMode;
+
 	/// reward selected by player
 	ui16 selectedReward;
 
-	/// object visitability info will be reset each resetDuration days
-	ui16 resetDuration;
+	/// how and when should the object be reset
+	CRewardResetInfo resetParameters;
 
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse;
 
+	/// if true - object info will shown in infobox (like resource pickup)
+	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
+
+	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
+	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+
+	bool onceVisitableObjectCleared;
+
 public:
+	EVisitMode getVisitMode() const;
+	ui16 getResetDuration() const;
+
 	void setPropertyDer(ui8 what, ui32 val) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
@@ -262,9 +339,6 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	/// function that will be called once reward is fully granted to hero
-	virtual void onRewardGiven(const CGHeroInstance * hero) const;
-	
 	void initObj(CRandomGenerator & rand) override;
 
 	CRewardableObject();
@@ -274,114 +348,18 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & info;
 		h & canRefuse;
-		h & resetDuration;
+		h & resetParameters;
 		h & onSelect;
-		h & onVisited;
-		h & onEmpty;
 		h & visitMode;
 		h & selectMode;
 		h & selectedReward;
+		h & onceVisitableObjectCleared;
+		if (version >= 817)
+			h & infoWindowType;
 	}
 
 	// for configuration/object setup
 	friend class CRandomRewardObjectInfo;
-};
-
-class DLL_LINKAGE CGPickable : public CRewardableObject //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
-{
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGPickable();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving bonuses to luck/morale/movement
-{
-protected:
-	CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const override;
-
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
-
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGBonusingObject();
-
-	void onHeroVisit(const CGHeroInstance *h) const override;
-
-	bool wasVisited(const CGHeroInstance * h) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGOnceVisitable : public CRewardableObject // wagon, corpse, lean to, warriors tomb
-{
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGOnceVisitable();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
-{
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGVisitableOPH();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGVisitableOPW : public CRewardableObject //objects visitable once per week
-{
-protected:
-	void triggerRewardReset() const override;
-
-public:
-	void initObj(CRandomGenerator & rand) override;
-
-	CGVisitableOPW();
-
-	void setPropertyDer(ui8 what, ui32 val) override;
-	void setRandomReward(CRandomGenerator & rand);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CRewardableObject&>(*this);
-	}
-};
-
-///Special case - magic spring that has two separate visitable entrances
-class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
-{
-protected:
-	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const override;
-
-public:
-	void initObj(CRandomGenerator & rand) override;
-	std::vector<int3> getVisitableOffsets() const;
-	int3 getVisitableOffset() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGVisitableOPW&>(*this);
-	}
 };
 
 //TODO:

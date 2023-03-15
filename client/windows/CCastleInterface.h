@@ -42,24 +42,33 @@ class CBuildingRect : public CShowableAnim
 {
 	std::string getSubtitle();
 public:
+	enum EBuildingCreationAnimationPhases : uint32_t
+	{
+		BUILDING_APPEAR_TIMEPOINT = 500, //500 msec building appears: 0->100% transparency
+		BUILDING_WHITE_BORDER_TIMEPOINT = 900, //400 msec border glows from white to yellow
+		BUILDING_YELLOW_BORDER_TIMEPOINT = 1100, //200 msec border glows from yellow to normal (dark orange)
+		BUILD_ANIMATION_FINISHED_TIMEPOINT = 2100, // 1000msec once border is back to yellow nothing happens (this stage is basically removed by HD Mod)
+
+		BUILDING_FRAME_TIME = 150 // confirmed H3 timing: 150 ms for each building animation frame
+	};
+
 	/// returns building associated with this structure
 	const CBuilding * getBuilding();
 
 	CCastleBuildings * parent;
 	const CGTownInstance * town;
 	const CStructure* str;
-	SDL_Surface* border;
-	SDL_Surface* area;
+	std::shared_ptr<IImage> border;
+	std::shared_ptr<IImage> area;
 
-	ui32 stateCounter;//For building construction - current stage in animation
+	ui32 stateTimeCounter;//For building construction - current stage in animation
 
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str);
-	~CBuildingRect();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };
@@ -177,12 +186,13 @@ class CCreaInfo : public CIntObject
 	std::string genGrowthText();
 
 public:
-	CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact=false, bool showAvailable=false);
+	CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact=false, bool _showAvailable=false);
 
 	void update();
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
+	bool getShowAvailable();
 };
 
 /// Town hall and fort icons for town screen
@@ -236,11 +246,13 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
+
 	void close();
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
 	void recreateIcons();
+	void creaturesChangedEventHandler();
 };
 
 /// Hall window where you can build things
@@ -330,7 +342,7 @@ class CFortScreen : public CStatusbarWindow
 	public:
 		RecruitArea(int posX, int posY, const CGTownInstance *town, int level);
 
-		void creaturesChanged();
+		void creaturesChangedEventHandler();
 		void hover(bool on) override;
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
@@ -345,7 +357,7 @@ class CFortScreen : public CStatusbarWindow
 public:
 	CFortScreen(const CGTownInstance * town);
 
-	void creaturesChanged();
+	void creaturesChangedEventHandler();
 };
 
 /// The mage guild screen where you can see which spells you have

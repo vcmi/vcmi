@@ -28,10 +28,20 @@
 void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
-	manager = vstd::make_unique<CModManager>(modModel);
+	manager = std::make_unique<CModManager>(modModel);
 
 	connect(manager.get(), &CModManager::extraResolutionsEnabledChanged,
 		this, &CModListView::extraResolutionsEnabledChanged);
+}
+
+void CModListView::changeEvent(QEvent *event)
+{
+	if(event->type() == QEvent::LanguageChange)
+	{
+		ui->retranslateUi(this);
+		modModel->reloadRepositories();
+	}
+	QWidget::changeEvent(event);
 }
 
 void CModListView::setupFilterModel()
@@ -61,12 +71,11 @@ void CModListView::setupModsView()
 	else //default //TODO: default high-DPI scaling
 	{
 		ui->allModsView->setColumnWidth(ModFields::NAME, 185);
-		ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
-		ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
-		ui->allModsView->setColumnWidth(ModFields::SIZE, 80);
 		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
+	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 24);
+	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 24);
 
 	ui->allModsView->setUniformRowHeights(true);
 
@@ -151,23 +160,6 @@ void CModListView::showEvent(QShowEvent * event)
 	}
 }
 
-void CModListView::showModInfo()
-{
-	enableModInfo();
-	ui->modInfoWidget->show();
-	ui->hideModInfoButton->setArrowType(Qt::RightArrow);
-	ui->showInfoButton->setVisible(false);
-	loadScreenshots();
-}
-
-void CModListView::hideModInfo()
-{
-	ui->modInfoWidget->hide();
-	ui->hideModInfoButton->setArrowType(Qt::LeftArrow);
-	ui->hideModInfoButton->setEnabled(true);
-	ui->showInfoButton->setVisible(true);
-}
-
 static QString replaceIfNotEmpty(QVariant value, QString pattern)
 {
 	if(value.canConvert<QStringList>())
@@ -227,8 +219,8 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
-	QString compatibleString = prefix + "Mod is compatible</p>";
-	QString incompatibleString = redPrefix + "Mod is incompatible</p>";
+	QString compatibleString = prefix + tr("Mod is compatible") + "</p>";
+	QString incompatibleString = redPrefix + tr("Mod is incompatible") + "</p>";
 	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
 	QString result;
@@ -245,7 +237,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 		result += urlTemplate.arg(tr("License")).arg(mod.getValue("licenseURL").toString()).arg(mod.getValue("licenseName").toString());
 
 	if(mod.getValue("contact").isValid())
-		result += urlTemplate.arg(tr("Home")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
+		result += urlTemplate.arg(tr("Contact")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
 
 	//compatibility info
 	if(mod.isCompatible())
@@ -303,18 +295,8 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	return result;
 }
 
-void CModListView::enableModInfo()
-{
-	ui->hideModInfoButton->setEnabled(true);
-	ui->showInfoButton->setVisible(true);
-}
-
 void CModListView::disableModInfo()
 {
-	hideModInfo();
-	ui->hideModInfoButton->setEnabled(false);
-	ui->showInfoButton->setVisible(false);
-
 	ui->disableButton->setVisible(false);
 	ui->enableButton->setVisible(false);
 	ui->installButton->setVisible(false);
@@ -344,8 +326,6 @@ void CModListView::selectMod(const QModelIndex & index)
 		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
 		bool hasDependentMods = !findDependentMods(index.data(ModRoles::ModNameRole).toString(), true).empty();
 
-		ui->hideModInfoButton->setEnabled(true);
-		ui->showInfoButton->setVisible(!ui->modInfoWidget->isVisible());
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());
 		ui->installButton->setVisible(mod.isAvailable() && !mod.getName().contains('.'));
@@ -370,35 +350,15 @@ bool CModListView::isExtraResolutionsModEnabled() const
 	return manager->isExtraResolutionsModEnabled();
 }
 
-void CModListView::keyPressEvent(QKeyEvent * event)
-{
-	if(event->key() == Qt::Key_Escape && ui->modInfoWidget->isVisible())
-	{
-		hideModInfo();
-	}
-	else
-	{
-		return QWidget::keyPressEvent(event);
-	}
-}
-
 void CModListView::modSelected(const QModelIndex & current, const QModelIndex &)
 {
 	selectMod(current);
 }
 
-void CModListView::on_hideModInfoButton_clicked()
-{
-	if(ui->modInfoWidget->isVisible())
-		hideModInfo();
-	else
-		showModInfo();
-}
-
 void CModListView::on_allModsView_activated(const QModelIndex & index)
 {
-	showModInfo();
 	selectMod(index);
+	loadScreenshots();
 }
 
 void CModListView::on_lineEdit_textChanged(const QString & arg1)
@@ -496,7 +456,14 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 void CModListView::on_enableButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	
+	enableModByName(modName);
+	
+	checkManagerErrors();
+}
 
+void CModListView::enableModByName(QString modName)
+{
 	assert(findBlockingMods(modName).empty());
 	assert(findInvalidDependencies(modName).empty());
 
@@ -505,17 +472,24 @@ void CModListView::on_enableButton_clicked()
 		if(modModel->getMod(name).isDisabled())
 			manager->enableMod(name);
 	}
-	checkManagerErrors();
+	emit modsChanged();
 }
 
 void CModListView::on_disableButton_clicked()
 {
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
+	disableModByName(modName);
+	
+	checkManagerErrors();
+}
+
+void CModListView::disableModByName(QString modName)
+{
 	if(modModel->hasMod(modName) && modModel->getMod(modName).isEnabled())
 		manager->disableMod(modName);
 
-	checkManagerErrors();
+	emit modsChanged();
 }
 
 void CModListView::on_updateButton_clicked()
@@ -544,6 +518,8 @@ void CModListView::on_uninstallButton_clicked()
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
 	}
+	
+	emit modsChanged();
 	checkManagerErrors();
 }
 
@@ -631,6 +607,8 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	if(doInstallFiles)
 		installFiles(savedFiles);
+	
+	emit modsChanged();
 }
 
 void CModListView::hideProgressBar()
@@ -770,8 +748,7 @@ void CModListView::on_pushButton_clicked()
 
 void CModListView::modelReset()
 {
-	if(ui->modInfoWidget->isVisible())
-		selectMod(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
+	selectMod(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
 }
 
 void CModListView::checkManagerErrors()
@@ -792,7 +769,7 @@ void CModListView::on_tabWidget_currentChanged(int index)
 
 void CModListView::loadScreenshots()
 {
-	if(ui->tabWidget->currentIndex() == 2 && ui->modInfoWidget->isVisible())
+	if(ui->tabWidget->currentIndex() == 2)
 	{
 		ui->screenshotsList->clear();
 		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
@@ -830,11 +807,6 @@ void CModListView::on_screenshotsList_clicked(const QModelIndex & index)
 		auto pixmap = icon.pixmap(icon.availableSizes()[0]);
 		ImageViewer::showPixmap(pixmap, this);
 	}
-}
-
-void CModListView::on_showInfoButton_clicked()
-{
-	showModInfo();
 }
 
 const CModList & CModListView::getModList() const

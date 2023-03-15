@@ -19,7 +19,7 @@
 #include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
-#include "Terrain.h"
+#include "Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,16 +30,16 @@ class JsonSerializeFormat;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
-public:
+	friend class CCreatureHandler;
+	std::string modScope;
 	std::string identifier;
 
-	std::string nameRef; // reference name, stringID
-	std::string nameSing;// singular name, e.g. Centaur
-	std::string namePl;  // plural name, e.g. Centaurs
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 
-	std::string abilityText; //description of abilities
-
+public:
 	CreatureID idNumber;
+
 	TFaction faction;
 	ui8 level; // 0 - unknown; 1-7 for "usual" creatures
 
@@ -61,20 +61,33 @@ public:
 	std::string smallIconName;
 	std::string largeIconName;
 
+	enum class CreatureQuantityId
+	{
+		FEW = 1,
+		SEVERAL,
+		PACK,
+		LOTS,
+		HORDE,
+		THRONG,
+		SWARM,
+		ZOUNDS,
+		LEGION
+	};
+
 	struct CreatureAnimation
 	{
 		struct RayColor {
-			uint8_t r1, g1, b1, a1;
-			uint8_t r2, g2, b2, a2;
+			ColorRGBA start;
+			ColorRGBA end;
 
 			template <typename Handler> void serialize(Handler &h, const int version)
 			{
-				h & r1 & g1 & b1 & a1 & r2 & g2 & b2 & a2;
+				h & start & end;
 			}
 		};
 
 		double timeBetweenFidgets, idleAnimationTime,
-			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+			   walkAnimationTime, attackAnimationTime;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
@@ -91,7 +104,13 @@ public:
 			h & idleAnimationTime;
 			h & walkAnimationTime;
 			h & attackAnimationTime;
-			h & flightAnimationDistance;
+
+			if (version < 814)
+			{
+				float unused = 0.f;
+				h & unused;
+			}
+
 			h & upperRightMissleOffsetX;
 			h & rightMissleOffsetX;
 			h & lowerRightMissleOffsetX;
@@ -133,6 +152,12 @@ public:
 
 	ArtifactID warMachine;
 
+	std::string getNamePluralTranslated() const override;
+	std::string getNameSingularTranslated() const override;
+
+	std::string getNamePluralTextID() const override;
+	std::string getNameSingularTextID() const override;
+
 	bool isItNativeTerrain(TerrainId terrain) const;
 	/**
 	Returns creature native terrain considering some terrain bonuses.
@@ -143,13 +168,10 @@ public:
 	TerrainId getNativeTerrain() const;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
 	virtual const IBonusBearer * accessBonuses() const override;
-	const std::string & getPluralName() const override;
-	const std::string & getSingularName() const override;
 	uint32_t getMaxHealth() const override;
 
 	int32_t getAdvMapAmountMin() const override;
@@ -176,7 +198,8 @@ public:
 	bool isGood () const;
 	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
-	static int getQuantityID(const int & quantity); //1 - a few, 2 - several, 3 - pack, 4 - lots, 5 - horde, 6 - throng, 7 - swarm, 8 - zounds, 9 - legion
+	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
+	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
@@ -200,9 +223,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & namePl;
-		h & nameSing;
-		h & nameRef;
 		h & cost;
 		h & upgrades;
 		h & fightValue;
@@ -212,7 +232,6 @@ public:
 		h & ammMin;
 		h & ammMax;
 		h & level;
-		h & abilityText;
 		h & animDefName;
 		h & advMapDef;
 		h & iconIndex;
@@ -227,13 +246,14 @@ public:
 		h & doubleWide;
 		h & special;
 		h & identifier;
+		h & modScope;
 		h & warMachine;
 	}
 
 	CCreature();
 
 private:
-	void fillWarMachine();
+	static const std::map<CreatureQuantityId, std::string> creatureQuantityRanges;
 };
 
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>

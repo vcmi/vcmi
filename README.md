@@ -1,7 +1,8 @@
 [![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/github/vcmi/vcmi?branch=develop&svg=true)](https://ci.appveyor.com/project/vcmi/vcmi)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/vcmi/badge.svg)](https://scan.coverity.com/projects/vcmi)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.0.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.0.0)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.1.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.1.1)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.1.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.1.0)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 # VCMI Project
 VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities.
 
@@ -12,6 +13,7 @@ VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it ne
  * Forums:     https://forum.vcmi.eu/
  * Bugtracker: https://github.com/vcmi/vcmi/issues
  * Slack:      https://slack.vcmi.eu/
+ * Discord:    https://discord.gg/chBT42V
 
 ## Installation guides
 
@@ -29,14 +31,15 @@ Platform support is constantly tested by continuous integration and CMake config
 
  * (optional) All platforms: [using Conan package manager to obtain prebuilt dependencies](docs/conan.md)
  * [On Linux](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux))
- * [On Linux for Windows with MXE](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux/Cmake/MXE))
+ * [On Linux for Windows with Conan and mingw](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux/Cmake/Conan))
  * [On macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(macOS))
  * [On Windows using MSVC and Vcpkg](https://wiki.vcmi.eu/How_to_build_VCMI_(Windows/Vcpkg))
  * [iOS on macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(iOS))
+ * [Android on any OS](https://wiki.vcmi.eu/How_to_build_VCMI_(Android))
 
 ## Copyright and license
 
 VCMI Project source code is licensed under GPL version 2 or later.
 VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: [https://github.com/vcmi/vcmi-assets]
 
-Copyright (C) 2007-2022  VCMI Team (check AUTHORS file for the contributors list)
+Copyright (C) 2007-2023  VCMI Team (check AUTHORS file for the contributors list)

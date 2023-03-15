@@ -9,20 +9,13 @@
  */
 #pragma once
 
-// Forward class declarations aren't enough here. The compiler
-// generated CMapInfo d-tor, generates the std::unique_ptr d-tor as well here
-// as a inline method. The std::unique_ptr d-tor requires a complete type. Defining
-// the CMapInfo d-tor to let the compiler add the d-tor stuff in the .cpp file
-// would work with one exception. It prevents the generation of the move
-// constructor which is needed. (Writing such a c-tor is nasty.) With the
-// new c++11 keyword "default" for constructors this problem could be solved. But it isn't
-// available for Visual Studio for now. (Empty d-tor in .cpp would be required anyway)
-#include "CMap.h"
-#include "CCampaignHandler.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct StartInfo;
+
+class CMapHeader;
+class CCampaignHeader;
+class ResourceID;
 
 /**
  * A class which stores the count of human players and all players, the filename,
@@ -44,10 +37,14 @@ public:
 	CMapInfo();
 	virtual ~CMapInfo();
 
-	CMapInfo &operator=(CMapInfo &&other);
+	CMapInfo(CMapInfo &&other) = delete;
+	CMapInfo(const CMapInfo &other) = delete;
+
+	CMapInfo &operator=(CMapInfo &&other) = delete;
+	CMapInfo &operator=(const CMapInfo &other) = delete;
 
 	void mapInit(const std::string & fname);
-	void saveInit(ResourceID file);
+	void saveInit(const ResourceID & file);
 	void campaignInit();
 	void countPlayers();
 	// TODO: Those must be on client-side

@@ -48,8 +48,8 @@ public:
 	virtual void process() = 0;
 	virtual void init() {/*override to add dependencies*/}
 	virtual char dump(const int3 &);
-	virtual ~Modificator();
-	
+	virtual ~Modificator() = default;
+
 	void setName(const std::string & n);
 	const std::string & getName() const;
 	
@@ -104,9 +104,9 @@ public:
 	void setTerrainType(TerrainId terrain);
 		
 	void connectPath(const rmg::Path & path);
-	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter = AREA_NO_FILTER) const;
-	rmg::Path searchPath(const int3 & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter = AREA_NO_FILTER) const;
-	
+	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
+	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
+
 	template<class T>
 	T* getModificator()
 	{

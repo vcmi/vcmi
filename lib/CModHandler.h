@@ -14,6 +14,12 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 
+#ifdef __UCLIBC__
+#undef major
+#undef minor
+#undef patch
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;
@@ -24,7 +30,7 @@ class IHandlerBase;
 
 /// class that stores all object identifiers strings and maps them to numeric ID's
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
-class CIdentifierStorage
+class DLL_LINKAGE CIdentifierStorage
 {
 	enum ELoadingState
 	{
@@ -213,6 +219,9 @@ public:
 	
 	/// version of the mod
 	Version version;
+
+	/// Base language of mod, all mod strings are assumed to be in this language
+	std::string baseLanguage;
 	
 	/// vcmi versions compatible with the mod
 
@@ -276,6 +285,9 @@ class DLL_LINKAGE CModHandler
 	std::vector<std::string> getModList(std::string path);
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
+	void loadTranslation(TModID modName);
+
+	bool validateTranslations(TModID modName) const;
 public:
 
 	/// returns true if scope is reserved for internal use and can not be used by mods
@@ -327,7 +339,12 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	std::set<TModID> getModDependencies(TModID modId, bool & isModFound);
+	/// returns ID of mod that provides selected file resource
+	TModID findResourceOrigin(const ResourceID & name);
+
+	std::string getModLanguage(const TModID& modId) const;
+
+	std::set<TModID> getModDependencies(TModID modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();
@@ -352,6 +369,12 @@ public:
 		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 		bool NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
+		double ATTACK_POINT_DMG_MULTIPLIER;
+		double ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+		double DEFENSE_POINT_DMG_MULTIPLIER;
+		double DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+		std::vector<int32_t> HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
+		std::vector<int32_t> DEFAULT_BUILDING_SET_DWELLING_CHANCES;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -367,6 +390,15 @@ public:
 			h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 			h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 			h & NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
+			h & ATTACK_POINT_DMG_MULTIPLIER;
+			h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+			h & DEFENSE_POINT_DMG_MULTIPLIER;
+			h & DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+			if(version >= 815)
+			{
+				h & HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
+				h & DEFAULT_BUILDING_SET_DWELLING_CHANCES;
+			}
 		}
 	} settings;
 

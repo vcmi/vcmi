@@ -24,9 +24,8 @@ CSaveFile::CSaveFile(const boost::filesystem::path &fname)
 	openNextFile(fname);
 }
 
-CSaveFile::~CSaveFile()
-{
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CSaveFile::~CSaveFile() = default;
 
 int CSaveFile::write(const void * data, unsigned size)
 {
@@ -39,7 +38,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 	fName = fname;
 	try
 	{
-		sfile = make_unique<FileStream>(fname, std::ios::out | std::ios::binary);
+		sfile = std::make_unique<FileStream>(fname, std::ios::out | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))
@@ -73,7 +72,7 @@ void CSaveFile::clear()
 
 void CSaveFile::putMagicBytes(const std::string &text)
 {
-	write(text.c_str(), (unsigned int)text.length());
+	write(text.c_str(), static_cast<unsigned int>(text.length()));
 }
 
 VCMI_LIB_NAMESPACE_END

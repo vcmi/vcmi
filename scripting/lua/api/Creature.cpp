@@ -31,12 +31,12 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getIconIndex", LuaMethodWrapper<Creature, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
 	{"getIndex", LuaMethodWrapper<Creature, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<Creature, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<Creature, decltype(&Entity::getName), &Entity::getName>::invoke, false},
+	{"getName", LuaMethodWrapper<Creature, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
 	{"accessBonuses", LuaMethodWrapper<Creature, decltype(&EntityWithBonuses<CreatureID>::accessBonuses), &EntityWithBonuses<CreatureID>::accessBonuses>::invoke, false},
 
 	{"getMaxHealth", LuaMethodWrapper<Creature,decltype(&Creature::getMaxHealth), &Creature::getMaxHealth>::invoke, false},
-	{"getPluralName", LuaMethodWrapper<Creature, decltype(&Creature::getPluralName), &Creature::getPluralName>::invoke, false},
-	{"getSingularName", LuaMethodWrapper<Creature, decltype(&Creature::getSingularName), &Creature::getSingularName>::invoke, false},
+	{"getPluralName", LuaMethodWrapper<Creature, decltype(&Creature::getNamePluralTranslated), &Creature::getNamePluralTranslated>::invoke, false},
+	{"getSingularName", LuaMethodWrapper<Creature, decltype(&Creature::getNameSingularTranslated), &Creature::getNameSingularTranslated>::invoke, false},
 
 	{"getAdvMapAmountMin", LuaMethodWrapper<Creature, decltype(&Creature::getAdvMapAmountMin), &Creature::getAdvMapAmountMin>::invoke, false},
 	{"getAdvMapAmountMax", LuaMethodWrapper<Creature, decltype(&Creature::getAdvMapAmountMax), &Creature::getAdvMapAmountMax>::invoke, false},

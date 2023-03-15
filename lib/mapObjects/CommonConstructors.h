@@ -62,7 +62,6 @@ public:
 class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
-	CObstacleConstructor();
 	bool isStaticObject() override;
 };
 
@@ -70,14 +69,13 @@ class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance
 {
 	JsonNode filtersJson;
 protected:
-	bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const override;
+	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CFaction * faction;
+	CFaction * faction = nullptr;
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
-	CTownInstanceConstructor();
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
@@ -95,14 +93,13 @@ class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance
 {
 	JsonNode filtersJson;
 protected:
-	bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const override;
+	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CHeroClass * heroClass;
+	CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
-	CHeroInstanceConstructor();
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
@@ -123,12 +120,12 @@ class CDwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling
 	JsonNode guards;
 
 protected:
-	bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate> tmpl) const override;
+	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
+	bool hasNameTextID() const override;
 
-	CDwellingInstanceConstructor();
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
@@ -145,11 +142,10 @@ public:
 
 struct BankConfig
 {
-	BankConfig() { chance = upgradeChance = combatValue = value = 0; };
-	ui32 value; //overall value of given things
-	ui32 chance; //chance for this level being chosen
-	ui32 upgradeChance; //chance for creatures to be in upgraded versions
-	ui32 combatValue; //how hard are guards of this level
+	ui32 value = 0; //overall value of given things
+	ui32 chance = 0; //chance for this level being chosen
+	ui32 upgradeChance = 0; //chance for creatures to be in upgraded versions
+	ui32 combatValue = 0; //how hard are guards of this level
 	std::vector<CStackBasicDescriptor> guards; //creature ID, amount
 	Res::ResourceSet resources; //resources given in case of victory
 	std::vector<CStackBasicDescriptor> creatures; //creatures granted in case of victory (creature ID, amount)
@@ -211,12 +207,12 @@ protected:
 
 public:
 	// all banks of this type will be reset N days after clearing,
-	si32 bankResetDuration;
-
-	CBankInstanceConstructor();
+	si32 bankResetDuration = 0;
 
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+
+	bool hasNameTextID() const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 

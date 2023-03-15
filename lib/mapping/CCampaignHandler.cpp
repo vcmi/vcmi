@@ -17,10 +17,13 @@
 #include "../VCMI_Lib.h"
 #include "../vcmi_endian.h"
 #include "../CGeneralTextHandler.h"
+#include "../TextOperations.h"
 #include "../StartInfo.h"
+#include "../CModHandler.h"
 #include "../CArtHandler.h" //for hero crossover
 #include "../mapObjects/CGHeroInstance.h"//for hero crossover
 #include "../CHeroHandler.h"
+#include "../Languages.h"
 #include "CMapService.h"
 #include "CMap.h"
 #include "CMapInfo.h"
@@ -32,57 +35,49 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CCampaignHeader::CCampaignHeader()
-	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)
-{
-
-}
-
-CScenarioTravel::STravelBonus::STravelBonus()
-	:type(SPELL), info1(0), info2(0), info3(0)
-{
-
-}
-
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
 {
 	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
 		|| type == SECONDARY_SKILL;
 }
 
-CScenarioTravel::CScenarioTravel()
-	:whatHeroKeeps(0), startOptions(0), playerColor(0)
-{
-
-}
-
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 {
-	std::vector<ui8> cmpgn = getFile(name, true)[0];
+	ResourceID resourceID(name, EResType::CAMPAIGN);
+	std::string modName = VLC->modh->findResourceOrigin(resourceID);
+	std::string language = VLC->modh->getModLanguage(modName);
+	std::string encoding = Languages::getLanguageOptions(language).encoding;
+	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
+
+	std::vector<ui8> cmpgn = getFile(std::move(fileStream), true)[0];
 
 	CMemoryStream stream(cmpgn.data(), cmpgn.size());
 	CBinaryReader reader(&stream);
-	CCampaignHeader ret = readHeaderFromMemory(reader);
-	ret.filename = name;
+	CCampaignHeader ret = readHeaderFromMemory(reader, name, modName, encoding);
 
 	return ret;
 }
 
 std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 {
-	auto ret = make_unique<CCampaign>();
+	ResourceID resourceID(name, EResType::CAMPAIGN);
+	std::string modName = VLC->modh->findResourceOrigin(resourceID);
+	std::string language = VLC->modh->getModLanguage(modName);
+	std::string encoding = Languages::getLanguageOptions(language).encoding;
+	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 
-	std::vector<std::vector<ui8>> file = getFile(name, false);
+	auto ret = std::make_unique<CCampaign>();
+
+	std::vector<std::vector<ui8>> file = getFile(std::move(fileStream), false);
 
 	CMemoryStream stream(file[0].data(), file[0].size());
 	CBinaryReader reader(&stream);
-	ret->header = readHeaderFromMemory(reader);
-	ret->header.filename = name;
+	ret->header = readHeaderFromMemory(reader, name, modName, encoding);
 
-	int howManyScenarios = static_cast<int>(VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size());
+	int howManyScenarios = static_cast<int>(VLC->generaltexth->getCampaignLength(ret->header.mapVersion));
 	for(int g=0; g<howManyScenarios; ++g)
 	{
-		CCampaignScenario sc = readScenarioFromMemory(reader, ret->header.version, ret->header.mapVersion);
+		CCampaignScenario sc = readScenarioFromMemory(reader, encoding, ret->header.version, ret->header.mapVersion);
 		ret->scenarios.push_back(sc);
 	}
 
@@ -98,49 +93,63 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 
 		std::string scenarioName = name.substr(0, name.find('.'));
 		boost::to_lower(scenarioName);
-		scenarioName += ':' + boost::lexical_cast<std::string>(g-1);
+		scenarioName += ':' + std::to_string(g - 1);
 
 		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
 		CMapService mapService;
-		ret->scenarios[scenarioID].scenarioName = mapService.loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), (int)ret->mapPieces[scenarioID].size(), scenarioName)->name;
+		auto hdr = mapService.loadMapHeader(
+			reinterpret_cast<const ui8 *>(ret->mapPieces[scenarioID].c_str()),
+			static_cast<int>(ret->mapPieces[scenarioID].size()),
+			scenarioName,
+			modName,
+			encoding);
+		ret->scenarios[scenarioID].scenarioName = hdr->name;
 		scenarioID++;
 	}
 
 	// handle campaign specific discrepancies
 	if(name == "DATA/AB.H3C")
 	{
-		ret->scenarios[6].keepHeroes.push_back(HeroTypeID(155)); // keep hero Xeron for map 7 To Kill A Hero
+		ret->scenarios[6].keepHeroes.emplace_back(155); // keep hero Xeron for map 7 To Kill A Hero
 	}
 	else if(name == "DATA/FINAL.H3C")
 	{
 		// keep following heroes for map 8 Final H
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(148)); // Gelu
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(27)); // Gem
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(102)); // Crag Hack
-		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(96)); // Yog
+		ret->scenarios[7].keepHeroes.emplace_back(148); // Gelu
+		ret->scenarios[7].keepHeroes.emplace_back(27); // Gem
+		ret->scenarios[7].keepHeroes.emplace_back(102); // Crag Hack
+		ret->scenarios[7].keepHeroes.emplace_back(96); // Yog
 	}
 
 	return ret;
 }
 
-CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader )
+std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::string encoding)
+{
+	return TextOperations::toUnicode(reader.readBaseString(), encoding);
+}
+
+CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
 	CCampaignHeader ret;
 
 	ret.version = reader.readUInt32();
 	ret.mapVersion = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	ret.name = reader.readString();
-	ret.description = reader.readString();
+	ret.name = readLocalizedString(reader, encoding);
+	ret.description = readLocalizedString(reader, encoding);
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
 		ret.difficultyChoosenByPlayer = 0;
 	ret.music = reader.readInt8();
+	ret.filename = filename;
+	ret.modName = modName;
+	ret.encoding = encoding;
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, int version, int mapVersion )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, std::string encoding, int version, int mapVersion )
 {
 	auto prologEpilogReader = [&]() -> CCampaignScenario::SScenarioPrologEpilog
 	{
@@ -150,14 +159,14 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 		{
 			ret.prologVideo = reader.readUInt8();
 			ret.prologMusic = reader.readUInt8();
-			ret.prologText = reader.readString();
+			ret.prologText = readLocalizedString(reader, encoding);
 		}
 		return ret;
 	};
 
 	CCampaignScenario ret;
 	ret.conquered = false;
-	ret.mapName = reader.readString();
+	ret.mapName = readLocalizedString(reader, encoding);
 	ret.packedMapSize = reader.readUInt32();
 	if(mapVersion == 18)//unholy alliance
 	{
@@ -169,7 +178,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText = reader.readString();
+	ret.regionText = readLocalizedString(reader, encoding);
 	ret.prolog = prologEpilogReader();
 	ret.epilog = prologEpilogReader();
 
@@ -319,9 +328,9 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 	return ret;
 }
 
-std::vector< std::vector<ui8> > CCampaignHandler::getFile(const std::string & name, bool headerOnly)
+std::vector< std::vector<ui8> > CCampaignHandler::getFile(std::unique_ptr<CInputStream> file, bool headerOnly)
 {
-	CCompressedStream stream(CResourceHandler::get()->load(ResourceID(name, EResType::CAMPAIGN)), true);
+	CCompressedStream stream(std::move(file), true);
 
 	std::vector< std::vector<ui8> > ret;
 	do
@@ -357,33 +366,16 @@ bool CCampaign::conquerable( int whichScenario ) const
 	return true;
 }
 
-CCampaign::CCampaign()
-{
-
-}
-
-CCampaignScenario::SScenarioPrologEpilog::SScenarioPrologEpilog()
-	: hasPrologEpilog(false), prologVideo(0), prologMusic(0), prologText()
-{
-
-}
-
-CCampaignScenario::CCampaignScenario()
-	: mapName(), scenarioName(), packedMapSize(0), regionColor(0), difficulty(0), conquered(false)
-{
-
-}
-
 bool CCampaignScenario::isNotVoid() const
 {
-	return mapName.size() > 0;
+	return !mapName.empty();
 }
 
-const CGHeroInstance * CCampaignScenario::strongestHero(PlayerColor owner)
+const CGHeroInstance * CCampaignScenario::strongestHero(const PlayerColor & owner)
 {
 	std::function<bool(JsonNode & node)> isOwned = [owner](JsonNode & node)
 	{
-		auto h = CCampaignState::crossoverDeserialize(node);
+		auto * h = CCampaignState::crossoverDeserialize(node);
 		bool result = h->tempOwner == owner;
 		vstd::clear_pointer(h);
 		return result;
@@ -392,7 +384,7 @@ const CGHeroInstance * CCampaignScenario::strongestHero(PlayerColor owner)
 
 	auto i = vstd::maxElementByFun(ownedHeroes, [](JsonNode & node)
 	{
-		auto h = CCampaignState::crossoverDeserialize(node);
+		auto * h = CCampaignState::crossoverDeserialize(node);
 		double result = h->getHeroStrength();
 		vstd::clear_pointer(h);
 		return result;
@@ -407,10 +399,10 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
 	{
 		for(auto node2 : placedCrossoverHeroes)
 		{
-			auto hero = CCampaignState::crossoverDeserialize(node2);
+			auto * hero = CCampaignState::crossoverDeserialize(node2);
 			auto it = range::find_if(crossoverHeroes, [hero](JsonNode node)
 			{
-				auto h = CCampaignState::crossoverDeserialize(node);
+				auto * h = CCampaignState::crossoverDeserialize(node);
 				bool result = hero->subID == h->subID;
 				vstd::clear_pointer(h);
 				return result;
@@ -463,11 +455,6 @@ ui8 CCampaignState::currentBonusID() const
 	return chosenCampaignBonuses.at(*currentMap);
 }
 
-CCampaignState::CCampaignState()
-{
-
-}
-
 CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {
 	for(int i = 0; i < camp->scenarios.size(); i++)
@@ -484,11 +471,11 @@ CMap * CCampaignState::getMap(int scenarioId) const
 		scenarioId = currentMap.get();
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	scenarioName += ':' + std::to_string(scenarioId);
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMap(buffer, (int)mapContent.size(), scenarioName).release();
+	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, camp->header.modName, camp->header.encoding).release();
 }
 
 std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
@@ -498,11 +485,11 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	scenarioName += ':' + std::to_string(scenarioId);
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMapHeader(buffer, (int)mapContent.size(), scenarioName);
+	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, camp->header.modName, camp->header.encoding);
 }
 
 std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const
@@ -528,7 +515,7 @@ JsonNode CCampaignState::crossoverSerialize(CGHeroInstance * hero)
 CGHeroInstance * CCampaignState::crossoverDeserialize(JsonNode & node)
 {
 	JsonDeserializer handler(nullptr, node);
-	auto hero = new CGHeroInstance();
+	auto * hero = new CGHeroInstance();
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	return hero;
@@ -546,11 +533,7 @@ std::string CCampaignHandler::prologVideoName(ui8 index)
 std::string CCampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
-
-	VLC->generaltexth->readToVector("Data/CmpMusic.txt", music);
-	if(index < music.size())
-		return music[index];
-	return "";
+	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index)));
 }
 
 std::string CCampaignHandler::prologVoiceName(ui8 index)
@@ -561,8 +544,5 @@ std::string CCampaignHandler::prologVoiceName(ui8 index)
 		return audio[index].String();
 	return "";
 }
-
-
-
 
 VCMI_LIB_NAMESPACE_END

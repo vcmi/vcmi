@@ -271,7 +271,7 @@ void ObjectClusterizer::clusterize()
 				if(!shouldVisit(ai, path.targetHero, obj))
 				{
 #if NKAI_TRACE_LEVEL >= 2
-					logAi->trace("Hero %s does not need to visit %s", path.targetHero->name, obj->getObjectName());
+					logAi->trace("Hero %s does not need to visit %s", path.targetHero->getObjectName(), obj->getObjectName());
 #endif
 					continue;
 				}
@@ -285,7 +285,7 @@ void ObjectClusterizer::clusterize()
 						if(vstd::contains(heroesProcessed, path.targetHero))
 						{
 #if NKAI_TRACE_LEVEL >= 2
-							logAi->trace("Hero %s is already processed.", path.targetHero->name);
+							logAi->trace("Hero %s is already processed.", path.targetHero->getObjectName());
 #endif
 							continue;
 						}

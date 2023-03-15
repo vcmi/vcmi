@@ -72,7 +72,7 @@ public:
 	 * @return Returns an instance of resource loader.
 	 */
 	static ISimpleResourceLoader * get();
-	static ISimpleResourceLoader * get(std::string identifier);
+	static ISimpleResourceLoader * get(const std::string & identifier);
 
 	/**
 	 * Creates instance of initial resource loader.

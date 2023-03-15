@@ -24,6 +24,7 @@
                 "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "ENABLE_TEST": "OFF",
+                "ENABLE_STRICT_COMPILATION": "ON",
                 "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}"
             }
         },
@@ -78,6 +79,19 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
                 "FORCE_BUNDLED_MINIZIP": "ON"
+            }
+        },
+        {
+            "name": "windows-mingw-conan-linux",
+            "displayName": "Ninja+Conan release",
+            "description": "VCMI Windows Ninja using Conan on Linux",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "FORCE_BUNDLED_FL": "ON"
             }
         },
         {
@@ -172,6 +186,18 @@
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
+        },
+        {
+            "name": "android-conan-ninja-release",
+            "displayName": "Android release",
+            "description": "VCMI Android Ninja using Conan",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
@@ -222,6 +248,12 @@
             "inherits": "default-release"
         },
         {
+            "name": "windows-mingw-conan-linux",
+            "configurePreset": "windows-mingw-conan-linux",
+            "inherits": "default-release",
+            "configuration": "Release"
+        },
+        {
             "name": "ios-release-conan",
             "configurePreset": "ios-release-conan",
             "inherits": "default-release",
@@ -235,6 +267,11 @@
             "name": "ios-release-legacy",
             "configurePreset": "ios-release-legacy",
             "inherits": "ios-release-conan"
+        },
+        {
+            "name": "android-conan-ninja-release",
+            "configurePreset": "android-conan-ninja-release",
+            "inherits": "default-release"
         }
     ],
     "testPresets": [
@@ -269,6 +306,11 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-conan-linux",
+            "configurePreset": "windows-mingw-conan-linux",
             "inherits": "default-release"
         }
     ]

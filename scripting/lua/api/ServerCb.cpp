@@ -72,7 +72,7 @@ int ServerCbProxy::commitPackage(lua_State * L)
 		return S.retVoid();
 
 
-	CPackForClient * pack = static_cast<CPackForClient *>(lua_touserdata(L, 1));
+	auto * pack = static_cast<CPackForClient *>(lua_touserdata(L, 1));
 
 	object->apply(pack);
 

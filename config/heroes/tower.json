@@ -213,8 +213,9 @@
 		"specialty" : {
 			"bonuses" : {
 				"fortune" : {
+					"addInfo" : 3,
 					"subtype" : "spell.fortune",
-					"type" : "MAXED_SPELL"
+					"type" : "SPECIAL_FIXED_VALUE_ENCHANT"
 				}
 			}
 		}

@@ -26,6 +26,9 @@ struct TerrainTile;
 struct PlayerInfo;
 class CGObjectInstance;
 class AObjectTypeHandler;
+class TerrainType;
+class RoadType;
+class RiverType;
 
 class JsonSerializeFormat;
 class JsonDeserializer;
@@ -57,7 +60,11 @@ protected:
 
 	CMapFormatJson();
 
-	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value);
+	static TerrainType * getTerrainByCode(const std::string & code);
+	static RiverType * getRiverByCode(const std::string & code);
+	static RoadType * getRoadByCode(const std::string & code);
+
+	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value) const;
 
 	///common part of header saving/loading
 	void serializeHeader(JsonSerializeFormat & handler);
@@ -88,12 +95,12 @@ protected:
 	/**
 	 * Reads one of triggered events
 	 */
-	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);
+	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source) const;
 
 	/**
 	 * Writes one of triggered events
 	 */
-	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);
+	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest) const;
 
 	void writeDisposedHeroes(JsonSerializeFormat & handler);
 
@@ -125,7 +132,7 @@ public:
 	 *
 	 * @param stream. A stream containing the map data.
 	 */
-	CMapPatcher(JsonNode stream);
+	CMapPatcher(const JsonNode & stream);
 
 public: //IMapPatcher
 	/**

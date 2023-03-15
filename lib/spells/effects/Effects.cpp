@@ -25,11 +25,7 @@ namespace spells
 namespace effects
 {
 
-Effects::Effects() = default;
-
-Effects::~Effects() = default;
-
-void Effects::add(const std::string & name, std::shared_ptr<Effect> effect, const int level)
+void Effects::add(const std::string & name, const std::shared_ptr<Effect>& effect, const int level)
 {
 	effect->name = name;
 	data.at(level)[name] = effect;
@@ -97,7 +93,7 @@ bool Effects::applicable(Problem & problem, const Mechanics * m, const Target & 
 void Effects::forEachEffect(const int level, const std::function<void(const Effect *, bool &)> & callback) const
 {
 	bool stop = false;
-	for(auto one : data.at(level))
+	for(const auto& one : data.at(level))
 	{
 		callback(one.second.get(), stop);
 		if(stop)
@@ -138,7 +134,7 @@ void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & han
 
 	const JsonNode & effectMap = handler.getCurrent();
 
-	for(auto & p : effectMap.Struct())
+	for(const auto & p : effectMap.Struct())
 	{
 		const std::string & name = p.first;
 

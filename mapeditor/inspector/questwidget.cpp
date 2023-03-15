@@ -68,7 +68,7 @@ void QuestWidget::obtainData()
 		case CQuest::Emission::MISSION_ART:
 			activeId = true;
 			for(int i = 0; i < map.allowedArtifact.size(); ++i)
-				ui->targetId->addItem(QString::fromStdString(VLC->arth->objects.at(i)->getName()));
+				ui->targetId->addItem(QString::fromStdString(VLC->arth->objects.at(i)->getNameTranslated()));
 			if(!seerhut.quest->m5arts.empty())
 				ui->targetId->setCurrentIndex(seerhut.quest->m5arts.front());
 			//TODO: support multiple artifacts
@@ -95,7 +95,7 @@ void QuestWidget::obtainData()
 		case CQuest::Emission::MISSION_HERO:
 			activeId = true;
 			for(int i = 0; i < map.allowedHeroes.size(); ++i)
-				ui->targetId->addItem(QString::fromStdString(VLC->heroh->objects.at(i)->getName()));
+				ui->targetId->addItem(QString::fromStdString(VLC->heroh->objects.at(i)->getNameTranslated()));
 			ui->targetId->setCurrentIndex(seerhut.quest->m13489val);
 			break;
 		case CQuest::Emission::MISSION_PLAYER:

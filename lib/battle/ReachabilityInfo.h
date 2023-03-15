@@ -18,22 +18,22 @@ VCMI_LIB_NAMESPACE_BEGIN
 // startPosition and perpective.
 struct DLL_LINKAGE ReachabilityInfo
 {
-	typedef std::array<int, GameConstants::BFIELD_SIZE> TDistances;
-	typedef std::array<BattleHex, GameConstants::BFIELD_SIZE> TPredecessors;
+	using TDistances = std::array<uint32_t, GameConstants::BFIELD_SIZE>;
+	using TPredecessors = std::array<BattleHex, GameConstants::BFIELD_SIZE>;
 
 	enum { INFINITE_DIST = 1000000 };
 
 	struct DLL_LINKAGE Parameters
 	{
-		ui8 side;
-		bool doubleWide;
-		bool flying;
+		ui8 side = 0;
+		bool doubleWide = false;
+		bool flying = false;
 		std::vector<BattleHex> knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)
 
 		BattleHex startPosition; //assumed position of stack
-		BattlePerspective::BattlePerspective perspective; //some obstacles (eg. quicksands) may be invisible for some side
+		BattlePerspective::BattlePerspective perspective = BattlePerspective::ALL_KNOWING; //some obstacles (eg. quicksands) may be invisible for some side
 
-		Parameters();
+		Parameters() = default;
 		Parameters(const battle::Unit * Stack, BattleHex StartPosition);
 	};
 
@@ -46,16 +46,14 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	bool isReachable(BattleHex hex) const;
 
-	int distToNearestNeighbour(
+	uint32_t distToNearestNeighbour(
 		const std::vector<BattleHex> & targetHexes,
 		BattleHex * chosenHex = nullptr) const;
 
-	int distToNearestNeighbour(
+	uint32_t distToNearestNeighbour(
 		const battle::Unit * attacker,
 		const battle::Unit * defender,
 		BattleHex * chosenHex = nullptr) const;
 };
-
-
 
 VCMI_LIB_NAMESPACE_END

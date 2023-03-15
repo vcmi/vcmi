@@ -1,7 +1,7 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 3.10.0 is used since it's minimal in MXE dependencies for now
-cmake_minimum_required(VERSION 3.10.0)
+# 3.16.0 is used since it's used by our currently oldest suppored system: Ubuntu-20.04
+cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
 # TODO
@@ -9,9 +9,6 @@ project(VCMI)
 # - There is problem with running fixup_bundle in main project after subdirectories.
 # Cmake put them after all install code of main CMakelists in cmake_install.cmake
 # Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-#
-# MXE:
-# - Try to implement MXE support into BundleUtilities so we can deploy deps automatically
 #
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
@@ -33,10 +30,6 @@ if(APPLE)
 	endif()
 endif()
 
-if(APPLE_IOS)
-	set(BUILD_SINGLE_APP 1)
-endif()
-
 ############################################
 #        User-provided options             #
 ############################################
@@ -48,25 +41,41 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
+set(singleProcess OFF)
+set(staticAI OFF)
+if(ANDROID)
+	set(staticAI ON)
+	set(singleProcess ON)
+endif()
+
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
-option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+if(NOT ANDROID)
+	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+endif()
+option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
+option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
+
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+	set(ENABLE_SINGLE_APP_BUILD ON)
 else()
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+	option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" ${singleProcess})
 endif()
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
-	option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+
+option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
+option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
+option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
 # Used for Snap packages and also useful for debugging
-if(NOT APPLE_IOS)
+if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
@@ -79,6 +88,11 @@ if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
 endif()
 
+# We don't want to deploy assets into build directory for android/iOS build
+if((APPLE_IOS OR ANDROID) AND COPY_CONFIG_ON_BUILD)
+	set(COPY_CONFIG_ON_BUILD OFF)
+endif()
+
 ############################################
 #        Miscellaneous options             #
 ############################################
@@ -88,6 +102,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR
 
 include(VCMIUtils)
 include(VersionDefinition)
+if(ANDROID)
+	set(VCMI_VERSION "${APP_SHORT_VERSION}")
+	configure_file("android/GeneratedVersion.java.in" "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main/java/eu/vcmi/vcmi/util/GeneratedVersion.java" @ONLY)
+endif()
 
 vcmi_print_important_variables()
 
@@ -118,14 +136,18 @@ else()
 endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-if(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0 )
+	set(ENABLE_PCH OFF) # broken
+endif()
+
+if(ENABLE_PCH)
 	macro(enable_pch name)
 		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
 	endmacro(enable_pch)
-else(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+else()
 	macro(enable_pch ignore)
 	endmacro(enable_pch)
-endif(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+endif()
 
 ############################################
 #        Documentation section             #
@@ -144,12 +166,12 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 #Global fallback mapping
-# RelWithDebInfo falls back to Release, then MinSizeRel
-set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel "")
-# MinSizeRel falls back to Release, then RelWithDebInfo
-set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
-# Release falls back to RelWithDebInfo, then MinSizeRel
-set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
+# RelWithDebInfo falls back to Release, then MinSizeRel, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel None "")
+# MinSizeRel falls back to Release, then RelWithDebInfo, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo None "")
+# Release falls back to RelWithDebInfo, then MinSizeRel, and then to None (tbb in 22.04 requires it)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel None "")
 
 set(CMAKE_XCODE_ATTRIBUTE_APP_DISPLAY_NAME ${APP_DISPLAY_NAME})
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
@@ -162,8 +184,28 @@ set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
 
-if(BUILD_SINGLE_APP)
-	add_compile_definitions(SINGLE_PROCESS_APP=1)
+#Check for endian
+if(${CMAKE_VERSION} VERSION_LESS "3.20.0") 
+	include(TestBigEndian)
+	test_big_endian(VCMI_ENDIAN_BIG)
+	if(VCMI_ENDIAN_BIG)
+		add_definitions(-DVCMI_ENDIAN_BIG)
+	endif()
+elseif(${CMAKE_CXX_BYTE_ORDER} EQUAL "BIG_ENDIAN")
+	add_definitions(-DVCMI_ENDIAN_BIG)
+endif()
+
+
+if(ENABLE_LAUNCHER)
+	add_definitions(-DENABLE_LAUNCHER)
+endif()
+
+if(ENABLE_EDITOR)
+	add_definitions(-DENABLE_EDITOR)
+endif()
+
+if(ENABLE_SINGLE_APP_BUILD)
+	add_definitions(-DSINGLE_PROCESS_APP=1)
 endif()
 
 if(APPLE_IOS)
@@ -203,10 +245,18 @@ if(MINGW OR MSVC)
 		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-		# 4250: 'class1' : inherits 'class2::member' via dominance
-		# 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
-		# 4275: non dll-interface class 'xxx' used as base for dll-interface class
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4250 /wd4251 /wd4275")
+
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244") # 4244: conversion from 'xxx' to 'yyy', possible loss of data
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267") # 4267: conversion from 'xxx' to 'yyy', possible loss of data
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800") # 4800: implicit conversion from 'xxx' to bool. Possible information loss
+
+		if(ENABLE_STRICT_COMPILATION)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # Treats all compiler warnings as errors
+		endif()
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -241,15 +291,39 @@ if(MINGW OR MSVC)
 	endif(MINGW)
 endif(MINGW OR MSVC)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpointer-arith -Wuninitialized")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs") # fuzzylite - Operation.h
+if(ANDROID)
+	if(ANDROID_NDK_MAJOR LESS 23 AND ANDROID_ABI MATCHES "^armeabi")
+		# libunwind must come before other shared libs:
+		# https://android.googlesource.com/platform/ndk/+/master/docs/BuildSystemMaintainers.md#Unwinding
+		list(APPEND SYSTEM_LIBS unwind)
+	endif()
+	list(APPEND SYSTEM_LIBS log)
+endif()
 
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags -Wno-unknown-warning-option -Wno-missing-braces")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuninitialized")
+
+	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 10.0 OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmismatched-tags")
+	endif()
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")   # low chance of valid reports, a lot of emitted warnings
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch")             # large number of false-positives, disabled
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # large number of noise, low chance of any significant issues
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
+
+	if(ENABLE_STRICT_COMPILATION)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
+	endif()
+
+	# Fix string inspection with lldb
+	# https://stackoverflow.com/questions/58578615/cannot-inspect-a-stdstring-variable-in-lldb
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
 	endif()
 
 	if(UNIX)
@@ -270,7 +344,28 @@ if(NOT WIN32 AND NOT APPLE_IOS)
 endif()
 
 if(ENABLE_LUA)
-	add_compile_definitions(SCRIPTING_ENABLED=1)
+	add_definitions(-DSCRIPTING_ENABLED=1)
+endif()
+
+if(USING_CONAN AND (MINGW AND CMAKE_HOST_UNIX))
+	# Hack for workaround https://github.com/conan-io/conan-center-index/issues/15405
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl Mf ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/Mf/mf/g'"
+	)
+	# Hack for workaround ffmpeg broken linking (conan ffmpeg forgots to link to ws2_32)
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32)/secur32 ws2_32)/g'"
+	)
+	execute_process(COMMAND
+		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32 mfplat/secur32 ws2_32 mfplat/g'"
+	)
+	# Fixup tbb for cross-compiling on Conan
+	# Remove once it will be fixed
+	execute_process(COMMAND
+		bash -c "grep -rl tbb12 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/tbb tbb12/tbb12/g'"
+	)
 endif()
 
 ############################################
@@ -312,24 +407,25 @@ find_package(SDL2_ttf REQUIRED)
 if(TARGET SDL2_ttf::SDL2_ttf)
 	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
 endif()
-find_package(TBB REQUIRED)
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+
+	if(ENABLE_TRANSLATIONS)
+		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
+		add_definitions(-DENABLE_QT_TRANSLATIONS)
+	endif()
+endif()
+
+if(ENABLE_NULLKILLER_AI)
+	find_package(TBB REQUIRED)
 endif()
 
 if(ENABLE_LUA)
 	find_package(luajit)
-	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
-	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS) AND (NOT TARGET luajit::luajit))
-		add_library(luajit::luajit STATIC IMPORTED)
-		set_target_properties(luajit::luajit PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
-		set_target_properties(luajit::luajit PROPERTIES
-			IMPORTED_LOCATION "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
-	endif()
+
 	if(TARGET luajit::luajit)
 		message(STATUS "Using LuaJIT provided by system")
 	else()
@@ -377,6 +473,10 @@ elseif(APPLE)
 			set(DATA_DIR ".")
 		endif()
 	endif()
+elseif(ANDROID)
+	include(GNUInstallDirs)
+	set(LIB_DIR "jniLibs/${ANDROID_ABI}")
+	set(DATA_DIR "assets")
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -385,6 +485,12 @@ else()
 		set(BIN_DIR "." CACHE STRING "Where to install binaries")
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
+
+		# following constants only used for platforms using XDG (Linux, BSD, etc)
+		add_definitions(-DM_DATA_DIR="${DATA_DIR}")
+		add_definitions(-DM_BIN_DIR="${BIN_DIR}")
+		add_definitions(-DM_LIB_DIR="${LIB_DIR}")
+
 		set(CMAKE_INSTALL_RPATH "$ORIGIN/")
 	else()
 		if(NOT BIN_DIR)
@@ -396,18 +502,18 @@ else()
 		if(NOT DATA_DIR)
 			set(DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/vcmi" CACHE STRING "Where to install data files")
 		endif()
+
+		# following constants only used for platforms using XDG (Linux, BSD, etc)
+		add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
+		add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
+		add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
+
 		set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 	endif()
-
-
-	# following constants only used for platforms using XDG (Linux, BSD, etc)
-	add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
-	add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
-	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
-# iOS has flat libs directory structure
-if(APPLE_IOS)
+# iOS/Android have flat libs directory structure
+if(APPLE_IOS OR ANDROID)
 	set(AI_LIB_DIR "${LIB_DIR}")
 	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
 else()
@@ -423,14 +529,13 @@ if(APPLE_IOS)
 	add_subdirectory(ios)
 endif()
 
+set(VCMI_LIB_TARGET vcmi)
+add_subdirectory_with_folder("AI" AI)
+
 include(VCMI_lib)
-if(BUILD_SINGLE_APP)
-	add_subdirectory(lib_client)
+add_subdirectory(lib)
+if(ENABLE_SINGLE_APP_BUILD)
 	add_subdirectory(lib_server)
-	set(VCMI_LIB_TARGET vcmi_lib_client)
-else()
-	add_subdirectory(lib)
-	set(VCMI_LIB_TARGET vcmi)
 endif()
 
 if(ENABLE_ERM)
@@ -452,7 +557,6 @@ if(ENABLE_EDITOR)
 endif()
 add_subdirectory(client)
 add_subdirectory(server)
-add_subdirectory_with_folder("AI" AI)
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test)
@@ -462,14 +566,48 @@ endif()
 #        Installation section         #
 #######################################
 
-install(DIRECTORY config DESTINATION ${DATA_DIR})
-install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+if(ANDROID)
+	if(ANDROID_STL MATCHES "_shared$")
+		set(stlLibName "${CMAKE_SHARED_LIBRARY_PREFIX}${ANDROID_STL}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+		install(FILES "${CMAKE_SYSROOT}/usr/lib/${ANDROID_SYSROOT_LIB_SUBDIR}/${stlLibName}"
+			DESTINATION ${LIB_DIR}
+		)
+	endif()
+
+	install(FILES AUTHORS
+		DESTINATION res/raw
+		RENAME authors.txt
+	)
+
+	# zip internal assets - 'config' and 'Mods' dirs, save md5 of the zip
+	install(CODE "
+		cmake_path(ABSOLUTE_PATH CMAKE_INSTALL_PREFIX
+			OUTPUT_VARIABLE absolute_install_prefix
+		)
+		set(absolute_data_dir \"\${absolute_install_prefix}/${DATA_DIR}\")
+		file(MAKE_DIRECTORY \"\${absolute_data_dir}\")
+
+		set(internal_data_zip \"\${absolute_data_dir}/internalData.zip\")
+		execute_process(COMMAND
+			\"${CMAKE_COMMAND}\" -E tar c \"\${internal_data_zip}\" --format=zip -- config Mods
+			WORKING_DIRECTORY \"${CMAKE_SOURCE_DIR}\"
+		)
+
+		file(MD5 \"\${internal_data_zip}\" internal_data_zip_md5)
+		file(WRITE \"\${absolute_data_dir}/internalDataHash.txt\"
+			\${internal_data_zip_md5}
+		)
+	")
+else()
+	install(DIRECTORY config DESTINATION ${DATA_DIR})
+	install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+endif()
 if(ENABLE_LUA)
 	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 endif()
 
-# that script is useless for Windows and iOS
-if(NOT WIN32 AND NOT APPLE_IOS)
+# that script is useless for Windows / iOS / Android
+if(NOT WIN32 AND NOT APPLE_IOS AND NOT ANDROID)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
 					GROUP_READ GROUP_EXECUTE
@@ -478,13 +616,21 @@ endif()
 
 
 if(WIN32)
-	file(GLOB dep_files
-		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	if(USING_CONAN)
+		#Conan imports enabled
+		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_SYSROOT}/bin/*.dll" 
+				"${CMAKE_SYSROOT}/lib/*.dll" 
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/*.dll")
+	else()
+		file(GLOB dep_files
+				${dep_files}
+				"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	endif()
 
-	if((${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
-		message(STATUS "Detected MXE build")
-	elseif(CMAKE_BUILD_TYPE MATCHES Debug)
+	if(CMAKE_BUILD_TYPE MATCHES Debug)
 		# Copy debug versions of libraries if build type is debug
 		set(debug_postfix d)
 	endif()
@@ -551,7 +697,11 @@ if(WIN32)
 	else()
 		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION} ${PACKAGE_NAME_SUFFIX} ")
 	endif()
-	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES ".*64")
+		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+	else()
+		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	endif()
 	if(ENABLE_LAUNCHER)
 		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
 		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
@@ -561,6 +711,12 @@ if(WIN32)
 	endif()
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
 
+	# Strip MinGW CPack target if build configuration without debug info
+	if(MINGW)
+		if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+			set(CPACK_STRIP_FILES ON)
+		endif()
+	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
 	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
@@ -577,7 +733,7 @@ if(WIN32)
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://vcmi.eu/")
 	set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
 	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-	# Use BundleUtilities to fix build when Vcpkg is used and disable it for MXE
+	# Use BundleUtilities to fix build when Vcpkg is used and disable it for mingw
 	if(NOT (${CMAKE_CROSSCOMPILING}))
 		add_subdirectory(win)
 	endif()

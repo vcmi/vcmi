@@ -10,25 +10,21 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
-#include "CAdvmapInterface.h"
-
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-
-#include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
-
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../windows/CMessage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/CursorHandler.h"
 
 #include "../../CCallback.h"
 
@@ -40,10 +36,12 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 
+#include <SDL_surface.h>
+
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(bitmap)
-		blitAt(bitmap,pos.x,pos.y,to);
+		CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to);
 }
 CSimpleWindow::~CSimpleWindow()
 {
@@ -78,7 +76,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
-	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
@@ -132,7 +130,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.push_back(button);
 	}
 
-	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 	if(!text->slider)
 	{
 		text->resize(text->label->textSize);
@@ -219,18 +217,18 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 }
 
 
-CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free)
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free)
  : free(Free),bitmap(Bitmap)
 {
 	switch(alignment)
 	{
-	case BOTTOMRIGHT:
+	case ETextAlignment::BOTTOMRIGHT:
 		init(p.x - Bitmap->w, p.y - Bitmap->h);
 		break;
-	case CENTER:
+	case ETextAlignment::CENTER:
 		init(p.x - Bitmap->w/2, p.y - Bitmap->h/2);
 		break;
-	case TOPLEFT:
+	case ETextAlignment::TOPLEFT:
 		init(p.x, p.y);
 		break;
 	default:
@@ -247,8 +245,8 @@ CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 
 	if(bitmap)
 	{
-		pos.x = screen->w/2 - bitmap->w/2;
-		pos.y = screen->h/2 - bitmap->h/2;
+		pos.x = GH.screenDimensions().x / 2 - bitmap->w / 2;
+		pos.y = GH.screenDimensions().y / 2 - bitmap->h / 2;
 		pos.h = bitmap->h;
 		pos.w = bitmap->w;
 	}
@@ -263,7 +261,7 @@ void CInfoPopup::close()
 
 void CInfoPopup::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,to);
+	CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to);
 }
 
 CInfoPopup::~CInfoPopup()
@@ -283,8 +281,8 @@ void CInfoPopup::init(int x, int y)
 	// Put the window back on screen if necessary
 	vstd::amax(pos.x, 0);
 	vstd::amax(pos.y, 0);
-	vstd::amin(pos.x, screen->w - bitmap->w);
-	vstd::amin(pos.y, screen->h - bitmap->h);
+	vstd::amin(pos.x, GH.screenDimensions().x - bitmap->w);
+	vstd::amin(pos.y, GH.screenDimensions().y - bitmap->h);
 }
 
 
@@ -307,7 +305,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
+	temp->center(GH.getCursorPosition()); //center on mouse
 #ifdef VCMI_IOS
     // TODO: enable also for android?
     temp->moveBy({0, -temp->pos.h / 2});
@@ -325,7 +323,7 @@ void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CCompo
 	createAndPush(txt, intComps);
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment)
+void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment)
 {
 	auto iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)
@@ -366,8 +364,10 @@ CRClickPopupInt::~CRClickPopupInt()
 
 Point CInfoBoxPopup::toScreen(Point p)
 {
-	vstd::abetween(p.x, adventureInt->terrain.pos.x + 100, adventureInt->terrain.pos.x + adventureInt->terrain.pos.w - 100);
-	vstd::abetween(p.y, adventureInt->terrain.pos.y + 100, adventureInt->terrain.pos.y + adventureInt->terrain.pos.h - 100);
+	auto bounds = adventureInt->terrainAreaPixels();
+
+	vstd::abetween(p.x, bounds.top() + 100, bounds.bottom() - 100);
+	vstd::abetween(p.y, bounds.left() + 100, bounds.right() - 100);
 
 	return p;
 }
@@ -376,7 +376,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->selection); //todo: should this be nearest hero?
+	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->curTown()); //todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
@@ -386,7 +386,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->selection);//todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->curHero());//todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
@@ -405,7 +405,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
-		specific = adventureInt->selection;
+		specific = adventureInt->curArmy();
 
 	if(nullptr == specific)
 	{

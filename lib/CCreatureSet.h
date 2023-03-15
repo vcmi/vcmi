@@ -27,7 +27,7 @@ class DLL_LINKAGE CStackBasicDescriptor
 {
 public:
 	const CCreature *type;
-	TQuantity count;
+	TQuantity count; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
 
 	CStackBasicDescriptor();
 	CStackBasicDescriptor(CreatureID id, TQuantity Count);
@@ -93,7 +93,7 @@ public:
 	std::string bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	virtual ui64 getPower() const;
-	int getQuantityID() const;
+	CCreature::CreatureQuantityId getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	virtual int getLevel() const; //different for regular stack and commander

@@ -68,7 +68,7 @@ private:
 
 	std::shared_ptr<Context> resolveScript(const Mechanics * m) const;
 
-	void setContextVariables(const Mechanics * m, std::shared_ptr<Context> context) const;
+	static void setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context) ;
 };
 
 }

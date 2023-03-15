@@ -401,6 +401,9 @@ public:
 
 	void execute(const blocked_range<size_t>& r)
 	{
+		std::random_device randomDevice;
+		std::mt19937 randomEngine(randomDevice());
+
 		for(int i = r.begin(); i != r.end(); i++)
 		{
 			auto & pos = tiles[i];
@@ -422,7 +425,7 @@ public:
 						existingChains.push_back(&node);
 				}
 
-				std::random_shuffle(existingChains.begin(), existingChains.end());
+				std::shuffle(existingChains.begin(), existingChains.end(), randomEngine);
 
 				for(AIPathNode * node : existingChains)
 				{
@@ -480,6 +483,9 @@ public:
 
 bool AINodeStorage::calculateHeroChain()
 {
+	std::random_device randomDevice;
+	std::mt19937 randomEngine(randomDevice());
+
 	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.clear();
 
@@ -489,7 +495,7 @@ bool AINodeStorage::calculateHeroChain()
 	{
 		boost::mutex resultMutex;
 
-		std::random_shuffle(data.begin(), data.end());
+		std::shuffle(data.begin(), data.end(), randomEngine);
 
 		parallel_for(blocked_range<size_t>(0, data.size()), [&](const blocked_range<size_t>& r)
 		{
@@ -849,6 +855,10 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 	for(auto & hero : heroes)
 	{
+		// do not allow our own heroes in garrison to act on map
+		if(hero.first->getOwner() == ai->playerID && hero.first->inTownGarrison)
+			continue;
+
 		uint64_t mask = FirstActorMask << actors.size();
 		auto actor = std::make_shared<HeroActor>(hero.first, hero.second, mask, ai);
 
@@ -1431,10 +1441,10 @@ std::string AIPath::toString() const
 {
 	std::stringstream str;
 
-	str << targetHero->name << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
+	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
 
 	for(auto node : nodes)
-		str << node.targetHero->name << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
+		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();
 }

@@ -41,5 +41,5 @@ TSubgoal BuyArmy::whatToDoToAchieve()
 
 std::string BuyArmy::completeMessage() const
 {
-	return boost::format("Bought army of value %d in town of %s") % value, town->name;
+	return boost::format("Bought army of value %d in town of %s") % value, town->getNameTranslated();
 }

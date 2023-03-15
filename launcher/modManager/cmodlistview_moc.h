@@ -40,8 +40,6 @@ class CModListView : public QWidget
 
 	void showEvent(QShowEvent * event) override;
 
-	void keyPressEvent(QKeyEvent * event) override;
-
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
@@ -64,15 +62,16 @@ class CModListView : public QWidget
 	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
 
+	void changeEvent(QEvent *event) override;
 signals:
 	void extraResolutionsEnabledChanged(bool enabled);
+	
+	void modsChanged();
 
 public:
 	explicit CModListView(QWidget * parent = 0);
 	~CModListView();
 
-	void showModInfo();
-	void hideModInfo();
 	void loadScreenshots();
 
 	void enableModInfo();
@@ -82,6 +81,10 @@ public:
 	bool isExtraResolutionsModEnabled() const;
 
 	const CModList & getModList() const;
+	
+public slots:
+	void enableModByName(QString modName);
+	void disableModByName(QString modName);
 
 private slots:
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
@@ -90,8 +93,6 @@ private slots:
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();
-
-	void on_hideModInfoButton_clicked();
 
 	void on_lineEdit_textChanged(const QString & arg1);
 
@@ -116,8 +117,6 @@ private slots:
 	void on_tabWidget_currentChanged(int index);
 
 	void on_screenshotsList_clicked(const QModelIndex & index);
-
-	void on_showInfoButton_clicked();
 
 private:
 	Ui::CModListView * ui;

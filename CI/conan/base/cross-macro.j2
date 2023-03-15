@@ -1,0 +1,20 @@
+{% macro generate_env(target_host) -%}
+CONAN_CROSS_COMPILE={{ target_host }}-
+CHOST={{ target_host }}
+AR={{ target_host }}-ar
+AS={{ target_host }}-as
+CC={{ target_host }}-gcc
+CXX={{ target_host }}-g++
+RANLIB={{ target_host }}-ranlib
+STRIP={{ target_host }}-strip
+{%- endmacro -%}
+
+{% macro generate_env_win32(target_host) -%}
+CONAN_SYSTEM_LIBRARY_LOCATION=/usr/lib/gcc/{{ target_host }}/10-posix/
+RC={{ target_host }}-windres
+{%- endmacro -%}
+
+{% macro generate_conf(target_host) -%}
+tools.build:compiler_executables = {"c": "{{ target_host }}-gcc", "cpp": "{{ target_host }}-g++"}
+tools.build:sysroot = /usr/{{ target_host }}
+{%- endmacro -%}

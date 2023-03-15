@@ -9,18 +9,20 @@
  */
 #include "StdInc.h"
 #include <SDL_mixer.h>
-#include <SDL.h>
+#include <SDL_timer.h>
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
-#include "SDLRWwrapper.h"
+#include "renderSDL/SDLRWwrapper.h"
+
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
+
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -73,15 +75,7 @@ CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"]),
 	ambientConfig(JsonNode(ResourceID("config/ambientSounds.json")))
 {
-	allTilesSource = ambientConfig["allTilesSource"].Bool();
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
-
-	// Vectors for helper(s)
-	pickupSounds =
-	{
-		soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
-		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
-	};
 
 	battleIntroSounds =
 	{
@@ -89,36 +83,6 @@ CSoundHandler::CSoundHandler():
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
-
-	//predefine terrain set
-	//TODO: support custom sounds for new terrains and load from json
-	horseSounds =
-	{
-		{Terrain::DIRT, soundBase::horseDirt},
-		{Terrain::SAND, soundBase::horseSand},
-		{Terrain::GRASS, soundBase::horseGrass},
-		{Terrain::SNOW, soundBase::horseSnow},
-		{Terrain::SWAMP, soundBase::horseSwamp},
-		{Terrain::ROUGH, soundBase::horseRough},
-		{Terrain::SUBTERRANEAN, soundBase::horseSubterranean},
-		{Terrain::LAVA, soundBase::horseLava},
-		{Terrain::WATER, soundBase::horseWater},
-		{Terrain::ROCK, soundBase::horseRock}
-	};
-}
-
-void CSoundHandler::loadHorseSounds()
-{
-	const auto & terrains = CGI->terrainTypeHandler->terrains();
-	for(const auto & terrain : terrains)
-	{
-		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain.id))
-			continue;
-
-		//Use already existing horse sound
-		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
-	}
 }
 
 void CSoundHandler::init()
@@ -287,11 +251,6 @@ int CSoundHandler::ambientGetRange() const
 	return static_cast<int>(ambientConfig["range"].Integer());
 }
 
-bool CSoundHandler::ambientCheckVisitable() const
-{
-	return !allTilesSource;
-}
-
 void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 {
 	boost::mutex::scoped_lock guard(mutex);
@@ -306,7 +265,8 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 		}
 		else
 		{
-			CCS->soundh->setChannelVolume(pair.second, ambientDistToVolume(soundsArg[pair.first]));
+			int volume = ambientDistToVolume(soundsArg[pair.first]);
+			CCS->soundh->setChannelVolume(pair.second, volume);
 		}
 	}
 	for(auto soundId : stoppedSounds)
@@ -317,7 +277,9 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 		if(!vstd::contains(ambientChannels, pair.first))
 		{
 			int channel = CCS->soundh->playSound(pair.first, -1);
-			CCS->soundh->setChannelVolume(channel, ambientDistToVolume(pair.second));
+			int volume = ambientDistToVolume(pair.second);
+
+			CCS->soundh->setChannelVolume(channel, volume);
 			CCS->soundh->ambientChannels.insert(std::make_pair(pair.first, channel));
 		}
 	}
@@ -368,9 +330,9 @@ CMusicHandler::CMusicHandler():
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for (const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain_" + terrain.name, "Music/" + terrain.musicFilename);
+		addEntryToSet("terrain_" + terrain->getJsonKey(), "Music/" + terrain->musicFilename);
 	}
 }
 
@@ -399,6 +361,7 @@ void CMusicHandler::release()
 		boost::mutex::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
+		current->stop();
 
 		current.reset();
 		next.reset();
@@ -458,7 +421,7 @@ void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName,
 {
 	try
 	{
-		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
+		queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 	}
 	catch(std::exception &e)
 	{
@@ -516,7 +479,9 @@ void CMusicHandler::musicFinishedCallback()
 			return;
 		}
 		else
+		{
 			current.reset();
+		}
 	}
 
 	if (current.get() == nullptr && next.get() != nullptr)
@@ -542,7 +507,7 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
-	if (playing)
+	if (playing && loop > 0)
 	{
 		assert(0);
 		logGlobal->error("Attempt to delete music while playing!");
@@ -641,7 +606,7 @@ bool MusicEntry::stop(int fade_ms)
 		assert(startTime != uint32_t(-1));
 		float playDuration = (endTime - startTime + startPosition) / 1000.f;
 		owner->trackPositions[currentName] = playDuration;
-		logGlobal->info("Stopping music file %s at %f", currentName, playDuration);
+		logGlobal->trace("Stopping music file %s at %f", currentName, playDuration);
 
 		Mix_FadeOutMusic(fade_ms);
 		return true;

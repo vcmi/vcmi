@@ -53,7 +53,7 @@ int InfoWindowProxy::addReplacement(lua_State * L)
 		if(lua_isstring(L, 2))
 		{
 			size_t len = 0;
-			auto raw = lua_tolstring(L, 2, &len);
+			const auto *raw = lua_tolstring(L, 2, &len);
 			std::string text(raw, len);
 
 			object->text.addReplacement(text);
@@ -87,7 +87,7 @@ int InfoWindowProxy::addText(lua_State * L)
 		if(lua_isstring(L, 2))
 		{
 			size_t len = 0;
-			auto raw = lua_tolstring(L, 2, &len);
+			const auto *raw = lua_tolstring(L, 2, &len);
 			std::string text(raw, len);
 
 			object->text << text;

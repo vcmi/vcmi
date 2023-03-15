@@ -26,20 +26,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
-TargetConditionItem::TargetConditionItem() = default;
-TargetConditionItem::~TargetConditionItem() = default;
-
 class TargetConditionItemBase : public TargetConditionItem
 {
 public:
-	bool inverted;
-	bool exclusive;
-
-	TargetConditionItemBase()
-		: inverted(false),
-		exclusive(false)
-	{
-	}
+	bool inverted = false;
+	bool exclusive = false;
 
 	void setInverted(bool value) override
 	{
@@ -87,10 +78,7 @@ private:
 class CreatureCondition : public TargetConditionItemBase
 {
 public:
-	CreatureCondition(CreatureID type_)
-		: type(type_)
-	{
-	}
+	CreatureCondition(const CreatureID & type_): type(type_) {}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
@@ -218,11 +206,6 @@ protected:
 //for Hypnotize
 class HealthValueCondition : public TargetConditionItemBase
 {
-public:
-	HealthValueCondition()
-	{
-	}
-
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -238,8 +221,7 @@ protected:
 class SpellEffectCondition : public TargetConditionItemBase
 {
 public:
-	SpellEffectCondition(SpellID spellID_)
-		: spellID(spellID_)
+	SpellEffectCondition(const SpellID & spellID_): spellID(spellID_)
 	{
 		std::stringstream builder;
 		builder << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
@@ -262,13 +244,6 @@ private:
 
 class ReceptiveFeatureCondition : public TargetConditionItemBase
 {
-public:
-	ReceptiveFeatureCondition()
-	{
-		selector = Selector::type()(Bonus::RECEPTIVE);
-		cachingString = "type_RECEPTIVE";
-	}
-
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -276,17 +251,12 @@ protected:
 	}
 
 private:
-	CSelector selector;
-	std::string cachingString;
+	CSelector selector = Selector::type()(Bonus::RECEPTIVE);
+	std::string cachingString = "type_RECEPTIVE";
 };
 
 class ImmunityNegationCondition : public TargetConditionItemBase
 {
-public:
-	ImmunityNegationCondition()
-	{
-	}
-
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -400,20 +370,16 @@ const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
 	static std::unique_ptr<TargetConditionItemFactory> singleton;
 
 	if(!singleton)
-		singleton = make_unique<DefaultTargetConditionItemFactory>();
+		singleton = std::make_unique<DefaultTargetConditionItemFactory>();
 	return singleton.get();
 }
-
-TargetCondition::TargetCondition() = default;
-
-TargetCondition::~TargetCondition() = default;
 
 bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * target) const
 {
 	if(!check(absolute, m, target))
 		return false;
 
-	for(auto item : negation)
+	for(const auto & item : negation)
 	{
 		if(item->isReceptive(m, target))
 			return true;
@@ -462,7 +428,7 @@ bool TargetCondition::check(const ItemVector & condition, const Mechanics * m, c
 	bool nonExclusiveCheck = false;
 	bool nonExclusiveExits = false;
 
-	for(auto & item : condition)
+	for(const auto & item : condition)
 	{
 		if(item->isExclusive())
 		{
@@ -481,7 +447,7 @@ bool TargetCondition::check(const ItemVector & condition, const Mechanics * m, c
 
 void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory)
 {
-	for(auto & keyValue : source.Struct())
+	for(const auto & keyValue : source.Struct())
 	{
 		bool isAbsolute;
 
@@ -494,9 +460,11 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 		else
 			continue;
 
-		std::string scope, type, identifier;
+		std::string scope;
+		std::string type;
+		std::string identifier;
 
-		VLC->modh->parseIdentifier(keyValue.first, scope, type, identifier);
+		CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
 
 		std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(scope, type, identifier);
 

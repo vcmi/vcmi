@@ -260,6 +260,21 @@ bool JsonNode::isNumber() const
 	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
 }
 
+bool JsonNode::isString() const
+{
+	return type == JsonType::DATA_STRING;
+}
+
+bool JsonNode::isVector() const
+{
+	return type == JsonType::DATA_VECTOR;
+}
+
+bool JsonNode::isStruct() const
+{
+	return type == JsonType::DATA_STRUCT;
+}
+
 bool JsonNode::containsBaseData() const
 {
 	switch(type)
@@ -796,7 +811,12 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	b->sid = static_cast<si32>(ability["sourceID"].Float());
 
 	if(!ability["description"].isNull())
-		b->description = ability["description"].String();
+	{
+		if (ability["description"].isString())
+			b->description = ability["description"].String();
+		if (ability["description"].isNumber())
+			b->description = VLC->generaltexth->translate("core.arraytxt", ability["description"].Integer());
+	}
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
@@ -1021,14 +1041,6 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 		std::swap(dest, source);
 		return;
 	}
-
-	bool hasNull = dest.isNull() || source.isNull();
-	bool sameType = dest.getType() == source.getType();
-	bool sourceNumeric = source.getType() == JsonNode::JsonType::DATA_FLOAT || source.getType() == JsonNode::JsonType::DATA_INTEGER;
-	bool destNumeric = dest.getType() == JsonNode::JsonType::DATA_FLOAT || dest.getType() == JsonNode::JsonType::DATA_INTEGER;
-	bool bothNumeric = sourceNumeric && destNumeric;
-
-	assert( hasNull || sameType || bothNumeric );
 
 	switch (source.getType())
 	{

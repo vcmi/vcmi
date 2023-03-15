@@ -24,7 +24,12 @@
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
+#include "CGeneralTextHandler.h"
+#include "Languages.h"
 #include "ScriptHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
+#include "TerrainHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
@@ -212,7 +217,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// special scope that should have access to all in-game objects
 		if (request.localScope == CModHandler::scopeGame())
 		{
-			for (auto const & modName : VLC->modh->getActiveMods())
+			for(const auto & modName : VLC->modh->getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
@@ -452,7 +457,7 @@ CContentHandler::CContentHandler()
 
 void CContentHandler::init()
 {
- 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
@@ -465,6 +470,9 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 #endif
 	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler, "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler, "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler, "road")));
 	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
 	//TODO: any other types of moddables?
 }
@@ -582,7 +590,7 @@ CModInfo::Version CModInfo::Version::fromString(std::string from)
 				patch = std::stoi(from.substr(pointPos + 1));
 		}
 	}
-	catch(const std::invalid_argument & e)
+	catch(const std::invalid_argument &)
 	{
 		return Version();
 	}
@@ -631,6 +639,12 @@ CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode
 		vcmiCompatibleMin = Version::fromString(config["compatibility"]["min"].String());
 		vcmiCompatibleMax = Version::fromString(config["compatibility"]["max"].String());
 	}
+
+	if (!config["language"].isNull())
+		baseLanguage = config["language"].String();
+	else
+		baseLanguage = "english";
+
 	loadLocalData(local);
 }
 
@@ -681,7 +695,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 		validated = data["validated"].Bool();
 		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
 	}
-	
+
 	//check compatibility
 	bool wasEnabled = enabled;
 	enabled = enabled && (vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin));
@@ -698,10 +712,10 @@ void CModInfo::loadLocalData(const JsonNode & data)
 
 CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 {
-    modules.COMMANDERS = false;
-    modules.STACK_ARTIFACT = false;
-    modules.STACK_EXP = false;
-    modules.MITHRIL = false;
+	modules.COMMANDERS = false;
+	modules.STACK_ARTIFACT = false;
+	modules.STACK_EXP = false;
+	modules.MITHRIL = false;
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -751,6 +765,22 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
 	settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS = hardcodedFeatures["NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS"].Bool();
 	logMod->debug("\tNO_RANDOM_SPECIAL_WEEKS_AND_MONTHS\t%d", static_cast<int>(settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS));
+	settings.ATTACK_POINT_DMG_MULTIPLIER = hardcodedFeatures["ATTACK_POINT_DMG_MULTIPLIER"].Float();
+	logMod->debug("\tATTACK_POINT_DMG_MULTIPLIER\t%f", settings.ATTACK_POINT_DMG_MULTIPLIER);
+	settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["ATTACK_POINTS_DMG_MULTIPLIER_CAP"].Float();
+	logMod->debug("\tATTACK_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP);
+	settings.DEFENSE_POINT_DMG_MULTIPLIER = hardcodedFeatures["DEFENSE_POINT_DMG_MULTIPLIER"].Float();
+	logMod->debug("\tDEFENSE_POINT_DMG_MULTIPLIER\t%f", settings.DEFENSE_POINT_DMG_MULTIPLIER);
+	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
+	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
+
+	settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES = hardcodedFeatures["HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"].convertTo<std::vector<int32_t>>();
+	for (auto const & entry : settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES)
+		logMod->debug("\tHERO_STARTING_ARMY_STACKS_COUNT_CHANCES\t%d", entry);
+
+	settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES = hardcodedFeatures["DEFAULT_BUILDING_SET_DWELLING_CHANCES"].convertTo<std::vector<int32_t>>();
+	for (auto const & entry : settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES)
+		logMod->debug("\tDEFAULT_BUILDING_SET_DWELLING_CHANCES\t%d", entry);
 
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
@@ -827,7 +857,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	// Topological sort algorithm.
 	// TODO: Investigate possible ways to improve performance.
 	boost::range::sort(modsToResolve); // Sort mods per name
-	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO) 
+	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO)
 	sortedValidMods.reserve(modsToResolve.size()); // push_back calls won't cause memory reallocation
 	std::set <TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
 
@@ -862,7 +892,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		if(resolvedOnCurrentTreeLevel.size())
 		{
 			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
-		            continue;
+					continue;
 		}
 		// If there're no valid mods on the current mods tree level, no more mod can be resolved, should be end.
 		break;
@@ -913,8 +943,9 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 
 bool CModHandler::isScopeReserved(const TModID & scope)
 {
-	static const std::array<TModID, 3> reservedScopes = {
-		"core", "map", "game"
+	//following scopes are reserved - either in use by mod system or by filesystem
+	static const std::array<TModID, 9> reservedScopes = {
+		"core", "map", "game", "root", "saves", "config", "local", "initial", "mapEditor"
 	};
 
 	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
@@ -1067,7 +1098,29 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound)
+TModID CModHandler::findResourceOrigin(const ResourceID & name)
+{
+	for(const auto & modID : boost::adaptors::reverse(activeMods))
+	{
+		if(CResourceHandler::get(modID)->existsResource(name))
+			return modID;
+	}
+
+	if(CResourceHandler::get("core")->existsResource(name))
+		return "core";
+
+	assert(0);
+	return "";
+}
+
+std::string CModHandler::getModLanguage(const TModID& modId) const
+{
+	if ( modId == "core")
+		return VLC->generaltexth->getInstalledLanguage();
+	return allMods.at(modId).baseLanguage;
+}
+
+std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound) const
 {
 	auto it = allMods.find(modId);
 	isModFound = (it != allMods.end());
@@ -1076,7 +1129,7 @@ std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound
 		return it->second.dependencies;
 
 	logMod->error("Mod not found: '%s'", modId);
-	return std::set<TModID>();
+	return {};
 }
 
 void CModHandler::initializeConfig()
@@ -1084,9 +1137,57 @@ void CModHandler::initializeConfig()
 	loadConfigFromFile("defaultMods.json");
 }
 
+bool CModHandler::validateTranslations(TModID modName) const
+{
+	bool result = true;
+	const auto & mod = allMods.at(modName);
+
+	{
+		auto fileList = mod.config["translations"].convertTo<std::vector<std::string> >();
+		JsonNode json = JsonUtils::assembleFromFiles(fileList);
+		result |= VLC->generaltexth->validateTranslation(mod.baseLanguage, modName, json);
+	}
+
+	for(const auto & language : Languages::getLanguageList())
+	{
+		if (!language.hasTranslation)
+			continue;
+
+		if (mod.config[language.identifier].isNull())
+			continue;
+
+		if (mod.config[language.identifier]["skipValidation"].Bool())
+			continue;
+
+		auto fileList = mod.config[language.identifier]["translations"].convertTo<std::vector<std::string> >();
+		JsonNode json = JsonUtils::assembleFromFiles(fileList);
+		result |= VLC->generaltexth->validateTranslation(language.identifier, modName, json);
+	}
+
+	return result;
+}
+
+void CModHandler::loadTranslation(TModID modName)
+{
+	const auto & mod = allMods[modName];
+
+	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+	std::string modBaseLanguage = allMods[modName].baseLanguage;
+
+	auto baseTranslationList = mod.config["translations"].convertTo<std::vector<std::string> >();
+	auto extraTranslationList = mod.config[preferredLanguage]["translations"].convertTo<std::vector<std::string> >();
+
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(baseTranslationList);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(extraTranslationList);
+
+	VLC->generaltexth->loadTranslationOverrides(modBaseLanguage, modName, baseTranslation);
+	VLC->generaltexth->loadTranslationOverrides(preferredLanguage, modName, extraTranslation);
+}
+
 void CModHandler::load()
 {
-	CStopWatch totalTime, timer;
+	CStopWatch totalTime;
+	CStopWatch timer;
 
 	logMod->info("\tInitializing content handler: %d ms", timer.getDiff());
 
@@ -1114,6 +1215,13 @@ void CModHandler::load()
 #endif
 
 	content->loadCustom();
+
+	for(const TModID & modName : activeMods)
+		loadTranslation(modName);
+
+	for(const TModID & modName : activeMods)
+		if (!validateTranslations(modName))
+			allMods[modName].validation = CModInfo::FAILED;
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 

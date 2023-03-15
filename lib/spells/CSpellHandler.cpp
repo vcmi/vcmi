@@ -84,25 +84,6 @@ static const ESpellSchool SCHOOL_ORDER[4] =
 };
 } //namespace SpellConfig
 
-///CSpell::LevelInfo
-CSpell::LevelInfo::LevelInfo()
-	: description(""),
-	cost(0),
-	power(0),
-	AIValue(0),
-	smartTarget(true),
-	clearTarget(false),
-	clearAffected(false),
-	range("0")
-{
-
-}
-
-CSpell::LevelInfo::~LevelInfo()
-{
-
-}
-
 ///CSpell
 CSpell::CSpell():
 	id(SpellID::NONE),
@@ -116,23 +97,19 @@ CSpell::CSpell():
 	damage(false),
 	offensive(false),
 	special(true),
-	targetType(spells::AimType::NO_TARGET),
-	mechanics(),
-	adventureMechanics()
+	targetType(spells::AimType::NO_TARGET)
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
 }
 
-CSpell::~CSpell()
-{
-
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CSpell::~CSpell() = default;
 
 bool CSpell::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	assert(env);
 
-	if(!adventureMechanics.get())
+	if(!adventureMechanics)
 	{
 		env->complain("Invalid adventure spell cast attempt!");
 		return false;
@@ -186,7 +163,7 @@ void CSpell::forEachSchool(const std::function<void(const spells::SchoolInfo &, 
 	bool stop = false;
 	for(ESpellSchool iter : SpellConfig::SCHOOL_ORDER)
 	{
-		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[(ui8)iter];
+		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[static_cast<ui8>(iter)];
 		if(school.at(cnf.id))
 		{
 			cb(cnf, stop);
@@ -202,14 +179,31 @@ SpellID CSpell::getId() const
 	return id;
 }
 
-const std::string & CSpell::getName() const
+std::string CSpell::getNameTextID() const
 {
-	return name;
+	TextIdentifier id("spell", modScope, identifier, "name");
+	return id.get();
 }
 
-const std::string & CSpell::getJsonKey() const
+std::string CSpell::getNameTranslated() const
 {
-	return identifier;
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CSpell::getDescriptionTextID(int32_t level) const
+{
+	TextIdentifier id("spell", modScope, identifier, "description", SpellConfig::LEVEL_NAMES[level]);
+	return id.get();
+}
+
+std::string CSpell::getDescriptionTranslated(int32_t level) const
+{
+	return VLC->generaltexth->translate(getDescriptionTextID(level));
+}
+
+std::string CSpell::getJsonKey() const
+{
+	return modScope + ':' + identifier;;
 }
 
 int32_t CSpell::getIndex() const
@@ -340,11 +334,6 @@ int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 	return getLevelInfo(skillLevel).power;
 }
 
-const std::string & CSpell::getLevelDescription(const int32_t skillLevel) const
-{
-	return getLevelInfo(skillLevel).description;
-}
-
 si32 CSpell::getProbability(const TFaction factionId) const
 {
 	if(!vstd::contains(probabilities,factionId))
@@ -366,7 +355,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 
 	if(levelObject.effects.empty() && levelObject.cumulativeEffects.empty())
 	{
-		logGlobal->error("This spell (%s) has no effects for level %d", name, level);
+		logGlobal->error("This spell (%s) has no effects for level %d", getNameTranslated(), level);
 		return;
 	}
 
@@ -394,15 +383,15 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 	//affected creature-specific part
 	if(nullptr != affectedCreature)
 	{
-		auto bearer = affectedCreature;
+		const auto * bearer = affectedCreature;
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		forEachSchool([&](const spells::SchoolInfo & cnf, bool & stop)
 		{
-			if(bearer->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			if(bearer->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id)))
 			{
-				ret *= 100 - bearer->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret *= 100 - bearer->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id));
 				ret /= 100;
-				stop = true;//only bonus from one school is used
+				stop = true; //only bonus from one school is used
 			}
 		});
 
@@ -428,7 +417,7 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 
 int64_t CSpell::calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const
 {
-	return (int64_t)basePowerMultiplier * getBasePower() + levelPowerMultiplier * getLevelPower(effectLevel);
+	return static_cast<int64_t>(basePowerMultiplier) * getBasePower() + levelPowerMultiplier * getLevelPower(effectLevel);
 }
 
 void CSpell::setIsOffensive(const bool val)
@@ -522,24 +511,14 @@ void CSpell::serializeJson(JsonSerializeFormat & handler)
 }
 
 ///CSpell::AnimationInfo
-CSpell::AnimationItem::AnimationItem()
-	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
+CSpell::AnimationItem::AnimationItem() :
+	verticalPosition(VerticalPosition::TOP),
+	pause(0)
 {
 
 }
-
 
 ///CSpell::AnimationInfo
-CSpell::AnimationInfo::AnimationInfo()
-{
-
-}
-
-CSpell::AnimationInfo::~AnimationInfo()
-{
-
-}
-
 std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 {
 	std::string res;
@@ -547,7 +526,7 @@ std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 
 	for(const auto & info : projectile)
 	{
-		if(info.minimumAngle < angle && info.minimumAngle > maximum)
+		if(info.minimumAngle < angle && info.minimumAngle >= maximum)
 		{
 			maximum = info.minimumAngle;
 			res = info.resourceName;
@@ -565,17 +544,12 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	clearAffected(false),
 	clearTarget(false)
 {
-	auto & levelInfo = spell->getLevelInfo(level);
+	const auto & levelInfo = spell->getLevelInfo(level);
 
 	smart = levelInfo.smartTarget;
 	massive = levelInfo.range == "X";
 	clearAffected = levelInfo.clearAffected;
 	clearTarget = levelInfo.clearTarget;
-
-	if(mode == spells::Mode::CREATURE_ACTIVE)
-	{
-		massive = false;//FIXME: find better solution for Commander spells
-	}
 }
 
 bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
@@ -585,10 +559,6 @@ bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
 }
 
 ///CSpellHandler
-CSpellHandler::CSpellHandler() = default;
-
-CSpellHandler::~CSpellHandler() = default;
-
 std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 {
 	using namespace SpellConfig;
@@ -641,8 +611,8 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
 			auto & chances = lineNode["gainChance"].Struct();
 
-			for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
-				chances[ETownType::names[i]].Integer() = static_cast<si64>(parser.readNumber());
+			for(const auto & name : ETownType::names)
+				chances[name].Integer() = static_cast<si64>(parser.readNumber());
 
 			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
@@ -699,13 +669,17 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 
 CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	using namespace SpellConfig;
 
 	SpellID id(static_cast<si32>(index));
 
-	CSpell * spell = new CSpell();
+	auto * spell = new CSpell();
 	spell->id = id;
 	spell->identifier = identifier;
+	spell->modScope = scope;
 
 	const auto type = json["type"].String();
 
@@ -720,9 +694,9 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		spell->combat = type == "combat";
 	}
 
-	spell->name = json["name"].String();
+	VLC->generaltexth->registerString(scope, spell->getNameTextID(), json["name"].String());
 
-	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->name);
+	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
 
 	const auto schoolNames = json["school"];
 
@@ -757,15 +731,15 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	else if(targetType == "LOCATION")
 		spell->targetType = spells::AimType::LOCATION;
 	else
-		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->name, (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
+		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->getNameTranslated(), (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id) 
 			{
-				spell->counteredSpells.push_back(SpellID(id));
+				spell->counteredSpells.emplace_back(id);
 			});
 		}
 	}
@@ -804,25 +778,25 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	else if(!implicitPositiveness)
 	{
 		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
-		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->name);
+		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getNameTranslated());
 	}
 
 	spell->special = flags["special"].Bool();
 
-	auto findBonus = [&](std::string name, std::vector<Bonus::BonusType> & vec)
+	auto findBonus = [&](const std::string & name, std::vector<Bonus::BonusType> & vec)
 	{
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
 		{
-			logMod->error("Spell %s: invalid bonus name %s", spell->name, name);
+			logMod->error("Spell %s: invalid bonus name %s", spell->getNameTranslated(), name);
 		}
 		else
 		{
-			vec.push_back((Bonus::BonusType)it->second);
+			vec.push_back(static_cast<Bonus::BonusType>(it->second));
 		}
 	};
 
-	auto readBonusStruct = [&](std::string name, std::vector<Bonus::BonusType> & vec)
+	auto readBonusStruct = [&](const std::string & name, std::vector<Bonus::BonusType> & vec)
 	{
 		for(auto bonusData: json[name].Struct())
 		{
@@ -848,7 +822,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 		if(!(immunities.empty() && absoluteImmunities.empty() && limiters.empty() && absoluteLimiters.empty()))
 		{
-			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->name);
+			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getNameTranslated());
 			spell->targetCondition = spell->convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
 			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toJson());
 		}
@@ -859,13 +833,13 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 		//TODO: could this be safely merged instead of discarding?
 		if(!json["immunity"].isNull())
-			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->name);
+			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
 		if(!json["absoluteImmunity"].isNull())
-			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->name);
+			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
 		if(!json["limit"].isNull())
-			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->name);
+			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
 		if(!json["absoluteLimit"].isNull())
-			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->name);
+			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
 	}
 
 	const JsonNode & graphicsNode = json["graphics"];
@@ -890,6 +864,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			else if(item.getType() == JsonNode::JsonType::DATA_STRUCT)
 			{
 				newItem.resourceName = item["defName"].String();
+				newItem.effectName   = item["effectName"].String();
 
 				auto vPosStr = item["verticalPosition"].String();
 				if("bottom" == vPosStr)
@@ -933,7 +908,9 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
-		levelObject.description   = levelNode["description"].String();
+		if (!spell->isCreatureAbility())
+			VLC->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"].String());
+
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
@@ -976,7 +953,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			levelObject.battleEffects = levelNode["battleEffects"];
 
 			if(!levelObject.cumulativeEffects.empty() || !levelObject.effects.empty() || spell->isOffensive())
-				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->name);
+				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->getNameTranslated());
 		}
 	}
 	return spell;

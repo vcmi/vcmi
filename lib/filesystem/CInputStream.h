@@ -20,11 +20,6 @@ class DLL_LINKAGE CInputStream : public virtual CStream
 {
 public:
 	/**
-	 * D-tor.
-	 */
-	virtual ~CInputStream() {}
-
-	/**
 	 * Reads n bytes from the stream into the data buffer.
 	 *
 	 * @param data A pointer to the destination data array.
@@ -45,7 +40,7 @@ public:
 		seek(0);
 		auto readSize = read(data.get(), getSize());
 		assert(readSize == getSize());
-		UNUSED(readSize);
+		MAYBE_UNUSED(readSize);
 
 		return std::make_pair(std::move(data), getSize());
 	}

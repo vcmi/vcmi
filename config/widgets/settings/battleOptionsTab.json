@@ -1,0 +1,426 @@
+{
+	"items":
+	[
+		{
+			"name": "lineCreatureInfo",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 199, "w": 365, "h": 3}
+		},
+		{
+			"name": "lineAnimationSpeed",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+		},
+
+		{
+			"name": "titlesLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "yellow",
+			"items":
+			[
+				{
+					"text": "core.genrltxt.396", // Auto-combat options
+					"position": {"x": 380, "y": 55}
+				},
+				{
+					"text": "core.genrltxt.397", // Creature info
+					"position": {"x": 10, "y": 205}
+				}
+			]
+		},
+/////////////////////////////////////// Right section - Auto-combat settings (NOT IMPLEMENTED)
+		{
+			"name": "autoCombatLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"text": "core.genrltxt.398", // Creatures
+					"position": {"x": 415, "y": 85}
+				},
+				{
+					"text": "core.genrltxt.399", // Spells
+					"position": {"x": 415, "y": 115}
+				},
+				{
+					"text": "core.genrltxt.400", // Catapult
+					"position": {"x": 415, "y": 145}
+				},
+				{
+					"text": "core.genrltxt.151", // Ballista
+					"position": {"x": 415, "y": 175}
+				},
+				{
+					"text": "core.genrltxt.401", // First Aid Tent
+					"position": {"x": 415, "y": 205}
+				}
+			]
+		},
+		{
+			"name": "autoCombatCreaturesPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 83},
+		},
+		{
+			"name": "autoCombatSpellsPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 113},
+		},
+		{
+			"name": "autoCombatCatapultPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 143},
+		},
+		{
+			"name": "autoCombatBallistaPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 173},
+		},
+		{
+			"name": "autoCombatFirstAidTentPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 380, "y": 203},
+		},
+/////////////////////////////////////// Left section - checkboxes
+		{
+			"name": "creatureInfoLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"text": "core.genrltxt.402", // All Stats
+					"position": {"x": 45, "y": 235}
+				},
+				{
+					"text": "core.genrltxt.403", // Spells only
+					"position": {"x": 45, "y": 265}
+				}
+			]
+		},
+		{
+			"name": "creatureInfoAllPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 233},
+		},
+		{
+			"name": "creatureInfoSpellsPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 263},
+		},
+
+		{
+			"name": "generalOptionsLabels",
+			"type": "labelGroup",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"text": "core.genrltxt.404",
+					"position": {"x": 45, "y": 55}
+				},
+				{
+					"text": "core.genrltxt.405",
+					"position": {"x": 45, "y": 85}
+				},
+				{
+					"text": "core.genrltxt.406",
+					"position": {"x": 45, "y": 115}
+				},
+				{
+					"text": "core.genrltxt.407",
+					"position": {"x": 45, "y": 145}
+				},
+				{
+					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
+					"position": {"x": 45, "y": 175}
+				}
+			]
+		},
+
+		{
+			"name": "viewGridCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.427",
+			"position": {"x": 10, "y": 53},
+			"callback": "viewGridChanged"
+		},
+		{
+			"name": "movementShadowCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.428",
+			"position": {"x": 10, "y": 83},
+			"callback": "movementShadowChanged"
+		},
+		{
+			"name": "mouseShadowCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "core.help.429",
+			"position": {"x": 10, "y": 113},
+			"callback": "mouseShadowChanged"
+		},
+		{
+			"name": "battleFieldCasualtiesPlaceholder",
+			"type": "picture",
+			"image": "settingsWindow/checkBoxEmpty",
+			"position": {"x": 10, "y": 143},
+		},
+		{
+			"name": "skipBattleIntroMusicCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.skipBattleIntroMusic",
+			"position": {"x": 10, "y": 173},
+			"callback": "skipBattleIntroMusicChanged"
+		},
+/////////////////////////////////////// Bottom section - Animation Speed and Turn Order
+		{
+			"name": "frameAnimationSpeed",
+			"type": "picture",
+			"image": "settingsWindow/frameMovement",
+			"position": {"x": 6, "y": 350 }
+		},
+		{
+			"name": "animationSpeedLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.393",
+			"position": {"x": 150, "y": 362}
+		},
+		{
+			"name": "animationSpeedValueLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"position": {"x": 324, "y": 390}
+		},
+		{
+			"name": "animationSpeedPicker",
+			"type": "toggleGroup",
+			"position": {"x": 10, "y": 373},
+			"items":
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "vcmi.battleOptions.animationsSpeed1",
+					"position": {"x": 0, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed1",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed1",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "core.help.422",
+					"position": {"x": 48, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed2",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed2",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 3,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "core.help.423",
+					"position": {"x":96, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed3",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed3",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 6,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "core.help.424",
+					"position": {"x": 144, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed4",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed4",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 12,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "vcmi.battleOptions.animationsSpeed5",
+					"position": {"x": 192, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed5",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed5",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				},
+				{
+					"index": 24,
+					"type": "toggleButton",
+					"image": "settingsWindow/button46",
+					"help": "vcmi.battleOptions.animationsSpeed6",
+					"position": {"x": 240, "y": 0},
+					"items":
+					[
+						{
+							"name": "battleScrollSpeed6",
+							"type": "picture",
+							"image": "settingsWindow/scrollSpeed6",
+							"position": {"x": 0, "y": 0 }
+						}
+					]
+				}
+			],
+			"callback": "animationSpeedChanged"
+		},
+
+		{
+			"name": "frameQueueSize",
+			"type": "picture",
+			"image": "settingsWindow/frameStackQueue",
+			"position": {"x": 6, "y": 410 }
+		},
+
+		{
+			"name": "queueSizeLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.battleOptions.queueSizeLabel.hover",
+			"position": {"x": 170, "y": 422}
+		},
+
+		{
+			"name": "queueSizePicker",
+			"type": "toggleGroup",
+			"position": {"x": 10, "y": 434},
+			"items":
+			[
+				{
+					"index": -1, //off
+					"type": "toggleButton",
+					"image": "settingsWindow/button80",
+					"help": "vcmi.battleOptions.queueSizeAutoButton",
+					"position": {"x": 0, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeNoneText",
+							"type": "label",
+							"font": "medium",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeNoneButton.hover"
+						}
+					]
+				},
+				{
+					"index": 0, //auto
+					"type": "toggleButton",
+					"image": "settingsWindow/button80",
+					"help": "vcmi.battleOptions.queueSizeAutoButton",
+					"position": {"x": 85, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeAutoText",
+							"type": "label",
+							"font": "medium",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeAutoButton.hover"
+						}
+					]
+				},
+				{
+					"index": 1, //small
+					"type": "toggleButton",
+					"image": "settingsWindow/button80",
+					"help": "vcmi.battleOptions.queueSizeSmallButton",
+					"position": {"x": 170, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeSmallText",
+							"type": "label",
+							"font": "medium",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeSmallButton.hover"
+						}
+					]
+				},
+				{
+					"index": 2, //large
+					"type": "toggleButton",
+					"image": "settingsWindow/button80",
+					"help": "vcmi.battleOptions.queueSizeBigButton",
+					"position": {"x": 255, "y": 0},
+					"items":
+					[
+						{
+							"name": "queueSizeBigText",
+							"type": "label",
+							"font": "medium",
+							"alignment": "center",
+							"color": "yellow",
+							"text": "vcmi.battleOptions.queueSizeBigButton.hover"
+						}
+					]
+				}
+			],
+			"callback": "queueSizeChanged"
+		}
+	]
+}

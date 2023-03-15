@@ -15,6 +15,7 @@
 
 #include "BitmapHandler.h"
 
+#include "../lib/vcmi_endian.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
@@ -652,7 +653,7 @@ void Animation::duplicateImage(const size_t sourceGroup, const size_t sourceFram
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+		std::string temp =  name+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
 		clone["file"].String() = temp;
 	}
 
@@ -694,7 +695,7 @@ void Animation::exportBitmaps(const QDir & path) const
 		return;
 	}
 
-	QString actualPath = path.absolutePath() + "/SPRITES/" + QString::fromStdString(name);
+	QString actualPath = path.absolutePath() + "/" + QString::fromStdString(name);
 	QDir().mkdir(actualPath);
 
 	size_t counter = 0;

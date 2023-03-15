@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VCMI</string>
+    <string name="server_name">VCMI Serwer</string>
+    <string name="launcher_title">VCMI Launcher</string>
+    <string name="launcher_btn_res_title">Zmień natywną rozdzielczość gry</string>
+    <string name="launcher_btn_res_subtitle_unknown">Obecnie: nieznana (prawdopodobnie 800x600)</string>
+    <string name="launcher_btn_res_subtitle">Obecnie: %1$dx%2$d</string>
+    <string name="launcher_btn_start_title">Włącz VCMI</string>
+    <string name="launcher_btn_start_subtitle">Obecna wersja VCMI: %1$s</string>
+    <string name="launcher_btn_mods_title">Mody</string>
+    <string name="launcher_btn_mods_subtitle">Zainstaluj nowe frakcje, obiekty, dodatki</string>
+    <string name="launcher_btn_cp_title">Strona kodowa</string>
+    <string name="launcher_btn_cp_subtitle_unknown">Obecnie: nieznane</string>
+    <string name="launcher_btn_cp_subtitle">Obecnie: %1$s</string>
+    <string name="launcher_btn_pointermode_title">Zmień tryb kursora</string>
+    <string name="launcher_btn_pointermode_subtitle">Obecnie: %1$s</string>
+    <string name="launcher_btn_pointermulti_title">Mnożnik prędkości kursora</string>
+    <string name="launcher_btn_pointermulti_subtitle">Obecnie: %1$s</string>
+    <string name="launcher_btn_sound_title">Głośność efektów dźwiękowych</string>
+    <string name="launcher_btn_music_title">Głośność muzyki</string>
+    <string name="launcher_btn_adventure_ai">Algorytm AI mapy przygody</string>
+    <string name="launcher_btn_adventure_ai_title">Zmień AI mapy przygody</string>
+    <string name="launcher_version">Obecna wersja launchera: %1$s</string>
+    <string name="launcher_error_vcmi_data_root_failed">Nie udało się stworzyć folderu na dane w %1$s.</string>
+    <string name="launcher_error_h3_data_missing">Nie znaleziono danych w \'%1$s\'. Przenieś tam pliki Heroes 3 (by mieć tam foldery %1$s/Data i %1$s/Mp3 itp) i uruchom jeszcze raz aplikację.</string>
+    <string name="launcher_error_vcmi_data_internal_missing">Nie udało się znaleźć lub wyodrębnić danych VCMI. Spróbuj zainstalować od nowa aplikację.</string>
+    <string name="launcher_error_vcmi_data_internal_update">Nie udało się zaktualizować danych VCMI. Spróbuj zainstalować od nowa aplikację.</string>
+    <string name="launcher_error_permissions">Ta aplikacja potrzebuje uprawnień do zapisu by mieć dostęp do magazynu zewnętrznego</string>
+    <string name="launcher_error_permission_broken">Nie udało się poprawnie obsłużyć uprawnień</string>
+    <string name="mods_item_author_template">przez %1$s</string>
+    <string name="misc_try_again">Spróbuj ponownie</string>
+    <string name="launcher_section_init">Inicjalizacja gry</string>
+    <string name="launcher_section_settings">Ustawienia</string>
+    <string name="menu_mods_download_repo">Pobierz dane modów z repozytorium</string>
+
+    <string name="misc_pointermode_normal">Normalny</string>
+    <string name="misc_pointermode_swipe">Normalny z przesuwaniem mapy</string>
+    <string name="misc_pointermode_relative">Relatywny</string>
+    <string name="menu_launcher_about">O programie</string>
+
+    <string name="mods_title">Wykryte mody</string>
+    <string name="mods_failed_mod_loading">Nie udało się załadować moda w folderze \'%1$s\'</string>
+    <string name="mods_removal_title">Usuwanie %1$s</string>
+    <string name="mods_removal_confirmation">Czy na pewno chcesz usunąć %1$s</string>
+
+    <string name="about_title">O aplikacji</string>
+    <string name="about_version_app">Wersja aplikacji: %1$s</string>
+    <string name="about_version_launcher">Wersja launchera: %1$s</string>
+    <string name="about_section_project">Projekt</string>
+    <string name="about_section_legal">Kwestie prawne</string>
+    <string name="about_links_main">Strona główna: %1$s</string>
+    <string name="about_links_repo">Repozytorium projektu: %1$s</string>
+    <string name="about_links_repo_launcher">Repozytorium launchera: %1$s</string>
+    <string name="about_btn_authors">Autorzy</string>
+    <string name="about_btn_privacy" translatable="false">Polityka prywatności: %1$s</string>
+    <string name="about_error_opening_url">Nie udało się otworzyć witryny (nie znaleziono odpowiedniej aplikacji)</string>
+
+    <string name="dialog_authors_vcmi">Autorzy VCMI</string>
+    <string name="dialog_authors_launcher">Autorzy launchera</string>
+    <string name="launcher_error_config_saving_failed">Nie udało się zapisać konfiguracji VCMI; powód: %1$s</string>
+    
+    <string name="launcher_btn_export_title">Eksportuj dane VCMI</string>
+    <string name="launcher_btn_export_description">Stwórz kopię wewnętrznych danych VCMI przed odinstalowaniem lub by zachować zapisane gry do uruchomienia na innym urządzeniu. Możesz też mieć bezpośrednio operować na elementach wewnętrznego magazynu.</string>
+    <string name="launcher_btn_import_title">Importuj dane VCMI</string>
+    <string name="launcher_btn_import_description">Skopiuj dane VCMI do wewnętrznego magazynu. Możesz zaimportować stary folder vcmi-data z wersji 0.99 lub pliki HOMM3.</string>
+    <string name="launcher_progress_copy">Kopiowanie %1$s</string>
+</resources>

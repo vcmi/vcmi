@@ -20,8 +20,8 @@ class IBonusBearer;
 struct InfoAboutHero;
 class CArmedInstance;
 
-typedef std::vector<const CStack *> TStacks;
-typedef std::function<bool(const CStack *)> TStackFilter;
+using TStacks = std::vector<const CStack *>;
+using TStackFilter = std::function<bool (const CStack *)>;
 
 namespace BattlePerspective
 {
@@ -76,15 +76,15 @@ public:
 	si8 battleTacticDist() const override; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	si8 battleGetTacticsSide() const override; //returns which side is in tactics phase, undefined if none (?)
 
-	bool battleCanFlee(PlayerColor player) const;
-	bool battleCanSurrender(PlayerColor player) const;
+	bool battleCanFlee(const PlayerColor & player) const;
+	bool battleCanSurrender(const PlayerColor & player) const;
 
 	ui8 otherSide(ui8 side) const;
-	PlayerColor otherPlayer(PlayerColor player) const;
+	PlayerColor otherPlayer(const PlayerColor & player) const;
 
-	BattleSideOpt playerToSide(PlayerColor player) const;
+	BattleSideOpt playerToSide(const PlayerColor & player) const;
 	PlayerColor sideToPlayer(ui8 side) const;
-	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
+	bool playerHasAccessToHeroInfo(const PlayerColor & player, const CGHeroInstance * h) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
 	uint32_t battleCastSpells(ui8 side) const; //how many spells has given side cast
@@ -94,7 +94,7 @@ public:
 
 	// for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall,
 	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	si8 battleGetWallState(int partOfWall) const;
+	EWallState battleGetWallState(EWallPart partOfWall) const;
 	EGateState battleGetGateState() const;
 
 	//helpers

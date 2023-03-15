@@ -20,6 +20,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CGameState.h"
+#include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
@@ -28,12 +29,6 @@
 #include "AIhelper.h"
 
 extern FuzzyHelper * fh;
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CGVisitableOPW;
-
-VCMI_LIB_NAMESPACE_END
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
@@ -98,11 +93,13 @@ void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	validateObject(details.id); //enemy hero may have left visible area
+	//enemy hero may have left visible area
+	validateObject(details.id);
 	auto hero = cb->getHero(details.id);
 
-	const int3 from = CGHeroInstance::convertPosition(details.start, false);
-	const int3 to = CGHeroInstance::convertPosition(details.end, false);
+	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
+	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
+
 	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
 	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
@@ -301,7 +298,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->name % firstHero->tempOwner % secondHero->name % secondHero->tempOwner));
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
 	requestActionASAP([=]()
 	{
@@ -479,7 +476,7 @@ void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID)
+void VCAI::showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;
@@ -576,14 +573,14 @@ void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visit
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
+void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
 {
 	//TODO: AI support for ViewXXX spell
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	env = ENV;
@@ -608,14 +605,14 @@ void VCAI::yourTurn()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
-	makingTurn = make_unique<boost::thread>(&VCAI::makeTurn, this);
+	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
-	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
+	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
@@ -756,7 +753,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
 			UpgradeInfo ui;
-			cb->getUpgradeInfo(obj, SlotID(i), ui);
+			cb->fillUpgradeInfo(obj, SlotID(i), ui);
 			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
@@ -812,7 +809,7 @@ void VCAI::makeTurn()
 		for (auto h : cb->getHeroesInfo())
 		{
 			if (h->movement)
-				logAi->warn("Hero %s has %d MP left", h->name, h->movement);
+				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movement);
 		}
 	}
 	catch (boost::thread_interrupted & e)
@@ -1032,7 +1029,7 @@ void VCAI::mainLoop()
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos.toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
 	case Obj::CREATURE_GENERATOR1:
@@ -1425,7 +1422,7 @@ void VCAI::wander(HeroPtr h)
 			{
 				//TODO pick the truly best
 				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
-				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->name, t->name, t->visitablePos().toString());
+				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->getNameTranslated(), t->getNameTranslated(), t->visitablePos().toString());
 				int3 pos1 = h->pos;
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h))); //TODO: drop "strive", add to mainLoop
 				//if out hero is stuck, we may need to request another hero to clear the way we see
@@ -1579,7 +1576,7 @@ void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, i
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -1604,12 +1601,19 @@ void VCAI::markObjectVisited(const CGObjectInstance * obj)
 {
 	if(!obj)
 		return;
-	if(dynamic_cast<const CGVisitableOPH *>(obj)) //we may want to visit it with another hero
-		return;
-	if(dynamic_cast<const CGBonusingObject *>(obj)) //or another time
-		return;
+
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj)) //we may want to visit it with another hero
+	{
+		if (rewardable->getVisitMode() == CRewardableObject::VISIT_HERO) //we may want to visit it with another hero
+			return;
+
+		if (rewardable->getVisitMode() == CRewardableObject::VISIT_BONUS) //or another time
+			return;
+	}
+
 	if(obj->ID == Obj::MONSTER)
 		return;
+
 	alreadyVisited.insert(obj);
 }
 
@@ -1665,7 +1669,7 @@ void VCAI::validateVisitableObjs()
 	});
 	for(auto & p : reservedHeroesMap)
 	{
-		errorMsg = " shouldn't be on list for hero " + p.first->name + "!";
+		errorMsg = " shouldn't be on list for hero " + p.first->getNameTranslated() + "!";
 		vstd::erase_if(p.second, shouldBeErased);
 	}
 
@@ -1806,14 +1810,14 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 	};
 
-	logAi->debug("Moving hero %s to tile %s", h->name, dst.toString());
+	logAi->debug("Moving hero %s to tile %s", h->getNameTranslated(), dst.toString());
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+		cb->moveHero(*h, h->convertFromVisitablePos(dst));
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1826,7 +1830,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", h->name, dst.toString());
+			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());
 			throw goalFulfilledException(sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 		int i = (int)path.nodes.size() - 1;
@@ -1867,14 +1871,14 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doMovement = [&](int3 dst, bool transit)
 		{
-			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
+			cb->moveHero(*h, h->convertFromVisitablePos(dst), transit);
 		};
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
 			if(exitPos.valid())
-				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
 			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
@@ -1883,7 +1887,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentPos = CGHeroInstance::convertPosition(h->pos, false);
+			auto currentPos = h->visitablePos();
 			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
@@ -1900,7 +1904,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i - 1].coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == CGHeroInstance::convertPosition(h->pos, false));
+			auto currentObject = getObj(currentCoord, currentCoord == h->visitablePos());
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
@@ -1988,15 +1992,15 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 		evaluateGoal(h); //new hero position means new game situation
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->getNameTranslated(), startHpos.toString(), h->visitablePos().toString(), ret);
 	}
 	return ret;
 }
 
 void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
 {
-	auto name = t->town->buildings.at(building)->Name();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->name, t->pos.toString());
+	auto name = t->town->buildings.at(building)->getNameTranslated();
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->pos.toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 
@@ -2025,7 +2029,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->getNameTranslated(), g.tile.toString());
 		throw goalFulfilledException(sptr(g));
 	}
 	if(ai->moveHeroToTile(g.tile, g.hero.get()))
@@ -2041,7 +2045,7 @@ void VCAI::tryRealize(Goals::VisitObj & g)
 		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
 	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->getNameTranslated(), g.tile.toString());
 		throw goalFulfilledException(sptr(g));
 	}
 	if(ai->moveHeroToTile(position, g.hero.get()))
@@ -2079,7 +2083,7 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 		if (cb->canBuildStructure(t, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
-				playerID, t->town->buildings.at(b)->Name(), t->name, t->pos.toString());
+				playerID, t->town->buildings.at(b)->getNameTranslated(), t->getNameTranslated(), t->pos.toString());
 			cb->buildBuilding(t, b);
 			throw goalFulfilledException(sptr(g));
 		}
@@ -2402,7 +2406,7 @@ void VCAI::performTypicalActions()
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
 			continue;
 
-		logAi->debug("Hero %s started wandering, MP=%d", h->name.c_str(), h->movement);
+		logAi->debug("Hero %s started wandering, MP=%d", h->getNameTranslated(), h->movement);
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try
@@ -2437,7 +2441,7 @@ void VCAI::checkHeroArmy(HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
+	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTranslated(), t->visitablePos().toString());
 
 	auto heroes = cb->getAvailableHeroes(t);
 	if(heroes.size())
@@ -2740,8 +2744,9 @@ bool AIStatus::channelProbing()
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
 	//TODO: allow polling of remaining creatures in dwelling
-	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
-		return true;
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
+		return rewardable->getResetDuration() == 7;
+
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
 	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods

@@ -23,9 +23,6 @@ namespace detail
 class RegistryImpl : public Registry
 {
 public:
-	RegistryImpl() = default;
-	~RegistryImpl() = default;
-
 	const IEffectFactory * find(const std::string & name) const override
 	{
 		auto iter = data.find(name);
@@ -46,13 +43,9 @@ private:
 
 }
 
-Registry::Registry() = default;
-
-Registry::~Registry() = default;
-
 Registry * GlobalRegistry::get()
 {
-	static std::unique_ptr<Registry> Instance = make_unique<detail::RegistryImpl>();
+	static std::unique_ptr<Registry> Instance = std::make_unique<detail::RegistryImpl>();
 	return Instance.get();
 }
 

@@ -184,7 +184,6 @@ public:
 	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap);
 	void synchronizeArtifactHandlerLists();
 
-	void showCompInfo(ShowInInfobox * comp) override;
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override; //use hero=nullptr for no hero
@@ -195,7 +194,7 @@ public:
 	void setMovePoints(SetMovePoints * smp) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player) override;
-	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override;
+	void changeObjPos(ObjectInstanceID objid, int3 newPos) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
@@ -302,6 +301,13 @@ public:
 	void sendAndApply(CGarrisonOperationPack * pack);
 	void sendAndApply(SetResources * pack);
 	void sendAndApply(NewStructures * pack);
+
+	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
+	void throwNotAllowedAction(CPackForServer * pack);
+	void throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id);
+	void throwOnWrongPlayer(CPackForServer * pack, PlayerColor player);
+	void throwAndComplain(CPackForServer * pack, std::string txt);
+	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
 	struct FinishingBattleHelper
 	{

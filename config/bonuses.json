@@ -84,14 +84,6 @@
 		}
 	},
 
-	"DAEMON_SUMMONING":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/RiseDemons"
-		}
-	},
-
 	"DARKNESS":
 	{
 	},
@@ -316,6 +308,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/DrainLife"
+		}
+	},
+
+	"LIMITED_SHOOTING_RANGE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_SHOOT"
 		}
 	},
 

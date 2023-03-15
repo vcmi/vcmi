@@ -92,7 +92,7 @@ TSubgoal CompleteQuest::whatToDoToAchieve()
 		result->name(),
 		result->tile.toString(),
 		result->objid,
-		result->hero.validAndSet() ? result->hero->name : "not specified");
+		result->hero.validAndSet() ? result->hero->getNameTranslated() : "not specified");
 
 	return result;
 }

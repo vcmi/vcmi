@@ -23,8 +23,9 @@ class DLL_LINKAGE CTeamVisited: public CGObjectInstance
 public:
 	std::set<PlayerColor> players; //players that visited this object
 
+	bool wasVisited (const CGHeroInstance * h) const override;
 	bool wasVisited(PlayerColor player) const override;
-	bool wasVisited(TeamID team) const;
+	bool wasVisited(const TeamID & team) const;
 	void setPropertyDer(ui8 what, ui32 val) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -33,7 +34,7 @@ public:
 		h & players;
 	}
 
-	static const int OBJPROP_VISITED = 10;
+	static constexpr int OBJPROP_VISITED = 10;
 };
 
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
@@ -218,19 +219,18 @@ protected:
 class DLL_LINKAGE CGResource : public CArmedInstance
 {
 public:
-	static const ui32 RANDOM_AMOUNT = 0;
-	ui32 amount; //0 if random
+	static constexpr ui32 RANDOM_AMOUNT = 0;
+	ui32 amount = RANDOM_AMOUNT; //0 if random
 	
 	std::string message;
 
-	CGResource();
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	std::string getHoverText(PlayerColor player) const override;
 
-	void collectRes(PlayerColor player) const;
+	void collectRes(const PlayerColor & player) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -271,7 +271,7 @@ private:
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	void flagMine(PlayerColor player) const;
+	void flagMine(const PlayerColor & player) const;
 	void newTurn(CRandomGenerator & rand) const override;
 	void initObj(CRandomGenerator & rand) override;
 
@@ -286,7 +286,8 @@ public:
 		h & producedResource;
 		h & producedQuantity;
 	}
-	ui32 defaultResProduction();
+	ui32 defaultResProduction() const;
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
@@ -295,11 +296,9 @@ struct DLL_LINKAGE TeleportChannel
 {
 	enum EPassability {UNKNOWN, IMPASSABLE, PASSABLE};
 
-	TeleportChannel() : passability(UNKNOWN) {}
-
 	std::vector<ObjectInstanceID> entrances;
 	std::vector<ObjectInstanceID> exits;
-	EPassability passability;
+	EPassability passability = EPassability::UNKNOWN;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -311,16 +310,15 @@ struct DLL_LINKAGE TeleportChannel
 
 class DLL_LINKAGE CGTeleport : public CGObjectInstance
 {
-	bool isChannelEntrance(ObjectInstanceID id) const;
-	bool isChannelExit(ObjectInstanceID id) const;
+	bool isChannelEntrance(const ObjectInstanceID & id) const;
+	bool isChannelExit(const ObjectInstanceID & id) const;
 
 	std::vector<ObjectInstanceID> getAllEntrances(bool excludeCurrent = false) const;
 
 protected:
 	enum EType {UNKNOWN, ENTRANCE, EXIT, BOTH};
-	EType type;
+	EType type = EType::UNKNOWN;
 
-	CGTeleport();
 	ObjectInstanceID getRandomExit(const CGHeroInstance * h) const;
 	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
 
@@ -349,7 +347,7 @@ public:
 
 class DLL_LINKAGE CGMonolith : public CGTeleport
 {
-	TeleportChannelID findMeChannel(std::vector<Obj> IDs, int SubID) const;
+	TeleportChannelID findMeChannel(const std::vector<Obj> & IDs, int SubID) const;
 
 protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -387,18 +385,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGMonolith&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
-{
-public:
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
 	}
 };
 
@@ -500,7 +486,7 @@ class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 class DLL_LINKAGE CGObelisk : public CTeamVisited
 {
 public:
-	static const int OBJPROP_INC = 20;
+	static constexpr int OBJPROP_INC = 20;
 	static ui8 obeliskCount; //how many obelisks are on map
 	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
@@ -522,13 +508,13 @@ class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
-	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
-	void giveBonusTo(PlayerColor player, bool onInit = false) const;
+	void giveBonusTo(const PlayerColor & player, bool onInit = false) const;
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

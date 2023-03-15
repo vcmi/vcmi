@@ -38,7 +38,7 @@ VCMI_LIB_NAMESPACE_END
 class CMapHandler;
 class CSoundHandler;
 class CMusicHandler;
-class CCursorHandler;
+class CursorHandler;
 class IMainVideoPlayer;
 class CServerHandler;
 
@@ -49,7 +49,7 @@ public:
 	CSoundHandler * soundh;
 	CMusicHandler * musich;
 	CConsoleHandler * consoleh;
-	CCursorHandler * curh;
+	CursorHandler * curh;
 	IMainVideoPlayer * videoh;
 };
 extern CClientState * CCS;

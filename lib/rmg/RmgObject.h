@@ -84,7 +84,7 @@ private:
 	mutable Area dFullAreaCache;
 	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
 	int3 dPosition;
-	ui32 dStrenght;
+	ui32 dStrength;
 };
 }
 

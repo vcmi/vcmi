@@ -11,7 +11,6 @@
 #include "CCallback.h"
 
 #include "lib/CCreatureHandler.h"
-#include "client/CGameInfo.h"
 #include "lib/CGameState.h"
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
@@ -21,7 +20,6 @@
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
 #include "lib/NetPacks.h"
-#include "client/mapHandler.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
 #include "lib/CPlayerState.h"
@@ -333,11 +331,6 @@ int3 CCallback::getGuardingCreaturePosition(int3 tile)
 		return int3(-1,-1,-1);
 
 	return gs->map->guardingCreaturePositions[tile.z][tile.x][tile.y];
-}
-
-void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
-{
-	gs->calculatePaths(hero, out);
 }
 
 void CCallback::dig( const CGObjectInstance *hero )

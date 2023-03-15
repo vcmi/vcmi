@@ -22,6 +22,7 @@
 #include "CStack.h"
 #include "CArtHandler.h"
 #include "CModHandler.h"
+#include "TerrainHandler.h"
 #include "StringConstants.h"
 #include "battle/BattleInfo.h"
 
@@ -663,9 +664,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
 	//This part is performance-critical
-
-	char cachingStr[20] = {};
-	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
+	std::string cachingStr = "type_" + std::to_string(int(type)) + "_" + std::to_string(subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
@@ -694,8 +693,7 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
 	//This part is performance-ciritcal
-	char cachingStr[20] = {};
-	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
+	std::string cachingStr = "type_" + std::to_string(int(type)) + "_" + std::to_string(subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
@@ -979,12 +977,21 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 
 	for(const auto & b : beforeUpdate)
 	{
-		auto updated = b->updater 
-			? getUpdatedBonus(b, b->updater) 
+		auto updated = b->updater
+			? getUpdatedBonus(b, b->updater)
 			: b;
 
-		//do not add bonus with same pointer
-		if(!vstd::contains(out, updated))
+		//do not add bonus with updater
+		bool bonusExists = false;
+		for (auto const & bonus : out )
+		{
+			if (bonus == updated)
+				bonusExists = true;
+			if (bonus->updater && bonus->updater == updated->updater)
+				bonusExists = true;
+		}
+
+		if (!bonusExists)
 			out.push_back(updated);
 	}
 }
@@ -1587,19 +1594,19 @@ std::string Bonus::Description(boost::optional<si32> customValue) const
 			switch(source)
 			{
 			case ARTIFACT:
-				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getName();
+				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getNameTranslated();
 				break;
 			case SPELL_EFFECT:
-				str << SpellID(sid).toSpell(VLC->spells())->getName();
+				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();
 				break;
 			case CREATURE_ABILITY:
-				str << VLC->creh->objects[sid]->namePl;
+				str << VLC->creh->objects[sid]->getNamePluralTranslated();
 				break;
 			case SECONDARY_SKILL:
-				str << VLC->skillh->skillName(sid);
+				str << VLC->skillh->getByIndex(sid)->getNameTranslated();
 				break;
 			case HERO_SPECIAL:
-				str << VLC->heroh->objects[sid]->name;
+				str << VLC->heroh->objects[sid]->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
@@ -1976,7 +1983,7 @@ int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
 		return true;
-	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
+	return c->getId() != creature->getId() && (!includeUpgrades || !creature->isMyUpgrade(c));
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
@@ -1999,7 +2006,7 @@ void CCreatureTypeLimiter::setCreature (CreatureID id)
 std::string CCreatureTypeLimiter::toString() const
 {
 	boost::format fmt("CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)");
-	fmt % creature->identifier % (includeUpgrades ? "true" : "false");
+	fmt % creature->getJsonKey() % (includeUpgrades ? "true" : "false");
 	return fmt.str();
 }
 
@@ -2008,7 +2015,7 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TYPE_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->identifier));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->getJsonKey()));
 	root["parameters"].Vector().push_back(JsonUtils::boolNode(includeUpgrades));
 
 	return root;
@@ -2109,7 +2116,7 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 }
 
 CreatureTerrainLimiter::CreatureTerrainLimiter()
-	: terrainType(Terrain::NATIVE_TERRAIN)
+	: terrainType(ETerrainId::NATIVE_TERRAIN)
 {
 }
 
@@ -2123,7 +2130,7 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 	const CStack *stack = retrieveStackBattle(&context.node);
 	if(stack)
 	{
-		if (terrainType == Terrain::NATIVE_TERRAIN)//terrainType not specified = native
+		if (terrainType == ETerrainId::NATIVE_TERRAIN)//terrainType not specified = native
 		{
 			return !stack->isOnNativeTerrain();
 		}
@@ -2139,8 +2146,8 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
-	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType].name;
-	fmt % (terrainType == Terrain::NATIVE_TERRAIN ? "native" : terrainName);
+	auto terrainName = VLC->terrainTypeHandler->getById(terrainType)->getJsonKey();
+	fmt % (terrainType == ETerrainId::NATIVE_TERRAIN ? "native" : terrainName);
 	return fmt.str();
 }
 
@@ -2149,7 +2156,7 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
-	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType].name;
+	auto terrainName = VLC->terrainTypeHandler->getById(terrainType)->getJsonKey();
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainName));
 
 	return root;

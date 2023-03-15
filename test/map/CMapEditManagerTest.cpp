@@ -24,7 +24,7 @@ TEST(MapManager, DrawTerrain_Type)
 {
 	try
 	{
-		auto map = make_unique<CMap>();
+		auto map = std::make_unique<CMap>();
 		map->width = 52;
 		map->height = 52;
 		map->initTerrain();

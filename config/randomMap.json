@@ -16,8 +16,8 @@
     "extraResourcesLimit" : 3
   },
   "minGuardStrength" : 2000,
-  "defaultRoadType" : "pc", //pd - dirt, pg - gravel, pc - cobblestone
-  "secondaryRoadType": "pd",
+  "defaultRoadType" : "cobblestoneRoad",
+  "secondaryRoadType": "dirtRoad",
   "treasureValueLimit" : 20000, //generate pandora with gold for treasure above this limit
   "prisons" :
   {

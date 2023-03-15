@@ -29,7 +29,6 @@ namespace effects
 class DLL_LINKAGE IEffectFactory
 {
 public:
-	IEffectFactory() = default;
 	virtual ~IEffectFactory() = default;
 
 	virtual Effect * create() const = 0;
@@ -40,15 +39,13 @@ class DLL_LINKAGE Registry
 public:
 	using FactoryPtr = std::shared_ptr<IEffectFactory>;
 
-	Registry();
-	virtual ~Registry();
+	virtual ~Registry() = default; //Required for child classes
 	virtual const IEffectFactory * find(const std::string & name) const = 0;
 	virtual void add(const std::string & name, FactoryPtr item) = 0;
 };
 
 class DLL_LINKAGE GlobalRegistry
 {
-	GlobalRegistry() = default;
 public:
     static Registry * get();
 };
@@ -57,9 +54,6 @@ template<typename E>
 class EffectFactory : public IEffectFactory
 {
 public:
-	EffectFactory() = default;
-	virtual ~EffectFactory() = default;
-
 	Effect * create() const override
 	{
 		return new E();

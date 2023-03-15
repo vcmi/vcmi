@@ -21,6 +21,7 @@ class LobbyRoomRequest : public QDialog
 {
 	Q_OBJECT
 
+	void changeEvent(QEvent *event) override;
 public:
 	explicit LobbyRoomRequest(SocketLobby & socket, const QString & room, const QMap<QString, QString> & mods, QWidget *parent = nullptr);
 	~LobbyRoomRequest();

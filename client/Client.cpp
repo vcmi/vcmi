@@ -10,11 +10,11 @@
 #include "StdInc.h"
 #include "Client.h"
 
-#include <SDL.h>
-
 #include "CMusicHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "mapView/mapHandler.h"
 #include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
@@ -32,31 +32,30 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CLoadIntegrityValidator.h"
 #include "../lib/NetPacks.h"
+#include "ClientNetPackVisitors.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/JsonNode.h"
-#include "mapHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CCampaignScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "battle/CBattleInterface.h"
+#include "battle/BattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
-#include "CMT.h"
 #include "CServerHandler.h"
 #include "../lib/ScriptHandler.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
-#endif
 
-#ifdef VCMI_ANDROID
+#ifndef SINGLE_PROCESS_APP
 std::atomic_bool androidTestServerReadyFlag;
+#endif
 #endif
 
 ThreadSafeVector<int> CClient::waitingRequest;
@@ -82,12 +81,14 @@ public:
 	void applyOnClAfter(CClient * cl, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyCl(cl);
+		ApplyClientNetPackVisitor visitor(*cl, *cl->gameState());
+		ptr->visit(visitor);
 	}
 	void applyOnClBefore(CClient * cl, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyFirstCl(cl);
+		ApplyFirstClientNetPackVisitor visitor(*cl, *cl->gameState());
+		ptr->visit(visitor);
 	}
 };
 
@@ -380,20 +381,12 @@ void CClient::endGame()
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		logNetwork->info("Ending current game!");
-		if(GH.topInt())
-		{
-			GH.topInt()->deactivate();
-		}
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-		GH.statusbar = nullptr;
-		logNetwork->info("Removed GUI.");
+		removeGUI();
 
 		vstd::clear_pointer(const_cast<CGameInfo *>(CGI)->mh);
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
-		LOCPLINT = nullptr;
 	}
 
 	playerint.clear();
@@ -411,11 +404,8 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler();
-		CGI->mh->map = gs->map;
+		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
-		CGI->mh->init();
-		logNetwork->trace("Initializing mapHandler (together): %d ms", CSH->th->getDiff());
 	}
 
 	pathCache.clear();
@@ -509,7 +499,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	logGlobal->trace("\tInitializing the interface for player %s", color.getStr());
 	auto cb = std::make_shared<CCallback>(gs, color, this);
 	battleCallbacks[color] = cb;
-	gameInterface->init(playerEnvironments.at(color), cb);
+	gameInterface->initGameInterface(playerEnvironments.at(color), cb);
 
 	installNewBattleInterface(gameInterface, color, battlecb);
 }
@@ -525,7 +515,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 		logGlobal->trace("\tInitializing the battle interface for player %s", color.getStr());
 		auto cbc = std::make_shared<CBattleCallback>(color, this);
 		battleCallbacks[color] = cbc;
-		battleInterface->init(playerEnvironments.at(color), cbc);
+		battleInterface->initBattleInterface(playerEnvironments.at(color), cbc);
 	}
 }
 
@@ -594,11 +584,10 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		Rect battleIntRect((screen->w - 800)/2, (screen->h - 600)/2, 800, 600);
 		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
@@ -606,7 +595,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->setBattle(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
 
@@ -764,20 +753,29 @@ scripting::Pool * CClient::getContextPool() const
 
 void CClient::reinitScripting()
 {
-	clientEventBus = make_unique<events::EventBus>();
+	clientEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
 	clientScripts.reset(new scripting::PoolImpl(this));
 #endif
 }
 
-#ifdef VCMI_ANDROID
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jclass cls)
+void CClient::removeGUI()
 {
-	logNetwork->info("Received clientSetupJNI");
+	// CClient::endGame
+	GH.curInt = nullptr;
+	if(GH.topInt())
+		GH.topInt()->deactivate();
+	adventureInt.reset();
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+	GH.statusbar.reset();
+	logGlobal->info("Removed GUI.");
 
-	CAndroidVMHelper::cacheVM(env);
+	LOCPLINT = nullptr;
 }
 
+#ifdef VCMI_ANDROID
+#ifndef SINGLE_PROCESS_APP
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server closed signal");
@@ -791,6 +789,7 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerRe
 	logNetwork->info("Received server ready signal");
 	androidTestServerReadyFlag.store(true);
 }
+#endif
 
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {

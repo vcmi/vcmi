@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 template <typename T>
 class ConstTransitivePtr
 {
-	T *ptr;
+	T *ptr = nullptr;
 	ConstTransitivePtr(const T *Ptr)
 		: ptr(const_cast<T*>(Ptr)) 
 	{}
@@ -25,10 +25,7 @@ public:
 		: ptr(Ptr) 
 	{}
 	ConstTransitivePtr(std::nullptr_t)
-		: ptr(nullptr) 
 	{}
-
-
 	const T& operator*() const
 	{
 		return *ptr;

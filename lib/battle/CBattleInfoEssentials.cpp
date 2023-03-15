@@ -53,9 +53,9 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 		}
 	}
 
-	for(auto obstacle : getBattle()->getAllObstacles())
+	for(const auto & obstacle : getBattle()->getAllObstacles())
 	{
-		if(battleIsObstacleVisibleForSide(*(obstacle.get()), *perspective))
+		if(battleIsObstacleVisibleForSide(*(obstacle), *perspective))
 			ret.push_back(obstacle);
 	}
 
@@ -108,7 +108,7 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate) const
 {
 	RETURN_IF_NOT_BATTLE(TStacks());
-	return getBattle()->getStacksIf(predicate);
+	return getBattle()->getStacksIf(std::move(predicate));
 }
 
 battle::Units CBattleInfoEssentials::battleGetUnitsIf(battle::UnitFilter predicate)  const
@@ -240,7 +240,7 @@ const CArmedInstance * CBattleInfoEssentials::battleGetArmyObject(ui8 side) cons
 
 InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(ui8 side) const
 {
-	auto hero = getBattle()->getSideHero(side);
+	const auto * hero = getBattle()->getSideHero(side);
 	if(!hero)
 	{
 		return InfoAboutHero();
@@ -260,7 +260,7 @@ const IBonusBearer * CBattleInfoEssentials::getBattleNode() const
 	return getBattle()->asBearer();
 }
 
-bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
+bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	const auto side = playerToSide(player);
@@ -280,7 +280,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 	//we are besieged defender
 	if(side.get() == BattleSide::DEFENDER && battleGetSiegeLevel())
 	{
-		auto town = battleGetDefendedTown();
+		const auto * town = battleGetDefendedTown();
 		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
 			return false;
 	}
@@ -288,7 +288,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 	return true;
 }
 
-BattleSideOpt CBattleInfoEssentials::playerToSide(PlayerColor player) const
+BattleSideOpt CBattleInfoEssentials::playerToSide(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(boost::none);
 
@@ -317,7 +317,7 @@ ui8 CBattleInfoEssentials::otherSide(ui8 side) const
 		return BattleSide::ATTACKER;
 }
 
-PlayerColor CBattleInfoEssentials::otherPlayer(PlayerColor player) const
+PlayerColor CBattleInfoEssentials::otherPlayer(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(PlayerColor::CANNOT_DETERMINE);
 
@@ -328,7 +328,7 @@ PlayerColor CBattleInfoEssentials::otherPlayer(PlayerColor player) const
 	return getBattle()->getSidePlayer(otherSide(side.get()));
 }
 
-bool CBattleInfoEssentials::playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const
+bool CBattleInfoEssentials::playerHasAccessToHeroInfo(const PlayerColor & player, const CGHeroInstance * h) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	const auto side = playerToSide(player);
@@ -347,7 +347,7 @@ ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
 	return getBattle()->getDefendedTown() ? getBattle()->getDefendedTown()->fortLevel() : CGTownInstance::NONE;
 }
 
-bool CBattleInfoEssentials::battleCanSurrender(PlayerColor player) const
+bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	const auto side = playerToSide(player);
@@ -364,7 +364,7 @@ bool CBattleInfoEssentials::battleHasHero(ui8 side) const
 	return getBattle()->getSideHero(side) != nullptr;
 }
 
-si8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
+EWallState CBattleInfoEssentials::battleGetWallState(EWallPart partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(EWallState::NONE);
 	if(battleGetSiegeLevel() == CGTownInstance::NONE)

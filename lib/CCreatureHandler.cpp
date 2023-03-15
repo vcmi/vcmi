@@ -16,13 +16,25 @@
 #include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
-#include "Terrain.h"
 #include "StringConstants.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjects/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+const std::map<CCreature::CreatureQuantityId, std::string> CCreature::creatureQuantityRanges =
+{
+		{CCreature::CreatureQuantityId::FEW, "1-4"},
+		{CCreature::CreatureQuantityId::SEVERAL, "5-9"},
+		{CCreature::CreatureQuantityId::PACK, "10-19"},
+		{CCreature::CreatureQuantityId::LOTS, "20-49"},
+		{CCreature::CreatureQuantityId::HORDE, "50-99"},
+		{CCreature::CreatureQuantityId::THRONG, "100-249"},
+		{CCreature::CreatureQuantityId::SWARM, "250-499"},
+		{CCreature::CreatureQuantityId::ZOUNDS, "500-999"},
+		{CCreature::CreatureQuantityId::LEGION, "1000+"}
+};
 
 int32_t CCreature::getIndex() const
 {
@@ -34,14 +46,9 @@ int32_t CCreature::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & CCreature::getName() const
+std::string CCreature::getJsonKey() const
 {
-	return nameSing;//???
-}
-
-const std::string & CCreature::getJsonKey() const
-{
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 void CCreature::registerIcons(const IconRegistar & cb) const
@@ -63,16 +70,6 @@ const IBonusBearer * CCreature::accessBonuses() const
 uint32_t CCreature::getMaxHealth() const
 {
 	return CBonusSystemNode::MaxHealth();
-}
-
-const std::string & CCreature::getPluralName() const
-{
-	return namePl;
-}
-
-const std::string & CCreature::getSingularName() const
-{
-	return nameSing;
 }
 
 int32_t CCreature::getAdvMapAmountMin() const
@@ -171,25 +168,66 @@ int32_t CCreature::getCost(int32_t resIndex) const
 		return 0;
 }
 
-int CCreature::getQuantityID(const int & quantity)
+std::string CCreature::getNameTranslated() const
+{
+	return getNameSingularTranslated();
+}
+
+std::string CCreature::getNamePluralTranslated() const
+{
+	return VLC->generaltexth->translate(getNamePluralTextID());
+}
+
+std::string CCreature::getNameSingularTranslated() const
+{
+	return VLC->generaltexth->translate(getNameSingularTextID());
+}
+
+std::string CCreature::getNameTextID() const
+{
+	return getNameSingularTextID();
+}
+
+std::string CCreature::getNamePluralTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "name", "plural" ).get();
+}
+
+std::string CCreature::getNameSingularTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "name", "singular" ).get();
+}
+
+CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
-		return 1;
+		return CCreature::CreatureQuantityId::FEW;
 	if (quantity<10)
-		return 2;
+		return CCreature::CreatureQuantityId::SEVERAL;
 	if (quantity<20)
-		return 3;
+		return CCreature::CreatureQuantityId::PACK;
 	if (quantity<50)
-		return 4;
+		return CCreature::CreatureQuantityId::LOTS;
 	if (quantity<100)
-		return 5;
+		return CCreature::CreatureQuantityId::HORDE;
 	if (quantity<250)
-		return 6;
+		return CCreature::CreatureQuantityId::THRONG;
 	if (quantity<500)
-		return 7;
+		return CCreature::CreatureQuantityId::SWARM;
 	if (quantity<1000)
-		return 8;
-	return 9;
+		return CCreature::CreatureQuantityId::ZOUNDS;
+
+	return CCreature::CreatureQuantityId::LEGION;
+}
+
+std::string CCreature::getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId)
+{
+	if(creatureQuantityRanges.find(quantityId) != creatureQuantityRanges.end())
+		return creatureQuantityRanges.at(quantityId);
+
+	logGlobal->error("Wrong quantityId: %d", (int)quantityId);
+	assert(0);
+	return "[ERROR]";
 }
 
 int CCreature::estimateCreatureCount(ui32 countID)
@@ -282,13 +320,13 @@ bool CCreature::valid() const
 
 std::string CCreature::nodeName() const
 {
-	return "\"" + namePl + "\"";
+	return "\"" + getNamePluralTextID() + "\"";
 }
 
 bool CCreature::isItNativeTerrain(TerrainId terrain) const
 {
 	auto native = getNativeTerrain();
-	return native == terrain || native == Terrain::ANY_TERRAIN;
+	return native == terrain || native == ETerrainId::ANY_TERRAIN;
 }
 
 TerrainId CCreature::getNativeTerrain() const
@@ -299,7 +337,7 @@ TerrainId CCreature::getNativeTerrain() const
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
 	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
-		? Terrain::ANY_TERRAIN
+		? TerrainId(ETerrainId::ANY_TERRAIN)
 		: (*VLC->townh)[faction]->nativeTerrain;
 }
 
@@ -345,12 +383,6 @@ void CCreature::updateFrom(const JsonNode & data)
 
 void CCreature::serializeJson(JsonSerializeFormat & handler)
 {
-	{
-		auto nameNode = handler.enterStruct("name");
-		handler.serializeString("singular", nameSing);
-		handler.serializeString("plural", namePl);
-	}
-
 	handler.serializeInt("fightValue", fightValue);
 	handler.serializeInt("aiValue", AIValue);
 	handler.serializeInt("growth", growth);
@@ -378,26 +410,6 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CCreature::fillWarMachine()
-{
-	switch (idNumber)
-	{
-	case CreatureID::CATAPULT: //Catapult
-		warMachine = ArtifactID::CATAPULT;
-		break;
-	case CreatureID::BALLISTA: //Ballista
-		warMachine = ArtifactID::BALLISTA;
-		break;
-	case CreatureID::FIRST_AID_TENT: //First Aid tent
-		warMachine = ArtifactID::FIRST_AID_TENT;
-		break;
-	case CreatureID::AMMO_CART: //Ammo cart
-		warMachine = ArtifactID::AMMO_CART;
-		break;
-	}
-	warMachine = ArtifactID::NONE; //this creature is not artifact
-}
-
 CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
@@ -408,7 +420,7 @@ CCreatureHandler::CCreatureHandler()
 	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
 
 	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
-		creaturesOfLevel[i].setDescription("Creatures of tier " + boost::lexical_cast<std::string>(i));
+		creaturesOfLevel[i].setDescription("Creatures of tier " + std::to_string(i));
 	loadCommanders();
 }
 
@@ -585,6 +597,9 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+
 	auto cre = new CCreature();
 
 	if(node["hasDoubleWeek"].Bool())
@@ -594,11 +609,15 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->idNumber = CreatureID(index);
 	cre->iconIndex = cre->getIndex() + 2;
 	cre->identifier = identifier;
+	cre->modScope = scope;
 
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
 	cre->cost = Res::ResourceSet(node["cost"]);
+
+	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
+	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
 
 	cre->addBonus(node["hitPoints"].Integer(), Bonus::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), Bonus::STACKS_SPEED);
@@ -797,7 +816,7 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	JsonNode & animationTime = graphics["animationTime"];
 	animationTime["walk"].Float() = parser.readNumber();
 	animationTime["attack"].Float() = parser.readNumber();
-	animationTime["flight"].Float() = parser.readNumber();
+	parser.readNumber(); // unused value "Flight animation time" - H3 actually uses "Walk animation time" even for flying creatures
 	animationTime["idle"].Float() = 10.0;
 
 	JsonNode & missile = graphics["missile"];
@@ -836,7 +855,6 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.walkAnimationTime = animationTime["walk"].Float();
 	cre->animation.idleAnimationTime = animationTime["idle"].Float();
 	cre->animation.attackAnimationTime = animationTime["attack"].Float();
-	cre->animation.flightAnimationDistance = animationTime["flight"].Float(); //?
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];
@@ -912,15 +930,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		CCreature::CreatureAnimation::RayColor color;
 
-		color.r1 = value["start"].Vector()[0].Integer();
-		color.g1 = value["start"].Vector()[1].Integer();
-		color.b1 = value["start"].Vector()[2].Integer();
-		color.a1 = value["start"].Vector()[3].Integer();
+		color.start.r = value["start"].Vector()[0].Integer();
+		color.start.g = value["start"].Vector()[1].Integer();
+		color.start.b = value["start"].Vector()[2].Integer();
+		color.start.a = value["start"].Vector()[3].Integer();
 
-		color.r2 = value["end"].Vector()[0].Integer();
-		color.g2 = value["end"].Vector()[1].Integer();
-		color.b2 = value["end"].Vector()[2].Integer();
-		color.a2 = value["end"].Vector()[3].Integer();
+		color.end.r = value["end"].Vector()[0].Integer();
+		color.end.g = value["end"].Vector()[1].Integer();
+		color.end.b = value["end"].Vector()[2].Integer();
+		color.end.a = value["end"].Vector()[3].Integer();
 
 		creature->animation.projectileRay.push_back(color);
 	}

@@ -47,13 +47,14 @@ private:
 	void setSurface(std::string defName, int imgPos);
 	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val, ESize imageSize);
+	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL);
 
 public:
 	std::shared_ptr<CAnimImage> image;
 
 	Etype compType; //component type
 	ESize size; //component size.
+	EFonts font; //Font size of label
 	int subtype; //type-dependant subtype. See getSomething methods for details
 	int val; // value \ strength \ amount of component. See getSomething methods for details
 	bool perDay; // add "per day" text to subtitle
@@ -61,8 +62,8 @@ public:
 	std::string getDescription();
 	std::string getSubtitle();
 
-	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);
-	CComponent(const Component &c, ESize imageSize=large);
+	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
 	void clickRight(tribool down, bool previousState) override; //call-in
 };
@@ -94,6 +95,16 @@ class CComponentBox : public CIntObject
 	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
 
+	static constexpr int defaultBetweenImagesMin = 20;
+	static constexpr int defaultBetweenSubtitlesMin = 10;
+	static constexpr int defaultBetweenRows = 22;
+	static constexpr int defaultComponentsInRow = 4;
+
+	int betweenImagesMin;
+	int betweenSubtitlesMin;
+	int betweenRows;
+	int componentsInRow;
+
 	void selectionChanged(std::shared_ptr<CSelectableComponent> newSelection);
 
 	//get position of "or" text between these comps
@@ -108,11 +119,13 @@ public:
 	/// return index of selected item
 	int selectedIndex();
 
-	/// constructor for non-selectable components
+	/// constructors for non-selectable components
 	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position);
+	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows, int componentsInRow);
 
 	/// constructor for selectable components
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
 	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
+	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows, int componentsInRow);
 };

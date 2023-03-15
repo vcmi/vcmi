@@ -62,7 +62,7 @@ class CustomMechanicsFactory : public ISpellMechanicsFactory
 public:
 	std::unique_ptr<Mechanics> create(const IBattleCast * event) const override
 	{
-		BattleSpellMechanics * ret = new BattleSpellMechanics(event, effects, targetCondition);
+		auto * ret = new BattleSpellMechanics(event, effects, targetCondition);
 		return std::unique_ptr<Mechanics>(ret);
 	}
 protected:
@@ -117,7 +117,7 @@ public:
 
 			if(!levelInfo.effects.empty())
 			{
-				auto timed = new effects::Timed();
+				auto * timed = new effects::Timed();
 				timed->cumulative = false;
 				timed->bonus = levelInfo.effects;
 				effect.reset(timed);
@@ -125,7 +125,7 @@ public:
 
 			if(!levelInfo.cumulativeEffects.empty())
 			{
-				auto timed = new effects::Timed();
+				auto * timed = new effects::Timed();
 				timed->cumulative = true;
 				timed->bonus = levelInfo.cumulativeEffects;
 				effect.reset(timed);
@@ -137,20 +137,15 @@ public:
 	}
 };
 
-
-BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_)
-	: spell(spell_),
+BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_):
+	spell(spell_),
 	cb(cb_),
+	gameCb(IObjectInterface::cb), //FIXME: pass player callback (problem is that BattleAI do not have one)
 	caster(caster_),
 	mode(mode_),
-	magicSkillLevel(),
-	effectPower(),
-	effectDuration(),
-	effectValue(),
 	smart(boost::logic::indeterminate),
 	massive(boost::logic::indeterminate)
 {
-	gameCb = IObjectInterface::cb; //FIXME: pass player callback (problem is that BattleAI do not have one)
 }
 
 BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
@@ -245,7 +240,7 @@ void BattleCast::setEffectValue(BattleCast::Value64 value)
 	effectValue = boost::make_optional(value);
 }
 
-void BattleCast::applyEffects(ServerCallback * server, Target target,  bool indirect, bool ignoreImmunity) const
+void BattleCast::applyEffects(ServerCallback * server, const Target & target, bool indirect, bool ignoreImmunity) const
 {
 	auto m = spell->battleMechanics(this);
 
@@ -296,7 +291,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 
 			if(!mirrorTargets.empty())
 			{
-				auto mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
+				const auto * mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
 
 				Target mirrorTarget;
 				mirrorTarget.emplace_back(mirrorDestination);
@@ -325,7 +320,7 @@ bool BattleCast::castIfPossible(ServerCallback * server, Target target)
 {
 	if(spell->canBeCast(cb, mode, caster))
 	{
-		cast(server, target);
+		cast(server, std::move(target));
 		return true;
 	}
 	return false;
@@ -397,17 +392,15 @@ ISpellMechanicsFactory::ISpellMechanicsFactory(const CSpell * s)
 
 }
 
-ISpellMechanicsFactory::~ISpellMechanicsFactory()
-{
-
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+ISpellMechanicsFactory::~ISpellMechanicsFactory() = default;
 
 std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell * s)
 {
 	if(s->hasBattleEffects())
-		return make_unique<ConfigurableMechanicsFactory>(s);
+		return std::make_unique<ConfigurableMechanicsFactory>(s);
 	else
-		return make_unique<FallbackMechanicsFactory>(s);
+		return std::make_unique<FallbackMechanicsFactory>(s);
 }
 
 ///Mechanics
@@ -420,16 +413,14 @@ Mechanics::Mechanics()
 
 Mechanics::~Mechanics() = default;
 
-BaseMechanics::BaseMechanics(const IBattleCast * event)
-	: Mechanics(),
+BaseMechanics::BaseMechanics(const IBattleCast * event):
 	owner(event->getSpell()),
 	mode(event->getMode()),
 	smart(event->isSmart()),
-	massive(event->isMassive())
+	massive(event->isMassive()),
+	cb(event->getBattle()),
+	gameCb(event->getGame())
 {
-	cb = event->getBattle();
-	gameCb = event->getGame();
-
 	caster = event->getCaster();
 
 	//FIXME: do not crash on invalid side
@@ -510,7 +501,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 		{
 			MetaString text;
 			//TODO: refactor
-			auto hero = dynamic_cast<const CGHeroInstance *>(caster);
+			const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
 			if(!hero)
 				return adaptGenericProblem(target);
 
@@ -571,7 +562,7 @@ SpellID BaseMechanics::getSpellId() const
 
 std::string BaseMechanics::getSpellName() const
 {
-	return owner->getName();
+	return owner->getNameTranslated();
 }
 
 int32_t BaseMechanics::getSpellLevel() const
@@ -701,9 +692,9 @@ PlayerColor BaseMechanics::getCasterColor() const
 std::vector<AimType> BaseMechanics::getTargetTypes() const
 {
 	std::vector<AimType> ret;
-	detail::ProblemImpl ingored;
+	detail::ProblemImpl ignored;
 
-	if(canBeCast(ingored))
+	if(canBeCast(ignored))
 	{
 		auto spellTargetType = owner->getTargetType();
 
@@ -759,24 +750,24 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 	switch (s->id)
 	{
 	case SpellID::SUMMON_BOAT:
-		return make_unique<SummonBoatMechanics>(s);
+		return std::make_unique<SummonBoatMechanics>(s);
 	case SpellID::SCUTTLE_BOAT:
-		return make_unique<ScuttleBoatMechanics>(s);
+		return std::make_unique<ScuttleBoatMechanics>(s);
 	case SpellID::DIMENSION_DOOR:
-		return make_unique<DimensionDoorMechanics>(s);
+		return std::make_unique<DimensionDoorMechanics>(s);
 	case SpellID::FLY:
 	case SpellID::WATER_WALK:
 	case SpellID::VISIONS:
 	case SpellID::DISGUISE:
-		return make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
+		return std::make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
 	case SpellID::TOWN_PORTAL:
-		return make_unique<TownPortalMechanics>(s);
+		return std::make_unique<TownPortalMechanics>(s);
 	case SpellID::VIEW_EARTH:
-		return make_unique<ViewEarthMechanics>(s);
+		return std::make_unique<ViewEarthMechanics>(s);
 	case SpellID::VIEW_AIR:
-		return make_unique<ViewAirMechanics>(s);
+		return std::make_unique<ViewAirMechanics>(s);
 	default:
-		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : make_unique<AdventureSpellMechanics>(s);
+		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
 	}
 }
 

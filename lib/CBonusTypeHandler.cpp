@@ -18,98 +18,28 @@
 
 #include "GameConstants.h"
 #include "CCreatureHandler.h"
+#include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-///MacroString
-
-MacroString::MacroString(const std::string & format)
-{
-	static const std::string MACRO_START = "${";
-	static const std::string MACRO_END = "}";
-	static const size_t MACRO_START_L = 2;
-	static const size_t MACRO_END_L = 1;
-
-	size_t end_pos = 0;
-	size_t start_pos = std::string::npos;
-	do
-	{
-		start_pos = format.find(MACRO_START, end_pos);
-
-		if(!(start_pos == std::string::npos))
-		{
-			//chunk before macro
-			items.push_back(Item(Item::STRING, format.substr(end_pos, start_pos - end_pos)));
-
-			start_pos += MACRO_START_L;
-			end_pos = format.find(MACRO_END, start_pos);
-
-			if(end_pos == std::string::npos)
-			{
-				logBonus->warn("Format error in: %s", format);
-				end_pos = start_pos;
-				break;
-			}
-			else
-			{
-				items.push_back(Item(Item::MACRO, format.substr(start_pos, end_pos - start_pos)));
-				end_pos += MACRO_END_L;
-			}
-		}
-	}
-	while(start_pos != std::string::npos);
-
-	//no more macros
-	items.push_back(Item(Item::STRING, format.substr(end_pos)));
-}
-
-std::string MacroString::build(const GetValue & getValue) const
-{
-	std::string result;
-
-	for(const Item & i : items)
-	{
-		switch(i.type)
-		{
-		case Item::MACRO:
-		{
-			result += getValue(i.value);
-			break;
-		}
-		case Item::STRING:
-		{
-			result += i.value;
-			break;
-		}
-		}
-	}
-	return result;
-}
-
 ///CBonusType
 
-CBonusType::CBonusType()
+CBonusType::CBonusType():
+	hidden(true)
+{}
+
+std::string CBonusType::getNameTextID() const
 {
-	hidden = true;
-	icon.clear();
-	nameTemplate.clear();
-	descriptionTemplate.clear();
+	return TextIdentifier( "core", "bonus", identifier, "name").get();
 }
 
-CBonusType::~CBonusType()
+std::string CBonusType::getDescriptionTextID() const
 {
-
+	return TextIdentifier( "core", "bonus", identifier, "description").get();
 }
-
-void CBonusType::buildMacros()
-{
-	name = MacroString(nameTemplate);
-	description = MacroString(descriptionTemplate);
-}
-
 
 ///CBonusTypeHandler
 
@@ -136,39 +66,26 @@ CBonusTypeHandler::~CBonusTypeHandler()
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
 {
-	auto getValue = [=](const std::string & name) -> std::string
-	{
-		if(name == "val")
-		{
-			 return boost::lexical_cast<std::string>(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype)));
-		}
-		else if(name == "subtype.creature")
-		{
-			 const CreatureID cre(bonus->subtype);
-			 return cre.toCreature()->namePl;
-		}
-		else if(name == "subtype.spell")
-		{
-			 const SpellID sp(bonus->subtype);
-			 return sp.toSpell()->name;
-		}
-		else if(name == "MR")
-		{
-			 return boost::lexical_cast<std::string>(bearer->magicResistance());
-		}
-		else
-		{
-			 logBonus->warn("Unknown macro in bonus config: %s", name);
-			 return "[error]";
-		}
-	};
-
 	const CBonusType & bt = bonusTypes[bonus->type];
 	if(bt.hidden)
 		return "";
-	const MacroString & macro = description ? bt.description : bt.name;
 
-	return macro.build(getValue);
+	std::string textID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
+	std::string text = VLC->generaltexth->translate(textID);
+
+	if (text.find("${val}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
+
+	if (text.find("${subtype.creature}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${subtype.creature}", CreatureID(bonus->subtype).toCreature()->getNamePluralTranslated());
+
+	if (text.find("${subtype.spell}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${subtype.spell}", SpellID(bonus->subtype).toSpell()->getNameTranslated());
+
+	if (text.find("${MR}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${MR}", std::to_string(bearer->magicResistance()));
+
+	return text;
 }
 
 std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
@@ -249,7 +166,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 	{
 		if(vstd::iswithin(bonus->val, 1, 5))
 		{
-			fileName = "E_SPLVL" + boost::lexical_cast<std::string>(bonus->val) + ".bmp";
+			fileName = "E_SPLVL" + std::to_string(bonus->val) + ".bmp";
 		}
 		break;
 	}
@@ -304,31 +221,33 @@ void CBonusTypeHandler::load(const JsonNode & config)
 //
 //			bonusTypes.push_back(bt);
 
-			logBonus->warn("Adding new bonuses not implemented (%s)", node.first);
+			logBonus->warn("Unrecognized bonus name! (%s)", node.first);
 		}
 		else
 		{
 			CBonusType & bt = bonusTypes[it->second];
 
-			loadItem(node.second, bt);
+			loadItem(node.second, bt, node.first);
 			logBonus->trace("Loaded bonus type %s", node.first);
 		}
 	}
 }
 
-void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest)
+void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, const std::string & name)
 {
-	dest.nameTemplate = source["name"].String();
-	dest.descriptionTemplate = source["description"].String();
+	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false
+
+	if (!dest.hidden)
+	{
+		VLC->generaltexth->registerString( "core", dest.getNameTextID(), source["name"].String());
+		VLC->generaltexth->registerString( "core", dest.getDescriptionTextID(), source["description"].String());
+	}
 
 	const JsonNode & graphics = source["graphics"];
 
 	if(!graphics.isNull())
-	{
 		dest.icon = graphics["icon"].String();
-	}
-	dest.buildMacros();
 }
 
 VCMI_LIB_NAMESPACE_END

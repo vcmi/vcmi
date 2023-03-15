@@ -17,11 +17,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE FileBuf
 {
 public:
-	typedef char char_type;
-	typedef struct category_ :
+	using char_type = char;
+	using category = struct category_ :
 		boost::iostreams::seekable_device_tag,
 		boost::iostreams::closable_tag
-		{} category;
+		{};
 
 	FileBuf(const boost::filesystem::path& filename, std::ios_base::openmode mode);
 
@@ -37,10 +37,17 @@ private:
 VCMI_LIB_NAMESPACE_END
 
 struct zlib_filefunc64_def_s;
-typedef zlib_filefunc64_def_s zlib_filefunc64_def;
+using zlib_filefunc64_def = zlib_filefunc64_def_s;
 
 #ifdef VCMI_DLL
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable : 4910)
+#endif
 extern template struct DLL_LINKAGE boost::iostreams::stream<VCMI_LIB_WRAP_NAMESPACE(FileBuf)>;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -52,7 +59,7 @@ public:
 	explicit FileStream(const boost::filesystem::path& p, std::ios_base::openmode mode = std::ios_base::in | std::ios_base::out)
 		: boost::iostreams::stream<FileBuf>(p, mode) {}
 
-	static bool CreateFile(const boost::filesystem::path& filename);
+	static bool createFile(const boost::filesystem::path& filename);
 
 	static zlib_filefunc64_def* GetMinizipFilefunc();
 };

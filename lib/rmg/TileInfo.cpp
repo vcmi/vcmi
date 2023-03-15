@@ -13,9 +13,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TileInfo::TileInfo():nearestObjectDistance(float(INT_MAX)), terrain()
+TileInfo::TileInfo()
+	: nearestObjectDistance(static_cast<float>(std::numeric_limits<int>::max()))
+	, occupied(ETileType::POSSIBLE)	//all tiles are initially possible to place objects or passages
 {
-	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
 
 float TileInfo::getNearestObjectDistance() const

@@ -36,6 +36,11 @@ class BattleStateInfoForRetreat;
 
 VCMI_LIB_NAMESPACE_END
 
+// in static AI build this file gets included into libvcmi
+#ifdef STATIC_AI
+VCMI_LIB_USING_NAMESPACE
+#endif
+
 class CClient;
 struct lua_State;
 
@@ -132,8 +137,6 @@ public:
 	virtual bool canMoveBetween(const int3 &a, const int3 &b);
 	virtual int3 getGuardingCreaturePosition(int3 tile);
 	virtual std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
-
-	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
 	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);

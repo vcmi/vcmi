@@ -18,7 +18,6 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,7 +30,8 @@ class JsonSerializeFormat;
 class BattleField;
 
 struct SSpecialtyInfo
-{	si32 type;
+{
+	si32 type;
 	si32 val;
 	si32 subtype;
 	si32 additionalinfo;
@@ -58,6 +58,12 @@ struct SSpecialtyBonus
 
 class DLL_LINKAGE CHero : public HeroType
 {
+	friend class CHeroHandler;
+
+	HeroTypeID ID;
+	std::string identifier;
+	std::string modScope;
+
 public:
 	struct InitialArmyStack
 	{
@@ -72,8 +78,6 @@ public:
 			h & creature;
 		}
 	};
-	std::string identifier;
-	HeroTypeID ID;
 	si32 imageIndex;
 
 	std::vector<InitialArmyStack> initialArmy;
@@ -88,13 +92,6 @@ public:
 	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
 	ui8 sex; // default sex: 0=male, 1=female
 
-	/// Localized texts
-	std::string name; //name of hero
-	std::string biography;
-	std::string specName;
-	std::string specDescr;
-	std::string specTooltip;
-
 	/// Graphics
 	std::string iconSpecSmall;
 	std::string iconSpecLarge;
@@ -107,10 +104,21 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	HeroTypeID getId() const override;
 	void registerIcons(const IconRegistar & cb) const override;
+
+	std::string getNameTranslated() const override;
+	std::string getBiographyTranslated() const override;
+	std::string getSpecialtyNameTranslated() const override;
+	std::string getSpecialtyDescriptionTranslated() const override;
+	std::string getSpecialtyTooltipTranslated() const override;
+
+	std::string getNameTextID() const override;
+	std::string getBiographyTextID() const override;
+	std::string getSpecialtyNameTextID() const override;
+	std::string getSpecialtyDescriptionTextID() const override;
+	std::string getSpecialtyTooltipTextID() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -127,16 +135,12 @@ public:
 		h & haveSpellBook;
 		h & sex;
 		h & special;
-		h & name;
-		h & biography;
-		h & specName;
-		h & specDescr;
-		h & specTooltip;
 		h & iconSpecSmall;
 		h & iconSpecLarge;
 		h & portraitSmall;
 		h & portraitLarge;
 		h & identifier;
+		h & modScope;
 		h & battleImage;
 	}
 };
@@ -147,6 +151,11 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 
 class DLL_LINKAGE CHeroClass : public HeroClass
 {
+	friend class CHeroClassHandler;
+	HeroClassID id; // use getId instead
+	std::string modScope;
+	std::string identifier; // use getJsonKey instead
+
 public:
 	enum EClassAffinity
 	{
@@ -154,11 +163,8 @@ public:
 		MAGIC
 	};
 
-	std::string identifier;
-	std::string name; // translatable
 	//double aggression; // not used in vcmi.
 	TFaction faction;
-	HeroClassID id;
 	ui8 affinity; // affinity, using EClassAffinity enum
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
@@ -184,10 +190,12 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	HeroClassID getId() const override;
 	void registerIcons(const IconRegistar & cb) const override;
+
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 
 	bool isMagicHero() const;
 	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const; //picks secondary skill out from given possibilities
@@ -197,8 +205,8 @@ public:
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & modScope;
 		h & identifier;
-		h & name;
 		h & faction;
 		h & id;
 		h & defaultTavernChance;
@@ -260,7 +268,6 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 
 	void loadExperience();
 	void loadBallistics();
-	void loadTerrains();
 
 public:
 	CHeroClassHandler classes;

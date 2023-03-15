@@ -17,11 +17,11 @@
 
 #include "../int3.h"
 
-#include "../filesystem/CBinaryReader.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
+class CBinaryReader;
 class CArtifactInstance;
 class CGObjectInstance;
 class CGSeerHut;
@@ -29,6 +29,7 @@ class IQuestObject;
 class CGTownInstance;
 class CCreatureSet;
 class CInputStream;
+class TextIdentifier;
 
 
 class DLL_LINKAGE CMapLoaderH3M : public IMapLoader
@@ -39,7 +40,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderH3M(CInputStream * stream);
+	CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream);
 
 	/**
 	 * Destructor.
@@ -164,21 +165,21 @@ private:
 	 * @param idToBeGiven the object id which should be set for the hero
 	 * @return a object instance
 	 */
-	CGObjectInstance * readHero(ObjectInstanceID idToBeGiven, const int3 & initialPos);
+	CGObjectInstance * readHero(const ObjectInstanceID & idToBeGiven, const int3 & initialPos);
 
 	/**
 	 * Reads a seer hut.
 	 *
 	 * @return the initialized seer hut object
 	 */
-	CGSeerHut * readSeerHut();
+	CGSeerHut * readSeerHut(const int3 & position);
 
 	/**
 	 * Reads a quest for the given quest guard.
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	void readQuest(IQuestObject * guard);
+	void readQuest(IQuestObject * guard, const int3 & position);
 
 	/**
 	 * Reads a town.
@@ -186,7 +187,7 @@ private:
 	 * @param castleID the id of the castle type
 	 * @return the loaded town object
 	 */
-	CGTownInstance * readTown(int castleID);
+	CGTownInstance * readTown(int castleID, const int3 & position);
 
 	/**
 	 * Converts buildings to the specified castle id.
@@ -196,7 +197,7 @@ private:
 	 * @param addAuxiliary true if the village hall should be added
 	 * @return the converted buildings
 	 */
-	std::set<BuildingID> convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary = true);
+	std::set<BuildingID> convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary = true) const;
 
 	/**
 	 * Reads events.
@@ -206,7 +207,7 @@ private:
 	/**
 	* read optional message and optional guards
 	*/
-	void readMessageAndGuards(std::string& message, CCreatureSet * guards);
+	void readMessageAndGuards(std::string & message, CCreatureSet * guards, const int3 & position);
 
 	void readSpells(std::set<SpellID> & dest);
 
@@ -229,19 +230,18 @@ private:
 	 * @param arg the input argument
 	 * @return the reversed 8-bit integer
 	 */
-	ui8 reverse(ui8 arg);
+	ui8 reverse(ui8 arg) const;
 
 	/**
 	* Helper to read map position
 	*/
-	inline int3 readInt3()
-	{
-		int3 p;
-		p.x = reader.readUInt8();
-		p.y = reader.readUInt8();
-		p.z = reader.readUInt8();
-		return p;
-	}
+	int3 readInt3();
+
+	/// reads string from input stream and converts it to unicode
+	std::string readBasicString();
+
+	/// reads string from input stream, converts it to unicode and attempts to translate it
+	std::string readLocalizedString(const TextIdentifier & identifier);
 
 	void afterRead();
 
@@ -257,9 +257,12 @@ private:
 	 * (when loading a map then the mapHeader ptr points to the same object)
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
-
-	CBinaryReader reader;
+	std::unique_ptr<CBinaryReader> reader;
 	CInputStream * inputStream;
+
+	std::string mapName;
+	std::string modName;
+	std::string fileEncoding;
 
 };
 

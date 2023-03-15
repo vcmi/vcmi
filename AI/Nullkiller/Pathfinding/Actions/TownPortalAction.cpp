@@ -34,7 +34,7 @@ void TownPortalAction::execute(const CGHeroInstance * hero) const
 
 std::string TownPortalAction::toString() const
 {
-	return "Town Portal to " + target->name;
+	return "Town Portal to " + target->getNameTranslated();
 }
 /*
 bool TownPortalAction::canAct(const CGHeroInstance * hero, const AIPathNode * source) const

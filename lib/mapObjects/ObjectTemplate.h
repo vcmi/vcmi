@@ -35,6 +35,9 @@ class DLL_LINKAGE ObjectTemplate
 	/// list of terrains on which this object can be placed
 	std::set<TerrainId> allowedTerrains;
 
+	/// or, allow placing object on any terrain
+	bool anyTerrain;
+
 	void afterLoadFixup();
 
 public:
@@ -111,8 +114,8 @@ public:
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
-	void readJson(const JsonNode & node, const bool withTerrain = true);
-	void writeJson(JsonNode & node, const bool withTerrain = true) const;
+	void readJson(const JsonNode & node, bool withTerrain = true);
+	void writeJson(JsonNode & node, bool withTerrain = true) const;
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 
@@ -129,7 +132,7 @@ private:
 
 	void calculateWidth();
 	void calculateHeight();
-	void calculateVsitable();
+	void calculateVisitable();
 	void calculateBlockedOffsets();
 	void calculateBlockMapOffset();
 	void calculateVisitableOffset();

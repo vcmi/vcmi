@@ -18,6 +18,9 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
+#include "TerrainHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"
@@ -195,11 +198,13 @@ void LibClasses::init(bool onlyEssential)
 
 	modh->initializeConfig();
 
+	createHandler(generaltexth, "General text", pomtime);
+
 	createHandler(bth, "Bonus type", pomtime);
 
+	createHandler(roadTypeHandler, "Road", pomtime);
+	createHandler(riverTypeHandler, "River", pomtime);
 	createHandler(terrainTypeHandler, "Terrain", pomtime);
-
-	createHandler(generaltexth, "General text", pomtime);
 
 	createHandler(heroh, "Hero", pomtime);
 
@@ -241,7 +246,6 @@ void LibClasses::init(bool onlyEssential)
 
 void LibClasses::clear()
 {
-	delete generaltexth;
 	delete heroh;
 	delete arth;
 	delete creh;
@@ -258,6 +262,7 @@ void LibClasses::clear()
 	delete scriptHandler;
 #endif
 	delete battlefieldsHandler;
+	delete generaltexth;
 	makeNull();
 }
 

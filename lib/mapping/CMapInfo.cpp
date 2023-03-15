@@ -14,6 +14,8 @@
 #include "../StartInfo.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
+#include "CMap.h"
+#include "CCampaignHandler.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../serializer/CMemorySerializer.h"
@@ -44,13 +46,13 @@ void CMapInfo::mapInit(const std::string & fname)
 	countPlayers();
 }
 
-void CMapInfo::saveInit(ResourceID file)
+void CMapInfo::saveInit(const ResourceID & file)
 {
 	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 	lf.checkMagicBytes(SAVEGAME_MAGIC);
 
-	mapHeader = make_unique<CMapHeader>();
-	lf >> *(mapHeader.get()) >> scenarioOptionsOfSave;
+	mapHeader = std::make_unique<CMapHeader>();
+	lf >> *(mapHeader) >> scenarioOptionsOfSave;
 	fileURI = file.getName();
 	countPlayers();
 	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
@@ -62,7 +64,7 @@ void CMapInfo::saveInit(ResourceID file)
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
+	campaignHeader = std::make_unique<CCampaignHeader>(CCampaignHandler::getHeader(fileURI));
 }
 
 void CMapInfo::countPlayers()
@@ -81,8 +83,8 @@ void CMapInfo::countPlayers()
 	}
 
 	if(scenarioOptionsOfSave)
-		for (auto i = scenarioOptionsOfSave->playerInfos.cbegin(); i != scenarioOptionsOfSave->playerInfos.cend(); i++)
-			if(i->second.isControlledByHuman())
+		for(const auto & playerInfo : scenarioOptionsOfSave->playerInfos)
+			if(playerInfo.second.isControlledByHuman())
 				amountOfHumanPlayersInSave++;
 }
 
@@ -134,6 +136,12 @@ int CMapInfo::getMapSizeIconId() const
 		return 2;
 	case CMapHeader::MAP_SIZE_XLARGE:
 		return 3;
+	case CMapHeader::MAP_SIZE_HUGE:
+		return 4;
+	case CMapHeader::MAP_SIZE_XHUGE:
+		return 5;
+	case CMapHeader::MAP_SIZE_GIANT:
+		return 6;
 	default:
 		return 4;
 	}
@@ -141,7 +149,8 @@ int CMapInfo::getMapSizeIconId() const
 
 std::pair<int, int> CMapInfo::getMapSizeFormatIconId() const
 {
-	int frame = -1, group = 0;
+	int frame = -1;
+	int group = 0;
 	switch(mapHeader->version)
 	{
 	case EMapFormat::ROE:
@@ -180,6 +189,12 @@ std::string CMapInfo::getMapSizeName() const
 		return "L";
 	case CMapHeader::MAP_SIZE_XLARGE:
 		return "XL";
+	case CMapHeader::MAP_SIZE_HUGE:
+		return "H";
+	case CMapHeader::MAP_SIZE_XHUGE:
+		return "XH";
+	case CMapHeader::MAP_SIZE_GIANT:
+		return "G";
 	default:
 		return "C";
 	}

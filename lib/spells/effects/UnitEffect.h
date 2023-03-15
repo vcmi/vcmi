@@ -22,9 +22,6 @@ namespace effects
 class UnitEffect : public Effect
 {
 public:
-	UnitEffect();
-	virtual ~UnitEffect();
-
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
@@ -41,8 +38,8 @@ public:
     virtual bool eraseByImmunityFilter(const Mechanics * m, const battle::Unit * s) const;
 
 protected:
-	int32_t chainLength;
-	double chainFactor;
+	int32_t chainLength = 0;
+	double chainFactor = 0.0;
 
 	virtual bool isReceptive(const Mechanics * m, const battle::Unit * unit) const;
 	virtual bool isSmartTarget(const Mechanics * m, const battle::Unit * unit, bool alwaysSmart) const;
@@ -52,7 +49,7 @@ protected:
 	virtual void serializeJsonUnitEffect(JsonSerializeFormat & handler) = 0;
 
 private:
-	bool ignoreImmunity;
+	bool ignoreImmunity = false;
 
 	EffectTarget transformTargetByRange(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const;
 	EffectTarget transformTargetByChain(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const;

@@ -9,8 +9,10 @@
  */
 #pragma once
 
-struct SDL_Surface;
+#include "../lib/Rect.h"
 
+struct SDL_Surface;
+struct SDL_Texture;
 
 class IVideoPlayer
 {
@@ -54,42 +56,11 @@ public:
 
 #include "../lib/filesystem/CInputStream.h"
 
-#include <SDL.h>
-#include <SDL_video.h>
-
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
-#include <libswscale/swscale.h>
-}
-
-//compatibility for libav 9.18 in ubuntu 14.04, 52.66.100 is ffmpeg 2.2.3
-#if (LIBAVUTIL_VERSION_INT < AV_VERSION_INT(52, 66, 100))
-inline AVFrame * av_frame_alloc()
-{
-	return avcodec_alloc_frame();
-}
-
-inline void av_frame_free(AVFrame ** frame)
-{
-	av_free(*frame);
-	*frame = nullptr;
-}
-#endif // VCMI_USE_OLD_AVUTIL
-
-//fix for travis-ci
-#if (LIBAVUTIL_VERSION_INT < AV_VERSION_INT(52, 0, 0))
-	#define AVPixelFormat PixelFormat
-	#define AV_PIX_FMT_NONE PIX_FMT_NONE
-	#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
-	#define AV_PIX_FMT_BGR565 PIX_FMT_BGR565
-	#define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
-	#define AV_PIX_FMT_BGR32 PIX_FMT_BGR32
-	#define AV_PIX_FMT_RGB565 PIX_FMT_RGB565
-	#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
-	#define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
-#endif
+struct AVFormatContext;
+struct AVCodecContext;
+struct AVCodec;
+struct AVFrame;
+struct AVIOContext;
 
 class CVideoPlayer : public IMainVideoPlayer
 {
@@ -106,11 +77,11 @@ class CVideoPlayer : public IMainVideoPlayer
 
 	SDL_Texture *texture;
 	SDL_Surface *dest;
-	SDL_Rect destRect;			// valid when dest is used
-	SDL_Rect pos;				// destination on screen
+	Rect destRect;			// valid when dest is used
+	Rect pos;				// destination on screen
 
-	int refreshWait; // Wait several refresh before updating the image
-	int refreshCount;
+	/// video playback currnet progress, in seconds
+	double frameTime;
 	bool doLoop;				// loop through video
 
 	bool playVideo(int x, int y, bool stopOnKey);
@@ -142,4 +113,3 @@ public:
 };
 
 #endif
-

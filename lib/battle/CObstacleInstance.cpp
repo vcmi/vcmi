@@ -20,20 +20,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CObstacleInstance::CObstacleInstance()
-{
-	obstacleType = USUAL;
-	uniqueID = -1;
-	ID = -1;
-}
-
-CObstacleInstance::~CObstacleInstance()
-{
-
-}
-
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
+	assert( obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE);
+
 	return *Obstacle(ID).getInfo();
 }
 
@@ -174,7 +164,10 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 
+	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("animationYOffset", animationYOffset);

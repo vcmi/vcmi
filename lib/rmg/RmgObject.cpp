@@ -18,6 +18,7 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "Functions.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -63,7 +64,7 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 	{
 		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
 		rmg::Area visitable = rmg::Area(neighbours) - getBlockedArea();
-		for(auto & from : visitable.getTiles())
+		for(const auto & from : visitable.getTiles())
 		{
 			if(isVisitableFrom(from))
 				dAccessibleAreaCache.add(from);
@@ -121,7 +122,7 @@ void Object::Instance::setTemplate(TerrainId terrain)
 	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
 	if (templates.empty())
 	{
-		auto terrainName = VLC->terrainTypeHandler->terrains()[terrain].name;
+		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
 		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
 	}
 	dObject.appearance = templates.front();
@@ -165,10 +166,9 @@ Object::Object(CGObjectInstance & object)
 	addInstance(object);
 }
 
-Object::Object(const Object & object)
+Object::Object(const Object & object): dStrength(object.dStrength)
 {
-	dStrenght = object.dStrenght;
-	for(auto & i : object.dInstances)
+	for(const auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
 	setPosition(object.getPosition());
 }
@@ -224,7 +224,7 @@ const int3 & Object::getPosition() const
 int3 Object::getVisitablePosition() const
 {
 	assert(!dInstances.empty());
-	for(auto & instance : dInstances)
+	for(const auto & instance : dInstances)
 		if(!getArea().contains(instance.getVisitablePosition()))
 			return instance.getVisitablePosition();
 	
@@ -292,28 +292,28 @@ void Object::Instance::finalize(RmgMap & map)
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
-		auto terrainType = map.map().getTile(getPosition(true)).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->id);
+		const auto * terrainType = map.map().getTile(getPosition(true)).terType;
+		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
 		}
 		else
 		{
-			setTemplate(terrainType->id);
+			setTemplate(terrainType->getId());
 		}
 	}
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
-	
-	for (auto & tile : dObject.getBlockedPos())
+
+	for(const auto & tile : dObject.getBlockedPos())
 	{
 		if(!map.isOnMap(tile))
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
 	}
-	
-	for(auto & tile : getBlockedArea().getTilesVector())
+
+	for(const auto & tile : getBlockedArea().getTilesVector())
 	{
 		map.setOccupied(tile, ETileType::ETileType::USED);
 	}
@@ -325,10 +325,10 @@ void Object::finalize(RmgMap & map)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");
-	
-	for(auto iter = dInstances.begin(); iter != dInstances.end(); ++iter)
+
+	for(auto & dInstance : dInstances)
 	{
-		iter->finalize(map);
+		dInstance.finalize(map);
 	}
 }
 

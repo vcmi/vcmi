@@ -24,6 +24,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"
+#include "../../lib/CModHandler.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,13 +34,12 @@ namespace scripting
 
 const std::string LuaContext::STATE_FIELD = "DATA";
 
-LuaContext::LuaContext(const Script * source, const Environment * env_)
-	: ContextBase(env_->logger()),
+LuaContext::LuaContext(const Script * source, const Environment * env_):
+	ContextBase(env_->logger()),
+	L(luaL_newstate()),
 	script(source),
 	env(env_)
 {
-	L = luaL_newstate();
-
 	static const std::vector<luaL_Reg> STD_LIBS =
 	{
 		{"", luaopen_base},
@@ -328,7 +328,7 @@ JsonNode LuaContext::saveState()
 {
 	JsonNode data;
 	getGlobal(STATE_FIELD, data);
-	return std::move(data);
+	return data;
 }
 
 void LuaContext::pop(JsonNode & value)
@@ -416,7 +416,7 @@ void LuaContext::popAll()
 std::string LuaContext::toStringRaw(int index)
 {
 	size_t len = 0;
-	auto raw = lua_tolstring(L, index, &len);
+	const auto *raw = lua_tolstring(L, index, &len);
 	return std::string(raw, len);
 }
 
@@ -430,7 +430,7 @@ void LuaContext::registerCore()
 
 	popAll();//just in case
 
-	for(auto & registar : api::Registry::get()->getCoreData())
+	for(const auto & registar : api::Registry::get()->getCoreData())
 	{
 		registar.second->pushMetatable(L); //table
 
@@ -445,7 +445,7 @@ void LuaContext::registerCore()
 
 int LuaContext::require(lua_State * L)
 {
-	LuaContext * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
+	auto * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	if(!self)
 	{
@@ -502,7 +502,7 @@ int LuaContext::loadModule()
 
 	if(scope.empty())
 	{
-		auto registar = api::Registry::get()->find(modulePath);
+		const auto *registar = api::Registry::get()->find(modulePath);
 
 		if(!registar)
 		{
@@ -518,7 +518,7 @@ int LuaContext::loadModule()
 
 		boost::algorithm::replace_all(modulePath, ".", "/");
 
-		auto loader = CResourceHandler::get(CModHandler::scopeBuiltin());
+		auto *loader = CResourceHandler::get(CModHandler::scopeBuiltin());
 
 		modulePath = "scripts/lib/" + modulePath;
 
@@ -529,7 +529,7 @@ int LuaContext::loadModule()
 
 		auto rawData = loader->load(id)->readAll();
 
-		auto sourceText = std::string((char *)rawData.first.get(), rawData.second);
+		auto sourceText = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
 
 		int ret = luaL_loadbuffer(L, sourceText.c_str(), sourceText.size(), modulePath.c_str());
 
@@ -581,7 +581,7 @@ int LuaContext::printImpl()
 
 int LuaContext::logError(lua_State * L)
 {
-	LuaContext * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
+	auto * self = static_cast<LuaContext *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	if(!self)
 	{

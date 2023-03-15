@@ -27,7 +27,7 @@ namespace AIPathfinding
 		if(!hero->visitedTown)
 		{
 			throw cannotFulfillGoalException(
-				hero->name + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
+				hero->getNameTranslated() + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
 		}
 
 		ai->recruitCreatures(hero->visitedTown, hero);

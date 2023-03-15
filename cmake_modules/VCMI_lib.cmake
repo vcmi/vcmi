@@ -19,6 +19,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.cpp
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.cpp
 		${MAIN_LIB_DIR}/battle/CUnitState.cpp
+		${MAIN_LIB_DIR}/battle/DamageCalculator.cpp
 		${MAIN_LIB_DIR}/battle/Destination.cpp
 		${MAIN_LIB_DIR}/battle/IBattleState.cpp
 		${MAIN_LIB_DIR}/battle/ReachabilityInfo.cpp
@@ -124,6 +125,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/serializer/JsonSerializeFormat.cpp
 		${MAIN_LIB_DIR}/serializer/JsonSerializer.cpp
 		${MAIN_LIB_DIR}/serializer/JsonUpdater.cpp
+		${MAIN_LIB_DIR}/serializer/ILICReader.cpp
 
 		${MAIN_LIB_DIR}/spells/AbilityCaster.cpp
 		${MAIN_LIB_DIR}/spells/AdventureSpellMechanics.cpp
@@ -139,6 +141,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Catapult.cpp
 		${MAIN_LIB_DIR}/spells/effects/Clone.cpp
 		${MAIN_LIB_DIR}/spells/effects/Damage.cpp
+		${MAIN_LIB_DIR}/spells/effects/DemonSummon.cpp
 		${MAIN_LIB_DIR}/spells/effects/Dispel.cpp
 		${MAIN_LIB_DIR}/spells/effects/Effect.cpp
 		${MAIN_LIB_DIR}/spells/effects/Effects.cpp
@@ -190,12 +193,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
 		${MAIN_LIB_DIR}/ResourceSet.cpp
+		${MAIN_LIB_DIR}/RiverHandler.cpp
+		${MAIN_LIB_DIR}/RoadHandler.cpp
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
-		${MAIN_LIB_DIR}/Terrain.cpp
+		${MAIN_LIB_DIR}/TerrainHandler.cpp
+		${MAIN_LIB_DIR}/TextOperations.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
-
-		${VCMILIB_ADDITIONAL_SOURCES}
 	)
 
 	# Version.cpp is a generated file
@@ -235,8 +239,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/Environment.h
 		${MAIN_LIB_DIR}/../include/vcmi/Services.h
 
-		${MAIN_LIB_DIR}/abilities/Ability.h
-
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
@@ -250,6 +252,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.h
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.h
 		${MAIN_LIB_DIR}/battle/CUnitState.h
+		${MAIN_LIB_DIR}/battle/DamageCalculator.h
 		${MAIN_LIB_DIR}/battle/Destination.h
 		${MAIN_LIB_DIR}/battle/IBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/IBattleState.h
@@ -358,6 +361,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/serializer/JsonSerializeFormat.h
 		${MAIN_LIB_DIR}/serializer/JsonSerializer.h
 		${MAIN_LIB_DIR}/serializer/JsonUpdater.h
+		${MAIN_LIB_DIR}/serializer/ILICReader.h
 		${MAIN_LIB_DIR}/serializer/Cast.h
 
 		${MAIN_LIB_DIR}/spells/AbilityCaster.h
@@ -374,6 +378,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Catapult.h
 		${MAIN_LIB_DIR}/spells/effects/Clone.h
 		${MAIN_LIB_DIR}/spells/effects/Damage.h
+		${MAIN_LIB_DIR}/spells/effects/DemonSummon.h
 		${MAIN_LIB_DIR}/spells/effects/Dispel.h
 		${MAIN_LIB_DIR}/spells/effects/Effect.h
 		${MAIN_LIB_DIR}/spells/effects/Effects.h
@@ -408,6 +413,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CModHandler.h
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
+		${MAIN_LIB_DIR}/Color.h
 		${MAIN_LIB_DIR}/CPathfinder.h
 		${MAIN_LIB_DIR}/CPlayerState.h
 		${MAIN_LIB_DIR}/CRandomGenerator.h
@@ -429,19 +435,27 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
+		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
 		${MAIN_LIB_DIR}/NetPacksBase.h
 		${MAIN_LIB_DIR}/NetPacks.h
 		${MAIN_LIB_DIR}/NetPacksLobby.h
+		${MAIN_LIB_DIR}/NetPackVisitor.h
 		${MAIN_LIB_DIR}/ObstacleHandler.h
 		${MAIN_LIB_DIR}/PathfinderUtil.h
+		${MAIN_LIB_DIR}/Point.h
+		${MAIN_LIB_DIR}/Rect.h
+		${MAIN_LIB_DIR}/Rect.cpp
 		${MAIN_LIB_DIR}/ResourceSet.h
+		${MAIN_LIB_DIR}/RiverHandler.h
+		${MAIN_LIB_DIR}/RoadHandler.h
 		${MAIN_LIB_DIR}/ScriptHandler.h
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h
 		${MAIN_LIB_DIR}/StringConstants.h
-		${MAIN_LIB_DIR}/Terrain.h
+		${MAIN_LIB_DIR}/TerrainHandler.h
+		${MAIN_LIB_DIR}/TextOperations.h
 		${MAIN_LIB_DIR}/UnlockGuard.h
 		${MAIN_LIB_DIR}/VCMIDirs.h
 		${MAIN_LIB_DIR}/vcmi_endian.h
@@ -465,7 +479,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		PUBLIC ${MAIN_LIB_DIR}/..
 		PUBLIC ${MAIN_LIB_DIR}/../include
 		PUBLIC ${MAIN_LIB_DIR}
-		PRIVATE ${SDL2_INCLUDE_DIR}
 	)
 
 	if(WIN32)
@@ -476,16 +489,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		)
 	endif()
 
-	if(ANDROID)
-		return()
-	endif()
-
 	vcmi_set_output_dir(${TARGET_NAME} "")
 
 	enable_pch(${TARGET_NAME})
 
 	# We want to deploy assets into build directory for easier debugging without install
-	if(NOT APPLE_IOS)
+	if(COPY_CONFIG_ON_BUILD)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods

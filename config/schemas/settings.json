@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher" ],
+	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -19,26 +19,23 @@
 			"additionalProperties" : false,
 			"required" : [
 				"playerName",
-				"showfps",
 				"music",
 				"sound",
-				"encoding",
+				"language",
 				"swipe",
+				"swipeDesktop",
 				"saveRandomMaps",
 				"saveFrequency",
 				"notifications",
 				"extraDump",
 				"userRelativePointer",
-				"relativePointerSpeedMultiplier"
+				"relativePointerSpeedMultiplier",
+				"lastSettingsTab"
 			],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
 					"default" : "Player"
-				},
-				"showfps" : {
-					"type" : "boolean",
-					"default" : false
 				},
 				"music" : {
 					"type" : "number",
@@ -48,13 +45,13 @@
 					"type" : "number",
 					"default" : 88
 				},
-				"encoding" : {
-					"type" : "string",
-					"default" : "CP1252"
-				},
 				"swipe" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeDesktop" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"saveRandomMaps" : {
 					"type" : "boolean",
@@ -64,9 +61,18 @@
 					"type":"string",
 					"default" : "Maps/Arrogance"
 				},
+				"language" : {
+					"type":"string",
+					"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
+					"default" : "english"
+				},
 				"lastSave" : {
 					"type":"string",
 					"default" : "NEWGAME"
+				},
+				"lastSettingsTab" : {
+					"type" : "number",
+					"default" : 0
 				},
 				"lastCampaign" : {
 					"type":"string",
@@ -98,7 +104,19 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"required" : [ 
+				"screenRes", 
+				"bitsPerPixel", 
+				"fullscreen", 
+				"realFullscreen", 
+				"cursor", 
+				"spellbookAnimation", 
+				"driver", 
+				"showIntro", 
+				"displayIndex",
+				"showfps",
+				"targetfps"
+			],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -122,6 +140,11 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"cursor" :  {
+					"type" : "string",
+					"enum" : [ "auto", "hardware", "software" ],
+					"default" : "auto"
+				},
 				"showIntro" : {
 					"type" : "boolean",
 					"default" : true
@@ -138,6 +161,14 @@
 				"displayIndex" : {
 					"type" : "number",
 					"default" : 0
+				},
+				"showfps" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"targetfps" : {
+					"type" : "number",
+					"default" : 60
 				}
 			}
 		},
@@ -145,19 +176,19 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation" ],
 			"properties" : {
-				"heroSpeed" : {
+				"heroMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"enemySpeed" : {
+				"enemyMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"scrollSpeed" : {
+				"scrollSpeedPixels" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 800
 				},
 				"heroReminder" : {
 					"type" : "boolean",
@@ -166,6 +197,14 @@
 				"quickCombat" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"objectAnimation" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"terrainAnimation" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -241,11 +280,11 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
 			"properties" : {
-				"animationSpeed" : {
+				"speedFactor" : {
 					"type" : "number",
-					"default" : 0.63
+					"default" : 2
 				},
 				"mouseShadow" : {
 					"type":"boolean",
@@ -377,7 +416,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "%l %n [%t] - %m"
+							"default" : "[%c] %l %n - %m"
 						}
 					}
 				},
@@ -410,7 +449,7 @@
 					],
 					"items" : {
 						"type" : "string"
-					},
+					}
 				},
 				"enableInstalledMods" : {
 					"type" : "boolean",
@@ -451,6 +490,50 @@
 					"type" : "number",
 					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
 					"default" : 2000
+				}
+			}
+		},
+		"gameTweaks" : {
+			"type": "object",
+			"default": {},
+			"additionalProperties": false,
+			"required": [
+				"showGrid",
+				"forceMovementInfo",
+				"numericCreaturesQuantities",
+				"availableCreaturesAsDwellingLabel",
+				"compactTownCreatureInfo",
+				"infoBarPick",
+				"skipBattleIntroMusic"
+			],
+			"properties": {
+				"showGrid": {
+					"type": "boolean",
+					"default": false
+				},
+				"forceMovementInfo": {
+					"type": "boolean",
+					"default": false
+				},
+				"numericCreaturesQuantities": {
+					"type": "boolean",
+					"default": false
+				},
+				"availableCreaturesAsDwellingLabel" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"compactTownCreatureInfo" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"infoBarPick" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"skipBattleIntroMusic" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		}

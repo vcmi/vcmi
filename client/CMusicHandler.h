@@ -11,7 +11,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
-#include "../lib/Terrain.h"
 
 struct _Mix_Music;
 struct SDL_RWops;
@@ -54,14 +53,12 @@ private:
 	void ambientStopSound(std::string soundId);
 
 	const JsonNode ambientConfig;
-	bool allTilesSource;
 	std::map<std::string, int> ambientChannels;
 
 public:
 	CSoundHandler();
 
 	void init() override;
-	void loadHorseSounds();
 	void release() override;
 
 	void setVolume(ui32 percent) override;
@@ -77,14 +74,11 @@ public:
 	void soundFinishedCallback(int channel);
 
 	int ambientGetRange() const;
-	bool ambientCheckVisitable() const;
 	void ambientUpdateChannels(std::map<std::string, int> currentSounds);
 	void ambientStopAllChannels();
 
 	// Sets
-	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
-	std::map<TerrainId, soundBase::soundID> horseSounds;
 };
 
 // Helper //now it looks somewhat useless

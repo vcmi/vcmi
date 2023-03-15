@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCreatureSet.h"
 
+#include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
@@ -372,9 +373,15 @@ std::string CCreatureSet::getRoughAmount(SlotID slot, int mode) const
 {
 	/// Mode represent return string format
 	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
-	int quantity = CCreature::getQuantityID(getStackCount(slot));
-	if(quantity)
-		return VLC->generaltexth->arraytxt[(174 + mode) + 3*CCreature::getQuantityID(getStackCount(slot))];
+	CCreature::CreatureQuantityId quantity = CCreature::getQuantityID(getStackCount(slot));
+
+	if((int)quantity)
+	{
+		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+			return CCreature::getQuantityRangeStringForId(quantity);
+
+		return VLC->generaltexth->arraytxt[(174 + mode) + 3*(int)quantity];
+	}
 	return "";
 }
 
@@ -384,7 +391,7 @@ std::string CCreatureSet::getArmyDescription() const
 	std::vector<std::string> guards;
 	for(auto & elem : stacks)
 	{
-		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->namePl);
+		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->getNamePluralTranslated());
 		guards.push_back(str);
 	}
 	if(guards.size())
@@ -507,7 +514,7 @@ void CCreatureSet::joinStack(SlotID slot, CStackInstance * stack)
 	const CCreature *c = getCreature(slot);
 	assert(c == stack->type);
 	assert(c);
-	UNUSED(c);
+	MAYBE_UNUSED(c);
 
 	//TODO move stuff
 	changeStackCount(slot, stack->count);
@@ -700,7 +707,7 @@ void CStackInstance::init()
 	setNodeType(STACK_INSTANCE);
 }
 
-int CStackInstance::getQuantityID() const
+CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 {
 	return CCreature::getQuantityID(count);
 }
@@ -814,10 +821,15 @@ void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
 
 std::string CStackInstance::getQuantityTXT(bool capitalized) const
 {
-	int quantity = getQuantityID();
+	CCreature::CreatureQuantityId quantity = getQuantityID();
 
-	if (quantity)
-		return VLC->generaltexth->arraytxt[174 + quantity*3 - 1 - capitalized];
+	if ((int)quantity)
+	{
+		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+			return CCreature::getQuantityRangeStringForId(quantity);
+
+		return VLC->generaltexth->arraytxt[174 + (int)quantity*3 - 1 - capitalized];
+	}
 	else
 		return "";
 }
@@ -843,7 +855,7 @@ std::string CStackInstance::nodeName() const
 	std::ostringstream oss;
 	oss << "Stack of " << count << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getNamePluralTextID();
 	else if(idRand >= 0)
 		oss << "[no type, idRand=" << idRand << "]";
 	else
@@ -875,7 +887,7 @@ CreatureID CStackInstance::getCreatureID() const
 
 std::string CStackInstance::getName() const
 {
-	return (count > 1) ? type->namePl : type->nameSing;
+	return (count > 1) ? type->getNamePluralTranslated() : type->getNameSingularTranslated();
 }
 
 ui64 CStackInstance::getPower() const
@@ -1044,7 +1056,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	{
 		if(type)
 		{
-			std::string typeName = type->identifier;
+			std::string typeName = type->getJsonKey();
 			handler.serializeString("type", typeName);
 		}
 	}

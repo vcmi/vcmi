@@ -80,6 +80,7 @@ class CMultiMode : public WindowBase
 public:
 	ESelectionScreen screenType;
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> picture;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
 	std::shared_ptr<CButton> buttonHost;
@@ -166,7 +167,8 @@ class CSimpleJoinScreen : public WindowBase
 	void connectToServer();
 	void leaveScreen();
 	void onChange(const std::string & newText);
-	void connectThread(const std::string addr = "", const ui16 inputPort = 0);
+	void startConnectThread(const std::string & addr = {}, ui16 port = 0);
+	void connectThread(const std::string & addr, ui16 port);
 
 public:
 	CSimpleJoinScreen(bool host = true);

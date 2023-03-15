@@ -1,14 +1,64 @@
 {
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
+	
+	"german" : {
+		"name" : "VCMI - grundlegende Dateien",
+		"description" : "Grundlegende Dateien, die für die korrekte Ausführung von VCMI erforderlich sind",
+		"author" : "VCMI-Team",
+		"modType" : "Grafik",
+		
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/german.json"
+		]
+	},
+	
+	"polish" : {
+		"name" : "Podstawowe pliki VCMI",
+		"description" : "Dodatkowe pliki wymagane do prawidłowego działania VCMI",
+		"author" : "Zespół VCMI",
+		"modType" : "Graficzny",
+		
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/polish.json"
+		]
+	},
 
-	"version" : "1.1",
+	"russian" : {
+		"name" : "Ключевые файлы VCMI",
+		"description" : "Файлы, необходимые для полноценной работы VCMI",
+		"author" : "Команда VCMI",
+		"modType" : "Графический",
+
+		"translations" : [
+			"config/vcmi/russian.json"
+		]
+	},
+
+	"ukrainian" : {
+		"name" : "VCMI - ключові файли",
+		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
+		"author" : "Команда VCMI",
+		"modType" : "Графіка",
+		
+		"translations" : [
+			"config/vcmi/ukrainian.json"
+		]
+	},
+
+	"version" : "1.1.1",
 	"author" : "VCMI Team",
 	"contact" : "http://forum.vcmi.eu/index.php",
 	"modType" : "Graphical",
 	
 	"factions" : [ "config/vcmi/towerFactions" ],
 	"creatures" : [ "config/vcmi/towerCreature" ],
+		
+	"translations" : [
+		"config/vcmi/english.json"
+	],
 
 	"filesystem":
 	{

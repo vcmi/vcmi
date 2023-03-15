@@ -70,7 +70,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
+			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.getHeroStrength());
 #endif
 			continue;
 		}
@@ -81,7 +81,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && path.exchangeCount > 1)
 			continue;
 
 		auto firstBlockedAction = path.getFirstBlockedAction();
@@ -113,7 +113,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
 			objToVisit ? objToVisit->getObjectName() : path.targetTile().toString(),
-			hero->name,
+			hero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());
@@ -126,8 +126,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 			sharedPtr.reset(newWay);
 
-			if(!closestWay || closestWay->movementCost() > path.movementCost())
+			auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+
+			if(heroRole == HeroRole::SCOUT
+				&& (!closestWay || closestWay->movementCost() > path.movementCost()))
+			{
 				closestWay = &path;
+			}
 
 			if(!ai->nullkiller->arePathHeroesLocked(path))
 			{
@@ -137,11 +142,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		}
 	}
 
-	assert(closestWay || waysToVisitObj.empty());
-	for(auto way : waysToVisitObj)
+	if(closestWay)
 	{
-		way->closestWayRatio
-			= closestWay->movementCost() / way->getPath().movementCost();
+		for(auto way : waysToVisitObj)
+		{
+			way->closestWayRatio
+				= closestWay->movementCost() / way->getPath().movementCost();
+		}
 	}
 
 	return tasks;
