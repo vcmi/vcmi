@@ -140,6 +140,13 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 {
 	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
+	const std::string delimeters = "{}";
+	auto delimitersCount = std::count_if(what.cbegin(), what.cend(), [&delimeters](char c)
+	{
+		return delimeters.find(c) != std::string::npos;
+	});
+	//We should count delimiters length from string to correct centering later.
+	delimitersCount *= f->getStringWidth(delimeters)/2;
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
@@ -151,18 +158,17 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 
 	if(alignment == ETextAlignment::CENTER)
 	{
-		where.x += (int(destRect.w) - int(f->getStringWidth(what))) / 2;
+		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
 		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
 	}
 
 	if(alignment == ETextAlignment::BOTTOMRIGHT)
 	{
-		where.x += getBorderSize().x + destRect.w - (int)f->getStringWidth(what);
+		where.x += getBorderSize().x + destRect.w - ((int)f->getStringWidth(what) - delimitersCount);
 		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
 	}
 
 	size_t begin = 0;
-	std::string delimeters = "{}";
 	size_t currDelimeter = 0;
 
 	do
