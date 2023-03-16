@@ -133,24 +133,12 @@ int DamageCalculator::getActorAttackSlayer() const
 	static const auto selectorSlayer = Selector::type()(Bonus::SLAYER);
 
 	auto slayerEffects = info.attacker->getBonuses(selectorSlayer, cachingStrSlayer);
+	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(Bonus::KING));
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
-		std::vector<int32_t> affectedIds;
 		const auto spLevel = slayerEffect->val;
-		const CCreature * defenderType = info.defender->unitType();
-		bool isAffected = false;
-
-		for(const auto & b : defenderType->getBonusList())
-		{
-			if((b->type == Bonus::KING3 && spLevel >= 3) || //expert
-				(b->type == Bonus::KING2 && spLevel >= 2) || //adv +
-				(b->type == Bonus::KING1 && spLevel >= 0)) //none or basic +
-			{
-				isAffected = true;
-				break;
-			}
-		}
+		bool isAffected = spLevel >= slayerAffected;
 
 		if(isAffected)
 		{
@@ -213,18 +201,16 @@ double DamageCalculator::getAttackBlessFactor() const
 
 double DamageCalculator::getAttackOffenseArcheryFactor() const
 {
+	
 	if(info.shooting)
 	{
-		const std::string cachingStrArchery = "type_SECONDARY_SKILL_PREMYs_ARCHERY";
-		static const auto selectorArchery = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARCHERY);
+		const std::string cachingStrArchery = "type_PERCENTAGE_DAMAGE_BOOSTs_1";
+		static const auto selectorArchery = Selector::typeSubtype(Bonus::PERCENTAGE_DAMAGE_BOOST, 1);
 		return info.attacker->valOfBonuses(selectorArchery, cachingStrArchery) / 100.0;
 	}
-	else
-	{
-		const std::string cachingStrOffence = "type_SECONDARY_SKILL_PREMYs_OFFENCE";
-		static const auto selectorOffence = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::OFFENCE);
-		return info.attacker->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
-	}
+	const std::string cachingStrOffence = "type_PERCENTAGE_DAMAGE_BOOSTs_0";
+	static const auto selectorOffence = Selector::typeSubtype(Bonus::PERCENTAGE_DAMAGE_BOOST, 0);
+	return info.attacker->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
 }
 
 double DamageCalculator::getAttackLuckFactor() const
@@ -243,8 +229,11 @@ double DamageCalculator::getAttackDeathBlowFactor() const
 
 double DamageCalculator::getAttackDoubleDamageFactor() const
 {
-	if(info.doubleDamage)
-		return 1.0;
+	if(info.doubleDamage) {
+		const auto cachingStr = "type_BONUS_DAMAGE_PERCENTAGEs_" + std::to_string(info.attacker->creatureIndex());
+		const auto selector = Selector::typeSubtype(Bonus::BONUS_DAMAGE_PERCENTAGE, info.attacker->creatureIndex());
+		return info.attacker->valOfBonuses(selector, cachingStr) / 100.0;
+	}
 	return 0.0;
 }
 
@@ -258,7 +247,7 @@ double DamageCalculator::getAttackJoustingFactor() const
 
 	//applying jousting bonus
 	if(info.chargeDistance > 0 && info.attacker->hasBonus(selectorJousting, cachingStrJousting) && !info.defender->hasBonus(selectorChargeImmunity, cachingStrChargeImmunity))
-		return info.chargeDistance * 0.05;
+		return info.chargeDistance * (info.attacker->valOfBonuses(selectorJousting))/100.0;
 	return 0.0;
 }
 
@@ -291,8 +280,8 @@ double DamageCalculator::getDefenseSkillFactor() const
 
 double DamageCalculator::getDefenseArmorerFactor() const
 {
-	const std::string cachingStrArmorer = "type_SECONDARY_SKILL_PREMYs_ARMORER";
-	static const auto selectorArmorer = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARMORER);
+	const std::string cachingStrArmorer = "type_GENERAL_DAMAGE_REDUCTIONs_N1_NsrcSPELL_EFFECT";
+	static const auto selectorArmorer = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(Bonus::SPELL_EFFECT).Not());
 	return info.defender->valOfBonuses(selectorArmorer, cachingStrArmorer) / 100.0;
 
 }
@@ -396,8 +385,8 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 double DamageCalculator::getDefensePetrificationFactor() const
 {
 	// Creatures that are petrified by a Basilisk's Petrifying attack or a Medusa's Stone gaze take 50% damage (R8 = 0.50) from ranged and melee attacks. Taking damage also deactivates the effect.
-	const std::string cachingStrAllReduction = "type_GENERAL_DAMAGE_REDUCTIONs_N1";
-	static const auto selectorAllReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1);
+	const std::string cachingStrAllReduction = "type_GENERAL_DAMAGE_REDUCTIONs_N1_srcSPELL_EFFECT";
+	static const auto selectorAllReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(Bonus::SPELL_EFFECT));
 
 	return info.defender->valOfBonuses(selectorAllReduction, cachingStrAllReduction) / 100.0;
 }

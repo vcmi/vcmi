@@ -33,8 +33,8 @@ CSkill::LevelInfo::~LevelInfo()
 {
 }
 
-CSkill::CSkill(SecondarySkill id, std::string identifier)
-	: id(id), identifier(identifier)
+CSkill::CSkill(SecondarySkill id, std::string identifier, bool obligatoryMajor, bool obligatoryMinor)
+	: id(id), identifier(identifier), obligatoryMajor(obligatoryMajor), obligatoryMinor(obligatoryMinor)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
@@ -207,8 +207,11 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
+	bool major, minor;
 
-	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier);
+	major = json["obligatoryMajor"].Bool();
+	minor = json["obligatoryMinor"].Bool();
+	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
 	skill->modScope = scope;
 
 	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
@@ -242,7 +245,6 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
-	logMod->trace("%s", skill->toString());
 
 	return skill;
 }

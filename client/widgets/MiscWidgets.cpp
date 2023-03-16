@@ -393,16 +393,9 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
 	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD)
-			|| node->hasBonusOfType(Bonus::BLOCK_MORALE)
 			|| node->hasBonusOfType(Bonus::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
-		bonusValue = 0;
-	}
-	else if(!morale && node && node->hasBonusOfType(Bonus::BLOCK_LUCK))
-	{
-		// TODO: there is no text like "Unaffected by luck" so probably we need own text
-		text += CGI->generaltexth->arraytxt[noneTxtId];
 		bonusValue = 0;
 	}
 	else if(morale && node && node->hasBonusOfType(Bonus::NO_MORALE))

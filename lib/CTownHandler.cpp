@@ -521,7 +521,7 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building)
 			b = createBonus(building, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
 			break;
 		case BuildingSubID::LIGHTHOUSE:
-			b = createBonus(building, Bonus::SEA_MOVEMENT, +500, playerPropagator);
+			b = createBonus(building, Bonus::MOVEMENT, +500, playerPropagator, 0);
 			break;
 		}
 	}

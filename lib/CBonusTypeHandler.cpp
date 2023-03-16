@@ -82,8 +82,8 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	if (text.find("${subtype.spell}") != std::string::npos)
 		boost::algorithm::replace_all(text, "${subtype.spell}", SpellID(bonus->subtype).toSpell()->getNameTranslated());
 
-	if (text.find("${MR}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${MR}", std::to_string(bearer->magicResistance()));
+	if (text.find("${SHval}") != std::string::npos) //regeneration case
+		boost::algorithm::replace_all(text, "${SHval}", std::to_string(std::min(static_cast<si32>(bearer->MaxHealth()),bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype)))));
 
 	return text;
 }
@@ -95,12 +95,6 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 
 	switch(bonus->type)
 	{
-	case Bonus::SECONDARY_SKILL_PREMY:
-		if(bonus->subtype == SecondarySkill::RESISTANCE)
-		{
-			fileName = "E_DWARF.bmp";
-		}
-		break;
 	case Bonus::SPELL_IMMUNITY:
 	{
 		fullPath = true;
@@ -167,6 +161,14 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		if(vstd::iswithin(bonus->val, 1, 5))
 		{
 			fileName = "E_SPLVL" + std::to_string(bonus->val) + ".bmp";
+		}
+		break;
+	}
+	case Bonus::KING:
+	{
+		if(vstd::iswithin(bonus->val, 0, 3))
+		{
+			fileName = "E_KING" + std::to_string(std::max(1, bonus->val)) + ".bmp";
 		}
 		break;
 	}

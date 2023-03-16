@@ -12,11 +12,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"archery" : {
-					"subtype" : "skill.archery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
+					"subtype" : 1,
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
@@ -62,11 +63,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"navigation" : {
-					"subtype" : "skill.navigation",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"subtype" : 0,
+					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -85,11 +87,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"estates" : {
-					"subtype" : "skill.estates",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
@@ -150,11 +153,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"firstAid" : {
-					"subtype" : "skill.firstAid",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "spell.firstAid",
+					"type" : "SPECIFIC_SPELL_POWER",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
@@ -173,9 +177,20 @@
 		"specialty" : {
 			"bonuses" : {
 				"bless" : {
-					"addInfo" : 0,
-					"subtype" : "spell.bless",
-					"type" : "SPECIAL_BLESS_DAMAGE",
+					"type" : "GENERAL_DAMAGE_PREMY",
+					"limiters" : [
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"parameters" : [
+								"GENERAL_DAMAGE_PREMY",
+								1,
+								{
+									"type" : "SPELL_EFFECT",
+									"id" : "spell.bless"
+								}
+							]
+						}
+					],
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
@@ -253,11 +268,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : "skill.eagleEye",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}

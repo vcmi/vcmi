@@ -338,7 +338,7 @@
 						},
 						"message" : 138,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "LAND_MOVEMENT", "val" : 400, "duration" : "ONE_WEEK"} ],
+						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : 1,  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ],
 						"changeCreatures" : {
 							"cavalier" : "champion"
 						}
@@ -346,7 +346,7 @@
 					{
 						"message" : 137,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "LAND_MOVEMENT", "val" : 400, "duration" : "ONE_WEEK"} ]
+						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : 1,  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ]
 					}
 				]
 			}

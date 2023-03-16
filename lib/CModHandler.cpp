@@ -812,6 +812,11 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tCOMMANDERS\t%d", static_cast<int>(modules.COMMANDERS));
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
 	logMod->debug("\tMITHRIL\t%d", static_cast<int>(modules.MITHRIL));
+
+	const JsonNode & baseBonuses = VLC->modh->settings.data["heroBaseBonuses"];
+	logMod->debug("\tLoading base hero bonuses");
+	for(const auto & b : baseBonuses.Vector())
+		heroBaseBonuses.emplace_back(JsonUtils::parseBonus(b));
 }
 
 // currentList is passed by value to get current list of depending mods

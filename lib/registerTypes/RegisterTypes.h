@@ -137,6 +137,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<IUpdater, TimesHeroLevelUpdater>();
 	s.template registerType<IUpdater, TimesStackLevelUpdater>();
 	s.template registerType<IUpdater, OwnerUpdater>();
+	s.template registerType<IUpdater, ArmyMovementUpdater>();
 
 	s.template registerType<ILimiter, AnyOfLimiter>();
 	s.template registerType<ILimiter, NoneOfLimiter>();

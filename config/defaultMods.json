@@ -44,5 +44,56 @@
 		"STACK_ARTIFACTS": false,
 		"COMMANDERS": false,
 		"MITHRIL": false //so far unused
-	}
+	},
+	"baseBonuses" : [
+		{
+			"type" : "SPELL_DAMAGE", //Default spell damage
+			"val" : 100,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
+			"val" : 2,
+			"valueType" : "BASE_NUMBER"
+		}
+	],
+	"heroBaseBonuses":
+	[
+		{
+			"type" : "MANA_REGENERATION", //default mana regeneration
+			"val" : 1,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "SIGHT_RADIUS", //default sight radius
+			"val" : 5,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
+			"val" : 100,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MANA_PER_KNOWLEDGE", //10 knowledge to 100 mana is default
+			"val" : 10,
+			"valueType" : "BASE_NUMBER"
+		},
+		{
+			"type" : "MOVEMENT", //Basic land movement
+			"subtype" : 1,
+			"val" : 1300,
+			"valueType" : "BASE_NUMBER",
+			"updater" : {
+				"type" : "ARMY_MOVEMENT", //Enable army movement bonus
+				"parameters" : [20, 3, 10, 700]
+			}
+		},
+		{
+			"type" : "MOVEMENT", //Basic sea movement
+			"subtype" : 0,
+			"val" : 1500,
+			"valueType" : "BASE_NUMBER"
+		}
+	]
 }

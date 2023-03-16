@@ -209,7 +209,7 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 		return 1500;
 
 	auto statsValue =
-		10 * art->valOfBonuses(Bonus::LAND_MOVEMENT)
+		10 * art->valOfBonuses(Bonus::MOVEMENT, 1)
 		+ 1200 * art->valOfBonuses(Bonus::STACKS_SPEED)
 		+ 700 * art->valOfBonuses(Bonus::MORALE)
 		+ 700 * art->getAttack(false)

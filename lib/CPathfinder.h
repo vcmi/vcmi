@@ -525,15 +525,17 @@ struct DLL_LINKAGE TurnInfo
 	std::unique_ptr<BonusCache> bonusCache;
 
 	const CGHeroInstance * hero;
-	TConstBonusListPtr bonuses;
+	mutable TConstBonusListPtr bonuses;
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
 	TerrainId nativeTerrain;
+	int turn;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int valOfBonuses(const Bonus::BonusType type, const int subtype = -1) const;
+	void updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 };
 

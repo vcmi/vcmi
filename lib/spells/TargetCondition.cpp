@@ -57,22 +57,34 @@ protected:
 	virtual bool check(const Mechanics * m, const battle::Unit * target) const = 0;
 };
 
-class BonusCondition : public TargetConditionItemBase
+class SelectorCondition : public TargetConditionItemBase
 {
 public:
-	BonusCondition(BonusTypeID type_)
-		: type(type_)
+	SelectorCondition(const CSelector & csel):
+		sel(csel)
+	{
+	}
+	SelectorCondition(const CSelector & csel, si32 minVal, si32 maxVal):
+		sel(csel),
+		minVal(minVal),
+		maxVal(maxVal)
 	{
 	}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return target->hasBonus(Selector::type()(type));
+		if(target->hasBonus(sel)) {
+			auto b = target->valOfBonuses(sel,"");
+			return b >= minVal && b <= maxVal;
+		}
+		return false;
 	}
 
 private:
-	BonusTypeID type;
+	CSelector sel;
+	si32 minVal = std::numeric_limits<si32>::min();
+	si32 maxVal = std::numeric_limits<si32>::max();
 };
 
 class CreatureCondition : public TargetConditionItemBase
@@ -318,8 +330,16 @@ public:
 
 			auto it = bonusNameMap.find(identifier);
 			if(it != bonusNameMap.end())
-				return std::make_shared<BonusCondition>(it->second);
-			else
+				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
+			
+			auto params = BonusParams(identifier, "", -1);
+			if(params.isConverted)
+			{
+				if(params.valRelevant)
+					return std::make_shared<SelectorCondition>(params.toSelector(), params.val, params.val);
+				return std::make_shared<SelectorCondition>(params.toSelector());
+			}
+
 				logMod->error("Invalid bonus type %s in spell target condition.", identifier);
 		}
 		else if(type == "creature")
@@ -349,6 +369,26 @@ public:
 			logMod->error("Invalid type %s in spell target condition.", type);
 		}
 
+		return Object();
+	}
+
+	Object createFromJsonStruct(const JsonNode & jsonStruct) const override
+	{	
+		auto type = jsonStruct["type"].String();
+		auto parameters = jsonStruct["parameters"];
+		if(type == "selector")
+		{
+			auto minVal = std::numeric_limits<si32>::min();
+			auto maxVal = std::numeric_limits<si32>::max();
+			if(parameters["minVal"].isNumber())
+				minVal = parameters["minVal"].Integer();
+			if(parameters["maxVal"].isNumber())
+				maxVal = parameters["maxVal"].Integer();
+			auto sel = JsonUtils::parseSelector(parameters);
+			return std::make_shared<SelectorCondition>(sel, minVal, maxVal);
+		}
+
+		logMod->error("Invalid type %s in spell target condition.", type);
 		return Object();
 	}
 
@@ -389,6 +429,7 @@ bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * targ
 
 void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFactory * itemFactory)
 {
+	bool isNonMagical = false;
 	if(handler.saving)
 	{
 		logGlobal->error("Spell target condition saving is not supported");
@@ -399,13 +440,18 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 	normal.clear();
 	negation.clear();
 
-	absolute.push_back(itemFactory->createAbsoluteLevel());
 	absolute.push_back(itemFactory->createAbsoluteSpell());
-	normal.push_back(itemFactory->createElemental());
-	normal.push_back(itemFactory->createNormalLevel());
-	normal.push_back(itemFactory->createNormalSpell());
-	negation.push_back(itemFactory->createReceptiveFeature());
-	negation.push_back(itemFactory->createImmunityNegation());
+
+	handler.serializeBool("nonMagical", isNonMagical);
+	if(!isNonMagical)
+	{
+		absolute.push_back(itemFactory->createAbsoluteLevel());
+		normal.push_back(itemFactory->createElemental());
+		normal.push_back(itemFactory->createNormalLevel());
+		normal.push_back(itemFactory->createNormalSpell());
+		negation.push_back(itemFactory->createReceptiveFeature());
+		negation.push_back(itemFactory->createImmunityNegation());
+	}
 
 	{
 		auto anyOf = handler.enterStruct("anyOf");
@@ -457,16 +503,24 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 			isAbsolute = true;
 		else if(value.String() == "normal")
 			isAbsolute = false;
+		else if(value.isStruct()) //assume conditions have a new struct format
+			isAbsolute = value["absolute"].Bool();
 		else
 			continue;
 
-		std::string scope;
-		std::string type;
-		std::string identifier;
+		std::shared_ptr<TargetConditionItem> item;
+		if(value.isStruct())
+			item = itemFactory->createFromJsonStruct(value);
+		else
+		{
+			std::string scope;
+			std::string type;
+			std::string identifier;
 
-		CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
+			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
 
-		std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(scope, type, identifier);
+			std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(scope, type, identifier);
+		}
 
 		if(item)
 		{

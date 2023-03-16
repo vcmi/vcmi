@@ -1,5 +1,4 @@
 //TODO: selector-based config
-// SECONDARY_SKILL_PREMY
 // school immunities
 // LEVEL_SPELL_IMMUNITY
 
@@ -215,14 +214,6 @@
 
 	},
 
-	"FULL_HP_REGENERATION":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_TROLL"
-		}
-	},
-
 	"GARGOYLE":
 	{
 		"graphics":
@@ -271,28 +262,22 @@
 		}
 	},
 
-	"KING1":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_KING1"
-		}
-	},
-
-	"KING2":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_KING2"
-		}
-	},
-
-	"KING3":
+	"KING":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_KING3"
 		}
+	},
+
+	"LEARN_BATTLE_SPELL_CHANCE":
+	{
+		"hidden": true
+	},
+
+	"LEARN_BATTLE_SPELL_LEVEL_LIMIT":
+	{
+		"hidden": true
 	},
 
 	"LEVEL_SPELL_IMMUNITY":
@@ -417,6 +402,11 @@
 		}
 	},
 
+	"PERCENTAGE_DAMAGE_BOOST":
+	{
+		"hidden": true
+	},
+
 	"RECEPTIVE":
 	{
 		"graphics":
@@ -439,12 +429,6 @@
 		{
 			"icon":  "zvs/Lib1.res/E_HARPY"
 		}
-	},
-
-	"SECONDARY_SKILL_PREMY":
-	{
-		"hidden": true
-		//todo: selector based config
 	},
 
 	"SELF_LUCK":

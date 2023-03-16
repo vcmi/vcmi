@@ -810,7 +810,7 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "SIGHT_RADIOUS",
+				"type" : "SIGHT_RADIUS",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -822,7 +822,7 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "SIGHT_RADIOUS",
+				"type" : "SIGHT_RADIUS",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -834,8 +834,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 12,
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -847,8 +846,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 12,
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -860,8 +858,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 12,
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -912,10 +909,23 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.archery",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "PERCENTAGE_DAMAGE_BOOST",
+				"subtype" : 1,
 				"val" : 5,
-				"valueType" : "ADDITIVE_VALUE"
+				"valueType" : "ADDITIVE_VALUE",
+				"limiters" : [
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [
+							"PERCENTAGE_DAMAGE_BOOST",
+							1,
+							{
+								"type" : "SECONDARY_SKILL",
+								"id" : "skill.archery"
+							}
+						]
+					}
+				]
 			}
 		],
 		"index" : 60,
@@ -925,10 +935,23 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.archery",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "PERCENTAGE_DAMAGE_BOOST",
+				"subtype" : 1,
 				"val" : 10,
-				"valueType" : "ADDITIVE_VALUE"
+				"valueType" : "ADDITIVE_VALUE",
+				"limiters" : [
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [
+							"PERCENTAGE_DAMAGE_BOOST",
+							1,
+							{
+								"type" : "SECONDARY_SKILL",
+								"id" : "skill.archery"
+							}
+						]
+					}
+				]
 			}
 		],
 		"index" : 61,
@@ -938,10 +961,23 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.archery",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"type" : "PERCENTAGE_DAMAGE_BOOST",
+				"subtype" : 1,
 				"val" : 15,
-				"valueType" : "ADDITIVE_VALUE"
+				"valueType" : "ADDITIVE_VALUE",
+				"limiters" : [
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [
+							"PERCENTAGE_DAMAGE_BOOST",
+							1,
+							{
+								"type" : "SECONDARY_SKILL",
+								"id" : "skill.archery"
+							}
+						]
+					}
+				]
 			}
 		],
 		"index" : 62,
@@ -951,8 +987,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.eagleEye",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"subtype" : 0,
+				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -964,8 +1000,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.eagleEye",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"subtype" : 0,
+				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -977,8 +1013,8 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "skill.eagleEye",
-				"type" : "SECONDARY_SKILL_PREMY",
+				"subtype" : 0,
+				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1038,9 +1074,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "LAND_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 1,
 				"val" : 300,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 70,
@@ -1050,9 +1087,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "SEA_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 0,
 				"val" : 1000,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 71,
@@ -1207,9 +1245,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "BLOCK_MORALE",
+				"type" : "MORALE",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
 			}
 		],
 		"index" : 84,
@@ -1219,9 +1258,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "BLOCK_LUCK",
+				"type" : "LUCK",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
 			}
 		],
 		"index" : 85,
@@ -1394,9 +1434,10 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "LAND_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 1,
 				"val" : 600,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 98,
@@ -1742,9 +1783,10 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"type" : "SEA_MOVEMENT",
+				"type" : "MOVEMENT",
+				"subtype" : 0,
 				"val" : 500,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			},
 			{
 				"subtype" : "spell.summonBoat",
@@ -1892,6 +1934,11 @@
 	"cloakOfTheUndeadKing":
 	{
 		"bonuses" : [
+			{
+				"type" : "IMPROVED_NECROMANCY",
+				"subtype" : "creature.skeleton",
+				"addInfo" : 0
+			},
 			{
 				"type" : "IMPROVED_NECROMANCY",
 				"subtype" : "creature.walkingDead",

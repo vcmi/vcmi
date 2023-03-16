@@ -325,11 +325,7 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 		return false;
 
 	auto wallPart = owner.curInt->cb->battleHexToWallPart(hex);
-	if (!owner.curInt->cb->isWallPartPotentiallyAttackable(wallPart))
-		return false;
-
-	auto state = owner.curInt->cb->battleGetWallState(wallPart);
-	return state != EWallState::DESTROYED && state != EWallState::NONE;
+	return owner.curInt->cb->isWallPartAttackable(wallPart);
 }
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)

@@ -12,11 +12,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"armorer" : {
-					"subtype" : "skill.armorer",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "GENERAL_DAMAGE_REDUCTION",
+					"subtype" : -1,
+					"targetSourceType" : "SECONDARY_SKILL",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -80,11 +81,11 @@
 		"specialty" : {
 			"bonuses" : {
 				"resistance" : {
-					"subtype" : "skill.resistance",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MAGIC_RESISTANCE",
+					"targetSourceType" : "SECONDARY_SKILL",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -130,11 +131,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"logistics" : {
-					"subtype" : "skill.logistics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"subtype" : 1,
+					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -196,11 +198,11 @@
 		"specialty" : {
 			"bonuses" : {
 				"intelligence" : {
-					"subtype" : "skill.intelligence",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"type" : "MANA_PER_KNOWLEDGE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -219,11 +221,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"firstAid" : {
-					"subtype" : "skill.firstAid",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "spell.firstAid",
+					"type" : "SPECIFIC_SPELL_POWER",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
@@ -242,11 +245,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : "skill.eagleEye",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}

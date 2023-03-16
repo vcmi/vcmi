@@ -708,10 +708,34 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				{
 					std::shared_ptr<HasAnotherBonusLimiter> bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 					bonusLimiter->type = it->second;
+					auto findSource = [&](const JsonNode & parameter)
+					{
+						if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+						{
+							auto sourceIt = bonusSourceMap.find(parameter["type"].String());
+							if(sourceIt != bonusSourceMap.end())
+							{
+								bonusLimiter->source = sourceIt->second;
+								bonusLimiter->isSourceRelevant = true;
+								if(!parameter["id"].isNull()) {
+									resolveIdentifier(parameter["id"], bonusLimiter->sid);
+									bonusLimiter->isSourceIDRelevant = true;
+								}
+							}
+						}
+						return false;
+					};
 					if(parameters.size() > 1)
 					{
-						resolveIdentifier(parameters[1], bonusLimiter->subtype);
-						bonusLimiter->isSubtypeRelevant = true;
+						if(findSource(parameters[1]) && parameters.size() == 2)
+							return bonusLimiter;
+						else
+						{
+							resolveIdentifier(parameters[1], bonusLimiter->subtype);
+							bonusLimiter->isSubtypeRelevant = true;
+							if(parameters.size() > 2)
+								findSource(parameters[2]);
+						}
 					}
 					return bonusLimiter;
 				}
@@ -781,26 +805,124 @@ std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode &ability, Bu
 	return b;
 }
 
+static BonusParams convertDeprecatedBonus(const JsonNode &ability)
+{
+	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
+	{
+		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toJson());
+		auto params = BonusParams(ability["type"].String(),
+											ability["subtype"].isString() ? ability["subtype"].String() : "",
+											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
+		if(params.isConverted)
+		{
+			if(!params.valRelevant) {
+				params.val = static_cast<si32>(ability["val"].Float());
+				params.valRelevant = true;
+				if(params.type == Bonus::SPECIFIC_SPELL_POWER) //First Aid value should be substracted by 10
+					params.val -= 10; //Base First Aid value
+			}
+			Bonus::ValueType valueType = Bonus::ADDITIVE_VALUE;
+			if(!ability["valueType"].isNull())
+				valueType = bonusValueMap.find(ability["valueType"].String())->second;
+
+			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && valueType == Bonus::PERCENT_TO_BASE) //assume secondary skill special
+			{
+				params.valueType = Bonus::PERCENT_TO_TARGET_TYPE;
+				params.targetType = Bonus::SECONDARY_SKILL;
+				params.targetTypeRelevant = true;
+			}
+
+			if(!params.valueTypeRelevant) {
+				params.valueType = valueType;
+				params.valueTypeRelevant = true;
+			}
+			logMod->warn("Please, use this bonus:\n%s\nConverted sucessfully!", params.toJson().toJson());
+			return params;
+		}
+		else
+			logMod->error("Cannot convert bonus!\n%s", ability.toJson());
+	}
+	BonusParams ret;
+	ret.isConverted = false;
+	return ret;
+}
+
+static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
+{
+	switch(updaterJson.getType())
+	{
+	case JsonNode::JsonType::DATA_STRING:
+		return parseByMap(bonusUpdaterMap, &updaterJson, "updater type ");
+		break;
+	case JsonNode::JsonType::DATA_STRUCT:
+		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+		{
+			std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
+			const JsonVector param = updaterJson["parameters"].Vector();
+			updater->valPer20 = static_cast<int>(param[0].Integer());
+			if(param.size() > 1)
+				updater->stepSize = static_cast<int>(param[1].Integer());
+			return updater;
+		}
+		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
+		{
+			std::shared_ptr<ArmyMovementUpdater> updater = std::make_shared<ArmyMovementUpdater>();
+			if(updaterJson["parameters"].isVector())
+			{
+				const auto & param = updaterJson["parameters"].Vector();
+				if(param.size() < 4)
+					logMod->warn("Invalid ARMY_MOVEMENT parameters, using default!");
+				else
+				{
+					updater->base = static_cast<si32>(param.at(0).Integer());
+					updater->divider = static_cast<si32>(param.at(1).Integer());
+					updater->multiplier = static_cast<si32>(param.at(2).Integer());
+					updater->max = static_cast<si32>(param.at(3).Integer());
+				}
+				return updater;
+			}
+		}
+		else
+			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+		break;
+	}
+	return nullptr;
+}
+
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
 	const JsonNode *value;
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
+	auto params = std::make_unique<BonusParams>(false);
 	if (it == bonusNameMap.end())
 	{
-		logMod->error("Error: invalid ability type %s.", type);
-		return false;
+		params = std::make_unique<BonusParams>(convertDeprecatedBonus(ability));
+		if(!params->isConverted)
+		{
+			logMod->error("Error: invalid ability type %s.", type);
+			return false;
+		}
+		b->type = params->type;
+		b->val = params->val;
+		b->valType = params->valueType;
+		if(params->targetTypeRelevant)
+			b->targetSourceType = params->targetType;
 	}
-	b->type = it->second;
+	else
+		b->type = it->second;
 
-	resolveIdentifier(b->subtype, ability, "subtype");
+	resolveIdentifier(b->subtype, params->isConverted ? params->toJson() : ability, "subtype");
 
-	b->val = static_cast<si32>(ability["val"].Float());
+	if(!params->isConverted)
+	{
+		b->val = static_cast<si32>(ability["val"].Float());
 
-	value = &ability["valueType"];
-	if (!value->isNull())
-		b->valType = static_cast<Bonus::ValueType>(parseByMapN(bonusValueMap, value, "value type "));
+		value = &ability["valueType"];
+		if (!value->isNull())
+			b->valType = static_cast<Bonus::ValueType>(parseByMapN(bonusValueMap, value, "value type "));
+	}
 
 	b->stacking = ability["stacking"].String();
 
@@ -845,9 +967,13 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		}
 	}
 
-	value = &ability["source"];
+	value = &ability["sourceType"];
 	if (!value->isNull())
 		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+
+	value = &ability["targetSourceType"];
+	if (!value->isNull())
+		b->targetSourceType = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
 
 	value = &ability["limiters"];
 	if (!value->isNull())
@@ -859,30 +985,124 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["updater"];
 	if(!value->isNull())
-	{
-		const JsonNode & updaterJson = *value;
-		switch(updaterJson.getType())
-		{
-		case JsonNode::JsonType::DATA_STRING:
-			b->addUpdater(parseByMap(bonusUpdaterMap, &updaterJson, "updater type "));
-			break;
-		case JsonNode::JsonType::DATA_STRUCT:
-			if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
-			{
-				std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
-				const JsonVector param = updaterJson["parameters"].Vector();
-				updater->valPer20 = static_cast<int>(param[0].Integer());
-				if(param.size() > 1)
-					updater->stepSize = static_cast<int>(param[1].Integer());
-				b->addUpdater(updater);
-			}
-			else
-				logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
-			break;
-		}
-	}
-	b->updateOppositeBonuses();
+		b->addUpdater(parseUpdater(*value));
+	value = &ability["propagationUpdater"];
+	if(!value->isNull())
+		b->propagationUpdater = parseUpdater(*value);
 	return true;
+}
+
+CSelector JsonUtils::parseSelector(const JsonNode & ability)
+{
+	CSelector ret = Selector::all;
+
+	// Recursive parsers for anyOf, allOf, noneOf
+	const auto * value = &ability["allOf"];
+	if(value->isVector())
+	{
+		for(const auto & andN : value->Vector())
+			ret = ret.And(parseSelector(andN));
+	}
+
+	value = &ability["anyOf"];
+	if(value->isVector())
+	{
+		CSelector base = Selector::none;
+		for(const auto & andN : value->Vector())
+			base.Or(parseSelector(andN));
+		
+		ret = ret.And(base);
+	}
+
+	value = &ability["noneOf"];
+	if(value->isVector())
+	{
+		CSelector base = Selector::all;
+		for(const auto & andN : value->Vector())
+			base.And(parseSelector(andN));
+		
+		ret = ret.And(base.Not());
+	}
+
+	// Actual selector parser
+	value = &ability["type"];
+	if(value->isString())
+	{
+		auto it = bonusNameMap.find(value->String());
+		if(it != bonusNameMap.end())
+			ret = ret.And(Selector::type()(it->second));
+	}
+	value = &ability["subtype"];
+	if(!value->isNull())
+	{
+		TBonusSubtype subtype;
+		resolveIdentifier(subtype, ability, "subtype");
+		ret = ret.And(Selector::subtype()(subtype));
+	}
+	value = &ability["sourceType"];
+	Bonus::BonusSource src = Bonus::OTHER; //Fixes for GCC false maybe-uninitialized
+	si32 id = 0;
+	auto sourceIDRelevant = false;
+	auto sourceTypeRelevant = false;
+	if(value->isString())
+	{
+		auto it = bonusSourceMap.find(value->String());
+		if(it != bonusSourceMap.end())
+		{
+			src = it->second;
+			sourceTypeRelevant = true;
+		}
+
+	}
+	value = &ability["sourceID"];
+	if(!value->isNull())
+	{
+		sourceIDRelevant = true;
+		resolveIdentifier(id, ability, "sourceID");
+	}
+
+	if(sourceIDRelevant && sourceTypeRelevant)
+		ret = ret.And(Selector::source(src, id));
+	else if(sourceTypeRelevant)
+		ret = ret.And(Selector::sourceTypeSel(src));
+
+	
+	value = &ability["targetSourceType"];
+	if(value->isString())
+	{
+		auto it = bonusSourceMap.find(value->String());
+		if(it != bonusSourceMap.end())
+			ret = ret.And(Selector::targetSourceType()(it->second));
+	}
+	value = &ability["valueType"];
+	if(value->isString())
+	{
+		auto it = bonusValueMap.find(value->String());
+		if(it != bonusValueMap.end())
+			ret = ret.And(Selector::valueType(it->second));
+	}
+	CAddInfo info;
+	value = &ability["addInfo"];
+	if(!value->isNull())
+	{
+		resolveAddInfo(info, ability["addInfo"]);
+		ret = ret.And(Selector::info()(info));
+	}
+	value = &ability["effectRange"];
+	if(value->isString())
+	{
+		auto it = bonusLimitEffect.find(value->String());
+		if(it != bonusLimitEffect.end())
+			ret = ret.And(Selector::effectRange()(it->second));
+	}
+	value = &ability["lastsTurns"];
+	if(value->isNumber())
+		ret = ret.And(Selector::turns(value->Integer()));
+	value = &ability["lastsDays"];
+	if(value->isNumber())
+		ret = ret.And(Selector::days(value->Integer()));
+
+	return ret;
 }
 
 //returns first Key with value equal to given one

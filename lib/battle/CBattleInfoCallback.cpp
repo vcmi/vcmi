@@ -142,11 +142,7 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 		if (wallPart == EWallPart::INDESTRUCTIBLE_PART)
 			return true; // always blocks ranged attacks
 
-		assert(isWallPartPotentiallyAttackable(wallPart));
-
-		EWallState state = battleGetWallState(wallPart);
-
-		return state != EWallState::DESTROYED;
+		return isWallPartAttackable(wallPart);
 	};
 
 	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
@@ -1417,6 +1413,18 @@ bool CBattleInfoCallback::isWallPartPotentiallyAttackable(EWallPart wallPart) co
 																	wallPart != EWallPart::INVALID;
 }
 
+bool CBattleInfoCallback::isWallPartAttackable(EWallPart wallPart) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	if(isWallPartPotentiallyAttackable(wallPart))
+	{
+		auto wallState = battleGetWallState(wallPart);
+		return (wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED);
+	}
+	return false;
+}
+
 std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 {
 	std::vector<BattleHex> attackableBattleHexes;
@@ -1424,14 +1432,8 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 
 	for(const auto & wallPartPair : wallParts)
 	{
-		if(isWallPartPotentiallyAttackable(wallPartPair.second))
-		{
-			auto wallState = battleGetWallState(wallPartPair.second);
-			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
-			{
-				attackableBattleHexes.emplace_back(wallPartPair.first);
-			}
-		}
+		if(isWallPartAttackable(wallPartPair.second))
+			attackableBattleHexes.emplace_back(wallPartPair.first);
 	}
 
 	return attackableBattleHexes;
@@ -1611,9 +1613,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		{
 			const auto * kingMonster = getAliveEnemy([&](const CStack * stack) -> bool //look for enemy, non-shooting stack
 			{
-				const auto isKing = Selector::type()(Bonus::KING1)
-									.Or(Selector::type()(Bonus::KING2))
-									.Or(Selector::type()(Bonus::KING3));
+				const auto isKing = Selector::type()(Bonus::KING);
 
 				return stack->hasBonus(isKing);
 			});

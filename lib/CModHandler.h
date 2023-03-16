@@ -354,6 +354,8 @@ public:
 	void load();
 	void afterLoad(bool onlyEssential);
 
+	std::vector<std::shared_ptr<Bonus>> heroBaseBonuses; //these bonuses will be applied to every hero on map
+
 	struct DLL_LINKAGE hardcodedFeatures
 	{
 		JsonNode data;

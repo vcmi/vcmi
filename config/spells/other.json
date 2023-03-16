@@ -284,7 +284,9 @@
 				"battleEffects":{
 					"catapult":{
 						"type":"core:catapult",
-						"targetsToAttack": 2
+						"targetsToAttack": 2,
+						"chanceToCrit" : 0,
+						"chanceToNormalHit" : 100
 					}
 				},
 				"range" : "X"

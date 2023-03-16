@@ -740,6 +740,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 
 	logGlobal->debug("Initialization:");
 
+	initGlobalBonuses();
 	initPlayerStates();
 	placeCampaignHeroes();
 	initGrailPosition();
@@ -931,6 +932,19 @@ void CGameState::checkMapChecksum()
 	else
 	{
 		scenarioOps->mapfileChecksum = map->checksum;
+	}
+}
+
+void CGameState::initGlobalBonuses()
+{
+	const JsonNode & baseBonuses = VLC->modh->settings.data["baseBonuses"];
+	logGlobal->debug("\tLoading global bonuses");
+	for(const auto & b : baseBonuses.Vector())
+	{
+		auto bonus = JsonUtils::parseBonus(b);
+		bonus->source = Bonus::GLOBAL;//for all
+		bonus->sid = -1; //there is one global object
+		globalEffects.addNewBonus(bonus);
 	}
 }
 
@@ -2550,7 +2564,6 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
 			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
 
 			if(!heroOrTown)

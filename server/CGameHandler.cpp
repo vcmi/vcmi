@@ -682,11 +682,8 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	sss.abs = abs;
 	sendAndApply(&sss);
 
-	if (which == SecondarySkill::WISDOM)
-	{
-		if (hero->visitedTown)
-			giveSpells(hero->visitedTown, hero);
-	}
+	if (hero->visitedTown)
+		giveSpells(hero->visitedTown, hero);
 }
 
 void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, const CGHeroInstance * heroDefender)
@@ -743,9 +740,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 	if (finishingBattle->winnerHero)
 	{
-		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::EAGLE_EYE))
+		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::LEARN_BATTLE_SPELL_LEVEL_LIMIT, -1))
 		{
-			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
+			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::LEARN_BATTLE_SPELL_CHANCE, 0);
 			for(auto & spellId : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
 			{
 				auto spell = spellId.toSpell(VLC->spells());
@@ -1028,20 +1025,15 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	const int attackerLuck = attacker->LuckVal();
 
-	auto sideHeroBlocksLuck = [](const SideInBattle &side){ return NBonus::hasOfType(side.hero, Bonus::BLOCK_LUCK); };
-
-	if (!vstd::contains_if (gs->curB->sides, sideHeroBlocksLuck))
+	if (attackerLuck > 0  && getRandomGenerator().nextInt(23) < attackerLuck)
 	{
-		if (attackerLuck > 0  && getRandomGenerator().nextInt(23) < attackerLuck)
+		bat.flags |= BattleAttack::LUCKY;
+	}
+	if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
+	{
+		if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
 		{
-			bat.flags |= BattleAttack::LUCKY;
-		}
-		if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
-		{
-			if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
-			{
-				bat.flags |= BattleAttack::UNLUCKY;
-			}
+			bat.flags |= BattleAttack::UNLUCKY;
 		}
 	}
 
@@ -1050,14 +1042,12 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
 
-	if (attacker->getCreature()->idNumber == CreatureID::BALLISTA)
+	const auto * owner = gs->curB->getHero(attacker->owner);
+	if(owner)
 	{
-		const CGHeroInstance * owner = gs->curB->getHero(attacker->owner);
-		int chance = owner->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARTILLERY);
+		int chance = owner->valOfBonuses(Bonus::BONUS_DAMAGE_CHANCE, attacker->creatureIndex());
 		if (chance > getRandomGenerator().nextInt(99))
-		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
-		}
 	}
 
 	int64_t drainedLife = 0;
@@ -1937,8 +1927,6 @@ void CGameHandler::newTurn()
 
 			if (!firstTurn) //not first day
 			{
-				n.res[elem.first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES)); //estates
-
 				for (int k = 0; k < GameConstants::RESOURCE_QUANTITY; k++)
 				{
 					n.res[elem.first][k] += h->valOfBonuses(Bonus::GENERATE_RESOURCE, k);
@@ -2781,8 +2769,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 {
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
-	int h1_scholarSpellLevel = h1->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
-	int h2_scholarSpellLevel = h2->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
+	int h1_scholarSpellLevel = h1->valOfBonuses(Bonus::LEARN_MEETING_SPELL_LIMIT, -1);
+	int h2_scholarSpellLevel = h2->valOfBonuses(Bonus::LEARN_MEETING_SPELL_LIMIT, -1);
 
 	if (h1_scholarSpellLevel < h2_scholarSpellLevel)
 	{
@@ -4750,6 +4738,14 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			//attack
 			int totalAttacks = stack->totalAttacks.getMeleeValue();
 
+			//TODO: move to CUnitState
+			const auto * attackingHero = gs->curB->battleGetFightingHero(ba.side);
+			if(attackingHero)
+			{
+				totalAttacks += attackingHero->valOfBonuses(Bonus::HERO_GRANTS_ATTACKS, stack->creatureIndex());
+			}
+
+
 			const bool firstStrike = destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE);
 			const bool retaliation = destinationStack->ableToRetaliate();
 			for (int i = 0; i < totalAttacks; ++i)
@@ -4826,25 +4822,17 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			{
 				makeAttack(destinationStack, stack, 0, stack->getPosition(), true, true, true);
 			}
-
-			//TODO: move to CUnitState
-			//extra shot(s) for ballista, based on artillery skill
-			if(stack->creatureIndex() == CreatureID::BALLISTA)
-			{
-				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-				if(attackingHero)
-				{
-					int ballistaBonusAttacks = attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::ARTILLERY);
-					while(destinationStack->alive() && ballistaBonusAttacks-- > 0)
-					{
-						makeAttack(stack, destinationStack, 0, destination, false, true, false);
-					}
-				}
-			}
 			//allow more than one additional attack
 
 			int totalRangedAttacks = stack->totalAttacks.getRangedValue();
+
+			//TODO: move to CUnitState
+			const auto * attackingHero = gs->curB->battleGetFightingHero(ba.side);
+			if(attackingHero)
+			{
+				totalRangedAttacks += attackingHero->valOfBonuses(Bonus::HERO_GRANTS_ATTACKS, stack->creatureIndex());
+			}
+
 
 			for(int i = 1; i < totalRangedAttacks; ++i)
 			{
@@ -4861,150 +4849,20 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	case EActionType::CATAPULT:
 		{
-			//TODO: unify with spells::effects:Catapult
-			auto getCatapultHitChance = [](EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
-			{
-				switch(part)
-				{
-				case EWallPart::GATE:
-					return sbi.gate;
-				case EWallPart::KEEP:
-					return sbi.keep;
-				case EWallPart::BOTTOM_TOWER:
-				case EWallPart::UPPER_TOWER:
-					return sbi.tower;
-				case EWallPart::BOTTOM_WALL:
-				case EWallPart::BELOW_GATE:
-				case EWallPart::OVER_GATE:
-				case EWallPart::UPPER_WALL:
-					return sbi.wall;
-				default:
-					return 0;
-				}
-			};
-
-			auto getBallisticsInfo = [this, &ba] (const CStack * actor)
-			{
-				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-				if(actor->getCreature()->idNumber == CreatureID::CATAPULT)
-					return VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
-				else
-				{
-					//by design use advanced ballistics parameters with this bonus present, upg. cyclops use advanced ballistics, nonupg. use basic in OH3
-					int ballisticsLevel = actor->hasBonusOfType(Bonus::CATAPULT_EXTRA_SHOTS) ? 2 : 1;
-
-					auto parameters = VLC->heroh->ballistics.at(ballisticsLevel);
-					parameters.shots = 1 + std::max(actor->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0);
-
-					return parameters;
-				}
-			};
-
-			auto isWallPartAttackable = [this] (EWallPart part)
-			{
-				return (gs->curB->si.wallState[part] == EWallState::REINFORCED || gs->curB->si.wallState[part] == EWallState::INTACT || gs->curB->si.wallState[part] == EWallState::DAMAGED);
-			};
-
-			CHeroHandler::SBallisticsLevelInfo stackBallisticsParameters = getBallisticsInfo(stack);
-
 			auto wrapper = wrapAction(ba);
-			auto destination = target.empty() ? BattleHex(BattleHex::INVALID) : target.at(0).hexValue;
-			auto desiredTarget = gs->curB->battleHexToWallPart(destination);
-
-			for (int shotNumber=0; shotNumber<stackBallisticsParameters.shots; ++shotNumber)
+			const CStack * shooter = gs->curB->battleGetStackByID(ba.stackNumber);
+			std::shared_ptr<const Bonus> catapultAbility = stack->getBonusLocalFirst(Selector::type()(Bonus::CATAPULT));
+			if(!catapultAbility || catapultAbility->subtype < 0)
 			{
-				auto actualTarget = EWallPart::INVALID;
-
-				if ( isWallPartAttackable(desiredTarget) &&
-					 getRandomGenerator().nextInt(99) < getCatapultHitChance(desiredTarget, stackBallisticsParameters))
-				{
-					actualTarget = desiredTarget;
-				}
-				else
-				{
-					static const std::array<EWallPart, 4> walls = { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL };
-					static const std::array<EWallPart, 3> towers= { EWallPart::BOTTOM_TOWER, EWallPart::KEEP, EWallPart::UPPER_TOWER };
-					static const EWallPart gates = EWallPart::GATE;
-
-					// in H3, catapult under automatic control will attack objects in following order:
-					// walls, gates, towers
-					std::vector<EWallPart> potentialTargets;
-					for (auto & part : walls )
-						if (isWallPartAttackable(part))
-							potentialTargets.push_back(part);
-
-					if (potentialTargets.empty() && isWallPartAttackable(gates))
-							potentialTargets.push_back(gates);
-
-					if (potentialTargets.empty())
-						for (auto & part : towers )
-							if (isWallPartAttackable(part))
-								potentialTargets.push_back(part);
-
-					if (potentialTargets.empty())
-						break; // everything is gone, can't attack anymore
-
-					actualTarget = *RandomGeneratorUtil::nextItem(potentialTargets, getRandomGenerator());
-				}
-				assert(actualTarget != EWallPart::INVALID);
-
-				std::array<int, 3> damageChances = { stackBallisticsParameters.noDmg, stackBallisticsParameters.oneDmg, stackBallisticsParameters.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
-				int totalChance = std::accumulate(damageChances.begin(), damageChances.end(), 0);
-				int damageRandom = getRandomGenerator().nextInt(totalChance - 1);
-				int dealtDamage = 0;
-
-				//calculating dealt damage
-				for (int damage = 0; damage < damageChances.size(); ++damage)
-				{
-					if (damageRandom <= damageChances[damage])
-					{
-						dealtDamage = damage;
-						break;
-					}
-					damageRandom -= damageChances[damage];
-				}
-
-				CatapultAttack::AttackInfo attack;
-				attack.attackedPart = actualTarget;
-				attack.destinationTile = gs->curB->wallPartToBattleHex(actualTarget);
-				attack.damageDealt = dealtDamage;
-
-				CatapultAttack ca; //package for clients
-				ca.attacker = ba.stackNumber;
-				ca.attackedParts.push_back(attack);
-				sendAndApply(&ca);
-
-				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
-
-				//removing creatures in turrets / keep if one is destroyed
-				if (gs->curB->si.wallState[actualTarget] == EWallState::DESTROYED && (actualTarget == EWallPart::KEEP || actualTarget == EWallPart::BOTTOM_TOWER || actualTarget == EWallPart::UPPER_TOWER))
-				{
-					int posRemove = -1;
-					switch(actualTarget)
-					{
-					case EWallPart::KEEP:
-						posRemove = BattleHex::CASTLE_CENTRAL_TOWER;
-						break;
-					case EWallPart::BOTTOM_TOWER:
-						posRemove = BattleHex::CASTLE_BOTTOM_TOWER;
-						break;
-					case EWallPart::UPPER_TOWER:
-						posRemove = BattleHex::CASTLE_UPPER_TOWER;
-						break;
-					}
-
-					for(auto & elem : gs->curB->stacks)
-					{
-						if(elem->initialPosition == posRemove)
-						{
-							BattleUnitsChanged removeUnits;
-							removeUnits.changedStacks.emplace_back(elem->unitId(), UnitChanges::EOperation::REMOVE);
-							sendAndApply(&removeUnits);
-							break;
-						}
-					}
-				}
+				complain("We do not know how to shoot :P");
+			}
+			else
+			{
+				const CSpell * spell = SpellID(catapultAbility->subtype).toSpell();
+				spells::BattleCast parameters(gs->curB, shooter, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can shot infinitely by catapult
+				auto shotLevel = stack->valOfBonuses(Selector::typeSubtype(Bonus::CATAPULT_EXTRA_SHOTS, catapultAbility->subtype));
+				parameters.setSpellLevel(shotLevel);
+				parameters.cast(spellEnv, target);
 			}
 			//finish by scope guard
 			break;
@@ -5012,7 +4870,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		case EActionType::STACK_HEAL: //healing with First Aid Tent
 		{
 			auto wrapper = wrapAction(ba);
-			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			const CStack * healer = gs->curB->battleGetStackByID(ba.stackNumber);
 
 			if(target.size() < 1)
@@ -5023,48 +4880,23 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 
 			const battle::Unit * destStack = nullptr;
+			std::shared_ptr<const Bonus> healerAbility = stack->getBonusLocalFirst(Selector::type()(Bonus::HEALER));
 
 			if(target.at(0).unitValue)
 				destStack = target.at(0).unitValue;
 			else
 				destStack = gs->curB->battleGetStackByPos(target.at(0).hexValue);
 
-			if(healer == nullptr || destStack == nullptr || !healer->hasBonusOfType(Bonus::HEALER))
+			if(healer == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype < 0)
 			{
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
 			else
 			{
-				int64_t toHeal = healer->getCount() * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
-
-				//TODO: allow resurrection for mods
-				auto state = destStack->acquireState();
-				state->heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
-
-				if(toHeal == 0)
-				{
-					logGlobal->warn("Nothing to heal");
-				}
-				else
-				{
-					BattleUnitsChanged pack;
-
-					BattleLogMessage message;
-
-					MetaString text;
-					text.addTxt(MetaString::GENERAL_TXT, 414);
-					healer->addNameReplacement(text, false);
-					destStack->addNameReplacement(text, false);
-					text.addReplacement((int)toHeal);
-					message.lines.push_back(text);
-
-					UnitChanges info(state->unitId(), UnitChanges::EOperation::RESET_STATE);
-					info.healthDelta = toHeal;
-					state->save(info.data);
-					pack.changedStacks.push_back(info);
-					sendAndApply(&pack);
-					sendAndApply(&message);
-				}
+				const CSpell * spell = SpellID(healerAbility->subtype).toSpell();
+				spells::BattleCast parameters(gs->curB, healer, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can heal infinitely by first aid tent
+				parameters.setSpellLevel(0);
+				parameters.cast(spellEnv, target);
 			}
 			break;
 		}
@@ -6704,9 +6536,7 @@ void CGameHandler::runBattle()
 						bte.effect = Bonus::HP_REGENERATION;
 
 						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
-						if(stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
-							bte.val = lostHealth;
-						else if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
+						if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
 							bte.val = std::min(lostHealth, stack->valOfBonuses(Bonus::HP_REGENERATION));
 
 						if(bte.val) // anything to heal
@@ -6736,10 +6566,7 @@ void CGameHandler::runBattle()
 
 			//check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
-			if (nextStackMorale < 0 &&
-				!(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
-				   || NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
-				)
+			if (nextStackMorale < 0)
 			{
 				if (getRandomGenerator().nextInt(23) < -2 * nextStackMorale)
 				{
@@ -6927,10 +6754,7 @@ void CGameHandler::runBattle()
 						&& !next->waited()
 						&& !next->fear
 						&&  next->alive()
-						&&  nextStackMorale > 0
-						&& !(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
-							|| NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
-						)
+						&&  nextStackMorale > 0)
 					{
 						if(getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
 						{

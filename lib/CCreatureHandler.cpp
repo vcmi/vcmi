@@ -469,10 +469,11 @@ void CCreatureHandler::loadCommanders()
 
 void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 {
-	auto makeBonusNode = [&](std::string type) -> JsonNode
+	auto makeBonusNode = [&](std::string type, double val = 0) -> JsonNode
 	{
 		JsonNode ret;
 		ret["type"].String() = type;
+		ret["val"].Float() = val;
 		return ret;
 	};
 
@@ -484,12 +485,11 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		{"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
 		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
 		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
-		{"const_jousting",         makeBonusNode("JOUSTING")},
-		{"KING_1",                 makeBonusNode("KING1")},
-		{"KING_2",                 makeBonusNode("KING2")},
-		{"KING_3",                 makeBonusNode("KING3")},
+		{"const_jousting",         makeBonusNode("JOUSTING", 5)},
+		{"KING_1",                 makeBonusNode("KING")}, // Slayer with no expertise
+		{"KING_2",                 makeBonusNode("KING", 2)}, // Advanced Slayer or better
+		{"KING_3",                 makeBonusNode("KING", 3)}, // Expert Slayer only
 		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
-		{"CATAPULT",               makeBonusNode("CATAPULT")},
 		{"MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT")},
 		{"IMMUNE_TO_MIND_SPELLS",  makeBonusNode("MIND_IMMUNITY")},
 		{"HAS_EXTENDED_ATTACK",    makeBonusNode("TWO_HEX_ATTACK_BREATH")}
@@ -1070,7 +1070,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B':
 				b.type = Bonus::TWO_HEX_ATTACK_BREATH; break;
 			case 'c':
-				b.type = Bonus::JOUSTING; break;
+				b.type = Bonus::JOUSTING; 
+				b.val = 5;
+				break;
 			case 'D':
 				b.type = Bonus::ADDITIONAL_ATTACK; break;
 			case 'f':
@@ -1078,7 +1080,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'F':
 				b.type = Bonus::FLYING; break;
 			case 'm':
-				b.type = Bonus::SELF_MORALE; break;
+				b.type = Bonus::MORALE; break;
+				b.val = 1;
+				b.valType = Bonus::INDEPENDENT_MAX;
+				break;
 			case 'M':
 				b.type = Bonus::NO_MORALE; break;
 			case 'p': //Mind spells

@@ -51,6 +51,7 @@ public:
 	virtual Object createNormalSpell() const = 0;
 
 	virtual Object createConfigurable(std::string scope, std::string type, std::string identifier) const = 0;
+	virtual Object createFromJsonStruct(const JsonNode & jsonStruct) const = 0;
 
 	virtual Object createReceptiveFeature() const = 0;
 	virtual Object createImmunityNegation() const = 0;

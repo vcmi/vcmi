@@ -311,7 +311,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int diplomacy = h->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::DIPLOMACY);
+	int diplomacy = h->valOfBonuses(Bonus::WANDERING_CREATURES_JOIN_BONUS);
 	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < character)
@@ -2154,12 +2154,13 @@ void CGLighthouse::initObj(CRandomGenerator & rand)
 void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 {
 	GiveBonus gb(GiveBonus::PLAYER);
-	gb.bonus.type = Bonus::SEA_MOVEMENT;
+	gb.bonus.type = Bonus::MOVEMENT;
 	gb.bonus.val = 500;
 	gb.id = player.getNum();
 	gb.bonus.duration = Bonus::PERMANENT;
 	gb.bonus.source = Bonus::OBJECT;
 	gb.bonus.sid = id.getNum();
+	gb.bonus.subtype = 1;
 
 	// FIXME: This is really dirty hack
 	// Proper fix would be to make CGLighthouse into bonus system node

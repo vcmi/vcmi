@@ -61,6 +61,11 @@ int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
 	return hero->getTreeVersion();  //this assumes that hero and artifact belongs to main bonus tree
 }
 
+si32 CHeroWithMaybePickedArtifact::manaLimit() const
+{
+	return hero->manaLimit();
+}
+
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
 	: hero(Hero), cww(Cww)
 {
@@ -315,7 +320,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
-	if(curHero->getSecSkillLevel(SecondarySkill::TACTICS) == 0)
+	if(curHero->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION)) == 0)
 	{
 		tacticsButton->block(true);
 	}

@@ -399,7 +399,6 @@ CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	loadBallistics();
 	loadExperience();
 }
 
@@ -556,12 +555,17 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		AddSpecialtyForCreature(spec.additionalinfo, bonus, result);
 		break;
 	case 2: //secondary skill
-		bonus->type = Bonus::SECONDARY_SKILL_PREMY;
-		bonus->valType = Bonus::PERCENT_TO_BASE;
-		bonus->subtype = spec.subtype;
-		bonus->updater.reset(new TimesHeroLevelUpdater());
-		result.push_back(bonus);
-		break;
+		{
+			auto params = BonusParams("SECONDARY_SKILL_PREMY", "", spec.subtype);
+			bonus->type = params.type;
+			if(params.subtypeRelevant)
+				bonus->subtype = params.subtype;
+			bonus->valType = Bonus::PERCENT_TO_TARGET_TYPE;
+			bonus->targetSourceType = Bonus::SECONDARY_SKILL;
+			bonus->updater.reset(new TimesHeroLevelUpdater());
+			result.push_back(bonus);
+			break;
+		}
 	case 3: //spell damage bonus, level dependent but calculated elsewhere
 		bonus->type = Bonus::SPECIAL_SPELL_LEV;
 		bonus->subtype = spec.subtype;
@@ -604,16 +608,21 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		result.push_back(bonus);
 		break;
 	case 6: //damage bonus for bless (Adela)
-		bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
-		bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
-		bonus->additionalInfo = spec.additionalinfo; //damage factor
-		bonus->updater.reset(new TimesHeroLevelUpdater());
-		result.push_back(bonus);
-		break;
+		{
+			auto limiter = std::make_shared<HasAnotherBonusLimiter>(Bonus::GENERAL_DAMAGE_PREMY,Bonus::SPELL_EFFECT);
+			limiter->sid = spec.subtype; //spell id if you ever wanted to use it otherwise
+			limiter->isSourceIDRelevant = true;
+			bonus->type = Bonus::GENERAL_DAMAGE_PREMY;
+			bonus->updater.reset(new TimesHeroLevelUpdater());
+			bonus->addLimiter(limiter);
+			result.push_back(bonus);
+			break;
+		}
 	case 7: //maxed mastery for spell
-		bonus->type = Bonus::SPECIAL_FIXED_VALUE_ENCHANT;
+		bonus->type = Bonus::SPELL;
 		bonus->subtype = spec.subtype; //spell id
-		bonus->val = 3; //to match MAXED_BONUS
+		bonus->val = 3; //to match MAXED_SPELL
+		bonus->valType = Bonus::INDEPENDENT_MAX;
 		result.push_back(bonus);
 		break;
 	case 8: //peculiar spells - enchantments
@@ -673,58 +682,6 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 	return result;
 }
 
-// convert deprecated format
-std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec, int sid)
-{
-	std::vector<std::shared_ptr<Bonus>> result;
-	for(std::shared_ptr<Bonus> oldBonus : spec.bonuses)
-	{
-		oldBonus->sid = sid;
-		if(oldBonus->type == Bonus::SPECIAL_SPELL_LEV || oldBonus->type == Bonus::SPECIAL_BLESS_DAMAGE)
-		{
-			// these bonuses used to auto-scale with hero level
-			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
-			newBonus->updater = std::make_shared<TimesHeroLevelUpdater>();
-			result.push_back(newBonus);
-		}
-		else if(spec.growsWithLevel)
-		{
-			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
-			switch(newBonus->type)
-			{
-			case Bonus::SECONDARY_SKILL_PREMY:
-				break; // ignore - used to be overwritten based on SPECIAL_SECONDARY_SKILL
-			case Bonus::SPECIAL_SECONDARY_SKILL:
-				newBonus->type = Bonus::SECONDARY_SKILL_PREMY;
-				newBonus->updater = std::make_shared<TimesHeroLevelUpdater>();
-				result.push_back(newBonus);
-				break;
-			case Bonus::PRIMARY_SKILL:
-				if((newBonus->subtype == PrimarySkill::ATTACK || newBonus->subtype == PrimarySkill::DEFENSE) && newBonus->limiter)
-				{
-					std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(newBonus->limiter);
-					if(creatureLimiter)
-					{
-						const CCreature * cre = creatureLimiter->creature;
-						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->getAttack(false) : cre->getDefense(false);
-						int creLevel = cre->level ? cre->level : 5;
-						newBonus->updater = std::make_shared<GrowsWithLevelUpdater>(creStat, creLevel);
-					}
-					result.push_back(newBonus);
-				}
-				break;
-			default:
-				result.push_back(newBonus);
-			}
-		}
-		else
-		{
-			result.push_back(oldBonus);
-		}
-	}
-	return result;
-}
-
 void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
@@ -759,37 +716,9 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		return bonus;
 	};
 
-	//deprecated, used only for original specialties
-	const JsonNode & specialtiesNode = node["specialties"];
-	if (!specialtiesNode.isNull())
-	{
-		logMod->warn("Hero %s has deprecated specialties format.", hero->getNameTranslated());
-		for(const JsonNode &specialty : specialtiesNode.Vector())
-		{
-			SSpecialtyInfo spec;
-			spec.type =           static_cast<si32>(specialty["type"].Integer());
-			spec.val =            static_cast<si32>(specialty["val"].Integer());
-			spec.subtype =        static_cast<si32>(specialty["subtype"].Integer());
-			spec.additionalinfo = static_cast<si32>(specialty["info"].Integer());
-			//we convert after loading completes, to have all identifiers for json logging
-			hero->specDeprecated.push_back(spec);
-		}
-	}
-	//new(er) format, using bonus system
+	//new format, using bonus system
 	const JsonNode & specialtyNode = node["specialty"];
-	if(specialtyNode.getType() == JsonNode::JsonType::DATA_VECTOR)
-	{
-		//deprecated middle-aged format
-		for(const JsonNode & specialty : node["specialty"].Vector())
-		{
-			SSpecialtyBonus hs;
-			hs.growsWithLevel = specialty["growsWithLevel"].Bool();
-			for (const JsonNode & bonus : specialty["bonuses"].Vector())
-				hs.bonuses.push_back(prepSpec(JsonUtils::parseBonus(bonus)));
-			hero->specialtyDeprecated.push_back(hs);
-		}
-	}
-	else if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
+	if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		//creature specialty - alias for simplicity
 		if(!specialtyNode["creature"].isNull())
@@ -809,6 +738,8 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 				hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second)));
 		}
 	}
+	else
+		logMod->error("Unsupported speciality format for hero %s!", hero->getNameTranslated());
 }
 
 void CHeroHandler::loadExperience()
@@ -844,35 +775,6 @@ static std::string genRefName(std::string input)
 	boost::algorithm::replace_all(input, " ", ""); //remove spaces
 	input[0] = std::tolower(input[0]); // to camelCase
 	return input;
-}
-
-void CHeroHandler::loadBallistics()
-{
-	CLegacyConfigParser ballParser("DATA/BALLIST.TXT");
-
-	ballParser.endLine(); //header
-	ballParser.endLine();
-
-	do
-	{
-		ballParser.readString();
-		ballParser.readString();
-
-		CHeroHandler::SBallisticsLevelInfo bli;
-		bli.keep   = static_cast<ui8>(ballParser.readNumber());
-		bli.tower  = static_cast<ui8>(ballParser.readNumber());
-		bli.gate   = static_cast<ui8>(ballParser.readNumber());
-		bli.wall   = static_cast<ui8>(ballParser.readNumber());
-		bli.shots  = static_cast<ui8>(ballParser.readNumber());
-		bli.noDmg  = static_cast<ui8>(ballParser.readNumber());
-		bli.oneDmg = static_cast<ui8>(ballParser.readNumber());
-		bli.twoDmg = static_cast<ui8>(ballParser.readNumber());
-		bli.sum    = static_cast<ui8>(ballParser.readNumber());
-		ballistics.push_back(bli);
-
-		assert(bli.noDmg + bli.oneDmg + bli.twoDmg == 100 && bli.sum == 100);
-	}
-	while (ballParser.endLine());
 }
 
 std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
@@ -950,7 +852,7 @@ void CHeroHandler::afterLoadFinalization()
 			bonus->sid = hero->getIndex();
 		}
 
-		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
+		if(hero->specDeprecated.size() > 0)
 		{
 			logMod->debug("Converting specialty format for hero %s(%s)", hero->getNameTranslated(), FactionID::encode(hero->heroClass->faction));
 			std::vector<std::shared_ptr<Bonus>> convertedBonuses;
@@ -959,13 +861,7 @@ void CHeroHandler::afterLoadFinalization()
 				for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, hero->ID.getNum()))
 					convertedBonuses.push_back(b);
 			}
-			for(const SSpecialtyBonus & spec : hero->specialtyDeprecated)
-			{
-				for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(spec, hero->ID.getNum()))
-					convertedBonuses.push_back(b);
-			}
 			hero->specDeprecated.clear();
-			hero->specialtyDeprecated.clear();
 			// store and create json for logging
 			std::vector<JsonNode> specVec;
 			std::vector<std::string> specNames;

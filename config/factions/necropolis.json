@@ -181,10 +181,10 @@
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },
 				"special2":       { "requires" : [ "mageGuild1" ],
-					"bonuses": [ { "type": "SECONDARY_SKILL_PREMY", "subtype": "skill.necromancy", "val": 10, "propagator": "PLAYER_PROPAGATOR" } ] },
+					"bonuses": [ { "type": "UNDEAD_RAISE_PERCENTAGE", "val": 10, "propagator": "PLAYER_PROPAGATOR" } ] },
 				"special3":       { "type" : "creatureTransformer", "requires" : [ "dwellingLvl1" ] },
 				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 },
-					"bonuses": [ { "type": "SECONDARY_SKILL_PREMY", "subtype": "skill.necromancy", "val": 20, "propagator": "PLAYER_PROPAGATOR" } ] },
+					"bonuses": [ { "type": "UNDEAD_RAISE_PERCENTAGE", "val": 20, "propagator": "PLAYER_PROPAGATOR" } ] },
 
 				"extraTownHall":  { "id" : 27, "requires" : [ "townHall" ], "mode" : "auto" },
 				"extraCityHall":  { "id" : 28, "requires" : [ "cityHall" ], "mode" : "auto" },

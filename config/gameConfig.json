@@ -78,7 +78,8 @@
 		"config/spells/offensive.json",
 		"config/spells/other.json",
 		"config/spells/timed.json",
-		"config/spells/ability.json"
+		"config/spells/ability.json",
+		"config/spells/vcmiAbility.json"
 	],
 	"skills" :
 	[

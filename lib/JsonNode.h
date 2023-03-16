@@ -17,6 +17,7 @@ typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
 struct Bonus;
+class CSelector;
 class ResourceID;
 class CAddInfo;
 class ILimiter;
@@ -175,6 +176,7 @@ namespace JsonUtils
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode &ability, BuildingID building, std::string description);
 	DLL_LINKAGE bool parseBonus(const JsonNode &ability, Bonus *placement);
 	DLL_LINKAGE std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
+	DLL_LINKAGE CSelector parseSelector(const JsonNode &ability);
 	DLL_LINKAGE void resolveIdentifier(si32 &var, const JsonNode &node, std::string name);
 	DLL_LINKAGE void resolveIdentifier(const JsonNode &node, si32 &var);
 	DLL_LINKAGE void resolveAddInfo(CAddInfo & var, const JsonNode & node);

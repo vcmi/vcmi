@@ -76,7 +76,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	{
 
 		ret = VLC->heroh->terrCosts[from.terType->getId()];
-		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
+		ret -= ti->valOfBonuses(Bonus::ROUGH_TERRAIN_DISCOUNT);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
@@ -188,32 +188,27 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	return maxMovePointsCached(onLand, &ti);
 }
 
+int CGHeroInstance::getLowestCreatureSpeed() const
+{
+	return lowestCreatureSpeed;
+}
+
+void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const
+{
+	auto realLowestSpeed = lowestSpeed(this);
+	if(lowestCreatureSpeed != realLowestSpeed)
+	{
+		lowestCreatureSpeed = realLowestSpeed;
+		//Let updaters run again
+		treeHasChanged();
+		ti->updateHeroBonuses(Bonus::MOVEMENT, Selector::subtype()(!!onLand));
+	}
+}
+
 int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 {
-	int base = 0;
-
-	if(onLand)
-	{
-		// used function is f(x) = 66.6x + 1300, rounded to second digit, where x is lowest speed in army
-		static constexpr int baseSpeed = 1300; // base speed from creature with 0 speed
-
-		int armySpeed = lowestSpeed(this) * 20 / 3;
-
-		base = armySpeed * 10 + baseSpeed; // separate *10 is intentional to receive same rounding as in h3
-		vstd::abetween(base, 1500, 2000); // base speed is limited by these values
-	}
-	else
-	{
-		base = 1500; //on water base movement is always 1500 (speed of army doesn't matter)
-	}
-
-	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
-	const int bonus = ti->valOfBonuses(Bonus::MOVEMENT) + ti->valOfBonuses(bt);
-
-	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
-	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
-
-	return static_cast<int>(base * (1 + modifier)) + bonus;
+	updateArmyMovementBonus(onLand, ti);
+	return ti->valOfBonuses(Bonus::MOVEMENT, !!onLand);
 }
 
 CGHeroInstance::CGHeroInstance():
@@ -226,7 +221,8 @@ CGHeroInstance::CGHeroInstance():
 	portrait(UNINITIALIZED_PORTRAIT),
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
-	sex(std::numeric_limits<ui8>::max())
+	sex(std::numeric_limits<ui8>::max()),
+	lowestCreatureSpeed(0)
 {
 	setNodeType(HERO);
 	ID = Obj::HERO;
@@ -309,6 +305,20 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	else
 	{
 		levelUpAutomatically(rand);
+	}
+
+	// load base hero bonuses, TODO: per-map loading of base hero bonuses
+	// must be done separately from global bonuses since recruitable heroes in taverns 
+	// are not attached to global bonus node but need access to some global bonuses
+	// e.g. MANA_PER_KNOWLEDGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	// or MOVEMENT to compute initial movement before recruiting is finished
+	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	{
+		auto bonus = ob;
+		bonus->source = Bonus::HERO_BASE_SKILL;
+		bonus->sid = id.getNum();
+		bonus->duration = Bonus::PERMANENT;
+		addNewBonus(bonus);
 	}
 
 	if (VLC->modh->modules.COMMANDERS && !commander)
@@ -509,10 +519,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 	//copy active (probably growing) bonuses from hero prototype to hero object
 	for(const std::shared_ptr<Bonus> & b : type->specialty)
 		addNewBonus(b);
-	//dito for old-style bonuses -> compatibility for old savegames
-	for(SSpecialtyBonus & sb : type->specialtyDeprecated)
-		for(const std::shared_ptr<Bonus> & b : sb.bonuses)
-			addNewBonus(b);
 	for(SSpecialtyInfo & spec : type->specDeprecated)
 		for(const std::shared_ptr<Bonus> & b : SpecialtyInfoToBonuses(spec, type->getIndex()))
 			addNewBonus(b);
@@ -571,7 +577,7 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
-	return static_cast<TExpType>(exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::LEARNING)) / 100.0);
+	return static_cast<TExpType>(exp * (valOfBonuses(Bonus::HERO_EXPERIENCE_GAIN_PERCENT)) / 100.0);
 }
 
 int32_t CGHeroInstance::getCasterUnitId() const
@@ -585,9 +591,7 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t
 
 	spell->forEachSchool([&, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		int32_t thisSchool = std::max<int32_t>(
-			valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, cnf.skill),
-			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (static_cast<ui8>(cnf.id)))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int32_t thisSchool = valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (static_cast<ui8>(cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;
@@ -608,8 +612,8 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 {
 	//applying sorcery secondary skill
 
-	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0);
-	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
+	base = static_cast<int64_t>(base * (valOfBonuses(Bonus::SPELL_DAMAGE)) / 100.0);
+	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
 
 	int maxSchoolBonus = 0;
 
@@ -772,23 +776,27 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
+	bool hasImprovedNecromancy = hasBonusOfType(Bonus::IMPROVED_NECROMANCY);
+
 	// need skill or cloak of undead king - lesser artifacts don't work without skill
-	if (necromancyLevel > 0 || hasBonusOfType(Bonus::IMPROVED_NECROMANCY))
+	if (hasImprovedNecromancy)
 	{
-		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY) / 100.0;
+		double necromancySkill = valOfBonuses(Bonus::UNDEAD_RAISE_PERCENTAGE) / 100.0;
+		const ui8 necromancyLevel = valOfBonuses(Bonus::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
-		CreatureID creatureTypeRaised = CreatureID::SKELETON;
+		auto creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
 		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(Bonus::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
 		{
-			auto getCreatureID = [necromancyLevel](const std::shared_ptr<Bonus> & bonus) -> CreatureID
+			auto getCreatureID = [](const std::shared_ptr<Bonus> & bonus) -> CreatureID
 			{
-				const CreatureID legacyTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
-				return CreatureID(bonus->subtype >= 0 ? bonus->subtype : legacyTypes[necromancyLevel]);
+				assert(bonus->subtype >=0);
+				if(bonus->subtype >= 0)
+					return CreatureID(bonus->subtype);
+				return CreatureID::NONE;
 			};
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
@@ -821,6 +829,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
 			}
 		}
+		assert(creatureTypeRaised != CreatureID::NONE);
 		// raise upgraded creature (at 2/3 rate) if no space available otherwise
 		if(getSlotFor(creatureTypeRaised) == SlotID())
 		{
@@ -885,7 +894,7 @@ int3 CGHeroInstance::getSightCenter() const
 
 int CGHeroInstance::getSightRadius() const
 {
-	return 5 + valOfBonuses(Bonus::SIGHT_RADIOUS); // scouting gives SIGHT_RADIUS bonus
+	return valOfBonuses(Bonus::SIGHT_RADIUS); // scouting gives SIGHT_RADIUS bonus
 }
 
 si32 CGHeroInstance::manaRegain() const
@@ -893,7 +902,7 @@ si32 CGHeroInstance::manaRegain() const
 	if (hasBonusOfType(Bonus::FULL_MANA_REGENERATION))
 		return manaLimit();
 
-	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::MYSTICISM) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
+	return valOfBonuses(Bonus::MANA_REGENERATION);
 }
 
 si32 CGHeroInstance::getManaNewTurn() const
@@ -971,6 +980,12 @@ void CGHeroInstance::initExp(CRandomGenerator & rand)
 std::string CGHeroInstance::nodeName() const
 {
 	return "Hero " + getNameTextID();
+}
+
+si32 CGHeroInstance::manaLimit() const
+{
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
+		* (valOfBonuses(Bonus::MANA_PER_KNOWLEDGE)));
 }
 
 std::string CGHeroInstance::getNameTranslated() const
@@ -1059,7 +1074,7 @@ const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
 
 int CGHeroInstance::maxSpellLevel() const
 {
-	return std::min(GameConstants::SPELL_LEVELS, 2 + valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::WISDOM)));
+	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(Bonus::MAX_LEARNABLE_SPELL_LEVEL)));
 }
 
 void CGHeroInstance::deserializationFix()
@@ -1135,28 +1150,41 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() const
 {
 	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
-	if (!skillsInfo.wisdomCounter)
-	{
-		if (canLearnSkill(SecondarySkill::WISDOM))
-			obligatorySkills.emplace_back(SecondarySkill::WISDOM);
-	}
-	if (!skillsInfo.magicSchoolCounter)
-	{
-		std::vector<SecondarySkill> ss =
-		{
-			SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC
-		};
 
+	auto getObligatorySkills = [](CSkill::Obligatory obl){
+		std::vector<SecondarySkill> obligatory = {};
+		for(int i = 0; i < VLC->skillh->size(); i++)
+			if((*VLC->skillh)[SecondarySkill(i)]->obligatory(obl))
+			{
+				obligatory.emplace_back(i);
+				break;
+			}
+		return obligatory;
+	};
+
+	auto selectObligatorySkill = [&](std::vector<SecondarySkill>& ss) -> void
+	{
 		std::shuffle(ss.begin(), ss.end(), skillsInfo.rand.getStdGenerator());
 
 		for(const auto & skill : ss)
 		{
-			if (canLearnSkill(skill)) //only schools hero doesn't know yet
+			if (canLearnSkill(skill)) //only skills hero doesn't know yet
 			{
 				obligatorySkills.push_back(skill);
 				break; //only one
 			}
 		}
+	};
+
+	if (!skillsInfo.wisdomCounter)
+	{
+		auto obligatory = getObligatorySkills(CSkill::Obligatory::MAJOR);
+		selectObligatorySkill(obligatory);
+	}
+	if (!skillsInfo.magicSchoolCounter)
+	{
+		auto obligatory = getObligatorySkills(CSkill::Obligatory::MINOR);
+		selectObligatorySkill(obligatory);
 	}
 
 	std::vector<SecondarySkill> skills;
@@ -1329,20 +1357,12 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 	//deterministic secondary skills
 	skillsInfo.magicSchoolCounter = (skillsInfo.magicSchoolCounter + 1) % maxlevelsToMagicSchool();
 	skillsInfo.wisdomCounter = (skillsInfo.wisdomCounter + 1) % maxlevelsToWisdom();
-	if(vstd::contains(skills, SecondarySkill::WISDOM))
+	for(const auto & skill : skills)
 	{
-		skillsInfo.resetWisdomCounter();
-	}
-
-	SecondarySkill spellSchools[] = {
-		SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC};
-	for(const auto & skill : spellSchools)
-	{
-		if(vstd::contains(skills, skill))
-		{
+		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MAJOR))
+			skillsInfo.resetWisdomCounter();
+		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MINOR))
 			skillsInfo.resetMagicSchoolCounter();
-			break;
-		}
 	}
 
 	//update specialty and other bonuses that scale with level
