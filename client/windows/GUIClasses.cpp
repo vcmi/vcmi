@@ -923,12 +923,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	{
 		primSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>());
 		if (qeLayout)
-			primSkillAreas[g]->pos = Rect(Point(pos.x + 324, pos.y + 12 + 26 * g), Point(22, 152));
+			primSkillAreas[g]->pos = Rect(Point(pos.x + 324, pos.y + 12 + 26 * g), Point(152, 22));
 		else
-			primSkillAreas[g]->pos = Rect(Point(pos.x + 329, pos.y + 19 + 36 * g), Point(32, 140));
+			primSkillAreas[g]->pos = Rect(Point(pos.x + 329, pos.y + 19 + 36 * g), Point(140, 32));
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
-		primSkillAreas[g]->bonusValue = -1;
+		primSkillAreas[g]->bonusValue = 0;
 		primSkillAreas[g]->baseType = 0;
 		primSkillAreas[g]->hoverText = CGI->generaltexth->heroscrn[1];
 		boost::replace_first(primSkillAreas[g]->hoverText, "%s", CGI->generaltexth->primarySkillNames[g]);

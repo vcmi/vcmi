@@ -327,7 +327,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	adventureInt->infoBar->requestPopAll();
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
-		if (hero->getRemovalSound())
+		if(hero->getRemovalSound() && hero->tempOwner == playerID)
 			CCS->soundh->playSound(hero->getRemovalSound().get());
 	}
 
@@ -375,7 +375,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if(details.stopMovement()) //hero failed to move
 	{
 		stillMoveHero.setn(STOP_MOVE);
-		GH.totalRedraw();
 		adventureInt->heroList->update(hero);
 		return;
 	}
@@ -1208,8 +1207,6 @@ void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &p
 	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
 	for (auto & po : pos)
 		adventureInt->minimap->updateTile(po);
-	if (!pos.empty())
-		GH.totalRedraw();
 }
 
 void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
@@ -1217,8 +1214,6 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for (auto & po : pos)
 		adventureInt->minimap->updateTile(po);
-	if (!pos.empty())
-		GH.totalRedraw();
 }
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
