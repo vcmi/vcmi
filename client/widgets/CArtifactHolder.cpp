@@ -633,7 +633,7 @@ CArtifactsOfHero::~CArtifactsOfHero()
 	if(!curHero->artifactsTransitionPos.empty())
 	{
 		auto artPlace = getArtPlace(
-			ArtifactUtils::getArtifactDstPosition(curHero->artifactsTransitionPos.begin()->artifact, curHero, curHero->bearerType()));
+			ArtifactUtils::getArtifactDstPosition(curHero->artifactsTransitionPos.begin()->artifact, curHero));
 		assert(artPlace);
 		assert(artPlace->ourOwner);
 		artPlace->setMeAsDest();
@@ -748,10 +748,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 	if(withUIUpdate)
 	{
 		updateParentWindow();
-		// If backpack is changed, update it
-		if((isCurHeroSrc && ArtifactUtils::isSlotBackpack(src.slot))
-			|| (isCurHeroDst && ArtifactUtils::isSlotBackpack(dst.slot)))
-			scrollBackpack(0);
+		scrollBackpack(0);
 	}
 }
 
