@@ -100,15 +100,20 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, generator.rand);
 			guardPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != guardPos);
-			
-			auto safetyGap = rmg::Area({guardPos});
-			safetyGap.unite(safetyGap.getBorderOutside());
-			safetyGap.intersect(zone.areaPossible());
-			if(!safetyGap.empty())
+
+			float dist = map.getTile(guardPos).getNearestObjectDistance();
+			if (dist >= 3) //Don't place guards at adjacent tiles
 			{
-				safetyGap.intersect(otherZone->areaPossible());
-				if(safetyGap.empty())
-					break; //successfull position
+
+				auto safetyGap = rmg::Area({ guardPos });
+				safetyGap.unite(safetyGap.getBorderOutside());
+				safetyGap.intersect(zone.areaPossible());
+				if (!safetyGap.empty())
+				{
+					safetyGap.intersect(otherZone->areaPossible());
+					if (safetyGap.empty())
+						break; //successfull position
+				}
 			}
 			
 			//failed position
@@ -227,8 +232,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
 				auto ti = map.getTile(tile);
+				auto otherTi = map.getTile(tile - zShift);
 				float dist = ti.getNearestObjectDistance();
-				if(dist < minDist)
+				float otherDist = otherTi.getNearestObjectDistance();
+				if(dist < minDist || otherDist < minDist)
 					return -1.f;
 				
 				rmg::Area toPlace(rmgGate1.getArea() + rmgGate1.getAccessibleArea());
@@ -236,8 +243,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				
 				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
 				
-				return path2.valid() ? 1.f : -1.f;
-			}, guarded1, true, ObjectManager::OptimizeType::NONE);
+				return path2.valid() ? (dist + otherDist) : -1.f;
+			}, guarded1, true, ObjectManager::OptimizeType::DISTANCE);
 			
 			if(path1.valid() && path2.valid())
 			{
