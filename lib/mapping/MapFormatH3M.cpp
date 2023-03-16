@@ -2195,7 +2195,6 @@ void CMapLoaderH3M::readSpells(std::set<SpellID>& dest)
 
 void CMapLoaderH3M::readResourses(TResources& resources)
 {
-	resources.resize(GameConstants::RESOURCE_QUANTITY); //needed?
 	for(int x = 0; x < 7; ++x)
 	{
 		resources[x] = reader->readUInt32();

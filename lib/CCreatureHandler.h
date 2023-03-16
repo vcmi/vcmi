@@ -197,7 +197,7 @@ public:
 
 	bool isGood () const;
 	bool isEvil () const;
-	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
+	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
 	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range

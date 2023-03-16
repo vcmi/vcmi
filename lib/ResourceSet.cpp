@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "GameConstants.h"
 #include "ResourceSet.h"
 #include "StringConstants.h"
 #include "JsonNode.h"
@@ -18,37 +19,27 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-Res::ResourceSet::ResourceSet()
-{
-	resize(GameConstants::RESOURCE_QUANTITY, 0);
-}
-
 Res::ResourceSet::ResourceSet(const JsonNode & node)
 {
-	reserve(GameConstants::RESOURCE_QUANTITY);
-	for(const std::string & name : GameConstants::RESOURCE_NAMES)
-		push_back(static_cast<int>(node[name].Float()));
+	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+		at(i) = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
 }
 
 Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
 							TResource gems, TResource gold, TResource mithril)
 {
-	resize(GameConstants::RESOURCE_QUANTITY);
-	auto * d = data();
-	d[Res::WOOD] = wood;
-	d[Res::MERCURY] = mercury;
-	d[Res::ORE] = ore;
-	d[Res::SULFUR] = sulfur;
-	d[Res::CRYSTAL] = crystal;
-	d[Res::GEMS] = gems;
-	d[Res::GOLD] = gold;
-	d[Res::MITHRIL] = mithril;
+	this[Res::WOOD] = wood;
+	this[Res::MERCURY] = mercury;
+	this[Res::ORE] = ore;
+	this[Res::SULFUR] = sulfur;
+	this[Res::CRYSTAL] = crystal;
+	this[Res::GEMS] = gems;
+	this[Res::GOLD] = gold;
+	this[Res::MITHRIL] = mithril;
 }
 
 void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
 {
-	if(!handler.saving)
-		resize(GameConstants::RESOURCE_QUANTITY, 0);
 	if(handler.saving && !nonZero())
 		return;
 	auto s = handler.enterStruct(fieldName);

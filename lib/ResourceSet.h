@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "GameConstants.h"
 VCMI_LIB_NAMESPACE_BEGIN
 
 typedef si32 TResource;
@@ -32,60 +33,57 @@ namespace Res
 	};
 
 	//class to be representing a vector of resource
-	class ResourceSet : public std::vector<int>
+	class ResourceSet : public std::array<int, GameConstants::RESOURCE_QUANTITY>
 	{
 	public:
-		DLL_LINKAGE ResourceSet();
 		// read resources set from json. Format example: { "gold": 500, "wood":5 }
 		DLL_LINKAGE ResourceSet(const JsonNode & node);
-		DLL_LINKAGE ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
-								TResource gems, TResource gold, TResource mithril = 0);
+		DLL_LINKAGE ResourceSet(TResource wood = 0, TResource mercury = 0, TResource ore = 0, TResource sulfur = 0, TResource crystal = 0,
+								TResource gems = 0, TResource gold = 0, TResource mithril = 0);
 
 
 #define scalarOperator(OPSIGN)									\
-		ResourceSet operator OPSIGN(const TResource &rhs) const	\
+		ResourceSet& operator OPSIGN ## =(const TResource &rhs) \
 		{														\
-			ResourceSet ret = *this;							\
-			for(int i = 0; i < (int)size(); i++)						\
-				ret[i] = at(i) OPSIGN rhs;						\
+			for(auto i = 0; i < size(); i++)						\
+				at(i) OPSIGN ## = rhs;						\
 																\
-			return ret;											\
+			return *this;											\
 		}
-
-
 
 #define vectorOperator(OPSIGN)										\
-		ResourceSet operator OPSIGN(const ResourceSet &rhs) const	\
+		ResourceSet& operator OPSIGN ## =(const ResourceSet &rhs)	\
 		{															\
-			ResourceSet ret = *this;								\
 			for(int i = 0; i < (int)size(); i++)							\
-				ret[i] = at(i) OPSIGN rhs[i];						\
+				at(i) OPSIGN ## = rhs[i];						\
 																	\
-			return ret;												\
+			return *this;												\
 		}
 
-
-#define opEqOperator(OPSIGN, RHS_TYPE)							\
-		ResourceSet& operator OPSIGN ## =(const RHS_TYPE &rhs)	\
-		{														\
-			return *this = *this OPSIGN rhs;					\
+#define twoOperands(OPSIGN, RHS_TYPE) \
+		friend ResourceSet operator OPSIGN(ResourceSet lhs, const RHS_TYPE &rhs) \
+		{ \
+			lhs OPSIGN ## = rhs; \
+			return lhs; \
 		}
 
 		scalarOperator(+)
 		scalarOperator(-)
 		scalarOperator(*)
 		scalarOperator(/)
-		opEqOperator(+, TResource)
-		opEqOperator(-, TResource)
-		opEqOperator(*, TResource)
 		vectorOperator(+)
 		vectorOperator(-)
-		opEqOperator(+, ResourceSet)
-		opEqOperator(-, ResourceSet)
+		twoOperands(+, TResource)
+		twoOperands(-, TResource)
+		twoOperands(*, TResource)
+		twoOperands(/, TResource)
+		twoOperands(+, ResourceSet)
+		twoOperands(-, ResourceSet)
+
 
 #undef scalarOperator
 #undef vectorOperator
-#undef opEqOperator
+#undef twoOperands
 
 		//to be used for calculations of type "how many units of sth can I afford?"
 		int operator/(const ResourceSet &rhs)
@@ -127,7 +125,7 @@ namespace Res
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & static_cast<std::vector<int>&>(*this);
+			h & static_cast<std::array<int, GameConstants::RESOURCE_QUANTITY>&>(*this);
 		}
 
 		DLL_LINKAGE void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
@@ -167,7 +165,7 @@ namespace Res
 	};
 }
 
-typedef Res::ResourceSet TResources;
+using TResources = Res::ResourceSet;
 
 
 VCMI_LIB_NAMESPACE_END

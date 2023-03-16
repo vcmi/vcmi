@@ -1079,7 +1079,7 @@ void CExchangeWindow::updateWidgets()
 	}
 }
 
-CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy)
+CShipyardWindow::CShipyardWindow(const TResources & cost, int state, int boatType, const std::function<void()> & onBuy)
 	: CStatusbarWindow(PLAYER_COLORED, "TPSHIP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1456,15 +1456,11 @@ void CHillFortWindow::updateGarrisons()
 {
 	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
 
-	TResources totalSumm; // totalSum[resource ID] = value
-	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
-
-	for(int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
-		totalSumm[i]=0;
+	TResources totalSum; // totalSum[resource ID] = value
 
 	for(int i=0; i<slotsCount; i++)
 	{
-		costs[i].clear();
+		costs[i].fill(0);
 		int newState = getState(SlotID(i));
 		if(newState != -1)
 		{
@@ -1473,7 +1469,7 @@ void CHillFortWindow::updateGarrisons()
 			if(info.newID.size())//we have upgrades here - update costs
 			{
 				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
-				totalSumm += costs[i];
+				totalSum += costs[i];
 			}
 		}
 
@@ -1495,7 +1491,7 @@ void CHillFortWindow::updateGarrisons()
 		if(allUpgraded)
 			newState = 1;
 
-		if(!totalSumm.canBeAfforded(myRes))
+		if(!totalSum.canBeAfforded(myRes))
 			newState = 0;
 	}
 
@@ -1543,7 +1539,7 @@ void CHillFortWindow::updateGarrisons()
 
 	for(int i = 0; i < resCount; i++)
 	{
-		if(totalSumm[i] == 0)
+		if(totalSum[i] == 0)
 		{
 			totalIcons[i]->visible = false;
 			totalLabels[i]->setText("");
@@ -1551,7 +1547,7 @@ void CHillFortWindow::updateGarrisons()
 		else
 		{
 			totalIcons[i]->visible = true;
-			totalLabels[i]->setText(std::to_string(totalSumm[i]));
+			totalLabels[i]->setText(std::to_string(totalSum[i]));
 		}
 	}
 }
