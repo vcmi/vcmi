@@ -232,5 +232,6 @@ void CMinimap::updateTile(const int3 &pos)
 {
 	if(minimap)
 		minimap->refreshTile(pos);
+	redraw();
 }
 
