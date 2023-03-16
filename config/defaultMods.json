@@ -86,7 +86,10 @@
 			"valueType" : "BASE_NUMBER",
 			"updater" : {
 				"type" : "ARMY_MOVEMENT", //Enable army movement bonus
-				"parameters" : [20, 3, 10, 700]
+				"parameters" : [20, //Movement points for lowest speed numerator
+							 	3, //Movement points for lowest speed denominator
+								10, //Resulting improper fraction will be multiplied by this number
+								700] //All army movement bonus cannot be higher than this value (so, max movement will be 1300 + 700 for this settings)
 			}
 		},
 		{
