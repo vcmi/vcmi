@@ -10,27 +10,16 @@
 #include "StdInc.h"
 #include "Client.h"
 
-#include "CMusicHandler.h"
-#include "../lib/mapping/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "adventureMap/CAdvMapInt.h"
 #include "mapView/mapHandler.h"
-#include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
 #include "../lib/StartInfo.h"
 #include "../lib/battle/BattleInfo.h"
-#include "../lib/CModHandler.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/CTownHandler.h"
-#include "../lib/CBuildingHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
-#include "../lib/serializer/CLoadIntegrityValidator.h"
 #include "../lib/NetPacks.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/VCMI_Lib.h"
@@ -39,15 +28,12 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CConfigHandler.h"
-#include "mainmenu/CMainMenu.h"
-#include "mainmenu/CCampaignScreen.h"
-#include "lobby/CBonusSelection.h"
 #include "battle/BattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
 #include "CServerHandler.h"
-#include "../lib/ScriptHandler.h"
+#include "serializer/BinaryDeserializer.h"
 #include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
@@ -201,61 +187,37 @@ void CClient::newGame(CGameState * initializedGameState)
 void CClient::loadGame(CGameState * initializedGameState)
 {
 	logNetwork->info("Loading procedure started!");
-	
-	std::unique_ptr<CLoadFile> loader;
 
-	if(initializedGameState)
-	{
-		logNetwork->info("Game state was transferred over network, loading.");
-		gs = initializedGameState;
-	}
-	else
-	{
-		try
-		{
-			boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
-			boost::filesystem::path controlServerSaveName;
+	logNetwork->info("Game state was transferred over network, loading.");
+	gs = initializedGameState;
 
-			if(CResourceHandler::get("local")->existsResource(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME)))
-			{
-				controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME));
-			}
-			else // create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
-			{
-				controlServerSaveName = boost::filesystem::path(clientSaveName).replace_extension(".vsgm1");
-				CResourceHandler::get("local")->createResource(controlServerSaveName.string(), true);
-			}
-
-			if(clientSaveName.empty())
-				throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
-			if(controlServerSaveName.empty() || !boost::filesystem::exists(controlServerSaveName))
-				throw std::runtime_error("Cannot open server part of " + CSH->si->mapname);
-
-			{
-				CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
-				loadCommonState(checkingLoader);
-				loader = checkingLoader.decay();
-			}
-		}
-		catch(std::exception & e)
-		{
-			logGlobal->error("Cannot load game %s. Error: %s", CSH->si->mapname, e.what());
-			throw; //obviously we cannot continue here
-		}
-		logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
-	}
 	gs->preInit(VLC);
 	gs->updateOnLoad(CSH->si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
-	
+
 	initMapHandler();
 
 	reinitScripting();
 
 	initPlayerEnvironments();
 	
-	if(loader)
+	// try to deserialize client data including sleepingHeroes
+	try
+	{
+		boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
+
+		if(clientSaveName.empty())
+			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
+
+		std::unique_ptr<CLoadFile> loader (new CLoadFile(clientSaveName));
 		serialize(loader->serializer, loader->serializer.fileVersion);
+
+		logNetwork->info("Client data loaded.");
+	}
+	catch(std::exception & e)
+	{
+		logGlobal->info("Cannot load client data for game %s. Error: %s", CSH->si->mapname, e.what());
+	}
 
 	initPlayerInterfaces();
 }
@@ -320,8 +282,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		nInt->human = isHuman;
 		nInt->playerID = pid;
 
-		nInt->loadGame(h, version);
-
+		bool shouldResetInterface = true;
 		// Client no longer handle this player at all
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), pid))
 		{
@@ -338,10 +299,18 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		else
 		{
 			installNewPlayerInterface(nInt, pid);
-			continue;
+			shouldResetInterface = false;
 		}
-		nInt.reset();
-		LOCPLINT = prevInt;
+
+		// loadGame needs to be called after initGameInterface to load paths correctly
+		// initGameInterface is called in installNewPlayerInterface
+		nInt->loadGame(h, version);
+
+		if (shouldResetInterface)
+		{
+			nInt.reset();
+			LOCPLINT = prevInt;
+		}
 	}
 
 #if SCRIPTING_ENABLED

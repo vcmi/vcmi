@@ -263,6 +263,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & id;
 		h & handlerName;
 		h & base;
 		h & objects;
