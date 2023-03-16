@@ -25,12 +25,12 @@ CConfigHandler conf;
 template<typename Accessor>
 SettingsStorage::NodeAccessor<Accessor>::NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path):
 	parent(_parent),
-	path(_path)
+	path(std::move(_path))
 {
 }
 
 template<typename Accessor>
-SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>::operator [](std::string nextNode) const
+SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>::operator[](const std::string & nextNode) const
 {
 	std::vector<std::string> newPath = path;
 	newPath.push_back(nextNode);
@@ -84,21 +84,21 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	file << savedConf.toJson();
 }
 
-JsonNode & SettingsStorage::getNode(std::vector<std::string> path)
+JsonNode & SettingsStorage::getNode(const std::vector<std::string> & path)
 {
 	JsonNode *node = &config;
-	for(std::string& value : path)
+	for(const std::string & value : path)
 		node = &(*node)[value];
 
 	return *node;
 }
 
-Settings SettingsStorage::get(std::vector<std::string> path)
+Settings SettingsStorage::get(const std::vector<std::string> & path)
 {
 	return Settings(*this, path);
 }
 
-const JsonNode & SettingsStorage::operator [](std::string value) const
+const JsonNode & SettingsStorage::operator[](const std::string & value) const
 {
 	return config[value];
 }
@@ -108,9 +108,9 @@ const JsonNode & SettingsStorage::toJsonNode() const
 	return config;
 }
 
-SettingsListener::SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path):
+SettingsListener::SettingsListener(SettingsStorage & _parent, std::vector<std::string> _path):
 	parent(_parent),
-	path(_path)
+	path(std::move(_path))
 {
 	parent.listeners.insert(this);
 }
@@ -142,7 +142,7 @@ void SettingsListener::nodeInvalidated(const std::vector<std::string> &changedPa
 
 void SettingsListener::operator() (std::function<void(const JsonNode&)> _callback)
 {
-	callback = _callback;
+	callback = std::move(_callback);
 }
 
 Settings::Settings(SettingsStorage &_parent, const std::vector<std::string> &_path):
@@ -169,12 +169,12 @@ const JsonNode* Settings::operator ->() const
 	return &node;
 }
 
-const JsonNode& Settings::operator [](std::string value) const
+const JsonNode & Settings::operator[](const std::string & value) const
 {
 	return node[value];
 }
 
-JsonNode& Settings::operator [](std::string value)
+JsonNode & Settings::operator[](const std::string & value)
 {
 	return node[value];
 }
@@ -210,10 +210,6 @@ CConfigHandler::CConfigHandler()
 {
 }
 
-CConfigHandler::~CConfigHandler()
-{
-}
-
 void config::CConfigHandler::init()
 {
 	/* Read resolutions. */
@@ -222,7 +218,7 @@ void config::CConfigHandler::init()
 
 	for(const JsonNode &g : guisettings_vec)
 	{
-		std::pair<int,int> curRes((int)g["resolution"]["x"].Float(), (int)g["resolution"]["y"].Float());
+		std::pair<int, int> curRes(static_cast<int>(g["resolution"]["x"].Float()), static_cast<int>(g["resolution"]["y"].Float()));
 		GUIOptions *current = &conf.guiOptions[curRes];
 
 		current->ac.inputLineLength =  static_cast<int>(g["InGameConsole"]["maxInputPerLine"].Float());
@@ -297,7 +293,7 @@ void config::CConfigHandler::init()
 
 	const JsonNode& screenRes = settings["video"]["screenRes"];
 
-	SetResolution((int)screenRes["width"].Float(), (int)screenRes["height"].Float());
+	SetResolution(static_cast<int>(screenRes["width"].Float()), static_cast<int>(screenRes["height"].Float()));
 }
 
 // Force instantiation of the SettingsStorage::NodeAccessor class template.

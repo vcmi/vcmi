@@ -44,7 +44,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 		if(entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
 			throw std::runtime_error("Invalid Json pointer");
 
-		size_t index = boost::lexical_cast<size_t>(entry);
+		auto index = boost::lexical_cast<size_t>(entry);
 
 		if (in.Vector().size() > index)
 			return in.Vector()[index].resolvePointer(remainer);
@@ -178,7 +178,7 @@ JsonNode::JsonType JsonNode::getType() const
 	return type;
 }
 
-void JsonNode::setMeta(std::string metadata, bool recursive)
+void JsonNode::setMeta(const std::string & metadata, bool recursive)
 {
 	meta = metadata;
 	if (recursive)
@@ -218,7 +218,7 @@ void JsonNode::setType(JsonType Type)
 	}
 	else if(type == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
 	{
-		double converted = static_cast<double>(data.Integer);
+		auto converted = static_cast<double>(data.Integer);
 		type = Type;
 		data.Float = converted;
 		return;
@@ -282,7 +282,7 @@ bool JsonNode::containsBaseData() const
 	case JsonType::DATA_NULL:
 		return false;
 	case JsonType::DATA_STRUCT:
-		for(auto elem : *data.Struct)
+		for(const auto & elem : *data.Struct)
 		{
 			if(elem.second.containsBaseData())
 				return true;
@@ -442,12 +442,12 @@ const JsonMap & JsonNode::Struct() const
 	return *data.Struct;
 }
 
-JsonNode & JsonNode::operator[](std::string child)
+JsonNode & JsonNode::operator[](const std::string & child)
 {
 	return Struct()[child];
 }
 
-const JsonNode & JsonNode::operator[](std::string child) const
+const JsonNode & JsonNode::operator[](const std::string & child) const
 {
 	auto it = Struct().find(child);
 	if (it != Struct().end())
@@ -475,7 +475,7 @@ std::string JsonNode::toJson(bool compact) const
 
 ///JsonUtils
 
-void JsonUtils::parseTypedBonusShort(const JsonVector& source, std::shared_ptr<Bonus> dest)
+void JsonUtils::parseTypedBonusShort(const JsonVector & source, const std::shared_ptr<Bonus> & dest)
 {
 	dest->val = static_cast<si32>(source[1].Float());
 	resolveIdentifier(source[2],dest->subtype);
@@ -501,12 +501,12 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 }
 
 template <typename T>
-const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
 {
 	static T defaultValue = T();
 	if (!val->isNull())
 	{
-		std::string type = val->String();
+		const std::string & type = val->String();
 		auto it = map.find(type);
 		if (it == map.end())
 		{
@@ -523,7 +523,7 @@ const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, s
 }
 
 template <typename T>
-const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
 {
 	if(val->isNumber())
 		return static_cast<T>(val->Integer());
@@ -531,7 +531,7 @@ const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, 
 		return parseByMap<T>(map, val, err);
 }
 
-void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string name)
+void JsonUtils::resolveIdentifier(si32 & var, const JsonNode & node, const std::string & name)
 {
 	const JsonNode &value = node[name];
 	if (!value.isNull())
@@ -635,7 +635,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 	case JsonNode::JsonType::DATA_VECTOR:
 		{
 			const JsonVector & subLimiters = limiter.Vector();
-			if(subLimiters.size() == 0)
+			if(subLimiters.empty())
 			{
 				logMod->warn("Warning: empty limiter list");
 				return std::make_shared<AllOfLimiter>();
@@ -760,7 +760,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
 				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
-				if(parameters.size())
+				if(!parameters.empty())
 				{
 					VLC->modh->identifiers.requestIdentifier("terrain", parameters[0], [=](si32 terrain)
 					{
@@ -792,7 +792,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	return b;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode &ability, BuildingID building, std::string description)
+std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description)
 {
 	/*	duration = Bonus::PERMANENT
 		source = Bonus::TOWN_STRUCTURE
@@ -891,7 +891,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
-	const JsonNode *value;
+	const JsonNode * value = nullptr;
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
@@ -950,7 +950,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = (Bonus::BonusDuration)parseByMap(bonusDurationMap, value, "duration type ");
+			b->duration = static_cast<Bonus::BonusDuration>(parseByMap(bonusDurationMap, value, "duration type "));
 			break;
 		case JsonNode::JsonType::DATA_VECTOR:
 			{
@@ -959,7 +959,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 				{
 					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
 				}
-				b->duration = (Bonus::BonusDuration)dur;
+				b->duration = static_cast<Bonus::BonusDuration>(dur);
 			}
 			break;
 		default:
@@ -1126,9 +1126,9 @@ void minimizeNode(JsonNode & node, const JsonNode & schema)
 	{
 		std::set<std::string> foundEntries;
 
-		for(auto & entry : schema["required"].Vector())
+		for(const auto & entry : schema["required"].Vector())
 		{
-			std::string name = entry.String();
+			const std::string & name = entry.String();
 			foundEntries.insert(name);
 
 			minimizeNode(node[name], schema["properties"][name]);
@@ -1151,7 +1151,7 @@ void minimizeNode(JsonNode & node, const JsonNode & schema)
 	}
 }
 
-void JsonUtils::minimize(JsonNode & node, std::string schemaName)
+void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 {
 	minimizeNode(node, getSchema(schemaName));
 }
@@ -1165,9 +1165,9 @@ void maximizeNode(JsonNode & node, const JsonNode & schema)
 		std::set<std::string> foundEntries;
 
 		// check all required entries that have default version
-		for(auto & entry : schema["required"].Vector())
+		for(const auto & entry : schema["required"].Vector())
 		{
-			std::string name = entry.String();
+			const std::string & name = entry.String();
 			foundEntries.insert(name);
 
 			if (node[name].isNull() &&
@@ -1189,12 +1189,12 @@ void maximizeNode(JsonNode & node, const JsonNode & schema)
 	}
 }
 
-void JsonUtils::maximize(JsonNode & node, std::string schemaName)
+void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
 {
 	maximizeNode(node, getSchema(schemaName));
 }
 
-bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::string dataName)
+bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
 {
 	std::string log = Validation::check(schemaName, node);
 	if (!log.empty())
@@ -1206,7 +1206,7 @@ bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::stri
 	return log.empty();
 }
 
-const JsonNode & getSchemaByName(std::string name)
+const JsonNode & getSchemaByName(const std::string & name)
 {
 	// cached schemas to avoid loading json data multiple times
 	static std::map<std::string, JsonNode> loadedSchemas;
@@ -1227,7 +1227,7 @@ const JsonNode & getSchemaByName(std::string name)
 	return nullNode;
 }
 
-const JsonNode & JsonUtils::getSchema(std::string URI)
+const JsonNode & JsonUtils::getSchema(const std::string & URI)
 {
 	size_t posColon = URI.find(':');
 	size_t posHash  = URI.find('#');
@@ -1312,7 +1312,7 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 
 JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)
 {
-	if(nodes.size() == 0)
+	if(nodes.empty())
 		return nullNode;
 
 	JsonNode result = nodes[0];
@@ -1331,7 +1331,7 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 	{
 		// intersect individual properties
 		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
-		for(auto property : a.Struct())
+		for(const auto & property : a.Struct())
 		{
 			if(vstd::contains(b.Struct(), property.first))
 			{
@@ -1361,7 +1361,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 		case JsonNode::JsonType::DATA_NULL:
 			return false;
 		case JsonNode::JsonType::DATA_STRUCT:
-			return diff.Struct().size() > 0;
+			return !diff.Struct().empty();
 		default:
 			return true;
 		}
@@ -1371,7 +1371,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 	{
 		// subtract individual properties
 		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
-		for(auto property : node.Struct())
+		for(const auto & property : node.Struct())
 		{
 			if(vstd::contains(base.Struct(), property.first))
 			{
@@ -1394,20 +1394,20 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 	return node;
 }
 
-JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 {
-	bool isValid;
+	bool isValid = false;
 	return assembleFromFiles(files, isValid);
 }
 
-JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files, bool &isValid)
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bool & isValid)
 {
 	isValid = true;
 	JsonNode result;
 
-	for(std::string file : files)
+	for(const std::string & file : files)
 	{
-		bool isValidFile;
+		bool isValidFile = false;
 		JsonNode section(ResourceID(file, EResType::TEXT), isValidFile);
 		merge(result, section);
 		isValid |= isValidFile;
@@ -1415,7 +1415,7 @@ JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files, bool &isVa
 	return result;
 }
 
-JsonNode JsonUtils::assembleFromFiles(std::string filename)
+JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 {
 	JsonNode result;
 	ResourceID resID(filename, EResType::TEXT);
@@ -1427,7 +1427,7 @@ JsonNode JsonUtils::assembleFromFiles(std::string filename)
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		JsonNode section((char*)textData.get(), stream->getSize());
+		JsonNode section(reinterpret_cast<char *>(textData.get()), stream->getSize());
 		merge(result, section);
 	}
 	return result;
@@ -1447,7 +1447,7 @@ DLL_LINKAGE JsonNode JsonUtils::floatNode(double value)
 	return node;
 }
 
-DLL_LINKAGE JsonNode JsonUtils::stringNode(std::string value)
+DLL_LINKAGE JsonNode JsonUtils::stringNode(const std::string & value)
 {
 	JsonNode node;
 	node.String() = value;

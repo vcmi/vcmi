@@ -40,8 +40,8 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	// is possible only via specializations of this template
 	throw std::runtime_error("Could not resolve ai library " + libpath.generic_string());
 #else
-	typedef void(* TGetAIFun)(std::shared_ptr<rett> &);
-	typedef void(* TGetNameFun)(char *);
+	using TGetAIFun = void (*)(std::shared_ptr<rett> &);
+	using TGetNameFun = void (*)(char *);
 
 	char temp[150];
 
@@ -56,8 +56,8 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
 	{
-		getName = (TGetNameFun)GetProcAddress(dll, "GetAiName");
-		getAI = (TGetAIFun)GetProcAddress(dll, methodName.c_str());
+		getName = reinterpret_cast<TGetNameFun>(GetProcAddress(dll, "GetAiName"));
+		getAI = reinterpret_cast<TGetAIFun>(GetProcAddress(dll, methodName.c_str()));
 	}
 #ifdef __MINGW32__
 #pragma GCC diagnostic pop
@@ -66,8 +66,8 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)
 	{
-		getName = (TGetNameFun)dlsym(dll, "GetAiName");
-		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
+		getName = reinterpret_cast<TGetNameFun>(dlsym(dll, "GetAiName"));
+		getAI = reinterpret_cast<TGetAIFun>(dlsym(dll, methodName.c_str()));
 	}
 #endif // VCMI_WINDOWS
 
@@ -125,22 +125,22 @@ std::shared_ptr<CBattleGameInterface> createAny(const boost::filesystem::path & 
 #endif // STATIC_AI
 
 template<typename rett>
-std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string & methodName)
+std::shared_ptr<rett> createAnyAI(const std::string & dllname, const std::string & methodName)
 {
 	logGlobal->info("Opening %s", dllname);
 
 	const boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("AI", dllname);
 	auto ret = createAny<rett>(filePath, methodName);
-	ret->dllName = std::move(dllname);
+	ret->dllName = dllname;
 	return ret;
 }
 
-std::shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
+std::shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(const std::string & dllname)
 {
 	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname)
+std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(const std::string & dllname)
 {
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }

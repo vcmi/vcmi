@@ -36,6 +36,10 @@
 #include "serializer/BinaryDeserializer.h"
 #include <vcmi/events/EventBus.h>
 
+#if SCRIPTING_ENABLED
+#include "../lib/ScriptHandler.h"
+#endif
+
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 

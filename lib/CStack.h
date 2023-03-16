@@ -26,20 +26,20 @@ class BattleInfo;
 class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
 public:
-	const CStackInstance * base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
+	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
 
-	ui32 ID; //unique ID of stack
-	const CCreature * type;
+	ui32 ID = -1; //unique ID of stack
+	const CCreature * type = nullptr;
 	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
-	ui32 baseAmount;
+	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
-	ui8 side;
+	ui8 side = 1;
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
-	CStack(const CStackInstance * base, PlayerColor O, int I, ui8 Side, SlotID S);
-	CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255));
+	CStack(const CStackInstance * base, const PlayerColor & O, int I, ui8 Side, const SlotID & S);
+	CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S = SlotID(255));
 	CStack();
 	~CStack();
 
@@ -65,7 +65,9 @@ public:
 	BattleHex::EDir destShiftDir() const;
 
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmout filled
-	static void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::shared_ptr<battle::CUnitState> customState); //requires bsa.damageAmout filled
+	static void prepareAttacked(BattleStackAttacked & bsa,
+								vstd::RNG & rand,
+								const std::shared_ptr<battle::CUnitState> & customState); //requires bsa.damageAmout filled
 
 	const CCreature * unitType() const override;
 	int32_t unitBaseAmount() const override;

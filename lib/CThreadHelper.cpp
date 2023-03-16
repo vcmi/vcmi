@@ -18,11 +18,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
+CThreadHelper::CThreadHelper(std::vector<std::function<void()>> * Tasks, int Threads):
+	currentTask(0),
+	amount(static_cast<int>(Tasks->size())),
+	tasks(Tasks),
+	threads(Threads)
 {
-	currentTask = 0; amount = (int)Tasks->size();
-	tasks = Tasks;
-	threads = Threads;
 }
 void CThreadHelper::run()
 {

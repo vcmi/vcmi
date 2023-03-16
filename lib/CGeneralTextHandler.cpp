@@ -233,7 +233,7 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(std::string const & sourceID, std::string const & sourceName)
+void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
 {
 	CLegacyConfigParser parser(sourceName);
 	size_t index = 0;
@@ -357,7 +357,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 
 void CGeneralTextHandler::loadTranslationOverrides(const std::string & language, const std::string & modContext, const JsonNode & config)
 {
-	for ( auto const & node : config.Struct())
+	for(const auto & node : config.Struct())
 		registerStringOverride(modContext, language, node.first, node.second.String());
 }
 
@@ -562,7 +562,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	}
 }
 
-int32_t CGeneralTextHandler::pluralText(int32_t textIndex, int32_t count) const
+int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
 {
 	if(textIndex == 0)
 		return 0;
@@ -577,7 +577,7 @@ int32_t CGeneralTextHandler::pluralText(int32_t textIndex, int32_t count) const
 void CGeneralTextHandler::dumpAllTexts()
 {
 	logGlobal->info("BEGIN TEXT EXPORT");
-	for ( auto const & entry : stringsLocalizations)
+	for(const auto & entry : stringsLocalizations)
 	{
 		if (!entry.second.overrideValue.empty())
 			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.overrideValue));
@@ -622,11 +622,11 @@ std::string CGeneralTextHandler::getInstalledEncoding()
 	return settings["session"]["encoding"].String();
 }
 
-std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string const & prefix)
+std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(const std::string & prefix)
 {
 	std::vector<std::string> result;
 
-	for (auto const & entry : stringsLocalizations)
+	for(const auto & entry : stringsLocalizations)
 	{
 		if(boost::algorithm::starts_with(entry.first, prefix))
 			result.push_back(entry.first);
@@ -635,9 +635,9 @@ std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(std::string 
 	return result;
 }
 
-LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::string const & basePath):
+LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::string basePath):
 	owner(owner),
-	basePath(basePath)
+	basePath(std::move(basePath))
 {}
 
 std::string LegacyTextContainer::operator[](size_t index) const
@@ -645,9 +645,9 @@ std::string LegacyTextContainer::operator[](size_t index) const
 	return owner.translate(basePath, index);
 }
 
-LegacyHelpContainer::LegacyHelpContainer(CGeneralTextHandler & owner, std::string const & basePath):
+LegacyHelpContainer::LegacyHelpContainer(CGeneralTextHandler & owner, std::string basePath):
 	owner(owner),
-	basePath(basePath)
+	basePath(std::move(basePath))
 {}
 
 std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index) const

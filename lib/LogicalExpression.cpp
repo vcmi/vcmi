@@ -16,7 +16,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::string LogicalExpressionDetail::getTextForOperator(std::string operation)
+std::string LogicalExpressionDetail::getTextForOperator(const std::string & operation)
 {
 	//placed in cpp mostly to avoid unnecessary includes in header
 	return VLC->generaltexth->translate("vcmi.logicalExpressions." + operation);

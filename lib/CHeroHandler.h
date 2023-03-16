@@ -66,18 +66,18 @@ public:
 			h & creature;
 		}
 	};
-	si32 imageIndex;
+	si32 imageIndex = 0;
 
 	std::vector<InitialArmyStack> initialArmy;
 
-	CHeroClass * heroClass;
+	CHeroClass * heroClass{};
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> specDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
-	bool haveSpellBook;
-	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
-	ui8 sex; // default sex: 0=male, 1=female
+	bool haveSpellBook = false;
+	bool special = false; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
+	ui8 sex = 0; // default sex: 0=male, 1=female
 
 	/// Graphics
 	std::string iconSpecSmall;
@@ -220,7 +220,8 @@ public:
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
-	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill);
+	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const;
+
 public:
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
@@ -248,9 +249,9 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	std::vector<ui64> expPerLevel;
 
 	/// helpers for loading to avoid huge load functions
-	void loadHeroArmy(CHero * hero, const JsonNode & node);
-	void loadHeroSkills(CHero * hero, const JsonNode & node);
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
+	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
+	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
 
 	void loadExperience();
 

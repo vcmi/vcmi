@@ -997,7 +997,7 @@ public:
 	EEPathfindingLayer num;
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer & pathfindingLayer);
 
 ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
@@ -1216,7 +1216,7 @@ class BattleField : public BaseForID<BattleField, si32>
 	DLL_LINKAGE operator std::string() const;
 	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
 
-	DLL_LINKAGE static BattleField fromString(std::string identifier);
+	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
 
 enum class ETerrainId {
@@ -1248,7 +1248,7 @@ class Obstacle : public BaseForID<Obstacle, si32>
 	
 	DLL_LINKAGE const ObstacleInfo * getInfo() const;
 	DLL_LINKAGE operator std::string() const;
-	DLL_LINKAGE static Obstacle fromString(std::string identifier);
+	DLL_LINKAGE static Obstacle fromString(const std::string & identifier);
 };
 
 enum class ESpellSchool: ui8

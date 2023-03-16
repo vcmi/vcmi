@@ -92,7 +92,7 @@ public:
 	JsonParser(const char * inputString, size_t stringSize);
 
 	/// do actual parsing. filename is name of file that will printed to console if any errors were found
-	JsonNode parse(std::string fileName);
+	JsonNode parse(const std::string & fileName);
 
 	/// returns true if parsing was successful
 	bool isValid();
@@ -125,8 +125,8 @@ namespace Validation
 	const TValidatorMap & getKnownFieldsFor(JsonNode::JsonType type);
 	const TFormatMap & getKnownFormats();
 
-	std::string check(std::string schemaName, const JsonNode & data);
-	std::string check(std::string schemaName, const JsonNode & data, ValidationData & validator);
+	std::string check(const std::string & schemaName, const JsonNode & data);
+	std::string check(const std::string & schemaName, const JsonNode & data, ValidationData & validator);
 	std::string check(const JsonNode & schema, const JsonNode & data, ValidationData & validator);
 }
 

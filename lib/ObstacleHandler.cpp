@@ -75,8 +75,8 @@ std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
 
 bool ObstacleInfo::isAppropriate(const TerrainId terrainType, const BattleField & battlefield) const
 {
-	auto bgInfo = battlefield.getInfo();
-	
+	const auto * bgInfo = battlefield.getInfo();
+
 	if(bgInfo->isSpecial)
 		return vstd::contains(allowedSpecialBfields, bgInfo->identifier);
 	
@@ -92,20 +92,20 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 	info->animation = json["animation"].String();
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();
-	for(auto & t : json["allowedTerrains"].Vector())
+	for(const auto & t : json["allowedTerrains"].Vector())
 	{
 		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}
-	for(auto & t : json["specialBattlefields"].Vector())
+	for(const auto & t : json["specialBattlefields"].Vector())
 
 		info->allowedSpecialBfields.emplace_back(t.String());
 	info->blockedTiles = json["blockedTiles"].convertTo<std::vector<si16>>();
 	info->isAbsoluteObstacle = json["absolute"].Bool();
-	
-	objects.push_back(info);
-	
+
+	objects.emplace_back(info);
+
 	return info;
 }
 

@@ -26,22 +26,22 @@ PlayerSettings::PlayerSettings()
 
 bool PlayerSettings::isControlledByAI() const
 {
-	return !connectedPlayerIDs.size();
+	return connectedPlayerIDs.empty();
 }
 
 bool PlayerSettings::isControlledByHuman() const
 {
-	return connectedPlayerIDs.size();
+	return !connectedPlayerIDs.empty();
 }
 
-PlayerSettings & StartInfo::getIthPlayersSettings(PlayerColor no)
+PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no)
 {
 	if(playerInfos.find(no) != playerInfos.end())
 		return playerInfos[no];
 	logGlobal->error("Cannot find info about player %s. Throwing...", no.getStr());
 	throw std::runtime_error("Cannot find info about player");
 }
-const PlayerSettings & StartInfo::getIthPlayersSettings(PlayerColor no) const
+const PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no) const
 {
 	return const_cast<StartInfo &>(*this).getIthPlayersSettings(no);
 }
@@ -115,7 +115,7 @@ std::vector<ui8> LobbyInfo::getConnectedPlayerIdsForClient(int clientId) const
 {
 	std::vector<ui8> ids;
 
-	for(auto & pair : playerNames)
+	for(const auto & pair : playerNames)
 	{
 		if(pair.second.connection == clientId)
 		{
@@ -158,7 +158,7 @@ PlayerColor LobbyInfo::clientFirstColor(int clientId) const
 	return PlayerColor::CANNOT_DETERMINE;
 }
 
-bool LobbyInfo::isClientColor(int clientId, PlayerColor color) const
+bool LobbyInfo::isClientColor(int clientId, const PlayerColor & color) const
 {
 	if(si->playerInfos.find(color) != si->playerInfos.end())
 	{
@@ -176,7 +176,7 @@ bool LobbyInfo::isClientColor(int clientId, PlayerColor color) const
 
 ui8 LobbyInfo::clientFirstId(int clientId) const
 {
-	for(auto & pair : playerNames)
+	for(const auto & pair : playerNames)
 	{
 		if(pair.second.connection == clientId)
 			return pair.first;
@@ -190,7 +190,7 @@ PlayerInfo & LobbyInfo::getPlayerInfo(int color)
 	return mi->mapHeader->players[color];
 }
 
-TeamID LobbyInfo::getPlayerTeamId(PlayerColor color)
+TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 {
 	if(color < PlayerColor::PLAYER_LIMIT)
 		return getPlayerInfo(color.getNum()).team;

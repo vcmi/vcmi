@@ -14,12 +14,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::string IHandlerBase::getScopeBuiltin() const
+std::string IHandlerBase::getScopeBuiltin()
 {
 	return CModHandler::scopeBuiltin();
 }
 
-void IHandlerBase::registerObject(std::string scope, std::string type_name, std::string name, si32 index)
+void IHandlerBase::registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index)
 {
 	return VLC->modh->identifiers.registerObject(scope, type_name, name, index);
 }

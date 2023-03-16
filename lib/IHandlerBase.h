@@ -21,10 +21,11 @@ class Entity;
 class DLL_LINKAGE IHandlerBase
 {
 protected:
-	std::string getScopeBuiltin() const;
+	static std::string getScopeBuiltin();
 
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
-	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
+	static void registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index);
+
 public:
 	/// loads all original game data in vector of json nodes
 	/// dataSize - is number of items that must be loaded (normally - constant from GameConstants)

@@ -198,7 +198,8 @@ template <class Handler> void createHandler(Handler *&handler, const std::string
 
 void LibClasses::init(bool onlyEssential)
 {
-	CStopWatch pomtime, totalTime;
+	CStopWatch pomtime;
+	CStopWatch totalTime;
 
 	modh->initializeConfig();
 
@@ -293,7 +294,6 @@ void LibClasses::makeNull()
 
 LibClasses::LibClasses()
 {
-	IS_AI_ENABLED = false;
 	//init pointers to handlers
 	makeNull();
 }
@@ -327,7 +327,7 @@ std::shared_ptr<CContentHandler> LibClasses::getContent() const
 
 void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
-	modh->content = content;
+	modh->content = std::move(content);
 }
 
 VCMI_LIB_NAMESPACE_END
