@@ -1064,7 +1064,8 @@ void CModHandler::initializeConfig()
 	for(const TModID & modName : activeMods)
 	{
 		const auto & mod = allMods[modName];
-		VLC->settingsHandler->load(mod.config["settings"]);
+		if (!mod.config["settings"].isNull())
+			VLC->settingsHandler->load(mod.config["settings"]);
 	}
 }
 

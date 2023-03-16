@@ -91,9 +91,12 @@ void GameSettings::load(const JsonNode & input)
 	for(const auto & option : optionPath)
 	{
 		const JsonNode & optionValue = input[option.group][option.key];
+		size_t index = static_cast<size_t>(option.setting);
 
-		if(!optionValue.isNull())
-			gameSettings[static_cast<size_t>(option.setting)] = optionValue;
+		if(optionValue.isNull())
+			continue;
+
+		JsonUtils::mergeCopy(gameSettings[index], optionValue);
 	}
 }
 

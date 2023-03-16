@@ -64,12 +64,12 @@
 				},
 				"language" : {
 					"type":"string",
-					"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
+					"enum" : [ "chinese", "english", "german", "polish", "russian", "spanish", "ukrainian" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
 					"type":"string",
-					"enum" : [ "auto", "chinese", "english", "german", "korean", "polish", "russian", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"enum" : [ "auto", "chinese", "english", "german", "korean", "polish", "russian", "spanish", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
