@@ -38,6 +38,8 @@
 	"vcmi.systemOptions.otherGroup" : "Інші налаштування",
 	"vcmi.systemOptions.townsGroup" : "Екран міста",
 
+    "vcmi.adventureOptions.infoBarPick.help" : "{Повідомлення у панелі статусу}\n\nЗа можливості, повідомлення про відвідування об'єктів карти пригод будуть відображені у панелі статусу замість окремого вікна",
+    "vcmi.adventureOptions.infoBarPick.hover" : "Повідомлення у панелі статусу",
 	"vcmi.systemOptions.fullscreenButton.hover" : "Повноекранний режим",
 	"vcmi.systemOptions.fullscreenButton.help"  : "{Повноекранний режим}\n\n Якщо обрано, VCMI буде запускатися в режимі на весь екран, інакше — віконний режим",
 	"vcmi.systemOptions.resolutionButton.hover" : "Роздільна здатність: %wx%h",

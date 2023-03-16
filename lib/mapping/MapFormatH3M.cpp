@@ -35,11 +35,24 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
+static std::string convertMapName(std::string input)
+{
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+
+	size_t slashPos = input.find_last_of("/");
+
+	if (slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
+}
+
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new CBinaryReader(stream))
 	, inputStream(stream)
-	, mapName(boost::algorithm::to_lower_copy(mapName))
+	, mapName(convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
 {
@@ -1436,11 +1449,11 @@ void CMapLoaderH3M::readObjects()
 				if(htid == 0xff)
 				{
 					hp->power = reader->readUInt8();
-					logGlobal->info("Hero placeholder: by power at %s", objPos.toString());
+					logGlobal->debug("Hero placeholder: by power at %s", objPos.toString());
 				}
 				else
 				{
-					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->getNameTranslated(), objPos.toString());
+					logGlobal->debug("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->getNameTranslated(), objPos.toString());
 					hp->power = 0;
 				}
 
@@ -1692,7 +1705,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 		if(!nhi->spells.empty())
 		{
 			nhi->clear();
-			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
+			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTextID(), nhi->subID);
 		}
 
 		if(hasCustomSpells)
@@ -2252,7 +2265,7 @@ std::string CMapLoaderH3M::readBasicString()
 std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIdentifier)
 {
 	std::string mapString = TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
-	TextIdentifier fullIdentifier(mapName, stringIdentifier.get());
+	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
 	if (mapString.empty())
 		return "";

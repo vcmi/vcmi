@@ -311,10 +311,13 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 	for (auto const & string : stringsLocalizations)
 	{
 		if (string.second.modContext != modContext)
-			continue;
+			continue; // Not our mod
+
+		if (string.second.overrideLanguage == language)
+			continue; // Already translated
 
 		if (string.second.baseLanguage == language && !string.second.baseValue.empty())
-			continue;
+			continue; // Base string already uses our language
 
 		if (config.Struct().count(string.first) > 0)
 			continue;
