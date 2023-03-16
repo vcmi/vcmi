@@ -26,8 +26,8 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CStackBasicDescriptor
 {
 public:
-	const CCreature *type;
-	TQuantity count = -1;; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
+	const CCreature *type = nullptr;
+	TQuantity count = -1; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
 
 	CStackBasicDescriptor();
 	CStackBasicDescriptor(const CreatureID & id, TQuantity Count);
