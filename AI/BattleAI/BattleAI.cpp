@@ -596,9 +596,18 @@ void CBattleAI::attemptCastingSpell()
 
 		size_t ourUnits = 0;
 
-		for(auto unit : all)
+		std::set<uint32_t> unitIds;
+
+		state.battleGetUnitsIf([&](const battle::Unit * u)->bool
 		{
-			auto unitId = unit->unitId();
+			if(!u->isGhost() && !u->isTurret())
+				unitIds.insert(u->unitId());
+
+			return false;
+		});
+
+		for(auto unitId : unitIds)
+		{
 			auto localUnit = state.battleGetUnitByID(unitId);
 
 			newHealthOfStack[unitId] = localUnit->getAvailableHealth();
@@ -620,9 +629,8 @@ void CBattleAI::attemptCastingSpell()
 		{
 			int64_t totalGain = 0;
 
-			for(auto unit : all)
+			for(auto unitId : unitIds)
 			{
-				auto unitId = unit->unitId();
 				auto localUnit = state.battleGetUnitByID(unitId);
 
 				auto newValue = getValOr(newValueOfStack, unitId, 0);
