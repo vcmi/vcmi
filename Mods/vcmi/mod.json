@@ -32,6 +32,7 @@
 		"author" : "Команда VCMI",
 		"modType" : "Графический",
 
+		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/russian.json"
 		]
@@ -45,6 +46,17 @@
 		
 		"translations" : [
 			"config/vcmi/ukrainian.json"
+		]
+	},
+
+	"spanish" : {
+		"name" : "VCMI - ficheros necesarios",
+		"description" : "Ficheros necesarios para ejecutar VCMI correctamente",
+		"author" : "Abel Rivas",
+		"modType" : "Gráfico",
+		
+		"translations" : [
+			"config/vcmi/spanish.json"
 		]
 	},
 
