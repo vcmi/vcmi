@@ -1,35 +1,16 @@
-set(launcher_modmanager_SRCS
+set(launcher_SRCS
+		StdInc.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/cmodlist.cpp
 		modManager/cmodlistmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
 		modManager/cmodmanager.cpp
 		modManager/imageviewer_moc.cpp
-)
-
-set(launcher_modmanager_HEADERS
-		modManager/cdownloadmanager_moc.h
-		modManager/cmodlist.h
-		modManager/cmodlistmodel_moc.h
-		modManager/cmodlistview_moc.h
-		modManager/cmodmanager.h
-		modManager/imageviewer_moc.h
-)
-
-set(launcher_settingsview_SRCS
 		settingsView/csettingsview_moc.cpp
-)
-
-set(launcher_settingsview_HEADERS
-		settingsView/csettingsview_moc.h
-)
-
-set(launcher_SRCS
-		StdInc.cpp
-		${launcher_modmanager_SRCS}
-		${launcher_settingsview_SRCS}
+		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
 		mainwindow_moc.cpp
+		languages.cpp
 		launcherdirs.cpp
 		jsonutils.cpp
 		updatedialog_moc.cpp
@@ -40,9 +21,16 @@ set(launcher_SRCS
 
 set(launcher_HEADERS
 		StdInc.h
-		${launcher_modmanager_HEADERS}
-		${launcher_settingsview_HEADERS}
+		modManager/cdownloadmanager_moc.h
+		modManager/cmodlist.h
+		modManager/cmodlistmodel_moc.h
+		modManager/cmodlistview_moc.h
+		modManager/cmodmanager.h
+		modManager/imageviewer_moc.h
+		settingsView/csettingsview_moc.h
+		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
+		languages.h
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h
@@ -56,6 +44,7 @@ set(launcher_FORMS
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
 		settingsView/csettingsview_moc.ui
+		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		updatedialog_moc.ui
 		lobby/lobby_moc.ui

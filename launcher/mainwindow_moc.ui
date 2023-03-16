@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>410</height>
+    <height>490</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -316,11 +316,12 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="CModListView" name="modlistView"/>
       <widget class="CSettingsView" name="settingsView"/>
       <widget class="Lobby" name="lobbyView"/>
+      <widget class="FirstLaunchView" name="setupView"/>
      </widget>
     </item>
    </layout>
@@ -344,6 +345,12 @@
    <class>Lobby</class>
    <extends>QWidget</extends>
    <header>lobby/lobby_moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FirstLaunchView</class>
+   <extends>QWidget</extends>
+   <header>firstLaunch/firstlaunch_moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

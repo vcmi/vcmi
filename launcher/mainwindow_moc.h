@@ -21,7 +21,7 @@ const QString appName = "VCMI Launcher";
 
 class QTableWidgetItem;
 class CModList;
-
+class CModListView;
 
 class MainWindow : public QMainWindow
 {
@@ -36,19 +36,27 @@ private:
 	
 	enum TabRows
 	{
-		MODS = 0, SETTINGS = 1, LOBBY = 2
+		MODS = 0,
+		SETTINGS = 1,
+		LOBBY = 2,
+		SETUP = 3
 	};
 
 	void changeEvent(QEvent *event) override;
 public:
-	explicit MainWindow(QWidget * parent = 0);
-	~MainWindow();
+	explicit MainWindow(QWidget * parent = nullptr);
+	~MainWindow() override;
 
 	const CModList & getModList() const;
+	CModListView * getModView();
 
 	void updateTranslation();
 	void computeSidePanelSizes();
 	
+	void enterSetup();
+	void exitSetup();
+	void switchToModsTab();
+
 public slots:
 	void on_startGameButton_clicked();
 	

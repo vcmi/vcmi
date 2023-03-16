@@ -22,6 +22,7 @@
 				"music",
 				"sound",
 				"language",
+				"gameDataLanguage",
 				"swipe",
 				"swipeDesktop",
 				"saveRandomMaps",
@@ -65,6 +66,11 @@
 					"type":"string",
 					"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
 					"default" : "english"
+				},
+				"gameDataLanguage" : {
+					"type":"string",
+					"enum" : [ "auto", "chinese", "english", "german", "korean", "polish", "russian", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"default" : "auto"
 				},
 				"lastSave" : {
 					"type":"string",
@@ -440,7 +446,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
+			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -450,6 +456,10 @@
 					"items" : {
 						"type" : "string"
 					}
+				},
+				"setupCompleted" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"enableInstalledMods" : {
 					"type" : "boolean",

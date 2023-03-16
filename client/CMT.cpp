@@ -258,7 +258,7 @@ int main(int argc, char * argv[])
 
 	// Init filesystem and settings
 	preinitDLL(::console);
-	settings.init();
+
 	Settings session = settings.write["session"];
 	auto setSettingBool = [](std::string key, std::string arg) {
 		Settings s = settings.write(vstd::split(key, "/"));

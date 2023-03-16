@@ -90,11 +90,13 @@ void CModListView::setupModsView()
 }
 
 CModListView::CModListView(QWidget * parent)
-	: QWidget(parent), settingsListener(settings.listen["launcher"]["repositoryURL"]), ui(new Ui::CModListView)
+	: QWidget(parent)
+	, settingsListener(settings.listen["launcher"]["repositoryURL"])
+	, ui(new Ui::CModListView)
+	, repositoriesChanged(false)
 {
 	settingsListener([&](const JsonNode &){ repositoriesChanged = true; });
 	ui->setupUi(this);
-
 
 	setupModModel();
 	setupFilterModel();
@@ -102,7 +104,7 @@ CModListView::CModListView(QWidget * parent)
 
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
-	disableModInfo();
+
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 	{
 		loadRepositories();
@@ -813,4 +815,46 @@ const CModList & CModListView::getModList() const
 {
 	assert(modModel);
 	return *modModel;
+}
+
+void CModListView::doInstallMod(const QString & modName)
+{
+	assert(findInvalidDependencies(modName).empty());
+
+	for(auto & name : modModel->getRequirements(modName))
+	{
+		auto mod = modModel->getMod(name);
+		if(!mod.isInstalled())
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+	}
+}
+
+bool CModListView::isModInstalled(const QString & modName)
+{
+	auto mod = modModel->getMod(modName);
+	return mod.isInstalled();
+}
+
+bool CModListView::isModEnabled(const QString & modName)
+{
+	auto mod = modModel->getMod(modName);
+	return mod.isEnabled();
+}
+
+QString CModListView::getTranslationModName(const QString & language)
+{
+	for(const auto & modName : modModel->getModList())
+	{
+		auto mod = modModel->getMod(modName);
+
+		if (!mod.isTranslation())
+			continue;
+
+		if (mod.getBaseValue("language").toString() != language)
+			continue;
+
+		return modName;
+	}
+
+	return QString();
 }

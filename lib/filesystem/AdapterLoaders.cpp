@@ -58,12 +58,10 @@ std::unordered_set<ResourceID> CMappedFileLoader::getFilteredFiles(std::function
 
 CFilesystemList::CFilesystemList()
 {
-	//loaders = new std::vector<std::unique_ptr<ISimpleResourceLoader> >;
 }
 
 CFilesystemList::~CFilesystemList()
 {
-	//delete loaders;
 }
 
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceName) const

@@ -18,6 +18,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "CConfigHandler.h"
 #include "RoadHandler.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
@@ -48,7 +49,9 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool 
 	VLC = new LibClasses();
 	try
 	{
-		VLC->loadFilesystem(onlyEssential, extractArchives);
+		VLC->loadFilesystem(extractArchives);
+		settings.init();
+		VLC->loadModFilesystem(onlyEssential);
 	}
 	catch(...)
 	{
@@ -160,9 +163,8 @@ void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 	}
 }
 
-void LibClasses::loadFilesystem(bool onlyEssential, bool extractArchives)
+void LibClasses::loadFilesystem(bool extractArchives)
 {
-	CStopWatch totalTime;
 	CStopWatch loadTime;
 
 	CResourceHandler::initialize();
@@ -170,15 +172,17 @@ void LibClasses::loadFilesystem(bool onlyEssential, bool extractArchives)
 
 	CResourceHandler::load("config/filesystem.json", extractArchives);
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
+}
 
+void LibClasses::loadModFilesystem(bool onlyEssential)
+{
+	CStopWatch loadTime;
 	modh = new CModHandler();
+	modh->loadMods(onlyEssential);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
-	modh->loadMods(onlyEssential);
 	modh->loadModFilesystems();
 	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
-
-	logGlobal->info("Basic initialization: %d ms", totalTime.getDiff());
 }
 
 static void logHandlerLoaded(const std::string & name, CStopWatch & timer)

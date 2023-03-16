@@ -13,7 +13,9 @@
 
 #include "mainwindow_moc.h"
 
+#include "../modManager/cmodlistview_moc.h"
 #include "../jsonutils.h"
+#include "../languages.h"
 #include "../launcherdirs.h"
 #include "../updatedialog_moc.h"
 
@@ -29,18 +31,6 @@ QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
-}
-
-/// List of tags of languages that can be selected from Launcher (and have translation for Launcher)
-static const std::string languageTagList[] =
-{
-	"chinese",
-	"english",
-	"german",
-	"polish",
-	"russian",
-	"ukrainian",
-};
 
 static const std::string cursorTypesList[] =
 {
@@ -48,6 +38,8 @@ static const std::string cursorTypesList[] =
 	"hardware",
 	"software"
 };
+
+}
 
 void CSettingsView::setDisplayList()
 {
@@ -92,12 +84,13 @@ void CSettingsView::loadSettings()
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
-	// all calls to plainText will trigger textChanged() signal overwriting config. Create backup before editing widget
-	JsonNode urls = settings["launcher"]["repositoryURL"];
 
+	JsonNode urls = settings["launcher"]["repositoryURL"];
+	ui->plainTextEditRepos->blockSignals(true); // Do not report loading as change of data
 	ui->plainTextEditRepos->clear();
 	for(auto entry : urls.Vector())
 		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
+	ui->plainTextEditRepos->blockSignals(false);
 
 	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
@@ -105,10 +98,7 @@ void CSettingsView::loadSettings()
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
-	std::string language = settings["general"]["language"].String();
-	size_t languageIndex = boost::range::find(languageTagList, language) - languageTagList;
-	if(languageIndex < ui->comboBoxLanguage->count())
-		ui->comboBoxLanguage->setCurrentIndex((int)languageIndex);
+	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
@@ -308,13 +298,13 @@ void CSettingsView::on_updatesButton_clicked()
 	UpdateDialog::showUpdateDialog(true);
 }
 
-
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 {
 	Settings node = settings.write["general"]["language"];
-	node->String() = languageTagList[index];
+	QString selectedLanguage = ui->comboBoxLanguage->itemData(index).toString();
+	node->String() = selectedLanguage.toStdString();
 
-	if ( auto mainWindow = dynamic_cast<MainWindow*>(qApp->activeWindow()) )
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
 		mainWindow->updateTranslation();
 }
 
@@ -323,8 +313,16 @@ void CSettingsView::changeEvent(QEvent *event)
 	if(event->type() == QEvent::LanguageChange)
 	{
 		ui->retranslateUi(this);
+		Languages::fillLanguages(ui->comboBoxLanguage, false);
+		loadTranslation();
 	}
 	QWidget::changeEvent(event);
+}
+
+void CSettingsView::showEvent(QShowEvent * event)
+{
+	loadTranslation();
+	QWidget::showEvent(event);
 }
 
 void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
@@ -332,7 +330,6 @@ void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[index];
 }
-
 
 void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
 {
@@ -352,5 +349,84 @@ void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
 	int maxPosition = ui->settingsScrollArea->verticalScrollBar()->maximum();
 	ui->settingsScrollArea->verticalScrollBar()->setValue(maxPosition);
 	ui->settingsScrollArea->ensureWidgetVisible(currentTarget, 5, 5);
+}
 
+void CSettingsView::loadTranslation()
+{
+	Languages::fillLanguages(ui->comboBoxLanguageBase, true);
+
+	QString baseLanguage = Languages::getHeroesDataLanguage();
+
+	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+
+	if (!mainWindow)
+		return;
+
+	QString languageName = QString::fromStdString(settings["general"]["language"].String());
+	QString modName = mainWindow->getModView()->getTranslationModName(languageName);
+	bool translationExists = !modName.isEmpty();
+	bool translationNeeded = languageName != baseLanguage;
+	bool showTranslation = translationNeeded && translationExists;
+
+	ui->labelTranslation->setVisible(showTranslation);
+	ui->labelTranslationStatus->setVisible(showTranslation);
+	ui->pushButtonTranslation->setVisible(showTranslation);
+
+	if (!translationExists)
+		return;
+
+	bool translationInstalled = mainWindow->getModView()->isModInstalled(modName);
+	bool translationEnabled = mainWindow->getModView()->isModEnabled(modName);
+
+	ui->pushButtonTranslation->setVisible(!translationEnabled);
+
+	if (translationEnabled)
+	{
+		ui->labelTranslationStatus->setText(tr("Active"));
+	}
+
+	if (translationInstalled && !translationEnabled)
+	{
+		ui->labelTranslationStatus->setText(tr("Disabled"));
+		ui->pushButtonTranslation->setText(tr("Enable"));
+	}
+
+	if (!translationInstalled)
+	{
+		ui->labelTranslationStatus->setText(tr("Not Installed"));
+		ui->pushButtonTranslation->setText(tr("Install"));
+	}
+}
+
+void CSettingsView::on_pushButtonTranslation_clicked()
+{
+	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+
+	assert(mainWindow);
+	if (!mainWindow)
+		return;
+
+	QString languageName = QString::fromStdString(settings["general"]["language"].String());
+	QString modName = mainWindow->getModView()->getTranslationModName(languageName);
+
+	assert(!modName.isEmpty());
+	if (modName.isEmpty())
+		return;
+
+	if (mainWindow->getModView()->isModInstalled(modName))
+	{
+		mainWindow->getModView()->enableModByName(modName);
+	}
+	else
+	{
+		mainWindow->switchToModsTab();
+		mainWindow->getModView()->doInstallMod(modName);
+	}
+}
+
+void CSettingsView::on_comboBoxLanguageBase_currentIndexChanged(int index)
+{
+	Settings node = settings.write["general"]["gameDataLanguage"];
+	QString selectedLanguage = ui->comboBoxLanguageBase->itemData(index).toString();
+	node->String() = selectedLanguage.toStdString();
 }

@@ -236,9 +236,6 @@ public:
 	/// CRC-32 checksum of the mod
 	ui32 checksum;
 
-	/// true if mod is enabled
-	bool enabled;
-
 	EValidationStatus validation;
 
 	JsonNode config;
@@ -249,10 +246,19 @@ public:
 	JsonNode saveLocalData() const;
 	void updateChecksum(ui32 newChecksum);
 
+	bool isEnabled() const;
+	void setEnabled(bool on);
+
 	static std::string getModDir(std::string name);
 	static std::string getModFile(std::string name);
 
 private:
+	/// true if mod is enabled by user, e.g. in Launcher UI
+	bool explicitlyEnabled;
+
+	/// true if mod can be loaded - compatible and has no missing deps
+	bool implicitlyEnabled;
+
 	void loadLocalData(const JsonNode & data);
 };
 
@@ -265,12 +271,6 @@ class DLL_LINKAGE CModHandler
 	void loadConfigFromFile(std::string name);
 
 	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
-
-	//returns false if mod list is incorrect and prints error to console. Possible errors are:
-	// - missing dependency mod
-	// - conflicting mod in load order
-	// - circular dependencies
-	bool checkDependencies(const std::vector <TModID> & input) const;
 
 	/**
 	* 1. Set apart mods with resolved dependencies from mods which have unresolved dependencies
@@ -449,7 +449,7 @@ public:
 				h & mver;
 				
 				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
-					allMods[m].enabled = true;
+					allMods[m].setEnabled(true);
 				else
 					missingMods.emplace_back(m, mver.toString());
 			}

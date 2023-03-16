@@ -192,6 +192,12 @@ void CResourceHandler::initialize()
 	addFilesystem("root", "local", localFS);
 }
 
+void CResourceHandler::destroy()
+{
+	knownLoaders.clear();
+	globalResourceHandler.rootLoader.reset();
+}
+
 ISimpleResourceLoader * CResourceHandler::get()
 {
 	return get("root");

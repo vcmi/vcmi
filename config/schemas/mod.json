@@ -91,7 +91,7 @@
 		"language" : {
 			"type":"string",
 			"description": "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "chinese", "english", "german", "polish", "russian", "ukrainian" ],
+			"enum" : [ "chinese", "english", "korean", "german", "polish", "russian", "ukrainian" ],
 		},
 		"depends": {
 			"type":"array",
@@ -125,10 +125,16 @@
 			"type":"boolean",
 			"description": "If set to true, mod will not be enabled automatically on install"
 		},
+		"chinese" : {
+			"$ref" : "#/definitions/localizable"
+		},
 		"english" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"german" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"korean" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"polish" : {
