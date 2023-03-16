@@ -401,11 +401,11 @@ void CInfoBar::prepareComponents(const std::vector<Component> & components, std:
 	// Order matters - priority form should be chosen first
 	if(imageH + textH < CInfoBar::data_height)
 		pushComponents(components, message, textH, false, timer);
-	else if(!imageH && tinyH < CInfoBar::data_height)
+	else if(imageH + tinyH < CInfoBar::data_height)
 		pushComponents(components, message, tinyH, true, timer);
 	else if(imageH + headerH < CInfoBar::data_height)
 		pushComponents(components, header, headerH, false, timer);
-	else if(imageH + headerTinyH < CInfoBar::data_height - 2 * CInfoBar::offset)
+	else if(imageH + headerTinyH < CInfoBar::data_height)
 		pushComponents(components, header, headerTinyH, true, timer);
 	else
 		pushComponents(components, "", 0, false, timer);
