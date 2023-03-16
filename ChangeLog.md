@@ -1,7 +1,10 @@
 # 1.1.1 -> 1.2.0
-(unreleased, changes for 1.1.1..9e39e8e)
+(unreleased, changes for 1.1.1..ecbbbed)
 
 ### GENERAL:
+* Adventure map rendering was entirely rewritten with better, more functional code
+* Client battle code was heavily reworked, leading to better visual look & feel and fixing multiple minor battle bugs / glitches
+* Client mechanics are now framerate-independent, rather than speeding up with higher framerate
 * Implemented hardware cursor support
 * Heroes III language can now be detected automatically
 * Increased targeted framerate from 48 to 60
@@ -12,21 +15,31 @@
 * Added vcmifaerie, vcmiazure, vcmiarmy, vcmiexp cheats
 * Video files now play at correct speed
 * Fixed crash on switching to second mission in campaigns
+* Fixed oversided message window from Scholar skill that had confirmation button outside game window
 
 ### MAP EDITOR:
-* Added translations to German, Polish, Russian, Ukrainian
+* Added translations to German, Polish, Russian, Spanish, Ukrainian
 * Implemented cut/copy/paste operations
 * Implemented lasso brush for terrain editing
 * Toolbar actions now have names
 
 ### LAUNCHER:
+* Added initial Welcome/Setup screen for new players
+* Added option to install translation mod if such mod exists and player's H3 version has different language
 * Icons now have higher resolution, to prevent upscaling artifacts
-* Added translations to German, Polish, Russian, Ukrainian
+* Added translations to German, Polish, Russian, Spanish, Ukrainian
 * Mods tab layout has been adjusted based on feedback from players
 * Settings tab layout has been redesigned to support longer texts
 * Added button to start map editor directly from Launcher
 
+### AI PLAYER:
+* AI should now be more active in destroying heroes causing treat on AI towns
+* AI now has higher priority for resource-producing mines
+* Increased AI priority of town dwelling upgrades
+* AI will now de-prioritize town hall upgrades when low on resources
+
 ### ADVENTURE MAP:
+* Added option to replace popup messages on object visiting with messages in status window
 * Implemented different hero movement sounds for offroad movement
 * Cartographers now reveal terrain in the same way as in H3
 * Status bar will now show movement points information on pressing ALT or after enabling option in settings
@@ -41,7 +54,9 @@
 * Hero movement speed now matches H3
 * Improved performance of adventure map rendering
 * Fixed embarking and disembarking sounds
-* Object render order now matches H3
+* Fixed loading of sleeping status and movement path of heroes
+* Fixed selection of "new week" animation for status window
+* Object render order now mostly matches H3
 
 ### INTERFACE
 * Implemented new settings window
@@ -64,6 +79,7 @@
 * Fixed gradual fade-in of a newly built building
 * Fixed duration of building fade-in to match H3
 * Fixed rendering of Shipyard in Castle
+* Blacksmith purchase button is now properly locked if artifact slot is occupied by another warmachine
 * Added option to show number of available creatures in place of growth
 
 ### BATTLES:
@@ -135,17 +151,21 @@
 ### MODDING:
 * All configurable objects from H3 now have their configuration in json
 * Improvements to functionality of configurable objects
+* Replaced `SECONDARY_SKILL_PREMY` bonus with separate bonuses for each skill. See https://wiki.vcmi.eu/List_of_all_bonus_types
+* Removed multiple bonuses that can be replaced with another bonus. See https://wiki.vcmi.eu/List_of_all_bonus_types
 * It is now possible to define new hero movement sounds in terrains
 * Implemented translation support for mods
-* Implemented translation support for .h3m maps
+* Implemented translation support for .h3m maps and .h3c campaigns
+* Translation mods are now automatically disabled if player uses different language
 * Files with new Terrains, Roads and Rivers are now validated by game
 * Parameters controlling effect of attack and defences stats on damage are now configurable in defaultMods.json
-* New bonus: LIMITED_SHOOTING_RANGE. Creatures with this bonus can only use ranged attack within specified range
+* New bonus: `LIMITED_SHOOTING_RANGE`. Creatures with this bonus can only use ranged attack within specified range
 * Battle window and Random Map Tab now have their layout defined in json file
 * Implemented code support for alternative actions mod
 * Implemented code support for improved random map dialog
 * It is now possible to configure number of creature stacks in heroes' starting armies
 * It is now possible to configure number of constructed dwellings in towns on map start
+* Game settings previously located in defaultMods.json are now loaded directly from mod.json
 
 # 1.1.0 -> 1.1.1
 
