@@ -9,9 +9,6 @@
  */
 #pragma once
 
-#include "filesystem/Filesystem.h"
-
-#include "VCMI_Lib.h"
 #include "JsonNode.h"
 
 #ifdef __UCLIBC__
@@ -267,8 +264,6 @@ class DLL_LINKAGE CModHandler
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 	CModInfo coreMod;
 
-	void loadConfigFromFile(const std::string & name);
-
 	bool hasCircularDependency(const TModID & mod, std::set<TModID> currentList = std::set<TModID>()) const;
 
 	/**
@@ -353,72 +348,6 @@ public:
 	void load();
 	void afterLoad(bool onlyEssential);
 
-	std::vector<std::shared_ptr<Bonus>> heroBaseBonuses; //these bonuses will be applied to every hero on map
-
-	struct DLL_LINKAGE hardcodedFeatures
-	{
-		JsonNode data;
-
-		int CREEP_SIZE; // neutral stacks won't grow beyond this number
-		int WEEKLY_GROWTH; //percent
-		int NEUTRAL_STACK_EXP;
-		int MAX_BUILDING_PER_TURN;
-		bool DWELLINGS_ACCUMULATE_CREATURES;
-		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
-		int MAX_HEROES_AVAILABLE_PER_PLAYER;
-		int MAX_HEROES_ON_MAP_PER_PLAYER;
-		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
-		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
-		bool NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
-		double ATTACK_POINT_DMG_MULTIPLIER;
-		double ATTACK_POINTS_DMG_MULTIPLIER_CAP;
-		double DEFENSE_POINT_DMG_MULTIPLIER;
-		double DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
-		std::vector<int32_t> HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
-		std::vector<int32_t> DEFAULT_BUILDING_SET_DWELLING_CHANCES;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & data;
-			h & CREEP_SIZE;
-			h & WEEKLY_GROWTH;
-			h & NEUTRAL_STACK_EXP;
-			h & MAX_BUILDING_PER_TURN;
-			h & DWELLINGS_ACCUMULATE_CREATURES;
-			h & ALL_CREATURES_GET_DOUBLE_MONTHS;
-			h & MAX_HEROES_AVAILABLE_PER_PLAYER;
-			h & MAX_HEROES_ON_MAP_PER_PLAYER;
-			h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
-			h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
-			h & NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
-			h & ATTACK_POINT_DMG_MULTIPLIER;
-			h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
-			h & DEFENSE_POINT_DMG_MULTIPLIER;
-			h & DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
-			if(version >= 815)
-			{
-				h & HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
-				h & DEFAULT_BUILDING_SET_DWELLING_CHANCES;
-			}
-		}
-	} settings;
-
-	struct DLL_LINKAGE gameModules
-	{
-		bool STACK_EXP;
-		bool STACK_ARTIFACT;
-		bool COMMANDERS;
-		bool MITHRIL;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & STACK_EXP;
-			h & STACK_ARTIFACT;
-			h & COMMANDERS;
-			h & MITHRIL;
-		}
-	} modules;
-
 	CModHandler();
 	virtual ~CModHandler() = default;
 
@@ -460,9 +389,7 @@ public:
 			
 			std::swap(activeMods, newActiveMods);
 		}
-				
-		h & settings;
-		h & modules;
+
 		h & identifiers;
 	}
 };

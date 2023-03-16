@@ -38,6 +38,7 @@
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "GameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -132,6 +133,11 @@ const ObstacleService * LibClasses::obstacles() const
 	return obstacleHandler;
 }
 
+const IGameSettings * LibClasses::settings() const
+{
+	return settingsHandler;
+}
+
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
 {
 	switch(metatype)
@@ -201,6 +207,7 @@ void LibClasses::init(bool onlyEssential)
 	CStopWatch pomtime;
 	CStopWatch totalTime;
 
+	createHandler(settingsHandler, "Game Settings", pomtime);
 	modh->initializeConfig();
 
 	createHandler(generaltexth, "General text", pomtime);

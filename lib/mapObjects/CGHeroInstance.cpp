@@ -19,6 +19,7 @@
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
+#include "../GameSettings.h"
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
@@ -312,16 +313,17 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
-	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_PER_HERO);
+	for(const auto & b : baseBonuses.Struct())
 	{
-		auto bonus = ob;
+		auto bonus = JsonUtils::parseBonus(b.second);
 		bonus->source = Bonus::HERO_BASE_SKILL;
 		bonus->sid = id.getNum();
 		bonus->duration = Bonus::PERMANENT;
 		addNewBonus(bonus);
 	}
 
-	if (VLC->modh->modules.COMMANDERS && !commander)
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander)
 	{
 		commander = new CCommanderInstance(type->heroClass->commander->idNumber);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
@@ -339,27 +341,16 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 
 	int warMachinesGiven = 0;
 
-	std::vector<int32_t> stacksCountChances = VLC->modh->settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES;
-
-	const int zeroStacksAllowingValue = -1;
-	bool allowZeroStacksArmy = !stacksCountChances.empty() && stacksCountChances.back() == zeroStacksAllowingValue;
-	if(allowZeroStacksArmy)
-		stacksCountChances.pop_back();
-
+	auto stacksCountChances = VLC->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
-	auto stacksCountElementIndex = vstd::find_pos_if(stacksCountChances, [stacksCountInitRandomNumber](int element){ return stacksCountInitRandomNumber < element; });
-	if(stacksCountElementIndex == -1)
-		stacksCountElementIndex = stacksCountChances.size();
+	size_t maxStacksCount = std::min(stacksCountChances.size(), type->initialArmy.size());
 
-	int howManyStacks = stacksCountElementIndex;
-	if(!allowZeroStacksArmy)
-		howManyStacks++;
-
-	vstd::amin(howManyStacks, type->initialArmy.size());
-
-	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
+	for(int stackNo=0; stackNo < maxStacksCount; stackNo++)
 	{
+		if (stacksCountInitRandomNumber > stacksCountChances[stackNo])
+			continue;
+
 		auto & stack = type->initialArmy[stackNo];
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
@@ -436,7 +427,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
 		{
 			//update hero parameters
 			SetMovePoints smp;
@@ -1473,7 +1464,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
 
 	{
-		const int legacyHeroes = static_cast<int>(VLC->modh->settings.data["textData"]["hero"].Integer());
+		const int legacyHeroes = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO);
 		const int moddedStart = legacyHeroes + GameConstants::HERO_PORTRAIT_SHIFT;
 
 		if(handler.saving)

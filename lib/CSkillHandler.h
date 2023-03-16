@@ -102,7 +102,7 @@ class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSki
 {
 public:
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 

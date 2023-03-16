@@ -142,7 +142,7 @@ void CSkill::serializeJson(JsonSerializeFormat & handler)
 }
 
 ///CSkillHandler
-std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CSkillHandler::loadLegacyData()
 {
 	CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
 

@@ -559,7 +559,7 @@ bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
 }
 
 ///CSpellHandler
-std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CSpellHandler::loadLegacyData()
 {
 	using namespace SpellConfig;
 	std::vector<JsonNode> legacyData;

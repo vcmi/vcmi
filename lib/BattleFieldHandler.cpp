@@ -41,7 +41,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 	return info;
 }
 
-std::vector<JsonNode> BattleFieldHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> BattleFieldHandler::loadLegacyData()
 {
 	return std::vector<JsonNode>();
 }

@@ -12,6 +12,7 @@
 #include "TerrainHandler.h"
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
+#include "GameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -110,8 +111,10 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+
 	objects.resize(dataSize);
 
 	CLegacyConfigParser terrainParser("DATA/TERRNAME.TXT");

@@ -16,6 +16,7 @@
 #include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
+#include "GameSettings.h"
 #include "StringConstants.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
@@ -512,8 +513,10 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses) con
 	}
 }
 
-std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_CREATURE);
+
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
@@ -677,7 +680,7 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 
 void CCreatureHandler::loadCrExpBon()
 {
-	if (VLC->modh->modules.STACK_EXP) 	//reading default stack experience bonuses
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
 		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
 
@@ -793,7 +796,7 @@ void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd=0; dd<VLC->modh->settings.data["textData"]["creature"].Float(); ++dd)
+	for(int dd = 0; dd < VLC->settings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;

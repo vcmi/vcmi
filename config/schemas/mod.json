@@ -91,7 +91,7 @@
 		"language" : {
 			"type":"string",
 			"description": "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "chinese", "english", "korean", "german", "polish", "russian", "ukrainian" ],
+			"enum" : [ "chinese", "english", "korean", "german", "polish", "russian", "spanish", "ukrainian" ],
 		},
 		"depends": {
 			"type":"array",
@@ -141,6 +141,9 @@
 			"$ref" : "#/definitions/localizable"
 		},
 		"russian" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"spanish" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"ukrainian" : {
@@ -241,6 +244,17 @@
 			"additionalProperties" : {
 				"type" : "array",
 				"items" : { "type":"string" }
+			}
+		},
+		
+		"settings" : {
+			"type":"object",
+			"description": "List of changed game settings by mod",
+			"additionalProperties" : {
+				"type" : "object",
+				"properties" : { 
+					"type" : "object"
+				}
 			}
 		},
 

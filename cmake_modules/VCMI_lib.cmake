@@ -182,6 +182,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CThreadHelper.cpp
 		${MAIN_LIB_DIR}/CTownHandler.cpp
 		${MAIN_LIB_DIR}/GameConstants.cpp
+		${MAIN_LIB_DIR}/GameSettings.cpp
 		${MAIN_LIB_DIR}/HeroBonus.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
 		${MAIN_LIB_DIR}/IHandlerBase.cpp
@@ -426,6 +427,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CTownHandler.h
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameConstants.h
+		${MAIN_LIB_DIR}/GameSettings.h
 		${MAIN_LIB_DIR}/HeroBonus.h
 		${MAIN_LIB_DIR}/IBonusTypeHandler.h
 		${MAIN_LIB_DIR}/IGameCallback.h

@@ -14,6 +14,7 @@
 #include "filesystem/FileStream.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
+#include "filesystem/Filesystem.h"
 
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"
@@ -29,6 +30,7 @@
 #include "Languages.h"
 #include "ScriptHandler.h"
 #include "RoadHandler.h"
+#include "GameSettings.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "BattleFieldHandler.h"
@@ -343,7 +345,7 @@ void CIdentifierStorage::finalize()
 ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & objectName):
 	handler(handler),
 	objectName(objectName),
-	originalData(handler->loadLegacyData(static_cast<size_t>(VLC->modh->settings.data["textData"][objectName].Float())))
+	originalData(handler->loadLegacyData())
 {
 	for(auto & node : originalData)
 	{
@@ -729,10 +731,6 @@ void CModInfo::setEnabled(bool on)
 
 CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 {
-	modules.COMMANDERS = false;
-	modules.STACK_ARTIFACT = false;
-	modules.STACK_EXP = false;
-	modules.MITHRIL = false;
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -743,72 +741,6 @@ CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
 	}
-}
-
-void CModHandler::loadConfigFromFile(const std::string & name)
-{
-	std::string paths;
-	for(const auto & p : CResourceHandler::get()->getResourceNames(ResourceID("config/" + name)))
-	{
-		paths += p.string() + ", ";
-	}
-	paths = paths.substr(0, paths.size() - 2);
-	logMod->debug("Loading hardcoded features settings from [%s], result:", paths);
-	settings.data = JsonUtils::assembleFromFiles("config/" + name);
-	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
-	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = static_cast<int>(hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Integer());
-	logMod->debug("\tMAX_HEROES_AVAILABLE_PER_PLAYER\t%d", settings.MAX_HEROES_AVAILABLE_PER_PLAYER);
-	settings.MAX_HEROES_ON_MAP_PER_PLAYER = static_cast<int>(hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Integer());
-	logMod->debug("\tMAX_HEROES_ON_MAP_PER_PLAYER\t%d", settings.MAX_HEROES_ON_MAP_PER_PLAYER);
-	settings.CREEP_SIZE = static_cast<int>(hardcodedFeatures["CREEP_SIZE"].Integer());
-	logMod->debug("\tCREEP_SIZE\t%d", settings.CREEP_SIZE);
-	settings.WEEKLY_GROWTH = static_cast<int>(hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Integer());
-	logMod->debug("\tWEEKLY_GROWTH\t%d", settings.WEEKLY_GROWTH);
-	settings.NEUTRAL_STACK_EXP = static_cast<int>(hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Integer());
-	logMod->debug("\tNEUTRAL_STACK_EXP\t%d", settings.NEUTRAL_STACK_EXP);
-	settings.MAX_BUILDING_PER_TURN = static_cast<int>(hardcodedFeatures["MAX_BUILDING_PER_TURN"].Integer());
-	logMod->debug("\tMAX_BUILDING_PER_TURN\t%d", settings.MAX_BUILDING_PER_TURN);
-	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
-	logMod->debug("\tDWELLINGS_ACCUMULATE_CREATURES\t%d", static_cast<int>(settings.DWELLINGS_ACCUMULATE_CREATURES));
-	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
-	logMod->debug("\tALL_CREATURES_GET_DOUBLE_MONTHS\t%d", static_cast<int>(settings.ALL_CREATURES_GET_DOUBLE_MONTHS));
-	settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS = hardcodedFeatures["WINNING_HERO_WITH_NO_TROOPS_RETREATS"].Bool();
-	logMod->debug("\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t%d", static_cast<int>(settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS));
-	settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = hardcodedFeatures["BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"].Bool();
-	logMod->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
-	settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS = hardcodedFeatures["NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS"].Bool();
-	logMod->debug("\tNO_RANDOM_SPECIAL_WEEKS_AND_MONTHS\t%d", static_cast<int>(settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS));
-	settings.ATTACK_POINT_DMG_MULTIPLIER = hardcodedFeatures["ATTACK_POINT_DMG_MULTIPLIER"].Float();
-	logMod->debug("\tATTACK_POINT_DMG_MULTIPLIER\t%f", settings.ATTACK_POINT_DMG_MULTIPLIER);
-	settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["ATTACK_POINTS_DMG_MULTIPLIER_CAP"].Float();
-	logMod->debug("\tATTACK_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP);
-	settings.DEFENSE_POINT_DMG_MULTIPLIER = hardcodedFeatures["DEFENSE_POINT_DMG_MULTIPLIER"].Float();
-	logMod->debug("\tDEFENSE_POINT_DMG_MULTIPLIER\t%f", settings.DEFENSE_POINT_DMG_MULTIPLIER);
-	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
-	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%f", settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
-
-	settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES = hardcodedFeatures["HERO_STARTING_ARMY_STACKS_COUNT_CHANCES"].convertTo<std::vector<int32_t>>();
-	for (auto const & entry : settings.HERO_STARTING_ARMY_STACKS_COUNT_CHANCES)
-		logMod->debug("\tHERO_STARTING_ARMY_STACKS_COUNT_CHANCES\t%d", entry);
-
-	settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES = hardcodedFeatures["DEFAULT_BUILDING_SET_DWELLING_CHANCES"].convertTo<std::vector<int32_t>>();
-	for (auto const & entry : settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES)
-		logMod->debug("\tDEFAULT_BUILDING_SET_DWELLING_CHANCES\t%d", entry);
-
-	const JsonNode & gameModules = settings.data["modules"];
-	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
-	logMod->debug("\tSTACK_EXP\t%d", static_cast<int>(modules.STACK_EXP));
-	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
-	logMod->debug("\tSTACK_ARTIFACT\t%d", static_cast<int>(modules.STACK_ARTIFACT));
-	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
-	logMod->debug("\tCOMMANDERS\t%d", static_cast<int>(modules.COMMANDERS));
-	modules.MITHRIL = gameModules["MITHRIL"].Bool();
-	logMod->debug("\tMITHRIL\t%d", static_cast<int>(modules.MITHRIL));
-
-	const JsonNode & baseBonuses = VLC->modh->settings.data["heroBaseBonuses"];
-	logMod->debug("\tLoading base hero bonuses");
-	for(const auto & b : baseBonuses.Vector())
-		heroBaseBonuses.emplace_back(JsonUtils::parseBonus(b));
 }
 
 // currentList is passed by value to get current list of depending mods
@@ -1127,7 +1059,14 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 void CModHandler::initializeConfig()
 {
-	loadConfigFromFile("defaultMods.json");
+	VLC->settingsHandler->load(coreMod.config["settings"]);
+
+	for(const TModID & modName : activeMods)
+	{
+		const auto & mod = allMods[modName];
+		if (!mod.config["settings"].isNull())
+			VLC->settingsHandler->load(mod.config["settings"]);
+	}
 }
 
 bool CModHandler::validateTranslations(TModID modName) const

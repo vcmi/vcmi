@@ -223,7 +223,7 @@ class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass
 	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const;
 
 public:
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void afterLoadFinalization() override;
 
@@ -264,7 +264,7 @@ public:
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void beforeValidate(JsonNode & object) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;

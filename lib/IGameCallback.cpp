@@ -30,6 +30,7 @@
 #include "CGameState.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
+#include "GameSettings.h"
 #include "ScriptHandler.h"
 #include "RoadHandler.h"
 #include "RiverHandler.h"

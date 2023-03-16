@@ -20,6 +20,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
+#include "GameSettings.h"
 #include "TerrainHandler.h"
 #include "CSkillHandler.h"
 #include "mapping/CMap.h"
@@ -948,11 +949,11 @@ void CGameState::checkMapChecksum()
 
 void CGameState::initGlobalBonuses()
 {
-	const JsonNode & baseBonuses = VLC->modh->settings.data["baseBonuses"];
+	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_GLOBAL);
 	logGlobal->debug("\tLoading global bonuses");
-	for(const auto & b : baseBonuses.Vector())
+	for(const auto & b : baseBonuses.Struct())
 	{
-		auto bonus = JsonUtils::parseBonus(b);
+		auto bonus = JsonUtils::parseBonus(b.second);
 		bonus->source = Bonus::GLOBAL;//for all
 		bonus->sid = -1; //there is one global object
 		globalEffects.addNewBonus(bonus);
@@ -1747,7 +1748,7 @@ void CGameState::initTowns()
 			if(vti->tempOwner != PlayerColor::NEUTRAL)
 				vti->builtBuildings.insert(BuildingID::TAVERN);
 
-			auto definesBuildingsChances = VLC->modh->settings.DEFAULT_BUILDING_SET_DWELLING_CHANCES;
+			auto definesBuildingsChances = VLC->settings()->getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
 
 			BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
 

@@ -23,6 +23,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
@@ -283,7 +284,7 @@ std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
 
 void CTownList::CTownItem::update()
 {
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture->setFrame(iconIndex + 2);
 	redraw();

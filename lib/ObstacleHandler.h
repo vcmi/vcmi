@@ -91,7 +91,7 @@ public:
 										size_t index) override;
 	
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 	std::vector<bool> getDefaultAllowed() const override;
 	
 	template <typename Handler> void serialize(Handler & h, const int version)

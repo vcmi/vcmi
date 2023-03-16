@@ -17,6 +17,7 @@
 #include "StringConstants.h"
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
+#include "GameSettings.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
@@ -309,8 +310,10 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	return heroClass;
 }
 
-std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
+
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
@@ -777,8 +780,10 @@ static std::string genRefName(std::string input)
 	return input;
 }
 
-std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CHeroHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO);
+
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);

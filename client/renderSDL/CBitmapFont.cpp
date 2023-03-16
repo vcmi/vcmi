@@ -20,6 +20,7 @@
 #include "../../lib/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/vcmi_endian.h"
+#include "../../lib/VCMI_Lib.h"
 
 #include <SDL_surface.h>
 

@@ -12,6 +12,7 @@
 #include "RiverHandler.h"
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
+#include "GameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,8 +51,10 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> RiverTypeHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_RIVER);
+
 	objects.resize(dataSize);
 	return {};
 }

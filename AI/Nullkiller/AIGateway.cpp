@@ -13,7 +13,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/serializer/CTypeList.h"
@@ -1072,7 +1072,7 @@ bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
-	if(cb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;

@@ -18,7 +18,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 
-#include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 
 namespace NKAI
 {
@@ -445,7 +445,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->cb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
+		return ai->cb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:

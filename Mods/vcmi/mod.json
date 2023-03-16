@@ -55,6 +55,7 @@
 		"author" : "Abel Rivas",
 		"modType" : "Gráfico",
 		
+		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/spanish.json"
 		]
