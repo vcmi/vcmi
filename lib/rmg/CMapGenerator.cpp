@@ -367,10 +367,24 @@ void CMapGenerator::addHeaderInfo()
 
 int CMapGenerator::getNextMonlithIndex()
 {
-	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
-	else
-		return monolithIndex++;
+	while (true)
+	{
+		if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
+			throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+		else
+		{
+			//Skip modded Monoliths which can't beplaced on every terrain
+			auto templates = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, monolithIndex)->getTemplates();
+			if (templates.empty() || !templates[0]->canBePlacedAtAnyTerrain())
+			{
+				monolithIndex++;
+			}
+			else
+			{
+				return monolithIndex++;
+			}
+		}
+	}
 }
 
 int CMapGenerator::getPrisonsRemaning() const
