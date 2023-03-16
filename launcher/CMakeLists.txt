@@ -56,7 +56,9 @@ set(launcher_TS
 	translation/german.ts
 	translation/polish.ts
 	translation/russian.ts
-	translation/ukrainian.ts)
+	translation/spanish.ts
+	translation/ukrainian.ts
+)
 
 if(APPLE_IOS)
 	list(APPEND launcher_SRCS
