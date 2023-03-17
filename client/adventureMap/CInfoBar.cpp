@@ -170,7 +170,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
-	auto fullRect = Rect(0, 0, data_width, data_height);
+	auto fullRect = Rect(CInfoBar::offset, CInfoBar::offset, data_width - 2 * CInfoBar::offset, data_height - 2 * CInfoBar::offset);
 	auto textRect = fullRect;
 	auto imageRect = fullRect;
 	auto font = FONT_SMALL;
