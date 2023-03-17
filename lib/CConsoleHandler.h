@@ -79,18 +79,18 @@ public:
 	std::function<void(const std::string &, bool)> *cb;
 
 private:
-    int run();
+	int run() const;
 
-    void end(); //kills listening thread
+	void end(); //kills listening thread
 
-    void setColor(EConsoleTextColor::EConsoleTextColor color); //sets color of text appropriate for given logging level
+	static void setColor(EConsoleTextColor::EConsoleTextColor color); //sets color of text appropriate for given logging level
 
-    /// FIXME: Implement CConsoleHandler as singleton, move some logic into CLogConsoleTarget, etc... needs to be disussed:)
-    /// Without static, application will crash complaining about mutex deleted. In short: CConsoleHandler gets deleted before
-    /// the logging system.
-    static boost::mutex smx;
+	/// FIXME: Implement CConsoleHandler as singleton, move some logic into CLogConsoleTarget, etc... needs to be disussed:)
+	/// Without static, application will crash complaining about mutex deleted. In short: CConsoleHandler gets deleted before
+	/// the logging system.
+	static boost::mutex smx;
 
-    boost::thread * thread;
+	boost::thread * thread;
 };
 
 extern DLL_LINKAGE CConsoleHandler * console;

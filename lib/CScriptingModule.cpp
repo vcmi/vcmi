@@ -17,21 +17,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace scripting
 {
 
-ContextBase::ContextBase(vstd::CLoggerBase * logger_)
-	: logger(logger_)
-{
-
-}
-
-ContextBase::~ContextBase() = default;
-
-
-Module::Module()
+ContextBase::ContextBase(vstd::CLoggerBase * logger_):
+    logger(logger_)
 {
 }
-
-Module::~Module() = default;
-
 }
 
 VCMI_LIB_NAMESPACE_END

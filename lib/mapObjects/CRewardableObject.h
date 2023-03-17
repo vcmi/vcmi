@@ -73,8 +73,11 @@ public:
 	CRewardLimiter():
 		dayOfWeek(0),
 		daysPassed(0),
+		heroExperience(0),
 		heroLevel(0),
-		primary(4, 0)
+		manaPercentage(0),
+		manaPoints(0),
+		primary(GameConstants::PRIMARY_SKILLS, 0)
 	{}
 
 	bool heroAllowed(const CGHeroInstance * hero) const;

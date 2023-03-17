@@ -209,7 +209,7 @@ void CBonusTypeHandler::load()
 
 void CBonusTypeHandler::load(const JsonNode & config)
 {
-	for(auto & node : config.Struct())
+	for(const auto & node : config.Struct())
 	{
 		auto it = bonusNameMap.find(node.first);
 
@@ -235,7 +235,7 @@ void CBonusTypeHandler::load(const JsonNode & config)
 	}
 }
 
-void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, const std::string & name)
+void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const
 {
 	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false

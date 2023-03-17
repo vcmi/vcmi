@@ -14,6 +14,7 @@
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
+#include "GameSettings.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "IGameCallback.h"
 #include "CGameState.h"
@@ -32,7 +33,7 @@ bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPair
 	return lhs.first->getAIValue() < rhs.first->getAIValue(); // Descendant order sorting
 }
 
-const CStackInstance &CCreatureSet::operator[](SlotID slot) const
+const CStackInstance & CCreatureSet::operator[](const SlotID & slot) const
 {
 	auto i = stacks.find(slot);
 	if (i != stacks.end())
@@ -41,7 +42,7 @@ const CStackInstance &CCreatureSet::operator[](SlotID slot) const
 		throw std::runtime_error("That slot is empty!");
 }
 
-const CCreature* CCreatureSet::getCreature(SlotID slot) const
+const CCreature * CCreatureSet::getCreature(const SlotID & slot) const
 {
 	auto i = stacks.find(slot);
 	if (i != stacks.end())
@@ -67,14 +68,14 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 	if(hasStackAtSlot(slot)) //remove old creature
 		eraseStack(slot);
 
-	auto armyObj = castToArmyObj();
+	auto * armyObj = castToArmyObj();
 	bool isHypotheticArmy = armyObj ? armyObj->isHypothetic() : false;
 
 	putStack(slot, new CStackInstance(type, quantity, isHypotheticArmy));
 	return true;
 }
 
-SlotID CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount) const /*returns -1 if no slot available */
+SlotID CCreatureSet::getSlotFor(const CreatureID & creature, ui32 slotsAmount) const /*returns -1 if no slot available */
 {
 	return getSlotFor(VLC->creh->objects[creature], slotsAmount);
 }
@@ -82,7 +83,7 @@ SlotID CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount) const /*r
 SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
 {
 	assert(c && c->valid());
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 	{
 		assert(elem.second->type->valid());
 		if(elem.second->type == c)
@@ -93,10 +94,10 @@ SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
 	return getFreeSlot(slotsAmount);
 }
 
-bool CCreatureSet::hasCreatureSlots(const CCreature * c, SlotID exclude) const
+bool CCreatureSet::hasCreatureSlots(const CCreature * c, const SlotID & exclude) const
 {
 	assert(c && c->valid());
-	for(auto & elem : stacks) // elem is const
+	for(const auto & elem : stacks) // elem is const
 	{
 		if(elem.first == exclude) // Check slot
 			continue;
@@ -112,12 +113,12 @@ bool CCreatureSet::hasCreatureSlots(const CCreature * c, SlotID exclude) const
 	return false;
 }
 
-std::vector<SlotID> CCreatureSet::getCreatureSlots(const CCreature * c, SlotID exclude, TQuantity ignoreAmount) const
+std::vector<SlotID> CCreatureSet::getCreatureSlots(const CCreature * c, const SlotID & exclude, TQuantity ignoreAmount) const
 {
 	assert(c && c->valid());
 	std::vector<SlotID> result;
 
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 	{
 		if(elem.first == exclude)
 			continue;
@@ -140,7 +141,7 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 	TQuantity max = 0;
 	TQuantity min = std::numeric_limits<TQuantity>::max();
 
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 	{
 		if(!elem.second || !elem.second->type || elem.second->type != c)
 			continue;
@@ -209,11 +210,11 @@ TMapCreatureSlot CCreatureSet::getCreatureMap() const
 
 	// https://stackoverflow.com/questions/97050/stdmap-insert-or-stdmap-find
 	// https://www.cplusplus.com/reference/map/map/key_comp/
-	for(auto pair : stacks)
+	for(const auto & pair : stacks)
 	{
-		auto creature = pair.second->type;
+		const auto * creature = pair.second->type;
 		auto slot = pair.first;
-		TMapCreatureSlot::iterator lb = creatureMap.lower_bound(creature);
+		auto lb = creatureMap.lower_bound(creature);
 
 		if(lb != creatureMap.end() && !(keyComp(creature, lb->first)))
 			continue;
@@ -223,11 +224,11 @@ TMapCreatureSlot CCreatureSet::getCreatureMap() const
 	return creatureMap;
 }
 
-TCreatureQueue CCreatureSet::getCreatureQueue(SlotID exclude) const
+TCreatureQueue CCreatureSet::getCreatureQueue(const SlotID & exclude) const
 {
 	TCreatureQueue creatureQueue;
 
-	for(auto pair : stacks)
+	for(const auto & pair : stacks)
 	{
 		if(pair.first == exclude)
 			continue;
@@ -236,7 +237,7 @@ TCreatureQueue CCreatureSet::getCreatureQueue(SlotID exclude) const
 	return creatureQueue;
 }
 
-TQuantity CCreatureSet::getStackCount(SlotID slot) const
+TQuantity CCreatureSet::getStackCount(const SlotID & slot) const
 {
 	auto i = stacks.find(slot);
 	if (i != stacks.end())
@@ -245,7 +246,7 @@ TQuantity CCreatureSet::getStackCount(SlotID slot) const
 		return 0; //TODO? consider issuing a warning
 }
 
-TExpType CCreatureSet::getStackExperience(SlotID slot) const
+TExpType CCreatureSet::getStackExperience(const SlotID & slot) const
 {
 	auto i = stacks.find(slot);
 	if (i != stacks.end())
@@ -254,14 +255,13 @@ TExpType CCreatureSet::getStackExperience(SlotID slot) const
 		return 0; //TODO? consider issuing a warning
 }
 
-
-bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID preferable) const /*looks for two same stacks, returns slot positions */
+bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable) const /*looks for two same stacks, returns slot positions */
 {
 	//try to match creature to our preferred stack
 	if(preferable.validSlot() &&  vstd::contains(stacks, preferable))
 	{
 		const CCreature *cr = stacks.find(preferable)->second->type;
-		for(auto & elem : stacks)
+		for(const auto & elem : stacks)
 		{
 			if(cr == elem.second->type && elem.first != preferable)
 			{
@@ -272,13 +272,13 @@ bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID prefera
 		}
 	}
 
-	for(auto i=stacks.begin(); i!=stacks.end(); ++i)
+	for(const auto & stack : stacks)
 	{
-		for(auto & elem : stacks)
+		for(const auto & elem : stacks)
 		{
-			if(i->second->type == elem.second->type  &&  i->first != elem.first)
+			if(stack.second->type == elem.second->type && stack.first != elem.first)
 			{
-				out.first = i->first;
+				out.first = stack.first;
 				out.second = elem.first;
 				return true;
 			}
@@ -300,7 +300,7 @@ void CCreatureSet::sweep()
 	}
 }
 
-void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool allowMerging)
+void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging)
 {
 	const CCreature *c = VLC->creh->objects[cre];
 
@@ -318,7 +318,7 @@ void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool 
 	}
 }
 
-void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMerging)
+void CCreatureSet::addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging)
 {
 	assert(stack->valid(true));
 
@@ -338,7 +338,7 @@ void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMergi
 
 bool CCreatureSet::validTypes(bool allowUnrandomized) const
 {
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 	{
 		if(!elem.second->valid(allowUnrandomized))
 			return false;
@@ -346,7 +346,7 @@ bool CCreatureSet::validTypes(bool allowUnrandomized) const
 	return true;
 }
 
-bool CCreatureSet::slotEmpty(SlotID slot) const
+bool CCreatureSet::slotEmpty(const SlotID & slot) const
 {
 	return !hasStackAtSlot(slot);
 }
@@ -359,17 +359,17 @@ bool CCreatureSet::needsLastStack() const
 ui64 CCreatureSet::getArmyStrength() const
 {
 	ui64 ret = 0;
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 		ret += elem.second->getPower();
 	return ret;
 }
 
-ui64 CCreatureSet::getPower (SlotID slot) const
+ui64 CCreatureSet::getPower(const SlotID & slot) const
 {
 	return getStack(slot).getPower();
 }
 
-std::string CCreatureSet::getRoughAmount(SlotID slot, int mode) const
+std::string CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
 {
 	/// Mode represent return string format
 	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
@@ -389,12 +389,12 @@ std::string CCreatureSet::getArmyDescription() const
 {
 	std::string text;
 	std::vector<std::string> guards;
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 	{
 		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->getNamePluralTranslated());
 		guards.push_back(str);
 	}
-	if(guards.size())
+	if(!guards.empty())
 	{
 		for(int i = 0; i < guards.size(); i++)
 		{
@@ -418,11 +418,11 @@ void CCreatureSet::setFormation(bool tight)
 	formation = tight;
 }
 
-void CCreatureSet::setStackCount(SlotID slot, TQuantity count)
+void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
 	assert(stacks[slot]->count + count > 0);
-	if (VLC->modh->modules.STACK_EXP && count > stacks[slot]->count)
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) && count > stacks[slot]->count)
 		stacks[slot]->experience = static_cast<TExpType>(stacks[slot]->experience * (count / static_cast<double>(stacks[slot]->count)));
 	stacks[slot]->count = count;
 	armyChanged();
@@ -433,7 +433,7 @@ void CCreatureSet::giveStackExp(TExpType exp)
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
 		i->second->giveStackExp(exp);
 }
-void CCreatureSet::setStackExp(SlotID slot, TExpType exp)
+void CCreatureSet::setStackExp(const SlotID & slot, TExpType exp)
 {
 	assert(hasStackAtSlot(slot));
 	stacks[slot]->experience = exp;
@@ -447,20 +447,20 @@ void CCreatureSet::clear()
 	}
 }
 
-const CStackInstance& CCreatureSet::getStack(SlotID slot) const
+const CStackInstance & CCreatureSet::getStack(const SlotID & slot) const
 {
 	assert(hasStackAtSlot(slot));
 	return *getStackPtr(slot);
 }
 
-const CStackInstance* CCreatureSet::getStackPtr(SlotID slot) const
+const CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second;
 	else return nullptr;
 }
 
-void CCreatureSet::eraseStack(SlotID slot)
+void CCreatureSet::eraseStack(const SlotID & slot)
 {
 	assert(hasStackAtSlot(slot));
 	CStackInstance *toErase = detachStack(slot);
@@ -472,7 +472,7 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 	if(!stack)
 		return false;
 
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 		if(elem.second == stack)
 			return true;
 
@@ -481,14 +481,14 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 
 SlotID CCreatureSet::findStack(const CStackInstance *stack) const
 {
-	auto h = dynamic_cast<const CGHeroInstance *>(this);
+	const auto * h = dynamic_cast<const CGHeroInstance *>(this);
 	if (h && h->commander == stack)
 		return SlotID::COMMANDER_SLOT_PLACEHOLDER;
 
 	if(!stack)
 		return SlotID();
 
-	for(auto & elem : stacks)
+	for(const auto & elem : stacks)
 		if(elem.second == stack)
 			return elem.first;
 
@@ -500,7 +500,7 @@ CArmedInstance * CCreatureSet::castToArmyObj()
 	return dynamic_cast<CArmedInstance *>(this);
 }
 
-void CCreatureSet::putStack(SlotID slot, CStackInstance *stack)
+void CCreatureSet::putStack(const SlotID & slot, CStackInstance * stack)
 {
 	assert(slot.getNum() < GameConstants::ARMY_SIZE);
 	assert(!hasStackAtSlot(slot));
@@ -509,7 +509,7 @@ void CCreatureSet::putStack(SlotID slot, CStackInstance *stack)
 	armyChanged();
 }
 
-void CCreatureSet::joinStack(SlotID slot, CStackInstance * stack)
+void CCreatureSet::joinStack(const SlotID & slot, CStackInstance * stack)
 {
 	const CCreature *c = getCreature(slot);
 	assert(c == stack->type);
@@ -521,19 +521,9 @@ void CCreatureSet::joinStack(SlotID slot, CStackInstance * stack)
 	vstd::clear_pointer(stack);
 }
 
-void CCreatureSet::changeStackCount(SlotID slot, TQuantity toAdd)
+void CCreatureSet::changeStackCount(const SlotID & slot, TQuantity toAdd)
 {
 	setStackCount(slot, getStackCount(slot) + toAdd);
-}
-
-CCreatureSet::CCreatureSet()
-{
-	formation = false;
-}
-
-CCreatureSet::CCreatureSet(const CCreatureSet&)
-{
-	assert(0);
 }
 
 CCreatureSet::~CCreatureSet()
@@ -553,7 +543,7 @@ void CCreatureSet::setToArmy(CSimpleArmy &src)
 	}
 }
 
-CStackInstance * CCreatureSet::detachStack(SlotID slot)
+CStackInstance * CCreatureSet::detachStack(const SlotID & slot)
 {
 	assert(hasStackAtSlot(slot));
 	CStackInstance *ret = stacks[slot];
@@ -570,7 +560,7 @@ CStackInstance * CCreatureSet::detachStack(SlotID slot)
 	return ret;
 }
 
-void CCreatureSet::setStackType(SlotID slot, CreatureID type)
+void CCreatureSet::setStackType(const SlotID & slot, const CreatureID & type)
 {
 	assert(hasStackAtSlot(slot));
 	CStackInstance *s = stacks[slot];
@@ -584,7 +574,7 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 	{
 		int freeSlots = stacksCount() - GameConstants::ARMY_SIZE;
 		std::set<const CCreature*> cresToAdd;
-		for(auto & elem : cs.stacks)
+		for(const auto & elem : cs.stacks)
 		{
 			SlotID dest = getSlotFor(elem.second->type);
 			if(!dest.validSlot() || hasStackAtSlot(dest))
@@ -598,11 +588,11 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 		SlotID j;
 
 		//get types of creatures that need their own slot
-		for(auto & elem : cs.stacks)
+		for(const auto & elem : cs.stacks)
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
 				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
 			//cres.addToSlot(elem.first, elem.second->type->idNumber, 1, true);
-		for(auto & elem : stacks)
+		for(const auto & elem : stacks)
 		{
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
 				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
@@ -613,7 +603,7 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 	}
 }
 
-bool CCreatureSet::hasStackAtSlot(SlotID slot) const
+bool CCreatureSet::hasStackAtSlot(const SlotID & slot) const
 {
 	return vstd::contains(stacks, slot);
 }
@@ -667,9 +657,9 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 
 			if(amount > 0)
 			{
-				CStackInstance * new_stack = new CStackInstance();
+				auto * new_stack = new CStackInstance();
 				new_stack->serializeJson(handler);
-				putStack(SlotID((si32)idx), new_stack);
+				putStack(SlotID(static_cast<si32>(idx)), new_stack);
 			}
 		}
 	}
@@ -681,8 +671,8 @@ CStackInstance::CStackInstance()
 	init();
 }
 
-CStackInstance::CStackInstance(CreatureID id, TQuantity Count, bool isHypothetic)
-	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
+CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic):
+	CBonusSystemNode(isHypothetic), armyObj(_armyObj)
 {
 	init();
 	setType(id);
@@ -714,12 +704,12 @@ CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 
 int CStackInstance::getExpRank() const
 {
-	if (!VLC->modh->modules.STACK_EXP)
+	if (!VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 		return 0;
 	int tier = type->level;
 	if (vstd::iswithin(tier, 1, 7))
 	{
-		for (int i = (int)VLC->creh->expRanks[tier].size()-2; i >-1; --i)//sic!
+		for(int i = static_cast<int>(VLC->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
 		{ //exp values vary from 1st level to max exp at 11th level
 			if (experience >= VLC->creh->expRanks[tier][i])
 				return ++i; //faster, but confusing - 0 index mean 1st level of experience
@@ -728,7 +718,7 @@ int CStackInstance::getExpRank() const
 	}
 	else //higher tier
 	{
-		for (int i = (int)VLC->creh->expRanks[0].size()-2; i >-1; --i)
+		for(int i = static_cast<int>(VLC->creh->expRanks[0].size()) - 2; i > -1; --i)
 		{
 			if (experience >= VLC->creh->expRanks[0][i])
 				return ++i;
@@ -739,7 +729,7 @@ int CStackInstance::getExpRank() const
 
 int CStackInstance::getLevel() const
 {
-	return std::max (1, (int)type->level);
+	return std::max(1, static_cast<int>(type->level));
 }
 
 si32 CStackInstance::magicResistance() const
@@ -758,12 +748,12 @@ void CStackInstance::giveStackExp(TExpType exp)
 	CCreatureHandler * creh = VLC->creh;
 	ui32 maxExp = creh->expRanks[level].back();
 
-	vstd::amin(exp, (TExpType)maxExp); //prevent exp overflow due to different types
+	vstd::amin(exp, static_cast<TExpType>(maxExp)); //prevent exp overflow due to different types
 	vstd::amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
-void CStackInstance::setType(CreatureID creID)
+void CStackInstance::setType(const CreatureID & creID)
 {
 	if(creID >= 0 && creID < VLC->creh->objects.size())
 		setType(VLC->creh->objects[creID]);
@@ -776,7 +766,7 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 	{
 		detachFrom(const_cast<CCreature&>(*type));
-		if (type->isMyUpgrade(c) && VLC->modh->modules.STACK_EXP)
+		if (type->isMyUpgrade(c) && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
 
@@ -790,7 +780,7 @@ std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, b
 	return VLC->getBth()->bonusToString(bonus, this, description);
 }
 
-std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const
+std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
@@ -830,11 +820,6 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 	}
 	else
 		return allowUnrandomized;
-}
-
-CStackInstance::~CStackInstance()
-{
-
 }
 
 std::string CStackInstance::nodeName() const
@@ -903,7 +888,7 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 	{
 		if(idRand > -1)
 		{
-			int level = (int)idRand / 2;
+			int level = idRand / 2;
 
 			boost::logic::tribool upgraded = (idRand % 2) > 0;
 
@@ -922,7 +907,7 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 			handler.serializeInt("level", level, 0);
 			handler.serializeBool("upgraded", upgraded);
 
-			idRand = level * 2 + (int)(bool)upgraded;
+			idRand = level * 2 + static_cast<int>(upgraded);
 		}
 	}
 }
@@ -930,14 +915,13 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 CCommanderInstance::CCommanderInstance()
 {
 	init();
-	name = "Unnamed";
 }
 
-CCommanderInstance::CCommanderInstance (CreatureID id)
+CCommanderInstance::CCommanderInstance(const CreatureID & id): name("Commando")
 {
 	init();
 	setType(id);
-	name = "Commando"; //TODO - parse them
+	//TODO - parse them
 }
 
 void CCommanderInstance::init()
@@ -951,11 +935,6 @@ void CCommanderInstance::init()
 	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
-}
-
-CCommanderInstance::~CCommanderInstance()
-{
-
 }
 
 void CCommanderInstance::setAlive (bool Alive)
@@ -987,7 +966,7 @@ int CCommanderInstance::getLevel() const
 void CCommanderInstance::levelUp ()
 {
 	level++;
-	for (auto bonus : VLC->creh->commanderLevelPremy)
+	for(const auto & bonus : VLC->creh->commanderLevelPremy)
 	{ //grant all regular level-up bonuses
 		accumulateBonus(bonus);
 	}
@@ -1000,17 +979,15 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= (TExpType)VLC->heroh->reqExp(level+1);
+	return experience >= static_cast<TExpType>(VLC->heroh->reqExp(level + 1));
 }
 
-CStackBasicDescriptor::CStackBasicDescriptor()
-{
-	type = nullptr;
-	count = -1;
-}
+//This constructor should be placed here to avoid side effects
+CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
-CStackBasicDescriptor::CStackBasicDescriptor(CreatureID id, TQuantity Count)
-	: type (VLC->creh->objects[id]), count(Count)
+CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count):
+	type(VLC->creh->objects[id]), 
+	count(Count)
 {
 }
 
@@ -1049,7 +1026,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	}
 	else
 	{
-		std::string typeName("");
+		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
 			setType(VLC->creh->getCreature(CModHandler::scopeMap(), typeName));
@@ -1063,7 +1040,7 @@ void CSimpleArmy::clear()
 
 CSimpleArmy::operator bool() const
 {
-	return army.size();
+	return !army.empty();
 }
 
 bool CSimpleArmy::setCreature(SlotID slot, CreatureID cre, TQuantity count)

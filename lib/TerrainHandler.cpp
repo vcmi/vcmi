@@ -12,6 +12,7 @@
 #include "TerrainHandler.h"
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
+#include "GameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +20,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	TerrainType * info = new TerrainType;
+	auto * info = new TerrainType;
 
 	info->id = TerrainId(index);
 	info->identifier = identifier;
@@ -37,17 +38,17 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =
 	{
-		ui8(unblockedVec[0].Float()),
-		ui8(unblockedVec[1].Float()),
-		ui8(unblockedVec[2].Float())
+		static_cast<ui8>(unblockedVec[0].Float()),
+		static_cast<ui8>(unblockedVec[1].Float()),
+		static_cast<ui8>(unblockedVec[2].Float())
 	};
 
 	const JsonVector &blockedVec = json["minimapBlocked"].Vector();
 	info->minimapBlocked =
 	{
-		ui8(blockedVec[0].Float()),
-		ui8(blockedVec[1].Float()),
-		ui8(blockedVec[2].Float())
+		static_cast<ui8>(blockedVec[0].Float()),
+		static_cast<ui8>(blockedVec[1].Float()),
+		static_cast<ui8>(blockedVec[2].Float())
 	};
 
 	info->passabilityType = 0;
@@ -55,7 +56,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	for(const auto& node : json["type"].Vector())
 	{
 		//Set bits
-		auto s = node.String();
+		const auto & s = node.String();
 		if (s == "LAND") info->passabilityType |= TerrainType::PassabilityType::LAND;
 		if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
 		if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
@@ -75,7 +76,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->shortIdentifier = json["shortIdentifier"].String();
 	assert(info->shortIdentifier.length() == 2);
 
-	for(auto & t : json["battleFields"].Vector())
+	for(const auto & t : json["battleFields"].Vector())
 	{
 		VLC->modh->identifiers.requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
@@ -83,7 +84,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 		});
 	}
 
-	for(auto & t : json["prohibitTransitions"].Vector())
+	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
 		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
@@ -110,8 +111,10 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 {
+	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+
 	objects.resize(dataSize);
 
 	CLegacyConfigParser terrainParser("DATA/TERRNAME.TXT");
@@ -187,8 +190,5 @@ std::string TerrainType::getNameTranslated() const
 {
 	return VLC->generaltexth->translate(getNameTextID());
 }
-
-TerrainType::TerrainType()
-{}
 
 VCMI_LIB_NAMESPACE_END

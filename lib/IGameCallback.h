@@ -54,16 +54,19 @@ public:
 	void getFreeTiles(std::vector<int3> &tiles) const;
 
 	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
-	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious,
-						 boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0,
+	void getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
+						 const int3 & pos,
+						 int radious,
+						 boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+						 int mode = 0,
 						 int3::EDistanceFormula formula = int3::DIST_2D) const;
 
 	//returns all tiles on given level (-1 - both levels, otherwise number of level)
 	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
 					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
 
-	void pickAllowedArtsSet(std::vector<const CArtifact *> &out,
-							CRandomGenerator &rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const; 
 	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
 
 	template<typename Saver>
@@ -144,15 +147,15 @@ public:
 	using CGameInfoCallback::getArtInstance;
 	using CGameInfoCallback::getObjInstance;
 
-	PlayerState * getPlayerState(PlayerColor color, bool verbose = true);
-	TeamState *getTeam(TeamID teamID);//get team by team ID
-	TeamState *getPlayerTeam(PlayerColor color);// get team by player color
-	CGHeroInstance *getHero(ObjectInstanceID objid);
-	CGTownInstance *getTown(ObjectInstanceID objid);
-	TerrainTile * getTile(int3 pos);
-	CArtifactInstance * getArtInstance(ArtifactInstanceID aid);
-	CGObjectInstance * getObjInstance(ObjectInstanceID oid);
-	CArmedInstance * getArmyInstance(ObjectInstanceID oid);
+	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
+	TeamState * getTeam(const TeamID & teamID); //get team by team ID
+	TeamState * getPlayerTeam(const PlayerColor & color); // get team by player color
+	CGHeroInstance * getHero(const ObjectInstanceID & objid);
+	CGTownInstance * getTown(const ObjectInstanceID & objid);
+	TerrainTile * getTile(const int3 & pos);
+	CArtifactInstance * getArtInstance(const ArtifactInstanceID & aid);
+	CGObjectInstance * getObjInstance(const ObjectInstanceID & oid);
+	CArmedInstance * getArmyInstance(const ObjectInstanceID & oid);
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 };

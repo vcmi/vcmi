@@ -36,6 +36,8 @@ class ObstacleHandler;
 class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
 class IHandlerBase;
+class IGameSettings;
+class GameSettings;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -56,7 +58,7 @@ class DLL_LINKAGE LibClasses : public Services
 	void setContent(std::shared_ptr<CContentHandler> content);
 
 public:
-	bool IS_AI_ENABLED; //unused?
+	bool IS_AI_ENABLED = false; //unused?
 
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;
@@ -70,6 +72,7 @@ public:
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
+	const IGameSettings * settings() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -97,6 +100,7 @@ public:
 	CRmgTemplateStorage * tplh;
 	BattleFieldHandler * battlefieldsHandler;
 	ObstacleHandler * obstacleHandler;
+	GameSettings * settingsHandler;
 #if SCRIPTING_ENABLED
 	scripting::ScriptHandler * scriptHandler;
 #endif
@@ -124,6 +128,7 @@ public:
 		}
 #endif
 
+		h & settingsHandler;
 		h & heroh;
 		h & arth;
 		h & creh;

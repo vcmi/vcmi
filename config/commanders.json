@@ -34,7 +34,7 @@
 		{"ability": ["ADDITIONAL_ATTACK", 1, 0, 0 ], "skills": [2, 3]},
 		{"ability": ["HP_REGENERATION", 50, 0, 0 ], "skills": [2, 4]},
 		{"ability": ["SPELL_AFTER_ATTACK", 30, "spell.paralyze", 0 ], "skills": [2, 5]},
-		{"ability": ["JOUSTING", 0, 0, 0 ], "skills": [3, 4]},
+		{"ability": ["JOUSTING", 5, 0, 0 ], "skills": [3, 4]},
 		{"ability": ["DEATH_STARE", 1, 1, 0 ], "skills": [3,5]},
 		{"ability": ["FLYING", 0, 0, 0 ], "skills": [4,5]}
 	]

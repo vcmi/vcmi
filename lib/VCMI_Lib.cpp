@@ -38,6 +38,7 @@
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "GameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -132,6 +133,11 @@ const ObstacleService * LibClasses::obstacles() const
 	return obstacleHandler;
 }
 
+const IGameSettings * LibClasses::settings() const
+{
+	return settingsHandler;
+}
+
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
 {
 	switch(metatype)
@@ -198,8 +204,10 @@ template <class Handler> void createHandler(Handler *&handler, const std::string
 
 void LibClasses::init(bool onlyEssential)
 {
-	CStopWatch pomtime, totalTime;
+	CStopWatch pomtime;
+	CStopWatch totalTime;
 
+	createHandler(settingsHandler, "Game Settings", pomtime);
 	modh->initializeConfig();
 
 	createHandler(generaltexth, "General text", pomtime);
@@ -293,7 +301,6 @@ void LibClasses::makeNull()
 
 LibClasses::LibClasses()
 {
-	IS_AI_ENABLED = false;
 	//init pointers to handlers
 	makeNull();
 }
@@ -327,7 +334,7 @@ std::shared_ptr<CContentHandler> LibClasses::getContent() const
 
 void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
-	modh->content = content;
+	modh->content = std::move(content);
 }
 
 VCMI_LIB_NAMESPACE_END

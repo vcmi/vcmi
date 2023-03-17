@@ -10,31 +10,32 @@
 #include "StdInc.h"
 #include "Client.h"
 
-#include "../CCallback.h"
-#include "adventureMap/CAdvMapInt.h"
-#include "mapView/mapHandler.h"
 #include "CGameInfo.h"
-#include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
-#include "../lib/StartInfo.h"
-#include "../lib/battle/BattleInfo.h"
-#include "../lib/serializer/CTypeList.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/NetPacks.h"
-#include "ClientNetPackVisitors.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/VCMIDirs.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/JsonNode.h"
-#include "../lib/CConfigHandler.h"
-#include "battle/BattleInterface.h"
-#include "../lib/CThreadHelper.h"
-#include "../lib/registerTypes/RegisterTypes.h"
-#include "gui/CGuiHandler.h"
 #include "CServerHandler.h"
-#include "serializer/BinaryDeserializer.h"
+#include "ClientNetPackVisitors.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "battle/BattleInterface.h"
+#include "gui/CGuiHandler.h"
+#include "mapView/mapHandler.h"
+
+#include "../CCallback.h"
+#include "../lib/CConfigHandler.h"
+#include "../lib/CGameState.h"
+#include "../lib/CThreadHelper.h"
+#include "../lib/VCMIDirs.h"
+#include "../lib/battle/BattleInfo.h"
+#include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/mapping/CMapService.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/serializer/Connection.h"
+
 #include <vcmi/events/EventBus.h>
+
+#if SCRIPTING_ENABLED
+#include "../lib/ScriptHandler.h"
+#endif
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -201,6 +202,15 @@ void CClient::loadGame(CGameState * initializedGameState)
 
 	initPlayerEnvironments();
 	
+	// Loading of client state - disabled for now
+	// Since client no longer writes or loads its own state and instead receives it from server
+	// client state serializer will serialize its own copies of all pointers, e.g. heroes/towns/objects
+	// and on deserialize will create its own copies (instead of using copies from state received from server)
+	// Potential solutions:
+	// 1) Use server gamestate to deserialize pointers, so any pointer to same object will point to server instance and not our copy
+	// 2) Remove all serialization of pointers with instance ID's and restore them on load (including AI deserializer code)
+	// 3) Completely remove client savegame and send all information, like hero paths and sleeping status to server (either in form of hero properties or as some generic "client options" message
+#ifdef BROKEN_CLIENT_STATE_SERIALIZATION_HAS_BEEN_FIXED
 	// try to deserialize client data including sleepingHeroes
 	try
 	{
@@ -218,6 +228,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	{
 		logGlobal->info("Cannot load client data for game %s. Error: %s", CSH->si->mapname, e.what());
 	}
+#endif
 
 	initPlayerInterfaces();
 }

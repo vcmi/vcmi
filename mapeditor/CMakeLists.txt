@@ -75,7 +75,9 @@ set(editor_TS
 	translation/german.ts
 	translation/polish.ts
 	translation/russian.ts
-	translation/ukrainian.ts)
+	translation/spanish.ts
+	translation/ukrainian.ts
+)
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} mapeditor.rc)
 

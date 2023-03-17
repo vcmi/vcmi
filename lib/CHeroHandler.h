@@ -66,18 +66,18 @@ public:
 			h & creature;
 		}
 	};
-	si32 imageIndex;
+	si32 imageIndex = 0;
 
 	std::vector<InitialArmyStack> initialArmy;
 
-	CHeroClass * heroClass;
+	CHeroClass * heroClass{};
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> specDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
-	bool haveSpellBook;
-	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
-	ui8 sex; // default sex: 0=male, 1=female
+	bool haveSpellBook = false;
+	bool special = false; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
+	ui8 sex = 0; // default sex: 0=male, 1=female
 
 	/// Graphics
 	std::string iconSpecSmall;
@@ -220,9 +220,10 @@ public:
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
-	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill);
+	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const;
+
 public:
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void afterLoadFinalization() override;
 
@@ -248,9 +249,9 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	std::vector<ui64> expPerLevel;
 
 	/// helpers for loading to avoid huge load functions
-	void loadHeroArmy(CHero * hero, const JsonNode & node);
-	void loadHeroSkills(CHero * hero, const JsonNode & node);
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
+	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
+	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
 
 	void loadExperience();
 
@@ -263,7 +264,7 @@ public:
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void beforeValidate(JsonNode & object) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;

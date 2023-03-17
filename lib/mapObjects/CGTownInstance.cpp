@@ -17,6 +17,7 @@
 #include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CModHandler.h"
+#include "../GameSettings.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
@@ -254,9 +255,16 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 	{
 		if(!creatures[i].second.empty())
 		{
+			bool creaturesAccumulate = false;
+
+			if (tempOwner.isValidPlayer())
+				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+			else
+				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
+
 			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
 			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
-			if (VLC->modh->settings.DWELLINGS_ACCUMULATE_CREATURES && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
+			if (creaturesAccumulate && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
 			else
 				sac.creatures[i].first = amount;

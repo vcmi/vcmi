@@ -30,9 +30,6 @@ public:
 		std::string iconLarge;
 		std::vector<std::shared_ptr<Bonus>> effects;
 
-		LevelInfo();
-		~LevelInfo();
-
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & iconSmall;
@@ -51,8 +48,8 @@ private:
 	std::string identifier;
 
 public:
-	CSkill(SecondarySkill id = SecondarySkill::DEFAULT, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
-	~CSkill();
+	CSkill(const SecondarySkill & id = SecondarySkill::DEFAULT, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
+	~CSkill() = default;
 
 	enum class Obligatory : ui8
 	{
@@ -104,11 +101,8 @@ private:
 class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSkill, SkillService>
 {
 public:
-	CSkillHandler();
-	virtual ~CSkillHandler();
-
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 

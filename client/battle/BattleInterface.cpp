@@ -663,33 +663,30 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 
 	boost::thread aiThread([&]()
 	{
-		auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(stacksController->getActiveStack()));
-
 		if(curInt->cb->battleIsFinished())
 		{
 			return; // battle finished with spellcast
 		}
 
-		if (curInt->isAutoFightOn)
+		if (tacticsMode)
 		{
-			if (tacticsMode)
-			{
-				// Always end tactics mode. Player interface is blocked currently, so it's not possible that
-				// the AI can take any action except end tactics phase (AI actions won't be triggered)
-				//TODO implement the possibility that the AI will be triggered for further actions
-				//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
-				stacksController->setActiveStack(nullptr);
-				tacticsMode = false;
-			}
-			else
-			{
-				givenCommand.setn(ba.release());
-			}
+			// Always end tactics mode. Player interface is blocked currently, so it's not possible that
+			// the AI can take any action except end tactics phase (AI actions won't be triggered)
+			//TODO implement the possibility that the AI will be triggered for further actions
+			//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
+			stacksController->setActiveStack(nullptr);
+			tacticsMode = false;
 		}
 		else
 		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			activateStack();
+			const CStack* activeStack = stacksController->getActiveStack();
+
+			// If enemy is moving, activeStack can be null
+			if (activeStack)
+			{
+				auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
+				givenCommand.setn(ba.release());
+			}
 		}
 	});
 

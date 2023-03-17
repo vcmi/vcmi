@@ -29,6 +29,7 @@
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
 #include "mapping/CCampaignHandler.h"
+#include "GameSettings.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -1675,7 +1676,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 
 	const CCreature * srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
-	bool stackExp = VLC->modh->modules.STACK_EXP;
+	bool stackExp = VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 
 	if(srcCount == count) //moving whole stack
 	{
@@ -2201,7 +2202,7 @@ void BattleResult::applyGs(CGameState *gs)
 		}
 	}
 
-	if(VLC->modh->modules.STACK_EXP)
+	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		for(int i = 0; i < 2; i++)
 			if(exp[i])

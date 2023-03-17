@@ -61,9 +61,9 @@ public:
 	RiverId river;
 	int moveCost;
 	bool transitionRequired;
-	
-	TerrainType();
-	
+
+	TerrainType() = default;
+
 	bool isLand() const;
 	bool isWater() const;
 	bool isPassable() const;
@@ -112,7 +112,7 @@ public:
 		size_t index) override;
 
 	virtual const std::vector<std::string> & getTypeNames() const override;
-	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	virtual std::vector<JsonNode> loadLegacyData() override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)

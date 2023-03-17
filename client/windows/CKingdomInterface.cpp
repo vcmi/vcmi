@@ -31,6 +31,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -778,7 +779,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	garr = std::make_shared<CGarrisonInt>(313, 3, 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, true);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>("ITPT", iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
