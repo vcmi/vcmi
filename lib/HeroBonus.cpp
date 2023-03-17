@@ -1757,6 +1757,8 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 			type = Bonus::MAGIC_RESISTANCE;
 		else if(deprecatedSubtype == SecondarySkill::EAGLE_EYE || deprecatedSubtypeStr == "skill.eagleEye")
 			type = Bonus::LEARN_BATTLE_SPELL_CHANCE;
+		else if(deprecatedSubtype == SecondarySkill::SCOUTING || deprecatedSubtypeStr == "skill.scouting")
+			type = Bonus::SIGHT_RADIUS;
 		else if(deprecatedSubtype == SecondarySkill::INTELLIGENCE || deprecatedSubtypeStr == "skill.intelligence")
 		{
 			type = Bonus::MANA_PER_KNOWLEDGE;
