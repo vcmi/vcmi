@@ -236,7 +236,7 @@ void CGCreature::newTurn(CRandomGenerator & rand) const
 		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
 			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT))); //set new amount
+			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
 			cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
