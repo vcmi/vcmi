@@ -202,6 +202,15 @@ void CClient::loadGame(CGameState * initializedGameState)
 
 	initPlayerEnvironments();
 	
+	// Loading of client state - disabled for now
+	// Since client no longer writes or loads its own state and instead receives it from server
+	// client state serializer will serialize its own copies of all pointers, e.g. heroes/towns/objects
+	// and on deserialize will create its own copies (instead of using copies from state received from server)
+	// Potential solutions:
+	// 1) Use server gamestate to deserialize pointers, so any pointer to same object will point to server instance and not our copy
+	// 2) Remove all serialization of pointers with instance ID's and restore them on load (including AI deserializer code)
+	// 3) Completely remove client savegame and send all information, like hero paths and sleeping status to server (either in form of hero properties or as some generic "client options" message
+#ifdef BROKEN_CLIENT_STATE_SERIALIZATION_HAS_BEEN_FIXED
 	// try to deserialize client data including sleepingHeroes
 	try
 	{
@@ -219,6 +228,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	{
 		logGlobal->info("Cannot load client data for game %s. Error: %s", CSH->si->mapname, e.what());
 	}
+#endif
 
 	initPlayerInterfaces();
 }

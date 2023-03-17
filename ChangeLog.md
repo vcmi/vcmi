@@ -54,7 +54,6 @@
 * Hero movement speed now matches H3
 * Improved performance of adventure map rendering
 * Fixed embarking and disembarking sounds
-* Fixed loading of sleeping status and movement path of heroes
 * Fixed selection of "new week" animation for status window
 * Object render order now mostly matches H3
 
