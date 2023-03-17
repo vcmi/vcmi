@@ -1039,6 +1039,15 @@ public:
 	ID_LIKE_CLASS_COMMON(ArtifactPosition, EArtifactPosition)
 
 	EArtifactPosition num;
+
+        STRONG_INLINE EArtifactPosition operator+(const int arg)
+	{
+		return EArtifactPosition(static_cast<int>(num) + arg);
+	}
+	STRONG_INLINE EArtifactPosition operator+(const EArtifactPosition & arg)
+	{
+		return EArtifactPosition(static_cast<int>(num) + static_cast<int>(arg));
+	}
 };
 
 ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
