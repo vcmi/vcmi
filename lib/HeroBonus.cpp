@@ -450,18 +450,18 @@ int BonusList::totalValue() const
 		int percentToBase = 0;
 		int percentToAll = 0;
 		int additive = 0;
-		int percentToSource;
+		int percentToSource = 0;
 		int indepMin = std::numeric_limits<int>::max();
 		int indepMax = std::numeric_limits<int>::min();
 	};
 
-	auto percent = [](int base, int percent) -> int {return (base * (100 + percent)) / 100; };
+	auto percent = [](int base, int percent) -> int {return (base * (100 + percent)) / 100;};
 	std::array <BonusCollection, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
 	BonusCollection any;
 	bool hasIndepMax = false;
 	bool hasIndepMin = false;
 
-	for(const std::shared_ptr<Bonus> & b : bonuses)
+	for(const auto & b : bonuses)
 	{
 		switch(b->valType)
 		{
@@ -493,16 +493,16 @@ int BonusList::totalValue() const
 			break;
 		}
 	}
-	for(auto src : sources)
+	for(const auto & src : sources)
 	{
-		any.base += percent(src.base ,src.percentToSource);
+		any.base += percent(src.base, src.percentToSource);
 		any.percentToBase += percent(src.percentToBase, src.percentToSource);
 		any.percentToAll += percent(src.percentToAll, src.percentToSource);
 		any.additive += percent(src.additive, src.percentToSource);
 		if(hasIndepMin)
 			vstd::amin(any.indepMin, percent(src.indepMin, src.percentToSource));
 		if(hasIndepMax)
-			vstd::amax(any.indepMax, percent(src.indepMin, src.percentToSource));
+			vstd::amax(any.indepMax, percent(src.indepMax, src.percentToSource));
 	}
 	any.base = percent(any.base, any.percentToBase);
 	any.base += any.additive;
