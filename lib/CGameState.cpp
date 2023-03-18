@@ -1588,12 +1588,17 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 			}
 			break;
 		case CScenarioTravel::STravelBonus::ARTIFACT:
-			gs->giveHeroArtifact(hero, static_cast<ArtifactID>(curBonus->info2));
+			if(!gs->giveHeroArtifact(hero, static_cast<ArtifactID>(curBonus->info2)))
+				logGlobal->error("Cannot give starting artifact - no free slots!");
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			{
 				CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2));
-				scroll->putAt(ArtifactLocation(hero, scroll->firstAvailableSlot(hero)));
+				const auto slot = ArtifactUtils::getArtifactDstPosition(scroll->artType->getId(), hero);
+				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
+					scroll->putAt(ArtifactLocation(hero, slot));
+				else
+					logGlobal->error("Cannot give starting scroll - no free slots!");
 			}
 			break;
 		case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
@@ -1686,7 +1691,10 @@ void CGameState::initStartingBonus()
 				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toArtifact(VLC->artifacts());
 
 				CGHeroInstance *hero = elem.second.heroes[0];
-				giveHeroArtifact(hero, toGive->getId());
+				if(!giveHeroArtifact(hero, toGive->getId()))
+				{
+					logGlobal->error("Cannot give starting artifact - no free slots!");
+				}
 			}
 			break;
 		}
@@ -2805,12 +2813,21 @@ void CGameState::attachArmedObjects()
 	}
 }
 
-void CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
+bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 {
 	 CArtifact * const artifact = VLC->arth->objects[aid]; //pointer to constant object
-	 CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
+	 CArtifactInstance * ai = CArtifactInstance::createNewArtifactInstance(artifact);
 	 map->addNewArtifactInstance(ai);
-	 ai->putAt(ArtifactLocation(h, ai->firstAvailableSlot(h)));
+	 auto slot = ArtifactUtils::getArtifactDstPosition(aid, h);
+	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
+	 {
+		 ai->putAt(ArtifactLocation(h, slot));
+		 return true;
+	 }
+	 else
+	 {
+		 return false;
+	 }
 }
 
 std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllowed) const

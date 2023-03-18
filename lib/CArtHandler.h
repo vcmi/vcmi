@@ -389,6 +389,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
+	DLL_LINKAGE bool isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid);
 }
 
 VCMI_LIB_NAMESPACE_END

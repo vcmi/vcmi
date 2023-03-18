@@ -855,7 +855,8 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->changeSecSkill(h, SecondarySkill(rID), rVal, false);
 			break;
 		case ARTIFACT:
-			cb->giveHeroNewArtifact(h, VLC->arth->objects[rID],ArtifactPosition::FIRST_AVAILABLE);
+			if(ArtifactUtils::isPossibleToGetArt(h, VLC->arth->objects[rID]->getId()))
+				cb->giveHeroNewArtifact(h, VLC->arth->objects[rID],ArtifactPosition::FIRST_AVAILABLE);
 			break;
 		case SPELL:
 		{

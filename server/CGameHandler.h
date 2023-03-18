@@ -177,7 +177,7 @@ public:
 
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art);
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override;
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override;

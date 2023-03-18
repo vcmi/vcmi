@@ -176,7 +176,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 		if(!simpleArtCanBePutAt(artSet, slot, assumeDestRemoved))
 			return false;
 		if(ArtifactUtils::isSlotBackpack(slot))
-			return true; //TODO backpack limit
+			return true;
 
 		CArtifactFittingSet fittingSet(artSet->bearerType());
 		fittingSet.artifactsWorn = artSet->artifactsWorn;
@@ -1082,7 +1082,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 		CArtifactInstance *mainConstituent = figureMainConstituent(al); //it'll be replaced with combined artifact, not a lock
 		CArtifactInstance::putAt(al); //puts combined art (this)
 
-		for(ConstituentInfo &ci : constituentsInfo)
+		for(ConstituentInfo & ci : constituentsInfo)
 		{
 			if(ci.art != mainConstituent)
 			{
@@ -1090,14 +1090,11 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 				const bool inActiveSlot = vstd::isbetween(ci.slot, 0, GameConstants::BACKPACK_START);
 				const bool suggestedPosValid = ci.art->canBePutAt(suggestedPos);
 
-				ArtifactPosition pos = ArtifactPosition::PRE_FIRST;
-				if(inActiveSlot  &&  suggestedPosValid) //there is a valid suggestion where to place lock
-					pos = ci.slot;
-				else
-					ci.slot = pos = ci.art->firstAvailableSlot(al.getHolderArtSet());
+				if(!(inActiveSlot && suggestedPosValid)) //there is a valid suggestion where to place lock
+					ci.slot = ArtifactUtils::getArtifactDstPosition(ci.art->artType->getId(), al.getHolderArtSet());
 
-				assert(!ArtifactUtils::isSlotBackpack(pos));
-				al.getHolderArtSet()->setNewArtSlot(pos, ci.art, true); //sets as lock
+				assert(ArtifactUtils::isSlotEquipment(ci.slot));
+				al.getHolderArtSet()->setNewArtSlot(ci.slot, ci.art, true); //sets as lock
 			}
 			else
 			{
@@ -1525,8 +1522,10 @@ void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * 
 	{
 		for(auto & part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
 		{
+			const auto slot = ArtifactUtils::getArtifactDstPosition(part.art->artType->getId(), this);
+			assert(slot != ArtifactPosition::PRE_FIRST);
 			// For the ArtFittingSet is no needed to do figureMainConstituent, just lock slots
-			this->setNewArtSlot(part.art->firstAvailableSlot(this), part.art, true);
+			this->setNewArtSlot(slot, part.art, true);
 		}
 	}
 	else
@@ -1648,6 +1647,15 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 		return true;
 	else
 		return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
+}
+
+DLL_LINKAGE bool ArtifactUtils::isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid)
+{
+	const auto slot = getArtifactDstPosition(aid, target);
+	if(isSlotEquipment(slot) || (isSlotBackpack(slot) && isBackpackFreeSlots(target)))
+		return true;
+	else
+		return false;
 }
 
 VCMI_LIB_NAMESPACE_END
