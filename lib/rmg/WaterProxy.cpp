@@ -298,7 +298,9 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		//try to place shipyard close to boarding position and appropriate water access
 		auto path = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
 		{
-			rmg::Area shipyardOut(rmgObject.getArea().getBorderOutside());
+			//Must only check the border of shipyard and not the added guard
+			rmg::Area shipyardOut = rmgObject.instances().front()->getBlockedArea().getBorderOutside();
+
 			if(!shipyardOut.contains(boardingPosition) || (shipyardOut * shipPositions).empty())
 				return -1.f;
 			
