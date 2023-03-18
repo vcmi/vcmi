@@ -13,6 +13,8 @@
 
 #include "../GameConstants.h"
 
+#include <vcmi/spells/Spell.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
@@ -28,62 +30,92 @@ ProxyCaster::~ProxyCaster() = default;
 
 int32_t ProxyCaster::getCasterUnitId() const
 {
-	return actualCaster->getCasterUnitId();
+	if(actualCaster)
+		return actualCaster->getCasterUnitId();
+
+	return -1;
 }
 
 int32_t ProxyCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
 {
-	return actualCaster->getSpellSchoolLevel(spell, outSelectedSchool);
+	if(actualCaster)
+		return actualCaster->getSpellSchoolLevel(spell, outSelectedSchool);
+
+	return 0;
 }
 
 int32_t ProxyCaster::getEffectLevel(const Spell * spell) const
 {
-	return actualCaster->getEffectLevel(spell);
+	if(actualCaster)
+		return actualCaster->getEffectLevel(spell);
+
+	return 0;
 }
 
 int64_t ProxyCaster::getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const
 {
-	return actualCaster->getSpellBonus(spell, base, affectedStack);
+	if(actualCaster)
+		return actualCaster->getSpellBonus(spell, base, affectedStack);
+
+	return base;
 }
 
 int64_t ProxyCaster::getSpecificSpellBonus(const Spell * spell, int64_t base) const
 {
-	return actualCaster->getSpecificSpellBonus(spell, base);
+	if(actualCaster)
+		return actualCaster->getSpecificSpellBonus(spell, base);
+
+	return base;
 }
 
 int32_t ProxyCaster::getEffectPower(const Spell * spell) const
 {
-	return actualCaster->getEffectPower(spell);
+	if(actualCaster)
+		return actualCaster->getEffectPower(spell);
+
+	return spell->getLevelPower(getEffectLevel(spell));
 }
 
 int32_t ProxyCaster::getEnchantPower(const Spell * spell) const
 {
-	return actualCaster->getEnchantPower(spell);
+	if(actualCaster)
+		return actualCaster->getEnchantPower(spell);
+
+	return spell->getLevelPower(getEffectLevel(spell));
 }
 
 int64_t ProxyCaster::getEffectValue(const Spell * spell) const
 {
-	return actualCaster->getEffectValue(spell);
+	if(actualCaster)
+		return actualCaster->getEffectValue(spell);
+
+	return 0;
 }
 
 PlayerColor ProxyCaster::getCasterOwner() const
 {
-	return actualCaster->getCasterOwner();
+	if(actualCaster)
+		return actualCaster->getCasterOwner();
+
+	return PlayerColor::CANNOT_DETERMINE;
 }
 
 void ProxyCaster::getCasterName(MetaString & text) const
 {
-	return actualCaster->getCasterName(text);
+	if(actualCaster)
+		actualCaster->getCasterName(text);
 }
 
 void ProxyCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const
 {
-	actualCaster->getCastDescription(spell, attacked, text);
+	if(actualCaster)
+		actualCaster->getCastDescription(spell, attacked, text);
 }
 
 void ProxyCaster::spendMana(ServerCallback * server, const int32_t spellCost) const
 {
-	actualCaster->spendMana(server, spellCost);
+	if(actualCaster)
+		actualCaster->spendMana(server, spellCost);
 }
 
 }
