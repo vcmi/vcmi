@@ -306,10 +306,8 @@ void MeleeAttackAnimation::nextFrame()
 	size_t totalFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 
 	if ( currentFrame * 2 >= totalFrames )
-	{
-		if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-			owner.setAnimationCondition(EAnimationEvents::HIT, true);
-	}
+		owner.executeAnimationStage(EAnimationEvents::HIT);
+
 	AttackAnimation::nextFrame();
 }
 
@@ -709,10 +707,8 @@ void RangedAttackAnimation::nextFrame()
 	if (projectileEmitted)
 	{
 		if (!owner.projectilesController->hasActiveProjectile(attackingStack, false))
-		{
-			if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-				owner.setAnimationCondition(EAnimationEvents::HIT, true);
-		}
+			owner.executeAnimationStage(EAnimationEvents::HIT);
+
 	}
 
 	AttackAnimation::nextFrame();
@@ -1052,7 +1048,6 @@ bool HeroCastAnimation::init()
 	hero->setPhase(EHeroAnimType::CAST_SPELL);
 
 	hero->onPhaseFinished([&](){
-		assert(owner.getAnimationCondition(EAnimationEvents::HIT) == true);
 		delete this;
 	});
 
@@ -1093,8 +1088,7 @@ void HeroCastAnimation::emitProjectile()
 
 void HeroCastAnimation::emitAnimationEvent()
 {
-	if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-		owner.setAnimationCondition(EAnimationEvents::HIT, true);
+	owner.executeAnimationStage(EAnimationEvents::HIT);
 }
 
 void HeroCastAnimation::nextFrame()

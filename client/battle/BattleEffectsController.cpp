@@ -56,7 +56,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, std::string so
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
 {
-	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	owner.checkForAnimations();
 
 	const CStack * stack = owner.curInt->cb->battleGetStackByID(bte.stackID);
 	if(!stack)
@@ -90,12 +90,12 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		default:
 			return;
 	}
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	owner.waitForAnimations();
 }
 
 void BattleEffectsController::startAction(const BattleAction* action)
 {
-	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	owner.checkForAnimations();
 
 	const CStack *stack = owner.curInt->cb->battleGetStackByID(action->stackNumber);
 
@@ -110,7 +110,7 @@ void BattleEffectsController::startAction(const BattleAction* action)
 		break;
 	}
 
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	owner.waitForAnimations();
 }
 
 void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer)

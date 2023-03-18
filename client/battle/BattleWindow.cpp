@@ -179,6 +179,12 @@ void BattleWindow::deactivate()
 
 void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
+	if(owner.battleIntroSoundChannel != -1)
+	{
+		CCS->soundh->stopSound(owner.battleIntroSoundChannel);
+		return;
+	}
+
 	if(key == SDLK_q)
 	{
 		toggleQueueVisibility();
@@ -189,10 +195,7 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 	}
 	else if(key == SDLK_ESCAPE)
 	{
-		if(owner.getAnimationCondition(EAnimationEvents::OPENING) == true)
-			CCS->soundh->stopSound(owner.battleIntroSoundChannel);
-		else
-			owner.actionsController->endCastingSpell();
+		owner.actionsController->endCastingSpell();
 	}
 }
 

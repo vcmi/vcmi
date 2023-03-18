@@ -30,14 +30,22 @@ enum class EBattleEffect
 	INVALID      = -1,
 };
 
-enum class EAnimationEvents {
-	OPENING     = 0, // battle opening sound is playing
-	ACTION      = 1, // there are any ongoing animations
-	MOVEMENT    = 2, // stacks are moving or turning around
-	BEFORE_HIT  = 3, // effects played before all attack/defence/hit animations
-	ATTACK      = 4, // attack and defence animations are playing
-	HIT         = 5, // hit & death animations are playing
-	AFTER_HIT   = 6, // after all hit & death animations are over
+enum class EAnimationEvents
+{
+	// any action
+	ROTATE,      // stacks rotate before action
+
+	// movement action
+	MOVE_START,  // stack starts movement
+	MOVEMENT,    // movement animation loop starts
+	MOVE_END,    // stack end movement
+
+	// attack/spellcast action
+	BEFORE_HIT,  // attack and defence effects play, e.g. luck/death blow
+	ATTACK,      // attack and defence animations are playing
+	HIT,         // hit & death animations are playing
+	AFTER_HIT,   // post-attack effect, e.g. phoenix rebirth
+
 	COUNT
 };
 

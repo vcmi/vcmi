@@ -94,11 +94,10 @@ class BattleInterface
 	struct AwaitingAnimationEvents {
 		AwaitingAnimationAction action;
 		EAnimationEvents event;
-		bool eventState;
 	};
 
 	/// Conditional variables that are set depending on ongoing animations on the battlefield
-	std::array< CondSh<bool>, static_cast<size_t>(EAnimationEvents::COUNT)> animationEvents;
+	CondSh<bool> ongoingAnimationsState;
 
 	/// List of events that are waiting to be triggered
 	std::vector<AwaitingAnimationEvents> awaitingEvents;
@@ -178,17 +177,14 @@ public:
 
 	void setBattleQueueVisibility(bool visible);
 
-	/// sets condition to targeted state and executes any awaiting actions
-	void setAnimationCondition( EAnimationEvents event, bool state);
-
-	/// returns current state of condition
-	bool getAnimationCondition( EAnimationEvents event);
-
-	/// locks execution until selected condition reached targeted state
-	void waitForAnimationCondition( EAnimationEvents event, bool state);
-
-	/// adds action that will be executed one selected condition reached targeted state
-	void executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action);
+	void executeStagedAnimations();
+	void executeAnimationStage( EAnimationEvents event);
+	void onAnimationsStarted();
+	void onAnimationsFinished();
+	void waitForAnimations();
+	bool hasAnimations();
+	void checkForAnimations();
+	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins
 	void startAction(const BattleAction* action);

@@ -330,7 +330,7 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
-	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	owner.checkForAnimations();
 
 	if (ca.attacker != -1)
 	{
@@ -352,8 +352,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		owner.stacksController->addNewAnim(new EffectAnimation(owner, "SGEXPL.DEF", positions));
 	}
 
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
-	owner.setAnimationCondition(EAnimationEvents::HIT, false);
+	owner.waitForAnimations();
 
 	for (auto attackInfo : ca.attackedParts)
 	{
