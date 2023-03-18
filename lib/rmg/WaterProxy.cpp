@@ -142,6 +142,13 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 				dst.areaPossible().subtract(lake.neighbourZones[dst.getId()]);
 				continue;
 			}
+
+			//Don't place shipyard or boats on the very small lake
+			if (lake.area.getTiles().size() < 25)
+			{
+				logGlobal->info("Skipping very small lake at zone %d", dst.getId());
+				continue;
+			}
 						
 			int zoneTowns = 0;
 			if(auto * m = dst.getModificator<TownPlacer>())
