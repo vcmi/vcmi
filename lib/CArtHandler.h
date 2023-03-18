@@ -388,6 +388,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
+	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
 }
 
 VCMI_LIB_NAMESPACE_END

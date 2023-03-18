@@ -153,10 +153,9 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 	{
 		if(ArtifactUtils::isSlotBackpack(slot))
 		{
-			if(isBig())
+			if(isBig() || !ArtifactUtils::isBackpackFreeSlots(artSet))
 				return false;
 
-			//TODO backpack limit
 			return true;
 		}
 
@@ -1566,15 +1565,14 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const Artifac
 	const auto * art = aid.toArtifact();
 	for(const auto & slot : art->possibleSlots.at(target->bearerType()))
 	{
-		const auto * existingArtInfo = target->getSlot(slot);
-
-		if((!existingArtInfo || !existingArtInfo->locked)
-			&& art->canBePutAt(target, slot))
-		{
+		if(art->canBePutAt(target, slot))
 			return slot;
-		}
 	}
-	return GameConstants::BACKPACK_START;
+	if(art->canBePutAt(target, GameConstants::BACKPACK_START))
+	{
+		return GameConstants::BACKPACK_START;
+	}
+	return ArtifactPosition::PRE_FIRST;
 }
 
 DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::unmovableSlots()
@@ -1641,6 +1639,15 @@ DLL_LINKAGE bool ArtifactUtils::isSlotBackpack(const ArtifactPosition & slot)
 DLL_LINKAGE bool ArtifactUtils::isSlotEquipment(const ArtifactPosition & slot)
 {
 	return slot < GameConstants::BACKPACK_START && slot >= 0;
+}
+
+DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots)
+{
+	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+	if(backpackCap < 0)
+		return true;
+	else
+		return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
 }
 
 VCMI_LIB_NAMESPACE_END

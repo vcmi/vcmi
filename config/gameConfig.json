@@ -133,7 +133,9 @@
 			// if enabled, hero that wins a battle without any non-summoned troops left will retreat and become available in tavern instead of being lost
 			"retreatOnWinWithoutTroops" : true,
 			// Chances for a hero with default army to receive corresponding stack out of his predefined starting troops
-			"startingStackChances": [ 100, 88, 25]
+			"startingStackChances": [ 100, 88, 25],
+			// number of artifacts that can fit in a backpack. -1 is unlimited.
+			"backpackSize"		: -1
 		},
 
 		"towns":
