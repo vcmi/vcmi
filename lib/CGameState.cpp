@@ -1594,7 +1594,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			{
 				CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2));
-				const auto slot = ArtifactUtils::getArtifactDstPosition(scroll->artType->getId(), hero);
+				const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->artType->getId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 					scroll->putAt(ArtifactLocation(hero, slot));
 				else
@@ -1692,9 +1692,7 @@ void CGameState::initStartingBonus()
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
-				{
 					logGlobal->error("Cannot give starting artifact - no free slots!");
-				}
 			}
 			break;
 		}
@@ -2818,7 +2816,7 @@ bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 	 CArtifact * const artifact = VLC->arth->objects[aid]; //pointer to constant object
 	 CArtifactInstance * ai = CArtifactInstance::createNewArtifactInstance(artifact);
 	 map->addNewArtifactInstance(ai);
-	 auto slot = ArtifactUtils::getArtifactDstPosition(aid, h);
+	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 	 {
 		 ai->putAt(ArtifactLocation(h, slot));

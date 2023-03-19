@@ -380,7 +380,8 @@ protected:
 namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(const ArtifactID & aid, const CArtifactSet * target);
+	DLL_LINKAGE ArtifactPosition getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid);
+	DLL_LINKAGE ArtifactPosition getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid);
 	// TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
 	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();
@@ -389,7 +390,8 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
-	DLL_LINKAGE bool isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid);
+	DLL_LINKAGE bool isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid,
+		ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE);
 }
 
 VCMI_LIB_NAMESPACE_END

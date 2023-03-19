@@ -4007,7 +4007,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 	{
 		assert(artifact);
-		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact->artType->getId(), &artFittingSet);
+		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->artType->getId());
 		if(dstSlot != ArtifactPosition::PRE_FIRST)
 		{
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
@@ -4152,7 +4152,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		const int price = art->price;
 		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources.at(Res::GOLD) < price, "Not enough gold!");
 
-		if  ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
+		if ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
 		 || (town->hasBuilt(BuildingSubID::BALLISTA_YARD) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
@@ -4208,7 +4208,6 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 		COMPLAIN_RET("Cannot find selected artifact on the list");
 
 	sendAndApply(&saa);
-
 	giveHeroNewArtifact(h, VLC->arth->objects[aid], ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
@@ -6838,7 +6837,11 @@ bool CGameHandler::giveHeroArtifact(const CGHeroInstance * h, const CArtifactIns
 
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		al.slot = ArtifactUtils::getArtifactDstPosition(a->artType->getId(), h);
+		al.slot = ArtifactUtils::getArtAnyPosition(h, a->artType->getId());
+	}
+	else if(pos == GameConstants::BACKPACK_START)
+	{
+		al.slot = ArtifactUtils::getArtBackpackPosition(h, a->artType->getId());
 	}
 	else
 	{
@@ -6846,15 +6849,12 @@ bool CGameHandler::giveHeroArtifact(const CGHeroInstance * h, const CArtifactIns
 			al.slot = pos;
 	}
 
-	if(ArtifactUtils::isSlotEquipment(al.slot) || ArtifactUtils::isSlotBackpack(al.slot))
-	{
+	if(ArtifactUtils::isPossibleToGetArt(h, a->artType->getId(), al.slot))
 		putArtifact(al, a);
-		return true;
-	}
 	else
-	{
 		return false;
-	}
+
+	return true;
 }
 
 void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstance *a)
@@ -6865,36 +6865,31 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
-bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art)
+bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos)
 {
-	COMPLAIN_RET_FALSE_IF(art->possibleSlots.at(ArtBearer::HERO).empty(), "Not a hero artifact!");
+	assert(artType);
+	if(pos != ArtifactPosition::FIRST_AVAILABLE && pos != GameConstants::BACKPACK_START)
+		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 
-	ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
+	CArtifactInstance * newArtInst = nullptr;
+	if(artType->canBeDisassembled())
+		newArtInst = new CCombinedArtifactInstance();
+	else
+		newArtInst = new CArtifactInstance();
 
-	COMPLAIN_RET_FALSE_IF(nullptr != h->getArt(slot, false), "Hero already has artifact in slot");
-
-	giveHeroNewArtifact(h, art, slot);
-	return true;
-}
-
-void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos)
-{
-	CArtifactInstance *a = nullptr;
-	if (!artType->constituents)
+	newArtInst->artType = artType; // *NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
+	if(giveHeroArtifact(h, newArtInst, pos))
 	{
-		a = new CArtifactInstance();
+		NewArtifact na;
+		na.art = newArtInst;
+		sendAndApply(&na); // -> updates a!!!, will create a on other machines
+		return true;
 	}
 	else
 	{
-		a = new CCombinedArtifactInstance();
+		delete newArtInst;
+		return false;
 	}
-	a->artType = artType; //*NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
-
-	NewArtifact na;
-	na.art = a;
-	sendAndApply(&na); // -> updates a!!!, will create a on other machines
-
-	COMPLAIN_RET_IF(!giveHeroArtifact(h, a, pos), "Cannot put artifact in that slot!");
 }
 
 void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
@@ -7044,8 +7039,11 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		cheated = true;
 		if (!hero) return;
 		///Give hero all artifacts except war machines, spell scrolls and spell book
-		for (int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
-			giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::PRE_FIRST);
+		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
+		{
+			if(ArtifactUtils::isPossibleToGetArt(hero, VLC->arth->objects[g]->getId()))
+				giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::FIRST_AVAILABLE);
+		}
 	}
 	else if (cheat == "vcmiglorfindel" || cheat == "vcmilevel")
 	{

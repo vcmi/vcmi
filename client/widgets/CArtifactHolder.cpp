@@ -646,7 +646,7 @@ CArtifactsOfHero::~CArtifactsOfHero()
 	if(!curHero->artifactsTransitionPos.empty())
 	{
 		auto artPlace = getArtPlace(
-			ArtifactUtils::getArtifactDstPosition(curHero->artifactsTransitionPos.begin()->artifact->artType->getId(), curHero));
+			ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->artType->getId()));
 		if(artPlace)
 		{
 			assert(artPlace->ourOwner);

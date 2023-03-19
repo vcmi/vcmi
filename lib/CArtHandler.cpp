@@ -185,7 +185,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 		assert(constituents);
 		for(const auto art : *constituents)
 		{
-			auto possibleSlot = ArtifactUtils::getArtifactDstPosition(art->getId(), &fittingSet);
+			auto possibleSlot = ArtifactUtils::getArtAnyPosition(&fittingSet, art->getId());
 			if(ArtifactUtils::isSlotEquipment(possibleSlot))
 			{
 				fittingSet.setNewArtSlot(possibleSlot, nullptr, true);
@@ -1091,7 +1091,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 				const bool suggestedPosValid = ci.art->canBePutAt(suggestedPos);
 
 				if(!(inActiveSlot && suggestedPosValid)) //there is a valid suggestion where to place lock
-					ci.slot = ArtifactUtils::getArtifactDstPosition(ci.art->artType->getId(), al.getHolderArtSet());
+					ci.slot = ArtifactUtils::getArtAnyPosition(al.getHolderArtSet(), ci.art->artType->getId());
 
 				assert(ArtifactUtils::isSlotEquipment(ci.slot));
 				al.getHolderArtSet()->setNewArtSlot(ci.slot, ci.art, true); //sets as lock
@@ -1522,7 +1522,7 @@ void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * 
 	{
 		for(auto & part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
 		{
-			const auto slot = ArtifactUtils::getArtifactDstPosition(part.art->artType->getId(), this);
+			const auto slot = ArtifactUtils::getArtAnyPosition(this, part.art->artType->getId());
 			assert(slot != ArtifactPosition::PRE_FIRST);
 			// For the ArtFittingSet is no needed to do figureMainConstituent, just lock slots
 			this->setNewArtSlot(slot, part.art, true);
@@ -1559,7 +1559,7 @@ ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 	return this->Bearer;
 }
 
-DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const ArtifactID & aid, const CArtifactSet * target)
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
 	for(const auto & slot : art->possibleSlots.at(target->bearerType()))
@@ -1567,6 +1567,12 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const Artifac
 		if(art->canBePutAt(target, slot))
 			return slot;
 	}
+	return getArtBackpackPosition(target, aid);
+}
+
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid)
+{
+	const auto * art = aid.toArtifact();
 	if(art->canBePutAt(target, GameConstants::BACKPACK_START))
 	{
 		return GameConstants::BACKPACK_START;
@@ -1649,9 +1655,10 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 		return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
 }
 
-DLL_LINKAGE bool ArtifactUtils::isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid)
+DLL_LINKAGE bool ArtifactUtils::isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid, ArtifactPosition slot)
 {
-	const auto slot = getArtifactDstPosition(aid, target);
+	if(slot == ArtifactPosition::FIRST_AVAILABLE)
+		slot = getArtAnyPosition(target, aid);
 	if(isSlotEquipment(slot) || (isSlotBackpack(slot) && isBackpackFreeSlots(target)))
 		return true;
 	else

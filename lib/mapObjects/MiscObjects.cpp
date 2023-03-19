@@ -1322,7 +1322,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					iw.text << message;
 				else
 				{
-					iw.text.addTxt(MetaString::ADVOB_TXT, 135);
+					iw.text.addTxt(MetaString::ADVOB_TXT,135);
 					iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
 				}
 			}

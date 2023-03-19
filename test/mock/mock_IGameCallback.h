@@ -64,8 +64,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override {}
-	bool giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override {} //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;}

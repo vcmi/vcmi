@@ -806,7 +806,8 @@ void CMarketplaceWindow::makeDeal()
 	if(!sliderValue)
 		return;
 
-	int leftIdToSend = -1;
+	madeTransaction = true;
+	int leftIdToSend = hLeft->id;
 	switch (mode)
 	{
 		case EMarketMode::CREATURE_RESOURCE:
@@ -815,22 +816,29 @@ void CMarketplaceWindow::makeDeal()
 		case EMarketMode::ARTIFACT_RESOURCE:
 			leftIdToSend = hLeft->getArtInstance()->id.getNum();
 			break;
+		case EMarketMode::RESOURCE_ARTIFACT:
+			if(!ArtifactUtils::isPossibleToGetArt(hero, ArtifactID(hRight->id)))
+			{
+				LOCPLINT->showInfoDialog("no available slots");
+				madeTransaction = false;
+			}
+			break;
 		default:
-			leftIdToSend = hLeft->id;
 			break;
 	}
 
-	if(slider)
+	if(madeTransaction)
 	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue()*r1, hero);
-		slider->moveTo(0);
+		if(slider)
+		{
+			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
+			slider->moveTo(0);
+		}
+		else
+		{
+			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
+		}
 	}
-	else
-	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
-	}
-	madeTransaction = true;
-
 	hLeft = nullptr;
 	hRight = nullptr;
 	selectionChanged(true);
