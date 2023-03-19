@@ -70,7 +70,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				auto turn = path.turn();
 				auto & node = hitMap[pos.x][pos.y][pos.z];
 
-				if(tileDanger / (turn + 1) > node.maximumDanger.danger / (node.maximumDanger.turn + 1)
+				if(tileDanger / (turn / 3 + 1) > node.maximumDanger.danger / (node.maximumDanger.turn / 3 + 1)
 					|| (tileDanger == node.maximumDanger.danger && node.maximumDanger.turn > turn))
 				{
 					node.maximumDanger.danger = tileDanger;

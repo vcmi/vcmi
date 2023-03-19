@@ -591,7 +591,7 @@ public:
 		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
 
 		evaluationContext.armyReward += upgradeValue;
-		evaluationContext.strategicalValue += upgradeValue / armyUpgrade.hero->getTotalStrength();
+		evaluationContext.strategicalValue += upgradeValue / (float)armyUpgrade.hero->getArmyStrength();
 	}
 };
 
@@ -627,7 +627,7 @@ private:
 				continue;
 
 			auto creature = creatureInfo.second.back().toCreature();
-			result += creature->AIValue * town->getGrowthInfo(creature->level).totalGrowth();
+			result += creature->AIValue * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
 		}
 
 		return result;
@@ -647,6 +647,9 @@ public:
 		auto dailyIncome = town->dailyIncome()[Res::GOLD];
 
 		auto strategicalValue = std::sqrt(armyIncome / 20000.0f) + dailyIncome / 3000.0f;
+
+		if(evaluationContext.evaluator.ai->buildAnalyzer->getDevelopmentInfo().size() == 1)
+			strategicalValue = 1;
 
 		float multiplier = 1;
 

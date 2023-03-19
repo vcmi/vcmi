@@ -244,7 +244,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 
-			if(path.targetHero == town->visitingHero && path.exchangeCount == 1)
+			if(path.targetHero == town->visitingHero.get() && path.exchangeCount == 1)
 			{
 #if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Put %s to garrison of town %s",
@@ -262,6 +262,24 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 							.addNext(DefendTown(town, treat, path.targetHero))
 							.addNext(ExchangeSwapTownHeroes(town, town->visitingHero.get(), HeroLockedReason::DEFENCE))));
 				}
+
+				continue;
+			}
+
+			// main without army and visiting scout with army, very specific case
+			if(town->visitingHero && town->getUpperArmy()->stacksCount() == 0
+				&& path.targetHero != town->visitingHero.get() && path.exchangeCount == 1 && path.turn() == 0
+				&& ai->nullkiller->heroManager->evaluateHero(path.targetHero) > ai->nullkiller->heroManager->evaluateHero(town->visitingHero.get())
+				&& 10 * path.targetHero->getTotalStrength() < town->visitingHero->getTotalStrength())
+			{
+				path.heroArmy = town->visitingHero.get();
+
+				tasks.push_back(
+					Goals::sptr(Composition()
+						.addNext(DefendTown(town, treat, path))
+						.addNext(ExchangeSwapTownHeroes(town, town->visitingHero.get()))
+						.addNext(ExecuteHeroChain(path, town))
+						.addNext(ExchangeSwapTownHeroes(town, path.targetHero, HeroLockedReason::DEFENCE))));
 
 				continue;
 			}
