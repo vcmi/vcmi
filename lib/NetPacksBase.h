@@ -308,8 +308,6 @@ public:
 		RESET_STATE,
 		UPDATE,
 		REMOVE,
-		ACTIVATE_AND_UPDATE,
-		ACTIVATE_AND_REMOVE
 	};
 
 	JsonNode data;
