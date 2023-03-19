@@ -818,8 +818,6 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 			if(!params.valRelevant) {
 				params.val = static_cast<si32>(ability["val"].Float());
 				params.valRelevant = true;
-				if(params.type == Bonus::SPECIFIC_SPELL_POWER) //First Aid value should be substracted by 10
-					params.val -= 10; //Base First Aid value
 			}
 			Bonus::ValueType valueType = Bonus::ADDITIVE_VALUE;
 			if(!ability["valueType"].isNull())
