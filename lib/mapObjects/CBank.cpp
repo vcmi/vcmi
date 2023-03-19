@@ -238,7 +238,8 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
 			loot << "%s";
 			loot.addReplacement(MetaString::ART_NAMES, elem);
-			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
+			if(ArtifactUtils::isPossibleToGetArt(hero, elem))
+				cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
