@@ -68,6 +68,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	int32_t turnsRemaining;
 	int32_t casterSpellPower;
 	int32_t spellLevel;
+	int32_t minimalDamage; //How many damage should it do regardless of power and level of caster
 	si8 casterSide; //0 - obstacle created by attacker; 1 - by defender
 
 	bool hidden;
@@ -119,6 +120,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 		h & nativeVisible;
 		h & passable;
 		h & trigger;
+		h & minimalDamage;
 		h & trap;
 
 		h & customSize;

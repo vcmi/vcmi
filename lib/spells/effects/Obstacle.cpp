@@ -221,6 +221,7 @@ void Obstacle::serializeJsonEffect(JsonSerializeFormat & handler)
 
 	handler.serializeInt("patchCount", patchCount);
 	handler.serializeInt("turnsRemaining", turnsRemaining, -1);
+	handler.serializeId("triggerAbility", triggerAbility, SpellID::NONE);
 
 	handler.serializeStruct("attacker", sideOptions.at(BattleSide::ATTACKER));
 	handler.serializeStruct("defender", sideOptions.at(BattleSide::DEFENDER));
@@ -289,8 +290,8 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		SpellCreatedObstacle obstacle;
 		obstacle.uniqueID = obstacleIdToGive++;
 		obstacle.pos = destination.hexValue;
-		obstacle.obstacleType = CObstacleInstance::USUAL;
-		obstacle.ID = m->getSpellIndex();
+		obstacle.obstacleType = CObstacleInstance::SPELL_CREATED;
+		obstacle.ID = triggerAbility;
 
 		obstacle.turnsRemaining = turnsRemaining;
 		obstacle.casterSpellPower = m->getEffectPower();

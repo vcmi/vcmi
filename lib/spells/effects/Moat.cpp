@@ -39,6 +39,8 @@ void Moat::serializeJsonEffect(JsonSerializeFormat & handler)
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("dispellable", dispellable);
+	handler.serializeInt("moatDamage", moatDamage);
+	handler.serializeId("triggerAbility", triggerAbility, SpellID::NONE);
 	{
 		JsonArraySerializer customSizeJson = handler.enterArray("moatHexes");
 		customSizeJson.syncSize(moatHexes, JsonNode::JsonType::DATA_INTEGER);
@@ -85,12 +87,13 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.uniqueID = obstacleIdToGive++;
 		obstacle.pos = destination.hexValue;
 		obstacle.obstacleType = dispellable ? CObstacleInstance::SPELL_CREATED : CObstacleInstance::MOAT;
-		obstacle.ID = m->battle()->battleGetDefendedTown()->subID;
+		obstacle.ID = triggerAbility;
 
 		obstacle.turnsRemaining = -1; //Moat cannot be expired
 		obstacle.casterSpellPower = m->getEffectPower();
 		obstacle.spellLevel = m->getEffectLevel(); //todo: level of indirect effect should be also configurable
 		obstacle.casterSide = BattleSide::DEFENDER; // Moats are always cast by defender
+		obstacle.minimalDamage = moatDamage; // Minimal moat damage
 		obstacle.hidden = hidden;
 		obstacle.passable = true; //Moats always passable
 		obstacle.trigger = trigger;

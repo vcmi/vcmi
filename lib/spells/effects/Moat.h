@@ -25,6 +25,7 @@ private:
 	ObstacleSideOptions sideOptions; //Defender only
 	std::vector<BattleHex> moatHexes;
 	bool dispellable; //For Tower landmines
+	int moatDamage; // Minimal moat damage
 public:
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 protected:

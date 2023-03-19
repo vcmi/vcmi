@@ -98,7 +98,8 @@ SpellCreatedObstacle::SpellCreatedObstacle()
 	removeOnTrigger(false),
 	revealed(false),
 	animationYOffset(0),
-	nativeVisible(true)
+	nativeVisible(true),
+	minimalDamage(0)
 {
 	obstacleType = SPELL_CREATED;
 }
@@ -160,6 +161,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("casterSpellPower", casterSpellPower);
 	handler.serializeInt("spellLevel", spellLevel);
 	handler.serializeInt("casterSide", casterSide);
+	handler.serializeInt("minimalDamage", minimalDamage);
 
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("revealed", revealed);

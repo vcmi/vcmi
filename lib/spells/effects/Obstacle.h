@@ -11,6 +11,7 @@
 #pragma once
 
 #include "LocationEffect.h"
+#include "../../GameConstants.h"
 #include "../../battle/BattleHex.h"
 #include "../../battle/CObstacleInstance.h"
 
@@ -62,6 +63,7 @@ protected:
 	bool trap = false;
 	bool removeOnTrigger = false;
 	bool hideNative = false;
+	SpellID triggerAbility;
 private:
 	int32_t patchCount = 0; //random patches to place, for massive spells should be >= 1, for non-massive ones if >= 1, then place only this number inside a target (like H5 landMine)
 	int32_t turnsRemaining = -1;
