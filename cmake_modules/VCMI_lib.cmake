@@ -133,6 +133,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BonusCaster.cpp
 		${MAIN_LIB_DIR}/spells/CSpellHandler.cpp
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.cpp
+		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.cpp
 		${MAIN_LIB_DIR}/spells/Problem.cpp
 		${MAIN_LIB_DIR}/spells/ProxyCaster.cpp
 		${MAIN_LIB_DIR}/spells/TargetCondition.cpp

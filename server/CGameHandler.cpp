@@ -22,6 +22,7 @@
 #include "../lib/spells/BonusCaster.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
+#include "../lib/spells/ObstacleCasterProxy.h"
 #include "../lib/spells/Problem.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
@@ -93,102 +94,6 @@ private:
 	CGameHandler * gh;
 };
 
-VCMI_LIB_NAMESPACE_BEGIN
-namespace spells
-{
-
-class ObstacleCasterProxy : public Caster
-{
-public:
-	ObstacleCasterProxy(const PlayerColor owner_, const CGHeroInstance * hero_, const SpellCreatedObstacle * obs_)
-		: owner(owner_),
-		hero(hero_),
-		obs(obs_)
-	{
-	};
-
-	~ObstacleCasterProxy() = default;
-
-	int32_t getCasterUnitId() const override
-	{
-		if(hero)
-			return hero->getCasterUnitId();
-		else
-			return -1;
-	}
-
-	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override
-	{
-		return obs->spellLevel;
-	}
-
-	int32_t getEffectLevel(const Spell * spell) const override
-	{
-		return obs->spellLevel;
-	}
-
-	int64_t getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const override
-	{
-		if(hero)
-			return hero->getSpellBonus(spell, base, affectedStack);
-		else
-			return base;
-	}
-
-	int64_t getSpecificSpellBonus(const Spell * spell, int64_t base) const override
-	{
-		if(hero)
-			return hero->getSpecificSpellBonus(spell, base);
-		else
-			return base;
-	}
-
-	int32_t getEffectPower(const Spell * spell) const override
-	{
-		return obs->casterSpellPower;
-	}
-
-	int32_t getEnchantPower(const Spell * spell) const override
-	{
-		return obs->casterSpellPower;
-	}
-
-	int64_t getEffectValue(const Spell * spell) const override
-	{
-		if(hero)
-			return hero->getEffectValue(spell);
-		else
-			return 0;
-	}
-
-	PlayerColor getCasterOwner() const override
-	{
-		return owner;
-	}
-
-	void getCasterName(MetaString & text) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCasterName");
-	}
-
-	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCastDescription");
-	}
-
-	void spendMana(ServerCallback * server, const int spellCost) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::spendMana");
-	}
-
-private:
-	const CGHeroInstance * hero;
-	const PlayerColor owner;
-	const SpellCreatedObstacle * obs;
-};
-
-}//
-VCMI_LIB_NAMESPACE_END
 
 CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);
@@ -5333,27 +5238,18 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 			if(spellObstacle->triggersEffects())
 			{
 				const bool oneTimeObstacle = spellObstacle->removeOnTrigger;
-
-				//hidden obstacle triggers effects until revealed
-				if(!(spellObstacle->hidden && gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side)))
+				auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
 				{
-					const CGHeroInstance * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-					spells::ObstacleCasterProxy caster(gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
-
-					const CSpell * sp = SpellID(spellObstacle->ID).toSpell();
-					if(!sp)
-						COMPLAIN_RET("Invalid obstacle instance");
-
 					// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
 					ObstacleChanges changeInfo;
-					changeInfo.id = spellObstacle->uniqueID;
+					changeInfo.id = spellObstacle.uniqueID;
 					if (oneTimeObstacle)
 						changeInfo.operation = ObstacleChanges::EOperation::REMOVE;
 					else
 						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
 
 					SpellCreatedObstacle changedObstacle;
-					changedObstacle.uniqueID = spellObstacle->uniqueID;
+					changedObstacle.uniqueID = changeInfo.id;
 					changedObstacle.revealed = true;
 
 					changeInfo.data.clear();
@@ -5363,10 +5259,26 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 					BattleObstaclesChanged bocp;
 					bocp.changes.emplace_back(changeInfo);
 					sendAndApply(&bocp);
-
-					spells::BattleCast battleCast(gs->curB, &caster, spells::Mode::HERO, sp);
-					battleCast.applyEffects(spellEnv, spells::Target(1, spells::Destination(curStack)), true);
+				};
+				auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
+				const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
+				auto caster = spells::ObstacleCasterProxy(gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
+				const auto * sp = SpellID(spellObstacle->ID).toSpell();
+				if(sp)
+				{
+					auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);
+					spells::detail::ProblemImpl ignored;
+					auto target = spells::Target(1, spells::Destination(curStack));
+					if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
+					{
+						if(shouldReveal) { //hidden obstacle triggers effects after revealed
+							revealObstacles(*spellObstacle);
+							cast.cast(spellEnv, target);
+						}
+					}
 				}
+				else if(shouldReveal)
+					revealObstacles(*spellObstacle);
 			}
 		}
 		else if(obstacle->obstacleType == CObstacleInstance::MOAT)
