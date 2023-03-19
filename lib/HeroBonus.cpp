@@ -450,18 +450,20 @@ int BonusList::totalValue() const
 		int percentToBase = 0;
 		int percentToAll = 0;
 		int additive = 0;
-		int percentToSource;
+		int percentToSource = 0;
 		int indepMin = std::numeric_limits<int>::max();
 		int indepMax = std::numeric_limits<int>::min();
 	};
 
-	auto percent = [](int base, int percent) -> int {return (base * (100 + percent)) / 100; };
+	auto percent = [](int64_t base, int64_t percent) -> int {
+		return static_cast<int>(vstd::clamp((base * (100 + percent)) / 100, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
+	};
 	std::array <BonusCollection, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
 	BonusCollection any;
 	bool hasIndepMax = false;
 	bool hasIndepMin = false;
 
-	for(const std::shared_ptr<Bonus> & b : bonuses)
+	for(const auto & b : bonuses)
 	{
 		switch(b->valType)
 		{
@@ -493,45 +495,33 @@ int BonusList::totalValue() const
 			break;
 		}
 	}
-	for(auto src : sources)
+	for(const auto & src : sources)
 	{
-		any.base += percent(src.base ,src.percentToSource);
+		any.base += percent(src.base, src.percentToSource);
 		any.percentToBase += percent(src.percentToBase, src.percentToSource);
 		any.percentToAll += percent(src.percentToAll, src.percentToSource);
 		any.additive += percent(src.additive, src.percentToSource);
 		if(hasIndepMin)
 			vstd::amin(any.indepMin, percent(src.indepMin, src.percentToSource));
 		if(hasIndepMax)
-			vstd::amax(any.indepMax, percent(src.indepMin, src.percentToSource));
+			vstd::amax(any.indepMax, percent(src.indepMax, src.percentToSource));
 	}
 	any.base = percent(any.base, any.percentToBase);
 	any.base += any.additive;
 	auto valFirst = percent(any.base ,any.percentToAll);
 
-	if(hasIndepMin && hasIndepMax)
-		assert(any.indepMin < any.indepMax);
+	if(hasIndepMin && hasIndepMax && any.indepMin < any.indepMax)
+		any.indepMax = any.indepMin;
 
 	const int notIndepBonuses = static_cast<int>(std::count_if(bonuses.cbegin(), bonuses.cend(), [](const std::shared_ptr<Bonus>& b)
 	{
 		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN;
 	}));
 
-	if (hasIndepMax)
-	{
-		if(notIndepBonuses)
-			vstd::amax(valFirst, any.indepMax);
-		else
-			valFirst = any.indepMax;
-	}
-	if (hasIndepMin)
-	{
-		if(notIndepBonuses)
-			vstd::amin(valFirst, any.indepMin);
-		else
-			valFirst = any.indepMin;
-	}
-
-	return valFirst;
+	if(notIndepBonuses)
+		return vstd::clamp(valFirst, any.indepMax, any.indepMin);
+	
+	return hasIndepMin ? any.indepMin : hasIndepMax ? any.indepMax : 0;
 }
 
 std::shared_ptr<Bonus> BonusList::getFirst(const CSelector &select)
