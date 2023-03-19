@@ -591,8 +591,10 @@ public:
 		const int3 & dst,
 		const TerrainTile * ct,
 		const TerrainTile * dt,
-		const int remainingMovePoints =- 1,
-		const bool checkLast = true) const;
+		const int remainingMovePoints = -1,
+		const bool checkLast = true,
+		boost::logic::tribool isDstSailLayer = boost::logic::indeterminate,
+		boost::logic::tribool isDstWaterLayer = boost::logic::indeterminate) const;
 
 	int getMovementCost(
 		const PathNodeInfo & src,
@@ -606,7 +608,9 @@ public:
 			src.tile,
 			dst.tile,
 			remainingMovePoints,
-			checkLast
+			checkLast,
+			dst.node->layer == EPathfindingLayer::SAIL,
+			dst.node->layer == EPathfindingLayer::WATER
 		);
 	}
 

@@ -1215,7 +1215,9 @@ int CPathfinderHelper::getMovementCost(
 	const TerrainTile * ct,
 	const TerrainTile * dt,
 	const int remainingMovePoints,
-	const bool checkLast) const
+	const bool checkLast,
+	boost::logic::tribool isDstSailLayer,
+	boost::logic::tribool isDstWaterLayer) const
 {
 	if(src == dst) //same tile
 		return 0;
@@ -1228,15 +1230,27 @@ int CPathfinderHelper::getMovementCost(
 		dt = hero->cb->getTile(dst);
 	}
 
+	bool isSailLayer;
+	if(indeterminate(isDstSailLayer))
+		isSailLayer = hero->boat != nullptr && dt->terType->isWater();
+	else
+		isSailLayer = static_cast<bool>(isDstSailLayer);
+
+	bool isWaterLayer;
+	if(indeterminate(isDstWaterLayer))
+		isWaterLayer = dt->terType->isWater();
+	else
+		isWaterLayer = static_cast<bool>(isDstWaterLayer);
+
 	int ret = hero->getTileCost(*dt, *ct, ti);
-	if(hero->boat != nullptr && dt->terType->isWater())
+	if(isSailLayer)
 	{
 		if(ct->hasFavorableWinds())
 			ret = static_cast<int>(ret * 2.0 / 3);
 	}
 	else if(ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(Bonus::FLYING_MOVEMENT));
-	else if(hero->boat == nullptr && dt->terType->isWater() && ti->hasBonusOfType(Bonus::WATER_WALKING))
+	else if(isWaterLayer && ti->hasBonusOfType(Bonus::WATER_WALKING))
 		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
 
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
