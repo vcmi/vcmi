@@ -121,6 +121,9 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 bool Obstacle::applicable(Problem & problem, const Mechanics * m) const
 {
+	if(hidden && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
+
 	return LocationEffect::applicable(problem, m);
 }
 
