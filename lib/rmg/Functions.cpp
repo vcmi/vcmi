@@ -134,7 +134,16 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		}
 		else
 		{
-			zone.setTerrainType(*RandomGeneratorUtil::nextItem(zone.getTerrainTypes(), gen.rand));
+			auto terrainTypes = zone.getTerrainTypes();
+			if (terrainTypes.empty())
+			{
+				logGlobal->warn("No terrain types found, falling back to DIRT");
+				zone.setTerrainType(ETerrainId::DIRT);
+			}
+			else
+			{
+				zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, gen.rand));
+			}
 		}
 		
 		//Now, replace disallowed terrains on surface and in the underground

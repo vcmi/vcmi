@@ -238,6 +238,9 @@ private:
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
 	void afterLoad();
+	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };

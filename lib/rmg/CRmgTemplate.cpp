@@ -672,28 +672,64 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		afterLoad();
 }
 
+std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+{
+	if (iteration >= 50)
+	{
+		logGlobal->error("Infinite recursion for terrain types detected in template %s", name);
+		return std::set<TerrainId>();
+	}
+	if (zone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
+	{
+		iteration++;
+		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
+		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
+	}
+	return zone->getTerrainTypes();
+}
+
+std::map<TResource, ui16> CRmgTemplate::inheritMineTypes(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+{
+	if (iteration >= 50)
+	{
+		logGlobal->error("Infinite recursion for mine types detected in template %s", name);
+		return std::map<TResource, ui16>();
+	}
+	if (zone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
+	{
+		iteration++;
+		const auto otherZone = zones.at(zone->getMinesLikeZone());
+		zone->setMinesInfo(inheritMineTypes(otherZone, iteration));
+	}
+	return zone->getMinesInfo();
+}
+
+std::vector<CTreasureInfo> CRmgTemplate::inheritTreasureInfo(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+{
+	if (iteration >= 50)
+	{
+		logGlobal->error("Infinite recursion for treasures detected in template %s", name);
+		return std::vector<CTreasureInfo>();
+	}
+	if (zone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
+	{
+		iteration++;
+		const auto otherZone = zones.at(zone->getTreasureLikeZone());
+		zone->setTreasureInfo(inheritTreasureInfo(otherZone, iteration));
+	}
+	return zone->getTreasureInfo();
+}
+
 void CRmgTemplate::afterLoad()
 {
 	for(auto & idAndZone : zones)
 	{
 		auto zone = idAndZone.second;
-		if(zone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
-		{
-			const auto otherZone = zones.at(zone->getMinesLikeZone());
-			zone->setMinesInfo(otherZone->getMinesInfo());
-		}
 
-		if(zone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
-		{
-			const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
-			zone->setTerrainTypes(otherZone->getTerrainTypes());
-		}
-
-		if(zone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
-		{
-			const auto otherZone = zones.at(zone->getTreasureLikeZone());
-			zone->setTreasureInfo(otherZone->getTreasureInfo());
-		}
+		//Inherit properties recursively.
+		inheritTerrainType(zone);
+		inheritMineTypes(zone);
+		inheritTreasureInfo(zone);
 	}
 
 	for(const auto & connection : connections)
