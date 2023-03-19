@@ -52,6 +52,65 @@
 			"indifferent": true
 		}
 	},
+	"landMineTrigger" :
+	{
+		"targetType" : "CREATURE",
+		"type": "combat",
+		"name": "Land Mine",
+		"school":
+		{
+			"air": false,
+			"earth": false,
+			"fire": true,
+			"water": false
+		},
+		"level": 3,
+		"power": 10,
+		"gainChance": {},
+		"animation" : {
+			"hit" : ["C09SPF3"]
+		},
+		"sounds" : {
+		   "cast" : "LANDKILL"
+		},
+		"levels" : {
+			"base": {
+				"power" : 25,
+				"range" : "0",
+				"description" : "", //For validation
+				"cost" : 0, //For validation
+				"aiValue" : 0, //For validation
+				"battleEffects" : {
+					"directDamage" : {
+						"type":"core:damage"
+					}
+				},
+				"targetModifier":{"smart":false}
+			},
+			"none" : {
+				"power" : 25
+			},
+			"basic" : {
+				"power" : 25
+			},
+			"advanced" : {
+				"power" : 50
+			},
+			"expert" : {
+				"power" : 100
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"negative": true,
+			"special": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
+		}
+	},
 	"landMine" : {
 		"index" : 11,
 		"targetType" : "NO_TARGET",
@@ -69,22 +128,19 @@
 						"passable" : true,
 						"trap" : false,
 						"trigger" : true,
+						"triggerAbility" : "core:landMineTrigger",
 						"removeOnTrigger" : true,
 						"patchCount" : 4,
 						"turnsRemaining" : -1,
 						"attacker" :{
 							"animation" : "C09SPF1",
 							"appearAnimation" : "C09SPF0",
-							"appearSound" : "LANDMINE",
-							"triggerAnimation" : "C09SPF3",
-							"triggerSound" : "LANDKILL"
+							"appearSound" : "LANDMINE"
 						},
 						"defender" :{
 							"animation" : "C09SPF1",
 							"appearAnimation" : "C09SPF0",
-							"appearSound" : "LANDMINE",
-							"triggerAnimation" : "C09SPF3",
-							"triggerSound" : "LANDKILL"
+							"appearSound" : "LANDMINE"
 						}
 					},
 					"damage":{
@@ -192,6 +248,58 @@
 			"indifferent": true
 		}
 	},
+	"fireWallTrigger" : {
+		"targetType" : "CREATURE",
+		"type": "combat",
+		"name": "Fire Wall",
+		"school":
+		{
+			"air": false,
+			"earth": false,
+			"fire": true,
+			"water": false
+		},
+		"level": 2,
+		"power": 10,
+		"gainChance": {},
+		"levels" : {
+			"base": {
+				"power" : 10,
+				"range" : "0",
+				"description" : "", //For validation
+				"cost" : 0, //For validation
+				"aiValue" : 0, //For validation
+				"battleEffects" : {
+					"directDamage" : {
+						"type":"core:damage"
+					}
+				},
+				"targetModifier":{"smart":false}
+			},
+			"none" : {
+				"power" : 10
+			},
+			"basic" : {
+				"power" : 10
+			},
+			"advanced" : {
+				"power" : 20
+			},
+			"expert" : {
+				"power" : 50
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"negative": true,
+			"special": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
+		}
+	},
 	"fireWall" : {
 		"index" : 13,
 		"targetType" : "LOCATION",
@@ -212,6 +320,7 @@
 						"passable" : true,
 						"trap" : false,
 						"trigger" : true,
+						"triggerAbility" : "core:fireWallTrigger",
 						"turnsRemaining" : 2,
 						"attacker" :{
 							"shape" : [[""]],
@@ -225,11 +334,6 @@
 							"animation" : "C07SPF61",
 							"appearAnimation" : "C07SPF60"
 						}
-					},
-					"damage":{
-						"type":"core:damage",
-						"optional":false,
-						"indirect":true
 					}
 				}
 			},

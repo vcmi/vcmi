@@ -269,7 +269,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"fireWall" : {
-					"subtype" : "spell.fireWall",
+					"subtype" : "spell.fireWallTrigger",
 					"type" : "SPECIFIC_SPELL_DAMAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"

@@ -237,7 +237,7 @@
 			"fireWallVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWall",
+				"subtype" : "spell.fireWallTrigger",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
@@ -431,7 +431,7 @@
 			"fireWallVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWall",
+				"subtype" : "spell.fireWallTrigger",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
