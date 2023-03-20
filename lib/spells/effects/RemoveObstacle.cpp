@@ -89,7 +89,7 @@ std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics *
 	std::set<const CObstacleInstance *> possibleTargets;
 	if(m->isMassive() || alwaysMassive)
 	{
-		for(const auto & obstacle : m->battle()->battleGetAllObstacles())
+		for(const auto & obstacle : m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING))
 			if(canRemove(obstacle.get()))
 				possibleTargets.insert(obstacle.get());
 	}

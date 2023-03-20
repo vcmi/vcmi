@@ -273,12 +273,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 
 	BattleObstaclesChanged pack;
 
-	boost::optional<BattlePerspective::BattlePerspective> perspective;
-
-	if(!m->battle()->getPlayerID())
-		perspective = boost::make_optional(BattlePerspective::ALL_KNOWING);
-
-	auto all = m->battle()->battleGetAllObstacles(perspective);
+	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)
