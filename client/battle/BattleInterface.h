@@ -146,7 +146,7 @@ public:
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
 	bool openingPlaying();
-	void openingAbort();
+	void openingEnd();
 
 	bool makingTurn() const;
 

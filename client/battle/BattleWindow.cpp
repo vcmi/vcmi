@@ -181,7 +181,7 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
 	if (owner.openingPlaying())
 	{
-		owner.openingAbort();
+		owner.openingEnd();
 		return;
 	}
 

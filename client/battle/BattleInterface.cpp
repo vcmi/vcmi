@@ -103,12 +103,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 
 void BattleInterface::playIntroSoundAndUnlockInterface()
 {
-	if(settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
-	{
-		onIntroSoundPlayed();
-		return;
-	}
-
 	auto onIntroPlayed = [this]()
 	{
 		if(LOCPLINT->battleInt)
@@ -120,19 +114,22 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 
 	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
+	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
+
+		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+			openingEnd();
+	}
 	else
 		onIntroSoundPlayed();
 }
 
 void BattleInterface::onIntroSoundPlayed()
 {
-	onAnimationsFinished();
+	if (openingPlaying())
+		openingEnd();
+
 	CCS->musich->playMusicFromSet("battle", true, true);
-	if(tacticsMode)
-		tacticNextStack(nullptr);
-	activateStack();
-	battleIntroSoundChannel = -1;
 }
 
 BattleInterface::~BattleInterface()
@@ -532,13 +529,17 @@ bool BattleInterface::openingPlaying()
 	return battleIntroSoundChannel != -1;
 }
 
-void BattleInterface::openingAbort()
+void BattleInterface::openingEnd()
 {
+	assert(openingPlaying());
 	if (!openingPlaying())
 		return;
 
-	// stop playing sound, causing SDL to call sound finished callback
-	CCS->soundh->stopSound(battleIntroSoundChannel);
+	onAnimationsFinished();
+	if(tacticsMode)
+		tacticNextStack(nullptr);
+	activateStack();
+	battleIntroSoundChannel = -1;
 }
 
 bool BattleInterface::makingTurn() const
