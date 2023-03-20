@@ -536,5 +536,10 @@ void CGenericQuery::onExposure(QueryPtr topQuery)
 
 void CGenericQuery::setReply(const JsonNode & reply)
 {
+	this->reply = reply;
+}
+
+void CGenericQuery::onRemoval(PlayerColor color)
+{
 	callback(reply);
 }
