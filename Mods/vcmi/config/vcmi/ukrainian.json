@@ -82,6 +82,8 @@
 	"vcmi.battleOptions.animationsSpeed6.help": "Встановити миттєву швидкість анімації",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускати вступну музику",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
+	
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Натисніть будь-яку клавішу, щоб розпочати бій",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Показувати доступних істот",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Показувати доступних істот}\n\n Показує істот, яких можна придбати, замість їхнього приросту у зведенні по місту (нижній лівий кут).",

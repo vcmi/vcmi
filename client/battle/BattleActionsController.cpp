@@ -677,6 +677,13 @@ PossiblePlayerBattleAction BattleActionsController::selectAction(BattleHex targe
 
 void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 {
+	if (owner.openingPlaying())
+	{
+		currentConsoleMsg = VLC->generaltexth->translate("vcmi.battleWindow.pressKeyToSkipIntro");
+		GH.statusbar->write(currentConsoleMsg);
+		return;
+	}
+
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
 
