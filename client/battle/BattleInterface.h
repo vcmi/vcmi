@@ -111,15 +111,15 @@ class BattleInterface
 	/// defender interface, not null if attacker is human in our vcmiclient
 	std::shared_ptr<CPlayerInterface> defenderInt;
 
+	/// ID of channel on which battle opening sound is playing, or -1 if none
+	int battleIntroSoundChannel;
+
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
 	/// copy of initial armies (for result window)
 	const CCreatureSet *army1;
 	const CCreatureSet *army2;
-
-	/// ID of channel on which battle opening sound is playing, or -1 if none
-	int battleIntroSoundChannel;
 
 	std::shared_ptr<BattleWindow> windowObject;
 	std::shared_ptr<BattleConsole> console;
@@ -145,9 +145,10 @@ public:
 
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
-	bool makingTurn() const;
+	bool openingPlaying();
+	void openingAbort();
 
-	int moveSoundHander; // sound handler used when moving a unit
+	bool makingTurn() const;
 
 	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	~BattleInterface();

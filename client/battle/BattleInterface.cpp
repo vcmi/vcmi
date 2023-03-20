@@ -54,7 +54,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
-	, moveSoundHander(-1)
 {
 	if(spectatorInt)
 	{
@@ -526,6 +525,20 @@ void BattleInterface::activateStack()
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
 	GH.fakeMouseMove();
+}
+
+bool BattleInterface::openingPlaying()
+{
+	return battleIntroSoundChannel != -1;
+}
+
+void BattleInterface::openingAbort()
+{
+	if (!openingPlaying())
+		return;
+
+	// stop playing sound, causing SDL to call sound finished callback
+	CCS->soundh->stopSound(battleIntroSoundChannel);
 }
 
 bool BattleInterface::makingTurn() const

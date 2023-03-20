@@ -179,9 +179,9 @@ void BattleWindow::deactivate()
 
 void BattleWindow::keyPressed(const SDL_Keycode & key)
 {
-	if(owner.battleIntroSoundChannel != -1)
+	if (owner.openingPlaying())
 	{
-		CCS->soundh->stopSound(owner.battleIntroSoundChannel);
+		owner.openingAbort();
 		return;
 	}
 

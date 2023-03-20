@@ -354,9 +354,9 @@ bool MovementAnimation::init()
 		myAnim->setType(ECreatureAnimType::MOVING);
 	}
 
-	if (owner.moveSoundHander == -1)
+	if (moveSoundHander == -1)
 	{
-		owner.moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
+		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
@@ -416,11 +416,8 @@ MovementAnimation::~MovementAnimation()
 {
 	assert(stack);
 
-	if(owner.moveSoundHander != -1)
-	{
-		CCS->soundh->stopSound(owner.moveSoundHander);
-		owner.moveSoundHander = -1;
-	}
+	if(moveSoundHander != -1)
+		CCS->soundh->stopSound(moveSoundHander);
 }
 
 MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stack, std::vector<BattleHex> _destTiles, int _distance)
@@ -430,6 +427,7 @@ MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stac
 	  begX(0), begY(0),
 	  distanceX(0), distanceY(0),
 	  progressPerSecond(0.0),
+	  moveSoundHander(-1),
 	  progress(0.0)
 {
 	logAnim->debug("Created MovementAnimation for %s", stack->getName());
