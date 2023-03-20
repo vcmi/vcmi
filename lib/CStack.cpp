@@ -93,7 +93,7 @@ ui32 CStack::level() const
 
 si32 CStack::magicResistance() const
 {
-	si32 magicResistance = IBonusBearer::magicResistance();
+	auto magicResistance = IBonusBearer::magicResistance();
 
 	si32 auraBonus = 0;
 
@@ -102,10 +102,11 @@ si32 CStack::magicResistance() const
 		if(one->unitOwner() == owner)
 			vstd::amax(auraBonus, one->valOfBonuses(Bonus::SPELL_RESISTANCE_AURA)); //max value
 	}
-	magicResistance += auraBonus;
-	vstd::amin(magicResistance, 100);
+	vstd::abetween(auraBonus, 0, 100);
+	vstd::abetween(magicResistance, 0, 100);
+	float castChance = (100 - magicResistance) * (100 - auraBonus)/100.0;
 
-	return magicResistance;
+	return static_cast<si32>(100 - castChance);
 }
 
 BattleHex::EDir CStack::destShiftDir() const
