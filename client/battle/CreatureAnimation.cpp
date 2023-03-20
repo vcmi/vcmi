@@ -183,7 +183,7 @@ void CreatureAnimation::setType(ECreatureAnimType type)
 	currentFrame = 0;
 	once = false;
 
-	play();
+	speed = speedController(this, type);
 }
 
 CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
@@ -191,6 +191,7 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	  speed(0.1f),
 	  shadowAlpha(128),
 	  currentFrame(0),
+	  animationEnd(-1),
 	  elapsedTime(0),
 	  type(ECreatureAnimType::HOLDING),
 	  border(CSDL_Ext::makeColor(0, 0, 0, 0)),
@@ -248,7 +249,7 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 
 	reverse->verticalFlip();
 
-	play();
+	speed = speedController(this, type);
 }
 
 void CreatureAnimation::endAnimation()
@@ -263,6 +264,9 @@ bool CreatureAnimation::incrementFrame(float timePassed)
 {
 	elapsedTime += timePassed;
 	currentFrame += timePassed * speed;
+	if (animationEnd >= 0)
+		currentFrame = std::min(currentFrame, animationEnd);
+
 	const auto framesNumber = framesInGroup(type);
 
 	if(framesNumber <= 0)
@@ -375,6 +379,11 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 	}
 }
 
+void CreatureAnimation::playUntil(size_t frameIndex)
+{
+	animationEnd = frameIndex;
+}
+
 int CreatureAnimation::framesInGroup(ECreatureAnimType group) const
 {
 	return static_cast<int>(forward->size(size_t(group)));
@@ -420,15 +429,4 @@ bool CreatureAnimation::isShooting() const
 	return getType() == ECreatureAnimType::SHOOT_UP
 		|| getType() == ECreatureAnimType::SHOOT_FRONT
 		|| getType() == ECreatureAnimType::SHOOT_DOWN;
-}
-
-void CreatureAnimation::pause()
-{
-	speed = 0;
-}
-
-void CreatureAnimation::play()
-{
-	//logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
-	speed = speedController(this, type);
 }

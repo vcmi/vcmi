@@ -329,13 +329,6 @@ void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 			fullFilter = ColorFilter::genCombined(fullFilter, filter.effect);
 	}
 
-	bool stackHasProjectile = owner.projectilesController->hasActiveProjectile(stack, true);
-
-	if (stackHasProjectile)
-		stackAnimation[stack->ID]->pause();
-	else
-		stackAnimation[stack->ID]->play();
-
 	stackAnimation[stack->ID]->nextFrame(canvas, fullFilter, facingRight(stack)); // do actual blit
 	stackAnimation[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 }

@@ -711,6 +711,13 @@ void RangedAttackAnimation::nextFrame()
 
 	}
 
+	bool stackHasProjectile = owner.projectilesController->hasActiveProjectile(stack, true);
+
+	if (!projectileEmitted || stackHasProjectile)
+		stackAnimation(attackingStack)->playUntil(getAttackClimaxFrame());
+	else
+		stackAnimation(attackingStack)->playUntil(static_cast<size_t>(-1));
+
 	AttackAnimation::nextFrame();
 
 	if (!projectileEmitted)
