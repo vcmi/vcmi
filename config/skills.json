@@ -805,17 +805,17 @@
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 40 }
+				"main" : { "val" : 50 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 65 }
+				"main" : { "val" : 75 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 90 }
+				"main" : { "val" : 100 }
 			}
 		}
 	}

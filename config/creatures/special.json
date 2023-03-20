@@ -86,12 +86,6 @@
 			"heals" : {
 				"type" : "HEALER" ,
 				"subtype" : "spell.firstAid"
-			},
-			"power" : {
-				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.firstAid",
-				"val" : 10,
-				"valueType" : "BASE_NUMBER"
 			}
 		},
 		"graphics" :
