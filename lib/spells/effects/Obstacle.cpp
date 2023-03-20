@@ -91,8 +91,6 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 
 	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("triggerSound", triggerSound);
-	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
@@ -307,8 +305,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 
 		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
-		obstacle.triggerSound = options.triggerSound;
-		obstacle.triggerAnimation = options.triggerAnimation;
 		obstacle.animation = options.animation;
 
 		obstacle.animationYOffset = options.offsetY;

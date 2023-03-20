@@ -31,7 +31,7 @@ public:
 	Obstacle obstacle;
 	si32 iconIndex;
 	std::string identifier;
-	std::string appearSound, appearAnimation, triggerAnimation, triggerSound, animation;
+	std::string appearSound, appearAnimation, animation;
 	std::vector<TerrainId> allowedTerrains;
 	std::vector<std::string> allowedSpecialBfields;
 	
@@ -62,12 +62,7 @@ public:
 		h & identifier;
 		h & animation;
 		h & appearAnimation;
-		h & triggerAnimation;
-		if (version > 806)
-		{
-			h & appearSound;
-			h & triggerSound;
-		}
+		h & appearSound;
 		h & allowedTerrains;
 		h & allowedSpecialBfields;
 		h & isAbsoluteObstacle;

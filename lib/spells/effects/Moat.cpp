@@ -34,7 +34,6 @@ VCMI_REGISTER_SPELL_EFFECT(Moat, EFFECT_NAME);
 void Moat::serializeJsonEffect(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("hidden", hidden);
-	handler.serializeBool("passable", passable);
 	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
@@ -100,13 +99,10 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 		obstacle.nativeVisible = false; //Moats is invisible for native terrain
-
-		// Moats should not have appear sound and appear animation (they are always exists)
-		// Only trigger animation may exists
-		obstacle.triggerSound = sideOptions.triggerSound;
-		obstacle.triggerAnimation = sideOptions.triggerAnimation;
+		obstacle.appearSound = sideOptions.appearSound; //For dispellable moats
+		obstacle.appearAnimation = sideOptions.appearAnimation; //For dispellable moats
 		obstacle.animation = sideOptions.animation;
-
+		obstacle.customSize.emplace_back(obstacle.pos); //All moat hexes are different obstacles
 		obstacle.animationYOffset = sideOptions.offsetY;
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());
