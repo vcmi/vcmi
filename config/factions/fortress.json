@@ -147,8 +147,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
 			"warMachine" : "firstAidTent",
-			"moatDamage" : 90,
-			"moatHexes" : [ 10, 11, 27, 28, 43, 44, 60, 61, 76, 77, 94, 110, 111, 128, 129, 145, 146, 163, 164, 180, 181 ],
+			"moatAbility" : "core:spell.fortressMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :

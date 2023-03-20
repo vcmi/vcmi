@@ -173,7 +173,7 @@ void CFaction::serializeJson(JsonSerializeFormat & handler)
 
 
 CTown::CTown()
-	: faction(nullptr), mageLevel(0), primaryRes(0), moatDamage(0), defaultTavernChance(0)
+	: faction(nullptr), mageLevel(0), primaryRes(0), moatAbility(SpellID::NONE), defaultTavernChance(0)
 {
 }
 
@@ -882,9 +882,6 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 	warMachinesToLoad[town] = source["warMachine"];
 
-	town->moatDamage = static_cast<si32>(source["moatDamage"].Float());
-	town->moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
-
 	town->mageLevel = static_cast<ui32>(source["mageGuild"].Float());
 
 	town->namesCount = 0;
@@ -893,6 +890,11 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 		VLC->generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name.String());
 		town->namesCount += 1;
 	}
+
+	VLC->modh->identifiers.requestIdentifier(source["moatAbility"], [=](si32 ability)
+	{
+		town->moatAbility = SpellID(ability);
+	});
 
 	//  Horde building creature level
 	for(const JsonNode &node : source["horde"].Vector())

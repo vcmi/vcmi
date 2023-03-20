@@ -162,6 +162,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("spellLevel", spellLevel);
 	handler.serializeInt("casterSide", casterSide);
 	handler.serializeInt("minimalDamage", minimalDamage);
+	handler.serializeInt("type", obstacleType);
 
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("revealed", revealed);
@@ -201,7 +202,7 @@ int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
 {
 	int offset = imageHeight % 42;
 
-	if(obstacleType == CObstacleInstance::SPELL_CREATED)
+	if(obstacleType == CObstacleInstance::SPELL_CREATED || obstacleType == CObstacleInstance::MOAT)
 	{
 		offset += animationYOffset;
 	}

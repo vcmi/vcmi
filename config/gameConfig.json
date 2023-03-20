@@ -80,6 +80,7 @@
 		"config/spells/timed.json",
 		"config/spells/ability.json",
 		"config/spells/vcmiAbility.json"
+		"config/spells/moats.json"
 	],
 	"skills" :
 	[

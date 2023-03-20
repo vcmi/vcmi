@@ -23,7 +23,7 @@ class Moat : public Obstacle
 {
 private:
 	ObstacleSideOptions sideOptions; //Defender only
-	std::vector<BattleHex> moatHexes;
+	std::vector<std::vector<BattleHex>> moatHexes;
 	bool dispellable; //For Tower landmines
 	int moatDamage; // Minimal moat damage
 public:

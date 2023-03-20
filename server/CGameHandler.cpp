@@ -5222,12 +5222,9 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 {
 	if(!curStack->alive())
 		return false;
-	bool containDamageFromMoat = false;
 	bool movementStopped = false;
 	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack, passed))
 	{
-		if(obstacle->obstacleType == CObstacleInstance::SPELL_CREATED)
-		{
 			//helper info
 			const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
 			const ui8 side = curStack->side;
@@ -5262,7 +5259,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 				};
 				auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
 				const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-				auto caster = spells::ObstacleCasterProxy(gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
+				auto caster = spells::ObstacleCasterProxy(gs->curB->sides.at(spellObstacle->casterSide).color, hero, *spellObstacle);
 				const auto * sp = SpellID(spellObstacle->ID).toSpell();
 				if(sp)
 				{
@@ -5279,27 +5276,6 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 				}
 				else if(shouldReveal)
 					revealObstacles(*spellObstacle);
-			}
-		}
-		else if(obstacle->obstacleType == CObstacleInstance::MOAT)
-		{
-			auto town = gs->curB->town;
-			int damage = (town == nullptr) ? 0 : town->town->moatDamage;
-			if(!containDamageFromMoat)
-			{
-				containDamageFromMoat = true;
-
-				BattleStackAttacked bsa;
-				bsa.damageAmount = damage;
-				bsa.stackAttacked = curStack->ID;
-				bsa.attackerID = -1;
-				curStack->prepareAttacked(bsa, getRandomGenerator());
-
-				StacksInjured si;
-				si.stacks.push_back(bsa);
-				sendAndApply(&si);
-				sendGenericKilledLog(curStack, bsa.killedAmount, false);
-			}
 		}
 
 		if(!curStack->alive())
@@ -6346,6 +6322,17 @@ void CGameHandler::runBattle()
 	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
+
+	//Moat should be initialized here, because only here we can use spellcasting
+	if (gs->curB->town && gs->curB->town->fortLevel() >= CGTownInstance::CITADEL)
+	{
+		const auto * h = gs->curB->battleGetFightingHero(BattleSide::DEFENDER);
+		const auto * actualCaster = h ? static_cast<const spells::Caster*>(h) : nullptr;
+		auto moatCaster = spells::SilentCaster(gs->curB->getSidePlayer(BattleSide::DEFENDER), actualCaster);
+		auto cast = spells::BattleCast(gs->curB, &moatCaster, spells::Mode::PASSIVE, gs->curB->town->town->moatAbility.toSpell());
+		auto target = spells::Target();
+		cast.cast(spellEnv, target);
+	}
 
 	//tactic round
 	{

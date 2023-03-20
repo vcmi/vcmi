@@ -203,7 +203,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CArtifactInstance, CCombinedArtifactInstance>();
 
 	//s.template registerType<CObstacleInstance>();
-		s.template registerType<CObstacleInstance, MoatObstacle>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
 }
 template<typename Serializer>

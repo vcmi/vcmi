@@ -58,11 +58,6 @@ struct DLL_LINKAGE CObstacleInstance
 	}
 };
 
-struct DLL_LINKAGE MoatObstacle : CObstacleInstance
-{
-	std::vector<BattleHex> getAffectedTiles() const override; //for special effects (not blocking)
-};
-
 struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 {
 	int32_t turnsRemaining;

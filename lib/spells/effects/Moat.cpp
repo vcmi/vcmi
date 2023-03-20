@@ -31,6 +31,23 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Moat, EFFECT_NAME);
 
+static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string & fieldName, std::vector<std::vector<BattleHex>> & moatHexes)
+{
+	{
+		JsonArraySerializer outer = handler.enterArray(fieldName);
+		outer.syncSize(moatHexes, JsonNode::JsonType::DATA_VECTOR);
+
+		for(size_t outerIndex = 0; outerIndex < outer.size(); outerIndex++)
+		{
+			JsonArraySerializer inner = outer.enterArray(outerIndex);
+			inner.syncSize(moatHexes.at(outerIndex), JsonNode::JsonType::DATA_INTEGER);
+
+			for(size_t innerIndex = 0; innerIndex < inner.size(); innerIndex++)
+				inner.serializeInt(innerIndex, moatHexes.at(outerIndex).at(innerIndex));
+		}
+	}
+}
+
 void Moat::serializeJsonEffect(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("hidden", hidden);
@@ -39,14 +56,8 @@ void Moat::serializeJsonEffect(JsonSerializeFormat & handler)
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("dispellable", dispellable);
 	handler.serializeInt("moatDamage", moatDamage);
+	serializeMoatHexes(handler, "moatHexes", moatHexes);
 	handler.serializeId("triggerAbility", triggerAbility, SpellID::NONE);
-	{
-		JsonArraySerializer customSizeJson = handler.enterArray("moatHexes");
-		customSizeJson.syncSize(moatHexes, JsonNode::JsonType::DATA_INTEGER);
-
-		for(size_t index = 0; index < customSizeJson.size(); index++)
-			customSizeJson.serializeInt(index, moatHexes.at(index));
-	}
 	handler.serializeStruct("defender", sideOptions); //Moats are defender only
 }
 
@@ -57,10 +68,6 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 	if(m->isMassive() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 	{
 		EffectTarget moat;
-		moat.reserve(moatHexes.size());
-		for(const auto & tile : moatHexes)
-			moat.emplace_back(tile);
-
 		placeObstacles(server, m, moat);
 	}
 }
@@ -80,11 +87,11 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		if(one->uniqueID >= obstacleIdToGive)
 			obstacleIdToGive = one->uniqueID + 1;
 
-	for(const Destination & destination : target)
+	for(const auto & destination : moatHexes)  //Moat hexes can be different obstacles
 	{
 		SpellCreatedObstacle obstacle;
 		obstacle.uniqueID = obstacleIdToGive++;
-		obstacle.pos = destination.hexValue;
+		obstacle.pos = destination.at(0);
 		obstacle.obstacleType = dispellable ? CObstacleInstance::SPELL_CREATED : CObstacleInstance::MOAT;
 		obstacle.ID = triggerAbility;
 
@@ -102,7 +109,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.appearSound = sideOptions.appearSound; //For dispellable moats
 		obstacle.appearAnimation = sideOptions.appearAnimation; //For dispellable moats
 		obstacle.animation = sideOptions.animation;
-		obstacle.customSize.emplace_back(obstacle.pos); //All moat hexes are different obstacles
+		obstacle.customSize.insert(obstacle.customSize.end(),destination.cbegin(), destination.cend());
 		obstacle.animationYOffset = sideOptions.offsetY;
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());

@@ -15,19 +15,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
-ObstacleCasterProxy::ObstacleCasterProxy(PlayerColor owner_, const Caster * hero_, const SpellCreatedObstacle * obs_):
-	ProxyCaster(hero_),
-	owner(std::move(owner_)),
-	obs(*obs_)
+ObstacleCasterProxy::ObstacleCasterProxy(PlayerColor owner_, const Caster * hero_, const SpellCreatedObstacle & obs_):
+	SilentCaster(owner_, hero_),
+	obs(obs_)
 {
-}
-
-int32_t ObstacleCasterProxy::getCasterUnitId() const
-{
-	if(actualCaster)
-		return actualCaster->getCasterUnitId();
-	else
-		return -1;
 }
 
 int32_t ObstacleCasterProxy::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
@@ -44,16 +35,8 @@ int64_t ObstacleCasterProxy::getSpellBonus(const Spell * spell, int64_t base, co
 {
 	if(actualCaster)
 		return std::max<int64_t>(actualCaster->getSpellBonus(spell, base, affectedStack), obs.minimalDamage);
-	else
-		return std::max<int64_t>(base, obs.minimalDamage);
-}
 
-int64_t ObstacleCasterProxy::getSpecificSpellBonus(const Spell * spell, int64_t base) const
-{
-	if(actualCaster)
-		return actualCaster->getSpecificSpellBonus(spell, base);
-	else
-		return base;
+	return std::max<int64_t>(base, obs.minimalDamage);
 }
 
 int32_t ObstacleCasterProxy::getEffectPower(const Spell * spell) const
@@ -74,25 +57,35 @@ int64_t ObstacleCasterProxy::getEffectValue(const Spell * spell) const
 		return obs.minimalDamage;
 }
 
-PlayerColor ObstacleCasterProxy::getCasterOwner() const
+SilentCaster::SilentCaster(PlayerColor owner_, const Caster * hero_):
+	ProxyCaster(hero_),
+	owner(std::move(owner_))
 {
+}
+
+void SilentCaster::getCasterName(MetaString & text) const
+{
+	logGlobal->error("Unexpected call to SilentCaster::getCasterName");
+}
+
+void SilentCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
+{
+		//do nothing
+}
+
+void SilentCaster::spendMana(ServerCallback * server, const int spellCost) const
+{
+		//do nothing
+}
+
+PlayerColor SilentCaster::getCasterOwner() const
+{
+	if(actualCaster)
+		return actualCaster->getCasterOwner();
+
 	return owner;
 }
 
-void ObstacleCasterProxy::getCasterName(MetaString & text) const
-{
-	logGlobal->error("Unexpected call to ObstacleCasterProxy::getCasterName");
-}
-
-void ObstacleCasterProxy::getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
-{
-		//do nothing
-}
-
-void ObstacleCasterProxy::spendMana(ServerCallback * server, const int spellCost) const
-{
-		//do nothing
-}
 
 }
 VCMI_LIB_NAMESPACE_END
