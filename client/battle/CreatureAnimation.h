@@ -88,6 +88,7 @@ private:
 	/// currently displayed frame. Float to allow H3-style animations where frames
 	/// don't display for integer number of frames
 	float currentFrame;
+	float animationEnd;
 
 	/// cumulative, real-time duration of animation. Used for effects like selection border
 	float elapsedTime;
@@ -146,8 +147,7 @@ public:
 	/// returns number of frames in selected animation type
 	int framesInGroup(ECreatureAnimType group) const;
 
-	void pause();
-	void play();
+	void playUntil(size_t frameIndex);
 
 	/// helpers to classify current type of animation
 	bool isDead() const;

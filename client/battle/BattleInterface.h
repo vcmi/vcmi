@@ -94,11 +94,10 @@ class BattleInterface
 	struct AwaitingAnimationEvents {
 		AwaitingAnimationAction action;
 		EAnimationEvents event;
-		bool eventState;
 	};
 
 	/// Conditional variables that are set depending on ongoing animations on the battlefield
-	std::array< CondSh<bool>, static_cast<size_t>(EAnimationEvents::COUNT)> animationEvents;
+	CondSh<bool> ongoingAnimationsState;
 
 	/// List of events that are waiting to be triggered
 	std::vector<AwaitingAnimationEvents> awaitingEvents;
@@ -112,15 +111,15 @@ class BattleInterface
 	/// defender interface, not null if attacker is human in our vcmiclient
 	std::shared_ptr<CPlayerInterface> defenderInt;
 
+	/// ID of channel on which battle opening sound is playing, or -1 if none
+	int battleIntroSoundChannel;
+
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
 	/// copy of initial armies (for result window)
 	const CCreatureSet *army1;
 	const CCreatureSet *army2;
-
-	/// ID of channel on which battle opening sound is playing, or -1 if none
-	int battleIntroSoundChannel;
 
 	std::shared_ptr<BattleWindow> windowObject;
 	std::shared_ptr<BattleConsole> console;
@@ -146,9 +145,10 @@ public:
 
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
-	bool makingTurn() const;
+	bool openingPlaying();
+	void openingEnd();
 
-	int moveSoundHander; // sound handler used when moving a unit
+	bool makingTurn() const;
 
 	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	~BattleInterface();
@@ -178,17 +178,14 @@ public:
 
 	void setBattleQueueVisibility(bool visible);
 
-	/// sets condition to targeted state and executes any awaiting actions
-	void setAnimationCondition( EAnimationEvents event, bool state);
-
-	/// returns current state of condition
-	bool getAnimationCondition( EAnimationEvents event);
-
-	/// locks execution until selected condition reached targeted state
-	void waitForAnimationCondition( EAnimationEvents event, bool state);
-
-	/// adds action that will be executed one selected condition reached targeted state
-	void executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action);
+	void executeStagedAnimations();
+	void executeAnimationStage( EAnimationEvents event);
+	void onAnimationsStarted();
+	void onAnimationsFinished();
+	void waitForAnimations();
+	bool hasAnimations();
+	void checkForAnimations();
+	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins
 	void startAction(const BattleAction* action);

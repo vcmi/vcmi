@@ -306,10 +306,8 @@ void MeleeAttackAnimation::nextFrame()
 	size_t totalFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 
 	if ( currentFrame * 2 >= totalFrames )
-	{
-		if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-			owner.setAnimationCondition(EAnimationEvents::HIT, true);
-	}
+		owner.executeAnimationStage(EAnimationEvents::HIT);
+
 	AttackAnimation::nextFrame();
 }
 
@@ -356,9 +354,9 @@ bool MovementAnimation::init()
 		myAnim->setType(ECreatureAnimType::MOVING);
 	}
 
-	if (owner.moveSoundHander == -1)
+	if (moveSoundHander == -1)
 	{
-		owner.moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
+		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
@@ -418,11 +416,8 @@ MovementAnimation::~MovementAnimation()
 {
 	assert(stack);
 
-	if(owner.moveSoundHander != -1)
-	{
-		CCS->soundh->stopSound(owner.moveSoundHander);
-		owner.moveSoundHander = -1;
-	}
+	if(moveSoundHander != -1)
+		CCS->soundh->stopSound(moveSoundHander);
 }
 
 MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stack, std::vector<BattleHex> _destTiles, int _distance)
@@ -432,6 +427,7 @@ MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stac
 	  begX(0), begY(0),
 	  distanceX(0), distanceY(0),
 	  progressPerSecond(0.0),
+	  moveSoundHander(-1),
 	  progress(0.0)
 {
 	logAnim->debug("Created MovementAnimation for %s", stack->getName());
@@ -709,11 +705,16 @@ void RangedAttackAnimation::nextFrame()
 	if (projectileEmitted)
 	{
 		if (!owner.projectilesController->hasActiveProjectile(attackingStack, false))
-		{
-			if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-				owner.setAnimationCondition(EAnimationEvents::HIT, true);
-		}
+			owner.executeAnimationStage(EAnimationEvents::HIT);
+
 	}
+
+	bool stackHasProjectile = owner.projectilesController->hasActiveProjectile(stack, true);
+
+	if (!projectileEmitted || stackHasProjectile)
+		stackAnimation(attackingStack)->playUntil(getAttackClimaxFrame());
+	else
+		stackAnimation(attackingStack)->playUntil(static_cast<size_t>(-1));
 
 	AttackAnimation::nextFrame();
 
@@ -1052,7 +1053,6 @@ bool HeroCastAnimation::init()
 	hero->setPhase(EHeroAnimType::CAST_SPELL);
 
 	hero->onPhaseFinished([&](){
-		assert(owner.getAnimationCondition(EAnimationEvents::HIT) == true);
 		delete this;
 	});
 
@@ -1093,8 +1093,7 @@ void HeroCastAnimation::emitProjectile()
 
 void HeroCastAnimation::emitAnimationEvent()
 {
-	if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-		owner.setAnimationCondition(EAnimationEvents::HIT, true);
+	owner.executeAnimationStage(EAnimationEvents::HIT);
 }
 
 void HeroCastAnimation::nextFrame()

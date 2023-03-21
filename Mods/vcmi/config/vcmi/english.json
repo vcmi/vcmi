@@ -81,6 +81,8 @@
 	"vcmi.battleOptions.animationsSpeed6.help": "Sets animation speed to instantaneous",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Skip Intro Music",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\n Skip short music that plays at beginning of each battle before action starts. Can also be skipped by pressing ESC key.",
+	
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to skip battle intro",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",

@@ -54,11 +54,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
-	, moveSoundHander(-1)
 {
-	for ( auto & event : animationEvents)
-		event.setn(false);
-
 	if(spectatorInt)
 	{
 		curInt = spectatorInt;
@@ -96,7 +92,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	obstacleController.reset(new BattleObstacleController(*this));
 
 	adventureInt->onAudioPaused();
-	setAnimationCondition(EAnimationEvents::OPENING, true);
+	ongoingAnimationsState.set(true);
 
 	GH.pushInt(windowObject);
 	windowObject->blockUI(true);
@@ -107,12 +103,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 
 void BattleInterface::playIntroSoundAndUnlockInterface()
 {
-	if(settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
-	{
-		onIntroSoundPlayed();
-		return;
-	}
-
 	auto onIntroPlayed = [this]()
 	{
 		if(LOCPLINT->battleInt)
@@ -124,19 +114,22 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 
 	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
+	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
+
+		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+			openingEnd();
+	}
 	else
 		onIntroSoundPlayed();
 }
 
 void BattleInterface::onIntroSoundPlayed()
 {
-	setAnimationCondition(EAnimationEvents::OPENING, false);
+	if (openingPlaying())
+		openingEnd();
+
 	CCS->musich->playMusicFromSet("battle", true, true);
-	if(tacticsMode)
-		tacticNextStack(nullptr);
-	activateStack();
-	battleIntroSoundChannel = -1;
 }
 
 BattleInterface::~BattleInterface()
@@ -147,10 +140,7 @@ BattleInterface::~BattleInterface()
 	if (adventureInt)
 		adventureInt->onAudioResumed();
 
-	// may happen if user decided to close game while in battle
-	if (getAnimationCondition(EAnimationEvents::ACTION) == true)
-		logGlobal->error("Shutting down BattleInterface during animation playback!");
-	setAnimationCondition(EAnimationEvents::ACTION, false);
+	onAnimationsFinished();
 }
 
 void BattleInterface::redrawBattlefield()
@@ -217,7 +207,7 @@ void BattleInterface::stackAttacking( const StackAttackInfo & attackInfo )
 
 void BattleInterface::newRoundFirst( int round )
 {
-	waitForAnimationCondition(EAnimationEvents::OPENING, false);
+	waitForAnimations();
 }
 
 void BattleInterface::newRound(int number)
@@ -299,8 +289,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 
 void BattleInterface::battleFinished(const BattleResult& br)
 {
-	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
-	waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
 
 	CCS->curh->set(Cursor::Map::POINTER);
@@ -337,7 +326,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 					EAnimationEvents::HIT:
 					EAnimationEvents::BEFORE_HIT;//FIXME: recheck whether this should be on projectile spawning
 
-		executeOnAnimationCondition(group, true, [=]() {
+		addToAnimationStage(group, [=]() {
 			CCS->soundh->playSound(castSoundPath);
 		});
 	}
@@ -348,7 +337,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
-			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
+			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
 			{
 				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
 				displaySpellCast(spell, casterStack->getPosition());
@@ -359,14 +348,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			auto hero = sc->side ? defendingHero : attackingHero;
 			assert(hero);
 
-			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
+			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
 			{
 				stacksController->addNewAnim(new HeroCastAnimation(*this, hero, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
 			});
 		}
 	}
 
-	executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+	addToAnimationStage(EAnimationEvents::HIT, [=](){
 		displaySpellHit(spell, targetedTile);
 	});
 
@@ -377,7 +366,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		assert(stack);
 		if(stack)
 		{
-			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+			addToAnimationStage(EAnimationEvents::HIT, [=](){
 				displaySpellEffect(spell, stack->getPosition());
 			});
 		}
@@ -387,14 +376,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		auto stack = curInt->cb->battleGetStackByID(elem, false);
 		assert(stack);
-		executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+		addToAnimationStage(EAnimationEvents::HIT, [=](){
 			effectsController->displayEffect(EBattleEffect::MAGIC_MIRROR, stack->getPosition());
 		});
 	}
 
 	if (!sc->resistedCres.empty())
 	{
-		executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+		addToAnimationStage(EAnimationEvents::HIT, [=](){
 			CCS->soundh->playSound("MAGICRES");
 		});
 	}
@@ -403,7 +392,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		auto stack = curInt->cb->battleGetStackByID(elem, false);
 		assert(stack);
-		executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+		addToAnimationStage(EAnimationEvents::HIT, [=](){
 			effectsController->displayEffect(EBattleEffect::RESISTANCE, stack->getPosition());
 		});
 	}
@@ -415,7 +404,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		Point rightHero = Point(755, 30);
 		bool side = sc->side;
 
-		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
+		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
 			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
 			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 		});
@@ -535,6 +524,24 @@ void BattleInterface::activateStack()
 	GH.fakeMouseMove();
 }
 
+bool BattleInterface::openingPlaying()
+{
+	return battleIntroSoundChannel != -1;
+}
+
+void BattleInterface::openingEnd()
+{
+	assert(openingPlaying());
+	if (!openingPlaying())
+		return;
+
+	onAnimationsFinished();
+	if(tacticsMode)
+		tacticNextStack(nullptr);
+	activateStack();
+	battleIntroSoundChannel = -1;
+}
+
 bool BattleInterface::makingTurn() const
 {
 	return stacksController->getActiveStack() != nullptr;
@@ -611,8 +618,7 @@ void BattleInterface::tacticNextStack(const CStack * current)
 		current = stacksController->getActiveStack();
 
 	//no switching stacks when the current one is moving
-	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
-	waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	checkForAnimations();
 
 	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
 	vstd::erase_if (stacksOfMine, &immobile);
@@ -698,18 +704,24 @@ void BattleInterface::castThisSpell(SpellID spellID)
 	actionsController->castThisSpell(spellID);
 }
 
-void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
+void BattleInterface::executeStagedAnimations()
 {
-	logAnim->debug("setAnimationCondition: %d -> %s", static_cast<int>(event), state ? "ON" : "OFF");
+	EAnimationEvents earliestStage = EAnimationEvents::COUNT;
 
-	size_t index = static_cast<size_t>(event);
-	animationEvents[index].setn(state);
+	for(const auto & event : awaitingEvents)
+		earliestStage = std::min(earliestStage, event.event);
 
+	if(earliestStage != EAnimationEvents::COUNT)
+		executeAnimationStage(earliestStage);
+}
+
+void BattleInterface::executeAnimationStage(EAnimationEvents event)
+{
 	decltype(awaitingEvents) executingEvents;
 
-	for (auto it = awaitingEvents.begin(); it != awaitingEvents.end();)
+	for(auto it = awaitingEvents.begin(); it != awaitingEvents.end();)
 	{
-		if (it->event == event && it->eventState == state)
+		if(it->event == event)
 		{
 			executingEvents.push_back(*it);
 			it = awaitingEvents.erase(it);
@@ -717,27 +729,43 @@ void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
 		else
 			++it;
 	}
-
-	for (auto const & event : executingEvents)
+	for(const auto & event : executingEvents)
 		event.action();
 }
 
-bool BattleInterface::getAnimationCondition( EAnimationEvents event)
+void BattleInterface::onAnimationsStarted()
 {
-	size_t index = static_cast<size_t>(event);
-	return animationEvents[index].get();
+	ongoingAnimationsState.setn(true);
 }
 
-void BattleInterface::waitForAnimationCondition( EAnimationEvents event, bool state)
+void BattleInterface::onAnimationsFinished()
+{
+	ongoingAnimationsState.setn(false);
+}
+
+void BattleInterface::waitForAnimations()
 {
 	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-	size_t index = static_cast<size_t>(event);
-	animationEvents[index].waitUntil(state);
+	ongoingAnimationsState.waitUntil(false);
 }
 
-void BattleInterface::executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action)
+bool BattleInterface::hasAnimations()
 {
-	awaitingEvents.push_back({action, event, state});
+	return ongoingAnimationsState.get();
+}
+
+void BattleInterface::checkForAnimations()
+{
+	assert(!hasAnimations());
+	if(hasAnimations())
+		logGlobal->error("Unexpected animations state: expected all animations to be over, but some are still ongoing!");
+
+	waitForAnimations();
+}
+
+void BattleInterface::addToAnimationStage(EAnimationEvents event, const AwaitingAnimationAction & action)
+{
+	awaitingEvents.push_back({action, event});
 }
 
 void BattleInterface::setBattleQueueVisibility(bool visible)

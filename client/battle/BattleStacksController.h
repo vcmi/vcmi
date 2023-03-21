@@ -88,7 +88,6 @@ class BattleStacksController
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
-	void executeAttackAnimations();
 	void removeExpiredColorFilters();
 
 	void initializeBattleAnimations();

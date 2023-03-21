@@ -141,6 +141,8 @@ protected:
 class MovementAnimation : public StackMoveAnimation
 {
 private:
+	int moveSoundHander; // sound handler used when moving a unit
+
 	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
 	ui32 curentMoveIndex; // index of nextHex in destTiles
 
