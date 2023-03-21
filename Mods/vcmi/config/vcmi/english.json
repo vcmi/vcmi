@@ -87,7 +87,7 @@
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Show Weekly Growth of Creatures",
-	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.help" : "{Show Weekly Growth of Creatures}\n\n Shows creatures' weekly growth instead of avaialable amount in town summary (bottom-left corner).",
+	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.help" : "{Show Weekly Growth of Creatures}\n\n Shows creatures' weekly growth instead of available amount in town summary (bottom-left corner).",
 	"vcmi.otherOptions.compactTownCreatureInfo.hover": "Compact Creature Info",
 	"vcmi.otherOptions.compactTownCreatureInfo.help": "{Compact Creature Info}\n\n Smaller town creatures information in town summary.",
 
