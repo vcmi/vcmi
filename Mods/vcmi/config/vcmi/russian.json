@@ -82,6 +82,8 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускать вступительную музыку",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускать вступительную музыку}\n\n Пропускать музыку, которая проигрывается в начале каждой битвы. Также может быть пропущена по нажатию {ESC}",
 
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Нажмите любую клавишу для пропуска вступительной музыки",
+
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Показывать доступных существ",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Показывать доступных существ}\n\n Показывать число доступных существ вместо прироста на экране города (в левом нижнем углу).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Показывать прирост существ",
