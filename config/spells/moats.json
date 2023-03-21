@@ -34,6 +34,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -82,10 +83,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "rampartMoatTrigger" :
@@ -123,6 +124,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -171,10 +173,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "towerMoat": {
@@ -223,10 +225,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "infernoMoatTrigger" :
@@ -264,6 +266,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -312,10 +315,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "necropolisMoatTrigger" :
@@ -353,6 +356,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -401,10 +405,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "dungeonMoatTrigger" :
@@ -442,6 +446,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -490,10 +495,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "strongholdMoatTrigger" :
@@ -531,6 +536,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -579,10 +585,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     },
     "fortressMoatTrigger" :
@@ -620,6 +626,7 @@
 		"flags" : {
 			"damage": true,
 			"negative": true,
+			"nonMagical" : true,
 			"special": true
 		},
 		"targetCondition" : {
@@ -668,10 +675,10 @@
             }
         },
         "flags" : {
+			"nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
-            "nonMagical" : true
         }
     }
 }

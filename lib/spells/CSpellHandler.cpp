@@ -97,6 +97,7 @@ CSpell::CSpell():
 	damage(false),
 	offensive(false),
 	special(true),
+	nonMagical(false),
 	targetType(spells::AimType::NO_TARGET)
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
@@ -234,6 +235,11 @@ bool CSpell::isAdventure() const
 bool CSpell::isCreatureAbility() const
 {
 	return creatureAbility;
+}
+
+bool CSpell::isMagical() const
+{
+	return !nonMagical;
 }
 
 bool CSpell::isPositive() const
@@ -750,6 +756,8 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	//by default all flags are set to false in constructor
 
 	spell->damage = flags["damage"].Bool(); //do this before "offensive"
+
+	spell->nonMagical = flags["nonMagical"].Bool();
 
 	if(flags["offensive"].Bool())
 	{

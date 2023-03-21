@@ -617,6 +617,11 @@ bool BaseMechanics::isPositiveSpell() const
 	return owner->isPositive();
 }
 
+bool BaseMechanics::isMagicalEffect() const
+{
+	return owner->isMagical();
+}
+
 int64_t BaseMechanics::adjustEffectValue(const battle::Unit * target) const
 {
 	return owner->adjustRawDamage(caster, target, getEffectValue());

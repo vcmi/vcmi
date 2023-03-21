@@ -93,10 +93,10 @@
 			}
 		},
 		"flags" : {
+			"nonMagical" : true,
 			"positive": true
 		},
 		"targetCondition" : {
-			"nonMagical" : true,
 			"noneOf" : {
 				"bonus.SIEGE_WEAPON" : "absolute"
 			}
@@ -179,10 +179,8 @@
 			}
 		},
 		"flags" : {
+			"nonMagical" : true,
 			"indifferent": true
-		},
-		"targetCondition" : {
-			"nonMagical" : true
 		}
 	},
 	"cyclopsShot" : {
@@ -227,10 +225,8 @@
 			"expert" : {}
 		},
 		"flags" : {
+			"nonMagical" : true,
 			"indifferent": true
-		},
-		"targetCondition" : {
-			"nonMagical" : true
 		}
 	}
 }

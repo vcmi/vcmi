@@ -246,6 +246,7 @@ public:
 	bool isPositive() const override;
 	bool isNegative() const override;
 	bool isNeutral() const override;
+	bool isMagical() const override;
 
 	bool isDamage() const override;
 	bool isOffensive() const override;
@@ -297,6 +298,7 @@ public:
 		h & levels;
 		h & school;
 		h & animationInfo;
+		h & nonMagical;
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
@@ -338,6 +340,7 @@ private:
 	bool damage;
 	bool offensive;
 	bool special;
+	bool nonMagical; //For creature abilities like bind
 
 	std::string attributes; //reference only attributes //todo: remove or include in configuration format, currently unused
 

@@ -114,6 +114,10 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
+
+		if(!m->isMagicalEffect()) //Always pass on non-magical
+			return true;
+
 		std::stringstream cachingStr;
 		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
 
@@ -189,6 +193,8 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
+		if(!m->isMagicalEffect()) //Always pass on non-magical
+			return true;
 		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY));
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
@@ -426,7 +432,6 @@ bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * targ
 
 void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFactory * itemFactory)
 {
-	bool isNonMagical = false;
 	if(handler.saving)
 	{
 		logGlobal->error("Spell target condition saving is not supported");
@@ -438,17 +443,12 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 	negation.clear();
 
 	absolute.push_back(itemFactory->createAbsoluteSpell());
-
-	handler.serializeBool("nonMagical", isNonMagical);
-	if(!isNonMagical)
-	{
-		absolute.push_back(itemFactory->createAbsoluteLevel());
-		normal.push_back(itemFactory->createElemental());
-		normal.push_back(itemFactory->createNormalLevel());
-		normal.push_back(itemFactory->createNormalSpell());
-		negation.push_back(itemFactory->createReceptiveFeature());
-		negation.push_back(itemFactory->createImmunityNegation());
-	}
+	absolute.push_back(itemFactory->createAbsoluteLevel());
+	normal.push_back(itemFactory->createElemental());
+	normal.push_back(itemFactory->createNormalLevel());
+	normal.push_back(itemFactory->createNormalSpell());
+	negation.push_back(itemFactory->createReceptiveFeature());
+	negation.push_back(itemFactory->createImmunityNegation());
 
 	{
 		auto anyOf = handler.enterStruct("anyOf");
