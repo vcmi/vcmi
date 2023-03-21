@@ -986,7 +986,6 @@ void CAdvMapInt::initializeNewTurn()
 {
 	heroList->update();
 	townList->update();
-	mapAudio->onPlayerTurnStarted();
 
 	const CGHeroInstance * heroToSelect = nullptr;
 
@@ -1017,6 +1016,7 @@ void CAdvMapInt::initializeNewTurn()
 
 	updateNextHero(nullptr);
 	showAll(screen);
+	mapAudio->onPlayerTurnStarted();
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{

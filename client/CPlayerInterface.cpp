@@ -1559,7 +1559,6 @@ void CPlayerInterface::update()
 	}
 
 	assert(adventureInt);
-	assert(adventureInt->selection);
 
 	// Handles mouse and key input
 	GH.updateTime();
