@@ -403,8 +403,8 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 
 		CSelector selector = Selector::type()(Bonus::SPELL_DAMAGE_REDUCTION).And(Selector::subtype()(-1));
 
-		//general spell dmg reduction
-		if(bearer->hasBonus(selector))
+		//general spell dmg reduction, works only on magical effects
+		if(bearer->hasBonus(selector) && isMagical())
 		{
 			ret *= 100 - bearer->valOfBonuses(selector);
 			ret /= 100;
