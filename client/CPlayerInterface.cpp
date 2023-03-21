@@ -583,6 +583,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->garr->setArmy(town->visitingHero, 1);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
+		castleInt->redraw();
 	}
 	for (auto isa : GH.listInt)
 	{
@@ -591,9 +592,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		{
 			ki->townChanged(town);
 			ki->updateGarrisons();
+			ki->redraw();
 		}
 	}
-	GH.totalRedraw();
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {

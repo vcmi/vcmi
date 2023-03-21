@@ -1404,6 +1404,7 @@ void CAdvMapInt::aiTurnStarted()
 	mapAudio->onEnemyTurnStarted();
 	adventureInt->minimap->setAIRadar(true);
 	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	adventureInt->minimap->showAll(screen);//force refresh on inactive object
 	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
 }
 
