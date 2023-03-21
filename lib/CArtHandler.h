@@ -91,7 +91,8 @@ public:
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
 	virtual bool canBeDisassembled() const;
-	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const;
+	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
+		bool assumeDestRemoved = false) const;
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
@@ -153,10 +154,9 @@ public:
 	void setType(CArtifact *Art);
 
 	std::string getEffectiveDescription(const CGHeroInstance *hero = nullptr) const;
-	ArtifactPosition firstAvailableSlot(const CArtifactSet *h) const;
-	ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
 	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
+	ArtifactID getTypeId() const;
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(ArtifactLocation al);
@@ -390,8 +390,6 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
-	DLL_LINKAGE bool isPossibleToGetArt(const CArtifactSet * target, const ArtifactID & aid,
-		ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE);
 }
 
 VCMI_LIB_NAMESPACE_END

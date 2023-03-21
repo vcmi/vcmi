@@ -234,7 +234,6 @@ public:
 	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void putInBackpack(CArtifactInstance *art);
 	void initExp(CRandomGenerator & rand);
 	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
 	//void giveArtifact (ui32 aid);

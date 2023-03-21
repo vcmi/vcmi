@@ -948,10 +948,14 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 		logGlobal->error("Attempt to remove missing artifact");
 		return;
 	}
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos), ArtifactLocation(info->owner, art->firstBackpackSlot(info->owner)));
-	stackArtifactButton.reset();
-	stackArtifactHelp.reset();
-	stackArtifactIcon.reset();
-	redraw();
+	const auto slot = ArtifactUtils::getArtBackpackPosition(info->owner, art->getTypeId());
+	if(slot != ArtifactPosition::PRE_FIRST)
+	{
+		LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos), ArtifactLocation(info->owner, slot));
+		stackArtifactButton.reset();
+		stackArtifactHelp.reset();
+		stackArtifactIcon.reset();
+		redraw();
+	}
 }
 

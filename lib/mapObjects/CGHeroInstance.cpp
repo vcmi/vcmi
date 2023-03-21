@@ -1023,11 +1023,6 @@ void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
 	art->putAt(ArtifactLocation(this, pos));
 }
 
-void CGHeroInstance::putInBackpack(CArtifactInstance *art)
-{
-	putArtifact(art->firstBackpackSlot(this), art);
-}
-
 bool CGHeroInstance::hasSpellbook() const
 {
 	return getArt(ArtifactPosition::SPELLBOOK);

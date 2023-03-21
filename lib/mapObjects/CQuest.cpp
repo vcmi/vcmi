@@ -812,7 +812,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 						// Disassemble this backpack artifact
 						for(const auto & ci : parts)
 						{
-							if(ci.art->artType->getId() != elem)
+							if(ci.art->getTypeId() != elem)
 								cb->giveHeroNewArtifact(h, ci.art->artType, GameConstants::BACKPACK_START);
 						}
 					}

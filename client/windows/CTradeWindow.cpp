@@ -817,7 +817,7 @@ void CMarketplaceWindow::makeDeal()
 			leftIdToSend = hLeft->getArtInstance()->id.getNum();
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
-			if(!ArtifactUtils::isPossibleToGetArt(hero, ArtifactID(hRight->id)))
+			if(!ArtifactID(hRight->id).toArtifact()->canBePutAt(hero))
 			{
 				LOCPLINT->showInfoDialog("no available slots");
 				madeTransaction = false;

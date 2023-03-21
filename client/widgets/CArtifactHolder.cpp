@@ -646,7 +646,7 @@ CArtifactsOfHero::~CArtifactsOfHero()
 	if(!curHero->artifactsTransitionPos.empty())
 	{
 		auto artPlace = getArtPlace(
-			ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->artType->getId()));
+			ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId()));
 		if(artPlace)
 		{
 			assert(artPlace->ourOwner);
@@ -1005,16 +1005,22 @@ void CCommanderArtPlace::createImage()
 void CCommanderArtPlace::returnArtToHeroCallback()
 {
 	ArtifactPosition artifactPos = commanderSlotID;
-	ArtifactPosition freeSlot = ourArt->firstBackpackSlot(commanderOwner);
-
-	ArtifactLocation src(commanderOwner->commander.get(), artifactPos);
-	ArtifactLocation dst(commanderOwner, freeSlot);
-
-	if (ourArt->canBePutAt(dst, true))
+	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, ourArt->getTypeId());
+	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
-		LOCPLINT->cb->swapArtifacts(src, dst);
-		setArtifact(nullptr);
-		parent->redraw();
+		LOCPLINT->showInfoDialog("no free slots");
+	}
+	else
+	{
+		ArtifactLocation src(commanderOwner->commander.get(), artifactPos);
+		ArtifactLocation dst(commanderOwner, freeSlot);
+
+		if(ourArt->canBePutAt(dst, true))
+		{
+			LOCPLINT->cb->swapArtifacts(src, dst);
+			setArtifact(nullptr);
+			parent->redraw();
+		}
 	}
 }
 

@@ -758,12 +758,15 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	{
 		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
-			arts.push_back(art);
-			auto slot = art->firstAvailableSlot(finishingBattle->winnerHero);
-			ma->dst = ArtifactLocation(finishingBattle->winnerHero, slot);
-			if(ArtifactUtils::isSlotBackpack(slot))
-				ma->askAssemble = false;
-			sendAndApply(ma);
+			const auto slot = ArtifactUtils::getArtAnyPosition(finishingBattle->winnerHero, art->artType->getId());
+			if(slot != ArtifactPosition::PRE_FIRST)
+			{
+				arts.push_back(art);
+				ma->dst = ArtifactLocation(finishingBattle->winnerHero, slot);
+				if(ArtifactUtils::isSlotBackpack(slot))
+					ma->askAssemble = false;
+				sendAndApply(ma);
+			}
 		};
 
 		if (finishingBattle->loserHero)
@@ -4007,13 +4010,13 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 	{
 		assert(artifact);
-		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->artType->getId());
+		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->getTypeId());
 		if(dstSlot != ArtifactPosition::PRE_FIRST)
 		{
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
-			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->artType->getId(), dstSlot))
+			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
 				giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 	};
@@ -5875,7 +5878,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
 
-	const auto isHeroAbleGet = ArtifactUtils::isPossibleToGetArt(h, ArtifactID::GRAIL);
+	const auto isHeroAbleGet = VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(h);
 	
 	if(isHeroAbleGet)
 	{
@@ -5903,7 +5906,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 			iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
 			iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
 			iw.soundID = soundBase::ULTIMATEARTIFACT;
-			giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::PRE_FIRST); //give grail
+			giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::FIRST_AVAILABLE); //give grail
 			sendAndApply(&iw);
 
 			iw.soundID = soundBase::invalid;
@@ -6837,19 +6840,18 @@ bool CGameHandler::giveHeroArtifact(const CGHeroInstance * h, const CArtifactIns
 
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		al.slot = ArtifactUtils::getArtAnyPosition(h, a->artType->getId());
+		al.slot = ArtifactUtils::getArtAnyPosition(h, a->getTypeId());
 	}
-	else if(pos == GameConstants::BACKPACK_START)
+	else if(ArtifactUtils::isSlotBackpack(pos))
 	{
-		al.slot = ArtifactUtils::getArtBackpackPosition(h, a->artType->getId());
+		al.slot = ArtifactUtils::getArtBackpackPosition(h, a->getTypeId());
 	}
 	else
 	{
-		if(a->artType->canBePutAt(h, pos, false))
-			al.slot = pos;
+		al.slot = pos;
 	}
 
-	if(ArtifactUtils::isPossibleToGetArt(h, a->artType->getId(), al.slot))
+	if(a->canBePutAt(al))
 		putArtifact(al, a);
 	else
 		return false;
@@ -7041,7 +7043,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		///Give hero all artifacts except war machines, spell scrolls and spell book
 		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
 		{
-			if(ArtifactUtils::isPossibleToGetArt(hero, VLC->arth->objects[g]->getId()))
+			if(VLC->arth->objects[g]->canBePutAt(hero))
 				giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}

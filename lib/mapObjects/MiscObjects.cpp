@@ -1301,7 +1301,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 
-		if(ArtifactUtils::isPossibleToGetArt(h, storedArtifact->artType->getId()))
+		if(storedArtifact->artType->canBePutAt(h))
 		{
 			switch (ID)
 			{

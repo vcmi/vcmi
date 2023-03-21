@@ -1594,7 +1594,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			{
 				CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2));
-				const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->artType->getId());
+				const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 					scroll->putAt(ArtifactLocation(hero, slot));
 				else
