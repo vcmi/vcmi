@@ -810,7 +810,8 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 			BattleHex otherHex = unit->occupiedHex(unit->getPosition());
 			if(otherHex.isValid())
 				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
-					affectedObstacles.push_back(i);
+					if(!vstd::contains(affectedObstacles, i))
+						affectedObstacles.push_back(i);
 		}
 		for(auto hex : unit->getHexes())
 			if(hex == ESiegeHex::GATE_BRIDGE)
