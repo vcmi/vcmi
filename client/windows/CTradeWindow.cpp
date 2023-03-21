@@ -806,7 +806,7 @@ void CMarketplaceWindow::makeDeal()
 	if(!sliderValue)
 		return;
 
-	madeTransaction = true;
+	bool allowDeal = true;
 	int leftIdToSend = hLeft->id;
 	switch (mode)
 	{
@@ -819,15 +819,15 @@ void CMarketplaceWindow::makeDeal()
 		case EMarketMode::RESOURCE_ARTIFACT:
 			if(!ArtifactID(hRight->id).toArtifact()->canBePutAt(hero))
 			{
-				LOCPLINT->showInfoDialog("no available slots");
-				madeTransaction = false;
+				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.326"));
+				allowDeal = false;
 			}
 			break;
 		default:
 			break;
 	}
 
-	if(madeTransaction)
+	if(allowDeal)
 	{
 		if(slider)
 		{
@@ -839,6 +839,8 @@ void CMarketplaceWindow::makeDeal()
 			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
 		}
 	}
+
+	madeTransaction = true;
 	hLeft = nullptr;
 	hRight = nullptr;
 	selectionChanged(true);

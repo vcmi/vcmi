@@ -967,7 +967,8 @@ public:
 		CAN_DIG = 0,
 		LACK_OF_MOVEMENT,
 		WRONG_TERRAIN,
-		TILE_OCCUPIED
+		TILE_OCCUPIED,
+		BACKPACK_IS_FULL
 	};
 
 	EDiggingStatus(EEDiggingStatus _num = UNKNOWN) : num(_num)

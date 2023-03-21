@@ -758,7 +758,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	{
 		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
-			const auto slot = ArtifactUtils::getArtAnyPosition(finishingBattle->winnerHero, art->artType->getId());
+			const auto slot = ArtifactUtils::getArtAnyPosition(finishingBattle->winnerHero, art->getTypeId());
 			if(slot != ArtifactPosition::PRE_FIRST)
 			{
 				arts.push_back(art);
@@ -5878,18 +5878,13 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
 
-	const auto isHeroAbleGet = VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(h);
-	
-	if(isHeroAbleGet)
-	{
-		//create a hole
-		NewObject no;
-		no.ID = Obj::HOLE;
-		no.pos = h->visitablePos();
-		no.subID = 0;
-		sendAndApply(&no);
-	}
-	
+	//create a hole
+	NewObject no;
+	no.ID = Obj::HOLE;
+	no.pos = h->visitablePos();
+	no.subID = 0;
+	sendAndApply(&no);
+
 	//take MPs
 	SetMovePoints smp;
 	smp.hid = h->id;
@@ -5901,25 +5896,17 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	iw.player = h->tempOwner;
 	if (gs->map->grailPos == h->visitablePos())
 	{
-		if(isHeroAbleGet)
-		{
-			iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
-			iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
-			iw.soundID = soundBase::ULTIMATEARTIFACT;
-			giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::FIRST_AVAILABLE); //give grail
-			sendAndApply(&iw);
+		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
+		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
+		iw.soundID = soundBase::ULTIMATEARTIFACT;
+		giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::PRE_FIRST); //give grail
+		sendAndApply(&iw);
 
-			iw.soundID = soundBase::invalid;
-			iw.components.emplace_back(Component::EComponentType::ARTIFACT, ArtifactID::GRAIL, 0, 0);
-			iw.text.clear();
-			iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
-			sendAndApply(&iw);
-		}
-		else
-		{
-			iw.text << "found but no free slots";
-			sendAndApply(&iw);
-		}
+		iw.soundID = soundBase::invalid;
+		iw.components.emplace_back(Component::EComponentType::ARTIFACT, ArtifactID::GRAIL, 0, 0);
+		iw.text.clear();
+		iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
+		sendAndApply(&iw);
 	}
 	else
 	{
@@ -6870,7 +6857,7 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos)
 {
 	assert(artType);
-	if(pos != ArtifactPosition::FIRST_AVAILABLE && pos != GameConstants::BACKPACK_START)
+	if(pos != ArtifactPosition::FIRST_AVAILABLE && !ArtifactUtils::isSlotBackpack(pos))
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 
 	CArtifactInstance * newArtInst = nullptr;

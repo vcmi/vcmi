@@ -1331,7 +1331,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
-			iw.text << "no slots";
+			iw.text.addTxt(MetaString::ADVOB_TXT, 2);
 		}
 		cb->showInfoDialog(&iw);
 		pick(h);

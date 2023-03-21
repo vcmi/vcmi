@@ -179,7 +179,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 						}
 						else
 						{
-							LOCPLINT->showInfoDialog("limit");
+							LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
 						}
 					}
 				}
@@ -1008,7 +1008,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, ourArt->getTypeId());
 	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
-		LOCPLINT->showInfoDialog("no free slots");
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
 	}
 	else
 	{
