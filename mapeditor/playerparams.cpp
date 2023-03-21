@@ -59,7 +59,10 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		{
 			auto * ctown = town->town;
 			if(!ctown)
+			{
 				ctown = VLC->townh->randomTown;
+				town->town = ctown;
+			}
 			if(ctown && town->getOwner().getNum() == playerColor)
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)

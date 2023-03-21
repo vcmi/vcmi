@@ -65,7 +65,7 @@ struct DLL_LINKAGE CGPathNode
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighboring tile but not passable
 		FLYABLE, //can only be accessed in air layer
-		BLOCKED //tile can't be entered nor visited
+		BLOCKED //tile can be neither entered nor visited
 	};
 
 	CGPathNode * theNodeBefore;
@@ -580,8 +580,8 @@ public:
 	std::vector<int3> getTeleportExits(const PathNodeInfo & source) const;
 
 	void getNeighbours(
-		const TerrainTile & srct,
-		const int3 & tile,
+		const TerrainTile & srcTile,
+		const int3 & srcCoord,
 		std::vector<int3> & vec,
 		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
@@ -591,8 +591,10 @@ public:
 		const int3 & dst,
 		const TerrainTile * ct,
 		const TerrainTile * dt,
-		const int remainingMovePoints =- 1,
-		const bool checkLast = true) const;
+		const int remainingMovePoints = -1,
+		const bool checkLast = true,
+		boost::logic::tribool isDstSailLayer = boost::logic::indeterminate,
+		boost::logic::tribool isDstWaterLayer = boost::logic::indeterminate) const;
 
 	int getMovementCost(
 		const PathNodeInfo & src,
@@ -606,7 +608,9 @@ public:
 			src.tile,
 			dst.tile,
 			remainingMovePoints,
-			checkLast
+			checkLast,
+			dst.node->layer == EPathfindingLayer::SAIL,
+			dst.node->layer == EPathfindingLayer::WATER
 		);
 	}
 

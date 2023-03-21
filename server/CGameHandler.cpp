@@ -2342,8 +2342,6 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	//check if destination tile is available
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
-
-	pathfinderHelper->updateTurnInfo(0);
 	auto ti = pathfinderHelper->getTurnInfo();
 
 	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT);

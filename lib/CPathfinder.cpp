@@ -78,7 +78,7 @@ std::vector<CGPathNode *> NodeStorage::calculateNeighbours(
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
-		for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
+		for(EPathfindingLayer i = EPathfindingLayer::LAND; i < EPathfindingLayer::NUM_LAYERS; i.advance(1))
 		{
 			auto * node = getNode(neighbour, i);
 
@@ -117,7 +117,7 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
 {
 	std::vector<int3> neighbourTiles;
-	neighbourTiles.reserve(16);
+	neighbourTiles.reserve(8);
 
 	getNeighbours(
 		*source.tile,
@@ -721,7 +721,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 	switch(destination.action)
 	{
 	/// TODO: Investigate what kind of limitation is possible to apply on movement from visitable tiles
-	/// Likely in many cases we don't need to add visitable tile to queue when hero don't fly
+	/// Likely in many cases we don't need to add visitable tile to queue when hero doesn't fly
 	case CGPathNode::VISIT:
 	{
 		/// For now we only add visitable tile into queue when it's teleporter that allow transit
@@ -730,7 +730,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 		if(pathfinderHelper->isAllowedTeleportEntrance(objTeleport))
 		{
 			/// For now we'll always allow transit over teleporters
-			/// Transit over whirlpools only allowed when hero protected
+			/// Transit over whirlpools only allowed when hero is protected
 			return BlockingReason::NONE;
 		}
 		else if(destination.nodeObject->ID == Obj::GARRISON
@@ -1163,8 +1163,8 @@ int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const
 }
 
 void CPathfinderHelper::getNeighbours(
-	const TerrainTile & srct,
-	const int3 & tile,
+	const TerrainTile & srcTile,
+	const int3 & srcCoord,
 	std::vector<int3> & vec,
 	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
@@ -1179,35 +1179,32 @@ void CPathfinderHelper::getNeighbours(
 
 	for(const auto & dir : dirs)
 	{
-		const int3 hlp = tile + dir;
-		if(!map->isInTheMap(hlp))
+		const int3 destCoord = srcCoord + dir;
+		if(!map->isInTheMap(destCoord))
 			continue;
 
-		const TerrainTile & hlpt = map->getTile(hlp);
-		if(!hlpt.terType->isPassable())
+		const TerrainTile & destTile = map->getTile(destCoord);
+		if(!destTile.terType->isPassable())
 			continue;
 
 // 		//we cannot visit things from blocked tiles
-// 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
+// 		if(srcTile.blocked && !srcTile.visitable && destTile.visitable && srcTile.blockingObjects.front()->ID != HEROI_TYPE)
 // 		{
 // 			continue;
 // 		}
 
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srct.terType->isWater() && limitCoastSailing && hlpt.terType->isWater() && dir.x && dir.y) //diagonal move through water
+		if(srcTile.terType->isWater() && limitCoastSailing && destTile.terType->isWater() && dir.x && dir.y) //diagonal move through water
 		{
-			int3 hlp1 = tile;
-			int3 hlp2 = tile;
-			hlp1.x += dir.x;
-			hlp2.y += dir.y;
-
-			if(map->getTile(hlp1).terType->isLand() || map->getTile(hlp2).terType->isLand())
+			const int3 horizontalNeighbour = srcCoord + int3{dir.x, 0, 0};
+			const int3 verticalNeighbour = srcCoord + int3{0, dir.y, 0};
+			if(map->getTile(horizontalNeighbour).terType->isLand() || map->getTile(verticalNeighbour).terType->isLand())
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == hlpt.terType->isLand())
+		if(indeterminate(onLand) || onLand == destTile.terType->isLand())
 		{
-			vec.push_back(hlp);
+			vec.push_back(destCoord);
 		}
 	}
 }
@@ -1218,7 +1215,9 @@ int CPathfinderHelper::getMovementCost(
 	const TerrainTile * ct,
 	const TerrainTile * dt,
 	const int remainingMovePoints,
-	const bool checkLast) const
+	const bool checkLast,
+	boost::logic::tribool isDstSailLayer,
+	boost::logic::tribool isDstWaterLayer) const
 {
 	if(src == dst) //same tile
 		return 0;
@@ -1231,48 +1230,49 @@ int CPathfinderHelper::getMovementCost(
 		dt = hero->cb->getTile(dst);
 	}
 
-	/// TODO: by the original game rules hero shouldn't be affected by terrain penalty while flying.
-	/// Also flying movement only has penalty when player moving over blocked tiles.
-	/// So if you only have base flying with 40% penalty you can still ignore terrain penalty while having zero flying penalty.
-	int ret = hero->getTileCost(*dt, *ct, ti);
-	/// Unfortunately this can't be implemented yet as server don't know when player flying and when he's not.
-	/// Difference in cost calculation on client and server is much worse than incorrect cost.
-	/// So this one is waiting till server going to use pathfinder rules for path validation.
+	bool isSailLayer;
+	if(indeterminate(isDstSailLayer))
+		isSailLayer = hero->boat != nullptr && dt->terType->isWater();
+	else
+		isSailLayer = static_cast<bool>(isDstSailLayer);
 
-	if(dt->blocked && ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+	bool isWaterLayer;
+	if(indeterminate(isDstWaterLayer))
+		isWaterLayer = dt->terType->isWater();
+	else
+		isWaterLayer = static_cast<bool>(isDstWaterLayer);
+
+	int ret = hero->getTileCost(*dt, *ct, ti);
+	if(isSailLayer)
 	{
-		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0);
+		if(ct->hasFavorableWinds())
+			ret = static_cast<int>(ret * 2.0 / 3);
 	}
-	else if(dt->terType->isWater())
-	{
-		if(hero->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
-			ret = static_cast<int>(ret * 0.666);
-		else if(!hero->boat && ti->hasBonusOfType(Bonus::WATER_WALKING))
-		{
-			ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
-		}
-	}
+	else if(ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(Bonus::FLYING_MOVEMENT));
+	else if(isWaterLayer && ti->hasBonusOfType(Bonus::WATER_WALKING))
+		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
 
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{
 		int old = ret;
 		ret = static_cast<int>(ret * M_SQRT2);
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
+		// https://heroes.thelazy.net/index.php/Movement#Diagonal_move_exception
 		if(ret > remainingMovePoints && remainingMovePoints >= old)
 		{
 			return remainingMovePoints;
 		}
 	}
 
-	/// TODO: This part need rework in order to work properly with flying and water walking
-	/// Currently it's only work properly for normal movement or sailing
-	int left = remainingMovePoints-ret;
-	if(checkLast && left > 0 && remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
+	const int left = remainingMovePoints - ret;
+	constexpr auto maxCostOfOneStep = static_cast<int>(175 * M_SQRT2); // diagonal move on Swamp - 247 MP
+	if(checkLast && left > 0 && left <= maxCostOfOneStep) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
 		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
-		for(auto & elem : vec)
+		for(const auto & elem : vec)
 		{
 			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);
 			if(fcost <= left)

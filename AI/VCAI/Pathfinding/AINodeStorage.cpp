@@ -167,7 +167,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
-		for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
+		for(EPathfindingLayer i = EPathfindingLayer::LAND; i < EPathfindingLayer::NUM_LAYERS; i.advance(1))
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
 

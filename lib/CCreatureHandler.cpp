@@ -331,7 +331,7 @@ TerrainId CCreature::getNativeTerrain() const
 	static const auto selectorNoTerrainPenalty = Selector::type()(Bonus::NO_TERRAIN_PENALTY);
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
-	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
+	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
 		? TerrainId(ETerrainId::ANY_TERRAIN)
 		: (*VLC->townh)[faction]->nativeTerrain;

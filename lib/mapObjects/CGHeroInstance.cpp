@@ -66,10 +66,10 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 {
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
-	//if there is road both on dest and src tiles - use road movement cost
+	//if there is road both on dest and src tiles - use src road movement cost
 	if(dest.roadType->getId() != Road::NO_ROAD && from.roadType->getId() != Road::NO_ROAD)
 	{
-		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
+		ret = from.roadType->movementCost;
 	}
 	else if(ti->nativeTerrain != from.terType->getId() &&//the terrain is not native
 			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
@@ -1106,22 +1106,19 @@ CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 
 int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const
 {
-	int ret = 0; //take all MPs by default
-	bool localTi = false;
+	std::unique_ptr<TurnInfo> turnInfoLocal;
 	if(!ti)
 	{
-		localTi = true;
-		ti = new TurnInfo(this);
+		turnInfoLocal = std::make_unique<TurnInfo>(this);
+		ti = turnInfoLocal.get();
 	}
+
+	if(!ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+		return 0; // take all MPs by default
 
 	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
 	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
-	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
-
-	if(localTi)
-		delete ti;
-
+	int ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
 	return ret;
 }
 
