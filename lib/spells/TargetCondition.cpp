@@ -118,10 +118,7 @@ protected:
 		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
 
 		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
-		
-		return levelImmunities->size() == 0 ||
-		levelImmunities->totalValue() < m->getSpellLevel() ||
-		m->getSpellLevel() <= 0;
+		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
 	}
 };
 
@@ -331,7 +328,7 @@ public:
 			auto it = bonusNameMap.find(identifier);
 			if(it != bonusNameMap.end())
 				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
-			
+
 			auto params = BonusParams(identifier, "", -1);
 			if(params.isConverted)
 			{
@@ -373,7 +370,7 @@ public:
 	}
 
 	Object createFromJsonStruct(const JsonNode & jsonStruct) const override
-	{	
+	{
 		auto type = jsonStruct["type"].String();
 		auto parameters = jsonStruct["parameters"];
 		if(type == "selector")
@@ -519,7 +516,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
 
-			std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(scope, type, identifier);
+			item = itemFactory->createConfigurable(scope, type, identifier);
 		}
 
 		if(item)
