@@ -24,7 +24,6 @@
 MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, owner(owner)
-	, curHoveredTile(-1, -1, -1)
 	, isSwiping(false)
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
@@ -45,17 +44,6 @@ bool MapViewActions::swipeEnabled() const
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
 {
 	this->context = context;
-}
-
-void MapViewActions::activate()
-{
-	CIntObject::activate();
-}
-
-void MapViewActions::deactivate()
-{
-	CIntObject::deactivate();
-	curHoveredTile = int3(-1, -1, -1); //we lost info about hovered tile when disabling
 }
 
 void MapViewActions::clickLeft(tribool down, bool previousState)
@@ -159,11 +147,7 @@ void MapViewActions::handleHover(const Point & cursorPosition)
 		return;
 	}
 
-	if(tile != curHoveredTile)
-	{
-		curHoveredTile = tile;
-		adventureInt->onTileHovered(tile);
-	}
+	adventureInt->onTileHovered(tile);
 }
 
 void MapViewActions::hover(bool on)

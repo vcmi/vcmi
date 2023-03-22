@@ -1511,6 +1511,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
+	GH.fakeMouseMove();
 }
 
 void CPlayerInterface::objectRemovedAfter()
