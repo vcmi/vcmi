@@ -2032,7 +2032,9 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	if (ignoreEvents)
+	bool needToLockAdventureMap = adventureInt->active && CGI->mh->hasOngoingAnimations();
+
+	if (ignoreEvents || needToLockAdventureMap)
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
 		while(!SDLEventsQueue.empty())
