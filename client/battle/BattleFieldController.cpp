@@ -43,6 +43,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
+	cellUnitMovementHighlight = IImage::createFromFile("CCNSSHD.BMP", EImageBlitMode::COLORKEY);
 	cellShade = IImage::createFromFile("CCELLSHD.BMP");
 
 	if(!owner.siegeController)
@@ -138,7 +139,6 @@ void BattleFieldController::showBackground(Canvas & canvas)
 		showBackgroundImage(canvas);
 
 	showHighlightedHexes(canvas);
-
 }
 
 void BattleFieldController::showBackgroundImage(Canvas & canvas)
@@ -172,32 +172,39 @@ void BattleFieldController::redrawBackgroundWithHexes()
 {
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
-	if (activeStack)
+	if(activeStack)
 		occupyableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
 
-	//prepare background graphic with hexes and shaded hexes
+	auto accessibility = owner.curInt->cb->getAccesibility();
+
+	for(int i = 0; i < accessibility.size(); i++)
+		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
+
+	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
 	owner.obstacleController->showAbsoluteObstacles(*backgroundWithHexes);
-	if ( owner.siegeController )
+	if(owner.siegeController)
 		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes);
 
-	if (settings["battle"]["stackRange"].Bool())
+	// show shaded hexes for active's stack valid movement and the hexes that it can attack
+	if(settings["battle"]["stackRange"].Bool())
 	{
 		std::vector<BattleHex> hexesToShade = occupyableHexes;
 		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
-		for (BattleHex hex : hexesToShade)
+		for(BattleHex hex : hexesToShade)
 		{
 			backgroundWithHexes->draw(cellShade, hexPositionLocal(hex).topLeft());
 		}
 	}
 
+	// draw cell borders
 	if(settings["battle"]["cellBorders"].Bool())
 	{
-		for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
+		for(int i=0; i<GameConstants::BFIELD_SIZE; ++i)
 		{
-			if ( i % GameConstants::BFIELD_WIDTH == 0)
+			if(i % GameConstants::BFIELD_WIDTH == 0)
 				continue;
-			if ( i % GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_WIDTH - 1)
+			if(i % GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_WIDTH - 1)
 				continue;
 
 			backgroundWithHexes->draw(cellBorder, hexPositionLocal(i).topLeft());
@@ -205,7 +212,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	}
 }
 
-void BattleFieldController::showHighlightedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
+void BattleFieldController::showShadedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
 {
 	Point hexPos = hexPositionLocal(hex).topLeft();
 
@@ -214,14 +221,23 @@ void BattleFieldController::showHighlightedHex(Canvas & canvas, BattleHex hex, b
 		canvas.draw(cellBorder, hexPos);
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
+void BattleFieldController::showHighlightedHexForMovement(Canvas & canvas, BattleHex hex, bool darkBorder)
+{
+	Point hexPos = hexPositionLocal(hex).topLeft();
+
+	canvas.draw(cellUnitMovementHighlight, hexPos);
+	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
+		canvas.draw(cellBorder, hexPos);
+}
+
+std::set<BattleHex> BattleFieldController::getHighlightedHexesForActiveStack()
 {
 	std::set<BattleHex> result;
 
-	if ( !owner.stacksController->getActiveStack())
+	if(!owner.stacksController->getActiveStack())
 		return result;
 
-	if ( !settings["battle"]["stackRange"].Bool())
+	if(!settings["battle"]["stackRange"].Bool())
 		return result;
 
 	auto hoveredHex = getHoveredHex();
@@ -230,7 +246,22 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 	for(BattleHex hex : set)
 		result.insert(hex);
 
-	// display the movement shadow of stack under mouse
+	return result;
+}
+
+std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
+{
+	std::set<BattleHex> result;
+
+	if (!owner.stacksController->getActiveStack())
+		return result;
+
+	if (!settings["battle"]["stackRange"].Bool())
+		return result;
+
+	auto hoveredHex = getHoveredHex();
+
+	// add possible movement hexes for stack under mouse
 	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
 	if(hoveredStack && hoveredStack != owner.stacksController->getActiveStack())
 	{
@@ -241,7 +272,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 	return result;
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
+std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 {
 	std::set<BattleHex> result;
 	auto hoveredHex = getHoveredHex();
@@ -260,9 +291,9 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 	{
 		// printing shaded hex(es)
 		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
-		auto shaded = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
+		auto shadedHexes = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
 
-		for(BattleHex shadedHex : shaded)
+		for(BattleHex shadedHex : shadedHexes)
 		{
 			if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
 				result.insert(shadedHex);
@@ -276,72 +307,74 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 	const CStack * stack = owner.stacksController->getActiveStack();
 	auto hoveredHex = getHoveredHex();
 
-	if (stack)
+	if(!stack)
+		return {};
+
+	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, false, nullptr);
+
+	auto hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	if(owner.curInt->cb->battleCanAttack(stack, hoveredStack, hoveredHex))
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(stack, false, nullptr);
-
-		auto hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-		if(owner.curInt->cb->battleCanAttack(stack, hoveredStack, hoveredHex))
+		if(isTileAttackable(hoveredHex))
 		{
-			if (isTileAttackable(hoveredHex))
-			{
-				BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
+			BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
 
-				if (stack->doubleWide())
-					return {attackFromHex, stack->occupiedHex(attackFromHex)};
-				else
-					return {attackFromHex};
-			}
-		}
-
-		if (vstd::contains(v,hoveredHex))
-		{
-			if (stack->doubleWide())
-				return {hoveredHex, stack->occupiedHex(hoveredHex)};
+			if(stack->doubleWide())
+				return {attackFromHex, stack->occupiedHex(attackFromHex)};
 			else
-				return {hoveredHex};
-		}
-		if (stack->doubleWide())
-		{
-			for (auto const & hex : v)
-			{
-				if (stack->occupiedHex(hex) == hoveredHex)
-					return { hoveredHex, hex };
-			}
+				return {attackFromHex};
 		}
 	}
+
+	if(vstd::contains(availableHexes, hoveredHex))
+	{
+		if(stack->doubleWide())
+			return {hoveredHex, stack->occupiedHex(hoveredHex)};
+		else
+			return {hoveredHex};
+	}
+
+	if(stack->doubleWide())
+	{
+		for(auto const & hex : availableHexes)
+		{
+			if(stack->occupiedHex(hex) == hoveredHex)
+				return {hoveredHex, hex};
+		}
+	}
+
 	return {};
 }
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
-	std::set<BattleHex> hoveredStack = getHighlightedHexesStackRange();
-	std::set<BattleHex> hoveredSpell = getHighlightedHexesSpellRange();
-	std::set<BattleHex> hoveredMove  = getHighlightedHexesMovementTarget();
+	//std::set<BattleHex> hoveredStack = getHighlightedHexesForActiveStack();
+	std::set<BattleHex> hoveredStackHexes = getMovementRangeForHoveredStack();
+	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
+	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesMovementTarget();
 
-	if (getHoveredHex() == BattleHex::INVALID)
+	if(getHoveredHex() == BattleHex::INVALID)
 		return;
 
-	auto const & hoveredMouse = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpell : hoveredMove;
+	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
-		bool stack = hoveredStack.count(b);
-		bool mouse = hoveredMouse.count(b);
+		bool stack = hoveredStackHexes.count(b);
+		bool mouse = hoveredMouseHexes.count(b);
 
-		if ( stack && mouse )
+		if(stack && mouse) // area where hovered stack can move shown with highlight. Because also affected by mouse cursor, shade as well
 		{
-			// area where enemy stack can move AND affected by mouse cursor - create darker highlight by blitting twice
-			showHighlightedHex(canvas, b, true);
-			showHighlightedHex(canvas, b, true);
+			showHighlightedHexForMovement(canvas, b, false);
+			showShadedHex(canvas, b, true);
 		}
-		if ( !stack && mouse )
+		if(!stack && mouse) // hexes affected only at mouse cursor shown as shaded
 		{
-			showHighlightedHex(canvas, b, true);
+			showShadedHex(canvas, b, true);
 		}
-		if ( stack && !mouse )
+		if(stack && !mouse) // hexes where hovered stack can move shown with highlight
 		{
-			showHighlightedHex(canvas, b, false);
+			showHighlightedHexForMovement(canvas, b, false);
 		}
 	}
 }
