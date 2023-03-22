@@ -138,6 +138,7 @@ private:
 
 	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
+	uint32_t timerCounter;
 	bool shouldPopAll = false;
 
 	std::queue<std::pair<VisibleComponentInfo::Cache, int>> componentsQueue;
@@ -151,13 +152,14 @@ private:
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
 
-	void tick() override;
+	void tick(uint32_t msPassed) override;
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();
+	void setTimer(uint32_t msToTrigger);
 public:
 	CInfoBar(const Rect & pos);
 	CInfoBar(const Point & pos);

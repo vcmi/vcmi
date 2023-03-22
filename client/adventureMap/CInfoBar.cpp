@@ -254,11 +254,21 @@ void CInfoBar::showSelection()
 	showGameStatus();//FIXME: may be incorrect but shouldn't happen in general
 }
 
-void CInfoBar::tick()
+void CInfoBar::tick(uint32_t msPassed)
 {
-	removeUsedEvents(TIME);
-	if(GH.topInt() == adventureInt)
-		popComponents(true);
+	assert(timerCounter > 0);
+
+	if (msPassed >= timerCounter)
+	{
+		timerCounter = 0;
+		removeUsedEvents(TIME);
+		if(GH.topInt() == adventureInt)
+			popComponents(true);
+	}
+	else
+	{
+		timerCounter -= msPassed;
+	}
 }
 
 void CInfoBar::clickLeft(tribool down, bool previousState)
@@ -290,6 +300,7 @@ void CInfoBar::hover(bool on)
 
 CInfoBar::CInfoBar(const Rect & position)
 	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
+	timerCounter(0),
 	state(EMPTY)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -302,6 +313,14 @@ CInfoBar::CInfoBar(const Point & position): CInfoBar(Rect(position.x, position.y
 {
 }
 
+
+void CInfoBar::setTimer(uint32_t msToTrigger)
+{
+	if (!(active & TIME))
+		addUsedEvents(TIME);
+	timerCounter = msToTrigger;
+}
+
 void CInfoBar::showDate()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
@@ -311,7 +330,6 @@ void CInfoBar::showDate()
 	setTimer(3000); // confirmed to match H3
 	redraw();
 }
-
 
 void CInfoBar::pushComponents(const std::vector<Component> & components, std::string message, int timer)
 {
