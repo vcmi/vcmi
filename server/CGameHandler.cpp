@@ -1341,10 +1341,14 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	ret = path.second;
 
 	int creSpeed = gs->curB->tacticDistance ? GameConstants::BFIELD_SIZE : curStack->Speed(0, true);
+	bool hasWideMoat = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	{
+		return obst->obstacleType == CObstacleInstance::MOAT;
+	});
 
 	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
 	{
-		if (gs->curB->town->subID == ETownType::FORTRESS && hex == ESiegeHex::GATE_BRIDGE)
+		if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
 			return true;
 		if (hex == ESiegeHex::GATE_OUTER)
 			return true;
@@ -1407,7 +1411,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				auto needOpenGates = [&](BattleHex hex) -> bool
 				{
-					if (gs->curB->town->subID == ETownType::FORTRESS && hex == ESiegeHex::GATE_BRIDGE)
+					if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
 						return true;
 					if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == ESiegeHex::GATE_OUTER)
 						return true;
@@ -1443,7 +1447,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
-					if (gs->curB->town->subID == ETownType::FORTRESS)
+					if (hasWideMoat)
 					{
 						if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
 						{
@@ -4418,7 +4422,10 @@ void CGameHandler::updateGateState()
 	bool hasStackAtGateInner   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
 	bool hasStackAtGateOuter   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
 	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false) != nullptr;
-	bool hasLongBridge         = gs->curB->town->subID == ETownType::FORTRESS;
+	bool hasWideMoat         = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	{
+		return obst->obstacleType == CObstacleInstance::MOAT;
+	});
 
 	BattleUpdateGateState db;
 	db.state = gs->curB->si.gateState;
@@ -4428,7 +4435,7 @@ void CGameHandler::updateGateState()
 	}
 	else if (db.state == EGateState::OPENED)
 	{
-		bool hasStackOnLongBridge = hasStackAtGateBridge && hasLongBridge;
+		bool hasStackOnLongBridge = hasStackAtGateBridge && hasWideMoat;
 		bool gateCanClose = !hasStackAtGateInner && !hasStackAtGateOuter && !hasStackOnLongBridge;
 
 		if (gateCanClose)
