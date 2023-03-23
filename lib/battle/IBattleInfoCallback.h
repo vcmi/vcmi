@@ -26,6 +26,12 @@ namespace battle
 	using UnitFilter = std::function<bool(const Unit *)>;
 }
 
+struct DamageRange
+{
+	int64_t min = 0;
+	int64_t max = 0;
+};
+
 #if SCRIPTING_ENABLED
 namespace scripting
 {

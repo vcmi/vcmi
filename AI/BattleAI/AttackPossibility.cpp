@@ -13,9 +13,9 @@
                               // Eventually only IBattleInfoCallback and battle::Unit should be used, 
                               // CUnitState should be private and CStack should be removed completely
 
-uint64_t averageDmg(const TDmgRange & range)
+uint64_t averageDmg(const DamageRange & range)
 {
-	return (range.first + range.second) / 2;
+	return (range.min + range.max) / 2;
 }
 
 AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack)
@@ -156,14 +156,14 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 			{
 				int64_t damageDealt, damageReceived, defenderDamageReduce, attackerDamageReduce;
 
-				TDmgRange retaliation(0, 0);
+				DamageRange retaliation;
 				auto attackDmg = state.battleEstimateDamage(ap.attack, &retaliation);
 
-				vstd::amin(attackDmg.first, defenderState->getAvailableHealth());
-				vstd::amin(attackDmg.second, defenderState->getAvailableHealth());
+				vstd::amin(attackDmg.min, defenderState->getAvailableHealth());
+				vstd::amin(attackDmg.max, defenderState->getAvailableHealth());
 
-				vstd::amin(retaliation.first, ap.attackerState->getAvailableHealth());
-				vstd::amin(retaliation.second, ap.attackerState->getAvailableHealth());
+				vstd::amin(retaliation.min, ap.attackerState->getAvailableHealth());
+				vstd::amin(retaliation.max, ap.attackerState->getAvailableHealth());
 
 				damageDealt = averageDmg(attackDmg);
 				defenderDamageReduce = calculateDamageReduce(attacker, defender, damageDealt, state);

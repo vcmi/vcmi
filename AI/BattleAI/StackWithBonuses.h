@@ -138,7 +138,7 @@ public:
 
 	uint32_t nextUnitId() const override;
 
-	int64_t getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
 
 	int64_t getTreeVersion() const;
 

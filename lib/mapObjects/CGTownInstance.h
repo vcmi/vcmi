@@ -20,6 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CCastleEvent;
 class CGTownInstance;
 class CGDwelling;
+struct DamageRange;
 
 class DLL_LINKAGE CSpecObjInfo
 {
@@ -332,10 +333,10 @@ public:
 	void deleteTownBonus(BuildingID::EBuildingID bid);
 
 	/// Returns damage range for secondary towers of this town
-	TDmgRange getTowerDamageRange() const;
+	DamageRange getTowerDamageRange() const;
 
 	/// Returns damage range for central tower(keep) of this town
-	TDmgRange getKeepDamageRange() const;
+	DamageRange getKeepDamageRange() const;
 
 	const CTown * getTown() const ;
 

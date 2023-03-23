@@ -32,12 +32,12 @@
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CGeneralTextHandler.h"
 
-static std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
+static std::string formatDmgRange(DamageRange dmgRange)
 {
-	if (dmgRange.first != dmgRange.second)
-		return (boost::format("%d - %d") % dmgRange.first % dmgRange.second).str();
+	if (dmgRange.min != dmgRange.max)
+		return (boost::format("%d - %d") % dmgRange.min % dmgRange.max).str();
 	else
-		return (boost::format("%d") % dmgRange.first).str();
+		return (boost::format("%d") % dmgRange.min).str();
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
@@ -356,8 +356,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
-				std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
+				DamageRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
+				std::string estDmgText = formatDmgRange(damage); //calculating estimated dmg
 				return (boost::format(CGI->generaltexth->allTexts[36]) % targetStack->getName() % estDmgText).str(); //Attack %s (%s damage)
 			}
 
@@ -365,8 +365,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		{
 			auto const * shooter = owner.stacksController->getActiveStack();
 
-			TDmgRange damage = owner.curInt->cb->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
-			std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
+			DamageRange damage = owner.curInt->cb->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
+			std::string estDmgText = formatDmgRange(damage); //calculating estimated dmg
 			//printing - Shoot %s (%d shots left, %s damage)
 			return (boost::format(CGI->generaltexth->allTexts[296]) % targetStack->getName() % shooter->shots.available() % estDmgText).str();
 		}
