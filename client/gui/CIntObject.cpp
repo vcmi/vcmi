@@ -29,7 +29,6 @@ CIntObject::CIntObject(int used_, Point pos_):
 	active(active_m)
 {
 	hovered = captureAllKeys = strongInterest = false;
-	toNextTick = timerDelay = 0;
 	used = used_;
 
 	recActions = defActions = GH.defActionsDef;
@@ -58,24 +57,6 @@ CIntObject::~CIntObject()
 
 	if(parent_m)
 		parent_m->removeChild(this);
-}
-
-void CIntObject::setTimer(int msToTrigger)
-{
-	if (!(active & TIME))
-		activate(TIME);
-	toNextTick = timerDelay = msToTrigger;
-	used |= TIME;
-}
-
-void CIntObject::onTimer(int timePassed)
-{
-	toNextTick -= timePassed;
-	if (toNextTick < 0)
-	{
-		toNextTick += timerDelay;
-		tick();
-	}
 }
 
 void CIntObject::show(SDL_Surface * to)

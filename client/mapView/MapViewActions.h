@@ -23,8 +23,6 @@ class MapViewActions : public CIntObject
 	Point swipeInitialViewPos;
 	Point swipeInitialRealPos;
 
-	int3 curHoveredTile;
-
 	MapView & owner;
 	std::shared_ptr<MapViewModel> model;
 	std::shared_ptr<IMapRendererContext> context;
@@ -39,8 +37,6 @@ public:
 
 	void setContext(const std::shared_ptr<IMapRendererContext> & context);
 
-	void activate() override;
-	void deactivate() override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void clickMiddle(tribool down, bool previousState) override;

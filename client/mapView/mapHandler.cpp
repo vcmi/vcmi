@@ -229,5 +229,6 @@ IMapObjectObserver::IMapObjectObserver()
 
 IMapObjectObserver::~IMapObjectObserver()
 {
-	CGI->mh->removeMapObserver(this);
+	if (CGI && CGI->mh)
+		CGI->mh->removeMapObserver(this);
 }
