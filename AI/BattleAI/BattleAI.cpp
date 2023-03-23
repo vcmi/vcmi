@@ -271,7 +271,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, true);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{

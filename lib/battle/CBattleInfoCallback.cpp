@@ -538,7 +538,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		battleGetTurnOrder(turns, maxUnits, maxTurns, actualTurn + 1, sideThatLastMoved);
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool isActiveStack) const
 {
 
 	RETURN_IF_NOT_BATTLE(std::vector<BattleHex>());
@@ -547,10 +547,10 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 
 	auto reachability = getReachability(unit);
 
-	return battleGetAvailableHexes(reachability, unit);
+	return battleGetAvailableHexes(reachability, unit, isActiveStack);
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit, bool isActiveStack) const
 {
 	std::vector<BattleHex> ret;
 
@@ -560,7 +560,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 
 	auto unitSpeed = unit->Speed(0, true);
 
-	const bool tacticPhase = battleTacticDist() && battleGetTacticsSide() == unit->unitSide();
+	const bool showTacticsRange = battleTacticDist() && battleGetTacticsSide() == unit->unitSide() && isActiveStack;
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
 	{
@@ -568,15 +568,15 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 		if(!cache.isReachable(i))
 			continue;
 
-		if(tacticPhase)
+		if(showTacticsRange)
 		{
-			//Stack has to perform tactic-phase movement -> can enter any reachable tile within given range
+			// Stack has to perform tactic-phase movement -> can enter any reachable tile within given range
 			if(!isInTacticRange(i))
 				continue;
 		}
 		else
 		{
-			//Not tactics phase -> destination must be reachable and within unit range.
+			// Not tactics phase -> destination must be reachable and within unit range.
 			if(cache.distances[i] > static_cast<int>(unitSpeed))
 				continue;
 		}
@@ -587,10 +587,9 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 	return ret;
 }
 
-
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool addOccupiable, std::vector<BattleHex> * attackable) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool isActiveStack, bool addOccupiable, std::vector<BattleHex> * attackable) const
 {
-	std::vector<BattleHex> ret = battleGetAvailableHexes(unit);
+	std::vector<BattleHex> ret = battleGetAvailableHexes(unit, isActiveStack);
 
 	if(ret.empty())
 		return ret;
@@ -976,7 +975,6 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	return ret;
 }
 
-
 bool CBattleInfoCallback::isInObstacle(
 	BattleHex hex,
 	const std::set<BattleHex> & obstacles,
@@ -1030,7 +1028,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(const battle::Unit * closest) const
 {
 	auto reachability = getReachability(closest);
-	auto avHexes = battleGetAvailableHexes(reachability, closest);
+	auto avHexes = battleGetAvailableHexes(reachability, closest, false);
 
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
@@ -1097,7 +1095,6 @@ BattleHex CBattleInfoCallback::getAvaliableHex(const CreatureID & creID, ui8 sid
 	return BattleHex::getClosestTile(side, pos, occupyable);
 }
 
-
 si8 CBattleInfoCallback::battleGetTacticDist() const
 {
 	RETURN_IF_NOT_BATTLE(0);
@@ -1158,7 +1155,7 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 	return ret;
 }
 
-AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
 	AttackableTiles at;
@@ -1242,7 +1239,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	return at;
 }
 
-AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const  battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
+AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
 	AttackableTiles at;
