@@ -49,7 +49,6 @@ TEST_F(HealTest, NotApplicableToHealthyUnit)
 	EXPECT_CALL(unit, getAvailableHealth()).WillOnce(Return(200));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtMost(1)).WillRepeatedly(Return(true));
 
 	EffectTarget target;
 	target.emplace_back(&unit, BattleHex());
@@ -67,7 +66,6 @@ TEST_F(HealTest, ApplicableToWoundedUnit)
 	EXPECT_CALL(unit, getAvailableHealth()).WillOnce(Return(100));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 
 	EffectTarget target;
 	target.emplace_back(&unit, BattleHex());
@@ -92,7 +90,6 @@ TEST_F(HealTest, ApplicableIfActuallyResurrects)
 
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(1000));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 
 	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
 	unitsFake.setDefaultBonusExpectations();
@@ -119,7 +116,6 @@ TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
 
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(999));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 
 	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
 	unitsFake.setDefaultBonusExpectations();
@@ -146,7 +142,6 @@ TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
 
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(999));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 
 	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
 	unitsFake.setDefaultBonusExpectations();
@@ -179,7 +174,6 @@ TEST_F(HealTest, ApplicableToDeadUnit)
 
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(0));
 
@@ -217,7 +211,6 @@ TEST_F(HealTest, NotApplicableIfDeadUnitIsBlocked)
 	EXPECT_CALL(blockingUnit, unitSide()).Times(AnyNumber());
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
@@ -255,7 +248,6 @@ TEST_F(HealTest, ApplicableWithAnotherDeadUnitInSamePosition)
 	EXPECT_CALL(blockingUnit, unitSide()).Times(AnyNumber());
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
@@ -284,7 +276,6 @@ TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(199));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtMost(1)).WillRepeatedly(Return(true));
 
 	unitsFake.setDefaultBonusExpectations();
 
@@ -352,6 +343,7 @@ TEST_P(HealApplyTest, Heals)
 
 
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
+	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
@@ -367,15 +359,18 @@ TEST_P(HealApplyTest, Heals)
 		targetUnitState->health.damage(initialDmg);
 	}
 
+	mechanicsMock.caster = &actualCaster;
 	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
 	EXPECT_CALL(mechanicsMock, applySpellBonus(Eq(effectValue), Eq(&targetUnit))).WillRepeatedly(Return(effectValue));
 
 	GTEST_ASSERT_EQ(targetUnitState->getAvailableHealth(), unitAmount * unitHP / 2 + 1);
 	GTEST_ASSERT_EQ(targetUnitState->getFirstHPleft(), 1);
 
-	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
+	EXPECT_CALL(targetUnit, acquire()).WillRepeatedly(Return(targetUnitState));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
+
+	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(-1));
 
 	//There should be battle log message if resurrect
 	switch(healLevel) 
