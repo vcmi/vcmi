@@ -693,6 +693,8 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 				auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 				givenCommand.setn(ba.release());
 			}
+
+			stacksController->setActiveStack(nullptr);
 		}
 	});
 
