@@ -79,7 +79,6 @@ TEST_F(DispelTest, ApplicableToAliveUnitWithTimedEffect)
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 	EXPECT_CALL(mechanicsMock, getSpellIndex()).Times(AtLeast(1)).WillRepeatedly(Return(neutralID.toEnum()));
 
 	setDefaultExpectaions();

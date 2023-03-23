@@ -57,6 +57,7 @@ public:
 	MOCK_CONST_METHOD0(requiresClearTiles, bool());
 	MOCK_CONST_METHOD0(isNegativeSpell, bool());
 	MOCK_CONST_METHOD0(isPositiveSpell, bool());
+	MOCK_CONST_METHOD0(isMagicalEffect, bool());
 
 	MOCK_CONST_METHOD1(adjustEffectValue,int64_t(const battle::Unit *));
 	MOCK_CONST_METHOD2(applySpellBonus,int64_t(int64_t, const battle::Unit *));

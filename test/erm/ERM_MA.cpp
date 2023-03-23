@@ -85,7 +85,7 @@ TEST_F(ERM_MA, Example)
 	static_assert(FLAG_MASK_NEW == (1 << 0 | 1 << 1 | 1 << 7 | 1 << 12 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::FLYING, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING1, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING, Bonus::CREATURE_ABILITY, 0, 0));
 
 	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MIND_IMMUNITY, Bonus::CREATURE_ABILITY, 0, 0);
 
@@ -204,7 +204,7 @@ TEST_F(ERM_MA, Bonuses)
 	static_assert(FLAG_MASK_NEW == ( 1 << 1 | 1 << 7 | 1 << 12 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::FLYING, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING1, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING, Bonus::CREATURE_ABILITY, 0, 0));
 
 	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MIND_IMMUNITY, Bonus::CREATURE_ABILITY, 0, 0);
 
@@ -266,7 +266,7 @@ TEST_F(ERM_MA, BonusesNoChanges)
 	static_assert(FLAG_MASK == (1 << 1 | 1 << 7 | 1 << 10 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::FLYING, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING1, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING, Bonus::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MIND_IMMUNITY, Bonus::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MORALE, Bonus::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::UNDEAD, Bonus::CREATURE_ABILITY, 0, 0));
