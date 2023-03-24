@@ -15,6 +15,7 @@
 #include "../CStack.h"
 #include "BattleInfo.h"
 #include "DamageCalculator.h"
+#include "PossiblePlayerBattleAction.h"
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -218,11 +219,14 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	{
 		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
 		{
-			if(stack->hasBonusOfType(Bonus::SPELLCASTER) && data.creatureSpellToCast != -1)
+			if(stack->hasBonusOfType(Bonus::SPELLCASTER))
 			{
-				const CSpell *spell = SpellID(data.creatureSpellToCast).toSpell();
-				PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
-				allowedActionList.push_back(act);
+				for (auto const & spellID : data.creatureSpellsToCast)
+				{
+					const CSpell *spell = spellID.toSpell();
+					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
+					allowedActionList.push_back(act);
+				}
 			}
 			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
@@ -251,7 +255,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const
 {
 	RETURN_IF_NOT_BATTLE(PossiblePlayerBattleAction::INVALID);
-	PossiblePlayerBattleAction spellSelMode = PossiblePlayerBattleAction::ANY_LOCATION;
+	auto spellSelMode = PossiblePlayerBattleAction::ANY_LOCATION;
 
 	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
 
@@ -264,7 +268,7 @@ PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * s
 	else if(ti.type == spells::AimType::OBSTACLE)
 		spellSelMode = PossiblePlayerBattleAction::OBSTACLE;
 
-	return spellSelMode;
+	return PossiblePlayerBattleAction(spellSelMode, spell->id);
 }
 
 std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
@@ -1646,12 +1650,16 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{
-		totalWeight += std::max(b->additionalInfo[0], 1); //minimal chance to cast is 1
+		totalWeight += std::max(b->additionalInfo[0], 0); //spells with 0 weight are non-random, exclude them
 	}
+
+	if (totalWeight == 0)
+		return SpellID::NONE;
+
 	int randomPos = rand.nextInt(totalWeight - 1);
 	for(const auto & b : *bl)
 	{
-		randomPos -= std::max(b->additionalInfo[0], 1);
+		randomPos -= std::max(b->additionalInfo[0], 0);
 		if(randomPos < 0)
 		{
 			return SpellID(b->subtype);

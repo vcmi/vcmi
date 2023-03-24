@@ -12,6 +12,7 @@
 #include "../gui/CIntObject.h"
 #include "../gui/InterfaceObjectConfigurable.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/PossiblePlayerBattleAction.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
