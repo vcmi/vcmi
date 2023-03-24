@@ -450,6 +450,25 @@ std::vector<double> DamageCalculator::getDefenseFactors() const
 	};
 }
 
+DamageRange DamageCalculator::getCasualties(const DamageRange & damageDealt) const
+{
+	return {
+		getCasualties(damageDealt.min),
+		getCasualties(damageDealt.max),
+	};
+}
+
+int64_t DamageCalculator::getCasualties(int64_t damageDealt) const
+{
+	if (damageDealt < info.defender->getFirstHPleft())
+		return 0;
+
+	int64_t damageLeft = damageDealt - info.defender->getFirstHPleft();
+	int64_t killsLeft = damageLeft / info.defender->MaxHealth();
+
+	return 1 + killsLeft;
+}
+
 int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const
 {
 	auto noLimit = Selector::effectRange()(Bonus::NO_LIMIT);
@@ -461,9 +480,9 @@ int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelec
 	return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
 };
 
-DamageRange DamageCalculator::calculateDmgRange() const
+DamageEstimation DamageCalculator::calculateDmgRange() const
 {
-	DamageRange result = getBaseDamageStack();
+	DamageRange damageBase = getBaseDamageStack();
 
 	auto attackFactors = getAttackFactors();
 	auto defenseFactors = getDefenseFactors();
@@ -485,10 +504,16 @@ DamageRange DamageCalculator::calculateDmgRange() const
 
 	double resultingFactor = std::min(8.0, attackFactorTotal) * std::max( 0.01, defenseFactorTotal);
 
-	return {
-		std::max<int64_t>( 1.0, std::floor(result.min * resultingFactor)),
-		std::max<int64_t>( 1.0, std::floor(result.max * resultingFactor))
+	info.defender->getTotalHealth();
+
+	DamageRange damageDealt {
+		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),
+		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor))
 	};
+
+	DamageRange killsDealt = getCasualties(damageDealt);
+
+	return DamageEstimation{damageDealt, killsDealt};
 }
 
 VCMI_LIB_NAMESPACE_END

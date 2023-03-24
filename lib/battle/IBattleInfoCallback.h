@@ -32,6 +32,12 @@ struct DamageRange
 	int64_t max = 0;
 };
 
+struct DamageEstimation
+{
+	DamageRange damage;
+	DamageRange kills;
+};
+
 #if SCRIPTING_ENABLED
 namespace scripting
 {

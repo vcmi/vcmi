@@ -715,58 +715,64 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 	return false;
 }
 
-DamageRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
+DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
 {
 	DamageCalculator calculator(*this, info);
 
 	return calculator.calculateDmgRange();
 }
 
-DamageRange CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, DamageRange * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, DamageEstimation * retaliationDmg) const
 {
-	RETURN_IF_NOT_BATTLE({0, 0});
+	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
 	int movementDistance = reachability[attackerPosition];
 	return battleEstimateDamage(attacker, defender, movementDistance, retaliationDmg);
 }
 
-DamageRange CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageRange * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg) const
 {
-	RETURN_IF_NOT_BATTLE({0, 0});
+	RETURN_IF_NOT_BATTLE({});
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
 	const BattleAttackInfo bai(attacker, defender, movementDistance, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 
-DamageRange CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, DamageRange * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, DamageEstimation * retaliationDmg) const
 {
-	RETURN_IF_NOT_BATTLE({0, 0});
+	RETURN_IF_NOT_BATTLE({});
 
-	DamageRange ret = calculateDmgRange(bai);
+	DamageEstimation ret = calculateDmgRange(bai);
 
 	if(retaliationDmg)
 	{
 		if(bai.shooting)
 		{
 			//FIXME: handle RANGED_RETALIATION
-			retaliationDmg->min = 0;
-			retaliationDmg->max = 0;
+			*retaliationDmg = DamageEstimation();
 		}
 		else
 		{
 			//TODO: rewrite using boost::numeric::interval
 			//TODO: rewire once more using interval-based fuzzy arithmetic
 
-			int64_t DamageRange::* pairElems[] = {&DamageRange::min, &DamageRange::max};
-			for (int i=0; i<2; ++i)
+			auto const & estimateRetaliation = [&]( int64_t damage)
 			{
 				auto retaliationAttack = bai.reverse();
-				int64_t dmg = ret.*pairElems[i];
 				auto state = retaliationAttack.attacker->acquireState();
-				state->damage(dmg);
+				state->damage(damage);
 				retaliationAttack.attacker = state.get();
-				retaliationDmg->*pairElems[!i] = calculateDmgRange(retaliationAttack).*pairElems[!i];
-			}
+				return calculateDmgRange(retaliationAttack);
+			};
+
+			DamageEstimation retaliationMin = estimateRetaliation(ret.damage.min);
+			DamageEstimation retaliationMax = estimateRetaliation(ret.damage.min);
+
+			retaliationDmg->damage.min = std::min(retaliationMin.damage.min, retaliationMax.damage.min);
+			retaliationDmg->damage.max = std::max(retaliationMin.damage.max, retaliationMax.damage.max);
+
+			retaliationDmg->kills.min = std::min(retaliationMin.kills.min, retaliationMax.kills.min);
+			retaliationDmg->kills.max = std::max(retaliationMin.kills.max, retaliationMax.kills.max);
 		}
 	}
 

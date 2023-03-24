@@ -1233,7 +1233,7 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 		bai.unluckyStrike  = bat.unlucky();
 
 		auto range = gs->curB->calculateDmgRange(bai);
-		bsa.damageAmount = gs->curB->getActualDamage(range, attackerState->getCount(), getRandomGenerator());
+		bsa.damageAmount = gs->curB->getActualDamage(range.damage, attackerState->getCount(), getRandomGenerator());
 		CStack::prepareAttacked(bsa, getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 

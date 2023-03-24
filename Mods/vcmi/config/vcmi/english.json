@@ -84,6 +84,17 @@
 	
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to skip battle intro",
 
+	"vcmi.battleWindow.damageEstimation.melee" : "Attack %CREATURE (%DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.meleeKills" : "Attack %CREATURE (%DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.ranged" : "Shoot %CREATURE (%SHOTS, %DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.rangedKills" : "Shoot %CREATURE (%SHOTS, %DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.shots" : "%d shots left",
+	"vcmi.battleWindow.damageEstimation.shots.1" : "%d shot left",
+	"vcmi.battleWindow.damageEstimation.damage" : "%d damage",
+	"vcmi.battleWindow.damageEstimation.damage.1" : "%d damage",
+	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
+	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
+
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\n Shows creatures available to purchase instead of their growth in town summary (bottom-left corner).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Show Weekly Growth of Creatures",

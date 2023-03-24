@@ -52,7 +52,7 @@ int64_t AttackPossibility::calculateDamageReduce(
 	// FIXME: provide distance info for Jousting bonus
 	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attacker, 0);
 	auto enemiesKilled = damageDealt / defender->MaxHealth() + (damageDealt % defender->MaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
-	auto enemyDamage = averageDmg(enemyDamageBeforeAttack);
+	auto enemyDamage = averageDmg(enemyDamageBeforeAttack.damage);
 	auto damagePerEnemy = enemyDamage / (double)defender->getCount();
 
 	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->MaxHealth()));
@@ -85,7 +85,7 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & a
 		auto rangeDmg = state.battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state.battleEstimateDamage(meleeAttackInfo);
 
-		int64_t gain = averageDmg(rangeDmg) - averageDmg(meleeDmg) + 1;
+		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
 		res += gain;
 	}
 
@@ -156,16 +156,16 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 			{
 				int64_t damageDealt, damageReceived, defenderDamageReduce, attackerDamageReduce;
 
-				DamageRange retaliation;
+				DamageEstimation retaliation;
 				auto attackDmg = state.battleEstimateDamage(ap.attack, &retaliation);
 
-				vstd::amin(attackDmg.min, defenderState->getAvailableHealth());
-				vstd::amin(attackDmg.max, defenderState->getAvailableHealth());
+				vstd::amin(attackDmg.damage.min, defenderState->getAvailableHealth());
+				vstd::amin(attackDmg.damage.max, defenderState->getAvailableHealth());
 
-				vstd::amin(retaliation.min, ap.attackerState->getAvailableHealth());
-				vstd::amin(retaliation.max, ap.attackerState->getAvailableHealth());
+				vstd::amin(retaliation.damage.min, ap.attackerState->getAvailableHealth());
+				vstd::amin(retaliation.damage.max, ap.attackerState->getAvailableHealth());
 
-				damageDealt = averageDmg(attackDmg);
+				damageDealt = averageDmg(attackDmg.damage);
 				defenderDamageReduce = calculateDamageReduce(attacker, defender, damageDealt, state);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
@@ -175,7 +175,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
-					damageReceived = averageDmg(retaliation);
+					damageReceived = averageDmg(retaliation.damage);
 					attackerDamageReduce = calculateDamageReduce(defender, attacker, damageReceived, state);
 					defenderState->afterAttack(attackInfo.shooting, true);
 				}
