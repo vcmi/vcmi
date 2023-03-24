@@ -480,6 +480,9 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 		case PossiblePlayerBattleAction::SHOOT:
 			return owner.curInt->cb->battleCanShoot(owner.stacksController->getActiveStack(), targetHex);
 
+		case PossiblePlayerBattleAction::NO_LOCATION:
+			return false;
+
 		case PossiblePlayerBattleAction::ANY_LOCATION:
 			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
 
