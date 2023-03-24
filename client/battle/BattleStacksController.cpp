@@ -683,6 +683,15 @@ void BattleStacksController::stackActivated(const CStack *stack)
 	owner.activateStack();
 }
 
+void BattleStacksController::deactivateStack()
+{
+	if (!activeStack) {
+		return;
+	}
+	stackToActivate = activeStack;
+	setActiveStack(nullptr);
+}
+
 void BattleStacksController::activateStack()
 {
 	if ( !currentAnimations.empty())

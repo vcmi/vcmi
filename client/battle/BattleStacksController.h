@@ -118,7 +118,9 @@ public:
 	void startAction(const BattleAction* action);
 	void endAction(const BattleAction* action);
 
-	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
+	void deactivateStack(); //copy activeStack to stackToActivate, then set activeStack to nullptr to temporary disable current stack
+
+	void activateStack(); //copy stackToActivate to activeStack to enable controls of the stack
 
 	void setActiveStack(const CStack *stack);
 	void setSelectedStack(const CStack *stack);

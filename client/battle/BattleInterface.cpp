@@ -310,6 +310,12 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
 	windowObject->blockUI(true);
 
+	// Disable current active stack duing the cast
+	// Store the current activeStack to stackToActivate
+	stacksController->deactivateStack();
+
+	CCS->curh->set(Cursor::Combat::BLOCKED);
+
 	const SpellID spellID = sc->spellID;
 	const CSpell * spell = spellID.toSpell();
 	auto targetedTile = sc->tile;
@@ -550,6 +556,9 @@ bool BattleInterface::makingTurn() const
 void BattleInterface::endAction(const BattleAction* action)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
+
+	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast
+	activateStack();
 
 	stacksController->endAction(action);
 	windowObject->updateQueue();
