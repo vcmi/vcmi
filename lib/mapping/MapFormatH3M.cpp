@@ -2086,7 +2086,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID, const int3 & position)
 
 std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary) const
 {
-	std::map<int, BuildingID> mapa;
+	std::map<int, BuildingID> helperMap;
 	std::set<BuildingID> ret;
 
 	// Note: this file is parsed many times.
@@ -2098,23 +2098,24 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 
 		if (town == castleID || town == -1)
 		{
-			mapa[static_cast<int>(entry["h3"].Float())] = BuildingID(static_cast<si32>(entry["vcmi"].Float()));
+			helperMap[static_cast<int>(entry["h3"].Float())] = BuildingID(static_cast<si32>(entry["vcmi"].Float()));
 		}
 	}
 
 	for(const auto & elem : h3m)
 	{
-		if(mapa[elem] >= 0)
+		if(helperMap[elem] >= BuildingID::FIRST_REGULAR_ID)
 		{
-			ret.insert(mapa[elem]);
+			ret.insert(helperMap[elem]);
 		}
-		// horde buildings
-		else if(mapa[elem] >= (-GameConstants::CREATURES_PER_TOWN))
+		// horde buildings use indexes from -1 to -5, where creature level is 1 to 5
+		else if(helperMap[elem] >= (-GameConstants::CREATURES_PER_TOWN))
 		{
-			int level = (mapa[elem]);
+			int level = (helperMap[elem]);
 
-			//(-30)..(-36) - horde buildings (for game loading only), don't see other way to handle hordes in random towns
-			ret.insert(BuildingID(level - 30));
+			//(-30)..(-36) - horde buildings (for game loading only)
+			//They will be replaced in CGameState::initTowns()
+			ret.insert(BuildingID(level + BuildingID::HORDE_BUILDING_CONVERTER)); //-1 => -30
 		}
 		else
 		{
