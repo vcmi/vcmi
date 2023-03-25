@@ -778,6 +778,9 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source) const
 
 Point JsonToPoint(const JsonNode & node)
 {
+	if(!node.isStruct())
+		return Point::makeInvalid();
+
 	Point ret;
 	ret.x = static_cast<si32>(node["x"].Float());
 	ret.y = static_cast<si32>(node["y"].Float());
