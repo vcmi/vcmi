@@ -184,7 +184,6 @@ void BattleStacksController::stackReset(const CStack * stack)
 void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 {
 	// Tower shooters have only their upper half visible
-	// FIXME: causes issues in Dungeon - visible animation of Medusa tails (animation disabled in H3)
 	static const int turretCreatureAnimationHeight = 232;
 
 	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
@@ -199,6 +198,11 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(turretCreature);
 		stackAnimation[stack->ID]->pos.h = turretCreatureAnimationHeight;
+		stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
+
+		// FIXME: workaround for visible animation of Medusa tails (animation disabled in H3)
+		if (turretCreature->idNumber == CreatureID::MEDUSA )
+			stackAnimation[stack->ID]->pos.w = 250;
 
 		coords = owner.siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
@@ -207,10 +211,10 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(stack->getCreature());
 		stackAnimation[stack->ID]->onAnimationReset += std::bind(&onAnimationFinished, stack, stackAnimation[stack->ID]);
 		stackAnimation[stack->ID]->pos.h = stackAnimation[stack->ID]->getHeight();
+		stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
 	}
 	stackAnimation[stack->ID]->pos.x = coords.x;
 	stackAnimation[stack->ID]->pos.y = coords.y;
-	stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
 	stackAnimation[stack->ID]->setType(ECreatureAnimType::HOLDING);
 
 	if (!instant)
