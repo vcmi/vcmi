@@ -66,7 +66,7 @@ public:
 
 	virtual uint32_t nextUnitId() const = 0;
 
-	virtual int64_t getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const = 0;
+	virtual int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const = 0;
 };
 
 class DLL_LINKAGE IBattleState : public IBattleInfo

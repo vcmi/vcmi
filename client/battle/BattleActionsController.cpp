@@ -25,19 +25,90 @@
 #include "../windows/CCreatureWindow.h"
 
 #include "../../CCallback.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
-#include "../../lib/CGeneralTextHandler.h"
 
-static std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
+struct TextReplacement
 {
-	if (dmgRange.first != dmgRange.second)
-		return (boost::format("%d - %d") % dmgRange.first % dmgRange.second).str();
-	else
-		return (boost::format("%d") % dmgRange.first).str();
+	std::string placeholder;
+	std::string replacement;
+};
+
+using TextReplacementList = std::vector<TextReplacement>;
+
+static std::string replacePlaceholders(std::string input, const TextReplacementList & format )
+{
+	for(const auto & entry : format)
+		boost::replace_all(input, entry.placeholder, entry.replacement);
+
+	return input;
+}
+
+static std::string translatePlural(int amount, const std::string& baseTextID)
+{
+	if(amount == 1)
+		return CGI->generaltexth->translate(baseTextID + ".1");
+	return CGI->generaltexth->translate(baseTextID);
+}
+
+static std::string formatPluralImpl(int amount, const std::string & amountString, const std::string & baseTextID)
+{
+	std::string baseString = translatePlural(amount, baseTextID);
+	TextReplacementList replacements {
+		{ "%d", amountString }
+	};
+
+	return replacePlaceholders(baseString, replacements);
+}
+
+static std::string formatPlural(int amount, const std::string & baseTextID)
+{
+	return formatPluralImpl(amount, std::to_string(amount), baseTextID);
+}
+
+static std::string formatPlural(DamageRange range, const std::string & baseTextID)
+{
+	if (range.min == range.max)
+		return formatPlural(range.min, baseTextID);
+
+	std::string rangeString = std::to_string(range.min) + " - " + std::to_string(range.max);
+
+	return formatPluralImpl(range.max, rangeString, baseTextID);
+}
+
+static std::string formatAttack(const DamageEstimation & estimation, const std::string & creatureName, const std::string & baseTextID, int shotsLeft)
+{
+	TextReplacementList replacements = {
+		{ "%CREATURE", creatureName },
+		{ "%DAMAGE", formatPlural(estimation.damage, "vcmi.battleWindow.damageEstimation.damage") },
+		{ "%SHOTS", formatPlural(shotsLeft, "vcmi.battleWindow.damageEstimation.shots") },
+		{ "%KILLS", formatPlural(estimation.kills, "vcmi.battleWindow.damageEstimation.kills") },
+	};
+
+	return replacePlaceholders(CGI->generaltexth->translate(baseTextID), replacements);
+}
+
+static std::string formatMeleeAttack(const DamageEstimation & estimation, const std::string & creatureName)
+{
+	std::string baseTextID = estimation.kills.max == 0 ?
+		"vcmi.battleWindow.damageEstimation.melee" :
+		"vcmi.battleWindow.damageEstimation.meleeKills";
+
+	return formatAttack(estimation, creatureName, baseTextID, 0);
+}
+
+static std::string formatRangedAttack(const DamageEstimation & estimation, const std::string & creatureName, int shotsLeft)
+{
+	std::string baseTextID = estimation.kills.max == 0 ?
+		"vcmi.battleWindow.damageEstimation.ranged" :
+		"vcmi.battleWindow.damageEstimation.rangedKills";
+
+	return formatAttack(estimation, creatureName, baseTextID, shotsLeft);
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
@@ -356,19 +427,17 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
-				std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
-				return (boost::format(CGI->generaltexth->allTexts[36]) % targetStack->getName() % estDmgText).str(); //Attack %s (%s damage)
+				DamageEstimation estimation = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
+				return formatMeleeAttack(estimation, targetStack->getName());
 			}
 
 		case PossiblePlayerBattleAction::SHOOT:
 		{
-			auto const * shooter = owner.stacksController->getActiveStack();
+			const auto * shooter = owner.stacksController->getActiveStack();
 
-			TDmgRange damage = owner.curInt->cb->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
-			std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
-			//printing - Shoot %s (%d shots left, %s damage)
-			return (boost::format(CGI->generaltexth->allTexts[296]) % targetStack->getName() % shooter->shots.available() % estDmgText).str();
+			DamageEstimation estimation = owner.curInt->cb->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
+
+			return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());
 		}
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:

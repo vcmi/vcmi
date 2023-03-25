@@ -428,9 +428,9 @@ uint32_t HypotheticBattle::nextUnitId() const
 	return nextId++;
 }
 
-int64_t HypotheticBattle::getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const
+int64_t HypotheticBattle::getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const
 {
-	return (damage.first + damage.second) / 2;
+	return (damage.min + damage.max) / 2;
 }
 
 int64_t HypotheticBattle::getTreeVersion() const

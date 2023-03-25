@@ -18,6 +18,8 @@ class CBattleInfoCallback;
 class IBonusBearer;
 class CSelector;
 struct BattleAttackInfo;
+struct DamageRange;
+struct DamageEstimation;
 
 class DLL_LINKAGE DamageCalculator
 {
@@ -26,9 +28,12 @@ class DLL_LINKAGE DamageCalculator
 
 	int battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const;
 
-	TDmgRange getBaseDamageSingle() const;
-	TDmgRange getBaseDamageBlessCurse() const;
-	TDmgRange getBaseDamageStack() const;
+	DamageRange getCasualties(const DamageRange & damageDealt) const;
+	int64_t getCasualties(int64_t damageDealt) const;
+
+	DamageRange getBaseDamageSingle() const;
+	DamageRange getBaseDamageBlessCurse() const;
+	DamageRange getBaseDamageStack() const;
 
 	int getActorAttackBase() const;
 	int getActorAttackEffective() const;
@@ -66,7 +71,7 @@ public:
 		info(info)
 	{}
 
-	TDmgRange calculateDmgRange() const;
+	DamageEstimation calculateDmgRange() const;
 };
 
 VCMI_LIB_NAMESPACE_END

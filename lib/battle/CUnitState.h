@@ -112,7 +112,10 @@ public:
 	int32_t getFirstHPleft() const;
 	int32_t getResurrected() const;
 
+	/// returns total remaining health
 	int64_t available() const;
+
+	/// returns total initial health
 	int64_t total() const;
 
 	void takeResurrected();

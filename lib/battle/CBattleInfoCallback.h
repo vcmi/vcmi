@@ -117,14 +117,14 @@ public:
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack
 	std::set<const battle::Unit *> battleAdjacentUnits(const battle::Unit * unit) const;
 
-	TDmgRange calculateDmgRange(const BattleAttackInfo & info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
+	DamageEstimation calculateDmgRange(const BattleAttackInfo & info) const;
 
 	/// estimates damage dealt by attacker to defender;
 	/// only non-random bonuses are considered in estimation
 	/// returns pair <min dmg, max dmg>
-	TDmgRange battleEstimateDamage(const BattleAttackInfo & bai, TDmgRange * retaliationDmg = nullptr) const;
-	TDmgRange battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, TDmgRange * retaliationDmg = nullptr) const;
-	TDmgRange battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, TDmgRange * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const BattleAttackInfo & bai, DamageEstimation * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, DamageEstimation * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg = nullptr) const;
 
 	bool battleHasDistancePenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const;
 	bool battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const;

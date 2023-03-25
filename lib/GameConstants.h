@@ -1295,7 +1295,6 @@ enum class EHealPower : ui8
 // Typedef declarations
 typedef ui8 TFaction;
 typedef si64 TExpType;
-typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
 
