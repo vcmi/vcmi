@@ -436,6 +436,9 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			{
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
 				DamageEstimation estimation = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
+				estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
+				estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
+
 				return formatMeleeAttack(estimation, targetStack->getName());
 			}
 
@@ -444,6 +447,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			const auto * shooter = owner.stacksController->getActiveStack();
 
 			DamageEstimation estimation = owner.curInt->cb->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
+			estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
+			estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
 
 			return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());
 		}
