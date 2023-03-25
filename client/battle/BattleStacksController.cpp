@@ -184,7 +184,8 @@ void BattleStacksController::stackReset(const CStack * stack)
 void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 {
 	// Tower shooters have only their upper half visible
-	static const int turretCreatureAnimationHeight = 225;
+	// FIXME: causes issues in Dungeon - visible animation of Medusa tails (animation disabled in H3)
+	static const int turretCreatureAnimationHeight = 232;
 
 	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
