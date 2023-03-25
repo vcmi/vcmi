@@ -134,7 +134,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 
 			if (terrainType <= ETerrainId::NONE)
 			{
-				logGlobal->warn("Town %s has invalid terrain type: %s", zone.getTownType(), terrainType);
+				logGlobal->warn("Town %s has invalid terrain type: %d", zone.getTownType(), terrainType);
 				zone.setTerrainType(ETerrainId::DIRT);
 			}
 			else
