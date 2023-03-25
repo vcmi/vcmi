@@ -1004,12 +1004,19 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 
 	for(auto &oi : battleGetAllObstacles(whichSidePerspective))
 	{
-		if(battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
+		if(!battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
+			continue;
+
+		for(const auto & hex : oi->getStoppingTile())
 		{
-			range::copy(oi->getStoppingTile(), vstd::set_inserter(ret));
+			if(hex == ESiegeHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
+			{
+				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
+					continue; // this tile is disabled by drawbridge on top of it
+			}
+			ret.insert(hex);
 		}
 	}
-
 	return ret;
 }
 
