@@ -54,6 +54,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
+	, battleOpeningDelayActive(true)
 {
 	if(spectatorInt)
 	{
@@ -112,7 +113,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 		}
 	};
 
-	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
 	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
@@ -120,8 +121,15 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
 			openingEnd();
 	}
-	else
+	else // failed to play sound
+	{
 		onIntroSoundPlayed();
+	}
+}
+
+bool BattleInterface::openingPlaying()
+{
+	return battleOpeningDelayActive;
 }
 
 void BattleInterface::onIntroSoundPlayed()
@@ -130,6 +138,19 @@ void BattleInterface::onIntroSoundPlayed()
 		openingEnd();
 
 	CCS->musich->playMusicFromSet("battle", true, true);
+}
+
+void BattleInterface::openingEnd()
+{
+	assert(openingPlaying());
+	if (!openingPlaying())
+		return;
+
+	onAnimationsFinished();
+	if(tacticsMode)
+		tacticNextStack(nullptr);
+	activateStack();
+	battleOpeningDelayActive = false;
 }
 
 BattleInterface::~BattleInterface()
@@ -528,24 +549,6 @@ void BattleInterface::activateStack()
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
 	GH.fakeMouseMove();
-}
-
-bool BattleInterface::openingPlaying()
-{
-	return battleIntroSoundChannel != -1;
-}
-
-void BattleInterface::openingEnd()
-{
-	assert(openingPlaying());
-	if (!openingPlaying())
-		return;
-
-	onAnimationsFinished();
-	if(tacticsMode)
-		tacticNextStack(nullptr);
-	activateStack();
-	battleIntroSoundChannel = -1;
 }
 
 bool BattleInterface::makingTurn() const
