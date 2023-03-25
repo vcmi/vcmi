@@ -748,11 +748,14 @@ void ApplyFirstClientNetPackVisitor::visitBattleStackMoved(BattleStackMoved & pa
 void ApplyFirstClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleAttack, &pack);
+
+	// battleStacksAttacked should be excuted before BattleAttack.applyGs() to play animation before damaging unit
+	// so this has to be here instead of ApplyClientNetPackVisitor::visitBattleAttack()
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, pack.bsa, pack.shot());
 }
 
 void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, pack.bsa, pack.shot());
 }
 
 void ApplyFirstClientNetPackVisitor::visitStartAction(StartAction & pack)
