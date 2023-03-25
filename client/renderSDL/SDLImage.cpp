@@ -308,7 +308,7 @@ void SDLImage::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32
 	}
 }
 
-void SDLImage::adjustPalette(const ColorFilter & shifter, size_t colorsToSkip)
+void SDLImage::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
 {
 	if(originalPalette == nullptr)
 		return;
@@ -316,8 +316,11 @@ void SDLImage::adjustPalette(const ColorFilter & shifter, size_t colorsToSkip)
 	SDL_Palette* palette = surf->format->palette;
 
 	// Note: here we skip first colors in the palette that are predefined in H3 images
-	for(int i = colorsToSkip; i < palette->ncolors; i++)
+	for(int i = 0; i < palette->ncolors; i++)
 	{
+		if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
+			continue;
+
 		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
 	}
 }
@@ -340,11 +343,17 @@ void SDLImage::resetPalette( int colorID )
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
 }
 
-void SDLImage::setSpecialPallete(const IImage::SpecialPalette & SpecialPalette)
+void SDLImage::setSpecialPallete(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
 {
 	if(surf->format->palette)
 	{
-		CSDL_Ext::setColors(surf, const_cast<SDL_Color *>(SpecialPalette.data()), 1, 7);
+		size_t last = std::min<size_t>(specialPalette.size(), surf->format->palette->ncolors);
+
+		for (size_t i = 0; i < last; ++i)
+		{
+			if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
+				surf->format->palette->colors[i] = specialPalette[i];
+		}
 	}
 }
 

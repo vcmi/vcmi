@@ -88,16 +88,13 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
 	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
 
-	amountNormal->adjustPalette(shifterNormal, 0);
-	amountPositive->adjustPalette(shifterPositive, 0);
-	amountNegative->adjustPalette(shifterNegative, 0);
-	amountEffNeutral->adjustPalette(shifterNeutral, 0);
+	// do not change border color
+	static const int32_t ignoredMask = 1 << 26;
 
-	//Restore border color {255, 231, 132, 255} to its original state
-	amountNormal->resetPalette(26);
-	amountPositive->resetPalette(26);
-	amountNegative->resetPalette(26);
-	amountEffNeutral->resetPalette(26);
+	amountNormal->adjustPalette(shifterNormal, ignoredMask);
+	amountPositive->adjustPalette(shifterPositive, ignoredMask);
+	amountNegative->adjustPalette(shifterNegative, ignoredMask);
+	amountEffNeutral->adjustPalette(shifterNeutral, ignoredMask);
 
 	std::vector<const CStack*> stacks = owner.curInt->cb->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
@@ -187,7 +184,7 @@ void BattleStacksController::stackReset(const CStack * stack)
 void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 {
 	// Tower shooters have only their upper half visible
-	static const int turretCreatureAnimationHeight = 225;
+	static const int turretCreatureAnimationHeight = 232;
 
 	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
@@ -201,6 +198,11 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(turretCreature);
 		stackAnimation[stack->ID]->pos.h = turretCreatureAnimationHeight;
+		stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
+
+		// FIXME: workaround for visible animation of Medusa tails (animation disabled in H3)
+		if (turretCreature->idNumber == CreatureID::MEDUSA )
+			stackAnimation[stack->ID]->pos.w = 250;
 
 		coords = owner.siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
@@ -209,10 +211,10 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(stack->getCreature());
 		stackAnimation[stack->ID]->onAnimationReset += std::bind(&onAnimationFinished, stack, stackAnimation[stack->ID]);
 		stackAnimation[stack->ID]->pos.h = stackAnimation[stack->ID]->getHeight();
+		stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
 	}
 	stackAnimation[stack->ID]->pos.x = coords.x;
 	stackAnimation[stack->ID]->pos.y = coords.y;
-	stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
 	stackAnimation[stack->ID]->setType(ECreatureAnimType::HOLDING);
 
 	if (!instant)

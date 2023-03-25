@@ -1210,7 +1210,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 CCastleInterface::~CCastleInterface()
 {
-	adventureInt->onAudioResumed();
+	if (adventureInt) // may happen on exiting client with open castle interface
+		adventureInt->onAudioResumed();
 	if(LOCPLINT->castleInt == this)
 		LOCPLINT->castleInt = nullptr;
 }

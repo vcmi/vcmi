@@ -66,14 +66,14 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
-	void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) override;
+	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
 	void resetPalette(int colorID) override;
 	void resetPalette() override;
 
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
 
-	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
+	void setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
 
 	friend class SDLImageLoader;
 

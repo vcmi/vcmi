@@ -684,7 +684,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 {
 	bool validated = false;
 	implicitlyEnabled = true;
-	explicitlyEnabled = true;
+	explicitlyEnabled = !config["keepDisabled"].Bool();
 	checksum = 0;
 	if (data.getType() == JsonNode::JsonType::DATA_BOOL)
 	{

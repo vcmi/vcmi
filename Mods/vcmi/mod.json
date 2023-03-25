@@ -1,6 +1,16 @@
 {
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
+
+	"chinese" : {
+		"name" : "VCMI essential files",
+		"description" : "Essential files required for VCMI to run correctly",
+		
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/chinese.json"
+		]
+	},
 	
 	"german" : {
 		"name" : "VCMI - grundlegende Dateien",

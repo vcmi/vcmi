@@ -26,27 +26,27 @@ public:
 	virtual bool hasOngoingAnimations() = 0;
 
 	/// Plays fade-in animation and adds object to map
-	virtual void onObjectFadeIn(const CGObjectInstance * obj) {}
+	virtual void onObjectFadeIn(const CGObjectInstance * obj) = 0;
 
 	/// Plays fade-out animation and removed object from map
-	virtual void onObjectFadeOut(const CGObjectInstance * obj) {}
+	virtual void onObjectFadeOut(const CGObjectInstance * obj) = 0;
 
 	/// Adds object to map instantly, with no animation
-	virtual void onObjectInstantAdd(const CGObjectInstance * obj) {}
+	virtual void onObjectInstantAdd(const CGObjectInstance * obj) = 0;
 
 	/// Removes object from map instantly, with no animation
-	virtual void onObjectInstantRemove(const CGObjectInstance * obj) {}
+	virtual void onObjectInstantRemove(const CGObjectInstance * obj) = 0;
 
 	/// Perform hero movement animation, moving hero across terrain
-	virtual void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	virtual void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
 
 	/// Perform initialization of hero teleportation animation with terrain fade animation
-	virtual void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
-	virtual void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) {}
+	virtual void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
+	virtual void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
 
-	virtual void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
-	virtual void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
+	virtual void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
+	virtual void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
 
-	virtual void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
-	virtual void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest){};
+	virtual void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
+	virtual void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;
 };

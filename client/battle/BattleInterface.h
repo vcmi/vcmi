@@ -111,8 +111,8 @@ class BattleInterface
 	/// defender interface, not null if attacker is human in our vcmiclient
 	std::shared_ptr<CPlayerInterface> defenderInt;
 
-	/// ID of channel on which battle opening sound is playing, or -1 if none
-	int battleIntroSoundChannel;
+	/// if set to true, battle is still starting and waiting for intro sound to end / key press from player
+	bool battleOpeningDelayActive;
 
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
