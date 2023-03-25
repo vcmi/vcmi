@@ -924,6 +924,9 @@ void CMarketplaceWindow::artifactsChanged(bool Left)
 			toRemove.insert(item);
 
 	removeItems(toRemove);
+
+	// clear set to erase final instance of shared_ptr - we want to redraw screen only after it has been deleted
+	toRemove.clear();
 	redraw();
 }
 
