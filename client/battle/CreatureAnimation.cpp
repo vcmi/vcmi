@@ -346,8 +346,8 @@ void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 	target.resize(8);
 	target[0] = genShadow(0);
 	target[1] = genShadow(shadowAlpha / 2);
-	target[2] = genShadow(shadowAlpha / 2);
 	// colors 2 & 3 are not used in creatures
+	target[4] = genShadow(shadowAlpha);
 	target[5] = genBorderColor(getBorderStrength(elapsedTime), border);
 	target[6] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
 	target[7] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
