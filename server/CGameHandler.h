@@ -96,6 +96,7 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 {
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
+	std::unique_ptr<boost::thread> battleThread;
 public:
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
