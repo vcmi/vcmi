@@ -45,9 +45,9 @@ class BattleActionsController
 	std::string currentConsoleMsg;
 
 	/// if true, active stack could possibly cast some target spell
-	const CSpell * creatureSpellToCast;
+	std::vector<const CSpell *> creatureSpells;
 
-	bool isCastingPossibleHere (const CStack *sactive, const CStack *shere, BattleHex myNumber);
+	bool isCastingPossibleHere (const CSpell * spell, const CStack *sactive, const CStack *shere, BattleHex myNumber);
 	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
@@ -74,7 +74,7 @@ class BattleActionsController
 	const CSpell * getHeroSpellToCast() const;
 
 	/// if current stack is spellcaster, returns spell being cast, or null othervice
-	const CSpell * getStackSpellToCast( ) const;
+	const CSpell * getStackSpellToCast(BattleHex hoveredHex);
 
 	/// returns true if current stack is a spellcaster
 	bool isActiveStackSpellcaster() const;
@@ -116,7 +116,7 @@ public:
 	void onHexRightClicked(BattleHex clickedHex);
 
 	const spells::Caster * getCurrentSpellcaster() const;
-	const CSpell * getCurrentSpell() const;
+	const CSpell * getCurrentSpell(BattleHex hoveredHex);
 	spells::Mode getCurrentCastMode() const;
 
 	/// methods to work with array of possible actions, needed to control special creatures abilities

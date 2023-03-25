@@ -849,7 +849,7 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	const CSpell *spell = nullptr;
 
 	spells::Mode mode = owner.actionsController->getCurrentCastMode();
-	spell = owner.actionsController->getCurrentSpell();
+	spell = owner.actionsController->getCurrentSpell(hoveredHex);
 	caster = owner.actionsController->getCurrentSpellcaster();
 
 	if(caster && spell && owner.actionsController->currentActionSpellcasting(hoveredHex) ) //when casting spell

@@ -4910,8 +4910,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
 			SpellID spellID = SpellID(ba.actionSubtype);
 
-			std::shared_ptr<const Bonus> randSpellcaster = stack->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
-			std::shared_ptr<const Bonus> spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
+			std::shared_ptr<const Bonus> randSpellcaster = stack->getBonus(Selector::type()(Bonus::RANDOM_SPELLCASTER));
+			std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
 			//TODO special bonus for genies ability
 			if (randSpellcaster && battleGetRandomStackSpell(getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) < 0)

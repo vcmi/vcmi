@@ -258,6 +258,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/IBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/IBattleState.h
 		${MAIN_LIB_DIR}/battle/IUnitInfo.h
+		${MAIN_LIB_DIR}/battle/PossiblePlayerBattleAction.h
 		${MAIN_LIB_DIR}/battle/ReachabilityInfo.h
 		${MAIN_LIB_DIR}/battle/SideInBattle.h
 		${MAIN_LIB_DIR}/battle/SiegeInfo.h
