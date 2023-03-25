@@ -47,6 +47,10 @@ protected:
 	void onAfterHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 
+	void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override {}
+	void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override {}
+	void onBeforeHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override {}
+
 public:
 	MapAudioPlayer();
 	~MapAudioPlayer() override;

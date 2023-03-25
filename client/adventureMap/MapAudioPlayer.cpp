@@ -131,7 +131,11 @@ std::vector<std::string> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 	{
 		const auto & object = CGI->mh->getMap()->objects[objectID.getNum()];
 
-		if(object->getAmbientSound())
+		assert(object);
+		if (!object)
+			logGlobal->warn("Already removed object %d found on tile! (%d %d %d)", objectID.getNum(), tile.x, tile.y, tile.z);
+
+		if(object && object->getAmbientSound())
 			result.push_back(object->getAmbientSound().get());
 	}
 
@@ -194,8 +198,10 @@ MapAudioPlayer::MapAudioPlayer()
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
 	for(const auto & obj : CGI->mh->getMap()->objects)
+	{
 		if (obj)
 			addObject(obj);
+	}
 }
 
 MapAudioPlayer::~MapAudioPlayer()
