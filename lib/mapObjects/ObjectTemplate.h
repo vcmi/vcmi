@@ -102,6 +102,11 @@ public:
 		return visitDir & 2;
 	};
 
+	inline bool canBePlacedAtAnyTerrain() const
+	{
+		return anyTerrain;
+	}; 
+
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(TerrainId terrain) const;
 

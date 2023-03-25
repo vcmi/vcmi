@@ -292,6 +292,8 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 	ObjectClass * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
+	void generateExtraMonolithsForRMG();
+
 public:
 	CObjectClassesHandler();
 	~CObjectClassesHandler();
