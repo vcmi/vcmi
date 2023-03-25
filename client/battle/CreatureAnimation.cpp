@@ -343,13 +343,14 @@ static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 
 void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 {
-	target[0] = genShadow(shadowAlpha / 2);
+	target.resize(8);
+	target[0] = genShadow(0);
 	target[1] = genShadow(shadowAlpha / 2);
-	target[2] = genShadow(shadowAlpha);
-	target[3] = genShadow(shadowAlpha);
-	target[4] = genBorderColor(getBorderStrength(elapsedTime), border);
-	target[5] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
-	target[6] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
+	target[2] = genShadow(shadowAlpha / 2);
+	// colors 2 & 3 are not used in creatures
+	target[5] = genBorderColor(getBorderStrength(elapsedTime), border);
+	target[6] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
+	target[7] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
 void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight)
@@ -371,8 +372,8 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 		IImage::SpecialPalette SpecialPalette;
 		genSpecialPalette(SpecialPalette);
 
-		image->setSpecialPallete(SpecialPalette);
-		image->adjustPalette(shifter, 8);
+		image->setSpecialPallete(SpecialPalette, IImage::SPECIAL_PALETTE_MASK_CREATURES);
+		image->adjustPalette(shifter, IImage::SPECIAL_PALETTE_MASK_CREATURES);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 

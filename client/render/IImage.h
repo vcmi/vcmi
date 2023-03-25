@@ -40,7 +40,8 @@ enum class EImageBlitMode : uint8_t
 class IImage
 {
 public:
-	using SpecialPalette = std::array<SDL_Color, 7>;
+	using SpecialPalette = std::vector<SDL_Color>;
+	static constexpr int32_t SPECIAL_PALETTE_MASK_CREATURES = 0b11110011;
 
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr) const = 0;
@@ -65,7 +66,7 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) = 0;
-	virtual void adjustPalette(const ColorFilter & shifter, size_t colorsToSkip) = 0;
+	virtual void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) = 0;
 	virtual void resetPalette(int colorID) = 0;
 	virtual void resetPalette() = 0;
 
@@ -73,7 +74,7 @@ public:
 	virtual void setBlitMode(EImageBlitMode mode) = 0;
 
 	//only indexed bitmaps with 7 special colors
-	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette) = 0;
+	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) = 0;
 
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
