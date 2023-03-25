@@ -12,7 +12,7 @@
 #include "CGTownInstance.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
-
+#include "../battle/IBattleInfoCallback.h"
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
@@ -807,7 +807,7 @@ void CGTownInstance::addTownBonuses()
 	}
 }
 
-TDmgRange CGTownInstance::getTowerDamageRange() const
+DamageRange CGTownInstance::getTowerDamageRange() const
 {
 	assert(hasBuilt(BuildingID::CASTLE));
 
@@ -825,7 +825,7 @@ TDmgRange CGTownInstance::getTowerDamageRange() const
 	};
 }
 
-TDmgRange CGTownInstance::getKeepDamageRange() const
+DamageRange CGTownInstance::getKeepDamageRange() const
 {
 	assert(hasBuilt(BuildingID::CITADEL));
 

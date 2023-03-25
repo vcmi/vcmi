@@ -84,6 +84,17 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
 	
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Натисніть будь-яку клавішу, щоб розпочати бій",
+	
+	"vcmi.battleWindow.damageEstimation.melee" : "Атакувати %CREATURE (%DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.meleeKills" : "Атакувати %CREATURE (%DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.ranged" : "Стріляти в %CREATURE (%SHOTS, %DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.rangedKills" : "Стріляти в %CREATURE (%SHOTS, %DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.shots" : "%d пострілів залишилось",
+	"vcmi.battleWindow.damageEstimation.shots.1" : "%d постріл залишився",
+	"vcmi.battleWindow.damageEstimation.damage" : "%d одиниць пошкоджень",
+	"vcmi.battleWindow.damageEstimation.damage.1" : "%d одиниця пошкодження",
+	"vcmi.battleWindow.damageEstimation.kills" : "%d загинуть",
+	"vcmi.battleWindow.damageEstimation.kills.1" : "%d загине",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Показувати доступних істот",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Показувати доступних істот}\n\n Показує істот, яких можна придбати, замість їхнього приросту у зведенні по місту (нижній лівий кут).",

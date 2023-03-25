@@ -14,20 +14,39 @@
 class CInGameConsole : public CIntObject
 {
 private:
-	std::list< std::pair< std::string, uint32_t > > texts; //list<text to show, time of add>
-	boost::mutex texts_mx;		// protects texts
-	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
-	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
-	int defaultTimeout; //timeout for new texts (in ms)
-	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
+	struct TextState
+	{
+		std::string text;
+		uint32_t timeOnScreen;
+	};
+
+	/// Currently visible texts in the overlay
+	std::vector<TextState> texts;
+
+	/// protects texts
+	boost::mutex texts_mx;
+
+	/// previously entered texts, for up/down arrows to work
+	std::vector<std::string> previouslyEntered;
+
+	/// displayed entry from previouslyEntered - if none it's -1
+	int prevEntDisp;
+
+	/// timeout for new texts (in ms)
+	static constexpr int defaultTimeout = 10000;
+
+	/// how many texts can be displayed simultaneously
+	static constexpr int maxDisplayedTexts = 10;
 
 	std::weak_ptr<IStatusBar> currentStatusBar;
 	std::string enteredText;
 
 public:
-	void print(const std::string &txt);
+	void print(const std::string & txt);
 
+	void tick(uint32_t msPassed) override;
 	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	void keyPressed(const SDL_Keycode & key) override;
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;

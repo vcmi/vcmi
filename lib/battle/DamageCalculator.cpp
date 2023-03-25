@@ -20,10 +20,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TDmgRange DamageCalculator::getBaseDamageSingle() const
+DamageRange DamageCalculator::getBaseDamageSingle() const
 {
-	double minDmg = 0.0;
-	double maxDmg = 0.0;
+	int64_t minDmg = 0.0;
+	int64_t maxDmg = 0.0;
 
 	minDmg = info.attacker->getMinDamage(info.shooting);
 	maxDmg = info.attacker->getMaxDamage(info.shooting);
@@ -63,7 +63,7 @@ TDmgRange DamageCalculator::getBaseDamageSingle() const
 	return { minDmg, maxDmg };
 }
 
-TDmgRange DamageCalculator::getBaseDamageBlessCurse() const
+DamageRange DamageCalculator::getBaseDamageBlessCurse() const
 {
 	const std::string cachingStrForcedMinDamage = "type_ALWAYS_MINIMUM_DAMAGE";
 	static const auto selectorForcedMinDamage = Selector::type()(Bonus::ALWAYS_MINIMUM_DAMAGE);
@@ -76,10 +76,10 @@ TDmgRange DamageCalculator::getBaseDamageBlessCurse() const
 
 	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
 
-	TDmgRange baseDamage = getBaseDamageSingle();
-	TDmgRange modifiedDamage = {
-		std::max(static_cast<int64_t>(1), baseDamage.first + curseBlessAdditiveModifier),
-		std::max(static_cast<int64_t>(1), baseDamage.second + curseBlessAdditiveModifier)
+	DamageRange baseDamage = getBaseDamageSingle();
+	DamageRange modifiedDamage = {
+		std::max(static_cast<int64_t>(1), baseDamage.min + curseBlessAdditiveModifier),
+		std::max(static_cast<int64_t>(1), baseDamage.max + curseBlessAdditiveModifier)
 	};
 
 	if(curseEffects->size() && blessEffects->size() )
@@ -91,29 +91,29 @@ TDmgRange DamageCalculator::getBaseDamageBlessCurse() const
 	if(curseEffects->size())
 	{
 		return {
-			modifiedDamage.first,
-			modifiedDamage.first
+			modifiedDamage.min,
+			modifiedDamage.min
 		};
 	}
 
 	if(blessEffects->size())
 	{
 		return {
-			modifiedDamage.second,
-			modifiedDamage.second
+			modifiedDamage.max,
+			modifiedDamage.max
 		};
 	}
 
 	return modifiedDamage;
 }
 
-TDmgRange DamageCalculator::getBaseDamageStack() const
+DamageRange DamageCalculator::getBaseDamageStack() const
 {
 	auto stackSize = info.attacker->getCount();
 	auto baseDamage = getBaseDamageBlessCurse();
 	return {
-		baseDamage.first * stackSize,
-		baseDamage.second * stackSize
+		baseDamage.min * stackSize,
+		baseDamage.max * stackSize
 	};
 }
 
@@ -450,6 +450,25 @@ std::vector<double> DamageCalculator::getDefenseFactors() const
 	};
 }
 
+DamageRange DamageCalculator::getCasualties(const DamageRange & damageDealt) const
+{
+	return {
+		getCasualties(damageDealt.min),
+		getCasualties(damageDealt.max),
+	};
+}
+
+int64_t DamageCalculator::getCasualties(int64_t damageDealt) const
+{
+	if (damageDealt < info.defender->getFirstHPleft())
+		return 0;
+
+	int64_t damageLeft = damageDealt - info.defender->getFirstHPleft();
+	int64_t killsLeft = damageLeft / info.defender->MaxHealth();
+
+	return 1 + killsLeft;
+}
+
 int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const
 {
 	auto noLimit = Selector::effectRange()(Bonus::NO_LIMIT);
@@ -461,9 +480,9 @@ int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelec
 	return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
 };
 
-TDmgRange DamageCalculator::calculateDmgRange() const
+DamageEstimation DamageCalculator::calculateDmgRange() const
 {
-	TDmgRange result = getBaseDamageStack();
+	DamageRange damageBase = getBaseDamageStack();
 
 	auto attackFactors = getAttackFactors();
 	auto defenseFactors = getDefenseFactors();
@@ -485,10 +504,16 @@ TDmgRange DamageCalculator::calculateDmgRange() const
 
 	double resultingFactor = std::min(8.0, attackFactorTotal) * std::max( 0.01, defenseFactorTotal);
 
-	return {
-		std::max( 1.0, std::floor(result.first * resultingFactor)),
-		std::max( 1.0, std::floor(result.second * resultingFactor))
+	info.defender->getTotalHealth();
+
+	DamageRange damageDealt {
+		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),
+		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor))
 	};
+
+	DamageRange killsDealt = getCasualties(damageDealt);
+
+	return DamageEstimation{damageDealt, killsDealt};
 }
 
 VCMI_LIB_NAMESPACE_END

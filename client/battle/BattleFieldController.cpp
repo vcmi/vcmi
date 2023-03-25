@@ -263,7 +263,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 	const CSpell *spell = nullptr;
 
 	spells::Mode mode = owner.actionsController->getCurrentCastMode();
-	spell = owner.actionsController->getCurrentSpell();
+	spell = owner.actionsController->getCurrentSpell(hoveredHex);
 	caster = owner.actionsController->getCurrentSpellcaster();
 
 	if(caster && spell) //when casting spell

@@ -222,10 +222,7 @@ void CMinimap::setAIRadar(bool on)
 		aiShield->disable();
 		update();
 	}
-
-	// this may happen during AI turn when this interface is inactive
-	// force redraw in order to properly update interface
-	GH.totalRedraw();
+	redraw();
 }
 
 void CMinimap::updateTile(const int3 &pos)

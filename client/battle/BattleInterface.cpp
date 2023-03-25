@@ -54,6 +54,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
+	, battleOpeningDelayActive(true)
 {
 	if(spectatorInt)
 	{
@@ -112,7 +113,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 		}
 	};
 
-	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
 	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
@@ -120,8 +121,15 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
 			openingEnd();
 	}
-	else
+	else // failed to play sound
+	{
 		onIntroSoundPlayed();
+	}
+}
+
+bool BattleInterface::openingPlaying()
+{
+	return battleOpeningDelayActive;
 }
 
 void BattleInterface::onIntroSoundPlayed()
@@ -130,6 +138,19 @@ void BattleInterface::onIntroSoundPlayed()
 		openingEnd();
 
 	CCS->musich->playMusicFromSet("battle", true, true);
+}
+
+void BattleInterface::openingEnd()
+{
+	assert(openingPlaying());
+	if (!openingPlaying())
+		return;
+
+	onAnimationsFinished();
+	if(tacticsMode)
+		tacticNextStack(nullptr);
+	activateStack();
+	battleOpeningDelayActive = false;
 }
 
 BattleInterface::~BattleInterface()
@@ -309,6 +330,12 @@ void BattleInterface::battleFinished(const BattleResult& br)
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
 	windowObject->blockUI(true);
+
+	// Disable current active stack duing the cast
+	// Store the current activeStack to stackToActivate
+	stacksController->deactivateStack();
+
+	CCS->curh->set(Cursor::Combat::BLOCKED);
 
 	const SpellID spellID = sc->spellID;
 	const CSpell * spell = spellID.toSpell();
@@ -524,24 +551,6 @@ void BattleInterface::activateStack()
 	GH.fakeMouseMove();
 }
 
-bool BattleInterface::openingPlaying()
-{
-	return battleIntroSoundChannel != -1;
-}
-
-void BattleInterface::openingEnd()
-{
-	assert(openingPlaying());
-	if (!openingPlaying())
-		return;
-
-	onAnimationsFinished();
-	if(tacticsMode)
-		tacticNextStack(nullptr);
-	activateStack();
-	battleIntroSoundChannel = -1;
-}
-
 bool BattleInterface::makingTurn() const
 {
 	return stacksController->getActiveStack() != nullptr;
@@ -550,6 +559,9 @@ bool BattleInterface::makingTurn() const
 void BattleInterface::endAction(const BattleAction* action)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
+
+	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast
+	activateStack();
 
 	stacksController->endAction(action);
 	windowObject->updateQueue();
@@ -693,6 +705,8 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 				auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 				givenCommand.setn(ba.release());
 			}
+
+			stacksController->setActiveStack(nullptr);
 		}
 	});
 

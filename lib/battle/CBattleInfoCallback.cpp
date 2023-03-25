@@ -15,6 +15,7 @@
 #include "../CStack.h"
 #include "BattleInfo.h"
 #include "DamageCalculator.h"
+#include "PossiblePlayerBattleAction.h"
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -218,11 +219,14 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	{
 		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
 		{
-			if(stack->hasBonusOfType(Bonus::SPELLCASTER) && data.creatureSpellToCast != -1)
+			if(stack->hasBonusOfType(Bonus::SPELLCASTER))
 			{
-				const CSpell *spell = SpellID(data.creatureSpellToCast).toSpell();
-				PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
-				allowedActionList.push_back(act);
+				for (auto const & spellID : data.creatureSpellsToCast)
+				{
+					const CSpell *spell = spellID.toSpell();
+					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
+					allowedActionList.push_back(act);
+				}
 			}
 			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
@@ -251,7 +255,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const
 {
 	RETURN_IF_NOT_BATTLE(PossiblePlayerBattleAction::INVALID);
-	PossiblePlayerBattleAction spellSelMode = PossiblePlayerBattleAction::ANY_LOCATION;
+	auto spellSelMode = PossiblePlayerBattleAction::ANY_LOCATION;
 
 	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
 
@@ -264,7 +268,7 @@ PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * s
 	else if(ti.type == spells::AimType::OBSTACLE)
 		spellSelMode = PossiblePlayerBattleAction::OBSTACLE;
 
-	return spellSelMode;
+	return PossiblePlayerBattleAction(spellSelMode, spell->id);
 }
 
 std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
@@ -715,57 +719,64 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 	return false;
 }
 
-TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
+DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
 {
 	DamageCalculator calculator(*this, info);
 
 	return calculator.calculateDmgRange();
 }
 
-TDmgRange CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, TDmgRange * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, DamageEstimation * retaliationDmg) const
 {
-	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
+	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
 	int movementDistance = reachability[attackerPosition];
 	return battleEstimateDamage(attacker, defender, movementDistance, retaliationDmg);
 }
 
-TDmgRange CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, TDmgRange * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg) const
 {
-	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
+	RETURN_IF_NOT_BATTLE({});
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
 	const BattleAttackInfo bai(attacker, defender, movementDistance, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 
-TDmgRange CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, TDmgRange * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, DamageEstimation * retaliationDmg) const
 {
-	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
+	RETURN_IF_NOT_BATTLE({});
 
-	TDmgRange ret = calculateDmgRange(bai);
+	DamageEstimation ret = calculateDmgRange(bai);
 
 	if(retaliationDmg)
 	{
 		if(bai.shooting)
 		{
 			//FIXME: handle RANGED_RETALIATION
-			retaliationDmg->first = retaliationDmg->second = 0;
+			*retaliationDmg = DamageEstimation();
 		}
 		else
 		{
 			//TODO: rewrite using boost::numeric::interval
 			//TODO: rewire once more using interval-based fuzzy arithmetic
 
-			int64_t TDmgRange::* pairElems[] = {&TDmgRange::first, &TDmgRange::second};
-			for (int i=0; i<2; ++i)
+			auto const & estimateRetaliation = [&]( int64_t damage)
 			{
 				auto retaliationAttack = bai.reverse();
-				int64_t dmg = ret.*pairElems[i];
 				auto state = retaliationAttack.attacker->acquireState();
-				state->damage(dmg);
+				state->damage(damage);
 				retaliationAttack.attacker = state.get();
-				retaliationDmg->*pairElems[!i] = calculateDmgRange(retaliationAttack).*pairElems[!i];
-			}
+				return calculateDmgRange(retaliationAttack);
+			};
+
+			DamageEstimation retaliationMin = estimateRetaliation(ret.damage.min);
+			DamageEstimation retaliationMax = estimateRetaliation(ret.damage.min);
+
+			retaliationDmg->damage.min = std::min(retaliationMin.damage.min, retaliationMax.damage.min);
+			retaliationDmg->damage.max = std::max(retaliationMin.damage.max, retaliationMax.damage.max);
+
+			retaliationDmg->kills.min = std::min(retaliationMin.kills.min, retaliationMax.kills.min);
+			retaliationDmg->kills.max = std::max(retaliationMin.kills.max, retaliationMax.kills.max);
 		}
 	}
 
@@ -993,12 +1004,19 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 
 	for(auto &oi : battleGetAllObstacles(whichSidePerspective))
 	{
-		if(battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
+		if(!battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
+			continue;
+
+		for(const auto & hex : oi->getStoppingTile())
 		{
-			range::copy(oi->getStoppingTile(), vstd::set_inserter(ret));
+			if(hex == ESiegeHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
+			{
+				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
+					continue; // this tile is disabled by drawbridge on top of it
+			}
+			ret.insert(hex);
 		}
 	}
-
 	return ret;
 }
 
@@ -1646,12 +1664,16 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{
-		totalWeight += std::max(b->additionalInfo[0], 1); //minimal chance to cast is 1
+		totalWeight += std::max(b->additionalInfo[0], 0); //spells with 0 weight are non-random, exclude them
 	}
+
+	if (totalWeight == 0)
+		return SpellID::NONE;
+
 	int randomPos = rand.nextInt(totalWeight - 1);
 	for(const auto & b : *bl)
 	{
-		randomPos -= std::max(b->additionalInfo[0], 1);
+		randomPos -= std::max(b->additionalInfo[0], 0);
 		if(randomPos < 0)
 		{
 			return SpellID(b->subtype);

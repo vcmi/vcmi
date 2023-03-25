@@ -583,6 +583,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->garr->setArmy(town->visitingHero, 1);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
+		castleInt->redraw();
 	}
 	for (auto isa : GH.listInt)
 	{
@@ -591,9 +592,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		{
 			ki->townChanged(town);
 			ki->updateGarrisons();
+			ki->redraw();
 		}
 	}
-	GH.totalRedraw();
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
@@ -1510,6 +1511,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
+	GH.fakeMouseMove();
 }
 
 void CPlayerInterface::objectRemovedAfter()
@@ -1559,7 +1561,6 @@ void CPlayerInterface::update()
 	}
 
 	assert(adventureInt);
-	assert(adventureInt->selection);
 
 	// Handles mouse and key input
 	GH.updateTime();
@@ -2032,7 +2033,9 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	if (ignoreEvents)
+	bool needToLockAdventureMap = adventureInt->active && CGI->mh->hasOngoingAnimations();
+
+	if (ignoreEvents || needToLockAdventureMap)
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
 		while(!SDLEventsQueue.empty())

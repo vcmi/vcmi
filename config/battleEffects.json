@@ -68,7 +68,7 @@
 				"alpha" : 0.0
 			},
 			{
-				"time" : 0.2
+				"time" : 0.5
 			},
 		],
 		"teleportFadeOut" : [
@@ -76,7 +76,7 @@
 				"time" : 0.0
 			},
 			{
-				"time" : 0.2,
+				"time" : 0.5,
 				"alpha" : 0.0
 			},
 		],

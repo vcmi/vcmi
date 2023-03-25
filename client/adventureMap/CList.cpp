@@ -77,7 +77,7 @@ void CList::CListItem::onSelect(bool on)
 	if(on)
 		selection = genSelection();
 	select(on);
-	GH.totalRedraw();
+	redraw();
 }
 
 CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create)

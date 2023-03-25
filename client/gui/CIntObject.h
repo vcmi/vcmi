@@ -65,13 +65,7 @@ class CIntObject : public IShowActivatable //interface object
 {
 	ui16 used;//change via addUsed() or delUsed
 
-	//time handling
-	int toNextTick;
-	int timerDelay;
-
 	std::map<MouseButton, bool> currentMouseState;
-
-	void onTimer(int timePassed);
 
 	//non-const versions of fields to allow changing them in CIntObject
 	CIntObject *parent_m; //parent object
@@ -129,8 +123,7 @@ public:
 	virtual void mouseMoved (const Point & cursorPosition){}
 
 	//time handling
-	void setTimer(int msToTrigger);//set timer delay and activate timer if needed.
-	virtual void tick(){}
+	virtual void tick(uint32_t msPassed){}
 
 	//mouse wheel
 	virtual void wheelScrolled(bool down, bool in){}

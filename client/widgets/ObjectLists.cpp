@@ -35,7 +35,8 @@ std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 
 	item->recActions = defActions;
 	addChild(item.get());
-	item->activate();
+	if (active)
+		item->activate();
 	return item;
 }
 

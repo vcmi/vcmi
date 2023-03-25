@@ -24,71 +24,85 @@
 #include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 
-#include <SDL_timer.h>
-
 CInGameConsole::CInGameConsole()
-	: CIntObject(KEYBOARD | TEXTINPUT),
-	prevEntDisp(-1),
-	defaultTimeout(10000),
-	maxDisplayedTexts(10)
+	: CIntObject(KEYBOARD | TIME | TEXTINPUT)
+	, prevEntDisp(-1)
 {
+	type |= REDRAW_PARENT;
+}
+
+void CInGameConsole::showAll(SDL_Surface * to)
+{
+	show(to);
 }
 
 void CInGameConsole::show(SDL_Surface * to)
 {
 	int number = 0;
 
-	std::vector<std::list< std::pair< std::string, uint32_t > >::iterator> toDel;
-
 	boost::unique_lock<boost::mutex> lock(texts_mx);
-	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
+	for(auto & text : texts)
 	{
 		Point leftBottomCorner(0, pos.h);
+		Point textPosition(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number * 20);
 
-		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
-			Point(leftBottomCorner.x + 50, leftBottomCorner.y - (int)texts.size() * 20 - 80 + number*20));
+		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, textPosition );
 
-		if((int)(SDL_GetTicks() - it->second) > defaultTimeout)
-		{
-			toDel.push_back(it);
-		}
-	}
-
-	for(auto & elem : toDel)
-	{
-		texts.erase(elem);
+		number++;
 	}
 }
 
-void CInGameConsole::print(const std::string &txt)
+void CInGameConsole::tick(uint32_t msPassed)
 {
-	boost::unique_lock<boost::mutex> lock(texts_mx);
-	int lineLen = conf.go()->ac.outputLineLength;
-
-	if(txt.size() < lineLen)
+	size_t sizeBefore = texts.size();
 	{
-		texts.push_back(std::make_pair(txt, SDL_GetTicks()));
-		if(texts.size() > maxDisplayedTexts)
-		{
-			texts.pop_front();
-		}
-	}
-	else
-	{
-		assert(lineLen);
-		for(int g=0; g<txt.size() / lineLen + 1; ++g)
-		{
-			std::string part = txt.substr(g * lineLen, lineLen);
-			if(part.size() == 0)
-				break;
+		boost::unique_lock<boost::mutex> lock(texts_mx);
 
-			texts.push_back(std::make_pair(part, SDL_GetTicks()));
-			if(texts.size() > maxDisplayedTexts)
+		for(auto & text : texts)
+			text.timeOnScreen += msPassed;
+
+		vstd::erase_if(
+			texts,
+			[&](const auto & value)
 			{
-				texts.pop_front();
+				return value.timeOnScreen > defaultTimeout;
+			}
+		);
+	}
+
+	if(sizeBefore != texts.size())
+		GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+}
+
+void CInGameConsole::print(const std::string & txt)
+{
+	// boost::unique_lock scope
+	{
+		boost::unique_lock<boost::mutex> lock(texts_mx);
+		int lineLen = conf.go()->ac.outputLineLength;
+
+		if(txt.size() < lineLen)
+		{
+			texts.push_back({txt, 0});
+		}
+		else
+		{
+			assert(lineLen);
+			for(int g = 0; g < txt.size() / lineLen + 1; ++g)
+			{
+				std::string part = txt.substr(g * lineLen, lineLen);
+				if(part.empty())
+					break;
+
+				texts.push_back({part, 0});
 			}
 		}
+
+		while(texts.size() > maxDisplayedTexts)
+			texts.erase(texts.begin());
 	}
+
+	GH.totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::keyPressed (const SDL_Keycode & key)
@@ -136,7 +150,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 		}
 	case SDLK_UP: //up arrow
 		{
-			if(previouslyEntered.size() == 0)
+			if(previouslyEntered.empty())
 				break;
 
 			if(prevEntDisp == -1)
@@ -178,7 +192,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 
 void CInGameConsole::textInputed(const std::string & inputtedText)
 {
-	if(!captureAllKeys || enteredText.size() == 0)
+	if(!captureAllKeys || enteredText.empty())
 		return;
 	enteredText.resize(enteredText.size()-1);
 

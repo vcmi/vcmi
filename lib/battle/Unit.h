@@ -70,10 +70,19 @@ public:
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 
+	/// returns initial size of this unit
 	virtual int32_t getCount() const = 0;
+
+	/// returns remaining health of first unit
 	virtual int32_t getFirstHPleft() const = 0;
+
+	/// returns total amount of killed in this unit
 	virtual int32_t getKilled() const = 0;
+
+	/// returns total health that unit still has
 	virtual int64_t getAvailableHealth() const = 0;
+
+	/// returns total health that unit had initially
 	virtual int64_t getTotalHealth() const = 0;
 
 	virtual int getTotalAttacks(bool ranged) const = 0;

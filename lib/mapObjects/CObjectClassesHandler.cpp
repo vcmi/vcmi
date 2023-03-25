@@ -399,12 +399,43 @@ void CObjectClassesHandler::afterLoadFinalization()
 		}
 	}
 
+	generateExtraMonolithsForRMG();
+}
+
+void CObjectClassesHandler::generateExtraMonolithsForRMG()
+{
 	//duplicate existing two-way portals to make reserve for RMG
 	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
-	size_t portalCount = portalVec.size();
+	//FIXME: Monoliths  in this vector can be already not useful for every terrain
+	const size_t portalCount = portalVec.size();
 
-	for (size_t i = portalCount; i < 100; ++i)
-		portalVec.push_back(portalVec[static_cast<si32>(i % portalCount)]);
+	//Invalid portals will be skipped and portalVec size stays unchanged
+	for (size_t i = portalCount; portalVec.size() < 100; ++i)
+	{
+		auto index = static_cast<si32>(i % portalCount);
+		auto portal = portalVec[index];
+		auto templates = portal->getTemplates();
+		if (templates.empty() || !templates[0]->canBePlacedAtAnyTerrain())
+		{
+			continue; //Do not clone HoTA water-only portals or any others we can't use
+		}
+
+		//deep copy of noncopyable object :?
+		auto newPortal = std::make_shared<CDefaultObjectTypeHandler<CGMonolith>>();
+		newPortal->rmgInfo = portal->getRMGInfo();
+		newPortal->base = portal->base; //not needed?
+		newPortal->templates = portal->getTemplates();
+		newPortal->sounds = portal->getSounds();
+		newPortal->aiValue = portal->getAiValue();
+		newPortal->battlefield = portal->battlefield; //getter is not initialized at this point
+		newPortal->modScope = portal->modScope; //private
+		newPortal->typeName = portal->getTypeName(); 
+		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size());
+		newPortal->type = portal->getIndex();
+
+		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
+		portalVec.push_back(newPortal);
+	}
 }
 
 std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const

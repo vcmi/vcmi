@@ -209,24 +209,28 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 		return false;
-	
+
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
 	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
 
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
-	
+
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
 	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
-	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
-	{
-		rmg::Area a({tile});
-		a = a.getBorderOutside();
-		a.intersect(waterAvailable);
-		return !a.empty();
-	});
-	
+	auto boardingPositions = coast.getSubarea([&waterAvailable, this](const int3 & tile) //tiles where boarding is possible
+		{
+			//We don't want place boat right to any land object, especiallly the zone guard
+			if (map.getTile(tile).getNearestObjectDistance() <= 3)
+				return false;
+
+			rmg::Area a({tile});
+			a = a.getBorderOutside();
+			a.intersect(waterAvailable);
+			return !a.empty();
+		});
+
 	while(!boardingPositions.empty())
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
@@ -239,27 +243,28 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 			boardingPositions.erase(boardingPosition);
 			continue;
 		}
-		
+
 		//try to place boat at water, create paths on water and land
-		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, ObjectManager::OptimizeType::NONE);
+		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 4, false, true, ObjectManager::OptimizeType::NONE);
 		auto landPath = land.searchPath(boardingPosition, false);
 		if(!path.valid() || !landPath.valid())
 		{
 			boardingPositions.erase(boardingPosition);
 			continue;
 		}
-		
+
 		info.blocked = rmgObject.getArea();
 		info.visitable = rmgObject.getVisitablePosition();
 		info.boarding = boardingPosition;
 		info.water = shipPositions;
-		
+
 		zone.connectPath(path);
 		land.connectPath(landPath);
 		manager->placeObject(rmgObject, false, true);
+		land.getModificator<ObjectManager>()->updateDistances(rmgObject); //Keep land objects away from the boat
 		break;
 	}
-	
+
 	return !boardingPositions.empty();
 }
 

@@ -38,7 +38,8 @@
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
-	owner(owner)
+	owner(owner),
+	defaultAction(PossiblePlayerBattleAction::INVALID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.w = 800;
@@ -326,7 +327,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 		return;
 	
 	std::string iconName = variables["actionIconDefault"].String();
-	switch(action)
+	switch(action.get())
 	{
 		case PossiblePlayerBattleAction::ATTACK:
 			iconName = variables["actionIconAttack"].String();

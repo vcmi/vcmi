@@ -68,7 +68,7 @@ int64_t BattleExchangeVariant::trackAttack(
 	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
-	TDmgRange retaliation;
+	DamageEstimation retaliation;
 	// FIXME: provide distance info for Jousting bonus
 	BattleAttackInfo bai(attacker.get(), defender.get(), 0, shooting);
 
@@ -78,7 +78,7 @@ int64_t BattleExchangeVariant::trackAttack(
 	}
 
 	auto attack = cb.battleEstimateDamage(bai, &retaliation);
-	int64_t attackDamage = (attack.first + attack.second) / 2;
+	int64_t attackDamage = (attack.damage.min + attack.damage.max) / 2;
 	int64_t defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, cb);
 	int64_t attackerDamageReduce = 0;
 
@@ -108,9 +108,9 @@ int64_t BattleExchangeVariant::trackAttack(
 
 	if(defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
-		if(retaliation.second != 0)
+		if(retaliation.damage.max != 0)
 		{
-			auto retaliationDamage = (retaliation.first + retaliation.second) / 2;
+			auto retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
 			attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, cb);
 
 			if(!evaluateOnly)

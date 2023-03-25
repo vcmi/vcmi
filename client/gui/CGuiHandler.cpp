@@ -192,7 +192,7 @@ void CGuiHandler::updateTime()
 	for (auto & elem : hlp)
 	{
 		if(!vstd::contains(timeinterested,elem)) continue;
-		(elem)->onTimer(ms);
+		(elem)->tick(ms);
 	}
 }
 

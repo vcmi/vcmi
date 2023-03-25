@@ -986,7 +986,6 @@ void CAdvMapInt::initializeNewTurn()
 {
 	heroList->update();
 	townList->update();
-	mapAudio->onPlayerTurnStarted();
 
 	const CGHeroInstance * heroToSelect = nullptr;
 
@@ -1017,6 +1016,7 @@ void CAdvMapInt::initializeNewTurn()
 
 	updateNextHero(nullptr);
 	showAll(screen);
+	mapAudio->onPlayerTurnStarted();
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
@@ -1404,6 +1404,7 @@ void CAdvMapInt::aiTurnStarted()
 	mapAudio->onEnemyTurnStarted();
 	adventureInt->minimap->setAIRadar(true);
 	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	adventureInt->minimap->showAll(screen);//force refresh on inactive object
 	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
 }
 

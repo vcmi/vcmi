@@ -514,6 +514,11 @@ void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
 	{
 		callInterfaceIfPresent(cl, town->tempOwner, &IGameEventsReceiver::buildChanged, town, id, 1);
 	}
+
+	// invalidate section of map view with our object and force an update
+	CGI->mh->onObjectInstantRemove(town);
+	CGI->mh->onObjectInstantAdd(town);
+
 }
 void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 {
@@ -522,6 +527,10 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 	{
 		callInterfaceIfPresent(cl, town->tempOwner, &IGameEventsReceiver::buildChanged, town, id, 2);
 	}
+
+	// invalidate section of map view with our object and force an update
+	CGI->mh->onObjectInstantRemove(town);
+	CGI->mh->onObjectInstantAdd(town);
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
@@ -607,7 +616,7 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 
 	if (pack.what == ObjProperty::OWNER)
 	{
-		// invalidate section of map view with our objec and force an update with new flag color
+		// invalidate section of map view with our object and force an update with new flag color
 		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
 		CGI->mh->onObjectInstantAdd(gs.getObjInstance(pack.id));
 	}
@@ -739,11 +748,14 @@ void ApplyFirstClientNetPackVisitor::visitBattleStackMoved(BattleStackMoved & pa
 void ApplyFirstClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleAttack, &pack);
+
+	// battleStacksAttacked should be excuted before BattleAttack.applyGs() to play animation before damaging unit
+	// so this has to be here instead of ApplyClientNetPackVisitor::visitBattleAttack()
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, pack.bsa, pack.shot());
 }
 
 void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, pack.bsa, pack.shot());
 }
 
 void ApplyFirstClientNetPackVisitor::visitStartAction(StartAction & pack)

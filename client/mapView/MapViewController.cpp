@@ -251,6 +251,26 @@ void MapViewController::fadeInObject(const CGObjectInstance * obj)
 
 void MapViewController::removeObject(const CGObjectInstance * obj)
 {
+	if (obj->ID == Obj::BOAT)
+	{
+		auto * boat = dynamic_cast<const CGBoat*>(obj);
+		if (boat->hero)
+		{
+			view->invalidate(context, boat->hero->id);
+			state->removeObject(boat->hero);
+		}
+	}
+
+	if (obj->ID == Obj::HERO)
+	{
+		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
+		if (hero->boat)
+		{
+			view->invalidate(context, hero->boat->id);
+			state->removeObject(hero->boat);
+		}
+	}
+
 	view->invalidate(context, obj->id);
 	state->removeObject(obj);
 }
@@ -265,7 +285,7 @@ void MapViewController::onBeforeHeroEmbark(const CGHeroInstance * obj, const int
 {
 	if(isEventVisible(obj, from, dest))
 	{
-		onObjectFadeOut(obj);
+		fadeOutObject(obj);
 		setViewCenter(obj->getSightCenter());
 	}
 	else
@@ -288,7 +308,7 @@ void MapViewController::onAfterHeroDisembark(const CGHeroInstance * obj, const i
 {
 	if(isEventVisible(obj, from, dest))
 	{
-		onObjectFadeIn(obj);
+		fadeInObject(obj);
 		setViewCenter(obj->getSightCenter());
 	}
 	addObject(obj);

@@ -56,9 +56,10 @@ public:
 	void calcDmg(const CStack * ourStack)
 	{
 		// FIXME: provide distance info for Jousting bonus
-		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, 0, &retal);
-		adi = static_cast<int>((dmg.first + dmg.second) / 2);
-		adr = static_cast<int>((retal.first + retal.second) / 2);
+		DamageEstimation retal;
+		DamageEstimation dmg = cbc->battleEstimateDamage(ourStack, s, 0, &retal);
+		adi = static_cast<int>((dmg.damage.min + dmg.damage.max) / 2);
+		adr = static_cast<int>((retal.damage.min + retal.damage.max) / 2);
 	}
 
 	bool operator==(const EnemyInfo& ei) const

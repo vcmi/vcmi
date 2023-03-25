@@ -17,7 +17,7 @@ class CIntObject;
 
 class ClientCommandManager //take mantis #2292 issue about account if thinking about handling cheats from command-line
 {
-	bool currentCallFromIngameConsole;
+	bool currentCallFromIngameConsole = false;
 
 	void giveTurn(const PlayerColor &color);
 	void printInfoAboutInterfaceObject(const CIntObject *obj, int level);

@@ -24,6 +24,7 @@ class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
 class CRandomGenerator;
+class PossiblePlayerBattleAction;
 
 namespace spells
 {
@@ -42,35 +43,9 @@ struct DLL_LINKAGE AttackableTiles
 	}
 };
 
-enum class PossiblePlayerBattleAction // actions performed at l-click
-{
-	INVALID = -1,
-	CREATURE_INFO,
-	HERO_INFO,
-	MOVE_TACTICS,
-	CHOOSE_TACTICS_STACK,
-
-	MOVE_STACK,
-	ATTACK,
-	WALK_AND_ATTACK,
-	ATTACK_AND_RETURN,
-	SHOOT,
-	CATAPULT,
-	HEAL,
-
-	NO_LOCATION,          // massive spells that affect every possible target, automatic casts
-	ANY_LOCATION,
-	OBSTACLE,
-	TELEPORT,
-	SACRIFICE,
-	RANDOM_GENIE_SPELL,   // random spell on a friendly creature
-	FREE_LOCATION,        // used with Force Field and Fire Wall - all tiles affected by spell must be free
-	AIMED_SPELL_CREATURE, // spell targeted at creature
-};
-
 struct DLL_LINKAGE BattleClientInterfaceData
 {
-	si32 creatureSpellToCast;
+	std::vector<SpellID> creatureSpellsToCast;
 	ui8 tacticsMode;
 };
 
@@ -117,14 +92,14 @@ public:
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack
 	std::set<const battle::Unit *> battleAdjacentUnits(const battle::Unit * unit) const;
 
-	TDmgRange calculateDmgRange(const BattleAttackInfo & info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
+	DamageEstimation calculateDmgRange(const BattleAttackInfo & info) const;
 
 	/// estimates damage dealt by attacker to defender;
 	/// only non-random bonuses are considered in estimation
 	/// returns pair <min dmg, max dmg>
-	TDmgRange battleEstimateDamage(const BattleAttackInfo & bai, TDmgRange * retaliationDmg = nullptr) const;
-	TDmgRange battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, TDmgRange * retaliationDmg = nullptr) const;
-	TDmgRange battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, TDmgRange * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const BattleAttackInfo & bai, DamageEstimation * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, DamageEstimation * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg = nullptr) const;
 
 	bool battleHasDistancePenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const;
 	bool battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const;

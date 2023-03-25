@@ -1120,6 +1120,7 @@ public:
 		LICHES = 64,
 		BONE_DRAGON = 68,
 		TROGLODYTES = 70,
+		MEDUSA = 76,
 		HYDRA = 110,
 		CHAOS_HYDRA = 111,
 		AIR_ELEMENTAL = 112,
@@ -1245,7 +1246,7 @@ class ObstacleInfo;
 class Obstacle : public BaseForID<Obstacle, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(Obstacle, si32)
-	
+
 	DLL_LINKAGE const ObstacleInfo * getInfo() const;
 	DLL_LINKAGE operator std::string() const;
 	DLL_LINKAGE static Obstacle fromString(const std::string & identifier);
@@ -1295,7 +1296,6 @@ enum class EHealPower : ui8
 // Typedef declarations
 typedef ui8 TFaction;
 typedef si64 TExpType;
-typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
 
