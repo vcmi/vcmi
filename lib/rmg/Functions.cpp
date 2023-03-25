@@ -130,7 +130,17 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	{
 		if(zone.isMatchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
 		{
-			zone.setTerrainType((*VLC->townh)[zone.getTownType()]->nativeTerrain);
+			auto terrainType = (*VLC->townh)[zone.getTownType()]->nativeTerrain;
+
+			if (terrainType <= ETerrainId::NONE)
+			{
+				logGlobal->warn("Town %s has invalid terrain type: %s", zone.getTownType(), terrainType);
+				zone.setTerrainType(ETerrainId::DIRT);
+			}
+			else
+			{
+				zone.setTerrainType(terrainType);
+			}
 		}
 		else
 		{
