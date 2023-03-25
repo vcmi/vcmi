@@ -84,6 +84,17 @@
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by pominąć muzykę startową",
 
+	"vcmi.battleWindow.damageEstimation.melee" : "Atakuj %CREATURE (%DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.meleeKills" : "Atakuj %CREATURE (%DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.ranged" : "Strzelaj do %CREATURE (%SHOTS, %DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.rangedKills" : "Strzelaj do %CREATURE (%SHOTS, %DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.shots" : "pozostałe strzały: %d",
+	"vcmi.battleWindow.damageEstimation.shots.1" : "pozostał %d strzał",
+	"vcmi.battleWindow.damageEstimation.damage" : "obrażenia: %d",
+	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
+	"vcmi.battleWindow.damageEstimation.kills" : "%d zginie",
+	"vcmi.battleWindow.damageEstimation.kills.1" : "%d zginie",
+
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Pokaż dostępne stworzenia",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Pokaż dostępne stworzenia}\n\n Pokazuje dostępne stworzenia zamiast tygodniowego przyrostu w podsumowaniu miasta (lewy dolny róg).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Pokaż tygodniowy przyrost stworzeń",
