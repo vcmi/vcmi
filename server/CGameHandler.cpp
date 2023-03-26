@@ -1559,7 +1559,13 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				stackIsMoving = false;
 		}
 	}
-
+	//handle last hex separately for deviation
+	if (VLC->settings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
+	{
+		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->side)
+			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->side))
+			passed.clear(); //Just empty passed, obstacles will handled automatically
+	}
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
 	handleDamageFromObstacle(curStack, false, passed);
 
