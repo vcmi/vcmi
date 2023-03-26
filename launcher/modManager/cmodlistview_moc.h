@@ -47,6 +47,9 @@ class CModListView : public QWidget
 
 	void checkManagerErrors();
 
+	/// replace mod ID's with proper human-readable mod names
+	QStringList getModNames(QStringList input);
+
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findInvalidDependencies(QString mod);
 	// find mods that block enabling of this mod: conflicting with this mod or one of required mods

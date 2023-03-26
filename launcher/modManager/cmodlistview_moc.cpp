@@ -213,6 +213,25 @@ QString CModListView::genChangelogText(CModEntry & mod)
 	return result;
 }
 
+QStringList CModListView::getModNames(QStringList input)
+{
+	QStringList result;
+
+	for (auto const & modID : input)
+	{
+		auto mod = modModel->getMod(modID);
+
+		QString modName = mod.getValue("name").toString();
+
+		if (modName.isEmpty())
+			result += modID;
+		else
+			result += modName;
+	}
+
+	return result;
+}
+
 QString CModListView::genModInfoText(CModEntry & mod)
 {
 	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
@@ -290,9 +309,9 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	if(needToShowSupportedLanguages)
 		result += replaceIfNotEmpty(supportedLanguages, lineTemplate.arg(tr("Languages")));
 
-	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
-	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
-	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg(tr("Description")));
+	result += replaceIfNotEmpty(getModNames(mod.getValue("depends").toStringList()), lineTemplate.arg(tr("Required mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getValue("conflicts").toStringList()), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getValue("description").toStringList()), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
 
@@ -304,12 +323,12 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	QString notes;
 
-	notes += replaceIfNotEmpty(findInvalidDependencies(mod.getName()), listTemplate.arg(unknownDeps));
-	notes += replaceIfNotEmpty(findBlockingMods(mod.getName()), listTemplate.arg(blockingMods));
+	notes += replaceIfNotEmpty(getModNames(findInvalidDependencies(mod.getName())), listTemplate.arg(unknownDeps));
+	notes += replaceIfNotEmpty(getModNames(findBlockingMods(mod.getName())), listTemplate.arg(blockingMods));
 	if(mod.isEnabled())
-		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), true), listTemplate.arg(hasActiveDependentMods));
+		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), true)), listTemplate.arg(hasActiveDependentMods));
 	if(mod.isInstalled())
-		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), false), listTemplate.arg(hasDependentMods));
+		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), false)), listTemplate.arg(hasDependentMods));
 
 	if(mod.getName().contains('.'))
 		notes += noteTemplate.arg(thisIsSubmod);
