@@ -217,7 +217,7 @@ QStringList CModListView::getModNames(QStringList input)
 {
 	QStringList result;
 
-	for (auto const & modID : input)
+	for(const auto & modID : input)
 	{
 		auto mod = modModel->getMod(modID);
 
