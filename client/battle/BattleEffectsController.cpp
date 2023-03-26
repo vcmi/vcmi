@@ -122,7 +122,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 			int currentFrame = static_cast<int>(floor(elem.currentFrame));
 			currentFrame %= elem.animation->size();
 
-			auto img = elem.animation->getImage(currentFrame);
+			auto img = elem.animation->getImage(currentFrame, static_cast<size_t>(elem.type));
 
 			canvas.draw(img, elem.pos);
 		});

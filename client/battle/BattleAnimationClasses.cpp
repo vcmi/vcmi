@@ -871,42 +871,43 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects):
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects, bool reversed):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	effectFlags(effects),
-	effectFinished(false)
+	effectFinished(false),
+	reversed(reversed)
 {
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	battlehexes = hex;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions = pos;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions.push_back(pos);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -924,6 +925,13 @@ bool EffectAnimation::init()
 		return false;
 	}
 
+	for (size_t i = 0; i < animation->size(size_t(BattleEffect::AnimType::DEFAULT)); ++i)
+	{
+		size_t current = animation->size(size_t(BattleEffect::AnimType::DEFAULT)) - 1 - i;
+
+		animation->duplicateImage(size_t(BattleEffect::AnimType::DEFAULT), current, size_t(BattleEffect::AnimType::REVERSE));
+	}
+
 	if (screenFill())
 	{
 		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
@@ -935,6 +943,7 @@ bool EffectAnimation::init()
 	be.effectID = ID;
 	be.animation = animation;
 	be.currentFrame = 0;
+	be.type = reversed ? BattleEffect::AnimType::REVERSE : BattleEffect::AnimType::DEFAULT;
 
 	for (size_t i = 0; i < std::max(battlehexes.size(), positions.size()); ++i)
 	{
