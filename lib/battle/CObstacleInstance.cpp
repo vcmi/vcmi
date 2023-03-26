@@ -86,6 +86,37 @@ bool CObstacleInstance::triggersEffects() const
 	return false;
 }
 
+void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
+{
+	auto obstacleInfo = getInfo();
+	auto hidden = false;
+	auto needAnimationOffsetFix = obstacleType == CObstacleInstance::USUAL;
+	int animationYOffset = 0;
+		
+	if(getInfo().blockedTiles.front() < 0) //TODO: holy ground ID=62,65,63
+		animationYOffset -= 42;
+
+	//We need only a subset of obstacle info for correct render
+	handler.serializeInt("position", pos);
+	handler.serializeString("appearSound", obstacleInfo.appearSound);
+	handler.serializeString("appearAnimation", obstacleInfo.appearAnimation);
+	handler.serializeString("animation", obstacleInfo.animation);
+	handler.serializeInt("animationYOffset", animationYOffset);
+
+	handler.serializeBool("hidden", hidden);
+	handler.serializeBool("needAnimationOffsetFix", needAnimationOffsetFix);
+}
+
+void CObstacleInstance::toInfo(ObstacleChanges & info, BattleChanges::EOperation operation)
+{
+	info.id = uniqueID;
+	info.operation = operation;
+
+	info.data.clear();
+	JsonSerializer ser(nullptr, info.data);
+	ser.serializeStruct("obstacle", *this);
+}
+
 SpellCreatedObstacle::SpellCreatedObstacle()
 	: turnsRemaining(-1),
 	casterSpellPower(0),
@@ -129,16 +160,6 @@ bool SpellCreatedObstacle::stopsMovement() const
 bool SpellCreatedObstacle::triggersEffects() const
 {
 	return trigger;
-}
-
-void SpellCreatedObstacle::toInfo(ObstacleChanges & info)
-{
-	info.id = uniqueID;
-	info.operation = ObstacleChanges::EOperation::ADD;
-
-	info.data.clear();
-	JsonSerializer ser(nullptr, info.data);
-	ser.serializeStruct("obstacle", *this);
 }
 
 void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)

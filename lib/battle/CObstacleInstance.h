@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "BattleHex.h"
+#include "NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -48,6 +49,10 @@ struct DLL_LINKAGE CObstacleInstance
 	virtual void battleTurnPassed(){};
 
 	virtual int getAnimationYOffset(int imageHeight) const;
+
+	void toInfo(ObstacleChanges & info, BattleChanges::EOperation operation = BattleChanges::EOperation::ADD);
+	
+	virtual void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -96,10 +101,9 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 
 	int getAnimationYOffset(int imageHeight) const override;
 
-	void toInfo(ObstacleChanges & info);
 	void fromInfo(const ObstacleChanges & info);
 
-	void serializeJson(JsonSerializeFormat & handler);
+	void serializeJson(JsonSerializeFormat & handler) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

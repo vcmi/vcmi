@@ -50,7 +50,11 @@ void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const E
 	BattleObstaclesChanged pack;
 
 	for(const auto & obstacle : getTargets(m, target, false))
+	{
+		auto * serializable = const_cast<CObstacleInstance*>(obstacle); //Workaround
 		pack.changes.emplace_back(obstacle->uniqueID, BattleChanges::EOperation::REMOVE);
+		serializable->toInfo(pack.changes.back(), BattleChanges::EOperation::REMOVE);
+	}
 
 	if(!pack.changes.empty())
 		server->apply(&pack);

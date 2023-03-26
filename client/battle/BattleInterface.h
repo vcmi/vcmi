@@ -29,6 +29,7 @@ struct CatapultAttack;
 struct BattleTriggerEffect;
 struct BattleHex;
 struct InfoAboutHero;
+class ObstacleChanges;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -214,6 +215,7 @@ public:
 	void endAction(const BattleAction* action);
 
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
+	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);
 
 	void gateStateChanged(const EGateState state);
 

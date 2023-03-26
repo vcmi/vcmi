@@ -759,6 +759,7 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> newObstacles;
+	std::vector<ObstacleChanges> removedObstacles;
 
 	for(auto & change : obstacles)
 	{
@@ -770,10 +771,15 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 			else
 				logNetwork->error("Invalid obstacle instance %d", change.id);
 		}
+		if(change.operation == BattleChanges::EOperation::REMOVE)
+			removedObstacles.push_back(change); //Obstacles are already removed, so, show animation based on json struct
 	}
 
 	if (!newObstacles.empty())
 		battleInt->obstaclePlaced(newObstacles);
+
+	if (!removedObstacles.empty())
+		battleInt->obstacleRemoved(removedObstacles);
 
 	battleInt->fieldController->redrawBackgroundWithHexes();
 }
