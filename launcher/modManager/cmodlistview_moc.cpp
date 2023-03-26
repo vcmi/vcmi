@@ -24,6 +24,7 @@
 #include "../jsonutils.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/Languages.h"
 
 void CModListView::setupModModel()
 {
@@ -221,7 +222,6 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
-	QString compatibleString = prefix + tr("Mod is compatible") + "</p>";
 	QString incompatibleString = redPrefix + tr("Mod is incompatible") + "</p>";
 	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
@@ -242,9 +242,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 		result += urlTemplate.arg(tr("Contact")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
 
 	//compatibility info
-	if(mod.isCompatible())
-		result += compatibleString.arg(tr("Compatibility"));
-	else
+	if(!mod.isCompatible())
 	{
 		auto compatibilityInfo = mod.getValue("compatibility").toMap();
 		auto minStr = compatibilityInfo.value("min").toString();
@@ -266,6 +264,31 @@ QString CModListView::genModInfoText(CModEntry & mod)
 				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
 		}
 	}
+
+	QStringList supportedLanguages;
+	QVariant baseLanguageVariant = mod.getBaseValue("language");
+	QString baseLanguageID = baseLanguageVariant.isValid() ? baseLanguageVariant.toString() : "english";
+
+	bool needToShowSupportedLanguages = false;
+
+	for(const auto & language : Languages::getLanguageList())
+	{
+		if (!language.hasTranslation)
+			continue;
+
+		QString languageID = QString::fromStdString(language.identifier);
+
+		if (languageID != baseLanguageID && !mod.getValue(languageID).isValid())
+			continue;
+
+		if (languageID != baseLanguageID)
+			needToShowSupportedLanguages = true;
+
+		supportedLanguages += QApplication::translate("Language", language.nameEnglish.c_str());
+	}
+
+	if(needToShowSupportedLanguages)
+		result += replaceIfNotEmpty(supportedLanguages, lineTemplate.arg(tr("Languages")));
 
 	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
