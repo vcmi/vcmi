@@ -60,6 +60,21 @@ bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
 	return true;
 }
 
+const std::string & CObstacleInstance::getAnimation() const
+{
+	return getInfo().animation;
+}
+
+const std::string & CObstacleInstance::getAppearAnimation() const
+{
+	return getInfo().appearAnimation;
+}
+
+const std::string & CObstacleInstance::getAppearSound() const
+{
+	return getInfo().appearSound;
+}
+
 int CObstacleInstance::getAnimationYOffset(int imageHeight) const
 {
 	int offset = imageHeight % 42;
@@ -217,6 +232,21 @@ void SpellCreatedObstacle::battleTurnPassed()
 {
 	if(turnsRemaining > 0)
 		turnsRemaining--;
+}
+
+const std::string & SpellCreatedObstacle::getAnimation() const
+{
+	return animation;
+}
+
+const std::string & SpellCreatedObstacle::getAppearAnimation() const
+{
+	return appearAnimation;
+}
+
+const std::string & SpellCreatedObstacle::getAppearSound() const
+{
+	return appearSound;
 }
 
 int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const

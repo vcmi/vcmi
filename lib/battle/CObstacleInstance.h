@@ -48,6 +48,11 @@ struct DLL_LINKAGE CObstacleInstance
 
 	virtual void battleTurnPassed(){};
 
+	//Client helper functions, make it easier to render animations
+	virtual const std::string & getAnimation() const;
+	virtual const std::string & getAppearAnimation() const;
+	virtual const std::string & getAppearSound() const;
+
 	virtual int getAnimationYOffset(int imageHeight) const;
 
 	void toInfo(ObstacleChanges & info, BattleChanges::EOperation operation = BattleChanges::EOperation::ADD);
@@ -99,6 +104,10 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 
 	void battleTurnPassed() override;
 
+	//Client helper functions, make it easier to render animations
+	const std::string & getAnimation() const override;
+	const std::string & getAppearAnimation() const override;
+	const std::string & getAppearSound() const override;
 	int getAnimationYOffset(int imageHeight) const override;
 
 	void fromInfo(const ObstacleChanges & info);
