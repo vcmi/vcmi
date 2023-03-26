@@ -250,8 +250,8 @@ public:
 	}
 
 	bool operator == (const Identifier & b) const { return num == b.num; }
-	bool operator <= (const Identifier & b) const { return num >= b.num; }
-	bool operator >= (const Identifier & b) const { return num <= b.num; }
+	bool operator <= (const Identifier & b) const { return num <= b.num; }
+	bool operator >= (const Identifier & b) const { return num >= b.num; }
 	bool operator != (const Identifier & b) const { return num != b.num; }
 	bool operator <  (const Identifier & b) const { return num <  b.num; }
 	bool operator >  (const Identifier & b) const { return num > b.num; }
