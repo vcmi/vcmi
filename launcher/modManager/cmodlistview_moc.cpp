@@ -829,10 +829,10 @@ void CModListView::doInstallMod(const QString & modName)
 	}
 }
 
-bool CModListView::isModInstalled(const QString & modName)
+bool CModListView::isModAvailable(const QString & modName)
 {
 	auto mod = modModel->getMod(modName);
-	return mod.isInstalled();
+	return mod.isAvailable();
 }
 
 bool CModListView::isModEnabled(const QString & modName)

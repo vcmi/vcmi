@@ -86,8 +86,8 @@ public:
 	/// install mod by name
 	void doInstallMod(const QString & modName);
 
-	/// returns true if mod is currently installed
-	bool isModInstalled(const QString & modName);
+	/// returns true if mod is available in repository and can be installed
+	bool isModAvailable(const QString & modName);
 
 	/// finds translation mod for specified languages. Returns empty string on error
 	QString getTranslationModName(const QString & language);

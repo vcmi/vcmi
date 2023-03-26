@@ -310,6 +310,10 @@ void FirstLaunchView::modPresetUpdate()
 	ui->checkBoxPresetExtras->setEnabled(checkCanInstallExtras());
 	ui->checkBoxPresetHota->setEnabled(checkCanInstallHota());
 	ui->checkBoxPresetWog->setEnabled(checkCanInstallWog());
+
+	// we can't install anything - either repository checkout is off or all recommended mods are already installed
+	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallHota() && !checkCanInstallWog())
+		exitSetup();
 }
 
 QString FirstLaunchView::findTranslationModName()
@@ -364,7 +368,7 @@ CModListView * FirstLaunchView::getModView()
 
 bool FirstLaunchView::checkCanInstallMod(const QString & modID)
 {
-	return getModView() && !getModView()->isModInstalled(modID);
+	return getModView() && getModView()->isModAvailable(modID);
 }
 
 void FirstLaunchView::on_pushButtonPresetBack_clicked()
@@ -376,16 +380,16 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 {
 	QStringList modsToInstall;
 
-	if (ui->checkBoxPresetLanguage && checkCanInstallTranslation())
+	if (ui->checkBoxPresetLanguage->isChecked() && checkCanInstallTranslation())
 		modsToInstall.push_back(findTranslationModName());
 
-	if (ui->checkBoxPresetExtras && checkCanInstallExtras())
+	if (ui->checkBoxPresetExtras->isChecked() && checkCanInstallExtras())
 		modsToInstall.push_back("vcmi-extras");
 
-	if (ui->checkBoxPresetWog && checkCanInstallWog())
+	if (ui->checkBoxPresetWog->isChecked() && checkCanInstallWog())
 		modsToInstall.push_back("wake-of-gods");
 
-	if (ui->checkBoxPresetHota && checkCanInstallHota())
+	if (ui->checkBoxPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
 	exitSetup();
