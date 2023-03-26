@@ -41,6 +41,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  define VCMI_FREEBSD
+#elif defined(__HAIKU__)
+#  define VCMI_UNIX
+#  define VCMI_XDG
+#  define VCMI_HAIKU
 #elif defined(__GNU__) || defined(__gnu_hurd__) || (defined(__MACH__) && !defined(__APPLE__))
 #  define VCMI_UNIX
 #  define VCMI_XDG

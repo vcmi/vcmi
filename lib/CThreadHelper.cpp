@@ -12,6 +12,8 @@
 
 #ifdef VCMI_WINDOWS
 	#include <windows.h>
+#elif defined(VCMI_HAIKU)
+	#include <OS.h>
 #elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && !defined(VCMI_HURD)
 	#include <sys/prctl.h>
 #endif
@@ -89,6 +91,8 @@ void setThreadName(const std::string &name)
 	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #elif defined(VCMI_APPLE)
 	pthread_setname_np(name.c_str());
+#elif defined(VCMI_HAIKU)
+	rename_thread(find_thread(NULL), name.c_str());
 #endif
 }
 
