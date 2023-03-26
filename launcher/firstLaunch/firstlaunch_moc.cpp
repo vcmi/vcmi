@@ -232,9 +232,10 @@ bool FirstLaunchView::heroesDataDetect()
 	CResourceHandler::load("config/filesystem.json");
 
 	// use file from lod archive to check presence of H3 data. Very rough estimate, but will work in majority of cases
-	bool heroesDataFound = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
+	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
+	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourceID("DATA/TENTCOLR.TXT"));
 
-	return heroesDataFound;
+	return heroesDataFoundROE && heroesDataFoundSOD;
 }
 
 void FirstLaunchView::heroesLanguageUpdate()
@@ -267,16 +268,46 @@ void FirstLaunchView::copyHeroesData()
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
-	if(dirData.empty() || dirMaps.empty() || dirMp3.empty())
+	if(dirData.empty())
+	{
+		QMessageBox::critical(this, "Heroes III data not found!", "Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
 		return;
+	}
 
 	QDir sourceData = sourceRoot.filePath(dirData.front());
-	QStringList lodArchives = sourceData.entryList({"*.lod"}, QDir::Filter::Files);
+	QStringList roeFiles = sourceData.entryList({"*.lod"}, QDir::Filter::Files);
+	QStringList sodFiles = sourceData.entryList({"H3ab*.lod"}, QDir::Filter::Files);
+	QStringList hdFiles = sourceData.entryList({"*.pak"}, QDir::Filter::Files);
 
-	if(lodArchives.empty())
+	if(sodFiles.empty())
+	{
+		if (roeFiles.empty())
+		{
+			// Directory structure is correct (Data/Maps/Mp3) but no .lod archives that should be present in any install
+			QMessageBox::critical(this, "Heroes III data not found!", "Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+			return;
+		}
+
+		if (!hdFiles.empty())
+		{
+			// HD Edition contains only RoE data so we can't use even unmodified files from it
+			QMessageBox::critical(this, "Heroes III data not found!", "Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+			return;
+		}
+
+		// RoE or some other unsupported edition. Demo version?
+		QMessageBox::critical(this, "Heroes III data not found!", "Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
 		return;
+	}
 
-	QStringList copyDirectories = {dirData.front(), dirMaps.front(), dirMp3.front()};
+	QStringList copyDirectories;
+
+	copyDirectories += dirData.front();
+	if (!dirMaps.empty())
+		copyDirectories += dirMaps.front();
+
+	if (!dirMp3.empty())
+		copyDirectories += dirMp3.front();
 
 	QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
 
