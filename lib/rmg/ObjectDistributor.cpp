@@ -59,20 +59,17 @@ void ObjectDistributor::distributeLimitedObjects()
 				//Skip objects which don't have global per-map limit here 
 				if (rmgInfo.mapLimit)
 				{
-
 					//Count all zones where this object can be placed
 					std::vector<std::shared_ptr<Zone>> matchingZones;
 
-					//TODO: Are all terrains initialized at this point? Including water?
 					for (const auto& it : zones)
 					{
-						if (!handler->getTemplates(it.second->getTerrainType()).empty())
+						if (!handler->getTemplates(it.second->getTerrainType()).empty() &&
+							rmgInfo.value <= it.second->getMaxTreasureValue())
 						{
 							matchingZones.push_back(it.second);
 						}
 					}
-
-					//TODO: Also check if the object value is within zone max value
 
 					size_t numZones = matchingZones.size();
 					if (!numZones)

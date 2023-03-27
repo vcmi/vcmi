@@ -144,6 +144,7 @@ public:
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
 	void addTreasureInfo(const CTreasureInfo & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
+	ui32 getMaxTreasureValue() const;
 
 	TRmgTemplateZoneId getMinesLikeZone() const;
 	TRmgTemplateZoneId getTerrainTypeLikeZone() const;
@@ -163,6 +164,7 @@ protected:
 	TRmgTemplateZoneId id;
 	ETemplateZoneType::ETemplateZoneType type;
 	int size;
+	ui32 maxTreasureValue;
 	boost::optional<int> owner;
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;

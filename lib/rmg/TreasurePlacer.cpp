@@ -65,13 +65,12 @@ void TreasurePlacer::addAllPossibleObjects()
 			if(!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
 				auto rmgInfo = handler->getRMGInfo();
-				if (rmgInfo.mapLimit)
+				if (rmgInfo.mapLimit || rmgInfo.value > zone.getMaxTreasureValue())
 				{
 					//Skip objects with per-map limit here
 					continue;
 				}
 
-				//TODO: Also check if the object value is within zone max value
 				for(const auto & temp : handler->getTemplates())
 				{
 					if(temp->canBePlacedAt(zone.getTerrainType()))

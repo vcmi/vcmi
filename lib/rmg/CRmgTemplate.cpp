@@ -136,6 +136,7 @@ ZoneOptions::ZoneOptions():
 	id(0),
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
+	maxTreasureValue(0),
 	owner(boost::none),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
@@ -242,16 +243,28 @@ std::map<TResource, ui16> ZoneOptions::getMinesInfo() const
 void ZoneOptions::setTreasureInfo(const std::vector<CTreasureInfo> & value)
 {
 	treasureInfo = value;
+
+	maxTreasureValue = 0;
+	for (const auto& ti : value)
+	{
+		vstd::amax(maxTreasureValue, ti.max);
+	}
 }
 	
 void ZoneOptions::addTreasureInfo(const CTreasureInfo & value)
 {
 	treasureInfo.push_back(value);
+	vstd::amax(maxTreasureValue, value.max);
 }
 
 const std::vector<CTreasureInfo> & ZoneOptions::getTreasureInfo() const
 {
 	return treasureInfo;
+}
+
+ui32 ZoneOptions::getMaxTreasureValue() const
+{
+	return maxTreasureValue;
 }
 
 TRmgTemplateZoneId ZoneOptions::getMinesLikeZone() const
@@ -386,6 +399,11 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto treasureData = handler.enterArray("treasure");
 		treasureData.serializeStruct(treasureInfo);
+		if (!handler.saving)
+		{
+			//Just in order to calculate maxTreasureValue
+			setTreasureInfo(treasureInfo);
+		}
 	}
 
 	if((minesLikeZone == NO_ZONE) && (!handler.saving || !mines.empty()))
