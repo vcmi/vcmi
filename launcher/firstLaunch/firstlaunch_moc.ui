@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>409</height>
+    <width>745</width>
+    <height>389</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -131,6 +131,9 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <property name="horizontalSpacing">
+        <number>6</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="labelLanguageTitle">
          <property name="font">
@@ -144,27 +147,14 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QPushButton" name="pushButtonLanguageNext">
-         <property name="text">
-          <string>Next</string>
+       <item row="1" column="0" rowspan="4">
+        <widget class="QListWidget" name="listWidgetLanguage">
+         <property name="spacing">
+          <number>5</number>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="2">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -172,19 +162,90 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>8</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" rowspan="2">
-        <widget class="QListWidget" name="listWidgetLanguage">
-         <property name="spacing">
-          <number>5</number>
+       <item row="3" column="1" colspan="2">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="3" column="0">
+          <widget class="QPushButton" name="pushButtonGithub">
+           <property name="text">
+            <string>VCMI on Github</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="pushButtonSlack">
+           <property name="text">
+            <string>VCMI on Slack</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButtonDiscord">
+           <property name="text">
+            <string>VCMI on Discord</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="labelLanguageSocial">
+           <property name="text">
+            <string>Have a question? Found a bug? Want to help? Join us:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QLabel" name="labelLanguageWelcome">
+         <property name="text">
+          <string>Thanks for installing VCMI.
+
+There are a few more steps to be done before you can start playing.
+
+Keep in mind that in order to use VCMI you need to own original data files, Heroes III: Complete Edition or Shadow of Death.
+
+Heroes III: HD Edition is currently not supported</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
+       <item row="4" column="1" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonLanguageNext">
+           <property name="text">
+            <string>Next</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
+      <zorder>labelLanguageWelcome</zorder>
+      <zorder>labelLanguageTitle</zorder>
+      <zorder>listWidgetLanguage</zorder>
      </widget>
      <widget class="QWidget" name="pageDataFiles">
       <layout class="QVBoxLayout" name="verticalLayout_4">

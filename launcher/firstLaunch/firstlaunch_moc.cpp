@@ -91,7 +91,7 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 
 void FirstLaunchView::on_pushButtonDataHelp_clicked()
 {
-	static const QUrl vcmibuilderWiki("https://wiki.vcmi.eu/Installation_on_Linux#Installing_Heroes_III_data_files");
+	static const QUrl vcmibuilderWiki("https://wiki.vcmi.eu/Using_vcmibuilder");
 	QDesktopServices::openUrl(vcmibuilderWiki);
 }
 
@@ -427,5 +427,20 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 
 	for (auto const & modName : modsToInstall)
 		getModView()->doInstallMod(modName);
+}
+
+void FirstLaunchView::on_pushButtonDiscord_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://discord.gg/chBT42V"));
+}
+
+void FirstLaunchView::on_pushButtonSlack_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://slack.vcmi.eu/"));
+}
+
+void FirstLaunchView::on_pushButtonGithub_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi"));
 }
 
