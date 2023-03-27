@@ -42,6 +42,7 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/TerrainHandler.h"
 #include "CGameHandler.h"
+#include "ServerSpellCastEnvironment.h"
 #include "CVCMIServer.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/CThreadHelper.h"
@@ -66,36 +67,6 @@
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-
-class ServerSpellCastEnvironment : public SpellCastEnvironment
-{
-public:
-	ServerSpellCastEnvironment(CGameHandler * gh);
-	~ServerSpellCastEnvironment() = default;
-
-	void complain(const std::string & problem) override;
-	bool describeChanges() const override;
-
-	vstd::RNG * getRNG() override;
-
-	void apply(CPackForClient * pack) override;
-
-	void apply(BattleLogMessage * pack) override;
-	void apply(BattleStackMoved * pack) override;
-	void apply(BattleUnitsChanged * pack) override;
-	void apply(SetStackEffect * pack) override;
-	void apply(StacksInjured * pack) override;
-	void apply(BattleObstaclesChanged * pack) override;
-	void apply(CatapultAttack * pack) override;
-
-	const CMap * getMap() const override;
-	const CGameInfoCallback * getCb() const override;
-	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) override;
-	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) override;
-private:
-	CGameHandler * gh;
-};
-
 
 CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);
@@ -7375,89 +7346,4 @@ const ObjectInstanceID CGameHandler::putNewObject(Obj ID, int subID, int3 pos)
 	no.pos = pos;
 	sendAndApply(&no);
 	return no.id; //id field will be filled during applying on gs
-}
-
-///ServerSpellCastEnvironment
-ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh)
-	: gh(gh)
-{
-
-}
-
-bool ServerSpellCastEnvironment::describeChanges() const
-{
-	return true;
-}
-
-void ServerSpellCastEnvironment::complain(const std::string & problem)
-{
-	gh->complain(problem);
-}
-
-vstd::RNG * ServerSpellCastEnvironment::getRNG()
-{
-	return &gh->getRandomGenerator();
-}
-
-void ServerSpellCastEnvironment::apply(CPackForClient * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(BattleLogMessage * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(BattleStackMoved * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(BattleUnitsChanged * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(SetStackEffect * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(StacksInjured * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(BattleObstaclesChanged * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-void ServerSpellCastEnvironment::apply(CatapultAttack * pack)
-{
-	gh->sendAndApply(pack);
-}
-
-const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
-{
-	return gh;
-}
-
-const CMap * ServerSpellCastEnvironment::getMap() const
-{
-	return gh->gameState()->map;
-}
-
-bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool teleporting)
-{
-	return gh->moveHero(hid, dst, teleporting, false);
-}
-
-void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback)
-{
-	auto query = std::make_shared<CGenericQuery>(&gh->queries, color, callback);
-	request->queryID = query->queryID;
-	gh->queries.addQuery(query);
-	gh->sendAndApply(request);
 }
