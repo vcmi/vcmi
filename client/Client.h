@@ -211,8 +211,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance * object) override {};
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
-	void giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {};
-	void giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {};
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
 	void putArtifact(const ArtifactLocation & al, const CArtifactInstance * a) override {};
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};

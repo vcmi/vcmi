@@ -101,9 +101,9 @@ void CHeroArtPlace::selectSlot(bool on)
 void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
-	bool inBackpack = slotID >= GameConstants::BACKPACK_START,
-		srcInBackpack = ourOwner->commonInfo->src.slotID >= GameConstants::BACKPACK_START,
-		srcInSameHero = ourOwner->commonInfo->src.AOH == ourOwner;
+	bool inBackpack = ArtifactUtils::isSlotBackpack(slotID);
+	bool srcInBackpack = ArtifactUtils::isSlotBackpack(ourOwner->commonInfo->src.slotID);
+	bool srcInSameHero = ourOwner->commonInfo->src.AOH == ourOwner;
 
 	if(ourOwner->highlightModeCallback && ourArt)
 	{
@@ -171,16 +171,16 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 					else
 					{
 						setMeAsDest();
-						vstd::amin(ourOwner->commonInfo->dst.slotID, ArtifactPosition(
-							(si32)ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
-						if(srcInBackpack && srcInSameHero)
+						vstd::amin(ourOwner->commonInfo->dst.slotID, ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
+						if(ArtifactUtils::isBackpackFreeSlots(ourOwner->curHero))
 						{
-							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with vstd::amin above it will guarantee that dest is at most the last artifact
-								|| ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
-								vstd::advance(ourOwner->commonInfo->dst.slotID, -1);
+							if(!srcInSameHero || ourOwner->commonInfo->dst.slotID != ourOwner->commonInfo->src.slotID)
+								ourOwner->realizeCurrentTransaction();
 						}
-						if(!srcInSameHero || ourOwner->commonInfo->dst.slotID != ourOwner->commonInfo->src.slotID)
-							ourOwner->realizeCurrentTransaction();
+						else
+						{
+							LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
+						}
 					}
 				}
 			}
@@ -195,13 +195,12 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 	}
 }
 
-bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
-                              const CGHeroInstance *hero)
+bool CHeroArtPlace::askToAssemble(const CGHeroInstance * hero, ArtifactPosition slot)
 {
-	assert(art);
 	assert(hero);
-	bool assembleEqipped = !ArtifactUtils::isSlotBackpack(slot);
-	auto assemblyPossibilities = art->assemblyPossibilities(hero, assembleEqipped);
+	const auto art = hero->getArt(slot);
+	assert(art);
+	auto assemblyPossibilities = art->assemblyPossibilities(hero, ArtifactUtils::isSlotEquipment(slot));
 
 	// If the artifact can be assembled, display dialog.
 	for(const auto * combination : assemblyPossibilities)
@@ -218,6 +217,26 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 	return false;
 }
 
+bool CHeroArtPlace::askToDisassemble(const CGHeroInstance * hero, ArtifactPosition slot)
+{
+	assert(hero);
+	const auto art = hero->getArt(slot);
+	assert(art);
+
+	if(art->canBeDisassembled())
+	{
+		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->constituents->size() - 1))
+			return false;
+		
+		LOCPLINT->showArtifactAssemblyDialog(
+			art->artType,
+			nullptr,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, false, ArtifactID()));
+		return true;
+	}
+	return false;
+}
+
 void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(ourArt && down && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
@@ -225,18 +244,12 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 		if(ourOwner->allowedAssembling)
 		{
 			// If the artifact can be assembled, display dialog.
-			if(askToAssemble(ourArt, slotID, ourOwner->curHero))
+			if(askToAssemble(ourOwner->curHero, slotID))
 			{
 				return;
 			}
-
-			// Otherwise if the artifact can be diasassembled, display dialog.
-			if(ourArt->canBeDisassembled())
+			if(askToDisassemble(ourOwner->curHero, slotID))
 			{
-				LOCPLINT->showArtifactAssemblyDialog(
-					ourArt->artType,
-					nullptr,
-					std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
 				return;
 			}
 		}
@@ -633,11 +646,17 @@ CArtifactsOfHero::~CArtifactsOfHero()
 	if(!curHero->artifactsTransitionPos.empty())
 	{
 		auto artPlace = getArtPlace(
-			ArtifactUtils::getArtifactDstPosition(curHero->artifactsTransitionPos.begin()->artifact, curHero));
-		assert(artPlace);
-		assert(artPlace->ourOwner);
-		artPlace->setMeAsDest();
-		artPlace->ourOwner->realizeCurrentTransaction();
+			ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId()));
+		if(artPlace)
+		{
+			assert(artPlace->ourOwner);
+			artPlace->setMeAsDest();
+			artPlace->ourOwner->realizeCurrentTransaction();
+		}
+		else
+		{
+			//TODO remove artifact
+		}
 	}
 }
 
@@ -765,11 +784,7 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 
 CArtifactsOfHero::ArtPlacePtr CArtifactsOfHero::getArtPlace(ArtifactPosition slot)
 {
-	if(slot == ArtifactPosition::TRANSITION_POS)
-	{
-		return nullptr;
-	}
-	if(slot < GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotEquipment(slot))
 	{
 		if(artWorn.find(slot) == artWorn.end())
 		{
@@ -777,13 +792,17 @@ CArtifactsOfHero::ArtPlacePtr CArtifactsOfHero::getArtPlace(ArtifactPosition slo
 			return nullptr;
 		}
 
-		return artWorn[ArtifactPosition(slot)];
+		return artWorn[slot];
 	}
-	else
+	if(ArtifactUtils::isSlotBackpack(slot))
 	{
 		for(ArtPlacePtr ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
+		return nullptr;
+	}
+	else
+	{
 		return nullptr;
 	}
 }
@@ -986,16 +1005,22 @@ void CCommanderArtPlace::createImage()
 void CCommanderArtPlace::returnArtToHeroCallback()
 {
 	ArtifactPosition artifactPos = commanderSlotID;
-	ArtifactPosition freeSlot = ourArt->firstBackpackSlot(commanderOwner);
-
-	ArtifactLocation src(commanderOwner->commander.get(), artifactPos);
-	ArtifactLocation dst(commanderOwner, freeSlot);
-
-	if (ourArt->canBePutAt(dst, true))
+	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, ourArt->getTypeId());
+	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
-		LOCPLINT->cb->swapArtifacts(src, dst);
-		setArtifact(nullptr);
-		parent->redraw();
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
+	}
+	else
+	{
+		ArtifactLocation src(commanderOwner->commander.get(), artifactPos);
+		ArtifactLocation dst(commanderOwner, freeSlot);
+
+		if(ourArt->canBePutAt(dst, true))
+		{
+			LOCPLINT->cb->swapArtifacts(src, dst);
+			setArtifact(nullptr);
+			parent->redraw();
+		}
 	}
 }
 

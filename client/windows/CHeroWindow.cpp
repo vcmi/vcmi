@@ -358,7 +358,7 @@ void CHeroWindow::commanderWindow()
 	{
 		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 		//artSelected = true;
-		ArtifactPosition freeSlot = art->firstAvailableSlot (curHero->commander);
+		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, art->artType->getId());
 		if(freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
 			ArtifactLocation src(srcHero, commonInfo->src.slotID);
@@ -368,7 +368,8 @@ void CHeroWindow::commanderWindow()
 			{	//equip clicked stack
 				if(dst.getArt())
 				{
-					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero,
+						ArtifactUtils::getArtBackpackPosition(srcHero, art->getTypeId())));
 				}
 				LOCPLINT->cb->swapArtifacts(src, dst);
 			}

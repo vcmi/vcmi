@@ -140,18 +140,26 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_ART:
+		{
 			// if the object was deserialized
 			if(artifactsRequirements.empty())
 				for(const auto & id : m5arts)
 					++artifactsRequirements[id];
 
+			size_t reqSlots = 0;
 			for(const auto & elem : artifactsRequirements)
 			{
 				// check required amount of artifacts
 				if(h->getArtPosCount(elem.first, false, true, true) < elem.second)
 					return false;
+				if(!h->hasArt(elem.first))
+					reqSlots += h->getAssemblyByConstituent(elem.first)->constituentsInfo.size() - 2;
 			}
-			return true;
+			if(ArtifactUtils::isBackpackFreeSlots(h, reqSlots))
+				return true;
+			else
+				return false;
+		}
 		case MISSION_ARMY:
 			return checkMissionArmy(this, h);
 		case MISSION_RESOURCES:
@@ -786,21 +794,28 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 		switch (quest->missionType)
 		{
 			case CQuest::MISSION_ART:
-				for (auto & elem : quest->m5arts)
+				for(auto & elem : quest->m5arts)
 				{
-					if(!h->hasArt(elem))
+					if(h->hasArt(elem))
 					{
-						// first we need to disassemble this backpack artifact
+						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+					}
+					else
+					{
 						const auto * assembly = h->getAssemblyByConstituent(elem);
 						assert(assembly);
-						for(const auto & ci : assembly->constituentsInfo)
-						{
-							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::PRE_FIRST);
-						}
-						// remove the assembly
+						auto parts = assembly->constituentsInfo;
+
+						// Remove the assembly
 						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+
+						// Disassemble this backpack artifact
+						for(const auto & ci : parts)
+						{
+							if(ci.art->getTypeId() != elem)
+								cb->giveHeroNewArtifact(h, ci.art->artType, GameConstants::BACKPACK_START);
+						}
 					}
-					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
 				}
 				break;
 			case CQuest::MISSION_ARMY:

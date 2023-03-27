@@ -47,7 +47,6 @@ namespace GameConstants
 
 	const int ALL_PLAYERS = 255; //bitfield
 
-	const ui16 BACKPACK_START = 19;
 	const int CREATURES_PER_TOWN = 7; //without upgrades
 	const int SPELL_LEVELS = 5;
 	const int SPELL_SCHOOL_LEVELS = 4;
@@ -968,7 +967,8 @@ public:
 		CAN_DIG = 0,
 		LACK_OF_MOVEMENT,
 		WRONG_TERRAIN,
-		TILE_OCCUPIED
+		TILE_OCCUPIED,
+		BACKPACK_IS_FULL
 	};
 
 	EDiggingStatus(EEDiggingStatus _num = UNKNOWN) : num(_num)
@@ -1040,9 +1040,23 @@ public:
 	ID_LIKE_CLASS_COMMON(ArtifactPosition, EArtifactPosition)
 
 	EArtifactPosition num;
+
+        STRONG_INLINE EArtifactPosition operator+(const int arg)
+	{
+		return EArtifactPosition(static_cast<int>(num) + arg);
+	}
+	STRONG_INLINE EArtifactPosition operator+(const EArtifactPosition & arg)
+	{
+		return EArtifactPosition(static_cast<int>(num) + static_cast<int>(arg));
+	}
 };
 
 ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
+
+namespace GameConstants
+{
+	const auto BACKPACK_START = ArtifactPosition::AFTER_LAST;
+}
 
 class ArtifactID
 {

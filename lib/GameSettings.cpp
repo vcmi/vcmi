@@ -69,6 +69,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,            "heroes",    "perPlayerTotalCap"          },
 		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,   "heroes",    "retreatOnWinWithoutTroops"  },
 		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,         "heroes",    "startingStackChances"       },
+		{EGameSettings::HEROES_BACKPACK_CAP,                    "heroes",    "backpackSize"               },
 		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,    "markets",   "blackMarketRestockPeriod"   },
 		{EGameSettings::MODULE_COMMANDERS,                      "modules",   "commanders"                 },
 		{EGameSettings::MODULE_STACK_ARTIFACT,                  "modules",   "stackArtifact"              },

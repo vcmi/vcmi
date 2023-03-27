@@ -1693,14 +1693,18 @@ void RebalanceStacks::applyGs(CGameState * gs)
 				if (alDest.getArt())
 				{
 					auto * hero = dynamic_cast<CGHeroInstance *>(src.army.get());
-					if (hero)
+					auto dstSlot = ArtifactUtils::getArtBackpackPosition(hero, alDest.getArt()->getTypeId());
+					if(hero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						artDest->move (alDest, ArtifactLocation (hero, alDest.getArt()->firstBackpackSlot (hero)));
+						artDest->move (alDest, ArtifactLocation (hero, dstSlot));
 					}
 					//else - artifact cna be lost :/
 					else
 					{
-						logNetwork->warn("Artifact is present at destination slot!");
+						EraseArtifact ea;
+						ea.al = alDest;
+						ea.applyGs(gs);
+						logNetwork->warn("Cannot move artifact! No free slots");
 					}
 					artHere->move (alHere, alDest);
 					//TODO: choose from dialog

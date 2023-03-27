@@ -1300,9 +1300,12 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		InfoWindow iw;
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
-		switch(ID)
+
+		if(storedArtifact->artType->canBePutAt(h))
 		{
-		case Obj::ARTIFACT:
+			switch (ID)
+			{
+			case Obj::ARTIFACT:
 			{
 				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
 				if(message.length())
@@ -1311,7 +1314,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					iw.text.addTxt(MetaString::ART_EVNTS, subID);
 			}
 			break;
-		case Obj::SPELL_SCROLL:
+			case Obj::SPELL_SCROLL:
 			{
 				int spellID = storedArtifact->getGivenSpellID();
 				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
@@ -1324,6 +1327,11 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				}
 			}
 			break;
+			}
+		}
+		else
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT, 2);
 		}
 		cb->showInfoDialog(&iw);
 		pick(h);
@@ -1368,8 +1376,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE);
-	cb->removeObject(this);
+	if(cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE))
+		cb->removeObject(this);
 }
 
 BattleField CGArtifact::getBattlefield() const

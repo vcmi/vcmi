@@ -1769,6 +1769,9 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 	case EDiggingStatus::WRONG_TERRAIN:
 		msgToShow = 60; ////Try looking on land!
 		break;
+	case EDiggingStatus::BACKPACK_IS_FULL:
+		msgToShow = 247; //Searching for the Grail is fruitless...
+		break;
 	default:
 		assert(0);
 	}
@@ -1894,7 +1897,7 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 							 al.slot.num);
 			return;
 		}
-		CHeroArtPlace::askToAssemble(art, al.slot, hero);
+		CHeroArtPlace::askToAssemble(hero, al.slot);
 	}
 }
 

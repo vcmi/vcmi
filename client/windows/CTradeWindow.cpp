@@ -806,7 +806,8 @@ void CMarketplaceWindow::makeDeal()
 	if(!sliderValue)
 		return;
 
-	int leftIdToSend = -1;
+	bool allowDeal = true;
+	int leftIdToSend = hLeft->id;
 	switch (mode)
 	{
 		case EMarketMode::CREATURE_RESOURCE:
@@ -815,22 +816,31 @@ void CMarketplaceWindow::makeDeal()
 		case EMarketMode::ARTIFACT_RESOURCE:
 			leftIdToSend = hLeft->getArtInstance()->id.getNum();
 			break;
+		case EMarketMode::RESOURCE_ARTIFACT:
+			if(!ArtifactID(hRight->id).toArtifact()->canBePutAt(hero))
+			{
+				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.326"));
+				allowDeal = false;
+			}
+			break;
 		default:
-			leftIdToSend = hLeft->id;
 			break;
 	}
 
-	if(slider)
+	if(allowDeal)
 	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue()*r1, hero);
-		slider->moveTo(0);
+		if(slider)
+		{
+			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
+			slider->moveTo(0);
+		}
+		else
+		{
+			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
+		}
 	}
-	else
-	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
-	}
-	madeTransaction = true;
 
+	madeTransaction = true;
 	hLeft = nullptr;
 	hRight = nullptr;
 	selectionChanged(true);

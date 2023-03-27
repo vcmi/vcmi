@@ -1023,11 +1023,6 @@ void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
 	art->putAt(ArtifactLocation(this, pos));
 }
 
-void CGHeroInstance::putInBackpack(CArtifactInstance *art)
-{
-	putArtifact(art->firstBackpackSlot(this), art);
-}
-
 bool CGHeroInstance::hasSpellbook() const
 {
 	return getArt(ArtifactPosition::SPELLBOOK);
@@ -1126,7 +1121,8 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(static_cast<int>(movement) < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
-
+	if(!VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(this))
+		return EDiggingStatus::BACKPACK_IS_FULL;
 	return cb->getTileDigStatus(visitablePos());
 }
 

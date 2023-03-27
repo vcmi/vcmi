@@ -805,7 +805,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
 		return;
 	}
-	auto art = dynamic_cast<const CArtifact*>(artifactID.toArtifact(CGI->artifacts()));
+	auto art = artifactID.toArtifact();
 
 	int price = art->getPrice();
 	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price;
