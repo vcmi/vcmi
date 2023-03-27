@@ -86,6 +86,7 @@ void TreasurePlacer::addAllPossibleObjects()
 						oi.maxPerZone = rmgInfo.zoneLimit;
 						addObjectToRandomPool(oi);
 
+						break;
 					}
 				}
 			}
