@@ -76,7 +76,8 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
 	{"CREATURE_FACTION", std::make_shared<CreatureFactionLimiter>()},
-	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()}
+	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
+	{"UNIT_ON_HEXES", std::make_shared<UnitOnHexLimiter>()}
 };
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
@@ -2264,6 +2265,35 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 		root["parameters"].Vector().push_back(JsonUtils::intNode(subtype));
 	if(isSourceRelevant)
 		root["parameters"].Vector().push_back(JsonUtils::stringNode(sourceTypeName));
+
+	return root;
+}
+
+ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &context) const
+{
+	const auto * stack = retrieveStackBattle(&context.node);
+	if(!stack)
+		return ILimiter::EDecision::DISCARD;
+
+	auto accept = false;
+	for (const auto & hex : stack->getHexes())
+		accept |= !!applicableHexes.count(hex);
+
+	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+}
+
+UnitOnHexLimiter::UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes):
+	applicableHexes(applicableHexes)
+{
+}
+
+JsonNode UnitOnHexLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "UNIT_ON_HEXES";
+	for(const auto & hex : applicableHexes)
+		root["parameters"].Vector().push_back(JsonUtils::intNode(hex));
 
 	return root;
 }

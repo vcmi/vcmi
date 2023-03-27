@@ -20,6 +20,7 @@
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
 #include "StringConstants.h"
+#include "battle/BattleHex.h"
 
 namespace
 {
@@ -769,6 +770,17 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 					});
 				}
 				return terrainLimiter;
+			}
+			else if(limiterType == "UNIT_ON_HEXES") {
+				auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
+				if(!parameters.empty())
+				{
+					for (const auto & parameter: parameters){
+						if(parameter.isNumber())
+							hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
+					}
+				}
+				return hexLimiter;
 			}
 			else
 			{

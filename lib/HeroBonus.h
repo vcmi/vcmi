@@ -11,6 +11,7 @@
 
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1188,6 +1189,22 @@ public:
 		h & static_cast<ILimiter&>(*this);
 		h & minRank;
 		h & maxRank;
+	}
+};
+
+class DLL_LINKAGE UnitOnHexLimiter : public ILimiter //works only on selected hexes
+{
+public:
+	std::set<BattleHex> applicableHexes;
+
+	UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes = {});
+	EDecision limit(const BonusLimitationContext &context) const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & applicableHexes;
 	}
 };
 
