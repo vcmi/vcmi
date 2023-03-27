@@ -74,6 +74,8 @@ void TreasurePlacer::addAllPossibleObjects()
 						oi.maxPerZone = rmgInfo.zoneLimit;
 						vstd::amin(oi.maxPerZone, rmgInfo.mapLimit / numZones); //simple, but should distribute objects evenly on large maps
 						possibleObjects.push_back(oi);
+
+						break; //Place only one template per zone
 					}
 				}
 			}
