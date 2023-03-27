@@ -78,6 +78,11 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 {
 	for (auto const & oi : obstacles)
 	{
+		auto side = owner.curInt->cb->playerToSide(owner.curInt->playerID);
+
+		if(!oi->visibleForSide(side.get(),owner.curInt->cb->battleHasNativeStack(side.get())))
+			continue;
+
 		auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(oi.get());
 
 		if (!spellObstacle)

@@ -2402,7 +2402,6 @@ void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 		case BattleChanges::EOperation::ADD:
 			battleState->addObstacle(change);
 			break;
-		case BattleChanges::EOperation::ACTIVATE_AND_UPDATE:
 		case BattleChanges::EOperation::UPDATE:
 			battleState->updateObstacle(change);
 			break;

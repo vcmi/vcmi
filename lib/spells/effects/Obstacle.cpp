@@ -121,6 +121,9 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 bool Obstacle::applicable(Problem & problem, const Mechanics * m) const
 {
+	if(hidden && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
+
 	return LocationEffect::applicable(problem, m);
 }
 
@@ -270,12 +273,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 
 	BattleObstaclesChanged pack;
 
-	boost::optional<BattlePerspective::BattlePerspective> perspective;
-
-	if(!m->battle()->getPlayerID())
-		perspective = boost::make_optional(BattlePerspective::ALL_KNOWING);
-
-	auto all = m->battle()->battleGetAllObstacles(perspective);
+	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)

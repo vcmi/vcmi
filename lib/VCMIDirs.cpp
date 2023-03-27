@@ -346,7 +346,7 @@ std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 }
 
 bfs::path VCMIDirsWIN32::clientPath() const { return binaryPath() / "VCMI_client.exe"; }
-bfs::path VCMIDirsWIN32::mapEditorPath() const { return binaryPath() / "VCMI_editor.exe"; }
+bfs::path VCMIDirsWIN32::mapEditorPath() const { return binaryPath() / "VCMI_mapeditor.exe"; }
 bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
 
 bfs::path VCMIDirsWIN32::libraryPath() const { return "."; }

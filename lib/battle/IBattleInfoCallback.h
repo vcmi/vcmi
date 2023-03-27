@@ -72,7 +72,7 @@ public:
 
 	//blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
 	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const = 0;
-	virtual std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit) const = 0;
+	virtual std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const = 0;
 };
 
 
