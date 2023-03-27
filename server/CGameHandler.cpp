@@ -5335,9 +5335,9 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 					ObstacleChanges changeInfo;
 					changeInfo.id = spellObstacle->uniqueID;
 					if (oneTimeObstacle)
-						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_REMOVE;
+						changeInfo.operation = ObstacleChanges::EOperation::REMOVE;
 					else
-						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_UPDATE;
+						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
 
 					SpellCreatedObstacle changedObstacle;
 					changedObstacle.uniqueID = spellObstacle->uniqueID;
