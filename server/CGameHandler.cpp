@@ -5247,27 +5247,20 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 
 			if(spellObstacle->triggersEffects())
 			{
-				const bool oneTimeObstacle = spellObstacle->removeOnTrigger;
 				auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
 				{
 					// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-					ObstacleChanges changeInfo;
-					changeInfo.id = spellObstacle.uniqueID;
-					if (oneTimeObstacle)
-						changeInfo.operation = ObstacleChanges::EOperation::REMOVE;
-					else
-						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
+					auto operation = ObstacleChanges::EOperation::UPDATE;
+					if (spellObstacle.removeOnTrigger)
+						operation = ObstacleChanges::EOperation::REMOVE;
 
 					SpellCreatedObstacle changedObstacle;
-					changedObstacle.uniqueID = changeInfo.id;
+					changedObstacle.uniqueID = spellObstacle.uniqueID;
 					changedObstacle.revealed = true;
 
-					changeInfo.data.clear();
-					JsonSerializer ser(nullptr, changeInfo.data);
-					ser.serializeStruct("obstacle", changedObstacle);
-
 					BattleObstaclesChanged bocp;
-					bocp.changes.emplace_back(changeInfo);
+					bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
+					changedObstacle.toInfo(bocp.changes.back(), operation);
 					sendAndApply(&bocp);
 				};
 				auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
