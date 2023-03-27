@@ -74,7 +74,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedAbilities.size(); ++i)
 			{
 				if(map.allowedAbilities[i])
-					result.append(QString::fromStdString(VLC->skillh->objects.at(i)->getNameTranslated()));
+					result.append(QString::fromStdString(VLC->skills()->getByIndex(i)->getNameTranslated()));
 			}
 			break;
 			
@@ -82,7 +82,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedArtifact.size(); ++i)
 			{
 				if(map.allowedArtifact[i])
-					result.append(QString::fromStdString(VLC->arth->objects.at(i)->getNameTranslated()));
+					result.append(QString::fromStdString(VLC->artifacts()->getByIndex(i)->getNameTranslated()));
 			}
 			break;
 			
@@ -90,7 +90,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedSpell.size(); ++i)
 			{
 				if(map.allowedSpell[i])
-					result.append(QString::fromStdString(VLC->spellh->objects.at(i)->getNameTranslated()));
+					result.append(QString::fromStdString(VLC->spells()->getByIndex(i)->getNameTranslated()));
 			}
 			break;
 			

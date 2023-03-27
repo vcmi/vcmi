@@ -289,7 +289,7 @@ void Inspector::updateProperties(CGArtifact * o)
 				//if(map->isAllowedSpell(spell->id))
 				delegate->options << QObject::tr(spell->getJsonKey().c_str());
 			}
-			addProperty("Spell", VLC->spellh->objects[spellId]->getJsonKey(), delegate, false);
+			addProperty("Spell", VLC->spellh->getById(spellId)->getJsonKey(), delegate, false);
 		}
 	}
 }

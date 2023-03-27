@@ -1700,7 +1700,7 @@ std::string Bonus::nameForBonus() const
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
 	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
-		return (*VLC->spellh)[static_cast<SpellID::ESpellID>(subtype)]->identifier;
+		return VLC->spells()->getByIndex(subtype)->getJsonKey();
 	case Bonus::SPECIAL_UPGRADE:
 		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo[0]);
 	case Bonus::GENERATE_RESOURCE:
