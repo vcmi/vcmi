@@ -33,7 +33,7 @@ else()
 	set(server_LIBS vcmi)
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
+if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
 	set(server_LIBS execinfo ${server_LIBS})
 endif()
 target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
