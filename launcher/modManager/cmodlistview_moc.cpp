@@ -75,8 +75,9 @@ void CModListView::setupModsView()
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
 		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
-	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 24);
-	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 24);
+
+	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
+	ui->allModsView->resizeColumnToContents(ModFields::STATUS_UPDATE);
 
 	ui->allModsView->setUniformRowHeights(true);
 
