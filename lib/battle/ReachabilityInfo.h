@@ -28,6 +28,7 @@ struct DLL_LINKAGE ReachabilityInfo
 		ui8 side = 0;
 		bool doubleWide = false;
 		bool flying = false;
+		bool ignoreKnownAccessible = false; //Ignore obstacles if it is in accessible hexes
 		std::vector<BattleHex> knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)
 
 		BattleHex startPosition; //assumed position of stack

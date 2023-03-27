@@ -798,19 +798,21 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battl
 	return obstacles;
 }
 
-std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const battle::Unit * unit) const
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const
 {
-	std::vector<std::shared_ptr<const CObstacleInstance>> affectedObstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	auto affectedObstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(affectedObstacles);
 	if(unit->alive())
 	{
-		affectedObstacles = battleGetAllObstaclesOnPos(unit->getPosition(), false);
+		if(!passed.count(unit->getPosition()))
+			affectedObstacles = battleGetAllObstaclesOnPos(unit->getPosition(), false);
 		if(unit->doubleWide())
 		{
-			BattleHex otherHex = unit->occupiedHex(unit->getPosition());
-			if(otherHex.isValid())
+			BattleHex otherHex = unit->occupiedHex();
+			if(otherHex.isValid() && !passed.count(otherHex))
 				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
-					affectedObstacles.push_back(i);
+					if(!vstd::contains(affectedObstacles, i))
+						affectedObstacles.push_back(i);
 		}
 		for(auto hex : unit->getHexes())
 			if(hex == ESiegeHex::GATE_BRIDGE)
@@ -932,6 +934,8 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 		return ret;
 
 	const std::set<BattleHex> obstacles = getStoppers(params.perspective);
+	auto checkParams = params;
+	checkParams.ignoreKnownAccessible = true; //Ignore starting hexes obstacles
 
 	std::queue<BattleHex> hexq; //bfs queue
 
@@ -949,7 +953,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 		hexq.pop();
 
 		//walking stack can't step past the obstacles
-		if(curHex != params.startPosition && isInObstacle(curHex, obstacles, params))
+		if(isInObstacle(curHex, obstacles, checkParams))
 			continue;
 
 		const int costToNeighbour = ret.distances[curHex.hex] + 1;
@@ -982,6 +986,9 @@ bool CBattleInfoCallback::isInObstacle(
 
 	for(auto occupiedHex : occupiedHexes)
 	{
+		if(params.ignoreKnownAccessible && vstd::contains(params.knownAccessible, occupiedHex))
+			continue;
+
 		if(vstd::contains(obstacles, occupiedHex))
 		{
 			if(occupiedHex == ESiegeHex::GATE_BRIDGE)
