@@ -1,3 +1,6 @@
+# 1.2.0 -> 1.3.0
+(unreleased)
+
 # 1.1.1 -> 1.2.0
 (unreleased, changes for 1.1.1..ecbbbed)
 
