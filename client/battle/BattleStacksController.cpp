@@ -267,12 +267,8 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 		return false;
 
 	// if stack has any ongoing animation - hide the box
-	for(auto anim : currentAnimations)
-	{
-		auto stackAnimation = dynamic_cast<BattleStackAnimation*>(anim);
-		if(stackAnimation && (stackAnimation->stack->ID == stack->ID))
-			return false;
-	}
+	if (stackAmountBoxHidden.count(stack->ID))
+		return false;
 
 	return true;
 }
@@ -303,21 +299,42 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	//blitting amount background box
 	auto amountBG = getStackAmountBox(stack);
 
-	const int sideShift = stack->side == BattleSide::ATTACKER ? 1 : -1;
-	const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
-	const BattleHex nextPos = stack->getPosition() + sideShift;
-	const bool edge = stack->getPosition() % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
-	const bool moveInside = !edge && !owner.fieldController->stackCountOutsideHex(nextPos);
+	bool doubleWide = stack->doubleWide();
+	bool attacker = stack->side == BattleSide::ATTACKER;
+	const BattleHex stackPos = stack->getPosition();
+	const BattleHex frontPos = attacker ?
+		stackPos.cloneInDirection(BattleHex::RIGHT) :
+		stackPos.cloneInDirection(BattleHex::LEFT);
 
-	int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
-			(stack->doubleWide() ? 44 : 0) * sideShift +
-			(moveInside ? amountBG->width() + 10 : 0) * reverseSideShift;
-	int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
+	bool moveInside = frontPos.isAvailable() && !owner.fieldController->stackCountOutsideHex(frontPos);
 
-	canvas.draw(amountBG, stackAnimation[stack->ID]->pos.topLeft() + Point(xAdd, yAdd));
+	Point boxPosition;
+
+	if (attacker)
+	{
+		if (moveInside)
+			boxPosition = Point(181, 252);
+		else
+			boxPosition = Point(218, 252);
+
+		if (doubleWide)
+			boxPosition.x += 44;
+	}
+	else
+	{
+		if (moveInside)
+			boxPosition = Point(239, 252);
+		else
+			boxPosition = Point(202, 237);
+
+		if (doubleWide)
+			boxPosition.x -= 44;
+	}
+
+	canvas.draw(amountBG, stackAnimation[stack->ID]->pos.topLeft() + boxPosition);
 
 	//blitting amount
-	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
+	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + boxPosition;
 
 	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
@@ -368,6 +385,7 @@ void BattleStacksController::updateBattleAnimations()
 
 	if (hadAnimations && currentAnimations.empty())
 	{
+		stackAmountBoxHidden.clear();
 		owner.executeStagedAnimations();
 		if (currentAnimations.empty())
 			owner.onAnimationsFinished();
@@ -380,6 +398,10 @@ void BattleStacksController::addNewAnim(BattleAnimation *anim)
 {
 	owner.onAnimationsStarted();
 	currentAnimations.push_back(anim);
+
+	auto stackAnimation = dynamic_cast<BattleStackAnimation*>(anim);
+	if(stackAnimation)
+		stackAmountBoxHidden.insert(stackAnimation->stack->ID);
 }
 
 void BattleStacksController::stackRemoved(uint32_t stackID)
@@ -738,8 +760,8 @@ Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CSta
 	if(stack && stack->initialPosition < 0) //creatures in turrets
 		return owner.siegeController->getTurretCreaturePosition(stack->initialPosition);
 
-	static const Point basePos(-190, -139); // position of creature in topleft corner
-	static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
+	static const Point basePos(-189, -139); // position of creature in topleft corner
+	static const int imageShiftX = 29; // X offset to base pos for facing right stacks, negative for facing left
 
 	ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
 	ret.y = basePos.y + 42 * hexNum.getY();
