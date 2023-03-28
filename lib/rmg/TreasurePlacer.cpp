@@ -55,8 +55,6 @@ void TreasurePlacer::addAllPossibleObjects()
 {
 	ObjectInfo oi;
 	
-	int numZones = static_cast<int>(map.getZones().size());
-	
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
 		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
