@@ -81,7 +81,7 @@
 	"vcmi.battleOptions.animationsSpeed6.help": "Set animation speed to instantaneous",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Skip Intro Music",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\nAllow actions during the intro music that plays at the beginning of each battle",
-	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to allow actions during the battle intro music",
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to start battle immediately",
 
 	"vcmi.battleWindow.damageEstimation.melee" : "Attack %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Attack %CREATURE (%DAMAGE, %KILLS).",
