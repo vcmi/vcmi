@@ -66,16 +66,18 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 
 void BasicMapView::show(SDL_Surface * to)
 {
-	controller->update(GH.mainFPSmng->getElapsedMilliseconds());
+	controller->updateBefore(GH.mainFPSmng->getElapsedMilliseconds());
 
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, false);
+
+	controller->updateAfter(GH.mainFPSmng->getElapsedMilliseconds());
 }
 
 void BasicMapView::showAll(SDL_Surface * to)
 {
-	controller->update(0);
+	controller->updateBefore(0);
 
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
