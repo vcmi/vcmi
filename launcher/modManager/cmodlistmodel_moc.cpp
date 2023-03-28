@@ -12,19 +12,6 @@
 
 #include <QIcon>
 
-namespace ModFields
-{
-static const QString names[ModFields::COUNT] =
-{
-	"name",
-	"",
-	"",
-	"modType",
-	"version",
-};
-
-}
-
 namespace ModStatus
 {
 static const QString iconDelete = "icons:mod-delete.png";
@@ -48,18 +35,59 @@ QString CModListModel::modIndexToName(const QModelIndex & index) const
 	return "";
 }
 
+
+QString CModListModel::modTypeName(QString modTypeID) const
+{
+	static QMap<QString, QString> modTypes = {
+		{"Translation", tr("Translation")},
+		{"Town",        tr("Town")       },
+		{"Test",        tr("Test")       },
+		{"Templates",   tr("Templates")  },
+		{"Spells",      tr("Spells")     },
+		{"Music",       tr("Music")      },
+		{"Sounds",      tr("Sounds")     },
+		{"Skills",      tr("Skills")     },
+		{"Other",       tr("Other")      },
+		{"Objects",     tr("Objects")    },
+		{"Mechanical",  tr("Mechanics")  },
+		{"Mechanics",   tr("Mechanics")  },
+		{"Themes",      tr("Interface")  },
+		{"Interface",   tr("Interface")  },
+		{"Heroes",      tr("Heroes")     },
+		{"Graphic",     tr("Graphical")  },
+		{"Graphical",   tr("Graphical")  },
+		{"Expansion",   tr("Expansion")  },
+		{"Creatures",   tr("Creatures")  },
+		{"Artifacts",   tr("Artifacts")  },
+		{"AI",          tr("AI")         },
+	};
+
+	if (modTypes.contains(modTypeID))
+		return modTypes[modTypeID];
+	return tr("Other");
+}
+
 QVariant CModListModel::getValue(const CModEntry & mod, int field) const
 {
 	switch(field)
 	{
-	case ModFields::STATUS_ENABLED:
-		return mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED);
+		case ModFields::STATUS_ENABLED:
+			return mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED);
 
-	case ModFields::STATUS_UPDATE:
-		return mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED);
+		case ModFields::STATUS_UPDATE:
+			return mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED);
 
-	default:
-		return mod.getValue(ModFields::names[field]);
+		case ModFields::NAME:
+			return mod.getValue("name");
+
+		case ModFields::VERSION:
+			return mod.getValue("version");
+
+		case ModFields::TYPE:
+			return modTypeName(mod.getValue("modType").toString());
+
+		default:
+			return QVariant();
 	}
 }
 
