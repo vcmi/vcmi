@@ -961,6 +961,10 @@ void GiveBonus::applyGs(CGameState *gs)
 	case ETarget::TOWN:
 		cbsn = gs->getTown(ObjectInstanceID(id));
 		break;
+	case ETarget::BATTLE:
+		assert(Bonus::OneBattle(&bonus));
+		cbsn = dynamic_cast<CBonusSystemNode*>(gs->curB.get());
+		break;
 	}
 
 	assert(cbsn);

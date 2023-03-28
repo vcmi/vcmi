@@ -349,7 +349,7 @@ struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
-	enum class ETarget : ui8 { HERO, PLAYER, TOWN };
+	enum class ETarget : ui8 { HERO, PLAYER, TOWN, BATTLE };
 	
 	GiveBonus(ETarget Who = ETarget::HERO)
 		:who(Who)
