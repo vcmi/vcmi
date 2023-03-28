@@ -6943,7 +6943,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		///Give all spells with bonus (to allow banned spells)
-		GiveBonus giveBonus(GiveBonus::HERO);
+		GiveBonus giveBonus(GiveBonus::ETarget::HERO);
 		giveBonus.id = hero->id.getNum();
 		giveBonus.bonus = Bonus(Bonus::PERMANENT, Bonus::SPELLS_OF_LEVEL, Bonus::OTHER, 0, 0);
 		//start with level 0 to skip abilities
@@ -7089,7 +7089,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		smp.val = 1000000;
 		sendAndApply(&smp);
 
-		GiveBonus gb(GiveBonus::HERO);
+		GiveBonus gb(GiveBonus::ETarget::HERO);
 		gb.bonus.type = Bonus::FREE_SHIP_BOARDING;
 		gb.bonus.duration = Bonus::ONE_DAY;
 		gb.bonus.source = Bonus::OTHER;

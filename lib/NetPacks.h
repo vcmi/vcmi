@@ -349,15 +349,16 @@ struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
-	GiveBonus(ui8 Who = 0)
+	enum class ETarget : ui8 { HERO, PLAYER, TOWN };
+	
+	GiveBonus(ETarget Who = ETarget::HERO)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	enum { HERO, PLAYER, TOWN };
-	ui8 who = 0; //who receives bonus, uses enum above
+	ETarget who = ETarget::HERO; //who receives bonus
 	si32 id = 0; //hero. town or player id - whoever receives it
 	Bonus bonus;
 	MetaString bdescr;
@@ -424,15 +425,14 @@ struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
 
 struct DLL_LINKAGE RemoveBonus : public CPackForClient
 {
-	RemoveBonus(ui8 Who = 0)
+	RemoveBonus(GiveBonus::ETarget Who = GiveBonus::ETarget::HERO)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	enum { HERO, PLAYER, TOWN };
-	ui8 who; //who receives bonus, uses enum above
+	GiveBonus::ETarget who; //who receives bonus
 	ui32 whoID = 0; //hero, town or player id - whoever loses bonus
 
 	//vars to identify bonus: its source

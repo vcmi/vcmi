@@ -952,13 +952,13 @@ void GiveBonus::applyGs(CGameState *gs)
 	CBonusSystemNode *cbsn = nullptr;
 	switch(who)
 	{
-	case HERO:
+	case ETarget::HERO:
 		cbsn = gs->getHero(ObjectInstanceID(id));
 		break;
-	case PLAYER:
+	case ETarget::PLAYER:
 		cbsn = gs->getPlayerState(PlayerColor(id));
 		break;
-	case TOWN:
+	case ETarget::TOWN:
 		cbsn = gs->getTown(ObjectInstanceID(id));
 		break;
 	}
@@ -1106,7 +1106,7 @@ void PlayerReinitInterface::applyGs(CGameState *gs)
 void RemoveBonus::applyGs(CGameState *gs)
 {
 	CBonusSystemNode * node = nullptr;
-	if (who == HERO)
+	if (who == GiveBonus::ETarget::HERO)
 		node = gs->getHero(ObjectInstanceID(whoID));
 	else
 		node = gs->getPlayerState(PlayerColor(whoID));

@@ -318,7 +318,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 		assert(bonus.source == Bonus::OBJECT);
 		assert(bonus.sid == ID);
 		GiveBonus gb;
-		gb.who = GiveBonus::HERO;
+		gb.who = GiveBonus::ETarget::HERO;
 		gb.bonus = bonus;
 		gb.id = hero->id.getNum();
 		cb->giveHeroBonus(&gb);
