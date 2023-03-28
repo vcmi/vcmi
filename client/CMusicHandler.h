@@ -51,9 +51,12 @@ private:
 
 	int ambientDistToVolume(int distance) const;
 	void ambientStopSound(std::string soundId);
+	void updateChannelVolume(int channel);
 
 	const JsonNode ambientConfig;
+
 	std::map<std::string, int> ambientChannels;
+	std::map<int, int> channelVolumes;
 
 public:
 	CSoundHandler();
