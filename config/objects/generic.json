@@ -215,7 +215,7 @@
 		"handler" : "whirlpool",
 		"base" : {
 			"sounds" : {
-				"ambient" : ["LOOPWHIRL"],
+				"ambient" : ["LOOPWHIR"],
 				"visit" : ["DANGER"]
 			}
 		},
