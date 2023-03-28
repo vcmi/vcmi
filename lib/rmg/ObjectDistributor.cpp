@@ -79,7 +79,15 @@ void ObjectDistributor::distributeLimitedObjects()
 
 					for (auto& zone : matchingZones)
 					{
-						auto temp = handler->getTemplates(zone->getTerrainType()).front();
+						//We already know there are some templates
+						auto templates = handler->getTemplates(zone->getTerrainType());
+
+						//Assume the template with fewest terrains is the most suitable
+						auto temp = *boost::min_element(templates, [](std::shared_ptr<const ObjectTemplate> lhs, std::shared_ptr<const ObjectTemplate> rhs) -> bool
+						{
+							return lhs->getAllowedTerrains().size() < rhs->getAllowedTerrains().size();
+						});
+
 						oi.generateObject = [temp]() -> CGObjectInstance *
 						{
 							return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);

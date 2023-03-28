@@ -71,23 +71,25 @@ void TreasurePlacer::addAllPossibleObjects()
 					continue;
 				}
 
-				for(const auto & temp : handler->getTemplates())
-				{
-					if(temp->canBePlacedAt(zone.getTerrainType()))
-					{
-						oi.generateObject = [temp]() -> CGObjectInstance *
-						{
-							return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
-						};
-						oi.value = rmgInfo.value;
-						oi.probability = rmgInfo.rarity;
-						oi.templ = temp;
-						oi.maxPerZone = rmgInfo.zoneLimit;
-						addObjectToRandomPool(oi);
+				auto templates = handler->getTemplates(zone.getTerrainType());
+				if (templates.empty())
+					continue;
 
-						break;
-					}
-				}
+				//Assume the template with fewest terrains is the most suitable
+				auto temp = *boost::min_element(templates, [](std::shared_ptr<const ObjectTemplate> lhs, std::shared_ptr<const ObjectTemplate> rhs) -> bool
+				{
+					return lhs->getAllowedTerrains().size() < rhs->getAllowedTerrains().size();
+				});
+
+				oi.generateObject = [temp]() -> CGObjectInstance *
+				{
+					return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
+				};
+				oi.value = rmgInfo.value;
+				oi.probability = rmgInfo.rarity;
+				oi.templ = temp;
+				oi.maxPerZone = rmgInfo.zoneLimit;
+				addObjectToRandomPool(oi);
 			}
 		}
 	}
