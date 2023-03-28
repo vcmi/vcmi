@@ -243,9 +243,13 @@ std::map<TResource, ui16> ZoneOptions::getMinesInfo() const
 void ZoneOptions::setTreasureInfo(const std::vector<CTreasureInfo> & value)
 {
 	treasureInfo = value;
+	recalculateMaxTreasureValue();
+}
 
+void ZoneOptions::recalculateMaxTreasureValue()
+{
 	maxTreasureValue = 0;
-	for (const auto& ti : value)
+	for (const auto& ti : treasureInfo)
 	{
 		vstd::amax(maxTreasureValue, ti.max);
 	}
@@ -401,8 +405,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		treasureData.serializeStruct(treasureInfo);
 		if (!handler.saving)
 		{
-			//Just in order to calculate maxTreasureValue
-			setTreasureInfo(treasureInfo);
+			recalculateMaxTreasureValue();
 		}
 	}
 

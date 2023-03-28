@@ -145,6 +145,7 @@ public:
 	void addTreasureInfo(const CTreasureInfo & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
 	ui32 getMaxTreasureValue() const;
+	void recalculateMaxTreasureValue();
 
 	TRmgTemplateZoneId getMinesLikeZone() const;
 	TRmgTemplateZoneId getTerrainTypeLikeZone() const;
