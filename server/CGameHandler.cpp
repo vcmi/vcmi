@@ -51,6 +51,8 @@
 #include "../lib/serializer/Cast.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/ScriptHandler.h"
+#include "vstd/CLoggerBase.h"
+#include <memory>
 #include <vcmi/events/EventBus.h>
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
@@ -1671,6 +1673,12 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 
 CGameHandler::~CGameHandler()
 {
+	if (battleThread)
+	{
+		//Setting battleMadeAction is needed because battleThread waits for the action to continue the main loop
+		battleMadeAction.setn(true);
+		battleThread->join();
+	}
 	delete spellEnv;
 	delete gs;
 }
@@ -2712,7 +2720,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	auto battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
 	queries.addQuery(battleQuery);
 
-	boost::thread(&CGameHandler::runBattle, this);
+	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
@@ -6424,7 +6432,7 @@ void CGameHandler::runBattle()
 
 	//tactic round
 	{
-		while (gs->curB->tacticDistance && !battleResult.get())
+		while ((lobby->state != EServerState::SHUTDOWN) && gs->curB->tacticDistance && !battleResult.get())
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
@@ -6502,7 +6510,7 @@ void CGameHandler::runBattle()
 	bool firstRound = true;//FIXME: why first round is -1?
 
 	//main loop
-	while (!battleResult.get()) //till the end of the battle ;]
+	while ((lobby->state != EServerState::SHUTDOWN) && !battleResult.get()) //till the end of the battle ;]
 	{
 		BattleNextRound bnr;
 		bnr.round = gs->curB->round + 1;
@@ -6567,7 +6575,7 @@ void CGameHandler::runBattle()
 		};
 
 		const CStack * next = nullptr;
-		while((next = getNextStack()))
+		while((lobby->state != EServerState::SHUTDOWN) && (next = getNextStack()))
 		{
 			BattleUnitsChanged removeGhosts;
 			for(auto stack : curB.stacks)
@@ -6746,7 +6754,7 @@ void CGameHandler::runBattle()
 
 						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
-						while (!actionWasMade())
+						while ((lobby->state != EServerState::SHUTDOWN) && !actionWasMade())
 						{
 							battleMadeAction.cond.wait(lock);
 							if (battleGetStackByID(nextId, false) != next)
@@ -6802,7 +6810,8 @@ void CGameHandler::runBattle()
 		firstRound = false;
 	}
 
-	endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
+	if (lobby->state != EServerState::SHUTDOWN)
+		endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
 }
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
