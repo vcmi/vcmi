@@ -1499,20 +1499,20 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		{
 			auto b = undecided[i];
 			BonusLimitationContext context = {b, *this, out, undecided};
-			int decision = b->limiter ? b->limiter->limit(context) : ILimiter::ACCEPT; //bonuses without limiters will be accepted by default
-			if(decision == ILimiter::DISCARD)
+			auto decision = b->limiter ? b->limiter->limit(context) : ILimiter::EDecision::ACCEPT; //bonuses without limiters will be accepted by default
+			if(decision == ILimiter::EDecision::DISCARD)
 			{
 				undecided.erase(i);
 				i--; continue;
 			}
-			else if(decision == ILimiter::ACCEPT)
+			else if(decision == ILimiter::EDecision::ACCEPT)
 			{
 				accepted.push_back(b);
 				undecided.erase(i);
 				i--; continue;
 			}
 			else
-				assert(decision == ILimiter::NOT_SURE);
+				assert(decision == ILimiter::EDecision::NOT_SURE);
 		}
 
 		if(undecided.size() == undecidedCount) //we haven't moved a single bonus -> limiters reached a stable state
@@ -2055,21 +2055,6 @@ namespace Selector
 
 	DLL_LINKAGE CSelector all([](const Bonus * b){return true;});
 	DLL_LINKAGE CSelector none([](const Bonus * b){return false;});
-
-	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type)
-	{
-		Bonus dummy;
-		dummy.type = type;
-		return sel(&dummy);
-	}
-
-	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, Bonus::BonusType type, TBonusSubtype subtype)
-	{
-		Bonus dummy;
-		dummy.type = type;
-		dummy.subtype = subtype;
-		return sel(&dummy);
-	}
 }
 
 const CCreature * retrieveCreature(const CBonusSystemNode *node)
@@ -2150,9 +2135,9 @@ std::shared_ptr<Bonus> Bonus::addLimiter(const TLimiterPtr & Limiter)
 	return this->shared_from_this();
 }
 
-int ILimiter::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
+ILimiter::EDecision ILimiter::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
 {
-	return false;
+	return ILimiter::EDecision::ACCEPT;
 }
 
 std::string ILimiter::toString() const
@@ -2167,12 +2152,14 @@ JsonNode ILimiter::toJsonNode() const
 	return root;
 }
 
-int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
-		return true;
-	return c->getId() != creature->getId() && (!includeUpgrades || !creature->isMyUpgrade(c));
+		return ILimiter::EDecision::DISCARD;
+	
+	auto accept =  c->getId() == creature->getId() || (includeUpgrades && creature->isMyUpgrade(c));
+	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
@@ -2224,7 +2211,7 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSub
 {
 }
 
-int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
 	//TODO: proper selector config with parsing of JSON
 	auto mySelector = Selector::type()(type);
@@ -2238,14 +2225,14 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
-		return ACCEPT;
+		return ILimiter::EDecision::ACCEPT;
 
 	//if there are no matching bonuses pending, we can (and must) reject right away
 	if(!context.stillUndecided.getFirst(mySelector))
-		return DISCARD;
+		return ILimiter::EDecision::DISCARD;
 
 	//do not accept for now but it may change if more bonuses gets included
-	return NOT_SURE;
+	return ILimiter::EDecision::NOT_SURE;
 }
 
 std::string HasAnotherBonusLimiter::toString() const
@@ -2322,21 +2309,19 @@ CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
 {
 }
 
-int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CStack *stack = retrieveStackBattle(&context.node);
 	if(stack)
 	{
-		if (terrainType == ETerrainId::NATIVE_TERRAIN)//terrainType not specified = native
-		{
-			return !stack->isOnNativeTerrain();
-		}
-		else
-		{
-			return !stack->isOnTerrain(terrainType);
-		}
+		if (terrainType == ETerrainId::NATIVE_TERRAIN && stack->isOnNativeTerrain())//terrainType not specified = native
+			return ILimiter::EDecision::ACCEPT;
+
+		if(terrainType != ETerrainId::NATIVE_TERRAIN && stack->isOnTerrain(terrainType))
+			return ILimiter::EDecision::ACCEPT;
+
 	}
-	return true;
+	return ILimiter::EDecision::DISCARD;
 	//TODO neutral creatues
 }
 
@@ -2369,10 +2354,11 @@ CreatureFactionLimiter::CreatureFactionLimiter():
 {
 }
 
-int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
-	return !c || c->faction != faction; //drop bonus for non-creatures or non-native residents
+	auto accept = c && c->faction == faction;
+	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
 }
 
 std::string CreatureFactionLimiter::toString() const
@@ -2402,23 +2388,19 @@ CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
 {
 }
 
-int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&context.node);
-	if(!c)
-		return true;
-	switch(alignment)
-	{
-	case EAlignment::GOOD:
-		return !c->isGood(); //if not good -> return true (drop bonus)
-	case EAlignment::NEUTRAL:
-		return c->isEvil() || c->isGood();
-	case EAlignment::EVIL:
-		return !c->isEvil();
-	default:
-		logBonus->warn("Warning: illegal alignment in limiter!");
-		return true;
+	const auto * c = retrieveCreature(&context.node);
+	if(c) {
+		if(alignment == EAlignment::GOOD && c->isGood())
+			return ILimiter::EDecision::ACCEPT;
+		if(alignment == EAlignment::EVIL && c->isEvil())
+			return ILimiter::EDecision::ACCEPT;
+		if(alignment == EAlignment::NEUTRAL && !c->isEvil() && !c->isGood())
+			return ILimiter::EDecision::ACCEPT;
 	}
+
+	return ILimiter::EDecision::DISCARD;
 }
 
 std::string CreatureAlignmentLimiter::toString() const
@@ -2448,28 +2430,29 @@ RankRangeLimiter::RankRangeLimiter()
 	minRank = maxRank = -1;
 }
 
-int RankRangeLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CStackInstance * csi = retrieveStackInstance(&context.node);
 	if(csi)
 	{
 		if (csi->getNodeType() == CBonusSystemNode::COMMANDER) //no stack exp bonuses for commander creatures
-			return true;
-		return csi->getExpRank() < minRank || csi->getExpRank() > maxRank;
+			return ILimiter::EDecision::DISCARD;
+		if (csi->getExpRank() > minRank && csi->getExpRank() < maxRank)
+			return ILimiter::EDecision::ACCEPT;
 	}
-	return true;
+	return ILimiter::EDecision::DISCARD;
 }
 
-int StackOwnerLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision StackOwnerLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CStack * s = retrieveStackBattle(&context.node);
-	if(s)
-		return s->owner != owner;
+	if(s && s->owner == owner)
+		return ILimiter::EDecision::ACCEPT;
 
 	const CStackInstance * csi = retrieveStackInstance(&context.node);
-	if(csi && csi->armyObj)
-		return csi->armyObj->tempOwner != owner;
-	return true;
+	if(csi && csi->armyObj && csi->armyObj->tempOwner == owner)
+		return ILimiter::EDecision::ACCEPT;
+	return ILimiter::EDecision::DISCARD;
 }
 
 StackOwnerLimiter::StackOwnerLimiter()
@@ -2492,10 +2475,10 @@ OppositeSideLimiter::OppositeSideLimiter(const PlayerColor & Owner):
 {
 }
 
-int OppositeSideLimiter::limit(const BonusLimitationContext & context) const
+ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & context) const
 {
 	auto contextOwner = CBonusSystemNode::retrieveNodeOwner(& context.node);
-	auto decision = (owner == contextOwner || owner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::DISCARD : ILimiter::ACCEPT;
+	auto decision = (owner == contextOwner || owner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
 	return decision;
 }
 
@@ -2522,20 +2505,20 @@ const std::string & AllOfLimiter::getAggregator() const
 	return aggregator;
 }
 
-int AllOfLimiter::limit(const BonusLimitationContext & context) const
+ILimiter::EDecision AllOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
 
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
-		if(result == ILimiter::DISCARD)
+		if(result == ILimiter::EDecision::DISCARD)
 			return result;
-		if(result == ILimiter::NOT_SURE)
+		if(result == ILimiter::EDecision::NOT_SURE)
 			wasntSure = true;
 	}
 
-	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
+	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::ACCEPT;
 }
 
 const std::string AnyOfLimiter::aggregator = "anyOf";
@@ -2544,20 +2527,20 @@ const std::string & AnyOfLimiter::getAggregator() const
 	return aggregator;
 }
 
-int AnyOfLimiter::limit(const BonusLimitationContext & context) const
+ILimiter::EDecision AnyOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
 
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
-		if(result == ILimiter::ACCEPT)
+		if(result == ILimiter::EDecision::ACCEPT)
 			return result;
-		if(result == ILimiter::NOT_SURE)
+		if(result == ILimiter::EDecision::NOT_SURE)
 			wasntSure = true;
 	}
 
-	return wasntSure ? ILimiter::NOT_SURE : ILimiter::DISCARD;
+	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::DISCARD;
 }
 
 const std::string NoneOfLimiter::aggregator = "noneOf";
@@ -2566,20 +2549,20 @@ const std::string & NoneOfLimiter::getAggregator() const
 	return aggregator;
 }
 
-int NoneOfLimiter::limit(const BonusLimitationContext & context) const
+ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
 
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
-		if(result == ILimiter::ACCEPT)
-			return ILimiter::DISCARD;
-		if(result == ILimiter::NOT_SURE)
+		if(result == ILimiter::EDecision::ACCEPT)
+			return ILimiter::EDecision::DISCARD;
+		if(result == ILimiter::EDecision::NOT_SURE)
 			wasntSure = true;
 	}
 
-	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
+	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::ACCEPT;
 }
 
 // Updaters
