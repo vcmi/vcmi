@@ -42,7 +42,6 @@ void TownPlacer::process()
 void TownPlacer::init()
 {
 	POSTFUNCTION(MinePlacer);
-	POSTFUNCTION(ObjectManager);
 	POSTFUNCTION(RoadPlacer);
 } 
 
