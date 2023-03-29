@@ -59,6 +59,51 @@ void Moat::serializeJsonEffect(JsonSerializeFormat & handler)
 	serializeMoatHexes(handler, "moatHexes", moatHexes);
 	handler.serializeId("triggerAbility", triggerAbility, SpellID::NONE);
 	handler.serializeStruct("defender", sideOptions); //Moats are defender only
+
+	assert(!handler.saving);
+	{
+		auto guard = handler.enterStruct("bonus");
+		const JsonNode & data = handler.getCurrent();
+
+		for(const auto & p : data.Struct())
+		{
+			//TODO: support JsonSerializeFormat in Bonus
+			auto guard = handler.enterStruct(p.first);
+			const JsonNode & bonusNode = handler.getCurrent();
+			auto b = JsonUtils::parseBonus(bonusNode);
+			bonus.push_back(b);
+		}
+	}
+}
+
+void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) const
+{
+
+	for(const auto & b : bonus)
+	{
+		Bonus nb(*b);
+
+		//Moat battlefield effect is always permanent
+		nb.duration = Bonus::ONE_BATTLE;
+
+		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+		{
+			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->town->faction->getIndex(), BuildingID::CITADEL);
+			nb.source = Bonus::TOWN_STRUCTURE;
+		}
+		else
+		{
+			nb.sid = m->getSpellIndex(); //for all
+			nb.source = Bonus::SPELL_EFFECT;//for all
+		}
+		std::set<BattleHex> flatMoatHexes;
+
+		for(const auto & moatPatch : moatHexes)
+			flatMoatHexes.insert(moatPatch.begin(), moatPatch.end());
+
+		nb.limiter = std::make_shared<UnitOnHexLimiter>(std::move(flatMoatHexes));
+		converted.push_back(nb);
+	}
 }
 
 void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
@@ -69,6 +114,15 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 	{
 		EffectTarget moat;
 		placeObstacles(server, m, moat);
+
+		std::vector<Bonus> converted;
+		convertBonus(m, converted);
+		for(auto & b : converted)
+		{
+			GiveBonus gb(GiveBonus::ETarget::BATTLE);
+			gb.bonus = b;
+			server->apply(&gb);
+		}
 	}
 }
 

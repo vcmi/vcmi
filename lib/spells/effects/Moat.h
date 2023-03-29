@@ -23,7 +23,8 @@ class Moat : public Obstacle
 {
 private:
 	ObstacleSideOptions sideOptions; //Defender only
-	std::vector<std::vector<BattleHex>> moatHexes;
+	std::vector<std::vector<BattleHex>> moatHexes; //Determine number of moat patches and hexes
+	std::vector<std::shared_ptr<Bonus>> bonus; //For battle-wide bonuses
 	bool dispellable; //For Tower landmines
 	int moatDamage; // Minimal moat damage
 public:
@@ -31,6 +32,7 @@ public:
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
 	void placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void convertBonus(const Mechanics * m, std::vector<Bonus> & converted) const;
 };
 
 }

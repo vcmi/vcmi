@@ -68,6 +68,14 @@
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
@@ -158,6 +166,14 @@
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
@@ -300,6 +316,14 @@
                         "moatDamage" : 90,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
@@ -390,6 +414,14 @@
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
@@ -480,6 +512,14 @@
                         "moatDamage" : 90,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
@@ -570,6 +610,14 @@
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
@@ -660,6 +708,14 @@
                         "moatDamage" : 90,
                         "moatHexes" : [[10, 11, 27, 28, 43, 44, 60, 61, 76, 77, 94, 110, 111, 128, 129, 145, 146, 163, 164, 180, 181]],
 						"defender" :{
+						},
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"valueType" : "ADDITIVE_VALUE"
+							}
 						}
                     }
                 },
