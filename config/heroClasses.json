@@ -104,7 +104,7 @@
 		"index": 10,
 		"faction" : "dungeon",
 		"defaultTavern" : 5,
-		"affinity" : "might",
+		"affinity" : "magic",
 		"commander" : "medusaQueen",
 		"mapObject" : { "templates" : { "default" : { "animation" : "AH11_.def", "editorAnimation": "AH11_E.def" } } },
 		"animation":  { "battle" : { "male" : "CH010.DEF",  "female" : "CH11.DEF" } }
@@ -114,7 +114,7 @@
 		"index": 11,
 		"faction" : "dungeon",
 		"defaultTavern" : 5,
-		"affinity" : "magic",
+		"affinity" : "might",
 		"commander" : "medusaQueen",
 		"mapObject" : { "templates" : { "default" : { "animation" : "AH10_.def", "editorAnimation": "AH10_E.def" } } },
 		"animation":  { "battle" : { "male" : "CH010.DEF",  "female" : "CH11.DEF" } }

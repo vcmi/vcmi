@@ -119,7 +119,10 @@ BattleActionsController::BattleActionsController(BattleInterface & owner):
 void BattleActionsController::endCastingSpell()
 {
 	if(heroSpellToCast)
+	{
 		heroSpellToCast.reset();
+		owner.windowObject->blockUI(false);
+	}
 
 	if(owner.stacksController->getActiveStack())
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
@@ -287,6 +290,8 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 		possibleActions.push_back (spellSelMode); //only this one action can be performed at the moment
 		GH.fakeMouseMove();//update cursor
 	}
+
+	owner.windowObject->blockUI(true);
 }
 
 const CSpell * BattleActionsController::getHeroSpellToCast( ) const
