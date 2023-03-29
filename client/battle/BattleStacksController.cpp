@@ -296,47 +296,42 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * stack)
 {
-	//blitting amount background box
 	auto amountBG = getStackAmountBox(stack);
 
 	bool doubleWide = stack->doubleWide();
+	bool turnedRight = facingRight(stack);
 	bool attacker = stack->side == BattleSide::ATTACKER;
-	const BattleHex stackPos = stack->getPosition();
-	const BattleHex frontPos = attacker ?
+
+	BattleHex stackPos = stack->getPosition();
+
+	// double-wide unit turned around - use opposite hex for stack label
+	if (doubleWide && turnedRight != attacker)
+		stackPos = stack->occupiedHex();
+
+	BattleHex frontPos = turnedRight ?
 		stackPos.cloneInDirection(BattleHex::RIGHT) :
 		stackPos.cloneInDirection(BattleHex::LEFT);
 
-	bool moveInside = frontPos.isAvailable() && !owner.fieldController->stackCountOutsideHex(frontPos);
+	bool moveInside = !owner.fieldController->stackCountOutsideHex(frontPos);
 
 	Point boxPosition;
 
-	if (attacker)
+	if (moveInside)
 	{
-		if (moveInside)
-			boxPosition = Point(181, 252);
-		else
-			boxPosition = Point(218, 252);
-
-		if (doubleWide)
-			boxPosition.x += 44;
+		boxPosition = owner.fieldController->hexPositionLocal(stackPos).center() + Point(-15, 1);
 	}
 	else
 	{
-		if (moveInside)
-			boxPosition = Point(239, 252);
+		if (turnedRight)
+			boxPosition = owner.fieldController->hexPositionLocal(frontPos).center() + Point (-22, 1);
 		else
-			boxPosition = Point(202, 237);
-
-		if (doubleWide)
-			boxPosition.x -= 44;
+			boxPosition = owner.fieldController->hexPositionLocal(frontPos).center() + Point(-8, -14);
 	}
 
-	canvas.draw(amountBG, stackAnimation[stack->ID]->pos.topLeft() + boxPosition);
+	Point textPosition = amountBG->dimensions()/2 + boxPosition;
 
-	//blitting amount
-	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + boxPosition;
-
-	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
+	canvas.draw(amountBG, boxPosition);
+	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
