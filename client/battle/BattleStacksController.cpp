@@ -380,7 +380,7 @@ void BattleStacksController::updateBattleAnimations()
 
 	if (hadAnimations && currentAnimations.empty())
 	{
-		stackAmountBoxHidden.clear();
+		//stackAmountBoxHidden.clear();
 		owner.executeStagedAnimations();
 		if (currentAnimations.empty())
 			owner.onAnimationsFinished();
@@ -391,6 +391,9 @@ void BattleStacksController::updateBattleAnimations()
 
 void BattleStacksController::addNewAnim(BattleAnimation *anim)
 {
+	if (currentAnimations.empty())
+		stackAmountBoxHidden.clear();
+
 	owner.onAnimationsStarted();
 	currentAnimations.push_back(anim);
 
@@ -684,6 +687,8 @@ void BattleStacksController::endAction(const BattleAction* action)
 	}
 	owner.executeStagedAnimations();
 	owner.waitForAnimations();
+
+	stackAmountBoxHidden.clear();
 
 	owner.windowObject->blockUI(activeStack == nullptr);
 	removeExpiredColorFilters();
