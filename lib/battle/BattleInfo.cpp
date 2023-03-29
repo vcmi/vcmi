@@ -740,6 +740,9 @@ void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 		return;
 	}
 	sta->position = destination;
+	//Bonuses can be limited by unit placement, so, change tree version 
+	//to force updating a bonus. TODO: update version only when such bonuses are present
+	CBonusSystemNode::treeHasChanged();
 }
 
 void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)
