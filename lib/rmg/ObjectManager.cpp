@@ -236,8 +236,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
-	
-	RandomGeneratorUtil::randomShuffle(requiredObjects, generator.rand);	
+		
 	for(const auto & object : requiredObjects)
 	{
 		auto * obj = object.first;

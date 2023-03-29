@@ -157,6 +157,8 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 {
 	using namespace Res;
 	std::vector<CGMine*> createdMines;
+
+	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	
 	for(const auto & mineInfo : zone.getMinesInfo())
 	{
@@ -175,8 +177,15 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 			if(!i && (res == ERes::WOOD || res == ERes::ORE))
 				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
 			else
-				manager.addRequiredObject(mine, rmginfo.value);
+				requiredObjects.push_back(std::pair<CGObjectInstance*, ui32>(mine, rmginfo.value));
 		}
+	}
+
+	//Shuffle mines to avoid patterns, but don't shuffle key objects like towns
+	RandomGeneratorUtil::randomShuffle(requiredObjects, generator.rand);
+	for (const auto& obj : requiredObjects)
+	{
+		manager.addRequiredObject(obj.first, obj.second);
 	}
 	
 	//create extra resources
