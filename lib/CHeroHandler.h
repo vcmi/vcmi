@@ -29,21 +29,6 @@ class CRandomGenerator;
 class JsonSerializeFormat;
 class BattleField;
 
-struct SSpecialtyInfo
-{
-	si32 type;
-	si32 val;
-	si32 subtype;
-	si32 additionalinfo;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & type;
-		h & val;
-		h & subtype;
-		h & additionalinfo;
-	}
-};
-
 class DLL_LINKAGE CHero : public HeroType
 {
 	friend class CHeroHandler;
@@ -72,7 +57,6 @@ public:
 
 	CHeroClass * heroClass{};
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
-	std::vector<SSpecialtyInfo> specDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
 	bool haveSpellBook = false;
@@ -131,9 +115,6 @@ public:
 		h & battleImage;
 	}
 };
-
-// convert deprecated format
-std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid = 0);
 
 class DLL_LINKAGE CHeroClass : public HeroClass
 {
@@ -251,9 +232,11 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
 	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
 
 	void loadExperience();
+
+	std::vector<std::function<void()>> callAfterLoadFinalization;
 
 public:
 	CHeroClassHandler classes;
