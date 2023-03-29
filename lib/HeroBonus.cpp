@@ -369,8 +369,8 @@ JsonNode CAddInfo::toJsonNode() const
 	}
 }
 
-std::atomic<int32_t> CBonusSystemNode::treeChanged(1);
-const bool CBonusSystemNode::cachingEnabled = true;
+std::atomic<int64_t> CBonusSystemNode::treeChanged(1);
+constexpr bool CBonusSystemNode::cachingEnabled = true;
 
 BonusList::BonusList(bool BelongsToTree) : belongsToTree(BelongsToTree)
 {
@@ -1534,8 +1534,7 @@ void CBonusSystemNode::treeHasChanged()
 
 int64_t CBonusSystemNode::getTreeVersion() const
 {
-	int64_t ret = treeChanged;
-	return ret << 32;
+	return treeChanged;
 }
 
 std::string Bonus::Description(boost::optional<si32> customValue) const
