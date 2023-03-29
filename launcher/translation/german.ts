@@ -6,96 +6,96 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="42"/>
         <source>Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Übersetzung</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="43"/>
         <source>Town</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="44"/>
         <source>Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Test</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="45"/>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>Templates</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="46"/>
         <source>Spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaubersprüche</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="47"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Musik</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Sounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Sounds</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Fertigkeiten</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="67"/>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
         <source>Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekte</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="53"/>
         <source>Mechanics</source>
-        <translation type="unfinished"></translation>
+        <translation>Mechaniken</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="54"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="55"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstelle</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="56"/>
         <source>Heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Helden</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="58"/>
         <source>Graphical</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafisches</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
         <source>Expansion</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Kreaturen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
         <source>Artifacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakte</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translation>KI</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="170"/>
@@ -239,7 +239,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="262"/>
         <source>Contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
@@ -265,7 +265,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Languages</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprachen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
@@ -335,7 +335,7 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
         <source>Adventure Map AI</source>
-        <translation type="unfinished"></translation>
+        <translation>Abenteuerkarte KI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
@@ -354,18 +354,18 @@
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
         <source>Artificial Intelligence</source>
-        <translation type="unfinished"></translation>
+        <translation>Künstliche Intelligenz</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="415"/>
         <source>Mod Repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod-Repositorien</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="368"/>
         <source>Update now</source>
-        <translation type="unfinished"></translation>
+        <translation>Jetzt aktualisieren</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="261"/>
@@ -378,37 +378,37 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="215"/>
         <source>Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeiger</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="500"/>
         <source>Heroes III Data Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache der Heroes III Daten</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
         <source>Hardware</source>
-        <translation type="unfinished"></translation>
+        <translation>Hardware</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
         <source>Software</source>
-        <translation type="unfinished"></translation>
+        <translation>Software</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Übersetzung</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
         <source>Check on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Start prüfen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
@@ -501,27 +501,27 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="385"/>
         <source>Active</source>
-        <translation type="unfinished">Aktiv</translation>
+        <translation>Aktiv</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="390"/>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="391"/>
         <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="396"/>
         <source>Not Installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht installiert</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="397"/>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
 </context>
 <context>
@@ -529,77 +529,77 @@
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="28"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
         <source>Heroes III Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Daten</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Mods Voreinstellung</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="445"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Heroes III-Datendateien wurden erfolgreich gefunden.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="775"/>
         <source>Optionally, you can install additional mods either now or at any point later:</source>
-        <translation type="unfinished"></translation>
+        <translation>Optional können Sie jetzt oder zu einem beliebigen späteren Zeitpunkt zusätzliche Mods installieren:</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="791"/>
         <source>Install support for playing Heroes III in resolutions other than 800x600.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren Sie Unterstützung für das Spielen von Heroes III in anderen Auflösungen als 800x600.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
         <source>Install compatible version of addon Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren Sie die kompatible Version des Addons Horn of the Abyss: eine von Fans entwickelte Heroes III-Erweiterung, portiert vom VCMI-Team</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
         <source>Install compatible version of addon &quot;In The Wake of Gods&quot;: fan-made Heroes III expansion</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren Sie die kompatible Version des Addons &quot;In The Wake of Gods&quot;: von Fans entwickelte Heroes III-Erweiterung</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="870"/>
         <source>Finish</source>
-        <translation type="unfinished"></translation>
+        <translation>Fertigstellen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
         <source>Step %v out of %m</source>
-        <translation type="unfinished"></translation>
+        <translation>Schritt %v von %m</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
         <source>Choose your language</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie Ihre Sprache</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI auf Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
         <source>VCMI on Slack</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI auf Slack</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="189"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI auf Discord</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
         <source>Have a question? Found a bug? Want to help? Join us:</source>
-        <translation type="unfinished"></translation>
+        <translation>Haben Sie eine Frage? Einen Fehler gefunden? Möchten Sie helfen? Machen Sie mit:</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
@@ -610,104 +610,110 @@ There are a few more steps to be done before you can start playing.
 Keep in mind that in order to use VCMI you need to own original data files, Heroes III: Complete Edition or Shadow of Death.
 
 Heroes III: HD Edition is currently not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Vielen Dank für die Installation von VCMI.
+
+Es sind noch ein paar Schritte notwendig, bevor Sie mit dem Spielen beginnen können.
+
+Denken Sie daran, dass Sie die Originaldateien, Heroes III: Complete Edition oder Shadow of Death besitzen müssen, um VCMI verwenden zu können.
+
+Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="554"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Weiter</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
         <source>Find Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Daten suchen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="307"/>
         <source>Open help in browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe im Browser öffnen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="320"/>
         <source>Search again</source>
-        <translation type="unfinished"></translation>
+        <translation>Erneut suchen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
         <source>If you don&apos;t have installed Heroes III copy, it is possible to use our automatic installation tool &apos;vcmibuilder&apos; to extract data from GoG.com installer. Visit our wiki for detailed instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie keine Kopie von Heroes III installiert haben, können Sie unser automatisches Installationstool &apos;vcmibuilder&apos; verwenden, um Daten aus dem GoG.com-Installationsprogramm zu extrahieren. Besuchen Sie unser Wiki für detaillierte Anweisungen.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
         <source>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI benötigt Heroes III Daten in einem der oben aufgeführten Verzeichnisse. Bitte kopieren Sie die Heroes III-Daten in eines dieser Verzeichnisse.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="403"/>
         <source>Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Dateien</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
         <source>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternativ können Sie ein Verzeichnis mit installierten Heroes III-Daten auswählen, und VCMI wird die vorhandenen Daten automatisch kopieren.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="432"/>
         <source>Copy existing data</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhandene Daten kopieren</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="475"/>
         <source>Your Heroes III language has been successfully detected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Heroes III-Sprache wurde erfolgreich erkannt.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
         <source>Automatic detection of language failed. Please select language of your Heroes III copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Erkennung der Sprache fehlgeschlagen. Bitte wählen Sie die Sprache Ihrer Heroes III Kopie</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>Heroes III language</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Sprache</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="547"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="585"/>
         <source>Install VCMI Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Mod Voreinstellung installieren</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="635"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished"></translation>
+        <translation>Horn of the Abyss</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="657"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Übersetzung</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="721"/>
         <source>High Definition Support</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterstützung für hohe Auflösungen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished"></translation>
+        <translation>In The Wake of Gods</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
         <source>Install translation of Heroes III to your language</source>
-        <translation type="unfinished"></translation>
+        <translation>Übersetzung von Heroes III für Ihre Sprache installieren</translation>
     </message>
 </context>
 <context>
@@ -723,67 +729,67 @@ Heroes III: HD Edition is currently not supported</source>
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinesisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>English</source>
-        <translation type="unfinished">English (Englisch)</translation>
+        <translation>Englisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translation>Französisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>German</source>
-        <translation type="unfinished"></translation>
+        <translation>Deutsch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Koreanisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translation>Polnisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translation>Russisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Spanish</source>
-        <translation type="unfinished"></translation>
+        <translation>Spanisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Ukrainian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukrainisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Other (East European)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonstige (osteuropäisch)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Other (Cyrillic Script)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonstige (kyrillische Schrift)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Other (West European)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonstige (westeuropäisch)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="56"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto (%1)</translation>
     </message>
 </context>
 <context>
@@ -807,12 +813,12 @@ Heroes III: HD Edition is currently not supported</source>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="76"/>
         <source>People in lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>Personen in der Lobby</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="114"/>
         <source>Lobby chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Lobby-Chat</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="194"/>
@@ -827,17 +833,17 @@ Heroes III: HD Edition is currently not supported</source>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="274"/>
         <source>Resolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflösen</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="286"/>
         <source>New game</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Spiel</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="293"/>
         <source>Load game</source>
-        <translation type="unfinished"></translation>
+        <translation>Spiel laden</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="149"/>
@@ -877,12 +883,12 @@ Heroes III: HD Edition is currently not supported</source>
     <message>
         <location filename="../lobby/lobby_moc.cpp" line="369"/>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung trennen</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.cpp" line="461"/>
         <source>No issues detected</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Probleme festgestellt</translation>
     </message>
 </context>
 <context>
@@ -933,7 +939,7 @@ Heroes III: HD Edition is currently not supported</source>
     <message>
         <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Karteneditor</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="279"/>
