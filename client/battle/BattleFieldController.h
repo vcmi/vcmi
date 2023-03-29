@@ -56,6 +56,7 @@ class BattleFieldController : public CIntObject
 	void showBackgroundImage(Canvas & canvas);
 	void showBackgroundImageWithHexes(Canvas & canvas);
 	void showHighlightedHexes(Canvas & canvas);
+	void updateAccessibleHexes();
 
 	BattleHex::EDir selectAttackDirection(BattleHex myNumber, const Point & point);
 

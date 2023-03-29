@@ -35,8 +35,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
-#include <SDL_events.h>
-
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
@@ -67,10 +65,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
-	auto accessibility = owner.curInt->cb->getAccesibility();
-	for(int i = 0; i < accessibility.size(); i++)
-		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
-
+	updateAccessibleHexes();
 	addUsedEvents(LCLICK | RCLICK | MOVE);
 	LOCPLINT->cingconsole->pos = this->pos;
 }
@@ -179,11 +174,6 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	std::vector<BattleHex> attackableHexes;
 	if (activeStack)
 		occupyableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
-
-	auto accessibility = owner.curInt->cb->getAccesibility();
-
-	for(int i = 0; i < accessibility.size(); i++)
-		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 
 	//prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -579,6 +569,14 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 	return false;
 }
 
+void BattleFieldController::updateAccessibleHexes()
+{
+	auto accessibility = owner.curInt->cb->getAccesibility();
+
+	for(int i = 0; i < accessibility.size(); i++)
+		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE || (accessibility[i] == EAccessibility::SIDE_COLUMN));
+}
+
 bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 {
 	return stackCountOutsideHexes[number];
@@ -591,6 +589,7 @@ void BattleFieldController::showAll(SDL_Surface * to)
 
 void BattleFieldController::show(SDL_Surface * to)
 {
+	updateAccessibleHexes();
 	owner.stacksController->update();
 	owner.obstacleController->update();
 

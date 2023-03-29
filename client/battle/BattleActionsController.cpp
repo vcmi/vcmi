@@ -694,14 +694,14 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				if (action.spell() == SpellID::SACRIFICE)
 				{
 					heroSpellToCast->aimToHex(targetHex);
-					possibleActions.push_back(PossiblePlayerBattleAction::SACRIFICE);
+					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
 					owner.stacksController->setSelectedStack(targetStack);
 					return;
 				}
 				if (action.spell() == SpellID::TELEPORT)
 				{
 					heroSpellToCast->aimToUnit(targetStack);
-					possibleActions.push_back(PossiblePlayerBattleAction::TELEPORT);
+					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
 					owner.stacksController->setSelectedStack(targetStack);
 					return;
 				}
