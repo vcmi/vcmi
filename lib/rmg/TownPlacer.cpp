@@ -21,6 +21,7 @@
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
+#include "MinePlacer.h"
 #include "WaterAdopter.h"
 #include "TileInfo.h"
 
@@ -35,13 +36,12 @@ void TownPlacer::process()
 		return;
 	}
 	
-	
 	placeTowns(*manager);
-	placeMines(*manager);
 }
 
 void TownPlacer::init()
 {
+	POSTFUNCTION(MinePlacer);
 	POSTFUNCTION(ObjectManager);
 	POSTFUNCTION(RoadPlacer);
 } 
@@ -151,58 +151,6 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
 	return position;
-}
-
-bool TownPlacer::placeMines(ObjectManager & manager)
-{
-	using namespace Res;
-	std::vector<CGMine*> createdMines;
-
-	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
-	
-	for(const auto & mineInfo : zone.getMinesInfo())
-	{
-		ERes res = static_cast<ERes>(mineInfo.first);
-		for(int i = 0; i < mineInfo.second; ++i)
-		{
-			auto mineHandler = VLC->objtypeh->getHandlerFor(Obj::MINE, res);
-			const auto & rmginfo = mineHandler->getRMGInfo();
-			auto * mine = dynamic_cast<CGMine *>(mineHandler->create());
-			mine->producedResource = res;
-			mine->tempOwner = PlayerColor::NEUTRAL;
-			mine->producedQuantity = mine->defaultResProduction();
-			createdMines.push_back(mine);
-			
-			
-			if(!i && (res == ERes::WOOD || res == ERes::ORE))
-				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
-			else
-				requiredObjects.push_back(std::pair<CGObjectInstance*, ui32>(mine, rmginfo.value));
-		}
-	}
-
-	//Shuffle mines to avoid patterns, but don't shuffle key objects like towns
-	RandomGeneratorUtil::randomShuffle(requiredObjects, generator.rand);
-	for (const auto& obj : requiredObjects)
-	{
-		manager.addRequiredObject(obj.first, obj.second);
-	}
-	
-	//create extra resources
-	if(int extraRes = generator.getConfig().mineExtraResources)
-	{
-		for(auto * mine : createdMines)
-		{
-			for(int rc = generator.rand.nextInt(1, extraRes); rc > 0; --rc)
-			{
-				auto * resourse = dynamic_cast<CGResource *>(VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create());
-				resourse->amount = CGResource::RANDOM_AMOUNT;
-				manager.addNearbyObject(resourse, mine);
-			}
-		}
-	}
-	
-	return true;
 }
 
 void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)

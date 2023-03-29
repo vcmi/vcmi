@@ -107,6 +107,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/RmgMap.cpp
 		${MAIN_LIB_DIR}/rmg/ConnectionsPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/WaterAdopter.cpp
+		${MAIN_LIB_DIR}/rmg/MinePlacer.cpp
 		${MAIN_LIB_DIR}/rmg/TownPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/WaterProxy.cpp
 		${MAIN_LIB_DIR}/rmg/WaterRoutes.cpp
@@ -345,6 +346,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/RmgMap.h
 		${MAIN_LIB_DIR}/rmg/ConnectionsPlacer.h
 		${MAIN_LIB_DIR}/rmg/WaterAdopter.h
+		${MAIN_LIB_DIR}/rmg/MinePlacer.h
 		${MAIN_LIB_DIR}/rmg/TownPlacer.h
 		${MAIN_LIB_DIR}/rmg/WaterProxy.h
 		${MAIN_LIB_DIR}/rmg/WaterRoutes.h
