@@ -38,7 +38,6 @@
 		"name" : "Ключевые файлы VCMI",
 		"description" : "Файлы, необходимые для полноценной работы VCMI",
 		"author" : "Команда VCMI",
-		"modType" : "Графический",
 
 		"skipValidation" : true,
 		"translations" : [
