@@ -34,9 +34,9 @@ typedef std::vector<CBonusSystemNode *> TNodesVector;
 
 class CSelector : std::function<bool(const Bonus*)>
 {
-	typedef std::function<bool(const Bonus*)> TBase;
+	using TBase = std::function<bool(const Bonus*)>;
 public:
-	CSelector() {}
+	CSelector() = default;
 	template<typename T>
 	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class
 							//(includes functors, lambdas) or function. Without that VC is going mad about ambiguities.
@@ -904,13 +904,6 @@ public:
 		h & nodeType;
 	}
 };
-
-namespace NBonus
-{
-	//set of methods that may be safely called with nullptr objs
-	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
-	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-}
 
 template<typename T>
 class CSelectFieldEqual

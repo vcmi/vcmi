@@ -1538,20 +1538,6 @@ int64_t CBonusSystemNode::getTreeVersion() const
 	return ret << 32;
 }
 
-int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype)
-{
-	if(obj)
-		return obj->valOfBonuses(type, subtype);
-	return 0;
-}
-
-bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype)
-{
-	if(obj)
-		return obj->hasBonusOfType(type, subtype);
-	return false;
-}
-
 std::string Bonus::Description(boost::optional<si32> customValue) const
 {
 	std::ostringstream str;
