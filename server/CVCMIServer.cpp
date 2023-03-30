@@ -59,10 +59,6 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
-#include <execinfo.h>
-#endif
-
 template<typename T> class CApplyOnServer;
 
 class CBaseForServerApply
@@ -999,33 +995,6 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
-void handleLinuxSignal(int sig)
-{
-	const int STACKTRACE_SIZE = 100;
-	void * buffer[STACKTRACE_SIZE];
-	int ptrCount = backtrace(buffer, STACKTRACE_SIZE);
-	char * * strings;
-
-	logGlobal->error("Error: signal %d :", sig);
-	strings = backtrace_symbols(buffer, ptrCount);
-	if(strings == nullptr)
-	{
-		logGlobal->error("There are no symbols.");
-	}
-	else
-	{
-		for(int i = 0; i < ptrCount; ++i)
-		{
-			logGlobal->error(strings[i]);
-		}
-		free(strings);
-	}
-
-	_exit(EXIT_FAILURE);
-}
-#endif
-
 static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
@@ -1100,11 +1069,6 @@ int main(int argc, const char * argv[])
 #if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
-#endif
-	// Installs a sig sev segmentation violation handler
-	// to log stacktrace
-#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_MOBILE)
-	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
 #ifndef VCMI_IOS
