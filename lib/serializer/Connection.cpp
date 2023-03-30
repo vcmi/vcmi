@@ -83,7 +83,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 	if(error)
 	{
 		logNetwork->error("Problem with resolving: \n%s", error.message());
-		goto connerror1;
+		throw std::runtime_error("Can't establish connection: Problem with resolving");
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
@@ -91,7 +91,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 	else
 	{
 		logNetwork->error("Critical problem: No endpoints found!");
-		goto connerror1;
+		throw std::runtime_error("Can't establish connection: No endpoints found!");
 	}
 	while(pom != end)
 	{
@@ -110,20 +110,12 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 		}
 		else
 		{
-			logNetwork->error("Problem with connecting: %s", error.message());
+			throw std::runtime_error("Can't establish connection: Failed to connect!");
 		}
 		endpoint_iterator++;
 	}
-
-	//we shouldn't be here - error handling
-connerror1:
-	logNetwork->error("Something went wrong... checking for error info");
-	if(error)
-		logNetwork->error(error.message());
-	else
-		logNetwork->error("No error info. ");
-	throw std::runtime_error("Can't establish connection :(");
 }
+
 CConnection::CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID):
 	iser(this),
 	oser(this),
