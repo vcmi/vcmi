@@ -316,11 +316,11 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	result += "<p></p>"; // to get some empty space
 
-	QString unknownDeps = tr("This mod can not be installed or enabled because following dependencies are not present");
-	QString blockingMods = tr("This mod can not be enabled because following mods are incompatible with this mod");
-	QString hasActiveDependentMods = tr("This mod can not be disabled because it is required to run following mods");
-	QString hasDependentMods = tr("This mod can not be uninstalled or updated because it is required to run following mods");
-	QString thisIsSubmod = tr("This is submod and it can not be installed or uninstalled separately from parent mod");
+	QString unknownDeps = tr("This mod can not be installed or enabled because the following dependencies are not present");
+	QString blockingMods = tr("This mod can not be enabled because the following mods are incompatible with it");
+	QString hasActiveDependentMods = tr("This mod cannot be disabled because it is required by the following mods");
+	QString hasDependentMods = tr("This mod cannot be uninstalled or updated because it is required by the following mods");
+	QString thisIsSubmod = tr("This is a submod and it cannot be installed or uninstalled separately from its parent mod");
 
 	QString notes;
 
