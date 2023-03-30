@@ -1,45 +1,45 @@
 {
     "castleMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Moat",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Moat",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "castleMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -59,24 +59,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : false,
-						"trap" : true,
-						"trigger" : true,
-						"triggerAbility" : "core:castleMoatTrigger",
+                        "hidden" : false,
+                        "trap" : true,
+                        "trigger" : true,
+                        "triggerAbility" : "core:castleMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -91,53 +91,53 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
         }
     },
     "rampartMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Brambles",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Brambles",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "rampartMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -157,24 +157,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : false,
-						"trap" : true,
-						"trigger" : true,
-						"triggerAbility" : "core:rampartMoatTrigger",
+                        "hidden" : false,
+                        "trap" : true,
+                        "trigger" : true,
+                        "triggerAbility" : "core:rampartMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -189,7 +189,7 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
@@ -214,19 +214,19 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : true,
-						"trap" : false,
-						"trigger" : true,
-						"triggerAbility" : "core:landMineTrigger",
+                        "hidden" : true,
+                        "trap" : false,
+                        "trigger" : true,
+                        "triggerAbility" : "core:landMineTrigger",
                         "dispellable" : true,
-						"removeOnTrigger" : true,
+                        "removeOnTrigger" : true,
                         "moatDamage" : 150,
                         "moatHexes" : [[11], [28], [44], [61], [77], [111], [129], [146], [164], [181]],
-						"defender" :{
-							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0",
-							"appearSound" : "LANDMINE"
-						}
+                        "defender" :{
+                            "animation" : "C09SPF1",
+                            "appearAnimation" : "C09SPF0",
+                            "appearSound" : "LANDMINE"
+                        }
                     }
                 },
                 "range" : "X"
@@ -241,53 +241,53 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
         }
     },
     "infernoMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Lava",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Lava",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "infernoMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -307,24 +307,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : false,
-						"trap" : true,
-						"trigger" : true,
-						"triggerAbility" : "core:infernoMoatTrigger",
+                        "hidden" : false,
+                        "trap" : true,
+                        "trigger" : true,
+                        "triggerAbility" : "core:infernoMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 90,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -339,53 +339,53 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
         }
     },
     "necropolisMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Boneyard",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Boneyard",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "necropolisMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -405,24 +405,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : true,
-						"trap" : false,
-						"trigger" : true,
-						"triggerAbility" : "core:necropolisMoatTrigger",
+                        "hidden" : true,
+                        "trap" : false,
+                        "trigger" : true,
+                        "triggerAbility" : "core:necropolisMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -437,53 +437,53 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
         }
     },
     "dungeonMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Boiling Oil",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Boiling Oil",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "dungeonMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -503,24 +503,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : false,
-						"trap" : true,
-						"trigger" : true,
-						"triggerAbility" : "core:dungeonMoatTrigger",
+                        "hidden" : false,
+                        "trap" : true,
+                        "trigger" : true,
+                        "triggerAbility" : "core:dungeonMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 90,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -535,53 +535,53 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
         }
     },
     "strongholdMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Wooden Spikes",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Wooden Spikes",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "strongholdMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -601,24 +601,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : false,
-						"trap" : true,
-						"trigger" : true,
-						"triggerAbility" : "core:strongholdMoatTrigger",
+                        "hidden" : false,
+                        "trap" : true,
+                        "trigger" : true,
+                        "triggerAbility" : "core:strongholdMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 70,
                         "moatHexes" : [[11, 28, 44, 61, 77, 111, 129, 146, 164, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -633,53 +633,53 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
         }
     },
     "fortressMoatTrigger" :
-	{
-		"targetType" : "CREATURE",
-		"type": "ability",
-		"name": "Boiling Tar",
-		"school": {},
-		"level": 0,
-		"power": 0,
-		"gainChance": {},
-		"levels" : {
-			"base": {
-				"power" : 0,
-				"range" : "0",
-				"description" : "", //For validation
-				"cost" : 0, //For validation
-				"aiValue" : 0, //For validation
-				"battleEffects" : {
-					"directDamage" : {
-						"type":"core:damage"
-					}
-				},
-				"targetModifier":{"smart":false}
-			},
-			"none" : {
-			},
-			"basic" : {
-			},
-			"advanced" : {
-			},
-			"expert" : {
+    {
+        "targetType" : "CREATURE",
+        "type": "ability",
+        "name": "Boiling Tar",
+        "school": {},
+        "level": 0,
+        "power": 0,
+        "gainChance": {},
+        "levels" : {
+            "base": {
+                "power" : 0,
+                "range" : "0",
+                "description" : "", //For validation
+                "cost" : 0, //For validation
+                "aiValue" : 0, //For validation
+                "battleEffects" : {
+                    "directDamage" : {
+                        "type":"core:damage"
+                    }
+                },
+                "targetModifier":{"smart":false}
+            },
+            "none" : {
+            },
+            "basic" : {
+            },
+            "advanced" : {
+            },
+            "expert" : {
             }
-		},
-		"flags" : {
-			"damage": true,
-			"negative": true,
-			"nonMagical" : true,
-			"special": true
-		},
-		"targetCondition" : {
-		}
-	},
+        },
+        "flags" : {
+            "damage": true,
+            "negative": true,
+            "nonMagical" : true,
+            "special": true
+        },
+        "targetCondition" : {
+        }
+    },
     "fortressMoat": {
         "targetType" : "NO_TARGET",
         "type": "ability",
@@ -699,24 +699,24 @@
                 "battleEffects":{
                     "moat":{
                         "type":"core:moat",
-						"hidden" : false,
-						"trap" : true,
-						"trigger" : true,
-						"triggerAbility" : "core:fortressMoatTrigger",
+                        "hidden" : false,
+                        "trap" : true,
+                        "trigger" : true,
+                        "triggerAbility" : "core:fortressMoatTrigger",
                         "dispellable" : false,
-						"removeOnTrigger" : false,
+                        "removeOnTrigger" : false,
                         "moatDamage" : 90,
                         "moatHexes" : [[10, 11, 27, 28, 43, 44, 60, 61, 76, 77, 94, 110, 111, 128, 129, 145, 146, 163, 164, 180, 181]],
-						"defender" :{
-						},
-						"bonus" :{
-							"primarySkill" : {
-								"val" : -3,
-								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
-								"valueType" : "ADDITIVE_VALUE"
-							}
-						}
+                        "defender" :{
+                        },
+                        "bonus" :{
+                            "primarySkill" : {
+                                "val" : -3,
+                                "type" : "PRIMARY_SKILL",
+                                "subtype" : "primSkill.defence",
+                                "valueType" : "ADDITIVE_VALUE"
+                            }
+                        }
                     }
                 },
                 "range" : "X"
@@ -731,7 +731,7 @@
             }
         },
         "flags" : {
-			"nonMagical" : true,
+            "nonMagical" : true,
             "indifferent": true
         },
         "targetCondition" : {
