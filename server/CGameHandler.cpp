@@ -5238,50 +5238,47 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 	bool movementStopped = false;
 	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack, passed))
 	{
-			//helper info
-			const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
-			const ui8 side = curStack->side;
+		//helper info
+		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
 
-			if(!spellObstacle)
-				COMPLAIN_RET("Invalid obstacle instance");
-
-			if(spellObstacle->triggersEffects())
+		if(spellObstacle)
+		{
+			auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
 			{
-				auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
-				{
-					// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-					auto operation = ObstacleChanges::EOperation::UPDATE;
-					if (spellObstacle.removeOnTrigger)
-						operation = ObstacleChanges::EOperation::REMOVE;
+				// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+				auto operation = ObstacleChanges::EOperation::UPDATE;
+				if (spellObstacle.removeOnTrigger)
+					operation = ObstacleChanges::EOperation::REMOVE;
 
-					SpellCreatedObstacle changedObstacle;
-					changedObstacle.uniqueID = spellObstacle.uniqueID;
-					changedObstacle.revealed = true;
+				SpellCreatedObstacle changedObstacle;
+				changedObstacle.uniqueID = spellObstacle.uniqueID;
+				changedObstacle.revealed = true;
 
-					BattleObstaclesChanged bocp;
-					bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
-					changedObstacle.toInfo(bocp.changes.back(), operation);
-					sendAndApply(&bocp);
-				};
-				auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
-				const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-				auto caster = spells::ObstacleCasterProxy(gs->curB->sides.at(spellObstacle->casterSide).color, hero, *spellObstacle);
-				const auto * sp = SpellID(spellObstacle->ID).toSpell();
-				if(sp)
+				BattleObstaclesChanged bocp;
+				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
+				changedObstacle.toInfo(bocp.changes.back(), operation);
+				sendAndApply(&bocp);
+			};
+			const auto side = curStack->side;
+			auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
+			const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
+			auto caster = spells::ObstacleCasterProxy(gs->curB->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+			const auto * sp = SpellID(spellObstacle->ID).toSpell();
+			if(obstacle->triggersEffects() && sp)
+			{
+				auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);
+				spells::detail::ProblemImpl ignored;
+				auto target = spells::Target(1, spells::Destination(curStack));
+				if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
 				{
-					auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);
-					spells::detail::ProblemImpl ignored;
-					auto target = spells::Target(1, spells::Destination(curStack));
-					if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
-					{
-						if(shouldReveal) { //hidden obstacle triggers effects after revealed
-							revealObstacles(*spellObstacle);
-							cast.cast(spellEnv, target);
-						}
+					if(shouldReveal) { //hidden obstacle triggers effects after revealed
+						revealObstacles(*spellObstacle);
+						cast.cast(spellEnv, target);
 					}
 				}
-				else if(shouldReveal)
-					revealObstacles(*spellObstacle);
+			}
+			else if(shouldReveal)
+				revealObstacles(*spellObstacle);
 		}
 
 		if(!curStack->alive())
