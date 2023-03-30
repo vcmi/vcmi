@@ -79,10 +79,10 @@
 	"vcmi.battleOptions.animationsSpeed1.help": "Ustawia szybkość animacji na bardzo wolną",
 	"vcmi.battleOptions.animationsSpeed5.help": "Ustawia szybkość animacji na bardzo szybką",
 	"vcmi.battleOptions.animationsSpeed6.help": "Ustawia szybkość animacji na błyskawiczną",
-	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Pomiń muzykę startową",
-	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Pomiń muzykę startową}\n\n Pomija krótką muzykę, która jest odtwarzana na początku każdej bitwy przed rozpoczęciem akcji. Może również być pominięta poprzez naciśnięcie ESC.",
+	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Pomiń czekanie startowe",
+	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Pomiń czekanie startowe}\n\n Pomija konieczność czekania podczas muzyki startowej, która jest odtwarzana na początku każdej bitwy przed rozpoczęciem akcji.",
 
-	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by pominąć muzykę startową",
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by rozpocząć bitwę natychmiastowo",
 
 	"vcmi.battleWindow.damageEstimation.melee" : "Atakuj %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Atakuj %CREATURE (%DAMAGE, %KILLS).",
@@ -140,6 +140,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Ustaw...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Sojusze",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Typy dróg",
+
+	//WoG strings translations missing here - should be taken from polish WoG translation
 
 	"core.bonus.ADDITIONAL_ATTACK.name": "Podwójne Uderzenie",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Atakuje podwójnie",
