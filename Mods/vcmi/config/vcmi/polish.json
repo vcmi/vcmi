@@ -92,8 +92,8 @@
 	"vcmi.battleWindow.damageEstimation.shots.1" : "pozostał %d strzał",
 	"vcmi.battleWindow.damageEstimation.damage" : "obrażenia: %d",
 	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
-	"vcmi.battleWindow.damageEstimation.kills" : "%d zginie",
-	"vcmi.battleWindow.damageEstimation.kills.1" : "%d zginie",
+	"vcmi.battleWindow.damageEstimation.kills" : "zginie: %d",
+	"vcmi.battleWindow.damageEstimation.kills.1" : "zginie: %d",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Pokaż dostępne stworzenia",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Pokaż dostępne stworzenia}\n\n Pokazuje dostępne stworzenia zamiast tygodniowego przyrostu w podsumowaniu miasta (lewy dolny róg).",
