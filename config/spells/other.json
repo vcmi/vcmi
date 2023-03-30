@@ -15,7 +15,6 @@
 						"hidden" : true,
 						"passable" : true,
 						"trap" : true,
-						"trigger" : false,
 						"patchCount" : 4,
 						"turnsRemaining" : -1,
 						"attacker" :{
@@ -127,7 +126,6 @@
 						"hidden" : true,
 						"passable" : true,
 						"trap" : false,
-						"trigger" : true,
 						"triggerAbility" : "core:landMineTrigger",
 						"removeOnTrigger" : true,
 						"patchCount" : 4,
@@ -194,7 +192,6 @@
 						"hidden" : false,
 						"passable" : false,
 						"trap" : false,
-						"trigger" : false,
 						"turnsRemaining" : 2,
 						"attacker" :{
 							"range" : [[""]],
@@ -319,7 +316,6 @@
 						"hidden" : false,
 						"passable" : true,
 						"trap" : false,
-						"trigger" : true,
 						"triggerAbility" : "core:fireWallTrigger",
 						"turnsRemaining" : 2,
 						"attacker" :{

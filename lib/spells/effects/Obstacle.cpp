@@ -212,7 +212,6 @@ void Obstacle::serializeJsonEffect(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("passable", passable);
-	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("hideNative", hideNative);
@@ -289,7 +288,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.uniqueID = obstacleIdToGive++;
 		obstacle.pos = destination.hexValue;
 		obstacle.obstacleType = CObstacleInstance::SPELL_CREATED;
-		obstacle.ID = triggerAbility;
+		obstacle.ID = m->getSpellIndex();
 
 		obstacle.turnsRemaining = turnsRemaining;
 		obstacle.casterSpellPower = m->getEffectPower();
@@ -299,7 +298,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.nativeVisible = !hideNative;
 		obstacle.hidden = hidden;
 		obstacle.passable = passable;
-		obstacle.trigger = trigger;
+		obstacle.trigger = triggerAbility;
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 

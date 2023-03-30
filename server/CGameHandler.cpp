@@ -5263,7 +5263,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 			auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
 			const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
 			auto caster = spells::ObstacleCasterProxy(gs->curB->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-			const auto * sp = SpellID(spellObstacle->ID).toSpell();
+			const auto * sp = obstacle->getTrigger().toSpell();
 			if(obstacle->triggersEffects() && sp)
 			{
 				auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);

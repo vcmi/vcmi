@@ -98,7 +98,12 @@ bool CObstacleInstance::blocksTiles() const
 
 bool CObstacleInstance::triggersEffects() const
 {
-	return false;
+	return getTrigger() != SpellID::NONE;
+}
+
+SpellID CObstacleInstance::getTrigger() const
+{
+	return SpellID::NONE;
 }
 
 void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
@@ -172,7 +177,7 @@ bool SpellCreatedObstacle::stopsMovement() const
 	return trap;
 }
 
-bool SpellCreatedObstacle::triggersEffects() const
+SpellID SpellCreatedObstacle::getTrigger() const
 {
 	return trigger;
 }
@@ -203,7 +208,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("revealed", revealed);
 	handler.serializeBool("passable", passable);
-	handler.serializeBool("trigger", trigger);
+	handler.serializeId("trigger", trigger, SpellID::NONE);
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("nativeVisible", nativeVisible);

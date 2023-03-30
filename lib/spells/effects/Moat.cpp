@@ -51,7 +51,6 @@ static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string 
 void Moat::serializeJsonEffect(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("hidden", hidden);
-	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("dispellable", dispellable);
@@ -147,7 +146,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.uniqueID = obstacleIdToGive++;
 		obstacle.pos = destination.at(0);
 		obstacle.obstacleType = dispellable ? CObstacleInstance::SPELL_CREATED : CObstacleInstance::MOAT;
-		obstacle.ID = triggerAbility;
+		obstacle.ID = m->getSpellIndex();
 
 		obstacle.turnsRemaining = -1; //Moat cannot be expired
 		obstacle.casterSpellPower = m->getEffectPower();
@@ -156,7 +155,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.minimalDamage = moatDamage; // Minimal moat damage
 		obstacle.hidden = hidden;
 		obstacle.passable = true; //Moats always passable
-		obstacle.trigger = trigger;
+		obstacle.trigger = triggerAbility;
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 		obstacle.nativeVisible = false; //Moats is invisible for native terrain

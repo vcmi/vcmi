@@ -312,23 +312,22 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 	{
 		std::set<BattleHex> obstacleHexes;
 
-		auto insertAffected = [](const CObstacleInstance* spellObst, std::set<BattleHex> obstacleHexes) {
-			auto affectedHexes = spellObst->getAffectedTiles();
+		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> obstacleHexes) {
+			auto affectedHexes = spellObst.getAffectedTiles();
 			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
 		};
 
 		const auto & obstacles = hb.battleGetAllObstacles();
 
 		for (const auto & obst: obstacles) {
-			const auto * spellObst = dynamic_cast<const SpellCreatedObstacle*>(obst.get());
 
-			if(spellObst && spellObst->trigger)
+			if(obst->triggersEffects())
 			{
-				auto triggerAbility =  VLC->spells()->getById(SpellID(spellObst->ID));
+				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
-					insertAffected(spellObst, obstacleHexes);
+					insertAffected(*obst, obstacleHexes);
 			}
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
