@@ -451,7 +451,7 @@
 				"repositoryURL" : {
 					"type" : "array",
 					"default" : [
-						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/github.json"
+						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.2.json"
 					],
 					"items" : {
 						"type" : "string"
