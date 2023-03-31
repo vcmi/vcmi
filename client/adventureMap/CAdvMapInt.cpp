@@ -49,6 +49,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
+#include <SDL_keycode.h>
 
 #define ADVOPT (conf.go()->ac)
 
@@ -789,6 +790,12 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			{
 				townList->selectNext();
 			}
+			return;
+		}
+	case SDLK_LALT:
+		{
+			//fake mouse use to trigger onTileHovered()
+			GH.fakeMouseMove();
 			return;
 		}
 	default:
