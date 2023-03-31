@@ -1761,33 +1761,37 @@ void CGameState::initTowns()
 			}
 		}
 
-		//#1444 - remove entries that don't have buildings defined (like some unused extra town hall buildings)
-		vstd::erase_if(vti->builtBuildings, [vti](const BuildingID & bid)
-		{
-			return !vti->town->buildings.count(bid) || !vti->town->buildings.at(bid);
-		});
-
-		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
-			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
-
 		//init hordes
-		for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
-			if (vstd::contains(vti->builtBuildings,(-31-i))) //if we have horde for this level
+		for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
+		{
+			if (vstd::contains(vti->builtBuildings, (BuildingID::HORDE_PLACEHOLDER1 - i))) //if we have horde for this level
 			{
-				vti->builtBuildings.erase(BuildingID(-31-i));//remove old ID
+				vti->builtBuildings.erase(BuildingID(BuildingID::HORDE_PLACEHOLDER1 - i));//remove old ID
 				if (vti->town->hordeLvl.at(0) == i)//if town first horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
-					if (vstd::contains(vti->builtBuildings,(BuildingID::DWELL_UP_FIRST+i)))//if we have upgraded dwelling as well
+					//if we have upgraded dwelling as well
+					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
 						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
 				}
 				if (vti->town->hordeLvl.at(1) == i)//if town second horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_2);
-					if (vstd::contains(vti->builtBuildings,(BuildingID::DWELL_UP_FIRST+i)))
+					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
 						vti->builtBuildings.insert(BuildingID::HORDE_2_UPGR);
 				}
 			}
+		}
+
+		//#1444 - remove entries that don't have buildings defined (like some unused extra town hall buildings)
+		//But DO NOT remove horde placeholders before they are replaced
+		vstd::erase_if(vti->builtBuildings, [vti](const BuildingID & bid)
+			{
+				return !vti->town->buildings.count(bid) || !vti->town->buildings.at(bid);
+			});
+
+		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
+			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//Early check for #1444-like problems
 		for(const auto & building : vti->builtBuildings)
