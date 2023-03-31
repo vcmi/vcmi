@@ -1506,7 +1506,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				if(stackIsMoving && start != curStack->getPosition())
 				{
-					stackIsMoving = handleDamageFromObstacle(curStack, stackIsMoving, passed);
+					stackIsMoving = handleDamageFromObstacle(curStack, passed);
 					passed.insert(curStack->getPosition());
 					if(curStack->doubleWide())
 						passed.insert(curStack->occupiedHex());
@@ -1544,7 +1544,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	handleDamageFromObstacle(curStack, false, passed);
+	handleDamageFromObstacle(curStack, passed);
 
 	return ret;
 }
@@ -5219,7 +5219,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 	}
 }
 
-bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving, const std::set<BattleHex> & passed)
+bool CGameHandler::handleDamageFromObstacle(const battle::Unit * curStack, const std::set<BattleHex> & passed)
 {
 	if(!curStack->alive())
 		return false;
@@ -5247,7 +5247,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 				changedObstacle.toInfo(bocp.changes.back(), operation);
 				sendAndApply(&bocp);
 			};
-			const auto side = curStack->side;
+			const auto side = curStack->unitSide();
 			auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
 			const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
 			auto caster = spells::ObstacleCasterProxy(gs->curB->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
@@ -5272,14 +5272,11 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 		if(!curStack->alive())
 			return false;
 
-		if((obstacle->stopsMovement() && stackIsMoving))
+		if(obstacle->stopsMovement())
 			movementStopped = true;
 	}
 
-	if(stackIsMoving)
-		return curStack->alive() && !movementStopped;
-	
-	return curStack->alive();
+	return curStack->alive() && !movementStopped;
 }
 
 void CGameHandler::handleTimeEvents()

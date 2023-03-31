@@ -232,7 +232,7 @@ public:
 	bool makeCustomAction(BattleAction &ba);
 	void stackEnchantedTrigger(const CStack * stack);
 	void stackTurnTrigger(const CStack *stack);
-	bool handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving = false, const std::set<BattleHex> & passed = {}); //checks if obstacle is land mine and handles possible consequences
+	bool handleDamageFromObstacle(const battle::Unit * curStack, const std::set<BattleHex> & passed = {}); //checks if obstacle is land mine and handles possible consequences
 
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
