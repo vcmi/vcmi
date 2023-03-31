@@ -90,8 +90,7 @@
 					"damage":{
 						"type":"core:damage",
 						"optional":false,
-						"indirect":true,
-						"customEffectId" : 82
+						"indirect":true
 					}
 				}
 			},

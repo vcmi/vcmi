@@ -48,6 +48,7 @@ class CModListModel : public QAbstractItemModel, public CModList
 	void endResetModel();
 
 	QString modIndexToName(const QModelIndex & index) const;
+	QString modTypeName(QString modTypeID) const;
 
 	QVariant getTextAlign(int field) const;
 	QVariant getValue(const CModEntry & mod, int field) const;

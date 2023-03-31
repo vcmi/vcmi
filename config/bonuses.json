@@ -431,22 +431,6 @@
 		}
 	},
 
-	"SELF_LUCK":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/SelfLuck"
-		}
-	},
-
-	"SELF_MORALE":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_MINOT"
-		}
-	},
-
 	"SHOOTER":
 	{
 		"graphics":

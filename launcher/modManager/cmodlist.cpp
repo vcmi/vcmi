@@ -316,7 +316,6 @@ CModEntry CModList::getMod(QString modname) const
 				settings["active"] = false;
 	}
 
-
 	for(auto entry : repositories)
 	{
 		QVariant repoVal = getValue(entry, path);

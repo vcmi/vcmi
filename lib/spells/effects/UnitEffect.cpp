@@ -40,7 +40,7 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 {
 	//stack effect is applicable in general if there is at least one smart target
 
-	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, true, _1);
+	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, false, _1);
 	auto predicate = std::bind(&UnitEffect::eraseByImmunityFilter, this, m, _1);
 
 	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
@@ -59,12 +59,12 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 
 bool UnitEffect::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
 {
-	//stack effect is applicable if it affects at least one smart target
-	//assume target correctly transformed, just reapply smart filter
+	//stack effect is applicable if it affects at least one target (smartness should not be checked)
+	//assume target correctly transformed, just reapply filter
 
 	for(const auto & item : target)
 		if(item.unitValue)
-			if(getStackFilter(m, true, item.unitValue))
+			if(getStackFilter(m, false, item.unitValue))
 				return true;
 
 	return false;

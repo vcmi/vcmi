@@ -2166,6 +2166,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 		break;
 	}
 	case Bonus::ENCHANTER:
+	case Bonus::MORALE:
 		break;
 	case Bonus::FEAR:
 		st->fear = true;
@@ -2398,7 +2399,6 @@ void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 		case BattleChanges::EOperation::ADD:
 			battleState->addObstacle(change);
 			break;
-		case BattleChanges::EOperation::ACTIVATE_AND_UPDATE:
 		case BattleChanges::EOperation::UPDATE:
 			battleState->updateObstacle(change);
 			break;

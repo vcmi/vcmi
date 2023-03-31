@@ -727,6 +727,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 				switch(subID)
 				{
 				case BuildingSubID::NONE:
+						enterBuilding(building);
 						break;
 
 				case BuildingSubID::MYSTIC_POND:

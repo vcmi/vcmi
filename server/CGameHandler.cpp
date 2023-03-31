@@ -51,6 +51,8 @@
 #include "../lib/serializer/Cast.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/ScriptHandler.h"
+#include "vstd/CLoggerBase.h"
+#include <memory>
 #include <vcmi/events/EventBus.h>
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
@@ -1398,6 +1400,11 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	//initing necessary tables
 	auto accessibility = getAccesibility(curStack);
+	std::set<BattleHex> passed;
+	//Ignore obstacles on starting position
+	passed.insert(curStack->getPosition());
+	if(curStack->doubleWide())
+		passed.insert(curStack->occupiedHex());
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
@@ -1427,7 +1434,10 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	ret = path.second;
 
-	int creSpeed = gs->curB->tacticDistance ? GameConstants::BFIELD_SIZE : curStack->Speed(0, true);
+	int creSpeed = curStack->Speed(0, true);
+
+	if (gs->curB->tacticDistance > 0 && creSpeed > 0)
+		creSpeed = GameConstants::BFIELD_SIZE;
 
 	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
 	{
@@ -1590,10 +1600,12 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 						if(otherHex.isValid() && !obstacle2.empty())
 							obstacleHit = true;
 					}
+					if(!obstacleHit)
+						passed.insert(hex);
 				}
 			}
 
-			if (tiles.size() > 0)
+			if (!tiles.empty())
 			{
 				//commit movement
 				BattleStackMoved sm;
@@ -1609,7 +1621,12 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			if (curStack->getPosition() != dest)
 			{
 				if(stackIsMoving && start != curStack->getPosition())
-					stackIsMoving = handleDamageFromObstacle(curStack, stackIsMoving);
+				{
+					stackIsMoving = handleDamageFromObstacle(curStack, stackIsMoving, passed);
+					passed.insert(curStack->getPosition());
+					if(curStack->doubleWide())
+						passed.insert(curStack->occupiedHex());
+				}
 				if (gateStateChanging)
 				{
 					if (curStack->getPosition() == openGateAtHex)
@@ -1637,7 +1654,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	handleDamageFromObstacle(curStack);
+	handleDamageFromObstacle(curStack, false, passed);
 
 	return ret;
 }
@@ -1659,6 +1676,12 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 
 CGameHandler::~CGameHandler()
 {
+	if (battleThread)
+	{
+		//Setting battleMadeAction is needed because battleThread waits for the action to continue the main loop
+		battleMadeAction.setn(true);
+		battleThread->join();
+	}
 	delete spellEnv;
 	delete gs;
 }
@@ -2700,7 +2723,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	auto battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
 	queries.addQuery(battleQuery);
 
-	boost::thread(&CGameHandler::runBattle, this);
+	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
@@ -5288,13 +5311,13 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 	}
 }
 
-bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving)
+bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving, const std::set<BattleHex> & passed)
 {
 	if(!curStack->alive())
 		return false;
 	bool containDamageFromMoat = false;
-	bool movementStoped = false;
-	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack))
+	bool movementStopped = false;
+	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack, passed))
 	{
 		if(obstacle->obstacleType == CObstacleInstance::SPELL_CREATED)
 		{
@@ -5305,7 +5328,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 			if(!spellObstacle)
 				COMPLAIN_RET("Invalid obstacle instance");
 
-			if(spellObstacle->trigger)
+			if(spellObstacle->triggersEffects())
 			{
 				const bool oneTimeObstacle = spellObstacle->removeOnTrigger;
 
@@ -5323,9 +5346,9 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 					ObstacleChanges changeInfo;
 					changeInfo.id = spellObstacle->uniqueID;
 					if (oneTimeObstacle)
-						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_REMOVE;
+						changeInfo.operation = ObstacleChanges::EOperation::REMOVE;
 					else
-						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_UPDATE;
+						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
 
 					SpellCreatedObstacle changedObstacle;
 					changedObstacle.uniqueID = spellObstacle->uniqueID;
@@ -5369,13 +5392,13 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 			return false;
 
 		if((obstacle->stopsMovement() && stackIsMoving))
-			movementStoped = true;
+			movementStopped = true;
 	}
 
 	if(stackIsMoving)
-		return curStack->alive() && !movementStoped;
-	else
-		return curStack->alive();
+		return curStack->alive() && !movementStopped;
+	
+	return curStack->alive();
 }
 
 void CGameHandler::handleTimeEvents()
@@ -6412,7 +6435,7 @@ void CGameHandler::runBattle()
 
 	//tactic round
 	{
-		while (gs->curB->tacticDistance && !battleResult.get())
+		while ((lobby->state != EServerState::SHUTDOWN) && gs->curB->tacticDistance && !battleResult.get())
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
@@ -6490,7 +6513,7 @@ void CGameHandler::runBattle()
 	bool firstRound = true;//FIXME: why first round is -1?
 
 	//main loop
-	while (!battleResult.get()) //till the end of the battle ;]
+	while ((lobby->state != EServerState::SHUTDOWN) && !battleResult.get()) //till the end of the battle ;]
 	{
 		BattleNextRound bnr;
 		bnr.round = gs->curB->round + 1;
@@ -6555,7 +6578,7 @@ void CGameHandler::runBattle()
 		};
 
 		const CStack * next = nullptr;
-		while((next = getNextStack()))
+		while((lobby->state != EServerState::SHUTDOWN) && (next = getNextStack()))
 		{
 			BattleUnitsChanged removeGhosts;
 			for(auto stack : curB.stacks)
@@ -6734,7 +6757,7 @@ void CGameHandler::runBattle()
 
 						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
-						while (!actionWasMade())
+						while ((lobby->state != EServerState::SHUTDOWN) && !actionWasMade())
 						{
 							battleMadeAction.cond.wait(lock);
 							if (battleGetStackByID(nextId, false) != next)
@@ -6790,7 +6813,8 @@ void CGameHandler::runBattle()
 		firstRound = false;
 	}
 
-	endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
+	if (lobby->state != EServerState::SHUTDOWN)
+		endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
 }
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)

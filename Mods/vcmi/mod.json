@@ -16,7 +16,6 @@
 		"name" : "VCMI - grundlegende Dateien",
 		"description" : "Grundlegende Dateien, die für die korrekte Ausführung von VCMI erforderlich sind",
 		"author" : "VCMI-Team",
-		"modType" : "Grafik",
 		
 		"skipValidation" : true,
 		"translations" : [
@@ -28,7 +27,6 @@
 		"name" : "Podstawowe pliki VCMI",
 		"description" : "Dodatkowe pliki wymagane do prawidłowego działania VCMI",
 		"author" : "Zespół VCMI",
-		"modType" : "Graficzny",
 		
 		"skipValidation" : true,
 		"translations" : [
@@ -40,7 +38,6 @@
 		"name" : "Ключевые файлы VCMI",
 		"description" : "Файлы, необходимые для полноценной работы VCMI",
 		"author" : "Команда VCMI",
-		"modType" : "Графический",
 
 		"skipValidation" : true,
 		"translations" : [
@@ -52,7 +49,6 @@
 		"name" : "VCMI - ключові файли",
 		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
 		"author" : "Команда VCMI",
-		"modType" : "Графіка",
 		
 		"translations" : [
 			"config/vcmi/ukrainian.json"
@@ -63,7 +59,6 @@
 		"name" : "VCMI - ficheros necesarios",
 		"description" : "Ficheros necesarios para ejecutar VCMI correctamente",
 		"author" : "Abel Rivas",
-		"modType" : "Gráfico",
 		
 		"skipValidation" : true,
 		"translations" : [

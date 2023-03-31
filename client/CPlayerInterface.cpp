@@ -2033,7 +2033,7 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	bool needToLockAdventureMap = adventureInt->active && CGI->mh->hasOngoingAnimations();
+	bool needToLockAdventureMap = adventureInt && adventureInt->active && CGI->mh->hasOngoingAnimations();
 
 	if (ignoreEvents || needToLockAdventureMap)
 	{

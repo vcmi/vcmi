@@ -24,6 +24,7 @@
 #include "../jsonutils.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/Languages.h"
 
 void CModListView::setupModModel()
 {
@@ -74,8 +75,9 @@ void CModListView::setupModsView()
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
 		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
-	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 24);
-	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 24);
+
+	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
+	ui->allModsView->resizeColumnToContents(ModFields::STATUS_UPDATE);
 
 	ui->allModsView->setUniformRowHeights(true);
 
@@ -212,6 +214,25 @@ QString CModListView::genChangelogText(CModEntry & mod)
 	return result;
 }
 
+QStringList CModListView::getModNames(QStringList input)
+{
+	QStringList result;
+
+	for(const auto & modID : input)
+	{
+		auto mod = modModel->getMod(modID);
+
+		QString modName = mod.getValue("name").toString();
+
+		if (modName.isEmpty())
+			result += modID;
+		else
+			result += modName;
+	}
+
+	return result;
+}
+
 QString CModListView::genModInfoText(CModEntry & mod)
 {
 	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
@@ -221,7 +242,6 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
-	QString compatibleString = prefix + tr("Mod is compatible") + "</p>";
 	QString incompatibleString = redPrefix + tr("Mod is incompatible") + "</p>";
 	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
@@ -242,9 +262,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 		result += urlTemplate.arg(tr("Contact")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
 
 	//compatibility info
-	if(mod.isCompatible())
-		result += compatibleString.arg(tr("Compatibility"));
-	else
+	if(!mod.isCompatible())
 	{
 		auto compatibilityInfo = mod.getValue("compatibility").toMap();
 		auto minStr = compatibilityInfo.value("min").toString();
@@ -267,9 +285,34 @@ QString CModListView::genModInfoText(CModEntry & mod)
 		}
 	}
 
-	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
-	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
-	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg(tr("Description")));
+	QStringList supportedLanguages;
+	QVariant baseLanguageVariant = mod.getBaseValue("language");
+	QString baseLanguageID = baseLanguageVariant.isValid() ? baseLanguageVariant.toString() : "english";
+
+	bool needToShowSupportedLanguages = false;
+
+	for(const auto & language : Languages::getLanguageList())
+	{
+		if (!language.hasTranslation)
+			continue;
+
+		QString languageID = QString::fromStdString(language.identifier);
+
+		if (languageID != baseLanguageID && !mod.getValue(languageID).isValid())
+			continue;
+
+		if (languageID != baseLanguageID)
+			needToShowSupportedLanguages = true;
+
+		supportedLanguages += QApplication::translate("Language", language.nameEnglish.c_str());
+	}
+
+	if(needToShowSupportedLanguages)
+		result += replaceIfNotEmpty(supportedLanguages, lineTemplate.arg(tr("Languages")));
+
+	result += replaceIfNotEmpty(getModNames(mod.getValue("depends").toStringList()), lineTemplate.arg(tr("Required mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getValue("conflicts").toStringList()), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getValue("description").toStringList()), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
 
@@ -281,12 +324,12 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	QString notes;
 
-	notes += replaceIfNotEmpty(findInvalidDependencies(mod.getName()), listTemplate.arg(unknownDeps));
-	notes += replaceIfNotEmpty(findBlockingMods(mod.getName()), listTemplate.arg(blockingMods));
+	notes += replaceIfNotEmpty(getModNames(findInvalidDependencies(mod.getName())), listTemplate.arg(unknownDeps));
+	notes += replaceIfNotEmpty(getModNames(findBlockingMods(mod.getName())), listTemplate.arg(blockingMods));
 	if(mod.isEnabled())
-		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), true), listTemplate.arg(hasActiveDependentMods));
+		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), true)), listTemplate.arg(hasActiveDependentMods));
 	if(mod.isInstalled())
-		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), false), listTemplate.arg(hasDependentMods));
+		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), false)), listTemplate.arg(hasDependentMods));
 
 	if(mod.getName().contains('.'))
 		notes += noteTemplate.arg(thisIsSubmod);
@@ -829,10 +872,10 @@ void CModListView::doInstallMod(const QString & modName)
 	}
 }
 
-bool CModListView::isModInstalled(const QString & modName)
+bool CModListView::isModAvailable(const QString & modName)
 {
 	auto mod = modModel->getMod(modName);
-	return mod.isInstalled();
+	return mod.isAvailable();
 }
 
 bool CModListView::isModEnabled(const QString & modName)

@@ -214,7 +214,7 @@
 			{ "skill" : "armorer", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "griffin"
+			"creature" : "swordsman"
 		}
 	},
 	"mutareDrake":

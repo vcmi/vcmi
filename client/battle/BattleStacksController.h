@@ -67,6 +67,9 @@ class BattleStacksController
 	/// <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	std::map<int, bool> stackFacingRight;
 
+	/// Stacks have amount box hidden due to ongoing animations
+	std::set<int> stackAmountBoxHidden;
+
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 

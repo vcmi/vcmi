@@ -119,7 +119,10 @@ BattleActionsController::BattleActionsController(BattleInterface & owner):
 void BattleActionsController::endCastingSpell()
 {
 	if(heroSpellToCast)
+	{
 		heroSpellToCast.reset();
+		owner.windowObject->blockUI(false);
+	}
 
 	if(owner.stacksController->getActiveStack())
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
@@ -287,6 +290,8 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 		possibleActions.push_back (spellSelMode); //only this one action can be performed at the moment
 		GH.fakeMouseMove();//update cursor
 	}
+
+	owner.windowObject->blockUI(true);
 }
 
 const CSpell * BattleActionsController::getHeroSpellToCast( ) const
@@ -520,6 +525,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
+			return (targetStack && targetStackOwned && targetStack->Speed() > 0);
+
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (targetStack && targetStackOwned);
 
@@ -689,14 +696,14 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				if (action.spell() == SpellID::SACRIFICE)
 				{
 					heroSpellToCast->aimToHex(targetHex);
-					possibleActions.push_back(PossiblePlayerBattleAction::SACRIFICE);
+					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
 					owner.stacksController->setSelectedStack(targetStack);
 					return;
 				}
 				if (action.spell() == SpellID::TELEPORT)
 				{
 					heroSpellToCast->aimToUnit(targetStack);
-					possibleActions.push_back(PossiblePlayerBattleAction::TELEPORT);
+					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
 					owner.stacksController->setSelectedStack(targetStack);
 					return;
 				}

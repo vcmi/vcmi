@@ -98,8 +98,13 @@ void MapTileStorage::load(size_t index, const std::string & filename, EImageBlit
 
 	for(auto & entry : terrainAnimations)
 	{
-		entry = std::make_unique<CAnimation>(filename);
-		entry->preload();
+		if (!filename.empty())
+		{
+			entry = std::make_unique<CAnimation>(filename);
+			entry->preload();
+		}
+		else
+			entry = std::make_unique<CAnimation>();
 
 		for(size_t i = 0; i < entry->size(); ++i)
 			entry->getImage(i)->setBlitMode(blitMode);
