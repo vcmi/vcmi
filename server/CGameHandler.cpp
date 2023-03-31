@@ -2418,6 +2418,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
 
+		if (isInTheMap(guardPos))
+			tmh.attackedFrom = boost::make_optional(guardPos);
+
 		tmh.result = result;
 		sendAndApply(&tmh);
 
@@ -2425,10 +2428,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		{ // Hero should be always able to visit any object he staying on even if there guards around
 			visitObjectOnTile(t, h);
 		}
-		else if (lookForGuards == CHECK_FOR_GUARDS && this->isInTheMap(guardPos))
+		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 		{
-			tmh.attackedFrom = boost::make_optional(guardPos);
-
 			const TerrainTile &guardTile = *gs->getTile(guardPos);
 			objectVisited(guardTile.visitableObjects.back(), h);
 
