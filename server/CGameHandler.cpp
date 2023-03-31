@@ -1854,7 +1854,7 @@ void CGameHandler::newTurn()
 		else if (elem.first >= PlayerColor::PLAYER_LIMIT)
 			assert(0); //illegal player number!
 
-		std::pair<PlayerColor, si32> playerGold(elem.first, elem.second.resources.at(Res::GOLD));
+		std::pair<PlayerColor, si32> playerGold(elem.first, elem.second.resources[Res::GOLD]);
 		hadGold.insert(playerGold);
 
 		if (newWeek) //new heroes in tavern
@@ -2588,7 +2588,7 @@ void CGameHandler::giveResource(PlayerColor player, Res::ERes which, int val) //
 	if (!val) return; //don't waste time on empty call
 
 	TResources resources;
-	resources.at(which) = val;
+	resources[which] = val;
 	giveResources(player, resources);
 }
 
@@ -4139,7 +4139,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		COMPLAIN_RET_FALSE_IF(art->warMachine == CreatureID::NONE, "War machine artifact required");
 		COMPLAIN_RET_FALSE_IF(hero->hasArt(aid),"Hero already has this machine!");
 		const int price = art->price;
-		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources.at(Res::GOLD) < price, "Not enough gold!");
+		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources[Res::GOLD] < price, "Not enough gold!");
 
 		if  ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
 		 || (town->hasBuilt(BuildingSubID::BALLISTA_YARD) && aid == ArtifactID::BALLISTA))
@@ -4245,7 +4245,7 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 
 bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2)
 {
-	TResourceCap r1 = getPlayerState(player)->resources.at(id1);
+	TResourceCap r1 = getPlayerState(player)->resources[id1];
 
 	vstd::amin(val, r1); //can't trade more resources than have
 
@@ -4333,7 +4333,7 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, Pla
 		return false;
 	}
 
-	TResourceCap curRes1 = getPlayerState(player)->resources.at(r1);
+	TResourceCap curRes1 = getPlayerState(player)->resources[r1];
 
 	vstd::amin(val, curRes1);
 
@@ -4368,7 +4368,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	//common preconditions
 //	if ((p->resources.at(Res::GOLD)<GOLD_NEEDED  && complain("Not enough gold for buying hero!"))
 //		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
-	if ((p->resources.at(Res::GOLD) < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
+	if ((p->resources[Res::GOLD] < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
 		|| ((getHeroCount(player, false) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && complain("Cannot hire hero, too many wandering heroes already!")))
 		|| ((getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))))
 	{
@@ -5410,8 +5410,8 @@ void CGameHandler::handleTimeEvents()
 
 				for (int i=0; i<ev.resources.size(); i++)
 				{
-					if (ev.resources.at(i)) //if resource is changed, we add it to the dialog
-						iw.components.emplace_back(Component::EComponentType::RESOURCE,i,ev.resources.at(i),0);
+					if (ev.resources[i]) //if resource is changed, we add it to the dialog
+						iw.components.emplace_back(Component::EComponentType::RESOURCE,i,ev.resources[i],0);
 				}
 
 				sendAndApply(&iw); //show dialog
@@ -5468,8 +5468,8 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 				n.res[player].amax(0);
 
 				for (int i=0; i<ev.resources.size(); i++)
-					if (ev.resources.at(i) && pinfo->resources.at(i) != n.res.at(player).at(i)) //if resource had changed, we add it to the dialog
-						iw.components.emplace_back(Component::EComponentType::RESOURCE,i,n.res.at(player).at(i)-was.at(i),0);
+					if (ev.resources[i] && pinfo->resources[i] != n.res.at(player)[i]) //if resource had changed, we add it to the dialog
+						iw.components.emplace_back(Component::EComponentType::RESOURCE,i,n.res.at(player)[i]-was[i],0);
 
 			}
 

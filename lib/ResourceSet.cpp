@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 Res::ResourceSet::ResourceSet(const JsonNode & node)
 {
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		at(i) = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
+		this[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
 }
 
 Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
