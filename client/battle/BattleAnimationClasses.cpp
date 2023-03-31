@@ -970,13 +970,13 @@ bool EffectAnimation::init()
 		}
 		else
 		{
-			const CStack * destStack = owner.getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
+			const auto * destStack = owner.getCurrentPlayerInterface()->cb->battleGetUnitByPos(battlehexes[i], false);
 			Rect tilePos = owner.fieldController->hexPositionLocal(battlehexes[i]);
 
 			be.pos.x = tilePos.x + tilePos.w/2 - first->width()/2;
 
 			if(destStack && destStack->doubleWide()) // Correction for 2-hex creatures.
-				be.pos.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+				be.pos.x += (destStack->unitSide() == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
 			if (alignToBottom())
 				be.pos.y = tilePos.y + tilePos.h - first->height();

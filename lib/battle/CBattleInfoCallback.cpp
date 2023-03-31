@@ -280,15 +280,15 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* at
 
 	for (BattleHex tile : at.hostileCreaturePositions)
 	{
-		const CStack * st = battleGetStackByPos(tile, true);
-		if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
+		const auto * st = battleGetUnitByPos(tile, true);
+		if(st && st->unitOwner() != attacker->unitOwner()) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedHexes.insert(tile);
 		}
 	}
 	for (BattleHex tile : at.friendlyCreaturePositions)
 	{
-		if(battleGetStackByPos(tile, true)) //friendly stacks can also be damaged by Dragon Breath
+		if(battleGetUnitByPos(tile, true)) //friendly stacks can also be damaged by Dragon Breath
 		{
 			attackedHexes.insert(tile);
 		}

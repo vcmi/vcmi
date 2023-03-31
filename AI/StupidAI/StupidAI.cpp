@@ -80,7 +80,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	for(int i = 0; i < 2; i++)
 	{
 		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
-			if(const CStack * s = cbc->battleGetStackByPos(neighbour))
+			if(const auto * s = cbc->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;
 	}

@@ -4815,7 +4815,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			if(target.at(0).unitValue)
 				destStack = target.at(0).unitValue;
 			else
-				destStack = gs->curB->battleGetStackByPos(target.at(0).hexValue);
+				destStack = gs->curB->battleGetUnitByPos(target.at(0).hexValue);
 
 			if(healer == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype < 0)
 			{
