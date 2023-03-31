@@ -5698,7 +5698,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, query.players.front(), query.visitingHero->id);
 }
 
-bool CGameHandler::buildBoat(ObjectInstanceID objid)
+bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
@@ -5714,7 +5714,6 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid)
 		return false;
 	}
 
-	const PlayerColor playerID = obj->o->tempOwner;
 	TResources boatCost;
 	obj->getBoatCost(boatCost);
 	TResources aviable = getPlayerState(playerID)->resources;
