@@ -1460,7 +1460,7 @@ void CHillFortWindow::updateGarrisons()
 
 	for(int i=0; i<slotsCount; i++)
 	{
-		costs[i].fill(0);
+		std::fill(costs[i].begin(), costs[i].end(), 0);
 		int newState = getState(SlotID(i));
 		if(newState != -1)
 		{

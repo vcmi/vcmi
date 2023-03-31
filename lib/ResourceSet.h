@@ -13,8 +13,8 @@
 #include "GameConstants.h"
 VCMI_LIB_NAMESPACE_BEGIN
 
-typedef si32 TResource;
-typedef si64 TResourceCap; //to avoid overflow when adding integers. Signed values are easier to control.
+using TResource = int32_t;
+using TResourceCap = int64_t; //to avoid overflow when adding integers. Signed values are easier to control.
 
 class JsonNode;
 class JsonSerializeFormat;
@@ -33,8 +33,10 @@ namespace Res
 	};
 
 	//class to be representing a vector of resource
-	class ResourceSet : public std::array<int, GameConstants::RESOURCE_QUANTITY>
+	class ResourceSet
 	{
+	private:
+		std::array<int, GameConstants::RESOURCE_QUANTITY> container;
 	public:
 		// read resources set from json. Format example: { "gold": 500, "wood":5 }
 		DLL_LINKAGE ResourceSet(const JsonNode & node);
@@ -45,8 +47,8 @@ namespace Res
 #define scalarOperator(OPSIGN)									\
 		ResourceSet& operator OPSIGN ## =(const TResource &rhs) \
 		{														\
-			for(auto i = 0; i < size(); i++)						\
-				at(i) OPSIGN ## = rhs;						\
+			for(auto i = 0; i < container.size(); i++)						\
+				container.at(i) OPSIGN ## = rhs;						\
 																\
 			return *this;											\
 		}
@@ -54,8 +56,8 @@ namespace Res
 #define vectorOperator(OPSIGN)										\
 		ResourceSet& operator OPSIGN ## =(const ResourceSet &rhs)	\
 		{															\
-			for(int i = 0; i < (int)size(); i++)							\
-				at(i) OPSIGN ## = rhs[i];						\
+			for(auto i = 0; i < container.size(); i++)							\
+				container.at(i) OPSIGN ## = rhs[i];						\
 																	\
 			return *this;												\
 		}
@@ -85,21 +87,82 @@ namespace Res
 #undef vectorOperator
 #undef twoOperands
 
+		using const_reference = decltype(container)::const_reference;
+		using value_type = decltype(container)::value_type;
+		using const_iterator = decltype(container)::const_iterator;
+		using iterator = decltype(container)::iterator;
+
+		// Array-like interface
+		TResource & operator[](Res::ERes index)
+		{
+			return operator[](static_cast<size_t>(index));
+		}
+
+		const TResource & operator[](Res::ERes index) const 
+		{
+			return operator[](static_cast<size_t>(index));
+		}
+
+		TResource & operator[](size_t index)
+		{
+			return container[index];
+		}
+
+		const TResource & operator[](size_t index) const 
+		{
+			return container[index];
+		}
+
+		bool empty () const
+		{
+			for(const auto & res : *this)
+				if(res)
+					return false;
+
+			return true;
+		}
+
+		// C++ range-based for support
+		auto begin () -> decltype (container.begin())
+		{
+			return container.begin();
+		}
+
+		auto end () -> decltype (container.end())
+		{
+			return container.end();
+		}
+
+		auto begin () const -> decltype (container.cbegin())
+		{
+			return container.cbegin();
+		}
+
+		auto end () const -> decltype (container.cend())
+		{
+			return container.cend();
+		}
+
+		auto size () const -> decltype (container.size())
+		{
+			return container.size();
+		}
+
 		//to be used for calculations of type "how many units of sth can I afford?"
 		int operator/(const ResourceSet &rhs)
 		{
 			int ret = INT_MAX;
-			for(int i = 0; i < (int)size(); i++)
+			for(int i = 0; i < container.size(); i++)
 				if(rhs[i])
-					vstd::amin(ret, at(i) / rhs[i]);
+					vstd::amin(ret, container.at(i) / rhs[i]);
 
 			return ret;
 		}
 
 		ResourceSet & operator=(const TResource &rhs)
 		{
-			for(int i = 0; i < (int)size(); i++)
-				at(i) = rhs;
+			for(int i = 0; i < container.size(); i++)
+				container.at(i) = rhs;
 
 			return *this;
 		}
@@ -107,9 +170,14 @@ namespace Res
 		ResourceSet operator-() const
 		{
 			ResourceSet ret;
-			for(int i = 0; i < (int)size(); i++)
-				ret[i] = -at(i);
+			for(int i = 0; i < container.size(); i++)
+				ret[i] = -container.at(i);
 			return ret;
+		}
+
+		bool operator==(const ResourceSet &rhs) const
+		{
+			return this->container == rhs.container;
 		}
 
 	// WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i]
@@ -125,7 +193,7 @@ namespace Res
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & static_cast<std::array<int, GameConstants::RESOURCE_QUANTITY>&>(*this);
+			h & container;
 		}
 
 		DLL_LINKAGE void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
