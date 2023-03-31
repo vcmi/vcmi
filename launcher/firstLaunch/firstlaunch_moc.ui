@@ -413,7 +413,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will automatically copy the existing data.</string>
+            <string>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -482,7 +482,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
          <item row="2" column="0" colspan="2">
           <widget class="QLabel" name="labelDataFailure">
            <property name="text">
-            <string>The automatic detection of the Heroes III language has failed. Please manually select the language of your Heroes III</string>
+            <string>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -804,7 +804,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install compatible version of Horn of the Abyss, a fan-made Heroes III expansion ported by the VCMI team</string>
+            <string>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
