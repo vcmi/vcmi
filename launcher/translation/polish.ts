@@ -6,96 +6,96 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="42"/>
         <source>Translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Tłumaczenie</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="43"/>
         <source>Town</source>
-        <translation type="unfinished"></translation>
+        <translation>Miasto</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="44"/>
         <source>Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Test</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="45"/>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>Szablony</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="46"/>
         <source>Spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaklęcia</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="47"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Muzyczny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Sounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Dźwięki</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętności</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="67"/>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Inne</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
         <source>Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Obiekty</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="53"/>
         <source>Mechanics</source>
-        <translation type="unfinished"></translation>
+        <translation>Mechaniki</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="54"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="55"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfejs</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="56"/>
         <source>Heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bohaterowie</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="58"/>
         <source>Graphical</source>
-        <translation type="unfinished"></translation>
+        <translation>Graficzny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
         <source>Expansion</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodatek</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Stworzenia</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
         <source>Artifacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translation>AI</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="170"/>
@@ -265,7 +265,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Languages</source>
-        <translation type="unfinished"></translation>
+        <translation>Języki</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
@@ -559,7 +559,7 @@
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
         <source>Install compatible version of addon Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</source>
-        <translation>Zainstaluj kompatybilną wersję fanowskiego dodatku Horn of the Abyss przeportowaną przez zespół VCMI</translation>
+        <translation>Zainstaluj kompatybilną wersję fanowskiego dodatku Horn of the Abyss odtworzoną przez zespół VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
@@ -584,22 +584,22 @@
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI na Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
         <source>VCMI on Slack</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI na Slacku</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="189"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI na Discordzie</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
         <source>Have a question? Found a bug? Want to help? Join us:</source>
-        <translation type="unfinished"></translation>
+        <translation>Masz pytanie? Znalazłeś błąd? Chcesz pomóc? Dołącz do nas:</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
@@ -610,7 +610,13 @@ There are a few more steps to be done before you can start playing.
 Keep in mind that in order to use VCMI you need to own original data files, Heroes III: Complete Edition or Shadow of Death.
 
 Heroes III: HD Edition is currently not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziękujemy za zainstalowanie VCMI.
+
+Jest jeszcze kilka kroków, które trzeba wykonać żeby móc zagrać.
+
+Miej na uwadze, że aby używać VCMI potrzebne są pliki oryginalnej gry zawierające przynajmniej dodatek The Shadow of Death (Złota Edycja / Complete też się kwalifikują)
+
+Heroes III: HD Edition nie jest obecnie wspierane</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
@@ -687,22 +693,22 @@ Heroes III: HD Edition is currently not supported</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="635"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished"></translation>
+        <translation>Horn of the Abyss</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="657"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished">Tłumaczenie Heroes III</translation>
+        <translation>Tłumaczenie Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="721"/>
         <source>High Definition Support</source>
-        <translation type="unfinished"></translation>
+        <translation>Wsparcie High Definition</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished"></translation>
+        <translation>In The Wake of Gods</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
