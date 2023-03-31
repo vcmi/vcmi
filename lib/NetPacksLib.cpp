@@ -2166,6 +2166,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 		break;
 	}
 	case Bonus::ENCHANTER:
+	case Bonus::MORALE:
 		break;
 	case Bonus::FEAR:
 		st->fear = true;

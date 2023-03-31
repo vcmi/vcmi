@@ -142,6 +142,13 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CToggleButton> compactTownCreatureInfo = widget<CToggleButton>("compactTownCreatureInfoCheckbox");
 	compactTownCreatureInfo->setSelected(settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
+
+	std::shared_ptr<CLabel> musicVolumeLabel = widget<CLabel>("musicValueLabel");
+	musicVolumeLabel->setText(std::to_string(CCS->musich->getVolume()) + "%");
+
+	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
+	musicVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
+
 }
 
 

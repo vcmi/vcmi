@@ -28,6 +28,8 @@ class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 	void configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
 	void configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & info, const JsonNode & source) const;
 public:
+	const JsonNode & getParameters() const;
+
 	bool givesResources() const override;
 
 	bool givesExperience() const override;
@@ -60,6 +62,8 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 	void initTypeData(const JsonNode & config) override;
 
 public:
+	bool hasNameTextID() const override;
+
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;

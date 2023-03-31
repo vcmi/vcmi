@@ -16,6 +16,7 @@
 #include "../CModHandler.h"
 #include "JsonRandom.h"
 #include "../IGameCallback.h"
+#include "../CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -307,9 +308,22 @@ bool CRandomRewardObjectInfo::givesBonuses() const
 	return testForKey(parameters, "bonuses");
 }
 
+const JsonNode & CRandomRewardObjectInfo::getParameters() const
+{
+	return parameters;
+}
+
 void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
 	objectInfo.init(config);
+
+	if (!config["name"].isNull())
+		VLC->generaltexth->registerString( config.meta, getNameTextID(), config["name"].String());
+}
+
+bool CRewardableConstructor::hasNameTextID() const
+{
+	return !objectInfo.getParameters()["name"].isNull();
 }
 
 CGObjectInstance * CRewardableConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
