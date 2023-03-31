@@ -74,7 +74,6 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	owner(owner),
 	activeStack(nullptr),
 	stackToActivate(nullptr),
-	selectedStack(nullptr),
 	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
@@ -732,16 +731,6 @@ void BattleStacksController::activateStack()
 	const CStack * s = getActiveStack();
 	if(!s)
 		return;
-}
-
-void BattleStacksController::setSelectedStack(const CStack *stack)
-{
-	selectedStack = stack;
-}
-
-const CStack* BattleStacksController::getSelectedStack() const
-{
-	return selectedStack;
 }
 
 const CStack* BattleStacksController::getActiveStack() const
