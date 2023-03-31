@@ -1083,7 +1083,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		auto spell = bat.spellID.toSpell();
 
 		battle::Target target;
-		target.emplace_back(defender);
+		target.emplace_back(defender, targetHex);
 
 		spells::BattleCast event(gs->curB, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
 		event.setSpellLevel(bonus->val);
