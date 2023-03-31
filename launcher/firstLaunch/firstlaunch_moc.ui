@@ -143,7 +143,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Choose your language</string>
+          <string>Select your language</string>
          </property>
         </widget>
        </item>
@@ -193,7 +193,7 @@
          <item row="0" column="0" colspan="2">
           <widget class="QLabel" name="labelLanguageSocial">
            <property name="text">
-            <string>Have a question? Found a bug? Want to help? Join us:</string>
+            <string>Have a question? Found a bug? Want to help? Join us!</string>
            </property>
           </widget>
          </item>
@@ -202,13 +202,13 @@
        <item row="1" column="1" colspan="2">
         <widget class="QLabel" name="labelLanguageWelcome">
          <property name="text">
-          <string>Thanks for installing VCMI.
+          <string>Thank you for installing VCMI!
 
-There are a few more steps to be done before you can start playing.
+Before you can start playing, there are a few more steps that need to be completed.
 
-Keep in mind that in order to use VCMI you need to own original data files, Heroes III: Complete Edition or Shadow of Death.
+Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
-Heroes III: HD Edition is currently not supported</string>
+Heroes® of Might and Magic® III HD is currently not supported!</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -273,7 +273,7 @@ Heroes III: HD Edition is currently not supported</string>
           </font>
          </property>
          <property name="text">
-          <string>Find Heroes III data files</string>
+          <string>Locate Heroes III data files</string>
          </property>
         </widget>
        </item>
@@ -362,7 +362,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>If you don't have installed Heroes III copy, it is possible to use our automatic installation tool 'vcmibuilder' to extract data from GoG.com installer. Visit our wiki for detailed instructions.</string>
+            <string>If you don't have a copy of Heroes III installed, you can use our automatic installation tool 'vcmibuilder', which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -378,7 +378,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</string>
+            <string>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -413,7 +413,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</string>
+            <string>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -482,7 +482,7 @@ Heroes III: HD Edition is currently not supported</string>
          <item row="2" column="0" colspan="2">
           <widget class="QLabel" name="labelDataFailure">
            <property name="text">
-            <string>Automatic detection of language failed. Please select language of your Heroes III copy</string>
+            <string>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -756,7 +756,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install translation of Heroes III to your language</string>
+            <string>Install a translation of Heroes III in your preferred language</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -772,7 +772,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Optionally, you can install additional mods either now or at any point later:</string>
+            <string>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -788,7 +788,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install support for playing Heroes III in resolutions other than 800x600.</string>
+            <string>Install support for playing Heroes III in resolutions higher than 800x600</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -804,7 +804,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install compatible version of addon Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</string>
+            <string>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -820,7 +820,7 @@ Heroes III: HD Edition is currently not supported</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install compatible version of addon &quot;In The Wake of Gods&quot;: fan-made Heroes III expansion</string>
+            <string>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

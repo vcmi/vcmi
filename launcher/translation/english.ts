@@ -279,27 +279,27 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
-        <source>This mod can not be installed or enabled because following dependencies are not present</source>
+        <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
-        <source>This mod can not be enabled because following mods are incompatible with this mod</source>
+        <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <source>This mod can not be disabled because it is required to run following mods</source>
+        <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
+        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
-        <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
+        <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

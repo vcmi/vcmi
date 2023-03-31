@@ -73,7 +73,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>People in lobby</string>
+          <string>Players in lobby</string>
          </property>
         </widget>
        </item>
