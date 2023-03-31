@@ -793,6 +793,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			return;
 		}
 	case SDLK_LALT:
+	case SDLK_RALT:
 		{
 			//fake mouse use to trigger onTileHovered()
 			GH.fakeMouseMove();
