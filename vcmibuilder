@@ -156,7 +156,10 @@ fi
 
 if [[ -z "$dest_dir" ]]
 then
-	if [[ -z "$XDG_DATA_HOME" ]]
+	if [[ "$(uname)" == Darwin ]]
+	then
+		dest_dir="$HOME/Library/Application Support/vcmi"
+	elif [[ -z "$XDG_DATA_HOME" ]]
 	then
 		dest_dir="$HOME/.local/share/vcmi"
 	else
