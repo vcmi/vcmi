@@ -485,15 +485,6 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		{
 			b = createBonus(building, Bonus::MORALE, +1);
 		}
-		else if(building->bid == BuildingID::GRAIL
-			&& building->town->faction != nullptr
-			&& boost::algorithm::ends_with(building->town->faction->getJsonKey(), ":cove"))
-		{
-			static TPropagatorPtr allCreaturesPropagator(new CPropagatorNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES));
-			static auto factionLimiter = std::make_shared<CreatureFactionLimiter>(building->town->faction->getIndex());
-			b = createBonus(building, Bonus::NO_TERRAIN_PENALTY, 0, allCreaturesPropagator);
-			b->addLimiter(factionLimiter);
-		}
 	}
 	else
 	{
