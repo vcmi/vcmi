@@ -145,7 +145,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 		float distance = zone.getPos().dist2dSQ(t);
 		return 100000.f - distance; //some big number
 	}, ObjectManager::OptimizeType::WEIGHT);
-	rmgObject.setPosition(position);
+	rmgObject.setPosition(position + int3(2, 2, 0)); //place visitable tile in the exact center of a zone
 	manager.placeObject(rmgObject, false, true);
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
