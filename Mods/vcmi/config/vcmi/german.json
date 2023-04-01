@@ -169,8 +169,6 @@
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description": "Feind kann nicht durch Schießen vergelten",
 	"core.bonus.CATAPULT.name": "Katapult",
 	"core.bonus.CATAPULT.description": "Greift Belagerungsmauern an",
-	"core.bonus.CATAPULT_EXTRA_SHOTS.name": "Zusätzliche Belagerungsangriffe",
-	"core.bonus.CATAPULT_EXTRA_SHOTS.description": "Kann Belagerungsmauern ${val} zusätzliche Male pro Angriff treffen",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.name": "Reduziere Zauberkosten (${val})",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "Reduziert die Zauberkosten für den Helden",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.name": "Zauberdämpfer (${val})",

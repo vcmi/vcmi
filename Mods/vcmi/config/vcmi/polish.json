@@ -157,8 +157,6 @@
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description": "Wróg nie może kontratakować poprzez strzelanie",
 	"core.bonus.CATAPULT.name": "Katapulta",
 	"core.bonus.CATAPULT.description": "Atakuje mury obronne",
-	"core.bonus.CATAPULT_EXTRA_SHOTS.name": "Dodatkowe ataki oblężnicze",
-	"core.bonus.CATAPULT_EXTRA_SHOTS.description": "Może uderzyć mury obronne ${val} dodatkowych razy na atak",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.name": "Zmniejsz koszt czarów (${val})",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "Zmniejsza koszt czaru bohatera",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.name": "Tłumienie magii (${val})",

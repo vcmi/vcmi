@@ -157,8 +157,6 @@
     "core.bonus.BLOCKS_RANGED_RETALIATION.description": "El enemigo no puede contraatacar disparando",
     "core.bonus.CATAPULT.name": "Catapulta",
     "core.bonus.CATAPULT.description": "Ataca a las paredes de asedio",
-    "core.bonus.CATAPULT_EXTRA_SHOTS.name": "Ataques adicionales de asedio",
-    "core.bonus.CATAPULT_EXTRA_SHOTS.description": "Puede golpear las paredes de asedio ${val} veces adicionales por ataque",
     "core.bonus.CHANGES_SPELL_COST_FOR_ALLY.name": "Reducir coste del conjuro (${val})",
     "core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "Reduce el coste del conjuro para el héroe",
     "core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.name": "Disminuir efecto mágico (${val})",
