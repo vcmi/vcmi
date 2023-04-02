@@ -36,7 +36,7 @@ namespace Res
 	class ResourceSet
 	{
 	private:
-		std::array<int, GameConstants::RESOURCE_QUANTITY> container;
+		std::array<TResource, GameConstants::RESOURCE_QUANTITY> container;
 	public:
 		// read resources set from json. Format example: { "gold": 500, "wood":5 }
 		DLL_LINKAGE ResourceSet(const JsonNode & node);
@@ -105,12 +105,12 @@ namespace Res
 
 		TResource & operator[](size_t index)
 		{
-			return container[index];
+			return container.at(index);
 		}
 
 		const TResource & operator[](size_t index) const 
 		{
-			return container[index];
+			return container.at(index);
 		}
 
 		bool empty () const
