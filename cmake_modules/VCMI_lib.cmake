@@ -220,10 +220,18 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vstd/RNG.h
 		${MAIN_LIB_DIR}/../include/vstd/StringUtils.h
 
+		${MAIN_LIB_DIR}/../include/vcmi/events/AdventureEvents.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/ApplyDamage.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/BattleEvents.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/Event.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/EventBus.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/GameResumed.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/GenericEvents.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ObjectVisitEnded.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ObjectVisitStarted.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/PlayerGotTurn.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/SubscriptionRegistry.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/TurnStarted.h
 
 		${MAIN_LIB_DIR}/../include/vcmi/scripting/Service.h
 
@@ -238,7 +246,19 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/CreatureService.h
 		${MAIN_LIB_DIR}/../include/vcmi/Entity.h
 		${MAIN_LIB_DIR}/../include/vcmi/Environment.h
+		${MAIN_LIB_DIR}/../include/vcmi/Faction.h
+		${MAIN_LIB_DIR}/../include/vcmi/FactionService.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroClass.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroClassService.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroType.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroTypeService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Metatype.h
+		${MAIN_LIB_DIR}/../include/vcmi/Player.h
+		${MAIN_LIB_DIR}/../include/vcmi/ServerCallback.h
 		${MAIN_LIB_DIR}/../include/vcmi/Services.h
+		${MAIN_LIB_DIR}/../include/vcmi/Skill.h
+		${MAIN_LIB_DIR}/../include/vcmi/SkillService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Team.h
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
