@@ -355,17 +355,17 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 
 	bool allFound = true;
 
-	for(const auto & string : config.Struct())
-	{
-		if (stringsLocalizations.count(string.first) > 0)
-			continue;
-
-		if (allFound)
-			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
-
-		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(string.second.String()));
-		allFound = false;
-	}
+//	for(const auto & string : config.Struct())
+//	{
+//		if (stringsLocalizations.count(string.first) > 0)
+//			continue;
+//
+//		if (allFound)
+//			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
+//
+//		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(string.second.String()));
+//		allFound = false;
+//	}
 
 	return allPresent && allFound;
 }
