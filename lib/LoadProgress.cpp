@@ -23,6 +23,9 @@ Type Progress::get() const
 	if(_step >= _maxSteps)
 		return _target;
 	
+	if(!_maxSteps)
+		return _progress;
+	
 	return static_cast<int>(_progress) + _step * static_cast<int>(_target - _progress) / _maxSteps;
 }
 
