@@ -161,6 +161,11 @@ bool CFaction::hasTown() const
 	return town != nullptr;
 }
 
+TerrainId CFaction::getNativeTerrain() const
+{
+	return nativeTerrain;
+}
+
 void CFaction::updateFrom(const JsonNode & data)
 {
 

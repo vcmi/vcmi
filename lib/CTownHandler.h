@@ -217,6 +217,7 @@ public:
 	std::string getNameTextID() const override;
 
 	bool hasTown() const override;
+	TerrainId getNativeTerrain() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);

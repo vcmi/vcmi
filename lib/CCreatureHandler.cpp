@@ -335,7 +335,7 @@ TerrainId CCreature::getNativeTerrain() const
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
 		? TerrainId(ETerrainId::ANY_TERRAIN)
-		: (*VLC->townh)[faction]->nativeTerrain;
+		: VLC->factions()->getByIndex(faction)->getNativeTerrain();
 }
 
 void CCreature::updateFrom(const JsonNode & data)
