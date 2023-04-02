@@ -22,20 +22,20 @@ VCMI_LIB_NAMESPACE_BEGIN
 Res::ResourceSet::ResourceSet(const JsonNode & node)
 {
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		this[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
+		container[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
 }
 
 Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
 							TResource gems, TResource gold, TResource mithril)
 {
-	this[Res::WOOD] = wood;
-	this[Res::MERCURY] = mercury;
-	this[Res::ORE] = ore;
-	this[Res::SULFUR] = sulfur;
-	this[Res::CRYSTAL] = crystal;
-	this[Res::GEMS] = gems;
-	this[Res::GOLD] = gold;
-	this[Res::MITHRIL] = mithril;
+	container[Res::WOOD] = wood;
+	container[Res::MERCURY] = mercury;
+	container[Res::ORE] = ore;
+	container[Res::SULFUR] = sulfur;
+	container[Res::CRYSTAL] = crystal;
+	container[Res::GEMS] = gems;
+	container[Res::GOLD] = gold;
+	container[Res::MITHRIL] = mithril;
 }
 
 void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
