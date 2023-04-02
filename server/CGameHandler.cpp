@@ -4969,8 +4969,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
 	bool cheated = false;
-	PlayerMessageClient temp_message(player, message);
-	sendAndApply(&temp_message);
+	
+	if(!getPlayerSettings(player)->isControlledByAI())
+	{
+		PlayerMessageClient temp_message(player, message);
+		sendAndApply(&temp_message);
+	}
 
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
