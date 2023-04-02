@@ -279,28 +279,28 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
-        <source>This mod can not be installed or enabled because following dependencies are not present</source>
-        <translation>Este mod no se puede instalar o habilitar porque no están presentes las siguientes dependencias</translation>
+        <source>This mod can not be installed or enabled because the following dependencies are not present</source>
+        <translation type="unfinished">Este mod no se puede instalar o habilitar porque no están presentes las siguientes dependencias</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
-        <source>This mod can not be enabled because following mods are incompatible with this mod</source>
-        <translation>Este mod no se puede habilitar porque los siguientes mods son incompatibles con él</translation>
+        <source>This mod can not be enabled because the following mods are incompatible with it</source>
+        <translation type="unfinished">Este mod no se puede habilitar porque los siguientes mods son incompatibles con él</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <source>This mod can not be disabled because it is required to run following mods</source>
-        <translation>No se puede desactivar este mod porque es necesario para ejecutar los siguientes mods</translation>
+        <source>This mod cannot be disabled because it is required by the following mods</source>
+        <translation type="unfinished">No se puede desactivar este mod porque es necesario para ejecutar los siguientes mods</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
-        <translation>No se puede desinstalar o actualizar este mod porque es necesario para ejecutar los siguientes mods</translation>
+        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
+        <translation type="unfinished">No se puede desinstalar o actualizar este mod porque es necesario para ejecutar los siguientes mods</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
-        <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
-        <translation>Este es un submod y no se puede instalar o desinstalar por separado del mod principal</translation>
+        <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
+        <translation type="unfinished">Este es un submod y no se puede instalar o desinstalar por separado del mod principal</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
@@ -547,11 +547,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
-        <source>Choose your language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
         <source>VCMI on Github</source>
         <translation type="unfinished"></translation>
@@ -567,30 +562,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
-        <source>Have a question? Found a bug? Want to help? Join us:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
-        <source>Thanks for installing VCMI.
-
-There are a few more steps to be done before you can start playing.
-
-Keep in mind that in order to use VCMI you need to own original data files, Heroes III: Complete Edition or Shadow of Death.
-
-Heroes III: HD Edition is currently not supported</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="554"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
-        <source>Find Heroes III data files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -604,23 +578,8 @@ Heroes III: HD Edition is currently not supported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
-        <source>If you don&apos;t have installed Heroes III copy, it is possible to use our automatic installation tool &apos;vcmibuilder&apos; to extract data from GoG.com installer. Visit our wiki for detailed instructions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
-        <source>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="403"/>
         <source>Heroes III data files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
-        <source>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -639,8 +598,49 @@ Heroes III: HD Edition is currently not supported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
+        <source>Select your language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
+        <source>Have a question? Found a bug? Want to help? Join us!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
+        <source>Thank you for installing VCMI!
+
+Before you can start playing, there are a few more steps that need to be completed.
+
+Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+
+Heroes® of Might and Magic® III HD is currently not supported!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
+        <source>Locate Heroes III data files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
+        <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
+        <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
+        <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
-        <source>Automatic detection of language failed. Please select language of your Heroes III copy</source>
+        <source>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -681,27 +681,27 @@ Heroes III: HD Edition is currently not supported</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
-        <source>Install translation of Heroes III to your language</source>
+        <source>Install a translation of Heroes III in your preferred language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="775"/>
-        <source>Optionally, you can install additional mods either now or at any point later:</source>
+        <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="791"/>
-        <source>Install support for playing Heroes III in resolutions other than 800x600.</source>
+        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
-        <source>Install compatible version of addon Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</source>
+        <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
-        <source>Install compatible version of addon &quot;In The Wake of Gods&quot;: fan-made Heroes III expansion</source>
+        <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -805,11 +805,6 @@ Heroes III: HD Edition is currently not supported</source>
         <translation>Servidor</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="76"/>
-        <source>People in lobby</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../lobby/lobby_moc.ui" line="114"/>
         <source>Lobby chat</source>
         <translation type="unfinished"></translation>
@@ -843,6 +838,11 @@ Heroes III: HD Edition is currently not supported</source>
         <location filename="../lobby/lobby_moc.ui" line="149"/>
         <source>New room</source>
         <translation>Nueva sala</translation>
+    </message>
+    <message>
+        <location filename="../lobby/lobby_moc.ui" line="76"/>
+        <source>Players in lobby</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="159"/>
@@ -945,8 +945,8 @@ Heroes III: HD Edition is currently not supported</source>
     <name>UpdateDialog</name>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
-        <source>You have latest version</source>
-        <translation>Tienes la última versión</translation>
+        <source>You have the latest version</source>
+        <translation type="unfinished">Tienes la última versión</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
@@ -955,8 +955,8 @@ Heroes III: HD Edition is currently not supported</source>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
-        <source>Check updates on startup</source>
-        <translation>Comprobar actualizaciones al iniciar</translation>
+        <source>Check for updates on startup</source>
+        <translation type="unfinished">Comprobar actualizaciones al iniciar</translation>
     </message>
 </context>
 </TS>
