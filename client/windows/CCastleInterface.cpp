@@ -405,31 +405,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		}
 		else if(other->hero && other->isSelected())
 		{
-			bool allow = true;
-			if(upg) //moving hero out of town - check if it is allowed
-			{
-				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
-				{
-					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
-					boost::algorithm::replace_first(tmp,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
-					LOCPLINT->showInfoDialog(tmp, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
-					allow = false;
-				}
-				else if(!other->hero->stacksCount()) //hero has no creatures - strange, but if we have appropriate error message...
-				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
-					allow = false;
-				}
-			}
-
-			setHighlight(false);
-			other->setHighlight(false);
-
-			if(allow)
-			{
-				owner->swapArmies();
-				hero = other->hero;
-			}
+			owner->swapArmies();
 		}
 		else if(hero)
 		{
@@ -524,17 +500,42 @@ void HeroSlots::splitClicked()
 
 void HeroSlots::swapArmies()
 {
+	bool allow = true;
+
+	//moving hero out of town - check if it is allowed
+	if (town->garrisonHero)
+	{
+		if (!town->visitingHero && LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		{
+			std::string text = CGI->generaltexth->translate("core.genrltxt.18"); //You already have %d adventuring heroes under your command.
+			boost::algorithm::replace_first(text,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
+
+			LOCPLINT->showInfoDialog(text, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			allow = false;
+		}
+		else if (town->garrisonHero->stacksCount() == 0)
+		{
+			//This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
+			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.19"), {}, soundBase::sound_todo);
+			allow = false;
+		}
+	}
+
 	if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies: town army => hero army
 	{
 		if(!town->visitingHero->canBeMergedWith(*town))
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[275], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
-			return;
+			allow = false;
 		}
 	}
-	LOCPLINT->cb->swapGarrisonHero(town);
-}
 
+	garrisonedHero->setHighlight(false);
+	visitingHero->setHighlight(false);
+
+	if (allow)
+		LOCPLINT->cb->swapGarrisonHero(town);
+}
 
 class SORTHELP
 {
