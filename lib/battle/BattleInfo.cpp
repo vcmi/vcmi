@@ -451,12 +451,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 		}
 
-		//moat
-		auto moat = std::make_shared<MoatObstacle>();
-		moat->ID = curB->town->subID;
-		moat->obstacleType = CObstacleInstance::MOAT;
-		moat->uniqueID = static_cast<si32>(curB->obstacles.size());
-		curB->obstacles.push_back(moat);
+		//Moat generating is done on server
 	}
 
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
@@ -740,6 +735,9 @@ void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 		return;
 	}
 	sta->position = destination;
+	//Bonuses can be limited by unit placement, so, change tree version 
+	//to force updating a bonus. TODO: update version only when such bonuses are present
+	CBonusSystemNode::treeHasChanged();
 }
 
 void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)

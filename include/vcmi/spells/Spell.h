@@ -41,6 +41,7 @@ public:
 	virtual bool isDamage() const = 0;
 	virtual bool isOffensive() const = 0;
 	virtual bool isSpecial() const = 0;
+	virtual bool isMagical() const = 0; //Should this spell considered as magical effect or as ability (like dendroid's bind)
 
 	virtual void forEachSchool(const SchoolCallback & cb) const = 0;
 	virtual const std::string & getCastSound() const = 0;

@@ -653,6 +653,11 @@ void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const COb
 	obstacleController->obstaclePlaced(oi);
 }
 
+void BattleInterface::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
+{
+	obstacleController->obstacleRemoved(obstacles);
+}
+
 const CGHeroInstance *BattleInterface::currentHero() const
 {
 	if (attackingHeroInstance && attackingHeroInstance->tempOwner == curInt->playerID)

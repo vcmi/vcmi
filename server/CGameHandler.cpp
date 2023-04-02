@@ -22,6 +22,7 @@
 #include "../lib/spells/BonusCaster.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
+#include "../lib/spells/ObstacleCasterProxy.h"
 #include "../lib/spells/Problem.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
@@ -93,102 +94,6 @@ private:
 	CGameHandler * gh;
 };
 
-VCMI_LIB_NAMESPACE_BEGIN
-namespace spells
-{
-
-class ObstacleCasterProxy : public Caster
-{
-public:
-	ObstacleCasterProxy(const PlayerColor owner_, const CGHeroInstance * hero_, const SpellCreatedObstacle * obs_)
-		: owner(owner_),
-		hero(hero_),
-		obs(obs_)
-	{
-	};
-
-	~ObstacleCasterProxy() = default;
-
-	int32_t getCasterUnitId() const override
-	{
-		if(hero)
-			return hero->getCasterUnitId();
-		else
-			return -1;
-	}
-
-	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override
-	{
-		return obs->spellLevel;
-	}
-
-	int32_t getEffectLevel(const Spell * spell) const override
-	{
-		return obs->spellLevel;
-	}
-
-	int64_t getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const override
-	{
-		if(hero)
-			return hero->getSpellBonus(spell, base, affectedStack);
-		else
-			return base;
-	}
-
-	int64_t getSpecificSpellBonus(const Spell * spell, int64_t base) const override
-	{
-		if(hero)
-			return hero->getSpecificSpellBonus(spell, base);
-		else
-			return base;
-	}
-
-	int32_t getEffectPower(const Spell * spell) const override
-	{
-		return obs->casterSpellPower;
-	}
-
-	int32_t getEnchantPower(const Spell * spell) const override
-	{
-		return obs->casterSpellPower;
-	}
-
-	int64_t getEffectValue(const Spell * spell) const override
-	{
-		if(hero)
-			return hero->getEffectValue(spell);
-		else
-			return 0;
-	}
-
-	PlayerColor getCasterOwner() const override
-	{
-		return owner;
-	}
-
-	void getCasterName(MetaString & text) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCasterName");
-	}
-
-	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCastDescription");
-	}
-
-	void spendMana(ServerCallback * server, const int spellCost) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::spendMana");
-	}
-
-private:
-	const CGHeroInstance * hero;
-	const PlayerColor owner;
-	const SpellCreatedObstacle * obs;
-};
-
-}//
-VCMI_LIB_NAMESPACE_END
 
 CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);
@@ -1436,10 +1341,14 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	ret = path.second;
 
 	int creSpeed = gs->curB->tacticDistance ? GameConstants::BFIELD_SIZE : curStack->Speed(0, true);
+	bool hasWideMoat = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	{
+		return obst->obstacleType == CObstacleInstance::MOAT;
+	});
 
 	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
 	{
-		if (gs->curB->town->subID == ETownType::FORTRESS && hex == ESiegeHex::GATE_BRIDGE)
+		if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
 			return true;
 		if (hex == ESiegeHex::GATE_OUTER)
 			return true;
@@ -1502,7 +1411,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				auto needOpenGates = [&](BattleHex hex) -> bool
 				{
-					if (gs->curB->town->subID == ETownType::FORTRESS && hex == ESiegeHex::GATE_BRIDGE)
+					if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
 						return true;
 					if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == ESiegeHex::GATE_OUTER)
 						return true;
@@ -1538,7 +1447,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
-					if (gs->curB->town->subID == ETownType::FORTRESS)
+					if (hasWideMoat)
 					{
 						if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
 						{
@@ -1650,7 +1559,13 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				stackIsMoving = false;
 		}
 	}
-
+	//handle last hex separately for deviation
+	if (VLC->settings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
+	{
+		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->side)
+			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->side))
+			passed.clear(); //Just empty passed, obstacles will handled automatically
+	}
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
 	handleDamageFromObstacle(curStack, false, passed);
 
@@ -4513,7 +4428,10 @@ void CGameHandler::updateGateState()
 	bool hasStackAtGateInner   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
 	bool hasStackAtGateOuter   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
 	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false) != nullptr;
-	bool hasLongBridge         = gs->curB->town->subID == ETownType::FORTRESS;
+	bool hasWideMoat         = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	{
+		return obst->obstacleType == CObstacleInstance::MOAT;
+	});
 
 	BattleUpdateGateState db;
 	db.state = gs->curB->si.gateState;
@@ -4523,7 +4441,7 @@ void CGameHandler::updateGateState()
 	}
 	else if (db.state == EGateState::OPENED)
 	{
-		bool hasStackOnLongBridge = hasStackAtGateBridge && hasLongBridge;
+		bool hasStackOnLongBridge = hasStackAtGateBridge && hasWideMoat;
 		bool gateCanClose = !hasStackAtGateInner && !hasStackAtGateOuter && !hasStackOnLongBridge;
 
 		if (gateCanClose)
@@ -5317,77 +5235,50 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 {
 	if(!curStack->alive())
 		return false;
-	bool containDamageFromMoat = false;
 	bool movementStopped = false;
 	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack, passed))
 	{
-		if(obstacle->obstacleType == CObstacleInstance::SPELL_CREATED)
+		//helper info
+		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
+
+		if(spellObstacle)
 		{
-			//helper info
-			const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
-			const ui8 side = curStack->side;
-
-			if(!spellObstacle)
-				COMPLAIN_RET("Invalid obstacle instance");
-
-			if(spellObstacle->triggersEffects())
+			auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
 			{
-				const bool oneTimeObstacle = spellObstacle->removeOnTrigger;
+				// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+				auto operation = ObstacleChanges::EOperation::UPDATE;
+				if (spellObstacle.removeOnTrigger)
+					operation = ObstacleChanges::EOperation::REMOVE;
 
-				//hidden obstacle triggers effects until revealed
-				if(!(spellObstacle->hidden && gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side)))
+				SpellCreatedObstacle changedObstacle;
+				changedObstacle.uniqueID = spellObstacle.uniqueID;
+				changedObstacle.revealed = true;
+
+				BattleObstaclesChanged bocp;
+				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
+				changedObstacle.toInfo(bocp.changes.back(), operation);
+				sendAndApply(&bocp);
+			};
+			const auto side = curStack->side;
+			auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
+			const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
+			auto caster = spells::ObstacleCasterProxy(gs->curB->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+			const auto * sp = obstacle->getTrigger().toSpell();
+			if(obstacle->triggersEffects() && sp)
+			{
+				auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);
+				spells::detail::ProblemImpl ignored;
+				auto target = spells::Target(1, spells::Destination(curStack));
+				if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
 				{
-					const CGHeroInstance * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-					spells::ObstacleCasterProxy caster(gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
-
-					const CSpell * sp = SpellID(spellObstacle->ID).toSpell();
-					if(!sp)
-						COMPLAIN_RET("Invalid obstacle instance");
-
-					// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-					ObstacleChanges changeInfo;
-					changeInfo.id = spellObstacle->uniqueID;
-					if (oneTimeObstacle)
-						changeInfo.operation = ObstacleChanges::EOperation::REMOVE;
-					else
-						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
-
-					SpellCreatedObstacle changedObstacle;
-					changedObstacle.uniqueID = spellObstacle->uniqueID;
-					changedObstacle.revealed = true;
-
-					changeInfo.data.clear();
-					JsonSerializer ser(nullptr, changeInfo.data);
-					ser.serializeStruct("obstacle", changedObstacle);
-
-					BattleObstaclesChanged bocp;
-					bocp.changes.emplace_back(changeInfo);
-					sendAndApply(&bocp);
-
-					spells::BattleCast battleCast(gs->curB, &caster, spells::Mode::HERO, sp);
-					battleCast.applyEffects(spellEnv, spells::Target(1, spells::Destination(curStack)), true);
+					if(shouldReveal) { //hidden obstacle triggers effects after revealed
+						revealObstacles(*spellObstacle);
+						cast.cast(spellEnv, target);
+					}
 				}
 			}
-		}
-		else if(obstacle->obstacleType == CObstacleInstance::MOAT)
-		{
-			auto town = gs->curB->town;
-			int damage = (town == nullptr) ? 0 : town->town->moatDamage;
-			if(!containDamageFromMoat)
-			{
-				containDamageFromMoat = true;
-
-				BattleStackAttacked bsa;
-				bsa.damageAmount = damage;
-				bsa.stackAttacked = curStack->ID;
-				bsa.attackerID = -1;
-				curStack->prepareAttacked(bsa, getRandomGenerator());
-
-				StacksInjured si;
-				si.stacks.push_back(bsa);
-				sendAndApply(&si);
-				sendGenericKilledLog(curStack, bsa.killedAmount, false);
-			}
+			else if(shouldReveal)
+				revealObstacles(*spellObstacle);
 		}
 
 		if(!curStack->alive())
@@ -6435,6 +6326,17 @@ void CGameHandler::runBattle()
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
 
+	//Moat should be initialized here, because only here we can use spellcasting
+	if (gs->curB->town && gs->curB->town->fortLevel() >= CGTownInstance::CITADEL)
+	{
+		const auto * h = gs->curB->battleGetFightingHero(BattleSide::DEFENDER);
+		const auto * actualCaster = h ? static_cast<const spells::Caster*>(h) : nullptr;
+		auto moatCaster = spells::SilentCaster(gs->curB->getSidePlayer(BattleSide::DEFENDER), actualCaster);
+		auto cast = spells::BattleCast(gs->curB, &moatCaster, spells::Mode::PASSIVE, gs->curB->town->town->moatAbility.toSpell());
+		auto target = spells::Target();
+		cast.cast(spellEnv, target);
+	}
+
 	//tactic round
 	{
 		while (gs->curB->tacticDistance && !battleResult.get())
@@ -6943,7 +6845,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		///Give all spells with bonus (to allow banned spells)
-		GiveBonus giveBonus(GiveBonus::HERO);
+		GiveBonus giveBonus(GiveBonus::ETarget::HERO);
 		giveBonus.id = hero->id.getNum();
 		giveBonus.bonus = Bonus(Bonus::PERMANENT, Bonus::SPELLS_OF_LEVEL, Bonus::OTHER, 0, 0);
 		//start with level 0 to skip abilities
@@ -7089,7 +6991,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		smp.val = 1000000;
 		sendAndApply(&smp);
 
-		GiveBonus gb(GiveBonus::HERO);
+		GiveBonus gb(GiveBonus::ETarget::HERO);
 		gb.bonus.type = Bonus::FREE_SHIP_BOARDING;
 		gb.bonus.duration = Bonus::ONE_DAY;
 		gb.bonus.source = Bonus::OTHER;

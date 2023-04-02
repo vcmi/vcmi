@@ -24,10 +24,8 @@ namespace spells
 
 BonusCaster::BonusCaster(const Caster * actualCaster_, std::shared_ptr<Bonus> bonus_):
 	ProxyCaster(actualCaster_),
-	actualCaster(actualCaster_),
 	bonus(std::move(bonus_))
 {
-
 }
 
 BonusCaster::~BonusCaster() = default;

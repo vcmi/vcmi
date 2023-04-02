@@ -233,7 +233,11 @@
 						"special":{
 								"type": "boolean",
 								"description": "Special spell. Can be given only by Bonus::SPELL"
-						}
+						},
+						"nonMagical":{
+							"type": "boolean",
+							"description": "Non-magical ability. Usually used by some creatures. Should not be affected by sorcery and generic magic resistance. School resistances apply. Examples: dendroid bind, efreet fire shield."
+					}
 				}
 		},
 		"immunity":{

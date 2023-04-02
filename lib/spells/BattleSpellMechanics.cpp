@@ -360,7 +360,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
 	{
-		if(isNegativeSpell())
+		if(isNegativeSpell() && isMagicalEffect())
 		{
 			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %

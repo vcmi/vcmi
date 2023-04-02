@@ -91,8 +91,6 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 
 	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("triggerSound", triggerSound);
-	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
@@ -121,7 +119,7 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 bool Obstacle::applicable(Problem & problem, const Mechanics * m) const
 {
-	if(hidden && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
+	if(hidden && !hideNative && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 
 	return LocationEffect::applicable(problem, m);
@@ -181,42 +179,46 @@ EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPo
 
 void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
-	if(m->isMassive())
+	if(patchCount > 0)
 	{
 		std::vector<BattleHex> availableTiles;
-		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+		auto insertAvailable = [&m](const BattleHex & hex, std::vector<BattleHex> & availableTiles)
 		{
-			BattleHex hex = i;
 			if(isHexAvailable(m->battle(), hex, true))
 				availableTiles.push_back(hex);
-		}
+		};
+
+		if(m->isMassive())
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+				insertAvailable(BattleHex(i), availableTiles);
+		else
+			for(const auto & destination : target)
+				insertAvailable(destination.hexValue, availableTiles);
+
 		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
-
 		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
-
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);
 		for(int i = 0; i < patchesToPut; i++)
 			randomTarget.emplace_back(availableTiles.at(i));
-
 		placeObstacles(server, m, randomTarget);
+		return;
 	}
-	else
-	{
-		placeObstacles(server, m, target);
-	}
+
+	placeObstacles(server, m, target);
 }
 
 void Obstacle::serializeJsonEffect(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("passable", passable);
-	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
-    handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("hideNative", hideNative);
 
 	handler.serializeInt("patchCount", patchCount);
 	handler.serializeInt("turnsRemaining", turnsRemaining, -1);
+	handler.serializeId("triggerAbility", triggerAbility, SpellID::NONE);
 
 	handler.serializeStruct("attacker", sideOptions.at(BattleSide::ATTACKER));
 	handler.serializeStruct("defender", sideOptions.at(BattleSide::DEFENDER));
@@ -285,7 +287,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		SpellCreatedObstacle obstacle;
 		obstacle.uniqueID = obstacleIdToGive++;
 		obstacle.pos = destination.hexValue;
-		obstacle.obstacleType = CObstacleInstance::USUAL;
+		obstacle.obstacleType = CObstacleInstance::SPELL_CREATED;
 		obstacle.ID = m->getSpellIndex();
 
 		obstacle.turnsRemaining = turnsRemaining;
@@ -293,16 +295,15 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.spellLevel = m->getEffectLevel();//todo: level of indirect effect should be also configurable
 		obstacle.casterSide = m->casterSide;
 
+		obstacle.nativeVisible = !hideNative;
 		obstacle.hidden = hidden;
 		obstacle.passable = passable;
-		obstacle.trigger = trigger;
+		obstacle.trigger = triggerAbility;
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 
 		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
-		obstacle.triggerSound = options.triggerSound;
-		obstacle.triggerAnimation = options.triggerAnimation;
 		obstacle.animation = options.animation;
 
 		obstacle.animationYOffset = options.offsetY;
@@ -327,7 +328,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	if(!pack.changes.empty())
 		server->apply(&pack);
 }
-
 
 }
 }

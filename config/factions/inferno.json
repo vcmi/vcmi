@@ -149,8 +149,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
 			"warMachine" : "ammoCart",
-			"moatDamage" : 90,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			"moatAbility" : "core:spell.infernoMoat",
 
 			"buildings" :
 			{

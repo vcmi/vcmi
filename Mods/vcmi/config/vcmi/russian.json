@@ -143,6 +143,16 @@
 	"mapObject.core.pyramid.pyramid.name" : "Пирамида",
 	"mapObject.core.shipwreck.shipwreck.name" : "Кораблекрушение",
 
+	"spell.core.landMineTrigger.name" : "Мина",
+	"spell.core.fireWallTrigger.name" : "Стена огня",
+	"spell.core.castleMoatTrigger.name" : "Ров",
+	"spell.core.rampartMoatTrigger.name" : "Колючий куст",
+	"spell.core.infernoMoatTrigger.name" : "Лава",
+	"spell.core.necropolisMoatTrigger.name" : "Груда костей",
+	"spell.core.dungeonMoatTrigger.name" : "Кипящее масло",
+	"spell.core.strongholdMoatTrigger.name" : "Стена шипов",
+	"spell.core.fortressMoatTrigger.name" : "Кипящая смола",
+
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» О п ы т   с у щ е с т в «\n\nТип существа ................... : %s\nРанг опыта ................. : %s (%i)\nОчки опыта ............... : %i\nДо следующего .. : %i\nМаксимум за битву ... : %i%% (%i)\nЧисло в отряде .... : %i\nМаксимум новичков\n без потери ранга .... : %i\nМножитель опыта ........... : %.2f\nМножитель улучшения .......... : %.2f\nОпыт после 10 ранга ........ : %i\nМаксимум новичков для сохранения\n ранга 10 при максимальном опыте : %i",
 	"vcmi.stackExperience.rank.1" : "Рекрут",

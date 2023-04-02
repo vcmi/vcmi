@@ -80,6 +80,7 @@
 		"config/spells/timed.json",
 		"config/spells/ability.json",
 		"config/spells/vcmiAbility.json"
+		"config/spells/moats.json"
 	],
 	"skills" :
 	[
@@ -164,7 +165,9 @@
 			// every 1 defense point damage influence in battle when defense points > attack points during creature attack
 			"defensePointDamageFactor": 0.025, 
 			// limit of damage reduction that can be achieved by overpowering defense points
-			"defensePointDamageFactorCap": 0.7
+			"defensePointDamageFactorCap": 0.7,
+			// If set to true, double-wide creatures will trigger obstacle effect when moving one tile forward or backwards
+			"oneHexTriggersObstacles": false
 		},	
 
 		"creatures":

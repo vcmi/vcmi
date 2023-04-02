@@ -97,6 +97,7 @@ CSpell::CSpell():
 	damage(false),
 	offensive(false),
 	special(true),
+	nonMagical(false),
 	targetType(spells::AimType::NO_TARGET)
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
@@ -234,6 +235,11 @@ bool CSpell::isAdventure() const
 bool CSpell::isCreatureAbility() const
 {
 	return creatureAbility;
+}
+
+bool CSpell::isMagical() const
+{
+	return !nonMagical;
 }
 
 bool CSpell::isPositive() const
@@ -397,8 +403,8 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 
 		CSelector selector = Selector::type()(Bonus::SPELL_DAMAGE_REDUCTION).And(Selector::subtype()(-1));
 
-		//general spell dmg reduction
-		if(bearer->hasBonus(selector))
+		//general spell dmg reduction, works only on magical effects
+		if(bearer->hasBonus(selector) && isMagical())
 		{
 			ret *= 100 - bearer->valOfBonuses(selector);
 			ret /= 100;
@@ -750,6 +756,8 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	//by default all flags are set to false in constructor
 
 	spell->damage = flags["damage"].Bool(); //do this before "offensive"
+
+	spell->nonMagical = flags["nonMagical"].Bool();
 
 	if(flags["offensive"].Bool())
 	{

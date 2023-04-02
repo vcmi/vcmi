@@ -183,6 +183,7 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<ILimiter, CreatureAlignmentLimiter>();
 	s.template registerType<ILimiter, RankRangeLimiter>();
 	s.template registerType<ILimiter, StackOwnerLimiter>();
+	s.template registerType<ILimiter, UnitOnHexLimiter>();
 
 //	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CBonusSystemNode, CArtifact>();
@@ -202,7 +203,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CArtifactInstance, CCombinedArtifactInstance>();
 
 	//s.template registerType<CObstacleInstance>();
-		s.template registerType<CObstacleInstance, MoatObstacle>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
 }
 template<typename Serializer>

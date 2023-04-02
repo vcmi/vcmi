@@ -11,6 +11,7 @@
 
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,9 +35,9 @@ typedef std::vector<CBonusSystemNode *> TNodesVector;
 
 class CSelector : std::function<bool(const Bonus*)>
 {
-	typedef std::function<bool(const Bonus*)> TBase;
+	using TBase = std::function<bool(const Bonus*)>;
 public:
-	CSelector() {}
+	CSelector() = default;
 	template<typename T>
 	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class
 							//(includes functors, lambdas) or function. Without that VC is going mad about ambiguities.
@@ -684,11 +685,11 @@ struct BonusLimitationContext
 class DLL_LINKAGE ILimiter
 {
 public:
-	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
+	enum class EDecision : uint8_t {ACCEPT, DISCARD, NOT_SURE};
 
 	virtual ~ILimiter() = default;
 
-	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
+	virtual EDecision limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
 
@@ -781,7 +782,7 @@ private:
 	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
 	mutable int64_t cachedLast;
-	static std::atomic<int32_t> treeChanged;
+	static std::atomic<int64_t> treeChanged;
 
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
 	// This string needs to be unique, that's why it has to be setted in the following manner:
@@ -905,13 +906,6 @@ public:
 	}
 };
 
-namespace NBonus
-{
-	//set of methods that may be safely called with nullptr objs
-	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
-	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-}
-
 template<typename T>
 class CSelectFieldEqual
 {
@@ -1019,7 +1013,7 @@ protected:
 	const std::string & getAggregator() const override;
 public:
 	static const std::string aggregator;
-	int limit(const BonusLimitationContext & context) const override;
+	EDecision limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
@@ -1028,7 +1022,7 @@ protected:
 	const std::string & getAggregator() const override;
 public:
 	static const std::string aggregator;
-	int limit(const BonusLimitationContext & context) const override;
+	EDecision limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
@@ -1037,7 +1031,7 @@ protected:
 	const std::string & getAggregator() const override;
 public:
 	static const std::string aggregator;
-	int limit(const BonusLimitationContext & context) const override;
+	EDecision limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
@@ -1050,9 +1044,9 @@ public:
 	CCreatureTypeLimiter(const CCreature & creature_, bool IncludeUpgrades);
 	void setCreature(const CreatureID & id);
 
-	int limit(const BonusLimitationContext &context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1078,9 +1072,9 @@ public:
 	HasAnotherBonusLimiter(Bonus::BonusType bonus, Bonus::BonusSource src);
 	HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype, Bonus::BonusSource src);
 
-	int limit(const BonusLimitationContext &context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1102,9 +1096,9 @@ public:
 	CreatureTerrainLimiter();
 	CreatureTerrainLimiter(TerrainId terrain);
 
-	int limit(const BonusLimitationContext &context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1120,9 +1114,9 @@ public:
 	CreatureFactionLimiter();
 	CreatureFactionLimiter(TFaction faction);
 
-	int limit(const BonusLimitationContext &context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1138,9 +1132,9 @@ public:
 	CreatureAlignmentLimiter();
 	CreatureAlignmentLimiter(si8 Alignment);
 
-	int limit(const BonusLimitationContext &context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1156,7 +1150,7 @@ public:
 	StackOwnerLimiter();
 	StackOwnerLimiter(const PlayerColor & Owner);
 
-	int limit(const BonusLimitationContext &context) const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1172,7 +1166,7 @@ public:
 	OppositeSideLimiter();
 	OppositeSideLimiter(const PlayerColor & Owner);
 
-	int limit(const BonusLimitationContext &context) const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1188,13 +1182,29 @@ public:
 
 	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
-	int limit(const BonusLimitationContext &context) const override;
+	EDecision limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & minRank;
 		h & maxRank;
+	}
+};
+
+class DLL_LINKAGE UnitOnHexLimiter : public ILimiter //works only on selected hexes
+{
+public:
+	std::set<BattleHex> applicableHexes;
+
+	UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes = {});
+	EDecision limit(const BonusLimitationContext &context) const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & applicableHexes;
 	}
 };
 
@@ -1226,9 +1236,6 @@ namespace Selector
 	 * Usage example: Selector::none.Or(<functor>).Or(<functor>)...)
 	 */
 	extern DLL_LINKAGE CSelector none;
-
-	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type);
-	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, Bonus::BonusType type, TBonusSubtype subtype);
 }
 
 extern DLL_LINKAGE const std::map<std::string, Bonus::BonusType> bonusNameMap;

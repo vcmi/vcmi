@@ -271,8 +271,7 @@ public:
 	ui32 mageLevel; //max available mage guild level
 	ui16 primaryRes;
 	ArtifactID warMachine;
-	si32 moatDamage;
-	std::vector<BattleHex> moatHexes;
+	SpellID moatAbility;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -339,8 +338,7 @@ public:
 		h & primaryRes;
 		h & warMachine;
 		h & clientInfo;
-		h & moatDamage;
-		h & moatHexes;
+		h & moatAbility;
 		h & defaultTavernChance;
 	}
 	

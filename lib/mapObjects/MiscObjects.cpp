@@ -2142,7 +2142,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 
 		if(oldOwner < PlayerColor::PLAYER_LIMIT) //remove bonus from old owner
 		{
-			RemoveBonus rb(RemoveBonus::PLAYER);
+			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 			rb.whoID = oldOwner.getNum();
 			rb.source = Bonus::OBJECT;
 			rb.id = id.getNum();
@@ -2162,7 +2162,7 @@ void CGLighthouse::initObj(CRandomGenerator & rand)
 
 void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 {
-	GiveBonus gb(GiveBonus::PLAYER);
+	GiveBonus gb(GiveBonus::ETarget::PLAYER);
 	gb.bonus.type = Bonus::MOVEMENT;
 	gb.bonus.val = 500;
 	gb.id = player.getNum();

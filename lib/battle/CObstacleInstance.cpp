@@ -60,6 +60,21 @@ bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
 	return true;
 }
 
+const std::string & CObstacleInstance::getAnimation() const
+{
+	return getInfo().animation;
+}
+
+const std::string & CObstacleInstance::getAppearAnimation() const
+{
+	return getInfo().appearAnimation;
+}
+
+const std::string & CObstacleInstance::getAppearSound() const
+{
+	return getInfo().appearSound;
+}
+
 int CObstacleInstance::getAnimationYOffset(int imageHeight) const
 {
 	int offset = imageHeight % 42;
@@ -83,7 +98,43 @@ bool CObstacleInstance::blocksTiles() const
 
 bool CObstacleInstance::triggersEffects() const
 {
-	return false;
+	return getTrigger() != SpellID::NONE;
+}
+
+SpellID CObstacleInstance::getTrigger() const
+{
+	return SpellID::NONE;
+}
+
+void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
+{
+	auto obstacleInfo = getInfo();
+	auto hidden = false;
+	auto needAnimationOffsetFix = obstacleType == CObstacleInstance::USUAL;
+	int animationYOffset = 0;
+		
+	if(getInfo().blockedTiles.front() < 0) //TODO: holy ground ID=62,65,63
+		animationYOffset -= 42;
+
+	//We need only a subset of obstacle info for correct render
+	handler.serializeInt("position", pos);
+	handler.serializeString("appearSound", obstacleInfo.appearSound);
+	handler.serializeString("appearAnimation", obstacleInfo.appearAnimation);
+	handler.serializeString("animation", obstacleInfo.animation);
+	handler.serializeInt("animationYOffset", animationYOffset);
+
+	handler.serializeBool("hidden", hidden);
+	handler.serializeBool("needAnimationOffsetFix", needAnimationOffsetFix);
+}
+
+void CObstacleInstance::toInfo(ObstacleChanges & info, BattleChanges::EOperation operation)
+{
+	info.id = uniqueID;
+	info.operation = operation;
+
+	info.data.clear();
+	JsonSerializer ser(nullptr, info.data);
+	ser.serializeStruct("obstacle", *this);
 }
 
 SpellCreatedObstacle::SpellCreatedObstacle()
@@ -97,7 +148,9 @@ SpellCreatedObstacle::SpellCreatedObstacle()
 	trap(false),
 	removeOnTrigger(false),
 	revealed(false),
-	animationYOffset(0)
+	animationYOffset(0),
+	nativeVisible(true),
+	minimalDamage(0)
 {
 	obstacleType = SPELL_CREATED;
 }
@@ -107,8 +160,11 @@ bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
 	//we hide mines and not discovered quicksands
 	//quicksands are visible to the caster or if owned unit stepped into that particular patch
 	//additionally if side has a native unit, mines/quicksands will be visible
+	//but it is not a case for a moat, so, hasNativeStack should not work for moats
 
-	return casterSide == side || !hidden || revealed || hasNativeStack;
+	auto nativeVis = hasNativeStack && nativeVisible;
+
+	return casterSide == side || !hidden || revealed || nativeVis;
 }
 
 bool SpellCreatedObstacle::blocksTiles() const
@@ -121,19 +177,9 @@ bool SpellCreatedObstacle::stopsMovement() const
 	return trap;
 }
 
-bool SpellCreatedObstacle::triggersEffects() const
+SpellID SpellCreatedObstacle::getTrigger() const
 {
 	return trigger;
-}
-
-void SpellCreatedObstacle::toInfo(ObstacleChanges & info)
-{
-	info.id = uniqueID;
-	info.operation = ObstacleChanges::EOperation::ADD;
-
-	info.data.clear();
-	JsonSerializer ser(nullptr, info.data);
-	ser.serializeStruct("obstacle", *this);
 }
 
 void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)
@@ -156,18 +202,19 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("casterSpellPower", casterSpellPower);
 	handler.serializeInt("spellLevel", spellLevel);
 	handler.serializeInt("casterSide", casterSide);
+	handler.serializeInt("minimalDamage", minimalDamage);
+	handler.serializeInt("type", obstacleType);
 
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("revealed", revealed);
 	handler.serializeBool("passable", passable);
-	handler.serializeBool("trigger", trigger);
+	handler.serializeId("trigger", trigger, SpellID::NONE);
 	handler.serializeBool("trap", trap);
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("nativeVisible", nativeVisible);
 
 	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("triggerSound", triggerSound);
-	handler.serializeString("triggerAnimation", triggerAnimation);
 	handler.serializeString("animation", animation);
 
 	handler.serializeInt("animationYOffset", animationYOffset);
@@ -192,21 +239,31 @@ void SpellCreatedObstacle::battleTurnPassed()
 		turnsRemaining--;
 }
 
+const std::string & SpellCreatedObstacle::getAnimation() const
+{
+	return animation;
+}
+
+const std::string & SpellCreatedObstacle::getAppearAnimation() const
+{
+	return appearAnimation;
+}
+
+const std::string & SpellCreatedObstacle::getAppearSound() const
+{
+	return appearSound;
+}
+
 int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
 {
 	int offset = imageHeight % 42;
 
-	if(obstacleType == CObstacleInstance::SPELL_CREATED)
+	if(obstacleType == CObstacleInstance::SPELL_CREATED || obstacleType == CObstacleInstance::MOAT)
 	{
 		offset += animationYOffset;
 	}
 
 	return offset;
-}
-
-std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
-{
-	return (*VLC->townh)[ID]->town->moatHexes;
 }
 
 VCMI_LIB_NAMESPACE_END

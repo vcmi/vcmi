@@ -30,7 +30,6 @@ public:
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 private:
-	const Caster * actualCaster;
 	std::shared_ptr<Bonus> bonus;
 };
 

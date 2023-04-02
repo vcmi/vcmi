@@ -119,6 +119,7 @@
 			}
 		},
 		"flags" : {
+			"nonMagical" : true,
 			"indifferent": true
 		}
 	},
