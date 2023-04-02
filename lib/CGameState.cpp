@@ -496,7 +496,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 		return std::make_pair(Obj::RESOURCE,getRandomGenerator().nextInt(6)); //now it's OH3 style, use %8 for mithril
 	case Obj::RANDOM_TOWN:
 		{
-			PlayerColor align = PlayerColor((dynamic_cast<CGTownInstance *>(obj))->alignment);
+			PlayerColor align = (dynamic_cast<CGTownInstance *>(obj))->alignmentToPlayer;
 			si32 f; // can be negative (for random)
 			if(align >= PlayerColor::PLAYER_LIMIT) //same as owner / random
 			{

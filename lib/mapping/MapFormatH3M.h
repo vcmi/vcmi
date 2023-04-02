@@ -11,17 +11,12 @@
 #pragma once
 
 #include "CMapService.h"
-#include "../GameConstants.h"
-#include "../ResourceSet.h"
-#include "../mapObjects/ObjectTemplate.h"
-
-#include "../int3.h"
-
+#include "MapFeaturesH3M.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
-class CBinaryReader;
+class MapReaderH3M;
 class CArtifactInstance;
 class CGObjectInstance;
 class CGSeerHut;
@@ -31,6 +26,11 @@ class CCreatureSet;
 class CInputStream;
 class TextIdentifier;
 
+class ObjectInstanceID;
+class BuildingID;
+class ObjectTemplate;
+class SpellID;
+class int3;
 
 class DLL_LINKAGE CMapLoaderH3M : public IMapLoader
 {
@@ -60,9 +60,6 @@ public:
 	 * @return a unique ptr of the loaded map header class
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
-
-	/** true if you want to enable the map loader profiler to see how long a specific part took; default=false */
-	static const bool IS_PROFILING_ENABLED;
 
 private:
 	/**
@@ -209,41 +206,17 @@ private:
 	*/
 	void readMessageAndGuards(std::string & message, CCreatureSet * guards, const int3 & position);
 
-	void readSpells(std::set<SpellID> & dest);
-
-	void readResourses(TResources& resources);
-
-	template <class Indenifier>
-	void readBitmask(std::set<Indenifier> &dest, const int byteCount, const int limit, bool negate = true);
-
-	/** Reads bitmask to boolean vector
-	* @param dest destination vector, shall be filed with "true" values
-	* @param byteCount size in bytes of bimask
-	* @param limit max count of vector elements to alter
-	* @param negate if true then set bit in mask means clear flag in vertor
-	*/
-	void readBitmask(std::vector<bool> & dest, const int byteCount, const int limit, bool negate = true);
-
-	/**
-	 * Reverses the input argument.
-	 *
-	 * @param arg the input argument
-	 * @return the reversed 8-bit integer
-	 */
-	ui8 reverse(ui8 arg) const;
-
-	/**
-	* Helper to read map position
-	*/
-	int3 readInt3();
-
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();
 
 	/// reads string from input stream, converts it to unicode and attempts to translate it
 	std::string readLocalizedString(const TextIdentifier & identifier);
 
+	void readSpells(std::set<SpellID> & dest);
+
 	void afterRead();
+
+	MapFormatFeaturesH3M features;
 
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
@@ -257,7 +230,7 @@ private:
 	 * (when loading a map then the mapHeader ptr points to the same object)
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
-	std::unique_ptr<CBinaryReader> reader;
+	std::unique_ptr<MapReaderH3M> reader;
 	CInputStream * inputStream;
 
 	std::string mapName;

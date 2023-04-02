@@ -67,7 +67,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 
 				text.addReplacement(MetaString::CRE_PL_NAMES, elemental->creatureIndex());
 
-				if(caster->type->sex)
+				if(caster->type->gender == EHeroGender::FEMALE)
 					text.addReplacement(MetaString::GENERAL_TXT, 540);
 				else
 					text.addReplacement(MetaString::GENERAL_TXT, 539);

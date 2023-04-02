@@ -29,6 +29,13 @@ class CRandomGenerator;
 class JsonSerializeFormat;
 class BattleField;
 
+enum class EHeroGender : uint8_t
+{
+	MALE = 0,
+	FEMALE = 1,
+	DEFAULT = 0xff // from h3m, instance has same gender as hero type
+};
+
 class DLL_LINKAGE CHero : public HeroType
 {
 	friend class CHeroHandler;
@@ -61,7 +68,7 @@ public:
 	std::set<SpellID> spells;
 	bool haveSpellBook = false;
 	bool special = false; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
-	ui8 sex = 0; // default sex: 0=male, 1=female
+	EHeroGender gender = EHeroGender::MALE; // default sex: 0=male, 1=female
 
 	/// Graphics
 	std::string iconSpecSmall;
@@ -104,7 +111,7 @@ public:
 		h & specialty;
 		h & spells;
 		h & haveSpellBook;
-		h & sex;
+		h & gender;
 		h & special;
 		h & iconSpecSmall;
 		h & iconSpecLarge;

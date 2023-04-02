@@ -420,7 +420,7 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->ID = HeroTypeID(index);
 	hero->identifier = identifier;
 	hero->modScope = scope;
-	hero->sex = node["female"].Bool();
+	hero->gender = node["female"].Bool() ? EHeroGender::FEMALE : EHeroGender::MALE;
 	hero->special = node["special"].Bool();
 
 	VLC->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"].String());

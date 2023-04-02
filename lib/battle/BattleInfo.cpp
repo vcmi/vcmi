@@ -414,12 +414,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		for(auto i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
 		{
 			std::vector<int> *formationVector = nullptr;
-			if(creatureBank)
-				formationVector = &creBankFormations[side][formationNo];
-			else if(armies[side]->formation)
+			if(armies[side]->formation == EArmyFormation::TIGHT )
 				formationVector = &tightFormations[side][formationNo];
 			else
 				formationVector = &looseFormations[side][formationNo];
+
+			if(creatureBank)
+				formationVector = &creBankFormations[side][formationNo];
 
 			BattleHex pos = (k < formationVector->size() ? formationVector->at(k) : 0);
 			if(creatureBank && i->second->type->isDoubleWide())

@@ -214,7 +214,7 @@ public:
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
-	si32 alignment;
+	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
 	std::set<BuildingID> builtBuildings;
 	std::set<BuildingID> overriddenBuildings; ///buildings which bonuses are overridden and should not be applied
@@ -239,7 +239,7 @@ public:
 		h & identifier;
 		h & garrisonHero;
 		h & visitingHero;
-		h & alignment;
+		h & alignmentToPlayer;
 		h & forbiddenBuildings;
 		h & builtBuildings;
 		h & bonusValue;

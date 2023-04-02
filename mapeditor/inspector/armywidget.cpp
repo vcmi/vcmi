@@ -68,7 +68,7 @@ void ArmyWidget::obtainData()
 		}
 	}
 	
-	if(army.formation)
+	if(army.formation == EArmyFormation::TIGHT)
 		ui->formationTight->setChecked(true);
 	else
 		ui->formationWide->setChecked(true);

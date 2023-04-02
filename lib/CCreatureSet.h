@@ -69,11 +69,13 @@ protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 
 public:
-	// hlp variable used during loading map, when object (hero or town) have creatures that must have same alignment.
-	// idRand < 0 -> normal, non-random creature
-	// idRand / 2 -> level
-	// idRand % 2 -> upgrade number
-	int idRand;
+	struct RandomStackInfo
+	{
+		uint8_t level;
+		uint8_t upgrade;
+	};
+	// helper variable used during loading map, when object (hero or town) have creatures that must have same alignment.
+	boost::optional<RandomStackInfo> randomStack;
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
 	TExpType experience;//commander needs same amount of exp as hero
@@ -200,13 +202,21 @@ public:
 	}
 };
 
+enum class EArmyFormation : uint8_t
+{
+	WIDE,
+	TIGHT
+};
+
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
+
+
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
-	ui8 formation = 0; //0 - wide, 1 - tight
+	EArmyFormation formation = EArmyFormation::WIDE; //0 - wide, 1 - tight
 
 	CCreatureSet() = default; //Should be here to avoid compile errors
 	virtual ~CCreatureSet();
