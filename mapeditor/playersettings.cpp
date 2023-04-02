@@ -23,7 +23,7 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	show();
 
 	int players = 0;
-	const int minAllowedPlayers = 2;
+	const int minAllowedPlayers = 1;
 	for(auto & p : controller.map()->players)
 	{
 		if(p.canAnyonePlay())
@@ -49,7 +49,7 @@ PlayerSettings::~PlayerSettings()
 
 void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
-	const auto selectedPlayerCount = index + 2;
+	const auto selectedPlayerCount = index + 1;
 	assert(selectedPlayerCount <= controller.map()->players.size());
 
 	for(int i = 0; i < selectedPlayerCount; ++i)

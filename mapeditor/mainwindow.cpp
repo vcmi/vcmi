@@ -301,6 +301,13 @@ void MainWindow::initializeMap(bool isNew)
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	
+	//set minimal players count
+	if(isNew)
+	{
+		controller.map()->players[0].canComputerPlay = true;
+		controller.map()->players[0].canHumanPlay = true;
+	}
+	
 	onPlayersChanged();
 }
 
