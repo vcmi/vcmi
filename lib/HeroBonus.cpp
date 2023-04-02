@@ -1418,13 +1418,6 @@ void CBonusSystemNode::getRedAncestors(TNodes &out)
 		parent->getRedAncestors(out);
 }
 
-void CBonusSystemNode::getRedDescendants(TNodes &out)
-{
-	getRedChildren(out);
-	FOREACH_RED_CHILD(c)
-		c->getRedChildren(out);
-}
-
 void CBonusSystemNode::exportBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator)

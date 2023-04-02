@@ -813,7 +813,6 @@ public:
 	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
 	void getRedAncestors(TNodes &out);
 	void getRedChildren(TNodes &out);
-	void getRedDescendants(TNodes &out);
 	void getAllParents(TCNodes & out) const;
 	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
 	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
