@@ -137,7 +137,7 @@ int SetResourcesProxy::setAmount(lua_State * L)
 	if(!S.tryGet(3, amount))
 		return S.retVoid();
 
-	object->res.at(typeIdx) = amount;
+	object->res[typeIdx] = amount;
 
 	return S.retVoid();
 }

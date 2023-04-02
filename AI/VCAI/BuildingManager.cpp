@@ -166,8 +166,8 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	//below algorithm focuses on economy growth at start of the game, saving money instead of build rushing is handled by Build goal
 	//changing code blocks order will alter behavior by changing order of adding elements to immediateBuildings / expensiveBuildings
 
-	TResources currentRes = cb->getResourceAmount();
-	TResources currentIncome = t->dailyIncome();
+	// TResources currentRes = cb->getResourceAmount();
+	// TResources currentIncome = t->dailyIncome();
 
 	if(tryBuildAnyStructure(t, essential))
 		return true;

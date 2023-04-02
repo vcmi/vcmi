@@ -11,6 +11,7 @@
 #include "CCreatureHandler.h"
 
 #include "CGeneralTextHandler.h"
+#include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
 #include "CGameState.h"
@@ -267,7 +268,7 @@ bool CCreature::isEvil () const
 	return (*VLC->townh)[faction]->alignment == EAlignment::EVIL;
 }
 
-si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
+si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
 	int resAmnt = static_cast<int>(std::min(res.size(),cost.size()));

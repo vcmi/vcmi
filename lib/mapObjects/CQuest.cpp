@@ -521,9 +521,6 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
         {
         	auto r = handler.enterStruct("resources");
 
-        	if(!handler.saving)
-				m7resources.resize(GameConstants::RESOURCE_QUANTITY-1);
-
 			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
 			{
 				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], m7resources[idx], 0);

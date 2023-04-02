@@ -248,7 +248,7 @@ bool RewardsWidget::commitChanges()
 					break;
 					
 				case RewardType::RESOURCE:
-					pandora->resources.at(listId) = amount;
+					pandora->resources[listId] = amount;
 					break;
 					
 				case RewardType::PRIMARY_SKILL:

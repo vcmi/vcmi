@@ -1466,7 +1466,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto state = obj->shipyardStatus();
-	std::vector<si32> cost;
+	TResources cost;
 	obj->getBoatCost(cost);
 	GH.pushIntT<CShipyardWindow>(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
 }
