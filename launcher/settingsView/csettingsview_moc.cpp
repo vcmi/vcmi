@@ -372,7 +372,7 @@ void CSettingsView::loadTranslation()
 	ui->labelTranslationStatus->setVisible(showTranslation);
 	ui->pushButtonTranslation->setVisible(showTranslation);
 
-	if (!translationExists)
+	if (!translationExists || !translationNeeded)
 		return;
 
 	bool translationAvailable = mainWindow->getModView()->isModAvailable(modName);
