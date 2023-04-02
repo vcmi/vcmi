@@ -575,13 +575,23 @@ void CSlider::mouseMoved (const Point & cursorPosition)
 	v += 0.5;
 	if(v!=value)
 	{
-		moveTo((int)v);
+		moveTo(static_cast<int>(v));
 	}
 }
 
 void CSlider::setScrollStep(int to)
 {
 	scrollStep = to;
+}
+
+void CSlider::setScrollBounds(const Rect & bounds )
+{
+	scrollBounds = bounds;
+}
+
+void CSlider::clearScrollBounds()
+{
+	scrollBounds = boost::none;
 }
 
 int CSlider::getAmount() const
@@ -775,7 +785,19 @@ void CSlider::showAll(SDL_Surface * to)
 
 void CSlider::wheelScrolled(bool down, bool in)
 {
-	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
+	if (scrollBounds)
+	{
+		Rect testTarget = *scrollBounds + pos.topLeft();
+
+		if (!testTarget.isInside(GH.getCursorPosition()))
+			return;
+	}
+
+	// vertical slider -> scrolling up move slider upwards
+	// horizontal slider -> scrolling up moves slider towards right
+	bool positive = (down != horizontal);
+
+	moveTo(value + 3 * (positive ? +scrollStep : -scrollStep));
 }
 
 void CSlider::keyPressed(const SDL_Keycode & key)

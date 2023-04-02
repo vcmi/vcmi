@@ -147,7 +147,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	musicVolumeLabel->setText(std::to_string(CCS->musich->getVolume()) + "%");
 
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
-	musicVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
+	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
 
 }
 
