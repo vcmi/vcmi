@@ -256,15 +256,18 @@ public:
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
-		vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
+		if(town)
 		{
-			if(!town->buildings.count(building) ||  !town->buildings.at(building))
+			vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
 			{
-				logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
-				return true;
-			}
-			return false;
-		});
+				if(!town->buildings.count(building) || !town->buildings.at(building))
+				{
+					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
+					return true;
+				}
+				return false;
+			});
+		}
 
 		h & overriddenBuildings;
 
