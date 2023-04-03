@@ -25,6 +25,7 @@ class CGTownInstance;
 class CCreatureSet;
 class CInputStream;
 class TextIdentifier;
+class CGPandoraBox;
 
 class ObjectInstanceID;
 class BuildingID;
@@ -153,6 +154,35 @@ private:
 	 */
 	void readObjects();
 
+	/// Reads single object from input stream based on template
+	CGObjectInstance * readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+
+	CGObjectInstance * readEvent(const int3 & objectPosition);
+	CGObjectInstance * readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readSeerHut(const int3 & initialPos);
+	CGObjectInstance * readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readSign(const int3 & position);
+	CGObjectInstance * readWitchHut(const int3 & position);
+	CGObjectInstance * readScholar(const int3 & position);
+	CGObjectInstance * readGarrison(const int3 & position);
+	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readPandora(const int3 & position);
+	CGObjectInstance * readDwelling(const int3 & position);
+	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readShrine(const int3 & position);
+	CGObjectInstance * readHeroPlaceholder(const int3 & position);
+	CGObjectInstance * readGrail(const int3 & position);
+	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readBorderGuard(const int3 & position);
+	CGObjectInstance * readBorderGate(const int3 & position);
+	CGObjectInstance * readQuestGuard(const int3 & position);
+	CGObjectInstance * readShipyard(const int3 & position);
+	CGObjectInstance * readLighthouse(const int3 & position);
+	CGObjectInstance * readBlank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+
 	/**
 	 * Reads a creature set.
 	 *
@@ -162,19 +192,11 @@ private:
 	void readCreatureSet(CCreatureSet * out, int number);
 
 	/**
-	 * Reads a hero.
+	 * Reads a quest for the given quest guard.
 	 *
-	 * @param idToBeGiven the object id which should be set for the hero
-	 * @return a object instance
+	 * @param guard the quest guard where that quest should be applied to
 	 */
-	CGObjectInstance * readHero(const ObjectInstanceID & idToBeGiven, const int3 & initialPos);
-
-	/**
-	 * Reads a seer hut.
-	 *
-	 * @return the initialized seer hut object
-	 */
-	CGSeerHut * readSeerHut(const int3 & position);
+	void readBoxContent(CGPandoraBox * object, const int3 & position);
 
 	/**
 	 * Reads a quest for the given quest guard.
@@ -182,14 +204,6 @@ private:
 	 * @param guard the quest guard where that quest should be applied to
 	 */
 	void readQuest(IQuestObject * guard, const int3 & position);
-
-	/**
-	 * Reads a town.
-	 *
-	 * @param castleID the id of the castle type
-	 * @return the loaded town object
-	 */
-	CGTownInstance * readTown(int castleID, const int3 & position);
 
 	/**
 	 * Converts buildings to the specified castle id.
