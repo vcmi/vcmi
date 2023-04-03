@@ -136,6 +136,8 @@ static JsonNode loadPatches(std::string path)
 	JsonNode node = JsonUtils::assembleFromFiles(std::move(path));
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
+
+	node.setMeta(CModHandler::scopeMap());
 	return node;
 }
 
