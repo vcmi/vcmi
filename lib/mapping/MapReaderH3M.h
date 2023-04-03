@@ -27,7 +27,7 @@ class MapReaderH3M
 public:
 	explicit MapReaderH3M(CInputStream * stream);
 
-	void setFormatLevel(EMapFormat format);
+	void setFormatLevel(EMapFormat format, uint8_t hotaVersion);
 
 	ArtifactID readArtifact();
 	CreatureID readCreature();

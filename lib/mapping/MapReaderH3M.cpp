@@ -21,9 +21,9 @@ MapReaderH3M::MapReaderH3M(CInputStream * stream)
 {
 }
 
-void MapReaderH3M::setFormatLevel(EMapFormat newFormat)
+void MapReaderH3M::setFormatLevel(EMapFormat newFormat, uint8_t hotaVersion)
 {
-	features = MapFormatFeaturesH3M::find(newFormat);
+	features = MapFormatFeaturesH3M::find(newFormat, hotaVersion);
 }
 
 ArtifactID MapReaderH3M::readArtifact()

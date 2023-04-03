@@ -116,6 +116,8 @@ void CMapLoaderH3M::init()
 	readDisposedHeroes();
 	times.emplace_back("disposed heroes", sw.getDiff());
 
+	readMapOptions();
+
 	readAllowedArtifacts();
 	times.emplace_back("allowed artifacts", sw.getDiff());
 
@@ -151,12 +153,11 @@ void CMapLoaderH3M::readHeader()
 	// Map version
 	mapHeader->version = static_cast<EMapFormat>(reader->readUInt32());
 
-	features = MapFormatFeaturesH3M::find(mapHeader->version);
-	reader->setFormatLevel(mapHeader->version);
-
 	if(mapHeader->version == EMapFormat::HOTA1 || mapHeader->version == EMapFormat::HOTA2 || mapHeader->version == EMapFormat::HOTA3)
 	{
 		uint8_t hotaVersion = reader->readUInt8();
+		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
+		reader->setFormatLevel(mapHeader->version, hotaVersion);
 
 		reader->skipZero(5);
 		if (hotaVersion == 3)
@@ -165,6 +166,11 @@ void CMapLoaderH3M::readHeader()
 			logGlobal->error("%s -> header unknown: %d", mapName, int(unknown));
 			reader->skipZero(3);
 		}
+	}
+	else
+	{
+		features = MapFormatFeaturesH3M::find(mapHeader->version, 0);
+		reader->setFormatLevel(mapHeader->version, 0);
 	}
 
 	// Read map name, description, dimensions,...
@@ -613,9 +619,7 @@ void CMapLoaderH3M::readAllowedHeroes()
 	uint32_t heroesCount = features.heroesCount;
 
 	if (features.levelHOTA)
-	{
 		heroesCount = reader->readUInt32();
-	}
 
 	assert(heroesCount <= features.heroesCount);
 
@@ -644,16 +648,46 @@ void CMapLoaderH3M::readDisposedHeroes()
 			map->disposedHeroes[g].players = reader->readUInt8();
 		}
 	}
+}
 
+void CMapLoaderH3M::readMapOptions()
+{
 	//omitting NULLS
 	reader->skipZero(31);
+
+	if (features.levelHOTA)
+	{
+		std::vector<uint8_t> unknown(13);
+		for (size_t i = 0; i < 13; ++i)
+			unknown[i] = reader->readUInt8();
+
+		assert(unknown[0] == 0); // allowSpecialWeeks?
+		assert(unknown[1] == 0);
+		assert(unknown[2] == 0);
+		assert(unknown[3] == 16);
+		assert(unknown[4] == 0);
+		assert(unknown[5] == 0);
+		assert(unknown[6] == 0);
+		assert(unknown[7] == 0);
+		assert(unknown[8] == 0);
+		assert(unknown[9] == 163);
+		assert(unknown[10] == 0);
+		assert(unknown[11] == 0);
+		assert(unknown[12] == 0);
+	}
+
+	if (features.levelHOTA3)
+	{
+		uint32_t roundLimit = reader->readUInt32();
+		logGlobal->error("%s -> roundLimit of %d is not implemented!", mapName, roundLimit);
+	}
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
 	map->allowedArtifact = VLC->arth->getDefaultAllowed();
 
-	// Reading allowed artifacts:  17 or 18 bytes
+	// Reading allowed artifacts
 	if(features.levelAB)
 		reader->readBitmask(map->allowedArtifact, features.artifactsBytes, features.artifactsCount, true);
 
@@ -707,9 +741,9 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 
 void CMapLoaderH3M::readRumors()
 {
-	int rumNr = reader->readUInt32();
+	uint32_t rumorsCount = reader->readUInt32();
 
-	for(int it = 0; it < rumNr; it++)
+	for(int it = 0; it < rumorsCount; it++)
 	{
 		Rumor ourRumor;
 		ourRumor.name = readBasicString();
@@ -723,7 +757,14 @@ void CMapLoaderH3M::readPredefinedHeroes()
 	if (!features.levelSOD)
 		return;
 
-	for(int z = 0; z < features.heroesCount; z++)
+	uint32_t heroesCount = features.heroesCount;
+
+	if (features.levelHOTA)
+		heroesCount = reader->readUInt32();
+
+	assert(heroesCount <= features.heroesCount);
+
+	for(int z = 0; z < heroesCount; z++)
 	{
 		bool custom =  reader->readBool();
 		if(!custom)
@@ -1333,7 +1374,7 @@ void CMapLoaderH3M::readObjects()
 				}
 				else
 				{
-					logGlobal->warn("Unrecognized object: %d:%d at %s on map %s", objTempl->id.toEnum(), objTempl->subid, objPos.toString(), map->name);
+					logGlobal->warn("Unrecognized object: %d:%d ('%s') at %s on map '%s'", objTempl->id.toEnum(), objTempl->subid, objTempl->animationFile, objPos.toString(), map->name);
 					nobj = new CGObjectInstance();
 				}
 				break;

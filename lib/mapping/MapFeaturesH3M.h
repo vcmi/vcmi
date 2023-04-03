@@ -17,12 +17,12 @@ enum class EMapFormat : uint8_t;
 struct MapFormatFeaturesH3M
 {
 public:
-	static MapFormatFeaturesH3M find(EMapFormat format);
+	static MapFormatFeaturesH3M find(EMapFormat format, uint8_t hotaVersion);
 	static MapFormatFeaturesH3M getFeaturesROE();
 	static MapFormatFeaturesH3M getFeaturesAB();
 	static MapFormatFeaturesH3M getFeaturesSOD();
 	static MapFormatFeaturesH3M getFeaturesWOG();
-	static MapFormatFeaturesH3M getFeaturesHOTA();
+	static MapFormatFeaturesH3M getFeaturesHOTA(uint8_t hotaVersion);
 
 	MapFormatFeaturesH3M() = default;
 
@@ -64,6 +64,7 @@ public:
 	bool levelSOD = false;
 	bool levelWOG = false;
 	bool levelHOTA = false;
+	bool levelHOTA3 = false;
 };
 
 VCMI_LIB_NAMESPACE_END

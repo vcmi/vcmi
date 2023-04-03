@@ -88,6 +88,11 @@ private:
 	void readTeamInfo();
 
 	/**
+	 * Reads the list of map flags.
+	 */
+	void readMapOptions();
+
+	/**
 	 * Reads the list of allowed heroes.
 	 */
 	void readAllowedHeroes();

@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format)
+MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint8_t hotaVersion)
 {
 	switch(format)
 	{
@@ -30,7 +30,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format)
 		//case EMapFormat::HOTA1: //TODO: find such maps? Not present in current HotA release (1.6)
 		//case EMapFormat::HOTA2:
 		case EMapFormat::HOTA3:
-			return getFeaturesHOTA();
+			return getFeaturesHOTA(hotaVersion);
 		default:
 			throw std::runtime_error("Invalid map format!");
 	}
@@ -113,11 +113,16 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 	return result;
 }
 
-MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA()
+MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint8_t hotaVersion)
 {
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelHOTA = true;
+	result.levelHOTA3 = hotaVersion == 3;
 
+	result.artifactsBytes = 21;
+
+	result.terrainsCount = 12; // +Highlands +Wasteland
+	result.skillsCount = 29; // + Interference
 	result.factionsCount = 10; // + Cove
 	result.creaturesCount = 162; // + Cove + neutrals
 	result.artifactsCount = 161; // + HotA artifacts
