@@ -253,13 +253,15 @@ struct DLL_LINKAGE DisposedHero
 enum class EMapFormat: uint8_t
 {
 	INVALID = 0,
-	//    HEX     DEC
-	ROE  = 0x0e, // 14
-	AB   = 0x15, // 21
-	SOD  = 0x1c, // 28
-	HOTA = 0x1e, // 30
-	WOG  = 0x33, // 51
-	VCMI = 0xF0
+	//       HEX    DEC
+	ROE   = 0x0e, // 14
+	AB    = 0x15, // 21
+	SOD   = 0x1c, // 28
+	HOTA1 = 0x1e, // 30
+	HOTA2 = 0x1f, // 31
+	HOTA3 = 0x20, // 32
+	WOG   = 0x33, // 51
+	VCMI  = 0xF0
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...

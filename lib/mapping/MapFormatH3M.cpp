@@ -154,22 +154,17 @@ void CMapLoaderH3M::readHeader()
 	features = MapFormatFeaturesH3M::find(mapHeader->version);
 	reader->setFormatLevel(mapHeader->version);
 
-	if (mapHeader->version == EMapFormat::HOTA)
+	if(mapHeader->version == EMapFormat::HOTA1 || mapHeader->version == EMapFormat::HOTA2 || mapHeader->version == EMapFormat::HOTA3)
 	{
-		//unknown values
-		std::vector<uint8_t> bytes;
-		for(int i = 0; i < 10; ++i)
-			bytes.push_back(reader->readInt8());
-		assert(bytes[0] == 3);
-		assert(bytes[1] == 0);
-		assert(bytes[2] == 0);
-		assert(bytes[3] == 0);
-		assert(bytes[4] == 0);
-		assert(bytes[5] == 0);
-		assert(bytes[6] == 12);
-		assert(bytes[7] == 0);
-		assert(bytes[8] == 0);
-		assert(bytes[9] == 0);
+		uint8_t hotaVersion = reader->readUInt8();
+
+		reader->skipZero(5);
+		if (hotaVersion == 3)
+		{
+			uint8_t unknown = reader->readUInt8();
+			logGlobal->error("%s -> header unknown: %d", mapName, int(unknown));
+			reader->skipZero(3);
+		}
 	}
 
 	// Read map name, description, dimensions,...
@@ -268,22 +263,37 @@ void CMapLoaderH3M::readPlayerInfo()
 	}
 }
 
-namespace EVictoryConditionType
+enum class EVictoryConditionType : uint8_t
 {
-	enum EVictoryConditionType { ARTIFACT, GATHERTROOP, GATHERRESOURCE, BUILDCITY, BUILDGRAIL, BEATHERO,
-		CAPTURECITY, BEATMONSTER, TAKEDWELLINGS, TAKEMINES, TRANSPORTITEM, WINSTANDARD = 255 };
-}
+	ARTIFACT = 0,
+	GATHERTROOP = 1,
+	GATHERRESOURCE = 2,
+	BUILDCITY = 3,
+	BUILDGRAIL = 4,
+	BEATHERO = 5,
+	CAPTURECITY = 6,
+	BEATMONSTER = 7,
+	TAKEDWELLINGS = 8,
+	TAKEMINES = 9,
+	TRANSPORTITEM = 10,
+	HOTA_ELIMINATE_ALL_MONSTERS = 11,
+	HOTA_SURVIVE_FOR_DAYS = 12,
+	WINSTANDARD = 255
+};
 
-namespace ELossConditionType
+enum class ELossConditionType : uint8_t
 {
-	enum ELossConditionType { LOSSCASTLE, LOSSHERO, TIMEEXPIRES, LOSSSTANDARD = 255 };
-}
+	LOSSCASTLE,
+	LOSSHERO,
+	TIMEEXPIRES,
+	LOSSSTANDARD = 255
+};
 
 void CMapLoaderH3M::readVictoryLossConditions()
 {
 	mapHeader->triggeredEvents.clear();
 
-	auto vicCondition = static_cast<EVictoryConditionType::EVictoryConditionType>(reader->readUInt8());
+	auto vicCondition = static_cast<EVictoryConditionType>(reader->readUInt8());
 
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
 	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
@@ -464,6 +474,15 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
+		case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
+				logGlobal->error("Map %s - victory condition 'Eliminate all monsters' is not supported!", mapName);
+				//TODO: HOTA
+				break;
+		case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
+				logGlobal->error("Map %s - victory condition 'Survive for certain time' is not supported!", mapName);
+				//TODO: HOTA
+				reader->readUInt32(); // Number of days
+				break;
 		default:
 			assert(0);
 		}
@@ -490,7 +509,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	}
 
 	// Read loss conditions
-	auto lossCond = static_cast<ELossConditionType::ELossConditionType>(reader->readUInt8());
+	auto lossCond = static_cast<ELossConditionType>(reader->readUInt8());
 	if (lossCond == ELossConditionType::LOSSSTANDARD)
 	{
 		mapHeader->defeatIconIndex = 3;
@@ -591,7 +610,16 @@ void CMapLoaderH3M::readAllowedHeroes()
 {
 	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
 
-	reader->readBitmask(mapHeader->allowedHeroes, features.heroesBytes, features.heroesCount, false);
+	uint32_t heroesCount = features.heroesCount;
+
+	if (features.levelHOTA)
+	{
+		heroesCount = reader->readUInt32();
+	}
+
+	assert(heroesCount <= features.heroesCount);
+
+	reader->readBitmask(mapHeader->allowedHeroes, features.heroesBytes, heroesCount, false);
 
 	//TODO: unknown value. Check meaning? Only present in campaign maps.
 	if(features.levelAB)
