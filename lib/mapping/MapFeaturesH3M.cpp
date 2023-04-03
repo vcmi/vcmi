@@ -10,19 +10,25 @@
 
 #include "StdInc.h"
 #include "MapFeaturesH3M.h"
+
 #include "CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format)
 {
-	switch (format)
+	switch(format)
 	{
-		case EMapFormat::ROE:  return getFeaturesROE();
-		case EMapFormat::AB:   return getFeaturesAB();
-		case EMapFormat::SOD:  return getFeaturesSOD();
-		case EMapFormat::WOG:  return getFeaturesWOG();
-		case EMapFormat::HOTA: return getFeaturesHOTA();
+		case EMapFormat::ROE:
+			return getFeaturesROE();
+		case EMapFormat::AB:
+			return getFeaturesAB();
+		case EMapFormat::SOD:
+			return getFeaturesSOD();
+		case EMapFormat::WOG:
+			return getFeaturesWOG();
+		case EMapFormat::HOTA:
+			return getFeaturesHOTA();
 		default:
 			throw std::runtime_error("Invalid map format!");
 	}

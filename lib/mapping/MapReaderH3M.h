@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "../ResourceSet.h"
 #include "../GameConstants.h"
+#include "../ResourceSet.h"
 #include "MapFeaturesH3M.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -41,15 +41,15 @@ public:
 	PlayerColor readPlayer();
 	PlayerColor readPlayer32();
 
-	template <class Identifier>
-	void readBitmask(std::set<Identifier> &dest, const int byteCount, const int limit, bool negate = true)
+	template<class Identifier>
+	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
 	{
-		std::vector<bool> temp;
-		temp.resize(limit,true);
-		readBitmask(temp, byteCount, limit, negate);
+		std::vector<bool> bitmap;
+		bitmap.resize(objectsToRead, false);
+		readBitmask(bitmap, bytesToRead, objectsToRead, invert);
 
-		for(int i = 0; i< std::min(temp.size(), static_cast<size_t>(limit)); i++)
-			if(temp[i])
+		for(int i = 0; i < bitmap.size(); i++)
+			if(bitmap[i])
 				dest.insert(static_cast<Identifier>(i));
 	}
 
@@ -59,7 +59,7 @@ public:
 	* @param limit max count of vector elements to alter
 	* @param negate if true then set bit in mask means clear flag in vertor
 	*/
-	void readBitmask(std::vector<bool> & dest, int byteCount, int limit, bool negate = true);
+	void readBitmask(std::vector<bool> & dest, int bytesToRead, int objectsToRead, bool invert);
 
 	/**
 	* Helper to read map position
@@ -69,12 +69,12 @@ public:
 	void skipUnused(size_t amount);
 	void skipZero(size_t amount);
 
-	void readResourses(TResources& resources);
+	void readResourses(TResources & resources);
 
 	bool readBool();
 
-	ui8  readUInt8();
-	si8  readInt8();
+	ui8 readUInt8();
+	si8 readInt8();
 	ui16 readUInt16();
 	si16 readInt16();
 	ui32 readUInt32();
@@ -83,6 +83,7 @@ public:
 	std::string readBaseString();
 
 	CBinaryReader & getInternalReader();
+
 private:
 	MapFormatFeaturesH3M features;
 

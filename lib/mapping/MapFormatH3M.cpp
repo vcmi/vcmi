@@ -29,7 +29,6 @@
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
-#include "../NetPacksBase.h"
 
 #include <boost/crc.hpp>
 
@@ -41,7 +40,7 @@ static std::string convertMapName(std::string input)
 	boost::algorithm::to_lower(input);
 	boost::algorithm::trim(input);
 
-	size_t slashPos = input.find_last_of("/");
+	size_t slashPos = input.find_last_of('/');
 
 	if (slashPos != std::string::npos)
 		return input.substr(slashPos + 1);
@@ -175,7 +174,7 @@ void CMapLoaderH3M::readHeader()
 
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
-	mapHeader->height = mapHeader->width = reader->readUInt32();
+	mapHeader->height = mapHeader->width = reader->readInt32();
 	mapHeader->twoLevel = reader->readBool();
 	mapHeader->name = readLocalizedString("header.name");
 	mapHeader->description = readLocalizedString("header.description");
@@ -256,8 +255,7 @@ void CMapLoaderH3M::readPlayerInfo()
 		if(features.levelAB)
 		{
 			reader->skipUnused(1); //TODO: check meaning?
-			int heroCount = reader->readUInt8();
-			reader->skipZero(3);
+			uint32_t heroCount = reader->readUInt32();
 			for(int pp = 0; pp < heroCount; ++pp)
 			{
 				SHeroName vv;
@@ -355,7 +353,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				EventCondition cond(EventCondition::HAVE_CREATURES);
 				cond.objectType = reader->readCreature();
-				cond.value = reader->readUInt32();
+				cond.value = reader->readInt32();
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[277];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[276];
@@ -366,7 +364,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				EventCondition cond(EventCondition::HAVE_RESOURCES);
 				cond.objectType = reader->readUInt8();
-				cond.value = reader->readUInt32();
+				cond.value = reader->readInt32();
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[279];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[278];
@@ -591,14 +589,14 @@ void CMapLoaderH3M::readTeamInfo()
 
 void CMapLoaderH3M::readAllowedHeroes()
 {
-	mapHeader->allowedHeroes.resize(VLC->heroh->size(), true);
+	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
 
 	reader->readBitmask(mapHeader->allowedHeroes, features.heroesBytes, features.heroesCount, false);
 
 	//TODO: unknown value. Check meaning? Only present in campaign maps.
 	if(features.levelAB)
 	{
-		int placeholdersQty = reader->readUInt32();
+		uint32_t placeholdersQty = reader->readUInt32();
 		reader->skipUnused(placeholdersQty * 1);
 	}
 }
@@ -625,11 +623,11 @@ void CMapLoaderH3M::readDisposedHeroes()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
-	map->allowedArtifact.resize (VLC->arth->objects.size(),true); //handle new artifacts, make them allowed by default
+	map->allowedArtifact = VLC->arth->getDefaultAllowed();
 
 	// Reading allowed artifacts:  17 or 18 bytes
 	if(features.levelAB)
-		reader->readBitmask(map->allowedArtifact, features.artifactsBytes, features.artifactsCount);
+		reader->readBitmask(map->allowedArtifact, features.artifactsBytes, features.artifactsCount, true);
 
 	// ban combo artifacts
 	if (!features.levelSOD)
@@ -664,21 +662,13 @@ void CMapLoaderH3M::readAllowedArtifacts()
 
 void CMapLoaderH3M::readAllowedSpellsAbilities()
 {
-	// Read allowed spells, including new ones
-	map->allowedSpell.resize(VLC->spellh->objects.size(), true);
-
-	// Read allowed abilities
-	map->allowedAbilities.resize(VLC->skillh->objects.size(), true);
+	map->allowedSpell = VLC->spellh->getDefaultAllowed();
+	map->allowedAbilities = VLC->skillh->getDefaultAllowed();
 
 	if(features.levelSOD)
 	{
-		// Reading allowed spells (9 bytes)
-		const int spell_bytes = 9;
-		reader->readBitmask(map->allowedSpell, spell_bytes, GameConstants::SPELLS_QUANTITY);
-
-		// Allowed hero's abilities (4 bytes)
-		const int abil_bytes = 4;
-		reader->readBitmask(map->allowedAbilities, abil_bytes, GameConstants::SKILL_QUANTITY);
+		reader->readBitmask(map->allowedSpell, features.spellsBytes, features.spellsCount, true);
+		reader->readBitmask(map->allowedAbilities, features.skillsBytes, features.skillsCount, true);
 	}
 
 	//do not generate special abilities and spells
@@ -728,7 +718,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		bool hasSecSkills = reader->readBool();
 		if(hasSecSkills)
 		{
-			int howMany = reader->readUInt32();
+			uint32_t howMany = reader->readUInt32();
 			hero->secSkills.resize(howMany);
 			for(int yy = 0; yy < howMany; ++yy)
 			{
@@ -864,7 +854,7 @@ void CMapLoaderH3M::readTerrain()
 
 void CMapLoaderH3M::readDefInfo()
 {
-	int defAmount = reader->readUInt32();
+	uint32_t defAmount = reader->readUInt32();
 
 	templates.reserve(defAmount);
 
@@ -879,15 +869,15 @@ void CMapLoaderH3M::readDefInfo()
 
 void CMapLoaderH3M::readObjects()
 {
-	int howManyObjs = reader->readUInt32();
+	uint32_t howManyObjs = reader->readUInt32();
 
-	for(int ww = 0; ww < howManyObjs; ++ww)
+	for(uint32_t ww = 0; ww < howManyObjs; ++ww)
 	{
 		CGObjectInstance * nobj = nullptr;
 
 		int3 objPos = reader->readInt3();
 
-		int defnum = reader->readUInt32();
+		uint32_t defnum = reader->readUInt32();
 		ObjectInstanceID idToBeGiven = ObjectInstanceID(static_cast<si32>(map->objects.size()));
 
 		std::shared_ptr<const ObjectTemplate> objTempl = templates.at(defnum);
@@ -903,7 +893,7 @@ void CMapLoaderH3M::readObjects()
 				readMessageAndGuards(evnt->message, evnt, objPos);
 
 				evnt->gainedExp = reader->readUInt32();
-				evnt->manaDiff = reader->readUInt32();
+				evnt->manaDiff = reader->readInt32();
 				evnt->moraleDiff = reader->readInt8();
 				evnt->luckDiff = reader->readInt8();
 
@@ -976,7 +966,7 @@ void CMapLoaderH3M::readObjects()
 				//type will be set during initialization
 				cre->putStack(SlotID(0), hlp);
 
-				cre->character = reader->readUInt8();
+				cre->character = reader->readInt8();
 
 				bool hasMessage = reader->readBool();
 				if(hasMessage)
@@ -1009,20 +999,19 @@ void CMapLoaderH3M::readObjects()
 				auto * wh = new CGWitchHut();
 				nobj = wh;
 
+				// AB and later maps have allowed abilities defined in H3M
 				if(features.levelAB)
 				{
-					reader->readBitmask(wh->allowedAbilities, features.skillsBytes, features.skillsCount);
-					// enable new (modded) skills
+					reader->readBitmask(wh->allowedAbilities, features.skillsBytes, features.skillsCount, false);
+
 					if(wh->allowedAbilities.size() != 1)
 					{
-						for(int skillID = features.skillsCount; skillID < VLC->skillh->size(); ++skillID)
-							wh->allowedAbilities.insert(skillID);
+						auto defaultAllowed = VLC->skillh->getDefaultAllowed();
+
+						for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
+							if (defaultAllowed[skillID])
+								wh->allowedAbilities.insert(skillID);
 					}
-				}
-				else
-				{
-					for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
-						wh->allowedAbilities.insert(skillID);
 				}
 				break;
 			}
@@ -1143,7 +1132,7 @@ void CMapLoaderH3M::readObjects()
 				readMessageAndGuards(box->message, box, objPos);
 
 				box->gainedExp = reader->readUInt32();
-				box->manaDiff = reader->readUInt32();
+				box->manaDiff = reader->readInt32();
 				box->moraleDiff = reader->readInt8();
 				box->luckDiff = reader->readInt8();
 
@@ -1177,7 +1166,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::GRAIL:
 			{
 				map->grailPos = objPos;
-				map->grailRadius = reader->readUInt32();
+				map->grailRadius = reader->readInt32();
 				continue;
 			}
 		case Obj::RANDOM_DWELLING: //same as castle + level range
@@ -1252,7 +1241,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::SHIPYARD:
 			{
 				nobj = new CGShipyard();
-				nobj->setOwner(PlayerColor(reader->readUInt32()));
+				nobj->setOwner(reader->readPlayer32());
 				break;
 			}
 		case Obj::HERO_PLACEHOLDER: //hero placeholder
@@ -1459,7 +1448,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const ObjectInstanceID & idToBeGiven,
 			nhi->secSkills.clear();
 		}
 
-		int howMany = reader->readUInt32();
+		uint32_t howMany = reader->readUInt32();
 		nhi->secSkills.resize(howMany);
 		for(int yy = 0; yy < howMany; ++yy)
 		{
@@ -1602,10 +1591,8 @@ CGSeerHut * CMapLoaderH3M::readSeerHut(const int3 & position)
 				hut->rID = reader->readUInt8();
 				hut->rVal = reader->readUInt32();
 
-				// Only the first 3 bytes are used. Skip the 4th.
 				assert(hut->rID < features.resourcesCount);
 				assert((hut->rVal & 0x00ffffff) == hut->rVal);
-				hut->rVal = hut->rVal & 0x00ffffff;
 				break;
 			}
 		case CGSeerHut::PRIMARY_SKILL:
@@ -1781,20 +1768,22 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID, const int3 & position)
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(nt->obligatorySpells));
 	}
 
-	if (features.levelROE)
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, false );
+		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, true );
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(nt->possibleSpells));
+
+		auto defaultAllowed = VLC->spellh->getDefaultAllowed();
+
+		//add all spells from mods
+		for (int i = features.spellsCount; i < defaultAllowed.size(); ++i)
+			if (defaultAllowed[i])
+			nt->possibleSpells.emplace_back(i);
 	}
 
-	//add all spells from mods
-	for (int i = SpellID::AFTER_LAST; i < VLC->spellh->objects.size(); ++i)
-		nt->possibleSpells.emplace_back(i);
-
 	// Read castle events
-	int numberOfEvent = reader->readUInt32();
+	uint32_t numberOfEvent = reader->readUInt32();
 
 	for(int gh = 0; gh < numberOfEvent; ++gh)
 	{
@@ -1903,7 +1892,7 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 
 void CMapLoaderH3M::readEvents()
 {
-	int numberOfEvents = reader->readUInt32();
+	uint32_t numberOfEvents = reader->readUInt32();
 	for(int yyoo = 0; yyoo < numberOfEvents; ++yyoo)
 	{
 		CMapEvent ne;

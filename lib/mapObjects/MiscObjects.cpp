@@ -1394,11 +1394,16 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 void CGWitchHut::initObj(CRandomGenerator & rand)
 {
-	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
+	if (allowedAbilities.empty()) //this can happen for RMG and RoE maps.
 	{
-		// Necromancy can't be learned on random maps
-		for(int i = 0; i < VLC->skillh->size(); i++)
-			if(VLC->skillh->getByIndex(i)->getId() != SecondarySkill::NECROMANCY)
+		auto defaultAllowed = VLC->skillh->getDefaultAllowed();
+
+		// Necromancy and Leadership can't be learned by default
+		defaultAllowed[SecondarySkill::NECROMANCY] = false;
+		defaultAllowed[SecondarySkill::LEADERSHIP] = false;
+
+		for(int i = 0; i < defaultAllowed.size(); i++)
+			if (defaultAllowed[i])
 				allowedAbilities.insert(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
