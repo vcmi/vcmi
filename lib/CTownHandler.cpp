@@ -892,6 +892,13 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 			town->moatAbility = SpellID(ability);
 		});
 	}
+	else
+	{
+		VLC->modh->identifiers.requestIdentifier( source.meta, "spell", "castleMoat", [=](si32 ability)
+		{
+			town->moatAbility = SpellID(ability);
+		});
+	}
 
 	//  Horde building creature level
 	for(const JsonNode &node : source["horde"].Vector())
