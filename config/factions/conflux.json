@@ -152,7 +152,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
 			"warMachine" : "ballista",
-			"moatAbility" : "core:spell.castleMoat",
+			"moatAbility" : "castleMoat",
 
 			"buildings" :
 			{

@@ -147,7 +147,7 @@
 			"primaryResource" : "gems",
 			"mageGuild" : 5,
 			"warMachine" : "ammoCart",
-			"moatAbility" : "core:spell.towerMoat",
+			"moatAbility" : "towerMoat",
 
 			"buildings" :
 			{
