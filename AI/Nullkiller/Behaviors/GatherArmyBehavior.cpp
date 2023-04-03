@@ -65,6 +65,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
+	auto targetHeroScore = ai->nullkiller->heroManager->evaluateHero(hero);
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
@@ -113,7 +114,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		float armyValue = (float)heroExchange.getReinforcementArmyStrength() / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
-		if(armyValue < 0.1f)
+		if(armyValue < 0.1f && armyValue < 20000)
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too small.");
@@ -122,31 +123,33 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		}
 
 		// avoid trying to move bigger army to the weaker one.
-		if(armyValue > 1)
+		bool hasOtherMainInPath = false;
+
+		for(auto node : path.nodes)
 		{
-			bool hasOtherMainInPath = false;
+			if(!node.targetHero) continue;
 
-			for(auto node : path.nodes)
+			auto heroRole = ai->nullkiller->heroManager->getHeroRole(node.targetHero);
+
+			if(heroRole == HeroRole::MAIN)
 			{
-				if(!node.targetHero) continue;
+				auto score = ai->nullkiller->heroManager->evaluateHero(node.targetHero);
 
-				auto heroRole = ai->nullkiller->heroManager->getHeroRole(node.targetHero);
-
-				if(heroRole == HeroRole::MAIN)
+				if(score >= targetHeroScore)
 				{
 					hasOtherMainInPath = true;
 
 					break;
 				}
 			}
+		}
 
-			if(hasOtherMainInPath)
-			{
+		if(hasOtherMainInPath)
+		{
 #if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("Army value is too large.");
+			logAi->trace("Army value is too large.");
 #endif
-				continue;
-			}
+			continue;
 		}
 
 		auto danger = path.getTotalDanger();
@@ -180,7 +183,17 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Action is blocked. Considering decomposition.");
 	#endif
-				composition.addNext(blockedAction->decompose(path.targetHero));
+				auto subGoal = blockedAction->decompose(path.targetHero);
+
+				if(subGoal->invalid())
+				{
+#if NKAI_TRACE_LEVEL >= 1
+					logAi->trace("Path is invalid. Skipping");
+#endif
+					continue;
+				}
+
+				composition.addNext(subGoal);
 			}
 			
 			tasks.push_back(sptr(composition));
@@ -261,7 +274,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
-		if(armyValue < 0.25f || upgrade.upgradeValue < 300) // avoid small upgrades
+		if((armyValue < 0.1f && armyValue < 20000) || upgrade.upgradeValue < 300) // avoid small upgrades
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Army value is too small (%f)", armyValue);

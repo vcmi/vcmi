@@ -299,6 +299,7 @@ void Nullkiller::makeTurn()
 
 void Nullkiller::executeTask(Goals::TTask task)
 {
+	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
 
 	boost::this_thread::interruption_point();
@@ -307,10 +308,11 @@ void Nullkiller::executeTask(Goals::TTask task)
 	try
 	{
 		task->accept(ai.get());
+		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)
 	{
-		logAi->trace("Task %s completed", task->toString());
+		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(cannotFulfillGoalException & e)
 	{
