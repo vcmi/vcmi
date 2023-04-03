@@ -129,7 +129,6 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 {
 	assert(m->battle()->battleGetDefendedTown());
 	assert(m->casterSide == BattleSide::DEFENDER); // Moats are always cast by defender
-	assert(turnsRemaining < 0); // Moats should lasts infininte number of turns
 
 	BattleObstaclesChanged pack;
 
