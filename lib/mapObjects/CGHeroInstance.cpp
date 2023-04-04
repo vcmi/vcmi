@@ -957,7 +957,7 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 	addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
-EAlignment::EAlignment CGHeroInstance::getAlignment() const
+EAlignment CGHeroInstance::getAlignment() const
 {
 	return type->heroClass->getAlignment();
 }

@@ -161,6 +161,11 @@ bool CFaction::hasTown() const
 	return town != nullptr;
 }
 
+EAlignment CFaction::getAlignment() const
+{
+	return alignment;
+}
+
 TerrainId CFaction::getNativeTerrain() const
 {
 	return nativeTerrain;
@@ -1006,11 +1011,11 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
+	int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, source["alignment"].String());
 	if (alignment == -1)
 		faction->alignment = EAlignment::NEUTRAL;
 	else
-		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
+		faction->alignment = static_cast<EAlignment>(alignment);
 	
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();

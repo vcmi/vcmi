@@ -1127,9 +1127,8 @@ public:
 class DLL_LINKAGE CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
 {
 public:
-	si8 alignment;
-	CreatureAlignmentLimiter();
-	CreatureAlignmentLimiter(si8 Alignment);
+	EAlignment alignment;
+	CreatureAlignmentLimiter(EAlignment Alignment = EAlignment::NEUTRAL);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;

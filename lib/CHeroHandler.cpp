@@ -147,9 +147,9 @@ bool CHeroClass::isMagicHero() const
 	return affinity == MAGIC;
 }
 
-EAlignment::EAlignment CHeroClass::getAlignment() const
+EAlignment CHeroClass::getAlignment() const
 {
-	return ((*VLC->townh)[faction]->alignment);
+	return VLC->factions()->getByIndex(faction)->getAlignment();
 }
 
 int32_t CHeroClass::getIndex() const

@@ -2401,12 +2401,7 @@ JsonNode CreatureFactionLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureAlignmentLimiter::CreatureAlignmentLimiter()
-	: alignment(-1)
-{
-}
-
-CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
+CreatureAlignmentLimiter::CreatureAlignmentLimiter(EAlignment Alignment)
 	: alignment(Alignment)
 {
 }
@@ -2429,7 +2424,7 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 std::string CreatureAlignmentLimiter::toString() const
 {
 	boost::format fmt("CreatureAlignmentLimiter(alignment=%s)");
-	fmt % EAlignment::names[alignment];
+	fmt % GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)];
 	return fmt.str();
 }
 
@@ -2438,7 +2433,7 @@ JsonNode CreatureAlignmentLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_ALIGNMENT_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(EAlignment::names[alignment]));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)]));
 
 	return root;
 }

@@ -256,7 +256,7 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return (*VLC->townh)[faction]->alignment == EAlignment::GOOD;
+	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::GOOD;
 }
 
 /**
@@ -265,7 +265,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return (*VLC->townh)[faction]->alignment == EAlignment::EVIL;
+	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought

@@ -194,7 +194,7 @@ class DLL_LINKAGE CFaction : public Faction
 
 public:
 	TerrainId nativeTerrain;
-	EAlignment::EAlignment alignment = EAlignment::NEUTRAL;
+	EAlignment alignment = EAlignment::NEUTRAL;
 	bool preferUndergroundPlacement = false;
 
 	CTown * town = nullptr; //NOTE: can be null
@@ -218,6 +218,7 @@ public:
 
 	bool hasTown() const override;
 	TerrainId getNativeTerrain() const override;
+	EAlignment getAlignment() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
