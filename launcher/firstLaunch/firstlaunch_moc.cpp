@@ -335,6 +335,7 @@ void FirstLaunchView::modPresetUpdate()
 	bool translationExists = !findTranslationModName().isEmpty();
 
 	ui->labelPresetLanguage->setVisible(translationExists);
+	ui->labelPresetLanguageDescr->setVisible(translationExists);
 	ui->checkBoxPresetLanguage->setVisible(translationExists);
 
 	ui->checkBoxPresetLanguage->setEnabled(checkCanInstallTranslation());
