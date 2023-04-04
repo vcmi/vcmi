@@ -279,27 +279,27 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
-        <source>This mod can not be installed or enabled because following dependencies are not present</source>
+        <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Цю модифікацію не можна встановити чи активувати, оскільки відсутні наступні залежності</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
-        <source>This mod can not be enabled because following mods are incompatible with this mod</source>
+        <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Цю модифікацію не можна ввімкнути, оскільки наступні модифікації несумісні з цією модифікацією</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <source>This mod can not be disabled because it is required to run following mods</source>
+        <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>Цю модифікацію не можна відключити, оскільки вона необхідна для запуску наступних модифікацій</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <source>This mod can not be uninstalled or updated because it is required to run following mods</source>
+        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>Цю модифікацію не можна видалити або оновити, оскільки вона необхідна для запуску наступних модифікацій</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
-        <source>This is submod and it can not be installed or uninstalled separately from parent mod</source>
+        <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Це вкладена модифікація, і її не можна встановити або видалити окремо від батьківської модифікації</translation>
     </message>
     <message>
@@ -542,29 +542,86 @@
         <translation>Початкові модифікації</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
+        <source>Select your language</source>
+        <translation>Оберіть свою мову</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
+        <source>Have a question? Found a bug? Want to help? Join us!</source>
+        <translation>Маєте питання? Виявили помилку? Хочете допомогти? Приєднуйтесь до нас!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
+        <source>Thank you for installing VCMI!
+
+Before you can start playing, there are a few more steps that need to be completed.
+
+Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+
+Heroes® of Might and Magic® III HD is currently not supported!</source>
+        <translation>Дякуємо, що встановили VCMI.
+
+Залишилося зробити ще кілька кроків, перш ніж ви зможете почати грати.
+
+Майте на увазі, що для використання VCMI вам потрібно мати оригінальні файли гри Heroes® of Might and Magic® III: Complete або The Shadow of Death.
+
+Heroes® of Might and Magic® III HD наразі не підтримується!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
+        <source>Locate Heroes III data files</source>
+        <translation>Пошук файлів даних Heroes III</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
+        <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
+        <translation>Якщо у вас не встановлена копія Heroes III, ви можете скористатися нашим засобом встановлення &quot;vcmibuilder&quot;, яка вимагає лише інсталятора GoG.com. Докладні інструкції можна знайти у нашій вікі.</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
+        <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</source>
+        <translation>VCMI потребує файлів даних Heroes III в одному з перелічених вище розташувань. Будь ласка, скопіюйте дані Heroes III в одну з цих директорій.</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
+        <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</source>
+        <translation>Або ж ви можете вибрати директорію зі встановленими даними Heroes III, і VCMI автоматично скопіює ці дані.</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="445"/>
         <source>Your Heroes III data files have been successfully found.</source>
         <translation>Файли даних вашої гри Heroes III успішно знайдено.</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
+        <source>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</source>
+        <translation>Не вдалося визначити мову гри. Будь ласка, виберіть мову вашої копії Heroes III</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
+        <source>Install a translation of Heroes III in your preferred language</source>
+        <translation>Встановити переклад Heroes III на вашу мову</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="775"/>
-        <source>Optionally, you can install additional mods either now or at any point later:</source>
-        <translation>За бажанням ви можете встановити додаткові модифікації зараз або пізніше:</translation>
+        <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
+        <translation>За бажанням ви можете встановити додаткові модифікації зараз або пізніше, використовуючи VCMI Launcher</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="791"/>
-        <source>Install support for playing Heroes III in resolutions other than 800x600.</source>
-        <translation>Встановити підтримку для гри в Heroes III у роздільних здатностях, більших за 800x600.</translation>
+        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
+        <translation>Встановити підтримку для гри в Heroes III у роздільних здатностях, більших за 800x600</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
-        <source>Install compatible version of addon Horn of the Abyss: fan-made Heroes III expansion, ported by VCMI team</source>
-        <translation>Встановити сумісну версію доповнення Horn of the Abyss: фанатське доповнення Heroes III, портоване командою VCMI</translation>
+        <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
+        <translation>Встановити сумісну версію доповнення &quot;Horn of the Abyss&quot;, фанатське доповнення Heroes III, портоване командою VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
-        <source>Install compatible version of addon &quot;In The Wake of Gods&quot;: fan-made Heroes III expansion</source>
-        <translation>Встановити сумісну версію доповнення &quot; In The Wake of Gods&quot;: фанатське доповнення до Heroes III</translation>
+        <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
+        <translation>Встановити сумісну версію доповнення &quot;In The Wake of Gods&quot;, фанатське доповнення до Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="870"/>
@@ -575,11 +632,6 @@
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
         <source>Step %v out of %m</source>
         <translation>Крок %v з %m</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
-        <source>Choose your language</source>
-        <translation>Оберіть свою мову</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
@@ -597,37 +649,10 @@
         <translation>VCMI на Discord</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
-        <source>Have a question? Found a bug? Want to help? Join us:</source>
-        <translation>Маєте питання? Виявили помилку? Хочете допомогти? Приєднуйтесь до нас:</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
-        <source>Thanks for installing VCMI.
-
-There are a few more steps to be done before you can start playing.
-
-Keep in mind that in order to use VCMI you need to own original data files, Heroes III: Complete Edition or Shadow of Death.
-
-Heroes III: HD Edition is currently not supported</source>
-        <translation>Дякуємо, що встановили VCMI.
-
-Залишилося зробити ще кілька кроків, перш ніж ви зможете почати грати.
-
-Майте на увазі, що для використання VCMI вам потрібно мати оригінальні файли гри Heroes III: Complete Edition або Shadow of Death.
-
-Heroes III: HD Edition наразі не підтримується</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="554"/>
         <source>Next</source>
         <translation>Далі</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
-        <source>Find Heroes III data files</source>
-        <translation>Пошук файлів даних Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="307"/>
@@ -640,24 +665,9 @@ Heroes III: HD Edition наразі не підтримується</translation
         <translation>Повторити пошук</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
-        <source>If you don&apos;t have installed Heroes III copy, it is possible to use our automatic installation tool &apos;vcmibuilder&apos; to extract data from GoG.com installer. Visit our wiki for detailed instructions.</source>
-        <translation>Якщо у вас не встановлена копія Heroes III, ви можете скористатися нашим засобом встановлення &quot;vcmibuilder&quot;, щоб видобути дані з інсталятора GoG.com. Докладні інструкції можна знайти у нашій вікі.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
-        <source>VCMI requires Heroes III data files in one of the locations listed above. Please copy Heroes III data in one of these directories.</source>
-        <translation>VCMI потребує файлів даних Heroes III в одному з перелічених вище розташувань. Будь ласка, скопіюйте дані Heroes III в одну з цих директорій.</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="403"/>
         <source>Heroes III data files</source>
         <translation>Файли даних Heroes III</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
-        <source>Alternatively, you can select directory with installed Heroes III data and VCMI will copy exisiting data automatically.</source>
-        <translation>Або ж ви можете вибрати директорію зі встановленими даними Heroes III, і VCMI автоматично скопіює ці дані.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="432"/>
@@ -668,11 +678,6 @@ Heroes III: HD Edition наразі не підтримується</translation
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="475"/>
         <source>Your Heroes III language has been successfully detected.</source>
         <translation>Мову вашої гри Heroes III успішно визначено.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
-        <source>Automatic detection of language failed. Please select language of your Heroes III copy</source>
-        <translation>Не вдалося визначити мову гри. Будь ласка, виберіть мову вашої копії Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
@@ -709,11 +714,6 @@ Heroes III: HD Edition наразі не підтримується</translation
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
-        <source>Install translation of Heroes III to your language</source>
-        <translation>Встановити переклад Heroes III на вашу мову</translation>
     </message>
 </context>
 <context>
@@ -811,11 +811,6 @@ Heroes III: HD Edition наразі не підтримується</translation
         <translation>Сервер</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="76"/>
-        <source>People in lobby</source>
-        <translation>Гравці у лобі</translation>
-    </message>
-    <message>
         <location filename="../lobby/lobby_moc.ui" line="114"/>
         <source>Lobby chat</source>
         <translation>Лобі чат</translation>
@@ -849,6 +844,11 @@ Heroes III: HD Edition наразі не підтримується</translation
         <location filename="../lobby/lobby_moc.ui" line="149"/>
         <source>New room</source>
         <translation>Створити кімнату</translation>
+    </message>
+    <message>
+        <location filename="../lobby/lobby_moc.ui" line="76"/>
+        <source>Players in lobby</source>
+        <translation>Гравці у лобі</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="159"/>
@@ -951,7 +951,7 @@ Heroes III: HD Edition наразі не підтримується</translation
     <name>UpdateDialog</name>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
-        <source>You have latest version</source>
+        <source>You have the latest version</source>
         <translation>У вас встановлена остання версія</translation>
     </message>
     <message>
@@ -961,7 +961,7 @@ Heroes III: HD Edition наразі не підтримується</translation
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
-        <source>Check updates on startup</source>
+        <source>Check for updates on startup</source>
         <translation>Перевіряти наявність оновлень при запуску</translation>
     </message>
 </context>

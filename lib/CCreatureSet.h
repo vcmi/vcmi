@@ -199,7 +199,7 @@ class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatur
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
-	ui8 formation; //0 - wide, 1 - tight
+	ui8 formation = 0; //0 - wide, 1 - tight
 
 	CCreatureSet() = default; //Should be here to avoid compile errors
 	virtual ~CCreatureSet();

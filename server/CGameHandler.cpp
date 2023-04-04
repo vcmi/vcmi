@@ -1085,7 +1085,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		auto spell = bat.spellID.toSpell();
 
 		battle::Target target;
-		target.emplace_back(defender);
+		target.emplace_back(defender, targetHex);
 
 		spells::BattleCast event(gs->curB, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
 		event.setSpellLevel(bonus->val);
@@ -2418,6 +2418,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
 
+		if (isInTheMap(guardPos))
+			tmh.attackedFrom = boost::make_optional(guardPos);
+
 		tmh.result = result;
 		sendAndApply(&tmh);
 
@@ -2425,10 +2428,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		{ // Hero should be always able to visit any object he staying on even if there guards around
 			visitObjectOnTile(t, h);
 		}
-		else if (lookForGuards == CHECK_FOR_GUARDS && this->isInTheMap(guardPos))
+		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 		{
-			tmh.attackedFrom = boost::make_optional(guardPos);
-
 			const TerrainTile &guardTile = *gs->getTile(guardPos);
 			objectVisited(guardTile.visitableObjects.back(), h);
 
@@ -4968,8 +4969,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
 	bool cheated = false;
-	PlayerMessageClient temp_message(player, message);
-	sendAndApply(&temp_message);
+	
+	if(!getPlayerSettings(player)->isControlledByAI())
+	{
+		PlayerMessageClient temp_message(player, message);
+		sendAndApply(&temp_message);
+	}
 
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
@@ -5023,7 +5028,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	}
 	
 	int obj = 0;
-	if (words.size() == 2 && words[0] != "vcmiexp")
+	if (words.size() == 2 && words[0] != "vcmiexp" && words[0] != "vcmiolorin")
 	{
 		obj = std::atoi(words[1].c_str());
 		if (obj)
@@ -5035,7 +5040,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if((words[0] == "vcmiarmy" || words[0] == "vcmiexp") && words.size() > 1)
+	if(words.size() > 1 && (words[0] == "vcmiarmy" || words[0] == "vcminissi" || words[0] == "vcmiexp" || words[0] == "vcmiolorin"))
 	{
 		std::string cheatCodeWithOneParameter = std::string(words[0]) + " " + words[1];
 		handleCheatCode(cheatCodeWithOneParameter, player, hero, town, cheated);
@@ -5698,7 +5703,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, query.players.front(), query.visitingHero->id);
 }
 
-bool CGameHandler::buildBoat(ObjectInstanceID objid)
+bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
@@ -5714,7 +5719,6 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid)
 		return false;
 	}
 
-	const PlayerColor playerID = obj->o->tempOwner;
 	TResources boatCost;
 	obj->getBoatCost(boatCost);
 	TResources aviable = getPlayerState(playerID)->resources;
@@ -7004,7 +7008,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 			if (!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
 	}
-	else if (boost::starts_with(cheat, "vcmiarmy"))
+	else if (boost::starts_with(cheat, "vcmiarmy") || boost::starts_with(cheat, "vcminissi"))
 	{
 		cheated = true;
 		if (!hero) return;
@@ -7055,7 +7059,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
 	}
-	else if (boost::starts_with(cheat, "vcmiexp"))
+	else if (boost::starts_with(cheat, "vcmiexp") || boost::starts_with(cheat, "vcmiolorin"))
 	{
 		cheated = true;
 		if (!hero) return;

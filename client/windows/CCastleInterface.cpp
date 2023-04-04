@@ -1259,6 +1259,7 @@ void CCastleInterface::addBuilding(BuildingID bid)
 	builds->addBuilding(bid);
 	recreateIcons();
 	activate();
+	redraw();
 }
 
 void CCastleInterface::removeBuilding(BuildingID bid)
@@ -1267,6 +1268,7 @@ void CCastleInterface::removeBuilding(BuildingID bid)
 	builds->removeBuilding(bid);
 	recreateIcons();
 	activate();
+	redraw();
 }
 
 void CCastleInterface::recreateIcons()

@@ -253,7 +253,7 @@ void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
 	if(gh.getPlayerRelations(gh.getOwner(pack.objid), gh.getPlayerAt(pack.c)) == PlayerRelations::ENEMIES)
 		gh.throwAndComplain(&pack, "Can't build boat at enemy shipyard");
 
-	result = gh.buildBoat(pack.objid);
+	result = gh.buildBoat(pack.objid, gh.getPlayerAt(pack.c));
 }
 
 void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)

@@ -130,8 +130,6 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 
 		return danger;
 	}
-	case Obj::PANDORAS_BOX:
-		return 10000; //Who knows what awaits us there
 
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
@@ -148,6 +146,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::CREATURE_GENERATOR4:
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
+	case Obj::PANDORAS_BOX:
 	{
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		return a->getArmyStrength();

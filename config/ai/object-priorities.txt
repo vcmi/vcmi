@@ -191,7 +191,10 @@ RuleBlock: gold reward
   rule: if armyReward is LOW and heroRole is MAIN and danger is NONE and mainTurnDistance is LOWEST then Value is HIGH
   rule: if skillReward is LOW and heroRole is MAIN and armyLoss is LOW then Value is BITHIGH
   rule: if skillReward is MEDIUM and heroRole is MAIN and armyLoss is LOW and fear is not HIGH then Value is BITHIGH
+  rule: if skillReward is MEDIUM and heroRole is MAIN and rewardType is MIXED and armyLoss is LOW and fear is not HIGH then Value is HIGH with 0.5
   rule: if skillReward is HIGH and heroRole is MAIN and armyLoss is LOW and fear is not HIGH then Value is HIGH
+  rule: if skillReward is MEDIUM and heroRole is SCOUT then Value is LOWEST
+  rule: if skillReward is HIGH and heroRole is SCOUT then Value is LOWEST
   rule: if strategicalValue is LOW and heroRole is MAIN and armyLoss is LOW then Value is BITHIGH
   rule: if strategicalValue is LOWEST and heroRole is MAIN and armyLoss is LOW then Value is LOW
   rule: if strategicalValue is LOW and heroRole is SCOUT and armyLoss is LOW and fear is not HIGH then Value is HIGH with 0.5
