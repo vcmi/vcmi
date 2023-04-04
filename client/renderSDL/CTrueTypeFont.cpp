@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CTrueTypeFont.h"
 
+#include "CBitmapFont.h"
+
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -52,30 +54,45 @@ int CTrueTypeFont::getFontStyle(const JsonNode &config)
 CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	data(loadData(fontConfig)),
 	font(loadFont(fontConfig), TTF_CloseFont),
+	dropShadow(fontConfig["blend"].Bool()),
 	blended(fontConfig["blend"].Bool())
 {
 	assert(font);
 
 	TTF_SetFontStyle(font.get(), getFontStyle(fontConfig));
+
+	std::string fallbackName = fontConfig["fallback"].String();
+
+	if (!fallbackName.empty())
+		fallbackFont = std::make_unique<CBitmapFont>(fallbackName);
 }
+
+CTrueTypeFont::~CTrueTypeFont() = default;
 
 size_t CTrueTypeFont::getLineHeight() const
 {
+	if (fallbackFont)
+		fallbackFont->getLineHeight();
+
 	return TTF_FontHeight(font.get());
 }
 
 size_t CTrueTypeFont::getGlyphWidth(const char *data) const
 {
+	if (fallbackFont && fallbackFont->canRepresentCharacter(data))
+		return fallbackFont->getGlyphWidth(data);
+
 	return getStringWidth(std::string(data, TextOperations::getUnicodeCharacterSize(*data)));
-	/*
 	int advance;
 	TTF_GlyphMetrics(font.get(), *data, nullptr, nullptr, nullptr, nullptr, &advance);
 	return advance;
-	*/
 }
 
 size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 {
+	if (fallbackFont && fallbackFont->canRepresentString(data))
+		return fallbackFont->getStringWidth(data);
+
 	int width;
 	TTF_SizeUTF8(font.get(), data.c_str(), &width, nullptr);
 	return width;
@@ -83,7 +100,13 @@ size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 
 void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
 {
-	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
+	if (fallbackFont && fallbackFont->canRepresentString(data))
+	{
+		fallbackFont->renderText(surface, data, color, pos);
+		return;
+	}
+
+	if (dropShadow && color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
 		renderText(surface, data, Colors::BLACK, pos + Point(1,1));
 
 	if (!data.empty())
