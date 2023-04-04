@@ -175,11 +175,6 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	if(activeStack)
 		occupyableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, true, &attackableHexes);
 
-	auto accessibility = owner.curInt->cb->getAccesibility();
-
-	for(int i = 0; i < accessibility.size(); i++)
-		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
-
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
 	owner.obstacleController->showAbsoluteObstacles(*backgroundWithHexes);
@@ -348,7 +343,6 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
-	//std::set<BattleHex> hoveredStack = getHighlightedHexesForActiveStack();
 	std::set<BattleHex> hoveredStackHexes = getMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesMovementTarget();
