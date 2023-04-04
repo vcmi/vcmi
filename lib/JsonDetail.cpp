@@ -1059,8 +1059,7 @@ namespace
 
 		std::string defFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "Sprites/", node.String(), EResType::ANIMATION);
-			return "Def file \"" + node.String() + "\" was not found";
+			return testAnimation(node.String(), node.meta);
 		}
 
 		std::string animationFile(const JsonNode & node)

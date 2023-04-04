@@ -18,6 +18,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CAdvMapInt.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPathfinder.h"
@@ -88,7 +89,7 @@ std::shared_ptr<IMapRendererContext> MapViewController::getContext() const
 	return context;
 }
 
-void MapViewController::update(uint32_t timeDelta)
+void MapViewController::updateBefore(uint32_t timeDelta)
 {
 	// confirmed to match H3 for
 	// - hero embarking on boat (500 ms)
@@ -116,56 +117,32 @@ void MapViewController::update(uint32_t timeDelta)
 			settings["adventure"]["enemyMoveTime"].Float();
 
 		movementContext->progress += timeDelta / heroMoveTime;
+		movementContext->progress = std::min( 1.0, movementContext->progress);
 
 		Point positionFrom = Point(hero->convertToVisitablePos(movementContext->tileFrom)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
 		Point positionDest = Point(hero->convertToVisitablePos(movementContext->tileDest)) * model->getSingleTileSize() + model->getSingleTileSize() / 2;
 
 		Point positionCurr = vstd::lerp(positionFrom, positionDest, movementContext->progress);
 
-		if(movementContext->progress >= 1.0)
-		{
-			setViewCenter(hero->getSightCenter());
-
-			removeObject(context->getObject(movementContext->target));
-			addObject(context->getObject(movementContext->target));
-
-			activateAdventureContext(movementContext->animationTime);
-		}
-		else
-		{
-			setViewCenter(positionCurr, movementContext->tileDest.z);
-		}
+		setViewCenter(positionCurr, movementContext->tileDest.z);
 	}
 
 	if(teleportContext)
 	{
 		teleportContext->progress += timeDelta / heroTeleportDuration;
-		if(teleportContext->progress >= 1.0)
-		{
-			activateAdventureContext(teleportContext->animationTime);
-		}
+		teleportContext->progress = std::min( 1.0, teleportContext->progress);
 	}
 
 	if(fadingOutContext)
 	{
 		fadingOutContext->progress -= timeDelta / fadeOutDuration;
-
-		if(fadingOutContext->progress <= 0.0)
-		{
-			removeObject(context->getObject(fadingOutContext->target));
-
-			activateAdventureContext(fadingOutContext->animationTime);
-		}
+		fadingOutContext->progress = std::max( 0.0, fadingOutContext->progress);
 	}
 
 	if(fadingInContext)
 	{
 		fadingInContext->progress += timeDelta / fadeInDuration;
-
-		if(fadingInContext->progress >= 1.0)
-		{
-			activateAdventureContext(fadingInContext->animationTime);
-		}
+		fadingInContext->progress = std::min( 1.0, fadingInContext->progress);
 	}
 
 	if(adventureContext)
@@ -180,6 +157,48 @@ void MapViewController::update(uint32_t timeDelta)
 	}
 }
 
+void MapViewController::updateAfter(uint32_t timeDelta)
+{
+	if(movementContext)
+	{
+		const auto * object = context->getObject(movementContext->target);
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
+		const auto * boat = dynamic_cast<const CGBoat *>(object);
+
+		assert(boat || hero);
+
+		if(!hero)
+			hero = boat->hero;
+
+		if(movementContext->progress >= 1.0)
+		{
+			setViewCenter(hero->getSightCenter());
+
+			removeObject(context->getObject(movementContext->target));
+			addObject(context->getObject(movementContext->target));
+
+			activateAdventureContext(movementContext->animationTime);
+		}
+	}
+
+	if(teleportContext && teleportContext->progress >= 1.0)
+	{
+		activateAdventureContext(teleportContext->animationTime);
+	}
+
+	if(fadingOutContext && fadingOutContext->progress <= 0.0)
+	{
+		removeObject(context->getObject(fadingOutContext->target));
+
+		activateAdventureContext(fadingOutContext->animationTime);
+	}
+
+	if(fadingInContext && fadingInContext->progress >= 1.0)
+	{
+		activateAdventureContext(fadingInContext->animationTime);
+	}
+}
+
 bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 {
 	if(adventureContext == nullptr)
@@ -187,6 +206,9 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
+
+	if(GH.topInt() != adventureInt)
+		return false;
 
 	if(obj->isVisitable())
 		return context->isVisible(obj->visitablePos());
@@ -201,6 +223,9 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
+
+	if(GH.topInt() != adventureInt)
+		return false;
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))
 		return true;

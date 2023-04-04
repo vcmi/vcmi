@@ -83,7 +83,8 @@ public:
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
 	void setTileSize(const Point & tileSize);
-	void update(uint32_t timeDelta);
+	void updateBefore(uint32_t timeDelta);
+	void updateAfter(uint32_t timeDelta);
 
 	void activateAdventureContext(uint32_t animationTime);
 	void activateAdventureContext();

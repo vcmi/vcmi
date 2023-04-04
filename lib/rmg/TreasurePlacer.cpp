@@ -46,11 +46,14 @@ void TreasurePlacer::setQuestArtZone(Zone * otherZone)
 	questArtZone = otherZone;
 }
 
+void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
+{
+	possibleObjects.push_back(oi);
+}
+
 void TreasurePlacer::addAllPossibleObjects()
 {
 	ObjectInfo oi;
-	
-	int numZones = static_cast<int>(map.getZones().size());
 	
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -59,23 +62,32 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
-				for(const auto & temp : handler->getTemplates())
+				auto rmgInfo = handler->getRMGInfo();
+				if (rmgInfo.mapLimit || rmgInfo.value > zone.getMaxTreasureValue())
 				{
-					if(temp->canBePlacedAt(zone.getTerrainType()))
-					{
-						oi.generateObject = [temp]() -> CGObjectInstance *
-						{
-							return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
-						};
-						auto rmgInfo = handler->getRMGInfo();
-						oi.value = rmgInfo.value;
-						oi.probability = rmgInfo.rarity;
-						oi.templ = temp;
-						oi.maxPerZone = rmgInfo.zoneLimit;
-						vstd::amin(oi.maxPerZone, rmgInfo.mapLimit / numZones); //simple, but should distribute objects evenly on large maps
-						possibleObjects.push_back(oi);
-					}
+					//Skip objects with per-map limit here
+					continue;
 				}
+
+				auto templates = handler->getTemplates(zone.getTerrainType());
+				if (templates.empty())
+					continue;
+
+				//Assume the template with fewest terrains is the most suitable
+				auto temp = *boost::min_element(templates, [](std::shared_ptr<const ObjectTemplate> lhs, std::shared_ptr<const ObjectTemplate> rhs) -> bool
+				{
+					return lhs->getAllowedTerrains().size() < rhs->getAllowedTerrains().size();
+				});
+
+				oi.generateObject = [temp]() -> CGObjectInstance *
+				{
+					return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
+				};
+				oi.value = rmgInfo.value;
+				oi.probability = rmgInfo.rarity;
+				oi.templ = temp;
+				oi.maxPerZone = rmgInfo.zoneLimit;
+				addObjectToRandomPool(oi);
 			}
 		}
 	}
@@ -114,7 +126,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.value = generator.getConfig().prisonValues[i];
 		oi.probability = 30;
 		oi.maxPerZone = generator.getPrisonsRemaning() / 5; //probably not perfect, but we can't generate more prisons than hereos.
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//all following objects are unlimited
@@ -170,7 +182,7 @@ void TreasurePlacer::addAllPossibleObjects()
 						};
 
 						oi.templ = tmplate;
-						possibleObjects.push_back(oi);
+						addObjectToRandomPool(oi);
 					}
 				}
 			}
@@ -199,7 +211,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::SPELL_SCROLL, 0, zone.getTerrainType());
 		oi.value = generator.getConfig().scrollValues[i];
 		oi.probability = 30;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//pandora box with gold
@@ -215,7 +227,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = i * generator.getConfig().pandoraMultiplierGold;
 		oi.probability = 5;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//pandora box with experience
@@ -231,7 +243,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = i * generator.getConfig().pandoraMultiplierExperience;
 		oi.probability = 20;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//pandora box with creatures
@@ -284,7 +296,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) / 3);
 		oi.probability = 3;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//Pandora with 12 spells of certain level
@@ -313,7 +325,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = (i + 1) * generator.getConfig().pandoraMultiplierSpells; //5000 - 15000
 		oi.probability = 2;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//Pandora with 15 spells of certain school
@@ -342,7 +354,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = generator.getConfig().pandoraSpellSchool;
 		oi.probability = 2;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	// Pandora box with 60 random spells
@@ -370,7 +382,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 	oi.value = generator.getConfig().pandoraSpell60;
 	oi.probability = 2;
-	possibleObjects.push_back(oi);
+	addObjectToRandomPool(oi);
 	
 	//seer huts with creatures or generic rewards
 	
@@ -436,14 +448,14 @@ void TreasurePlacer::addAllPossibleObjects()
 				generator.banQuestArt(artid);
 				
 				
-				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
 				
 				return obj;
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
 			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) - 4000) / 3);
 			oi.probability = 3;
-			possibleObjects.push_back(oi);
+			addObjectToRandomPool(oi);
 		}
 		
 		static int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
@@ -472,12 +484,12 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				generator.banQuestArt(artid);
 				
-				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
 				
 				return obj;
 			};
 			
-			possibleObjects.push_back(oi);
+			addObjectToRandomPool(oi);
 			
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
@@ -495,14 +507,19 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				generator.banQuestArt(artid);
 				
-				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
 				
 				return obj;
 			};
 			
-			possibleObjects.push_back(oi);
+			addObjectToRandomPool(oi);
 		}
 	}
+}
+
+size_t TreasurePlacer::getPossibleObjectsSize() const
+{
+	return possibleObjects.size();
 }
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)

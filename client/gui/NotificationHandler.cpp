@@ -12,9 +12,9 @@
 #include "NotificationHandler.h"
 #include <SDL_video.h>
 #include <SDL_events.h>
-#include <SDL_syswm.h>
 
 #if defined(VCMI_WINDOWS)
+#include <SDL_syswm.h>
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 // Windows Header Files:

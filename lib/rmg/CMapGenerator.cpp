@@ -276,11 +276,11 @@ void CMapGenerator::genZones()
 
 void CMapGenerator::createWaterTreasures()
 {
-	if(!getZoneWater())
+	if (!getZoneWater())
 		return;
-	
+
 	//add treasures on water
-	for(const auto & treasureInfo : getConfig().waterTreasure)
+	for (const auto& treasureInfo : getConfig().waterTreasure)
 	{
 		getZoneWater()->addTreasureInfo(treasureInfo);
 	}
@@ -296,7 +296,7 @@ void CMapGenerator::fillZones()
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
 	Load::Progress::setupStepsTill(map->getZones().size(), 50);
-	for(const auto & it : map->getZones())
+	for (const auto& it : map->getZones())
 	{
 		it.second->initFreeTiles();
 		it.second->initModificators();
@@ -305,10 +305,10 @@ void CMapGenerator::fillZones()
 
 	Load::Progress::setupStepsTill(map->getZones().size(), 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
-	for(const auto & it : map->getZones())
+	for (const auto& it : map->getZones())
 	{
 		it.second->processModificators();
-		
+
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 
@@ -316,10 +316,10 @@ void CMapGenerator::fillZones()
 	}
 
 	//find place for Grail
-	if(treasureZones.empty())
+	if (treasureZones.empty())
 	{
-		for(const auto & it : map->getZones())
-			if(it.second->getType() != ETemplateZoneType::WATER)
+		for (const auto& it : map->getZones())
+			if (it.second->getType() != ETemplateZoneType::WATER)
 				treasureZones.push_back(it.second);
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);

@@ -25,6 +25,7 @@
 * Implemented cut/copy/paste operations
 * Implemented lasso brush for terrain editing
 * Toolbar actions now have names
+* Added basic victory and lose conditions
 
 ### LAUNCHER:
 * Added initial Welcome/Setup screen for new players
@@ -34,6 +35,7 @@
 * Mods tab layout has been adjusted based on feedback from players
 * Settings tab layout has been redesigned to support longer texts
 * Added button to start map editor directly from Launcher
+* Simplified game starting flow from online lobby
 
 ### AI PLAYER:
 * AI should now be more active in destroying heroes causing treat on AI towns
@@ -70,6 +72,7 @@
 * It is now possible to use in-game console for vcmi commands
 * Stacks sized 1000-9999 units will not be displayed as "1k"
 * It is now possible to select destination town for Town Portal via double-click
+* Implemented extended options for random map tab: generate G+U size, select RMG template, manage teams and roads
 
 ### HERO SCREEN
 * Fixed cases of incorrect artifact slot highlighting
@@ -112,6 +115,7 @@
 * Hovering over hero now correctly shows hero cursor
 * Creature currently making turn is now highlighted in the Battle Queue 
 * Hovering over creature icon in Battle Queue will highlight this creature in the battlefield
+* New battle UI extension allows control over creatures' special abilities
 
 ### SPELLS:
 * Hero casting animation will play before spell effect

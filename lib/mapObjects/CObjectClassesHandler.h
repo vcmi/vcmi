@@ -43,7 +43,7 @@ struct DLL_LINKAGE RandomMapInfo
 	ui32 value;
 
 	/// How many of such objects can be placed on map, 0 = object can not be placed by RMG
-	ui32 mapLimit;
+	boost::optional<ui32> mapLimit;
 
 	/// How many of such objects can be placed in one zone, 0 = unplaceable
 	ui32 zoneLimit;
@@ -53,10 +53,11 @@ struct DLL_LINKAGE RandomMapInfo
 
 	RandomMapInfo():
 		value(0),
-		mapLimit(0),
 		zoneLimit(0),
 		rarity(0)
 	{}
+
+	void setMapLimit(ui32 val) { mapLimit.reset(val); }
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

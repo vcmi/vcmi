@@ -113,13 +113,17 @@ static std::string formatRangedAttack(const DamageEstimation & estimation, const
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
 	owner(owner),
+	selectedStack(nullptr),
 	heroSpellToCast(nullptr)
 {}
 
 void BattleActionsController::endCastingSpell()
 {
 	if(heroSpellToCast)
+	{
 		heroSpellToCast.reset();
+		owner.windowObject->blockUI(false);
+	}
 
 	if(owner.stacksController->getActiveStack())
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
@@ -174,7 +178,7 @@ void BattleActionsController::enterCreatureCastingMode()
 		if (isCastingPossible)
 		{
 			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, spell->getId());
-			owner.stacksController->setSelectedStack(nullptr);
+			selectedStack = nullptr;
 
 			CCS->curh->set(Cursor::Combat::POINTER);
 		}
@@ -287,6 +291,8 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 		possibleActions.push_back (spellSelMode); //only this one action can be performed at the moment
 		GH.fakeMouseMove();//update cursor
 	}
+
+	owner.windowObject->blockUI(true);
 }
 
 const CSpell * BattleActionsController::getHeroSpellToCast( ) const
@@ -520,6 +526,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
+			return (targetStack && targetStackOwned && targetStack->Speed() > 0);
+
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (targetStack && targetStackOwned);
 
@@ -561,7 +569,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return targetStack && isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -574,11 +582,11 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 		case PossiblePlayerBattleAction::TELEPORT:
 		{
 			ui8 skill = getCurrentSpellcaster()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
-			return owner.curInt->cb->battleCanTeleportTo(owner.stacksController->getSelectedStack(), targetHex, skill);
+			return owner.curInt->cb->battleCanTeleportTo(selectedStack, targetHex, skill);
 		}
 
 		case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
-			return targetStack && targetStack != owner.stacksController->getSelectedStack() && targetStackOwned && targetStack->alive();
+			return targetStack && targetStack != selectedStack && targetStackOwned && targetStack->alive();
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
@@ -689,15 +697,15 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				if (action.spell() == SpellID::SACRIFICE)
 				{
 					heroSpellToCast->aimToHex(targetHex);
-					possibleActions.push_back(PossiblePlayerBattleAction::SACRIFICE);
-					owner.stacksController->setSelectedStack(targetStack);
+					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
+					selectedStack = targetStack;
 					return;
 				}
 				if (action.spell() == SpellID::TELEPORT)
 				{
 					heroSpellToCast->aimToUnit(targetStack);
-					possibleActions.push_back(PossiblePlayerBattleAction::TELEPORT);
-					owner.stacksController->setSelectedStack(targetStack);
+					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
+					selectedStack = targetStack;
 					return;
 				}
 			}
@@ -728,7 +736,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				owner.curInt->cb->battleMakeAction(heroSpellToCast.get());
 				endCastingSpell();
 			}
-			owner.stacksController->setSelectedStack(nullptr);
+			selectedStack = nullptr;
 			return;
 		}
 	}

@@ -47,6 +47,9 @@ class CModListView : public QWidget
 
 	void checkManagerErrors();
 
+	/// replace mod ID's with proper human-readable mod names
+	QStringList getModNames(QStringList input);
+
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findInvalidDependencies(QString mod);
 	// find mods that block enabling of this mod: conflicting with this mod or one of required mods
@@ -86,8 +89,8 @@ public:
 	/// install mod by name
 	void doInstallMod(const QString & modName);
 
-	/// returns true if mod is currently installed
-	bool isModInstalled(const QString & modName);
+	/// returns true if mod is available in repository and can be installed
+	bool isModAvailable(const QString & modName);
 
 	/// finds translation mod for specified languages. Returns empty string on error
 	QString getTranslationModName(const QString & language);

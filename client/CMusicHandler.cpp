@@ -142,11 +142,13 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 
 int CSoundHandler::ambientDistToVolume(int distance) const
 {
-	if(distance >= ambientConfig["distances"].Vector().size())
+	const auto & distancesVector = ambientConfig["distances"].Vector();
+
+	if(distance >= distancesVector.size())
 		return 0;
 
-	int volume = static_cast<int>(ambientConfig["distances"].Vector()[distance].Integer());
-	return volume * (int)ambientConfig["volume"].Integer() * getVolume() / 10000;
+	int volume = static_cast<int>(distancesVector[distance].Integer());
+	return volume * (int)ambientConfig["volume"].Integer() / 100;
 }
 
 void CSoundHandler::ambientStopSound(std::string soundId)
@@ -211,7 +213,20 @@ void CSoundHandler::setVolume(ui32 percent)
 	CAudioBase::setVolume(percent);
 
 	if (initialized)
+	{
 		setChannelVolume(-1, volume);
+
+		for (auto const & channel : channelVolumes)
+			updateChannelVolume(channel.first);
+	}
+}
+
+void CSoundHandler::updateChannelVolume(int channel)
+{
+	if (channelVolumes.count(channel))
+		setChannelVolume(channel, getVolume() * channelVolumes[channel] / 100);
+	else
+		setChannelVolume(channel, getVolume());
 }
 
 // Sets the sound volume, from 0 (mute) to 100
@@ -258,29 +273,40 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 	std::vector<std::string> stoppedSounds;
 	for(auto & pair : ambientChannels)
 	{
-		if(!vstd::contains(soundsArg, pair.first))
+		const std::string & soundId = pair.first;
+		const int channel = pair.second;
+
+		if(!vstd::contains(soundsArg, soundId))
 		{
-			ambientStopSound(pair.first);
-			stoppedSounds.push_back(pair.first);
+			ambientStopSound(soundId);
+			stoppedSounds.push_back(soundId);
 		}
 		else
 		{
-			int volume = ambientDistToVolume(soundsArg[pair.first]);
-			CCS->soundh->setChannelVolume(pair.second, volume);
+			int volume = ambientDistToVolume(soundsArg[soundId]);
+			channelVolumes[channel] = volume;
+			updateChannelVolume(channel);
 		}
 	}
 	for(auto soundId : stoppedSounds)
+	{
+		channelVolumes.erase(ambientChannels[soundId]);
 		ambientChannels.erase(soundId);
+	}
 
 	for(auto & pair : soundsArg)
 	{
-		if(!vstd::contains(ambientChannels, pair.first))
-		{
-			int channel = CCS->soundh->playSound(pair.first, -1);
-			int volume = ambientDistToVolume(pair.second);
+		const std::string & soundId = pair.first;
+		const int distance = pair.second;
 
-			CCS->soundh->setChannelVolume(channel, volume);
-			CCS->soundh->ambientChannels.insert(std::make_pair(pair.first, channel));
+		if(!vstd::contains(ambientChannels, soundId))
+		{
+			int channel = playSound(soundId, -1);
+			int volume = ambientDistToVolume(distance);
+			channelVolumes[channel] = volume;
+
+			updateChannelVolume(channel);
+			ambientChannels[soundId] = channel;
 		}
 	}
 }
@@ -293,6 +319,7 @@ void CSoundHandler::ambientStopAllChannels()
 	{
 		ambientStopSound(ch.first);
 	}
+	channelVolumes.clear();
 	ambientChannels.clear();
 }
 

@@ -48,6 +48,20 @@ void CGeneralTextHandler::detectInstallParameters()
 		"ukrainian"
 	} };
 
+	if(!CResourceHandler::get("core")->existsResource(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT)))
+	{
+		Settings language = settings.write["session"]["language"];
+		language->String() = "english";
+
+		Settings confidence = settings.write["session"]["languageDeviation"];
+		confidence->Float() = 1.0;
+
+		Settings encoding = settings.write["session"]["encoding"];
+		encoding->String() = Languages::getLanguageOptions("english").encoding;
+
+		return;
+	}
+
 	// load file that will be used for footprint generation
 	// this is one of the most text-heavy files in game and consists solely from translated texts
 	auto resource = CResourceHandler::get("core")->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
@@ -254,7 +268,7 @@ const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & iden
 		return identifier.get();
 	}
 
-	auto const & entry = stringsLocalizations.at(identifier.get());
+	const auto & entry = stringsLocalizations.at(identifier.get());
 
 	if (!entry.overrideValue.empty())
 		return entry.overrideValue;
@@ -312,7 +326,7 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 {
 	bool allPresent = true;
 
-	for (auto const & string : stringsLocalizations)
+	for(const auto & string : stringsLocalizations)
 	{
 		if (string.second.modContext != modContext)
 			continue; // Not our mod
@@ -341,17 +355,17 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 
 	bool allFound = true;
 
-	for (auto const & string : config.Struct())
-	{
-		if (stringsLocalizations.count(string.first) > 0)
-			continue;
-
-		if (allFound)
-			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
-
-		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(string.second.String()));
-		allFound = false;
-	}
+//	for(const auto & string : config.Struct())
+//	{
+//		if (stringsLocalizations.count(string.first) > 0)
+//			continue;
+//
+//		if (allFound)
+//			logMod->warn("Translation into language '%s' in mod '%s' has unused lines:", language, modContext);
+//
+//		logMod->warn(R"(    "%s" : "%s",)", string.first, TextOperations::escapeString(string.second.String()));
+//		allFound = false;
+//	}
 
 	return allPresent && allFound;
 }

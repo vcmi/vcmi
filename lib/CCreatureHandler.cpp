@@ -328,12 +328,12 @@ bool CCreature::isItNativeTerrain(TerrainId terrain) const
 
 TerrainId CCreature::getNativeTerrain() const
 {
-	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY";
-	static const auto selectorNoTerrainPenalty = Selector::type()(Bonus::NO_TERRAIN_PENALTY);
+	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
+	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, static_cast<int>(ETerrainId::ANY_TERRAIN));
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
+	return hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
 		? TerrainId(ETerrainId::ANY_TERRAIN)
 		: (*VLC->townh)[faction]->nativeTerrain;
 }
@@ -433,8 +433,11 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 
 void CCreatureHandler::loadCommanders()
 {
-	JsonNode data(ResourceID("config/commanders.json"));
-	data.setMeta(CModHandler::scopeBuiltin()); // assume that commanders are in core mod (for proper bonuses resolution)
+	ResourceID configResource("config/commanders.json");
+
+	std::string modSource = VLC->modh->findResourceOrigin(configResource);
+	JsonNode data(configResource);
+	data.setMeta(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 

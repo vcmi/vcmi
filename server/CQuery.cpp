@@ -380,6 +380,9 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	if(auto upgrade = dynamic_ptr_cast<UpgradeCreature>(pack))
 		return !vstd::contains(ourIds, upgrade->id);
 
+	if(auto formation = dynamic_ptr_cast<SetFormation>(pack))
+		return !vstd::contains(ourIds, formation->hid);
+
 	return CDialogQuery::blocksPack(pack);
 }
 

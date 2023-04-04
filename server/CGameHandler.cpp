@@ -52,6 +52,8 @@
 #include "../lib/serializer/Cast.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/ScriptHandler.h"
+#include "vstd/CLoggerBase.h"
+#include <memory>
 #include <vcmi/events/EventBus.h>
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
@@ -991,7 +993,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		auto spell = bat.spellID.toSpell();
 
 		battle::Target target;
-		target.emplace_back(defender);
+		target.emplace_back(defender, targetHex);
 
 		spells::BattleCast event(gs->curB, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
 		event.setSpellLevel(bonus->val);
@@ -1340,7 +1342,11 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	ret = path.second;
 
-	int creSpeed = gs->curB->tacticDistance ? GameConstants::BFIELD_SIZE : curStack->Speed(0, true);
+	int creSpeed = curStack->Speed(0, true);
+
+	if (gs->curB->tacticDistance > 0 && creSpeed > 0)
+		creSpeed = GameConstants::BFIELD_SIZE;
+
 	bool hasWideMoat = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
@@ -1589,6 +1595,12 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 
 CGameHandler::~CGameHandler()
 {
+	if (battleThread)
+	{
+		//Setting battleMadeAction is needed because battleThread waits for the action to continue the main loop
+		battleMadeAction.setn(true);
+		battleThread->join();
+	}
 	delete spellEnv;
 	delete gs;
 }
@@ -2325,6 +2337,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
 
+		if (isInTheMap(guardPos))
+			tmh.attackedFrom = boost::make_optional(guardPos);
+
 		tmh.result = result;
 		sendAndApply(&tmh);
 
@@ -2332,10 +2347,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		{ // Hero should be always able to visit any object he staying on even if there guards around
 			visitObjectOnTile(t, h);
 		}
-		else if (lookForGuards == CHECK_FOR_GUARDS && this->isInTheMap(guardPos))
+		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 		{
-			tmh.attackedFrom = boost::make_optional(guardPos);
-
 			const TerrainTile &guardTile = *gs->getTile(guardPos);
 			objectVisited(guardTile.visitableObjects.back(), h);
 
@@ -2630,7 +2643,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	auto battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
 	queries.addQuery(battleQuery);
 
-	boost::thread(&CGameHandler::runBattle, this);
+	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
@@ -4888,8 +4901,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
 	bool cheated = false;
-	PlayerMessageClient temp_message(player, message);
-	sendAndApply(&temp_message);
+	
+	if(!getPlayerSettings(player)->isControlledByAI())
+	{
+		PlayerMessageClient temp_message(player, message);
+		sendAndApply(&temp_message);
+	}
 
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
@@ -4943,7 +4960,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	}
 	
 	int obj = 0;
-	if (words.size() == 2 && words[0] != "vcmiexp")
+	if (words.size() == 2 && words[0] != "vcmiexp" && words[0] != "vcmiolorin")
 	{
 		obj = std::atoi(words[1].c_str());
 		if (obj)
@@ -4955,7 +4972,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if((words[0] == "vcmiarmy" || words[0] == "vcmiexp") && words.size() > 1)
+	if(words.size() > 1 && (words[0] == "vcmiarmy" || words[0] == "vcminissi" || words[0] == "vcmiexp" || words[0] == "vcmiolorin"))
 	{
 		std::string cheatCodeWithOneParameter = std::string(words[0]) + " " + words[1];
 		handleCheatCode(cheatCodeWithOneParameter, player, hero, town, cheated);
@@ -5591,7 +5608,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, query.players.front(), query.visitingHero->id);
 }
 
-bool CGameHandler::buildBoat(ObjectInstanceID objid)
+bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
@@ -5607,7 +5624,6 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid)
 		return false;
 	}
 
-	const PlayerColor playerID = obj->o->tempOwner;
 	TResources boatCost;
 	obj->getBoatCost(boatCost);
 	TResources aviable = getPlayerState(playerID)->resources;
@@ -6339,7 +6355,7 @@ void CGameHandler::runBattle()
 
 	//tactic round
 	{
-		while (gs->curB->tacticDistance && !battleResult.get())
+		while ((lobby->state != EServerState::SHUTDOWN) && gs->curB->tacticDistance && !battleResult.get())
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
@@ -6417,7 +6433,7 @@ void CGameHandler::runBattle()
 	bool firstRound = true;//FIXME: why first round is -1?
 
 	//main loop
-	while (!battleResult.get()) //till the end of the battle ;]
+	while ((lobby->state != EServerState::SHUTDOWN) && !battleResult.get()) //till the end of the battle ;]
 	{
 		BattleNextRound bnr;
 		bnr.round = gs->curB->round + 1;
@@ -6482,7 +6498,7 @@ void CGameHandler::runBattle()
 		};
 
 		const CStack * next = nullptr;
-		while((next = getNextStack()))
+		while((lobby->state != EServerState::SHUTDOWN) && (next = getNextStack()))
 		{
 			BattleUnitsChanged removeGhosts;
 			for(auto stack : curB.stacks)
@@ -6661,7 +6677,7 @@ void CGameHandler::runBattle()
 
 						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
-						while (!actionWasMade())
+						while ((lobby->state != EServerState::SHUTDOWN) && !actionWasMade())
 						{
 							battleMadeAction.cond.wait(lock);
 							if (battleGetStackByID(nextId, false) != next)
@@ -6717,7 +6733,8 @@ void CGameHandler::runBattle()
 		firstRound = false;
 	}
 
-	endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
+	if (lobby->state != EServerState::SHUTDOWN)
+		endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
 }
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
@@ -6899,7 +6916,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 			if (!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
 	}
-	else if (boost::starts_with(cheat, "vcmiarmy"))
+	else if (boost::starts_with(cheat, "vcmiarmy") || boost::starts_with(cheat, "vcminissi"))
 	{
 		cheated = true;
 		if (!hero) return;
@@ -6953,7 +6970,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
 	}
-	else if (boost::starts_with(cheat, "vcmiexp"))
+	else if (boost::starts_with(cheat, "vcmiexp") || boost::starts_with(cheat, "vcmiolorin"))
 	{
 		cheated = true;
 		if (!hero) return;

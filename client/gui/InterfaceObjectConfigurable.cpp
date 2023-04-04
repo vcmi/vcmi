@@ -297,7 +297,14 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
 	if(!config["callback"].isNull())
-		button->addCallback(callbacks.at(config["callback"].String()));
+	{
+		std::string callbackName = config["callback"].String();
+
+		if (callbacks.count(callbackName))
+			button->addCallback(callbacks.at(callbackName));
+		else
+			logGlobal->error("Invalid callback '%s' in widget", callbackName );
+	}
 	return button;
 }
 
@@ -365,7 +372,15 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	return std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+	auto const & result = std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+
+	if (!config["scrollBounds"].isNull())
+	{
+		Rect bounds = readRect(config["scrollBounds"]);
+		result->setScrollBounds(bounds);
+	}
+
+	return result;
 }
 
 std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNode & config) const

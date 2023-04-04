@@ -372,10 +372,10 @@ void CSettingsView::loadTranslation()
 	ui->labelTranslationStatus->setVisible(showTranslation);
 	ui->pushButtonTranslation->setVisible(showTranslation);
 
-	if (!translationExists)
+	if (!translationExists || !translationNeeded)
 		return;
 
-	bool translationInstalled = mainWindow->getModView()->isModInstalled(modName);
+	bool translationAvailable = mainWindow->getModView()->isModAvailable(modName);
 	bool translationEnabled = mainWindow->getModView()->isModEnabled(modName);
 
 	ui->pushButtonTranslation->setVisible(!translationEnabled);
@@ -385,13 +385,13 @@ void CSettingsView::loadTranslation()
 		ui->labelTranslationStatus->setText(tr("Active"));
 	}
 
-	if (translationInstalled && !translationEnabled)
+	if (!translationEnabled && !translationAvailable)
 	{
 		ui->labelTranslationStatus->setText(tr("Disabled"));
 		ui->pushButtonTranslation->setText(tr("Enable"));
 	}
 
-	if (!translationInstalled)
+	if (translationAvailable)
 	{
 		ui->labelTranslationStatus->setText(tr("Not Installed"));
 		ui->pushButtonTranslation->setText(tr("Install"));
@@ -413,14 +413,14 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	if (modName.isEmpty())
 		return;
 
-	if (mainWindow->getModView()->isModInstalled(modName))
-	{
-		mainWindow->getModView()->enableModByName(modName);
-	}
-	else
+	if (mainWindow->getModView()->isModAvailable(modName))
 	{
 		mainWindow->switchToModsTab();
 		mainWindow->getModView()->doInstallMod(modName);
+	}
+	else
+	{
+		mainWindow->getModView()->enableModByName(modName);
 	}
 }
 

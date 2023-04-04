@@ -67,6 +67,9 @@ class BattleStacksController
 	/// <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	std::map<int, bool> stackFacingRight;
 
+	/// Stacks have amount box hidden due to ongoing animations
+	std::set<int> stackAmountBoxHidden;
+
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
@@ -75,9 +78,6 @@ class BattleStacksController
 
 	///when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack *stackToActivate;
-
-	/// stack that was selected for multi-target spells - Teleport / Sacrifice
-	const CStack *selectedStack;
 
 	/// for giving IDs for animations
 	ui32 animIDhelper;
@@ -123,7 +123,6 @@ public:
 	void activateStack(); //copy stackToActivate to activeStack to enable controls of the stack
 
 	void setActiveStack(const CStack *stack);
-	void setSelectedStack(const CStack *stack);
 
 	void showAliveStack(Canvas & canvas, const CStack * stack);
 	void showStack(Canvas & canvas, const CStack * stack);
@@ -137,7 +136,6 @@ public:
 	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
 
 	const CStack* getActiveStack() const;
-	const CStack* getSelectedStack() const;
 	const std::vector<uint32_t> getHoveredStacksUnitIds() const;
 
 	void update();

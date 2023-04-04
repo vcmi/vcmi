@@ -294,7 +294,6 @@ void CHeroArtPlace::select()
 		}
 	}
 
-	CCS->curh->dragAndDropCursor("artifact", ourArt->artType->getIconIndex());
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->commonInfo->src.slotID = ArtifactPosition::TRANSITION_POS;
 
@@ -760,7 +759,9 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation & src, const Artifac
 		}
 		if(!curHero->artifactsTransitionPos.empty() && withUIUpdate)
 		{
-			markPossibleSlots(curHero->getArt(ArtifactPosition::TRANSITION_POS));
+			auto artInst = curHero->getArt(ArtifactPosition::TRANSITION_POS);
+			markPossibleSlots(artInst);
+			CCS->curh->dragAndDropCursor("artifact", artInst->artType->getIconIndex());
 		}
 	}
 

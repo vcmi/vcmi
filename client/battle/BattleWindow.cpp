@@ -541,11 +541,8 @@ void BattleWindow::blockUI(bool on)
 		w->block(on || owner.tacticsMode);
 	if(auto w = widget<CButton>("alternativeAction"))
 		w->block(on || owner.tacticsMode);
-
-	// block only if during enemy turn and auto-fight is off
-	// otherwise - crash on accessing non-exisiting active stack
-	if(auto w = widget<CButton>("options"))
-		w->block(!owner.curInt->isAutoFightOn && !owner.stacksController->getActiveStack());
+	if(auto w = widget<CButton>("autofight"))
+		w->block(owner.actionsController->spellcastingModeActive());
 
 	auto btactEnd = widget<CButton>("tacticEnd");
 	auto btactNext = widget<CButton>("tacticNext");
