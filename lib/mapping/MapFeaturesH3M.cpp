@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint8_t hotaVersion)
+MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint32_t hotaVersion)
 {
 	switch(format)
 	{
@@ -113,13 +113,14 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 	return result;
 }
 
-MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint8_t hotaVersion)
+MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
-	assert(hotaVersion == 1 || hotaVersion == 3);
+	assert(hotaVersion == 1 || hotaVersion == 2 || hotaVersion == 3);
 
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelHOTA = true;
-	result.levelHOTA3 = hotaVersion == 3;
+	//result.levelHOTA2 = hotaVersion > 1; // HOTA2 seems to be identical to HOTA1 so far
+	result.levelHOTA3 = hotaVersion > 2;
 
 	result.artifactsBytes = 21;
 	result.heroesBytes = 23;
@@ -129,7 +130,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint8_t hotaVersion)
 	result.factionsCount = 10; // + Cove
 	result.creaturesCount = 171; // + Cove + neutrals
 
-	if(hotaVersion == 1)
+	if(hotaVersion == 1 || hotaVersion == 2)
 	{
 		result.artifactsCount = 163; // + HotA artifacts
 		result.heroesCount = 178; // + Cove

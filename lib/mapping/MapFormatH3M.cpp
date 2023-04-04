@@ -155,16 +155,16 @@ void CMapLoaderH3M::readHeader()
 
 	if(mapHeader->version == EMapFormat::HOTA1 || mapHeader->version == EMapFormat::HOTA2 || mapHeader->version == EMapFormat::HOTA3)
 	{
-		uint8_t hotaVersion = reader->readUInt8();
+		uint32_t hotaVersion = reader->readUInt32();
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(mapHeader->version, hotaVersion);
 
-		reader->skipZero(5);
-		if (hotaVersion == 3)
+		reader->skipZero(2);
+		if (hotaVersion > 1)
 		{
-			uint8_t unknown = reader->readUInt8();
-			logGlobal->error("%s -> header unknown: %d", mapName, int(unknown));
-			reader->skipZero(3);
+			uint8_t unknown = reader->readUInt32();
+			assert(unknown == 12);
+			MAYBE_UNUSED(unknown);
 		}
 	}
 	else
@@ -481,16 +481,18 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				break;
 			}
 		case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
-				logGlobal->error("Map %s - victory condition 'Eliminate all monsters' is not supported!", mapName);
 				//TODO: HOTA
+				logGlobal->error("Map %s - victory condition 'Eliminate all monsters' is not supported!", mapName);
 				break;
 		case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
-				logGlobal->error("Map %s - victory condition 'Survive for certain time' is not supported!", mapName);
+			{
 				//TODO: HOTA
-				reader->readUInt32(); // Number of days
+				uint32_t daysToSurvive = reader->readUInt32(); // Number of days
+				logGlobal->error("Map %s - victory condition 'Survive for %d days' is not supported!", mapName, daysToSurvive);
 				break;
+			}
 		default:
-			assert(0);
+				assert(0);
 		}
 
 		// if condition is human-only turn it into following construction: AllOf(human, condition)
@@ -661,27 +663,24 @@ void CMapLoaderH3M::readMapOptions()
 
 	if (features.levelHOTA)
 	{
-		std::vector<uint8_t> unknown(10);
-		for (size_t i = 0; i < 10; ++i)
-			unknown[i] = reader->readUInt8();
+		//TODO: HotA
+		bool allowSpecialMonths = reader->readBool();
+		if (!allowSpecialMonths)
+			logGlobal->warn("Map '%s': Option 'allow special months' is not implemented!", mapName);
 
-		assert(unknown[0] == 0 || unknown[0] == 1); // allowSpecialWeeks?
-		assert(unknown[1] == 0);
-		assert(unknown[2] == 0);
-		assert(unknown[3] == 0);
-		//assert(unknown[4] == 0 || unknown[4] == 16);
-		assert(unknown[4] == 16);
-		assert(unknown[5] == 0);
-		assert(unknown[6] == 0);
-		assert(unknown[7] == 0);
-		assert(unknown[8] == 0);
-		assert(unknown[9] == 0);
+		reader->skipZero(3);
+		uint8_t unknownConstant = reader->readUInt8();
+		assert(unknownConstant == 16);
+		MAYBE_UNUSED(unknownConstant);
+		reader->skipZero(5);
 	}
 
 	if (features.levelHOTA3)
 	{
-		uint32_t roundLimit = reader->readUInt32();
-		logGlobal->error("%s -> roundLimit of %d is not implemented!", mapName, roundLimit);
+		//TODO: HotA
+		int32_t roundLimit = reader->readInt32();
+		if (roundLimit != -1)
+			logGlobal->warn("Map '%s': roundLimit of %d is not implemented!", mapName, roundLimit);
 	}
 }
 
@@ -1036,13 +1035,14 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectI
 
 	if (features.levelHOTA3)
 	{
+		//TODO: HotA
 		uint32_t agressionExact = reader->readUInt32();
 		bool joinOnlyForMoney = reader->readBool();
 		uint32_t joinPercent = reader->readUInt32();
 		uint32_t upgradedStack = reader->readUInt32();
 		uint32_t splitStack = reader->readUInt32();
 
-		logGlobal->error("%s -> creature settings %d %d %d %d %d not implemeted!", agressionExact, int(joinOnlyForMoney), joinPercent, upgradedStack, splitStack);
+		logGlobal->warn("Map '%s': creature %s settings %d %d %d %d %d are not implemeted!", mapName, objPos.toString(), agressionExact, int(joinOnlyForMoney), joinPercent, upgradedStack, splitStack);
 	}
 
 	return object;
@@ -1312,6 +1312,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_pt
 {
 	if (features.levelHOTA3)
 	{
+		//TODO: HotA
 		uint32_t field1 = reader->readUInt32();
 		uint8_t field2 = reader->readUInt8();
 
@@ -1321,7 +1322,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_pt
 		{
 			artifacts.push_back(reader->readArtifact());
 		}
-		logGlobal->error("%s -> creature banks settings %d %d %d not implemeted!", field1, int(field2), artifacts.size());
+		logGlobal->warn("Map '%s: creature banks settings %d %d %d are not implemented!", field1, int(field2), artifacts.size());
 	}
 
 	return readBlank(position, objTempl);
@@ -1690,7 +1691,8 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 		{
 			uint32_t questsCount = reader->readUInt32();
 			assert(questsCount == 1);
-			logGlobal->error("%s -> multiple quests: %d not implemented!", mapName, int(questsCount));
+			if (questsCount != 1)
+				logGlobal->error("%s -> multiple quests: %d not implemented!", mapName, int(questsCount));
 		}
 
 		readQuest(hut, position);
@@ -1794,6 +1796,15 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 	{
 		// missionType==255
 		reader->skipZero(3);
+	}
+
+	if (features.levelHOTA3)
+	{
+		uint32_t questsCount = reader->readUInt32();
+		assert(questsCount == 0);
+
+		if (questsCount != 0)
+			logGlobal->error("%s -> multiple quests: %d not implemented!", mapName, int(questsCount));
 	}
 
 	return hut;
@@ -1939,8 +1950,9 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	if (features.levelHOTA)
 	{
-		bool spellResearch = reader->readBool();
-		logGlobal->error("%s -> spell research: %d not implemented!", mapName, int(spellResearch));
+		// TODO: HOTA support
+		bool spellResearchAvailable = reader->readBool();
+		MAYBE_UNUSED(spellResearchAvailable);
 	}
 
 	// Read castle events
@@ -1983,11 +1995,12 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	if(features.levelHOTA)
 	{
+		// TODO: HOTA support
 		uint8_t alignment = reader->readUInt8();
 		if (alignment < PlayerColor::PLAYER_LIMIT.getNum() || alignment == PlayerColor::NEUTRAL.getNum())
 			nt->alignmentToPlayer = PlayerColor(alignment);
 		else
-			logGlobal->error("%s - Aligment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
+			logGlobal->warn("%s - Aligment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
 	}
 	else if(features.levelSOD)
 	{
