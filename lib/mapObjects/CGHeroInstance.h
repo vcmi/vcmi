@@ -102,20 +102,6 @@ public:
 		}
 	} patrol;
 
-	// deprecated - used only for loading of old saves
-	struct HeroSpecial : CBonusSystemNode
-	{
-		bool growsWithLevel;
-
-		HeroSpecial(){growsWithLevel = false;};
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & static_cast<CBonusSystemNode&>(*this);
-			h & growsWithLevel;
-		}
-	};
-
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
 		//skills are determined, initialized at map start

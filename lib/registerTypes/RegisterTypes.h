@@ -194,7 +194,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CBonusSystemNode, PlayerState>();
 	s.template registerType<CBonusSystemNode, TeamState>();
 	//s.template registerType<CGameState>(); //TODO
-	s.template registerType<CBonusSystemNode, CGHeroInstance::HeroSpecial>();
 	//s.template registerType<CArmedInstance>();
 	s.template registerType<CBonusSystemNode, CStack>();
 	s.template registerType<CBonusSystemNode, BattleInfo>();
