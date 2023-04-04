@@ -182,6 +182,7 @@ private:
 	CGObjectInstance * readShipyard(const int3 & position);
 	CGObjectInstance * readLighthouse(const int3 & position);
 	CGObjectInstance * readBlank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
 	/**
 	 * Reads a creature set.

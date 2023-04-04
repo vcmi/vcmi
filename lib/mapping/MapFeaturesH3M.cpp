@@ -115,21 +115,37 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint8_t hotaVersion)
 {
+	assert(hotaVersion == 1 || hotaVersion == 3);
+
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelHOTA = true;
 	result.levelHOTA3 = hotaVersion == 3;
 
 	result.artifactsBytes = 21;
+	result.heroesBytes = 23;
 
 	result.terrainsCount = 12; // +Highlands +Wasteland
 	result.skillsCount = 29; // + Interference
 	result.factionsCount = 10; // + Cove
-	result.creaturesCount = 162; // + Cove + neutrals
-	result.artifactsCount = 161; // + HotA artifacts
+	result.creaturesCount = 171; // + Cove + neutrals
 
-	result.heroesBytes = 24;
+	if(hotaVersion == 1)
+	{
+		result.artifactsCount = 163; // + HotA artifacts
+		result.heroesCount = 178; // + Cove
+		result.heroesPortraitsCount = 186; // + Cove
+	}
+	if(hotaVersion == 3)
+	{
+		result.artifactsCount = 165; // + HotA artifacts
+		result.heroesCount = 179; // + Cove
+		result.heroesPortraitsCount = 186; // + Cove
+	}
+
+	assert((result.heroesCount + 7) / 8 == result.heroesBytes);
+	assert((result.artifactsCount + 7) / 8 == result.artifactsBytes);
+
 	result.heroesCount = 179; // + Cove
-	result.heroesPortraitsCount = 186; // + Cove
 
 	return result;
 }

@@ -617,13 +617,17 @@ void CMapLoaderH3M::readAllowedHeroes()
 	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
 
 	uint32_t heroesCount = features.heroesCount;
+	uint32_t heroesBytes = features.heroesBytes;
 
 	if (features.levelHOTA)
+	{
 		heroesCount = reader->readUInt32();
+		heroesBytes = (heroesCount + 7) / 8;
+	}
 
 	assert(heroesCount <= features.heroesCount);
 
-	reader->readBitmask(mapHeader->allowedHeroes, features.heroesBytes, heroesCount, false);
+	reader->readBitmask(mapHeader->allowedHeroes, heroesBytes, heroesCount, false);
 
 	//TODO: unknown value. Check meaning? Only present in campaign maps.
 	if(features.levelAB)
@@ -657,23 +661,21 @@ void CMapLoaderH3M::readMapOptions()
 
 	if (features.levelHOTA)
 	{
-		std::vector<uint8_t> unknown(13);
-		for (size_t i = 0; i < 13; ++i)
+		std::vector<uint8_t> unknown(10);
+		for (size_t i = 0; i < 10; ++i)
 			unknown[i] = reader->readUInt8();
 
-		assert(unknown[0] == 0); // allowSpecialWeeks?
+		assert(unknown[0] == 0 || unknown[0] == 1); // allowSpecialWeeks?
 		assert(unknown[1] == 0);
 		assert(unknown[2] == 0);
-		assert(unknown[3] == 16);
-		assert(unknown[4] == 0);
+		assert(unknown[3] == 0);
+		//assert(unknown[4] == 0 || unknown[4] == 16);
+		assert(unknown[4] == 16);
 		assert(unknown[5] == 0);
 		assert(unknown[6] == 0);
 		assert(unknown[7] == 0);
 		assert(unknown[8] == 0);
-		assert(unknown[9] == 163);
-		assert(unknown[10] == 0);
-		assert(unknown[11] == 0);
-		assert(unknown[12] == 0);
+		assert(unknown[9] == 0);
 	}
 
 	if (features.levelHOTA3)
@@ -687,9 +689,18 @@ void CMapLoaderH3M::readAllowedArtifacts()
 {
 	map->allowedArtifact = VLC->arth->getDefaultAllowed();
 
-	// Reading allowed artifacts
+	uint32_t artifactsCount = features.artifactsCount;
+	uint32_t artifactsBytes = features.artifactsBytes;
+
+	if (features.levelHOTA)
+	{
+		artifactsCount = reader->readUInt32();
+		artifactsBytes = (artifactsCount + 7) / 8;
+	}
+	assert(artifactsCount <= features.artifactsCount);
+
 	if(features.levelAB)
-		reader->readBitmask(map->allowedArtifact, features.artifactsBytes, features.artifactsCount, true);
+		reader->readBitmask(map->allowedArtifact, artifactsBytes, artifactsCount, true);
 
 	// ban combo artifacts
 	if (!features.levelSOD)
@@ -732,16 +743,12 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 		reader->readBitmask(map->allowedSpell, features.spellsBytes, features.spellsCount, true);
 		reader->readBitmask(map->allowedAbilities, features.skillsBytes, features.skillsCount, true);
 	}
-
-	//do not generate special abilities and spells
-	for (auto spell : VLC->spellh->objects)
-		if (spell->isSpecial() || spell->isCreatureAbility())
-			map->allowedSpell[spell->id] = false;
 }
 
 void CMapLoaderH3M::readRumors()
 {
 	uint32_t rumorsCount = reader->readUInt32();
+	assert(rumorsCount < 100); // sanity check
 
 	for(int it = 0; it < rumorsCount; it++)
 	{
@@ -945,9 +952,15 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & objPos)
 	object->availableFor = reader->readUInt8();
 	object->computerActivate = reader->readBool();
 	object->removeAfterVisit = reader->readBool();
-	object->humanActivate = true;
 
 	reader->skipZero(4);
+
+	if (features.levelHOTA3)
+		object->humanActivate = reader->readBool();
+	else
+		object->humanActivate = true;
+
+
 	return object;
 }
 
@@ -1020,6 +1033,18 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectI
 	object->neverFlees = reader->readBool();
 	object->notGrowingTeam = reader->readBool();
 	reader->skipZero(2);
+
+	if (features.levelHOTA3)
+	{
+		uint32_t agressionExact = reader->readUInt32();
+		bool joinOnlyForMoney = reader->readBool();
+		uint32_t joinPercent = reader->readUInt32();
+		uint32_t upgradedStack = reader->readUInt32();
+		uint32_t splitStack = reader->readUInt32();
+
+		logGlobal->error("%s -> creature settings %d %d %d %d %d not implemeted!", agressionExact, int(joinOnlyForMoney), joinPercent, upgradedStack, splitStack);
+	}
+
 	return object;
 }
 
@@ -1283,6 +1308,25 @@ CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & position)
 	return object;
 }
 
+CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+{
+	if (features.levelHOTA3)
+	{
+		uint32_t field1 = reader->readUInt32();
+		uint8_t field2 = reader->readUInt8();
+
+		std::vector<ArtifactID> artifacts;
+		int artNumber = reader->readUInt32();
+		for(int yy = 0; yy < artNumber; ++yy)
+		{
+			artifacts.push_back(reader->readArtifact());
+		}
+		logGlobal->error("%s -> creature banks settings %d %d %d not implemeted!", field1, int(field2), artifacts.size());
+	}
+
+	return readBlank(position, objTempl);
+}
+
 CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven)
 {
 	switch(objectTemplate->id)
@@ -1384,6 +1428,13 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 
 		case Obj::LIGHTHOUSE:
 			return readLighthouse(objectPosition);
+
+		case Obj::CREATURE_BANK:
+		case Obj::DERELICT_SHIP:
+		case Obj::DRAGON_UTOPIA:
+		case Obj::CRYPT:
+		case Obj::SHIPWRECK:
+			return readBank(objectPosition, objectTemplate);
 
 		default: //any other object
 			return readBlank(objectPosition, objectTemplate);
@@ -1635,6 +1686,13 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 
 	if(features.levelAB)
 	{
+		if (features.levelHOTA3)
+		{
+			uint32_t questsCount = reader->readUInt32();
+			assert(questsCount == 1);
+			logGlobal->error("%s -> multiple quests: %d not implemented!", mapName, int(questsCount));
+		}
+
 		readQuest(hut, position);
 	}
 	else
@@ -1879,6 +1937,12 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 			nt->possibleSpells.emplace_back(i);
 	}
 
+	if (features.levelHOTA)
+	{
+		bool spellResearch = reader->readBool();
+		logGlobal->error("%s -> spell research: %d not implemented!", mapName, int(spellResearch));
+	}
+
 	// Read castle events
 	uint32_t numberOfEvent = reader->readUInt32();
 
@@ -1917,7 +1981,15 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		nt->events.push_back(nce);
 	}
 
-	if(features.levelSOD)
+	if(features.levelHOTA)
+	{
+		uint8_t alignment = reader->readUInt8();
+		if (alignment < PlayerColor::PLAYER_LIMIT.getNum() || alignment == PlayerColor::NEUTRAL.getNum())
+			nt->alignmentToPlayer = PlayerColor(alignment);
+		else
+			logGlobal->error("%s - Aligment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
+	}
+	else if(features.levelSOD)
 	{
 		nt->alignmentToPlayer = reader->readPlayer();
 	}
