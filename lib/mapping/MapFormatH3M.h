@@ -177,7 +177,7 @@ private:
 	CGObjectInstance * readGrail(const int3 & position);
 	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readBorderGuard(const int3 & position);
-	CGObjectInstance * readBorderGate(const int3 & position);
+	CGObjectInstance * readBorderGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readQuestGuard(const int3 & position);
 	CGObjectInstance * readShipyard(const int3 & position);
 	CGObjectInstance * readLighthouse(const int3 & position);
@@ -205,6 +205,8 @@ private:
 	 * @param guard the quest guard where that quest should be applied to
 	 */
 	void readQuest(IQuestObject * guard, const int3 & position);
+
+	void readSeerHutQuest(CGSeerHut * hut, const int3 & position);
 
 	/**
 	 * Converts buildings to the specified castle id.

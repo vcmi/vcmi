@@ -482,13 +482,13 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 		case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
 				//TODO: HOTA
-				logGlobal->error("Map %s - victory condition 'Eliminate all monsters' is not supported!", mapName);
+				logGlobal->warn("Map '%s': Victory condition 'Eliminate all monsters' is not implemented!", mapName);
 				break;
 		case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
 			{
 				//TODO: HOTA
 				uint32_t daysToSurvive = reader->readUInt32(); // Number of days
-				logGlobal->error("Map %s - victory condition 'Survive for %d days' is not supported!", mapName, daysToSurvive);
+				logGlobal->error("Map '%s': Victory condition 'Survive for %d days' is not implemented!", mapName, daysToSurvive);
 				break;
 			}
 		default:
@@ -1296,9 +1296,17 @@ CGObjectInstance * CMapLoaderH3M::readBorderGuard(const int3 & position)
 	return new CGBorderGuard();
 }
 
-CGObjectInstance * CMapLoaderH3M::readBorderGate(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readBorderGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
 {
-	return new CGBorderGate();
+	if (objTempl->subid < 1000)
+		return new CGBorderGate();
+
+	//TODO: HotA - grave has same ID as border gate? WTF?
+	if (objTempl->subid == 1001)
+		return new CGObjectInstance();
+
+	logGlobal->warn("Map '%s: Quest gates at %s are not implemented!", mapName, position.toString());
+	return readQuestGuard(position);
 }
 
 CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & position)
@@ -1322,7 +1330,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_pt
 		{
 			artifacts.push_back(reader->readArtifact());
 		}
-		logGlobal->warn("Map '%s: creature banks settings %d %d %d are not implemented!", field1, int(field2), artifacts.size());
+		logGlobal->warn("Map '%s: creature bank at %s settings %d %d %d are not implemented!", mapName, position.toString(), field1, int(field2), artifacts.size());
 	}
 
 	return readBlank(position, objTempl);
@@ -1422,7 +1430,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readBorderGuard(objectPosition);
 
 		case Obj::BORDER_GATE:
-			return readBorderGate(objectPosition);
+			return readBorderGate(objectPosition, objectTemplate);
 
 		case Obj::PYRAMID:
 			return readPyramid(objectPosition, objectTemplate);
@@ -1685,16 +1693,39 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 {
 	auto * hut = new CGSeerHut();
 
+	uint32_t questsCount = 1;
+
+	if (features.levelHOTA3)
+		questsCount = reader->readUInt32();
+
+	//TODO: HotA
+	if (questsCount > 1)
+		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString());
+
+	for (size_t i = 0; i < questsCount; ++i)
+		readSeerHutQuest(hut, position);
+
+
+	if (features.levelHOTA3)
+	{
+		uint32_t repeateableQuestsCount = reader->readUInt32();
+
+		if (questsCount != 0)
+			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
+
+		for (size_t i = 0; i < repeateableQuestsCount; ++i)
+			readSeerHutQuest(hut, position);
+	}
+
+	reader->skipZero(2);
+
+	return hut;
+}
+
+void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
+{
 	if(features.levelAB)
 	{
-		if (features.levelHOTA3)
-		{
-			uint32_t questsCount = reader->readUInt32();
-			assert(questsCount == 1);
-			if (questsCount != 1)
-				logGlobal->error("%s -> multiple quests: %d not implemented!", mapName, int(questsCount));
-		}
-
 		readQuest(hut, position);
 	}
 	else
@@ -1790,24 +1821,12 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 				assert(0);
 			}
 		}
-		reader->skipZero(2);
 	}
 	else
 	{
 		// missionType==255
-		reader->skipZero(3);
+		reader->skipZero(1);
 	}
-
-	if (features.levelHOTA3)
-	{
-		uint32_t questsCount = reader->readUInt32();
-		assert(questsCount == 0);
-
-		if (questsCount != 0)
-			logGlobal->error("%s -> multiple quests: %d not implemented!", mapName, int(questsCount));
-	}
-
-	return hut;
 }
 
 void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
@@ -1871,6 +1890,34 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 	case CQuest::MISSION_PLAYER:
 		{
 			guard->quest->m13489val = reader->readPlayer().getNum();
+			break;
+		}
+	case CQuest::MISSION_HOTA_MULTI:
+		{
+			uint32_t missionSubID = reader->readUInt32();
+
+			if (missionSubID == 0)
+			{
+				guard->quest->missionType = CQuest::MISSION_HOTA_HERO_CLASS;
+				std::set<HeroClassID> heroClasses;
+				uint32_t classesCount = reader->readUInt32();
+				uint32_t classesBytes = (classesCount + 7) / 8;
+
+				reader->readBitmask(heroClasses, classesBytes, classesCount, false);
+
+				logGlobal->warn("Map '%s': Quest at %s 'Belong to one of %d classes' is not implemented!", mapName, position.toString(), heroClasses.size());
+				break;
+			}
+			if (missionSubID == 1)
+			{
+				guard->quest->missionType = CQuest::MISSION_HOTA_REACH_DATE;
+				uint32_t daysPassed = reader->readUInt32();
+
+				logGlobal->warn("Map '%s': Quest at %s 'Wait till %d days passed' is not implemented!", mapName, position.toString(), daysPassed);
+				break;
+			}
+
+			assert(0);
 			break;
 		}
 	default:
