@@ -508,7 +508,11 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	if (!input["rmg"].isNull())
 	{
 		rmgInfo.value =     static_cast<ui32>(input["rmg"]["value"].Float());
-		rmgInfo.mapLimit =  loadJsonOrMax(input["rmg"]["mapLimit"]);
+
+		const JsonNode & mapLimit = input["rmg"]["mapLimit"];
+		if (!mapLimit.isNull())
+			rmgInfo.mapLimit.reset(static_cast<ui32>(mapLimit.Float()));
+
 		rmgInfo.zoneLimit = loadJsonOrMax(input["rmg"]["zoneLimit"]);
 		rmgInfo.rarity =    static_cast<ui32>(input["rmg"]["rarity"].Float());
 	} // else block is not needed - set in constructor

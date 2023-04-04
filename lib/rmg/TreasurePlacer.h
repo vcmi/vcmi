@@ -45,7 +45,10 @@ public:
 	void createTreasures(ObjectManager & manager);
 	
 	void setQuestArtZone(Zone * otherZone);
+	void addObjectToRandomPool(const ObjectInfo& oi);
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
+
+	size_t getPossibleObjectsSize() const;
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
