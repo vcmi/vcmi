@@ -43,8 +43,9 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
-	cellUnitMovementHighlight = IImage::createFromFile("CCNSSHD.BMP", EImageBlitMode::COLORKEY);
 	cellShade = IImage::createFromFile("CCELLSHD.BMP");
+	cellUnitMovementHighlight = IImage::createFromFile("UnitMovementHighlight.PNG", EImageBlitMode::COLORKEY);
+	cellUnitMaxMovementHighlight = IImage::createFromFile("UnitMaxMovementHighlight.PNG", EImageBlitMode::COLORKEY);
 
 	if(!owner.siegeController)
 	{
@@ -181,7 +182,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	if(owner.siegeController)
 		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes);
 
-	// show shaded hexes for active's stack valid movement and the hexes that it can attack
+	// show shaded hexes for active's stackMovement valid movement and the hexes that it can attack
 	if(settings["battle"]["stackRange"].Bool())
 	{
 		std::vector<BattleHex> hexesToShade = occupyableHexes;
@@ -207,20 +208,11 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	}
 }
 
-void BattleFieldController::showShadedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
+void BattleFieldController::showHighlightedHex(Canvas & canvas, std::shared_ptr<IImage> highlight, BattleHex hex, bool darkBorder)
 {
 	Point hexPos = hexPositionLocal(hex).topLeft();
 
-	canvas.draw(cellShade, hexPos);
-	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
-		canvas.draw(cellBorder, hexPos);
-}
-
-void BattleFieldController::showHighlightedHexForMovement(Canvas & canvas, BattleHex hex, bool darkBorder)
-{
-	Point hexPos = hexPositionLocal(hex).topLeft();
-
-	canvas.draw(cellUnitMovementHighlight, hexPos);
+	canvas.draw(highlight, hexPos);
 	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
 		canvas.draw(cellBorder, hexPos);
 }
@@ -265,6 +257,31 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 			result.insert(hex);
 	}
 	return result;
+}
+
+std::set<BattleHex> BattleFieldController::STUB_getMaxMovementRangeForHoveredStack()
+{
+	std::set<BattleHex> result;
+
+	if (!owner.stacksController->getActiveStack())
+		return result;
+
+	if (!settings["battle"]["stackRange"].Bool())
+		return result;
+
+	auto hoveredHex = getHoveredHex();
+
+	// add max movement hexes for stack under mouse
+	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	if(hoveredStack)
+	{
+		auto hex = BattleHex(10, 5);
+
+		result.insert(hex);
+	}
+
+	return result;
+
 }
 
 std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
@@ -343,7 +360,8 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
-	std::set<BattleHex> hoveredStackHexes = getMovementRangeForHoveredStack();
+	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
+	std::set<BattleHex> hoveredStackMaxMovementHexes = STUB_getMaxMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesMovementTarget();
 
@@ -352,24 +370,27 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 
 	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
-	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
+	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
-		bool stack = hoveredStackHexes.count(b);
-		bool mouse = hoveredMouseHexes.count(b);
+		bool stackMovement = hoveredStackMovementRangeHexes.count(hex);
+		bool stackMaxMovement = hoveredStackMaxMovementHexes.count(hex);
+		bool mouse = hoveredMouseHexes.count(hex);
 
-		if(stack && mouse) // area where hovered stack can move shown with highlight. Because also affected by mouse cursor, shade as well
+		if(stackMovement && mouse) // area where hovered stackMovement can move shown with highlight. Because also affected by mouse cursor, shade as well
 		{
-			showHighlightedHexForMovement(canvas, b, false);
-			showShadedHex(canvas, b, true);
+			showHighlightedHex(canvas, cellUnitMovementHighlight, hex, false);
+			showHighlightedHex(canvas, cellShade, hex, true);
 		}
-		if(!stack && mouse) // hexes affected only at mouse cursor shown as shaded
+		if(!stackMovement && mouse) // hexes affected only at mouse cursor shown as shaded
 		{
-			showShadedHex(canvas, b, true);
+			showHighlightedHex(canvas, cellShade, hex, true);
 		}
-		if(stack && !mouse) // hexes where hovered stack can move shown with highlight
+		if(stackMovement && !mouse) // hexes where hovered stackMovement can move shown with highlight
 		{
-			showHighlightedHexForMovement(canvas, b, false);
+			showHighlightedHex(canvas, cellUnitMovementHighlight, hex, false);
 		}
+		if(stackMaxMovement)
+			showHighlightedHex(canvas, cellUnitMaxMovementHighlight, hex, false);
 	}
 }
 
