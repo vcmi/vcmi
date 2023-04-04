@@ -1032,6 +1032,12 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
+void CPlayerInterface::forceEndTacticPhase()
+{
+	if (battleInt)
+		battleInt->tacticsMode = false;
+}
+
 void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
