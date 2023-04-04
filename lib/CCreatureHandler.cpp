@@ -432,8 +432,11 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 
 void CCreatureHandler::loadCommanders()
 {
-	JsonNode data(ResourceID("config/commanders.json"));
-	data.setMeta(CModHandler::scopeBuiltin()); // assume that commanders are in core mod (for proper bonuses resolution)
+	ResourceID configResource("config/commanders.json");
+
+	std::string modSource = VLC->modh->findResourceOrigin(configResource);
+	JsonNode data(configResource);
+	data.setMeta(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
