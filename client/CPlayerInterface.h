@@ -226,6 +226,7 @@ public:
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
 	void yourTacticPhase(int distance) override;
+	void forceEndTacticPhase() override;
 
 	//-------------//
 	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
