@@ -147,7 +147,7 @@
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
 			"warMachine" : "ballista",
-			"moatAbility" : "core:spell.castleMoat",
+			"moatAbility" : "castleMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :

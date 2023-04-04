@@ -148,7 +148,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "sulfur",
 			"warMachine" : "ballista",
-			"moatAbility" : "core:spell.dungeonMoat",
+			"moatAbility" : "dungeonMoat",
 
 
 			"buildings" :

@@ -149,7 +149,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
 			"warMachine" : "ammoCart",
-			"moatAbility" : "core:spell.infernoMoat",
+			"moatAbility" : "infernoMoat",
 
 			"buildings" :
 			{

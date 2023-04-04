@@ -152,7 +152,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "crystal",
 			"warMachine" : "firstAidTent",
-			"moatAbility" : "core:spell.rampartMoat",
+			"moatAbility" : "rampartMoat",
 
 			"buildings" :
 			{

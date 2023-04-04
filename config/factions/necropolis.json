@@ -152,7 +152,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"warMachine" : "firstAidTent",
-			"moatAbility" : "core:spell.necropolisMoat",
+			"moatAbility" : "necropolisMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :
