@@ -42,6 +42,17 @@ ArtifactID MapReaderH3M::readArtifact()
 	return result;
 }
 
+ArtifactID MapReaderH3M::readArtifact32()
+{
+	ArtifactID result(reader->readInt32());
+
+	if(result == ArtifactID::NONE)
+		return ArtifactID::NONE;
+
+	assert(result < features.artifactsCount);
+	return result;
+}
+
 HeroTypeID MapReaderH3M::readHero()
 {
 	HeroTypeID result(reader->readUInt8());

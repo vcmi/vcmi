@@ -30,6 +30,7 @@ public:
 	void setFormatLevel(EMapFormat format, uint8_t hotaVersion);
 
 	ArtifactID readArtifact();
+	ArtifactID readArtifact32();
 	CreatureID readCreature();
 	HeroTypeID readHero();
 	TerrainId readTerrain();

@@ -488,7 +488,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				//TODO: HOTA
 				uint32_t daysToSurvive = reader->readUInt32(); // Number of days
-				logGlobal->error("Map '%s': Victory condition 'Survive for %d days' is not implemented!", mapName, daysToSurvive);
+				logGlobal->warn("Map '%s': Victory condition 'Survive for %d days' is not implemented!", mapName, daysToSurvive);
 				break;
 			}
 		default:
@@ -1036,13 +1036,14 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectI
 	if (features.levelHOTA3)
 	{
 		//TODO: HotA
-		uint32_t agressionExact = reader->readUInt32();
-		bool joinOnlyForMoney = reader->readBool();
-		uint32_t joinPercent = reader->readUInt32();
-		uint32_t upgradedStack = reader->readUInt32();
-		uint32_t splitStack = reader->readUInt32();
+		int32_t agressionExact = reader->readInt32(); // -1 = default, 1-10 = possible values range
+		bool joinOnlyForMoney = reader->readBool(); // if true, monsters will only join for money
+		int32_t joinPercent = reader->readInt32(); // 100 = default, percent of monsters that will join on succesfull agression check
+		int32_t upgradedStack = reader->readInt32(); // Presence of upgraded stack, -1 = random, 0 = never, 1 = always
+		int32_t stacksCount = reader->readInt32(); // TODO: check possible values. How many creature stacks will be present on battlefield, -1 = default
 
-		logGlobal->warn("Map '%s': creature %s settings %d %d %d %d %d are not implemeted!", mapName, objPos.toString(), agressionExact, int(joinOnlyForMoney), joinPercent, upgradedStack, splitStack);
+		if (agressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1 || stacksCount != -1)
+			logGlobal->warn("Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemeted!", mapName, objPos.toString(), agressionExact, int(joinOnlyForMoney), joinPercent, upgradedStack, stacksCount);
 	}
 
 	return object;
@@ -1321,16 +1322,28 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_pt
 	if (features.levelHOTA3)
 	{
 		//TODO: HotA
-		uint32_t field1 = reader->readUInt32();
-		uint8_t field2 = reader->readUInt8();
+		// index of guards preset. -1 = random, 0-4 = index of possible guards settings
+		int32_t guardsPresetIndex = reader->readInt32();
 
+		// presence of upgraded stack: -1 = random, 0 = never, 1 = always
+		int8_t upgradedStackPresence = reader->readInt8();
+
+		assert(vstd::iswithin(guardsPresetIndex, -1, 4));
+		assert(vstd::iswithin(upgradedStackPresence, -1, 1));
+
+		// list of possible artifacts in reward
+		// - if list is empty, artifacts are either not present in reward or random
+		// - if non-empty, then list always have same number of elements as number of artifacts in bank
+		// - ArtifactID::NONE indictates random artifact, other values indicate artifact that should be used as reward
 		std::vector<ArtifactID> artifacts;
 		int artNumber = reader->readUInt32();
 		for(int yy = 0; yy < artNumber; ++yy)
 		{
-			artifacts.push_back(reader->readArtifact());
+			artifacts.push_back(reader->readArtifact32());
 		}
-		logGlobal->warn("Map '%s: creature bank at %s settings %d %d %d are not implemented!", mapName, position.toString(), field1, int(field2), artifacts.size());
+
+		if ( guardsPresetIndex != -1 || upgradedStackPresence != -1 || !artifacts.empty())
+			logGlobal->warn("Map '%s: creature bank at %s settings %d %d %d are not implemented!", mapName, position.toString(), guardsPresetIndex, int(upgradedStackPresence), artifacts.size());
 	}
 
 	return readBlank(position, objTempl);
@@ -1700,7 +1713,7 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 
 	//TODO: HotA
 	if (questsCount > 1)
-		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString());
+		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString(), questsCount);
 
 	for (size_t i = 0; i < questsCount; ++i)
 		readSeerHutQuest(hut, position);
@@ -1710,7 +1723,7 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 	{
 		uint32_t repeateableQuestsCount = reader->readUInt32();
 
-		if (questsCount != 0)
+		if (repeateableQuestsCount != 0)
 			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
 
 		for (size_t i = 0; i < repeateableQuestsCount; ++i)
