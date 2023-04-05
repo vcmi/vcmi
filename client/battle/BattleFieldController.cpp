@@ -259,31 +259,6 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	return result;
 }
 
-std::set<BattleHex> BattleFieldController::STUB_getMaxMovementRangeForHoveredStack()
-{
-	std::set<BattleHex> result;
-
-	if (!owner.stacksController->getActiveStack())
-		return result;
-
-	if (!settings["battle"]["movementHighlightOnHover"].Bool())
-		return result;
-
-	auto hoveredHex = getHoveredHex();
-
-	// add max movement hexes for stack under mouse
-	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-	if(hoveredStack)
-	{
-		auto hex = BattleHex(10, 5);
-
-		result.insert(hex);
-	}
-
-	return result;
-
-}
-
 std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 {
 	std::set<BattleHex> result;
@@ -361,7 +336,6 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
 	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
-	std::set<BattleHex> hoveredStackMaxMovementHexes = STUB_getMaxMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesMovementTarget();
 
@@ -373,7 +347,6 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
 		bool stackMovement = hoveredStackMovementRangeHexes.count(hex);
-		bool stackMaxMovement = hoveredStackMaxMovementHexes.count(hex);
 		bool mouse = hoveredMouseHexes.count(hex);
 
 		if(stackMovement && mouse) // area where hovered stackMovement can move shown with highlight. Because also affected by mouse cursor, shade as well
@@ -389,8 +362,6 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		{
 			showHighlightedHex(canvas, cellUnitMovementHighlight, hex, false);
 		}
-		if(stackMaxMovement)
-			showHighlightedHex(canvas, cellUnitMaxMovementHighlight, hex, false);
 	}
 }
 

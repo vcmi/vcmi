@@ -52,7 +52,6 @@ class BattleFieldController : public CIntObject
 
 	std::set<BattleHex> getHighlightedHexesForActiveStack();
 	std::set<BattleHex> getMovementRangeForHoveredStack();
-	std::set<BattleHex> STUB_getMaxMovementRangeForHoveredStack();
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesMovementTarget();
 
