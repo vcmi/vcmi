@@ -89,6 +89,7 @@ void BattleWindow::createQueue()
 
 	//create stack queue and adjust our own position
 	bool embedQueue;
+	bool showQueue = settings["battle"]["showQueue"].Bool();
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")
@@ -97,13 +98,16 @@ void BattleWindow::createQueue()
 		embedQueue = GH.screenDimensions().y < 700 || queueSize == "small";
 
 	queue = std::make_shared<StackQueue>(embedQueue, owner);
-	if(!embedQueue && settings["battle"]["showQueue"].Bool())
+	if(!embedQueue && showQueue)
 	{
 		//re-center, taking into account stack queue position
 		pos.y -= queue->pos.h;
 		pos.h += queue->pos.h;
 		pos = center();
 	}
+
+	if (!showQueue)
+		queue->disable();
 }
 
 BattleWindow::~BattleWindow()
@@ -143,8 +147,8 @@ void BattleWindow::hideQueue()
 		pos.y += queue->pos.h;
 		pos.h -= queue->pos.h;
 		pos = center();
-		GH.totalRedraw();
 	}
+	GH.totalRedraw();
 }
 
 void BattleWindow::showQueue()
