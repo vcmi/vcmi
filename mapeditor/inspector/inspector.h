@@ -83,7 +83,7 @@ protected:
 	QTableWidgetItem * addProperty(const QString & value);
 	QTableWidgetItem * addProperty(const int3 & value);
 	QTableWidgetItem * addProperty(const PlayerColor & value);
-	QTableWidgetItem * addProperty(const Res::ERes & value);
+	QTableWidgetItem * addProperty(const GameResID & value);
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);

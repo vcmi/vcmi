@@ -65,13 +65,13 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	for(auto s : army->Slots())
 	{
 		bool walker = true;
-		const CCreature * creature = s.second->type;
-		if(creature->hasBonus(selectorSHOOTER, keySHOOTER))
+		auto bearer = s.second->getType()->getBonusBearer();
+		if(bearer->hasBonus(selectorSHOOTER, keySHOOTER))
 		{
 			shootersStrength += s.second->getPower();
 			walker = false;
 		}
-		if(creature->hasBonus(selectorFLYING, keyFLYING))
+		if(bearer->hasBonus(selectorFLYING, keyFLYING))
 		{
 			flyersStrength += s.second->getPower();
 			walker = false;
@@ -79,7 +79,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 		if(walker)
 			walkersStrength += s.second->getPower();
 
-		vstd::amax(maxSpeed, creature->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
+		vstd::amax(maxSpeed, bearer->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
 	}
 	armyStructure as;
 	as.walkers = static_cast<float>(walkersStrength / totalStrength);

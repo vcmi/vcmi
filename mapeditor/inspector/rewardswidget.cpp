@@ -132,7 +132,7 @@ void RewardsWidget::obtainData()
 			addReward(RewardType::LUCK, 0, pandora->luckDiff);
 		if(pandora->resources.nonZero())
 		{
-			for(Res::ResourceSet::nziterator resiter(pandora->resources); resiter.valid(); ++resiter)
+			for(ResourceSet::nziterator resiter(pandora->resources); resiter.valid(); ++resiter)
 				addReward(RewardType::RESOURCE, resiter->resType, resiter->resVal);
 		}
 		for(int idx = 0; idx < pandora->primskills.size(); ++idx)
@@ -218,7 +218,7 @@ bool RewardsWidget::commitChanges()
 		pandora->abilities.clear();
 		pandora->abilityLevels.clear();
 		pandora->primskills.resize(GameConstants::PRIMARY_SKILLS, 0);
-		pandora->resources = Res::ResourceSet();
+		pandora->resources = ResourceSet();
 		pandora->artifacts.clear();
 		pandora->spells.clear();
 		pandora->creatures.clear();

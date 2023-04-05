@@ -271,7 +271,7 @@ public:
 	// should be removed at least from configs in favor of auto-detection
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
-	ui16 primaryRes;
+	GameResID primaryRes;
 	ArtifactID warMachine;
 	SpellID moatAbility;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set

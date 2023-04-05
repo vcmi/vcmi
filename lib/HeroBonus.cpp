@@ -1775,7 +1775,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::ESTATES || deprecatedSubtypeStr == "skill.estates")
 		{
 			type = Bonus::GENERATE_RESOURCE;
-			subtype = Res::GOLD;
+			subtype = GameResID(EGameResID::GOLD);
 			subtypeRelevant = true;
 		}
 		else if(deprecatedSubtype == SecondarySkill::AIR_MAGIC || deprecatedSubtypeStr == "skill.airMagic")
@@ -2380,7 +2380,7 @@ CreatureFactionLimiter::CreatureFactionLimiter():
 ILimiter::EDecision CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
-	auto accept = c && c->faction == faction;
+	auto accept = c && c->getFactionIndex() == faction;
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
 }
 
@@ -2731,7 +2731,7 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 		//otherwise we'd end up multiplying twice
 		if(stack.base == nullptr)
 		{
-			int level = stack.type->level;
+			int level = stack.type->getLevel();
 			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
 			newBonus->val *= level;
 			return newBonus;

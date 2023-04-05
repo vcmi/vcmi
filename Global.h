@@ -279,7 +279,7 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define VCMI_LIB_NAMESPACE_BEGIN
 #define VCMI_LIB_NAMESPACE_END
 #define VCMI_LIB_USING_NAMESPACE
-#define VCMI_LIB_WRAP_NAMESPACE(x) x
+#define VCMI_LIB_WRAP_NAMESPACE(x) ::x
 #endif
 
 /* ---------------------------------------------------------------------------- */

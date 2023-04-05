@@ -1235,7 +1235,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, ah->freeResources() / VLC->creh->objects[creID]->cost);
+		vstd::amin(count, ah->freeResources() / VLC->creatures()->getById(creID)->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1314,7 +1314,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		t = findTownWithTavern();
 	if(!t)
 		return false;
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
@@ -1434,7 +1434,7 @@ void VCAI::wander(HeroPtr h)
 				}
 				break;
 			}
-			else if(cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST)
+			else if(cb->getResourceAmount(EGameResID::GOLD) >= GameConstants::HERO_GOLD_COST)
 			{
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
 				vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
@@ -2117,10 +2117,10 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 		if(const IMarket * m = IMarket::castFrom(obj, false))
 		{
 			auto freeRes = ah->freeResources(); //trade only resources which are not reserved
-			for(auto it = Res::ResourceSet::nziterator(freeRes); it.valid(); it++)
+			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
 			{
 				auto res = it->resType;
-				if(res == g.resID) //sell any other resource
+				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
 				int toGive, toGet;
@@ -2174,7 +2174,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
 				continue;
 
-			vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
+			vstd::amin(ci.count, res / ci.cre->getFullRecruitCost()); //max count we can afford
 
 			if(!ci.count)
 				continue;
@@ -2190,15 +2190,15 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
-			int value1 = lhs.cre->AIValue * lhs.count,
-				value2 = rhs.cre->AIValue * rhs.count;
+			int value1 = lhs.cre->getAIValue() * lhs.count,
+				value2 = rhs.cre->getAIValue() * rhs.count;
 
 			return value1 < value2;
 		});
 
 
 		cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
-		valueBought += ci.count * ci.cre->AIValue;
+		valueBought += ci.count * ci.cre->getAIValue();
 	}
 
 	throw goalFulfilledException(sptr(g)); //we bought as many creatures as we wanted
@@ -2820,7 +2820,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->upgrades.size())
+			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;
@@ -2844,7 +2844,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
 		TResources myRes = ai->ah->freeResources();
-		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
+		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
 			return false;
 		break;
 	}

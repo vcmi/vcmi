@@ -1256,7 +1256,7 @@ void CMapLoaderH3M::readObjects()
 				readMessageAndGuards(res->message, res, objPos);
 
 				res->amount = reader->readUInt32();
-				if(objTempl->subid == Res::GOLD)
+				if(objTempl->subid == GameResID(EGameResID::GOLD))
 				{
 					// Gold is multiplied by 100.
 					res->amount *= 100;
@@ -1916,11 +1916,9 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 		}
 	case CQuest::MISSION_RESOURCES:
 		{
-			guard->quest->m7resources.resize(7);
 			for(int x = 0; x < 7; ++x)
-			{
 				guard->quest->m7resources[x] = reader->readUInt32();
-			}
+
 			break;
 		}
 	case CQuest::MISSION_HERO:

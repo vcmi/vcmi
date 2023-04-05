@@ -9,9 +9,6 @@
  */
 #pragma once
 
-#include <vcmi/Creature.h>
-#include <vcmi/CreatureService.h>
-
 #include "HeroBonus.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
@@ -20,6 +17,9 @@
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
 #include "Color.h"
+
+#include <vcmi/Creature.h>
+#include <vcmi/CreatureService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,7 +37,6 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	std::string getNameTranslated() const override;
 	std::string getNameTextID() const override;
 
-public:
 	CreatureID idNumber;
 
 	TFaction faction = 0;
@@ -45,17 +44,22 @@ public:
 
 	//stats that are not handled by bonus system
 	ui32 fightValue, AIValue, growth, hordeGrowth;
-	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
 
 	bool doubleWide = false;
-	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+
+	si32 iconIndex = -1; // index of icon in files like twcrport
 
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
+
+public:
+	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
+
+	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
 	std::string animDefName; // creature animation used during battles
 	std::string advMapDef; //for new creatures only, image for adventure map
-	si32 iconIndex = -1; // index of icon in files like twcrport
 
 	/// names of files with appropriate icons. Used only during loading
 	std::string smallIconName;
@@ -168,7 +172,7 @@ public:
 	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
-	virtual const IBonusBearer * accessBonuses() const override;
+	virtual const IBonusBearer * getBonusBearer() const override;
 	uint32_t getMaxHealth() const override;
 
 	int32_t getAdvMapAmountMin() const override;
@@ -189,8 +193,10 @@ public:
 	int32_t getBaseSpeed() const override;
 	int32_t getBaseShots() const override;
 
-	int32_t getCost(int32_t resIndex) const override;
+	int32_t getRecruitCost(GameResID resIndex) const override;
+	TResources getFullRecruitCost() const override;
 	bool isDoubleWide() const override; //returns true if unit is double wide on battlefield
+	bool hasUpgrades() const override;
 
 	bool isGood () const;
 	bool isEvil () const;

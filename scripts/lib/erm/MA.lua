@@ -149,7 +149,7 @@ end
 function MA:X(x, creatureIndex, flagsMask)
 	local creatureIndex = checkCreatureIndex(creatureIndex)
 	local creature = creatureByIndex(creatureIndex)
-	local creatureBonuses = creature:accessBonuses()
+	local creatureBonuses = creature:getBonusBearer()
 	local all = creatureBonuses:getBonuses()
 
 	local currentMask = 0

@@ -163,7 +163,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_ARMY:
 			return checkMissionArmy(this, h);
 		case MISSION_RESOURCES:
-			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
+			for(auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback
 				if(CGHeroInstance::cb->getResource(h->tempOwner, i) < static_cast<int>(m7resources[i]))
 					return false;
@@ -821,7 +821,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
 				{
-					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -static_cast<int>(quest->m7resources[i]));
+					cb->giveResource(h->getOwner(), static_cast<EGameResID>(i), -static_cast<int>(quest->m7resources[i]));
 				}
 				break;
 			default:
@@ -858,7 +858,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		}
 			break;
 		case RESOURCES:
-			cb->giveResource(h->getOwner(), static_cast<Res::ERes>(rID), rVal);
+			cb->giveResource(h->getOwner(), static_cast<EGameResID>(rID), rVal);
 			break;
 		case PRIMARY_SKILL:
 			cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);

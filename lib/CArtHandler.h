@@ -69,7 +69,7 @@ public:
 	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
-	virtual const IBonusBearer * accessBonuses() const override;
+	virtual const IBonusBearer * getBonusBearer() const override;
 
 	std::string getDescriptionTranslated() const override;
 	std::string getEventTranslated() const override;

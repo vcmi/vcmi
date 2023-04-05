@@ -64,7 +64,7 @@ CreatureID CCreature::getId() const
 	return idNumber;
 }
 
-const IBonusBearer * CCreature::accessBonuses() const
+const IBonusBearer * CCreature::getBonusBearer() const
 {
 	return this;
 }
@@ -162,12 +162,22 @@ int32_t CCreature::getBaseShots() const
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
-int32_t CCreature::getCost(int32_t resIndex) const
+int32_t CCreature::getRecruitCost(GameResID resIndex) const
 {
 	if(resIndex >= 0 && resIndex < cost.size())
 		return cost[resIndex];
 	else
 		return 0;
+}
+
+TResources CCreature::getFullRecruitCost() const
+{
+	return cost;
+}
+
+bool CCreature::hasUpgrades() const 
+{
+	return !upgrades.empty();
 }
 
 std::string CCreature::getNameTranslated() const
@@ -307,7 +317,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 {
 	//TODO upgrade of upgrade?
-	return vstd::contains(upgrades, anotherCre->idNumber);
+	return vstd::contains(upgrades, anotherCre->getId());
 }
 
 bool CCreature::valid() const
@@ -614,7 +624,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost = Res::ResourceSet(node["cost"]);
+	cre->cost = ResourceSet(node["cost"]);
 
 	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
 	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
@@ -647,18 +657,18 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 		JsonNode conf;
 		conf.setMeta(scope);
 
-		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->idNumber.num);
+		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!cre->advMapDef.empty())
 		{
 			JsonNode templ;
 			templ["animation"].String() = cre->advMapDef;
 			templ.setMeta(scope);
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->addTemplate(templ);
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->idNumber.num);
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 	});
 
 	return cre;
@@ -1335,7 +1345,7 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	{
 		do
 		{
-			r = (*RandomGeneratorUtil::nextItem(objects, rand))->idNumber;
+			r = (*RandomGeneratorUtil::nextItem(objects, rand))->getId();
 		} while (objects[r] && objects[r]->special); // find first "not special" creature
 	}
 	else
@@ -1347,7 +1357,7 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
 			const auto * crea = dynamic_cast<const CCreature *>(b);
 			if(crea && !crea->special)
-				allowed.push_back(crea->idNumber);
+				allowed.push_back(crea->getId());
 		}
 
 		if(allowed.empty())

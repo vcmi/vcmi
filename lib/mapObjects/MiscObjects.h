@@ -263,7 +263,7 @@ protected:
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public:
-	Res::ERes producedResource;
+	GameResID producedResource;
 	ui32 producedQuantity;
 
 private:

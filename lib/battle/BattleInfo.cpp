@@ -653,7 +653,7 @@ int32_t BattleInfo::getEnchanterCounter(ui8 side) const
 	return sides.at(side).enchanterCounter;
 }
 
-const IBonusBearer * BattleInfo::asBearer() const
+const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;
 }

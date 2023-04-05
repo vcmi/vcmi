@@ -205,6 +205,11 @@ public:
 	bool operator >  (const BaseForID & b) const { return num >  b.num; }
 
 	BaseForID & operator++() { ++num; return *this; }
+
+	operator NumericType() const
+	{
+		return num;
+	}
 };
 
 template < typename T>
@@ -266,6 +271,11 @@ public:
 		Identifier ret(*this);
 		++num;
 		return ret;
+	}
+
+	operator NumericType() const
+	{
+		return num;
 	}
 };
 

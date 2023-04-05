@@ -14,6 +14,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class IBonusBearer;
 
+class DLL_LINKAGE WithBonuses
+{
+public:
+	virtual const IBonusBearer * getBonusBearer() const = 0;
+};
+
 class DLL_LINKAGE Entity
 {
 public:
@@ -38,10 +44,8 @@ public:
 };
 
 template <typename IdType>
-class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>
+class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public WithBonuses
 {
-public:
-	virtual const IBonusBearer * accessBonuses() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

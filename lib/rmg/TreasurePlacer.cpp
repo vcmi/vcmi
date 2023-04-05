@@ -135,7 +135,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	std::vector<CCreature *> creatures; //native creatures for this zone
 	for(auto cre : VLC->creh->objects)
 	{
-		if(!cre->special && cre->faction == zone.getTownType())
+		if(!cre->special && cre->getFactionIndex() == zone.getTownType())
 		{
 			creatures.push_back(cre);
 		}
@@ -164,10 +164,10 @@ void TreasurePlacer::addAllPossibleObjects()
 				continue;
 
 			const auto * cre = creatures.front();
-			if(cre->faction == zone.getTownType())
+			if(cre->getFactionIndex() == zone.getTownType())
 			{
-				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->faction));
-				oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
+				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionIndex()));
+				oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
 				oi.probability = 40;
 
 				for(const auto & tmplate : dwellingHandler->getTemplates())
@@ -221,7 +221,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
-			obj->resources[Res::GOLD] = i * 5000;
+			obj->resources[EGameResID::GOLD] = i * 5000;
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
@@ -251,13 +251,13 @@ void TreasurePlacer::addAllPossibleObjects()
 	
 	auto creatureToCount = [tierValues](CCreature * creature) -> int
 	{
-		if(!creature->AIValue || tierValues.empty()) //bug #2681
+		if(!creature->getAIValue() || tierValues.empty()) //bug #2681
 			return 0; //this box won't be generated
 		
-		int actualTier = creature->level > tierValues.size() ?
+		int actualTier = creature->getLevel() > tierValues.size() ?
 		tierValues.size() - 1 :
-		creature->level - 1;
-		float creaturesAmount = (static_cast<float>(tierValues[actualTier])) / creature->AIValue;
+		creature->getLevel() - 1;
+		float creaturesAmount = (static_cast<float>(tierValues[actualTier])) / creature->getAIValue();
 		if(creaturesAmount <= 5)
 		{
 			creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
@@ -294,7 +294,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) / 3);
+		oi.value = static_cast<ui32>((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionIndex())) / map.getTotalZoneCount())) / 3);
 		oi.probability = 3;
 		addObjectToRandomPool(oi);
 	}
@@ -436,7 +436,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				obj->rewardType = CGSeerHut::CREATURE;
-				obj->rID = creature->idNumber;
+				obj->rID = creature->getId();
 				obj->rVal = creaturesAmount;
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
@@ -453,7 +453,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				return obj;
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) - 4000) / 3);
+			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionIndex())) / map.getTotalZoneCount())) - 4000) / 3);
 			oi.probability = 3;
 			addObjectToRandomPool(oi);
 		}
@@ -496,7 +496,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				obj->rewardType = CGSeerHut::RESOURCES;
-				obj->rID = Res::GOLD;
+				obj->rID = GameResID(EGameResID::GOLD);
 				obj->rVal = generator.getConfig().questRewardValues[i];
 				
 				obj->quest->missionType = CQuest::MISSION_ART;

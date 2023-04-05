@@ -30,7 +30,7 @@ namespace battle
 	class UnitInfo;
 }
 
-class DLL_LINKAGE IBattleInfo
+class DLL_LINKAGE IBattleInfo : public WithBonuses
 {
 public:
 	using ObstacleCList = std::vector<std::shared_ptr<const CObstacleInstance>>;
@@ -61,8 +61,6 @@ public:
 
 	virtual ui8 getTacticDist() const = 0;
 	virtual ui8 getTacticsSide() const = 0;
-
-	virtual const IBonusBearer * asBearer() const = 0;
 
 	virtual uint32_t nextUnitId() const = 0;
 

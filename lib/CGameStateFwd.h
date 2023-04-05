@@ -164,7 +164,7 @@ private:
 	{
 	}
 
-	si32 intValue; // uses EResult
+	si32 intValue; // uses EResultult
 };
 
 /*static std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)

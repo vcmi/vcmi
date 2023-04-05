@@ -435,7 +435,7 @@ int64_t HypotheticBattle::getActualDamage(const DamageRange & damage, int32_t at
 
 int64_t HypotheticBattle::getTreeVersion() const
 {
-	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
+	return getBonusBearer()->getTreeVersion() + bonusTreeVersion;
 }
 
 #if SCRIPTING_ENABLED

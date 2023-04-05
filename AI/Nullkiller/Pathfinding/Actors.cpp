@@ -350,7 +350,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 		{
 			auto targetSlot = target->getFreeSlot();
 
-			target->addToSlot(targetSlot, slotInfo.creature->idNumber, TQuantity(slotInfo.count));
+			target->addToSlot(targetSlot, slotInfo.creature->getId(), TQuantity(slotInfo.count));
 		}
 
 		resources -= upgradeInfo.upgradeCost;
@@ -372,10 +372,10 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 		for(auto & creatureToBuy : buyArmy)
 		{
-			auto targetSlot = target->getSlotFor(creatureToBuy.cre);
+			auto targetSlot = target->getSlotFor(dynamic_cast<const CCreature*>(creatureToBuy.cre));
 
 			target->addToSlot(targetSlot, creatureToBuy.creID, creatureToBuy.count);
-			target->armyCost += creatureToBuy.cre->cost * creatureToBuy.count;
+			target->armyCost += creatureToBuy.cre->getFullRecruitCost() * creatureToBuy.count;
 			target->requireBuyArmy = true;
 		}
 	}
@@ -399,7 +399,7 @@ HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1
 	{
 		auto targetSlot = target->getFreeSlot();
 
-		target->addToSlot(targetSlot, slotInfo.creature->idNumber, TQuantity(slotInfo.count));
+		target->addToSlot(targetSlot, slotInfo.creature->getId(), TQuantity(slotInfo.count));
 	}
 
 	return target;
@@ -420,7 +420,7 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 {
 	for(auto & slot : creatureSet->Slots())
 	{
-		armyCost += slot.second->getCreatureID().toCreature()->cost * slot.second->count;
+		armyCost += slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->count;
 	}
 }
 
@@ -454,7 +454,7 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 		auto creature = creatureInfo.second.back().toCreature();
 		dwellingCreatures->addToSlot(
 			dwellingCreatures->getSlotFor(creature),
-			creature->idNumber,
+			creature->getId(),
 			TQuantity(creatureInfo.first));
 	}
 

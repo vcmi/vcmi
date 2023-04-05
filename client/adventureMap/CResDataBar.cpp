@@ -80,7 +80,7 @@ std::string CResDataBar::buildDateString()
 void CResDataBar::draw(SDL_Surface * to)
 {
 	//TODO: all this should be labels, but they require proper text update on change
-	for (auto i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
+	for (auto i=GameResID(EGameResID::WOOD); i <= GameResID(EGameResID::GOLD); vstd::advance(i, 1))
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 

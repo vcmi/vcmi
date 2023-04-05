@@ -86,7 +86,7 @@ bool PlayerState::isHuman() const
 	return human;
 }
 
-const IBonusBearer * PlayerState::accessBonuses() const
+const IBonusBearer * PlayerState::getBonusBearer() const
 {
 	return this;
 }

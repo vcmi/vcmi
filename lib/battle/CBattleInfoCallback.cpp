@@ -1721,7 +1721,7 @@ si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		node = h;
 	else
-		node = getBattleNode();
+		node = getBonusBearer();
 
 	if(!node)
 		return 0;
@@ -1739,7 +1739,7 @@ si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		node = h;
 	else
-		node = getBattleNode();
+		node = getBonusBearer();
 
 	if(!node)
 		return GameConstants::SPELL_LEVELS;

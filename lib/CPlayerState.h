@@ -48,7 +48,7 @@ public:
 	PlayerColor getId() const override;
 	TeamID getTeam() const override;
 	bool isHuman() const override;
-	const IBonusBearer * accessBonuses() const override;
+	const IBonusBearer * getBonusBearer() const override;
 	int getResourceAmount(int type) const override;
 
 	int32_t getIndex() const override;

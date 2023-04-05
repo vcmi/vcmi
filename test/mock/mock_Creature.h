@@ -22,7 +22,7 @@ public:
 	MOCK_CONST_METHOD0(getJsonKey, const std::string &());
 	MOCK_CONST_METHOD0(getName, const std::string &());
 	MOCK_CONST_METHOD0(getId, CreatureID());
-	MOCK_CONST_METHOD0(accessBonuses, const IBonusBearer *());
+	MOCK_CONST_METHOD0(getBonusBearer, const IBonusBearer *());
 	MOCK_CONST_METHOD1(registerIcons, void(const IconRegistar &));
 
 	MOCK_CONST_METHOD0(getPluralName, const std::string &());
