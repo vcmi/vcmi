@@ -541,8 +541,6 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 
 			if(mapInfo->mapHeader->version == EMapFormat::VCMI || mapInfo->mapHeader->version <= maxSupported)
 				allItems.push_back(mapInfo);
-
-			allItems.push_back(mapInfo);
 		}
 		catch(std::exception & e)
 		{
