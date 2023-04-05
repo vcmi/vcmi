@@ -157,6 +157,11 @@ FactionID CFaction::getId() const
 	return FactionID(index);
 }
 
+FactionID CFaction::getFaction() const
+{
+	return FactionID(index);
+}
+
 bool CFaction::hasTown() const
 {
 	return town != nullptr;

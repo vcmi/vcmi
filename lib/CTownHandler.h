@@ -192,6 +192,8 @@ class DLL_LINKAGE CFaction : public Faction
 
 	TFaction index = 0;
 
+	FactionID getFaction() const override; //This function should not be used
+
 public:
 	TerrainId nativeTerrain;
 	EAlignment alignment = EAlignment::NEUTRAL;

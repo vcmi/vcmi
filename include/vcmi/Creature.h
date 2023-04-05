@@ -18,7 +18,7 @@ class CreatureID;
 class ResourceSet;
 enum class EGameResID : int8_t;
 
-class DLL_LINKAGE Creature : public EntityWithBonuses<CreatureID>
+class DLL_LINKAGE Creature : public EntityWithNativeTerrain<CreatureID>
 {
 protected:
 	// use getNamePlural/Singular instead

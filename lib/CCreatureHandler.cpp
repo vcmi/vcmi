@@ -114,6 +114,11 @@ int32_t CCreature::getFactionIndex() const
 	return faction;
 }
 
+FactionID CCreature::getFaction() const
+{
+	return FactionID(faction);
+}
+
 int32_t CCreature::getBaseAttack() const
 {
 	static const auto SELECTOR = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
