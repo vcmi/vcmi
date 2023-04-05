@@ -14,26 +14,25 @@
 #include "CMap.h"
 #include "MapReaderH3M.h"
 
-#include "../CStopWatch.h"
-#include "../filesystem/Filesystem.h"
-#include "../filesystem/CBinaryReader.h"
-#include "../spells/CSpellHandler.h"
-#include "../CSkillHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
+#include "../CSkillHandler.h"
+#include "../CStopWatch.h"
+#include "../RiverHandler.h"
+#include "../RoadHandler.h"
+#include "../TerrainHandler.h"
+#include "../TextOperations.h"
+#include "../VCMI_Lib.h"
+#include "../filesystem/CBinaryReader.h"
+#include "../filesystem/Filesystem.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/MapObjects.h"
-#include "../VCMI_Lib.h"
-#include "../TextOperations.h"
-#include "../TerrainHandler.h"
-#include "../RoadHandler.h"
-#include "../RiverHandler.h"
+#include "../spells/CSpellHandler.h"
 
 #include <boost/crc.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
-
 
 static std::string convertMapName(std::string input)
 {
@@ -42,7 +41,7 @@ static std::string convertMapName(std::string input)
 
 	size_t slashPos = input.find_last_of('/');
 
-	if (slashPos != std::string::npos)
+	if(slashPos != std::string::npos)
 		return input.substr(slashPos + 1);
 
 	return input;
@@ -87,62 +86,29 @@ void CMapLoaderH3M::init()
 	inputStream->seek(0);
 
 	auto * temp_buffer = new ui8[temp_size];
-	inputStream->read(temp_buffer,temp_size);
+	inputStream->read(temp_buffer, temp_size);
 
 	// Compute checksum
-	boost::crc_32_type  result;
+	boost::crc_32_type result;
 	result.process_bytes(temp_buffer, temp_size);
 	map->checksum = result.checksum();
 
-	delete [] temp_buffer;
+	delete[] temp_buffer;
 	inputStream->seek(0);
 
-	CStopWatch sw;
-
-	struct MapLoadingTime
-	{
-		std::string name;
-		si64 time;
-
-		MapLoadingTime(std::string name, si64 time): name(std::move(name)), time(time) {}
-	};
-	std::vector<MapLoadingTime> times;
-
 	readHeader();
-	times.emplace_back("header", sw.getDiff());
-
 	map->allHeroes.resize(map->allowedHeroes.size());
 
 	readDisposedHeroes();
-	times.emplace_back("disposed heroes", sw.getDiff());
-
 	readMapOptions();
-
 	readAllowedArtifacts();
-	times.emplace_back("allowed artifacts", sw.getDiff());
-
 	readAllowedSpellsAbilities();
-	times.emplace_back("allowed spells and abilities", sw.getDiff());
-
 	readRumors();
-	times.emplace_back("rumors", sw.getDiff());
-
 	readPredefinedHeroes();
-	times.emplace_back("predefined heroes", sw.getDiff());
-
 	readTerrain();
-	times.emplace_back("terrain", sw.getDiff());
-
 	readDefInfo();
-	times.emplace_back("def info", sw.getDiff());
-
 	readObjects();
-	times.emplace_back("objects", sw.getDiff());
-
 	readEvents();
-	times.emplace_back("events", sw.getDiff());
-
-	times.emplace_back("blocked/visitable tiles", sw.getDiff());
 
 	map->calculateGuardingGreaturePositions();
 	afterRead();
@@ -160,7 +126,7 @@ void CMapLoaderH3M::readHeader()
 		reader->setFormatLevel(mapHeader->version, hotaVersion);
 
 		reader->skipZero(2);
-		if (hotaVersion > 1)
+		if(hotaVersion > 1)
 		{
 			uint8_t unknown = reader->readUInt32();
 			assert(unknown == 12);
@@ -204,11 +170,11 @@ void CMapLoaderH3M::readPlayerInfo()
 		// If nobody can play with this player - skip loading of these properties
 		if((!(playerInfo.canHumanPlay || playerInfo.canComputerPlay)))
 		{
-			if (features.levelROE)
+			if(features.levelROE)
 				reader->skipUnused(6);
-			if (features.levelAB)
+			if(features.levelAB)
 				reader->skipUnused(6);
-			if (features.levelSOD)
+			if(features.levelSOD)
 				reader->skipUnused(1);
 			continue;
 		}
@@ -261,7 +227,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			{
 				SHeroName vv;
 				vv.heroId = reader->readUInt8();
-				vv.heroName = readLocalizedString( TextIdentifier("header", "heroNames", vv.heroId));
+				vv.heroName = readLocalizedString(TextIdentifier("header", "heroNames", vv.heroId));
 
 				playerInfo.heroesNames.push_back(vv);
 			}
@@ -289,9 +255,9 @@ enum class EVictoryConditionType : uint8_t
 
 enum class ELossConditionType : uint8_t
 {
-	LOSSCASTLE,
-	LOSSHERO,
-	TIMEEXPIRES,
+	LOSSCASTLE = 0,
+	LOSSHERO = 1,
+	TIMEEXPIRES = 2,
 	LOSSSTANDARD = 255
 };
 
@@ -342,11 +308,17 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		bool allowNormalVictory = reader->readBool();
 		bool appliesToAI = reader->readBool();
 
-		if (allowNormalVictory)
+		if(allowNormalVictory)
 		{
-			size_t playersOnMap = boost::range::count_if(mapHeader->players,[](const PlayerInfo & info) { return info.canAnyonePlay();});
+			size_t playersOnMap = boost::range::count_if(
+				mapHeader->players,
+				[](const PlayerInfo & info)
+				{
+					return info.canAnyonePlay();
+				}
+			);
 
-			if (playersOnMap == 1)
+			if(playersOnMap == 1)
 			{
 				logGlobal->warn("Map %s has only one player but allows normal victory?", mapHeader->name);
 				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
@@ -355,7 +327,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 		switch(vicCondition)
 		{
-		case EVictoryConditionType::ARTIFACT:
+			case EVictoryConditionType::ARTIFACT:
 			{
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				cond.objectType = reader->readArtifact();
@@ -365,7 +337,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::GATHERTROOP:
+			case EVictoryConditionType::GATHERTROOP:
 			{
 				EventCondition cond(EventCondition::HAVE_CREATURES);
 				cond.objectType = reader->readCreature();
@@ -376,7 +348,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::GATHERRESOURCE:
+			case EVictoryConditionType::GATHERRESOURCE:
 			{
 				EventCondition cond(EventCondition::HAVE_RESOURCES);
 				cond.objectType = reader->readUInt8();
@@ -387,7 +359,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::BUILDCITY:
+			case EVictoryConditionType::BUILDCITY:
 			{
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
@@ -402,20 +374,20 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(oper);
 				break;
 			}
-		case EVictoryConditionType::BUILDGRAIL:
+			case EVictoryConditionType::BUILDGRAIL:
 			{
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.objectType = BuildingID::GRAIL;
 				cond.position = reader->readInt3();
 				if(cond.position.z > 2)
-					cond.position = int3(-1,-1,-1);
+					cond.position = int3(-1, -1, -1);
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[285];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[284];
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::BEATHERO:
+			case EVictoryConditionType::BEATHERO:
 			{
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::HERO;
@@ -426,7 +398,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::CAPTURECITY:
+			case EVictoryConditionType::CAPTURECITY:
 			{
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::TOWN;
@@ -437,7 +409,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::BEATMONSTER:
+			case EVictoryConditionType::BEATMONSTER:
 			{
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::MONSTER;
@@ -448,7 +420,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::TAKEDWELLINGS:
+			case EVictoryConditionType::TAKEDWELLINGS:
 			{
 				EventExpression::OperatorAll oper;
 				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR1));
@@ -459,7 +431,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(oper);
 				break;
 			}
-		case EVictoryConditionType::TAKEMINES:
+			case EVictoryConditionType::TAKEMINES:
 			{
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::MINE;
@@ -469,7 +441,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::TRANSPORTITEM:
+			case EVictoryConditionType::TRANSPORTITEM:
 			{
 				EventCondition cond(EventCondition::TRANSPORT);
 				cond.objectType = reader->readUInt8();
@@ -480,23 +452,23 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
-		case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
+			case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
 				//TODO: HOTA
 				logGlobal->warn("Map '%s': Victory condition 'Eliminate all monsters' is not implemented!", mapName);
 				break;
-		case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
+			case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
 			{
 				//TODO: HOTA
 				uint32_t daysToSurvive = reader->readUInt32(); // Number of days
 				logGlobal->warn("Map '%s': Victory condition 'Survive for %d days' is not implemented!", mapName, daysToSurvive);
 				break;
 			}
-		default:
+			default:
 				assert(0);
 		}
 
 		// if condition is human-only turn it into following construction: AllOf(human, condition)
-		if (!appliesToAI)
+		if(!appliesToAI)
 		{
 			EventExpression::OperatorAll oper;
 			EventCondition notAI(EventCondition::IS_HUMAN);
@@ -507,7 +479,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		}
 
 		// if normal victory allowed - add one more quest
-		if (allowNormalVictory)
+		if(allowNormalVictory)
 		{
 			mapHeader->victoryMessage += " / ";
 			mapHeader->victoryMessage += VLC->generaltexth->victoryConditions[0];
@@ -518,7 +490,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 	// Read loss conditions
 	auto lossCond = static_cast<ELossConditionType>(reader->readUInt8());
-	if (lossCond == ELossConditionType::LOSSSTANDARD)
+	if(lossCond == ELossConditionType::LOSSSTANDARD)
 	{
 		mapHeader->defeatIconIndex = 3;
 		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[0];
@@ -536,7 +508,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 		switch(lossCond)
 		{
-		case ELossConditionType::LOSSCASTLE:
+			case ELossConditionType::LOSSCASTLE:
 			{
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
@@ -548,7 +520,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
 			}
-		case ELossConditionType::LOSSHERO:
+			case ELossConditionType::LOSSHERO:
 			{
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
@@ -560,7 +532,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
 			}
-		case ELossConditionType::TIMEEXPIRES:
+			case ELossConditionType::TIMEEXPIRES:
 			{
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				cond.value = reader->readUInt16();
@@ -597,20 +569,14 @@ void CMapLoaderH3M::readTeamInfo()
 	{
 		// Teams
 		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
-		{
 			mapHeader->players[i].team = TeamID(reader->readUInt8());
-		}
 	}
 	else
 	{
 		// No alliances
 		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-		{
 			if(mapHeader->players[i].canComputerPlay || mapHeader->players[i].canHumanPlay)
-			{
 				mapHeader->players[i].team = TeamID(mapHeader->howManyTeams++);
-			}
-		}
 	}
 }
 
@@ -621,7 +587,7 @@ void CMapLoaderH3M::readAllowedHeroes()
 	uint32_t heroesCount = features.heroesCount;
 	uint32_t heroesBytes = features.heroesBytes;
 
-	if (features.levelHOTA)
+	if(features.levelHOTA)
 	{
 		heroesCount = reader->readUInt32();
 		heroesBytes = (heroesCount + 7) / 8;
@@ -661,11 +627,11 @@ void CMapLoaderH3M::readMapOptions()
 	//omitting NULLS
 	reader->skipZero(31);
 
-	if (features.levelHOTA)
+	if(features.levelHOTA)
 	{
 		//TODO: HotA
 		bool allowSpecialMonths = reader->readBool();
-		if (!allowSpecialMonths)
+		if(!allowSpecialMonths)
 			logGlobal->warn("Map '%s': Option 'allow special months' is not implemented!", mapName);
 
 		reader->skipZero(3);
@@ -675,11 +641,11 @@ void CMapLoaderH3M::readMapOptions()
 		reader->skipZero(5);
 	}
 
-	if (features.levelHOTA3)
+	if(features.levelHOTA3)
 	{
 		//TODO: HotA
 		int32_t roundLimit = reader->readInt32();
-		if (roundLimit != -1)
+		if(roundLimit != -1)
 			logGlobal->warn("Map '%s': roundLimit of %d is not implemented!", mapName, roundLimit);
 	}
 }
@@ -691,7 +657,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	uint32_t artifactsCount = features.artifactsCount;
 	uint32_t artifactsBytes = features.artifactsBytes;
 
-	if (features.levelHOTA)
+	if(features.levelHOTA)
 	{
 		artifactsCount = reader->readUInt32();
 		artifactsBytes = (artifactsCount + 7) / 8;
@@ -702,26 +668,25 @@ void CMapLoaderH3M::readAllowedArtifacts()
 		reader->readBitmask(map->allowedArtifact, artifactsBytes, artifactsCount, true);
 
 	// ban combo artifacts
-	if (!features.levelSOD)
+	if(!features.levelSOD)
 	{
 		for(CArtifact * artifact : VLC->arth->objects)
-			if (artifact->constituents)
+			if(artifact->constituents)
 				map->allowedArtifact[artifact->getId()] = false;
 	}
 
-	if (!features.levelAB)
+	if(!features.levelAB)
 	{
 		map->allowedArtifact[ArtifactID::VIAL_OF_DRAGON_BLOOD] = false;
 		map->allowedArtifact[ArtifactID::ARMAGEDDONS_BLADE] = false;
 	}
 
 	// Messy, but needed
-	for (TriggeredEvent & event : map->triggeredEvents)
+	for(TriggeredEvent & event : map->triggeredEvents)
 	{
 		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
-			if (cond.condition == EventCondition::HAVE_ARTIFACT ||
-				cond.condition == EventCondition::TRANSPORT)
+			if(cond.condition == EventCondition::HAVE_ARTIFACT || cond.condition == EventCondition::TRANSPORT)
 			{
 				map->allowedArtifact[cond.objectType] = false;
 			}
@@ -747,7 +712,7 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 void CMapLoaderH3M::readRumors()
 {
 	uint32_t rumorsCount = reader->readUInt32();
-	assert(rumorsCount < 100); // sanity check
+	assert(rumorsCount < 1000); // sanity check
 
 	for(int it = 0; it < rumorsCount; it++)
 	{
@@ -760,25 +725,25 @@ void CMapLoaderH3M::readRumors()
 
 void CMapLoaderH3M::readPredefinedHeroes()
 {
-	if (!features.levelSOD)
+	if(!features.levelSOD)
 		return;
 
 	uint32_t heroesCount = features.heroesCount;
 
-	if (features.levelHOTA)
+	if(features.levelHOTA)
 		heroesCount = reader->readUInt32();
 
 	assert(heroesCount <= features.heroesCount);
 
-	for(int z = 0; z < heroesCount; z++)
+	for(int heroID = 0; heroID < heroesCount; heroID++)
 	{
-		bool custom =  reader->readBool();
+		bool custom = reader->readBool();
 		if(!custom)
 			continue;
 
 		auto * hero = new CGHeroInstance();
 		hero->ID = Obj::HERO;
-		hero->subID = z;
+		hero->subID = heroID;
 
 		bool hasExp = reader->readBool();
 		if(hasExp)
@@ -806,7 +771,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 		bool hasCustomBio = reader->readBool();
 		if(hasCustomBio)
-			hero->biographyCustom = readLocalizedString(TextIdentifier("heroes", z, "biography"));
+			hero->biographyCustom = readLocalizedString(TextIdentifier("heroes", heroID, "biography"));
 
 		// 0xFF is default, 00 male, 01 female
 		hero->gender = static_cast<EHeroGender>(reader->readUInt8());
@@ -819,9 +784,9 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
 		{
-			for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; xx++)
+			for(int skillID = 0; skillID < GameConstants::PRIMARY_SKILLS; skillID++)
 			{
-				hero->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader->readUInt8());
+				hero->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(skillID), reader->readUInt8());
 			}
 		}
 		map->predefinedHeroes.emplace_back(hero);
@@ -838,21 +803,20 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...",
-						hero->getNameTranslated(),
-						hero->pos.toString());
+		logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
+
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
-				hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
+			hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
 	}
 
-	for(int pom = 0; pom < features.artifactSlotsCount; pom++)
-		loadArtifactToSlot(hero, pom);
+	for(int i = 0; i < features.artifactSlotsCount; i++)
+		loadArtifactToSlot(hero, i);
 
 	// bag artifacts
 	// number of artifacts in hero's bag
 	int amount = reader->readUInt16();
-	for(int ss = 0; ss < amount; ++ss)
+	for(int i = 0; i < amount; ++i)
 	{
 		loadArtifactToSlot(hero, GameConstants::BACKPACK_START + static_cast<int>(hero->artifactsInBackpack.size()));
 	}
@@ -860,14 +824,14 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 {
-	ArtifactID aid = reader->readArtifact();
+	ArtifactID artifactID = reader->readArtifact();
 
-	if(aid == ArtifactID::NONE)
+	if(artifactID == ArtifactID::NONE)
 		return false;
 
-	const Artifact * art = ArtifactID(aid).toArtifact(VLC->artifacts());
+	const Artifact * art = artifactID.toArtifact(VLC->artifacts());
 
-	if(nullptr == art)
+	if(!art)
 	{
 		logGlobal->warn("Invalid artifact in hero's backpack, ignoring...");
 		return false;
@@ -882,9 +846,9 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	// H3 bug workaround - Enemy hero on 3rd scenario of Good1.h3c campaign ("Long Live The Queen")
 	// He has Shackles of War (normally - MISC slot artifact) in LEFT_HAND slot set in editor
 	// Artifact seems to be missing in game, so skip artifacts that don't fit target slot
-	auto * artifact = CArtifactInstance::createArtifact(map, aid);
+	auto * artifact = CArtifactInstance::createArtifact(map, artifactID);
 	auto artifactPos = ArtifactPosition(slot);
-	if (artifact->canBePutAt(ArtifactLocation(hero, artifactPos)))
+	if(artifact->canBePutAt(ArtifactLocation(hero, artifactPos)))
 	{
 		hero->putArtifact(artifactPos, artifact);
 	}
@@ -934,7 +898,7 @@ void CMapLoaderH3M::readDefInfo()
 	templates.reserve(defAmount);
 
 	// Read custom defs
-	for(int idd = 0; idd < defAmount; ++idd)
+	for(int defID = 0; defID < defAmount; ++defID)
 	{
 		auto * tmpl = new ObjectTemplate;
 		tmpl->readMap(reader->getInternalReader());
@@ -942,11 +906,11 @@ void CMapLoaderH3M::readDefInfo()
 	}
 }
 
-CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & objPos)
+CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition)
 {
 	auto * object = new CGEvent();
 
-	readBoxContent(object, objPos);
+	readBoxContent(object, mapPosition);
 
 	object->availableFor = reader->readUInt8();
 	object->computerActivate = reader->readBool();
@@ -954,25 +918,24 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & objPos)
 
 	reader->skipZero(4);
 
-	if (features.levelHOTA3)
+	if(features.levelHOTA3)
 		object->humanActivate = reader->readBool();
 	else
 		object->humanActivate = true;
 
-
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition)
 {
 	auto * object = new CGPandoraBox();
-	readBoxContent(object, position);
+	readBoxContent(object, mapPosition);
 	return object;
 }
 
-void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & position)
+void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPosition)
 {
-	readMessageAndGuards(object->message, object, position);
+	readMessageAndGuards(object->message, object, mapPosition);
 
 	object->gainedExp = reader->readUInt32();
 	object->manaDiff = reader->readInt32();
@@ -985,7 +948,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & position)
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
 		object->primskills[x] = static_cast<PrimarySkill::PrimarySkill>(reader->readUInt8());
 
-	int gabn = reader->readUInt8();//number of gained abilities
+	int gabn = reader->readUInt8(); //number of gained abilities
 	for(int oo = 0; oo < gabn; ++oo)
 	{
 		object->abilities.emplace_back(reader->readSkill());
@@ -1004,14 +967,14 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & position)
 	reader->skipZero(8);
 }
 
-CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectInstanceID & idToBeGiven)
+CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
 	auto * object = new CGCreature();
 
 	if(features.levelAB)
 	{
 		object->identifier = reader->readUInt32();
-		map->questIdentifierToId[object->identifier] = idToBeGiven;
+		map->questIdentifierToId[object->identifier] = objectInstanceID;
 	}
 
 	auto * hlp = new CStackInstance();
@@ -1025,7 +988,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectI
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
 	{
-		object->message = readLocalizedString(TextIdentifier("monster", objPos.x, objPos.y, objPos.z, "message"));
+		object->message = readLocalizedString(TextIdentifier("monster", mapPosition.x, mapPosition.y, mapPosition.z, "message"));
 		reader->readResourses(object->resources);
 		object->gainedArtifact = reader->readArtifact();
 	}
@@ -1033,7 +996,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectI
 	object->notGrowingTeam = reader->readBool();
 	reader->skipZero(2);
 
-	if (features.levelHOTA3)
+	if(features.levelHOTA3)
 	{
 		//TODO: HotA
 		int32_t agressionExact = reader->readInt32(); // -1 = default, 1-10 = possible values range
@@ -1042,22 +1005,31 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & objPos, const ObjectI
 		int32_t upgradedStack = reader->readInt32(); // Presence of upgraded stack, -1 = random, 0 = never, 1 = always
 		int32_t stacksCount = reader->readInt32(); // TODO: check possible values. How many creature stacks will be present on battlefield, -1 = default
 
-		if (agressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1 || stacksCount != -1)
-			logGlobal->warn("Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemeted!", mapName, objPos.toString(), agressionExact, int(joinOnlyForMoney), joinPercent, upgradedStack, stacksCount);
+		if(agressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1 || stacksCount != -1)
+			logGlobal->warn(
+				"Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemeted!",
+				mapName,
+				mapPosition.toString(),
+				agressionExact,
+				int(joinOnlyForMoney),
+				joinPercent,
+				upgradedStack,
+				stacksCount
+			);
 	}
 
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readSign(const int3 & objPos)
+CGObjectInstance * CMapLoaderH3M::readSign(const int3 & mapPosition)
 {
 	auto * object = new CGSignBottle();
-	object->message = readLocalizedString(TextIdentifier("sign", objPos.x, objPos.y, objPos.z, "message"));
+	object->message = readLocalizedString(TextIdentifier("sign", mapPosition.x, mapPosition.y, mapPosition.z, "message"));
 	reader->skipZero(4);
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readWitchHut()
 {
 	auto * object = new CGWitchHut();
 
@@ -1071,14 +1043,14 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position)
 			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
 			for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
-				if (defaultAllowed[skillID])
+				if(defaultAllowed[skillID])
 					object->allowedAbilities.insert(skillID);
 		}
 	}
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readScholar()
 {
 	auto * object = new CGScholar();
 	object->bonusType = static_cast<CGScholar::EBonusType>(reader->readUInt8());
@@ -1087,7 +1059,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readGarrison(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readGarrison()
 {
 	auto * object = new CGGarrison();
 
@@ -1102,37 +1074,37 @@ CGObjectInstance * CMapLoaderH3M::readGarrison(const int3 & position)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & objPos, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto artID = ArtifactID::NONE; //random, set later
 	int spellID = -1;
 	auto * object = new CGArtifact();
 
-	readMessageAndGuards(object->message, object, objPos);
+	readMessageAndGuards(object->message, object, mapPosition);
 
-	if(objTempl->id == Obj::SPELL_SCROLL)
+	if(objectTemplate->id == Obj::SPELL_SCROLL)
 	{
 		spellID = reader->readSpell32();
 		artID = ArtifactID::SPELL_SCROLL;
 	}
-	else if(objTempl->id == Obj::ARTIFACT)
+	else if(objectTemplate->id == Obj::ARTIFACT)
 	{
 		//specific artifact
-		artID = ArtifactID(objTempl->subid);
+		artID = ArtifactID(objectTemplate->subid);
 	}
 
 	object->storedArtifact = CArtifactInstance::createArtifact(map, artID, spellID);
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto * object = new CGResource();
 
-	readMessageAndGuards(object->message, object, position);
+	readMessageAndGuards(object->message, object, mapPosition);
 
 	object->amount = reader->readUInt32();
-	if(objTempl->subid == GameResID(EGameResID::GOLD))
+	if(objectTemplate->subid == GameResID(EGameResID::GOLD))
 	{
 		// Gold is multiplied by 100.
 		object->amount *= 100;
@@ -1141,10 +1113,10 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & position, std::share
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto * object = new CGMine();
-	if (objTempl->subid < 7 )
+	if(objectTemplate->subid < 7)
 	{
 		object->setOwner(reader->readPlayer32());
 	}
@@ -1163,24 +1135,24 @@ CGObjectInstance * CMapLoaderH3M::readDwelling(const int3 & position)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl )
+CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto * object = new CGDwelling();
 
 	CSpecObjInfo * spec = nullptr;
-	switch(objTempl->id)
+	switch(objectTemplate->id)
 	{
-	case Obj::RANDOM_DWELLING:
-		spec = new CCreGenLeveledCastleInfo();
-		break;
-	case Obj::RANDOM_DWELLING_LVL:
-		spec = new CCreGenAsCastleInfo();
-		break;
-	case Obj::RANDOM_DWELLING_FACTION:
-		spec = new CCreGenLeveledInfo();
-		break;
-	default:
-		throw std::runtime_error("Invalid random dwelling format");
+		case Obj::RANDOM_DWELLING:
+			spec = new CCreGenLeveledCastleInfo();
+			break;
+		case Obj::RANDOM_DWELLING_LVL:
+			spec = new CCreGenAsCastleInfo();
+			break;
+		case Obj::RANDOM_DWELLING_FACTION:
+			spec = new CCreGenLeveledInfo();
+			break;
+		default:
+			throw std::runtime_error("Invalid random dwelling format");
 	}
 	spec->owner = object;
 
@@ -1203,10 +1175,10 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & position, std:
 			castleSpec->allowedFactions.resize(VLC->townh->size(), false);
 
 			for(int i = 0; i < MASK_SIZE; i++)
-				castleSpec->allowedFactions[i] = ((mask[0] & (1 << i))>0);
+				castleSpec->allowedFactions[i] = ((mask[0] & (1 << i)) > 0);
 
-			for(int i = 0; i < (GameConstants::F_NUMBER-MASK_SIZE); i++)
-				castleSpec->allowedFactions[i+MASK_SIZE] = ((mask[1] & (1 << i))>0);
+			for(int i = 0; i < (GameConstants::F_NUMBER - MASK_SIZE); i++)
+				castleSpec->allowedFactions[i + MASK_SIZE] = ((mask[1] & (1 << i)) > 0);
 		}
 		else
 		{
@@ -1224,14 +1196,14 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & position, std:
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readShrine()
 {
 	auto * object = new CGShrine();
 	object->spell = reader->readSpell32();
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 {
 	auto * object = new CGHeroPlaceholder();
 
@@ -1243,83 +1215,83 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & position)
 	if(htid.getNum() == -1)
 	{
 		object->power = reader->readUInt8();
-		logGlobal->debug("Hero placeholder: by power at %s", position.toString());
+		logGlobal->debug("Hero placeholder: by power at %s", mapPosition.toString());
 	}
 	else
 	{
 		object->power = 0;
-		logGlobal->debug("Hero placeholder: %s at %s", VLC->heroh->getById(htid)->getNameTranslated(), position.toString());
+		logGlobal->debug("Hero placeholder: %s at %s", VLC->heroh->getById(htid)->getNameTranslated(), mapPosition.toString());
 	}
 
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readGrail(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readGrail(const int3 & mapPosition)
 {
-	map->grailPos = position;
+	map->grailPos = mapPosition;
 	map->grailRadius = reader->readInt32();
 	return nullptr;
 }
 
-CGObjectInstance * CMapLoaderH3M::readBlank(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	if (VLC->objtypeh->knownSubObjects(objTempl->id).count(objTempl->subid))
-		return  VLC->objtypeh->getHandlerFor(objTempl->id, objTempl->subid)->create(objTempl);
+	if(VLC->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
+		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(objectTemplate);
 
-	logGlobal->warn("Unrecognized object: %d:%d ('%s') at %s on map '%s'", objTempl->id.toEnum(), objTempl->subid, objTempl->animationFile, position.toString(), map->name);
+	logGlobal->warn("Unrecognized object: %d:%d ('%s') at %s on map '%s'", objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile, mapPosition.toString(), map->name);
 	return new CGObjectInstance();
 }
 
-CGObjectInstance * CMapLoaderH3M::readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readPyramid(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	if(objTempl->subid == 0)
+	if(objectTemplate->subid == 0)
 		return new CBank();
 
 	return new CGObjectInstance();
 }
 
-CGObjectInstance * CMapLoaderH3M::readQuestGuard(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 {
 	auto * guard = new CGQuestGuard();
-	readQuest(guard, position);
+	readQuest(guard, mapPosition);
 	return guard;
 }
 
-CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readShipyard()
 {
 	auto * object = new CGShipyard();
 	object->setOwner(reader->readPlayer32());
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readBorderGuard(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readBorderGuard()
 {
 	return new CGBorderGuard();
 }
 
-CGObjectInstance * CMapLoaderH3M::readBorderGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readBorderGate(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	if (objTempl->subid < 1000)
+	if(objectTemplate->subid < 1000)
 		return new CGBorderGate();
 
 	//TODO: HotA - grave has same ID as border gate? WTF?
-	if (objTempl->subid == 1001)
+	if(objectTemplate->subid == 1001)
 		return new CGObjectInstance();
 
-	logGlobal->warn("Map '%s: Quest gates at %s are not implemented!", mapName, position.toString());
-	return readQuestGuard(position);
+	logGlobal->warn("Map '%s: Quest gates at %s are not implemented!", mapName, mapPosition.toString());
+	return readQuestGuard(mapPosition);
 }
 
-CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readLighthouse()
 {
 	auto * object = new CGLighthouse();
 	object->tempOwner = reader->readPlayer32();
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	if (features.levelHOTA3)
+	if(features.levelHOTA3)
 	{
 		//TODO: HotA
 		// index of guards preset. -1 = random, 0-4 = index of possible guards settings
@@ -1342,24 +1314,31 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & position, std::shared_pt
 			artifacts.push_back(reader->readArtifact32());
 		}
 
-		if ( guardsPresetIndex != -1 || upgradedStackPresence != -1 || !artifacts.empty())
-			logGlobal->warn("Map '%s: creature bank at %s settings %d %d %d are not implemented!", mapName, position.toString(), guardsPresetIndex, int(upgradedStackPresence), artifacts.size());
+		if(guardsPresetIndex != -1 || upgradedStackPresence != -1 || !artifacts.empty())
+			logGlobal->warn(
+				"Map '%s: creature bank at %s settings %d %d %d are not implemented!",
+				mapName,
+				mapPosition.toString(),
+				guardsPresetIndex,
+				int(upgradedStackPresence),
+				artifacts.size()
+			);
 	}
 
-	return readBlank(position, objTempl);
+	return readGeneric(mapPosition, objectTemplate);
 }
 
-CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven)
+CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
 	switch(objectTemplate->id)
 	{
 		case Obj::EVENT:
-			return readEvent(objectPosition);
+			return readEvent(mapPosition);
 
 		case Obj::HERO:
 		case Obj::RANDOM_HERO:
 		case Obj::PRISON:
-			return readHero(objectPosition, idToBeGiven);
+			return readHero(mapPosition, objectInstanceID);
 
 		case Obj::MONSTER:
 		case Obj::RANDOM_MONSTER:
@@ -1370,23 +1349,23 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 		case Obj::RANDOM_MONSTER_L5:
 		case Obj::RANDOM_MONSTER_L6:
 		case Obj::RANDOM_MONSTER_L7:
-			return readMonster(objectPosition, idToBeGiven);
+			return readMonster(mapPosition, objectInstanceID);
 
 		case Obj::OCEAN_BOTTLE:
 		case Obj::SIGN:
-			return readSign(objectPosition);
+			return readSign(mapPosition);
 
 		case Obj::SEER_HUT:
-			return readSeerHut(objectPosition);
+			return readSeerHut(mapPosition);
 
 		case Obj::WITCH_HUT:
-			return readWitchHut(objectPosition);
+			return readWitchHut();
 		case Obj::SCHOLAR:
-			return readScholar(objectPosition);
+			return readScholar();
 
 		case Obj::GARRISON:
 		case Obj::GARRISON2:
-			return readGarrison(objectPosition);
+			return readGarrison();
 
 		case Obj::ARTIFACT:
 		case Obj::RANDOM_ART:
@@ -1395,261 +1374,265 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 		case Obj::RANDOM_MAJOR_ART:
 		case Obj::RANDOM_RELIC_ART:
 		case Obj::SPELL_SCROLL:
-			return readArtifact(objectPosition, objectTemplate);
+			return readArtifact(mapPosition, objectTemplate);
 
 		case Obj::RANDOM_RESOURCE:
 		case Obj::RESOURCE:
-			return readResource(objectPosition, objectTemplate);
+			return readResource(mapPosition, objectTemplate);
 		case Obj::RANDOM_TOWN:
 		case Obj::TOWN:
-			return readTown(objectPosition, objectTemplate);
+			return readTown(mapPosition, objectTemplate);
 
 		case Obj::MINE:
 		case Obj::ABANDONED_MINE:
-			return readMine(objectPosition, objectTemplate);
+			return readMine(mapPosition, objectTemplate);
 
 		case Obj::CREATURE_GENERATOR1:
 		case Obj::CREATURE_GENERATOR2:
 		case Obj::CREATURE_GENERATOR3:
 		case Obj::CREATURE_GENERATOR4:
-			return readDwelling(objectPosition);
+			return readDwelling(mapPosition);
 
 		case Obj::SHRINE_OF_MAGIC_INCANTATION:
 		case Obj::SHRINE_OF_MAGIC_GESTURE:
 		case Obj::SHRINE_OF_MAGIC_THOUGHT:
-			return readShrine(objectPosition);
+			return readShrine();
 
 		case Obj::PANDORAS_BOX:
-			return readPandora(objectPosition);
+			return readPandora(mapPosition);
 
 		case Obj::GRAIL:
-			return readGrail(objectPosition);
+			return readGrail(mapPosition);
 
 		case Obj::RANDOM_DWELLING:
 		case Obj::RANDOM_DWELLING_LVL:
 		case Obj::RANDOM_DWELLING_FACTION:
-			return readDwellingRandom(objectPosition, objectTemplate);
+			return readDwellingRandom(mapPosition, objectTemplate);
 
 		case Obj::QUEST_GUARD:
-			return readQuestGuard(objectPosition);
+			return readQuestGuard(mapPosition);
 
 		case Obj::SHIPYARD:
-			return readShipyard(objectPosition);
+			return readShipyard();
 
 		case Obj::HERO_PLACEHOLDER:
-			return readHeroPlaceholder(objectPosition);
+			return readHeroPlaceholder(mapPosition);
 
 		case Obj::BORDERGUARD:
-			return readBorderGuard(objectPosition);
+			return readBorderGuard();
 
 		case Obj::BORDER_GATE:
-			return readBorderGate(objectPosition, objectTemplate);
+			return readBorderGate(mapPosition, objectTemplate);
 
 		case Obj::PYRAMID:
-			return readPyramid(objectPosition, objectTemplate);
+			return readPyramid(mapPosition, objectTemplate);
 
 		case Obj::LIGHTHOUSE:
-			return readLighthouse(objectPosition);
+			return readLighthouse();
 
 		case Obj::CREATURE_BANK:
 		case Obj::DERELICT_SHIP:
 		case Obj::DRAGON_UTOPIA:
 		case Obj::CRYPT:
 		case Obj::SHIPWRECK:
-			return readBank(objectPosition, objectTemplate);
+			return readBank(mapPosition, objectTemplate);
 
 		default: //any other object
-			return readBlank(objectPosition, objectTemplate);
+			return readGeneric(mapPosition, objectTemplate);
 	}
 }
 
 void CMapLoaderH3M::readObjects()
 {
-	uint32_t howManyObjs = reader->readUInt32();
+	uint32_t objectsCount = reader->readUInt32();
 
-	for(uint32_t ww = 0; ww < howManyObjs; ++ww)
+	for(uint32_t i = 0; i < objectsCount; ++i)
 	{
-		int3 objPos = reader->readInt3();
+		int3 mapPosition = reader->readInt3();
 
-		uint32_t defnum = reader->readUInt32();
-		ObjectInstanceID idToBeGiven = ObjectInstanceID(static_cast<si32>(map->objects.size()));
+		uint32_t defIndex = reader->readUInt32();
+		ObjectInstanceID objectInstanceID = ObjectInstanceID(static_cast<si32>(map->objects.size()));
 
-		std::shared_ptr<const ObjectTemplate> objTempl = templates.at(defnum);
+		std::shared_ptr<const ObjectTemplate> objectTemplate = templates.at(defIndex);
 		reader->skipZero(5);
 
-		CGObjectInstance * nobj = readObject(objTempl, objPos, idToBeGiven);
+		CGObjectInstance * newObject = readObject(objectTemplate, mapPosition, objectInstanceID);
 
-		if (!nobj)
+		if(!newObject)
 			continue;
 
-		nobj->pos = objPos;
-		nobj->ID = objTempl->id;
-		nobj->id = idToBeGiven;
-		if(nobj->ID != Obj::HERO && nobj->ID != Obj::HERO_PLACEHOLDER && nobj->ID != Obj::PRISON)
+		newObject->pos = mapPosition;
+		newObject->ID = objectTemplate->id;
+		newObject->id = objectInstanceID;
+		if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)
 		{
-			nobj->subID = objTempl->subid;
+			newObject->subID = objectTemplate->subid;
 		}
-		nobj->appearance = objTempl;
-		assert(idToBeGiven == ObjectInstanceID((si32)map->objects.size()));
+		newObject->appearance = objectTemplate;
+		assert(objectInstanceID == ObjectInstanceID((si32)map->objects.size()));
 
 		{
 			//TODO: define valid typeName and subtypeName for H3M maps
 			//boost::format fmt("%s_%d");
 			//fmt % nobj->typeName % nobj->id.getNum();
 			boost::format fmt("obj_%d");
-			fmt % nobj->id.getNum();
-			nobj->instanceName = fmt.str();
+			fmt % newObject->id.getNum();
+			newObject->instanceName = fmt.str();
 		}
-		map->addNewObject(nobj);
+		map->addNewObject(newObject);
 	}
 
-	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
-	{
-		return a->subID < b->subID;
-	});
+	std::sort(
+		map->heroesOnMap.begin(),
+		map->heroesOnMap.end(),
+		[](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
+		{
+			return a->subID < b->subID;
+		}
+	);
 }
 
 void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 {
-	for(int ir = 0; ir < number; ++ir)
+	for(int index = 0; index < number; ++index)
 	{
-		CreatureID creID = reader->readCreature();
+		CreatureID creatureID = reader->readCreature();
 		int count = reader->readUInt16();
 
 		// Empty slot
-		if(creID == CreatureID::NONE)
+		if(creatureID == CreatureID::NONE)
 			continue;
 
-		auto * hlp = new CStackInstance();
-		hlp->count = count;
+		auto * result = new CStackInstance();
+		result->count = count;
 
-		if(creID < CreatureID::NONE)
+		if(creatureID < CreatureID::NONE)
 		{
-			int value = - creID.getNum() - 2;
+			int value = -creatureID.getNum() - 2;
 			assert(value >= 0 && value < 14);
 			uint8_t level = value / 2;
 			uint8_t upgrade = value % 2;
 
 			//this will happen when random object has random army
-			hlp->randomStack = CStackInstance::RandomStackInfo{level, upgrade};
+			result->randomStack = CStackInstance::RandomStackInfo{level, upgrade};
 		}
 		else
 		{
-			hlp->setType(creID);
+			result->setType(creatureID);
 		}
 
-		out->putStack(SlotID(ir), hlp);
+		out->putStack(SlotID(index), result);
 	}
 
 	out->validTypes(true);
 }
 
-CGObjectInstance * CMapLoaderH3M::readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven)
+CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
-	auto * nhi = new CGHeroInstance();
+	auto * object = new CGHeroInstance();
 
 	if(features.levelAB)
 	{
 		unsigned int identifier = reader->readUInt32();
-		map->questIdentifierToId[identifier] = idToBeGiven;
+		map->questIdentifierToId[identifier] = objectInstanceID;
 	}
 
 	PlayerColor owner = reader->readPlayer();
-	nhi->subID = reader->readUInt8();
+	object->subID = reader->readUInt8();
 
 	//If hero of this type has been predefined, use that as a base.
 	//Instance data will overwrite the predefined values where appropriate.
 	for(auto & elem : map->predefinedHeroes)
 	{
-		if(elem->subID == nhi->subID)
+		if(elem->subID == object->subID)
 		{
-			logGlobal->debug("Hero %d will be taken from the predefined heroes list.", nhi->subID);
-			delete nhi;
-			nhi = elem;
+			logGlobal->debug("Hero %d will be taken from the predefined heroes list.", object->subID);
+			delete object;
+			object = elem;
 			break;
 		}
 	}
 
-	nhi->setOwner(owner);
-	nhi->portrait = nhi->subID;
+	object->setOwner(owner);
+	object->portrait = object->subID;
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId == nhi->subID)
+		if(elem.heroId == object->subID)
 		{
-			nhi->nameCustom = elem.name;
-			nhi->portrait = elem.portrait;
+			object->nameCustom = elem.name;
+			object->portrait = elem.portrait;
 			break;
 		}
 	}
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		nhi->nameCustom = readLocalizedString(TextIdentifier("heroes", nhi->subID, "name"));
+		object->nameCustom = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
 
 	if(features.levelSOD)
 	{
-		bool hasExp = reader->readBool();
-		if(hasExp)
-			nhi->exp = reader->readUInt32();
+		bool hasCustomExperience = reader->readBool();
+		if(hasCustomExperience)
+			object->exp = reader->readUInt32();
 		else
-			nhi->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
+			object->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
 	}
 	else
 	{
-		nhi->exp = reader->readUInt32();
+		object->exp = reader->readUInt32();
 
 		//0 means "not set" in <=AB maps
-		if(!nhi->exp)
-			nhi->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
+		if(!object->exp)
+			object->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
 	}
 
 	bool hasPortrait = reader->readBool();
 	if(hasPortrait)
-		nhi->portrait = reader->readHero().getNum();
+		object->portrait = reader->readHero().getNum();
 
 	bool hasSecSkills = reader->readBool();
 	if(hasSecSkills)
 	{
-		if(!nhi->secSkills.empty())
+		if(!object->secSkills.empty())
 		{
-			if (nhi->secSkills[0].first != SecondarySkill::DEFAULT)
-				logGlobal->warn("Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTextID(), nhi->subID);
-			nhi->secSkills.clear();
+			if(object->secSkills[0].first != SecondarySkill::DEFAULT)
+				logGlobal->warn("Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
+			object->secSkills.clear();
 		}
 
-		uint32_t howMany = reader->readUInt32();
-		nhi->secSkills.resize(howMany);
-		for(int yy = 0; yy < howMany; ++yy)
+		uint32_t skillsCount = reader->readUInt32();
+		object->secSkills.resize(skillsCount);
+		for(int i = 0; i < skillsCount; ++i)
 		{
-			nhi->secSkills[yy].first = reader->readSkill();
-			nhi->secSkills[yy].second = reader->readUInt8();
+			object->secSkills[i].first = reader->readSkill();
+			object->secSkills[i].second = reader->readUInt8();
 		}
 	}
 
 	bool hasGarison = reader->readBool();
 	if(hasGarison)
-		readCreatureSet(nhi, 7);
+		readCreatureSet(object, 7);
 
-	nhi->formation = static_cast<EArmyFormation>(reader->readUInt8());
-	assert(nhi->formation == EArmyFormation::WIDE || nhi->formation == EArmyFormation::TIGHT);
+	object->formation = static_cast<EArmyFormation>(reader->readUInt8());
+	assert(object->formation == EArmyFormation::WIDE || object->formation == EArmyFormation::TIGHT);
 
-	loadArtifactsOfHero(nhi);
-	nhi->patrol.patrolRadius = reader->readUInt8();
-	nhi->patrol.patrolling = (nhi->patrol.patrolRadius != 0xff);
+	loadArtifactsOfHero(object);
+	object->patrol.patrolRadius = reader->readUInt8();
+	object->patrol.patrolling = (object->patrol.patrolRadius != 0xff);
 
 	if(features.levelAB)
 	{
 		bool hasCustomBiography = reader->readBool();
 		if(hasCustomBiography)
-			nhi->biographyCustom = readLocalizedString(TextIdentifier("heroes", nhi->subID, "biography"));
+			object->biographyCustom = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
 
-		nhi->gender = static_cast<EHeroGender>(reader->readUInt8());
-		assert(nhi->gender == EHeroGender::MALE || nhi->gender == EHeroGender::FEMALE || nhi->gender == EHeroGender::DEFAULT);
+		object->gender = static_cast<EHeroGender>(reader->readUInt8());
+		assert(object->gender == EHeroGender::MALE || object->gender == EHeroGender::FEMALE || object->gender == EHeroGender::DEFAULT);
 	}
 	else
 	{
-		nhi->gender = EHeroGender::DEFAULT;
+		object->gender = EHeroGender::DEFAULT;
 	}
 
 	// Spells
@@ -1658,15 +1641,15 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & initialPos, const Object
 		bool hasCustomSpells = reader->readBool();
 		if(hasCustomSpells)
 		{
-			if(!nhi->spells.empty())
+			if(!object->spells.empty())
 			{
-				nhi->clear();
-				logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTextID(), nhi->subID);
+				object->clear();
+				logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
 			}
 
-			nhi->spells.insert(SpellID::PRESET); //placeholder "preset spells"
+			object->spells.insert(SpellID::PRESET); //placeholder "preset spells"
 
-			readSpells(nhi->spells);
+			readSpells(object->spells);
 		}
 	}
 	else if(features.levelAB)
@@ -1675,7 +1658,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & initialPos, const Object
 		SpellID spell = reader->readSpell();
 
 		if(spell != SpellID::NONE)
-			nhi->spells.insert(spell);
+			object->spells.insert(spell);
 	}
 
 	if(features.levelSOD)
@@ -1683,23 +1666,22 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & initialPos, const Object
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
 		{
-			auto ps = nhi->getAllBonuses(Selector::type()(Bonus::PRIMARY_SKILL)
-								.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)), nullptr);
+			auto ps = object->getAllBonuses(Selector::type()(Bonus::PRIMARY_SKILL).And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->getNameTranslated(), nhi->subID);
+				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTranslated(), object->subID );
 				for(const auto & b : *ps)
-					nhi->removeBonus(b);
+					object->removeBonus(b);
 			}
 
 			for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; ++xx)
 			{
-				nhi->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader->readUInt8());
+				object->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader->readUInt8());
 			}
 		}
 	}
 	reader->skipZero(16);
-	return nhi;
+	return object;
 }
 
 CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
@@ -1708,25 +1690,24 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 
 	uint32_t questsCount = 1;
 
-	if (features.levelHOTA3)
+	if(features.levelHOTA3)
 		questsCount = reader->readUInt32();
 
 	//TODO: HotA
-	if (questsCount > 1)
+	if(questsCount > 1)
 		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString(), questsCount);
 
-	for (size_t i = 0; i < questsCount; ++i)
+	for(size_t i = 0; i < questsCount; ++i)
 		readSeerHutQuest(hut, position);
 
-
-	if (features.levelHOTA3)
+	if(features.levelHOTA3)
 	{
 		uint32_t repeateableQuestsCount = reader->readUInt32();
 
-		if (repeateableQuestsCount != 0)
+		if(repeateableQuestsCount != 0)
 			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
 
-		for (size_t i = 0; i < repeateableQuestsCount; ++i)
+		for(size_t i = 0; i < repeateableQuestsCount; ++i)
 			readSeerHutQuest(hut, position);
 	}
 
@@ -1745,7 +1726,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 	{
 		//RoE
 		auto artID = reader->readArtifact();
-		if (artID != ArtifactID::NONE)
+		if(artID != ArtifactID::NONE)
 		{
 			//not none quest
 			hut->quest->addArtifactID(artID);
@@ -1761,33 +1742,33 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 		hut->quest->isCustomComplete = false;
 	}
 
-	if (hut->quest->missionType)
+	if(hut->quest->missionType)
 	{
 		auto rewardType = static_cast<CGSeerHut::ERewardType>(reader->readUInt8());
 		hut->rewardType = rewardType;
 		switch(rewardType)
 		{
-		case CGSeerHut::EXPERIENCE:
+			case CGSeerHut::EXPERIENCE:
 			{
 				hut->rVal = reader->readUInt32();
 				break;
 			}
-		case CGSeerHut::MANA_POINTS:
+			case CGSeerHut::MANA_POINTS:
 			{
 				hut->rVal = reader->readUInt32();
 				break;
 			}
-		case CGSeerHut::MORALE_BONUS:
+			case CGSeerHut::MORALE_BONUS:
 			{
 				hut->rVal = reader->readUInt8();
 				break;
 			}
-		case CGSeerHut::LUCK_BONUS:
+			case CGSeerHut::LUCK_BONUS:
 			{
 				hut->rVal = reader->readUInt8();
 				break;
 			}
-		case CGSeerHut::RESOURCES:
+			case CGSeerHut::RESOURCES:
 			{
 				hut->rID = reader->readUInt8();
 				hut->rVal = reader->readUInt32();
@@ -1796,40 +1777,40 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 				assert((hut->rVal & 0x00ffffff) == hut->rVal);
 				break;
 			}
-		case CGSeerHut::PRIMARY_SKILL:
+			case CGSeerHut::PRIMARY_SKILL:
 			{
 				hut->rID = reader->readUInt8();
 				hut->rVal = reader->readUInt8();
 				break;
 			}
-		case CGSeerHut::SECONDARY_SKILL:
+			case CGSeerHut::SECONDARY_SKILL:
 			{
 				hut->rID = reader->readSkill();
 				hut->rVal = reader->readUInt8();
 				break;
 			}
-		case CGSeerHut::ARTIFACT:
+			case CGSeerHut::ARTIFACT:
 			{
 				hut->rID = reader->readArtifact();
 				break;
 			}
-		case CGSeerHut::SPELL:
+			case CGSeerHut::SPELL:
 			{
 				hut->rID = reader->readSpell();
 				break;
 			}
-		case CGSeerHut::CREATURE:
+			case CGSeerHut::CREATURE:
 			{
 				hut->rID = reader->readCreature();
 				hut->rVal = reader->readUInt16();
 				break;
 			}
-		case CGSeerHut::NOTHING:
+			case CGSeerHut::NOTHING:
 			{
 				// no-op
 				break;
 			}
-		default:
+			default:
 			{
 				assert(0);
 			}
@@ -1848,9 +1829,9 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 
 	switch(guard->quest->missionType)
 	{
-	case CQuest::MISSION_NONE:
-		return;
-	case CQuest::MISSION_PRIMARY_STAT:
+		case CQuest::MISSION_NONE:
+			return;
+		case CQuest::MISSION_PRIMARY_STAT:
 		{
 			guard->quest->m2stats.resize(4);
 			for(int x = 0; x < 4; ++x)
@@ -1859,14 +1840,14 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 		}
 		break;
-	case CQuest::MISSION_LEVEL:
-	case CQuest::MISSION_KILL_HERO:
-	case CQuest::MISSION_KILL_CREATURE:
+		case CQuest::MISSION_LEVEL:
+		case CQuest::MISSION_KILL_HERO:
+		case CQuest::MISSION_KILL_CREATURE:
 		{
 			guard->quest->m13489val = reader->readUInt32();
 			break;
 		}
-	case CQuest::MISSION_ART:
+		case CQuest::MISSION_ART:
 		{
 			int artNumber = reader->readUInt8();
 			for(int yy = 0; yy < artNumber; ++yy)
@@ -1877,7 +1858,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			break;
 		}
-	case CQuest::MISSION_ARMY:
+		case CQuest::MISSION_ARMY:
 		{
 			int typeNumber = reader->readUInt8();
 			guard->quest->m6creatures.resize(typeNumber);
@@ -1888,28 +1869,28 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			break;
 		}
-	case CQuest::MISSION_RESOURCES:
+		case CQuest::MISSION_RESOURCES:
 		{
 			for(int x = 0; x < 7; ++x)
 				guard->quest->m7resources[x] = reader->readUInt32();
 
 			break;
 		}
-	case CQuest::MISSION_HERO:
+		case CQuest::MISSION_HERO:
 		{
 			guard->quest->m13489val = reader->readHero().getNum();
 			break;
 		}
-	case CQuest::MISSION_PLAYER:
+		case CQuest::MISSION_PLAYER:
 		{
 			guard->quest->m13489val = reader->readPlayer().getNum();
 			break;
 		}
-	case CQuest::MISSION_HOTA_MULTI:
+		case CQuest::MISSION_HOTA_MULTI:
 		{
 			uint32_t missionSubID = reader->readUInt32();
 
-			if (missionSubID == 0)
+			if(missionSubID == 0)
 			{
 				guard->quest->missionType = CQuest::MISSION_HOTA_HERO_CLASS;
 				std::set<HeroClassID> heroClasses;
@@ -1921,7 +1902,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 				logGlobal->warn("Map '%s': Quest at %s 'Belong to one of %d classes' is not implemented!", mapName, position.toString(), heroClasses.size());
 				break;
 			}
-			if (missionSubID == 1)
+			if(missionSubID == 1)
 			{
 				guard->quest->missionType = CQuest::MISSION_HOTA_REACH_DATE;
 				uint32_t daysPassed = reader->readUInt32();
@@ -1929,11 +1910,10 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 				logGlobal->warn("Map '%s': Quest at %s 'Wait till %d days passed' is not implemented!", mapName, position.toString(), daysPassed);
 				break;
 			}
-
 			assert(0);
 			break;
 		}
-	default:
+		default:
 		{
 			assert(0);
 		}
@@ -1948,67 +1928,67 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 	guard->quest->isCustomComplete = !guard->quest->completedText.empty();
 }
 
-CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl)
+CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * nt = new CGTownInstance();
+	auto * object = new CGTownInstance();
 	if(features.levelAB)
-		nt->identifier = reader->readUInt32();
+		object->identifier = reader->readUInt32();
 
-	nt->tempOwner = reader->readPlayer();
+	object->tempOwner = reader->readPlayer();
 	bool hasName = reader->readBool();
 	if(hasName)
-		nt->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
+		object->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
 
 	bool hasGarrison = reader->readBool();
 	if(hasGarrison)
-		readCreatureSet(nt, 7);
+		readCreatureSet(object, 7);
 
-	nt->formation = static_cast<EArmyFormation>(reader->readUInt8());
-	assert(nt->formation == EArmyFormation::WIDE || nt->formation == EArmyFormation::TIGHT);
+	object->formation = static_cast<EArmyFormation>(reader->readUInt8());
+	assert(object->formation == EArmyFormation::WIDE || object->formation == EArmyFormation::TIGHT);
 
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		reader->readBitmask(nt->builtBuildings, features.buildingsBytes,features.buildingsCount,false);
-		reader->readBitmask(nt->forbiddenBuildings,features.buildingsBytes,features.buildingsCount,false);
+		reader->readBitmask(object->builtBuildings, features.buildingsBytes, features.buildingsCount, false);
+		reader->readBitmask(object->forbiddenBuildings, features.buildingsBytes, features.buildingsCount, false);
 
-		nt->builtBuildings = convertBuildings(nt->builtBuildings, objTempl->subid);
-		nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings, objTempl->subid);
+		object->builtBuildings = convertBuildings(object->builtBuildings, objectTemplate->subid);
+		object->forbiddenBuildings = convertBuildings(object->forbiddenBuildings, objectTemplate->subid);
 	}
 	// Standard buildings
 	else
 	{
 		bool hasFort = reader->readBool();
 		if(hasFort)
-			nt->builtBuildings.insert(BuildingID::FORT);
+			object->builtBuildings.insert(BuildingID::FORT);
 
 		//means that set of standard building should be included
-		nt->builtBuildings.insert(BuildingID::DEFAULT);
+		object->builtBuildings.insert(BuildingID::DEFAULT);
 	}
 
 	if(features.levelAB)
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, false );
-		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(nt->obligatorySpells));
+		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, false);
+		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->obligatorySpells));
 	}
 
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, true );
-		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(nt->possibleSpells));
+		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, true);
+		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->possibleSpells));
 
 		auto defaultAllowed = VLC->spellh->getDefaultAllowed();
 
 		//add all spells from mods
-		for (int i = features.spellsCount; i < defaultAllowed.size(); ++i)
-			if (defaultAllowed[i])
-			nt->possibleSpells.emplace_back(i);
+		for(int i = features.spellsCount; i < defaultAllowed.size(); ++i)
+			if(defaultAllowed[i])
+				object->possibleSpells.emplace_back(i);
 	}
 
-	if (features.levelHOTA)
+	if(features.levelHOTA)
 	{
 		// TODO: HOTA support
 		bool spellResearchAvailable = reader->readBool();
@@ -2016,59 +1996,59 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	}
 
 	// Read castle events
-	uint32_t numberOfEvent = reader->readUInt32();
+	uint32_t eventsCount = reader->readUInt32();
 
-	for(int gh = 0; gh < numberOfEvent; ++gh)
+	for(int eventID = 0; eventID < eventsCount; ++eventID)
 	{
-		CCastleEvent nce;
-		nce.town = nt;
-		nce.name = readBasicString();
-		nce.message = readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", gh, "description"));
+		CCastleEvent event;
+		event.town = object;
+		event.name = readBasicString();
+		event.message = readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"));
 
-		reader->readResourses(nce.resources);
+		reader->readResourses(event.resources);
 
-		nce.players = reader->readUInt8();
+		event.players = reader->readUInt8();
 		if(features.levelSOD)
-			nce.humanAffected = reader->readBool();
+			event.humanAffected = reader->readBool();
 		else
-			nce.humanAffected = true;
+			event.humanAffected = true;
 
-		nce.computerAffected = reader->readUInt8();
-		nce.firstOccurence = reader->readUInt16();
-		nce.nextOccurence =  reader->readUInt8();
+		event.computerAffected = reader->readUInt8();
+		event.firstOccurence = reader->readUInt16();
+		event.nextOccurence = reader->readUInt8();
 
 		reader->skipZero(17);
 
 		// New buildings
 
-		reader->readBitmask(nce.buildings, features.buildingsBytes, features.buildingsCount, false);
+		reader->readBitmask(event.buildings, features.buildingsBytes, features.buildingsCount, false);
 
-		nce.buildings = convertBuildings(nce.buildings, objTempl->subid, false);
+		event.buildings = convertBuildings(event.buildings, objectTemplate->subid, false);
 
-		nce.creatures.resize(7);
-		for(int vv = 0; vv < 7; ++vv)
-			nce.creatures[vv] = reader->readUInt16();
+		event.creatures.resize(7);
+		for(int i = 0; i < 7; ++i)
+			event.creatures[i] = reader->readUInt16();
 
 		reader->skipZero(4);
-		nt->events.push_back(nce);
+		object->events.push_back(event);
 	}
 
 	if(features.levelHOTA)
 	{
 		// TODO: HOTA support
 		uint8_t alignment = reader->readUInt8();
-		if (alignment < PlayerColor::PLAYER_LIMIT.getNum() || alignment == PlayerColor::NEUTRAL.getNum())
-			nt->alignmentToPlayer = PlayerColor(alignment);
+		if(alignment < PlayerColor::PLAYER_LIMIT.getNum() || alignment == PlayerColor::NEUTRAL.getNum())
+			object->alignmentToPlayer = PlayerColor(alignment);
 		else
 			logGlobal->warn("%s - Aligment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
 	}
 	else if(features.levelSOD)
 	{
-		nt->alignmentToPlayer = reader->readPlayer();
+		object->alignmentToPlayer = reader->readPlayer();
 	}
 	reader->skipZero(3);
 
-	return nt;
+	return object;
 }
 
 std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary) const
@@ -2083,7 +2063,7 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 	{
 		int town = static_cast<int>(entry["town"].Float());
 
-		if (town == castleID || town == -1)
+		if(town == castleID || town == -1)
 		{
 			helperMap[static_cast<int>(entry["h3"].Float())] = BuildingID(static_cast<si32>(entry["vcmi"].Float()));
 		}
@@ -2134,34 +2114,34 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 
 void CMapLoaderH3M::readEvents()
 {
-	uint32_t numberOfEvents = reader->readUInt32();
-	for(int yyoo = 0; yyoo < numberOfEvents; ++yyoo)
+	uint32_t eventsCount = reader->readUInt32();
+	for(int eventID = 0; eventID < eventsCount; ++eventID)
 	{
-		CMapEvent ne;
-		ne.name = readBasicString();
-		ne.message = readLocalizedString(TextIdentifier("event", yyoo, "description"));
+		CMapEvent event;
+		event.name = readBasicString();
+		event.message = readLocalizedString(TextIdentifier("event", eventID, "description"));
 
-		reader->readResourses(ne.resources);
-		ne.players = reader->readUInt8();
+		reader->readResourses(event.resources);
+		event.players = reader->readUInt8();
 		if(features.levelSOD)
 		{
-			ne.humanAffected = reader->readBool();
+			event.humanAffected = reader->readBool();
 		}
 		else
 		{
-			ne.humanAffected = true;
+			event.humanAffected = true;
 		}
-		ne.computerAffected = reader->readBool();
-		ne.firstOccurence = reader->readUInt16();
-		ne.nextOccurence = reader->readUInt8();
+		event.computerAffected = reader->readBool();
+		event.firstOccurence = reader->readUInt16();
+		event.nextOccurence = reader->readUInt8();
 
 		reader->skipZero(17);
 
-		map->events.push_back(ne);
+		map->events.push_back(event);
 	}
 }
 
-void CMapLoaderH3M::readMessageAndGuards(std::string& message, CCreatureSet* guards, const int3 & position)
+void CMapLoaderH3M::readMessageAndGuards(std::string & message, CCreatureSet * guards, const int3 & position)
 {
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
@@ -2175,9 +2155,9 @@ void CMapLoaderH3M::readMessageAndGuards(std::string& message, CCreatureSet* gua
 	}
 }
 
-void CMapLoaderH3M::readSpells(std::set<SpellID>& dest)
+void CMapLoaderH3M::readSpells(std::set<SpellID> & dest)
 {
-	reader->readBitmask(dest,features.spellsBytes,features.spellsCount,false);
+	reader->readBitmask(dest, features.spellsBytes, features.spellsCount, false);
 }
 
 std::string CMapLoaderH3M::readBasicString()
@@ -2190,7 +2170,7 @@ std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIden
 	std::string mapString = TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
 	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
-	if (mapString.empty())
+	if(mapString.empty())
 		return "";
 
 	VLC->generaltexth->registerString(modName, fullIdentifier, mapString);

@@ -163,25 +163,25 @@ private:
 	CGObjectInstance * readSeerHut(const int3 & initialPos);
 	CGObjectInstance * readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readSign(const int3 & position);
-	CGObjectInstance * readWitchHut(const int3 & position);
-	CGObjectInstance * readScholar(const int3 & position);
-	CGObjectInstance * readGarrison(const int3 & position);
+	CGObjectInstance * readWitchHut();
+	CGObjectInstance * readScholar();
+	CGObjectInstance * readGarrison();
 	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readPandora(const int3 & position);
 	CGObjectInstance * readDwelling(const int3 & position);
 	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readShrine(const int3 & position);
+	CGObjectInstance * readShrine();
 	CGObjectInstance * readHeroPlaceholder(const int3 & position);
 	CGObjectInstance * readGrail(const int3 & position);
 	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readBorderGuard(const int3 & position);
+	CGObjectInstance * readBorderGuard();
 	CGObjectInstance * readBorderGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readQuestGuard(const int3 & position);
-	CGObjectInstance * readShipyard(const int3 & position);
-	CGObjectInstance * readLighthouse(const int3 & position);
-	CGObjectInstance * readBlank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readShipyard();
+	CGObjectInstance * readLighthouse();
+	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
 	/**

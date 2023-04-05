@@ -11,8 +11,8 @@
 #include "StdInc.h"
 #include "MapReaderH3M.h"
 
-#include "CMap.h"
 #include "../filesystem/CBinaryReader.h"
+#include "CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
