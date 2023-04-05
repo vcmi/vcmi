@@ -217,9 +217,12 @@ void BattleWindow::tacticPhaseStarted()
 	auto menuTactics = widget<CIntObject>("menuTactics");
 	auto tacticNext = widget<CIntObject>("tacticNext");
 	auto tacticEnd = widget<CIntObject>("tacticEnd");
+	auto alternativeAction = widget<CIntObject>("alternativeAction");
 
 	menuBattle->disable();
 	console->disable();
+	if (alternativeAction)
+		alternativeAction->disable();
 
 	menuTactics->enable();
 	tacticNext->enable();
@@ -235,9 +238,12 @@ void BattleWindow::tacticPhaseEnded()
 	auto menuTactics = widget<CIntObject>("menuTactics");
 	auto tacticNext = widget<CIntObject>("tacticNext");
 	auto tacticEnd = widget<CIntObject>("tacticEnd");
+	auto alternativeAction = widget<CIntObject>("alternativeAction");
 
 	menuBattle->enable();
 	console->enable();
+	if (alternativeAction)
+		alternativeAction->enable();
 
 	menuTactics->disable();
 	tacticNext->disable();
