@@ -142,12 +142,16 @@
 					"position": {"x": 45, "y": 85}
 				},
 				{
-					"text": "core.genrltxt.406",
+					"text": "vcmi.battleOptions.movementHighlightOnHover.hover",
 					"position": {"x": 45, "y": 115}
 				},
 				{
-					"text": "core.genrltxt.407",
+					"text": "core.genrltxt.406",
 					"position": {"x": 45, "y": 145}
+				},
+				{
+					"text": "core.genrltxt.407",
+					"position": {"x": 45, "y": 175}
 				},
 				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
@@ -177,25 +181,33 @@
 			"callback": "movementShadowChanged"
 		},
 		{
+			"name": "movementHighlightOnHoverCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.movementHighlightOnHover",
+			"position": {"x": 10, "y": 113},
+			"callback": "movementHighlightOnHoverChanged"
+		},
+		{
 			"name": "mouseShadowCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.429",
-			"position": {"x": 10, "y": 113},
+			"position": {"x": 10, "y": 143},
 			"callback": "mouseShadowChanged"
 		},
 		{
 			"name": "battleFieldCasualtiesPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 143},
+			"position": {"x": 10, "y": 173},
 		},
 		{
 			"name": "skipBattleIntroMusicCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 10, "y": 173},
+			"position": {"x": 10, "y": 203},
 			"callback": "skipBattleIntroMusicChanged"
 		},
 		{

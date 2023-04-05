@@ -174,7 +174,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
 	if(activeStack)
-		occupyableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, true, &attackableHexes);
+		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, true, &attackableHexes);
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -182,14 +182,14 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	if(owner.siegeController)
 		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes);
 
-	// show shaded hexes for active's stackMovement valid movement and the hexes that it can attack
+	// show shaded hexes for active's stack valid movement and the hexes that it can attack
 	if(settings["battle"]["stackRange"].Bool())
 	{
-		std::vector<BattleHex> hexesToShade = occupyableHexes;
+		std::vector<BattleHex> hexesToShade = occupiableHexes;
 		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
 		for(BattleHex hex : hexesToShade)
 		{
-			backgroundWithHexes->draw(cellShade, hexPositionLocal(hex).topLeft());
+			showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);
 		}
 	}
 
@@ -243,7 +243,7 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	if (!owner.stacksController->getActiveStack())
 		return result;
 
-	if (!settings["battle"]["stackRange"].Bool())
+	if (!settings["battle"]["movementHighlightOnHover"].Bool())
 		return result;
 
 	auto hoveredHex = getHoveredHex();
@@ -266,7 +266,7 @@ std::set<BattleHex> BattleFieldController::STUB_getMaxMovementRangeForHoveredSta
 	if (!owner.stacksController->getActiveStack())
 		return result;
 
-	if (!settings["battle"]["stackRange"].Bool())
+	if (!settings["battle"]["movementHighlightOnHover"].Bool())
 		return result;
 
 	auto hoveredHex = getHoveredHex();
@@ -486,18 +486,18 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 		// |    - -   |   - -    |    - -   |   - o o  |  o o -   |   - -    |    - -   |   o o
 
 		for (size_t i : { 1, 2, 3})
-			attackAvailability[i] = vstd::contains(occupyableHexes, neighbours[i]) && vstd::contains(occupyableHexes, neighbours[i].cloneInDirection(BattleHex::RIGHT, false));
+			attackAvailability[i] = vstd::contains(occupiableHexes, neighbours[i]) && vstd::contains(occupiableHexes, neighbours[i].cloneInDirection(BattleHex::RIGHT, false));
 
 		for (size_t i : { 4, 5, 0})
-			attackAvailability[i] = vstd::contains(occupyableHexes, neighbours[i]) && vstd::contains(occupyableHexes, neighbours[i].cloneInDirection(BattleHex::LEFT, false));
+			attackAvailability[i] = vstd::contains(occupiableHexes, neighbours[i]) && vstd::contains(occupiableHexes, neighbours[i].cloneInDirection(BattleHex::LEFT, false));
 
-		attackAvailability[6] = vstd::contains(occupyableHexes, neighbours[0]) && vstd::contains(occupyableHexes, neighbours[1]);
-		attackAvailability[7] = vstd::contains(occupyableHexes, neighbours[3]) && vstd::contains(occupyableHexes, neighbours[4]);
+		attackAvailability[6] = vstd::contains(occupiableHexes, neighbours[0]) && vstd::contains(occupiableHexes, neighbours[1]);
+		attackAvailability[7] = vstd::contains(occupiableHexes, neighbours[3]) && vstd::contains(occupiableHexes, neighbours[4]);
 	}
 	else
 	{
 		for (size_t i = 0; i < 6; ++i)
-			attackAvailability[i] = vstd::contains(occupyableHexes, neighbours[i]);
+			attackAvailability[i] = vstd::contains(occupiableHexes, neighbours[i]);
 
 		attackAvailability[6] = false;
 		attackAvailability[7] = false;
@@ -609,7 +609,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 
 bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 {
-	for (auto & elem : occupyableHexes)
+	for (auto & elem : occupiableHexes)
 	{
 		if (BattleHex::mutualPosition(elem, number) != -1 || elem == number)
 			return true;

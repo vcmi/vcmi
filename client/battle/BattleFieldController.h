@@ -43,7 +43,7 @@ class BattleFieldController : public CIntObject
 	BattleHex attackingHex;
 
 	/// hexes to which currently active stack can move
-	std::vector<BattleHex> occupyableHexes;
+	std::vector<BattleHex> occupiableHexes;
 
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
