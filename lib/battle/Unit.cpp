@@ -18,6 +18,9 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
+#include <vcmi/Faction.h>
+#include <vcmi/FactionService.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace battle
@@ -41,6 +44,24 @@ std::string Unit::getDescription() const
 	boost::format fmt("Unit %d of side %d");
 	fmt % unitId() % unitSide();
 	return fmt.str();
+}
+
+//TODO: deduplicate these functions
+const IBonusBearer* Unit::getBonusBearer() const
+{
+	return this;
+}
+
+TerrainId Unit::getNativeTerrain() const
+{
+	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
+	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, static_cast<int>(ETerrainId::ANY_TERRAIN));
+
+	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
+	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
+	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
+		? TerrainId(ETerrainId::ANY_TERRAIN)
+		: VLC->factions()->getById(getFaction())->getNativeTerrain();
 }
 
 std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex assumedPosition) const

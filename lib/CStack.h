@@ -84,6 +84,8 @@ public:
 
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
+	const IBonusBearer* getBonusBearer() const override;
+	
 	PlayerColor getOwner() const override
 	{
 		return this->owner;

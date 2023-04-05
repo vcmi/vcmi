@@ -14,6 +14,8 @@
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 
+#include <vcmi/Entity.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
@@ -61,7 +63,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public WithBonuses, public WithNativeTerrain
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
@@ -91,6 +93,12 @@ public:
 	//overrides CBonusSystemNode
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
 	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
+
+	//WithBonuses
+	const IBonusBearer* getBonusBearer() const override;
+	//WithNativeTerrain
+	FactionID getFaction() const override;
+	TerrainId getNativeTerrain() const override;
 
 	virtual ui64 getPower() const;
 	CCreature::CreatureQuantityId getQuantityID() const;

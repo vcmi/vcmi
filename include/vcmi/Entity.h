@@ -28,6 +28,7 @@ class DLL_LINKAGE WithNativeTerrain
 public:
 	virtual Identifier<ETerrainId> getNativeTerrain() const = 0;
 	virtual FactionID getFaction() const = 0;
+	virtual bool isItNativeTerrain(Identifier<ETerrainId> terrain) const;
 };
 
 class DLL_LINKAGE Entity

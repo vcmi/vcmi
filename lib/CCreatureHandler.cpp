@@ -348,9 +348,9 @@ TerrainId CCreature::getNativeTerrain() const
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
+	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
 		? TerrainId(ETerrainId::ANY_TERRAIN)
-		: VLC->factions()->getByIndex(faction)->getNativeTerrain();
+		: VLC->factions()->getById(getFaction())->getNativeTerrain();
 }
 
 void CCreature::updateFrom(const JsonNode & data)

@@ -84,6 +84,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return static_cast<ui32>(ret);
 }
 
+FactionID CGHeroInstance::getFaction() const
+{
+	return FactionID(type->heroClass->faction);
+}
+
+const IBonusBearer* CGHeroInstance::getBonusBearer() const
+{
+	return this;
+}
+
 TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
@@ -96,7 +106,7 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 
 	for(const auto & stack : stacks)
 	{
-		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
 		if(stackNativeTerrain == ETerrainId::NONE)
 			continue;

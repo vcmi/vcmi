@@ -78,7 +78,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 		attachTo(*army);
 		attachTo(const_cast<CCreature&>(*type));
 	}
-	nativeTerrain = type->getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
+	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
 	position = initialPosition;
 }
@@ -336,6 +336,11 @@ const CCreature * CStack::unitType() const
 int32_t CStack::unitBaseAmount() const
 {
 	return baseAmount;
+}
+
+const IBonusBearer* CStack::getBonusBearer() const
+{
+	return this;
 }
 
 bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
