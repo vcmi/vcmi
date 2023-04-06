@@ -634,7 +634,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
-	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
+	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 	
 	auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
 	battleResult.data->queryID = battleDialogQuery->queryID;
@@ -2667,13 +2667,32 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
 	if(battleQuery)
 	{
+		for(int i : {0, 1})
+		{
+			if(heroes[i])
+			{
+				SetMana restoreInitialMana;
+				restoreInitialMana.val = battleQuery->initialHeroMana[i];
+				restoreInitialMana.hid = heroes[i]->id;
+				sendAndApply(&restoreInitialMana);
+			}
+		}
+		
 		battleQuery->bi = gs->curB;
 		battleQuery->result = boost::none;
 		battleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
 		battleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
 	}
 
-	queries.addQuery(std::make_shared<CBattleQuery>(this, gs->curB));
+	battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
+	for(int i : {0, 1})
+	{
+		if(heroes[i])
+		{
+			battleQuery->initialHeroMana[i] = heroes[i]->mana;
+		}
+	}
+	queries.addQuery(battleQuery);
 
 	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }

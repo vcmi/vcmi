@@ -911,7 +911,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 		{
 			bool replay = allowBattleReplay && !settings["adventure"]["alwaysSkipCombat"].Bool(); //do not allow manual replay
 			allowBattleReplay = false;
-			auto wnd = std::make_shared<CBattleResultWindow>(*br, *this, replay);
+			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, replay);
 			wnd->resultCallback = [=](ui32 selection)
 			{
 				cb->selectionMade(selection, queryID);

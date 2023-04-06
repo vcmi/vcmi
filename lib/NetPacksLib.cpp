@@ -2221,9 +2221,6 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 		CBonusSystemNode::treeHasChanged();
 	}
 
-	army1->battle = nullptr;
-	army2->battle = nullptr;
-	
 	gs->curB.dellNull();
 }
 

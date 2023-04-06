@@ -97,6 +97,7 @@ class CBattleQuery : public CGhQuery
 {
 public:
 	std::array<const CArmedInstance *,2> belligerents;
+	std::array<int, 2> initialHeroMana;
 
 	const BattleInfo *bi;
 	boost::optional<BattleResult> result;
