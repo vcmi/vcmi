@@ -386,6 +386,28 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 
 	return CDialogQuery::blocksPack(pack);
 }
+	
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi):
+	CDialogQuery(owner)
+{
+	bi = Bi;
+	
+	for(auto & side : bi->sides)
+		addPlayer(side.color);
+}
+
+void CBattleDialogQuery::onRemoval(PlayerColor color)
+{
+	assert(answer);
+	if(*answer == 1)
+	{
+		gh->startBattlePrimary(bi->sides[0].armyObject, bi->sides[1].armyObject, bi->tile, bi->sides[0].hero, bi->sides[1].hero, bi->creatureBank, bi->town);
+	}
+	else
+	{
+		gh->endBattleConfirm(bi);
+	}
+}
 
 CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi):
 	CDialogQuery(owner)

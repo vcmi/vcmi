@@ -182,7 +182,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -211,6 +211,10 @@
 				"terrainAnimation" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"alwaysSkipCombat" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},

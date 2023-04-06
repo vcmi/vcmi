@@ -205,6 +205,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	curB->battlefieldType = battlefieldType;
 	curB->round = -2;
 	curB->activeStack = -1;
+	curB->creatureBank = creatureBank;
 
 	if(town)
 	{
