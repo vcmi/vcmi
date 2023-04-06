@@ -5,13 +5,13 @@
 			"name": "lineCreatureInfo",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 199, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 319, "w": 365, "h": 3}
 		},
 
 		{
@@ -28,7 +28,7 @@
 				},
 				{
 					"text": "core.genrltxt.397", // Creature info
-					"position": {"x": 10, "y": 205}
+					"position": {"x": 10, "y": 235}
 				}
 			]
 		},
@@ -104,11 +104,11 @@
 			[
 				{
 					"text": "core.genrltxt.402", // All Stats
-					"position": {"x": 45, "y": 235}
+					"position": {"x": 45, "y": 265}
 				},
 				{
 					"text": "core.genrltxt.403", // Spells only
-					"position": {"x": 45, "y": 265}
+					"position": {"x": 45, "y": 295}
 				}
 			]
 		},
@@ -116,13 +116,13 @@
 			"name": "creatureInfoAllPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 233},
+			"position": {"x": 10, "y": 263},
 		},
 		{
 			"name": "creatureInfoSpellsPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 263},
+			"position": {"x": 10, "y": 293},
 		},
 
 		{
@@ -152,6 +152,10 @@
 				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
 					"position": {"x": 45, "y": 175}
+				},
+				{
+					"text": "vcmi.battleOptions.touchscreenMode.hover",
+					"position": {"x": 45, "y": 205}
 				}
 			]
 		},
@@ -193,6 +197,14 @@
 			"help": "vcmi.battleOptions.skipBattleIntroMusic",
 			"position": {"x": 10, "y": 173},
 			"callback": "skipBattleIntroMusicChanged"
+		},
+		{
+			"name": "touchscreenModeCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.touchscreenMode",
+			"position": {"x": 10, "y": 203},
+			"callback": "touchscreenModeChanged"
 		},
 /////////////////////////////////////// Bottom section - Animation Speed and Turn Order
 		{

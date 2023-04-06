@@ -34,7 +34,10 @@ enum class MouseHoveredHexContext
 class BattleActionsController
 {
 	BattleInterface & owner;
-
+	
+	/// mouse or touchscreen click mode
+	bool touchscreenMode = false;
+	
 	/// all actions possible to call at the moment by player
 	std::vector<PossiblePlayerBattleAction> possibleActions;
 
@@ -129,4 +132,5 @@ public:
 	/// inserts possible action in the beggining in order to prioritize it
 	void pushFrontPossibleAction(PossiblePlayerBattleAction);
 
+	void setTouchScreenMode(bool enabled);
 };

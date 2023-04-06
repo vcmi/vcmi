@@ -286,7 +286,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize", "touchscreenMode" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -297,6 +297,10 @@
 					"default" : true
 				},
 				"cellBorders" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"touchscreenMode" : {
 					"type" : "boolean",
 					"default" : false
 				},
