@@ -958,6 +958,7 @@ void CGameState::initGlobalBonuses()
 		bonus->sid = -1; //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
+	VLC->creh->loadCrExpBon(globalEffects);
 }
 
 void CGameState::initGrailPosition()
@@ -1869,7 +1870,6 @@ void CGameState::initTowns()
 void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
-	VLC->creh->removeBonusesFromAllCreatures();
 
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)

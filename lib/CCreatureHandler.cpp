@@ -426,13 +426,6 @@ CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
 	VLC->creh = this;
-
-	allCreatures.setDescription("All creatures");
-	allCreatures.setNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES);
-	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
-
-	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
-		creaturesOfLevel[i].setDescription("Creatures of tier " + std::to_string(i));
 	loadCommanders();
 }
 
@@ -697,10 +690,24 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 	return ret;
 }
 
-void CCreatureHandler::loadCrExpBon()
+void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
+		logGlobal->debug("\tLoading stack experience bonuses");
+		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
+			auto limiter = std::make_shared<CreatureLevelLimiter>();
+			b->addLimiter(limiter);
+			globalEffects.addNewBonus(b);
+		};
+		auto addBonusForTier = [&](int tier, std::shared_ptr<Bonus> b) {
+			assert(vstd::iswithin(tier, 1, 7));
+			//bonuses from level 7 are given to high-level creatures too
+			auto max = tier == GameConstants::CREATURES_PER_TOWN ? std::numeric_limits<int>::max() : tier + 1;
+			auto limiter = std::make_shared<CreatureLevelLimiter>(tier, max);
+			b->addLimiter(limiter);
+			globalEffects.addNewBonus(b);
+		};
 		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
 
 		Bonus b; //prototype with some default properties
@@ -738,10 +745,7 @@ void CCreatureHandler::loadCrExpBon()
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-			{
 				addBonusForTier(7, b);
-				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
-			}
 			parser.endLine();
 		}
 		do //parse everything that's left
@@ -1357,12 +1361,10 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	{
 		assert(vstd::iswithin(tier, 1, 7));
 		std::vector<CreatureID> allowed;
-		for(const CBonusSystemNode *b : creaturesOfLevel[tier].getChildrenNodes())
+		for(const auto & creature : objects)
 		{
-			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			const auto * crea = dynamic_cast<const CCreature *>(b);
-			if(crea && !crea->special)
-				allowed.push_back(crea->getId());
+			if(!creature->special && creature->level == tier)
+				allowed.push_back(creature->getId());
 		}
 
 		if(allowed.empty())
@@ -1377,49 +1379,10 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, const std::shared_ptr<Bonus> & b)
-{
-	assert(vstd::iswithin(tier, 1, 7));
-	creaturesOfLevel[tier].addNewBonus(b);
-}
-
-void CCreatureHandler::addBonusForAllCreatures(const std::shared_ptr<Bonus> & b)
-{
-	const auto & exportedBonuses = allCreatures.getExportedBonusList();
-	for(const auto & bonus : exportedBonuses)
-	{
-		if(bonus->type == b->type && bonus->subtype == b->subtype)
-			return;
-	}
-	allCreatures.addNewBonus(b);
-}
-
-void CCreatureHandler::removeBonusesFromAllCreatures()
-{
-	allCreatures.removeBonuses(Selector::all);
-}
-
-void CCreatureHandler::buildBonusTreeForTiers()
-{
-	for(CCreature * c : objects)
-	{
-		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
-			c->attachTo(creaturesOfLevel[c->level]);
-		else
-			c->attachTo(creaturesOfLevel[0]);
-	}
-	for(CBonusSystemNode &b : creaturesOfLevel)
-		b.attachTo(allCreatures);
-}
 
 void CCreatureHandler::afterLoadFinalization()
 {
 
-}
-
-void CCreatureHandler::deserializationFix()
-{
-	buildBonusTreeForTiers();
 }
 
 VCMI_LIB_NAMESPACE_END
