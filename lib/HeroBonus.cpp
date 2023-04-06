@@ -76,9 +76,8 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
 	{"CREATURE_FACTION", std::make_shared<CreatureFactionLimiter>()},
-	{"CREATURE_LEVEL", std::make_shared<CreatureLevelLimiter>()},
+	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
-	{"UNIT_ON_HEXES", std::make_shared<UnitOnHexLimiter>()}
 };
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
