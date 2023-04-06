@@ -76,6 +76,7 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
 	{"CREATURE_FACTION", std::make_shared<CreatureFactionLimiter>()},
+	{"CREATURE_LEVEL", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
 	{"UNIT_ON_HEXES", std::make_shared<UnitOnHexLimiter>()}
 };
@@ -2397,6 +2398,37 @@ JsonNode CreatureFactionLimiter::toJsonNode() const
 
 	root["type"].String() = "CREATURE_FACTION_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getByIndex(faction)->getJsonKey()));
+
+	return root;
+}
+
+CreatureLevelLimiter::CreatureLevelLimiter(uint32_t minLevel, uint32_t maxLevel) :
+	minLevel(minLevel),
+	maxLevel(maxLevel)
+{
+}
+
+ILimiter::EDecision CreatureLevelLimiter::limit(const BonusLimitationContext &context) const
+{
+	const auto *c = retrieveCreature(&context.node);
+	auto accept = c && (c->getLevel() < maxLevel && c->getLevel() >= minLevel);
+	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
+}
+
+std::string CreatureLevelLimiter::toString() const
+{
+	boost::format fmt("CreatureLevelLimiter(minLevel=%d,maxLevel=%d)");
+	fmt % minLevel % maxLevel;
+	return fmt.str();
+}
+
+JsonNode CreatureLevelLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_LEVEL_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::intNode(minLevel));
+	root["parameters"].Vector().push_back(JsonUtils::intNode(maxLevel));
 
 	return root;
 }

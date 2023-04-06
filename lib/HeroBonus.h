@@ -12,6 +12,7 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 #include "battle/BattleHex.h"
+#include <limits>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1103,6 +1104,26 @@ public:
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & terrainType;
+	}
+};
+
+class DLL_LINKAGE CreatureLevelLimiter : public ILimiter //applies only to creatures of given faction
+{
+public:
+	uint32_t minLevel;
+	uint32_t maxLevel;
+	//accept all levels by default, accept creatures of minLevel <= creature->getLevel() < maxLevel
+	CreatureLevelLimiter(uint32_t minLevel = std::numeric_limits<uint32_t>::min(), uint32_t maxLevel = std::numeric_limits<uint32_t>::max());
+
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & minLevel;
+		h & maxLevel;
 	}
 };
 

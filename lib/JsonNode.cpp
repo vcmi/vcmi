@@ -758,6 +758,17 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				});
 				return factionLimiter;
 			}
+			else if(limiterType == "CREATURE_LEVEL_LIMITER")
+			{
+				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
+				if(!parameters.empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
+				{
+					levelLimiter->minLevel = parameters[0].Integer();
+					if(parameters[1].isNumber())
+						levelLimiter->maxLevel = parameters[1].Integer();
+				}
+				return levelLimiter;
+			}
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
 				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
