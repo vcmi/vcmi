@@ -29,6 +29,7 @@ private:
 	void showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void queueSizeChangedCallback(int value, BattleInterface * parentBattleInterface);
 	void skipBattleIntroMusicChangedCallback(bool value);
+	void touchscreenModeChangedCallback(bool value, BattleInterface * parentBattleInterface);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);
 };
