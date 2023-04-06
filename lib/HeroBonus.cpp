@@ -88,8 +88,7 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 	{"PLAYER_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER)},
 	{"HERO", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO)},
 	{"TEAM_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)}, //untested
-	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)},
-	{"ALL_CREATURES", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ALL_CREATURES)}
+	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
 }; //untested
 
 const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
@@ -2368,20 +2367,15 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureFactionLimiter::CreatureFactionLimiter(TFaction creatureFaction)
+CreatureFactionLimiter::CreatureFactionLimiter(FactionID creatureFaction)
 	: faction(creatureFaction)
-{
-}
-
-CreatureFactionLimiter::CreatureFactionLimiter():
-	faction(static_cast<TFaction>(-1))
 {
 }
 
 ILimiter::EDecision CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
-	auto accept = c && c->getFactionIndex() == faction;
+	auto accept = c && (c->getFactionIndex() == faction || faction == FactionID::ANY);
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
 }
 

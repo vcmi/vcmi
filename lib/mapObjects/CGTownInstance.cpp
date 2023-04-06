@@ -1232,12 +1232,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 			continue;
 
 		for(auto & bonus : building->buildingBonuses)
-		{
-			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
-				VLC->creh->addBonusForAllCreatures(bonus);
-			else
-				addNewBonus(bonus);
-		}
+			addNewBonus(bonus);
 	}
 }
 

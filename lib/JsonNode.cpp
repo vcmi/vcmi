@@ -754,7 +754,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				std::shared_ptr<CreatureFactionLimiter> factionLimiter = std::make_shared<CreatureFactionLimiter>();
 				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
-					factionLimiter->faction = faction;
+					factionLimiter->faction = FactionID(faction);
 				});
 				return factionLimiter;
 			}
@@ -1002,7 +1002,17 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["propagator"];
 	if (!value->isNull())
-		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	{
+		//ALL_CREATURES old propagator compatibility
+		if(value->String() == "ALL_CREATURES") 
+		{
+			logMod->warn("ALL_CREATURES propagator is deprecated. Use GLOBAL_EFFECT propagator with CREATURES_ONLY limiter");
+			b->addLimiter(std::make_shared<CreatureLevelLimiter>());
+			b->propagator = bonusPropagatorMap.at("GLOBAL_EFFECT");
+		}
+		else
+			b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	}
 
 	value = &ability["updater"];
 	if(!value->isNull())

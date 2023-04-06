@@ -1130,9 +1130,8 @@ public:
 class DLL_LINKAGE CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
 {
 public:
-	TFaction faction;
-	CreatureFactionLimiter();
-	CreatureFactionLimiter(TFaction faction);
+	FactionID faction;
+	CreatureFactionLimiter(FactionID faction = FactionID::ANY);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
