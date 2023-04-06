@@ -1466,12 +1466,31 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE BattleResult : public CPackForClient
+struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+	
+	CGHeroInstance * hero1 = nullptr;
+	CGHeroInstance * hero2 = nullptr;
+	CArmedInstance * army1 = nullptr;
+	CArmedInstance * army2 = nullptr;
+	TExpType exp[2];
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero1;
+		h & hero2;
+		h & army1;
+		h & army2;
+		h & exp;
+	}
+};
+
+struct DLL_LINKAGE BattleResult : public Query
 {
 	enum EResult { NORMAL = 0, ESCAPE = 1, SURRENDER = 2 };
 
 	void applyFirstCl(CClient * cl);
-	void applyGs(CGameState * gs);
 
 	EResult result = NORMAL;
 	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
@@ -1483,6 +1502,7 @@ struct DLL_LINKAGE BattleResult : public CPackForClient
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & queryID;
 		h & result;
 		h & winner;
 		h & casualties[0];

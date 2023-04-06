@@ -1580,7 +1580,7 @@ void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, i
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
-void VCAI::battleEnd(const BattleResult * br)
+void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
@@ -1588,7 +1588,13 @@ void VCAI::battleEnd(const BattleResult * br)
 	bool won = br->winner == myCb->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
-	CAdventureAI::battleEnd(br);
+	status.addQuery(queryID, "Combat result dialog");
+	const int confirmAction = 0;
+	requestActionASAP([=]()
+	{
+		answerQuery(queryID, confirmAction);
+	});
+	CAdventureAI::battleEnd(br, queryID);
 }
 
 void VCAI::waitTillFree()

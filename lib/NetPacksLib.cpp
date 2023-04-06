@@ -2190,15 +2190,11 @@ void BattleUpdateGateState::applyGs(CGameState * gs) const
 		gs->curB->si.gateState = state;
 }
 
-void BattleResult::applyGs(CGameState *gs)
+void BattleResultAccepted::applyGs(CGameState * gs) const
 {
-	for (auto & elem : gs->curB->stacks)
-		delete elem;
-
-
-	for(int i = 0; i < 2; ++i)
+	for(auto * h : {hero1, hero2})
 	{
-		if(auto * h = gs->curB->battleGetFightingHero(i))
+		if(h)
 		{
 			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
@@ -2214,15 +2210,20 @@ void BattleResult::applyGs(CGameState *gs)
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		for(int i = 0; i < 2; i++)
+		{
 			if(exp[i])
-				gs->curB->battleGetArmyObject(i)->giveStackExp(exp[i]);
+			{
+				if(auto * army = (i == 0 ? army1 : army2))
+					army->giveStackExp(exp[i]);
+			}
+		}
 
 		CBonusSystemNode::treeHasChanged();
 	}
 
-	for(int i = 0; i < 2; i++)
-		gs->curB->battleGetArmyObject(i)->battle = nullptr;
-
+	army1->battle = nullptr;
+	army2->battle = nullptr;
+	
 	gs->curB.dellNull();
 }
 

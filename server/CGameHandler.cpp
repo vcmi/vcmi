@@ -832,6 +832,8 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 {
 	LOG_TRACE(logGlobal);
 
+	if(!finishingBattle)
+		return;
 
 	finishingBattle->remainingBattleQueriesCount--;
 	logGlobal->trace("Decremented queries count to %d", finishingBattle->remainingBattleQueriesCount);
@@ -914,6 +916,8 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 			sendAndApply(&sah);
 		}
 	}
+	
+	finishingBattle.reset();
 }
 
 void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter)
@@ -2627,6 +2631,9 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
 								const CGTownInstance *town) //use hero=nullptr for no hero
 {
+	if(gs->curB)
+		gs->curB.dellNull();
+	
 	engageIntoBattle(army1->tempOwner);
 	engageIntoBattle(army2->tempOwner);
 
@@ -2640,8 +2647,17 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
-	auto battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
-	queries.addQuery(battleQuery);
+	//existing battle query for retying auto-combat
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
+	if(battleQuery)
+	{
+		battleQuery->bi = gs->curB;
+		battleQuery->result = boost::none;
+		battleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
+		battleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
+	}
+
+	queries.addQuery(std::make_shared<CBattleQuery>(this, gs->curB));
 
 	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }
@@ -7189,7 +7205,7 @@ void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
 	showInfoDialog(&iw);
 }
 
-CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat):
+CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat):
 	army(_army)
 {
 	heroWithDeadCommander = ObjectInstanceID();
@@ -7341,12 +7357,14 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const
 	loserHero = result.winner != 0 ? info.sides[0].hero : info.sides[1].hero;
 	victor = info.sides[result.winner].color;
 	loser = info.sides[!result.winner].color;
+	winnerSide = result.winner;
 	remainingBattleQueriesCount = RemainingBattleQueriesCount;
 }
 
 CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 {
 	winnerHero = loserHero = nullptr;
+	winnerSide = 0;
 	remainingBattleQueriesCount = 0;
 }
 

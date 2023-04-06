@@ -397,7 +397,7 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
+BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay)
 	: owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -408,6 +408,12 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
+	
+	if(allowReplay)
+	{
+		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, SDLK_ESCAPE);
+		repeat->setBorderColor(Colors::METALLIC_GOLD);
+	}
 
 	if(br.winner == 0) //attacker won
 	{
@@ -569,8 +575,9 @@ void BattleResultWindow::show(SDL_Surface * to)
 	CCS->videoh->update(pos.x + 107, pos.y + 70, to, true, false);
 }
 
-void BattleResultWindow::bExitf()
+void BattleResultWindow::buttonPressed(int button)
 {
+	resultCallback(button);
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();
@@ -582,6 +589,16 @@ void BattleResultWindow::bExitf()
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
+}
+
+void BattleResultWindow::bExitf()
+{
+	buttonPressed(0);
+}
+
+void BattleResultWindow::bRepeatf()
+{
+	buttonPressed(1);
 }
 
 StackQueue::StackQueue(bool Embedded, BattleInterface & owner)

@@ -145,6 +145,16 @@ public:
 	virtual bool blocksPack(const CPack *pack) const override;
 };
 
+class CBattleDialogQuery : public CDialogQuery
+{
+public:
+	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
+
+	const BattleInfo * bi;
+
+	virtual void onRemoval(PlayerColor color) override;
+};
+
 //yes/no and component selection dialogs
 class CBlockingDialogQuery : public CDialogQuery
 {

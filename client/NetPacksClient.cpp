@@ -735,7 +735,7 @@ void ApplyFirstClientNetPackVisitor::visitBattleUpdateGateState(BattleUpdateGate
 
 void ApplyFirstClientNetPackVisitor::visitBattleResult(BattleResult & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack, queryID);
 	cl.battleFinished();
 }
 

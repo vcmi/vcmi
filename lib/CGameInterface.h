@@ -162,7 +162,7 @@ public:
 	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
-	virtual void battleEnd(const BattleResult *br) override;
+	virtual void battleEnd(const BattleResult *br, QueryID queryID) override;
 	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override;
