@@ -623,14 +623,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	}
 
 	battleQuery->result = boost::make_optional(*battleResult.data);
-	
-	//set same battle result for all queries
-	for(auto q : queries.allQueries())
-	{
-		auto otherBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(q);
-		if(otherBattleQuery && otherBattleQuery->bi == battleQuery->bi)
-			otherBattleQuery->result = battleQuery->result;
-	}
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
@@ -639,6 +631,15 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
 	battleResult.data->queryID = battleDialogQuery->queryID;
 	queries.addQuery(battleDialogQuery);
+	
+	//set same battle result for all queries
+	for(auto q : queries.allQueries())
+	{
+		auto otherBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(q);
+		if(otherBattleQuery)
+			otherBattleQuery->result = battleQuery->result;
+	}
+	
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 }
 

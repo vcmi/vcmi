@@ -413,6 +413,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, SDLK_ESCAPE);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
+		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
 
 	if(br.winner == 0) //attacker won

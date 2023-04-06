@@ -94,6 +94,8 @@
 	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
 
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
+
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\nShow the number of creatures available to purchase instead of their growth in town summary (bottom-left corner of town screen).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Show Weekly Growth of Creatures",
