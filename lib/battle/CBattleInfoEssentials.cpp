@@ -379,6 +379,15 @@ EGateState CBattleInfoEssentials::battleGetGateState() const
 	return getBattle()->getGateState();
 }
 
+bool CBattleInfoEssentials::battleIsGatePassable() const
+{
+	RETURN_IF_NOT_BATTLE(true);
+	if(battleGetSiegeLevel() == CGTownInstance::NONE)
+		return true;
+
+	return battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED; 
+}
+
 PlayerColor CBattleInfoEssentials::battleGetOwner(const battle::Unit * unit) const
 {
 	RETURN_IF_NOT_BATTLE(PlayerColor::CANNOT_DETERMINE);

@@ -814,11 +814,10 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 						affectedObstacles.push_back(i);
 		}
 		for(auto hex : unit->getHexes())
-			if(hex == ESiegeHex::GATE_BRIDGE)
-				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
-					for(int i=0; i<affectedObstacles.size(); i++)
-						if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
-							affectedObstacles.erase(affectedObstacles.begin()+i);
+			if(hex == ESiegeHex::GATE_BRIDGE && battleIsGatePassable())
+				for(int i=0; i<affectedObstacles.size(); i++)
+					if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
+						affectedObstacles.erase(affectedObstacles.begin()+i);
 	}
 	return affectedObstacles;
 }
