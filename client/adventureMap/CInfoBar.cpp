@@ -173,7 +173,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 	auto fullRect = Rect(CInfoBar::offset, CInfoBar::offset, data_width - 2 * CInfoBar::offset, data_height - 2 * CInfoBar::offset);
 	auto textRect = fullRect;
 	auto imageRect = fullRect;
-	auto font = FONT_SMALL;
+	auto font = tiny ? FONT_TINY : FONT_SMALL;
 	auto maxComponents = 2; 
 
 	if(!compsToDisplay.empty())
@@ -210,8 +210,6 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 
 		comps = std::make_shared<CComponentBox>(vect, imageRect, 4, 4, 1, maxComponents);
 	}
-	else
-		font = tiny ? FONT_TINY : font;
 
 	if(!message.empty())
 		text = std::make_shared<CMultiLineLabel>(textRect, font, ETextAlignment::CENTER, Colors::WHITE, message);
