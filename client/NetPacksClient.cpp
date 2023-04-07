@@ -255,6 +255,8 @@ void ApplyClientNetPackVisitor::visitBulkSmartRebalanceStacks(BulkSmartRebalance
 void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 {
 	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactPut, pack.al);
+	if(pack.askAssemble)
+		callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
 }
 
 void ApplyClientNetPackVisitor::visitEraseArtifact(EraseArtifact & pack)

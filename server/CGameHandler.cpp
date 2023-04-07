@@ -4074,7 +4074,7 @@ bool CGameHandler::eraseArtifactByClient(const ArtifactLocation & al)
 		COMPLAIN_RET("Cannot remove artifact!");
 
 	if(al.getArt()->artType->canBePutAt(hero) || al.slot != ArtifactPosition::TRANSITION_POS)
-		COMPLAIN_RET("Unlegal removing artifact");
+		COMPLAIN_RET("Illegal artifact removal request");
 
 	removeArtifact(al);
 	return true;
