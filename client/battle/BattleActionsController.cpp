@@ -569,10 +569,10 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -593,8 +593,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
-			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
@@ -904,7 +903,7 @@ spells::Mode BattleActionsController::getCurrentCastMode() const
 
 }
 
-bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *casterStack, const CStack *targetStack, BattleHex targetHex)
+bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *targetStack, BattleHex targetHex)
 {
 	assert(currentSpell);
 	if (!currentSpell)
