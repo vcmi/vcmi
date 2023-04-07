@@ -124,6 +124,12 @@ namespace JsonRandom
 		{
 			ret.push_back(loadValue(value[name], rng));
 		}
+		
+		if(!value["random"].isNull())
+		{
+			*RandomGeneratorUtil::nextItem(ret, rng) = loadValue(value["random"], rng);
+		}
+		
 		return ret;
 	}
 
