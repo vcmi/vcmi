@@ -229,6 +229,8 @@ class CSlider : public CIntObject
 	std::shared_ptr<CButton> right;
 	std::shared_ptr<CButton> slider;
 
+	boost::optional<Rect> scrollBounds;
+
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int positions; //number of highest position (0 if there is only one)
 	bool horizontal;
@@ -251,6 +253,10 @@ public:
 
 	/// Controls how many items wil be scrolled via one click
 	void setScrollStep(int to);
+
+	/// If set, mouse scroll will only scroll slider when inside of this area
+	void setScrollBounds(const Rect & bounds );
+	void clearScrollBounds();
 
 	/// Value modifiers
 	void moveLeft();

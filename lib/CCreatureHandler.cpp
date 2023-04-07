@@ -432,8 +432,11 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 
 void CCreatureHandler::loadCommanders()
 {
-	JsonNode data(ResourceID("config/commanders.json"));
-	data.setMeta(CModHandler::scopeBuiltin()); // assume that commanders are in core mod (for proper bonuses resolution)
+	ResourceID configResource("config/commanders.json");
+
+	std::string modSource = VLC->modh->findResourceOrigin(configResource);
+	JsonNode data(configResource);
+	data.setMeta(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -960,9 +963,6 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 {
 	for (const JsonNode &exp : input.Vector())
 	{
-		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
-		bonus->source = Bonus::STACK_EXPERIENCE;
-		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();
 		int lowerLimit = 1;//, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
@@ -971,8 +971,14 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if(val.Bool())
 				{
+					// parse each bonus separately
+					// we can not create copies since identifiers resolution does not tracks copies
+					// leading to unset identifier values in copies
+					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
+					bonus->source = Bonus::STACK_EXPERIENCE;
+					bonus->duration = Bonus::PERMANENT;
 					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (std::make_shared<Bonus>(*bonus)); //bonuses must be unique objects
+					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
 				++lowerLimit;
@@ -985,9 +991,14 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if (val.Float() != lastVal)
 				{
-					bonus->val = static_cast<int>(val.Float()) - lastVal;
+					JsonNode bonusInput = exp["bonus"];
+					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
+
+					auto bonus = JsonUtils::parseBonus (bonusInput);
+					bonus->source = Bonus::STACK_EXPERIENCE;
+					bonus->duration = Bonus::PERMANENT;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (std::make_shared<Bonus>(*bonus));
+					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());
 				++lowerLimit;
