@@ -46,26 +46,27 @@ namespace JsonRandom
 		return rng.getIntRange(min, max)();
 	}
 
-	DLL_LINKAGE std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::string defaultValue)
+	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::set<std::string> valuesSet)
 	{
 		if (value.isNull())
-			return defaultValue;
+			return valuesSet.empty() ? "" : *RandomGeneratorUtil::nextItem(valuesSet, rng);
 		if (value.isString())
 			return value.String();
 		if (!value["type"].isNull())
 			return value["type"].String();
 
-		if (value["list"].isNull())
-			return defaultValue;
-
-		const auto & resourceList = value["list"].Vector();
-
-		if (resourceList.empty())
-			return defaultValue;
-
-		si32 index = rng.getIntRange(0, resourceList.size() - 1 )();
-
-		return resourceList[index].String();
+		if(!value["list"].isNull())
+		{
+			return RandomGeneratorUtil::nextItem(value["list"].Vector(), rng)->String();
+		}
+		
+		if(!value["except"].isNull())
+		{
+			for(auto & s : value["except"].Vector())
+				valuesSet.erase(s.String());
+		}
+		
+		return valuesSet.empty() ? "" : *RandomGeneratorUtil::nextItem(valuesSet, rng);
 	}
 
 	TResources loadResources(const JsonNode & value, CRandomGenerator & rng)
