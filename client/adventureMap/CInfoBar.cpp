@@ -214,7 +214,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 		font = tiny ? FONT_TINY : font;
 
 	if(!message.empty())
-		text = std::make_shared<CTextBox>(message, textRect, 0, font, ETextAlignment::CENTER, Colors::WHITE);
+		text = std::make_shared<CMultiLineLabel>(textRect, font, ETextAlignment::CENTER, Colors::WHITE, message);
 }
 
 void CInfoBar::playNewDaySound()
