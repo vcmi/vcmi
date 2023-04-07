@@ -198,7 +198,7 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 	{
 		owner.actionsController->endCastingSpell();
 	}
-	else if(key == SDLK_LSHIFT)
+	else if(GH.isKeyboardShiftDown())
 	{
 		// save and activate setting
 		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
@@ -209,7 +209,7 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 
 void BattleWindow::keyReleased(const SDL_Keycode & key)
 {
-	if(key == SDLK_LSHIFT)
+	if(!GH.isKeyboardShiftDown())
 	{
 		// set back to initial state
 		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
