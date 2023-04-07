@@ -272,6 +272,8 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & identifier;
+		if (version > 820)
+			h & modScope;
 		h & id;
 		h & level;
 		h & power;
