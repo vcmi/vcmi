@@ -254,19 +254,23 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(!creature->AIValue || tierValues.empty()) //bug #2681
 			return 0; //this box won't be generated
 		
+		//Follow the rules from https://heroes.thelazy.net/index.php/Pandora%27s_Box
+
 		int actualTier = creature->level > tierValues.size() ?
 		tierValues.size() - 1 :
 		creature->level - 1;
-		float creaturesAmount = (static_cast<float>(tierValues[actualTier])) / creature->AIValue;
-		if(creaturesAmount <= 5)
+		float creaturesAmount = std::floor((static_cast<float>(tierValues[actualTier])) / creature->AIValue);
+		if (creaturesAmount < 1)
 		{
-			creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
-			if(creaturesAmount < 1)
-				return 0;
+			return 0;
+		}
+		else if(creaturesAmount <= 5)
+		{
+			//No change
 		}
 		else if(creaturesAmount <= 12)
 		{
-			(creaturesAmount /= 2) *= 2;
+			creaturesAmount = std::ceil(creaturesAmount / 2) * 2;
 		}
 		else if(creaturesAmount <= 50)
 		{
@@ -556,6 +560,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		//remove from possible objects
 		assert(oi->maxPerZone);
 		oi->maxPerZone--;
+		//FIXME: restore the counter if teh object is not placed successfuly?
 		
 		currentValue += oi->value;
 	}
