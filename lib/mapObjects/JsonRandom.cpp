@@ -21,6 +21,8 @@
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
+#include "../mapObjects/CObjectHandler.h"
+#include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -132,7 +134,10 @@ namespace JsonRandom
 		{
 			std::set<std::string> defaultSkills;
 			for(const auto & skill : VLC->skillh->objects)
+			{
+				IObjectInterface::cb->isAllowed(2, skill->getIndex());
 				defaultSkills.insert(skill->getNameTextID());
+			}
 			
 			for(const auto & element : value.Vector())
 			{
@@ -176,6 +181,9 @@ namespace JsonRandom
 				return false;
 
 			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
+				return false;
+			
+			if(!IObjectInterface::cb->isAllowed(1, art->getIndex()))
 				return false;
 
 			if(!allowedPositions.empty())
