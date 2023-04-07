@@ -47,6 +47,7 @@ public:
 	virtual void visitExchangeArtifacts(ExchangeArtifacts & pack) override;
 	virtual void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) override;
 	virtual void visitAssembleArtifacts(AssembleArtifacts & pack) override;
+	virtual void visitEraseArtifactByClient(EraseArtifactByClient & pack) override;
 	virtual void visitBuyArtifact(BuyArtifact & pack) override;
 	virtual void visitTradeOnMarketplace(TradeOnMarketplace & pack) override;
 	virtual void visitSetFormation(SetFormation & pack) override;

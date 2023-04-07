@@ -2298,6 +2298,24 @@ struct DLL_LINKAGE AssembleArtifacts : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE EraseArtifactByClient : public CPackForServer
+{
+	EraseArtifactByClient() = default;
+	EraseArtifactByClient(const ArtifactLocation & al)
+		: al(al)
+	{
+	}
+	ArtifactLocation al;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & al;
+	}
+};
+
 struct DLL_LINKAGE BuyArtifact : public CPackForServer
 {
 	BuyArtifact() = default;
