@@ -20,6 +20,7 @@
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -136,11 +137,40 @@ namespace JsonRandom
 	std::map<SecondarySkill, si32> loadSecondary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::map<SecondarySkill, si32> ret;
+		std::vector<SecondarySkill> except;
+		
 		for(const auto & pair : value.Struct())
 		{
-			SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
-			ret[id] = loadValue(pair.second, rng);
+			std::string skillName = pair.first;
+			
+			if(skillName == "random")
+			{
+				if(pair.second.isNumber())
+					skillName = RandomGeneratorUtil::nextItem(VLC->skillh->objects, rng)->get()->getNameTextID();
+				else
+				{
+					auto skill = *RandomGeneratorUtil::nextItem(loadSecondary(pair.second, rng), rng);
+					ret[skill.first] = skill.second;
+				}
+			}
+			else if(skillName == "except")
+			{
+				for(auto & i : pair.second.Vector())
+				{
+					SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", i.String()).get());
+					except.push_back(id);
+				}
+			}
+			else
+			{
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
+				ret[id] = loadValue(pair.second, rng);
+			}
 		}
+		
+		for(auto & i : except)
+			ret.erase(i);
+		
 		return ret;
 	}
 
