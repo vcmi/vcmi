@@ -48,22 +48,28 @@ namespace JsonRandom
 		return rng.getIntRange(min, max)();
 	}
 
-	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::set<std::string> valuesSet)
+	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, const std::set<std::string> & valuesSet)
 	{
-		if (value.isNull())
-			return valuesSet.empty() ? "" : *RandomGeneratorUtil::nextItem(valuesSet, rng);
-		if (value.isString())
+		if(value.isString())
 			return value.String();
-		if (!value["type"].isNull())
-			return value["type"].String();
-
-		if(!value["anyOf"].isNull())
-			return RandomGeneratorUtil::nextItem(value["anyOf"].Vector(), rng)->String();
 		
-		if(!value["noneOf"].isNull())
+		if(value.isStruct())
 		{
-			for(auto & s : value["noneOf"].Vector())
-				valuesSet.erase(s.String());
+			if(!value["type"].isNull())
+				return value["type"].String();
+
+			if(!value["anyOf"].isNull())
+				return RandomGeneratorUtil::nextItem(value["anyOf"].Vector(), rng)->String();
+			
+			if(!value["noneOf"].isNull())
+			{
+				auto copyValuesSet = valuesSet;
+				for(auto & s : value["noneOf"].Vector())
+					copyValuesSet.erase(s.String());
+				
+				if(!copyValuesSet.empty())
+					return *RandomGeneratorUtil::nextItem(copyValuesSet, rng);
+			}
 		}
 		
 		return valuesSet.empty() ? "" : *RandomGeneratorUtil::nextItem(valuesSet, rng);
