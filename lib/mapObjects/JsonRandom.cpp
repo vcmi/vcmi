@@ -89,6 +89,26 @@ namespace JsonRandom
 	{
 		std::string resourceName = loadKey(value, rng, "");
 		si32 resourceAmount = loadValue(value, rng, 0);
+		
+		if(!value["simple"].isNull())
+		{
+			si32 index = *RandomGeneratorUtil::nextItem(std::vector<si32>{Res::WOOD, Res::ORE}, rng);
+			resourceName = GameConstants::RESOURCE_NAMES[index];
+		}
+		if(!value["precious"].isNull())
+		{
+			si32 index = *RandomGeneratorUtil::nextItem(std::vector<si32>{Res::MERCURY, Res::GEMS, Res::SULFUR, Res::CRYSTAL}, rng);
+			resourceName = GameConstants::RESOURCE_NAMES[index];
+		}
+		if(!value["random"].isNull())
+		{
+			//enumeratign resources to exclude mithril
+			si32 index = *RandomGeneratorUtil::nextItem(std::vector<si32>{Res::WOOD, Res::ORE, Res::MERCURY, Res::GEMS, Res::SULFUR, Res::CRYSTAL, Res::GOLD}, rng);
+			if(index == Res::GOLD)
+				resourceAmount *= 100;
+			resourceName = GameConstants::RESOURCE_NAMES[index];
+		}
+		
 		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).get());
 
 		TResources ret;
