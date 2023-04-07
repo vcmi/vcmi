@@ -145,8 +145,8 @@ namespace JsonRandom
 			
 			for(const auto & element : value.Vector())
 			{
-				SecondarySkill id(VLC->modh->identifiers.getIdentifier(value.meta, "skill", loadKey(element, rng, defaultSkills)).get());
-				ret[id] = loadValue(value, rng);
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(element.meta, "skill", loadKey(element, rng, defaultSkills)).get());
+				ret[id] = loadValue(element, rng);
 			}
 		}
 		return ret;
