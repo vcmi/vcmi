@@ -57,14 +57,12 @@ namespace JsonRandom
 		if (!value["type"].isNull())
 			return value["type"].String();
 
-		if(!value["list"].isNull())
-		{
-			return RandomGeneratorUtil::nextItem(value["list"].Vector(), rng)->String();
-		}
+		if(!value["anyOf"].isNull())
+			return RandomGeneratorUtil::nextItem(value["anyOf"].Vector(), rng)->String();
 		
-		if(!value["except"].isNull())
+		if(!value["noneOf"].isNull())
 		{
-			for(auto & s : value["except"].Vector())
+			for(auto & s : value["noneOf"].Vector())
 				valuesSet.erase(s.String());
 		}
 		
