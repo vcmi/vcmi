@@ -165,7 +165,7 @@ void FirstLaunchView::setupPlatformSettings()
 #if defined(VCMI_MOBILE)
 	bool touchscreenMode = true;
 #else
-	bool touchscreenMode = false
+	bool touchscreenMode = false;
 #endif
 	
 	Settings node = settings.write["battle"]["touchscreenMode"];
