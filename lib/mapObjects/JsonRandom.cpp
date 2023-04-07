@@ -20,6 +20,7 @@
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -88,7 +89,9 @@ namespace JsonRandom
 
 	TResources loadResource(const JsonNode & value, CRandomGenerator & rng)
 	{
-		std::string resourceName = loadKey(value, rng, "");
+		std::set<std::string> defaultResources(GameConstants::RESOURCE_NAMES, GameConstants::RESOURCE_NAMES + GameConstants::RESOURCE_QUANTITY - 2); //except mithril
+		
+		std::string resourceName = loadKey(value, rng, defaultResources);
 		si32 resourceAmount = loadValue(value, rng, 0);
 		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).get());
 
@@ -117,10 +120,25 @@ namespace JsonRandom
 	std::map<SecondarySkill, si32> loadSecondary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::map<SecondarySkill, si32> ret;
-		for(const auto & pair : value.Struct())
+		if(value.isStruct())
 		{
-			SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
-			ret[id] = loadValue(pair.second, rng);
+			for(const auto & pair : value.Struct())
+			{
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
+				ret[id] = loadValue(pair.second, rng);
+			}
+		}
+		if(value.isVector())
+		{
+			std::set<std::string> defaultSkills;
+			for(const auto & skill : VLC->skillh->objects)
+				defaultSkills.insert(skill->getNameTextID());
+			
+			for(const auto & element : value.Vector())
+			{
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(value.meta, "skill", loadKey(element, rng, defaultSkills)).get());
+				ret[id] = loadValue(value, rng);
+			}
 		}
 		return ret;
 	}
