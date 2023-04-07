@@ -1,5 +1,4 @@
 # 1.1.1 -> 1.2.0
-(unreleased, changes for 1.1.1..ecbbbed)
 
 ### GENERAL:
 * Adventure map rendering was entirely rewritten with better, more functional code
@@ -8,6 +7,7 @@
 * Implemented hardware cursor support
 * Heroes III language can now be detected automatically
 * Increased targeted framerate from 48 to 60
+* Increased performance of UI updates
 * Fixed bonus values of heroes who specialize in secondary skills
 * Fixed bonus values of heroes who specialize in creatures
 * Fixed damage increase from Adela's Bless specialty
@@ -15,7 +15,14 @@
 * Added vcmifaerie, vcmiazure, vcmiarmy, vcmiexp cheats
 * Video files now play at correct speed
 * Fixed crash on switching to second mission in campaigns
+* New cheat code: vcmiarmy or vcminissi - gives specified creatures in every empty slot
+* New cheat code: vcmiexp or vcmiolorin - gives specified amount of experience to current hero
 * Fixed oversided message window from Scholar skill that had confirmation button outside game window
+* Fixed loading of prebuilt creature hordes from h3m maps
+* Fixed volume of ambient sounds when changing game sounds volume
+* Fixed might&magic affinities of Dungeon heroes
+* Fixed Roland's specialty to affect Swordsmen/Crusaders instead of Griffins
+* Buying boat in town of an ally now correctly uses own resources instead of stealing them from ally
 
 ### MAP EDITOR:
 * Added translations to German, Polish, Russian, Spanish, Ukrainian
@@ -33,12 +40,31 @@
 * Settings tab layout has been redesigned to support longer texts
 * Added button to start map editor directly from Launcher
 * Simplified game starting flow from online lobby
+* Mod description will now show list of languages supported by mod
+* Launcher now uses separate mod repository from vcmi-1.1 version to prevent mod updates to unsupported versions
 
 ### AI PLAYER:
+* Nullkiller AI is now used by default
 * AI should now be more active in destroying heroes causing treat on AI towns
 * AI now has higher priority for resource-producing mines
 * Increased AI priority of town dwelling upgrades
 * AI will now de-prioritize town hall upgrades when low on resources
+* Messages from cheats used by AI are now hidden
+
+### RANDOM MAP GENERATOR
+* RMG will no longer place shipyards or boats at very small lakes
+* Fixed placement of shipyards in invalid locations
+* Fixed potential game hang on generation of random map
+* RMG will now generate addditional monolith pairs to create required number of zone connections
+* RMG will try to place Subterranean Gates as far away from other objects (including each other) as possible
+* RMG will now try to place objects as far as possible in both zones sharing a guard, not only the first one.
+* Use only one template for an object in zone
+* Objects with limited per-map count will be distributed evenly among zones with suitable terrain
+* Objects above zone treasure value will not be considered for placement
+* RMG will prefer terrain-specific templates for objects placement
+* RMG will place Towns and Monoliths first in order to generate long roads across the zone.
+* Adjust the position of center town in the zone for better look & feel on S maps.
+* Description of random map will correctly show number of levels
 
 ### ADVENTURE MAP:
 * Added option to replace popup messages on object visiting with messages in status window
@@ -58,6 +84,10 @@
 * Fixed embarking and disembarking sounds
 * Fixed selection of "new week" animation for status window
 * Object render order now mostly matches H3
+* Fixed movement cost calculation when using "Fly" spell or "Angel Wings"
+* Fixed game freeze on using Town Portal to teleport into town with unvisited Battle Scholar Academy
+* Fixed invalid ambient sound of Whirlpool
+* Hero path will now be correctly removed on defeating monsters that are at the end of hero path
 
 ### INTERFACE
 * Implemented new settings window
@@ -83,9 +113,13 @@
 * Fixed rendering of Shipyard in Castle
 * Blacksmith purchase button is now properly locked if artifact slot is occupied by another warmachine
 * Added option to show number of available creatures in place of growth
+* Fixed possible interaction with hero / town list from adventure map while in town screen
+* Fixed missing left-click message popup for some town buildings
+* Moving hero from garrison by pressing space will now correctly show message "Cannot have more than 8 adventuring heroes"
 
 ### BATTLES:
 * Added settings for even faster animation speed than in H3
+* Added display of potential kills numbers into attack tooltip in status bar
 * Added option to skip battle opening music entirely
 * All effects will now wait for battle opening sound before playing
 * Hex highlighting will now be disabled during enemy turn
@@ -113,6 +147,10 @@
 * Creature currently making turn is now highlighted in the Battle Queue 
 * Hovering over creature icon in Battle Queue will highlight this creature in the battlefield
 * New battle UI extension allows control over creatures' special abilities
+* Fixed crash on activating auto-combat in battle
+* Fixed visibility of unit creature amount labels and timing of their updates
+* Firewall will no longer hit double-wide units twice when passing through
+* Unicorn Magic Damper Aura ability now works multiplicatively with Resistance
 
 ### SPELLS:
 * Hero casting animation will play before spell effect
@@ -169,6 +207,8 @@
 * It is now possible to configure number of creature stacks in heroes' starting armies
 * It is now possible to configure number of constructed dwellings in towns on map start
 * Game settings previously located in defaultMods.json are now loaded directly from mod.json
+* It is now possible for spellcaster units to have multiple spells (but only for targeting different units)
+* Fixed incorrect resolving of identifiers in commander abilities and stack experience definitions
 
 # 1.1.0 -> 1.1.1
 
