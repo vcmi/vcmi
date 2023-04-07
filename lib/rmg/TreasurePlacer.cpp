@@ -560,7 +560,6 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		//remove from possible objects
 		assert(oi->maxPerZone);
 		oi->maxPerZone--;
-		//FIXME: restore the counter if teh object is not placed successfuly?
 		
 		currentValue += oi->value;
 	}
