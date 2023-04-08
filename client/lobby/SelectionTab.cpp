@@ -595,7 +595,8 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> & files)
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		info->fileURI = file.getName();
 		info->campaignInit();
-		allItems.push_back(info);
+		if(info->campaignHeader)
+			allItems.push_back(info);
 	}
 }
 

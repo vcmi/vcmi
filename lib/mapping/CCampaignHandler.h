@@ -29,8 +29,12 @@ namespace CampaignVersion
 		RoE = 4,
 		AB = 5,
 		SoD = 6,
-		WoG = 6
+		WoG = 6,
+		VCMI = 1
 	};
+
+	const int VCMI_MIN = 1;
+	const int VCMI_MAX = 1;
 }
 
 class DLL_LINKAGE CCampaignHeader
@@ -40,7 +44,8 @@ public:
 	ui8 mapVersion = 0; //CampText.txt's format
 	std::string name, description;
 	ui8 difficultyChoosenByPlayer = 0;
-	ui8 music = 0; //CmpMusic.txt, start from 0
+	ui8 music = 0; //CmpMusic.txt, start from 0, field is unused in vcmi
+	bool valid = false;
 
 	std::string filename;
 	std::string modName;
@@ -221,7 +226,13 @@ class DLL_LINKAGE CCampaignHandler
 	std::vector<size_t> scenariosCountPerCampaign;
 
 	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
+	
+	//parsers for VCMI campaigns (*.vcmp)
+	static CCampaignHeader readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding);
+	static CCampaignScenario readScenarioFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
+	static CScenarioTravel readScenarioTravelFromJson(JsonNode & reader, int version);
 
+	//parsers for original H3C campaigns
 	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
 	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
