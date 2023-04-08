@@ -8,9 +8,9 @@ import eu.vcmi.vcmi.R;
 /**
  * @author F
  */
-public class CodepageSettingController extends LauncherSettingWithDialogController<String, Config>
+public class LanguageSettingController extends LauncherSettingWithDialogController<String, Config>
 {
-    public CodepageSettingController(final AppCompatActivity activity)
+    public LanguageSettingController(final AppCompatActivity activity)
     {
         super(activity);
     }
@@ -18,13 +18,13 @@ public class CodepageSettingController extends LauncherSettingWithDialogControll
     @Override
     protected LauncherSettingDialog<String> dialog()
     {
-        return new CodepageSettingDialog();
+        return new LanguageSettingDialog();
     }
 
     @Override
     public void onItemChosen(final String item)
     {
-        mConfig.updateCodepage(item);
+        mConfig.updateLanguage(item);
         updateContent();
     }
 
@@ -41,8 +41,8 @@ public class CodepageSettingController extends LauncherSettingWithDialogControll
         {
             return "";
         }
-        return mConfig.mCodepage == null || mConfig.mCodepage.isEmpty()
+        return mConfig.mLanguage == null || mConfig.mLanguage.isEmpty()
                ? mActivity.getString(R.string.launcher_btn_cp_subtitle_unknown)
-               : mActivity.getString(R.string.launcher_btn_cp_subtitle, mConfig.mCodepage);
+               : mActivity.getString(R.string.launcher_btn_cp_subtitle, mConfig.mLanguage);
     }
 }
