@@ -36,7 +36,7 @@ public class LanguageSettingDialog extends LauncherSettingDialog<String>
     @Override
     protected int dialogTitleResId()
     {
-        return R.string.launcher_btn_cp_title;
+        return R.string.launcher_btn_language_title;
     }
 
     @Override
