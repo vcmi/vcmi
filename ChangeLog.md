@@ -12,11 +12,12 @@
 * Fixed bonus values of heroes who specialize in creatures
 * Fixed damage increase from Adela's Bless specialty
 * Fixed missing obstacles in battles on subterranean terrain 
-* Added vcmifaerie, vcmiazure, vcmiarmy, vcmiexp cheats
 * Video files now play at correct speed
 * Fixed crash on switching to second mission in campaigns
-* New cheat code: vcmiarmy or vcminissi - gives specified creatures in every empty slot
-* New cheat code: vcmiexp or vcmiolorin - gives specified amount of experience to current hero
+* New cheat code: vcmiazure - give 5000 azure dragons in every empty slot
+* New cheat code: vcmifaerie - give 5000 faerie dragons in every empty slot
+* New cheat code: vcmiarmy or vcminissi - give specified creatures in every empty slot. EG: vcmiarmy imp
+* New cheat code: vcmiexp or vcmiolorin - give specified amount of experience to current hero. EG: vcmiexp 10000
 * Fixed oversided message window from Scholar skill that had confirmation button outside game window
 * Fixed loading of prebuilt creature hordes from h3m maps
 * Fixed volume of ambient sounds when changing game sounds volume
