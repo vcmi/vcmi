@@ -10,9 +10,9 @@
     <string name="launcher_btn_start_subtitle">Obecna wersja VCMI: %1$s</string>
     <string name="launcher_btn_mods_title">Mody</string>
     <string name="launcher_btn_mods_subtitle">Zainstaluj nowe frakcje, obiekty, dodatki</string>
-    <string name="launcher_btn_cp_title">Strona kodowa</string>
-    <string name="launcher_btn_cp_subtitle_unknown">Obecnie: nieznane</string>
-    <string name="launcher_btn_cp_subtitle">Obecnie: %1$s</string>
+    <string name="launcher_btn_language_title">Język</string>
+    <string name="launcher_btn_language_subtitle_unknown">Obecnie: nieznane</string>
+    <string name="launcher_btn_language_subtitle">Obecnie: %1$s</string>
     <string name="launcher_btn_pointermode_title">Zmień tryb kursora</string>
     <string name="launcher_btn_pointermode_subtitle">Obecnie: %1$s</string>
     <string name="launcher_btn_pointermulti_title">Mnożnik prędkości kursora</string>
