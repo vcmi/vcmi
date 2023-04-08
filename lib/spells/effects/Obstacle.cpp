@@ -21,14 +21,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:obstacle";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Obstacle, EFFECT_NAME);
 
 using RelativeShape = std::vector<std::vector<BattleHex::EDir>>;
 

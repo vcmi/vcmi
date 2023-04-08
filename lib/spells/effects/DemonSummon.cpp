@@ -19,14 +19,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:demonSummon";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(DemonSummon, EFFECT_NAME);
 
 void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {

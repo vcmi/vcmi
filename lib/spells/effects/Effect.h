@@ -35,9 +35,6 @@ class Effects;
 class Effect;
 class Registry;
 
-template<typename F>
-class RegisterEffect;
-
 using TargetType = spells::AimType;
 
 class DLL_LINKAGE Effect
