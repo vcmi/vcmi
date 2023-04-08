@@ -27,7 +27,7 @@ class CComponentBox;
 class CHeroTooltip;
 class CTownTooltip;
 class CLabel;
-class CTextBox;
+class CMultiLineLabel;
 
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
@@ -112,7 +112,7 @@ private:
 	class VisibleComponentInfo : public CVisibleInfo
 	{
 		std::shared_ptr<CComponentBox> comps;
-		std::shared_ptr<CTextBox> text;
+		std::shared_ptr<CMultiLineLabel> text;
 	public:
 		struct Cache 
 		{
