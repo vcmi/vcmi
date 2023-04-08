@@ -153,7 +153,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.325",
 			"callback": "closeWindow",
-			"hotkey": ["esc", "backspace"]
+			"hotkey": ["escape", "backspace"]
 		}
 	]
 }
