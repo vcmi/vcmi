@@ -693,12 +693,12 @@ void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreat
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	bool replay = (lastBattleArmies.first == army1 && lastBattleArmies.second == army2); //will be true if player already refused auto-battle result
+	bool autoBattleResultRefused = (lastBattleArmies.first == army1 && lastBattleArmies.second == army2);
 	lastBattleArmies.first = army1;
 	lastBattleArmies.second = army2;
 	//quick combat with neutral creatures only
 	auto * army2_object = dynamic_cast<const CGObjectInstance *>(army2);
-	if((!replay && !allowBattleReplay && army2_object
+	if((!autoBattleResultRefused && !allowBattleReplay && army2_object
 		&& army2_object->getOwner() == PlayerColor::UNFLAGGABLE
 		&& settings["adventure"]["quickCombat"].Bool())
 		|| settings["adventure"]["alwaysSkipCombat"].Bool())
@@ -909,9 +909,9 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 
 		if(!battleInt)
 		{
-			bool replay = allowBattleReplay && !settings["adventure"]["alwaysSkipCombat"].Bool(); //do not allow manual replay
+			bool allowManualReplay = allowBattleReplay && !settings["adventure"]["alwaysSkipCombat"].Bool();
 			allowBattleReplay = false;
-			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, replay);
+			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
 			wnd->resultCallback = [=](ui32 selection)
 			{
 				cb->selectionMade(selection, queryID);
