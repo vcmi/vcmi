@@ -60,14 +60,10 @@ CBonusSelection::CBonusSelection()
 	: CWindowObject(BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	static const std::string bgNames[] =
-	{
-		"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
-		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
-		"BB_BG.BMP", "NB_BG.BMP", "EL_BG.BMP", "RN_BG.BMP", "UA_BG.BMP", "SP_BG.BMP"
-	};
+
 	loadPositionsOfGraphics();
-	setBackground(bgNames[getCampaign()->camp->header.mapVersion]);
+	std::string bgName = campDescriptions[getCampaign()->camp->header.mapVersion].campPrefix + "_BG.BMP";
+	setBackground(bgName);
 
 	panelBackground = std::make_shared<CPicture>("CAMPBRF.BMP", 456, 6);
 
