@@ -204,7 +204,7 @@ public class Config
 
         if (mLanguage != null)
         {
-            general.put("encoding", mLanguage);
+            general.put("language", mLanguage);
         }
 
         general.put("swipe", mSwipeEnabled);
