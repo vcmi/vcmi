@@ -42,7 +42,7 @@ struct EvaluationResult
 	bool defend;
 
 	EvaluationResult(const AttackPossibility & ap)
-		:wait(false), score(0), bestAttack(ap), defend(false)
+		:wait(false), score(INEFFECTIVE_SCORE), bestAttack(ap), defend(false)
 	{
 	}
 };
