@@ -80,7 +80,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	for(int i = 0; i < 2; i++)
 	{
 		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
-			if(const CStack * s = cbc->battleGetStackByPos(neighbour))
+			if(const auto * s = cbc->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;
 	}
@@ -95,7 +95,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	if(stack->type->idNumber == CreatureID::CATAPULT)
+	if(stack->type->getId() == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
 		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};

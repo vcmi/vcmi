@@ -192,19 +192,19 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sendResources(pack.val[i], player, static_cast<Res::ERes>(pack.r1[i]), PlayerColor(pack.r2[i]));
+			result &= gh.sendResources(pack.val[i], player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), static_cast<Res::ERes>(pack.r2[i]));
+			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.buyArtifact(m, hero, static_cast<Res::ERes>(pack.r1[i]), ArtifactID(pack.r2[i]));
+			result &= gh.buyArtifact(m, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), static_cast<Res::ERes>(pack.r2[i]));
+			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
 		for(int i = 0; i < pack.r1.size(); ++i)

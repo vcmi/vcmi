@@ -101,7 +101,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	try
 	{
-		if(stack->type->idNumber == CreatureID::CATAPULT)
+		if(stack->type->getId() == CreatureID::CATAPULT)
 			return useCatapult(stack);
 		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
 		{

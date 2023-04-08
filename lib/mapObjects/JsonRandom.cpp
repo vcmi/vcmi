@@ -183,7 +183,7 @@ namespace JsonRandom
 
 		vstd::erase_if(spells, [=](const SpellID & spell)
 		{
-			return VLC->spellh->objects[spell]->level != si32(value["level"].Float());
+			return VLC->spellh->getById(spell)->getLevel() != si32(value["level"].Float());
 		});
 
 		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));

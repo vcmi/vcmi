@@ -205,6 +205,11 @@ public:
 	bool operator >  (const BaseForID & b) const { return num >  b.num; }
 
 	BaseForID & operator++() { ++num; return *this; }
+
+	operator NumericType() const
+	{
+		return num;
+	}
 };
 
 template < typename T>
@@ -266,6 +271,11 @@ public:
 		Identifier ret(*this);
 		++num;
 		return ret;
+	}
+
+	operator NumericType() const
+	{
+		return num;
 	}
 };
 
@@ -428,10 +438,7 @@ public:
 
 ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
-namespace EAlignment
-{
-	enum EAlignment { GOOD, EVIL, NEUTRAL };
-}
+enum class EAlignment : uint8_t { GOOD, EVIL, NEUTRAL };
 
 namespace ETownType//deprecated
 {

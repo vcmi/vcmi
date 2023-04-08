@@ -58,7 +58,7 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 	{
 		for(auto & buildingInfo : developmentInfo.toBuild)
 		{
-			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[Res::GOLD] > 0)
+			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
 			{
 				if(buildingInfo.notEnoughRes)
 				{

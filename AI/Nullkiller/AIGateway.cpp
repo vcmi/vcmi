@@ -1053,7 +1053,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, cb->getResourceAmount() / VLC->creh->objects[creID]->cost);
+		vstd::amin(count, cb->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1068,7 +1068,7 @@ bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 	if(!t || !townHasFreeTavern(t))
 		return false;
 
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
@@ -1390,7 +1390,7 @@ void AIGateway::tryRealize(Goals::DigAtTile & g)
 
 void AIGateway::tryRealize(Goals::Trade & g) //trade
 {
-	if(cb->getResourceAmount((Res::ERes)g.resID) >= g.value) //goal is already fulfilled. Why we need this check, anyway?
+	if(cb->getResourceAmount(GameResID(g.resID)) >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
 
 	int accquiredResources = 0;
@@ -1399,10 +1399,10 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 		if(const IMarket * m = IMarket::castFrom(obj, false))
 		{
 			auto freeRes = cb->getResourceAmount(); //trade only resources which are not reserved
-			for(auto it = Res::ResourceSet::nziterator(freeRes); it.valid(); it++)
+			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
 			{
 				auto res = it->resType;
-				if(res == g.resID) //sell any other resource
+				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
 				int toGive, toGet;
@@ -1415,7 +1415,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
-				if (cb->getResourceAmount((Res::ERes)g.resID) >= g.value)
+				if (cb->getResourceAmount(GameResID(g.resID)))
 					throw goalFulfilledException(sptr(g)); //we traded all we needed
 			}
 

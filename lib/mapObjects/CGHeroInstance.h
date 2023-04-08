@@ -166,7 +166,7 @@ public:
 	bool spellbookContainsSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling

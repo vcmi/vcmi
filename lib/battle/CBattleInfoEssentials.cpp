@@ -252,9 +252,9 @@ uint32_t CBattleInfoEssentials::battleCastSpells(ui8 side) const
 	return getBattle()->getCastSpells(side);
 }
 
-const IBonusBearer * CBattleInfoEssentials::getBattleNode() const
+const IBonusBearer * CBattleInfoEssentials::getBonusBearer() const
 {
-	return getBattle()->asBearer();
+	return getBattle()->getBonusBearer();
 }
 
 bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const

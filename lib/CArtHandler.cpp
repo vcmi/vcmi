@@ -77,7 +77,7 @@ ArtifactID CArtifact::getId() const
 	return id;
 }
 
-const IBonusBearer * CArtifact::accessBonuses() const
+const IBonusBearer * CArtifact::getBonusBearer() const
 {
 	return this;
 }

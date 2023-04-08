@@ -76,7 +76,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		const CStackInstance * inst = slot.second;
 		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
 
-		factions.insert(creature->faction);
+		factions.insert(creature->getFactionIndex());
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if (!hasUndead)
 		{
@@ -93,7 +93,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(TFaction f : factions)
 		{
-			if ((*VLC->townh)[f]->alignment != EAlignment::EVIL)
+			if (VLC->factions()->getByIndex(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)

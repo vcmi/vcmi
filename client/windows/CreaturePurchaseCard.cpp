@@ -48,13 +48,13 @@ void CreaturePurchaseCard::initCreatureSwitcherButton()
 void CreaturePurchaseCard::switchCreatureLevel()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL + SHARE_POS);
-	auto index = vstd::find_pos(upgradesID, creatureOnTheCard->idNumber);
+	auto index = vstd::find_pos(upgradesID, creatureOnTheCard->getId());
 	auto nextCreatureId = vstd::circularAt(upgradesID, ++index);
 	creatureOnTheCard = nextCreatureId.toCreature();
 	picture = std::make_shared<CCreaturePic>(parent->pos.x, parent->pos.y, creatureOnTheCard);
 	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(parent->pos.x, parent->pos.y), picture, creatureOnTheCard);
 	parent->updateAllSliders();
-	cost->set(creatureOnTheCard->cost * slider->getValue());
+	cost->set(creatureOnTheCard->getFullRecruitCost() * slider->getValue());
 }
 
 void CreaturePurchaseCard::initAmountInfo()
@@ -78,13 +78,13 @@ void CreaturePurchaseCard::initSlider()
 void CreaturePurchaseCard::initCostBox()
 {
 	cost = std::make_shared<CreatureCostBox>(Rect(pos.x+2, pos.y + 194, 97, 74), "");
-	cost->createItems(creatureOnTheCard->cost);
+	cost->createItems(creatureOnTheCard->getFullRecruitCost());
 }
 
 void CreaturePurchaseCard::sliderMoved(int to)
 {
 	updateAmountInfo(to);
-	cost->set(creatureOnTheCard->cost * to);
+	cost->set(creatureOnTheCard->getFullRecruitCost() * to);
 	parent->updateAllSliders();
 }
 

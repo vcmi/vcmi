@@ -43,7 +43,7 @@ public:
 	{
 		if(h.saving)
 		{
-			CreatureID idNumber = type ? type->idNumber : CreatureID(CreatureID::NONE);
+			auto idNumber = type ? type->getId() : CreatureID(CreatureID::NONE);
 			h & idNumber;
 		}
 		else
@@ -51,7 +51,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(VLC->creh->objects[idNumber]);
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getByIndex(idNumber)));
 			else
 				type = nullptr;
 		}

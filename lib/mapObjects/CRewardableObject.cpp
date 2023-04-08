@@ -455,7 +455,7 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->idNumber, entry.count, 0);
+		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->getId(), entry.count, 0);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{

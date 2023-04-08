@@ -1418,13 +1418,6 @@ void CBonusSystemNode::getRedAncestors(TNodes &out)
 		parent->getRedAncestors(out);
 }
 
-void CBonusSystemNode::getRedDescendants(TNodes &out)
-{
-	getRedChildren(out);
-	FOREACH_RED_CHILD(c)
-		c->getRedChildren(out);
-}
-
 void CBonusSystemNode::exportBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator)
@@ -1700,7 +1693,7 @@ std::string Bonus::nameForBonus() const
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
 	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
-		return (*VLC->spellh)[static_cast<SpellID::ESpellID>(subtype)]->identifier;
+		return VLC->spells()->getByIndex(subtype)->getJsonKey();
 	case Bonus::SPECIAL_UPGRADE:
 		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo[0]);
 	case Bonus::GENERATE_RESOURCE:
@@ -1782,7 +1775,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::ESTATES || deprecatedSubtypeStr == "skill.estates")
 		{
 			type = Bonus::GENERATE_RESOURCE;
-			subtype = Res::GOLD;
+			subtype = GameResID(EGameResID::GOLD);
 			subtypeRelevant = true;
 		}
 		else if(deprecatedSubtype == SecondarySkill::AIR_MAGIC || deprecatedSubtypeStr == "skill.airMagic")
@@ -2387,7 +2380,7 @@ CreatureFactionLimiter::CreatureFactionLimiter():
 ILimiter::EDecision CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
-	auto accept = c && c->faction == faction;
+	auto accept = c && c->getFactionIndex() == faction;
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
 }
 
@@ -2408,12 +2401,7 @@ JsonNode CreatureFactionLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureAlignmentLimiter::CreatureAlignmentLimiter()
-	: alignment(-1)
-{
-}
-
-CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
+CreatureAlignmentLimiter::CreatureAlignmentLimiter(EAlignment Alignment)
 	: alignment(Alignment)
 {
 }
@@ -2436,7 +2424,7 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 std::string CreatureAlignmentLimiter::toString() const
 {
 	boost::format fmt("CreatureAlignmentLimiter(alignment=%s)");
-	fmt % EAlignment::names[alignment];
+	fmt % GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)];
 	return fmt.str();
 }
 
@@ -2445,7 +2433,7 @@ JsonNode CreatureAlignmentLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_ALIGNMENT_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(EAlignment::names[alignment]));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)]));
 
 	return root;
 }
@@ -2743,7 +2731,7 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 		//otherwise we'd end up multiplying twice
 		if(stack.base == nullptr)
 		{
-			int level = stack.type->level;
+			int level = stack.type->getLevel();
 			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
 			newBonus->val *= level;
 			return newBonus;

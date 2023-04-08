@@ -147,7 +147,7 @@ struct BankConfig
 	ui32 upgradeChance = 0; //chance for creatures to be in upgraded versions
 	ui32 combatValue = 0; //how hard are guards of this level
 	std::vector<CStackBasicDescriptor> guards; //creature ID, amount
-	Res::ResourceSet resources; //resources given in case of victory
+	ResourceSet resources; //resources given in case of victory
 	std::vector<CStackBasicDescriptor> creatures; //creatures granted in case of victory (creature ID, amount)
 	std::vector<ArtifactID> artifacts; //artifacts given in case of victory
 	std::vector<SpellID> spells; // granted spell(s), for Pyramid

@@ -24,6 +24,7 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "HeroBonus.h"
+#include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -159,6 +160,16 @@ FactionID CFaction::getId() const
 bool CFaction::hasTown() const
 {
 	return town != nullptr;
+}
+
+EAlignment CFaction::getAlignment() const
+{
+	return alignment;
+}
+
+TerrainId CFaction::getNativeTerrain() const
+{
+	return nativeTerrain;
 }
 
 void CFaction::updateFrom(const JsonNode & data)
@@ -625,21 +636,21 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	if(!ret->produce.nonZero())
 	{
 		switch (ret->bid) {
-			break; case BuildingID::VILLAGE_HALL: ret->produce[Res::GOLD] = 500;
-			break; case BuildingID::TOWN_HALL :   ret->produce[Res::GOLD] = 1000;
-			break; case BuildingID::CITY_HALL :   ret->produce[Res::GOLD] = 2000;
-			break; case BuildingID::CAPITOL :     ret->produce[Res::GOLD] = 4000;
-			break; case BuildingID::GRAIL :       ret->produce[Res::GOLD] = 5000;
+			break; case BuildingID::VILLAGE_HALL: ret->produce[EGameResID::GOLD] = 500;
+			break; case BuildingID::TOWN_HALL :   ret->produce[EGameResID::GOLD] = 1000;
+			break; case BuildingID::CITY_HALL :   ret->produce[EGameResID::GOLD] = 2000;
+			break; case BuildingID::CAPITOL :     ret->produce[EGameResID::GOLD] = 4000;
+			break; case BuildingID::GRAIL :       ret->produce[EGameResID::GOLD] = 5000;
 			break; case BuildingID::RESOURCE_SILO :
 			{
-				switch (ret->town->primaryRes)
+				switch (ret->town->primaryRes.toEnum())
 				{
-					case Res::GOLD:
+					case EGameResID::GOLD:
 						ret->produce[ret->town->primaryRes] = 500;
 						break;
-					case Res::WOOD_AND_ORE:
-						ret->produce[Res::WOOD] = 1;
-						ret->produce[Res::ORE] = 1;
+					case EGameResID::WOOD_AND_ORE:
+						ret->produce[EGameResID::WOOD] = 1;
+						ret->produce[EGameResID::ORE] = 1;
 						break;
 					default:
 						ret->produce[ret->town->primaryRes] = 1;
@@ -870,9 +881,9 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 {
 	const auto * resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
 	if(resIter == std::end(GameConstants::RESOURCE_NAMES))
-		town->primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
+		town->primaryRes = GameResID(EGameResID::WOOD_AND_ORE); //Wood + Ore
 	else
-		town->primaryRes = static_cast<ui16>(resIter - std::begin(GameConstants::RESOURCE_NAMES));
+		town->primaryRes = GameResID(resIter - std::begin(GameConstants::RESOURCE_NAMES));
 
 	warMachinesToLoad[town] = source["warMachine"];
 
@@ -1001,11 +1012,11 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
+	int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, source["alignment"].String());
 	if (alignment == -1)
 		faction->alignment = EAlignment::NEUTRAL;
 	else
-		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
+		faction->alignment = static_cast<EAlignment>(alignment);
 	
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();

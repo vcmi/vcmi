@@ -76,7 +76,7 @@ std::string HeroTypeID::encode(const si32 index)
 
 const CArtifact * ArtifactID::toArtifact() const
 {
-	return VLC->arth->objects.at(*this);
+	return dynamic_cast<const CArtifact*>(toArtifact(VLC->artifacts()));
 }
 
 const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const

@@ -24,10 +24,10 @@ namespace Goals
 			: CGoal(Goals::COLLECT_RES)
 		{
 		}
-		CollectRes(int rid, int val)
+		CollectRes(GameResID rid, int val)
 			: CGoal(Goals::COLLECT_RES)
 		{
-			resID = rid;
+			resID = rid.getNum();
 			value = val;
 			priority = 2;
 		}

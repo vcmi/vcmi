@@ -85,7 +85,7 @@ public:
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
 	bool arePathHeroesLocked(const AIPath & path) const;
 	TResources getFreeResources() const;
-	int32_t getFreeGold() const { return getFreeResources()[Res::GOLD]; }
+	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);
 	const TResources & getLockedResources() const { return lockedResources; }
 

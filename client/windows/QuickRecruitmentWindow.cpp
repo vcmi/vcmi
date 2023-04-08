@@ -93,7 +93,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 			i->sliderMoved(maxAmount);
 
 		i->slider->moveToMax();
-		allAvailableResources -= (i->creatureOnTheCard->cost * maxAmount);
+		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * maxAmount);
 	}
 	maxButton->block(allAvailableResources == LOCPLINT->cb->getResourceAmount());
 }
@@ -105,8 +105,8 @@ void QuickRecruitmentWindow::purchaseUnits()
 	{
 		if(selected->slider->getValue())
 		{
-			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->level-1); };
-			CreatureID crid =  selected->creatureOnTheCard->idNumber;
+			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->getLevel()-1); };
+			CreatureID crid =  selected->creatureOnTheCard->getId();
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())
 				continue;
@@ -129,7 +129,7 @@ void QuickRecruitmentWindow::updateAllSliders()
 {
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))
-		allAvailableResources -= (i->creatureOnTheCard->cost * i->slider->getValue());
+		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * i->slider->getValue());
 	for(auto i : cards)
 	{
 		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);

@@ -204,7 +204,7 @@ std::string CSpell::getDescriptionTranslated(int32_t level) const
 
 std::string CSpell::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 int32_t CSpell::getIndex() const

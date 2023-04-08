@@ -743,11 +743,11 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			}
 			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
 			{
-				int alignment = vstd::find_pos(EAlignment::names, parameters[0].String());
+				int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, parameters[0].String());
 				if(alignment == -1)
 					logMod->error("Error: invalid alignment %s.", parameters[0].String());
 				else
-					return std::make_shared<CreatureAlignmentLimiter>(alignment);
+					return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
 			}
 			else if(limiterType == "CREATURE_FACTION_LIMITER")
 			{

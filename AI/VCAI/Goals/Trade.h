@@ -24,10 +24,10 @@ namespace Goals
 			: CGoal(Goals::TRADE)
 		{
 		}
-		Trade(int rid, int val, int Objid)
+		Trade(GameResID rid, int val, int Objid)
 			: CGoal(Goals::TRADE)
 		{
-			resID = rid;
+			resID = rid.getNum();
 			value = val;
 			objid = Objid;
 			priority = 3; //trading is instant, but picking resources is free

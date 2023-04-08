@@ -191,7 +191,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				aw->arts->markPossibleSlots(art);
 
 				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor("artifact", art->artType->iconIndex);
+				CCS->curh->dragAndDropCursor("artifact", art->artType->getIconIndex());
 
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);
@@ -447,7 +447,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 			for(int i = 0; i < 7; i++)
 			{
 				if(const CCreature *c = hero->getCreature(SlotID(i)))
-					ids->push_back(c->idNumber);
+					ids->push_back(c->getId());
 				else
 					ids->push_back(-1);
 			}
@@ -535,7 +535,7 @@ void CTradeWindow::initSubs(bool Left)
 				item->subtitle = std::to_string(hero->getStackCount(SlotID(item->serial)));
 				break;
 			case RESOURCE:
-				item->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(item->serial)));
+				item->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(item->serial)));
 				break;
 			}
 		}
@@ -869,7 +869,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		{
 			int newAmount = -1;
 			if(itemsType[1] == RESOURCE)
-				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId));
+				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(soldItemId));
 			else if(itemsType[1] ==  CREATURE)
 				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1  &&  hero->needsLastStack());
 			else
@@ -882,7 +882,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		}
 		else if(itemsType[1] == RESOURCE) //buying -> check if we can afford transaction
 		{
-			deal->block(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId)) < r1);
+			deal->block(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(soldItemId)) < r1);
 		}
 		else
 			deal->block(false);
@@ -1486,7 +1486,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 	CTradeWindow::showAll(to);
 	if(mode == EMarketMode::ARTIFACT_EXP && arts && arts->commonInfo->src.art)
 	{
-		artIcon->setFrame(arts->commonInfo->src.art->artType->iconIndex);
+		artIcon->setFrame(arts->commonInfo->src.art->artType->getIconIndex());
 		artIcon->showAll(to);
 
 		int dmp, val;
