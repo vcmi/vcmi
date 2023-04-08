@@ -120,7 +120,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
-			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack);
+			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, true);
 
 			for (BattleHex hex : avHexes)
 			{
@@ -238,7 +238,7 @@ void CStupidAI::print(const std::string &text) const
 BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{

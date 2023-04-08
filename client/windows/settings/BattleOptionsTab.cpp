@@ -34,6 +34,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		movementShadowChangedCallback(value, owner);
 	});
+	addCallback("movementHighlightOnHoverChanged", [this, owner](bool value)
+	{
+		movementHighlightOnHoverChangedCallback(value, owner);
+	});
 	addCallback("mouseShadowChanged", [this](bool value)
 	{
 		mouseShadowChangedCallback(value);
@@ -71,6 +75,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> movementShadowCheckbox = widget<CToggleButton>("movementShadowCheckbox");
 	movementShadowCheckbox->setSelected(settings["battle"]["stackRange"].Bool());
+
+	std::shared_ptr<CToggleButton> movementHighlightOnHoverCheckbox = widget<CToggleButton>("movementHighlightOnHoverCheckbox");
+	movementHighlightOnHoverCheckbox->setSelected(settings["battle"]["movementHighlightOnHover"].Bool());
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
@@ -133,6 +140,14 @@ void BattleOptionsTab::viewGridChangedCallback(bool value, BattleInterface * par
 void BattleOptionsTab::movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface)
 {
 	Settings stackRange = settings.write["battle"]["stackRange"];
+	stackRange->Bool() = value;
+	if(parentBattleInterface)
+		parentBattleInterface->redrawBattlefield();
+}
+
+void BattleOptionsTab::movementHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	Settings stackRange = settings.write["battle"]["movementHighlightOnHover"];
 	stackRange->Bool() = value;
 	if(parentBattleInterface)
 		parentBattleInterface->redrawBattlefield();

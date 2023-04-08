@@ -623,7 +623,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 		{
 			if(owner.stacksController->getActiveStack()->doubleWide())
 			{
-				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack());
+				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack(), true);
 				BattleHex shiftedDest = targetHex.cloneInDirection(owner.stacksController->getActiveStack()->destShiftDir(), false);
 				if(vstd::contains(acc, targetHex))
 					owner.giveCommand(EActionType::WALK, targetHex);
@@ -926,7 +926,7 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 
 bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber) const
 {
-	std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(stackToMove);
+	std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(stackToMove, false);
 	BattleHex shiftedDest = myNumber.cloneInDirection(stackToMove->destShiftDir(), false);
 
 	if (vstd::contains(acc, myNumber))

@@ -198,6 +198,23 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 	{
 		owner.actionsController->endCastingSpell();
 	}
+	else if(GH.isKeyboardShiftDown())
+	{
+		// save and activate setting
+		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
+		movementHighlightOnHoverCache = movementHighlightOnHover->Bool();
+		movementHighlightOnHover->Bool() = true;
+	}
+}
+
+void BattleWindow::keyReleased(const SDL_Keycode & key)
+{
+	if(!GH.isKeyboardShiftDown())
+	{
+		// set back to initial state
+		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
+		movementHighlightOnHover->Bool() = movementHighlightOnHoverCache;
+	}
 }
 
 void BattleWindow::clickRight(tribool down, bool previousState)
