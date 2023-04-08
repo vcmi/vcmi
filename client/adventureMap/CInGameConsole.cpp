@@ -38,6 +38,9 @@ void CInGameConsole::showAll(SDL_Surface * to)
 
 void CInGameConsole::show(SDL_Surface * to)
 {
+	if (LOCPLINT->cingconsole != this)
+		return;
+
 	int number = 0;
 
 	boost::unique_lock<boost::mutex> lock(texts_mx);
@@ -107,7 +110,11 @@ void CInGameConsole::print(const std::string & txt)
 
 void CInGameConsole::keyPressed (const SDL_Keycode & key)
 {
-	if(!captureAllKeys && key != SDLK_TAB) return; //because user is not entering any text
+	if (LOCPLINT->cingconsole != this)
+		return;
+
+	if(!captureAllKeys && key != SDLK_TAB)
+		return; //because user is not entering any text
 
 	switch(key)
 	{
@@ -192,6 +199,9 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 
 void CInGameConsole::textInputed(const std::string & inputtedText)
 {
+	if (LOCPLINT->cingconsole != this)
+		return;
+
 	if(!captureAllKeys || enteredText.empty())
 		return;
 	enteredText.resize(enteredText.size()-1);
