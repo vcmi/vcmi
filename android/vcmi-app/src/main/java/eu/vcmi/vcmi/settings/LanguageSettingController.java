@@ -31,7 +31,7 @@ public class LanguageSettingController extends LauncherSettingWithDialogControll
     @Override
     protected String mainText()
     {
-        return mActivity.getString(R.string.launcher_btn_cp_title);
+        return mActivity.getString(R.string.launcher_btn_language_title);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class LanguageSettingController extends LauncherSettingWithDialogControll
             return "";
         }
         return mConfig.mLanguage == null || mConfig.mLanguage.isEmpty()
-               ? mActivity.getString(R.string.launcher_btn_cp_subtitle_unknown)
-               : mActivity.getString(R.string.launcher_btn_cp_subtitle, mConfig.mLanguage);
+               ? mActivity.getString(R.string.launcher_btn_language_subtitle_unknown)
+               : mActivity.getString(R.string.launcher_btn_language_subtitle, mConfig.mLanguage);
     }
 }
