@@ -61,6 +61,8 @@
             "description": "VCMI Linux GCC",
             "inherits": "linux-release",
             "cacheVariables": {
+                "ENABLE_LUA" : "ON",
+                "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
