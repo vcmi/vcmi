@@ -115,10 +115,11 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
-	assert(hotaVersion == 1 || hotaVersion == 2 || hotaVersion == 3);
+	assert(hotaVersion < 4);
 
 	MapFormatFeaturesH3M result = getFeaturesSOD();
-	result.levelHOTA = true;
+	result.levelHOTA0 = true;
+	result.levelHOTA1 = hotaVersion > 0;
 	//result.levelHOTA2 = hotaVersion > 1; // HOTA2 seems to be identical to HOTA1 so far
 	result.levelHOTA3 = hotaVersion > 2;
 
@@ -130,17 +131,17 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 	result.factionsCount = 10; // + Cove
 	result.creaturesCount = 171; // + Cove + neutrals
 
-	if(hotaVersion == 1 || hotaVersion == 2)
+	if(hotaVersion == 0 || hotaVersion == 1 || hotaVersion == 2)
 	{
 		result.artifactsCount = 163; // + HotA artifacts
 		result.heroesCount = 178; // + Cove
-		result.heroesPortraitsCount = 186; // + Cove
+		result.heroesPortraitsCount = 187; // + Cove
 	}
 	if(hotaVersion == 3)
 	{
 		result.artifactsCount = 165; // + HotA artifacts
 		result.heroesCount = 179; // + Cove
-		result.heroesPortraitsCount = 186; // + Cove
+		result.heroesPortraitsCount = 187; // + Cove
 	}
 
 	assert((result.heroesCount + 7) / 8 == result.heroesBytes);

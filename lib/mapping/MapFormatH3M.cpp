@@ -125,7 +125,15 @@ void CMapLoaderH3M::readHeader()
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(mapHeader->version, hotaVersion);
 
-		reader->skipZero(2);
+		if(hotaVersion > 0)
+		{
+			reader->skipZero(1);
+			//TODO: HotA
+			bool isDuelMap = reader->readBool();
+			if (isDuelMap)
+				logGlobal->warn("Map '%s': Duel maps are not supported!", mapName);
+		}
+
 		if(hotaVersion > 1)
 		{
 			uint8_t unknown = reader->readUInt32();
@@ -587,7 +595,7 @@ void CMapLoaderH3M::readAllowedHeroes()
 	uint32_t heroesCount = features.heroesCount;
 	uint32_t heroesBytes = features.heroesBytes;
 
-	if(features.levelHOTA)
+	if(features.levelHOTA0)
 	{
 		heroesCount = reader->readUInt32();
 		heroesBytes = (heroesCount + 7) / 8;
@@ -627,14 +635,17 @@ void CMapLoaderH3M::readMapOptions()
 	//omitting NULLS
 	reader->skipZero(31);
 
-	if(features.levelHOTA)
+	if(features.levelHOTA0)
 	{
 		//TODO: HotA
 		bool allowSpecialMonths = reader->readBool();
 		if(!allowSpecialMonths)
 			logGlobal->warn("Map '%s': Option 'allow special months' is not implemented!", mapName);
-
 		reader->skipZero(3);
+	}
+
+	if(features.levelHOTA1)
+	{
 		uint8_t unknownConstant = reader->readUInt8();
 		assert(unknownConstant == 16);
 		MAYBE_UNUSED(unknownConstant);
@@ -657,7 +668,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	uint32_t artifactsCount = features.artifactsCount;
 	uint32_t artifactsBytes = features.artifactsBytes;
 
-	if(features.levelHOTA)
+	if(features.levelHOTA0)
 	{
 		artifactsCount = reader->readUInt32();
 		artifactsBytes = (artifactsCount + 7) / 8;
@@ -730,7 +741,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 	uint32_t heroesCount = features.heroesCount;
 
-	if(features.levelHOTA)
+	if(features.levelHOTA0)
 		heroesCount = reader->readUInt32();
 
 	assert(heroesCount <= features.heroesCount);
@@ -1988,7 +1999,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 				object->possibleSpells.emplace_back(i);
 	}
 
-	if(features.levelHOTA)
+	if(features.levelHOTA1)
 	{
 		// TODO: HOTA support
 		bool spellResearchAvailable = reader->readBool();
@@ -2033,7 +2044,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		object->events.push_back(event);
 	}
 
-	if(features.levelHOTA)
+	if(features.levelHOTA0)
 	{
 		// TODO: HOTA support
 		uint8_t alignment = reader->readUInt8();

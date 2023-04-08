@@ -63,7 +63,8 @@ public:
 	bool levelAB = false;
 	bool levelSOD = false;
 	bool levelWOG = false;
-	bool levelHOTA = false;
+	bool levelHOTA0 = false;
+	bool levelHOTA1 = false;
 	bool levelHOTA3 = false;
 };
 
