@@ -50,7 +50,7 @@ import eu.vcmi.vcmi.util.ServerResponse;
 public class ActivityMods extends ActivityWithToolbar
 {
     private static final boolean ENABLE_REPO_DOWNLOADING = true;
-    private static final String REPO_URL = "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/github.json";
+    private static final String REPO_URL = "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.2.json";
     private VCMIModsRepo mRepo;
     private RecyclerView mRecycler;
 
