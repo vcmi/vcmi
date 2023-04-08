@@ -15,7 +15,7 @@
     <string name="launcher_btn_start_subtitle">Current VCMI version: %1$s</string>
     <string name="launcher_btn_mods_title">Mods</string>
     <string name="launcher_btn_mods_subtitle">Install new factions, objects, extras</string>
-    <string name="launcher_btn_cp_title">Codepage</string>
+    <string name="launcher_btn_cp_title">Language</string>
     <string name="launcher_btn_cp_subtitle_unknown">Currently: unknown</string>
     <string name="launcher_btn_cp_subtitle">Currently: %1$s</string>
     <string name="launcher_btn_pointermode_title">Change pointer mode</string>
