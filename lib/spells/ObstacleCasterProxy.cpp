@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "ObstacleCasterProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
