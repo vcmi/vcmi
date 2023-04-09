@@ -145,7 +145,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 {
 	if(!parameters.caster->getHeroCaster())
 	{
-		logGlobal->error("Summoning boat without hero as actor");
+		env->complain("Not a hero caster!");
 		return ESpellCastResult::ERROR;
 	}
 	
@@ -281,9 +281,15 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		env->complain("Destination is out of map!");
 		return ESpellCastResult::ERROR;
 	}
+	
+	if(!parameters.caster->getHeroCaster())
+	{
+		env->complain("Not a hero caster!");
+		return ESpellCastResult::ERROR;
+	}
 
 	const TerrainTile * dest = env->getCb()->getTile(parameters.pos);
-	const TerrainTile * curr = env->getCb()->getTile(parameters.caster->getSightCenter());
+	const TerrainTile * curr = env->getCb()->getTile(parameters.caster->getHeroCaster()->getSightCenter());
 
 	if(nullptr == dest)
 	{
@@ -297,7 +303,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		return ESpellCastResult::ERROR;
 	}
 
-	if(parameters.caster->movement <= 0) //unlike town portal non-zero MP is enough
+	if(parameters.caster->getHeroCaster()->movement <= 0) //unlike town portal non-zero MP is enough
 	{
 		env->complain("Hero needs movement points to cast Dimension Door!");
 		return ESpellCastResult::ERROR;
@@ -309,7 +315,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	std::stringstream cachingStr;
 	cachingStr << "source_" << Bonus::SPELL_EFFECT << "id_" << owner->id.num;
 
-	if(parameters.caster->getBonuses(Selector::source(Bonus::SPELL_EFFECT, owner->id), Selector::all, cachingStr.str())->size() >= owner->getLevelPower(schoolLevel)) //limit casts per turn
+	if(parameters.caster->getHeroCaster()->getBonuses(Selector::source(Bonus::SPELL_EFFECT, owner->id), Selector::all, cachingStr.str())->size() >= owner->getLevelPower(schoolLevel)) //limit casts per turn
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -320,7 +326,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	}
 
 	GiveBonus gb;
-	gb.id = parameters.caster->id.getNum();
+	gb.id = parameters.caster->getCasterUnitId();
 	gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, owner->id);
 	env->apply(&gb);
 
@@ -331,12 +337,12 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
 		env->apply(&iw);
 	}
-	else if(env->moveHero(parameters.caster->id, parameters.caster->convertFromVisitablePos(parameters.pos), true))
+	else if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), true))
 	{
 		SetMovePoints smp;
-		smp.hid = parameters.caster->id;
-		if(movementCost < static_cast<int>(parameters.caster->movement))
-			smp.val = parameters.caster->movement - movementCost;
+		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
+		if(movementCost < static_cast<int>(parameters.caster->getHeroCaster()->movement))
+			smp.val = parameters.caster->getHeroCaster()->movement - movementCost;
 		else
 			smp.val = 0;
 		env->apply(&smp);
