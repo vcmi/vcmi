@@ -259,11 +259,18 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 		{"building", CScenarioTravel::STravelBonus::EBonusType::BUILDING},
 		{"artifact", CScenarioTravel::STravelBonus::EBonusType::ARTIFACT},
 		{"scroll", CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL},
-		{"primary", CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL},
-		{"skill", CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL},
+		{"primarySkill", CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL},
+		{"secondarySkill", CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL},
 		{"resource", CScenarioTravel::STravelBonus::EBonusType::RESOURCE},
 		//{"prevHero", CScenarioTravel::STravelBonus::EBonusType::HEROES_FROM_PREVIOUS_SCENARIO},
 		//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
+	};
+	
+	std::map<std::string, ui32> primarySkillsMap = {
+		{"attack", 0},
+		{"defence", 8},
+		{"spellpower", 16},
+		{"knowledge", 24},
 	};
 	
 	std::map<std::string, ui16> heroSpecialMap = {
@@ -276,11 +283,11 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 		//FD - wood+ore
 		//FE - mercury+sulfur+crystal+gem
 		{"wood", 0},
-		{"ore", 1},
-		{"mercury", 2},
+		{"mercury", 1},
+		{"ore", 2},
 		{"sulfur", 3},
 		{"crystal", 4},
-		{"gem", 5},
+		{"gems", 5},
 		{"gold", 6},
 		{"common", 0xFD},
 		{"rare", 0xFE}
@@ -311,6 +318,8 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 					bonus.info1 = resourceTypeMap[bjson["type"].String()];
 					bonus.info2 = bjson["amount"].Integer();
 				}
+				else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::BUILDING)
+					bonus.info1 = bjson["type"].Integer(); //VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "buildings", bjson["hero"].String()).get();
 				else
 				{
 					if(int heroId = heroSpecialMap[bjson["hero"].String()])
@@ -320,8 +329,16 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 					
 					if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::SPELL
 					   || bonus.type == CScenarioTravel::STravelBonus::EBonusType::MONSTER
+					   || bonus.type == CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL
 					   || bonus.type == CScenarioTravel::STravelBonus::EBonusType::ARTIFACT)
 						bonus.info2 = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()).get();
+					else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL)
+						bonus.info2 = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()).get();
+					else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL)
+					{
+						for(auto & ps : primarySkillsMap)
+							bonus.info2 |= bjson[ps.first].Integer() << ps.second;
+					}
 					else
 						bonus.info2 = bjson["type"].Integer();
 					
