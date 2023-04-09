@@ -570,7 +570,7 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 
 int32_t CGHeroInstance::getCasterUnitId() const
 {
-	return -1; //TODO: special value for attacker/defender hero
+	return id.getNum();
 }
 
 int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const

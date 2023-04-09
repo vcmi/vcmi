@@ -37,27 +37,28 @@ bool AdventureSpellMechanics::adventureCast(SpellCastEnvironment * env, const Ad
 		return false;
 	}
 
-	const CGHeroInstance * caster = parameters.caster;
-
-	if(caster->inTownGarrison)
+	if(const CGHeroInstance * heroCaster = dynamic_cast<const CGHeroInstance *>(parameters.caster))
 	{
-		env->complain("Attempt to cast an adventure spell in town garrison");
-		return false;
-	}
+		if(heroCaster->inTownGarrison)
+		{
+			env->complain("Attempt to cast an adventure spell in town garrison");
+			return false;
+		}
 
-	const auto level = caster->getSpellSchoolLevel(owner);
-	const auto cost = owner->getCost(level);
+		const auto level = heroCaster->getSpellSchoolLevel(owner);
+		const auto cost = owner->getCost(level);
 
-	if(!caster->canCastThisSpell(owner))
-	{
-		env->complain("Hero cannot cast this spell!");
-		return false;
-	}
+		if(!heroCaster->canCastThisSpell(owner))
+		{
+			env->complain("Hero cannot cast this spell!");
+			return false;
+		}
 
-	if(caster->mana < cost)
-	{
-		env->complain("Hero doesn't have enough spell points to cast this spell!");
-		return false;
+		if(heroCaster->mana < cost)
+		{
+			env->complain("Hero doesn't have enough spell points to cast this spell!");
+			return false;
+		}
 	}
 
 	ESpellCastResult result = beginCast(env, parameters);
@@ -82,7 +83,7 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(SpellCastEnviron
 		for(const Bonus & b : bonuses)
 		{
 			GiveBonus gb;
-			gb.id = parameters.caster->id.getNum();
+			gb.id = parameters.caster->getCasterUnitId();
 			gb.bonus = b;
 			env->apply(&gb);
 		}
@@ -105,7 +106,7 @@ ESpellCastResult AdventureSpellMechanics::beginCast(SpellCastEnvironment * env, 
 void AdventureSpellMechanics::performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	AdvmapSpellCast asc;
-	asc.casterID = parameters.caster->id;
+	asc.casterID = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	asc.spellID = owner->id;
 	env->apply(&asc);
 
@@ -123,7 +124,7 @@ void AdventureSpellMechanics::endCast(SpellCastEnvironment * env, const Adventur
 	case ESpellCastResult::OK:
 		{
 			SetMana sm;
-			sm.hid = parameters.caster->id;
+			sm.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
 			sm.absolute = false;
 			sm.val = -cost;
 			env->apply(&sm);
@@ -142,21 +143,29 @@ SummonBoatMechanics::SummonBoatMechanics(const CSpell * s):
 
 ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
-	if(parameters.caster->boat)
+	//casts to minimal abstraction level
+	const auto * objectCaster = dynamic_cast<const CGObjectInstance *>(parameters.caster);
+	const auto * heroCaster = dynamic_cast<const CGHeroInstance *>(parameters.caster);
+	const auto * boatGeneratorCaster = dynamic_cast<const IBoatGenerator *>(parameters.caster);
+	
+	if(heroCaster && heroCaster->boat)
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 333);//%s is already in boat
-		iw.text.addReplacement(parameters.caster->getNameTranslated());
+		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
 
-	int3 summonPos = parameters.caster->bestLocation();
+	int3 summonPos(-1, -1, -1);
+	if(boatGeneratorCaster)
+		summonPos = (boatGeneratorCaster)->bestLocation();
+	
 	if(summonPos.x < 0)
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 334);//There is no place to put the boat.
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
@@ -168,9 +177,9 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
-		iw.text.addReplacement(parameters.caster->getNameTranslated());
+		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::OK;
 	}
@@ -178,19 +187,22 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
 	double dist = 0;
-	for(const CGObjectInstance * obj : env->getMap()->objects)
+	if(objectCaster)
 	{
-		if(obj && obj->ID == Obj::BOAT)
+		for(const CGObjectInstance * obj : env->getMap()->objects)
 		{
-			const auto * b = dynamic_cast<const CGBoat *>(obj);
-			if(b->hero)
-				continue; //we're looking for unoccupied boat
-
-			double nDist = b->pos.dist2d(parameters.caster->visitablePos());
-			if(!nearest || nDist < dist) //it's first boat or closer than previous
+			if(obj && obj->ID == Obj::BOAT)
 			{
-				nearest = b;
-				dist = nDist;
+				const auto * b = dynamic_cast<const CGBoat *>(obj);
+				if(b->hero)
+					continue; //we're looking for unoccupied boat
+
+				double nDist = b->pos.dist2d(objectCaster->visitablePos());
+				if(!nearest || nDist < dist) //it's first boat or closer than previous
+				{
+					nearest = b;
+					dist = nDist;
+				}
 			}
 		}
 	}
@@ -205,15 +217,15 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 335); //There are no boats to summon.
 		env->apply(&iw);
 	}
-	else //create boat
+	else if(boatGeneratorCaster) //create boat
 	{
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = parameters.caster->getBoatType();
+		no.subID = boatGeneratorCaster->getBoatType();
 		no.pos = summonPos + int3(1,0,0);
 		env->apply(&no);
 	}
@@ -233,9 +245,9 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
-		iw.text.addReplacement(parameters.caster->getNameTranslated());
+		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::OK;
 	}
@@ -304,9 +316,9 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	if(parameters.caster->getBonuses(Selector::source(Bonus::SPELL_EFFECT, owner->id), Selector::all, cachingStr.str())->size() >= owner->getLevelPower(schoolLevel)) //limit casts per turn
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
-		iw.text.addReplacement(parameters.caster->getNameTranslated());
+		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -319,7 +331,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	if(!dest->isClear(curr)) //wrong dest tile
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
 		env->apply(&iw);
 	}
