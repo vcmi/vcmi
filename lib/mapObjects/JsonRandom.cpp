@@ -95,7 +95,7 @@ namespace JsonRandom
 
 	TResources loadResource(const JsonNode & value, CRandomGenerator & rng)
 	{
-		std::set<std::string> defaultResources(GameConstants::RESOURCE_NAMES, GameConstants::RESOURCE_NAMES + GameConstants::RESOURCE_QUANTITY - 2); //except mithril
+		std::set<std::string> defaultResources(std::begin(GameConstants::RESOURCE_NAMES), std::end(GameConstants::RESOURCE_NAMES) - 1); //except mithril
 		
 		std::string resourceName = loadKey(value, rng, defaultResources);
 		si32 resourceAmount = loadValue(value, rng, 0);
@@ -110,16 +110,24 @@ namespace JsonRandom
 	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::vector<si32> ret;
-		for(const auto & name : PrimarySkill::names)
+		if(value.isStruct())
 		{
-			ret.push_back(loadValue(value[name], rng));
+			for(const auto & name : PrimarySkill::names)
+			{
+				ret.push_back(loadValue(value[name], rng));
+			}
 		}
-		
-		if(!value["random"].isNull())
+		if(value.isVector())
 		{
-			*RandomGeneratorUtil::nextItem(ret, rng) = loadValue(value["random"], rng);
+			ret.resize(GameConstants::PRIMARY_SKILLS, 0);
+			std::set<std::string> defaultStats(std::begin(PrimarySkill::names), std::end(PrimarySkill::names));
+			for(const auto & element : value.Vector())
+			{
+				int id = vstd::find_pos(PrimarySkill::names, loadKey(element, rng, defaultStats));
+				if(id != -1)
+					ret[id] += loadValue(element, rng);
+			}
 		}
-		
 		return ret;
 	}
 
