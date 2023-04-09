@@ -941,7 +941,7 @@ void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	//TODO why is this different (no return on LOPLINT != this) ?
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
