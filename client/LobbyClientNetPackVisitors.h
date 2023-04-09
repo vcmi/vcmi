@@ -12,7 +12,9 @@
 #include "../lib/NetPackVisitor.h"
 
 class CClient;
+VCMI_LIB_NAMESPACE_BEGIN
 class CGameState;
+VCMI_LIB_NAMESPACE_END
 
 class ApplyOnLobbyHandlerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {

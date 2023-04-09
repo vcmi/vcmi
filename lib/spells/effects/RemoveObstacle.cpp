@@ -22,14 +22,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:removeObstacle";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(RemoveObstacle, EFFECT_NAME);
 
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m) const
 {
