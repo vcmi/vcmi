@@ -18,7 +18,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"blockedVisitable" : true,
 				"onVisitedMessage" : 22,
 				"visitMode" : "bonus",
@@ -49,7 +50,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 30,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -81,7 +83,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 50,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -112,7 +115,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 56,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -164,7 +168,8 @@
 					"value"		: 100,
 					"rarity"	: 50
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 58,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -195,7 +200,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 63,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -250,7 +256,8 @@
 					"value"		: 100,
 					"rarity"	: 20
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 82,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -280,7 +287,8 @@
 					"value"		: 100,
 					"rarity"	: 50
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 95,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -312,10 +320,10 @@
 					"value"		: 200,
 					"rarity"	: 40
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
-
 				"onVisited" : [
 					{
 						"message" : 139,
@@ -370,7 +378,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 141,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -406,7 +415,8 @@
 					"value"		: 100,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 111,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
@@ -440,7 +450,8 @@
 					"value"		: 500,
 					"rarity"	: 50
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 167,
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",

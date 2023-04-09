@@ -19,7 +19,8 @@
 					"value"		: 2000,
 					"rarity"	: 500
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
@@ -60,7 +61,8 @@
 					"value"		: 2000,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
@@ -117,7 +119,8 @@
 					"value"		: 1500,
 					"rarity"	: 500
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
@@ -167,6 +170,7 @@
 					"value"		: 1500,
 					"rarity"	: 50
 				},
+				"compatibilityIdentifiers" : [ "object" ],
 
 				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
@@ -217,7 +221,8 @@
 					"value"		: 1500,
 					"rarity"	: 1000
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"blockedVisitable" : true,
 				"onSelectMessage" : 146,
 				"visitMode" : "unlimited",
