@@ -40,7 +40,7 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public WithBonuses, public WithNativeTerrain
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public IConstBonusProvider, public INativeTerrainProvider
 {
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;
@@ -156,7 +156,7 @@ public:
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	//WithNativeTerrain
+	//INativeTerrainProvider
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
 	int getLowestCreatureSpeed() const;
@@ -248,7 +248,7 @@ public:
 	std::string nodeName() const override;
 	si32 manaLimit() const override;
 
-	///WithBonuses
+	///IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
 
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;

@@ -63,7 +63,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public WithBonuses, public WithNativeTerrain
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IConstBonusProvider, public INativeTerrainProvider
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
@@ -94,9 +94,9 @@ public:
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
 	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
 
-	//WithBonuses
+	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
-	//WithNativeTerrain
+	//INativeTerrainProvider
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
 

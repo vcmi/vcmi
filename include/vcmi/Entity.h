@@ -17,13 +17,13 @@ class FactionID;
 enum class ETerrainId;
 template<typename T> class Identifier;
 
-class DLL_LINKAGE WithBonuses
+class DLL_LINKAGE IConstBonusProvider
 {
 public:
 	virtual const IBonusBearer * getBonusBearer() const = 0;
 };
 
-class DLL_LINKAGE WithNativeTerrain
+class DLL_LINKAGE INativeTerrainProvider
 {
 public:
 	virtual Identifier<ETerrainId> getNativeTerrain() const = 0;
@@ -55,12 +55,12 @@ public:
 };
 
 template <typename IdType>
-class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public WithBonuses
+class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public IConstBonusProvider
 {
 };
 
 template <typename IdType>
-class DLL_LINKAGE EntityWithNativeTerrain : public EntityWithBonuses<IdType>, public WithNativeTerrain
+class DLL_LINKAGE EntityWithNativeTerrain : public EntityWithBonuses<IdType>, public INativeTerrainProvider
 {
 };
 

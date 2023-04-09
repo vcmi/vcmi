@@ -30,7 +30,7 @@ namespace battle
 	class UnitInfo;
 }
 
-class DLL_LINKAGE IBattleInfo : public WithBonuses
+class DLL_LINKAGE IBattleInfo : public IConstBonusProvider
 {
 public:
 	using ObstacleCList = std::vector<std::shared_ptr<const CObstacleInstance>>;
