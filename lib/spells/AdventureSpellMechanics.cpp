@@ -360,6 +360,12 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 {
 	const CGTownInstance * destination = nullptr;
 	const int moveCost = movementCost(parameters);
+	
+	if(!parameters.caster->getHeroCaster())
+	{
+		env->complain("Not a hero caster!");
+		return ESpellCastResult::ERROR;
+	}
 
 	if(parameters.caster->getSpellSchoolLevel(owner) < 2)
 	{
@@ -369,13 +375,13 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
 
-		if(static_cast<int>(parameters.caster->movement) < moveCost)
+		if(static_cast<int>(parameters.caster->getHeroCaster()->movement) < moveCost)
 			return ESpellCastResult::ERROR;
 
 		if(destination->visitingHero)
 		{
 			InfoWindow iw;
-			iw.player = parameters.caster->tempOwner;
+			iw.player = parameters.caster->getCasterOwner();
 			iw.text.addTxt(MetaString::GENERAL_TXT, 123);
 			env->apply(&iw);
 			return ESpellCastResult::CANCEL;
@@ -411,7 +417,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		const auto relations = env->getCb()->getPlayerRelations(destination->tempOwner, parameters.caster->tempOwner);
+		const auto relations = env->getCb()->getPlayerRelations(destination->tempOwner, parameters.caster->getCasterOwner());
 
 		if(relations == PlayerRelations::ENEMIES)
 		{
@@ -419,7 +425,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		if(static_cast<int>(parameters.caster->movement) < moveCost)
+		if(static_cast<int>(parameters.caster->getHeroCaster()->movement) < moveCost)
 		{
 			env->complain("This hero has not enough movement points!");
 			return ESpellCastResult::ERROR;
@@ -437,11 +443,11 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		return ESpellCastResult::ERROR;
 	}
 
-	if(env->moveHero(parameters.caster->id, parameters.caster->convertFromVisitablePos(destination->visitablePos()), true))
+	if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(destination->visitablePos()), true))
 	{
 		SetMovePoints smp;
-		smp.hid = parameters.caster->id;
-		smp.val = std::max<ui32>(0, parameters.caster->movement - moveCost);
+		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
+		smp.val = std::max<ui32>(0, parameters.caster->getHeroCaster()->movement - moveCost);
 		env->apply(&smp);
 	}
 	return ESpellCastResult::OK;
@@ -450,11 +456,17 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	std::vector<const CGTownInstance *>	towns = getPossibleTowns(env, parameters);
+	
+	if(!parameters.caster->getHeroCaster())
+	{
+		env->complain("Not a hero caster!");
+		return ESpellCastResult::ERROR;
+	}
 
 	if(towns.empty())
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 124);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
@@ -462,10 +474,10 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 	const int moveCost = movementCost(parameters);
 
-	if(static_cast<int>(parameters.caster->movement) < moveCost)
+	if(static_cast<int>(parameters.caster->getHeroCaster()->movement) < moveCost)
 	{
 		InfoWindow iw;
-		iw.player = parameters.caster->tempOwner;
+		iw.player = parameters.caster->getCasterOwner();
 		iw.text.addTxt(MetaString::GENERAL_TXT, 125);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
@@ -510,13 +522,13 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		if(request.objects.empty())
 		{
 			InfoWindow iw;
-			iw.player = parameters.caster->tempOwner;
+			iw.player = parameters.caster->getCasterOwner();
 			iw.text.addTxt(MetaString::GENERAL_TXT, 124);
 			env->apply(&iw);
 			return ESpellCastResult::CANCEL;
 		}
 
-		request.player = parameters.caster->getOwner();
+		request.player = parameters.caster->getCasterOwner();
 		request.title.addTxt(MetaString::JK_TXT, 40);
 		request.description.addTxt(MetaString::JK_TXT, 41);
 		request.icon.id = Component::EComponentType::SPELL;
@@ -534,13 +546,16 @@ const CGTownInstance * TownPortalMechanics::findNearestTown(SpellCastEnvironment
 {
 	if(pool.empty())
 		return nullptr;
+	
+	if(!parameters.caster->getHeroCaster())
+		return nullptr;
 
 	auto nearest = pool.cbegin(); //nearest town's iterator
-	si32 dist = (*nearest)->pos.dist2dSQ(parameters.caster->pos);
+	si32 dist = (*nearest)->pos.dist2dSQ(parameters.caster->getHeroCaster()->pos);
 
 	for(auto i = nearest + 1; i != pool.cend(); ++i)
 	{
-		si32 curDist = (*i)->pos.dist2dSQ(parameters.caster->pos);
+		si32 curDist = (*i)->pos.dist2dSQ(parameters.caster->getHeroCaster()->pos);
 
 		if(curDist < dist)
 		{
@@ -555,7 +570,7 @@ std::vector <const CGTownInstance*> TownPortalMechanics::getPossibleTowns(SpellC
 {
 	std::vector <const CGTownInstance*> ret;
 
-	const TeamState * team = env->getCb()->getPlayerTeam(parameters.caster->getOwner());
+	const TeamState * team = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner());
 
 	for(const auto & color : team->players)
 	{
@@ -582,11 +597,11 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 {
 	ShowWorldViewEx pack;
 
-	pack.player = parameters.caster->getOwner();
+	pack.player = parameters.caster->getCasterOwner();
 
 	const auto spellLevel = parameters.caster->getSpellSchoolLevel(owner);
 
-	const auto fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
+	const auto fowMap = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner())->fogOfWarMap;
 
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
