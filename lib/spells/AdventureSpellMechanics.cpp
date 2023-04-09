@@ -143,12 +143,13 @@ SummonBoatMechanics::SummonBoatMechanics(const CSpell * s):
 
 ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
-	//casts to minimal abstraction level
-	const auto * objectCaster = dynamic_cast<const CGObjectInstance *>(parameters.caster);
-	const auto * heroCaster = dynamic_cast<const CGHeroInstance *>(parameters.caster);
-	const auto * boatGeneratorCaster = dynamic_cast<const IBoatGenerator *>(parameters.caster);
+	if(!parameters.caster->getHeroCaster())
+	{
+		logGlobal->error("Summoning boat without hero as actor");
+		return ESpellCastResult::ERROR;
+	}
 	
-	if(heroCaster && heroCaster->boat)
+	if(parameters.caster->getHeroCaster()->boat)
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -158,9 +159,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		return ESpellCastResult::CANCEL;
 	}
 
-	int3 summonPos(-1, -1, -1);
-	if(boatGeneratorCaster)
-		summonPos = (boatGeneratorCaster)->bestLocation();
+	int3 summonPos = parameters.caster->getHeroCaster()->bestLocation();
 	
 	if(summonPos.x < 0)
 	{
@@ -187,22 +186,19 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
 	double dist = 0;
-	if(objectCaster)
+	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
-		for(const CGObjectInstance * obj : env->getMap()->objects)
+		if(obj && obj->ID == Obj::BOAT)
 		{
-			if(obj && obj->ID == Obj::BOAT)
-			{
-				const auto * b = dynamic_cast<const CGBoat *>(obj);
-				if(b->hero)
-					continue; //we're looking for unoccupied boat
+			const auto * b = dynamic_cast<const CGBoat *>(obj);
+			if(b->hero)
+				continue; //we're looking for unoccupied boat
 
-				double nDist = b->pos.dist2d(objectCaster->visitablePos());
-				if(!nearest || nDist < dist) //it's first boat or closer than previous
-				{
-					nearest = b;
-					dist = nDist;
-				}
+			double nDist = b->pos.dist2d(parameters.caster->getHeroCaster()->visitablePos());
+			if(!nearest || nDist < dist) //it's first boat or closer than previous
+			{
+				nearest = b;
+				dist = nDist;
 			}
 		}
 	}
@@ -221,11 +217,11 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		iw.text.addTxt(MetaString::GENERAL_TXT, 335); //There are no boats to summon.
 		env->apply(&iw);
 	}
-	else if(boatGeneratorCaster) //create boat
+	else //create boat
 	{
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = boatGeneratorCaster->getBoatType();
+		no.subID = parameters.caster->getHeroCaster()->getBoatType();
 		no.pos = summonPos + int3(1,0,0);
 		env->apply(&no);
 	}

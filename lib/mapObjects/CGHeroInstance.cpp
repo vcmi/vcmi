@@ -669,6 +669,11 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 		attacked.at(0)->addNameReplacement(text, true);
 }
 
+const CGHeroInstance * CGHeroInstance::getHeroCaster() const
+{
+	return this;
+}
+
 void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) const
 {
 	if(spellCost != 0)

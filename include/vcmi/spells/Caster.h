@@ -15,6 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
 struct MetaString;
 class ServerCallback;
+class CGHeroInstance;
 
 namespace battle
 {
@@ -65,6 +66,9 @@ public:
 	virtual void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const = 0;
 
 	virtual void spendMana(ServerCallback * server, const int32_t spellCost) const = 0;
+	
+	///used to identify actual hero caster
+	virtual const CGHeroInstance * getHeroCaster() const = 0;
 };
 
 }
