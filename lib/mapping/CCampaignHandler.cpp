@@ -302,7 +302,10 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()))
 		{
 			int creId = identifier.get();
-			ret.monstersKeptByHero[creId / 8] |= (1 << creId % 8);
+			if(creId >= ret.monstersKeptByHero.size())
+				logGlobal->warn("VCMP Loading: creature %s with id %d isn't supported yet", k.String(), creId);
+			else
+				ret.monstersKeptByHero[creId / 8] |= (1 << creId % 8);
 		}
 		else
 			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
@@ -312,7 +315,10 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()))
 		{
 			int artId = identifier.get();
-			ret.artifsKeptByHero[artId / 8] |= (1 << artId % 8);
+			if(artId >= ret.artifsKeptByHero.size())
+				logGlobal->warn("VCMP Loading: artifact %s with id %d isn't supported yet", k.String(), artId);
+			else
+				ret.artifsKeptByHero[artId / 8] |= (1 << artId % 8);
 		}
 		else
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
