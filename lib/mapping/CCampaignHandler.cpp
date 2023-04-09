@@ -242,8 +242,8 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 
 	std::map<std::string, ui8> heroKeepsMap = {
 		{"experience", 1},
-		{"primary", 2},
-		{"skills", 4},
+		{"primarySkill", 2},
+		{"secondarySkill", 4},
 		{"spells", 8},
 		{"artifacts", 16}
 	};
@@ -297,8 +297,16 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 	for(auto & k : reader["heroKeeps"].Vector())
 		ret.whatHeroKeeps |= heroKeepsMap[k.String()];
 	
-	//reader.getStream()->read(ret.monstersKeptByHero.data(), ret.monstersKeptByHero.size());
-	//reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size());
+	for(auto & k : reader["keepCreatures"].Vector())
+	{
+		int creId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()).get();
+		ret.monstersKeptByHero[creId / 8] |= (1 << creId % 8);
+	}
+	for(auto & k : reader["keepArtifacts"].Vector())
+	{
+		int artId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()).get();
+		ret.artifsKeptByHero[artId / 8] |= (1 << artId % 8);
+	}
 
 	ret.startOptions = startOptionsMap[reader["startOptions"].String()];
 
