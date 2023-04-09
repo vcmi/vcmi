@@ -17,7 +17,8 @@
 					"value"		: 250,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onEmptyMessage" : 79,
 				"onVisitedMessage" : 78,
 				"visitMode" : "bonus",
@@ -54,7 +55,8 @@
 				//	"value"		: 500,
 				//	"rarity"	: 50
 				//},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onEmptyMessage" : 76,
 				"onVisitedMessage" : 75,
 				"resetParameters" : {
@@ -92,7 +94,8 @@
 					"value"		: 500,
 					"rarity"	: 50
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 93,
 				"resetParameters" : {
 					"period" : 7,
@@ -133,7 +136,8 @@
 					"value"		: 1500,
 					"rarity"	: 80
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 169,
 				"resetParameters" : {
 					"period" : 7,
@@ -174,7 +178,8 @@
 					"value"		: 750,
 					"rarity"	: 50
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 165,
 				"resetParameters" : {
 					"period" : 7,
