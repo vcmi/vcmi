@@ -130,8 +130,8 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 			if(sc.isNotVoid())
 			{
 				CMapService mapService;
-				auto hdr = mapService.loadMapHeader(ResourceID(sc.mapName, EResType::MAP));
-				sc.scenarioName = hdr->name;
+				if(auto hdr = mapService.loadMapHeader(ResourceID(sc.mapName, EResType::MAP)))
+					sc.scenarioName = hdr->name;
 			}
 			ret->scenarios.push_back(sc);
 		}
@@ -187,7 +187,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::str
 	ret.version = reader["version"].Integer();
 	if(ret.version < CampaignVersion::VCMI_MIN || ret.version > CampaignVersion::VCMI_MAX)
 	{
-		logGlobal->info("Unsupported campaign %s version %d", filename, ret.version);
+		logGlobal->info("VCMP Loading: Unsupported campaign %s version %d", filename, ret.version);
 		return ret;
 	}
 	
@@ -299,17 +299,26 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 	
 	for(auto & k : reader["keepCreatures"].Vector())
 	{
-		int creId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()).get();
-		ret.monstersKeptByHero[creId / 8] |= (1 << creId % 8);
+		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()))
+		{
+			int creId = identifier.get();
+			ret.monstersKeptByHero[creId / 8] |= (1 << creId % 8);
+		}
+		else
+			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
 	}
 	for(auto & k : reader["keepArtifacts"].Vector())
 	{
-		int artId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()).get();
-		ret.artifsKeptByHero[artId / 8] |= (1 << artId % 8);
+		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()))
+		{
+			int artId = identifier.get();
+			ret.artifsKeptByHero[artId / 8] |= (1 << artId % 8);
+		}
+		else
+			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
 	}
 
 	ret.startOptions = startOptionsMap[reader["startOptions"].String()];
-
 	switch(ret.startOptions)
 	{
 	case 0:
@@ -322,36 +331,58 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 			{
 				CScenarioTravel::STravelBonus bonus;
 				bonus.type = bonusTypeMap[bjson["what"].String()];
-				if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::RESOURCE)
+				switch (bonus.type)
 				{
-					bonus.info1 = resourceTypeMap[bjson["type"].String()];
-					bonus.info2 = bjson["amount"].Integer();
-				}
-				else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::BUILDING)
-					bonus.info1 = vstd::find_pos(EBuildingType::names, bjson["type"].String());
-				else
-				{
-					if(int heroId = heroSpecialMap[bjson["hero"].String()])
-						bonus.info1 = heroId;
-					else
-						bonus.info1 = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()).get();
-					
-					if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::SPELL
-					   || bonus.type == CScenarioTravel::STravelBonus::EBonusType::MONSTER
-					   || bonus.type == CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL
-					   || bonus.type == CScenarioTravel::STravelBonus::EBonusType::ARTIFACT)
-						bonus.info2 = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()).get();
-					else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL)
-						bonus.info2 = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()).get();
-					else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL)
-					{
-						for(auto & ps : primarySkillsMap)
-							bonus.info2 |= bjson[ps.first].Integer() << ps.second;
-					}
-					else
-						bonus.info2 = bjson["type"].Integer();
-					
-					bonus.info3 = bjson["amount"].Integer();
+					case CScenarioTravel::STravelBonus::EBonusType::RESOURCE:
+						bonus.info1 = resourceTypeMap[bjson["type"].String()];
+						bonus.info2 = bjson["amount"].Integer();
+						break;
+						
+					case CScenarioTravel::STravelBonus::EBonusType::BUILDING:
+						bonus.info1 = vstd::find_pos(EBuildingType::names, bjson["type"].String());
+						if(bonus.info1 == -1)
+							logGlobal->warn("VCMP Loading: unresolved building identifier %s", bjson["type"].String());
+						break;
+						
+					default:
+						if(int heroId = heroSpecialMap[bjson["hero"].String()])
+							bonus.info1 = heroId;
+						else
+							if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
+								bonus.info1 = identifier.get();
+							else
+								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
+	
+						bonus.info3 = bjson["amount"].Integer();
+						
+						switch(bonus.type)
+						{
+							case CScenarioTravel::STravelBonus::EBonusType::SPELL:
+							case CScenarioTravel::STravelBonus::EBonusType::MONSTER:
+							case CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL:
+							case CScenarioTravel::STravelBonus::EBonusType::ARTIFACT:
+								if(auto identifier  = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()))
+									bonus.info2 = identifier.get();
+								else
+									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
+								break;
+								
+							case CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL:
+								if(auto Identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()))
+									bonus.info2 = Identifier.get();
+								else
+									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
+								break;
+								
+							case CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL:
+								for(auto & ps : primarySkillsMap)
+									bonus.info2 |= bjson[ps.first].Integer() << ps.second;
+								break;
+								
+							default:
+								bonus.info2 = bjson["type"].Integer();
+						}
+						break;
 				}
 				ret.bonusesToChoose.push_back(bonus);
 			}
@@ -380,7 +411,10 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 				if(int heroId = heroSpecialMap[bjson["hero"].String()])
 					bonus.info2 = heroId;
 				else
-					bonus.info2 = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()).get();
+					if (auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
+						bonus.info2 = identifier.get();
+					else
+						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
 			
 				ret.bonusesToChoose.push_back(bonus);
 			}
@@ -388,7 +422,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 		}
 	default:
 		{
-			logGlobal->warn("Corrupted h3c file");
+			logGlobal->warn("VCMP Loading: Unsupported start options value");
 			break;
 		}
 	}
