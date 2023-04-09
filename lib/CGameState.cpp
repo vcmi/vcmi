@@ -1720,8 +1720,13 @@ void CGameState::initTowns()
 					if (owner->human && //human-owned
 						map->towns[g]->pos == pi.posOfMainTown)
 					{
-						map->towns[g]->builtBuildings.insert(
-							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings));
+						BuildingID buildingId;
+						if(scenarioOps->campState->camp->header.version == CampaignVersion::VCMI)
+							buildingId = BuildingID(chosenBonus->info1);
+						else
+							buildingId = CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings);
+
+						map->towns[g]->builtBuildings.insert(buildingId);
 						break;
 					}
 				}

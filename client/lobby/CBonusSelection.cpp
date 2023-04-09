@@ -192,7 +192,11 @@ void CBonusSelection::createBonusesIcons()
 			}
 			assert(faction != -1);
 
-			BuildingID buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
+			BuildingID buildID;
+			if(getCampaign()->camp->header.version == CampaignVersion::VCMI)
+				buildID = BuildingID(bonDescs[i].info1);
+			else
+				buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
 			picName = graphics->ERMUtoPicture[faction][buildID];
 			picNumber = -1;
 

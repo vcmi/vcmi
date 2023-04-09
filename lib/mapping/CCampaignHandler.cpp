@@ -24,6 +24,7 @@
 #include "../mapObjects/CGHeroInstance.h"//for hero crossover
 #include "../CHeroHandler.h"
 #include "../Languages.h"
+#include "../StringConstants.h"
 #include "CMapService.h"
 #include "CMap.h"
 #include "CMapInfo.h"
@@ -319,7 +320,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, 
 					bonus.info2 = bjson["amount"].Integer();
 				}
 				else if(bonus.type == CScenarioTravel::STravelBonus::EBonusType::BUILDING)
-					bonus.info1 = bjson["type"].Integer(); //VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "buildings", bjson["hero"].String()).get();
+					bonus.info1 = vstd::find_pos(EBuildingType::names, bjson["type"].String());
 				else
 				{
 					if(int heroId = heroSpecialMap[bjson["hero"].String()])
