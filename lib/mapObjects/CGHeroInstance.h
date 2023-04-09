@@ -40,7 +40,7 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public IConstBonusProvider, public INativeTerrainProvider
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public IConstBonusNativeTerrainProvider
 {
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;

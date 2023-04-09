@@ -41,7 +41,7 @@ namespace BattlePhases
 
 class CUnitState;
 
-class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public IConstBonusProvider, public INativeTerrainProvider
+class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public IConstBonusNativeTerrainProvider
 {
 public:
 	virtual ~Unit();
@@ -129,8 +129,6 @@ public:
 
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
-	//INativeTerrainProvider
-	TerrainId getNativeTerrain() const override;
 
 	//NOTE: save could possibly be const, but this requires heavy changes to Json serialization,
 	//also this method should be called only after modifying object

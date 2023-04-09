@@ -32,7 +32,7 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getIndex", LuaMethodWrapper<Creature, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<Creature, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
 	{"getName", LuaMethodWrapper<Creature, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
-	{"getBonusBearer", LuaMethodWrapper<Creature, decltype(&EntityWithBonuses<CreatureID>::getBonusBearer), &EntityWithBonuses<CreatureID>::getBonusBearer>::invoke, false},
+	{"getBonusBearer", LuaMethodWrapper<Creature, decltype(&IConstBonusProvider::getBonusBearer), &IConstBonusProvider::getBonusBearer>::invoke, false},
 
 	{"getMaxHealth", LuaMethodWrapper<Creature,decltype(&Creature::getMaxHealth), &Creature::getMaxHealth>::invoke, false},
 	{"getPluralName", LuaMethodWrapper<Creature, decltype(&Creature::getNamePluralTranslated), &Creature::getNamePluralTranslated>::invoke, false},

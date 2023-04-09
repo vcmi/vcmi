@@ -63,7 +63,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IConstBonusProvider, public INativeTerrainProvider
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IConstBonusNativeTerrainProvider
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
@@ -98,7 +98,6 @@ public:
 	const IBonusBearer* getBonusBearer() const override;
 	//INativeTerrainProvider
 	FactionID getFaction() const override;
-	TerrainId getNativeTerrain() const override;
 
 	virtual ui64 getPower() const;
 	CCreature::CreatureQuantityId getQuantityID() const;

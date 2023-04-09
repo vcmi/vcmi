@@ -928,18 +928,6 @@ const IBonusBearer* CStackInstance::getBonusBearer() const
 	return this;
 }
 
-TerrainId CStackInstance::getNativeTerrain() const
-{
-	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, static_cast<int>(ETerrainId::ANY_TERRAIN));
-
-	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
-	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? TerrainId(ETerrainId::ANY_TERRAIN)
-		: VLC->factions()->getById(getFaction())->getNativeTerrain();
-}
-
 CCommanderInstance::CCommanderInstance()
 {
 	init();

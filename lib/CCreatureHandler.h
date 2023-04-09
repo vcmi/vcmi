@@ -163,10 +163,6 @@ public:
 	std::string getNameSingularTextID() const override;
 
 	FactionID getFaction() const override;
-	/**
-	Returns creature native terrain considering some terrain bonuses.
-	*/
-	TerrainId getNativeTerrain() const override;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;

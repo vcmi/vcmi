@@ -87,7 +87,7 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 
 	for(const auto * s : battleGetAllStacks())
 	{
-		if(s->side == side && s->isItNativeTerrain(getBattle()->getTerrainType()))
+		if(s->side == side && s->isNativeTerrain(getBattle()->getTerrainType()))
 			return true;
 	}
 
