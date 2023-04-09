@@ -2503,23 +2503,6 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	return ILimiter::EDecision::DISCARD;
 }
 
-ILimiter::EDecision StackOwnerLimiter::limit(const BonusLimitationContext &context) const
-{
-	const CStack * s = retrieveStackBattle(&context.node);
-	if(s && s->owner == owner)
-		return ILimiter::EDecision::ACCEPT;
-
-	const CStackInstance * csi = retrieveStackInstance(&context.node);
-	if(csi && csi->armyObj && csi->armyObj->tempOwner == owner)
-		return ILimiter::EDecision::ACCEPT;
-	return ILimiter::EDecision::DISCARD;
-}
-
-StackOwnerLimiter::StackOwnerLimiter(const PlayerColor & Owner):
-	owner(Owner)
-{
-}
-
 OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
 	owner(std::move(Owner))
 {

@@ -1175,21 +1175,6 @@ public:
 	}
 };
 
-class DLL_LINKAGE StackOwnerLimiter : public ILimiter //applies only to creatures of given alignment
-{
-public:
-	PlayerColor owner;
-	StackOwnerLimiter(const PlayerColor & Owner = PlayerColor::NEUTRAL);
-
-	EDecision limit(const BonusLimitationContext &context) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<ILimiter&>(*this);
-		h & owner;
-	}
-};
-
 class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
 {
 public:
