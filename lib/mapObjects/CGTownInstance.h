@@ -202,7 +202,7 @@ struct DLL_LINKAGE GrowthInfo
 	int totalGrowth() const;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider
 {
 	std::string name; // name of town
 public:
@@ -341,7 +341,11 @@ public:
 	/// Returns damage range for central tower(keep) of this town
 	DamageRange getKeepDamageRange() const;
 
-	const CTown * getTown() const ;
+	const CTown * getTown() const;
+
+	/// INativeTerrainProvider
+	FactionID getFaction() const override;
+	TerrainId getNativeTerrain() const override;
 
 	CGTownInstance();
 	virtual ~CGTownInstance();

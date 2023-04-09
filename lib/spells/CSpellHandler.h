@@ -192,7 +192,7 @@ public:
 
 	si32 power; //spell's power
 
-	std::map<TFaction, si32> probabilities; //% chance to gain for castles
+	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
@@ -223,7 +223,7 @@ public:
 
 	int32_t getCost(const int32_t skillLevel) const override;
 
-	si32 getProbability(const TFaction factionId) const;
+	si32 getProbability(const FactionID & factionId) const;
 
 	int32_t getBasePower() const override;
 	int32_t getLevelPower(const int32_t skillLevel) const override;

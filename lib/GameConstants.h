@@ -1314,7 +1314,6 @@ enum class EHealPower : ui8
 };
 
 // Typedef declarations
-typedef ui8 TFaction;
 typedef si64 TExpType;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;

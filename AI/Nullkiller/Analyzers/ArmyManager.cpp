@@ -96,14 +96,14 @@ public:
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
-	std::map<TFaction, uint64_t> alignmentMap;
+	std::map<FactionID, uint64_t> alignmentMap;
 
 	for(auto & slot : sortedSlots)
 	{
-		alignmentMap[slot.creature->getFactionIndex()] += slot.power;
+		alignmentMap[slot.creature->getFaction()] += slot.power;
 	}
 
-	std::set<TFaction> allowedFactions;
+	std::set<FactionID> allowedFactions;
 	std::vector<SlotInfo> resultingArmy;
 	uint64_t armyValue = 0;
 
@@ -121,7 +121,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 	while(allowedFactions.size() < alignmentMap.size())
 	{
-		auto strongestAlignment = vstd::maxElementByFun(alignmentMap, [&](std::pair<TFaction, uint64_t> pair) -> uint64_t
+		auto strongestAlignment = vstd::maxElementByFun(alignmentMap, [&](std::pair<FactionID, uint64_t> pair) -> uint64_t
 		{
 			return vstd::contains(allowedFactions, pair.first) ? 0 : pair.second;
 		});
@@ -134,7 +134,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		for(auto & slot : sortedSlots)
 		{
-			if(vstd::contains(allowedFactions, slot.creature->getFactionIndex()))
+			if(vstd::contains(allowedFactions, slot.creature->getFaction()))
 			{
 				auto slotID = newArmyInstance.getSlotFor(slot.creature);
 

@@ -567,13 +567,7 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 		if(bonus == nullptr)
 			continue;
 
-		if(bonus->limiter != nullptr)
-		{
-			auto * limPtr = dynamic_cast<FactionLimiter *>(bonus->limiter.get());
-
-			if(limPtr != nullptr && limPtr->faction == FactionID::DEFAULT)
-			limPtr->faction = building->town->faction->getId();
-		}
+		bonus->sid = Bonus::getSid32(building->town->faction->getIndex(), building->bid);
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
@@ -952,7 +946,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
 		{
-			VLC->heroh->classes[HeroClassID(classID)]->selectionProbability[town->faction->getIndex()] = chance;
+			VLC->heroh->classes[HeroClassID(classID)]->selectionProbability[town->faction->getId()] = chance;
 		});
 	}
 
@@ -962,7 +956,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
 		{
-			VLC->spellh->objects.at(spellID)->probabilities[town->faction->getIndex()] = chance;
+			VLC->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
 	}
 
@@ -1008,7 +1002,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 	auto * faction = new CFaction();
 
-	faction->index = static_cast<TFaction>(index);
+	faction->index = static_cast<FactionID>(index);
 	faction->modScope = scope;
 	faction->identifier = identifier;
 
@@ -1211,9 +1205,9 @@ std::vector<bool> CTownHandler::getDefaultAllowed() const
 	return allowedFactions;
 }
 
-std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
+std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 {
-	std::set<TFaction> allowedFactions;
+	std::set<FactionID> allowedFactions;
 	std::vector<bool> allowed;
 	if (withTown)
 		allowed = getDefaultAllowed();
@@ -1222,7 +1216,7 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
 
 	for (size_t i=0; i<allowed.size(); i++)
 		if (allowed[i])
-			allowedFactions.insert(static_cast<TFaction>(i));
+			allowedFactions.insert(static_cast<FactionID>(i));
 
 	return allowedFactions;
 }

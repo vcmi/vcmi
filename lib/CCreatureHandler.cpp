@@ -109,11 +109,6 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-int32_t CCreature::getFactionIndex() const
-{
-	return faction;
-}
-
 FactionID CCreature::getFaction() const
 {
 	return FactionID(faction);
@@ -335,22 +330,16 @@ std::string CCreature::nodeName() const
 	return "\"" + getNamePluralTextID() + "\"";
 }
 
-bool CCreature::isItNativeTerrain(TerrainId terrain) const
-{
-	auto native = getNativeTerrain();
-	return native == terrain || native == ETerrainId::ANY_TERRAIN;
-}
-
 TerrainId CCreature::getNativeTerrain() const
 {
+	constexpr auto any = TerrainId(ETerrainId::ANY_TERRAIN);
 	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, static_cast<int>(ETerrainId::ANY_TERRAIN));
+	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, any);
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? TerrainId(ETerrainId::ANY_TERRAIN)
-		: VLC->factions()->getById(getFaction())->getNativeTerrain();
+		? any : VLC->factions()->getById(getFaction())->getNativeTerrain();
 }
 
 void CCreature::updateFrom(const JsonNode & data)
@@ -933,7 +922,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 
 	VLC->modh->identifiers.requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
-		creature->faction = faction;
+		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())

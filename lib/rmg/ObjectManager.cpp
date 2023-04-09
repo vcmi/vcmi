@@ -426,7 +426,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 			continue;
 		if(!cre->getAIValue()) //bug #2681
 			continue;
-		if(!vstd::contains(zone.getMonsterTypes(), cre->getFactionIndex()))
+		if(!vstd::contains(zone.getMonsterTypes(), cre->getFaction()))
 			continue;
 		if((static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->getAIValue()) * 100)) //at least one full monster. size between average size of given stack and 100
 		{

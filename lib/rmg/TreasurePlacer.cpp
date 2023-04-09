@@ -135,7 +135,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	std::vector<CCreature *> creatures; //native creatures for this zone
 	for(auto cre : VLC->creh->objects)
 	{
-		if(!cre->special && cre->getFactionIndex() == zone.getTownType())
+		if(!cre->special && cre->getFaction() == zone.getTownType())
 		{
 			creatures.push_back(cre);
 		}
@@ -164,9 +164,9 @@ void TreasurePlacer::addAllPossibleObjects()
 				continue;
 
 			const auto * cre = creatures.front();
-			if(cre->getFactionIndex() == zone.getTownType())
+			if(cre->getFaction() == zone.getTownType())
 			{
-				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionIndex()));
+				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFaction()));
 				oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
 				oi.probability = 40;
 
@@ -294,7 +294,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionIndex())) / map.getTotalZoneCount())) / 3);
+		oi.value = static_cast<ui32>((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount())) / 3);
 		oi.probability = 3;
 		addObjectToRandomPool(oi);
 	}
@@ -453,7 +453,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				return obj;
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionIndex())) / map.getTotalZoneCount())) - 4000) / 3);
+			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount())) - 4000) / 3);
 			oi.probability = 3;
 			addObjectToRandomPool(oi);
 		}
