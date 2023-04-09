@@ -75,7 +75,8 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
-	{"CREATURE_FACTION", std::make_shared<CreatureFactionLimiter>()},
+	{"CREATURE_FACTION", std::make_shared<AllOfLimiter>(std::initializer_list<TLimiterPtr>{std::make_shared<CreatureLevelLimiter>(), std::make_shared<FactionLimiter>()})},
+	{"SAME_FACTION", std::make_shared<FactionLimiter>()},
 	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
 };
@@ -2366,30 +2367,46 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureFactionLimiter::CreatureFactionLimiter(FactionID creatureFaction)
+FactionLimiter::FactionLimiter(FactionID creatureFaction)
 	: faction(creatureFaction)
 {
 }
 
-ILimiter::EDecision CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&context.node);
-	auto accept = c && (c->getFactionIndex() == faction || faction == FactionID::ANY);
-	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
+	const auto * bearer = dynamic_cast<const INativeTerrainProvider*>(&context.node);
+
+	if(bearer)
+	{
+		if(faction != FactionID::DEFAULT)
+			return bearer->getFaction() == faction ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+
+		switch(context.b->source)
+		{
+			case Bonus::CREATURE_ABILITY:
+				return faction == CreatureID(context.b->sid).toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+			
+			case Bonus::TOWN_STRUCTURE:
+				return faction == FactionID(Bonus::getHighFromSid32(context.b->sid)) ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+
+			//TODO: other sources of bonuses
+		}
+	}
+	return ILimiter::EDecision::DISCARD; //Discard by default
 }
 
-std::string CreatureFactionLimiter::toString() const
+std::string FactionLimiter::toString() const
 {
-	boost::format fmt("CreatureFactionLimiter(faction=%s)");
+	boost::format fmt("FactionLimiter(faction=%s)");
 	fmt % VLC->factions()->getByIndex(faction)->getJsonKey();
 	return fmt.str();
 }
 
-JsonNode CreatureFactionLimiter::toJsonNode() const
+JsonNode FactionLimiter::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
-	root["type"].String() = "CREATURE_FACTION_LIMITER";
+	root["type"].String() = "FACTION_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getByIndex(faction)->getJsonKey()));
 
 	return root;
@@ -2498,23 +2515,13 @@ ILimiter::EDecision StackOwnerLimiter::limit(const BonusLimitationContext &conte
 	return ILimiter::EDecision::DISCARD;
 }
 
-StackOwnerLimiter::StackOwnerLimiter()
-	: owner(-1)
-{
-}
-
 StackOwnerLimiter::StackOwnerLimiter(const PlayerColor & Owner):
 	owner(Owner)
 {
 }
 
-OppositeSideLimiter::OppositeSideLimiter():
-	owner(PlayerColor::CANNOT_DETERMINE)
-{
-}
-
-OppositeSideLimiter::OppositeSideLimiter(const PlayerColor & Owner):
-	owner(Owner)
+OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
+	owner(std::move(Owner))
 {
 }
 
@@ -2526,6 +2533,11 @@ ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & co
 }
 
 // Aggregate/Boolean Limiters
+
+AggregateLimiter::AggregateLimiter(std::vector<TLimiterPtr> limiters):
+	limiters(std::move(limiters))
+{
+}
 
 void AggregateLimiter::add(const TLimiterPtr & limiter)
 {
@@ -2546,6 +2558,11 @@ const std::string AllOfLimiter::aggregator = "allOf";
 const std::string & AllOfLimiter::getAggregator() const
 {
 	return aggregator;
+}
+
+AllOfLimiter::AllOfLimiter(std::vector<TLimiterPtr> limiters):
+	AggregateLimiter(limiters)
+{
 }
 
 ILimiter::EDecision AllOfLimiter::limit(const BonusLimitationContext & context) const
@@ -2570,6 +2587,11 @@ const std::string & AnyOfLimiter::getAggregator() const
 	return aggregator;
 }
 
+AnyOfLimiter::AnyOfLimiter(std::vector<TLimiterPtr> limiters):
+	AggregateLimiter(limiters)
+{
+}
+
 ILimiter::EDecision AnyOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
@@ -2590,6 +2612,11 @@ const std::string NoneOfLimiter::aggregator = "noneOf";
 const std::string & NoneOfLimiter::getAggregator() const
 {
 	return aggregator;
+}
+
+NoneOfLimiter::NoneOfLimiter(std::vector<TLimiterPtr> limiters):
+	AggregateLimiter(limiters)
+{
 }
 
 ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context) const

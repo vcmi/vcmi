@@ -179,7 +179,7 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<ILimiter, CCreatureTypeLimiter>();
 	s.template registerType<ILimiter, HasAnotherBonusLimiter>();
 	s.template registerType<ILimiter, CreatureTerrainLimiter>();
-	s.template registerType<ILimiter, CreatureFactionLimiter>();
+	s.template registerType<ILimiter, FactionLimiter>();
 	s.template registerType<ILimiter, CreatureLevelLimiter>();
 	s.template registerType<ILimiter, CreatureAlignmentLimiter>();
 	s.template registerType<ILimiter, RankRangeLimiter>();

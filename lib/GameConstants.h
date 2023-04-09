@@ -443,7 +443,7 @@ class FactionID : public BaseForID<FactionID, int32_t>
 	INSTID_LIKE_CLASS_COMMON(FactionID, si32)
 
 	DLL_LINKAGE static const FactionID NONE;
-	DLL_LINKAGE static const FactionID ANY;
+	DLL_LINKAGE static const FactionID DEFAULT;
 	DLL_LINKAGE static const FactionID CASTLE;
 	DLL_LINKAGE static const FactionID RAMPART;
 	DLL_LINKAGE static const FactionID TOWER;

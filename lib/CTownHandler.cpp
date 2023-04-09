@@ -569,9 +569,9 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 
 		if(bonus->limiter != nullptr)
 		{
-			auto * limPtr = dynamic_cast<CreatureFactionLimiter *>(bonus->limiter.get());
+			auto * limPtr = dynamic_cast<FactionLimiter *>(bonus->limiter.get());
 
-			if(limPtr != nullptr && limPtr->faction == FactionID::ANY)
+			if(limPtr != nullptr && limPtr->faction == FactionID::DEFAULT)
 			limPtr->faction = building->town->faction->getId();
 		}
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.

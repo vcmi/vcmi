@@ -523,6 +523,16 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		return (high << 16) + low;
 	}
 
+	STRONG_INLINE static ui32 getHighFromSid32(ui32 sid)
+	{
+		return sid >> 16;
+	}
+
+	STRONG_INLINE static ui32 getLowFromSid32(ui32 sid)
+	{
+		return sid & 0x0000FFFF;
+	}
+
 	std::string Description(boost::optional<si32> customValue = {}) const;
 	JsonNode toJsonNode() const;
 	std::string nameForBonus() const; // generate suitable name for bonus - e.g. for storing in json struct
@@ -996,6 +1006,7 @@ class DLL_LINKAGE AggregateLimiter : public ILimiter
 protected:
 	std::vector<TLimiterPtr> limiters;
 	virtual const std::string & getAggregator() const = 0;
+	AggregateLimiter(std::vector<TLimiterPtr> limiters = {});
 public:
 	void add(const TLimiterPtr & limiter);
 	JsonNode toJsonNode() const override;
@@ -1012,6 +1023,7 @@ class DLL_LINKAGE AllOfLimiter : public AggregateLimiter
 protected:
 	const std::string & getAggregator() const override;
 public:
+	AllOfLimiter(std::vector<TLimiterPtr> limiters = {});
 	static const std::string aggregator;
 	EDecision limit(const BonusLimitationContext & context) const override;
 };
@@ -1021,6 +1033,7 @@ class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
 protected:
 	const std::string & getAggregator() const override;
 public:
+	AnyOfLimiter(std::vector<TLimiterPtr> limiters = {});
 	static const std::string aggregator;
 	EDecision limit(const BonusLimitationContext & context) const override;
 };
@@ -1030,6 +1043,7 @@ class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
 protected:
 	const std::string & getAggregator() const override;
 public:
+	NoneOfLimiter(std::vector<TLimiterPtr> limiters = {});
 	static const std::string aggregator;
 	EDecision limit(const BonusLimitationContext & context) const override;
 };
@@ -1127,11 +1141,11 @@ public:
 	}
 };
 
-class DLL_LINKAGE CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
+class DLL_LINKAGE FactionLimiter : public ILimiter //applies only to creatures of given faction
 {
 public:
 	FactionID faction;
-	CreatureFactionLimiter(FactionID faction = FactionID::ANY);
+	FactionLimiter(FactionID faction = FactionID::DEFAULT);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
@@ -1165,8 +1179,7 @@ class DLL_LINKAGE StackOwnerLimiter : public ILimiter //applies only to creature
 {
 public:
 	PlayerColor owner;
-	StackOwnerLimiter();
-	StackOwnerLimiter(const PlayerColor & Owner);
+	StackOwnerLimiter(const PlayerColor & Owner = PlayerColor::NEUTRAL);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 
@@ -1181,8 +1194,7 @@ class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatu
 {
 public:
 	PlayerColor owner;
-	OppositeSideLimiter();
-	OppositeSideLimiter(const PlayerColor & Owner);
+	OppositeSideLimiter(PlayerColor Owner = PlayerColor::CANNOT_DETERMINE);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 
