@@ -2301,12 +2301,6 @@ CBonusSystemNode::ENodeTypes IPropagator::getPropagatorType() const
 	return CBonusSystemNode::ENodeTypes::NONE;
 }
 
-CPropagatorNodeType::CPropagatorNodeType()
-	:nodeType(CBonusSystemNode::ENodeTypes::UNKNOWN)
-{
-
-}
-
 CPropagatorNodeType::CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType)
 	: nodeType(NodeType)
 {

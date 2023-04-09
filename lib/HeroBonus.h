@@ -905,8 +905,7 @@ class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 	CBonusSystemNode::ENodeTypes nodeType;
 
 public:
-	CPropagatorNodeType();
-	CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType);
+	CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType = CBonusSystemNode::ENodeTypes::UNKNOWN);
 	bool shouldBeAttached(CBonusSystemNode *dest) override;
 	CBonusSystemNode::ENodeTypes getPropagatorType() const override;
 
