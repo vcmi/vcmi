@@ -2,6 +2,7 @@ set(server_SRCS
 		StdInc.cpp
 
 		CGameHandler.cpp
+		ServerSpellCastEnvironment.cpp
 		CQuery.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
@@ -12,6 +13,7 @@ set(server_HEADERS
 		StdInc.h
 
 		CGameHandler.h
+		ServerSpellCastEnvironment.h
 		CQuery.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h

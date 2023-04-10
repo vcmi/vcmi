@@ -323,7 +323,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
-			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->iconIndex));
+			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade avaialbe
 			{
@@ -844,7 +844,7 @@ std::string CStackWindow::generateStackExpDescription()
 	const CStackInstance * stack = info->stackNode;
 	const CCreature * creature = info->creature;
 
-	int tier = stack->type->level;
+	int tier = stack->type->getLevel();
 	int rank = stack->getExpRank();
 	if (!vstd::iswithin(tier, 1, 7))
 		tier = 0;

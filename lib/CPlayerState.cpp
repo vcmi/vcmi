@@ -45,9 +45,35 @@ std::string PlayerState::nodeName() const
 	return "Player " + color.getStrCap(false);
 }
 
-PlayerColor PlayerState::getColor() const
+PlayerColor PlayerState::getId() const
 {
 	return color;
+}
+
+int32_t PlayerState::getIndex() const
+{
+	return color.getNum();
+}
+
+int32_t PlayerState::getIconIndex() const 
+{
+	return color.getNum();
+}
+std::string PlayerState::getJsonKey() const
+{
+	return color.getStr(false);
+}
+std::string PlayerState::getNameTranslated() const
+{
+	return color.getStr(true);
+}
+std::string PlayerState::getNameTextID() const
+{
+	return color.getStr(false);
+}
+void PlayerState::registerIcons(const IconRegistar & cb) const
+{
+	//We cannot register new icons for players
 }
 
 TeamID PlayerState::getTeam() const
@@ -60,7 +86,7 @@ bool PlayerState::isHuman() const
 	return human;
 }
 
-const IBonusBearer * PlayerState::accessBonuses() const
+const IBonusBearer * PlayerState::getBonusBearer() const
 {
 	return this;
 }

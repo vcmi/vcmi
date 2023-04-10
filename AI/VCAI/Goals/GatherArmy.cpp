@@ -159,7 +159,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 							for(auto & creatureID : creLevel.second)
 							{
 								auto creature = VLC->creh->objects[creatureID];
-								if(ai->ah->freeResources().canAfford(creature->cost))
+								if(ai->ah->freeResources().canAfford(creature->getFullRecruitCost()))
 									objs.push_back(obj); //TODO: reserve resources?
 							}
 						}

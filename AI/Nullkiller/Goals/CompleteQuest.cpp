@@ -214,7 +214,7 @@ TGoalVec CompleteQuest::missionResources() const
 			for(int i = 0; i < q.quest->m7resources.size(); ++i)
 			{
 				if(q.quest->m7resources[i])
-					solutions.push_back(sptr(CollectRes(i, q.quest->m7resources[i])));
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->m7resources[i])));
 			}
 		}
 	}

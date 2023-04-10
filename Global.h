@@ -279,7 +279,7 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define VCMI_LIB_NAMESPACE_BEGIN
 #define VCMI_LIB_NAMESPACE_END
 #define VCMI_LIB_USING_NAMESPACE
-#define VCMI_LIB_WRAP_NAMESPACE(x) x
+#define VCMI_LIB_WRAP_NAMESPACE(x) ::x
 #endif
 
 /* ---------------------------------------------------------------------------- */
@@ -752,6 +752,12 @@ namespace vstd
 	static constexpr int abs(int i) {
 		if(i < 0) return -i;
 		return i;
+	}
+
+	///C++23
+	template< class Enum > constexpr std::underlying_type_t<Enum> to_underlying( Enum e ) noexcept
+	{
+		return static_cast<std::underlying_type_t<Enum>>(e);
 	}
 }
 using vstd::operator-=;

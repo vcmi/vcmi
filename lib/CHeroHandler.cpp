@@ -147,9 +147,9 @@ bool CHeroClass::isMagicHero() const
 	return affinity == MAGIC;
 }
 
-EAlignment::EAlignment CHeroClass::getAlignment() const
+EAlignment CHeroClass::getAlignment() const
 {
-	return ((*VLC->townh)[faction]->alignment);
+	return VLC->factions()->getByIndex(faction)->getAlignment();
 }
 
 int32_t CHeroClass::getIndex() const
@@ -529,7 +529,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 	for(CreatureID cid : targets)
 	{
 		const CCreature &specCreature = *VLC->creh->objects[cid];
-		int stepSize = specCreature.level ? specCreature.level : 5;
+		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();

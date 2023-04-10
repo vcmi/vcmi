@@ -178,7 +178,7 @@ CGObjectInstance * CDwellingInstanceConstructor::create(std::shared_ptr<const Ob
 	for(const auto & entry : availableCreatures)
 	{
 		for(const CCreature * cre : entry)
-			obj->creatures.back().second.push_back(cre->idNumber);
+			obj->creatures.back().second.push_back(cre->getId());
 	}
 	return obj;
 }
@@ -194,7 +194,7 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 	{
 		dwelling->creatures.resize(dwelling->creatures.size() + 1);
 		for(const CCreature * cre : entry)
-			dwelling->creatures.back().second.push_back(cre->idNumber);
+			dwelling->creatures.back().second.push_back(cre->getId());
 	}
 
 	bool guarded = false; //TODO: serialize for sanity
@@ -210,14 +210,14 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 	{
 		for(auto & stack : JsonRandom::loadCreatures(guards, rng))
 		{
-			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->getId(), stack.count));
 		}
 	}
 	else //default condition - creatures are of level 5 or higher
 	{
 		for(auto creatureEntry : availableCreatures)
 		{
-			if(creatureEntry.at(0)->level >= 5)
+			if(creatureEntry.at(0)->getLevel() >= 5)
 			{
 				guarded = true;
 				break;
@@ -230,7 +230,7 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 		for(auto creatureEntry : availableCreatures)
 		{
 			const CCreature * crea = creatureEntry.at(0);
-			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(crea->idNumber, crea->growth * 3));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(crea->getId(), crea->getGrowth() * 3));
 		}
 	}
 }
@@ -292,7 +292,7 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 	for (size_t i=0; i<6; i++)
 		IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
 
-	bc.resources = Res::ResourceSet(level["reward"]["resources"]);
+	bc.resources = ResourceSet(level["reward"]["resources"]);
 	bc.creatures = JsonRandom::loadCreatures(level["reward"]["creatures"], rng);
 	bc.artifacts = JsonRandom::loadArtifacts(level["reward"]["artifacts"], rng);
 	bc.spells = JsonRandom::loadSpells(level["reward"]["spells"], rng, spells);
@@ -336,21 +336,21 @@ CBankInfo::CBankInfo(const JsonVector & Config) :
 
 static void addStackToArmy(IObjectInfo::CArmyStructure & army, const CCreature * crea, si32 amount)
 {
-	army.totalStrength += crea->fightValue * amount;
+	army.totalStrength += crea->getFightValue() * amount;
 
 	bool walker = true;
 	if(crea->hasBonusOfType(Bonus::SHOOTER))
 	{
-		army.shootersStrength += crea->fightValue * amount;
+		army.shootersStrength += crea->getFightValue() * amount;
 		walker = false;
 	}
 	if(crea->hasBonusOfType(Bonus::FLYING))
 	{
-		army.flyersStrength += crea->fightValue * amount;
+		army.flyersStrength += crea->getFightValue() * amount;
 		walker = false;
 	}
 	if(walker)
-		army.walkersStrength += crea->fightValue * amount;
+		army.walkersStrength += crea->getFightValue() * amount;
 }
 
 IObjectInfo::CArmyStructure CBankInfo::minGuards() const
@@ -365,7 +365,7 @@ IObjectInfo::CArmyStructure CBankInfo::minGuards() const
 			assert(!stack.allowedCreatures.empty());
 			auto weakest = boost::range::min_element(stack.allowedCreatures, [](const CCreature * a, const CCreature * b)
 			{
-				return a->fightValue < b->fightValue;
+				return a->getFightValue() < b->getFightValue();
 			});
 			addStackToArmy(army, *weakest, stack.minAmount);
 		}
@@ -386,7 +386,7 @@ IObjectInfo::CArmyStructure CBankInfo::maxGuards() const
 			assert(!stack.allowedCreatures.empty());
 			auto strongest = boost::range::max_element(stack.allowedCreatures, [](const CCreature * a, const CCreature * b)
 			{
-				return a->fightValue < b->fightValue;
+				return a->getFightValue() < b->getFightValue();
 			});
 			addStackToArmy(army, *strongest, stack.maxAmount);
 		}
@@ -408,7 +408,7 @@ TPossibleGuards CBankInfo::getPossibleGuards() const
 
 		for(auto stack : stacks)
 		{
-			army.totalStrength += stack.allowedCreatures.front()->AIValue * (stack.minAmount + stack.maxAmount) / 2;
+			army.totalStrength += stack.allowedCreatures.front()->getAIValue() * (stack.minAmount + stack.maxAmount) / 2;
 			//TODO: add fields for flyers, walkers etc...
 		}
 

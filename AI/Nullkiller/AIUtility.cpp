@@ -20,6 +20,8 @@
 
 #include "../../lib/GameSettings.h"
 
+#include <vcmi/CreatureService.h>
+
 namespace NKAI
 {
 
@@ -278,8 +280,8 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != -1)
 	{
-		ci.cre = VLC->creh->objects[ci.creID].get();
-		ci.level = ci.cre->level; //this is cretaure tier, while tryRealize expects dwelling level. Ignore.
+		ci.cre = VLC->creatures()->getById(ci.creID);
+		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
 	{
@@ -398,7 +400,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			{
 				if(level.first
 					&& h->getSlotFor(CreatureID(c)) != SlotID()
-					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->cost))
+					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
 				}
@@ -411,7 +413,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->upgrades.size())
+			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;
@@ -438,7 +440,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			return false;
 
 		TResources myRes = ai->getFreeResources();
-		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
+		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
 			return false;
 		break;
 	}

@@ -418,7 +418,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 		for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisKey(key.keysym.sym)))
 			{
-				if (key.state == SDL_PRESSED)
+				if (key.state == SDL_PRESSED && key.repeat == 0) // function like key_DOWN, and not like a periodic key_Pressed check 
 					(**i).keyPressed(key.keysym.sym);
 				if (key.state == SDL_RELEASED)
 					(**i).keyReleased(key.keysym.sym);

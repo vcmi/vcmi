@@ -25,11 +25,8 @@ namespace GameConstants
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
-}
 
-namespace EAlignment
-{
-	const std::string names [3] = {"good", "evil", "neutral"};
+	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
 }
 
 namespace PrimarySkill

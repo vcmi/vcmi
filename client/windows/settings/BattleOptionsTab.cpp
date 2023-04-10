@@ -13,6 +13,7 @@
 #include "CConfigHandler.h"
 
 #include "../../battle/BattleInterface.h"
+#include "../../battle/BattleActionsController.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../../lib/CGeneralTextHandler.h"
@@ -32,6 +33,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	addCallback("movementShadowChanged", [this, owner](bool value)
 	{
 		movementShadowChangedCallback(value, owner);
+	});
+	addCallback("movementHighlightOnHoverChanged", [this, owner](bool value)
+	{
+		movementHighlightOnHoverChangedCallback(value, owner);
 	});
 	addCallback("mouseShadowChanged", [this](bool value)
 	{
@@ -53,6 +58,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		skipBattleIntroMusicChangedCallback(value);
 	});
+	addCallback("touchscreenModeChanged", [this, owner](bool value)
+	{
+		touchscreenModeChangedCallback(value, owner);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -67,8 +76,14 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	std::shared_ptr<CToggleButton> movementShadowCheckbox = widget<CToggleButton>("movementShadowCheckbox");
 	movementShadowCheckbox->setSelected(settings["battle"]["stackRange"].Bool());
 
+	std::shared_ptr<CToggleButton> movementHighlightOnHoverCheckbox = widget<CToggleButton>("movementHighlightOnHoverCheckbox");
+	movementHighlightOnHoverCheckbox->setSelected(settings["battle"]["movementHighlightOnHover"].Bool());
+
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
+	
+	std::shared_ptr<CToggleButton> touchscreenModeCheckbox = widget<CToggleButton>("touchscreenModeCheckbox");
+	touchscreenModeCheckbox->setSelected(settings["battle"]["touchscreenMode"].Bool());
 
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
@@ -130,10 +145,26 @@ void BattleOptionsTab::movementShadowChangedCallback(bool value, BattleInterface
 		parentBattleInterface->redrawBattlefield();
 }
 
+void BattleOptionsTab::movementHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	Settings stackRange = settings.write["battle"]["movementHighlightOnHover"];
+	stackRange->Bool() = value;
+	if(parentBattleInterface)
+		parentBattleInterface->redrawBattlefield();
+}
+
 void BattleOptionsTab::mouseShadowChangedCallback(bool value)
 {
 	Settings shadow = settings.write["battle"]["mouseShadow"];
 	shadow->Bool() = value;
+}
+
+void BattleOptionsTab::touchscreenModeChangedCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	Settings touchcreenMode = settings.write["battle"]["touchscreenMode"];
+	touchcreenMode->Bool() = value;
+	if(parentBattleInterface)
+		parentBattleInterface->actionsController->setTouchScreenMode(value);
 }
 
 void BattleOptionsTab::animationSpeedChangedCallback(int value)

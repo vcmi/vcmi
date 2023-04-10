@@ -287,13 +287,13 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
 	const CCreature * myCreature = VLC->creh->objects[subID];
-	myKindCres.insert(myCreature->idNumber); //we
+	myKindCres.insert(myCreature->getId()); //we
 	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
 
 	for(ConstTransitivePtr<CCreature> &crea : VLC->creh->objects)
 	{
-		if(vstd::contains(crea->upgrades, myCreature->idNumber)) //it's our base creatures
-			myKindCres.insert(crea->idNumber);
+		if(vstd::contains(crea->upgrades, myCreature->getId())) //it's our base creatures
+			myKindCres.insert(crea->getId());
 	}
 
 	int count = 0; //how many creatures of similar kind has hero
@@ -301,7 +301,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	for(const auto & elem : h->Slots())
 	{
-		if(vstd::contains(myKindCres,elem.second->type->idNumber))
+		if(vstd::contains(myKindCres,elem.second->type->getId()))
 			count += elem.second->count;
 		totalCount += elem.second->count;
 	}
@@ -324,7 +324,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 			return JOIN_FOR_FREE;
 
 		else if(diplomacy * 2  +  sympathy  +  1 >= character)
-			return VLC->creh->objects[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
+			return VLC->creatures()->getByIndex(subID)->getRecruitCost(EGameResID::GOLD) * getStackCount(SlotID(0)); //join for gold
 	}
 
 	//we are still here - creatures have not joined hero, flee or fight
@@ -367,7 +367,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 	}
 	else //accepted
 	{
-		if (cb->getResource(h->tempOwner, Res::GOLD) < cost) //player don't have enough gold!
+		if (cb->getResource(h->tempOwner, EGameResID::GOLD) < cost) //player don't have enough gold!
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
@@ -381,7 +381,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 		//take gold
 		if(cost)
-			cb->giveResource(h->tempOwner,Res::GOLD,-cost);
+			cb->giveResource(h->tempOwner,EGameResID::GOLD,-cost);
 
 		giveReward(h);
 		cb->tryJoiningArmy(this, h, true, true);
@@ -392,7 +392,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 {
 	//split stacks
 	//TODO: multiple creature types in a stack?
-	int basicType = stacks.begin()->second->type->idNumber;
+	int basicType = stacks.begin()->second->type->getId();
 	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
 
 	int stacksCount = getNumberOfStacks(h);
@@ -665,10 +665,10 @@ void CGMine::initObj(CRandomGenerator & rand)
 		putStack(SlotID(0), troglodytes);
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
-		std::vector<Res::ERes> possibleResources;
+		std::vector<GameResID> possibleResources;
 		for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 			if(tempOwner.getNum() & 1<<i) //NOTE: reuse of tempOwner
-				possibleResources.push_back(static_cast<Res::ERes>(i));
+				possibleResources.push_back(GameResID(i));
 
 		assert(!possibleResources.empty());
 		producedResource = *RandomGeneratorUtil::nextItem(possibleResources, rand);
@@ -676,7 +676,7 @@ void CGMine::initObj(CRandomGenerator & rand)
 	}
 	else
 	{
-		producedResource = static_cast<Res::ERes>(subID);
+		producedResource = GameResID(subID);
 		if(tempOwner >= PlayerColor::PLAYER_LIMIT)
 			tempOwner = PlayerColor::NEUTRAL;
 	}
@@ -719,7 +719,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::FLAGMINE;
-	iw.text.addTxt(MetaString::MINE_EVNTS,producedResource); //not use subID, abandoned mines uses default mine texts
+	iw.text.addTxt(MetaString::MINE_EVNTS, producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
 	iw.components.emplace_back(Component::EComponentType::RESOURCE, producedResource, producedQuantity, -1);
 	cb->showInfoDialog(&iw);
@@ -727,12 +727,12 @@ void CGMine::flagMine(const PlayerColor & player) const
 
 ui32 CGMine::defaultResProduction() const
 {
-	switch(producedResource)
+	switch(producedResource.toEnum())
 	{
-	case Res::WOOD:
-	case Res::ORE:
+	case EGameResID::WOOD:
+	case EGameResID::ORE:
 		return 2;
-	case Res::GOLD:
+	case EGameResID::GOLD:
 		return 1000;
 	default:
 		return 1;
@@ -786,7 +786,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(node.getType() != JsonNode::JsonType::DATA_VECTOR || node.Vector().empty())
 			{
 				//assume all allowed
-				for(int i = static_cast<int>(Res::WOOD); i < static_cast<int>(Res::GOLD); i++)
+				for(int i = static_cast<int>(EGameResID::WOOD); i < static_cast<int>(EGameResID::GOLD); i++)
 					possibleResources.insert(i);
 			}
 			else
@@ -827,12 +827,12 @@ void CGResource::initObj(CRandomGenerator & rand)
 
 	if(amount == CGResource::RANDOM_AMOUNT)
 	{
-		switch(subID)
+		switch(static_cast<EGameResID>(subID))
 		{
-		case Res::GOLD:
+		case EGameResID::GOLD:
 			amount = rand.nextInt(5, 10) * 100;
 			break;
-		case Res::WOOD: case Res::ORE:
+		case EGameResID::WOOD: case EGameResID::ORE:
 			amount = rand.nextInt(6, 10);
 			break;
 		default:
@@ -864,7 +864,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGResource::collectRes(const PlayerColor & player) const
 {
-	cb->giveResource(player, static_cast<Res::ERes>(subID), amount);
+	cb->giveResource(player, static_cast<EGameResID>(subID), amount);
 	InfoWindow sii;
 	sii.player = player;
 	if(!message.empty())
@@ -1986,7 +1986,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 	//if player has not bought map of this subtype yet and underground exist for stalagmite cartographer
 	if (!wasVisited(h->getOwner()) && (subID != 2 || cb->gameState()->map->twoLevel))
 	{
-		if (cb->getResource(h->tempOwner, Res::GOLD) >= 1000) //if he can afford a map
+		if (cb->getResource(h->tempOwner, EGameResID::GOLD) >= 1000) //if he can afford a map
 		{
 			//ask if he wants to buy one
 			int text=0;
@@ -2025,7 +2025,7 @@ void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 {
 	if(answer) //if hero wants to buy map
 	{
-		cb->giveResource(hero->tempOwner, Res::GOLD, -1000);
+		cb->giveResource(hero->tempOwner, EGameResID::GOLD, -1000);
 		FoWChange fw;
 		fw.mode = 1;
 		fw.player = hero->tempOwner;

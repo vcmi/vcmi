@@ -24,7 +24,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
+std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack)
 {
 	auto reachability = getReachability(stack);
 
@@ -662,7 +662,7 @@ int32_t BattleInfo::getEnchanterCounter(ui8 side) const
 	return sides.at(side).enchanterCounter;
 }
 
-const IBonusBearer * BattleInfo::asBearer() const
+const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;
 }

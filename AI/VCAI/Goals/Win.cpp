@@ -154,7 +154,7 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::HAVE_RESOURCES:
 			//TODO mines? piles? marketplace?
 			//save?
-			return sptr(CollectRes(static_cast<Res::ERes>(goal.objectType), goal.value));
+			return sptr(CollectRes(static_cast<EGameResID>(goal.objectType), goal.value));
 		case EventCondition::HAVE_CREATURES:
 			return sptr(GatherTroops(goal.objectType, goal.value));
 		case EventCondition::TRANSPORT:

@@ -108,9 +108,9 @@ int32_t BattleProxy::getEnchanterCounter(ui8 side) const
 	return subject->battleGetEnchanterCounter(side);
 }
 
-const IBonusBearer * BattleProxy::asBearer() const
+const IBonusBearer * BattleProxy::getBonusBearer() const
 {
-	return subject->getBattleNode();
+	return subject->getBonusBearer();
 }
 
 

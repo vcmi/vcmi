@@ -50,7 +50,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 			const double effectivenessArray[] = {0.0, 0.3, 0.45, 0.50, 0.65, 0.7, 0.85, 0.9, 1.0};
 			double effectiveness = effectivenessArray[std::min(getMarketEfficiency(), 8)];
 
-			double r = VLC->creh->objects[id1]->cost[6]; //value of given creature in gold
+			double r = VLC->creatures()->getByIndex(id1)->getRecruitCost(EGameResID::GOLD); //value of given creature in gold
 			double g = VLC->objh->resVals[id2] / effectiveness; //value of wanted resource
 
 			if(r>g) //if given resource is more expensive than wanted
@@ -98,7 +98,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 	case EMarketMode::CREATURE_EXP:
 		{
 			val1 = 1;
-			val2 = (VLC->creh->objects[id1]->AIValue / 40) * 5;
+			val2 = (VLC->creh->objects[id1]->getAIValue() / 40) * 5;
 		}
 		break;
 	case EMarketMode::ARTIFACT_EXP:

@@ -196,7 +196,7 @@ public:
 					secSkillProbability[i] = 0;
 	}
 	}
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 };
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>

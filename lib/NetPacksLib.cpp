@@ -593,6 +593,11 @@ void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAssembleArtifacts(*this);
 }
 
+void EraseArtifactByClient::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEraseArtifactByClient(*this);
+}
+
 void BuyArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBuyArtifact(*this);
@@ -1759,7 +1764,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 		else //split stack to an empty slot
 		{
 			src.army->changeStackCount(src.slot, -count);
-			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
+			dst.army->addToSlot(dst.slot, srcType->getId(), count, false);
 			if (stackExp)
 				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
@@ -2506,7 +2511,7 @@ void YourTurn::applyGs(CGameState * gs) const
 
 Component::Component(const CStackBasicDescriptor & stack)
 	: id(EComponentType::CREATURE)
-	, subtype(stack.type->idNumber)
+	, subtype(stack.type->getId())
 	, val(stack.count)
 {
 }

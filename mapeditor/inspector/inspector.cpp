@@ -181,7 +181,7 @@ void Initializer::initialize(CGMine * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
-	o->producedResource = Res::ERes(o->subID);
+	o->producedResource = GameResID(o->subID);
 	o->producedQuantity = o->defaultResProduction();
 }
 
@@ -289,7 +289,7 @@ void Inspector::updateProperties(CGArtifact * o)
 				//if(map->isAllowedSpell(spell->id))
 				delegate->options << QObject::tr(spell->getJsonKey().c_str());
 			}
-			addProperty("Spell", VLC->spellh->objects[spellId]->getJsonKey(), delegate, false);
+			addProperty("Spell", VLC->spellh->getById(spellId)->getJsonKey(), delegate, false);
 		}
 	}
 }
@@ -701,29 +701,29 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 	return new QTableWidgetItem(str);
 }
 
-QTableWidgetItem * Inspector::addProperty(const Res::ERes & value)
+QTableWidgetItem * Inspector::addProperty(const GameResID & value)
 {
 	QString str;
-	switch (value) {
-		case Res::ERes::WOOD:
+	switch (value.toEnum()) {
+		case EGameResID::WOOD:
 			str = "WOOD";
 			break;
-		case Res::ERes::ORE:
+		case EGameResID::ORE:
 			str = "ORE";
 			break;
-		case Res::ERes::SULFUR:
+		case EGameResID::SULFUR:
 			str = "SULFUR";
 			break;
-		case Res::ERes::GEMS:
+		case EGameResID::GEMS:
 			str = "GEMS";
 			break;
-		case Res::ERes::MERCURY:
+		case EGameResID::MERCURY:
 			str = "MERCURY";
 			break;
-		case Res::ERes::CRYSTAL:
+		case EGameResID::CRYSTAL:
 			str = "CRYSTAL";
 			break;
-		case Res::ERes::GOLD:
+		case EGameResID::GOLD:
 			str = "GOLD";
 			break;
 		default:

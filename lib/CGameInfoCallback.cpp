@@ -37,7 +37,7 @@ PlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
 	return obj->tempOwner;
 }
 
-int CGameInfoCallback::getResource(PlayerColor Player, Res::ERes which) const
+int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 {
 	const PlayerState *p = getPlayerState(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
@@ -323,9 +323,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto & elem : info.army)
 			{
-				if(static_cast<int>(elem.second.type->AIValue) > maxAIValue)
+				if(static_cast<int>(elem.second.type->getAIValue()) > maxAIValue)
 				{
-					maxAIValue = elem.second.type->AIValue;
+					maxAIValue = elem.second.type->getAIValue();
 					mostStrong = elem.second.type;
 				}
 			}
@@ -359,9 +359,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto creature : VLC->creh->objects)
 			{
-				if(static_cast<si16>(creature->faction) == factionIndex && static_cast<int>(creature->AIValue) > maxAIValue)
+				if(static_cast<si16>(creature->getFactionIndex()) == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
 				{
-					maxAIValue = creature->AIValue;
+					maxAIValue = creature->getAIValue();
 					mostStrong = creature;
 				}
 			}
@@ -860,7 +860,7 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 	return p->towns[serialId];
 }
 
-int CPlayerSpecificInfoCallback::getResourceAmount(Res::ERes type) const
+int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!player, "Applicable only for player callbacks", -1);

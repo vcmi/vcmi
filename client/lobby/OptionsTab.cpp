@@ -126,25 +126,25 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 			return GOLD;
 		case PlayerSettings::RESOURCE:
 		{
-			switch((*CGI->townh)[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
-			case Res::WOOD_AND_ORE:
+			case EGameResID::WOOD_AND_ORE:
 				return WOOD_ORE;
-			case Res::WOOD:
+			case EGameResID::WOOD:
 				return WOOD;
-			case Res::MERCURY:
+			case EGameResID::MERCURY:
 				return MERCURY;
-			case Res::ORE:
+			case EGameResID::ORE:
 				return ORE;
-			case Res::SULFUR:
+			case EGameResID::SULFUR:
 				return SULFUR;
-			case Res::CRYSTAL:
+			case EGameResID::CRYSTAL:
 				return CRYSTAL;
-			case Res::GEMS:
+			case EGameResID::GEMS:
 				return GEM;
-			case Res::GOLD:
+			case EGameResID::GOLD:
 				return GOLD;
-			case Res::MITHRIL:
+			case EGameResID::MITHRIL:
 				return MITHRIL;
 			}
 		}
@@ -268,17 +268,17 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 			return CGI->generaltexth->allTexts[87]; //500-1000
 		case PlayerSettings::RESOURCE:
 		{
-			switch((*CGI->townh)[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
-			case Res::MERCURY:
+			case EGameResID::MERCURY:
 				return CGI->generaltexth->allTexts[694];
-			case Res::SULFUR:
+			case EGameResID::SULFUR:
 				return CGI->generaltexth->allTexts[695];
-			case Res::CRYSTAL:
+			case EGameResID::CRYSTAL:
 				return CGI->generaltexth->allTexts[692];
-			case Res::GEMS:
+			case EGameResID::GEMS:
 				return CGI->generaltexth->allTexts[693];
-			case Res::WOOD_AND_ORE:
+			case EGameResID::WOOD_AND_ORE:
 				return CGI->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 			}
 		}
@@ -310,17 +310,17 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 			return CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 		case PlayerSettings::RESOURCE:
 		{
-			switch((*CGI->townh)[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
-			case Res::MERCURY:
+			case EGameResID::MERCURY:
 				return CGI->generaltexth->allTexts[690];
-			case Res::SULFUR:
+			case EGameResID::SULFUR:
 				return CGI->generaltexth->allTexts[691];
-			case Res::CRYSTAL:
+			case EGameResID::CRYSTAL:
 				return CGI->generaltexth->allTexts[688];
-			case Res::GEMS:
+			case EGameResID::GEMS:
 				return CGI->generaltexth->allTexts[689];
-			case Res::WOOD_AND_ORE:
+			case EGameResID::WOOD_AND_ORE:
 				return CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 			}
 		}

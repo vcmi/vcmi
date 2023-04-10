@@ -70,7 +70,7 @@ TEST_F(CCreatureTest, JsonUpdate)
 
 	subject->updateFrom(data);
 
-	EXPECT_EQ(subject->getCost(Res::GOLD), 750);
+	EXPECT_EQ(subject->getRecruitCost(EGameResID::GOLD), 750);
 	EXPECT_EQ(subject->getBaseAttack(), 17);
 	EXPECT_EQ(subject->getAttack(false), 17);
 	EXPECT_EQ(subject->getAttack(true), 17);

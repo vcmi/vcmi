@@ -195,7 +195,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
-	void giveResource(PlayerColor player, Res::ERes which, int val) override {};
+	void giveResource(PlayerColor player, GameResID which, int val) override {};
 	virtual void giveResources(PlayerColor player, TResources resources) override {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet & creatures, bool remove) override {};
@@ -231,6 +231,7 @@ public:
 	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {};
 	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
+	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
 	void changeFogOfWar(std::unordered_set<int3, ShashInt3> & tiles, PlayerColor player, bool hide) override {}

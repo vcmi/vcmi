@@ -185,6 +185,12 @@ void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dst
 	sendRequest(&bma);
 }
 
+void CCallback::eraseArtifactByClient(const ArtifactLocation & al)
+{
+	EraseArtifactByClient ea(al);
+	sendRequest(&ea);
+}
+
 bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=player)

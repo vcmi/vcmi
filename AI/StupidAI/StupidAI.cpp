@@ -80,7 +80,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	for(int i = 0; i < 2; i++)
 	{
 		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
-			if(const CStack * s = cbc->battleGetStackByPos(neighbour))
+			if(const auto * s = cbc->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;
 	}
@@ -95,7 +95,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	if(stack->type->idNumber == CreatureID::CATAPULT)
+	if(stack->type->getId() == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
 		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};
@@ -120,7 +120,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
-			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack);
+			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, true);
 
 			for (BattleHex hex : avHexes)
 			{
@@ -238,7 +238,7 @@ void CStupidAI::print(const std::string &text) const
 BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{

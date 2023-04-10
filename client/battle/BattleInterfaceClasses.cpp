@@ -460,7 +460,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 			auto best = vstd::maxElementByFun(stacks, [](const CStack * stack)
 			{
-				return stack->type->AIValue;
+				return stack->type->getAIValue();
 			});
 
 			if(best != stacks.end()) //should be always but to be safe...
@@ -733,7 +733,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		// if mod is not up to date and does have arrow tower icon yet - second setFrame call will fail and retain previously set image
 		// for 1.2 release & later next line should be moved into 'else' block
 		icon->setFrame(unit->creatureIconIndex(), 0);
-		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
+		if (unit->unitType()->getId() == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
 		amount->setText(TextOperations::formatMetric(unit->getCount(), 4));

@@ -58,15 +58,15 @@ TResources ResourceManager::estimateIncome() const
 	{
 		if (obj->ID == Obj::MINE)
 		{
-			switch (obj->subID)
+			auto mine = dynamic_cast<const CGMine*>(obj);
+			switch (mine->producedResource.toEnum())
 			{
-			case Res::WOOD:
-			case Res::ORE:
+			case EGameResID::WOOD:
+			case EGameResID::ORE:
 				ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
 				break;
-			case Res::GOLD:
-			case 7: //abandoned mine -> also gold
-				ret[Res::GOLD] += GOLD_MINE_PRODUCTION;
+			case EGameResID::GOLD:
+				ret[EGameResID::GOLD] += GOLD_MINE_PRODUCTION;
 				break;
 			default:
 				ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
@@ -90,11 +90,11 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 {
 	auto allResources = cb->getResourceAmount();
 	auto income = estimateIncome();
-	Res::ERes resourceType = Res::INVALID;
+	GameResID resourceType = EGameResID::INVALID;
 	TResource amountToCollect = 0;
 
-	typedef std::pair<Res::ERes, TResource> resPair;
-	std::map<Res::ERes, TResource> missingResources;
+	using resPair = std::pair<GameResID, TResource>;
+	std::map<GameResID, TResource> missingResources;
 
 	//TODO: unit test for complex resource sets
 
@@ -102,10 +102,10 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
 		//choose specific resources we need for this goal (not 0)
-		for (auto r = Res::ResourceSet::nziterator(o.resources); r.valid(); r++)
+		for (auto r = ResourceSet::nziterator(o.resources); r.valid(); r++)
 			missingResources[r->resType] += it->resources[r->resType]; //goal it costs r units of resType
 	}
-	for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
+	for (auto it = ResourceSet::nziterator(o.resources); it.valid(); it++)
 	{
 		missingResources[it->resType] -= allResources[it->resType]; //missing = (what we need) - (what we have)
 		vstd::amax(missingResources[it->resType], 0); // if we have more resources than reserved, we don't need them
@@ -129,11 +129,11 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 			break;
 		}
 	}
-	if (resourceType == Res::INVALID) //no needed resources has 0 income,
+	if (resourceType == EGameResID::INVALID) //no needed resources has 0 income,
 	{
 		//find the one which takes longest to collect
-		typedef std::pair<Res::ERes, float> timePair;
-		std::map<Res::ERes, float> daysToEarn;
+		using timePair = std::pair<GameResID, float>;
+		std::map<GameResID, float> daysToEarn;
 		for (auto it : missingResources)
 			daysToEarn[it.first] = (float)missingResources[it.first] / income[it.first];
 		auto incomeComparer = [](const timePair & lhs, const timePair & rhs) -> bool
@@ -345,7 +345,7 @@ TResources ResourceManager::freeResources() const
 
 TResource ResourceManager::freeGold() const
 {
-	return freeResources()[Res::GOLD];
+	return freeResources()[EGameResID::GOLD];
 }
 
 TResources ResourceManager::allResources() const
@@ -355,5 +355,5 @@ TResources ResourceManager::allResources() const
 
 TResource ResourceManager::allGold() const
 {
-	return cb->getResourceAmount()[Res::GOLD];
+	return cb->getResourceAmount()[EGameResID::GOLD];
 }

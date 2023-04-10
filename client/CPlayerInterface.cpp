@@ -1928,7 +1928,6 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	askToAssembleArtifact(al);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)

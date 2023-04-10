@@ -153,7 +153,7 @@ TEST_F(ResourceManagerTest, queueOrder)
 	goal = rm->whatToDo(price, buildNotSoExtra);
 	EXPECT_NE(goal->bid, 7);
 	EXPECT_EQ(goal->goalType, Goals::COLLECT_RES) << "We can't afford this goal, need to collect resources";
-	EXPECT_EQ(goal->resID, Res::GOLD) << "We need to collect gold";
+	EXPECT_EQ(goal->resID, EGameResID::GOLD) << "We need to collect gold";
 
 	goal = rm->whatToDo();
 	EXPECT_NE(goal->goalType, Goals::COLLECT_RES);
@@ -165,7 +165,7 @@ TEST_F(ResourceManagerTest, updateGoalImplemented)
 	ASSERT_FALSE(rm->hasTasksLeft());
 
 	TResources res;
-	res[Res::GOLD] = 12345;
+	res[EGameResID::GOLD] = 12345;
 
 	buildThis->setpriority(1);
 	buildThis->bid = 666;
@@ -208,14 +208,14 @@ TEST_F(ResourceManagerTest, freeResources)
 		.WillByDefault(Return(TResources(-1, 0, -13, -38763, -93764, -464, -12, -98765)));
 
 	auto res = rm->freeResources();
-	ASSERT_GE(res[Res::WOOD], 0);
-	ASSERT_GE(res[Res::MERCURY], 0);
-	ASSERT_GE(res[Res::ORE], 0);
-	ASSERT_GE(res[Res::SULFUR], 0);
-	ASSERT_GE(res[Res::CRYSTAL], 0);
-	ASSERT_GE(res[Res::GEMS], 0);
-	ASSERT_GE(res[Res::GOLD], 0);
-	ASSERT_GE(res[Res::MITHRIL], 0);
+	ASSERT_GE(res[EGameResID::WOOD], 0);
+	ASSERT_GE(res[EGameResID::MERCURY], 0);
+	ASSERT_GE(res[EGameResID::ORE], 0);
+	ASSERT_GE(res[EGameResID::SULFUR], 0);
+	ASSERT_GE(res[EGameResID::CRYSTAL], 0);
+	ASSERT_GE(res[EGameResID::GEMS], 0);
+	ASSERT_GE(res[EGameResID::GOLD], 0);
+	ASSERT_GE(res[EGameResID::MITHRIL], 0);
 }
 
 TEST_F(ResourceManagerTest, freeResourcesWithManyGoals)
@@ -231,13 +231,13 @@ TEST_F(ResourceManagerTest, freeResourcesWithManyGoals)
 	ASSERT_EQ(rm->freeResources(), TResources(15, 2, 15, 6, 6, 6, 2000, 0));
 	rm->reserveResoures(TResources(0, 0, 0, 0, 0, 0, 2500), recruitHero);
 	auto res = rm->freeResources();
-	EXPECT_EQ(res[Res::GOLD], 0) << "We should have 0 gold left";
+	EXPECT_EQ(res[EGameResID::GOLD], 0) << "We should have 0 gold left";
 
 	ON_CALL(gcm, getResourceAmount())
 		.WillByDefault(Return(TResources(20, 10, 20, 10, 10, 10, 30000, 0))); //+10000 gold
 
 	res = rm->freeResources();
-	EXPECT_EQ(res[Res::GOLD], 9500) << "We should have extra savings now";
+	EXPECT_EQ(res[EGameResID::GOLD], 9500) << "We should have extra savings now";
 }
 
 TEST_F(ResourceManagerTest, freeGold)

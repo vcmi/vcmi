@@ -126,6 +126,7 @@ public:
 	virtual void visitExchangeArtifacts(ExchangeArtifacts & pack) {}
 	virtual void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) {}
 	virtual void visitAssembleArtifacts(AssembleArtifacts & pack) {}
+	virtual void visitEraseArtifactByClient(EraseArtifactByClient & pack) {}
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
 	virtual void visitTradeOnMarketplace(TradeOnMarketplace & pack) {}
 	virtual void visitSetFormation(SetFormation & pack) {}

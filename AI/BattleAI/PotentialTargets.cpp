@@ -15,7 +15,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 {
 	auto attackerInfo = state.battleGetUnitByID(attacker->unitId());
 	auto reachability = state.getReachability(attackerInfo);
-	auto avHexes = state.battleGetAvailableHexes(reachability, attackerInfo);
+	auto avHexes = state.battleGetAvailableHexes(reachability, attackerInfo, true);
 
 	//FIXME: this should part of battleGetAvailableHexes
 	bool forceTarget = false;

@@ -19,26 +19,26 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-Res::ResourceSet::ResourceSet(const JsonNode & node)
+ResourceSet::ResourceSet(const JsonNode & node)
 {
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 		container[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
 }
 
-Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
+ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
 							TResource gems, TResource gold, TResource mithril)
 {
-	container[Res::WOOD] = wood;
-	container[Res::MERCURY] = mercury;
-	container[Res::ORE] = ore;
-	container[Res::SULFUR] = sulfur;
-	container[Res::CRYSTAL] = crystal;
-	container[Res::GEMS] = gems;
-	container[Res::GOLD] = gold;
-	container[Res::MITHRIL] = mithril;
+	container[GameResID(EGameResID::WOOD)] = wood;
+	container[GameResID(EGameResID::MERCURY)] = mercury;
+	container[GameResID(EGameResID::ORE)] = ore;
+	container[GameResID(EGameResID::SULFUR)] = sulfur;
+	container[GameResID(EGameResID::CRYSTAL)] = crystal;
+	container[GameResID(EGameResID::GEMS)] = gems;
+	container[GameResID(EGameResID::GOLD)] = gold;
+	container[GameResID(EGameResID::MITHRIL)] = mithril;
 }
 
-void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
 {
 	if(handler.saving && !nonZero())
 		return;
@@ -49,7 +49,7 @@ void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::s
 		handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], this->operator[](idx), 0);
 }
 
-bool Res::ResourceSet::nonZero() const
+bool ResourceSet::nonZero() const
 {
 	for(const auto & elem : *this)
 		if(elem)
@@ -58,35 +58,25 @@ bool Res::ResourceSet::nonZero() const
 	return false;
 }
 
-void Res::ResourceSet::amax(const TResourceCap &val)
+void ResourceSet::amax(const TResourceCap &val)
 {
 	for(auto & elem : *this)
 		vstd::amax(elem, val);
 }
 
-void Res::ResourceSet::amin(const TResourceCap &val)
+void ResourceSet::amin(const TResourceCap &val)
 {
 	for(auto & elem : *this)
 		vstd::amin(elem, val);
 }
 
-void Res::ResourceSet::positive()
+void ResourceSet::positive()
 {
 	for(auto & elem : *this)
 		vstd::amax(elem, 0);
 }
 
-bool Res::ResourceSet::canBeAfforded(const ResourceSet &res) const
-{
-	return Res::canAfford(res, *this);
-}
-
-bool Res::ResourceSet::canAfford(const ResourceSet &price) const
-{
-	return Res::canAfford(*this, price);
-}
-
-bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
+static bool canAfford(const ResourceSet &res, const ResourceSet &price)
 {
 	assert(res.size() == price.size() && price.size() == GameConstants::RESOURCE_QUANTITY);
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
@@ -96,7 +86,17 @@ bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
 	return true;
 }
 
-TResourceCap Res::ResourceSet::marketValue() const
+bool ResourceSet::canBeAfforded(const ResourceSet &res) const
+{
+	return VCMI_LIB_WRAP_NAMESPACE(canAfford(res, *this));
+}
+
+bool ResourceSet::canAfford(const ResourceSet &price) const
+{
+	return VCMI_LIB_WRAP_NAMESPACE(canAfford(*this, price));
+}
+
+TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
@@ -104,7 +104,7 @@ TResourceCap Res::ResourceSet::marketValue() const
 	return total;
 }
 
-std::string Res::ResourceSet::toString() const
+std::string ResourceSet::toString() const
 {
 	std::ostringstream out;
 	out << "[";
@@ -117,35 +117,35 @@ std::string Res::ResourceSet::toString() const
 	return out.str();
 }
 
-bool Res::ResourceSet::nziterator::valid() const
+bool ResourceSet::nziterator::valid() const
 {
 	return cur.resType < GameConstants::RESOURCE_QUANTITY && cur.resVal;
 }
 
-Res::ResourceSet::nziterator Res::ResourceSet::nziterator::operator++()
+ResourceSet::nziterator ResourceSet::nziterator::operator++()
 {
 	advance();
 	return *this;
 }
 
-Res::ResourceSet::nziterator Res::ResourceSet::nziterator::operator++(int)
+ResourceSet::nziterator ResourceSet::nziterator::operator++(int)
 {
 	nziterator ret = *this;
 	advance();
 	return ret;
 }
 
-const Res::ResourceSet::nziterator::ResEntry& Res::ResourceSet::nziterator::operator*() const
+const ResourceSet::nziterator::ResEntry& ResourceSet::nziterator::operator*() const
 {
 	return cur;
 }
 
-const Res::ResourceSet::nziterator::ResEntry * Res::ResourceSet::nziterator::operator->() const
+const ResourceSet::nziterator::ResEntry * ResourceSet::nziterator::operator->() const
 {
 	return &cur;
 }
 
-void Res::ResourceSet::nziterator::advance()
+void ResourceSet::nziterator::advance()
 {
 	do
 	{
@@ -156,11 +156,11 @@ void Res::ResourceSet::nziterator::advance()
 		cur.resVal = -1;
 }
 
-Res::ResourceSet::nziterator::nziterator(const ResourceSet &RS)
+ResourceSet::nziterator::nziterator(const ResourceSet &RS)
 	: rs(RS)
 {
-	cur.resType = WOOD;
-	cur.resVal = rs[WOOD];
+	cur.resType = EGameResID::WOOD;
+	cur.resVal = rs[EGameResID::WOOD];
 
 	if(!valid())
 		advance();

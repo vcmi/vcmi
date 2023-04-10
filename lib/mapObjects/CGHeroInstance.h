@@ -166,7 +166,7 @@ public:
 	bool spellbookContainsSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
@@ -275,6 +275,7 @@ public:
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;

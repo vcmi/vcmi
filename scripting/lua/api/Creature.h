@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include <vcmi/Creature.h>
-
 #include "../LuaWrapper.h"
+
+#include <vcmi/Creature.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

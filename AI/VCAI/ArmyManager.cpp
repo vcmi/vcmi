@@ -36,9 +36,10 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	{
 		for(auto & i : armyPtr->Slots())
 		{
-			auto & slotInfp = creToPower[i.second->type];
+			auto cre = dynamic_cast<const CCreature*>(i.second->type);
+			auto & slotInfp = creToPower[cre];
 
-			slotInfp.creature = i.second->type;
+			slotInfp.creature = cre;
 			slotInfp.power += i.second->getPower();
 			slotInfp.count += i.second->count;
 		}
@@ -59,8 +60,8 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 {
 	auto weakest = boost::min_element(army, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
-		if(left.creature->level != right.creature->level)
-			return left.creature->level < right.creature->level;
+		if(left.creature->getLevel() != right.creature->getLevel())
+			return left.creature->getLevel() < right.creature->getLevel();
 		
 		return left.creature->Speed() > right.creature->Speed();
 	});
@@ -120,7 +121,7 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDw
 		if(!ci.count || ci.creID == -1)
 			continue;
 
-		vstd::amin(ci.count, availableRes / ci.cre->cost); //max count we can afford
+		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
 
 		if(ci.count && ci.creID != -1) //valid creature at this level
 		{
@@ -135,8 +136,8 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDw
 			}
 
 			//we found matching occupied or free slot
-			aivalue += ci.count * ci.cre->AIValue;
-			availableRes -= ci.cre->cost * ci.count;
+			aivalue += ci.count * ci.cre->getAIValue();
+			availableRes -= ci.cre->getFullRecruitCost() * ci.count;
 		}
 	}
 
