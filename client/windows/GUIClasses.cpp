@@ -1907,7 +1907,7 @@ void CObjectListWindow::keyPressed (const SDL_Keycode & key)
 		return;
 	}
 
-	vstd::abetween(sel, 0, items.size()-1);
+	vstd::abetween<int>(sel, 0, items.size()-1);
 	list->scrollTo(sel);
 	changeSelection(sel);
 }

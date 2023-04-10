@@ -1688,7 +1688,9 @@ void RebalanceStacks::applyGs(CGameState * gs)
 
 	if(srcCount == count) //moving whole stack
 	{
-		if([[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
+		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+
+		if(c) //stack at dest -> merge
 		{
 			assert(c == srcType);
 			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
@@ -1742,7 +1744,8 @@ void RebalanceStacks::applyGs(CGameState * gs)
 	}
 	else
 	{
-		if([[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
+		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+		if(c) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
 			if (stackExp)

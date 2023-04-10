@@ -249,7 +249,7 @@ void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 	}
 
 	vstd::amax(maxHeal, 0);
-	vstd::abetween(amount, 0, maxHeal);
+	vstd::abetween(amount, int64_t(0), maxHeal);
 
 	if(amount == 0)
 		return;

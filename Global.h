@@ -425,27 +425,11 @@ namespace vstd
 		}
 	}
 
-	// c++17: makes a to fit the range <b, c>
-	template <typename t1, typename t2, typename t3>
-	t1 clamp(const t1 &value, const t2 &low, const t3 &high)
-	{
-		if ( value > high)
-			return high;
-
-		if ( value < low)
-			return low;
-
-		return value;
-	}
-
-
 	//makes a to fit the range <b, c>
-	template <typename t1, typename t2, typename t3>
-	t1 &abetween(t1 &a, const t2 &b, const t3 &c)
+	template <typename T>
+	void abetween(T &value, const T &min, const T &max)
 	{
-		amax(a,b);
-		amin(a,c);
-		return a;
+		value = std::clamp(value, min, max);
 	}
 
 	//checks if a is between b and c
@@ -726,7 +710,6 @@ namespace vstd
 	{
 		return a + (b - a) * f;
 	}
-
 
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr
 	static constexpr int abs(int i) {

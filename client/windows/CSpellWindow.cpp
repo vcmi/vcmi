@@ -433,7 +433,7 @@ void CSpellWindow::keyPressed(const SDL_Keycode & key)
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
 			index += (down ? 1 : -1);
-			vstd::abetween(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
+			vstd::abetween<int>(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
 			if(selectedTab != schoolsOrder[index])
 				selectSchool(schoolsOrder[index]);
 			break;
