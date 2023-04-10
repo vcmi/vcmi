@@ -2433,8 +2433,8 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"type" : "DIRECT_DAMAGE_IMMUNITY",
-				"val" : 0,
+				"type" : "SPELL_DAMAGE_REDUCTION",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
 		],

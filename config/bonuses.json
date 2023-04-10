@@ -116,14 +116,6 @@
 		}
 	},
 
-	"DIRECT_DAMAGE_IMMUNITY":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_SPDIR"
-		}
-	},
-
 	"DISGUISED":
 	{
 		"hidden": true

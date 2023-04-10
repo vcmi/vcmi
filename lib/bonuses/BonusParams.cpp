@@ -216,6 +216,12 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		valueType = BonusValueType::INDEPENDENT_MAX;
 		valueTypeRelevant = true;
 	}
+	else if (deprecatedTypeStr == "DIRECT_DAMAGE_IMMUNITY")
+	{
+		type = BonusType::SPELL_DAMAGE_REDUCTION;
+		val = 100;
+		valRelevant = true;
+	}
 	else
 		isConverted = false;
 }

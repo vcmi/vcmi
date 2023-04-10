@@ -133,7 +133,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
 	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
-	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/\
 	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ \
 	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection cast by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \

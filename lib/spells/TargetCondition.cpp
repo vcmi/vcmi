@@ -279,6 +279,10 @@ protected:
 	{
 		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
 		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+		//Non-magical effects is not affected by orb of vulnerability
+		if(!m->isMagicalEffect())
+			return false;
+
 		//anyone can cast on artifact holder`s stacks
 		if(heroNegation)
 		{

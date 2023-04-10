@@ -201,8 +201,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "Has a ${val}% chance of dealing double base damage when attacking",
 	"core.bonus.DRAGON_NATURE.name": "Dragon",
 	"core.bonus.DRAGON_NATURE.description": "Creature has a Dragon Nature",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "Direct Damage Immunity",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "Immune to direct damage spells",
 	"core.bonus.EARTH_IMMUNITY.name": "Earth immunity",
 	"core.bonus.EARTH_IMMUNITY.description": "Immune to all spells from the school of Earth magic",
 	"core.bonus.ENCHANTER.name": "Enchanter",

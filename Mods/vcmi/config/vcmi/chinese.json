@@ -201,8 +201,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "${val}%几率造成双倍基础伤害",
 	"core.bonus.DRAGON_NATURE.name": "龙",
 	"core.bonus.DRAGON_NATURE.description": "生物拥有龙的特性",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "魔法直伤免疫",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "免疫直接造成伤害的魔法",
 	"core.bonus.EARTH_IMMUNITY.name": "土系免疫",
 	"core.bonus.EARTH_IMMUNITY.description": "免疫所有土系魔法",
 	"core.bonus.ENCHANTER.name": "强化师",

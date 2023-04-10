@@ -175,8 +175,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "${val}% szans na podwójne obrażenia",
 	"core.bonus.DRAGON_NATURE.name": "Smok",
 	"core.bonus.DRAGON_NATURE.description": "Stworzenie posiada smoczą naturę",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "Odporność na bezpośrednie obrażenia",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "Odporny na czary zadające bezpośrednie obrażenia",
 	"core.bonus.EARTH_IMMUNITY.name": "Odporność na ziemię",
 	"core.bonus.EARTH_IMMUNITY.description": "Odporny na wszystkie czary szkoły ziemi",
 	"core.bonus.ENCHANTER.name": "Czarodziej",

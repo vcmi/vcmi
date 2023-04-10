@@ -30,9 +30,6 @@
 			"negative": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"iceBolt" : {
@@ -66,9 +63,6 @@
 			"negative": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"lightningBolt" : {
@@ -95,9 +89,6 @@
 			"negative": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"implosion" : {
@@ -125,7 +116,6 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute"
 			}
 		}
@@ -197,7 +187,6 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
 			}
 		}
 	},
@@ -226,7 +215,6 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
 			}
 		}
 	},
@@ -255,7 +243,6 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
 			}
 		}
 	},
@@ -284,7 +271,6 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
 			}
 		}
 	},
@@ -313,7 +299,6 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
@@ -345,9 +330,6 @@
 		"targetCondition" : {
 			"allOf" : {
 				"bonus.UNDEAD" : "absolute"
-			},
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
 			}
 		}
 	},
@@ -375,9 +357,6 @@
 			"negative": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"titanBolt" : {

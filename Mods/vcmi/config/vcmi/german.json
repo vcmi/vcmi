@@ -196,8 +196,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "${val}% Chance auf doppelten Schaden",
 	"core.bonus.DRAGON_NATURE.name": "Drache",
 	"core.bonus.DRAGON_NATURE.description": "Kreatur hat eine Drachennatur",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "Direkte Schadensimmunität",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "Immun gegen Direktschadenszauber",
 	"core.bonus.EARTH_IMMUNITY.name": "Erdimmunität",
 	"core.bonus.EARTH_IMMUNITY.description": "Immun gegen alle Zauber der Erdschule",
 	"core.bonus.ENCHANTER.name": "Verzauberer",

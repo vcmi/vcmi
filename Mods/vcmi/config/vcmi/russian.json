@@ -199,8 +199,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "Шанс ${val}% на двойной урон",
 	"core.bonus.DRAGON_NATURE.name": "Дракон",
 	"core.bonus.DRAGON_NATURE.description": "Это существо - дракон",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "Иммунитет к магии прямого урона",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "Заклинания прямого урона не могут быть применены",
 	"core.bonus.EARTH_IMMUNITY.name": "Иммунитет к земле",
 	"core.bonus.EARTH_IMMUNITY.description": "Иммунитет ко всем заклинаниям Магии Земли",
 	"core.bonus.ENCHANTER.name": "Заклинатель (массовое)",
