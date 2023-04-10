@@ -86,10 +86,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  endif
 #endif
 
-#ifdef VCMI_ANDROID
-#  define NO_STD_TOSTRING // android runtime (gnustl) currently doesn't support std::to_string, so we provide our impl in this case
-#endif // VCMI_ANDROID
-
 /* ---------------------------------------------------------------------------- */
 /* A macro to force inlining some of our functions */
 /* ---------------------------------------------------------------------------- */
@@ -143,16 +139,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_THREAD_USE_DLL //for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
 #define BOOST_BIND_NO_PLACEHOLDERS
 
-#if defined(_MSC_VER) && (_MSC_VER == 1900 || _MSC_VER == 1910 || _MSC_VER == 1911)
-#define BOOST_NO_CXX11_VARIADIC_TEMPLATES //Variadic templates are buggy in VS2015 and VS2017, so turn this off to avoid compile errors
-#endif
 #if BOOST_VERSION >= 106600
 #define BOOST_ASIO_ENABLE_OLD_SERVICES
 #endif
 
 #include <boost/algorithm/string.hpp>
 #include <boost/any.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/current_function.hpp>
 #include <boost/crc.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -174,7 +166,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/variant.hpp>
-#include <boost/math/special_functions/round.hpp>
 #include <boost/multi_array.hpp>
 
 #ifndef M_PI
@@ -287,7 +278,6 @@ void inline handleException()
 
 namespace vstd
 {
-
 	// combine hashes. Present in boost but not in std
 	template <class T>
 	inline void hash_combine(std::size_t& seed, const T& v)
@@ -456,14 +446,6 @@ namespace vstd
 			op1 = op2;
 		}
 	};
-
-	// Assigns value a2 to a1. The point of time of the real operation can be controlled
-	// with the () operator.
-	template <typename t1, typename t2>
-	assigner<t1,t2> assigno(t1 &a1, const t2 &a2)
-	{
-		return assigner<t1,t2>(a1,a2);
-	}
 
 	//deleted pointer and sets it to nullptr
 	template <typename T>
@@ -722,17 +704,3 @@ namespace vstd
 using vstd::operator-=;
 
 VCMI_LIB_NAMESPACE_END
-
-
-#ifdef NO_STD_TOSTRING
-namespace std
-{
-	template <typename T>
-	inline std::string to_string(const T& value)
-	{
-		std::ostringstream ss;
-		ss << value;
-		return ss.str();
-	}
-}
-#endif // NO_STD_TOSTRING

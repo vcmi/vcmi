@@ -225,7 +225,7 @@ if(APPLE_IOS)
 endif()
 
 if(APPLE_MACOS)
-	# Not supported by standard library of our current minimal target
+	# Not supported by standard library of our current minimal target - macOS 10.14 or newer required
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aligned-allocation")
 endif()
 
