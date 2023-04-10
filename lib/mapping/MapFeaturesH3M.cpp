@@ -27,9 +27,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint32_t hota
 			return getFeaturesSOD();
 		case EMapFormat::WOG:
 			return getFeaturesWOG();
-		//case EMapFormat::HOTA1: //TODO: find such maps? Not present in current HotA release (1.6)
-		//case EMapFormat::HOTA2:
-		case EMapFormat::HOTA3:
+		case EMapFormat::HOTA:
 			return getFeaturesHOTA(hotaVersion);
 		default:
 			throw std::runtime_error("Invalid map format!");
@@ -115,7 +113,10 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
-	assert(hotaVersion < 4);
+	// even if changes are minimal, we might not be able to parse map header in map selection screen
+	// throw exception - to be cached by map selection screen & excluded as invalid
+	if(hotaVersion > 3)
+		throw std::runtime_error("Invalid map format!");
 
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelHOTA0 = true;
@@ -131,7 +132,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 	result.factionsCount = 10; // + Cove
 	result.creaturesCount = 171; // + Cove + neutrals
 
-	if(hotaVersion == 0 || hotaVersion == 1 || hotaVersion == 2)
+	if(hotaVersion < 3)
 	{
 		result.artifactsCount = 163; // + HotA artifacts
 		result.heroesCount = 178; // + Cove

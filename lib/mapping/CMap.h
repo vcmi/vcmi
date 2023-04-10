@@ -257,9 +257,7 @@ enum class EMapFormat: uint8_t
 	ROE   = 0x0e, // 14
 	AB    = 0x15, // 21
 	SOD   = 0x1c, // 28
-	HOTA1 = 0x1e, // 30
-	HOTA2 = 0x1f, // 31
-	HOTA3 = 0x20, // 32
+	HOTA  = 0x20, // 32
 	WOG   = 0x33, // 51
 	VCMI  = 0xF0
 };

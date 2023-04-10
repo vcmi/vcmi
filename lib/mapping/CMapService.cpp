@@ -124,9 +124,7 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 			case static_cast<int>(EMapFormat::AB)  :
 			case static_cast<int>(EMapFormat::ROE) :
 			case static_cast<int>(EMapFormat::SOD) :
-			case static_cast<int>(EMapFormat::HOTA1) :
-			case static_cast<int>(EMapFormat::HOTA2) :
-			case static_cast<int>(EMapFormat::HOTA3) :
+			case static_cast<int>(EMapFormat::HOTA) :
 				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(mapName, modName, encoding, stream.get()));
 			default :
 				throw std::runtime_error("Unknown map format");

@@ -119,7 +119,7 @@ void CMapLoaderH3M::readHeader()
 	// Map version
 	mapHeader->version = static_cast<EMapFormat>(reader->readUInt32());
 
-	if(mapHeader->version == EMapFormat::HOTA1 || mapHeader->version == EMapFormat::HOTA2 || mapHeader->version == EMapFormat::HOTA3)
+	if(mapHeader->version == EMapFormat::HOTA)
 	{
 		uint32_t hotaVersion = reader->readUInt32();
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
