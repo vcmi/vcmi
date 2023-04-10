@@ -65,6 +65,8 @@ public:
 	virtual void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const = 0;
 
 	virtual void spendMana(ServerCallback * server, const int32_t spellCost) const = 0;
+
+	virtual int32_t manaLimit() const = 0;
 };
 
 }
