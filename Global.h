@@ -71,22 +71,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define VCMI_MOBILE
 #endif
 
-// Each compiler uses own way to supress fall through warning. Try to find it.
-// TODO: replace with c++17 [[fallthrough]]
-#ifdef __has_cpp_attribute
-#  if __has_cpp_attribute(fallthrough)
-#    define FALLTHROUGH [[fallthrough]];
-#  elif __has_cpp_attribute(gnu::fallthrough)
-#    define FALLTHROUGH [[gnu::fallthrough]];
-#  elif __has_cpp_attribute(clang::fallthrough)
-#    define FALLTHROUGH [[clang::fallthrough]];
-#  else
-#    define FALLTHROUGH
-#  endif
-#else
-#  define FALLTHROUGH
-#endif
-
 /* ---------------------------------------------------------------------------- */
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
@@ -255,10 +239,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 // can be used for counting arrays
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
-
-// should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
-// TODO: replace with c++17 [[maybe_unused]]
-#define MAYBE_UNUSED(VAR) ((void)VAR)
 
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS

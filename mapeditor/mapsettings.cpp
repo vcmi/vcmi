@@ -419,11 +419,10 @@ std::string MapSettings::getHeroName(int townObjectIdx)
 std::string MapSettings::getMonsterName(int monsterObjectIdx)
 {
 	std::string name;
-	if(auto monster = dynamic_cast<CGCreature*>(controller.map()->objects[monsterObjectIdx].get()))
+	if([[maybe_unused]] auto monster = dynamic_cast<CGCreature*>(controller.map()->objects[monsterObjectIdx].get()))
 	{
 		//TODO: get proper name
 		//name = hero->name;
-		MAYBE_UNUSED(monster);
 	}
 	return name;
 }

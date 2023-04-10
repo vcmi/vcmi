@@ -4643,7 +4643,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			sendAndApply(&message);
 			//don't break - we share code with next case
 		}
-		FALLTHROUGH
+		[[fallthrough]];
 	case EActionType::WAIT:
 		{
 			auto wrapper = wrapAction(ba);

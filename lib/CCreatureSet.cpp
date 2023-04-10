@@ -514,10 +514,9 @@ void CCreatureSet::putStack(const SlotID & slot, CStackInstance * stack)
 
 void CCreatureSet::joinStack(const SlotID & slot, CStackInstance * stack)
 {
-	const CCreature *c = getCreature(slot);
+	[[maybe_unused]] const CCreature *c = getCreature(slot);
 	assert(c == stack->type);
 	assert(c);
-	MAYBE_UNUSED(c);
 
 	//TODO move stuff
 	changeStackCount(slot, stack->count);

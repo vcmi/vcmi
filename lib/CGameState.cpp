@@ -1805,10 +1805,9 @@ void CGameState::initTowns()
 			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//Early check for #1444-like problems
-		for(const auto & building : vti->builtBuildings)
+		for([[maybe_unused]] const auto & building : vti->builtBuildings)
 		{
 			assert(vti->getTown()->buildings.at(building) != nullptr);
-			MAYBE_UNUSED(building);
 		}
 
 		//town events
@@ -2223,7 +2222,7 @@ void CGameState::updateRumor()
 			}
 			else
 				rumor.type = RumorState::TYPE_RAND;
-			FALLTHROUGH
+			[[fallthrough]];
 
 		case RumorState::TYPE_RAND:
 			auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
