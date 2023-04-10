@@ -306,14 +306,13 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 								}
 
 								distance += localDistance;
-
-								if (distance > maxDistance)
-								{
-									distance = maxDistance;
-									mostDistantPlace = potentialPos;
-								}
 							}
 						}
+					}
+					if (distance > maxDistance)
+					{
+						maxDistance = distance;
+						mostDistantPlace = potentialPos;
 					}
 				}
 			}
