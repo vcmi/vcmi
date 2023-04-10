@@ -182,6 +182,7 @@ public:
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override;
 	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap);
+	bool eraseArtifactByClient(const ArtifactLocation & al);
 	void synchronizeArtifactHandlerLists();
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;

@@ -146,6 +146,12 @@ void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 	result = gh.assembleArtifacts(pack.heroID, pack.artifactSlot, pack.assemble, pack.assembleTo);
 }
 
+void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
+{
+	gh.throwOnWrongPlayer(&pack, pack.al.owningPlayer());
+	result = gh.eraseArtifactByClient(pack.al);
+}
+
 void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 {
 	gh.throwOnWrongOwner(&pack, pack.hid);

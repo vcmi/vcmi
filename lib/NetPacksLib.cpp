@@ -593,6 +593,11 @@ void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAssembleArtifacts(*this);
 }
 
+void EraseArtifactByClient::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEraseArtifactByClient(*this);
+}
+
 void BuyArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBuyArtifact(*this);

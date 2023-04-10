@@ -4034,6 +4034,23 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	return true;
 }
 
+bool CGameHandler::eraseArtifactByClient(const ArtifactLocation & al)
+{
+	const auto * hero = getHero(al.relatedObj()->id);
+	if(hero == nullptr)
+		COMPLAIN_RET("eraseArtifactByClient: wrong hero's ID");
+
+	const auto * art = al.getArt();
+	if(art == nullptr)
+		COMPLAIN_RET("Cannot remove artifact!");
+
+	if(al.getArt()->artType->canBePutAt(hero) || al.slot != ArtifactPosition::TRANSITION_POS)
+		COMPLAIN_RET("Illegal artifact removal request");
+
+	removeArtifact(al);
+	return true;
+}
+
 bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 {
 	const CGHeroInstance * hero = getHero(hid);
