@@ -445,15 +445,10 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 
 		//check fitness function
 		bool improvement = false;
-		if (bestTotalDistance > 0 && bestTotalOverlap > 0)
+		if ((totalDistance + 1) * (totalOverlap + 1) < (bestTotalDistance + 1) * (bestTotalOverlap + 1))
 		{
-			if (totalDistance * totalOverlap < bestTotalDistance * bestTotalOverlap) //multiplication is better for auto-scaling, but stops working if one factor is 0
-				improvement = true;
-		}
-		else
-		{
-			if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
-				improvement = true;
+			//multiplication is better for auto-scaling, but stops working if one factor is 0
+			improvement = true;
 		}
 
 		logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
