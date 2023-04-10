@@ -37,6 +37,8 @@ public:
 	~CZonePlacer() = default;
 
 	void placeZones(CRandomGenerator * rand);
+	void findPathsBetweenZones();
+	void placeOnGrid(CRandomGenerator* rand);
 	void assignZones(CRandomGenerator * rand);
 	
 private:
@@ -58,6 +60,9 @@ private:
     //float a1, b1, c1, a2, b2, c2;
 	//CMap * map;
 	//std::unique_ptr<CZoneGraph> graph;
+
+	//distance [a][b] = number of zone connections required to travel between the zones
+	std::map<int, std::map<int, size_t>> distancesBetweenZones;
 	RmgMap & map;
 };
 
