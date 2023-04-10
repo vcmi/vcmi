@@ -87,7 +87,7 @@ public:
 	inline int3 getBlockMapOffset() const
 	{
 		return blockMapOffset; 
-	};
+	}
 
 	inline int3 getTopVisibleOffset() const
 	{
