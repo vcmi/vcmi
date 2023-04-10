@@ -274,13 +274,13 @@ float RmgMap::getNearestObjectDistance(const int3 &tile) const
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }
 
-void RmgMap::registerZone(TFaction faction)
+void RmgMap::registerZone(FactionID faction)
 {
 	zonesPerFaction[faction]++;
 	zonesTotal++;
 }
 
-ui32 RmgMap::getZoneCount(TFaction faction)
+ui32 RmgMap::getZoneCount(FactionID faction)
 {
 	return zonesPerFaction[faction];
 }

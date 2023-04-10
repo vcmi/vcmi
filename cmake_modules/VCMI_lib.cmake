@@ -163,6 +163,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
+		${MAIN_LIB_DIR}/BasicTypes.cpp
 		${MAIN_LIB_DIR}/BattleFieldHandler.cpp
 		${MAIN_LIB_DIR}/CAndroidVMHelper.cpp
 		${MAIN_LIB_DIR}/CArtHandler.cpp

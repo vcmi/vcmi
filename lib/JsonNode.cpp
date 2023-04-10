@@ -749,14 +749,25 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				else
 					return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
 			}
-			else if(limiterType == "CREATURE_FACTION_LIMITER")
+			else if(limiterType == "FACTION_LIMITER")
 			{
-				std::shared_ptr<CreatureFactionLimiter> factionLimiter = std::make_shared<CreatureFactionLimiter>();
+				std::shared_ptr<FactionLimiter> factionLimiter = std::make_shared<FactionLimiter>();
 				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
-					factionLimiter->faction = faction;
+					factionLimiter->faction = FactionID(faction);
 				});
 				return factionLimiter;
+			}
+			else if(limiterType == "CREATURE_LEVEL_LIMITER")
+			{
+				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
+				if(!parameters.empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
+				{
+					levelLimiter->minLevel = parameters[0].Integer();
+					if(parameters[1].isNumber())
+						levelLimiter->maxLevel = parameters[1].Integer();
+				}
+				return levelLimiter;
 			}
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
@@ -991,7 +1002,17 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["propagator"];
 	if (!value->isNull())
-		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	{
+		//ALL_CREATURES old propagator compatibility
+		if(value->String() == "ALL_CREATURES") 
+		{
+			logMod->warn("ALL_CREATURES propagator is deprecated. Use GLOBAL_EFFECT propagator with CREATURES_ONLY limiter");
+			b->addLimiter(std::make_shared<CreatureLevelLimiter>());
+			b->propagator = bonusPropagatorMap.at("GLOBAL_EFFECT");
+		}
+		else
+			b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	}
 
 	value = &ability["updater"];
 	if(!value->isNull())

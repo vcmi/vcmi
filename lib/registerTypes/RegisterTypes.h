@@ -179,10 +179,10 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<ILimiter, CCreatureTypeLimiter>();
 	s.template registerType<ILimiter, HasAnotherBonusLimiter>();
 	s.template registerType<ILimiter, CreatureTerrainLimiter>();
-	s.template registerType<ILimiter, CreatureFactionLimiter>();
+	s.template registerType<ILimiter, FactionLimiter>();
+	s.template registerType<ILimiter, CreatureLevelLimiter>();
 	s.template registerType<ILimiter, CreatureAlignmentLimiter>();
 	s.template registerType<ILimiter, RankRangeLimiter>();
-	s.template registerType<ILimiter, StackOwnerLimiter>();
 	s.template registerType<ILimiter, UnitOnHexLimiter>();
 
 //	s.template registerType<CBonusSystemNode>();
@@ -194,7 +194,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CBonusSystemNode, PlayerState>();
 	s.template registerType<CBonusSystemNode, TeamState>();
 	//s.template registerType<CGameState>(); //TODO
-	s.template registerType<CBonusSystemNode, CGHeroInstance::HeroSpecial>();
 	//s.template registerType<CArmedInstance>();
 	s.template registerType<CBonusSystemNode, CStack>();
 	s.template registerType<CBonusSystemNode, BattleInfo>();

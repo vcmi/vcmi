@@ -67,7 +67,7 @@ struct DLL_LINKAGE PlayerInfo
 	bool canComputerPlay;
 	EAiTactic::EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
 
-	std::set<TFaction> allowedFactions;
+	std::set<FactionID> allowedFactions;
 	bool isFactionRandom;
 
 	///main hero instance (VCMI maps only)

@@ -372,7 +372,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native,
 			    ( !bannedClass || elem.second->type->heroClass != bannedClass) ) // and his class is not same as other hero
 			{
 				pool.push_back(elem.second);
-				sum += elem.second->type->heroClass->selectionProbability[town->faction->getIndex()]; //total weight
+				sum += elem.second->type->heroClass->selectionProbability[town->faction->getId()]; //total weight
 			}
 		}
 		if(pool.empty() || sum == 0)
@@ -384,7 +384,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native,
 		r = rand.nextInt(sum - 1);
 		for (auto & elem : pool)
 		{
-			r -= elem->type->heroClass->selectionProbability[town->faction->getIndex()];
+			r -= elem->type->heroClass->selectionProbability[town->faction->getId()];
 			if(r < 0)
 			{
 				ret = elem;
@@ -958,6 +958,7 @@ void CGameState::initGlobalBonuses()
 		bonus->sid = -1; //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
+	VLC->creh->loadCrExpBon(globalEffects);
 }
 
 void CGameState::initGrailPosition()
@@ -1746,8 +1747,8 @@ void CGameState::initTowns()
 		}
 		if(vti->getNameTranslated().empty())
 		{
-			size_t nameID = getRandomGenerator().nextInt(vti->town->getRandomNamesCount() - 1);
-			vti->setNameTranslated(vti->town->getRandomNameTranslated(nameID));
+			size_t nameID = getRandomGenerator().nextInt(vti->getTown()->getRandomNamesCount() - 1);
+			vti->setNameTranslated(vti->getTown()->getRandomNameTranslated(nameID));
 		}
 
 		//init buildings
@@ -1777,14 +1778,14 @@ void CGameState::initTowns()
 			if (vstd::contains(vti->builtBuildings, (BuildingID::HORDE_PLACEHOLDER1 - i))) //if we have horde for this level
 			{
 				vti->builtBuildings.erase(BuildingID(BuildingID::HORDE_PLACEHOLDER1 - i));//remove old ID
-				if (vti->town->hordeLvl.at(0) == i)//if town first horde is this one
+				if (vti->getTown()->hordeLvl.at(0) == i)//if town first horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
 					//if we have upgraded dwelling as well
 					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
 						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
 				}
-				if (vti->town->hordeLvl.at(1) == i)//if town second horde is this one
+				if (vti->getTown()->hordeLvl.at(1) == i)//if town second horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_2);
 					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
@@ -1797,7 +1798,7 @@ void CGameState::initTowns()
 		//But DO NOT remove horde placeholders before they are replaced
 		vstd::erase_if(vti->builtBuildings, [vti](const BuildingID & bid)
 			{
-				return !vti->town->buildings.count(bid) || !vti->town->buildings.at(bid);
+				return !vti->getTown()->buildings.count(bid) || !vti->getTown()->buildings.at(bid);
 			});
 
 		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
@@ -1806,7 +1807,7 @@ void CGameState::initTowns()
 		//Early check for #1444-like problems
 		for(const auto & building : vti->builtBuildings)
 		{
-			assert(vti->town->buildings.at(building) != nullptr);
+			assert(vti->getTown()->buildings.at(building) != nullptr);
 			MAYBE_UNUSED(building);
 		}
 
@@ -1817,9 +1818,9 @@ void CGameState::initTowns()
 				if (vstd::contains(ev.buildings,(-31-i))) //if we have horde for this level
 				{
 					ev.buildings.erase(BuildingID(-31-i));
-					if (vti->town->hordeLvl.at(0) == i)
+					if (vti->getTown()->hordeLvl.at(0) == i)
 						ev.buildings.insert(BuildingID::HORDE_1);
-					if (vti->town->hordeLvl.at(1) == i)
+					if (vti->getTown()->hordeLvl.at(1) == i)
 						ev.buildings.insert(BuildingID::HORDE_2);
 				}
 		}
@@ -1838,7 +1839,7 @@ void CGameState::initTowns()
 			int sel = -1;
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
+				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
 
 			if (total == 0) // remaining spells have 0 probability
 				break;
@@ -1846,7 +1847,7 @@ void CGameState::initTowns()
 			auto r = getRandomGenerator().nextInt(total - 1);
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
+				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
 				if(r<0)
 				{
 					sel = ps;
@@ -1869,7 +1870,6 @@ void CGameState::initTowns()
 void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
-	VLC->creh->removeBonusesFromAllCreatures();
 
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
@@ -3133,7 +3133,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	built = t->builded;
 	fortLevel = t->fortLevel();
 	name = t->getNameTranslated();
-	tType = t->town;
+	tType = t->getTown();
 
 	vstd::clear_pointer(details);
 

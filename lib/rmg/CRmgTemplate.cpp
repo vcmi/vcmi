@@ -199,33 +199,33 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 	terrainTypes = value;
 }
 
-std::set<TFaction> ZoneOptions::getDefaultTownTypes() const
+std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 {
-	std::set<TFaction> defaultTowns;
+	std::set<FactionID> defaultTowns;
 	auto towns = VLC->townh->getDefaultAllowed();
 	for(int i = 0; i < towns.size(); ++i)
 	{
-		if(towns[i]) defaultTowns.insert(i);
+		if(towns[i]) defaultTowns.insert(FactionID(i));
 	}
 	return defaultTowns;
 }
 
-const std::set<TFaction> & ZoneOptions::getTownTypes() const
+const std::set<FactionID> & ZoneOptions::getTownTypes() const
 {
 	return townTypes;
 }
 
-void ZoneOptions::setTownTypes(const std::set<TFaction> & value)
+void ZoneOptions::setTownTypes(const std::set<FactionID> & value)
 {
 	townTypes = value;
 }
 
-void ZoneOptions::setMonsterTypes(const std::set<TFaction> & value)
+void ZoneOptions::setMonsterTypes(const std::set<FactionID> & value)
 {
 	monsterTypes = value;
 }
 
-const std::set<TFaction> & ZoneOptions::getMonsterTypes() const
+const std::set<FactionID> & ZoneOptions::getMonsterTypes() const
 {
 	return monsterTypes;
 }
@@ -373,8 +373,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
-	handler.serializeIdArray<TFaction, FactionID>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
+	handler.serializeIdArray<FactionID, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
+	handler.serializeIdArray<FactionID, FactionID>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
 
 	{
 		//TODO: add support for std::map to serializeEnum

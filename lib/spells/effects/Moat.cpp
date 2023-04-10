@@ -87,7 +87,7 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 
 		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
-			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->town->faction->getIndex(), BuildingID::CITADEL);
+			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->getFaction(), BuildingID::CITADEL);
 			nb.source = Bonus::TOWN_STRUCTURE;
 		}
 		else

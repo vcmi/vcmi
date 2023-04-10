@@ -111,7 +111,7 @@ TEST_F(ERM_MA, Example)
 	EXPECT_CALL(oldCreature, getAIValue()).WillOnce(Return(AI_VALUE));
 	EXPECT_CALL(oldCreature, getFightValue()).WillOnce(Return(FIGHT_VALUE));
 	EXPECT_CALL(oldCreature, getLevel()).WillOnce(Return(LEVEL));
-	EXPECT_CALL(oldCreature, getFactionIndex()).WillOnce(Return(FACTION));
+	EXPECT_CALL(oldCreature, getFaction()).WillOnce(Return(FACTION));
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
 

@@ -251,10 +251,10 @@ void CMapLoaderH3M::readPlayerInfo()
 		{
 			mapHeader->players[i].allowedFactions.clear();
 
-			for(int fact = 0; fact < totalFactions; ++fact)
+			for(auto fact = 0; fact < totalFactions; ++fact)
 			{
 				if(allowedFactions & (1 << fact))
-					mapHeader->players[i].allowedFactions.insert(fact);
+					mapHeader->players[i].allowedFactions.insert(FactionID(fact));
 			}
 		}
 

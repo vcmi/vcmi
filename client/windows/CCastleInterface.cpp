@@ -892,7 +892,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->getIndex() == (TFaction)ETownType::RAMPART)
+	if(this->town->town->faction->getIndex() == ETownType::RAMPART)
 	{
 		hasNotProduced = CGI->generaltexth->allTexts[677];
 		hasProduced = CGI->generaltexth->allTexts[678];

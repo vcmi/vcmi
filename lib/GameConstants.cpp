@@ -187,7 +187,8 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
-const FactionID FactionID::ANY = FactionID(-1);
+const FactionID FactionID::NONE = FactionID(-2);
+const FactionID FactionID::DEFAULT = FactionID(-1);
 const FactionID FactionID::CASTLE = FactionID(0);
 const FactionID FactionID::RAMPART = FactionID(1);
 const FactionID FactionID::TOWER = FactionID(2);
@@ -205,7 +206,7 @@ si32 FactionID::decode(const std::string & identifier)
 	if(rawId)
 		return rawId.get();
 	else
-		return -1;
+		return FactionID::DEFAULT;
 }
 
 std::string FactionID::encode(const si32 index)
