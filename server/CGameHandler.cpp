@@ -6282,6 +6282,19 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 	return true;
 }
 
+void CGameHandler::castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos)
+{
+	const CSpell * s = spellID.toSpell();
+	if(!s)
+		return;
+
+	AdventureSpellCastParameters p;
+	p.caster = hero;
+	p.pos = pos;
+
+	s->adventureCast(spellEnv, p);
+}
+
 bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & sl2)
 {
 	if(!sl1.army->hasStackAtSlot(sl1.slot))

@@ -132,6 +132,8 @@ public:
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
 	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
+	
+	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos) = 0;
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback

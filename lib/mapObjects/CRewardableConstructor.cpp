@@ -132,6 +132,7 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
 	reward.spells = JsonRandom::loadSpells(source["spells"], rng, spells);
 	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+	reward.casts = JsonRandom::loadSpells(source["casts"], rng, spells);
 
 	for ( auto node : source["changeCreatures"].Struct() )
 	{

@@ -169,6 +169,9 @@ public:
 	std::vector<ArtifactID> artifacts;
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
+	
+	/// actions that hero may execute
+	std::vector<SpellID> casts;
 
 	/// list of components that will be added to reward description. First entry in list will override displayed component
 	std::vector<Component> extraComponents;
@@ -213,6 +216,7 @@ public:
 		h & spells;
 		h & creatures;
 		h & creaturesChange;
+		h & casts;
 	}
 };
 

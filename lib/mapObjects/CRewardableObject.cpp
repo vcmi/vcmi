@@ -17,6 +17,8 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CPlayerState.h"
+#include "../spells/CSpellHandler.h"
+#include "../spells/ISpellMechanics.h"
 
 #include "CObjectClassesHandler.h"
 
@@ -358,6 +360,14 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.type, crea.count));
 
 		cb->giveCreatures(this, hero, creatures, false);
+	}
+	
+	if(!info.reward.casts.empty())
+	{
+		for(const auto & c : info.reward.casts)
+		{
+			cb->castSpell(hero, c, int3{-1, -1, -1});
+		}
 	}
 
 	if(info.reward.removeObject)

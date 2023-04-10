@@ -275,6 +275,7 @@ public:
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 	const ObjectInstanceID putNewObject(Obj ID, int subID, int3 pos);
 
+	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
