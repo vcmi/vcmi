@@ -287,7 +287,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 								else
 								{
 									//Has direct connection - place as close as possible
-									localDistance = -(gridSize - 1);
+									localDistance = -potentialPos.dist2d(int3(existingX, existingY, 0));
 								}
 
 								//Spread apart player starting zones
