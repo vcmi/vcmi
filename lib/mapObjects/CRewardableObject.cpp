@@ -365,14 +365,13 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 	
 	if(!info.reward.casts.empty())
 	{
-		caster = std::make_unique<spells::OuterCaster>(hero, 3);
+		caster = std::make_unique<spells::OuterCaster>(hero, SecSkillLevel::EXPERT);
 		for(const auto & c : info.reward.casts)
 		{
 			cb->castSpell(caster.get(), c, int3{-1, -1, -1});
 		}
 	}
-
-	if(info.reward.removeObject)
+	else if(info.reward.removeObject) //FIXME: object can't track spell cancel or finish, so removeObject leads to crash
 		cb->removeObject(this);
 }
 
