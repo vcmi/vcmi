@@ -1403,7 +1403,7 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 		defaultAllowed[SecondarySkill::LEADERSHIP] = false;
 
 		for(int i = 0; i < defaultAllowed.size(); i++)
-			if (defaultAllowed[i])
+			if (defaultAllowed[i] && cb->isAllowed(2, i))
 				allowedAbilities.insert(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
