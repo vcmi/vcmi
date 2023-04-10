@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include <stack>
 #include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
 #include "../TerrainHandler.h"
@@ -40,6 +41,312 @@ float CZonePlacer::getDistance (float distance) const
 	return (distance ? distance * distance : 1e-6f);
 }
 
+void CZonePlacer::findPathsBetweenZones()
+{
+	typedef std::pair<int, int> ConnectionIndex;
+
+	auto zones = map.getZones();
+
+	std::set<std::shared_ptr<Zone>> zonesToCheck;
+
+	//Initialize direct connections
+	for (auto zone : zones)
+	{
+		auto zoneId = zone.second->getId();
+		for (auto connection : zone.second->getConnections())
+		{
+			if (!vstd::contains(distancesBetweenZones[zoneId], connection))
+			{
+				distancesBetweenZones[zoneId][connection] = 1;
+				distancesBetweenZones[connection][zoneId] = 1;
+			}
+		}
+	}
+
+	for (auto startZone : zones)
+	{
+		size_t start = startZone.second->getId();
+
+		for (auto endZone : zones)
+		{
+			size_t end = endZone.second->getId();
+			
+			if (start != end)
+			{
+				auto currentEnd = end;
+				while (!vstd::contains(distancesBetweenZones[start], end))
+				{
+					size_t distance = 10; //Some large but not infinite number to not blow up the weights
+					std::stack<int> nearbyZones;
+					std::set<int> checkedZones;
+					
+					//FIXME: we may know the path from previous iterations, but can't be sure if it's optimal :?
+
+					for (auto nearbyZone : startZone.second->getConnections())
+					{
+						nearbyZones.push(nearbyZone);
+					}
+
+					while (!nearbyZones.empty())
+					{
+						auto currentZone = nearbyZones.top();
+						nearbyZones.pop();
+
+						checkedZones.insert(currentZone);
+
+						for (auto neighbourZone : distancesBetweenZones[currentZone])
+						{
+							if (neighbourZone.first == currentEnd)
+							{
+								//This zone has connection to our end zone
+
+								if (!vstd::contains(distancesBetweenZones[currentZone], currentEnd))
+								{
+									//Initialize the connection of adjacent zones
+									distancesBetweenZones[currentZone][currentEnd] = 1;
+								}
+
+								if ((distancesBetweenZones[currentZone][currentEnd] + 1) < distance)
+								{
+									//We found new, shorter path
+									distance = distancesBetweenZones[currentZone][currentEnd] + 1;
+
+									//Add just found connection
+									distancesBetweenZones[start][currentEnd] = distance;
+									//Connection is bidirectional
+									distancesBetweenZones[currentEnd][start] = distance;
+
+									//Unwind the stack, find the path between start previous-to-last zone
+									currentEnd = currentZone;
+								}
+							}
+							else
+							{
+								if (!vstd::contains(checkedZones, neighbourZone.first))
+								{
+									//We didn't check that zone yet
+									nearbyZones.push(neighbourZone.first);
+								}
+							}
+						}
+					}
+					//At the very least after this step we will find 1 more step connecting the two zones
+				}
+			}
+		}
+	}
+
+	//Dump debug
+	for (auto startZone : zones)
+	{
+		auto startId = startZone.second->getId();
+
+		for (auto endZone : zones)
+		{
+			auto endId = endZone.second->getId();
+
+			if (startId >= endId)
+			{
+				//Print only conections in one way
+				continue;
+			}
+			logGlobal->info((boost::format("Distance between zone %2d and %2d: %d")
+				% startId % endId % distancesBetweenZones[startId][endId]).str());
+		}
+	}
+}
+
+void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
+{
+	auto zones = map.getZones();
+	assert(zones.size());
+
+	//TODO: determine all the distances between zones on a graph
+
+	//Make sure there are at least as many grid fields as the number of zones
+	size_t gridSize = std::ceil(std::sqrt(zones.size()));
+
+	typedef boost::multi_array<std::shared_ptr<Zone>, 2> GridType;
+	GridType grid(boost::extents[gridSize][gridSize]);
+
+	TZoneVector zonesVector(zones.begin(), zones.end());
+	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
+
+	//Place first zone
+
+	auto firstZone = zonesVector[0].second;
+	size_t x = 0, y = 0;
+
+	auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
+	{
+		switch (rand->nextInt() % 4)
+		{
+		case 0:
+			x = 0;
+			y = gridSize / 2;
+			break;
+		case 1:
+			x = gridSize - 1;
+			y = gridSize / 2;
+			break;
+		case 2:
+			x = gridSize / 2;
+			y = 0;
+			break;
+		case 3:
+			x = gridSize / 2;
+			y = gridSize - 1;
+			break;
+		}
+	};
+
+	switch (firstZone->getType())
+	{
+		case ETemplateZoneType::PLAYER_START:
+		case ETemplateZoneType::CPU_START:
+			if (firstZone->getConnections().size() > 2)
+			{
+				getRandomEdge(x, y);
+			}
+			else
+			{
+				//Random corner
+				if (rand->nextInt() % 2)
+				{
+					x = 0;
+				}
+				else
+				{
+					x = gridSize - 1;
+				}
+				if (rand->nextInt() % 2)
+				{
+					y = 0;
+				}
+				else
+				{
+					y = gridSize - 1;
+				}
+			}
+			break;
+		case ETemplateZoneType::TREASURE:
+			if (gridSize && 1) //odd
+			{
+				x = y = (gridSize / 2);
+			}
+			else
+			{
+				//One of 4 squares in the middle
+				x = (gridSize / 2) - 1 + rand->nextInt() % 2;
+				y = (gridSize / 2) - 1 + rand->nextInt() % 2;
+			}
+			break;
+		case ETemplateZoneType::JUNCTION:
+			getRandomEdge(x, y);
+			break;
+	}
+	grid[x][y] = firstZone;
+
+	//Ignore z placement for simplicity
+
+	for (size_t i = 1; i < zones.size(); i++)
+	{
+		auto zone = zonesVector[i].second;
+		auto connections = zone->getConnections();
+
+		float maxDistance = 0.0;
+		int3 mostDistantPlace;
+
+		//Iterate over free positions
+		for (size_t freeX = 0; freeX < gridSize; ++freeX)
+		{
+			for (size_t freeY = 0; freeY < gridSize; ++freeY)
+			{
+				if (!grid[freeX][freeY])
+				{
+					//There is free space left here
+					int3 potentialPos(freeX, freeY, 0);
+					
+					//Compute distance to every existing zone
+					for (size_t existingX = 0; existingX < gridSize; ++existingX)
+					{
+						for (size_t existingY = 0; existingY < gridSize; ++existingY)
+						{
+							float distance = 0.0;
+							auto existingZone = grid[existingX][existingY];
+							if (existingZone )
+							{
+								//There is already zone here
+
+								if (distancesBetweenZones[zone->getId()][existingZone->getId()] > 1)
+								{
+									//No direct connection
+									distance += potentialPos.dist2d(int3(existingX, existingY, 0));
+									//TODO: Multiply by weight - the distance from A*
+								}
+								else
+								{
+									//Has direct connection
+									distance -= (gridSize - 1);
+								}
+
+								//TODO: Multiply if zones belong to players, especially humans.
+								//Starting zones should be as far away from eahc other as possible
+
+								if (distance > maxDistance)
+								{
+									distance = maxDistance;
+									mostDistantPlace = potentialPos;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		//Place in a free slot
+		grid[mostDistantPlace.x][mostDistantPlace.y] = zone;
+	}
+
+	//TODO: toggle with a flag
+	logGlobal->info("Initial zone grid:");
+	for (size_t x = 0; x < gridSize; ++x)
+	{
+		std::string s;
+		for (size_t y = 0; y < gridSize; ++y)
+		{
+			if (grid[x][y])
+			{
+				s += (boost::format("%3d ") % grid[x][y]->getId()).str();
+			}
+			else
+			{
+				s += " -- ";
+			}
+		}
+		logGlobal->info(s);
+	}
+
+	//Set initial position for zones - random position in square centered around (x, y)
+	for (size_t x = 0; x < gridSize; ++x)
+	{
+		for (size_t y = 0; y < gridSize; ++y)
+		{
+			auto zone = grid[x][y];
+			if (zone)
+			{
+				auto targetX = rand->nextDouble(x - 0.5f, x + 0.5f);
+				vstd::clamp(targetX, 0, gridSize);
+				auto targetY = rand->nextDouble(y - 0.5f, y + 0.5f);
+				vstd::clamp(targetY, 0, gridSize);
+
+				zone->setCenter(float3(targetX / gridSize, targetY / gridSize, zone->getPos().z));
+			}
+		}
+	}
+}
+
 void CZonePlacer::placeZones(CRandomGenerator * rand)
 {
 	logGlobal->info("Starting zone placement");
@@ -53,6 +360,9 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 		return pr.second->getType() == ETemplateZoneType::WATER;
 	});
 	bool underground = map.getMapGenOptions().getHasTwoLevels();
+
+	findPathsBetweenZones();
+	placeOnGrid(rand);
 
 	/*
 	gravity-based algorithm
