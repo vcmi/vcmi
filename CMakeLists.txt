@@ -160,7 +160,7 @@ include(UseDoxygen OPTIONAL)
 ############################################
 
 #Enable C++14 Globally
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
 #General visibility options
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
