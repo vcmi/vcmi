@@ -122,13 +122,7 @@ void AdventureSpellMechanics::endCast(SpellCastEnvironment * env, const Adventur
 	switch(result)
 	{
 	case ESpellCastResult::OK:
-		{
-			SetMana sm;
-			sm.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
-			sm.absolute = false;
-			sm.val = -cost;
-			env->apply(&sm);
-		}
+		parameters.caster->spendMana(env, cost);
 		break;
 	default:
 		break;
@@ -584,6 +578,9 @@ std::vector <const CGTownInstance*> TownPortalMechanics::getPossibleTowns(SpellC
 
 int32_t TownPortalMechanics::movementCost(const AdventureSpellCastParameters & parameters) const
 {
+	if(parameters.caster != parameters.caster->getHeroCaster()) //if caster is not hero
+		return 0;
+	
 	return GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
 }
 

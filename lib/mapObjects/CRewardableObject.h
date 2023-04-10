@@ -171,8 +171,8 @@ public:
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
 	
-	/// actions that hero may execute and object caster
-	std::vector<SpellID> casts;
+	/// actions that hero may execute and object caster. Pair of spellID and school level
+	std::pair<SpellID, int> spellCast;
 
 	/// list of components that will be added to reward description. First entry in list will override displayed component
 	std::vector<Component> extraComponents;
@@ -195,7 +195,8 @@ public:
 		movePoints(0),
 		movePercentage(-1),
 		primary(4, 0),
-		removeObject(false)
+		removeObject(false),
+		spellCast(SpellID::NONE, SecSkillLevel::NONE)
 	{}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -217,7 +218,8 @@ public:
 		h & spells;
 		h & creatures;
 		h & creaturesChange;
-		h & casts;
+		if(version >= 821)
+			h & spellCast;
 	}
 };
 
@@ -324,7 +326,7 @@ protected:
 	bool onceVisitableObjectCleared;
 	
 	/// caster to cast adveture spells
-	mutable std::unique_ptr<spells::OuterCaster> caster;
+	mutable spells::OuterCaster caster;
 
 public:
 	EVisitMode getVisitMode() const;

@@ -21,7 +21,11 @@ class DLL_LINKAGE OuterCaster : public ProxyCaster
 {
 	int schoolLevel;
 public:
+	OuterCaster();
 	OuterCaster(const Caster * actualCaster_, int schoolLevel_);
+	
+	void setActualCaster(const Caster * actualCaster);
+	void setSpellSchoolLevel(int level);
 
 	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
 	void spendMana(ServerCallback * server, const int32_t spellCost) const override;

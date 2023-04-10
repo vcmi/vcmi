@@ -363,13 +363,14 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 		cb->giveCreatures(this, hero, creatures, false);
 	}
 	
-	if(!info.reward.casts.empty())
+	if(info.reward.spellCast.first != SpellID::NONE)
 	{
-		caster = std::make_unique<spells::OuterCaster>(hero, SecSkillLevel::EXPERT);
-		for(const auto & c : info.reward.casts)
-		{
-			cb->castSpell(caster.get(), c, int3{-1, -1, -1});
-		}
+		caster.setActualCaster(hero);
+		caster.setSpellSchoolLevel(info.reward.spellCast.second);
+		cb->castSpell(&caster, info.reward.spellCast.first, int3{-1, -1, -1});
+		
+		if(info.reward.removeObject)
+			logMod->warn("Removal of object with spell casts is not supported!");
 	}
 	else if(info.reward.removeObject) //FIXME: object can't track spell cancel or finish, so removeObject leads to crash
 		cb->removeObject(this);
