@@ -133,6 +133,11 @@ int3 CGObjectInstance::getPosition() const
 	return pos;
 }
 
+int3 CGObjectInstance::getTopVisiblePos() const
+{
+	return pos - appearance->getTopVisibleOffset();
+}
+
 void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
