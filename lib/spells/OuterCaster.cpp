@@ -8,6 +8,8 @@
  *
  */
 
+#include "StdInc.h"
+
 #include "OuterCaster.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
