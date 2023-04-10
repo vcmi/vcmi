@@ -712,7 +712,11 @@ void CGuiHandler::moveCursorToPosition(const Point & position)
 
 bool CGuiHandler::isKeyboardCtrlDown() const
 {
+#ifdef VCMI_MAC
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
+#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+#endif
 }
 
 bool CGuiHandler::isKeyboardAltDown() const
