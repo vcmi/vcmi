@@ -14,7 +14,7 @@
 
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
-#include "../spells/OuterCaster.h"
+#include "../spells/ExternalCaster.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -326,7 +326,7 @@ protected:
 	bool onceVisitableObjectCleared;
 	
 	/// caster to cast adveture spells
-	mutable spells::OuterCaster caster;
+	mutable spells::ExternalCaster caster;
 
 public:
 	EVisitMode getVisitMode() const;

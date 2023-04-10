@@ -1,5 +1,5 @@
 /*
- * OuterCaster.cpp, part of VCMI engine
+ * ExternalCaster.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,39 +10,39 @@
 
 #include "StdInc.h"
 
-#include "OuterCaster.h"
+#include "ExternalCaster.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
 {
 
-OuterCaster::OuterCaster()
+ExternalCaster::ExternalCaster()
 	: ProxyCaster(nullptr), schoolLevel(0)
 {
 }
 
-OuterCaster::OuterCaster(const Caster * actualCaster_, int schoolLevel_)
+ExternalCaster::ExternalCaster(const Caster * actualCaster_, int schoolLevel_)
 	: ProxyCaster(actualCaster_), schoolLevel(schoolLevel_)
 {
 }
 
-void OuterCaster::setActualCaster(const Caster * actualCaster_)
+void ExternalCaster::setActualCaster(const Caster * actualCaster_)
 {
 	actualCaster = actualCaster_;
 }
 
-void OuterCaster::setSpellSchoolLevel(int level)
+void ExternalCaster::setSpellSchoolLevel(int level)
 {
 	schoolLevel = level;
 }
 
-void OuterCaster::spendMana(ServerCallback * server, const int32_t spellCost) const
+void ExternalCaster::spendMana(ServerCallback * server, const int32_t spellCost) const
 {
 	//do nothing
 }
 
-int32_t OuterCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
+int32_t ExternalCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
 {
 	return schoolLevel;
 }

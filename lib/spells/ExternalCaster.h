@@ -1,5 +1,5 @@
 /*
- * OuterCaster.h, part of VCMI engine
+ * ExternalCaster.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -17,12 +17,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
-class DLL_LINKAGE OuterCaster : public ProxyCaster
+class DLL_LINKAGE ExternalCaster : public ProxyCaster
 {
 	int schoolLevel;
 public:
-	OuterCaster();
-	OuterCaster(const Caster * actualCaster_, int schoolLevel_);
+	ExternalCaster();
+	ExternalCaster(const Caster * actualCaster_, int schoolLevel_);
 	
 	void setActualCaster(const Caster * actualCaster);
 	void setSpellSchoolLevel(int level);
