@@ -161,8 +161,6 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	auto zones = map.getZones();
 	assert(zones.size());
 
-	//TODO: determine all the distances between zones on a graph
-
 	//Make sure there are at least as many grid fields as the number of zones
 	size_t gridSize = std::ceil(std::sqrt(zones.size()));
 
@@ -254,7 +252,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 		auto zone = zonesVector[i].second;
 		auto connections = zone->getConnections();
 
-		float maxDistance = 0.0;
+		float maxDistance = -1000.0;
 		int3 mostDistantPlace;
 
 		//Iterate over free positions
@@ -268,30 +266,46 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 					int3 potentialPos(freeX, freeY, 0);
 					
 					//Compute distance to every existing zone
+
+					float distance = 0;
 					for (size_t existingX = 0; existingX < gridSize; ++existingX)
 					{
 						for (size_t existingY = 0; existingY < gridSize; ++existingY)
 						{
-							float distance = 0.0;
 							auto existingZone = grid[existingX][existingY];
-							if (existingZone )
+							if (existingZone)
 							{
 								//There is already zone here
+								float localDistance = 0.0f;
 
-								if (distancesBetweenZones[zone->getId()][existingZone->getId()] > 1)
+								auto graphDistance = distancesBetweenZones[zone->getId()][existingZone->getId()];
+								if (graphDistance > 1)
 								{
 									//No direct connection
-									distance += potentialPos.dist2d(int3(existingX, existingY, 0));
-									//TODO: Multiply by weight - the distance from A*
+									localDistance = potentialPos.dist2d(int3(existingX, existingY, 0)) * graphDistance;
 								}
 								else
 								{
-									//Has direct connection
-									distance -= (gridSize - 1);
+									//Has direct connection - place as close as possible
+									localDistance = -(gridSize - 1);
 								}
 
-								//TODO: Multiply if zones belong to players, especially humans.
-								//Starting zones should be as far away from eahc other as possible
+								//Spread apart player starting zones
+
+								auto zoneType = zone->getType();
+								auto existingZoneType = existingZone->getType();
+								if ((zoneType == ETemplateZoneType::PLAYER_START || zoneType == ETemplateZoneType::CPU_START) && 
+									(existingZoneType == ETemplateZoneType::PLAYER_START || existingZoneType == ETemplateZoneType::CPU_START))
+								{
+									int firstPlayer = zone->getOwner().get();
+									int secondPlayer = existingZone->getOwner().get();
+
+									//Players with lower indexes (especially 1 and 2) will be placed further apart
+
+									localDistance *= (1.0f + (std::abs<float>(firstPlayer - secondPlayer) / (firstPlayer * secondPlayer)));
+								}
+
+								distance += localDistance;
 
 								if (distance > maxDistance)
 								{
