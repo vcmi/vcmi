@@ -28,6 +28,11 @@ class CStackBasicDescriptor;
 class CGCreature;
 struct ShashInt3;
 
+namespace spells
+{
+	class Caster;
+}
+
 #if SCRIPTING_ENABLED
 namespace scripting
 {
@@ -133,7 +138,7 @@ public:
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
 	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
 	
-	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos) = 0;
+	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback

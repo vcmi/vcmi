@@ -6282,14 +6282,14 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 	return true;
 }
 
-void CGameHandler::castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos)
+void CGameHandler::castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos)
 {
 	const CSpell * s = spellID.toSpell();
 	if(!s)
 		return;
 
 	AdventureSpellCastParameters p;
-	p.caster = hero;
+	p.caster = caster;
 	p.pos = pos;
 
 	s->adventureCast(spellEnv, p);
