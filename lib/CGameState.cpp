@@ -2053,7 +2053,7 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == Obj::HILL_FORT)
 	{
 		static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
-		const int costModifier = costModifiers[std::min<int>(std::max((int)base->getLevel() - 1, 0), ARRAY_COUNT(costModifiers) - 1)];
+		const int costModifier = costModifiers[std::min<int>(std::max((int)base->getLevel() - 1, 0), std::size(costModifiers) - 1)];
 
 		for(const auto & nid : base->upgrades)
 		{

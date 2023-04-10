@@ -1662,7 +1662,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	itgflags->preload();
 
 	//printing flags
-	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
+	for(int g = 0; g < std::size(fields); ++g) //by lines
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{

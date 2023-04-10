@@ -433,7 +433,7 @@ void CSpellWindow::keyPressed(const SDL_Keycode & key)
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
 			index += (down ? 1 : -1);
-			vstd::abetween<int>(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
+			vstd::abetween<int>(index, 0, std::size(schoolsOrder) - 1);
 			if(selectedTab != schoolsOrder[index])
 				selectSchool(schoolsOrder[index]);
 			break;
@@ -463,8 +463,8 @@ void CSpellWindow::keyPressed(const SDL_Keycode & key)
 			static const SDL_Keycode spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
 
 			int index = -1;
-			while(++index < ARRAY_COUNT(spellSelectors) && spellSelectors[index] != hlpKey);
-			if(index >= ARRAY_COUNT(spellSelectors))
+			while(++index < std::size(spellSelectors) && spellSelectors[index] != hlpKey);
+			if(index >= std::size(spellSelectors))
 				return;
 
 			//try casting spell

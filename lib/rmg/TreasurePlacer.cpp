@@ -274,11 +274,11 @@ void TreasurePlacer::addAllPossibleObjects()
 		}
 		else if(creaturesAmount <= 50)
 		{
-			creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
+			creaturesAmount = std::round(creaturesAmount / 5) * 5;
 		}
 		else
 		{
-			creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
+			creaturesAmount = std::round(creaturesAmount / 10) * 10;
 		}
 		return static_cast<int>(creaturesAmount);
 	};

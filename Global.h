@@ -236,10 +236,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 
 #define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
-// can be used for counting arrays
-template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
-#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
-
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
 #include <AvailabilityVersions.h>
