@@ -131,7 +131,10 @@ void CMapLoaderH3M::readHeader()
 			//TODO: HotA
 			bool isDuelMap = reader->readBool();
 			if (isDuelMap)
+			{
 				logGlobal->warn("Map '%s': Duel maps are not supported!", mapName);
+				throw std::runtime_error("Invalid map format!");
+			}
 		}
 
 		if(hotaVersion > 1)
