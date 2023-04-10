@@ -1626,7 +1626,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		readCreatureSet(object, 7);
 
 	object->formation = static_cast<EArmyFormation>(reader->readUInt8());
-	assert(object->formation == EArmyFormation::WIDE || object->formation == EArmyFormation::TIGHT);
+	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
 
 	loadArtifactsOfHero(object);
 	object->patrol.patrolRadius = reader->readUInt8();
@@ -1955,7 +1955,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		readCreatureSet(object, 7);
 
 	object->formation = static_cast<EArmyFormation>(reader->readUInt8());
-	assert(object->formation == EArmyFormation::WIDE || object->formation == EArmyFormation::TIGHT);
+	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
 
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)

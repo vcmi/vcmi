@@ -421,7 +421,7 @@ void CCreatureSet::setFormation(bool tight)
 	if (tight)
 		formation = EArmyFormation::TIGHT;
 	else
-		formation = EArmyFormation::WIDE;
+		formation = EArmyFormation::LOOSE;
 }
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)

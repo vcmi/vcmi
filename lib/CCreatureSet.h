@@ -204,7 +204,7 @@ public:
 
 enum class EArmyFormation : uint8_t
 {
-	WIDE,
+	LOOSE,
 	TIGHT
 };
 
@@ -216,7 +216,7 @@ public:
 
 
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
-	EArmyFormation formation = EArmyFormation::WIDE; //0 - wide, 1 - tight
+	EArmyFormation formation = EArmyFormation::LOOSE; //0 - wide, 1 - tight
 
 	CCreatureSet() = default; //Should be here to avoid compile errors
 	virtual ~CCreatureSet();
