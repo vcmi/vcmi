@@ -365,9 +365,10 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 	
 	if(!info.reward.casts.empty())
 	{
+		caster = std::make_unique<spells::OuterCaster>(hero, 3);
 		for(const auto & c : info.reward.casts)
 		{
-			cb->castSpell(hero, c, int3{-1, -1, -1});
+			cb->castSpell(caster.get(), c, int3{-1, -1, -1});
 		}
 	}
 

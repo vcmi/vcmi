@@ -199,6 +199,8 @@ public:
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
 	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override;
+	
+	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override;
@@ -274,8 +276,6 @@ public:
 	bool dig(const CGHeroInstance *h);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 	const ObjectInstanceID putNewObject(Obj ID, int subID, int3 pos);
-
-	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

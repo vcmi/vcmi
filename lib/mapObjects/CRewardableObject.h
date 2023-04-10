@@ -14,6 +14,7 @@
 
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
+#include "../spells/OuterCaster.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -170,7 +171,7 @@ public:
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
 	
-	/// actions that hero may execute
+	/// actions that hero may execute and object caster
 	std::vector<SpellID> casts;
 
 	/// list of components that will be added to reward description. First entry in list will override displayed component
@@ -321,6 +322,9 @@ protected:
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
 
 	bool onceVisitableObjectCleared;
+	
+	/// caster to cast adveture spells
+	mutable std::unique_ptr<spells::OuterCaster> caster;
 
 public:
 	EVisitMode getVisitMode() const;
