@@ -570,7 +570,7 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 
 int32_t CGHeroInstance::getCasterUnitId() const
 {
-	return -1; //TODO: special value for attacker/defender hero
+	return id.getNum();
 }
 
 int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
@@ -667,6 +667,11 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
+}
+
+const CGHeroInstance * CGHeroInstance::getHeroCaster() const
+{
+	return this;
 }
 
 void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) const

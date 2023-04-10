@@ -418,6 +418,11 @@ int32_t CUnitState::getCasterUnitId() const
 	return static_cast<int32_t>(unitId());
 }
 
+const CGHeroInstance * CUnitState::getHeroCaster() const
+{
+	return nullptr;
+}
+
 int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
 {
 	int32_t skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->getIndex()));

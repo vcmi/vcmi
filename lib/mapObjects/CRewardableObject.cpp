@@ -17,6 +17,8 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CPlayerState.h"
+#include "../spells/CSpellHandler.h"
+#include "../spells/ISpellMechanics.h"
 
 #include "CObjectClassesHandler.h"
 
@@ -142,7 +144,8 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			iw.text = vi.message;
 			vi.reward.loadComponents(iw.components, h);
 			iw.type = infoWindowType;
-			cb->showInfoDialog(&iw);
+			if(!iw.components.empty() || !iw.text.toString().empty())
+				cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
 		grantReward(index, h, markAsVisit);
@@ -359,8 +362,17 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 
 		cb->giveCreatures(this, hero, creatures, false);
 	}
-
-	if(info.reward.removeObject)
+	
+	if(info.reward.spellCast.first != SpellID::NONE)
+	{
+		caster.setActualCaster(hero);
+		caster.setSpellSchoolLevel(info.reward.spellCast.second);
+		cb->castSpell(&caster, info.reward.spellCast.first, int3{-1, -1, -1});
+		
+		if(info.reward.removeObject)
+			logMod->warn("Removal of object with spell casts is not supported!");
+	}
+	else if(info.reward.removeObject) //FIXME: object can't track spell cancel or finish, so removeObject leads to crash
 		cb->removeObject(this);
 }
 
