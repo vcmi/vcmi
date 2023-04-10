@@ -144,7 +144,8 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			iw.text = vi.message;
 			vi.reward.loadComponents(iw.components, h);
 			iw.type = infoWindowType;
-			cb->showInfoDialog(&iw);
+			if(!iw.components.empty() || !iw.text.toString().empty())
+				cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
 		grantReward(index, h, markAsVisit);
