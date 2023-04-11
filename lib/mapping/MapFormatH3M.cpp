@@ -2076,18 +2076,36 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		object->events.push_back(event);
 	}
 
-	if(features.levelHOTA0)
+	if(features.levelSOD)
 	{
-		// TODO: HOTA support
-		uint8_t alignment = reader->readUInt8();
-		if(alignment < PlayerColor::PLAYER_LIMIT.getNum() || alignment == PlayerColor::NEUTRAL.getNum())
-			object->alignmentToPlayer = PlayerColor(alignment);
-		else
-			logGlobal->warn("%s - Aligment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
-	}
-	else if(features.levelSOD)
-	{
-		object->alignmentToPlayer = reader->readPlayer();
+		object->alignmentToPlayer = PlayerColor::NEUTRAL; // "same as owner or random"
+
+		 uint8_t alignment = reader->readUInt8();
+
+		if(alignment != PlayerColor::NEUTRAL.getNum())
+		{
+			if(alignment < PlayerColor::PLAYER_LIMIT.getNum())
+			{
+				if (mapHeader->players[alignment].canAnyonePlay())
+					object->alignmentToPlayer = PlayerColor(alignment);
+				else
+					logGlobal->warn("%s - Aligment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), int(alignment));
+			}
+			else
+			{
+				// TODO: HOTA support
+				uint8_t invertedAlignment = alignment - PlayerColor::PLAYER_LIMIT.getNum();
+
+				if(invertedAlignment < PlayerColor::PLAYER_LIMIT.getNum())
+				{
+					logGlobal->warn("%s - Aligment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
+				}
+				else
+				{
+					logGlobal->warn("%s - Aligment of town at %s is corrupted!!", mapName, position.toString());
+				}
+			}
+		}
 	}
 	reader->skipZero(3);
 
