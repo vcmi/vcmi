@@ -1073,11 +1073,11 @@ CGObjectInstance * CMapLoaderH3M::readScholar()
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readGarrison()
+CGObjectInstance * CMapLoaderH3M::readGarrison(const int3 & mapPosition)
 {
 	auto * object = new CGGarrison();
 
-	object->setOwner(reader->readPlayer32());
+	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	readCreatureSet(object, 7);
 	if(features.levelAB)
 		object->removableUnits = reader->readBool();
@@ -1132,7 +1132,7 @@ CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared
 	auto * object = new CGMine();
 	if(objectTemplate->subid < 7)
 	{
-		object->setOwner(reader->readPlayer32());
+		setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	}
 	else
 	{
@@ -1145,7 +1145,7 @@ CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared
 CGObjectInstance * CMapLoaderH3M::readDwelling(const int3 & position)
 {
 	auto * object = new CGDwelling();
-	object->setOwner(reader->readPlayer32());
+	setOwnerAndValidate(position, object, reader->readPlayer32());
 	return object;
 }
 
@@ -1170,7 +1170,7 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 	}
 	spec->owner = object;
 
-	object->setOwner(reader->readPlayer32());
+	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 
 	//216 and 217
 	if(auto * castleSpec = dynamic_cast<CCreGenAsCastleInfo *>(spec))
@@ -1221,7 +1221,7 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 {
 	auto * object = new CGHeroPlaceholder();
 
-	object->setOwner(reader->readPlayer());
+	setOwnerAndValidate(mapPosition, object, reader->readPlayer());
 
 	HeroTypeID htid = reader->readHero(); //hero type id
 	object->subID = htid.getNum();
@@ -1271,10 +1271,10 @@ CGObjectInstance * CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 	return guard;
 }
 
-CGObjectInstance * CMapLoaderH3M::readShipyard()
+CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition)
 {
 	auto * object = new CGShipyard();
-	object->setOwner(reader->readPlayer32());
+	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
 
@@ -1296,10 +1296,10 @@ CGObjectInstance * CMapLoaderH3M::readBorderGate(const int3 & mapPosition, std::
 	return readQuestGuard(mapPosition);
 }
 
-CGObjectInstance * CMapLoaderH3M::readLighthouse()
+CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition)
 {
 	auto * object = new CGLighthouse();
-	object->tempOwner = reader->readPlayer32();
+	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
 
@@ -1379,7 +1379,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 
 		case Obj::GARRISON:
 		case Obj::GARRISON2:
-			return readGarrison();
+			return readGarrison(mapPosition);
 
 		case Obj::ARTIFACT:
 		case Obj::RANDOM_ART:
@@ -1427,7 +1427,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readQuestGuard(mapPosition);
 
 		case Obj::SHIPYARD:
-			return readShipyard();
+			return readShipyard(mapPosition);
 
 		case Obj::HERO_PLACEHOLDER:
 			return readHeroPlaceholder(mapPosition);
@@ -1442,7 +1442,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readPyramid(mapPosition, objectTemplate);
 
 		case Obj::LIGHTHOUSE:
-			return readLighthouse();
+			return readLighthouse(mapPosition);
 
 		case Obj::CREATURE_BANK:
 		case Obj::DERELICT_SHIP:
@@ -1541,6 +1541,34 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 	out->validTypes(true);
 }
 
+void CMapLoaderH3M::setOwnerAndValidate(const int3 & mapPosition, CGObjectInstance * object, const PlayerColor & owner)
+{
+	assert(owner.isValidPlayer() || owner == PlayerColor::NEUTRAL);
+
+	if(owner == PlayerColor::NEUTRAL)
+	{
+		object->setOwner(PlayerColor::NEUTRAL);
+		return;
+	}
+
+	if(!owner.isValidPlayer())
+	{
+		object->setOwner(PlayerColor::NEUTRAL);
+		logGlobal->warn("Map '%s': Object at %s - owned by invalid player %d! Will be set to neutral!", mapName, mapPosition.toString(), int(owner.getNum()));
+		return;
+	}
+
+	if(!mapHeader->players[owner.getNum()].canAnyonePlay())
+	{
+		object->setOwner(PlayerColor::NEUTRAL);
+		logGlobal->warn("Map '%s': Object at %s - owned by non-existing player %d! Will be set to neutral!", mapName, mapPosition.toString(), int(owner.getNum())
+		);
+		return;
+	}
+
+	object->setOwner(owner);
+}
+
 CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
 	auto * object = new CGHeroInstance();
@@ -1567,7 +1595,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		}
 	}
 
-	object->setOwner(owner);
+	setOwnerAndValidate(mapPosition, object, owner);
 	object->portrait = object->subID;
 
 	for(auto & elem : map->disposedHeroes)
@@ -1948,7 +1976,8 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	if(features.levelAB)
 		object->identifier = reader->readUInt32();
 
-	object->tempOwner = reader->readPlayer();
+	setOwnerAndValidate(position, object, reader->readPlayer());
+
 	bool hasName = reader->readBool();
 	if(hasName)
 		object->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));

@@ -31,6 +31,7 @@ class ObjectInstanceID;
 class BuildingID;
 class ObjectTemplate;
 class SpellID;
+class PlayerColor;
 class int3;
 
 class DLL_LINKAGE CMapLoaderH3M : public IMapLoader
@@ -165,7 +166,7 @@ private:
 	CGObjectInstance * readSign(const int3 & position);
 	CGObjectInstance * readWitchHut();
 	CGObjectInstance * readScholar();
-	CGObjectInstance * readGarrison();
+	CGObjectInstance * readGarrison(const int3 & mapPosition);
 	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
@@ -179,8 +180,8 @@ private:
 	CGObjectInstance * readBorderGuard();
 	CGObjectInstance * readBorderGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readQuestGuard(const int3 & position);
-	CGObjectInstance * readShipyard();
-	CGObjectInstance * readLighthouse();
+	CGObjectInstance * readShipyard(const int3 & mapPosition);
+	CGObjectInstance * readLighthouse(const int3 & mapPosition);
 	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
@@ -234,6 +235,7 @@ private:
 	/// reads string from input stream, converts it to unicode and attempts to translate it
 	std::string readLocalizedString(const TextIdentifier & identifier);
 
+	void setOwnerAndValidate(const int3 & mapPosition, CGObjectInstance * object, const PlayerColor & owner);
 	void readSpells(std::set<SpellID> & dest);
 
 	void afterRead();
