@@ -195,7 +195,7 @@ void CMapLoaderH3M::readPlayerInfo()
 		if(features.levelSOD)
 			reader->skipUnused(1); //TODO: check meaning?
 
-		std::set<TFaction> allowedFactions;
+		std::set<FactionID> allowedFactions;
 
 		reader->readBitmask(allowedFactions, features.factionsBytes, features.factionsCount, false);
 
@@ -331,7 +331,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 			if(playersOnMap == 1)
 			{
-				logGlobal->warn("Map %s has only one player but allows normal victory?", mapHeader->name);
+				logGlobal->warn("Map %s: Only one player exists, but normal victory allowed!", mapName);
 				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
 			}
 		}
@@ -847,13 +847,13 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 
 	if(!art)
 	{
-		logGlobal->warn("Invalid artifact in hero's backpack, ignoring...");
+		logGlobal->warn("Map '%s': Invalid artifact in hero's backpack, ignoring...", mapName);
 		return false;
 	}
 
 	if(art->isBig() && slot >= GameConstants::BACKPACK_START)
 	{
-		logGlobal->warn("A big artifact (war machine) in hero's backpack, ignoring...");
+		logGlobal->warn("Map '%s': A big artifact (war machine) in hero's backpack, ignoring...", mapName);
 		return false;
 	}
 
@@ -868,7 +868,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	}
 	else
 	{
-		logGlobal->debug("Artifact '%s' can't be put at the slot %d", artifact->artType->getNameTranslated(), slot);
+		logGlobal->warn("Map '%s': Artifact '%s' can't be put at the slot %d", mapName, artifact->artType->getNameTranslated(), slot);
 		return false;
 	}
 
@@ -1252,7 +1252,7 @@ CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::sha
 	if(VLC->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
 		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(objectTemplate);
 
-	logGlobal->warn("Unrecognized object: %d:%d ('%s') at %s on map '%s'", objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile, mapPosition.toString(), map->name);
+	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile, mapPosition.toString());
 	return new CGObjectInstance();
 }
 
