@@ -534,6 +534,13 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 	{
 		try
 		{
+			const std::string filename_prefix = file.getName().substr(file.getName().find_last_of("/\\") + 1, 2);
+			if(filename_prefix == "__")
+			{
+				logGlobal->trace("Map %s marked as hidden");
+				continue;
+			}
+			
 			auto mapInfo = std::make_shared<CMapInfo>();
 			mapInfo->mapInit(file.getName());
 
