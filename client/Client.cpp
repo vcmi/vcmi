@@ -630,6 +630,7 @@ void CClient::battleFinished()
 		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
 
 	setBattle(nullptr);
+	gs->curB.dellNull();
 }
 
 void CClient::startPlayerBattleAction(PlayerColor color)
