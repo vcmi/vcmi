@@ -78,8 +78,8 @@ private:
 	CLogger * parent;
 	ELogLevel::ELogLevel level;
 	std::vector<std::unique_ptr<ILogTarget> > targets;
-	mutable boost::mutex mx;
-	static boost::recursive_mutex smx;
+	mutable std::mutex mx;
+	static std::recursive_mutex smx;
 };
 
 /* ---------------------------------------------------------------------------- */
@@ -101,8 +101,8 @@ private:
 	virtual ~CLogManager();
 
 	std::map<std::string, CLogger *> loggers;
-	mutable boost::mutex mx;
-	static boost::recursive_mutex smx;
+	mutable std::mutex mx;
+	static std::recursive_mutex smx;
 };
 
 /// The struct LogRecord holds the log message and additional logging information.
@@ -200,7 +200,7 @@ private:
 	bool coloredOutputEnabled;
 	CLogFormatter formatter;
 	CColorMapping colorMapping;
-	mutable boost::mutex mx;
+	mutable std::mutex mx;
 };
 
 /// This target is a logging target which writes messages to a log file.
@@ -222,7 +222,7 @@ public:
 private:
 	FileStream file;
 	CLogFormatter formatter;
-	mutable boost::mutex mx;
+	mutable std::mutex mx;
 };
 
 VCMI_LIB_NAMESPACE_END

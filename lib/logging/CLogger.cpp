@@ -85,8 +85,8 @@ bool CLoggerDomain::isGlobalDomain() const { return name == DOMAIN_GLOBAL; }
 
 const std::string& CLoggerDomain::getName() const { return name; }
 
-boost::recursive_mutex CLogger::smx;
-boost::recursive_mutex CLogManager::smx;
+std::recursive_mutex CLogger::smx;
+std::recursive_mutex CLogManager::smx;
 
 DLL_LINKAGE vstd::CLoggerBase * logGlobal = CLogger::getGlobalLogger();
 
