@@ -45,6 +45,11 @@ const Area & Object::Instance::getBlockedArea() const
 	return dBlockedAreaCache;
 }
 
+int3 Object::Instance::getTopTile() const
+{
+	return object().getTopVisiblePos();
+}
+
 int3 Object::Instance::getPosition(bool isAbsolute) const
 {
 	if(isAbsolute)
@@ -282,6 +287,19 @@ const Area & Object::getArea() const
 	}
 	
 	return dFullAreaCache;
+}
+
+const int3 Object::getVisibleTop() const
+{
+	int3 topTile(-1, 10000, -1); //Start at the bottom
+	for (const auto& i : dInstances)
+	{
+		if (i.getTopTile().y < topTile.y)
+		{
+			topTile = i.getTopTile();
+		}
+	}
+	return topTile;
 }
 
 void Object::Instance::finalize(RmgMap & map)

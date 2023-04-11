@@ -112,6 +112,9 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 				continue;
 			
 			obj.setPosition(tile);
+
+			if (obj.getVisibleTop().y < 0)
+				continue;
 			
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
 				continue;
@@ -131,6 +134,9 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		for(const auto & tile : searchArea.getTiles())
 		{
 			obj.setPosition(tile);
+
+			if (obj.getVisibleTop().y < 0)
+				continue;
 			
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
 				continue;
