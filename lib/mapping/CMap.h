@@ -18,6 +18,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../LogicalExpression.h"
+#include "../CModHandler.h"
 #include "CMapDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -294,6 +295,8 @@ public:
 	ui8 levels() const;
 
 	EMapFormat::EMapFormat version; /// The default value is EMapFormat::SOD.
+	std::map<TModID, CModInfo::Version> mods; /// set of mods required to play a map
+	
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
 	bool twoLevel; /// The default value is true.
@@ -322,6 +325,8 @@ public:
 	void serialize(Handler & h, const int Version)
 	{
 		h & version;
+		if(Version >= 821)
+			h & mods;
 		h & name;
 		h & description;
 		h & width;
