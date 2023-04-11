@@ -24,6 +24,8 @@
 * Fixed might&magic affinities of Dungeon heroes
 * Fixed Roland's specialty to affect Swordsmen/Crusaders instead of Griffins
 * Buying boat in town of an ally now correctly uses own resources instead of stealing them from ally
+* Default game difficulty is now set to "normal" instead of "easy"
+* Fixed crash on missing music files
 
 ### MAP EDITOR:
 * Added translations to German, Polish, Russian, Spanish, Ukrainian
@@ -43,6 +45,7 @@
 * Simplified game starting flow from online lobby
 * Mod description will now show list of languages supported by mod
 * Launcher now uses separate mod repository from vcmi-1.1 version to prevent mod updates to unsupported versions
+* Size of mod list and mod details sub-windows can now be adjusted by player
 
 ### AI PLAYER:
 * Nullkiller AI is now used by default
@@ -51,8 +54,16 @@
 * Increased AI priority of town dwelling upgrades
 * AI will now de-prioritize town hall upgrades when low on resources
 * Messages from cheats used by AI are now hidden
+* Improved army gathering from towns
+* AI will now attempt to exchange armies between main heroes to get the strongest hero with the strongest army.
+* Improved Pandora handling
+* AI takes into account fort level now when evaluating enemy town capturing priority.
+* AI can not use allied shipyard now to avoid freeze
+* AI will avoid attacking creatures standing on draw-bridge tile during siege if the bridge is closed.
+* AI will consider retreat during siege if it can not do anything (catapult is destroyed, no destroyed walls exist)
 
 ### RANDOM MAP GENERATOR
+* Random map generator can now be used without vcmi-extras mod
 * RMG will no longer place shipyards or boats at very small lakes
 * Fixed placement of shipyards in invalid locations
 * Fixed potential game hang on generation of random map
@@ -66,6 +77,8 @@
 * RMG will place Towns and Monoliths first in order to generate long roads across the zone.
 * Adjust the position of center town in the zone for better look & feel on S maps.
 * Description of random map will correctly show number of levels
+* Fixed amount of creatures found in Pandora Boxes to match H3
+* Visitable objects will no longer be placed on top of the map, obscured by map border
 
 ### ADVENTURE MAP:
 * Added option to replace popup messages on object visiting with messages in status window
@@ -89,6 +102,7 @@
 * Fixed game freeze on using Town Portal to teleport into town with unvisited Battle Scholar Academy
 * Fixed invalid ambient sound of Whirlpool
 * Hero path will now be correctly removed on defeating monsters that are at the end of hero path
+* Seer Hut tooltips will now show messages for correct quest type
 
 ### INTERFACE
 * Implemented new settings window
@@ -152,6 +166,7 @@
 * Fixed visibility of unit creature amount labels and timing of their updates
 * Firewall will no longer hit double-wide units twice when passing through
 * Unicorn Magic Damper Aura ability now works multiplicatively with Resistance
+* Orb of Vulnerability will now negate Resistance skill
 
 ### SPELLS:
 * Hero casting animation will play before spell effect
