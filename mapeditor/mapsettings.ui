@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>470</width>
-    <height>480</height>
+    <height>494</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -59,6 +59,39 @@
        </item>
        <item>
         <widget class="QPlainTextEdit" name="mapDescriptionEdit"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="topMargin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QSpinBox" name="heroLevelLimit">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>48</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="heroLevelLimitCheck">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Limit maximum heroes level</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox">

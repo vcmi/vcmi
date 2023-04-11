@@ -93,6 +93,8 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 	ui->mapNameEdit->setText(tr(controller.map()->name.c_str()));
 	ui->mapDescriptionEdit->setPlainText(tr(controller.map()->description.c_str()));
+	ui->heroLevelLimit->setValue(controller.map()->levelLimit);
+	ui->heroLevelLimitCheck->setChecked(controller.map()->levelLimit);
 	
 	show();
 	
@@ -432,6 +434,10 @@ void MapSettings::on_pushButton_clicked()
 {
 	controller.map()->name = ui->mapNameEdit->text().toStdString();
 	controller.map()->description = ui->mapDescriptionEdit->toPlainText().toStdString();
+	if(ui->heroLevelLimitCheck->isChecked())
+		controller.map()->levelLimit = ui->heroLevelLimit->value();
+	else
+		controller.map()->levelLimit = 0;
 	controller.commitChangeWithoutRedraw();
 	
 	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
@@ -873,5 +879,11 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 			break;
 		}
 	}
+}
+
+
+void MapSettings::on_heroLevelLimitCheck_toggled(bool checked)
+{
+	ui->heroLevelLimit->setEnabled(checked);
 }
 

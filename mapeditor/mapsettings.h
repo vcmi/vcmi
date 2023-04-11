@@ -32,6 +32,8 @@ private slots:
 
 	void on_loseComboBox_currentIndexChanged(int index);
 
+	void on_heroLevelLimitCheck_toggled(bool checked);
+
 private:
 	
 	std::string getTownName(int townObjectIdx);
