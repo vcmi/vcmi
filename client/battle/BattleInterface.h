@@ -200,7 +200,7 @@ public:
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
-	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
+	void battleFinished(const BattleResult& br, QueryID queryID); //called when battle is finished - battleresult window should be printed
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook

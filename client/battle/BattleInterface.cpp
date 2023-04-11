@@ -308,7 +308,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 		siegeController->gateStateChanged(state);
 }
 
-void BattleInterface::battleFinished(const BattleResult& br)
+void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 {
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
@@ -318,11 +318,18 @@ void BattleInterface::battleFinished(const BattleResult& br)
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
+		curInt->cb->selectionMade(0, queryID);
 		windowObject->close();
 		return;
 	}
 
-	GH.pushInt(std::make_shared<BattleResultWindow>(br, *(this->curInt)));
+	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
+	wnd->resultCallback = [=](ui32 selection)
+	{
+		curInt->cb->selectionMade(selection, queryID);
+	};
+	GH.pushInt(wnd);
+	
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }

@@ -205,6 +205,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	curB->battlefieldType = battlefieldType;
 	curB->round = -2;
 	curB->activeStack = -1;
+	curB->creatureBank = creatureBank;
 
 	if(town)
 	{
@@ -561,7 +562,15 @@ BattleInfo::BattleInfo():
 	setNodeType(BATTLE);
 }
 
-BattleInfo::~BattleInfo() = default;
+BattleInfo::~BattleInfo()
+{
+	for (auto & elem : stacks)
+		delete elem;
+
+	for(int i = 0; i < 2; i++)
+		if(auto * _armyObj = battleGetArmyObject(i))
+			_armyObj->battle = nullptr;
+}
 
 int32_t BattleInfo::getActiveStackID() const
 {

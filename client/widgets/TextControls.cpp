@@ -357,14 +357,14 @@ void CGStatusBar::setEnteringMode(bool on)
 
 	if (on)
 	{
-		assert(enteringText == false);
+		//assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
 		GH.startTextInput(pos);
 		setText(consoleText);
 	}
 	else
 	{
-		assert(enteringText == true);
+		//assert(enteringText == true);
 		alignment = ETextAlignment::CENTER;
 		GH.stopTextInput();
 		setText(hoverText);

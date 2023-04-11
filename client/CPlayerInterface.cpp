@@ -693,7 +693,15 @@ void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreat
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (settings["adventure"]["quickCombat"].Bool())
+	bool autoBattleResultRefused = (lastBattleArmies.first == army1 && lastBattleArmies.second == army2);
+	lastBattleArmies.first = army1;
+	lastBattleArmies.second = army2;
+	//quick combat with neutral creatures only
+	auto * army2_object = dynamic_cast<const CGObjectInstance *>(army2);
+	if((!autoBattleResultRefused && !allowBattleReplay && army2_object
+		&& army2_object->getOwner() == PlayerColor::UNFLAGGABLE
+		&& settings["adventure"]["quickCombat"].Bool())
+		|| settings["adventure"]["alwaysSkipCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		autofightingAI->initBattleInterface(env, cb);
@@ -702,6 +710,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		cb->registerBattleInterface(autofightingAI);
 		// Player shouldn't be able to move on adventure map if quick combat is going
 		adventureInt->quickCombatLock();
+		allowBattleReplay = true;
 	}
 
 	//Don't wait for dialogs when we are non-active hot-seat player
@@ -889,7 +898,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	return ret;
 }
 
-void CPlayerInterface::battleEnd(const BattleResult *br)
+void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(isAutoFightOn || autofightingAI)
@@ -900,7 +909,14 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if(!battleInt)
 		{
-			GH.pushIntT<BattleResultWindow>(*br, *this);
+			bool allowManualReplay = allowBattleReplay && !settings["adventure"]["alwaysSkipCombat"].Bool();
+			allowBattleReplay = false;
+			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
+			wnd->resultCallback = [=](ui32 selection)
+			{
+				cb->selectionMade(selection, queryID);
+			};
+			GH.pushInt(wnd);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
@@ -911,7 +927,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->battleFinished(*br);
+	battleInt->battleFinished(*br, queryID);
 	adventureInt->quickCombatUnlock();
 }
 
