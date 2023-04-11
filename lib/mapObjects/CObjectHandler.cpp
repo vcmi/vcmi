@@ -133,6 +133,11 @@ int3 CGObjectInstance::getPosition() const
 	return pos;
 }
 
+int3 CGObjectInstance::getTopVisiblePos() const
+{
+	return pos - appearance->getTopVisibleOffset();
+}
+
 void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
@@ -494,8 +499,8 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 
 void IShipyard::getBoatCost(TResources & cost) const
 {
-	cost[Res::WOOD] = 10;
-	cost[Res::GOLD] = 1000;
+	cost[EGameResID::WOOD] = 10;
+	cost[EGameResID::GOLD] = 1000;
 }
 
 IShipyard::IShipyard(const CGObjectInstance *O)

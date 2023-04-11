@@ -48,7 +48,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {} //cb will be called when player closes garrison window
 	void showTeleportDialog(TeleportDialog *iw) override {}
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {}
-	void giveResource(PlayerColor player, Res::ERes which, int val) override {}
+	void giveResource(PlayerColor player, EGameResID which, int val) override {}
 	void giveResources(PlayerColor player, TResources resources) override {}
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {}

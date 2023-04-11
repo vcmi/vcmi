@@ -271,7 +271,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(cons
 		auto hexes = stack->getSurroundingHexes();
 		for(auto hex : hexes)
 		{
-			auto neighbor = cb->battleGetStackByPos(hex);
+			auto neighbor = cb->battleGetUnitByPos(hex);
 
 			if(neighbor && neighbor->unitSide() == stack->unitSide() && !vstd::contains(checkedStacks, neighbor))
 			{
@@ -354,6 +354,13 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %lld", ap.attack.shooting ? ap.dest : ap.from);
 #endif
+
+	if(cb->battleGetMySide() == BattlePerspective::LEFT_SIDE
+		&& cb->battleGetGateState() == EGateState::BLOCKED
+		&& ap.attack.defender->coversPos(ESiegeHex::GATE_BRIDGE))
+	{
+		return EvaluationResult::INEFFECTIVE_SCORE;
+	}
 
 	std::vector<const battle::Unit *> ourStacks;
 	std::vector<const battle::Unit *> enemyStacks;

@@ -147,9 +147,9 @@ bool CHeroClass::isMagicHero() const
 	return affinity == MAGIC;
 }
 
-EAlignment::EAlignment CHeroClass::getAlignment() const
+EAlignment CHeroClass::getAlignment() const
 {
-	return ((*VLC->townh)[faction]->alignment);
+	return VLC->factions()->getByIndex(faction)->getAlignment();
 }
 
 int32_t CHeroClass::getIndex() const
@@ -289,7 +289,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 		VLC->modh->identifiers.requestIdentifier(tavern.second.meta, "faction", tavern.first,
 		[=](si32 factionID)
 		{
-			heroClass->selectionProbability[factionID] = value;
+			heroClass->selectionProbability[FactionID(factionID)] = value;
 		});
 	}
 
@@ -361,11 +361,11 @@ void CHeroClassHandler::afterLoadFinalization()
 		{
 			if (!faction->town)
 				continue;
-			if (heroClass->selectionProbability.count(faction->getIndex()))
+			if (heroClass->selectionProbability.count(faction->getId()))
 				continue;
 
 			auto chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
-			heroClass->selectionProbability[faction->getIndex()] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
+			heroClass->selectionProbability[faction->getId()] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 		// set default probabilities for gaining secondary skills where not loaded previously
 		heroClass->secSkillProbability.resize(VLC->skillh->size(), -1);
@@ -529,7 +529,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 	for(CreatureID cid : targets)
 	{
 		const CCreature &specCreature = *VLC->creh->objects[cid];
-		int stepSize = specCreature.level ? specCreature.level : 5;
+		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();

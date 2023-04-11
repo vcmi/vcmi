@@ -18,6 +18,9 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
+#include <vcmi/Faction.h>
+#include <vcmi/FactionService.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace battle
@@ -41,6 +44,12 @@ std::string Unit::getDescription() const
 	boost::format fmt("Unit %d of side %d");
 	fmt % unitId() % unitSide();
 	return fmt.str();
+}
+
+//TODO: deduplicate these functions
+const IBonusBearer* Unit::getBonusBearer() const
+{
+	return this;
 }
 
 std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex assumedPosition) const

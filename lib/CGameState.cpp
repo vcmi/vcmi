@@ -293,7 +293,7 @@ void MetaString::addCreReplacement(const CreatureID & id, TQuantity count) //add
 void MetaString::addReplacement(const CStackBasicDescriptor & stack)
 {
 	assert(stack.type); //valid type
-	addCreReplacement(stack.type->idNumber, stack.count);
+	addCreReplacement(stack.type->getId(), stack.count);
 }
 
 static CGObjectInstance * createObject(const Obj & id, int subid, const int3 & pos, const PlayerColor & owner)
@@ -372,7 +372,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native,
 			    ( !bannedClass || elem.second->type->heroClass != bannedClass) ) // and his class is not same as other hero
 			{
 				pool.push_back(elem.second);
-				sum += elem.second->type->heroClass->selectionProbability[town->faction->getIndex()]; //total weight
+				sum += elem.second->type->heroClass->selectionProbability[town->faction->getId()]; //total weight
 			}
 		}
 		if(pool.empty() || sum == 0)
@@ -384,7 +384,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native,
 		r = rand.nextInt(sum - 1);
 		for (auto & elem : pool)
 		{
-			r -= elem->type->heroClass->selectionProbability[town->faction->getIndex()];
+			r -= elem->type->heroClass->selectionProbability[town->faction->getId()];
 			if(r < 0)
 			{
 				ret = elem;
@@ -958,6 +958,7 @@ void CGameState::initGlobalBonuses()
 		bonus->sid = -1; //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
+	VLC->creh->loadCrExpBon(globalEffects);
 }
 
 void CGameState::initGrailPosition()
@@ -1443,10 +1444,14 @@ void CGameState::initStartingResources()
 					res.push_back(chosenBonus->info1);
 					break;
 				case 0xFD: //wood+ore
-					res.push_back(Res::WOOD); res.push_back(Res::ORE);
+					res.push_back(GameResID(EGameResID::WOOD)); 
+					res.push_back(GameResID(EGameResID::ORE));
 					break;
 				case 0xFE:  //rare
-					res.push_back(Res::MERCURY); res.push_back(Res::SULFUR); res.push_back(Res::CRYSTAL); res.push_back(Res::GEMS);
+					res.push_back(GameResID(EGameResID::MERCURY));
+					res.push_back(GameResID(EGameResID::SULFUR));
+					res.push_back(GameResID(EGameResID::CRYSTAL));
+					res.push_back(GameResID(EGameResID::GEMS));
 					break;
 				default:
 					assert(0);
@@ -1664,16 +1669,16 @@ void CGameState::initStartingBonus()
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += getRandomGenerator().nextInt(5, 10) * 100;
+			elem.second.resources[EGameResID::GOLD] += getRandomGenerator().nextInt(5, 10) * 100;
 			break;
 		case PlayerSettings::RESOURCE:
 			{
-				int res = (*VLC->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
-				if(res == Res::WOOD_AND_ORE)
+				auto res = (*VLC->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
+				if(res == EGameResID::WOOD_AND_ORE)
 				{
 					int amount = getRandomGenerator().nextInt(5, 10);
-					elem.second.resources[Res::WOOD] += amount;
-					elem.second.resources[Res::ORE] += amount;
+					elem.second.resources[EGameResID::WOOD] += amount;
+					elem.second.resources[EGameResID::ORE] += amount;
 				}
 				else
 				{
@@ -1747,8 +1752,8 @@ void CGameState::initTowns()
 		}
 		if(vti->getNameTranslated().empty())
 		{
-			size_t nameID = getRandomGenerator().nextInt(vti->town->getRandomNamesCount() - 1);
-			vti->setNameTranslated(vti->town->getRandomNameTranslated(nameID));
+			size_t nameID = getRandomGenerator().nextInt(vti->getTown()->getRandomNamesCount() - 1);
+			vti->setNameTranslated(vti->getTown()->getRandomNameTranslated(nameID));
 		}
 
 		//init buildings
@@ -1778,14 +1783,14 @@ void CGameState::initTowns()
 			if (vstd::contains(vti->builtBuildings, (BuildingID::HORDE_PLACEHOLDER1 - i))) //if we have horde for this level
 			{
 				vti->builtBuildings.erase(BuildingID(BuildingID::HORDE_PLACEHOLDER1 - i));//remove old ID
-				if (vti->town->hordeLvl.at(0) == i)//if town first horde is this one
+				if (vti->getTown()->hordeLvl.at(0) == i)//if town first horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
 					//if we have upgraded dwelling as well
 					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
 						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
 				}
-				if (vti->town->hordeLvl.at(1) == i)//if town second horde is this one
+				if (vti->getTown()->hordeLvl.at(1) == i)//if town second horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_2);
 					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
@@ -1798,7 +1803,7 @@ void CGameState::initTowns()
 		//But DO NOT remove horde placeholders before they are replaced
 		vstd::erase_if(vti->builtBuildings, [vti](const BuildingID & bid)
 			{
-				return !vti->town->buildings.count(bid) || !vti->town->buildings.at(bid);
+				return !vti->getTown()->buildings.count(bid) || !vti->getTown()->buildings.at(bid);
 			});
 
 		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
@@ -1807,7 +1812,7 @@ void CGameState::initTowns()
 		//Early check for #1444-like problems
 		for(const auto & building : vti->builtBuildings)
 		{
-			assert(vti->town->buildings.at(building) != nullptr);
+			assert(vti->getTown()->buildings.at(building) != nullptr);
 			MAYBE_UNUSED(building);
 		}
 
@@ -1818,9 +1823,9 @@ void CGameState::initTowns()
 				if (vstd::contains(ev.buildings,(-31-i))) //if we have horde for this level
 				{
 					ev.buildings.erase(BuildingID(-31-i));
-					if (vti->town->hordeLvl.at(0) == i)
+					if (vti->getTown()->hordeLvl.at(0) == i)
 						ev.buildings.insert(BuildingID::HORDE_1);
-					if (vti->town->hordeLvl.at(1) == i)
+					if (vti->getTown()->hordeLvl.at(1) == i)
 						ev.buildings.insert(BuildingID::HORDE_2);
 				}
 		}
@@ -1839,7 +1844,7 @@ void CGameState::initTowns()
 			int sel = -1;
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
+				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
 
 			if (total == 0) // remaining spells have 0 probability
 				break;
@@ -1847,7 +1852,7 @@ void CGameState::initTowns()
 			auto r = getRandomGenerator().nextInt(total - 1);
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
+				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->getFaction());
 				if(r<0)
 				{
 					sel = ps;
@@ -1870,7 +1875,6 @@ void CGameState::initTowns()
 void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
-	VLC->creh->removeBonusesFromAllCreatures();
 
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
@@ -2021,14 +2025,14 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 		t = dynamic_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero specialty
-		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
+		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->getId()));
 		for(const auto & it : *lista)
 		{
 			auto nid = CreatureID(it->additionalInfo[0]);
-			if (nid != base->idNumber) //in very specific case the upgrade is available by default (?)
+			if (nid != base->getId()) //in very specific case the upgrade is available by default (?)
 			{
 				ret.newID.push_back(nid);
-				ret.cost.push_back(VLC->creh->objects[nid]->cost - base->cost);
+				ret.cost.push_back(nid.toCreature()->getFullRecruitCost() - base->getFullRecruitCost());
 			}
 		}
 		t = h->visitedTown;
@@ -2037,14 +2041,14 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	{
 		for(const CGTownInstance::TCreaturesSet::value_type & dwelling : t->creatures)
 		{
-			if (vstd::contains(dwelling.second, base->idNumber)) //Dwelling with our creature
+			if (vstd::contains(dwelling.second, base->getId())) //Dwelling with our creature
 			{
 				for(const auto & upgrID : dwelling.second)
 				{
 					if(vstd::contains(base->upgrades, upgrID)) //possible upgrade
 					{
 						ret.newID.push_back(upgrID);
-						ret.cost.push_back(VLC->creh->objects[upgrID]->cost - base->cost);
+						ret.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - base->getFullRecruitCost());
 					}
 				}
 			}
@@ -2055,19 +2059,19 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == Obj::HILL_FORT)
 	{
 		static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
-		const int costModifier = costModifiers[std::min<int>(std::max((int)base->level - 1, 0), ARRAY_COUNT(costModifiers) - 1)];
+		const int costModifier = costModifiers[std::min<int>(std::max((int)base->getLevel() - 1, 0), ARRAY_COUNT(costModifiers) - 1)];
 
 		for(const auto & nid : base->upgrades)
 		{
 			ret.newID.push_back(nid);
-			ret.cost.push_back((VLC->creh->objects[nid]->cost - base->cost) * costModifier / 100);
+			ret.cost.push_back((nid.toCreature()->getFullRecruitCost() - base->getFullRecruitCost()) * costModifier / 100);
 		}
 	}
 
 	if(!ret.newID.empty())
-		ret.oldID = base->idNumber;
+		ret.oldID = base->getId();
 
-	for (Res::ResourceSet &cost : ret.cost)
+	for (ResourceSet &cost : ret.cost)
 		cost.positive(); //upgrade cost can't be negative, ignore missing resources
 
 	return ret;
@@ -2351,7 +2355,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 					&& (ai = dynamic_cast<const CArmedInstance *>(object.get()))) //contains army
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
-						if(elem.second->type->idNumber == condition.objectType) //it's searched creature
+						if(elem.second->type->getId() == condition.objectType) //it's searched creature
 							total += elem.second->count;
 				}
 			}
@@ -2589,7 +2593,7 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(const auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
 
 			if(!heroOrTown)
 				heroOrTown = h;
@@ -2598,7 +2602,7 @@ struct statsHLP
 		//Add town income of all towns
 		for(const auto & t : ps->towns)
 		{
-			totalIncome += t->dailyIncome()[Res::GOLD];
+			totalIncome += t->dailyIncome()[EGameResID::GOLD];
 
 			if(!heroOrTown)
 				heroOrTown = t;
@@ -2623,7 +2627,7 @@ struct statsHLP
 				const auto * mine = dynamic_cast<const CGMine *>(object);
 				assert(mine);
 
-				if (mine->producedResource == Res::GOLD)
+				if (mine->producedResource == EGameResID::GOLD)
 					totalIncome += mine->producedQuantity;
 			}
 		}
@@ -2682,15 +2686,15 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 2) //gold
 	{
-		FILL_FIELD(gold, g->second.resources[Res::GOLD])
+		FILL_FIELD(gold, g->second.resources[EGameResID::GOLD])
 	}
 	if(level >= 2) //wood & ore
 	{
-		FILL_FIELD(woodOre, g->second.resources[Res::WOOD] + g->second.resources[Res::ORE])
+		FILL_FIELD(woodOre, g->second.resources[EGameResID::WOOD] + g->second.resources[EGameResID::ORE])
 	}
 	if(level >= 3) //mercury, sulfur, crystal, gems
 	{
-		FILL_FIELD(mercSulfCrystGems, g->second.resources[Res::MERCURY] + g->second.resources[Res::SULFUR] + g->second.resources[Res::CRYSTAL] + g->second.resources[Res::GEMS])
+		FILL_FIELD(mercSulfCrystGems, g->second.resources[EGameResID::MERCURY] + g->second.resources[EGameResID::SULFUR] + g->second.resources[EGameResID::CRYSTAL] + g->second.resources[EGameResID::GEMS])
 	}
 	if(level >= 3) //obelisks found
 	{
@@ -2749,8 +2753,8 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			{
 				for(const auto & it : elem->Slots())
 				{
-					int toCmp = it.second->type->idNumber; //ID of creature we should compare with the best one
-					if(bestCre == -1 || VLC->creh->objects[bestCre]->AIValue < VLC->creh->objects[toCmp]->AIValue)
+					int toCmp = it.second->type->getId(); //ID of creature we should compare with the best one
+					if(bestCre == -1 || VLC->creh->objects[bestCre]->getAIValue() < VLC->creh->objects[toCmp]->getAIValue())
 					{
 						bestCre = toCmp;
 					}
@@ -3134,7 +3138,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	built = t->builded;
 	fortLevel = t->fortLevel();
 	name = t->getNameTranslated();
-	tType = t->town;
+	tType = t->getTown();
 
 	vstd::clear_pointer(details);
 
@@ -3143,7 +3147,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 		//include details about hero
 		details = new Details();
 		TResources income = t->dailyIncome();
-		details->goldIncome = income[Res::GOLD];
+		details->goldIncome = income[EGameResID::GOLD];
 		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);
 		details->hallLevel = t->hallLevel();
 		details->garrisonedHero = t->garrisonHero;
@@ -3174,12 +3178,12 @@ int ArmyDescriptor::getStrength() const
 	if(isDetailed)
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.type->AIValue * elem.second.count;
+			ret += elem.second.type->getAIValue() * elem.second.count;
 	}
 	else
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.type->AIValue * CCreature::estimateCreatureCount(elem.second.count);
+			ret += elem.second.type->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
 	}
 	return static_cast<int>(ret);
 }

@@ -40,7 +40,7 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public IConstBonusNativeTerrainProvider
 {
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;
@@ -102,20 +102,6 @@ public:
 		}
 	} patrol;
 
-	// deprecated - used only for loading of old saves
-	struct HeroSpecial : CBonusSystemNode
-	{
-		bool growsWithLevel;
-
-		HeroSpecial(){growsWithLevel = false;};
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & static_cast<CBonusSystemNode&>(*this);
-			h & growsWithLevel;
-		}
-	};
-
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
 		//skills are determined, initialized at map start
@@ -166,11 +152,13 @@ public:
 	bool spellbookContainsSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	TerrainId getNativeTerrain() const;
+	//INativeTerrainProvider
+	FactionID getFaction() const override;
+	TerrainId getNativeTerrain() const override;
 	int getLowestCreatureSpeed() const;
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
@@ -260,6 +248,9 @@ public:
 	std::string nodeName() const override;
 	si32 manaLimit() const override;
 
+	///IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
+
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState * gs);
 
@@ -275,6 +266,7 @@ public:
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;

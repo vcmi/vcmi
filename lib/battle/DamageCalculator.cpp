@@ -145,7 +145,7 @@ int DamageCalculator::getActorAttackSlayer() const
 			int attackBonus = SpellID(SpellID::SLAYER).toSpell()->getLevelPower(spLevel);
 			if(info.attacker->hasBonusOfType(Bonus::SPECIAL_PECULIAR_ENCHANT, SpellID::SLAYER))
 			{
-				ui8 attackerTier = info.attacker->unitType()->level;
+				ui8 attackerTier = info.attacker->unitType()->getLevel();
 				ui8 specialtyBonus = std::max(5 - attackerTier, 0);
 				attackBonus += specialtyBonus;
 			}

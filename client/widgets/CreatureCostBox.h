@@ -26,5 +26,5 @@ private:
 	using ImagePtr = std::shared_ptr<CAnimImage>;
 
 	LabelPtr title;
-	std::map<int, std::pair<LabelPtr, ImagePtr>> resources;
+	std::map<GameResID, std::pair<LabelPtr, ImagePtr>> resources;
 };

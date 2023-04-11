@@ -288,8 +288,8 @@ QueryPtr Queries::getQuery(QueryID queryID)
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
-	assert(result);
-	objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
+	if(result)
+		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo * Bi):
@@ -318,7 +318,8 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 
 void CBattleQuery::onRemoval(PlayerColor color)
 {
-	gh->battleAfterLevelUp(*result);
+	if(result)
+		gh->battleAfterLevelUp(*result);
 }
 
 void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
@@ -374,6 +375,12 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	if(auto arts = dynamic_ptr_cast<BulkExchangeArtifacts>(pack))
 		return !vstd::contains(ourIds, arts->srcHero) || !vstd::contains(ourIds, arts->dstHero);
 
+	if(auto art = dynamic_ptr_cast<EraseArtifactByClient>(pack))
+	{
+		if (auto id = boost::apply_visitor(GetEngagedHeroIds(), art->al.artHolder))
+			return !vstd::contains(ourIds, *id);
+	}
+
 	if(auto dismiss = dynamic_ptr_cast<AssembleArtifacts>(pack))
 		return !vstd::contains(ourIds, dismiss->heroID);
 
@@ -384,6 +391,28 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 		return !vstd::contains(ourIds, formation->hid);
 
 	return CDialogQuery::blocksPack(pack);
+}
+	
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi):
+	CDialogQuery(owner)
+{
+	bi = Bi;
+	
+	for(auto & side : bi->sides)
+		addPlayer(side.color);
+}
+
+void CBattleDialogQuery::onRemoval(PlayerColor color)
+{
+	assert(answer);
+	if(*answer == 1)
+	{
+		gh->startBattlePrimary(bi->sides[0].armyObject, bi->sides[1].armyObject, bi->tile, bi->sides[0].hero, bi->sides[1].hero, bi->creatureBank, bi->town);
+	}
+	else
+	{
+		gh->endBattleConfirm(bi);
+	}
 }
 
 void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const

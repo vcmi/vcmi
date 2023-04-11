@@ -192,8 +192,10 @@ public:
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const override;
+	int32_t manaLimit() const override;
 
 	bool ableToRetaliate() const override;
 	bool alive() const override;
@@ -246,6 +248,8 @@ public:
 
 	void localInit(const IUnitEnvironment * env_);
 	void serializeJson(JsonSerializeFormat & handler);
+
+	FactionID getFaction() const override;
 
 	void afterAttack(bool ranged, bool counter);
 

@@ -70,7 +70,7 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 	loadModFont("core", resource);
 
-	for (auto const & modName : VLC->modh->getActiveMods())
+	for(const auto & modName : VLC->modh->getActiveMods())
 	{
 		if (CResourceHandler::get(modName)->existsResource(resource))
 			loadModFont(modName, resource);
@@ -92,6 +92,24 @@ size_t CBitmapFont::getGlyphWidth(const char * data) const
 		return 0;
 
 	return iter->second.leftOffset + iter->second.width + iter->second.rightOffset;
+}
+
+bool CBitmapFont::canRepresentCharacter(const char *data) const
+{
+	CodePoint localChar = TextOperations::getUnicodeCodepoint(data, 4);
+
+	auto iter = chars.find(localChar);
+
+	return iter != chars.end();
+}
+
+bool CBitmapFont::canRepresentString(const std::string & data) const
+{
+	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
+		if (!canRepresentCharacter(data.data() + i))
+			return false;
+
+	return true;
 }
 
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const

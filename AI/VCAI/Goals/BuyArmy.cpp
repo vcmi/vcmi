@@ -35,7 +35,7 @@ TSubgoal BuyArmy::whatToDoToAchieve()
 {
 	//TODO: calculate the actual cost of units instead
 	TResources price;
-	price[Res::GOLD] = static_cast<int>(value * 0.4f); //some approximate value
+	price[EGameResID::GOLD] = static_cast<int>(value * 0.4f); //some approximate value
 	return ai->ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
 }
 

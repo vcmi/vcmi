@@ -25,6 +25,9 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "NetPacksBase.h"
 
+#include <vcmi/FactionService.h>
+#include <vcmi/Faction.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 
@@ -590,12 +593,12 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 		//get types of creatures that need their own slot
 		for(const auto & elem : cs.stacks)
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
-				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
-			//cres.addToSlot(elem.first, elem.second->type->idNumber, 1, true);
+				cres.addToSlot(j, elem.second->type->getId(), 1, true);  //merge if possible
+			//cres.addToSlot(elem.first, elem.second->type->getId(), 1, true);
 		for(const auto & elem : stacks)
 		{
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
-				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
+				cres.addToSlot(j, elem.second->type->getId(), 1, true);  //merge if possible
 			else
 				return false; //no place found
 		}
@@ -706,7 +709,7 @@ int CStackInstance::getExpRank() const
 {
 	if (!VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 		return 0;
-	int tier = type->level;
+	int tier = type->getLevel();
 	if (vstd::iswithin(tier, 1, 7))
 	{
 		for(int i = static_cast<int>(VLC->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
@@ -729,7 +732,7 @@ int CStackInstance::getExpRank() const
 
 int CStackInstance::getLevel() const
 {
-	return std::max(1, static_cast<int>(type->level));
+	return std::max(1, static_cast<int>(type->getLevel()));
 }
 
 si32 CStackInstance::magicResistance() const
@@ -741,7 +744,7 @@ si32 CStackInstance::magicResistance() const
 
 void CStackInstance::giveStackExp(TExpType exp)
 {
-	int level = type->level;
+	int level = type->getLevel();
 	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
@@ -816,7 +819,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 	bool isRand = (idRand != -1);
 	if(!isRand)
 	{
-		return (type  &&  type == VLC->creh->objects[type->idNumber]);
+		return (type  &&  type == VLC->creh->objects[type->getId()]);
 	}
 	else
 		return allowUnrandomized;
@@ -852,7 +855,7 @@ void CStackInstance::deserializationFix()
 CreatureID CStackInstance::getCreatureID() const
 {
 	if(type)
-		return type->idNumber;
+		return type->getId();
 	else
 		return CreatureID::NONE;
 }
@@ -865,7 +868,7 @@ std::string CStackInstance::getName() const
 ui64 CStackInstance::getPower() const
 {
 	assert(type);
-	return type->AIValue * count;
+	return type->getAIValue() * count;
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const
@@ -910,6 +913,19 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 			idRand = level * 2 + static_cast<int>(upgraded);
 		}
 	}
+}
+
+FactionID CStackInstance::getFaction() const
+{
+	if(type)
+		return type->getFaction();
+		
+	return FactionID::NEUTRAL;
+}
+
+const IBonusBearer* CStackInstance::getBonusBearer() const
+{
+	return this;
 }
 
 CCommanderInstance::CCommanderInstance()

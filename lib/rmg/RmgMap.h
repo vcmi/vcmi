@@ -60,8 +60,8 @@ public:
 	
 	Zones & getZones();
 	
-	void registerZone(TFaction faction);
-	ui32 getZoneCount(TFaction faction);
+	void registerZone(FactionID faction);
+	ui32 getZoneCount(FactionID faction);
 	ui32 getTotalZoneCount() const;
 	void initTiles(CMapGenerator & generator);
 	void addModificators();
@@ -75,7 +75,7 @@ private:
 	
 private:
 	Zones zones;
-	std::map<TFaction, ui32> zonesPerFaction;
+	std::map<FactionID, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 	const CMapGenOptions& mapGenOptions;
 	boost::multi_array<TileInfo, 3> tiles; //[x][y][z]

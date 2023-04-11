@@ -32,6 +32,8 @@ class BattleFieldController : public CIntObject
 
 	std::shared_ptr<IImage> background;
 	std::shared_ptr<IImage> cellBorder;
+	std::shared_ptr<IImage> cellUnitMovementHighlight;
+	std::shared_ptr<IImage> cellUnitMaxMovementHighlight;
 	std::shared_ptr<IImage> cellShade;
 
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
@@ -41,15 +43,16 @@ class BattleFieldController : public CIntObject
 	BattleHex attackingHex;
 
 	/// hexes to which currently active stack can move
-	std::vector<BattleHex> occupyableHexes;
+	std::vector<BattleHex> occupiableHexes;
 
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
 
-	void showHighlightedHex(Canvas & to, BattleHex hex, bool darkBorder);
+	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, BattleHex hex, bool darkBorder);
 
-	std::set<BattleHex> getHighlightedHexesStackRange();
-	std::set<BattleHex> getHighlightedHexesSpellRange();
+	std::set<BattleHex> getHighlightedHexesForActiveStack();
+	std::set<BattleHex> getMovementRangeForHoveredStack();
+	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesMovementTarget();
 
 	void showBackground(Canvas & canvas);

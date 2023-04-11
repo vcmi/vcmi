@@ -395,27 +395,37 @@ CreatureID CUnitState::creatureId() const
 
 int32_t CUnitState::creatureLevel() const
 {
-	return static_cast<int32_t>(unitType()->level);
+	return static_cast<int32_t>(unitType()->getLevel());
 }
 
 bool CUnitState::doubleWide() const
 {
-	return unitType()->doubleWide;
+	return unitType()->isDoubleWide();
 }
 
 int32_t CUnitState::creatureCost() const
 {
-	return unitType()->cost[Res::GOLD];
+	return unitType()->getRecruitCost(EGameResID::GOLD);
 }
 
 int32_t CUnitState::creatureIconIndex() const
 {
-	return unitType()->iconIndex;
+	return unitType()->getIconIndex();
+}
+
+FactionID CUnitState::getFaction() const
+{
+	return unitType()->getFaction();
 }
 
 int32_t CUnitState::getCasterUnitId() const
 {
 	return static_cast<int32_t>(unitId());
+}
+
+const CGHeroInstance * CUnitState::getHeroCaster() const
+{
+	return nullptr;
 }
 
 int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
@@ -476,6 +486,11 @@ void CUnitState::getCastDescription(const spells::Spell * spell, const std::vect
 	//todo: use text 566 for single creature
 	getCasterName(text);
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
+}
+
+int32_t CUnitState::manaLimit() const
+{
+	return 0; //TODO: creature casting with mana mode (for mods)
 }
 
 bool CUnitState::ableToRetaliate() const

@@ -18,16 +18,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//TODO: Teleport effect
-
-static const std::string EFFECT_NAME = "core:teleport";
-
 namespace spells
 {
 namespace effects
 {
-VCMI_REGISTER_SPELL_EFFECT(Teleport, EFFECT_NAME);
-
 
 void Teleport::adjustTargetTypes(std::vector<TargetType> & types) const
 {

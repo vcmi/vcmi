@@ -35,7 +35,10 @@ The following platforms are supported and known to work, others might require ch
     if you want x86, otherwise pick **vcmi-deps-windows-conan.tgz**
     - [Android](https://github.com/vcmi/vcmi-dependencies/releases)
 
-3. Only if you have Apple Silicon Mac and trying to build for macOS or iOS: follow [instructions how to build Qt host tools for Apple Silicon](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs), on step 3 copy them to `~/.conan/data/qt/5.15.x/_/_/package/SOME_HASH/bin` (`5.15.x` and `SOME_HASH` are placeholders).
+3. Only if you have Apple Silicon Mac and trying to build for macOS or iOS:
+
+    1. Open file `~/.conan/data/qt/5.15.x/_/_/export/conanfile.py` (`5.15.x` is a placeholder), search for string `Designer` (there should be only one match), comment this line and the one above it by inserting `#` in the beginning, and save the file.
+    2. (optional) If you don't want to use Rosetta, follow [instructions how to build Qt host tools for Apple Silicon](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs), on step 3 copy them to `~/.conan/data/qt/5.15.x/_/_/package/SOME_HASH/bin` (`5.15.x` and `SOME_HASH` are placeholders). Make sure **not** to copy `qt.conf`!
 
 ## Generate CMake integration
 

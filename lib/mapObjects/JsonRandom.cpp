@@ -20,6 +20,9 @@
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
+#include "../mapObjects/CObjectHandler.h"
+#include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,26 +48,31 @@ namespace JsonRandom
 		return rng.getIntRange(min, max)();
 	}
 
-	DLL_LINKAGE std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::string defaultValue)
+	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, const std::set<std::string> & valuesSet)
 	{
-		if (value.isNull())
-			return defaultValue;
-		if (value.isString())
+		if(value.isString())
 			return value.String();
-		if (!value["type"].isNull())
-			return value["type"].String();
+		
+		if(value.isStruct())
+		{
+			if(!value["type"].isNull())
+				return value["type"].String();
 
-		if (value["list"].isNull())
-			return defaultValue;
-
-		const auto & resourceList = value["list"].Vector();
-
-		if (resourceList.empty())
-			return defaultValue;
-
-		si32 index = rng.getIntRange(0, resourceList.size() - 1 )();
-
-		return resourceList[index].String();
+			if(!value["anyOf"].isNull())
+				return RandomGeneratorUtil::nextItem(value["anyOf"].Vector(), rng)->String();
+			
+			if(!value["noneOf"].isNull())
+			{
+				auto copyValuesSet = valuesSet;
+				for(auto & s : value["noneOf"].Vector())
+					copyValuesSet.erase(s.String());
+				
+				if(!copyValuesSet.empty())
+					return *RandomGeneratorUtil::nextItem(copyValuesSet, rng);
+			}
+		}
+		
+		return valuesSet.empty() ? "" : *RandomGeneratorUtil::nextItem(valuesSet, rng);
 	}
 
 	TResources loadResources(const JsonNode & value, CRandomGenerator & rng)
@@ -87,7 +95,9 @@ namespace JsonRandom
 
 	TResources loadResource(const JsonNode & value, CRandomGenerator & rng)
 	{
-		std::string resourceName = loadKey(value, rng, "");
+		std::set<std::string> defaultResources(std::begin(GameConstants::RESOURCE_NAMES), std::end(GameConstants::RESOURCE_NAMES) - 1); //except mithril
+		
+		std::string resourceName = loadKey(value, rng, defaultResources);
 		si32 resourceAmount = loadValue(value, rng, 0);
 		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).get());
 
@@ -100,9 +110,23 @@ namespace JsonRandom
 	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::vector<si32> ret;
-		for(const auto & name : PrimarySkill::names)
+		if(value.isStruct())
 		{
-			ret.push_back(loadValue(value[name], rng));
+			for(const auto & name : PrimarySkill::names)
+			{
+				ret.push_back(loadValue(value[name], rng));
+			}
+		}
+		if(value.isVector())
+		{
+			ret.resize(GameConstants::PRIMARY_SKILLS, 0);
+			std::set<std::string> defaultStats(std::begin(PrimarySkill::names), std::end(PrimarySkill::names));
+			for(const auto & element : value.Vector())
+			{
+				int id = vstd::find_pos(PrimarySkill::names, loadKey(element, rng, defaultStats));
+				if(id != -1)
+					ret[id] += loadValue(element, rng);
+			}
 		}
 		return ret;
 	}
@@ -110,10 +134,28 @@ namespace JsonRandom
 	std::map<SecondarySkill, si32> loadSecondary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::map<SecondarySkill, si32> ret;
-		for(const auto & pair : value.Struct())
+		if(value.isStruct())
 		{
-			SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
-			ret[id] = loadValue(pair.second, rng);
+			for(const auto & pair : value.Struct())
+			{
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
+				ret[id] = loadValue(pair.second, rng);
+			}
+		}
+		if(value.isVector())
+		{
+			std::set<std::string> defaultSkills;
+			for(const auto & skill : VLC->skillh->objects)
+			{
+				IObjectInterface::cb->isAllowed(2, skill->getIndex());
+				defaultSkills.insert(skill->getNameTextID());
+			}
+			
+			for(const auto & element : value.Vector())
+			{
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(element.meta, "skill", loadKey(element, rng, defaultSkills)).get());
+				ret[id] = loadValue(element, rng);
+			}
 		}
 		return ret;
 	}
@@ -152,6 +194,9 @@ namespace JsonRandom
 
 			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
 				return false;
+			
+			if(!IObjectInterface::cb->isAllowed(1, art->getIndex()))
+				return false;
 
 			if(!allowedPositions.empty())
 			{
@@ -183,7 +228,7 @@ namespace JsonRandom
 
 		vstd::erase_if(spells, [=](const SpellID & spell)
 		{
-			return VLC->spellh->objects[spell]->level != si32(value["level"].Float());
+			return VLC->spellh->getById(spell)->getLevel() != si32(value["level"].Float());
 		});
 
 		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));

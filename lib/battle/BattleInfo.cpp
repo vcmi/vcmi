@@ -24,7 +24,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
+std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack)
 {
 	auto reachability = getReachability(stack);
 
@@ -205,6 +205,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	curB->battlefieldType = battlefieldType;
 	curB->round = -2;
 	curB->activeStack = -1;
+	curB->creatureBank = creatureBank;
 
 	if(town)
 	{
@@ -561,7 +562,15 @@ BattleInfo::BattleInfo():
 	setNodeType(BATTLE);
 }
 
-BattleInfo::~BattleInfo() = default;
+BattleInfo::~BattleInfo()
+{
+	for (auto & elem : stacks)
+		delete elem;
+
+	for(int i = 0; i < 2; i++)
+		if(auto * _armyObj = battleGetArmyObject(i))
+			_armyObj->battle = nullptr;
+}
 
 int32_t BattleInfo::getActiveStackID() const
 {
@@ -653,7 +662,7 @@ int32_t BattleInfo::getEnchanterCounter(ui8 side) const
 	return sides.at(side).enchanterCounter;
 }
 
-const IBonusBearer * BattleInfo::asBearer() const
+const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;
 }

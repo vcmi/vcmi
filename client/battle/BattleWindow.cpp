@@ -89,6 +89,7 @@ void BattleWindow::createQueue()
 
 	//create stack queue and adjust our own position
 	bool embedQueue;
+	bool showQueue = settings["battle"]["showQueue"].Bool();
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")
@@ -97,13 +98,16 @@ void BattleWindow::createQueue()
 		embedQueue = GH.screenDimensions().y < 700 || queueSize == "small";
 
 	queue = std::make_shared<StackQueue>(embedQueue, owner);
-	if(!embedQueue && settings["battle"]["showQueue"].Bool())
+	if(!embedQueue && showQueue)
 	{
 		//re-center, taking into account stack queue position
 		pos.y -= queue->pos.h;
 		pos.h += queue->pos.h;
 		pos = center();
 	}
+
+	if (!showQueue)
+		queue->disable();
 }
 
 BattleWindow::~BattleWindow()
@@ -143,8 +147,8 @@ void BattleWindow::hideQueue()
 		pos.y += queue->pos.h;
 		pos.h -= queue->pos.h;
 		pos = center();
-		GH.totalRedraw();
 	}
+	GH.totalRedraw();
 }
 
 void BattleWindow::showQueue()
@@ -198,6 +202,23 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 	{
 		owner.actionsController->endCastingSpell();
 	}
+	else if(GH.isKeyboardShiftDown())
+	{
+		// save and activate setting
+		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
+		movementHighlightOnHoverCache = movementHighlightOnHover->Bool();
+		movementHighlightOnHover->Bool() = true;
+	}
+}
+
+void BattleWindow::keyReleased(const SDL_Keycode & key)
+{
+	if(!GH.isKeyboardShiftDown())
+	{
+		// set back to initial state
+		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
+		movementHighlightOnHover->Bool() = movementHighlightOnHoverCache;
+	}
 }
 
 void BattleWindow::clickRight(tribool down, bool previousState)
@@ -213,9 +234,12 @@ void BattleWindow::tacticPhaseStarted()
 	auto menuTactics = widget<CIntObject>("menuTactics");
 	auto tacticNext = widget<CIntObject>("tacticNext");
 	auto tacticEnd = widget<CIntObject>("tacticEnd");
+	auto alternativeAction = widget<CIntObject>("alternativeAction");
 
 	menuBattle->disable();
 	console->disable();
+	if (alternativeAction)
+		alternativeAction->disable();
 
 	menuTactics->enable();
 	tacticNext->enable();
@@ -231,9 +255,12 @@ void BattleWindow::tacticPhaseEnded()
 	auto menuTactics = widget<CIntObject>("menuTactics");
 	auto tacticNext = widget<CIntObject>("tacticNext");
 	auto tacticEnd = widget<CIntObject>("tacticEnd");
+	auto alternativeAction = widget<CIntObject>("alternativeAction");
 
 	menuBattle->enable();
 	console->enable();
+	if (alternativeAction)
+		alternativeAction->enable();
 
 	menuTactics->disable();
 	tacticNext->disable();
@@ -309,7 +336,7 @@ void BattleWindow::reallyFlee()
 
 void BattleWindow::reallySurrender()
 {
-	if (owner.curInt->cb->getResourceAmount(Res::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
+	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
 	{
 		owner.curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
 	}

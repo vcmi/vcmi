@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include <memory>
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
@@ -195,7 +196,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
-	void giveResource(PlayerColor player, Res::ERes which, int val) override {};
+	void giveResource(PlayerColor player, GameResID which, int val) override {};
 	virtual void giveResources(PlayerColor player, TResources resources) override {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet & creatures, bool remove) override {};
@@ -231,6 +232,7 @@ public:
 	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {};
 	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
+	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
 	void changeFogOfWar(std::unordered_set<int3, ShashInt3> & tiles, PlayerColor player, bool hide) override {}
@@ -240,6 +242,8 @@ public:
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 	void removeGUI();
+
+	void cleanThreads();
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
@@ -261,6 +265,8 @@ private:
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
 	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
+
+	std::map<PlayerColor, std::unique_ptr<boost::thread>> playerTacticThreads;
 
 	void waitForMoveAndSend(PlayerColor color);
 	void reinitScripting();

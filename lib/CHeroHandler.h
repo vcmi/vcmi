@@ -131,7 +131,7 @@ public:
 	};
 
 	//double aggression; // not used in vcmi.
-	TFaction faction;
+	FactionID faction;
 	ui8 affinity; // affinity, using EClassAffinity enum
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
@@ -146,7 +146,7 @@ public:
 
 	std::vector<int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
 
-	std::map<TFaction, int> selectionProbability; //probability of selection in towns
+	std::map<FactionID, int> selectionProbability; //probability of selection in towns
 
 	std::string imageBattleMale;
 	std::string imageBattleFemale;
@@ -196,7 +196,7 @@ public:
 					secSkillProbability[i] = 0;
 	}
 	}
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 };
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>

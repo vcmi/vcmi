@@ -148,7 +148,7 @@ const CCreature & BattleProjectileController::getShooter(const CStack * stack) c
 {
 	const CCreature * creature = stack->getCreature();
 
-	if(creature->idNumber == CreatureID::ARROW_TOWERS)
+	if(creature->getId() == CreatureID::ARROW_TOWERS)
 		creature = owner.siegeController->getTurretCreature();
 
 	if(creature->animation.missleFrameAngles.empty())

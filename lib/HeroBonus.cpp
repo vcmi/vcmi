@@ -75,9 +75,10 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
-	{"CREATURE_FACTION", std::make_shared<CreatureFactionLimiter>()},
+	{"CREATURE_FACTION", std::make_shared<AllOfLimiter>(std::initializer_list<TLimiterPtr>{std::make_shared<CreatureLevelLimiter>(), std::make_shared<FactionLimiter>()})},
+	{"SAME_FACTION", std::make_shared<FactionLimiter>()},
+	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
-	{"UNIT_ON_HEXES", std::make_shared<UnitOnHexLimiter>()}
 };
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
@@ -87,8 +88,7 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 	{"PLAYER_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER)},
 	{"HERO", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO)},
 	{"TEAM_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)}, //untested
-	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)},
-	{"ALL_CREATURES", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ALL_CREATURES)}
+	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
 }; //untested
 
 const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
@@ -790,11 +790,6 @@ int IBonusBearer::getMaxDamage(bool ranged) const
 	return valOfBonuses(selector, cachingStr);
 }
 
-si32 IBonusBearer::manaLimit() const
-{
-	return 0;
-}
-
 int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 {
 	static const CSelector selectorAllSkills = Selector::type()(Bonus::PRIMARY_SKILL);
@@ -1418,13 +1413,6 @@ void CBonusSystemNode::getRedAncestors(TNodes &out)
 		parent->getRedAncestors(out);
 }
 
-void CBonusSystemNode::getRedDescendants(TNodes &out)
-{
-	getRedChildren(out);
-	FOREACH_RED_CHILD(c)
-		c->getRedChildren(out);
-}
-
 void CBonusSystemNode::exportBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator)
@@ -1700,7 +1688,7 @@ std::string Bonus::nameForBonus() const
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
 	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
-		return (*VLC->spellh)[static_cast<SpellID::ESpellID>(subtype)]->identifier;
+		return VLC->spells()->getByIndex(subtype)->getJsonKey();
 	case Bonus::SPECIAL_UPGRADE:
 		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo[0]);
 	case Bonus::GENERATE_RESOURCE:
@@ -1782,7 +1770,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::ESTATES || deprecatedSubtypeStr == "skill.estates")
 		{
 			type = Bonus::GENERATE_RESOURCE;
-			subtype = Res::GOLD;
+			subtype = GameResID(EGameResID::GOLD);
 			subtypeRelevant = true;
 		}
 		else if(deprecatedSubtype == SecondarySkill::AIR_MAGIC || deprecatedSubtypeStr == "skill.airMagic")
@@ -2308,12 +2296,6 @@ CBonusSystemNode::ENodeTypes IPropagator::getPropagatorType() const
 	return CBonusSystemNode::ENodeTypes::NONE;
 }
 
-CPropagatorNodeType::CPropagatorNodeType()
-	:nodeType(CBonusSystemNode::ENodeTypes::UNKNOWN)
-{
-
-}
-
 CPropagatorNodeType::CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType)
 	: nodeType(NodeType)
 {
@@ -2374,46 +2356,83 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureFactionLimiter::CreatureFactionLimiter(TFaction creatureFaction)
+FactionLimiter::FactionLimiter(FactionID creatureFaction)
 	: faction(creatureFaction)
 {
 }
 
-CreatureFactionLimiter::CreatureFactionLimiter():
-	faction(static_cast<TFaction>(-1))
+ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context) const
 {
+	const auto * bearer = dynamic_cast<const INativeTerrainProvider*>(&context.node);
+
+	if(bearer)
+	{
+		if(faction != FactionID::DEFAULT)
+			return bearer->getFaction() == faction ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+
+		switch(context.b->source)
+		{
+			case Bonus::CREATURE_ABILITY:
+				return faction == CreatureID(context.b->sid).toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+			
+			case Bonus::TOWN_STRUCTURE:
+				return faction == FactionID(Bonus::getHighFromSid32(context.b->sid)) ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+
+			//TODO: other sources of bonuses
+		}
+	}
+	return ILimiter::EDecision::DISCARD; //Discard by default
 }
 
-ILimiter::EDecision CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
+std::string FactionLimiter::toString() const
 {
-	const CCreature *c = retrieveCreature(&context.node);
-	auto accept = c && c->faction == faction;
-	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
-}
-
-std::string CreatureFactionLimiter::toString() const
-{
-	boost::format fmt("CreatureFactionLimiter(faction=%s)");
+	boost::format fmt("FactionLimiter(faction=%s)");
 	fmt % VLC->factions()->getByIndex(faction)->getJsonKey();
 	return fmt.str();
 }
 
-JsonNode CreatureFactionLimiter::toJsonNode() const
+JsonNode FactionLimiter::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
-	root["type"].String() = "CREATURE_FACTION_LIMITER";
+	root["type"].String() = "FACTION_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getByIndex(faction)->getJsonKey()));
 
 	return root;
 }
 
-CreatureAlignmentLimiter::CreatureAlignmentLimiter()
-	: alignment(-1)
+CreatureLevelLimiter::CreatureLevelLimiter(uint32_t minLevel, uint32_t maxLevel) :
+	minLevel(minLevel),
+	maxLevel(maxLevel)
 {
 }
 
-CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
+ILimiter::EDecision CreatureLevelLimiter::limit(const BonusLimitationContext &context) const
+{
+	const auto *c = retrieveCreature(&context.node);
+	auto accept = c && (c->getLevel() < maxLevel && c->getLevel() >= minLevel);
+	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
+}
+
+std::string CreatureLevelLimiter::toString() const
+{
+	boost::format fmt("CreatureLevelLimiter(minLevel=%d,maxLevel=%d)");
+	fmt % minLevel % maxLevel;
+	return fmt.str();
+}
+
+JsonNode CreatureLevelLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_LEVEL_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::intNode(minLevel));
+	root["parameters"].Vector().push_back(JsonUtils::intNode(maxLevel));
+
+	return root;
+}
+
+CreatureAlignmentLimiter::CreatureAlignmentLimiter(EAlignment Alignment)
 	: alignment(Alignment)
 {
 }
@@ -2436,7 +2455,7 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 std::string CreatureAlignmentLimiter::toString() const
 {
 	boost::format fmt("CreatureAlignmentLimiter(alignment=%s)");
-	fmt % EAlignment::names[alignment];
+	fmt % GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)];
 	return fmt.str();
 }
 
@@ -2445,7 +2464,7 @@ JsonNode CreatureAlignmentLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_ALIGNMENT_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(EAlignment::names[alignment]));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)]));
 
 	return root;
 }
@@ -2473,35 +2492,8 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	return ILimiter::EDecision::DISCARD;
 }
 
-ILimiter::EDecision StackOwnerLimiter::limit(const BonusLimitationContext &context) const
-{
-	const CStack * s = retrieveStackBattle(&context.node);
-	if(s && s->owner == owner)
-		return ILimiter::EDecision::ACCEPT;
-
-	const CStackInstance * csi = retrieveStackInstance(&context.node);
-	if(csi && csi->armyObj && csi->armyObj->tempOwner == owner)
-		return ILimiter::EDecision::ACCEPT;
-	return ILimiter::EDecision::DISCARD;
-}
-
-StackOwnerLimiter::StackOwnerLimiter()
-	: owner(-1)
-{
-}
-
-StackOwnerLimiter::StackOwnerLimiter(const PlayerColor & Owner):
-	owner(Owner)
-{
-}
-
-OppositeSideLimiter::OppositeSideLimiter():
-	owner(PlayerColor::CANNOT_DETERMINE)
-{
-}
-
-OppositeSideLimiter::OppositeSideLimiter(const PlayerColor & Owner):
-	owner(Owner)
+OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
+	owner(std::move(Owner))
 {
 }
 
@@ -2513,6 +2505,11 @@ ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & co
 }
 
 // Aggregate/Boolean Limiters
+
+AggregateLimiter::AggregateLimiter(std::vector<TLimiterPtr> limiters):
+	limiters(std::move(limiters))
+{
+}
 
 void AggregateLimiter::add(const TLimiterPtr & limiter)
 {
@@ -2533,6 +2530,11 @@ const std::string AllOfLimiter::aggregator = "allOf";
 const std::string & AllOfLimiter::getAggregator() const
 {
 	return aggregator;
+}
+
+AllOfLimiter::AllOfLimiter(std::vector<TLimiterPtr> limiters):
+	AggregateLimiter(limiters)
+{
 }
 
 ILimiter::EDecision AllOfLimiter::limit(const BonusLimitationContext & context) const
@@ -2557,6 +2559,11 @@ const std::string & AnyOfLimiter::getAggregator() const
 	return aggregator;
 }
 
+AnyOfLimiter::AnyOfLimiter(std::vector<TLimiterPtr> limiters):
+	AggregateLimiter(limiters)
+{
+}
+
 ILimiter::EDecision AnyOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
@@ -2577,6 +2584,11 @@ const std::string NoneOfLimiter::aggregator = "noneOf";
 const std::string & NoneOfLimiter::getAggregator() const
 {
 	return aggregator;
+}
+
+NoneOfLimiter::NoneOfLimiter(std::vector<TLimiterPtr> limiters):
+	AggregateLimiter(limiters)
+{
 }
 
 ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context) const
@@ -2743,7 +2755,7 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 		//otherwise we'd end up multiplying twice
 		if(stack.base == nullptr)
 		{
-			int level = stack.type->level;
+			int level = stack.type->getLevel();
 			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
 			newBonus->val *= level;
 			return newBonus;

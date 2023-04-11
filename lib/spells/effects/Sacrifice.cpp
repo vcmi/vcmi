@@ -21,15 +21,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-static const std::string EFFECT_NAME = "core:sacrifice";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Sacrifice, EFFECT_NAME);
 
 void Sacrifice::adjustTargetTypes(std::vector<TargetType> & types) const
 {

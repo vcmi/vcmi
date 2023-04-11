@@ -64,7 +64,7 @@ CreatureID CCreature::getId() const
 	return idNumber;
 }
 
-const IBonusBearer * CCreature::accessBonuses() const
+const IBonusBearer * CCreature::getBonusBearer() const
 {
 	return this;
 }
@@ -109,9 +109,9 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-int32_t CCreature::getFactionIndex() const
+FactionID CCreature::getFaction() const
 {
-	return faction;
+	return FactionID(faction);
 }
 
 int32_t CCreature::getBaseAttack() const
@@ -162,12 +162,22 @@ int32_t CCreature::getBaseShots() const
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
-int32_t CCreature::getCost(int32_t resIndex) const
+int32_t CCreature::getRecruitCost(GameResID resIndex) const
 {
 	if(resIndex >= 0 && resIndex < cost.size())
 		return cost[resIndex];
 	else
 		return 0;
+}
+
+TResources CCreature::getFullRecruitCost() const
+{
+	return cost;
+}
+
+bool CCreature::hasUpgrades() const 
+{
+	return !upgrades.empty();
 }
 
 std::string CCreature::getNameTranslated() const
@@ -256,7 +266,7 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return (*VLC->townh)[faction]->alignment == EAlignment::GOOD;
+	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::GOOD;
 }
 
 /**
@@ -265,7 +275,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return (*VLC->townh)[faction]->alignment == EAlignment::EVIL;
+	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
@@ -307,7 +317,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 {
 	//TODO upgrade of upgrade?
-	return vstd::contains(upgrades, anotherCre->idNumber);
+	return vstd::contains(upgrades, anotherCre->getId());
 }
 
 bool CCreature::valid() const
@@ -318,24 +328,6 @@ bool CCreature::valid() const
 std::string CCreature::nodeName() const
 {
 	return "\"" + getNamePluralTextID() + "\"";
-}
-
-bool CCreature::isItNativeTerrain(TerrainId terrain) const
-{
-	auto native = getNativeTerrain();
-	return native == terrain || native == ETerrainId::ANY_TERRAIN;
-}
-
-TerrainId CCreature::getNativeTerrain() const
-{
-	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, static_cast<int>(ETerrainId::ANY_TERRAIN));
-
-	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
-	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? TerrainId(ETerrainId::ANY_TERRAIN)
-		: (*VLC->townh)[faction]->nativeTerrain;
 }
 
 void CCreature::updateFrom(const JsonNode & data)
@@ -411,13 +403,6 @@ CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
 	VLC->creh = this;
-
-	allCreatures.setDescription("All creatures");
-	allCreatures.setNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES);
-	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
-
-	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
-		creaturesOfLevel[i].setDescription("Creatures of tier " + std::to_string(i));
 	loadCommanders();
 }
 
@@ -614,7 +599,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost = Res::ResourceSet(node["cost"]);
+	cre->cost = ResourceSet(node["cost"]);
 
 	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
 	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
@@ -647,18 +632,18 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 		JsonNode conf;
 		conf.setMeta(scope);
 
-		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->idNumber.num);
+		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!cre->advMapDef.empty())
 		{
 			JsonNode templ;
 			templ["animation"].String() = cre->advMapDef;
 			templ.setMeta(scope);
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->addTemplate(templ);
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->idNumber.num);
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 	});
 
 	return cre;
@@ -682,10 +667,79 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 	return ret;
 }
 
-void CCreatureHandler::loadCrExpBon()
+void CCreatureHandler::loadCrExpMod()
+{
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	{
+		//Calculate rank exp values, formula appears complicated bu no parsing needed
+		expRanks.resize(8);
+		int dif = 0;
+		int it = 8000; //ignore name of this variable
+		expRanks[0].push_back(it);
+		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
+		{
+			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
+			dif += it/5;
+		}
+		for (int i = 1; i < 8; ++i) //used for tiers 1-7
+		{
+			dif = 0;
+			it = 1000 * i;
+			expRanks[i].push_back(it);
+			for (int j = 1; j < 10; ++j)
+			{
+				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
+				dif += it/5;
+			}
+		}
+
+		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
+
+		expBonParser.endLine(); //header
+
+		maxExpPerBattle.resize(8);
+		for (int i = 1; i < 8; ++i)
+		{
+			expBonParser.readString(); //index
+			expBonParser.readString(); //float multiplier -> hardcoded
+			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
+			expBonParser.readString(); //already calculated
+
+			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
+			expRanks[i].push_back(expRanks[i].back() + static_cast<ui32>(expBonParser.readNumber()));
+
+			expBonParser.endLine();
+		}
+		//skeleton gets exp penalty
+		objects[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+		objects[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+		//exp for tier >7, rank 11
+		expRanks[0].push_back(147000);
+		expAfterUpgrade = 75; //percent
+		maxExpPerBattle[0] = maxExpPerBattle[7];
+	}
+}
+
+
+void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
+		logGlobal->debug("\tLoading stack experience bonuses");
+		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
+			auto limiter = std::make_shared<CreatureLevelLimiter>();
+			b->addLimiter(limiter);
+			globalEffects.addNewBonus(b);
+		};
+		auto addBonusForTier = [&](int tier, std::shared_ptr<Bonus> b) {
+			assert(vstd::iswithin(tier, 1, 7));
+			//bonuses from level 7 are given to high-level creatures too
+			auto max = tier == GameConstants::CREATURES_PER_TOWN ? std::numeric_limits<int>::max() : tier + 1;
+			auto limiter = std::make_shared<CreatureLevelLimiter>(tier, max);
+			b->addLimiter(limiter);
+			globalEffects.addNewBonus(b);
+		};
+
 		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
 
 		Bonus b; //prototype with some default properties
@@ -723,10 +777,7 @@ void CCreatureHandler::loadCrExpBon()
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-			{
 				addBonusForTier(7, b);
-				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
-			}
 			parser.endLine();
 		}
 		do //parse everything that's left
@@ -742,53 +793,6 @@ void CCreatureHandler::loadCrExpBon()
 			}
 		}
 		while (parser.endLine());
-
-		//Calculate rank exp values, formula appears complicated bu no parsing needed
-		expRanks.resize(8);
-		int dif = 0;
-		int it = 8000; //ignore name of this variable
-		expRanks[0].push_back(it);
-		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
-		{
-			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
-			dif += it/5;
-		}
-		for (int i = 1; i < 8; ++i)
-		{
-			dif = 0;
-			it = 1000 * i;
-			expRanks[i].push_back(it);
-			for (int j = 1; j < 10; ++j)
-			{
-				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
-				dif += it/5;
-			}
-		}
-
-		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
-
-		expBonParser.endLine(); //header
-
-		maxExpPerBattle.resize(8);
-		for (int i = 1; i < 8; ++i)
-		{
-			expBonParser.readString(); //index
-			expBonParser.readString(); //float multiplier -> hardcoded
-			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
-			expBonParser.readString(); //already calculated
-
-			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
-			expRanks[i].push_back(expRanks[i].back() + static_cast<ui32>(expBonParser.readNumber()));
-
-			expBonParser.endLine();
-		}
-		//skeleton gets exp penalty
-		objects[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		objects[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		//exp for tier >7, rank 11
-		expRanks[0].push_back(147000);
-		expAfterUpgrade = 75; //percent
-		maxExpPerBattle[0] = maxExpPerBattle[7];
 
 	}//end of Stack Experience
 }
@@ -914,7 +918,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 
 	VLC->modh->identifiers.requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
-		creature->faction = faction;
+		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())
@@ -964,9 +968,6 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 {
 	for (const JsonNode &exp : input.Vector())
 	{
-		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
-		bonus->source = Bonus::STACK_EXPERIENCE;
-		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();
 		int lowerLimit = 1;//, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
@@ -975,8 +976,14 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if(val.Bool())
 				{
+					// parse each bonus separately
+					// we can not create copies since identifiers resolution does not tracks copies
+					// leading to unset identifier values in copies
+					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
+					bonus->source = Bonus::STACK_EXPERIENCE;
+					bonus->duration = Bonus::PERMANENT;
 					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (std::make_shared<Bonus>(*bonus)); //bonuses must be unique objects
+					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
 				++lowerLimit;
@@ -989,9 +996,14 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if (val.Float() != lastVal)
 				{
-					bonus->val = static_cast<int>(val.Float()) - lastVal;
+					JsonNode bonusInput = exp["bonus"];
+					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
+
+					auto bonus = JsonUtils::parseBonus (bonusInput);
+					bonus->source = Bonus::STACK_EXPERIENCE;
+					bonus->duration = Bonus::PERMANENT;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (std::make_shared<Bonus>(*bonus));
+					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());
 				++lowerLimit;
@@ -1335,19 +1347,17 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	{
 		do
 		{
-			r = (*RandomGeneratorUtil::nextItem(objects, rand))->idNumber;
+			r = (*RandomGeneratorUtil::nextItem(objects, rand))->getId();
 		} while (objects[r] && objects[r]->special); // find first "not special" creature
 	}
 	else
 	{
 		assert(vstd::iswithin(tier, 1, 7));
 		std::vector<CreatureID> allowed;
-		for(const CBonusSystemNode *b : creaturesOfLevel[tier].getChildrenNodes())
+		for(const auto & creature : objects)
 		{
-			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			const auto * crea = dynamic_cast<const CCreature *>(b);
-			if(crea && !crea->special)
-				allowed.push_back(crea->idNumber);
+			if(!creature->special && creature->level == tier)
+				allowed.push_back(creature->getId());
 		}
 
 		if(allowed.empty())
@@ -1362,49 +1372,10 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, const std::shared_ptr<Bonus> & b)
-{
-	assert(vstd::iswithin(tier, 1, 7));
-	creaturesOfLevel[tier].addNewBonus(b);
-}
-
-void CCreatureHandler::addBonusForAllCreatures(const std::shared_ptr<Bonus> & b)
-{
-	const auto & exportedBonuses = allCreatures.getExportedBonusList();
-	for(const auto & bonus : exportedBonuses)
-	{
-		if(bonus->type == b->type && bonus->subtype == b->subtype)
-			return;
-	}
-	allCreatures.addNewBonus(b);
-}
-
-void CCreatureHandler::removeBonusesFromAllCreatures()
-{
-	allCreatures.removeBonuses(Selector::all);
-}
-
-void CCreatureHandler::buildBonusTreeForTiers()
-{
-	for(CCreature * c : objects)
-	{
-		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
-			c->attachTo(creaturesOfLevel[c->level]);
-		else
-			c->attachTo(creaturesOfLevel[0]);
-	}
-	for(CBonusSystemNode &b : creaturesOfLevel)
-		b.attachTo(allCreatures);
-}
 
 void CCreatureHandler::afterLoadFinalization()
 {
 
-}
-
-void CCreatureHandler::deserializationFix()
-{
-	buildBonusTreeForTiers();
 }
 
 VCMI_LIB_NAMESPACE_END

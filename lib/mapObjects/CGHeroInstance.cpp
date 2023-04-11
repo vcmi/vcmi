@@ -84,6 +84,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return static_cast<ui32>(ret);
 }
 
+FactionID CGHeroInstance::getFaction() const
+{
+	return FactionID(type->heroClass->faction);
+}
+
+const IBonusBearer* CGHeroInstance::getBonusBearer() const
+{
+	return this;
+}
+
 TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
@@ -96,7 +106,7 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 
 	for(const auto & stack : stacks)
 	{
-		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
 		if(stackNativeTerrain == ETerrainId::NONE)
 			continue;
@@ -325,7 +335,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander)
 	{
-		commander = new CCommanderInstance(type->heroClass->commander->idNumber);
+		commander = new CCommanderInstance(type->heroClass->commander->getId());
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
@@ -570,7 +580,7 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 
 int32_t CGHeroInstance::getCasterUnitId() const
 {
-	return -1; //TODO: special value for attacker/defender hero
+	return id.getNum();
 }
 
 int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
@@ -667,6 +677,11 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
+}
+
+const CGHeroInstance * CGHeroInstance::getHeroCaster() const
+{
+	return this;
 }
 
 void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) const
@@ -790,7 +805,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 			};
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, VLC->creh->objects[casualty.first]->level);
+				vstd::amax(maxCasualtyLevel, VLC->creatures()->getByIndex(casualty.first)->getLevel());
 			// pick best bonus available
 			std::shared_ptr<Bonus> topPick;
 			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
@@ -806,8 +821,8 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				{
 					auto quality = [getCreatureID](const std::shared_ptr<Bonus> & pick) -> std::tuple<int, int, int>
 					{
-						const CCreature * c = VLC->creh->objects[getCreatureID(pick)];
-						return std::tuple<int, int, int> {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
+						const auto * c = getCreatureID(pick).toCreature();
+						return std::tuple<int, int, int> {c->getLevel(), static_cast<int>(c->getFullRecruitCost().marketValue()), -pick->additionalInfo[1]};
 					};
 					if(quality(topPick) < quality(newPick))
 						topPick = newPick;
@@ -840,7 +855,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			const CCreature * c = VLC->creh->objects[casualty.first];
 			double raisedFromCasualty = std::min(c->MaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
-			if(c->level < requiredCasualtyLevel)
+			if(c->getLevel() < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;
 			raisedUnits += raisedFromCasualty;
 		}
@@ -957,7 +972,7 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 	addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
-EAlignment::EAlignment CGHeroInstance::getAlignment() const
+EAlignment CGHeroInstance::getAlignment() const
 {
 	return type->heroClass->getAlignment();
 }

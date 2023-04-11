@@ -82,6 +82,7 @@ public:
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
+	virtual void forceEndTacticPhase(){}; //force the tatic phase to end to clean up the tactic phase thread
 };
 
 /// Central class for managing human player / AI interface logic
@@ -162,7 +163,7 @@ public:
 	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
-	virtual void battleEnd(const BattleResult *br) override;
+	virtual void battleEnd(const BattleResult *br, QueryID queryID) override;
 	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override;

@@ -654,7 +654,7 @@ CArtifactsOfHero::~CArtifactsOfHero()
 		}
 		else
 		{
-			//TODO remove artifact
+			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
 		}
 	}
 }

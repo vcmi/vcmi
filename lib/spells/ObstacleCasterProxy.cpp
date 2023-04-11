@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "ObstacleCasterProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -57,6 +58,11 @@ int64_t ObstacleCasterProxy::getEffectValue(const Spell * spell) const
 		return obs.minimalDamage;
 }
 
+int32_t SilentCaster::manaLimit() const
+{
+	return 0;
+}
+
 SilentCaster::SilentCaster(PlayerColor owner_, const Caster * hero_):
 	ProxyCaster(hero_),
 	owner(std::move(owner_))
@@ -85,7 +91,6 @@ PlayerColor SilentCaster::getCasterOwner() const
 
 	return owner;
 }
-
 
 }
 VCMI_LIB_NAMESPACE_END

@@ -446,15 +446,7 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 
 void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped, bool fromStart)
 {
-	try
-	{
-		queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
-	}
-	catch(std::exception &e)
-	{
-		logGlobal->error("Failed to queue music. setName=%s\tmusicURI=%s", setName, musicURI);
-		logGlobal->error("Exception: %s", e.what());
-	}
+	queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 }
 
 void CMusicHandler::stopMusic(int fade_ms)
@@ -563,12 +555,20 @@ void MusicEntry::load(std::string musicURI)
 	}
 
 	currentName = musicURI;
+	music = nullptr;
 
 	logGlobal->trace("Loading music file %s", musicURI);
 
-	auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
-
-	music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
+	try
+	{
+		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
+		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->error("Failed to load music. setName=%s\tmusicURI=%s", setName, musicURI);
+		logGlobal->error("Exception: %s", e.what());
+	}
 
 	if(!music)
 	{

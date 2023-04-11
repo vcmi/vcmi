@@ -76,7 +76,7 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 
 	for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
 	{
-		if((obj->ID == Obj::RESOURCE && obj->subID == Res::GOLD)
+		if((obj->ID == Obj::RESOURCE && obj->subID == GameResID(EGameResID::GOLD))
 			|| obj->ID == Obj::TREASURE_CHEST
 			|| obj->ID == Obj::CAMPFIRE
 			|| obj->ID == Obj::WATER_WHEEL)

@@ -29,7 +29,7 @@ const std::vector<PlayerProxy::CustomRegType> PlayerProxy::REGISTER_CUSTOM =
 //	virtual PlayerColor getColor() const = 0;
 //	virtual TeamID getTeam() const = 0;
 //	virtual bool isHuman() const = 0;
-//	virtual const IBonusBearer * accessBonuses() const = 0;
+//	virtual const IBonusBearer * getBonusBearer() const = 0;
 //	virtual int getResourceAmount(int type) const = 0;
 
 };

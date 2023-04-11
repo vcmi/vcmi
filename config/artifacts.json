@@ -1377,6 +1377,18 @@
 				"subtype" : 1,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 0,
+				"valueType" : "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
+			},
+			{
+				"type" : "SPELL_RESISTANCE_AURA",
+				"val" : 0,
+				"valueType" : "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
 			}
 		],
 		"index" : 93,

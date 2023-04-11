@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "Global.h"
 #include "StdInc.h"
 #include "Client.h"
 
@@ -31,6 +32,7 @@
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/Connection.h"
 
+#include <memory>
 #include <vcmi/events/EventBus.h>
 
 #if SCRIPTING_ENABLED
@@ -369,6 +371,9 @@ void CClient::endGame()
 		logNetwork->info("Deleted mapHandler and gameState.");
 	}
 
+	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
+	cleanThreads();
+
 	playerint.clear();
 	battleints.clear();
 	battleCallbacks.clear();
@@ -553,13 +558,29 @@ void CClient::battleStarted(const BattleInfo * info)
 	auto & leftSide = info->sides[0], & rightSide = info->sides[1];
 
 	//If quick combat is not, do not prepare interfaces for battleint
-	if(!settings["adventure"]["quickCombat"].Bool())
+	auto callBattleStart = [&](PlayerColor color, ui8 side)
 	{
-		if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
-			att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
+		if(vstd::contains(battleints, color))
+			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
+	};
+	
+	callBattleStart(leftSide.color, 0);
+	callBattleStart(rightSide.color, 1);
+	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		callBattleStart(PlayerColor::SPECTATOR, 1);
+	
+	if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
+		att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
 
-		if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
-			def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
+	if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
+		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
+	
+	//Remove player interfaces for auto battle (quickCombat option)
+	if(att && att->isAutoFightOn)
+	{
+		att.reset();
+		def.reset();
 	}
 
 	if(!settings["session"]["headless"].Bool())
@@ -579,21 +600,10 @@ void CClient::battleStarted(const BattleInfo * info)
 		}
 	}
 
-	auto callBattleStart = [&](PlayerColor color, ui8 side)
-	{
-		if(vstd::contains(battleints, color))
-			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
-	};
-
-	callBattleStart(leftSide.color, 0);
-	callBattleStart(rightSide.color, 1);
-	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		callBattleStart(PlayerColor::SPECTATOR, 1);
-
 	if(info->tacticDistance && vstd::contains(battleints, info->sides[info->tacticsSide].color))
 	{
-		boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide].color]);
+		PlayerColor color = info->sides[info->tacticsSide].color;
+		playerTacticThreads[color] = std::make_unique<boost::thread>(&CClient::commenceTacticPhaseForInt, this, battleints[color]);
 	}
 }
 
@@ -626,6 +636,7 @@ void CClient::battleFinished()
 		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
 
 	setBattle(nullptr);
+	gs->curB.dellNull();
 }
 
 void CClient::startPlayerBattleAction(PlayerColor color)
@@ -752,6 +763,23 @@ void CClient::removeGUI()
 	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
+}
+
+void CClient::cleanThreads()
+{
+	stopAllBattleActions();
+
+	while (!playerTacticThreads.empty())
+	{
+		PlayerColor color = playerTacticThreads.begin()->first;
+
+		//set tacticcMode of the players to false to stop tacticThread
+		if (vstd::contains(battleints, color))
+			battleints[color]->forceEndTacticPhase();
+
+		playerTacticThreads[color]->join();
+		playerTacticThreads.erase(color);
+	}
 }
 
 #ifdef VCMI_ANDROID

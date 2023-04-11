@@ -229,7 +229,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				loot << "%d %s";
 				loot.addReplacement(iw.components.back().val);
 				loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
-				cb->giveResource(hero->getOwner(), static_cast<Res::ERes>(it), bc->resources[it]);
+				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
 			}
 		}
 		//grant artifacts
@@ -246,9 +246,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.text.addTxt(MetaString::ADVOB_TXT, textID);
 			if (textID == 34)
 			{
-				const CCreature * strongest = boost::range::max_element(bc->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
+				const auto * strongest = boost::range::max_element(bc->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
 				{
-					return a.type->fightValue < b.type->fightValue;
+					return a.type->getFightValue() < b.type->getFightValue();
 				})->type;
 
 				iw.text.addReplacement(MetaString::CRE_PL_NAMES, strongest->getId());
@@ -305,7 +305,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		CCreatureSet ourArmy;
 		for(const auto & slot : bc->creatures)
 		{
-			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->idNumber), slot.type->getId(), slot.count);
+			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->getId()), slot.type->getId(), slot.count);
 		}
 
 		for(const auto & elem : ourArmy.Slots())

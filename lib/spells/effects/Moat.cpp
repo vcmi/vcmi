@@ -22,14 +22,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:moat";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Moat, EFFECT_NAME);
 
 static void serializeMoatHexes(JsonSerializeFormat & handler, const std::string & fieldName, std::vector<std::vector<BattleHex>> & moatHexes)
 {
@@ -87,7 +83,7 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 
 		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
-			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->town->faction->getIndex(), BuildingID::CITADEL);
+			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->getFaction(), BuildingID::CITADEL);
 			nb.source = Bonus::TOWN_STRUCTURE;
 		}
 		else

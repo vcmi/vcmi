@@ -263,7 +263,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
 			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
-			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
+			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
 			if (creaturesAccumulate && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
 			else
@@ -287,7 +287,7 @@ void CGDwelling::updateGuards() const
 	//default condition - creatures are of level 5 or higher
 	for (auto creatureEntry : creatures)
 	{
-		if (VLC->creh->objects[creatureEntry.second.at(0)]->level >= 5 && ID != Obj::REFUGEE_CAMP)
+		if (VLC->creatures()->getByIndex(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
 		{
 			guarded = true;
 			break;
@@ -299,14 +299,14 @@ void CGDwelling::updateGuards() const
 		for (auto creatureEntry : creatures)
 		{
 			const CCreature * crea = VLC->creh->objects[creatureEntry.second.at(0)];
-			SlotID slot = getSlotFor(crea->idNumber);
+			SlotID slot = getSlotFor(crea->getId());
 
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
 			{
 				ChangeStackCount csc;
 				csc.army = this->id;
 				csc.slot = slot;
-				csc.count = crea->growth * 3;
+				csc.count = crea->getGrowth() * 3;
 				csc.absoluteValue = true;
 				cb->sendAndApply(&csc);
 			}
@@ -315,8 +315,8 @@ void CGDwelling::updateGuards() const
 				InsertNewStack ns;
 				ns.army = this->id;
 				ns.slot = slot;
-				ns.type = crea->idNumber;
-				ns.count = crea->growth * 3;
+				ns.type = crea->getId();
+				ns.count = crea->getGrowth() * 3;
 				cb->sendAndApply(&ns);
 			}
 		}
@@ -326,10 +326,10 @@ void CGDwelling::updateGuards() const
 void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 {
 	CreatureID crid = creatures[0].second[0];
-	CCreature *crs = VLC->creh->objects[crid];
+	auto *crs = crid.toCreature();
 	TQuantity count = creatures[0].first;
 
-	if(crs->level == 1  &&  ID != Obj::REFUGEE_CAMP) //first level - creatures are for free
+	if(crs->getLevel() == 1  &&  ID != Obj::REFUGEE_CAMP) //first level - creatures are for free
 	{
 		if(count) //there are available creatures
 		{
@@ -538,7 +538,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		return ret; //no dwelling
 
 	const CCreature *creature = VLC->creh->objects[creatures[level].second.back()];
-	const int base = creature->growth;
+	const int base = creature->getGrowth();
 	int castleBonus = 0;
 
 	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
@@ -550,11 +550,11 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	if(town->hordeLvl.at(0) == level)//horde 1
 		if(hasBuilt(BuildingID::HORDE_1))
-			ret.entries.emplace_back(subID, BuildingID::HORDE_1, creature->hordeGrowth);
+			ret.entries.emplace_back(subID, BuildingID::HORDE_1, creature->getHorde());
 
 	if(town->hordeLvl.at(1) == level)//horde 2
 		if(hasBuilt(BuildingID::HORDE_2))
-			ret.entries.emplace_back(subID, BuildingID::HORDE_2, creature->hordeGrowth);
+			ret.entries.emplace_back(subID, BuildingID::HORDE_2, creature->getHorde());
 
 	//statue-of-legion-like bonus: % to base+castle
 	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH_PERCENT));
@@ -915,7 +915,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 			int resID = rand.nextInt(2, 5); //bonus to random rare resource
 			resID = (resID==2)?1:resID;
 			int resVal = rand.nextInt(1, 4);//with size 1..4
-			cb->giveResource(tempOwner, static_cast<Res::ERes>(resID), resVal);
+			cb->giveResource(tempOwner, static_cast<EGameResID>(resID), resVal);
 			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_FIRST, resID);
 			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_SECOND, resVal);
 		}
@@ -938,7 +938,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 				std::vector<SlotID> nativeCrits; //slots
 				for(const auto & elem : Slots())
 				{
-					if (elem.second->type->faction == subID) //native
+					if (elem.second->type->getFaction() == subID) //native
 					{
 						nativeCrits.push_back(elem.first); //collect matching slots
 					}
@@ -951,7 +951,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 					const CCreature *c = getCreature(pos);
 					if (rand.nextInt(99) < 90 || c->upgrades.empty()) //increase number if no upgrade available
 					{
-						cb->changeStackCount(sl, c->growth);
+						cb->changeStackCount(sl, c->getGrowth());
 					}
 					else //upgrade
 					{
@@ -968,7 +968,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 
 						TQuantity count = creatureGrowth(i);
 						if (!count) // no dwelling
-							count = VLC->creh->objects[c]->growth;
+							count = VLC->creh->objects[c]->getGrowth();
 
 						{//no lower tiers or above current month
 
@@ -1232,12 +1232,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 			continue;
 
 		for(auto & bonus : building->buildingBonuses)
-		{
-			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
-				VLC->creh->addBonusForAllCreatures(bonus);
-			else
-				addNewBonus(bonus);
-		}
+			addNewBonus(bonus);
 	}
 }
 
@@ -1617,6 +1612,16 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
+FactionID CGTownInstance::getFaction() const
+{
+	return town->faction->getId();
+}
+
+TerrainId CGTownInstance::getNativeTerrain() const
+{
+	return town->faction->getNativeTerrain();
+}
+
 PlayerColor CGTownBuilding::getOwner() const
 {
 	return town->getOwner();
@@ -1764,7 +1769,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 			break;
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
-			const auto building = town->town->buildings.at(bID);
+			const auto building = town->getTown()->buildings.at(bID);
 			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
 			{
 				const auto & bonuses = building->onVisitBonuses;
@@ -1848,7 +1853,7 @@ int GrowthInfo::totalGrowth() const
 
 std::string CGTownBuilding::getVisitingBonusGreeting() const
 {
-	auto bonusGreeting = town->town->getGreeting(bType);
+	auto bonusGreeting = town->getTown()->getGreeting(bType);
 
 	if(!bonusGreeting.empty())
 		return bonusGreeting;
@@ -1874,15 +1879,15 @@ std::string CGTownBuilding::getVisitingBonusGreeting() const
 		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingDefence"));
 		break;
 	}
-	auto buildingName = town->town->getSpecialBuilding(bType)->getNameTranslated();
+	auto buildingName = town->getTown()->getSpecialBuilding(bType)->getNameTranslated();
 
 	if(bonusGreeting.empty())
 	{
 		bonusGreeting = "Error: Bonus greeting for '%s' is not localized.";
-		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->town->faction->getNameTranslated());
+		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->getTown()->faction->getNameTranslated());
 	}
 	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
-	town->town->setGreeting(bType, bonusGreeting);
+	town->getTown()->setGreeting(bType, bonusGreeting);
 	return bonusGreeting;
 }
 
@@ -1891,7 +1896,7 @@ std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 	if(bonus.type == Bonus::TOWN_MAGIC_WELL)
 	{
 		auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingInTownMagicWell"));
-		auto buildingName = town->town->getSpecialBuilding(bType)->getNameTranslated();
+		auto buildingName = town->getTown()->getSpecialBuilding(bType)->getNameTranslated();
 		boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 		return bonusGreeting;
 	}

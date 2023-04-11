@@ -112,6 +112,9 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 				continue;
 			
 			obj.setPosition(tile);
+
+			if (obj.getVisibleTop().y < 0)
+				continue;
 			
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
 				continue;
@@ -131,6 +134,9 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		for(const auto & tile : searchArea.getTiles())
 		{
 			obj.setPosition(tile);
+
+			if (obj.getVisibleTop().y < 0)
+				continue;
 			
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
 				continue;
@@ -424,26 +430,26 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	{
 		if(cre->special)
 			continue;
-		if(!cre->AIValue) //bug #2681
+		if(!cre->getAIValue()) //bug #2681
 			continue;
-		if(!vstd::contains(zone.getMonsterTypes(), cre->faction))
+		if(!vstd::contains(zone.getMonsterTypes(), cre->getFaction()))
 			continue;
-		if((static_cast<si32>(cre->AIValue * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->AIValue) * 100)) //at least one full monster. size between average size of given stack and 100
+		if((static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->getAIValue()) * 100)) //at least one full monster. size between average size of given stack and 100
 		{
-			possibleCreatures.push_back(cre->idNumber);
+			possibleCreatures.push_back(cre->getId());
 		}
 	}
 	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator.rand);
-		amount = strength / VLC->creh->objects[creId]->AIValue;
+		amount = strength / VLC->creh->objects[creId]->getAIValue();
 		if (amount >= 4)
 			amount = static_cast<int>(amount * generator.rand.nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
 		creId = CreatureID(132); //Azure Dragon
-		amount = strength / VLC->creh->objects[creId]->AIValue;
+		amount = strength / VLC->creh->objects[creId]->getAIValue();
 	}
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);

@@ -204,7 +204,7 @@ std::string CSpell::getDescriptionTranslated(int32_t level) const
 
 std::string CSpell::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 int32_t CSpell::getIndex() const
@@ -340,7 +340,7 @@ int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 	return getLevelInfo(skillLevel).power;
 }
 
-si32 CSpell::getProbability(const TFaction factionId) const
+si32 CSpell::getProbability(const FactionID & factionId) const
 {
 	if(!vstd::contains(probabilities,factionId))
 	{
@@ -722,7 +722,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction", node.first, [=](si32 factionID)
 		{
-			spell->probabilities[factionID] = chance;
+			spell->probabilities[FactionID(factionID)] = chance;
 		});
 	}
 

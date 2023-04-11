@@ -350,7 +350,7 @@ public:
 class DLL_LINKAGE AdventureSpellCastParameters
 {
 public:
-	const CGHeroInstance * caster;
+	const spells::Caster * caster;
 	int3 pos;
 };
 

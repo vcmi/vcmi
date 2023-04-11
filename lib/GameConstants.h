@@ -40,67 +40,60 @@ namespace GameConstants
 {
 	DLL_LINKAGE extern const std::string VCMI_VERSION;
 
-	const int PUZZLE_MAP_PIECES = 48;
+	constexpr int PUZZLE_MAP_PIECES = 48;
 
-	const int MAX_HEROES_PER_PLAYER = 8;
-	const int AVAILABLE_HEROES_PER_PLAYER = 2;
+	constexpr int MAX_HEROES_PER_PLAYER = 8;
+	constexpr int AVAILABLE_HEROES_PER_PLAYER = 2;
 
-	const int ALL_PLAYERS = 255; //bitfield
+	constexpr int ALL_PLAYERS = 255; //bitfield
 
-	const int CREATURES_PER_TOWN = 7; //without upgrades
-	const int SPELL_LEVELS = 5;
-	const int SPELL_SCHOOL_LEVELS = 4;
-	const int CRE_LEVELS = 10; // number of creature experience levels
+	constexpr int CREATURES_PER_TOWN = 7; //without upgrades
+	constexpr int SPELL_LEVELS = 5;
+	constexpr int SPELL_SCHOOL_LEVELS = 4;
+	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
-	const int HERO_GOLD_COST = 2500;
-	const int SPELLBOOK_GOLD_COST = 500;
-	const int SKILL_GOLD_COST = 2000;
-	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
-	const int ARMY_SIZE = 7;
-	const int SKILL_PER_HERO = 8;
-	const ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
+	constexpr int HERO_GOLD_COST = 2500;
+	constexpr int SPELLBOOK_GOLD_COST = 500;
+	constexpr int SKILL_GOLD_COST = 2000;
+	constexpr int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
+	constexpr int ARMY_SIZE = 7;
+	constexpr int SKILL_PER_HERO = 8;
+	constexpr ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
-	const int SKILL_QUANTITY=28;
-	const int PRIMARY_SKILLS=4;
-	const int RESOURCE_QUANTITY=8;
-	const int HEROES_PER_TYPE=8; //amount of heroes of each type
+	constexpr int SKILL_QUANTITY=28;
+	constexpr int PRIMARY_SKILLS=4;
+	constexpr int RESOURCE_QUANTITY=8;
+	constexpr int HEROES_PER_TYPE=8; //amount of heroes of each type
 
 	// amounts of OH3 objects. Can be changed by mods, should be used only during H3 loading phase
-	const int F_NUMBER = 9;
-	const int ARTIFACTS_QUANTITY=171;
-	const int HEROES_QUANTITY=156;
-	const int SPELLS_QUANTITY=70;
-	const int CREATURES_COUNT = 197;
+	constexpr int F_NUMBER = 9;
+	constexpr int ARTIFACTS_QUANTITY=171;
+	constexpr int HEROES_QUANTITY=156;
+	constexpr int SPELLS_QUANTITY=70;
+	constexpr int CREATURES_COUNT = 197;
 
-	const ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
+	constexpr ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 
-	const int HERO_PORTRAIT_SHIFT = 30;// 2 special frames + some extra portraits
+	constexpr int HERO_PORTRAIT_SHIFT = 30;// 2 special frames + some extra portraits
 
-	const std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
+	constexpr std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
 }
 
 #define ID_LIKE_CLASS_COMMON(CLASS_NAME, ENUM_NAME)	\
-CLASS_NAME(const CLASS_NAME & other)				\
-{													\
-	num = other.num;								\
-}													\
-CLASS_NAME & operator=(const CLASS_NAME & other)	\
-{													\
-	num = other.num;								\
-	return *this;									\
-}													\
-explicit CLASS_NAME(si32 id)						\
+constexpr CLASS_NAME(const CLASS_NAME & other) = default;	\
+constexpr CLASS_NAME & operator=(const CLASS_NAME & other) = default;	\
+explicit constexpr CLASS_NAME(si32 id)				\
 	: num(static_cast<ENUM_NAME>(id))				\
 {}													\
-operator ENUM_NAME() const							\
+constexpr operator ENUM_NAME() const				\
 {													\
 	return num;										\
 }													\
-si32 getNum() const									\
+constexpr si32 getNum() const						\
 {													\
-	return static_cast<si32>(num);										\
+	return static_cast<si32>(num);					\
 }													\
-ENUM_NAME toEnum() const							\
+constexpr ENUM_NAME toEnum() const					\
 {													\
 	return num;										\
 }													\
@@ -108,36 +101,36 @@ template <typename Handler> void serialize(Handler &h, const int version)	\
 {													\
 	h & num;										\
 }													\
-CLASS_NAME & advance(int i)							\
+constexpr CLASS_NAME & advance(int i)				\
 {													\
-	num = (ENUM_NAME)((int)num + i);				\
+	num = static_cast<ENUM_NAME>(static_cast<int>(num) + i);		\
 	return *this;									\
 }
 
 
 // Operators are performance-critical and to be inlined they must be in header
 #define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
-STRONG_INLINE bool operator==(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator==(const A & a, const B & b)	\
 {													\
 	return AN == BN ;								\
 }													\
-STRONG_INLINE bool operator!=(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator!=(const A & a, const B & b)	\
 {													\
 	return AN != BN ;								\
 }													\
-STRONG_INLINE bool operator<(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator<(const A & a, const B & b)	\
 {													\
 	return AN < BN ;								\
 }													\
-STRONG_INLINE bool operator<=(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator<=(const A & a, const B & b)	\
 {													\
 	return AN <= BN ;								\
 }													\
-STRONG_INLINE bool operator>(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator>(const A & a, const B & b)	\
 {													\
 	return AN > BN ;								\
 }													\
-STRONG_INLINE bool operator>=(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator>=(const A & a, const B & b)	\
 {													\
 	return AN >= BN ;								\
 }
@@ -150,17 +143,13 @@ STRONG_INLINE bool operator>=(const A & a, const B & b)			\
 
 #define INSTID_LIKE_CLASS_COMMON(CLASS_NAME, NUMERIC_NAME)	\
 public:														\
-CLASS_NAME() : BaseForID<CLASS_NAME, NUMERIC_NAME>(-1) {}	\
-CLASS_NAME(const CLASS_NAME & other):						\
+constexpr CLASS_NAME(const CLASS_NAME & other):						\
 	BaseForID<CLASS_NAME, NUMERIC_NAME>(other)				\
 {															\
 }															\
-CLASS_NAME & operator=(const CLASS_NAME & other)			\
-{															\
-	num = other.num;										\
-	return *this;											\
-}															\
-explicit CLASS_NAME(si32 id)								\
+constexpr CLASS_NAME & operator=(const CLASS_NAME & other) = default;	\
+constexpr CLASS_NAME & operator=(NUMERIC_NAME other) { num = other; return *this; };	\
+explicit constexpr CLASS_NAME(si32 id = -1)								\
 	: BaseForID<CLASS_NAME, NUMERIC_NAME>(id)				\
 {}
 
@@ -171,13 +160,13 @@ protected:
 	NumericType num;
 
 public:
-	NumericType getNum() const
+	constexpr NumericType getNum() const
 	{
 		return num;
 	}
 
 	//to make it more similar to IDLIKE
-	NumericType toEnum() const
+	constexpr NumericType toEnum() const
 	{
 		return num;
 	}
@@ -187,24 +176,29 @@ public:
 		h & num;
 	}
 
-	explicit BaseForID(NumericType _num = -1)
+	constexpr explicit BaseForID(NumericType _num = -1) :
+		num(_num)
 	{
-		num = _num;
 	}
 
-	void advance(int change)
+	constexpr void advance(int change)
 	{
 		num += change;
 	}
 
-	bool operator == (const BaseForID & b) const { return num == b.num; }
-	bool operator <= (const BaseForID & b) const { return num <= b.num; }
-	bool operator >= (const BaseForID & b) const { return num >= b.num; }
-	bool operator != (const BaseForID & b) const { return num != b.num; }
-	bool operator <  (const BaseForID & b) const { return num <  b.num; }
-	bool operator >  (const BaseForID & b) const { return num >  b.num; }
+	constexpr bool operator == (const BaseForID & b) const { return num == b.num; }
+	constexpr bool operator <= (const BaseForID & b) const { return num <= b.num; }
+	constexpr bool operator >= (const BaseForID & b) const { return num >= b.num; }
+	constexpr bool operator != (const BaseForID & b) const { return num != b.num; }
+	constexpr bool operator <  (const BaseForID & b) const { return num <  b.num; }
+	constexpr bool operator >  (const BaseForID & b) const { return num >  b.num; }
 
-	BaseForID & operator++() { ++num; return *this; }
+	constexpr BaseForID & operator++() { ++num; return *this; }
+
+	constexpr operator NumericType() const
+	{
+		return num;
+	}
 };
 
 template < typename T>
@@ -218,12 +212,12 @@ private:
 	NumericType num;
 
 public:
-	NumericType getNum() const
+	constexpr NumericType getNum() const
 	{
 		return num;
 	}
 
-	EnumType toEnum() const
+	constexpr EnumType toEnum() const
 	{
 		return static_cast<EnumType>(num);
 	}
@@ -233,39 +227,44 @@ public:
 		h & num;
 	}
 
-	explicit Identifier(NumericType _num = -1)
+	constexpr explicit Identifier(NumericType _num = -1)
 	{
 		num = _num;
 	}
 
-	/* implicit */ Identifier(EnumType _num)
+	/* implicit */constexpr Identifier(EnumType _num):
+		num(static_cast<NumericType>(_num))
 	{
-		num = static_cast<NumericType>(_num);
 	}
 
-	void advance(int change)
+	constexpr void advance(int change)
 	{
 		num += change;
 	}
 
-	bool operator == (const Identifier & b) const { return num == b.num; }
-	bool operator <= (const Identifier & b) const { return num <= b.num; }
-	bool operator >= (const Identifier & b) const { return num >= b.num; }
-	bool operator != (const Identifier & b) const { return num != b.num; }
-	bool operator <  (const Identifier & b) const { return num <  b.num; }
-	bool operator >  (const Identifier & b) const { return num > b.num; }
+	constexpr bool operator == (const Identifier & b) const { return num == b.num; }
+	constexpr bool operator <= (const Identifier & b) const { return num <= b.num; }
+	constexpr bool operator >= (const Identifier & b) const { return num >= b.num; }
+	constexpr bool operator != (const Identifier & b) const { return num != b.num; }
+	constexpr bool operator <  (const Identifier & b) const { return num <  b.num; }
+	constexpr bool operator >  (const Identifier & b) const { return num > b.num; }
 
-	Identifier & operator++()
+	constexpr Identifier & operator++()
 	{
 		++num;
 		return *this;
 	}
 
-	Identifier operator++(int)
+	constexpr Identifier operator++(int)
 	{
 		Identifier ret(*this);
 		++num;
 		return ret;
+	}
+
+	constexpr operator NumericType() const
+	{
+		return num;
 	}
 };
 
@@ -428,10 +427,7 @@ public:
 
 ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
-namespace EAlignment
-{
-	enum EAlignment { GOOD, EVIL, NEUTRAL };
-}
+enum class EAlignment : uint8_t { GOOD, EVIL, NEUTRAL };
 
 namespace ETownType//deprecated
 {
@@ -442,11 +438,12 @@ namespace ETownType//deprecated
 	};
 }
 
-class FactionID : public BaseForID<FactionID, si32>
+class FactionID : public BaseForID<FactionID, int32_t>
 {
 	INSTID_LIKE_CLASS_COMMON(FactionID, si32)
 
-	DLL_LINKAGE static const FactionID ANY;
+	DLL_LINKAGE static const FactionID NONE;
+	DLL_LINKAGE static const FactionID DEFAULT;
 	DLL_LINKAGE static const FactionID CASTLE;
 	DLL_LINKAGE static const FactionID RAMPART;
 	DLL_LINKAGE static const FactionID TOWER;
@@ -1317,7 +1314,6 @@ enum class EHealPower : ui8
 };
 
 // Typedef declarations
-typedef ui8 TFaction;
 typedef si64 TExpType;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;

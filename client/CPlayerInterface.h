@@ -123,6 +123,8 @@ public:
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
+	bool allowBattleReplay = false;
+	std::pair<const CCreatureSet *, const CCreatureSet *> lastBattleArmies;
 
 	struct SpellbookLastSetting
 	{
@@ -210,7 +212,7 @@ public:
 	void actionStarted(const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
 	void battleAttack(const BattleAttack *ba) override; //stack performs attack
-	void battleEnd(const BattleResult *br) override; //end of battle
+	void battleEnd(const BattleResult *br, QueryID queryID) override; //end of battle
 	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleLogMessage(const std::vector<MetaString> & lines) override;
@@ -226,6 +228,7 @@ public:
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
 	void yourTacticPhase(int distance) override;
+	void forceEndTacticPhase() override;
 
 	//-------------//
 	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);

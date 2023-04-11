@@ -118,6 +118,22 @@ void ProxyCaster::spendMana(ServerCallback * server, const int32_t spellCost) co
 		actualCaster->spendMana(server, spellCost);
 }
 
+const CGHeroInstance * ProxyCaster::getHeroCaster() const
+{
+	if(actualCaster)
+		return actualCaster->getHeroCaster();
+	
+	return nullptr;
+}
+
+int32_t ProxyCaster::manaLimit() const
+{
+	if(actualCaster)
+		return actualCaster->manaLimit();
+
+	return 0;
+}
+
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -134,6 +134,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BattleSpellMechanics.cpp
 		${MAIN_LIB_DIR}/spells/BonusCaster.cpp
 		${MAIN_LIB_DIR}/spells/CSpellHandler.cpp
+		${MAIN_LIB_DIR}/spells/ExternalCaster.cpp
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.cpp
 		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.cpp
 		${MAIN_LIB_DIR}/spells/Problem.cpp
@@ -162,6 +163,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
+		${MAIN_LIB_DIR}/BasicTypes.cpp
 		${MAIN_LIB_DIR}/BattleFieldHandler.cpp
 		${MAIN_LIB_DIR}/CAndroidVMHelper.cpp
 		${MAIN_LIB_DIR}/CArtHandler.cpp
@@ -397,7 +399,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BattleSpellMechanics.h
 		${MAIN_LIB_DIR}/spells/BonusCaster.h
 		${MAIN_LIB_DIR}/spells/CSpellHandler.h
+		${MAIN_LIB_DIR}/spells/ExternalCaster.h
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.h
+		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.h
 		${MAIN_LIB_DIR}/spells/Problem.h
 		${MAIN_LIB_DIR}/spells/ProxyCaster.h
 		${MAIN_LIB_DIR}/spells/TargetCondition.h

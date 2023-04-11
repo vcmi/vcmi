@@ -560,7 +560,10 @@ void MainWindow::loadObjectsTree()
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
 		//filter
-		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->getNameTranslated()));
+		QString displayName = QString::fromStdString(terrain->getNameTranslated());
+		QString uniqueName = QString::fromStdString(terrain->getJsonKey());
+
+		ui->terrainFilterCombo->addItem(displayName, QVariant(uniqueName));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -936,22 +939,23 @@ void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex &
 	preparePreview(index);
 }
 
-void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
+void MainWindow::on_terrainFilterCombo_currentIndexChanged(int index)
 {
 	if(!objectBrowser)
 		return;
 
+	QString uniqueName = ui->terrainFilterCombo->itemData(index).toString();
+
 	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
-	if (!arg1.isEmpty())
+	if (!uniqueName.isEmpty())
 	{
 		for (auto const & terrain : VLC->terrainTypeHandler->objects)
-			if (terrain->getJsonKey() == arg1.toStdString())
+			if (terrain->getJsonKey() == uniqueName.toStdString())
 				objectBrowser->terrain = terrain->getId();
 	}
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }
-
 
 void MainWindow::on_filter_textChanged(const QString &arg1)
 {

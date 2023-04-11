@@ -148,14 +148,15 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	for (auto c : creatures)
 	{
 		//Only if hero has slot for this creature in the army
-		if (hero->getSlotFor(c.data.type).validSlot())
+		auto ccre = dynamic_cast<const CCreature*>(c.data.type);
+		if (hero->getSlotFor(ccre).validSlot())
 		{
-			result += (c.data.type->AIValue * c.data.count) * c.chance;
+			result += (c.data.type->getAIValue() * c.data.count) * c.chance;
 		}
 		else
 		{
 			//we will need to discard the weakest stack
-			result += (c.data.type->AIValue * c.data.count - weakestStackPower) * c.chance;
+			result += (c.data.type->getAIValue() * c.data.count - weakestStackPower) * c.chance;
 		}
 	}
 	result /= 100; //divide by total chance
@@ -173,11 +174,11 @@ uint64_t getDwellingScore(CCallback * cb, const CGObjectInstance * target, bool 
 		if(creLevel.first && creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-			auto creaturesAreFree = creature->level == 1;
-			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->cost * creLevel.first))
+			auto creaturesAreFree = creature->getLevel() == 1;
+			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->getFullRecruitCost() * creLevel.first))
 				continue;
 
-			score += creature->AIValue * creLevel.first;
+			score += creature->getAIValue() * creLevel.first;
 		}
 	}
 
@@ -194,9 +195,9 @@ int getDwellingArmyCost(const CGObjectInstance * target)
 		if(creLevel.first && creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-			auto creaturesAreFree = creature->level == 1;
+			auto creaturesAreFree = creature->getLevel() == 1;
 			if(!creaturesAreFree)
-				cost += creature->cost[Res::GOLD] * creLevel.first;
+				cost += creature->getRecruitCost(EGameResID::GOLD) * creLevel.first;
 		}
 	}
 
@@ -300,7 +301,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	switch(target->ID)
 	{
 	case Obj::HILL_FORT:
-		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeCost[Res::GOLD];
+		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeCost[EGameResID::GOLD];
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 		return 1000;
@@ -375,12 +376,12 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	switch(target->ID)
 	{
 	case Obj::MINE:
-		return target->subID == Res::GOLD 
+		return target->subID == GameResID(EGameResID::GOLD)
 			? 0.5f 
 			: 0.4f * getTotalResourceRequirementStrength(target->subID) + 0.1f * getResourceRequirementStrength(target->subID);
 
 	case Obj::RESOURCE:
-		return target->subID == Res::GOLD
+		return target->subID == GameResID(EGameResID::GOLD)
 			? 0
 			: 0.2f * getTotalResourceRequirementStrength(target->subID) + 0.4f * getResourceRequirementStrength(target->subID);
 
@@ -391,7 +392,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 		for (TResources::nziterator it (resourceReward); it.valid(); it++)
 		{
 			//Evaluate resources used for construction. Gold is evaluated separately.
-			if (it->resType != Res::GOLD)
+			if (it->resType != EGameResID::GOLD)
 			{
 				sum += 0.1f * getResourceRequirementStrength(it->resType);
 			}
@@ -502,7 +503,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 
 	for(auto stack : army->Slots())
 	{
-		value += stack.second->getCreatureID().toCreature()->cost[Res::GOLD] * stack.second->count;
+		value += stack.second->getCreatureID().toCreature()->getRecruitCost(EGameResID::GOLD) * stack.second->count;
 	}
 
 	return value;
@@ -517,7 +518,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	const int dailyIncomeMultiplier = 5;
 	const float enemyArmyEliminationGoldRewardRatio = 0.2f;
 	const int32_t heroEliminationBonus = GameConstants::HERO_GOLD_COST / 2;
-	auto isGold = target->subID == Res::GOLD; // TODO: other resorces could be sold but need to evaluate market power
+	auto isGold = target->subID == GameResID(EGameResID::GOLD); // TODO: other resorces could be sold but need to evaluate market power
 
 	switch(target->ID)
 	{
@@ -540,7 +541,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::WAGON:
 		return 100;
 	case Obj::CREATURE_BANK:
-		return getCreatureBankResources(target, hero)[Res::GOLD];
+		return getCreatureBankResources(target, hero)[EGameResID::GOLD];
 	case Obj::CRYPT:
 	case Obj::DERELICT_SHIP:
 		return 3000;
@@ -627,7 +628,7 @@ private:
 				continue;
 
 			auto creature = creatureInfo.second.back().toCreature();
-			result += creature->AIValue * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
+			result += creature->getAIValue() * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
 		}
 
 		return result;
@@ -644,7 +645,7 @@ public:
 		auto & treat = defendTown.getTreat();
 
 		auto armyIncome = townArmyIncome(town);
-		auto dailyIncome = town->dailyIncome()[Res::GOLD];
+		auto dailyIncome = town->dailyIncome()[EGameResID::GOLD];
 
 		auto strategicalValue = std::sqrt(armyIncome / 20000.0f) + dailyIncome / 3000.0f;
 
@@ -804,10 +805,10 @@ public:
 		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
-		evaluationContext.goldReward += 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have
+		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
-		evaluationContext.goldCost += bi.buildCostWithPrerequisits[Res::GOLD];
+		evaluationContext.goldCost += bi.buildCostWithPrerequisits[EGameResID::GOLD];
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
@@ -921,7 +922,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
 		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
 		goldPreasureVariable->setValue(ai->buildAnalyzer->getGoldPreasure());
-		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[Res::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
+		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[EGameResID::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
 		turnVariable->setValue(evaluationContext.turn);
 		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
 

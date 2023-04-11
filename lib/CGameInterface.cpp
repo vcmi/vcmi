@@ -230,9 +230,9 @@ void CAdventureAI::battleSpellCast(const BattleSpellCast * sc)
 	battleAI->battleSpellCast(sc);
 }
 
-void CAdventureAI::battleEnd(const BattleResult * br)
+void CAdventureAI::battleEnd(const BattleResult * br, QueryID queryID)
 {
-	battleAI->battleEnd(br);
+	battleAI->battleEnd(br, queryID);
 	battleAI.reset();
 }
 

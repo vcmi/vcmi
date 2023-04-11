@@ -255,6 +255,8 @@ void ApplyClientNetPackVisitor::visitBulkSmartRebalanceStacks(BulkSmartRebalance
 void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 {
 	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactPut, pack.al);
+	if(pack.askAssemble)
+		callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
 }
 
 void ApplyClientNetPackVisitor::visitEraseArtifact(EraseArtifact & pack)
@@ -735,7 +737,7 @@ void ApplyFirstClientNetPackVisitor::visitBattleUpdateGateState(BattleUpdateGate
 
 void ApplyFirstClientNetPackVisitor::visitBattleResult(BattleResult & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack, pack.queryID);
 	cl.battleFinished();
 }
 

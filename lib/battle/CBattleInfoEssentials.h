@@ -46,7 +46,7 @@ public:
 	};
 
 	BattlePerspective::BattlePerspective battleGetMySide() const;
-	const IBonusBearer * getBattleNode() const;
+	const IBonusBearer * getBonusBearer() const override;
 
 	TerrainId battleTerrainType() const override;
 	BattleField battleGetBattlefieldType() const override;

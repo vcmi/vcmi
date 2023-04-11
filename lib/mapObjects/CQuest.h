@@ -12,6 +12,7 @@
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
 
+#include "../ResourceSet.h"
 #include "../CCreatureSet.h"
 #include "../NetPacksBase.h"
 
@@ -58,7 +59,7 @@ public:
 	std::vector<ui32> m2stats;
 	std::vector<ArtifactID> m5arts; // artifact IDs. Add IDs through addArtifactID(), not directly to the field.
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
-	std::vector<ui32> m7resources; //TODO: use resourceset?
+	TResources m7resources;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info

@@ -593,6 +593,11 @@ void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAssembleArtifacts(*this);
 }
 
+void EraseArtifactByClient::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEraseArtifactByClient(*this);
+}
+
 void BuyArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBuyArtifact(*this);
@@ -1759,7 +1764,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 		else //split stack to an empty slot
 		{
 			src.army->changeStackCount(src.slot, -count);
-			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
+			dst.army->addToSlot(dst.slot, srcType->getId(), count, false);
 			if (stackExp)
 				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
@@ -2190,15 +2195,11 @@ void BattleUpdateGateState::applyGs(CGameState * gs) const
 		gs->curB->si.gateState = state;
 }
 
-void BattleResult::applyGs(CGameState *gs)
+void BattleResultAccepted::applyGs(CGameState * gs) const
 {
-	for (auto & elem : gs->curB->stacks)
-		delete elem;
-
-
-	for(int i = 0; i < 2; ++i)
+	for(auto * h : {hero1, hero2})
 	{
-		if(auto * h = gs->curB->battleGetFightingHero(i))
+		if(h)
 		{
 			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
@@ -2214,14 +2215,16 @@ void BattleResult::applyGs(CGameState *gs)
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		for(int i = 0; i < 2; i++)
+		{
 			if(exp[i])
-				gs->curB->battleGetArmyObject(i)->giveStackExp(exp[i]);
+			{
+				if(auto * army = (i == 0 ? army1 : army2))
+					army->giveStackExp(exp[i]);
+			}
+		}
 
 		CBonusSystemNode::treeHasChanged();
 	}
-
-	for(int i = 0; i < 2; i++)
-		gs->curB->battleGetArmyObject(i)->battle = nullptr;
 
 	gs->curB.dellNull();
 }
@@ -2508,7 +2511,7 @@ void YourTurn::applyGs(CGameState * gs) const
 
 Component::Component(const CStackBasicDescriptor & stack)
 	: id(EComponentType::CREATURE)
-	, subtype(stack.type->idNumber)
+	, subtype(stack.type->getId())
 	, val(stack.count)
 {
 }

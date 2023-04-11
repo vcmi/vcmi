@@ -14,6 +14,8 @@
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 
+#include <vcmi/Entity.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
@@ -43,7 +45,7 @@ public:
 	{
 		if(h.saving)
 		{
-			CreatureID idNumber = type ? type->idNumber : CreatureID(CreatureID::NONE);
+			auto idNumber = type ? type->getId() : CreatureID(CreatureID::NONE);
 			h & idNumber;
 		}
 		else
@@ -51,7 +53,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(VLC->creh->objects[idNumber]);
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getByIndex(idNumber)));
 			else
 				type = nullptr;
 		}
@@ -61,7 +63,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IConstBonusNativeTerrainProvider
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
@@ -91,6 +93,11 @@ public:
 	//overrides CBonusSystemNode
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
 	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
+
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
+	//INativeTerrainProvider
+	FactionID getFaction() const override;
 
 	virtual ui64 getPower() const;
 	CCreature::CreatureQuantityId getQuantityID() const;

@@ -1170,10 +1170,7 @@ void CModHandler::load()
 			allMods[modName].validation = CModInfo::FAILED;
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
-
-	VLC->creh->loadCrExpBon();
-	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
-
+	VLC->creh->loadCrExpMod();
 	identifiers.finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 

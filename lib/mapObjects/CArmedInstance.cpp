@@ -65,7 +65,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 
 	//number of alignments and presence of undead
-	std::set<TFaction> factions;
+	std::set<FactionID> factions;
 	bool hasUndead = false;
 
 	const std::string undeadCacheKey = "type_UNDEAD";
@@ -76,7 +76,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		const CStackInstance * inst = slot.second;
 		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
 
-		factions.insert(creature->faction);
+		factions.insert(creature->getFaction());
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if (!hasUndead)
 		{
@@ -91,9 +91,9 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		size_t mixableFactions = 0;
 
-		for(TFaction f : factions)
+		for(auto f : factions)
 		{
-			if ((*VLC->townh)[f]->alignment != EAlignment::EVIL)
+			if (VLC->factions()->getByIndex(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
@@ -154,6 +154,11 @@ CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
 CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 {
 	return *this;
+}
+
+const IBonusBearer* CArmedInstance::getBonusBearer() const
+{
+	return this;
 }
 
 VCMI_LIB_NAMESPACE_END
