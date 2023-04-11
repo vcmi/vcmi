@@ -1170,6 +1170,7 @@ void CModHandler::load()
 			allMods[modName].validation = CModInfo::FAILED;
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
+	VLC->creh->loadCrExpMod();
 	identifiers.finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 

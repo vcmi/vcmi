@@ -304,6 +304,9 @@ public:
 	/// load all stack experience bonuses from H3 files
 	void loadCrExpBon(CBonusSystemNode & globalEffects);
 
+	/// load all stack modifier bonuses from H3 files. TODO: move this to json
+	void loadCrExpMod();
+
 	void afterLoadFinalization() override;
 
 	std::vector<JsonNode> loadLegacyData() override;
