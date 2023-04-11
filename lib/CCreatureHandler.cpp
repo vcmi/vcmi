@@ -667,6 +667,60 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 	return ret;
 }
 
+void CCreatureHandler::loadCrExpMod()
+{
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	{
+		//Calculate rank exp values, formula appears complicated bu no parsing needed
+		expRanks.resize(8);
+		int dif = 0;
+		int it = 8000; //ignore name of this variable
+		expRanks[0].push_back(it);
+		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
+		{
+			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
+			dif += it/5;
+		}
+		for (int i = 1; i < 8; ++i) //used for tiers 1-7
+		{
+			dif = 0;
+			it = 1000 * i;
+			expRanks[i].push_back(it);
+			for (int j = 1; j < 10; ++j)
+			{
+				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
+				dif += it/5;
+			}
+		}
+
+		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
+
+		expBonParser.endLine(); //header
+
+		maxExpPerBattle.resize(8);
+		for (int i = 1; i < 8; ++i)
+		{
+			expBonParser.readString(); //index
+			expBonParser.readString(); //float multiplier -> hardcoded
+			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
+			expBonParser.readString(); //already calculated
+
+			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
+			expRanks[i].push_back(expRanks[i].back() + static_cast<ui32>(expBonParser.readNumber()));
+
+			expBonParser.endLine();
+		}
+		//skeleton gets exp penalty
+		objects[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+		objects[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+		//exp for tier >7, rank 11
+		expRanks[0].push_back(147000);
+		expAfterUpgrade = 75; //percent
+		maxExpPerBattle[0] = maxExpPerBattle[7];
+	}
+}
+
+
 void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
@@ -685,6 +739,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 			b->addLimiter(limiter);
 			globalEffects.addNewBonus(b);
 		};
+
 		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
 
 		Bonus b; //prototype with some default properties
@@ -738,53 +793,6 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 			}
 		}
 		while (parser.endLine());
-
-		//Calculate rank exp values, formula appears complicated bu no parsing needed
-		expRanks.resize(8);
-		int dif = 0;
-		int it = 8000; //ignore name of this variable
-		expRanks[0].push_back(it);
-		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
-		{
-			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
-			dif += it/5;
-		}
-		for (int i = 1; i < 8; ++i)
-		{
-			dif = 0;
-			it = 1000 * i;
-			expRanks[i].push_back(it);
-			for (int j = 1; j < 10; ++j)
-			{
-				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
-				dif += it/5;
-			}
-		}
-
-		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
-
-		expBonParser.endLine(); //header
-
-		maxExpPerBattle.resize(8);
-		for (int i = 1; i < 8; ++i)
-		{
-			expBonParser.readString(); //index
-			expBonParser.readString(); //float multiplier -> hardcoded
-			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
-			expBonParser.readString(); //already calculated
-
-			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
-			expRanks[i].push_back(expRanks[i].back() + static_cast<ui32>(expBonParser.readNumber()));
-
-			expBonParser.endLine();
-		}
-		//skeleton gets exp penalty
-		objects[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		objects[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		//exp for tier >7, rank 11
-		expRanks[0].push_back(147000);
-		expAfterUpgrade = 75; //percent
-		maxExpPerBattle[0] = maxExpPerBattle[7];
 
 	}//end of Stack Experience
 }
