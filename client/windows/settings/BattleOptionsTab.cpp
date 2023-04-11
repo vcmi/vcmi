@@ -99,14 +99,19 @@ int BattleOptionsTab::getAnimSpeed() const
 
 int BattleOptionsTab::getQueueSizeId() const
 {
-	std::string text = settings["battle"]["queueSize"].String();
-	if(text == "none")
+	std::string sizeText = settings["battle"]["queueSize"].String();
+	bool visible = settings["battle"]["showQueue"].Bool();
+
+	if(!visible)
 		return -1;
-	if(text == "auto")
+
+	if(sizeText == "none")
+		return -1;
+	if(sizeText == "auto")
 		return 0;
-	if(text == "small")
+	if(sizeText == "small")
 		return 1;
-	if(text == "big")
+	if(sizeText == "big")
 		return 2;
 
 	return 0;

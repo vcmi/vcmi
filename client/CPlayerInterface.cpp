@@ -947,7 +947,7 @@ void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	//TODO why is this different (no return on LOPLINT != this) ?
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
@@ -1036,6 +1036,12 @@ void CPlayerInterface::yourTacticPhase(int distance)
 	THREAD_CREATED_BY_CLIENT;
 	while(battleInt && battleInt->tacticsMode)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
+}
+
+void CPlayerInterface::forceEndTacticPhase()
+{
+	if (battleInt)
+		battleInt->tacticsMode = false;
 }
 
 void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &text, const std::vector<Component> & components, int soundID)

@@ -82,6 +82,7 @@ public:
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
+	virtual void forceEndTacticPhase(){}; //force the tatic phase to end to clean up the tactic phase thread
 };
 
 /// Central class for managing human player / AI interface logic

@@ -10,9 +10,9 @@
     <string name="launcher_btn_start_subtitle">Aktuelle VCMI-Version: %1$s</string>
     <string name="launcher_btn_mods_title">Mods</string>
     <string name="launcher_btn_mods_subtitle">Neue Burgen, Kreaturen, Objekte und Erweiterungen hinzufügen</string>
-    <string name="launcher_btn_cp_title">Zeichensatz</string>
-    <string name="launcher_btn_cp_subtitle_unknown">Aktuell: unbekannt</string>
-    <string name="launcher_btn_cp_subtitle">Aktuell: %1$s</string>
+    <string name="launcher_btn_language_title">Sprache</string>
+    <string name="launcher_btn_language_subtitle_unknown">Aktuell: unbekannt</string>
+    <string name="launcher_btn_language_subtitle">Aktuell: %1$s</string>
     <string name="launcher_btn_pointermode_title">Zeigermodus ändern</string>
     <string name="launcher_btn_pointermode_subtitle">Aktuell: %1$s</string>
     <string name="launcher_btn_pointermulti_subtitle">Aktuell: %1$s</string>

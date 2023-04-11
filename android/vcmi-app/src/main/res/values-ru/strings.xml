@@ -10,9 +10,9 @@
     <string name="launcher_btn_start_subtitle">Текущая версия VCMI: %1$s</string>
     <string name="launcher_btn_mods_title">Моды</string>
     <string name="launcher_btn_mods_subtitle">Добавить новые замки, существа, объекты, расширения</string>
-    <string name="launcher_btn_cp_title">Кодовая страница</string>
-    <string name="launcher_btn_cp_subtitle_unknown">Текущая: неизвестно</string>
-    <string name="launcher_btn_cp_subtitle">Текущая: %1$s</string>
+    <string name="launcher_btn_language_title">Язык</string>
+    <string name="launcher_btn_language_subtitle_unknown">Текущая: неизвестно</string>
+    <string name="launcher_btn_language_subtitle">Текущая: %1$s</string>
     <string name="launcher_btn_pointermode_title">Изменить режим управления указателем</string>
     <string name="launcher_btn_pointermode_subtitle">Currently: %1$s</string>
     <string name="launcher_btn_pointermulti_subtitle">Текущая: %1$s</string>

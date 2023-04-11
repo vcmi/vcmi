@@ -394,6 +394,10 @@ void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
 	{
 		dropBox.setTemplate(item);
 	}
+	else 
+	{
+		dropBox.clickLeft(true, true);
+	}
 }
 
 
@@ -449,8 +453,14 @@ void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 {
 	if(down && !hovered)
 	{
-		assert(GH.topInt().get() == this);
-		GH.popInt(GH.topInt());
+		auto w = widget<CSlider>("slider");
+
+		// pop the interface only if the mouse is not clicking on the slider
+		if (!w || !w->mouseState(MouseButton::LEFT))
+		{
+			assert(GH.topInt().get() == this);
+			GH.popInt(GH.topInt());
+		}
 	}
 }
 

@@ -19,14 +19,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:clone";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Clone, EFFECT_NAME);
 
 void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {

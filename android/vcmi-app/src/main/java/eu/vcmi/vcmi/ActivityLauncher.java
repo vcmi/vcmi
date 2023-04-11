@@ -18,7 +18,7 @@ import java.util.List;
 
 import eu.vcmi.vcmi.content.AsyncLauncherInitialization;
 import eu.vcmi.vcmi.settings.AdventureAiController;
-import eu.vcmi.vcmi.settings.CodepageSettingController;
+import eu.vcmi.vcmi.settings.LanguageSettingController;
 import eu.vcmi.vcmi.settings.CopyDataController;
 import eu.vcmi.vcmi.settings.ExportDataController;
 import eu.vcmi.vcmi.settings.LauncherSettingController;
@@ -45,7 +45,7 @@ public class ActivityLauncher extends ActivityWithToolbar
     private TextView mErrorMessage;
     private Config mConfig;
     private LauncherSettingController<ScreenResSettingController.ScreenRes, Config> mCtrlScreenRes;
-    private LauncherSettingController<String, Config> mCtrlCodepage;
+    private LauncherSettingController<String, Config> mCtrlLanguage;
     private LauncherSettingController<PointerModeSettingController.PointerMode, Config> mCtrlPointerMode;
     private LauncherSettingController<Void, Void> mCtrlStart;
     private LauncherSettingController<Float, Config> mCtrlPointerMulti;
@@ -203,7 +203,7 @@ public class ActivityLauncher extends ActivityWithToolbar
         (mCtrlExport = new ExportDataController(this)).init(R.id.launcher_btn_export);
         new ModsBtnController(this, v -> startActivity(new Intent(ActivityLauncher.this, ActivityMods.class))).init(R.id.launcher_btn_mods);
         mCtrlScreenRes = new ScreenResSettingController(this).init(R.id.launcher_btn_res, mConfig);
-        mCtrlCodepage = new CodepageSettingController(this).init(R.id.launcher_btn_cp, mConfig);
+        mCtrlLanguage = new LanguageSettingController(this).init(R.id.launcher_btn_cp, mConfig);
         mCtrlPointerMode = new PointerModeSettingController(this).init(R.id.launcher_btn_pointer_mode, mConfig);
         mCtrlPointerMulti = new PointerMultiplierSettingController(this).init(R.id.launcher_btn_pointer_multi, mConfig);
         mCtrlSoundVol = new SoundSettingController(this).init(R.id.launcher_btn_volume_sound, mConfig);
@@ -211,7 +211,7 @@ public class ActivityLauncher extends ActivityWithToolbar
         mAiController = new AdventureAiController(this).init(R.id.launcher_btn_adventure_ai, mConfig);
 
         mActualSettings.clear();
-        mActualSettings.add(mCtrlCodepage);
+        mActualSettings.add(mCtrlLanguage);
         mActualSettings.add(mCtrlScreenRes);
         mActualSettings.add(mCtrlPointerMode);
         mActualSettings.add(mCtrlPointerMulti);
@@ -267,7 +267,7 @@ public class ActivityLauncher extends ActivityWithToolbar
     private void onConfigUpdated()
     {
         updateCtrlConfig(mCtrlScreenRes, mConfig);
-        updateCtrlConfig(mCtrlCodepage, mConfig);
+        updateCtrlConfig(mCtrlLanguage, mConfig);
         updateCtrlConfig(mCtrlPointerMode, mConfig);
         updateCtrlConfig(mCtrlPointerMulti, mConfig);
         updateCtrlConfig(mCtrlSoundVol, mConfig);

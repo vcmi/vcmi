@@ -41,6 +41,11 @@ public:
 	size_t getLineHeight() const override;
 	size_t getGlyphWidth(const char * data) const override;
 
+	/// returns true if this font contains provided utf-8 character
+	bool canRepresentCharacter(const char * data) const;
+	bool canRepresentString(const std::string & data) const;
+
 	friend class CBitmapHanFont;
+	friend class CTrueTypeFont;
 };
 

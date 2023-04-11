@@ -23,14 +23,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:dispel";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Dispel, EFFECT_NAME);
 
 void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {

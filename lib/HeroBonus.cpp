@@ -790,11 +790,6 @@ int IBonusBearer::getMaxDamage(bool ranged) const
 	return valOfBonuses(selector, cachingStr);
 }
 
-si32 IBonusBearer::manaLimit() const
-{
-	return 0;
-}
-
 int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 {
 	static const CSelector selectorAllSkills = Selector::type()(Bonus::PRIMARY_SKILL);

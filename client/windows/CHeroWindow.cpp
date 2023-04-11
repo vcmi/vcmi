@@ -63,7 +63,8 @@ int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
 
 si32 CHeroWithMaybePickedArtifact::manaLimit() const
 {
-	return hero->manaLimit();
+	//TODO: reduplicate code with CGHeroInstance
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(Bonus::MANA_PER_KNOWLEDGE)));
 }
 
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)

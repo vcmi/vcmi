@@ -355,6 +355,13 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 	logAi->trace("Battle exchange at %lld", ap.attack.shooting ? ap.dest : ap.from);
 #endif
 
+	if(cb->battleGetMySide() == BattlePerspective::LEFT_SIDE
+		&& cb->battleGetGateState() == EGateState::BLOCKED
+		&& ap.attack.defender->coversPos(ESiegeHex::GATE_BRIDGE))
+	{
+		return EvaluationResult::INEFFECTIVE_SCORE;
+	}
+
 	std::vector<const battle::Unit *> ourStacks;
 	std::vector<const battle::Unit *> enemyStacks;
 

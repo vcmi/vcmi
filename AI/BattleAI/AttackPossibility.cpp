@@ -212,11 +212,13 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	// check how much damage we gain from blocking enemy shooters on this hex
 	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, state);
 
-	logAi->debug("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
+#if BATTLE_TRACE_LEVEL>=1
+	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 		attackInfo.attacker->unitType()->getJsonKey(),
 		attackInfo.defender->unitType()->getJsonKey(),
 		(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
 		bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
+#endif
 
 	//TODO other damage related to attack (eg. fire shield and other abilities)
 	return bestAp;

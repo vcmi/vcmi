@@ -87,7 +87,12 @@ public:
 	inline int3 getBlockMapOffset() const
 	{
 		return blockMapOffset; 
-	}; 
+	}
+
+	inline int3 getTopVisibleOffset() const
+	{
+		return topVisibleOffset;
+	}
 
 	// Checks if object is visitable from certain direction. X and Y must be between -1..+1
 	bool isVisitableFrom(si8 X, si8 Y) const;
@@ -137,6 +142,7 @@ private:
 	std::set<int3> blockedOffsets;
 	int3 blockMapOffset;
 	int3 visitableOffset;
+	int3 topVisibleOffset;
 
 	void recalculate();
 
@@ -146,6 +152,7 @@ private:
 	void calculateBlockedOffsets();
 	void calculateBlockMapOffset();
 	void calculateVisitableOffset();
+	void calculateTopVisibleOffset();
 
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -4842,8 +4842,9 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			{
 				const CSpell * spell = SpellID(healerAbility->subtype).toSpell();
 				spells::BattleCast parameters(gs->curB, healer, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can heal infinitely by first aid tent
+				auto dest = battle::Destination(destStack, target.at(0).hexValue);
 				parameters.setSpellLevel(0);
-				parameters.cast(spellEnv, target);
+				parameters.cast(spellEnv, {dest});
 			}
 			break;
 		}

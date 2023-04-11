@@ -56,7 +56,7 @@ public:
 
 	int64_t getTreeVersion() const override;
 
-	si32 manaLimit() const override;
+	si32 manaLimit() const;
 };
 
 class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts

@@ -130,6 +130,7 @@ void BattleActionsController::endCastingSpell()
 	if(owner.stacksController->getActiveStack())
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
 
+	selectedStack = nullptr;
 	GH.fakeMouseMove();
 }
 

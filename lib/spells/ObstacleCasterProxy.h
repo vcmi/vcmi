@@ -28,6 +28,7 @@ public:
 	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 	PlayerColor getCasterOwner() const override;
+	int32_t manaLimit() const override;
 };
 
 class DLL_LINKAGE ObstacleCasterProxy : public SilentCaster

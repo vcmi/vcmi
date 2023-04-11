@@ -126,6 +126,14 @@ const CGHeroInstance * ProxyCaster::getHeroCaster() const
 	return nullptr;
 }
 
+int32_t ProxyCaster::manaLimit() const
+{
+	if(actualCaster)
+		return actualCaster->manaLimit();
+
+	return 0;
+}
+
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include <memory>
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
@@ -242,6 +243,8 @@ public:
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 	void removeGUI();
 
+	void cleanThreads();
+
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
@@ -262,6 +265,8 @@ private:
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
 	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
+
+	std::map<PlayerColor, std::unique_ptr<boost::thread>> playerTacticThreads;
 
 	void waitForMoveAndSend(PlayerColor color);
 	void reinitScripting();
