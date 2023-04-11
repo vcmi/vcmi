@@ -129,11 +129,10 @@ void CMapLoaderH3M::readHeader()
 		{
 			reader->skipZero(1);
 			//TODO: HotA
-			bool isDuelMap = reader->readBool();
-			if (isDuelMap)
+			bool isArenaMap = reader->readBool();
+			if (isArenaMap)
 			{
-				logGlobal->warn("Map '%s': Duel maps are not supported!", mapName);
-				throw std::runtime_error("Invalid map format!");
+				logGlobal->warn("Map '%s': Arena maps are not supported!", mapName);
 			}
 		}
 
@@ -1240,10 +1239,18 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readGrail(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readGrail(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	map->grailPos = mapPosition;
-	map->grailRadius = reader->readInt32();
+	if (objectTemplate->subid < 1000)
+	{
+		map->grailPos = mapPosition;
+		map->grailRadius = reader->readInt32();
+	}
+	else
+	{
+		// Battle location for arena mode in HotA
+		logGlobal->warn("Map '%s': Arena mode is not supported!", mapName);
+	}
 	return nullptr;
 }
 
@@ -1416,7 +1423,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readPandora(mapPosition);
 
 		case Obj::GRAIL:
-			return readGrail(mapPosition);
+			return readGrail(mapPosition, objectTemplate);
 
 		case Obj::RANDOM_DWELLING:
 		case Obj::RANDOM_DWELLING_LVL:
