@@ -217,8 +217,8 @@ typedef int16_t si16; //signed int 16 bits (2 bytes)
 typedef int8_t si8; //signed int 8 bits (1 byte)
 
 // Lock typedefs
-typedef boost::lock_guard<boost::mutex> TLockGuard;
-typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
+using TLockGuard = std::lock_guard<std::mutex>;
+using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 
 /* ---------------------------------------------------------------------------- */
 /* Macros */
@@ -565,7 +565,7 @@ namespace vstd
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{
-		return std::copy_if(boost::const_begin(input), std::end(input), result, pred);
+		return std::copy_if(std::cbegin(input), std::end(input), result, pred);
 	}
 
 	template <typename Container>
@@ -693,7 +693,7 @@ namespace vstd
 	template<typename T>
 	void removeDuplicates(std::vector<T> &vec)
 	{
-		boost::sort(vec);
+		std::sort(vec.begin(), vec.end());
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
 
