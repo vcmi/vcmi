@@ -190,7 +190,9 @@ class DLL_LINKAGE CFaction : public Faction
 	std::string modScope;
 	std::string identifier;
 
-	TFaction index = 0;
+	FactionID index = FactionID::NEUTRAL;
+
+	FactionID getFaction() const override; //This function should not be used
 
 public:
 	TerrainId nativeTerrain;
@@ -421,7 +423,7 @@ public:
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
+	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
 	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
 

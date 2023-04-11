@@ -1753,7 +1753,7 @@ void CGameHandler::newTurn()
 					{
 						newMonster.second = VLC->creh->pickRandomMonster(getRandomGenerator());
 					} while (VLC->creh->objects[newMonster.second] &&
-						(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFactionIndex()]->town == nullptr); // find first non neutral creature
+						(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFaction()]->town == nullptr); // find first non neutral creature
 					n.creatureid = newMonster.second;
 				}
 			}

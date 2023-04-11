@@ -25,6 +25,9 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "NetPacksBase.h"
 
+#include <vcmi/FactionService.h>
+#include <vcmi/Faction.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 
@@ -910,6 +913,19 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 			idRand = level * 2 + static_cast<int>(upgraded);
 		}
 	}
+}
+
+FactionID CStackInstance::getFaction() const
+{
+	if(type)
+		return type->getFaction();
+		
+	return FactionID::NEUTRAL;
+}
+
+const IBonusBearer* CStackInstance::getBonusBearer() const
+{
+	return this;
 }
 
 CCommanderInstance::CCommanderInstance()

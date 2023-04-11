@@ -64,7 +64,7 @@ protected:
 	static RiverType * getRiverByCode(const std::string & code);
 	static RoadType * getRoadByCode(const std::string & code);
 
-	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value) const;
+	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const;
 
 	///common part of header saving/loading
 	void serializeHeader(JsonSerializeFormat & handler);

@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
-typedef std::vector<JsonNode> JsonVector;
+using JsonVector = std::vector<JsonNode>;
 class CRandomGenerator;
 
 struct Bonus;

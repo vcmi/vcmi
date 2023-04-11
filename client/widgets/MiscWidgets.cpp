@@ -448,7 +448,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	pos.x+=x;
 	pos.y+=y;
 
-	TFaction faction = cre->getFactionIndex();
+	auto faction = cre->getFaction();
 
 	assert(CGI->townh->size() > faction);
 

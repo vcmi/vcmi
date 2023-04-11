@@ -47,7 +47,7 @@ namespace scripting
 }
 #endif
 
-class DLL_LINKAGE IBattleInfoCallback : public WithBonuses
+class DLL_LINKAGE IBattleInfoCallback : public IConstBonusProvider
 {
 public:
 #if SCRIPTING_ENABLED

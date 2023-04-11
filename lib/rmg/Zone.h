@@ -98,7 +98,7 @@ public:
 	void clearTiles();
 	void fractalize();
 	
-	si32 getTownType() const;
+	FactionID getTownType() const;
 	void setTownType(si32 town);
 	TerrainId getTerrainType() const;
 	void setTerrainType(TerrainId terrain);

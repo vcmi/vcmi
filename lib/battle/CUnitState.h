@@ -248,6 +248,8 @@ public:
 	void localInit(const IUnitEnvironment * env_);
 	void serializeJson(JsonSerializeFormat & handler);
 
+	FactionID getFaction() const override;
+
 	void afterAttack(bool ranged, bool counter);
 
 	void afterNewRound();

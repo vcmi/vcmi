@@ -39,7 +39,7 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 
 	CreatureID idNumber;
 
-	TFaction faction = 0;
+	FactionID faction = FactionID::NEUTRAL;
 	ui8 level = 0; // 0 - unknown; 1-7 for "usual" creatures
 
 	//stats that are not handled by bonus system
@@ -162,11 +162,7 @@ public:
 	std::string getNamePluralTextID() const override;
 	std::string getNameSingularTextID() const override;
 
-	bool isItNativeTerrain(TerrainId terrain) const;
-	/**
-	Returns creature native terrain considering some terrain bonuses.
-	*/
-	TerrainId getNativeTerrain() const;
+	FactionID getFaction() const override;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
@@ -182,7 +178,6 @@ public:
 	int32_t getLevel() const override;
 	int32_t getGrowth() const override;
 	int32_t getHorde() const override;
-	int32_t getFactionIndex() const override;
 
 	int32_t getBaseAttack() const override;
 	int32_t getBaseDefense() const override;
@@ -262,9 +257,6 @@ private:
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>
 {
 private:
-	CBonusSystemNode allCreatures;
-	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
-
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics) const;
 	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
 	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
@@ -304,19 +296,13 @@ public:
 
 	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
-	void deserializationFix();
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
-	void addBonusForTier(int tier, const std::shared_ptr<Bonus> & b); //tier must be <1-7>
-	void addBonusForAllCreatures(const std::shared_ptr<Bonus> & b); //due to CBonusSystem::addNewBonus(const std::shared_ptr<Bonus>& b);
-	void removeBonusesFromAllCreatures();
 
 	CCreatureHandler();
 	~CCreatureHandler();
 
-	/// load all creatures from H3 files
-	void loadCrExpBon();
-	/// generates tier-specific bonus tree entries
-	void buildBonusTreeForTiers();
+	/// load all stack experience bonuses from H3 files
+	void loadCrExpBon(CBonusSystemNode & globalEffects);
 
 	void afterLoadFinalization() override;
 
@@ -335,9 +321,6 @@ public:
 		h & skillLevels;
 		h & skillRequirements;
 		h & commanderLevelPremy;
-		h & allCreatures;
-		h & creaturesOfLevel;
-		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 

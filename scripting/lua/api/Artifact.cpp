@@ -34,7 +34,7 @@ const std::vector<ArtifactProxy::CustomRegType> ArtifactProxy::REGISTER_CUSTOM =
 	{"getName", LuaMethodWrapper<Artifact, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
 
 	{"getId", LuaMethodWrapper<Artifact, decltype(&EntityT<ArtifactID>::getId), &EntityT<ArtifactID>::getId>::invoke, false},
-	{"getBonusBearer", LuaMethodWrapper<Artifact, decltype(&EntityWithBonuses<ArtifactID>::getBonusBearer), &EntityWithBonuses<ArtifactID>::getBonusBearer>::invoke, false},
+	{"getBonusBearer", LuaMethodWrapper<Artifact, decltype(&IConstBonusProvider::getBonusBearer), &IConstBonusProvider::getBonusBearer>::invoke, false},
 
 	{"getDescription", LuaMethodWrapper<Artifact, decltype(&Artifact::getDescriptionTranslated), &Artifact::getDescriptionTranslated>::invoke, false},
 	{"getEventText", LuaMethodWrapper<Artifact, decltype(&Artifact::getEventTranslated), &Artifact::getEventTranslated>::invoke, false},

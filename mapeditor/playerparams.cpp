@@ -29,7 +29,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	{
 		CFaction * faction = VLC->townh->objects.at(idx);
 		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(idx));
+		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		ui->allowedFactions->addItem(item);
 		if(playerInfo.allowedFactions.count(idx))
@@ -124,9 +124,9 @@ void PlayerParams::on_randomFaction_stateChanged(int arg1)
 void PlayerParams::allowedFactionsCheck(QListWidgetItem * item)
 {
 	if(item->checkState() == Qt::Checked)
-		playerInfo.allowedFactions.insert(item->data(Qt::UserRole).toInt());
+		playerInfo.allowedFactions.insert(FactionID(item->data(Qt::UserRole).toInt()));
 	else
-		playerInfo.allowedFactions.erase(item->data(Qt::UserRole).toInt());
+		playerInfo.allowedFactions.erase(FactionID(item->data(Qt::UserRole).toInt()));
 }
 
 

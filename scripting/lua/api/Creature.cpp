@@ -32,7 +32,7 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getIndex", LuaMethodWrapper<Creature, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<Creature, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
 	{"getName", LuaMethodWrapper<Creature, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
-	{"getBonusBearer", LuaMethodWrapper<Creature, decltype(&EntityWithBonuses<CreatureID>::getBonusBearer), &EntityWithBonuses<CreatureID>::getBonusBearer>::invoke, false},
+	{"getBonusBearer", LuaMethodWrapper<Creature, decltype(&IConstBonusProvider::getBonusBearer), &IConstBonusProvider::getBonusBearer>::invoke, false},
 
 	{"getMaxHealth", LuaMethodWrapper<Creature,decltype(&Creature::getMaxHealth), &Creature::getMaxHealth>::invoke, false},
 	{"getPluralName", LuaMethodWrapper<Creature, decltype(&Creature::getNamePluralTranslated), &Creature::getNamePluralTranslated>::invoke, false},
@@ -45,7 +45,7 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getLevel", LuaMethodWrapper<Creature, decltype(&Creature::getLevel), &Creature::getLevel>::invoke, false},
 	{"getGrowth", LuaMethodWrapper<Creature, decltype(&Creature::getGrowth), &Creature::getGrowth>::invoke, false},
 	{"getHorde", LuaMethodWrapper<Creature, decltype(&Creature::getHorde), &Creature::getHorde>::invoke, false},
-	{"getFactionIndex", LuaMethodWrapper<Creature, decltype(&Creature::getFactionIndex), &Creature::getFactionIndex>::invoke, false},
+	{"getFaction", LuaMethodWrapper<Creature, decltype(&Creature::getFaction), &Creature::getFaction>::invoke, false},
 
 	{"getBaseAttack", LuaMethodWrapper<Creature, decltype(&Creature::getBaseAttack), &Creature::getBaseAttack>::invoke, false},
 	{"getBaseDefense", LuaMethodWrapper<Creature, decltype(&Creature::getBaseDefense), &Creature::getBaseDefense>::invoke, false},

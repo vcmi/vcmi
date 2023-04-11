@@ -853,7 +853,7 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		else
 		{
 			assert(dir >= -1 && dir <= 1); //othervice std::advance may go out of range
-			auto iter = allowed.find((ui8)cur);
+			auto iter = allowed.find(FactionID(cur));
 			std::advance(iter, dir);
 			cur = *iter;
 		}
