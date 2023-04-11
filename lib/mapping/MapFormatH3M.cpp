@@ -170,6 +170,10 @@ void CMapLoaderH3M::readHeader()
 	{
 		throw std::runtime_error("Invalid map format!");
 	}
+	
+	// include basic mod
+	if(mapHeader->version == EMapFormat::WOG)
+		mapHeader->mods["wake-of-gods"];
 
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
