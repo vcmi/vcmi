@@ -83,10 +83,10 @@ public:
 
 	int battleGetSurrenderCost(const PlayerColor & Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const battle::Unit * unit, BattleHex assumedPosition) const;
-	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
+	std::set<BattleHex> battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosition, const battle::Unit * defenderUnit, unsigned int range) const;
 
-	bool battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
+	bool battleCanAttack(const battle::Unit * stack, const battle::Unit * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack

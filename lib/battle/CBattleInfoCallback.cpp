@@ -271,7 +271,7 @@ PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * s
 	return PossiblePlayerBattleAction(spellSelMode, spell->id);
 }
 
-std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	std::set<BattleHex> attackedHexes;
 	RETURN_IF_NOT_BATTLE(attackedHexes);
@@ -645,7 +645,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 	return ret;
 }
 
-bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const
+bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const battle::Unit * target, BattleHex dest) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
@@ -658,7 +658,7 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	if(!battleMatchOwner(stack, target))
 		return false;
 
-	auto id = stack->getCreature()->getId();
+	auto id = stack->unitType()->getId();
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;
 
