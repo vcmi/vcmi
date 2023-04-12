@@ -15,7 +15,7 @@
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "ClientNetPackVisitors.h"
-#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/CAdventureMapInterface.h"
 #include "battle/BattleInterface.h"
 #include "gui/CGuiHandler.h"
 #include "mapView/mapHandler.h"

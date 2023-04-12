@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CAdventureOptions.h"
 
-#include "CAdvMapInt.h"
+#include "CAdventureMapInterface.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

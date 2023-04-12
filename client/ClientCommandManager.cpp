@@ -13,7 +13,7 @@
 
 #include "Client.h"
 #include "adventureMap/CInGameConsole.h"
-#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/CAdventureMapInterface.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"

@@ -3,7 +3,7 @@ set(client_SRCS
 	../CCallback.cpp
 
 	adventureMap/CAdvMapPanel.cpp
-	adventureMap/CAdvMapInt.cpp
+	adventureMap/CAdventureMapInterface.cpp
 	adventureMap/CAdventureOptions.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
@@ -122,7 +122,7 @@ set(client_HEADERS
 	StdInc.h
 
 	adventureMap/CAdvMapPanel.h
-	adventureMap/CAdvMapInt.h
+	adventureMap/CAdventureMapInterface.h
 	adventureMap/CAdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h

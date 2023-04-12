@@ -11,7 +11,7 @@
 
 #include <vcmi/Artifact.h>
 
-#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/CAdventureMapInterface.h"
 #include "mapView/mapHandler.h"
 #include "adventureMap/CList.h"
 #include "adventureMap/CInfoBar.h"
@@ -246,7 +246,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
-	adventureInt.reset(new CAdvMapInt());
+	adventureInt.reset(new CAdventureMapInterface());
 }
 void CPlayerInterface::yourTurn()
 {

@@ -15,7 +15,7 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../ClientCommandManager.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 

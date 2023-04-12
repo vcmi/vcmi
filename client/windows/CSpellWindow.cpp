@@ -25,7 +25,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../render/CAnimation.h"
 #include "../renderSDL/SDL_Extensions.h"
 

@@ -37,7 +37,7 @@ struct CPathsInfo;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-class CAdvMapInt;
+class CAdventureMapInterface;
 class CCastleInterface;
 class BattleInterface;
 class CComponent;

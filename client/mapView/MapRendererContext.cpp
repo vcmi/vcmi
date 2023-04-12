@@ -17,7 +17,7 @@
 #include "../../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 
 #include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"

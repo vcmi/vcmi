@@ -53,7 +53,7 @@ enum class EAdvMapMode
 /// That's a huge class which handles general adventure map actions and
 /// shows the right menu(questlog, spellbook, end turn,..) from where you
 /// can get to the towns and heroes.
-class CAdvMapInt : public CIntObject
+class CAdventureMapInterface : public CIntObject
 {
 private:
 	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
@@ -149,7 +149,7 @@ private:
 	void endingTurn();
 
 public:
-	CAdvMapInt();
+	CAdventureMapInterface();
 
 	// CIntObject interface implementation
 
@@ -241,4 +241,4 @@ public:
 
 };
 
-extern std::shared_ptr<CAdvMapInt> adventureInt;
+extern std::shared_ptr<CAdventureMapInterface> adventureInt;

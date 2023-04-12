@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CAdvMapInt.h"
+#include "CAdventureMapInterface.h"
 
 #include "CAdvMapPanel.h"
 #include "CAdventureOptions.h"
@@ -53,35 +53,35 @@
 
 #define ADVOPT (conf.go()->ac)
 
-std::shared_ptr<CAdvMapInt> adventureInt;
+std::shared_ptr<CAdventureMapInterface> adventureInt;
 
-void CAdvMapInt::setScrollingCursor(ui8 direction) const
+void CAdventureMapInterface::setScrollingCursor(ui8 direction) const
 {
-	if(direction & CAdvMapInt::RIGHT)
+	if(direction & CAdventureMapInterface::RIGHT)
 	{
-		if(direction & CAdvMapInt::UP)
+		if(direction & CAdventureMapInterface::UP)
 			CCS->curh->set(Cursor::Map::SCROLL_NORTHEAST);
-		else if(direction & CAdvMapInt::DOWN)
+		else if(direction & CAdventureMapInterface::DOWN)
 			CCS->curh->set(Cursor::Map::SCROLL_SOUTHEAST);
 		else
 			CCS->curh->set(Cursor::Map::SCROLL_EAST);
 	}
-	else if(direction & CAdvMapInt::LEFT)
+	else if(direction & CAdventureMapInterface::LEFT)
 	{
-		if(direction & CAdvMapInt::UP)
+		if(direction & CAdventureMapInterface::UP)
 			CCS->curh->set(Cursor::Map::SCROLL_NORTHWEST);
-		else if(direction & CAdvMapInt::DOWN)
+		else if(direction & CAdventureMapInterface::DOWN)
 			CCS->curh->set(Cursor::Map::SCROLL_SOUTHWEST);
 		else
 			CCS->curh->set(Cursor::Map::SCROLL_WEST);
 	}
-	else if(direction & CAdvMapInt::UP)
+	else if(direction & CAdventureMapInterface::UP)
 		CCS->curh->set(Cursor::Map::SCROLL_NORTH);
-	else if(direction & CAdvMapInt::DOWN)
+	else if(direction & CAdventureMapInterface::DOWN)
 		CCS->curh->set(Cursor::Map::SCROLL_SOUTH);
 }
 
-CAdvMapInt::CAdvMapInt():
+CAdventureMapInterface::CAdventureMapInterface():
 	mode(EAdvMapMode::NORMAL),
 	minimap(new CMinimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH))),
 	statusbar(CGStatusBar::create(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG)),
@@ -103,7 +103,7 @@ CAdvMapInt::CAdvMapInt():
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
-	townList->onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
+	townList->onSelect = std::bind(&CAdventureMapInterface::selectionChanged,this);
 	bg = IImage::createFromFile(ADVOPT.mainGraphic);
 	if(!ADVOPT.worldViewGraphic.empty())
 	{
@@ -136,16 +136,16 @@ CAdvMapInt::CAdvMapInt():
 		return button;
 	};
 
-	kingOverview = makeButton(293, std::bind(&CAdvMapInt::fshowOverview,this),     ADVOPT.kingOverview, SDLK_k);
-	underground  = makeButton(294, std::bind(&CAdvMapInt::fswitchLevel,this),      ADVOPT.underground,  SDLK_u);
-	questlog     = makeButton(295, std::bind(&CAdvMapInt::fshowQuestlog,this),     ADVOPT.questlog,     SDLK_q);
-	sleepWake    = makeButton(296, std::bind(&CAdvMapInt::fsleepWake,this),        ADVOPT.sleepWake,    SDLK_w);
-	moveHero     = makeButton(297, std::bind(&CAdvMapInt::fmoveHero,this),         ADVOPT.moveHero,     SDLK_m);
-	spellbook    = makeButton(298, std::bind(&CAdvMapInt::fshowSpellbok,this),     ADVOPT.spellbook,    SDLK_c);
-	advOptions   = makeButton(299, std::bind(&CAdvMapInt::fadventureOPtions,this), ADVOPT.advOptions,   SDLK_a);
-	sysOptions   = makeButton(300, std::bind(&CAdvMapInt::fsystemOptions,this),    ADVOPT.sysOptions,   SDLK_o);
-	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
-	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
+	kingOverview = makeButton(293, std::bind(&CAdventureMapInterface::fshowOverview,this),     ADVOPT.kingOverview, SDLK_k);
+	underground  = makeButton(294, std::bind(&CAdventureMapInterface::fswitchLevel,this),      ADVOPT.underground,  SDLK_u);
+	questlog     = makeButton(295, std::bind(&CAdventureMapInterface::fshowQuestlog,this),     ADVOPT.questlog,     SDLK_q);
+	sleepWake    = makeButton(296, std::bind(&CAdventureMapInterface::fsleepWake,this),        ADVOPT.sleepWake,    SDLK_w);
+	moveHero     = makeButton(297, std::bind(&CAdventureMapInterface::fmoveHero,this),         ADVOPT.moveHero,     SDLK_m);
+	spellbook    = makeButton(298, std::bind(&CAdventureMapInterface::fshowSpellbok,this),     ADVOPT.spellbook,    SDLK_c);
+	advOptions   = makeButton(299, std::bind(&CAdventureMapInterface::fadventureOPtions,this), ADVOPT.advOptions,   SDLK_a);
+	sysOptions   = makeButton(300, std::bind(&CAdventureMapInterface::fsystemOptions,this),    ADVOPT.sysOptions,   SDLK_o);
+	nextHero     = makeButton(301, std::bind(&CAdventureMapInterface::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
+	endTurn      = makeButton(302, std::bind(&CAdventureMapInterface::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
 	int panelSpaceBottom = GH.screenDimensions().y - resdatabar->pos.h - 4;
 
@@ -172,7 +172,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewBackConfig.y = 343 + 195;
 	worldViewBackConfig.playerColoured = false;
 	panelWorldView->addChildToPanel(
-		makeButton(288, std::bind(&CAdvMapInt::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE), ACTIVATE | DEACTIVATE);
+		makeButton(288, std::bind(&CAdventureMapInterface::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewPuzzleConfig = config::ButtonInfo();
 	worldViewPuzzleConfig.defName = "VWPUZ.DEF";
@@ -189,7 +189,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewScale1xConfig.y = 23 + 195;
 	worldViewScale1xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
-		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_1), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_1), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
 	worldViewScale2xConfig.defName = "VWMAG2.DEF";
@@ -197,7 +197,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewScale2xConfig.y = 23 + 195;
 	worldViewScale2xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
-		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_2), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_2), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
 	worldViewScale4xConfig.defName = "VWMAG4.DEF";
@@ -205,7 +205,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewScale4xConfig.y = 23 + 195;
 	worldViewScale4xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
-		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_4), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_4), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
@@ -213,7 +213,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUndergroundConfig.x = GH.screenDimensions().x - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
-	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
+	worldViewUnderground = makeButton(294, std::bind(&CAdventureMapInterface::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
 	panelWorldView->addChildColorableButton(worldViewUnderground);
 
 	onCurrentPlayerChanged(LOCPLINT->playerID);
@@ -250,12 +250,12 @@ CAdvMapInt::CAdvMapInt():
 	addUsedEvents(MOVE);
 }
 
-void CAdvMapInt::fshowOverview()
+void CAdventureMapInterface::fshowOverview()
 {
 	GH.pushIntT<CKingdomInterface>();
 }
 
-void CAdvMapInt::fworldViewBack()
+void CAdventureMapInterface::fworldViewBack()
 {
 	exitWorldView();
 
@@ -264,23 +264,23 @@ void CAdvMapInt::fworldViewBack()
 		centerOnObject(hero);
 }
 
-void CAdvMapInt::fworldViewScale1x()
+void CAdventureMapInterface::fworldViewScale1x()
 {
 	// TODO set corresponding scale button to "selected" mode
 	openWorldView(7);
 }
 
-void CAdvMapInt::fworldViewScale2x()
+void CAdventureMapInterface::fworldViewScale2x()
 {
 	openWorldView(11);
 }
 
-void CAdvMapInt::fworldViewScale4x()
+void CAdventureMapInterface::fworldViewScale4x()
 {
 	openWorldView(16);
 }
 
-void CAdvMapInt::fswitchLevel()
+void CAdventureMapInterface::fswitchLevel()
 {
 	// with support for future multi-level maps :)
 	int maxLevels = CGI->mh->getMap()->levels();
@@ -290,7 +290,7 @@ void CAdvMapInt::fswitchLevel()
 	terrain->onMapLevelSwitched();
 }
 
-void CAdvMapInt::onMapViewMoved(const Rect & visibleArea, int mapLevel)
+void CAdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
 	underground->setIndex(mapLevel, true);
 	underground->redraw();
@@ -301,22 +301,22 @@ void CAdvMapInt::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 	minimap->onMapViewMoved(visibleArea, mapLevel);
 }
 
-void CAdvMapInt::onAudioResumed()
+void CAdventureMapInterface::onAudioResumed()
 {
 	mapAudio->onAudioResumed();
 }
 
-void CAdvMapInt::onAudioPaused()
+void CAdventureMapInterface::onAudioPaused()
 {
 	mapAudio->onAudioPaused();
 }
 
-void CAdvMapInt::fshowQuestlog()
+void CAdventureMapInterface::fshowQuestlog()
 {
 	LOCPLINT->showQuestLog();
 }
 
-void CAdvMapInt::fsleepWake()
+void CAdventureMapInterface::fsleepWake()
 {
 	const CGHeroInstance *h = getCurrentHero();
 	if (!h)
@@ -337,7 +337,7 @@ void CAdvMapInt::fsleepWake()
 	panelMain->redraw();
 }
 
-void CAdvMapInt::fmoveHero()
+void CAdventureMapInterface::fmoveHero()
 {
 	const CGHeroInstance *h = getCurrentHero();
 	if (!h || !LOCPLINT->paths.hasPath(h) || CGI->mh->hasOngoingAnimations())
@@ -346,7 +346,7 @@ void CAdvMapInt::fmoveHero()
 	LOCPLINT->moveHero(h, LOCPLINT->paths.getPath(h));
 }
 
-void CAdvMapInt::fshowSpellbok()
+void CAdventureMapInterface::fshowSpellbok()
 {
 	if (!getCurrentHero()) //checking necessary values
 		return;
@@ -356,17 +356,17 @@ void CAdvMapInt::fshowSpellbok()
 	GH.pushIntT<CSpellWindow>(getCurrentHero(), LOCPLINT, false);
 }
 
-void CAdvMapInt::fadventureOPtions()
+void CAdventureMapInterface::fadventureOPtions()
 {
 	GH.pushIntT<CAdventureOptions>();
 }
 
-void CAdvMapInt::fsystemOptions()
+void CAdventureMapInterface::fsystemOptions()
 {
 	GH.pushIntT<SettingsMainWindow>();
 }
 
-void CAdvMapInt::fnextHero()
+void CAdventureMapInterface::fnextHero()
 {
 	auto hero = dynamic_cast<const CGHeroInstance*>(selection);
 	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
@@ -375,7 +375,7 @@ void CAdvMapInt::fnextHero()
 	setSelection(LOCPLINT->wanderingHeroes[next], true);
 }
 
-void CAdvMapInt::fendTurn()
+void CAdventureMapInterface::fendTurn()
 {
 	if(!LOCPLINT->makingTurn)
 		return;
@@ -393,14 +393,14 @@ void CAdvMapInt::fendTurn()
 
 				if(!LOCPLINT->paths.hasPath(hero))
 				{
-					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), nullptr );
+					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdventureMapInterface::endingTurn, this), nullptr );
 					return;
 				}
 
 				auto path = LOCPLINT->paths.getPath(hero);
 				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
 				{
-					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), nullptr );
+					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdventureMapInterface::endingTurn, this), nullptr );
 					return;
 				}
 			}
@@ -409,7 +409,7 @@ void CAdvMapInt::fendTurn()
 	endingTurn();
 }
 
-void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
+void CAdventureMapInterface::updateSleepWake(const CGHeroInstance *h)
 {
 	sleepWake->block(!h);
 	if (!h)
@@ -420,12 +420,12 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 	sleepWake->assignedKeys.insert(state ? SDLK_w : SDLK_z);
 }
 
-void CAdvMapInt::updateSpellbook(const CGHeroInstance *h)
+void CAdventureMapInterface::updateSpellbook(const CGHeroInstance *h)
 {
 	spellbook->block(!h);
 }
 
-int CAdvMapInt::getNextHeroIndex(int startIndex)
+int CAdventureMapInterface::getNextHeroIndex(int startIndex)
 {
 	if (LOCPLINT->wanderingHeroes.size() == 0)
 		return -1;
@@ -446,7 +446,7 @@ int CAdvMapInt::getNextHeroIndex(int startIndex)
 		return -1;
 }
 
-void CAdvMapInt::onHeroChanged(const CGHeroInstance *h)
+void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
 	heroList->update(h);
 
@@ -475,18 +475,18 @@ void CAdvMapInt::onHeroChanged(const CGHeroInstance *h)
 	moveHero->block(!(bool)hasPath || (h->movement == 0));
 }
 
-void CAdvMapInt::onTownChanged(const CGTownInstance * town)
+void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
 {
 	townList->update(town);
 	adventureInt->infoBar->showSelection();
 }
 
-void CAdvMapInt::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
+void CAdventureMapInterface::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
 {
 	infoBar->pushComponents(components, message, timer);
 }
 
-void CAdvMapInt::activate()
+void CAdventureMapInterface::activate()
 {
 	CIntObject::activate();
 	if (!(active & KEYBOARD))
@@ -518,7 +518,7 @@ void CAdvMapInt::activate()
 	}
 }
 
-void CAdvMapInt::deactivate()
+void CAdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
 
@@ -540,7 +540,7 @@ void CAdvMapInt::deactivate()
 	}
 }
 
-void CAdvMapInt::showAll(SDL_Surface * to)
+void CAdventureMapInterface::showAll(SDL_Surface * to)
 {
 	bg->draw(to, 0, 0);
 
@@ -569,7 +569,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	LOCPLINT->cingconsole->show(to);
 }
 
-bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
+bool CAdventureMapInterface::isHeroSleeping(const CGHeroInstance *hero)
 {
 	if (!hero)
 		return false;
@@ -577,7 +577,7 @@ bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
 	return vstd::contains(LOCPLINT->sleepingHeroes, hero);
 }
 
-void CAdvMapInt::onHeroWokeUp(const CGHeroInstance * hero)
+void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
 {
 	if (!isHeroSleeping(hero))
 		return;
@@ -589,7 +589,7 @@ void CAdvMapInt::onHeroWokeUp(const CGHeroInstance * hero)
 	//but no authentic button click/sound ;-)
 }
 
-void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
+void CAdventureMapInterface::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 {
 	if (sleep)
 		LOCPLINT->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
@@ -598,7 +598,7 @@ void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 	onHeroChanged(nullptr);
 }
 
-void CAdvMapInt::show(SDL_Surface * to)
+void CAdventureMapInterface::show(SDL_Surface * to)
 {
 	if(state != EGameStates::INGAME)
 		return;
@@ -625,7 +625,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	statusbar->showAll(to);
 }
 
-void CAdvMapInt::handleMapScrollingUpdate()
+void CAdventureMapInterface::handleMapScrollingUpdate()
 {
 	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
 	double scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
@@ -656,24 +656,24 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	}
 }
 
-void CAdvMapInt::selectionChanged()
+void CAdventureMapInterface::selectionChanged()
 {
 	const CGTownInstance *to = LOCPLINT->towns[townList->getSelectedIndex()];
 	if (selection != to)
 		setSelection(to);
 }
 
-void CAdvMapInt::centerOnTile(int3 on)
+void CAdventureMapInterface::centerOnTile(int3 on)
 {
 	terrain->onCenteredTile(on);
 }
 
-void CAdvMapInt::centerOnObject(const CGObjectInstance * obj)
+void CAdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 {
 	terrain->onCenteredObject(obj);
 }
 
-void CAdvMapInt::keyReleased(const SDL_Keycode &key)
+void CAdventureMapInterface::keyReleased(const SDL_Keycode &key)
 {
 	if (mode != EAdvMapMode::NORMAL)
 		return;
@@ -701,7 +701,7 @@ void CAdvMapInt::keyReleased(const SDL_Keycode &key)
 	}
 }
 
-void CAdvMapInt::keyPressed(const SDL_Keycode & key)
+void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 {
 	if (mode != EAdvMapMode::NORMAL)
 		return;
@@ -877,7 +877,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 	}
 }
 
-std::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
+std::optional<Point> CAdventureMapInterface::keyToMoveDirection(const SDL_Keycode & key)
 {
 	switch (key) {
 		case SDLK_DOWN:  return Point( 0, +1);
@@ -898,7 +898,7 @@ std::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 	return std::nullopt;
 }
 
-void CAdvMapInt::setSelection(const CArmedInstance *sel, bool centerView)
+void CAdventureMapInterface::setSelection(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
 	if(selection != sel)
@@ -938,7 +938,7 @@ void CAdvMapInt::setSelection(const CArmedInstance *sel, bool centerView)
 	heroList->redraw();
 }
 
-void CAdvMapInt::mouseMoved( const Point & cursorPosition )
+void CAdventureMapInterface::mouseMoved( const Point & cursorPosition )
 {
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
@@ -979,27 +979,27 @@ void CAdvMapInt::mouseMoved( const Point & cursorPosition )
 	}
 }
 
-bool CAdvMapInt::isActive()
+bool CAdventureMapInterface::isActive()
 {
 	return active & ~CIntObject::KEYBOARD;
 }
 
-void CAdvMapInt::startHotSeatWait(PlayerColor Player)
+void CAdventureMapInterface::startHotSeatWait(PlayerColor Player)
 {
 	state = EGameStates::WAITING;
 }
 
-void CAdvMapInt::onMapTileChanged(const int3 & mapPosition)
+void CAdventureMapInterface::onMapTileChanged(const int3 & mapPosition)
 {
 	minimap->updateTile(mapPosition);
 }
 
-void CAdvMapInt::onMapTilesChanged()
+void CAdventureMapInterface::onMapTilesChanged()
 {
 	minimap->update();
 }
 
-void CAdvMapInt::onCurrentPlayerChanged(PlayerColor Player)
+void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor Player)
 {
 	selection = nullptr;
 
@@ -1015,7 +1015,7 @@ void CAdvMapInt::onCurrentPlayerChanged(PlayerColor Player)
 	resdatabar->colorize(player);
 }
 
-void CAdvMapInt::startTurn()
+void CAdventureMapInterface::startTurn()
 {
 	state = EGameStates::INGAME;
 	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
@@ -1027,7 +1027,7 @@ void CAdvMapInt::startTurn()
 	}
 }
 
-void CAdvMapInt::initializeNewTurn()
+void CAdventureMapInterface::initializeNewTurn()
 {
 	heroList->update();
 	townList->update();
@@ -1072,7 +1072,7 @@ void CAdvMapInt::initializeNewTurn()
 	}
 }
 
-void CAdvMapInt::endingTurn()
+void CAdventureMapInterface::endingTurn()
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
@@ -1082,7 +1082,7 @@ void CAdvMapInt::endingTurn()
 	mapAudio->onPlayerTurnEnded();
 }
 
-const CGObjectInstance* CAdvMapInt::getActiveObject(const int3 &mapPos)
+const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapPos)
 {
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);  //blocking objects at tile
 
@@ -1097,7 +1097,7 @@ const CGObjectInstance* CAdvMapInt::getActiveObject(const int3 &mapPos)
 		return bobjs.front();*/
 }
 
-void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
+void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
 		return;
@@ -1185,7 +1185,7 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 	}
 }
 
-void CAdvMapInt::onTileHovered(const int3 &mapPos)
+void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL //disable in world view
 		|| !selection) //may occur just at the start of game (fake move before full intiialization)
@@ -1329,7 +1329,7 @@ void CAdvMapInt::onTileHovered(const int3 &mapPos)
 	}
 }
 
-void CAdvMapInt::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
+void CAdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
 {
 	const int maxMovementPointsAtStartOfLastTurn = pathNode.turns > 0 ? hero.maxMovePoints(pathNode.layer == EPathfindingLayer::LAND) : hero.movement;
 	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;
@@ -1344,7 +1344,7 @@ void CAdvMapInt::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const C
 	statusbar->write(result);
 }
 
-void CAdvMapInt::onTileRightClicked(const int3 &mapPos)
+void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
 		return;
@@ -1375,7 +1375,7 @@ void CAdvMapInt::onTileRightClicked(const int3 &mapPos)
 	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);
 }
 
-void CAdvMapInt::enterCastingMode(const CSpell * sp)
+void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
 {
 	assert(sp->id == SpellID::SCUTTLE_BOAT  ||  sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
@@ -1385,7 +1385,7 @@ void CAdvMapInt::enterCastingMode(const CSpell * sp)
 	GH.fakeMouseMove();
 }
 
-void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
+void CAdventureMapInterface::leaveCastingMode(bool cast, int3 dest)
 {
 	assert(spellBeingCasted);
 	SpellID id = spellBeingCasted->id;
@@ -1399,7 +1399,7 @@ void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 
-const CGHeroInstance * CAdvMapInt::getCurrentHero() const
+const CGHeroInstance * CAdventureMapInterface::getCurrentHero() const
 {
 	if(selection && selection->ID == Obj::HERO)
 		return dynamic_cast<const CGHeroInstance *>(selection);
@@ -1407,7 +1407,7 @@ const CGHeroInstance * CAdvMapInt::getCurrentHero() const
 		return nullptr;
 }
 
-const CGTownInstance * CAdvMapInt::getCurrentTown() const
+const CGTownInstance * CAdventureMapInterface::getCurrentTown() const
 {
 	if(selection && selection->ID == Obj::TOWN)
 		return dynamic_cast<const CGTownInstance *>(selection);
@@ -1415,7 +1415,7 @@ const CGTownInstance * CAdvMapInt::getCurrentTown() const
 		return nullptr;
 }
 
-const CArmedInstance * CAdvMapInt::getCurrentArmy() const
+const CArmedInstance * CAdventureMapInterface::getCurrentArmy() const
 {
 	if (selection)
 		return dynamic_cast<const CArmedInstance *>(selection);
@@ -1423,12 +1423,12 @@ const CArmedInstance * CAdvMapInt::getCurrentArmy() const
 		return nullptr;
 }
 
-Rect CAdvMapInt::terrainAreaPixels() const
+Rect CAdventureMapInterface::terrainAreaPixels() const
 {
 	return terrain->pos;
 }
 
-const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *obj) const
+const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
 {
 	const IShipyard *ret = IShipyard::castFrom(obj);
 
@@ -1440,7 +1440,7 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 	return ret;
 }
 
-void CAdvMapInt::aiTurnStarted()
+void CAdventureMapInterface::aiTurnStarted()
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
@@ -1453,7 +1453,7 @@ void CAdvMapInt::aiTurnStarted()
 	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
 }
 
-void CAdvMapInt::adjustActiveness(bool aiTurnStart)
+void CAdventureMapInterface::adjustActiveness(bool aiTurnStart)
 {
 	bool wasActive = isActive();
 
@@ -1464,7 +1464,7 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		activate();
 }
 
-void CAdvMapInt::exitWorldView()
+void CAdventureMapInterface::exitWorldView()
 {
 	mode = EAdvMapMode::NORMAL;
 
@@ -1480,7 +1480,7 @@ void CAdvMapInt::exitWorldView()
 	terrain->onViewMapActivated();
 }
 
-void CAdvMapInt::openWorldView(int tileSize)
+void CAdventureMapInterface::openWorldView(int tileSize)
 {
 	mode = EAdvMapMode::WORLD_VIEW;
 	panelMain->deactivate();
@@ -1497,12 +1497,12 @@ void CAdvMapInt::openWorldView(int tileSize)
 	terrain->onViewWorldActivated(tileSize);
 }
 
-void CAdvMapInt::openWorldView()
+void CAdventureMapInterface::openWorldView()
 {
 	openWorldView(11);
 }
 
-void CAdvMapInt::openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
+void CAdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
 	openWorldView(11);
 	terrain->onViewSpellActivated(11, objectPositions, showTerrain);
