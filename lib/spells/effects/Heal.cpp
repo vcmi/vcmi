@@ -124,7 +124,7 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLog
 				resurrectText.addReplacement(resurrectedCount);
 				logMessage.lines.push_back(std::move(resurrectText));
 			}
-			else if (unitHPgained > 0 && m->caster->getCasterUnitId() >= 0) //Show text about healed HP if healed by unit
+			else if (unitHPgained > 0 && m->caster->getHeroCaster() == nullptr) //Show text about healed HP if healed by unit
 			{
 				MetaString healText;
 				auto casterUnit = dynamic_cast<const battle::CUnitState*>(m->caster)->acquire();
