@@ -336,11 +336,16 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
-	windowObject->blockUI(true);
+	// Do not deactivate anything in tactics mode
+	// This is battlefield setup spells
+	if(!tacticsMode)
+	{
+		windowObject->blockUI(true);
 
-	// Disable current active stack duing the cast
-	// Store the current activeStack to stackToActivate
-	stacksController->deactivateStack();
+		// Disable current active stack duing the cast
+		// Store the current activeStack to stackToActivate
+		stacksController->deactivateStack();
+	}
 
 	CCS->curh->set(Cursor::Combat::BLOCKED);
 
