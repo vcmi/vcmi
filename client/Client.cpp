@@ -401,7 +401,12 @@ void CClient::initPlayerEnvironments()
 	playerEnvironments.clear();
 
 	auto allPlayers = CSH->getAllClientPlayers(CSH->c->connectionID);
-
+	if(allPlayers.empty())
+	{
+		Settings session = settings.write["session"];
+		session["spectate"].Bool() = true;
+	}
+	
 	for(auto & color : allPlayers)
 	{
 		logNetwork->info("Preparing environment for player %s", color.getStr());
