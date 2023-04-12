@@ -72,7 +72,7 @@ void Catapult::applyMassive(ServerCallback * server, const Mechanics * m) const
 		return;
 
 	CatapultAttack ca;
-	ca.attacker = m->caster->getCasterUnitId();
+	ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 
 	for(int i = 0; i < targetsToAttack; i++)
 	{
@@ -137,7 +137,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		attack.damageDealt = getRandomDamage(server);
 
 		CatapultAttack ca; //package for clients
-		ca.attacker = m->caster->getCasterUnitId();
+		ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 		ca.attackedParts.push_back(attack);
 		server->apply(&ca);
 		removeTowerShooters(server, m);
