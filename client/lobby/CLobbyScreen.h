@@ -22,7 +22,7 @@ public:
 	~CLobbyScreen();
 	void toggleTab(std::shared_ptr<CIntObject> tab) override;
 	void startCampaign();
-	void startScenario(bool allowOnlyAI = false);
+	void startScenario(bool allowOnlyAI = true);
 	void toggleMode(bool host);
 	void toggleChat();
 
