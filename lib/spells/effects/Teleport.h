@@ -26,7 +26,7 @@ class Teleport : public UnitEffect
 public:
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
-	bool applicable(Problem & problem, const Mechanics * m) const override;
+	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
@@ -34,6 +34,10 @@ public:
 
 protected:
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override;
+
+private:
+	bool isWallPassable;
+	bool isMoatPassable;
 };
 
 }

@@ -583,10 +583,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::TELEPORT:
-		{
-			ui8 skill = getCurrentSpellcaster()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
-			return owner.curInt->cb->battleCanTeleportTo(selectedStack, targetHex, skill);
-		}
+			return selectedStack && isCastingPossibleHere(action.spell().toSpell(), selectedStack, targetHex);
 
 		case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
 			return targetStack && targetStack != selectedStack && targetStackOwned && targetStack->alive();
@@ -914,6 +911,8 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 	const spells::Mode mode = heroSpellToCast ? spells::Mode::HERO : spells::Mode::CREATURE_ACTIVE;
 
 	spells::Target target;
+	if(targetStack)
+		target.emplace_back(targetStack);
 	target.emplace_back(targetHex);
 
 	spells::BattleCast cast(owner.curInt->cb.get(), caster, mode, currentSpell);

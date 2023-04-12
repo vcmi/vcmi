@@ -636,6 +636,21 @@
 					}
 				},
 				"targetModifier":{"smart":true}
+			},
+			"advanced" :{
+				"battleEffects":{
+					"teleport":{
+						"isMoatPassable" : true
+					}
+				}
+			},
+			"expert" : {
+				"battleEffects":{
+					"teleport":{
+						"isWallPassable" : true,
+						"isMoatPassable" : true
+					}
+				}
 			}
 		},
 		"flags" : {

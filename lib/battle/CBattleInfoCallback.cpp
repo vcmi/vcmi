@@ -133,11 +133,13 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	return ESpellCastProblem::OK;
 }
 
-bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
+bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
 {
 	auto isTileBlocked = [&](BattleHex tile)
 	{
 		EWallPart wallPart = battleHexToWallPart(tile);
+		if (wallPart == EWallPart::INVALID)
+			return false; // there is no wall here
 		if (wallPart == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
 			return false; // does not blocks ranged attacks
 		if (wallPart == EWallPart::INDESTRUCTIBLE_PART)
@@ -145,35 +147,54 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 
 		return isWallPartAttackable(wallPart);
 	};
-
-	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
+	// Count wall penalty requirement by shortest path, not by arbitrary line, to avoid various OH3 bugs
+	auto getShortestPath = [](BattleHex from, BattleHex dest) -> std::vector<BattleHex>
 	{
-		// arbitrary selected cell size for virtual grid
-		// any even number can be selected (for division by two)
-		static const int cellSize = 10;
+		//Out early
+		if(from == dest)
+			return {};
 
-		// create line that goes from center of shooter cell to center of target cell
-		Point line1{ from.getX()*cellSize+cellSize/2, from.getY()*cellSize+cellSize/2};
-		Point line2{ dest.getX()*cellSize+cellSize/2, dest.getY()*cellSize+cellSize/2};
+		std::vector<BattleHex> ret;
+		auto next = from;
+		//Not a real direction, only to indicate to which side we should search closest tile
+		auto direction = from.getX() > dest.getX() ? BattleSide::DEFENDER : BattleSide::ATTACKER;
 
-		for (int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
+		while (next != dest)
 		{
-			BattleHex obstacle = lineToWallHex(y);
-			if (!isTileBlocked(obstacle))
-				continue;
-
-			// create rect around cell with an obstacle
-			Rect rect {
-				Point(obstacle.getX(), obstacle.getY()) * cellSize,
-				Point( cellSize, cellSize)
-			};
-
-			if ( rect.intersectionTest(line1, line2))
-				return true;
+			auto tiles = next.neighbouringTiles();
+			std::set<BattleHex> possibilities = {tiles.begin(), tiles.end()};
+			next = BattleHex::getClosestTile(direction, dest, possibilities);
+			ret.push_back(next);
 		}
-		return false;
+		assert(!ret.empty());
+		ret.pop_back(); //Remove destination hex
+		return ret;
 	};
 
+	RETURN_IF_NOT_BATTLE(false);
+	auto checkNeeded = !sameSideOfWall(from, dest);
+	bool pathHasWall = false;
+	bool pathHasMoat = false;
+
+	for(const auto & hex : getShortestPath(from, dest))
+	{
+		pathHasWall |= isTileBlocked(hex);
+		if(!checkMoat)
+			continue;
+
+		auto obstacles = battleGetAllObstaclesOnPos(hex, false);
+
+		if(hex != ESiegeHex::GATE_BRIDGE || (battleIsGatePassable()))
+			for(const auto & obst : obstacles)
+				if(obst->obstacleType ==  CObstacleInstance::MOAT)
+					pathHasMoat |= true;
+	}
+
+	return checkNeeded && ( (checkWall && pathHasWall) || (checkMoat && pathHasMoat) );
+}
+
+bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
+{
 	RETURN_IF_NOT_BATTLE(false);
 	if(!battleGetSiegeLevel())
 		return false;
@@ -184,26 +205,9 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 	if(shooter->hasBonus(selectorNoWallPenalty, cachingStrNoWallPenalty))
 		return false;
 
-	const int wallInStackLine = lineToWallHex(shooterPosition.getY());
-	const bool shooterOutsideWalls = shooterPosition < wallInStackLine;
+	const auto shooterOutsideWalls = shooterPosition < lineToWallHex(shooterPosition.getY());
 
-	return shooterOutsideWalls && needWallPenalty(shooterPosition, destHex);
-}
-
-si8 CBattleInfoCallback::battleCanTeleportTo(const battle::Unit * stack, BattleHex destHex, int telportLevel) const
-{
-	RETURN_IF_NOT_BATTLE(false);
-	if (!getAccesibility(stack).accessible(destHex, stack))
-		return false;
-
-	const ui8 siegeLevel = battleGetSiegeLevel();
-
-	//check for wall
-	//advanced teleport can pass wall of fort|citadel, expert - of castle
-	if ((siegeLevel > CGTownInstance::NONE && telportLevel < 2) || (siegeLevel >= CGTownInstance::CASTLE && telportLevel < 3))
-		return sameSideOfWall(stack->getPosition(), destHex);
-
-	return true;
+	return shooterOutsideWalls && battleHasPenaltyOnLine(shooterPosition, destHex, true, false);
 }
 
 std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data)
