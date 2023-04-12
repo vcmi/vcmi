@@ -83,10 +83,17 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 	pack.tilesToMove = tiles;
 	pack.teleporting = true;
 	server->apply(&pack);
+
+	if(triggerObstacles)
+	{
+		auto spellEnv = dynamic_cast<SpellCastEnvironment*>(server);
+		m->battle()->handleObstacleTriggersForUnit(*spellEnv, *targetUnit);
+	}
 }
 
 void Teleport::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
+	handler.serializeBool("triggerObstacles", triggerObstacles);
 	handler.serializeBool("isWallPassable", isWallPassable);
 	handler.serializeBool("isMoatPassable", isMoatPassable);
 }

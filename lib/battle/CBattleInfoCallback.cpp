@@ -14,9 +14,13 @@
 
 #include "../CStack.h"
 #include "BattleInfo.h"
+#include "CObstacleInstance.h"
 #include "DamageCalculator.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../NetPacks.h"
+#include "../spells/ObstacleCasterProxy.h"
+#include "../spells/ISpellMechanics.h"
+#include "../spells/Problem.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
@@ -824,6 +828,66 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 						affectedObstacles.erase(affectedObstacles.begin()+i);
 	}
 	return affectedObstacles;
+}
+
+bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & spellEnv, const battle::Unit & unit, const std::set<BattleHex> & passed) const
+{
+	if(!unit.alive())
+		return false;
+	bool movementStopped = false;
+	for(auto & obstacle : getAllAffectedObstaclesByStack(&unit, passed))
+	{
+		//helper info
+		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
+
+		if(spellObstacle)
+		{
+			auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
+			{
+				// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+				auto operation = ObstacleChanges::EOperation::UPDATE;
+				if (spellObstacle.removeOnTrigger)
+					operation = ObstacleChanges::EOperation::REMOVE;
+
+				SpellCreatedObstacle changedObstacle;
+				changedObstacle.uniqueID = spellObstacle.uniqueID;
+				changedObstacle.revealed = true;
+
+				BattleObstaclesChanged bocp;
+				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
+				changedObstacle.toInfo(bocp.changes.back(), operation);
+				spellEnv.apply(&bocp);
+			};
+			const auto side = unit.unitSide();
+			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
+			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
+			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+			const auto * sp = obstacle->getTrigger().toSpell();
+			if(obstacle->triggersEffects() && sp)
+			{
+				auto cast = spells::BattleCast(this, &caster, spells::Mode::PASSIVE, sp);
+				spells::detail::ProblemImpl ignored;
+				auto target = spells::Target(1, spells::Destination(&unit));
+				if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
+				{
+					if(shouldReveal) { //hidden obstacle triggers effects after revealed
+						revealObstacles(*spellObstacle);
+						cast.cast(&spellEnv, target);
+					}
+				}
+			}
+			else if(shouldReveal)
+				revealObstacles(*spellObstacle);
+		}
+
+		if(!unit.alive())
+			return false;
+
+		if(obstacle->stopsMovement())
+			movementStopped = true;
+	}
+
+	return unit.alive() && !movementStopped;
 }
 
 AccessibilityInfo CBattleInfoCallback::getAccesibility() const

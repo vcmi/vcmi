@@ -36,6 +36,7 @@ protected:
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override;
 
 private:
+	bool triggerObstacles;
 	bool isWallPassable;
 	bool isMoatPassable;
 };

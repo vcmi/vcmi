@@ -20,6 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CStack;
 class ISpellCaster;
+class SpellCastEnvironment;
 class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
@@ -61,6 +62,8 @@ public:
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const override;
 	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const override;
+	//Handle obstacle damage here, requires SpellCastEnvironment
+	bool handleObstacleTriggersForUnit(SpellCastEnvironment & spellEnv, const battle::Unit & unit, const std::set<BattleHex> & passed = {}) const;
 
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true) const;
 

@@ -1527,7 +1527,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				if(stackIsMoving && start != curStack->getPosition())
 				{
-					stackIsMoving = handleDamageFromObstacle(curStack, passed);
+					stackIsMoving = handleObstacleTriggersForUnit(*spellEnv, *curStack, passed);
 					passed.insert(curStack->getPosition());
 					if(curStack->doubleWide())
 						passed.insert(curStack->occupiedHex());
@@ -1565,7 +1565,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	handleDamageFromObstacle(curStack, passed);
+	handleObstacleTriggersForUnit(*spellEnv, *curStack, passed);
 
 	return ret;
 }
@@ -4933,7 +4933,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	}
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND
 			|| ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
-		handleDamageFromObstacle(stack);
+		handleObstacleTriggersForUnit(*spellEnv, *stack);
 	if(ba.stackNumber == gs->curB->activeStack || battleResult.get()) //active stack has moved or battle has finished
 		battleMadeAction.setn(true);
 	return ok;
@@ -5287,66 +5287,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 			}
 		}
 	}
-}
-
-bool CGameHandler::handleDamageFromObstacle(const battle::Unit * curStack, const std::set<BattleHex> & passed)
-{
-	if(!curStack->alive())
-		return false;
-	bool movementStopped = false;
-	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack, passed))
-	{
-		//helper info
-		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
-
-		if(spellObstacle)
-		{
-			auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
-			{
-				// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-				auto operation = ObstacleChanges::EOperation::UPDATE;
-				if (spellObstacle.removeOnTrigger)
-					operation = ObstacleChanges::EOperation::REMOVE;
-
-				SpellCreatedObstacle changedObstacle;
-				changedObstacle.uniqueID = spellObstacle.uniqueID;
-				changedObstacle.revealed = true;
-
-				BattleObstaclesChanged bocp;
-				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
-				changedObstacle.toInfo(bocp.changes.back(), operation);
-				sendAndApply(&bocp);
-			};
-			const auto side = curStack->unitSide();
-			auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
-			const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-			auto caster = spells::ObstacleCasterProxy(gs->curB->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-			const auto * sp = obstacle->getTrigger().toSpell();
-			if(obstacle->triggersEffects() && sp)
-			{
-				auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);
-				spells::detail::ProblemImpl ignored;
-				auto target = spells::Target(1, spells::Destination(curStack));
-				if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
-				{
-					if(shouldReveal) { //hidden obstacle triggers effects after revealed
-						revealObstacles(*spellObstacle);
-						cast.cast(spellEnv, target);
-					}
-				}
-			}
-			else if(shouldReveal)
-				revealObstacles(*spellObstacle);
-		}
-
-		if(!curStack->alive())
-			return false;
-
-		if(obstacle->stopsMovement())
-			movementStopped = true;
-	}
-
-	return curStack->alive() && !movementStopped;
 }
 
 void CGameHandler::handleTimeEvents()
