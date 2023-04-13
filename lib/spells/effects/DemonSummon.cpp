@@ -89,20 +89,32 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 		server->apply(&pack);
 }
 
-bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * s) const
+bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 {
-	if(!s->isDead())
-		return false;
+	if(!unit->isDead())
+	{
+		//check if alive unit blocks rising
+		for(const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+		{
+			auto blocking = m->battle()->battleGetUnitsIf([hex, unit](const battle::Unit * other)
+			{
+				return other->isValidTarget(false) && other->coversPos(hex) && other != unit;
+			});
 
-	if (s->isGhost())
+			if(!blocking.empty())
+				return false;
+		}
+	}
+
+	if (unit->isGhost())
 		return false;
 
 	const auto *creatureType = creature.toCreature(m->creatures());
 
-	if (s->getTotalHealth() < creatureType->getMaxHealth())
+	if (unit->getTotalHealth() < creatureType->getMaxHealth())
 		return false;
 
-	return m->isReceptive(s);
+	return m->isReceptive(unit);
 }
 
 void DemonSummon::serializeJsonUnitEffect(JsonSerializeFormat & handler)
