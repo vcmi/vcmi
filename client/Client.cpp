@@ -586,29 +586,27 @@ void CClient::battleStarted(const BattleInfo * info)
 	if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
 		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
 	
-	auto spectratorInterface = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
-	
 	//Remove player interfaces for auto battle (quickCombat option)
 	if(att && att->isAutoFightOn)
 	{
 		att.reset();
 		def.reset();
-		spectratorInterface.reset();
 	}
-	else if(!settings["session"]["headless"].Bool())
+
+	if(!settings["session"]["headless"].Bool())
 	{
 		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
-		else if(false && settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
-			//spectator for AI-only battles
 			//TODO: This certainly need improvement
-			spectratorInterface->cb->setBattle(info);
+			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
+			spectratorInt->cb->setBattle(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInterface);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
 
@@ -644,7 +642,7 @@ void CClient::battleFinished()
 		if(battleCallbacks.count(side.color))
 			battleCallbacks[side.color]->setBattle(nullptr);
 
-	if(battleCallbacks[PlayerColor::SPECTATOR])
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
 
 	setBattle(nullptr);
