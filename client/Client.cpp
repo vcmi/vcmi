@@ -416,6 +416,7 @@ void CClient::initPlayerEnvironments()
 		Settings session = settings.write["session"];
 		session["spectate"].Bool() = true;
 		session["spectate-skip-battle-result"].Bool() = true;
+		session["spectate-ignore-hero"].Bool() = true;
 	}
 	
 	if(settings["session"]["spectate"].Bool())
