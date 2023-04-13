@@ -1,7 +1,7 @@
 {
 	"Coldshadow's Fantasy":
 	{
-		"minSize" : "xl+u", "maxSize" : "xl+u",
+		"minSize" : "xl+u", "maxSize" : "g+u",
 		"players" : "4-8", "cpu" : "3-6",
 		"zones":
 		{
