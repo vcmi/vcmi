@@ -111,7 +111,7 @@ struct DLL_LINKAGE StartInfo
 		h & campState;
 	}
 
-	StartInfo() : mode(INVALID), difficulty(0), seedToBeUsed(0), seedPostInit(0),
+	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
 		mapfileChecksum(0), turnTime(0)
 	{
 
