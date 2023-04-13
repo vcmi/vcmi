@@ -92,18 +92,18 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 {
 	if(!unit->isDead())
-	{
-		//check if alive unit blocks rising
-		for(const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
-		{
-			auto blocking = m->battle()->battleGetUnitsIf([hex, unit](const battle::Unit * other)
-			{
-				return other->isValidTarget(false) && other->coversPos(hex) && other != unit;
-			});
+		return false;
 
-			if(!blocking.empty())
-				return false;
-		}
+	//check if alive unit blocks rising
+	for(const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+	{
+		auto blocking = m->battle()->battleGetUnitsIf([hex, unit](const battle::Unit * other)
+		{
+			return other->isValidTarget(false) && other->coversPos(hex) && other != unit;
+		});
+
+		if(!blocking.empty())
+			return false;
 	}
 
 	if (unit->isGhost())
