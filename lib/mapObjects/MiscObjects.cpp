@@ -1316,7 +1316,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			break;
 			case Obj::SPELL_SCROLL:
 			{
-				int spellID = storedArtifact->getGivenSpellID();
+				int spellID = storedArtifact->getScrollSpellID();
 				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
 				if(message.length())
 					iw.text << message;

@@ -176,7 +176,7 @@ std::string CComponent::getDescription()
 		{
 			art.reset(CArtifactInstance::createScroll(SpellID(val)));
 		}
-		return art->getEffectiveDescription();
+		return art->getDescription();
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
 	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);

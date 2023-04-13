@@ -837,7 +837,7 @@ void CArtifactInstance::init()
 	setNodeType(ARTIFACT_INSTANCE);
 }
 
-std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * hero) const
+std::string CArtifactInstance::getDescription() const
 {
 	std::string text = artType->getDescriptionTranslated();
 	if (!vstd::contains(text, '{'))
@@ -848,7 +848,7 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
 		// so we want to replace text in [...] with a spell name
 		// however other language versions don't have name placeholder at all, so we have to be careful
-		SpellID spellID = getGivenSpellID();
+		SpellID spellID = getScrollSpellID();
 		size_t nameStart = text.find_first_of('[');
 		size_t nameEnd = text.find_first_of(']', nameStart);
 		if(spellID.getNum() >= 0)
@@ -857,24 +857,6 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 				text = text.replace(nameStart, nameEnd - nameStart + 1, spellID.toSpell(VLC->spells())->getNameTranslated());
 		}
 	}
-	else if(hero && !artType->constituentOf.empty()) //display info about set
-	{
-		std::string artList;
-		auto * combinedArt = artType->constituentOf[0];
-		text += "\n\n";
-		text += "{" + combinedArt->getNameTranslated() + "}";
-		int wornArtifacts = 0;
-		for(auto * a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
-		{
-			artList += "\n" + a->getNameTranslated();
-			if (hero->hasArt(a->getId(), true))
-				wornArtifacts++;
-		}
-		text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
-			boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
-		//TODO: fancy colors and fonts for this text
-	}
-
 	return text;
 }
 
@@ -908,46 +890,6 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 bool CArtifactInstance::canBeDisassembled() const
 {
 	return artType->canBeDisassembled();
-}
-
-std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CArtifactSet * h, bool equipped) const
-{
-	std::vector<const CArtifact *> ret;
-	if(artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
-		return ret;
-
-	for(const auto * artifact : artType->constituentOf)
-	{
-		assert(artifact->constituents);
-		bool possible = true;
-
-		for(const auto * constituent : *artifact->constituents) //check if all constituents are available
-		{
-			if(equipped)
-			{
-				// Search for equipped arts
-				if (!h->hasArt(constituent->getId(), true, false, false))
-				{
-					possible = false;
-					break;
-				}
-			}
-			else
-			{
-				// Search in backpack
-				if(!h->hasArtBackpack(constituent->getId()))
-				{
-					possible = false;
-					break;
-				}
-			}
-		}
-
-		if(possible)
-			ret.push_back(artifact);
-	}
-
-	return ret;
 }
 
 void CArtifactInstance::move(const ArtifactLocation & src, const ArtifactLocation & dst)
@@ -1022,7 +964,7 @@ void CArtifactInstance::deserializationFix()
 	setType(artType);
 }
 
-SpellID CArtifactInstance::getGivenSpellID() const
+SpellID CArtifactInstance::getScrollSpellID() const
 {
 	const auto b = getBonusLocalFirst(Selector::type()(Bonus::SPELL));
 	if(!b)
@@ -1652,6 +1594,46 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 		return true;
 	else
 		return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
+}
+
+DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
+	const CArtifactSet * artSet, const ArtifactID & aid, bool equipped)
+{
+	std::vector<const CArtifact*> arts;
+	const auto * art = aid.toArtifact();
+	if(art->canBeDisassembled())
+		return arts;
+
+	for(const auto artifact : art->constituentOf)
+	{
+		assert(artifact->constituents);
+		bool possible = true;
+
+		for(const auto constituent : *artifact->constituents) //check if all constituents are available
+		{
+			if(equipped)
+			{
+				// Search for equipped arts
+				if(!artSet->hasArt(constituent->getId(), true, false, false))
+				{
+					possible = false;
+					break;
+				}
+			}
+			else
+			{
+				// Search in backpack
+				if(!artSet->hasArtBackpack(constituent->getId()))
+				{
+					possible = false;
+					break;
+				}
+			}
+		}
+		if(possible)
+			arts.push_back(artifact);
+	}
+	return arts;
 }
 
 VCMI_LIB_NAMESPACE_END
