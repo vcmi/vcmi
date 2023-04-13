@@ -415,7 +415,9 @@ void CClient::initPlayerEnvironments()
 	{
 		Settings session = settings.write["session"];
 		session["spectate"].Bool() = true;
+		session["spectate-skip-battle"].Bool() = true;
 		session["spectate-skip-battle-result"].Bool() = true;
+		session["spectate-ignore-hero"].Bool() = true;
 	}
 	
 	if(settings["session"]["spectate"].Bool())
@@ -577,7 +579,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	callBattleStart(leftSide.color, 0);
 	callBattleStart(rightSide.color, 1);
 	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+	if(settings["session"]["spectate"].Bool())
 		callBattleStart(PlayerColor::SPECTATOR, 1);
 	
 	if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
@@ -602,7 +604,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
-		else if(false && settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
 			//spectator for AI-only battles
 			//TODO: This certainly need improvement
