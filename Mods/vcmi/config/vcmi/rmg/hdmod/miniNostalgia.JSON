@@ -1,0 +1,179 @@
+{
+	"Mini Nostalgia" :
+	{
+		"minSize" : "l", "maxSize" : "xl+u",
+		"players" : "2-8",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 3000, "max" : 6000, "density" : 6 },
+					{ "min" : 0, "max" : 3000, "density" : 14 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"matchTerrainToTown" : false,
+				"treasure" :
+				[
+					{ "min" : 20000, "max" : 30000, "density" : 1 },
+					{ "min" : 15000, "max" : 20000, "density" : 6 },
+					{ "min" : 10000, "max" : 15000, "density" : 9 }
+				]
+			},
+			"4" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 3,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 5,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"6" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 4,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"7" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 7,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"8" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 8,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"9" :
+			{
+				"type" : "playerStart",
+				"size" : 40,
+				"owner" : 6,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			},
+			"11" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			},
+			"12" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			},
+			"13" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			},
+			"14" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			},
+			"15" :
+			{
+				"type" : "treasure",
+				"size" : 23,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "2", "b" : "3", "guard" : 45000 },
+			{ "a" : "1", "b" : "3", "guard" : 45000 },
+			{ "a" : "5", "b" : "10", "guard" : 6000 },
+			{ "a" : "9", "b" : "12", "guard" : 6000 },
+			{ "a" : "4", "b" : "11", "guard" : 6000 },
+			{ "a" : "6", "b" : "15", "guard" : 6000 },
+			{ "a" : "7", "b" : "14", "guard" : 6000 },
+			{ "a" : "8", "b" : "13", "guard" : 6000 },
+			{ "a" : "1", "b" : "4", "guard" : 3000 },
+			{ "a" : "1", "b" : "5", "guard" : 3000 },
+			{ "a" : "1", "b" : "6", "guard" : 3000 },
+			{ "a" : "2", "b" : "7", "guard" : 3000 },
+			{ "a" : "2", "b" : "8", "guard" : 3000 },
+			{ "a" : "2", "b" : "9", "guard" : 3000 }
+		]
+	}
+}
