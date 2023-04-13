@@ -146,7 +146,7 @@ public:
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;
-	void sendStartGame(bool allowOnlyAI = true) const override;
+	void sendStartGame(bool allowOnlyAI = false) const override;
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
