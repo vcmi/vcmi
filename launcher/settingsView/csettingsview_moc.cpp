@@ -68,12 +68,13 @@ void CSettingsView::loadSettings()
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
 
 #ifdef Q_OS_IOS
-	ui->comboBoxFullScreen->setCurrentIndex(true);
+	ui->comboBoxFullScreen->setCurrentIndex(1);
 	ui->comboBoxFullScreen->setDisabled(true);
 #else
-	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
+	else
+		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
