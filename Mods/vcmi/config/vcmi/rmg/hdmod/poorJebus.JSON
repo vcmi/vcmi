@@ -1,0 +1,93 @@
+{
+	"Poor Jebus" :
+	//(made by Bjorn190, modified by Maretti and Angelito)
+	{
+		"minSize" : "m", "maxSize" : "xl+u",
+		"players" : "2-4",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 1,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"mines" : { "wood" : 4, "mercury" : 1, "ore" : 4, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 2 },
+				"treasure" :
+				[
+					{ "min" : 12000, "max" : 22000, "density" : 1 },
+					{ "min" : 5000, "max" : 16000, "density" : 6 },
+					{ "min" : 400, "max" : 3000, "density" : 4 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 2,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 3,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"4" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 4,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 40,
+				"monsters" : "strong",
+				"neutralTowns" : { "castles" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"mines" : { "gold" : 4 },
+				"treasure" :
+				[
+					{ "min" : 35000, "max" : 55000, "density" : 3 },
+					{ "min" : 25000, "max" : 35000, "density" : 10 },
+					{ "min" : 10000, "max" : 25000, "density" : 10 }
+				]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "5", "guard" : 45000 },
+			{ "a" : "2", "b" : "5", "guard" : 45000 },
+			{ "a" : "3", "b" : "5", "guard" : 45000 },
+			{ "a" : "4", "b" : "5", "guard" : 45000 }
+		]
+	}
+}
