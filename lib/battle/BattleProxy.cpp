@@ -10,14 +10,13 @@
 #include "StdInc.h"
 #include "BattleProxy.h"
 #include "Unit.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleProxy
 
-BattleProxy::BattleProxy(Subject subject_)
-	: subject(subject_)
+BattleProxy::BattleProxy(Subject subject_): 
+	subject(std::move(subject_))
 {
 	setBattle(this);
 	player = subject->getPlayerID();
@@ -27,7 +26,7 @@ BattleProxy::~BattleProxy() = default;
 
 int32_t BattleProxy::getActiveStackID() const
 {
-	auto ret = subject->battleActiveUnit();
+	const auto * ret = subject->battleActiveUnit();
 	if(ret)
 		return ret->unitId();
 	else
@@ -89,7 +88,7 @@ const CGTownInstance * BattleProxy::getDefendedTown() const
 	return subject->battleGetDefendedTown();
 }
 
-si8 BattleProxy::getWallState(int partOfWall) const
+EWallState BattleProxy::getWallState(EWallPart partOfWall) const
 {
 	return subject->battleGetWallState(partOfWall);
 }

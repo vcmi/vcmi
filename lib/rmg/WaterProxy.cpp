@@ -12,6 +12,7 @@
 #include "WaterProxy.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
@@ -31,7 +32,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void WaterProxy::process()
 {
-	for(auto & t : zone.area().getTilesVector())
+	for(const auto & t : zone.area().getTilesVector())
 	{
 		map.setZoneID(t, zone.getId());
 		map.setOccupied(t, ETileType::POSSIBLE);
@@ -40,20 +41,21 @@ void WaterProxy::process()
 	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
 	
 	//check terrain type
-	for(auto & t : zone.area().getTilesVector())
+	for(const auto & t : zone.area().getTilesVector())
 	{
+		MAYBE_UNUSED(t);
 		assert(map.isOnMap(t));
-		assert(map.map().getTile(t).terType->id == zone.getTerrainType());
+		assert(map.map().getTile(t).terType->getId() == zone.getTerrainType());
 	}
-	
-	for(auto z : map.getZones())
+
+	for(const auto & z : map.getZones())
 	{
 		if(z.second->getId() == zone.getId())
 			continue;
-		
-		for(auto & t : z.second->area().getTilesVector())
+
+		for(const auto & t : z.second->area().getTilesVector())
 		{
-			if(map.map().getTile(t).terType->id == zone.getTerrainType())
+			if(map.map().getTile(t).terType->getId() == zone.getTerrainType())
 			{
 				z.second->areaPossible().erase(t);
 				z.second->area().erase(t);
@@ -95,15 +97,15 @@ const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const
 void WaterProxy::collectLakes()
 {
 	int lakeId = 0;
-	for(auto lake : connectedAreas(zone.getArea(), true))
+	for(const auto & lake : connectedAreas(zone.getArea(), true))
 	{
 		lakes.push_back(Lake{});
 		lakes.back().area = lake;
 		lakes.back().distanceMap = lake.computeDistanceMap(lakes.back().reverseDistanceMap);
-		for(auto & t : lake.getBorderOutside())
+		for(const auto & t : lake.getBorderOutside())
 			if(map.isOnMap(t))
 				lakes.back().neighbourZones[map.getZoneID(t)].add(t);
-		for(auto & t : lake.getTiles())
+		for(const auto & t : lake.getTiles())
 			lakeMap[t] = lakeId;
 		
 		//each lake must have at least one free tile
@@ -132,12 +134,19 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 		{
 			if(!lake.keepConnections.count(dst.getId()))
 			{
-				for(auto & ct : lake.neighbourZones[dst.getId()].getTiles())
+				for(const auto & ct : lake.neighbourZones[dst.getId()].getTiles())
 				{
 					if(map.isPossible(ct))
 						map.setOccupied(ct, ETileType::BLOCKED);
 				}
 				dst.areaPossible().subtract(lake.neighbourZones[dst.getId()]);
+				continue;
+			}
+
+			//Don't place shipyard or boats on the very small lake
+			if (lake.area.getTiles().size() < 25)
+			{
+				logGlobal->info("Skipping very small lake at zone %d", dst.getId());
 				continue;
 			}
 						
@@ -200,24 +209,28 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 		return false;
-	
+
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create();
-	
+	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
+
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
-	
+
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
 	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
-	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
-	{
-		rmg::Area a({tile});
-		a = a.getBorderOutside();
-		a.intersect(waterAvailable);
-		return !a.empty();
-	});
-	
+	auto boardingPositions = coast.getSubarea([&waterAvailable, this](const int3 & tile) //tiles where boarding is possible
+		{
+			//We don't want place boat right to any land object, especiallly the zone guard
+			if (map.getTile(tile).getNearestObjectDistance() <= 3)
+				return false;
+
+			rmg::Area a({tile});
+			a = a.getBorderOutside();
+			a.intersect(waterAvailable);
+			return !a.empty();
+		});
+
 	while(!boardingPositions.empty())
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
@@ -230,27 +243,28 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 			boardingPositions.erase(boardingPosition);
 			continue;
 		}
-		
+
 		//try to place boat at water, create paths on water and land
-		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, ObjectManager::OptimizeType::NONE);
+		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 4, false, true, ObjectManager::OptimizeType::NONE);
 		auto landPath = land.searchPath(boardingPosition, false);
 		if(!path.valid() || !landPath.valid())
 		{
 			boardingPositions.erase(boardingPosition);
 			continue;
 		}
-		
+
 		info.blocked = rmgObject.getArea();
 		info.visitable = rmgObject.getVisitablePosition();
 		info.boarding = boardingPosition;
 		info.water = shipPositions;
-		
+
 		zone.connectPath(path);
 		land.connectPath(landPath);
 		manager->placeObject(rmgObject, false, true);
+		land.getModificator<ObjectManager>()->updateDistances(rmgObject); //Keep land objects away from the boat
 		break;
 	}
-	
+
 	return !boardingPositions.empty();
 }
 
@@ -261,7 +275,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		return false;
 	
 	int subtype = chooseRandomAppearance(generator.rand, Obj::SHIPYARD, land.getTerrainType());
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create();
+	auto * shipyard = dynamic_cast<CGShipyard *>(VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	rmg::Object rmgObject(*shipyard);
@@ -296,7 +310,9 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		//try to place shipyard close to boarding position and appropriate water access
 		auto path = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
 		{
-			rmg::Area shipyardOut(rmgObject.getArea().getBorderOutside());
+			//Must only check the border of shipyard and not the added guard
+			rmg::Area shipyardOut = rmgObject.instances().front()->getBlockedArea().getBorderOutside();
+
 			if(!shipyardOut.contains(boardingPosition) || (shipyardOut * shipPositions).empty())
 				return -1.f;
 			
@@ -335,7 +351,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		manager->placeObject(rmgObject, guarded, true);
 		
 		zone.areaPossible().subtract(shipyardOutToBlock);
-		for(auto & i : shipyardOutToBlock.getTilesVector())
+		for(const auto & i : shipyardOutToBlock.getTilesVector())
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);
 		
@@ -352,7 +368,7 @@ char WaterProxy::dump(const int3 & t)
 		return '?';
 	
 	Lake & lake = lakes[lakeMap.at(t)];
-	for(auto i : lake.neighbourZones)
+	for(const auto & i : lake.neighbourZones)
 	{
 		if(i.second.contains(t))
 			return lake.keepConnections.count(i.first) ? std::to_string(i.first)[0] : '=';

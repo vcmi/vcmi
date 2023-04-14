@@ -10,6 +10,7 @@
 #pragma once
 
 
+#include "NetPacksBase.h"
 #include "battle/BattleHex.h"
 #include "GameConstants.h"
 #include "int3.h"
@@ -49,7 +50,6 @@ struct CObstacleInstance;
 struct CPackForServer;
 class EVictoryLossCheckResult;
 struct MetaString;
-struct CustomEffectInfo;
 class ObstacleChanges;
 class UnitChanges;
 
@@ -59,18 +59,18 @@ public:
 	virtual void actionFinished(const BattleAction &action){};//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction &action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(const BattleResult *br){};
 	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleLogMessage(const std::vector<MetaString> & lines){};
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance){};
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport){};
 	virtual void battleSpellCast(const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleTriggerEffect & bte){}; //called for various one-shot effects
 	virtual void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) {}; //called just before battle start
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
-	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects){};
+	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units){};
 	virtual void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles){};
 	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
 	virtual void battleGateStateChanged(const EGateState state){};
@@ -91,7 +91,8 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &al){};
 	virtual void artifactDisassembled(const ArtifactLocation &al){};
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
-	virtual void artifactPossibleAssembling(const ArtifactLocation & dst) {};
+	virtual void bulkArtMovementStart(size_t numOfArts) {};
+	virtual void askToAssembleArtifact(const ArtifactLocation & dst) {};
 
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start){};
 	virtual void heroCreated(const CGHeroInstance*){};
@@ -103,7 +104,7 @@ public:
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after movement
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
 	virtual void receivedResource(){};
-	virtual void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID){};
+	virtual void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID){};
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level){}
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 
@@ -128,10 +129,10 @@ public:
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectRemoved(const CGObjectInstance *obj){}; //eg. collected resource, picked artifact, beaten hero
+	virtual void objectRemovedAfter(){}; //eg. collected resource, picked artifact, beaten hero
 	virtual void playerBlocked(int reason, bool start){}; //reason: 0 - upcoming battle
 	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) {}; //player lost or won the game
 	virtual void playerStartsTurn(PlayerColor player){};
-	virtual void showComp(const Component &comp, std::string message) {}; //display component in the advmapint infobox
 
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};

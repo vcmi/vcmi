@@ -16,6 +16,7 @@
 #include "../CVideoHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/mapping/CCampaignHandler.h"
 
@@ -33,13 +34,13 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 	// MPTODO: Custom campaign crashing on this?
 //	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
 
-	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, CENTER, Colors::METALLIC_GOLD, spe.prologText);
+	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText);
 	text->scrollTextTo(-100);
 }
 
 void CPrologEpilogVideo::show(SDL_Surface * to)
 {
-	CSDL_Ext::fillRectBlack(to, &pos);
+	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player

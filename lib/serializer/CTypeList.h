@@ -109,12 +109,7 @@ private:
 
 		return ptr;
 	}
-	CTypeList &operator=(CTypeList &)
-	{
-		// As above.
-		assert(0);
-		return *this;
-	}
+	CTypeList & operator=(CTypeList &) = delete;
 
 	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
 	TypeInfoPtr registerType(const std::type_info *type);
@@ -138,8 +133,8 @@ public:
 		// register the relation between classes
 		bti->children.push_back(dti);
 		dti->parents.push_back(bti);
-		casters[std::make_pair(bti, dti)] = make_unique<const PointerCaster<Base, Derived>>();
-		casters[std::make_pair(dti, bti)] = make_unique<const PointerCaster<Derived, Base>>();
+		casters[std::make_pair(bti, dti)] = std::make_unique<const PointerCaster<Base, Derived>>();
+		casters[std::make_pair(dti, bti)] = std::make_unique<const PointerCaster<Derived, Base>>();
 	}
 
 	ui16 getTypeID(const std::type_info *type, bool throws = false) const;

@@ -49,7 +49,7 @@ namespace scripting
 class DLL_LINKAGE SpellCastEnvironment : public ServerCallback
 {
 public:
-	virtual ~SpellCastEnvironment(){};
+	virtual ~SpellCastEnvironment() = default;
 
 	virtual const CMap * getMap() const = 0;
 	virtual const CGameInfoCallback * getCb() const = 0;
@@ -128,7 +128,7 @@ public:
 	void setEffectValue(Value64 value);
 
 	///only apply effects to specified targets
-	void applyEffects(ServerCallback * server, Target target, bool indirect = false, bool ignoreImmunity = false) const;
+	void applyEffects(ServerCallback * server, const Target & target, bool indirect = false, bool ignoreImmunity = false) const;
 
 	///normal cast
 	void cast(ServerCallback * server, Target target);
@@ -183,7 +183,7 @@ public:
 	virtual bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;
 
-	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, bool * outDroppedHexes = nullptr) const = 0;
+	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex) const = 0;
 	virtual std::vector<const CStack *> getAffectedStacks(const Target & target) const = 0;
 
 	virtual bool canBeCast(Problem & problem) const = 0;

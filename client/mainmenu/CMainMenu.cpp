@@ -16,31 +16,9 @@
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
-
-#include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/CCompressedStream.h"
-
-#include "../gui/SDL_Extensions.h"
-#include "../gui/CCursorHandler.h"
-
-#include "../CGameInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/JsonNode.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
-#include "../Graphics.h"
-#include "../../lib/serializer/Connection.h"
-#include "../../lib/serializer/CTypeList.h"
-#include "../../lib/VCMIDirs.h"
-#include "../../lib/mapping/CMap.h"
+#include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
-#include "../CPlayerInterface.h"
-#include "../../CCallback.h"
-#include "../CMessage.h"
-#include "../CBitmapHandler.h"
-#include "../Client.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CAnimation.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -48,6 +26,24 @@
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
+
+#include "../CGameInfo.h"
+#include "../CMusicHandler.h"
+#include "../CVideoHandler.h"
+#include "../CPlayerInterface.h"
+#include "../Client.h"
+#include "../CMT.h"
+
+#include "../../CCallback.h"
+
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/JsonNode.h"
+#include "../../lib/serializer/Connection.h"
+#include "../../lib/serializer/CTypeList.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CCompressedStream.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CThreadHelper.h"
@@ -57,6 +53,10 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 
+#if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
+#include "../../server/CVCMIServer.h"
+#include <SDL.h>
+#endif
 
 namespace fs = boost::filesystem;
 
@@ -65,9 +65,7 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	SDL_Event event;
-	event.quit.type = SDL_QUIT;
-	SDL_PushEvent(&event);
+	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
@@ -77,11 +75,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	background = std::make_shared<CPicture>(config["background"].String());
 	if(config["scalable"].Bool())
-	{
-		if(background->bg->format->palette)
-			background->convertToScreenBPP();
-		background->scaleTo(Point(screen->w, screen->h));
-	}
+		background->scaleTo(GH.screenDimensions());
 
 	pos = background->center();
 
@@ -206,7 +200,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, std::ref(CGI->generaltexth->allTexts[69]), std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
+				return std::bind(CInfoWindow::showYesNoDialog, CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
 			}
 			break;
 			case 5: //highscores
@@ -284,8 +278,8 @@ const JsonNode & CMainMenuConfig::getCampaigns() const
 
 CMainMenu::CMainMenu()
 {
-	pos.w = screen->w;
-	pos.h = screen->h;
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
 
 	GH.defActionsDef = 63;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
@@ -374,13 +368,14 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
 	background = std::make_shared<CPicture>("MUPOPUP.bmp");
-	background->convertToScreenBPP(); //so we could draw without problems
-	blitAt(CPicture("MUMAP.bmp"), 16, 77, *background);
 	pos = background->center(); //center, window has size of bg graphic
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 465, 440, 18), 0)); //226, 472
-	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), *background);
+	picture = std::make_shared<CPicture>("MUMAP.bmp", 16, 77);
+
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
+	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
 	playerName->setText(settings["general"]["playerName"].String());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
 
@@ -419,17 +414,17 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 	std::string text = CGI->generaltexth->allTexts[446];
 	boost::replace_all(text, "\t", "\n");
-	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, CENTER, Colors::WHITE); //HOTSEAT	Please enter names
+	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE); //HOTSEAT	Please enter names
 
 	for(int i = 0; i < inputNames.size(); i++)
 	{
-		inputNames[i] = std::make_shared<CTextInput>(Rect(60, 85 + i * 30, 280, 16), *background);
+		inputNames[i] = std::make_shared<CTextInput>(Rect(60, 85 + i * 30, 280, 16), background->getSurface());
 		inputNames[i]->cb += std::bind(&CMultiPlayers::onChange, this, _1);
 	}
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), SDLK_RETURN);
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
 	inputNames[0]->setText(firstPlayer, true);
 #ifndef VCMI_IOS
@@ -439,11 +434,6 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 void CMultiPlayers::onChange(std::string newText)
 {
-	size_t namesCount = 0;
-
-	for(auto & elem : inputNames)
-		if(!elem->text.empty())
-			namesCount++;
 }
 
 void CMultiPlayers::enterSelectionScreen()
@@ -451,8 +441,8 @@ void CMultiPlayers::enterSelectionScreen()
 	std::vector<std::string> names;
 	for(auto name : inputNames)
 	{
-		if(name->text.length())
-			names.push_back(name->text);
+		if(name->getText().length())
+			names.push_back(name->getText());
 	}
 
 	Settings name = settings.write["general"]["playerName"];
@@ -467,13 +457,13 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	background = std::make_shared<CPicture>("MUDIALOG.bmp"); // address background
 	pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
 
-	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, CENTER, Colors::WHITE);
-	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), *background.get());
-	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), *background.get());
+	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
+	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), background->getSurface());
+	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
 		textTitle->setText("Connecting...");
-		boost::thread(&CSimpleJoinScreen::connectThread, this, "", 0);
+		startConnectThread();
 	}
 	else
 	{
@@ -486,19 +476,19 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputAddress->giveFocus();
 	}
 	inputAddress->setText(host ? CServerHandler::localhostAddress : CSH->getHostAddress(), true);
-	inputPort->setText(boost::lexical_cast<std::string>(CSH->getHostPort()), true);
+	inputPort->setText(std::to_string(CSH->getHostPort()), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 186, 218, 18), 0));
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 }
 
 void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText("Connecting...");
 	buttonOk->block(true);
-	CSDL_Ext::stopTextInput();
+	GH.stopTextInput();
 
-	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->text, boost::lexical_cast<ui16>(inputPort->text));
+	startConnectThread(inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }
 
 void CSimpleJoinScreen::leaveScreen()
@@ -516,10 +506,21 @@ void CSimpleJoinScreen::leaveScreen()
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {
-	buttonOk->block(inputAddress->text.empty() || inputPort->text.empty());
+	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 }
 
-void CSimpleJoinScreen::connectThread(const std::string addr, const ui16 port)
+void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
+{
+#if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
+	// in single process build server must use same JNIEnv as client
+	// as server runs in a separate thread, it must not attempt to search for Java classes (and they're already cached anyway)
+	// https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md#threads-and-the-java-vm
+	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
+#endif
+	boost::thread(&CSimpleJoinScreen::connectThread, this, addr, port);
+}
+
+void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 {
 	setThreadName("CSimpleJoinScreen::connectThread");
 	if(!addr.length())
@@ -546,8 +547,9 @@ CLoadingScreen::~CLoadingScreen()
 
 void CLoadingScreen::showAll(SDL_Surface * to)
 {
-	Rect rect(0, 0, to->w, to->h);
-	SDL_FillRect(to, &rect, 0);
+	//FIXME: filling screen with transparency? BLACK intended?
+	//Rect rect(0, 0, to->w, to->h);
+	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
 
 	CWindowObject::showAll(to);
 }

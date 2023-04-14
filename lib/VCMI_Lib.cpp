@@ -18,6 +18,10 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "CConfigHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
+#include "TerrainHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"
@@ -34,6 +38,7 @@
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "GameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,7 +50,9 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool 
 	VLC = new LibClasses();
 	try
 	{
-		VLC->loadFilesystem(onlyEssential, extractArchives);
+		VLC->loadFilesystem(extractArchives);
+		settings.init();
+		VLC->loadModFilesystem(onlyEssential);
 	}
 	catch(...)
 	{
@@ -126,6 +133,11 @@ const ObstacleService * LibClasses::obstacles() const
 	return obstacleHandler;
 }
 
+const IGameSettings * LibClasses::settings() const
+{
+	return settingsHandler;
+}
+
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
 {
 	switch(metatype)
@@ -157,9 +169,8 @@ void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 	}
 }
 
-void LibClasses::loadFilesystem(bool onlyEssential, bool extractArchives)
+void LibClasses::loadFilesystem(bool extractArchives)
 {
-	CStopWatch totalTime;
 	CStopWatch loadTime;
 
 	CResourceHandler::initialize();
@@ -167,15 +178,17 @@ void LibClasses::loadFilesystem(bool onlyEssential, bool extractArchives)
 
 	CResourceHandler::load("config/filesystem.json", extractArchives);
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
+}
 
+void LibClasses::loadModFilesystem(bool onlyEssential)
+{
+	CStopWatch loadTime;
 	modh = new CModHandler();
+	modh->loadMods(onlyEssential);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
-	modh->loadMods(onlyEssential);
 	modh->loadModFilesystems();
 	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
-
-	logGlobal->info("Basic initialization: %d ms", totalTime.getDiff());
 }
 
 static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
@@ -191,15 +204,19 @@ template <class Handler> void createHandler(Handler *&handler, const std::string
 
 void LibClasses::init(bool onlyEssential)
 {
-	CStopWatch pomtime, totalTime;
+	CStopWatch pomtime;
+	CStopWatch totalTime;
 
+	createHandler(settingsHandler, "Game Settings", pomtime);
 	modh->initializeConfig();
+
+	createHandler(generaltexth, "General text", pomtime);
 
 	createHandler(bth, "Bonus type", pomtime);
 
+	createHandler(roadTypeHandler, "Road", pomtime);
+	createHandler(riverTypeHandler, "River", pomtime);
 	createHandler(terrainTypeHandler, "Terrain", pomtime);
-
-	createHandler(generaltexth, "General text", pomtime);
 
 	createHandler(heroh, "Hero", pomtime);
 
@@ -241,7 +258,6 @@ void LibClasses::init(bool onlyEssential)
 
 void LibClasses::clear()
 {
-	delete generaltexth;
 	delete heroh;
 	delete arth;
 	delete creh;
@@ -258,6 +274,7 @@ void LibClasses::clear()
 	delete scriptHandler;
 #endif
 	delete battlefieldsHandler;
+	delete generaltexth;
 	makeNull();
 }
 
@@ -284,7 +301,6 @@ void LibClasses::makeNull()
 
 LibClasses::LibClasses()
 {
-	IS_AI_ENABLED = false;
 	//init pointers to handlers
 	makeNull();
 }
@@ -318,7 +334,7 @@ std::shared_ptr<CContentHandler> LibClasses::getContent() const
 
 void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
-	modh->content = content;
+	modh->content = std::move(content);
 }
 
 VCMI_LIB_NAMESPACE_END

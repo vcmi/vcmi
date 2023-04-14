@@ -15,6 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct BattleLogMessage;
 struct BattleUnitsChanged;
 
 namespace spells
@@ -25,9 +26,6 @@ namespace effects
 class Heal : public UnitEffect
 {
 public:
-	Heal();
-	virtual ~Heal();
-
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
@@ -37,12 +35,12 @@ protected:
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override final;
 
 private:
-    EHealLevel healLevel;
-	EHealPower healPower;
+	EHealLevel healLevel = EHealLevel::HEAL;
+	EHealPower healPower = EHealPower::PERMANENT;
 
-	int32_t minFullUnits;
+	int32_t minFullUnits = 0;
 
-	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, RNG & rng, const Mechanics * m, const EffectTarget & target) const;
+	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const EffectTarget & target) const;
 };
 
 }

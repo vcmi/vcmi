@@ -50,7 +50,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 		new SharedPool<PriorityEvaluator>(
 			[&]()->std::unique_ptr<PriorityEvaluator>
 			{
-				return make_unique<PriorityEvaluator>(this);
+				return std::make_unique<PriorityEvaluator>(this);
 			}));
 
 	dangerHitMap.reset(new DangerHitMapAnalyzer(this));
@@ -131,6 +131,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	auto start = std::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
+	setTargetObject(-1);
 
 	if(!fast)
 	{
@@ -188,7 +189,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
 	{
 #if NKAI_TRACE_LEVEL >= 1
-		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->name, path.toString());
+		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getObjectName(), path.toString());
 #endif
 		return true;
 	}
@@ -200,7 +201,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 		if(lockReason != HeroLockedReason::NOT_LOCKED)
 		{
 #if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->name, path.toString());
+			logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getObjectName(), path.toString());
 #endif
 			return true;
 		}
@@ -221,6 +222,7 @@ void Nullkiller::makeTurn()
 	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
+	const float FAST_TASK_MINIMAL_PRIORITY = 0.7;
 
 	resetAiState();
 
@@ -234,21 +236,21 @@ void Nullkiller::makeTurn()
 		{
 			Goals::TTaskVec fastTasks = {
 				choseBestTask(sptr(BuyArmyBehavior()), 1),
-				choseBestTask(sptr(RecruitHeroBehavior()), 1),
 				choseBestTask(sptr(BuildingBehavior()), 1)
 			};
 
 			bestTask = choseBestTask(fastTasks);
 
-			if(bestTask->priority >= 1)
+			if(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY)
 			{
 				executeTask(bestTask);
 				updateAiState(i, true);
 			}
-		} while(bestTask->priority >= 1);
+		} while(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY);
 
 		Goals::TTaskVec bestTasks = {
 			bestTask,
+			choseBestTask(sptr(RecruitHeroBehavior()), 1),
 			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
 			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
 			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),
@@ -272,21 +274,16 @@ void Nullkiller::makeTurn()
 		if(heroRole != HeroRole::MAIN || bestTask->getHeroExchangeCount() <= 1)
 			useHeroChain = false;
 
-		if(bestTask->priority < NEXT_SCAN_MIN_PRIORITY
-			&& scanDepth != ScanDepth::FULL)
+		if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
+			&& scanDepth == ScanDepth::FULL)
 		{
-			if(heroRole == HeroRole::MAIN || bestTask->priority < MIN_PRIORITY)
-			{
-				useHeroChain = false;
+			useHeroChain = false;
+			scanDepth = ScanDepth::SMALL;
 
-				logAi->trace(
-					"Goal %s has too low priority %f so increasing scan depth",
-					bestTask->toString(),
-					bestTask->priority);
-				scanDepth = (ScanDepth)((int)scanDepth + 1);
-
-				continue;
-			}
+			logAi->trace(
+				"Goal %s has too low priority %f so increasing scan depth",
+				bestTask->toString(),
+				bestTask->priority);
 		}
 
 		if(bestTask->priority < MIN_PRIORITY)
@@ -302,6 +299,7 @@ void Nullkiller::makeTurn()
 
 void Nullkiller::executeTask(Goals::TTask task)
 {
+	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
 
 	boost::this_thread::interruption_point();
@@ -310,17 +308,20 @@ void Nullkiller::executeTask(Goals::TTask task)
 	try
 	{
 		task->accept(ai.get());
+		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)
 	{
-		logAi->trace("Task %s completed", task->toString());
+		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(cannotFulfillGoalException & e)
 	{
-		logAi->debug("Failed to realize subgoal of type %s, I will stop.", taskDescr);
-		logAi->debug("The error message was: %s", e.what());
+		logAi->error("Failed to realize subgoal of type %s, I will stop.", taskDescr);
+		logAi->error("The error message was: %s", e.what());
 
-		throw;
+#if NKAI_TRACE_LEVEL == 0
+		throw; // will be recatched and AI turn ended
+#endif
 	}
 }
 

@@ -24,20 +24,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace battle
 {
 ///CAmmo
-CAmmo::CAmmo(const battle::Unit * Owner, CSelector totalSelector)
-	: used(0),
+CAmmo::CAmmo(const battle::Unit * Owner, CSelector totalSelector):
+	used(0),
 	owner(Owner),
-	totalProxy(Owner, totalSelector)
+	totalProxy(Owner, std::move(totalSelector))
 {
 	reset();
-}
-
-CAmmo::CAmmo(const CAmmo & other)
-	: used(other.used),
-	owner(other.owner),
-	totalProxy(other.totalProxy)
-{
-
 }
 
 CAmmo & CAmmo::operator= (const CAmmo & other)
@@ -98,13 +90,6 @@ CShots::CShots(const battle::Unit * Owner)
 {
 }
 
-CShots::CShots(const CShots & other)
-	: CAmmo(other),
-	env(other.env),
-	shooter(other.shooter)
-{
-}
-
 CShots & CShots::operator=(const CShots & other)
 {
 	CAmmo::operator=(other);
@@ -136,17 +121,6 @@ CCasts::CCasts(const battle::Unit * Owner):
 {
 }
 
-CCasts::CCasts(const CCasts & other)
-	: CAmmo(other)
-{
-}
-
-CCasts & CCasts::operator=(const CCasts & other)
-{
-	CAmmo::operator=(other);
-	return *this;
-}
-
 ///CRetaliations
 CRetaliations::CRetaliations(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(Bonus::ADDITIONAL_RETALIATION)),
@@ -154,23 +128,6 @@ CRetaliations::CRetaliations(const battle::Unit * Owner)
 	noRetaliation(Owner, Selector::type()(Bonus::SIEGE_WEAPON).Or(Selector::type()(Bonus::HYPNOTIZED)).Or(Selector::type()(Bonus::NO_RETALIATION))),
 	unlimited(Owner, Selector::type()(Bonus::UNLIMITED_RETALIATIONS))
 {
-}
-
-CRetaliations::CRetaliations(const CRetaliations & other)
-	: CAmmo(other),
-	totalCache(other.totalCache),
-	noRetaliation(other.noRetaliation),
-	unlimited(other.unlimited)
-{
-}
-
-CRetaliations & CRetaliations::operator=(const CRetaliations & other)
-{
-	CAmmo::operator=(other);
-	totalCache = other.totalCache;
-	noRetaliation = other.noRetaliation;
-	unlimited = other.unlimited;
-	return *this;
 }
 
 bool CRetaliations::isLimited() const
@@ -207,15 +164,6 @@ CHealth::CHealth(const battle::Unit * Owner):
 	owner(Owner)
 {
 	reset();
-}
-
-CHealth::CHealth(const CHealth & other):
-	owner(other.owner),
-	firstHPleft(other.firstHPleft),
-	fullUnits(other.fullUnits),
-	resurrected(other.resurrected)
-{
-
 }
 
 CHealth & CHealth::operator=(const CHealth & other)
@@ -373,8 +321,8 @@ void CHealth::serializeJson(JsonSerializeFormat & handler)
 }
 
 ///CUnitState
-CUnitState::CUnitState()
-	: env(nullptr),
+CUnitState::CUnitState():
+	env(nullptr),
 	cloned(false),
 	defending(false),
 	defendingAnim(false),
@@ -398,8 +346,7 @@ CUnitState::CUnitState()
 	defence(this, Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), 0),
 	inFrenzy(this, Selector::type()(Bonus::IN_FRENZY)),
 	cloneLifetimeMarker(this, Selector::type()(Bonus::NONE).And(Selector::source(Bonus::SPELL_EFFECT, SpellID::CLONE))),
-	cloneID(-1),
-	position()
+	cloneID(-1)
 {
 
 }
@@ -443,7 +390,7 @@ int32_t CUnitState::creatureIndex() const
 
 CreatureID CUnitState::creatureId() const
 {
-	return unitType()->idNumber;
+	return unitType()->getId();
 }
 
 int32_t CUnitState::creatureLevel() const
@@ -531,6 +478,11 @@ void CUnitState::getCastDescription(const spells::Spell * spell, const std::vect
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
 }
 
+int32_t CUnitState::manaLimit() const
+{
+	return 0; //TODO: creature casting with mana mode (for mods)
+}
+
 bool CUnitState::ableToRetaliate() const
 {
 	return alive()
@@ -545,6 +497,11 @@ bool CUnitState::alive() const
 bool CUnitState::isGhost() const
 {
 	return ghost;
+}
+
+bool CUnitState::isFrozen() const
+{
+	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
@@ -657,22 +614,22 @@ bool CUnitState::waited(int turn) const
 		return false;
 }
 
-int CUnitState::battleQueuePhase(int turn) const
+BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 {
 	if(turn <= 0 && waited()) //consider waiting state only for ongoing round
 	{
 		if(hadMorale)
-			return 2;
+			return BattlePhases::WAIT_MORALE;
 		else
-			return 3;
+			return BattlePhases::WAIT;
 	}
 	else if(creatureIndex() == CreatureID::CATAPULT || isTurret()) //catapult and turrets are first
 	{
-		return 0;
+		return BattlePhases::SIEGE;
 	}
 	else
 	{
-		return 1;
+		return BattlePhases::NORMAL;
 	}
 }
 
@@ -697,8 +654,8 @@ int CUnitState::getAttack(bool ranged) const
 
 	if(!inFrenzy->empty())
 	{
-		double frenzyPower = (double)inFrenzy->totalValue() / 100;
-		frenzyPower *= (double) (ranged ? defence.getRangedValue() : defence.getMeleeValue());
+		double frenzyPower = static_cast<double>(inFrenzy->totalValue()) / 100;
+		frenzyPower *= static_cast<double>(ranged ? defence.getRangedValue() : defence.getMeleeValue());
 		ret += static_cast<int>(frenzyPower);
 	}
 
@@ -818,7 +775,7 @@ void CUnitState::damage(int64_t & amount)
 		// block ability should not kill clone (0 damage)
 		if(amount > 0)
 		{
-			amount = 1;//TODO: what should be actual damage against clone?
+			amount = 0;
 			health.reset();
 		}
 	}
@@ -888,12 +845,10 @@ void CUnitState::onRemoved()
 	ghost = true;
 }
 
-CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_)
-	: CUnitState(),
+CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_):
 	unit(unit_),
 	bonus(bonus_)
 {
-
 }
 
 TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const

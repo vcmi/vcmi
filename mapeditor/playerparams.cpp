@@ -28,7 +28,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	for(auto idx : VLC->townh->getAllowedFactions())
 	{
 		CFaction * faction = VLC->townh->objects.at(idx);
-		auto * item = new QListWidgetItem(QString::fromStdString(faction->name));
+		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(idx));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		ui->allowedFactions->addItem(item);
@@ -59,12 +59,15 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		{
 			auto * ctown = town->town;
 			if(!ctown)
+			{
 				ctown = VLC->townh->randomTown;
+				town->town = ctown;
+			}
 			if(ctown && town->getOwner().getNum() == playerColor)
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
 					foundMainTown = townIndex;
-				const auto name = ctown->faction ? town->getObjectName() : town->name + ", (random)";
+				const auto name = ctown->faction ? town->getObjectName() : town->getNameTranslated() + ", (random)";
 				ui->mainTown->addItem(tr(name.c_str()), QVariant::fromValue(i));
 				++townIndex;
 			}

@@ -32,6 +32,7 @@ int main(int argc, char * argv[])
 	{
 #endif
 	QApplication vcmilauncher(argc, argv);
+
 	MainWindow mainWindow;
 	mainWindow.show();
 	result = vcmilauncher.exec();
@@ -48,9 +49,11 @@ void startGame(const QStringList & args)
 	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
 
 #ifdef Q_OS_IOS
+	static const char clientName[] = "vcmiclient";
 	argcForClient = args.size() + 1; //first argument is omitted
-    argvForClient = new char*[argcForClient];
-	argvForClient[0] = "vcmiclient";
+	argvForClient = new char*[argcForClient];
+	argvForClient[0] = new char[strlen(clientName)+1];
+	strcpy(argvForClient[0], clientName);
 	for(int i = 1; i < argcForClient; ++i)
 	{
         std::string s = args.at(i - 1).toStdString();
@@ -60,6 +63,13 @@ void startGame(const QStringList & args)
 	qApp->quit();
 #else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
+#endif
+}
+
+void startEditor(const QStringList & args)
+{
+#ifdef ENABLE_EDITOR
+	startExecutable(pathToQString(VCMIDirs::get().mapEditorPath()), args);
 #endif
 }
 

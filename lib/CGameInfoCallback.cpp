@@ -17,6 +17,8 @@
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
 #include "CModHandler.h"
+#include "GameSettings.h"
+#include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
@@ -166,13 +168,13 @@ const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 		return nullptr;
 }
 
-void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
+void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
-	out = gs->getUpgradeInfo(obj->getStack(stackPos));
-	//return gs->getUpgradeInfo(obj->getStack(stackPos));
+	gs->fillUpgradeInfo(obj, stackPos, out);
+	//return gs->fillUpgradeInfo(obj->getStack(stackPos));
 }
 
 const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) const
@@ -247,15 +249,15 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	{
 		if(!detailed && nullptr != selectedObject)
 		{
-			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
+			const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
 				detailed = selectedHero->hasVisions(town, 1);
 		}
 
-		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
+		dest.initFromTown(dynamic_cast<const CGTownInstance *>(town), detailed);
 	}
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
-		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
+		dest.initFromArmy(dynamic_cast<const CArmedInstance *>(town), detailed);
 	else
 		return false;
 	return true;
@@ -271,7 +273,7 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 {
 	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", std::vector<const CGObjectInstance*>());
 	std::vector<const CGObjectInstance*> ret;
-	for(auto cr : gs->guardingCreatures(pos))
+	for(auto * cr : gs->guardingCreatures(pos))
 	{
 		ret.push_back(cr);
 	}
@@ -280,7 +282,7 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 
 bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject) const
 {
-	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
+	const auto * h = dynamic_cast<const CGHeroInstance *>(hero);
 
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
 
@@ -294,12 +296,12 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 		if(gs->curB && gs->curB->playerHasAccessToHeroInfo(*player, h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
-			ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
+			ERROR_RET_VAL_IF(!isVisible(h->visitablePos()), "That hero is not visible!", false);
 	}
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
 	{
-		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
+		const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
 			if(selectedHero->hasVisions(hero, 1))
 				infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
@@ -321,7 +323,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto & elem : info.army)
 			{
-				if((int)elem.second.type->AIValue > maxAIValue)
+				if(static_cast<int>(elem.second.type->AIValue) > maxAIValue)
 				{
 					maxAIValue = elem.second.type->AIValue;
 					mostStrong = elem.second.type;
@@ -357,7 +359,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto creature : VLC->creh->objects)
 			{
-				if((si16)creature->faction == factionIndex && (int)creature->AIValue > maxAIValue)
+				if(static_cast<si16>(creature->faction) == factionIndex && static_cast<int>(creature->AIValue) > maxAIValue)
 				{
 					maxAIValue = creature->AIValue;
 					mostStrong = creature;
@@ -399,10 +401,10 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 	return gs->getDate(mode);
 }
 
-bool CGameInfoCallback::isVisible(int3 pos, boost::optional<PlayerColor> Player) const
+bool CGameInfoCallback::isVisible(int3 pos, const boost::optional<PlayerColor> & Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->map->isInTheMap(pos) && (!Player || gs->isVisible(pos, *Player));
+	return gs->isVisible(pos, Player);
 }
 
 bool CGameInfoCallback::isVisible(int3 pos) const
@@ -410,7 +412,7 @@ bool CGameInfoCallback::isVisible(int3 pos) const
 	return isVisible(pos, player);
 }
 
-bool CGameInfoCallback::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> Player ) const
+bool CGameInfoCallback::isVisible( const CGObjectInstance *obj,const boost::optional<PlayerColor> & Player) const
 {
 	return gs->isVisible(obj, Player);
 }
@@ -503,17 +505,30 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 	return nullptr;
 }
 
+EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) const
+{
+	if(!isVisible(tile))
+		return EDiggingStatus::UNKNOWN;
+
+	for(const auto & object : gs->map->objects)
+	{
+		if(object && object->ID == Obj::HOLE && object->pos == tile)
+			return EDiggingStatus::TILE_OCCUPIED;
+	}
+	return getTile(tile)->getDiggingStatus();
+}
+
 //TODO: typedef?
 std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {
 	assert(player.is_initialized());
-	auto team = getPlayerTeam(player.get());
+	const auto * team = getPlayerTeam(player.get());
 
 	size_t width = gs->map->width;
 	size_t height = gs->map->height;
 	size_t levels = gs->map->levels();
 
-	auto ptr = new boost::multi_array<TerrainTile*, 3>(boost::extents[levels][width][height]);
+	auto * ptr = new boost::multi_array<TerrainTile *, 3>(boost::extents[levels][width][height]);
 
 	int3 tile;
 	for(tile.z = 0; tile.z < levels; tile.z++)
@@ -546,12 +561,12 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
-	auto possiblyNotBuiltTest = [&](BuildingID id) -> bool
+	auto possiblyNotBuiltTest = [&](const BuildingID & id) -> bool
 	{
 		return ((id == BuildingID::CAPITOL) ? true : !t->hasBuilt(id));
 	};
 
-	std::function<bool(BuildingID id)> allowedTest = [&](BuildingID id) -> bool
+	std::function<bool(BuildingID id)> allowedTest = [&](const BuildingID & id) -> bool
 	{
 		return !vstd::contains(t->forbiddenBuildings, id);
 	};
@@ -581,7 +596,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 			return EBuildingState::NO_WATER; //lack of water
 	}
 
-	auto buildTest = [&](BuildingID id) -> bool
+	auto buildTest = [&](const BuildingID & id) -> bool
 	{
 		return t->hasBuilt(id);
 	};
@@ -589,7 +604,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if (!t->genBuildingRequirements(ID).test(buildTest))
 		return EBuildingState::PREREQUIRES;
 
-	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
+	if(t->builded >= VLC->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	//checking resources
@@ -619,7 +634,8 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
-	std::string text = "", extraText = "";
+	std::string text;
+	std::string extraText;
 	if(gs->rumor.type == RumorState::TYPE_NONE)
 		return text;
 
@@ -666,7 +682,7 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 	if(includeGarrisoned)
 		return static_cast<int>(p->heroes.size());
 	else
-		for(auto & elem : p->heroes)
+		for(const auto & elem : p->heroes)
 			if(!elem->inTownGarrison)
 				ret++;
 	return ret;
@@ -687,14 +703,10 @@ PlayerColor CGameInfoCallback::getCurrentPlayer() const
 	return gs->currentPlayer;
 }
 
-CGameInfoCallback::CGameInfoCallback()
+CGameInfoCallback::CGameInfoCallback(CGameState * GS, boost::optional<PlayerColor> Player):
+	gs(GS)
 {
-}
-
-CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player)
-{
-	gs = GS;
-	player = Player;
+	player = std::move(Player);
 }
 
 std::shared_ptr<const boost::multi_array<ui8, 3>> CPlayerSpecificInfoCallback::getVisibilityMap() const
@@ -734,7 +746,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	{
 		// !player || // - why would we even get access to hero not owned by any player?
 		if((hero->tempOwner == *player) ||
-			(isVisible(hero->getPosition(false), player) && !onlyOur)	)
+			(isVisible(hero->visitablePos(), player) && !onlyOur)	)
 		{
 			ret.push_back(hero);
 		}
@@ -809,7 +821,7 @@ std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings()
 std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 {
 	std::vector <QuestInfo> ret;
-	for (auto quest : gs->getPlayerState(*player)->quests)
+	for(const auto & quest : gs->getPlayerState(*player)->quests)
 	{
 		ret.push_back (quest);
 	}
@@ -831,7 +843,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 
 	if (!includeGarrisoned)
 	{
-		for(ui32 i = 0; i < p->heroes.size() && (int)i<=serialId; i++)
+		for(ui32 i = 0; i < p->heroes.size() && static_cast<int>(i) <= serialId; i++)
 			if(p->heroes[i]->inTownGarrison)
 				serialId++;
 	}
@@ -928,10 +940,16 @@ void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3, ShashInt
 	gs->getTilesInRange(tiles, pos, radious, getLocalPlayer(), -1, distanceFormula);
 }
 
-void CGameInfoCallback::calculatePaths(std::shared_ptr<PathfinderConfig> config)
+void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config)
 {
 	gs->calculatePaths(config);
 }
+
+void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
+{
+	gs->calculatePaths(hero, out);
+}
+
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {
@@ -945,9 +963,9 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 
 std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player) const
 {
-	vstd::erase_if(ids, [&](ObjectInstanceID id) -> bool
+	vstd::erase_if(ids, [&](const ObjectInstanceID & id) -> bool
 	{
-		auto obj = getObj(id, false);
+		const auto * obj = getObj(id, false);
 		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisible(obj->pos, player));
 	});
 	return ids;
@@ -967,8 +985,8 @@ ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID
 {
 	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, player);
 	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, player);
-	if((!entrances.size() || !exits.size()) // impassable if exits or entrances list are empty
-		|| (entrances.size() == 1 && entrances == exits)) // impassable if only entrance and only exit is same object. e.g bidirectional monolith
+	if((entrances.empty() || exits.empty()) // impassable if exits or entrances list are empty
+	   || (entrances.size() == 1 && entrances == exits)) // impassable if only entrance and only exit is same object. e.g bidirectional monolith
 	{
 		return ETeleportChannelType::IMPASSABLE;
 	}
@@ -976,7 +994,7 @@ ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID
 	auto intersection = vstd::intersection(entrances, exits);
 	if(intersection.size() == entrances.size() && intersection.size() == exits.size())
 		return ETeleportChannelType::BIDIRECTIONAL;
-	else if(!intersection.size())
+	else if(intersection.empty())
 		return ETeleportChannelType::UNIDIRECTIONAL;
 	else
 		return ETeleportChannelType::MIXED;

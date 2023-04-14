@@ -16,7 +16,8 @@
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
-#include "../Terrain.h"
+#include "../CModHandler.h"
+#include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
 
@@ -31,7 +32,7 @@ namespace
 
 	std::string encodeZoneId(si32 id)
 	{
-		return boost::lexical_cast<std::string>(id);
+		return std::to_string(id);
 	}
 }
 
@@ -69,13 +70,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return VLC->terrainTypeHandler->getInfoByCode(identifier)->id;
+		return *VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "terrain", identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		const auto& terrains = VLC->terrainTypeHandler->terrains();
-		return (index >=0 && index < terrains.size()) ? terrains[index].name : "<INVALID TERRAIN>";
+		return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 	}
 };
 
@@ -84,12 +84,12 @@ class ZoneEncoder
 public:
 	static si32 decode(const std::string & json)
 	{
-		return boost::lexical_cast<si32>(json);
+		return std::stoi(json);
 	}
 
 	static std::string encode(si32 id)
 	{
-		return boost::lexical_cast<std::string>(id);
+		return std::to_string(id);
 	}
 };
 
@@ -132,52 +132,22 @@ void ZoneOptions::CTownInfo::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("castleDensity", castleDensity, 0);
 }
 
-
-ZoneOptions::ZoneOptions()
-	: id(0),
+ZoneOptions::ZoneOptions():
+	id(0),
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
+	maxTreasureValue(0),
 	owner(boost::none),
-	playerTowns(),
-	neutralTowns(),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
-	townTypes(),
-	monsterTypes(),
 	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
-	mines(),
-	treasureInfo(),
-	connections(),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto & terr : VLC->terrainTypeHandler->terrains())
-		if(terr.isLand() && terr.isPassable())
-			terrainTypes.insert(terr.id);
-}
-
-ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
-{
-	id = other.id;
-	type = other.type;
-	size = other.size;
-	owner = other.owner;
-	playerTowns = other.playerTowns;
-	neutralTowns = other.neutralTowns;
-	matchTerrainToTown = other.matchTerrainToTown;
-	terrainTypes = other.terrainTypes;
-	townsAreSameType = other.townsAreSameType;
-	townTypes = other.townTypes;
-	monsterTypes = other.monsterTypes;
-	zoneMonsterStrength = other.zoneMonsterStrength;
-	mines = other.mines;
-	treasureInfo = other.treasureInfo;
-	connections = other.connections;
-	minesLikeZone = other.minesLikeZone;
-	terrainTypeLikeZone = other.terrainTypeLikeZone;
-	treasureLikeZone = other.treasureLikeZone;
-	return *this;
+	for(const auto & terr : VLC->terrainTypeHandler->objects)
+		if(terr->isLand() && terr->isPassable())
+			terrainTypes.insert(terr->getId());
 }
 
 TRmgTemplateZoneId ZoneOptions::getId() const
@@ -224,7 +194,7 @@ const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
+	//assert(value.find(ETerrainType::NONE) == value.end() &&
 	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
@@ -273,16 +243,32 @@ std::map<TResource, ui16> ZoneOptions::getMinesInfo() const
 void ZoneOptions::setTreasureInfo(const std::vector<CTreasureInfo> & value)
 {
 	treasureInfo = value;
+	recalculateMaxTreasureValue();
+}
+
+void ZoneOptions::recalculateMaxTreasureValue()
+{
+	maxTreasureValue = 0;
+	for (const auto& ti : treasureInfo)
+	{
+		vstd::amax(maxTreasureValue, ti.max);
+	}
 }
 	
 void ZoneOptions::addTreasureInfo(const CTreasureInfo & value)
 {
 	treasureInfo.push_back(value);
+	vstd::amax(maxTreasureValue, value.max);
 }
 
 const std::vector<CTreasureInfo> & ZoneOptions::getTreasureInfo() const
 {
 	return treasureInfo;
+}
+
+ui32 ZoneOptions::getMaxTreasureValue() const
+{
+	return maxTreasureValue;
 }
 
 TRmgTemplateZoneId ZoneOptions::getMinesLikeZone() const
@@ -362,10 +348,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		if(handler.saving)
 		{
 			node.setType(JsonNode::JsonType::DATA_VECTOR);
-			for(auto & ttype : terrainTypes)
+			for(const auto & ttype : terrainTypes)
 			{
 				JsonNode n;
-				n.String() = ttype;
+				n.String() = VLC->terrainTypeHandler->getById(ttype)->getJsonKey();
 				node.Vector().push_back(n);
 			}
 		}
@@ -375,9 +361,12 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			if(!node.Vector().empty())
 			{
 				terrainTypes.clear();
-				for(auto ttype : node.Vector())
+				for(const auto & ttype : node.Vector())
 				{
-					terrainTypes.emplace(VLC->terrainTypeHandler->getInfoByName(ttype.String())->id);
+					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
+					{
+						terrainTypes.emplace(identifier);
+					});
 				}
 			}
 		}
@@ -414,6 +403,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto treasureData = handler.enterArray("treasure");
 		treasureData.serializeStruct(treasureInfo);
+		if (!handler.saving)
+		{
+			recalculateMaxTreasureValue();
+		}
 	}
 
 	if((minesLikeZone == NO_ZONE) && (!handler.saving || !mines.empty()))
@@ -473,10 +466,6 @@ CRmgTemplate::CRmgTemplate()
 
 }
 
-CRmgTemplate::~CRmgTemplate()
-{
-}
-
 bool CRmgTemplate::matchesSize(const int3 & value) const
 {
 	const int64_t square = value.x * value.y * value.z;
@@ -501,9 +490,19 @@ void CRmgTemplate::setId(const std::string & value)
 	id = value;
 }
 
+void CRmgTemplate::setName(const std::string & value)
+{
+	name = value;
+}
+
 const std::string & CRmgTemplate::getName() const
 {
-	return name.empty() ? id : name;
+	return name;
+}
+
+const std::string & CRmgTemplate::getId() const
+{
+	return id;
 }
 
 const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getPlayers() const
@@ -531,14 +530,19 @@ void CRmgTemplate::validate() const
 	//TODO add some validation checks, throw on failure
 }
 
+std::pair<int3, int3> CRmgTemplate::getMapSizes() const
+{
+	return {minSize, maxSize};
+}
+
 void CRmgTemplate::CPlayerCountRange::addRange(int lower, int upper)
 {
-	range.push_back(std::make_pair(lower, upper));
+	range.emplace_back(lower, upper);
 }
 
 void CRmgTemplate::CPlayerCountRange::addNumber(int value)
 {
-	range.push_back(std::make_pair(value, value));
+	range.emplace_back(value, value);
 }
 
 bool CRmgTemplate::CPlayerCountRange::isInRange(int count) const
@@ -573,7 +577,7 @@ std::string CRmgTemplate::CPlayerCountRange::toString() const
 
 	bool first = true;
 
-	for(auto & p : range)
+	for(const auto & p : range)
 	{
 		if(!first)
 			ret +=",";
@@ -582,7 +586,7 @@ std::string CRmgTemplate::CPlayerCountRange::toString() const
 
 		if(p.first == p.second)
 		{
-			ret += boost::lexical_cast<std::string>(p.first);
+			ret += std::to_string(p.first);
 		}
 		else
 		{
@@ -665,7 +669,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		auto zonesData = handler.enterStruct("zones");
-        if(handler.saving)
+		if(handler.saving)
 		{
 			for(auto & idAndZone : zones)
 			{
@@ -675,7 +679,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		}
 		else
 		{
-			for(auto & idAndZone : zonesData->getCurrent().Struct())
+			for(const auto & idAndZone : zonesData->getCurrent().Struct())
 			{
 				auto guard = handler.enterStruct(idAndZone.first);
 				auto zone = std::make_shared<ZoneOptions>();
@@ -689,28 +693,64 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		afterLoad();
 }
 
+std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+{
+	if (iteration >= 50)
+	{
+		logGlobal->error("Infinite recursion for terrain types detected in template %s", name);
+		return std::set<TerrainId>();
+	}
+	if (zone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
+	{
+		iteration++;
+		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
+		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
+	}
+	return zone->getTerrainTypes();
+}
+
+std::map<TResource, ui16> CRmgTemplate::inheritMineTypes(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+{
+	if (iteration >= 50)
+	{
+		logGlobal->error("Infinite recursion for mine types detected in template %s", name);
+		return std::map<TResource, ui16>();
+	}
+	if (zone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
+	{
+		iteration++;
+		const auto otherZone = zones.at(zone->getMinesLikeZone());
+		zone->setMinesInfo(inheritMineTypes(otherZone, iteration));
+	}
+	return zone->getMinesInfo();
+}
+
+std::vector<CTreasureInfo> CRmgTemplate::inheritTreasureInfo(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
+{
+	if (iteration >= 50)
+	{
+		logGlobal->error("Infinite recursion for treasures detected in template %s", name);
+		return std::vector<CTreasureInfo>();
+	}
+	if (zone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
+	{
+		iteration++;
+		const auto otherZone = zones.at(zone->getTreasureLikeZone());
+		zone->setTreasureInfo(inheritTreasureInfo(otherZone, iteration));
+	}
+	return zone->getTreasureInfo();
+}
+
 void CRmgTemplate::afterLoad()
 {
 	for(auto & idAndZone : zones)
 	{
 		auto zone = idAndZone.second;
-		if(zone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
-		{
-			const auto otherZone = zones.at(zone->getMinesLikeZone());
-			zone->setMinesInfo(otherZone->getMinesInfo());
-		}
 
-		if(zone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
-		{
-			const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
-			zone->setTerrainTypes(otherZone->getTerrainTypes());
-		}
-
-		if(zone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
-		{
-			const auto otherZone = zones.at(zone->getTreasureLikeZone());
-			zone->setTreasureInfo(otherZone->getTreasureInfo());
-		}
+		//Inherit properties recursively.
+		inheritTerrainType(zone);
+		inheritMineTypes(zone);
+		inheritTreasureInfo(zone);
 	}
 
 	for(const auto & connection : connections)

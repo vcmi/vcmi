@@ -9,11 +9,12 @@
  */
 #pragma once
 
-#include  "JsonTreeSerializer.h"
+#include "ILICReader.h"
+#include "JsonTreeSerializer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE JsonDeserializer: public JsonTreeSerializer<const JsonNode *>
+class DLL_LINKAGE JsonDeserializer: public JsonTreeSerializer<const JsonNode *>, public ILICReader
 {
 public:
 	JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_);
@@ -35,10 +36,6 @@ protected:
 
 	void serializeInternal(std::string & value) override;
 	void serializeInternal(int64_t & value) override;
-
-private:
-	void readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value);
-	void readLICPart(const JsonNode & part, const TDecoder & decoder, std::set<si32> & value);
 };
 
 VCMI_LIB_NAMESPACE_END

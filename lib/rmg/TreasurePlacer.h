@@ -24,14 +24,12 @@ struct ObjectInfo
 	std::shared_ptr<const ObjectTemplate> templ;
 	ui32 value = 0;
 	ui16 probability = 0;
-	ui32 maxPerZone = -1;
+	ui32 maxPerZone = 1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
 	void setTemplate(si32 type, si32 subtype, TerrainId terrain);
-	
-	ObjectInfo();
-	
+
 	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
 };
 
@@ -47,7 +45,10 @@ public:
 	void createTreasures(ObjectManager & manager);
 	
 	void setQuestArtZone(Zone * otherZone);
+	void addObjectToRandomPool(const ObjectInfo& oi);
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
+
+	size_t getPossibleObjectsSize() const;
 	
 protected:
 	bool isGuardNeededForTreasure(int value);

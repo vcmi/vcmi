@@ -192,7 +192,7 @@ public:
 	void load(T &data)
 	{
 		unsigned length = sizeof(data);
-		char* dataPtr = (char*)&data;
+		char * dataPtr = reinterpret_cast<char *>(&data);
 		this->read(dataPtr,length);
 		if(reverseEndianess)
 			std::reverse(dataPtr, dataPtr + length);

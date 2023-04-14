@@ -48,7 +48,7 @@ std::unordered_set<ResourceID> CMappedFileLoader::getFilteredFiles(std::function
 {
 	std::unordered_set<ResourceID> foundID;
 
-	for (auto & file : fileList)
+	for(const auto & file : fileList)
 	{
 		if (filter(file.first))
 			foundID.insert(file.first);
@@ -58,18 +58,16 @@ std::unordered_set<ResourceID> CMappedFileLoader::getFilteredFiles(std::function
 
 CFilesystemList::CFilesystemList()
 {
-	//loaders = new std::vector<std::unique_ptr<ISimpleResourceLoader> >;
 }
 
 CFilesystemList::~CFilesystemList()
 {
-	//delete loaders;
 }
 
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceName) const
 {
 	// load resource from last loader that have it (last overridden version)
-	for (auto & loader : boost::adaptors::reverse(loaders))
+	for(const auto & loader : boost::adaptors::reverse(loaders))
 	{
 		if (loader->existsResource(resourceName))
 			return loader->load(resourceName);
@@ -81,7 +79,7 @@ std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceN
 
 bool CFilesystemList::existsResource(const ResourceID & resourceName) const
 {
-	for (auto & loader : loaders)
+	for(const auto & loader : loaders)
 		if (loader->existsResource(resourceName))
 			return true;
 	return false;
@@ -115,7 +113,7 @@ std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const Resour
 
 void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter) const
 {
-	for (auto & loader : loaders)
+	for(const auto & loader : loaders)
 		loader->updateFilteredFiles(filter);
 }
 
@@ -123,8 +121,8 @@ std::unordered_set<ResourceID> CFilesystemList::getFilteredFiles(std::function<b
 {
 	std::unordered_set<ResourceID> ret;
 
-	for (auto & loader : loaders)
-		for (auto & entry : loader->getFilteredFiles(filter))
+	for(const auto & loader : loaders)
+		for(const auto & entry : loader->getFilteredFiles(filter))
 			ret.insert(entry);
 
 	return ret;
@@ -155,7 +153,7 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 {
 	std::vector<const ISimpleResourceLoader *> ret;
 
-	for (auto & loader : loaders)
+	for(const auto & loader : loaders)
 		boost::range::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
 
 	return ret;

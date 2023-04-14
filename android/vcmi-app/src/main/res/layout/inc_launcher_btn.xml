@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="title"
+            type="java.lang.String" />
+        <variable
+            name="description"
+            type="java.lang.String" />
+    </data>
+    <RelativeLayout
+        style="@style/VCMI.Entry.Clickable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/inc_launcher_btn_main"
+                style="@style/VCMI.Text.LauncherEntry"
+                android:text="@{title}" />
+
+            <TextView
+                android:id="@+id/inc_launcher_btn_sub"
+                style="@style/VCMI.Text.LauncherEntry.Sub"
+                android:text="@{description}" />
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

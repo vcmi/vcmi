@@ -13,8 +13,6 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
-#include "../Terrain.h"
-#include "CMapGenOptions.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,6 +27,31 @@ namespace ETemplateZoneType
 		TREASURE,
 		JUNCTION,
 		WATER
+	};
+}
+
+namespace EWaterContent
+{
+	enum EWaterContent
+	{
+		RANDOM = -1,
+		NONE,
+		NORMAL,
+		ISLANDS
+	};
+}
+
+namespace EMonsterStrength
+{
+	enum EMonsterStrength
+	{
+		RANDOM = -2,
+		ZONE_WEAK = -1,
+		ZONE_NORMAL = 0,
+		ZONE_STRONG = 1,
+		GLOBAL_WEAK = 2,
+		GLOBAL_NORMAL = 3,
+		GLOBAL_STRONG = 4
 	};
 }
 
@@ -93,8 +116,6 @@ public:
 
 	ZoneOptions();
 
-	ZoneOptions & operator=(const ZoneOptions & other);
-
 	TRmgTemplateZoneId getId() const;
 	void setId(TRmgTemplateZoneId value);
 
@@ -123,6 +144,8 @@ public:
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
 	void addTreasureInfo(const CTreasureInfo & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
+	ui32 getMaxTreasureValue() const;
+	void recalculateMaxTreasureValue();
 
 	TRmgTemplateZoneId getMinesLikeZone() const;
 	TRmgTemplateZoneId getTerrainTypeLikeZone() const;
@@ -142,6 +165,7 @@ protected:
 	TRmgTemplateZoneId id;
 	ETemplateZoneType::ETemplateZoneType type;
 	int size;
+	ui32 maxTreasureValue;
 	boost::optional<int> owner;
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
@@ -187,17 +211,19 @@ public:
 	};
 
 	CRmgTemplate();
-	~CRmgTemplate();
 
 	bool matchesSize(const int3 & value) const;
 	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;
 	const std::set<EWaterContent::EWaterContent> & getWaterContentAllowed() const;
 
 	void setId(const std::string & value);
+	void setName(const std::string & value);
+	const std::string & getId() const;
 	const std::string & getName() const;
 
 	const CPlayerCountRange & getPlayers() const;
 	const CPlayerCountRange & getCpuPlayers() const;
+	std::pair<int3, int3> getMapSizes() const;
 	const Zones & getZones() const;
 	const std::vector<rmg::ZoneConnection> & getConnections() const;
 
@@ -215,6 +241,9 @@ private:
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
 	void afterLoad();
+	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };

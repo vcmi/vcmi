@@ -19,7 +19,6 @@ class CSpell;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct SDL_Rect;
 class IImage;
 class CAnimImage;
 class CPicture;
@@ -42,7 +41,7 @@ class CSpellWindow : public CWindowObject
 		std::shared_ptr<CLabel> level;
 		std::shared_ptr<CLabel> cost;
 	public:
-		SpellArea(SDL_Rect pos, CSpellWindow * owner);
+		SpellArea(Rect pos, CSpellWindow * owner);
 		~SpellArea();
 		void setSpell(const CSpell * spell);
 
@@ -63,7 +62,7 @@ class CSpellWindow : public CWindowObject
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
 
-		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
+		InteractiveArea(const Rect &myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
 	};
 
 	std::shared_ptr<CAnimation> spellIcons;
@@ -85,7 +84,7 @@ class CSpellWindow : public CWindowObject
 	int sitesPerTabBattle[5];
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
-	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	uint8_t selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int currentPage; //changes when corners are clicked
 	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 
@@ -113,6 +112,7 @@ public:
 	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int pagesWithinCurrentTab();
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
+
 	void show(SDL_Surface * to) override;
 };

@@ -9,26 +9,30 @@
  */
 #pragma once
 
-//#include "../../lib/CStopWatch.h"
-#include "Geometries.h"
-#include "SDL_Extensions.h"
+#include "MouseButton.h"
+#include "../../lib/Point.h"
+
+#include <SDL_keycode.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 template <typename T> struct CondSh;
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
+union SDL_Event;
+struct SDL_MouseMotionEvent;
+
 class CFramerateManager;
-class CGStatusBar;
+class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
-enum class EIntObjMouseBtnType;
 
 // TODO: event handling need refactoring
-enum EUserEvent
+enum class EUserEvent
 {
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
@@ -38,7 +42,6 @@ enum EUserEvent
 	FULLSCREEN_TOGGLED,
 	CAMPAIGN_START_SCENARIO,
 	FORCE_QUIT, //quit client without question
-	INTERFACE_CHANGED
 };
 
 // A fps manager which holds game updates at a constant rate
@@ -46,17 +49,20 @@ class CFramerateManager
 {
 private:
 	double rateticks;
-	ui32 lastticks, timeElapsed;
+	ui32 lastticks;
+	ui32 timeElapsed;
 	int rate;
-	ui32 accumulatedTime,accumulatedFrames;
-public:
 	int fps; // the actual fps value
+	ui32 accumulatedTime;
+	ui32 accumulatedFrames;
 
-	CFramerateManager(int rate); // initializes the manager with a given fps rate
-	void init(); // needs to be called directly before the main game loop to reset the internal timer
+public:
+	CFramerateManager(); // initializes the manager with a given fps rate
+	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
 	ui32 getFrameNumber() const { return accumulatedFrames; }
+	ui32 getFramerate() const { return fps; };
 };
 
 // Handles GUI logic and drawing
@@ -65,29 +71,35 @@ class CGuiHandler
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
 	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	std::shared_ptr<CGStatusBar> statusbar;
+	std::shared_ptr<IStatusBar> statusbar;
 
 private:
+	Point cursorPosition;
+	uint32_t mouseButtonsMask;
+
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
 	std::atomic<bool> continueEventHandling;
 	typedef std::list<CIntObject*> CIntObjectList;
 
 	//active GUI elements (listening for events
-	CIntObjectList lclickable,
-				   rclickable,
-				   mclickable,
-				   hoverable,
-				   keyinterested,
-				   motioninterested,
-	               timeinterested,
-	               wheelInterested,
-	               doubleClickInterested,
-	               textInterested;
+	CIntObjectList lclickable;
+	CIntObjectList rclickable;
+	CIntObjectList mclickable;
+	CIntObjectList hoverable;
+	CIntObjectList keyinterested;
+	CIntObjectList motioninterested;
+	CIntObjectList timeinterested;
+	CIntObjectList wheelInterested;
+	CIntObjectList doubleClickInterested;
+	CIntObjectList textInterested;
 
 
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
+	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
+	void handleCurrentEvent(SDL_Event &current);
+	void handleMouseMotion(const SDL_Event & current);
+	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void convertTouchToMouse(SDL_Event * current);
 	void fakeMoveCursor(float dx, float dy);
 	void fakeMouseButtonEventRelativeMode(bool down, bool right);
@@ -100,7 +112,28 @@ public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
-	SDL_Event * current; //current event - can be set to nullptr to stop handling event
+	/// returns current position of mouse cursor, relative to vcmi window
+	const Point & getCursorPosition() const;
+
+	Point screenDimensions() const;
+
+	/// returns true if at least one mouse button is pressed
+	bool isMouseButtonPressed() const;
+
+	/// returns true if specified mouse button is pressed
+	bool isMouseButtonPressed(MouseButton button) const;
+
+	/// returns true if chosen keyboard key is currently pressed down
+	bool isKeyboardAltDown() const;
+	bool isKeyboardCtrlDown() const;
+	bool isKeyboardShiftDown() const;
+
+	void startTextInput(const Rect & where);
+	void stopTextInput();
+
+	/// moves mouse pointer into specified position inside vcmi window
+	void moveCursorToPosition(const Point & position);
+
 	IUpdateable *curInt;
 
 	Point lastClick;
@@ -138,9 +171,6 @@ public:
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
-	void handleCurrentEvent();
-	void handleMouseMotion();
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
@@ -150,7 +180,8 @@ public:
 	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
-	static void pushSDLEvent(int type, int usercode = 0);
+	static void pushUserEvent(EUserEvent usercode);
+	static void pushUserEvent(EUserEvent usercode, void * userdata);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };
@@ -173,6 +204,7 @@ struct SSetCaptureState
 };
 
 #define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
+#define OBJ_CONSTRUCTION_TARGETED(obj) SObjectConstruction obj__i(obj)
 #define OBJECT_CONSTRUCTION_CAPTURING(actions) defActions = actions; SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 #define OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
 

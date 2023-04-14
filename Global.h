@@ -15,25 +15,6 @@
 // Fixed width bool data type is important for serialization
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
-#ifdef __GNUC__
-#  define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
-#endif
-
-#if !defined(__clang__) && defined(__GNUC__) && (GCC_VERSION < 470)
-#  error VCMI requires at least gcc-4.7.2 for successful compilation or clang-3.1. Please update your compiler
-#endif
-
-#if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
-#  error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or later
-#endif
-
-/* ---------------------------------------------------------------------------- */
-/* Suppress some compiler warnings */
-/* ---------------------------------------------------------------------------- */
-#ifdef _MSC_VER
-#  pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
-#endif
-
 /* ---------------------------------------------------------------------------- */
 /* System detection. */
 /* ---------------------------------------------------------------------------- */
@@ -53,7 +34,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #elif defined(__linux__) || defined(__gnu_linux__) || defined(linux) || defined(__linux)
 #  define VCMI_UNIX
 #  define VCMI_XDG
-#  ifdef __ANDROID__
+#  if defined(__ANDROID__) || defined(ANDROID)
 #    define VCMI_ANDROID
 #  endif
 #elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
@@ -79,10 +60,15 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 //#  warning "Unknown Apple target."?
 #  endif
 #else
-#  error "VCMI supports only Windows, OSX, Linux and Android targets"
+#  error "This platform isn't supported"
+#endif
+
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#define VCMI_MOBILE
 #endif
 
 // Each compiler uses own way to supress fall through warning. Try to find it.
+// TODO: replace with c++17 [[fallthrough]]
 #ifdef __has_cpp_attribute
 #  if __has_cpp_attribute(fallthrough)
 #    define FALLTHROUGH [[fallthrough]];
@@ -101,9 +87,15 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
 #ifdef VCMI_WINDOWS
-#  define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
-#  define NOMINMAX					// Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
-#  define _NO_W32_PSEUDO_MODIFIERS  // Exclude more macros for compiling with MinGW on Linux.
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN		 // Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
+#  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
+#  endif
+#  ifndef _NO_W32_PSEUDO_MODIFIERS
+#    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
+#  endif
 #endif
 
 #ifdef VCMI_ANDROID
@@ -122,38 +114,34 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define STRONG_INLINE inline
 #endif
 
-#define TO_STRING_HELPER(x) #x
-#define TO_STRING(x) TO_STRING_HELPER(x)
-#define LINE_IN_FILE __FILE__ ":" TO_STRING(__LINE__)
-
 #define _USE_MATH_DEFINES
-
-#include <cstdio>
-#include <stdio.h>
 
 #include <algorithm>
 #include <array>
+#include <atomic>
+#include <bitset>
 #include <cassert>
 #include <climits>
 #include <cmath>
 #include <cstdlib>
-#include <functional>
+#include <cstdio>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <queue>
 #include <random>
 #include <set>
 #include <sstream>
 #include <string>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
-#include <atomic>
 
 //The only available version is 3, as of Boost 1.50
 #include <boost/version.hpp>
@@ -233,7 +221,10 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef VCMI_WINDOWS
-#  ifdef __GNUC__
+#ifdef VCMI_DLL_STATIC
+#    define DLL_IMPORT
+#    define DLL_EXPORT
+#elif defined(__GNUC__)
 #    define DLL_IMPORT __attribute__((dllimport))
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
@@ -262,7 +253,8 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 
 // should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
-#define UNUSED(VAR) ((void)VAR)
+// TODO: replace with c++17 [[maybe_unused]]
+#define MAYBE_UNUSED(VAR) ((void)VAR)
 
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
@@ -449,6 +441,20 @@ namespace vstd
 		}
 	}
 
+	// c++17: makes a to fit the range <b, c>
+	template <typename t1, typename t2, typename t3>
+	t1 clamp(const t1 &value, const t2 &low, const t3 &high)
+	{
+		if ( value > high)
+			return high;
+
+		if ( value < low)
+			return low;
+
+		return value;
+	}
+
+
 	//makes a to fit the range <b, c>
 	template <typename t1, typename t2, typename t3>
 	t1 &abetween(t1 &a, const t2 &b, const t3 &c)
@@ -503,36 +509,6 @@ namespace vstd
 		ptr = nullptr;
 	}
 
-#if _MSC_VER >= 1800
-	using std::make_unique;
-#else
-	template<typename T>
-	std::unique_ptr<T> make_unique()
-	{
-		return std::unique_ptr<T>(new T());
-	}
-	template<typename T, typename Arg1>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1)));
-	}
-	template<typename T, typename Arg1, typename Arg2>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2)));
-	}
-	template<typename T, typename Arg1, typename Arg2, typename Arg3>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2, Arg3 &&arg3)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2), std::forward<Arg3>(arg3)));
-	}
-	template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2, Arg3 &&arg3, Arg4 &&arg4)
-	{
-		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2), std::forward<Arg3>(arg3), std::forward<Arg4>(arg4)));
-	}
-#endif
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{
@@ -541,6 +517,12 @@ namespace vstd
 		auto itr = std::begin(r);
 		std::advance(itr, index);
 		return *itr;
+	}
+
+	template <typename Container, typename Item>
+	void erase(Container &c, const Item &item)
+	{
+		c.erase(boost::remove(c, item), c.end());
 	}
 
 	template<typename Range, typename Predicate>
@@ -704,12 +686,6 @@ namespace vstd
 		return false;
 	}
 
-	template <typename Container, typename Pred>
-	void erase(Container &c, Pred pred)
-	{
-		c.erase(boost::remove_if(c, pred), c.end());
-	}
-
 	template<typename T>
 	void removeDuplicates(std::vector<T> &vec)
 	{
@@ -760,10 +736,24 @@ namespace vstd
 		return v;
 	}
 
-	using boost::math::round;
+	//c++20 feature
+	template<typename Arithmetic, typename Floating>
+	Arithmetic lerp(const Arithmetic & a, const Arithmetic & b, const Floating & f)
+	{
+		return a + (b - a) * f;
+	}
+
+
+	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr
+	static constexpr int abs(int i) {
+		if(i < 0) return -i;
+		return i;
+	}
 }
 using vstd::operator-=;
-using vstd::make_unique;
+
+VCMI_LIB_NAMESPACE_END
+
 
 #ifdef NO_STD_TOSTRING
 namespace std
@@ -777,5 +767,3 @@ namespace std
 	}
 }
 #endif // NO_STD_TOSTRING
-
-VCMI_LIB_NAMESPACE_END

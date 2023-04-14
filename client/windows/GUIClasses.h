@@ -13,6 +13,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/int3.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
@@ -35,12 +36,13 @@ class CTextInput;
 class CListBox;
 class CLabelGroup;
 class CToggleButton;
-class CToggleGroup;
 class CVolumeSlider;
 class CGStatusBar;
 class CTextBox;
 class CResDataBar;
 class CHeroWithMaybePickedArtifact;
+
+enum class EUserEvent;
 
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CStatusbarWindow
@@ -162,6 +164,7 @@ class CObjectListWindow : public CWindowObject
 
 		void select(bool on);
 		void clickLeft(tribool down, bool previousState) override;
+		void onDoubleClick() override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
@@ -191,51 +194,7 @@ public:
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
-	void keyPressed (const SDL_KeyboardEvent & key) override;
-};
-
-class CSystemOptionsWindow : public CWindowObject
-{
-private:
-	std::shared_ptr<CLabel> title;
-	std::shared_ptr<CLabelGroup> leftGroup;
-	std::shared_ptr<CLabelGroup> rightGroup;
-	std::shared_ptr<CButton> load;
-	std::shared_ptr<CButton> save;
-	std::shared_ptr<CButton> restart;
-	std::shared_ptr<CButton> mainMenu;
-	std::shared_ptr<CButton> quitGame;
-	std::shared_ptr<CButton> backToMap; //load and restart are not used yet
-	std::shared_ptr<CToggleGroup> heroMoveSpeed;
-	std::shared_ptr<CToggleGroup> enemyMoveSpeed;
-	std::shared_ptr<CToggleGroup> mapScrollSpeed;
-	std::shared_ptr<CVolumeSlider> musicVolume;
-	std::shared_ptr<CVolumeSlider> effectsVolume;
-
-	std::shared_ptr<CToggleButton> showReminder;
-	std::shared_ptr<CToggleButton> quickCombat;
-	std::shared_ptr<CToggleButton> spellbookAnim;
-	std::shared_ptr<CToggleButton> fullscreen;
-
-	std::shared_ptr<CButton> gameResButton;
-	std::shared_ptr<CLabel> gameResLabel;
-
-	SettingsListener onFullscreenChanged;
-
-	//functions bound to buttons
-	void bloadf(); //load game
-	void bsavef(); //save game
-	void bquitf(); //quit game
-	void breturnf(); //return to game
-	void brestartf(); //restart game
-	void bmainmenuf(); //return to main menu
-
-	void selectGameRes();
-	void setGameRes(int index);
-	void closeAndPushEvent(int eventType, int code = 0);
-
-public:
-	CSystemOptionsWindow();
+	void keyPressed(const SDL_Keycode & key) override;
 };
 
 class CTavernWindow : public CStatusbarWindow
@@ -379,7 +338,6 @@ public:
 	const CGarrisonSlot * getSelectedSlotID() const;
 
 	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
-	~CExchangeWindow();
 };
 
 /// Here you can buy ships
@@ -401,27 +359,6 @@ class CShipyardWindow : public CStatusbarWindow
 
 public:
 	CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy);
-};
-
-/// Puzzle screen which gets uncovered when you visit obilisks
-class CPuzzleWindow : public CWindowObject
-{
-private:
-	int3 grailPos;
-	std::shared_ptr<CPicture> logo;
-	std::shared_ptr<CLabel> title;
-	std::shared_ptr<CButton> quitb;
-	std::shared_ptr<CResDataBar> resDataBar;
-
-	std::vector<std::shared_ptr<CPicture>> piecesToRemove;
-	std::vector<std::shared_ptr<CPicture>> visiblePieces;
-	ui8 currentAlpha;
-
-public:
-	void showAll(SDL_Surface * to) override;
-	void show(SDL_Surface * to) override;
-
-	CPuzzleWindow(const int3 & grailPos, double discoveredRatio);
 };
 
 /// Creature transformer window

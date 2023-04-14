@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include <memory>
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
@@ -217,7 +218,6 @@ public:
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
 
-	void showCompInfo(ShowInInfobox * comp) override {};
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
@@ -229,7 +229,7 @@ public:
 	void setMovePoints(SetMovePoints * smp) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player) override {};
-	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override {};
+	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {};
 	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 
@@ -240,6 +240,9 @@ public:
 
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
+	void removeGUI();
+
+	void cleanThreads();
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
@@ -261,6 +264,8 @@ private:
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
 	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
+
+	std::map<PlayerColor, std::unique_ptr<boost::thread>> playerTacticThreads;
 
 	void waitForMoveAndSend(PlayerColor color);
 	void reinitScripting();

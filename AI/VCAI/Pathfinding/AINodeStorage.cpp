@@ -107,7 +107,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, c
 
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
-	auto hpos = hero->getPosition(false);
+	auto hpos = hero->visitablePos();
 	auto initialNode =
 		getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN)
 		.get();
@@ -167,7 +167,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
-		for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
+		for(EPathfindingLayer i = EPathfindingLayer::LAND; i < EPathfindingLayer::NUM_LAYERS; i.advance(1))
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
 
@@ -211,7 +211,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 		}
 	}
 
-	if(hero->getPosition(false) == source.coord)
+	if(hero->visitablePos() == source.coord)
 	{
 		calculateTownPortalTeleportations(source, neighbours);
 	}

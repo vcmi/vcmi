@@ -21,33 +21,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:obstacle";
-
 namespace spells
 {
 namespace effects
 {
 
-VCMI_REGISTER_SPELL_EFFECT(Obstacle, EFFECT_NAME);
+using RelativeShape = std::vector<std::vector<BattleHex::EDir>>;
 
-ObstacleSideOptions::ObstacleSideOptions()
-	: shape(),
-	range()
-{
-}
-
-void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
-{
-	serializeRelativeShape(handler, "shape", shape);
-	serializeRelativeShape(handler, "range", range);
-
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("animation", animation);
-
-	handler.serializeInt("offsetY", offsetY);
-}
-
-void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value)
+static void serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value)
 {
 	static const std::vector<std::string> EDirMap =
 	{
@@ -57,7 +38,6 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 		"BR",
 		"BL",
 		"L",
-		""
 	};
 
 	{
@@ -75,14 +55,16 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 
 				if(handler.saving)
 				{
-					temp = EDirMap.at(value.at(outerIndex).at(innerIndex));
+					auto index = value.at(outerIndex).at(innerIndex);
+					if (index < EDirMap.size())
+						temp = EDirMap[index];
 				}
 
 				inner.serializeString(innerIndex, temp);
 
 				if(!handler.saving)
 				{
-					value.at(outerIndex).at(innerIndex) = (BattleHex::EDir) vstd::find_pos(EDirMap, temp);
+					value.at(outerIndex).at(innerIndex) = static_cast<BattleHex::EDir>(vstd::find_pos(EDirMap, temp));
 				}
 			}
 		}
@@ -98,19 +80,19 @@ void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, 
 	}
 }
 
-Obstacle::Obstacle()
-	: LocationEffect(),
-	hidden(false),
-	passable(false),
-	trigger(false),
-	trap(false),
-	removeOnTrigger(false),
-	patchCount(1),
-	turnsRemaining(-1)
+void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 {
-}
+	serializeRelativeShape(handler, "shape", shape);
+	serializeRelativeShape(handler, "range", range);
 
-Obstacle::~Obstacle() = default;
+	handler.serializeString("appearSound", appearSound);
+	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("triggerSound", triggerSound);
+	handler.serializeString("triggerAnimation", triggerAnimation);
+	handler.serializeString("animation", animation);
+
+	handler.serializeInt("offsetY", offsetY);
+}
 
 void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
@@ -120,7 +102,7 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 	for(auto & destination : effectTarget)
 	{
-		for(auto & trasformation : options.shape)
+		for(const auto & trasformation : options.shape)
 		{
 			BattleHex hex = destination.hexValue;
 
@@ -135,6 +117,9 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 bool Obstacle::applicable(Problem & problem, const Mechanics * m) const
 {
+	if(hidden && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
+
 	return LocationEffect::applicable(problem, m);
 }
 
@@ -150,7 +135,7 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 
 		for(const auto & destination : target)
 		{
-			for(auto & trasformation : options.shape)
+			for(const auto & trasformation : options.shape)
 			{
 				BattleHex hex = destination.hexValue;
 				for(auto direction : trasformation)
@@ -173,9 +158,9 @@ EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPo
 
 	if(!m->isMassive())
 	{
-		for(auto & spellDestination : spellTarget)
+		for(const auto & spellDestination : spellTarget)
 		{
-			for(auto & rangeShape : options.range)
+			for(const auto & rangeShape : options.range)
 			{
 				BattleHex hex = spellDestination.hexValue;
 
@@ -203,7 +188,7 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 		}
 		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
 
-		const int patchesToPut = std::min(patchCount, (int)availableTiles.size());
+		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
 
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);
@@ -252,11 +237,13 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 
 	if(cb->battleGetSiegeLevel() != 0)
 	{
-		EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
+		EWallPart part = cb->battleHexToWallPart(hex);
 
-		if(part == EWallPart::INVALID || part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+		if(part == EWallPart::INVALID)
 			return true;//no fortification here
-		else if(static_cast<int>(part) < 0)
+		else if(part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
+			return true; // location accessible
+		else if(part == EWallPart::INDESTRUCTIBLE_PART)
 			return false;//indestructible part (cant be checked by battleGetWallState)
 		else if(part == EWallPart::BOTTOM_TOWER || part == EWallPart::UPPER_TOWER)
 			return false;//destructible, but should not be available
@@ -282,12 +269,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 
 	BattleObstaclesChanged pack;
 
-	boost::optional<BattlePerspective::BattlePerspective> perspective;
-
-	if(!m->battle()->getPlayerID())
-		perspective = boost::make_optional(BattlePerspective::ALL_KNOWING);
-
-	auto all = m->battle()->battleGetAllObstacles(perspective);
+	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)
@@ -313,7 +295,10 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 
+		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
+		obstacle.triggerSound = options.triggerSound;
+		obstacle.triggerAnimation = options.triggerAnimation;
 		obstacle.animation = options.animation;
 
 		obstacle.animationYOffset = options.offsetY;
@@ -321,7 +306,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.customSize.clear();
 		obstacle.customSize.reserve(options.shape.size());
 
-		for(auto & shape : options.shape)
+		for(const auto & shape : options.shape)
 		{
 			BattleHex hex = destination.hexValue;
 

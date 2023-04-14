@@ -57,11 +57,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"armorer" : {
-					"subtype" : "skill.armorer",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "GENERAL_DAMAGE_REDUCTION",
+					"subtype" : -1,
+					"targetSourceType" : "SECONDARY_SKILL",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -167,11 +168,11 @@
 		"specialty" : {
 			"bonuses" : {
 				"mysticism" : {
-					"subtype" : "skill.mysticism",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"type" : "MANA_REGENERATION",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -190,11 +191,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : "skill.eagleEye",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
@@ -213,8 +215,9 @@
 		"specialty" : {
 			"bonuses" : {
 				"fortune" : {
+					"addInfo" : 3,
 					"subtype" : "spell.fortune",
-					"type" : "MAXED_SPELL"
+					"type" : "SPECIAL_FIXED_VALUE_ENCHANT"
 				}
 			}
 		}

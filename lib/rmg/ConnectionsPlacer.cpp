@@ -12,6 +12,7 @@
 #include "ConnectionsPlacer.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
+#include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
@@ -84,9 +85,11 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
-	const auto& terrains = VLC->terrainTypeHandler->terrains();
-	bool directProhibited = vstd::contains(terrains[zone.getTerrainType()].prohibitTransitions, otherZone->getTerrainType())
-						 || vstd::contains(terrains[otherZone->getTerrainType()].prohibitTransitions, zone.getTerrainType());
+	const auto * ourTerrain   = VLC->terrainTypeHandler->getById(zone.getTerrainType());
+	const auto * otherTerrain = VLC->terrainTypeHandler->getById(otherZone->getTerrainType());
+
+	bool directProhibited = vstd::contains(ourTerrain->prohibitTransitions, otherZone->getTerrainType())
+						 || vstd::contains(otherTerrain->prohibitTransitions, zone.getTerrainType());
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
 	if(!directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
@@ -97,15 +100,20 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, generator.rand);
 			guardPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != guardPos);
-			
-			auto safetyGap = rmg::Area({guardPos});
-			safetyGap.unite(safetyGap.getBorderOutside());
-			safetyGap.intersect(zone.areaPossible());
-			if(!safetyGap.empty())
+
+			float dist = map.getTile(guardPos).getNearestObjectDistance();
+			if (dist >= 3) //Don't place guards at adjacent tiles
 			{
-				safetyGap.intersect(otherZone->areaPossible());
-				if(safetyGap.empty())
-					break; //successfull position
+
+				auto safetyGap = rmg::Area({ guardPos });
+				safetyGap.unite(safetyGap.getBorderOutside());
+				safetyGap.intersect(zone.areaPossible());
+				if (!safetyGap.empty())
+				{
+					safetyGap.intersect(otherZone->areaPossible());
+					if (safetyGap.empty())
+						break; //successfull position
+				}
 			}
 			
 			//failed position
@@ -130,7 +138,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto ourArea = zone.areaPossible() + zone.freePaths();
 			auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
 			theirArea.add(guardPos);
-			rmg::Path ourPath(ourArea), theirPath(theirArea);
+			rmg::Path ourPath(ourArea);
+			rmg::Path theirPath(theirArea);
 			ourPath.connect(zone.freePaths());
 			ourPath = ourPath.search(guardPos, true, costFunction);
 			theirPath.connect(otherZone->freePaths());
@@ -146,6 +155,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					rmg::Object monster(*monsterType);
 					monster.setPosition(guardPos);
 					manager.placeObject(monster, false, true);
+					//Place objects away from the monster in the other zone, too
+					otherZone->getModificator<ObjectManager>()->updateDistances(monster);
 				}
 				else
 				{
@@ -207,9 +218,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto gate1 = factory->create();
-			auto gate2 = factory->create();
-			rmg::Object rmgGate1(*gate1), rmgGate2(*gate2);
+			auto * gate1 = factory->create();
+			auto * gate2 = factory->create();
+			rmg::Object rmgGate1(*gate1);
+			rmg::Object rmgGate2(*gate2);
 			rmgGate1.setTemplate(zone.getTerrainType());
 			rmgGate2.setTemplate(otherZone->getTerrainType());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
@@ -220,8 +232,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
 				auto ti = map.getTile(tile);
+				auto otherTi = map.getTile(tile - zShift);
 				float dist = ti.getNearestObjectDistance();
-				if(dist < minDist)
+				float otherDist = otherTi.getNearestObjectDistance();
+				if(dist < minDist || otherDist < minDist)
 					return -1.f;
 				
 				rmg::Area toPlace(rmgGate1.getArea() + rmgGate1.getAccessibleArea());
@@ -229,8 +243,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				
 				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
 				
-				return path2.valid() ? 1.f : -1.f;
-			}, guarded1, true, ObjectManager::OptimizeType::NONE);
+				return path2.valid() ? (dist * otherDist) : -1.f;
+			}, guarded1, true, ObjectManager::OptimizeType::DISTANCE);
 			
 			if(path1.valid() && path2.valid())
 			{
@@ -252,9 +266,9 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	if(!success)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto teleport1 = factory->create();
-		auto teleport2 = factory->create();
-		
+		auto * teleport1 = factory->create();
+		auto * teleport2 = factory->create();
+
 		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
 		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());
 		
@@ -271,7 +285,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 void ConnectionsPlacer::collectNeighbourZones()
 {
 	auto border = zone.area().getBorderOutside();
-	for(auto & i : border)
+	for(const auto & i : border)
 	{
 		if(!map.isOnMap(i))
 			continue;

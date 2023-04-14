@@ -30,9 +30,9 @@ namespace rmg
 	public:
 		Area() = default;
 		Area(const Area &);
-		Area(const Area &&);
-		Area(const Tileset & tiles);
-		Area(const Tileset & relative, const int3 & position); //create from relative positions
+		Area(Area &&) noexcept;
+		Area(Tileset tiles);
+		Area(Tileset relative, const int3 & position); //create from relative positions
 		Area & operator= (const Area &);
 		
 		const Tileset & getTiles() const;
@@ -41,9 +41,9 @@ namespace rmg
 		const Tileset & getBorderOutside() const; //lazy cache invalidation
 		
 		DistanceMap computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap) const;
-		
-		Area getSubarea(std::function<bool(const int3 &)> filter) const;
-		
+
+		Area getSubarea(const std::function<bool(const int3 &)> & filter) const;
+
 		bool connected() const; //is connected
 		bool empty() const;
 		bool contains(const int3 & tile) const;

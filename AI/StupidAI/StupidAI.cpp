@@ -28,7 +28,7 @@ CStupidAI::~CStupidAI()
 	print("destroyed");
 }
 
-void CStupidAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
+void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
 	env = ENV;
@@ -55,9 +55,11 @@ public:
 	{}
 	void calcDmg(const CStack * ourStack)
 	{
-		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
-		adi = static_cast<int>((dmg.first + dmg.second) / 2);
-		adr = static_cast<int>((retal.first + retal.second) / 2);
+		// FIXME: provide distance info for Jousting bonus
+		DamageEstimation retal;
+		DamageEstimation dmg = cbc->battleEstimateDamage(ourStack, s, 0, &retal);
+		adi = static_cast<int>((dmg.damage.min + dmg.damage.max) / 2);
+		adr = static_cast<int>((retal.damage.min + retal.damage.max) / 2);
 	}
 
 	bool operator==(const EnemyInfo& ei) const
@@ -177,7 +179,7 @@ void CStupidAI::battleAttack(const BattleAttack *ba)
 	print("battleAttack called");
 }
 
-void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
 	print("battleStacksAttacked called");
 }
@@ -202,7 +204,7 @@ void CStupidAI::battleNewRound(int round)
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	print("battleStackMoved called");
 }

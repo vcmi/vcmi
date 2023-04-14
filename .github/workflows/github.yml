@@ -68,8 +68,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: linux
-            os: ubuntu-20.04
+          - platform: linux-qt6
+            os: ubuntu-22.04
             test: 0
             preset: linux-clang-release
           - platform: linux
@@ -83,6 +83,7 @@ jobs:
             extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
+            conan_options: --options with_apple_system_libs=True
             artifact_platform: intel
           - platform: mac-arm
             os: macos-12
@@ -91,6 +92,7 @@ jobs:
             extension: dmg
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
+            conan_options: --options with_apple_system_libs=True
             artifact_platform: arm
           - platform: ios
             os: macos-12
@@ -99,20 +101,36 @@ jobs:
             extension: ipa
             preset: ios-release-conan
             conan_profile: ios-arm64
-          - platform: mxe
-            os: ubuntu-20.04
-            mxe: i686-w64-mingw32.shared
-            test: 0
-            pack: 1
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
-            extension: exe
-            cmake_args: -G Ninja
+            conan_options: --options with_apple_system_libs=True
           - platform: msvc
             os: windows-latest
             test: 0
             pack: 1
             extension: exe
             preset: windows-msvc-release
+          - platform: mingw-ubuntu
+            os: ubuntu-22.04
+            test: 0
+            pack: 1
+            extension: exe
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
+            cmake_args: -G Ninja
+            preset: windows-mingw-conan-linux
+            conan_profile: mingw64-linux.jinja
+          - platform: android-32
+            os: ubuntu-22.04
+            extension: apk
+            preset: android-conan-ninja-release
+            conan_profile: android-32
+            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            artifact_platform: armeabi-v7a
+          - platform: android-64
+            os: ubuntu-22.04
+            extension: apk
+            preset: android-conan-ninja-release
+            conan_profile: android-64
+            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            artifact_platform: aarch64-v8a
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -126,7 +144,6 @@ jobs:
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
-        MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
 
     - uses: actions/setup-python@v4
@@ -136,7 +153,7 @@ jobs:
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        pip3 install conan
+        pip3 install 'conan<2.0'
         conan profile new default --detect
         conan install . \
           --install-folder=conan-generated \
@@ -144,7 +161,7 @@ jobs:
           --build=never \
           --profile:build=default \
           --profile:host=CI/conan/${{ matrix.conan_profile }} \
-          --options with_apple_system_libs=True
+          ${{ matrix.conan_options }}
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
@@ -164,39 +181,16 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: Configure CMake
-      if: "${{ matrix.preset == '' }}"
-      run: |
-        mkdir -p '${{github.workspace}}/out/build/${{matrix.preset}}'
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        cmake \
-            ../.. -GNinja \
-            ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DENABLE_TEST=${{matrix.test}} \
-            -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
-            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME" \
-            -DENABLE_GITVERSION="$VCMI_PACKAGE_GITVERSION"
-      env:
-        CC: ${{ matrix.cc }}
-        CXX: ${{ matrix.cxx }}
-
     - name: CMake Preset
-      if: "${{ matrix.preset != '' }}"
       run: |
         cmake --preset ${{ matrix.preset }}
 
-    - name: Build
-      if: "${{ matrix.preset == '' }}"
-      run: |
-        cmake --build '${{github.workspace}}/out/build/${{matrix.preset}}'
-
     - name: Build Preset
-      if: "${{ matrix.preset != '' }}"
       run: |
         cmake --build --preset ${{matrix.preset}}
 
     - name: Test
-      if: ${{ matrix.test == 1 &&  matrix.preset != ''}}
+      if: ${{ matrix.test == 1 }}
       run: |
         ctest --preset ${{matrix.preset}}
 
@@ -211,8 +205,15 @@ jobs:
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
+    - name: Create android package
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: |
+        cd android
+        ./gradlew assembleDaily --info
+        echo ANDROID_APK_PATH="$(ls ${{ github.workspace }}/android/vcmi-app/build/outputs/apk/daily/*.${{ matrix.extension }})" >> $GITHUB_ENV
+
     - name: Additional logs
-      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
+      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'msvc' }}
       run: |
         cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/project.nsi'
         cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/NSISOutput.log'
@@ -223,12 +224,24 @@ jobs:
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
-          ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+    - name: Android artifacts
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: |
+          ${{ env.ANDROID_APK_PATH }}
 
     - name: Upload build
-      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      continue-on-error: true
       run: |
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        if cd '${{github.workspace}}/android/vcmi-app/build/outputs/apk/daily' ; then
+          mv '${{ env.ANDROID_APK_PATH }}' "$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
+        else
+          cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        fi
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
@@ -241,11 +254,3 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       if: always()
-
-    - name: Trigger Android
-      uses: peter-evans/repository-dispatch@v1
-      if: ${{ (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') && matrix.platform == 'mxe' }}
-      with:
-        token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
-        repository: vcmi/vcmi-android
-        event-type: vcmi

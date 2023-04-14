@@ -155,7 +155,7 @@ namespace Res
 
 		public:
 			nziterator(const ResourceSet &RS);
-			bool valid();
+			bool valid() const;
 			nziterator operator++();
 			nziterator operator++(int);
 			const ResEntry& operator*() const;

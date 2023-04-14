@@ -1,0 +1,205 @@
+{
+	"Ring" :
+	{
+		"minSize" : "m", "maxSize" : "xl+u",
+		"players" : "2-8",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "grass", "rough", "subterra" ],
+				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 25000, "density" : 1 },
+					{ "min" : 3000, "max" : 6000, "density" : 5 },
+					{ "min" : 500, "max" : 3000, "density" : 7 }
+				]
+			},
+			"2" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 4500, "max" : 7500, "density" : 1 },
+					{ "min" : 3000, "max" : 6000, "density" : 3 },
+					{ "min" : 500, "max" : 3000, "density" : 9 }
+				]
+			},
+			"4" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"7" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 3,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"8" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 4,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"11" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 5,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"12" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 6,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"13" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"14" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"15" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 7,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"16" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 8,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "2", "guard" : 0 },
+			{ "a" : "1", "b" : "3", "guard" : 0 },
+			{ "a" : "1", "b" : "4", "guard" : 0 },
+			{ "a" : "1", "b" : "5", "guard" : 2000 },
+			{ "a" : "1", "b" : "6", "guard" : 2000 },
+			{ "a" : "1", "b" : "9", "guard" : 2000 },
+			{ "a" : "1", "b" : "10", "guard" : 2000 },
+			{ "a" : "1", "b" : "13", "guard" : 2000 },
+			{ "a" : "1", "b" : "14", "guard" : 2000 },
+			{ "a" : "2", "b" : "3", "guard" : 0 },
+			{ "a" : "2", "b" : "4", "guard" : 0 },
+			{ "a" : "2", "b" : "5", "guard" : 2000 },
+			{ "a" : "5", "b" : "6", "guard" : 0 },
+			{ "a" : "5", "b" : "7", "guard" : 0 },
+			{ "a" : "5", "b" : "8", "guard" : 0 },
+			{ "a" : "6", "b" : "7", "guard" : 0 },
+			{ "a" : "6", "b" : "8", "guard" : 0 },
+			{ "a" : "6", "b" : "9", "guard" : 2000 },
+			{ "a" : "9", "b" : "10", "guard" : 0 },
+			{ "a" : "9", "b" : "11", "guard" : 0 },
+			{ "a" : "9", "b" : "12", "guard" : 0 },
+			{ "a" : "10", "b" : "11", "guard" : 0 },
+			{ "a" : "10", "b" : "12", "guard" : 0 },
+			{ "a" : "10", "b" : "13", "guard" : 2000 },
+			{ "a" : "13", "b" : "14", "guard" : 0 },
+			{ "a" : "13", "b" : "15", "guard" : 0 },
+			{ "a" : "13", "b" : "16", "guard" : 0 },
+			{ "a" : "14", "b" : "15", "guard" : 0 },
+			{ "a" : "14", "b" : "16", "guard" : 0 }
+		]
+	}
+}

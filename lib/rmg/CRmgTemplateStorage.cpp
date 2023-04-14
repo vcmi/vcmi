@@ -31,9 +31,10 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	try
 	{
 		JsonDeserializer handler(nullptr, data);
-		auto fullKey = normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name); //actually it's not used
-		templates[fullKey].setId(name);
+		auto fullKey = scope + ":" + name; //actually it's not used
+		templates[fullKey].setId(fullKey);
 		templates[fullKey].serializeJson(handler);
+		templates[fullKey].setName(name);
 		templates[fullKey].validate();
 	}
 	catch(const std::exception & e)
@@ -48,7 +49,7 @@ std::vector<bool> CRmgTemplateStorage::getDefaultAllowed() const
 	return std::vector<bool>();
 }
 
-std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData()
 {
 	return std::vector<JsonNode>();
 	//it would be cool to load old rmg.txt files
@@ -65,9 +66,10 @@ const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templa
 std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 {
 	std::vector<const CRmgTemplate *> result;
-	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
+	result.reserve(templates.size());
+	for(const auto & i : templates)
 	{
-		result.push_back(&i->second);
+		result.push_back(&i.second);
 	}
 	return result;
 }

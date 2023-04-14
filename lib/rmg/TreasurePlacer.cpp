@@ -46,11 +46,14 @@ void TreasurePlacer::setQuestArtZone(Zone * otherZone)
 	questArtZone = otherZone;
 }
 
+void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
+{
+	possibleObjects.push_back(oi);
+}
+
 void TreasurePlacer::addAllPossibleObjects()
 {
 	ObjectInfo oi;
-	
-	int numZones = static_cast<int>(map.getZones().size());
 	
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -59,23 +62,32 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
-				for(auto temp : handler->getTemplates())
+				auto rmgInfo = handler->getRMGInfo();
+				if (rmgInfo.mapLimit || rmgInfo.value > zone.getMaxTreasureValue())
 				{
-					if(temp->canBePlacedAt(zone.getTerrainType()))
-					{
-						oi.generateObject = [temp]() -> CGObjectInstance *
-						{
-							return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
-						};
-						auto rmgInfo = handler->getRMGInfo();
-						oi.value = rmgInfo.value;
-						oi.probability = rmgInfo.rarity;
-						oi.templ = temp;
-						oi.maxPerZone = rmgInfo.zoneLimit;
-						vstd::amin(oi.maxPerZone, rmgInfo.mapLimit / numZones); //simple, but should distribute objects evenly on large maps
-						possibleObjects.push_back(oi);
-					}
+					//Skip objects with per-map limit here
+					continue;
 				}
+
+				auto templates = handler->getTemplates(zone.getTerrainType());
+				if (templates.empty())
+					continue;
+
+				//Assume the template with fewest terrains is the most suitable
+				auto temp = *boost::min_element(templates, [](std::shared_ptr<const ObjectTemplate> lhs, std::shared_ptr<const ObjectTemplate> rhs) -> bool
+				{
+					return lhs->getAllowedTerrains().size() < rhs->getAllowedTerrains().size();
+				});
+
+				oi.generateObject = [temp]() -> CGObjectInstance *
+				{
+					return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
+				};
+				oi.value = rmgInfo.value;
+				oi.probability = rmgInfo.rarity;
+				oi.templ = temp;
+				oi.maxPerZone = rmgInfo.zoneLimit;
+				addObjectToRandomPool(oi);
 			}
 		}
 	}
@@ -99,9 +111,8 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator.rand);
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
-			auto obj = (CGHeroInstance *) factory->create();
-			
-			
+			auto * obj = dynamic_cast<CGHeroInstance *>(factory->create());
+
 			obj->subID = hid; //will be initialized later
 			obj->exp = generator.getConfig().prisonExperience[i];
 			obj->setOwner(PlayerColor::NEUTRAL);
@@ -115,12 +126,12 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.value = generator.getConfig().prisonValues[i];
 		oi.probability = 30;
 		oi.maxPerZone = generator.getPrisonsRemaning() / 5; //probably not perfect, but we can't generate more prisons than hereos.
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//all following objects are unlimited
-	oi.maxPerZone = std::numeric_limits<ui32>().max();
-	
+	oi.maxPerZone = std::numeric_limits<ui32>::max();
+
 	std::vector<CCreature *> creatures; //native creatures for this zone
 	for(auto cre : VLC->creh->objects)
 	{
@@ -141,37 +152,37 @@ void TreasurePlacer::addAllPossibleObjects()
 		{
 			//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
 			static int elementalConfluxROE[] = {7, 13, 16, 47};
-			for(int i = 0; i < 4; i++)
-				vstd::erase_if_present(subObjects, elementalConfluxROE[i]);
+			for(int & i : elementalConfluxROE)
+				vstd::erase_if_present(subObjects, i);
 		}
 		
 		for(auto secondaryID : subObjects)
 		{
-			auto dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(dwellingType, secondaryID).get());
+			const auto * dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(dwellingType, secondaryID).get());
 			auto creatures = dwellingHandler->getProducedCreatures();
 			if(creatures.empty())
 				continue;
-			
-			auto cre = creatures.front();
+
+			const auto * cre = creatures.front();
 			if(cre->faction == zone.getTownType())
 			{
-				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->faction));
+				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->faction));
 				oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
 				oi.probability = 40;
-				
-				for(auto tmplate : dwellingHandler->getTemplates())
+
+				for(const auto & tmplate : dwellingHandler->getTemplates())
 				{
 					if(tmplate->canBePlacedAt(zone.getTerrainType()))
 					{
 						oi.generateObject = [tmplate, secondaryID, dwellingType]() -> CGObjectInstance *
 						{
-							auto obj = VLC->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(tmplate);
+							auto * obj = VLC->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(tmplate);
 							obj->tempOwner = PlayerColor::NEUTRAL;
 							return obj;
 						};
-						
+
 						oi.templ = tmplate;
-						possibleObjects.push_back(oi);
+						addObjectToRandomPool(oi);
 					}
 				}
 			}
@@ -183,7 +194,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
-			auto obj = (CGArtifact *) factory->create();
+			auto * obj = dynamic_cast<CGArtifact *>(factory->create());
 			std::vector<SpellID> out;
 			
 			for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
@@ -193,14 +204,14 @@ void TreasurePlacer::addAllPossibleObjects()
 					out.push_back(spell->id);
 				}
 			}
-			auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, generator.rand));
+			auto * a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, generator.rand));
 			obj->storedArtifact = a;
 			return obj;
 		};
 		oi.setTemplate(Obj::SPELL_SCROLL, 0, zone.getTerrainType());
 		oi.value = generator.getConfig().scrollValues[i];
 		oi.probability = 30;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//pandora box with gold
@@ -209,14 +220,14 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
 			obj->resources[Res::GOLD] = i * 5000;
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = i * generator.getConfig().pandoraMultiplierGold;
 		oi.probability = 5;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//pandora box with experience
@@ -225,14 +236,14 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
+			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
 			obj->gainedExp = i * 5000;
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = i * generator.getConfig().pandoraMultiplierExperience;
 		oi.probability = 20;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//pandora box with creatures
@@ -243,19 +254,23 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(!creature->AIValue || tierValues.empty()) //bug #2681
 			return 0; //this box won't be generated
 		
+		//Follow the rules from https://heroes.thelazy.net/index.php/Pandora%27s_Box
+
 		int actualTier = creature->level > tierValues.size() ?
 		tierValues.size() - 1 :
 		creature->level - 1;
-		float creaturesAmount = ((float)tierValues[actualTier]) / creature->AIValue;
-		if(creaturesAmount <= 5)
+		float creaturesAmount = std::floor((static_cast<float>(tierValues[actualTier])) / creature->AIValue);
+		if (creaturesAmount < 1)
 		{
-			creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
-			if(creaturesAmount < 1)
-				return 0;
+			return 0;
+		}
+		else if(creaturesAmount <= 5)
+		{
+			//No change
 		}
 		else if(creaturesAmount <= 12)
 		{
-			(creaturesAmount /= 2) *= 2;
+			creaturesAmount = std::ceil(creaturesAmount / 2) * 2;
 		}
 		else if(creaturesAmount <= 50)
 		{
@@ -267,8 +282,8 @@ void TreasurePlacer::addAllPossibleObjects()
 		}
 		return static_cast<int>(creaturesAmount);
 	};
-	
-	for(auto creature : creatures)
+
+	for(auto * creature : creatures)
 	{
 		int creaturesAmount = creatureToCount(creature);
 		if(!creaturesAmount)
@@ -277,15 +292,15 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
-			auto stack = new CStackInstance(creature, creaturesAmount);
+			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
+			auto * stack = new CStackInstance(creature, creaturesAmount);
 			obj->creatures.putStack(SlotID(0), stack);
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) / 3);
+		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) / 3);
 		oi.probability = 3;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//Pandora with 12 spells of certain level
@@ -294,8 +309,8 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
-			
+			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
+
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
@@ -304,7 +319,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, generator.rand);
-			for(int j = 0; j < std::min(12, (int)spells.size()); j++)
+			for(int j = 0; j < std::min(12, static_cast<int>(spells.size())); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
 			}
@@ -314,7 +329,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = (i + 1) * generator.getConfig().pandoraMultiplierSpells; //5000 - 15000
 		oi.probability = 2;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	//Pandora with 15 spells of certain school
@@ -323,17 +338,17 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create();
-			
+			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
+
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(map.isAllowedSpell(spell->id) && spell->school[(ESpellSchool)i])
+				if(map.isAllowedSpell(spell->id) && spell->school[static_cast<ESpellSchool>(i)])
 					spells.push_back(spell);
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, generator.rand);
-			for(int j = 0; j < std::min(15, (int)spells.size()); j++)
+			for(int j = 0; j < std::min(15, static_cast<int>(spells.size())); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
 			}
@@ -343,7 +358,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = generator.getConfig().pandoraSpellSchool;
 		oi.probability = 2;
-		possibleObjects.push_back(oi);
+		addObjectToRandomPool(oi);
 	}
 	
 	// Pandora box with 60 random spells
@@ -351,8 +366,8 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.generateObject = [this]() -> CGObjectInstance *
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-		auto obj = (CGPandoraBox *) factory->create();
-		
+		auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
+
 		std::vector <CSpell *> spells;
 		for(auto spell : VLC->spellh->objects)
 		{
@@ -361,7 +376,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		}
 		
 		RandomGeneratorUtil::randomShuffle(spells, generator.rand);
-		for(int j = 0; j < std::min(60, (int)spells.size()); j++)
+		for(int j = 0; j < std::min(60, static_cast<int>(spells.size())); j++)
 		{
 			obj->spells.push_back(spells[j]->id);
 		}
@@ -371,7 +386,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 	oi.value = generator.getConfig().pandoraSpell60;
 	oi.probability = 2;
-	possibleObjects.push_back(oi);
+	addObjectToRandomPool(oi);
 	
 	//seer huts with creatures or generic rewards
 	
@@ -382,10 +397,10 @@ void TreasurePlacer::addAllPossibleObjects()
 		const int questArtsRemaining = static_cast<int>(generator.getQuestArtsRemaning().size());
 		
 		//general issue is that not many artifact types are available for quests
-		
-		if(questArtsRemaining >= genericSeerHuts + (int)creatures.size())
+
+		if(questArtsRemaining >= genericSeerHuts + static_cast<int>(creatures.size()))
 		{
-			seerHutsPerType = questArtsRemaining / (genericSeerHuts + (int)creatures.size());
+			seerHutsPerType = questArtsRemaining / (genericSeerHuts + static_cast<int>(creatures.size()));
 		}
 		else if(questArtsRemaining >= genericSeerHuts)
 		{
@@ -394,8 +409,8 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.maxPerZone = seerHutsPerType;
 		
 		RandomGeneratorUtil::randomShuffle(creatures, generator.rand);
-		
-		auto generateArtInfo = [this](ArtifactID id) -> ObjectInfo
+
+		auto generateArtInfo = [this](const ArtifactID & id) -> ObjectInfo
 		{
 			ObjectInfo artInfo;
 			artInfo.probability = std::numeric_limits<ui16>::max(); //99,9% to spawn that art in first treasure pile
@@ -409,10 +424,10 @@ void TreasurePlacer::addAllPossibleObjects()
 			};
 			return artInfo;
 		};
-		
-		for(int i = 0; i < std::min((int)creatures.size(), questArtsRemaining - genericSeerHuts); i++)
+
+		for(int i = 0; i < std::min(static_cast<int>(creatures.size()), questArtsRemaining - genericSeerHuts); i++)
 		{
-			auto creature = creatures[i];
+			auto * creature = creatures[i];
 			int creaturesAmount = creatureToCount(creature);
 			
 			if(!creaturesAmount)
@@ -423,7 +438,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create();
+				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				obj->rewardType = CGSeerHut::CREATURE;
 				obj->rID = creature->idNumber;
 				obj->rVal = creaturesAmount;
@@ -437,14 +452,14 @@ void TreasurePlacer::addAllPossibleObjects()
 				generator.banQuestArt(artid);
 				
 				
-				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
 				
 				return obj;
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) - 4000) / 3);
+			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) - 4000) / 3);
 			oi.probability = 3;
-			possibleObjects.push_back(oi);
+			addObjectToRandomPool(oi);
 		}
 		
 		static int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
@@ -459,8 +474,8 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create();
-				
+				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
+
 				obj->rewardType = CGSeerHut::EXPERIENCE;
 				obj->rID = 0; //unitialized?
 				obj->rVal = generator.getConfig().questRewardValues[i];
@@ -473,17 +488,17 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				generator.banQuestArt(artid);
 				
-				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
 				
 				return obj;
 			};
 			
-			possibleObjects.push_back(oi);
+			addObjectToRandomPool(oi);
 			
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create();
+				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				obj->rewardType = CGSeerHut::RESOURCES;
 				obj->rID = Res::GOLD;
 				obj->rVal = generator.getConfig().questRewardValues[i];
@@ -496,14 +511,19 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				generator.banQuestArt(artid);
 				
-				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
 				
 				return obj;
 			};
 			
-			possibleObjects.push_back(oi);
+			addObjectToRandomPool(oi);
 		}
 	}
+}
+
+size_t TreasurePlacer::getPossibleObjectsSize() const
+{
+	return possibleObjects.size();
 }
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)
@@ -521,7 +541,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	
 	int currentValue = 0;
 	bool hasLargeObject = false;
-	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
+	while(currentValue <= static_cast<int>(desiredValue) - 100) //no objects with value below 100 are available
 	{
 		auto * oi = getRandomObject(desiredValue, currentValue, maxValue, !hasLargeObject);
 		if(!oi) //fail
@@ -550,7 +570,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement)
 {
 	rmg::Object rmgObject;
-	for(auto & oi : treasureInfos)
+	for(const auto & oi : treasureInfos)
 	{
 		auto blockedArea = rmgObject.getArea();
 		auto accessibleArea = rmgObject.getAccessibleArea();
@@ -574,7 +594,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			if(densePlacement)
 			{
 				int bestPositionsWeight = std::numeric_limits<int>::max();
-				for(auto & t : accessibleArea.getTilesVector())
+				for(const auto & t : accessibleArea.getTilesVector())
 				{
 					instance.setPosition(t);
 					int w = rmgObject.getAccessibleArea().getTilesVector().size();
@@ -640,7 +660,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 		if(oi.value >= minValue && oi.maxPerZone > 0)
 		{
 			total += oi.probability;
-			thresholds.push_back(std::make_pair(total, &oi));
+			thresholds.emplace_back(total, &oi);
 		}
 	}
 	
@@ -651,13 +671,13 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 	else
 	{
 		int r = generator.rand.nextInt(1, total);
-		
+		auto sorter = [](const std::pair<ui32, ObjectInfo *> & rhs, const ui32 lhs) -> bool 
+		{
+			return static_cast<int>(rhs.first) < lhs; 
+		};
+
 		//binary search = fastest
-		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
-								   [](const std::pair<ui32, ObjectInfo*> &rhs, const int lhs)->bool
-								   {
-			return (int)rhs.first < lhs;
-		});
+		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r, sorter);
 		return it->second;
 	}
 }
@@ -736,7 +756,6 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			if(guarded)
 				guarded = manager.addGuard(rmgObject, value);
 			
-			int3 pos;
 			auto possibleArea = zone.areaPossible();
 			
 			auto path = rmg::Path::invalid();
@@ -747,8 +766,8 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 					auto ti = map.getTile(tile);
 					if(ti.getNearestObjectDistance() < minDistance)
 						return -1.f;
-					
-					for(auto & t : rmgObject.getArea().getTilesVector())
+
+					for(const auto & t : rmgObject.getArea().getTilesVector())
 					{
 						if(map.getTile(t).getNearestObjectDistance() < minDistance)
 							return -1.f;
@@ -804,13 +823,6 @@ char TreasurePlacer::dump(const int3 & t)
 		return '*';
 	
 	return Modificator::dump(t);
-}
-
-
-ObjectInfo::ObjectInfo()
-: templ(), value(0), probability(0), maxPerZone(1)
-{
-	
 }
 
 void ObjectInfo::setTemplate(si32 type, si32 subtype, TerrainId terrainType)

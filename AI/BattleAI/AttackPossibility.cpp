@@ -13,9 +13,9 @@
                               // Eventually only IBattleInfoCallback and battle::Unit should be used, 
                               // CUnitState should be private and CStack should be removed completely
 
-uint64_t averageDmg(const TDmgRange & range)
+uint64_t averageDmg(const DamageRange & range)
 {
-	return (range.first + range.second) / 2;
+	return (range.min + range.max) / 2;
 }
 
 AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack)
@@ -49,9 +49,10 @@ int64_t AttackPossibility::calculateDamageReduce(
 
 	vstd::amin(damageDealt, defender->getAvailableHealth());
 
-	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(BattleAttackInfo(defender, attacker, defender->canShoot()));
+	// FIXME: provide distance info for Jousting bonus
+	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attacker, 0);
 	auto enemiesKilled = damageDealt / defender->MaxHealth() + (damageDealt % defender->MaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
-	auto enemyDamage = averageDmg(enemyDamageBeforeAttack);
+	auto enemyDamage = averageDmg(enemyDamageBeforeAttack.damage);
 	auto damagePerEnemy = enemyDamage / (double)defender->getCount();
 
 	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->MaxHealth()));
@@ -74,16 +75,17 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & a
 		if(!state.battleCanShoot(st))
 			continue;
 
-		BattleAttackInfo rangeAttackInfo(st, attacker, true);
+		// FIXME: provide distance info for Jousting bonus
+		BattleAttackInfo rangeAttackInfo(st, attacker, 0, true);
 		rangeAttackInfo.defenderPos = hex;
 
-		BattleAttackInfo meleeAttackInfo(st, attacker, false);
+		BattleAttackInfo meleeAttackInfo(st, attacker, 0, false);
 		meleeAttackInfo.defenderPos = hex;
 
 		auto rangeDmg = state.battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state.battleEstimateDamage(meleeAttackInfo);
 
-		int64_t gain = averageDmg(rangeDmg) - averageDmg(meleeDmg) + 1;
+		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
 		res += gain;
 	}
 
@@ -154,17 +156,16 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 			{
 				int64_t damageDealt, damageReceived, defenderDamageReduce, attackerDamageReduce;
 
-				TDmgRange retaliation(0, 0);
+				DamageEstimation retaliation;
 				auto attackDmg = state.battleEstimateDamage(ap.attack, &retaliation);
-				TDmgRange defenderDamageBeforeAttack = state.battleEstimateDamage(BattleAttackInfo(u, attacker, u->canShoot()));
 
-				vstd::amin(attackDmg.first, defenderState->getAvailableHealth());
-				vstd::amin(attackDmg.second, defenderState->getAvailableHealth());
+				vstd::amin(attackDmg.damage.min, defenderState->getAvailableHealth());
+				vstd::amin(attackDmg.damage.max, defenderState->getAvailableHealth());
 
-				vstd::amin(retaliation.first, ap.attackerState->getAvailableHealth());
-				vstd::amin(retaliation.second, ap.attackerState->getAvailableHealth());
+				vstd::amin(retaliation.damage.min, ap.attackerState->getAvailableHealth());
+				vstd::amin(retaliation.damage.max, ap.attackerState->getAvailableHealth());
 
-				damageDealt = averageDmg(attackDmg);
+				damageDealt = averageDmg(attackDmg.damage);
 				defenderDamageReduce = calculateDamageReduce(attacker, defender, damageDealt, state);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
@@ -174,7 +175,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
-					damageReceived = averageDmg(retaliation);
+					damageReceived = averageDmg(retaliation.damage);
 					attackerDamageReduce = calculateDamageReduce(defender, attacker, damageReceived, state);
 					defenderState->afterAttack(attackInfo.shooting, true);
 				}
@@ -211,11 +212,13 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	// check how much damage we gain from blocking enemy shooters on this hex
 	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, state);
 
-	logAi->debug("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
-		attackInfo.attacker->unitType()->identifier,
-		attackInfo.defender->unitType()->identifier,
+#if BATTLE_TRACE_LEVEL>=1
+	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
+		attackInfo.attacker->unitType()->getJsonKey(),
+		attackInfo.defender->unitType()->getJsonKey(),
 		(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
 		bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
+#endif
 
 	//TODO other damage related to attack (eg. fire shield and other abilities)
 	return bestAp;

@@ -18,7 +18,6 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,7 +30,8 @@ class JsonSerializeFormat;
 class BattleField;
 
 struct SSpecialtyInfo
-{	si32 type;
+{
+	si32 type;
 	si32 val;
 	si32 subtype;
 	si32 additionalinfo;
@@ -44,20 +44,14 @@ struct SSpecialtyInfo
 	}
 };
 
-struct SSpecialtyBonus
-/// temporary hold
-{
-	ui8 growsWithLevel;
-	BonusList bonuses;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & growsWithLevel;
-		h & bonuses;
-	}
-};
-
 class DLL_LINKAGE CHero : public HeroType
 {
+	friend class CHeroHandler;
+
+	HeroTypeID ID;
+	std::string identifier;
+	std::string modScope;
+
 public:
 	struct InitialArmyStack
 	{
@@ -72,28 +66,18 @@ public:
 			h & creature;
 		}
 	};
-	std::string identifier;
-	HeroTypeID ID;
-	si32 imageIndex;
+	si32 imageIndex = 0;
 
 	std::vector<InitialArmyStack> initialArmy;
 
-	CHeroClass * heroClass;
+	CHeroClass * heroClass{};
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> specDeprecated;
-	std::vector<SSpecialtyBonus> specialtyDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
-	bool haveSpellBook;
-	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
-	ui8 sex; // default sex: 0=male, 1=female
-
-	/// Localized texts
-	std::string name; //name of hero
-	std::string biography;
-	std::string specName;
-	std::string specDescr;
-	std::string specTooltip;
+	bool haveSpellBook = false;
+	bool special = false; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
+	ui8 sex = 0; // default sex: 0=male, 1=female
 
 	/// Graphics
 	std::string iconSpecSmall;
@@ -107,10 +91,21 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	HeroTypeID getId() const override;
 	void registerIcons(const IconRegistar & cb) const override;
+
+	std::string getNameTranslated() const override;
+	std::string getBiographyTranslated() const override;
+	std::string getSpecialtyNameTranslated() const override;
+	std::string getSpecialtyDescriptionTranslated() const override;
+	std::string getSpecialtyTooltipTranslated() const override;
+
+	std::string getNameTextID() const override;
+	std::string getBiographyTextID() const override;
+	std::string getSpecialtyNameTextID() const override;
+	std::string getSpecialtyDescriptionTextID() const override;
+	std::string getSpecialtyTooltipTextID() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -127,26 +122,26 @@ public:
 		h & haveSpellBook;
 		h & sex;
 		h & special;
-		h & name;
-		h & biography;
-		h & specName;
-		h & specDescr;
-		h & specTooltip;
 		h & iconSpecSmall;
 		h & iconSpecLarge;
 		h & portraitSmall;
 		h & portraitLarge;
 		h & identifier;
+		h & modScope;
 		h & battleImage;
 	}
 };
 
 // convert deprecated format
 std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid = 0);
-std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec, int sid = 0);
 
 class DLL_LINKAGE CHeroClass : public HeroClass
 {
+	friend class CHeroClassHandler;
+	HeroClassID id; // use getId instead
+	std::string modScope;
+	std::string identifier; // use getJsonKey instead
+
 public:
 	enum EClassAffinity
 	{
@@ -154,11 +149,8 @@ public:
 		MAGIC
 	};
 
-	std::string identifier;
-	std::string name; // translatable
 	//double aggression; // not used in vcmi.
 	TFaction faction;
-	HeroClassID id;
 	ui8 affinity; // affinity, using EClassAffinity enum
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
@@ -184,10 +176,12 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	HeroClassID getId() const override;
 	void registerIcons(const IconRegistar & cb) const override;
+
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 
 	bool isMagicHero() const;
 	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const; //picks secondary skill out from given possibilities
@@ -197,8 +191,8 @@ public:
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & modScope;
 		h & identifier;
-		h & name;
 		h & faction;
 		h & id;
 		h & defaultTavernChance;
@@ -226,9 +220,10 @@ public:
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
-	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill);
+	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const;
+
 public:
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void afterLoadFinalization() override;
 
@@ -254,13 +249,11 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	std::vector<ui64> expPerLevel;
 
 	/// helpers for loading to avoid huge load functions
-	void loadHeroArmy(CHero * hero, const JsonNode & node);
-	void loadHeroSkills(CHero * hero, const JsonNode & node);
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
+	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
+	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
 
 	void loadExperience();
-	void loadBallistics();
-	void loadTerrains();
 
 public:
 	CHeroClassHandler classes;
@@ -268,31 +261,10 @@ public:
 	//default costs of going through terrains. -1 means terrain is impassable
 	std::map<TerrainId, int> terrCosts;
 
-	struct SBallisticsLevelInfo
-	{
-		ui8 keep, tower, gate, wall; //chance to hit in percent (eg. 87 is 87%)
-		ui8 shots; //how many shots we have
-		ui8 noDmg, oneDmg, twoDmg; //chances for shot dealing certain dmg in percent (eg. 87 is 87%); must sum to 100
-		ui8 sum; //I don't know if it is useful for anything, but it's in config file
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & keep;
-			h & tower;
-			h & gate;
-			h & wall;
-			h & shots;
-			h & noDmg;
-			h & oneDmg;
-			h & twoDmg;
-			h & sum;
-		}
-	};
-	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
-
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void beforeValidate(JsonNode & object) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
@@ -309,7 +281,6 @@ public:
 		h & classes;
 		h & objects;
 		h & expPerLevel;
-		h & ballistics;
 		h & terrCosts;
 	}
 

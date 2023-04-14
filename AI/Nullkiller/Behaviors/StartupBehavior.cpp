@@ -70,10 +70,7 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 		return false;
 
 	if(!startupTown->garrisonHero && !startupTown->visitingHero)
-		return false;
-
-	auto heroToCheck = startupTown->garrisonHero ? startupTown->garrisonHero.get() : startupTown->visitingHero.get();
-	auto paths = cb->getPathsInfo(heroToCheck);
+		return true;
 
 	int treasureSourcesCount = 0;
 
@@ -84,18 +81,16 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 			|| obj->ID == Obj::CAMPFIRE
 			|| obj->ID == Obj::WATER_WHEEL)
 		{
-			auto path = paths->getPathInfo(obj->visitablePos());
-			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISITABLE) 
-				&& path->reachable())
-			{
-				treasureSourcesCount++;
-			}
+			treasureSourcesCount++;
 		}
 	}
 
 	auto basicCount = cb->getTownsInfo().size() + 2;
-	auto boost = (int)std::floor(std::pow(treasureSourcesCount / 2.0, 2));
+	auto boost = std::min(
+		(int)std::floor(std::pow(1 + (cb->getMapSize().x / 50), 2)),
+		treasureSourcesCount / 2);
 
+	logAi->trace("Treasure sources found %d", treasureSourcesCount);
 	logAi->trace("Startup allows %d+%d heroes", basicCount, boost);
 
 	return cb->getHeroCount(ai->playerID, true) < basicCount + boost;

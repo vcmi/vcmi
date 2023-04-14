@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
+#include "CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,14 +24,19 @@ int32_t ObstacleInfo::getIconIndex() const
 	return iconIndex;
 }
 
-const std::string & ObstacleInfo::getName() const
+std::string ObstacleInfo::getJsonKey() const
 {
 	return identifier;
 }
 
-const std::string & ObstacleInfo::getJsonKey() const
+std::string ObstacleInfo::getNameTranslated() const
 {
 	return identifier;
+}
+
+std::string ObstacleInfo::getNameTextID() const
+{
+	return identifier; // TODO?
 }
 
 void ObstacleInfo::registerIcons(const IconRegistar & cb) const
@@ -41,7 +47,6 @@ Obstacle ObstacleInfo::getId() const
 {
 	return obstacle;
 }
-
 
 std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
 {
@@ -70,8 +75,8 @@ std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
 
 bool ObstacleInfo::isAppropriate(const TerrainId terrainType, const BattleField & battlefield) const
 {
-	auto bgInfo = battlefield.getInfo();
-	
+	const auto * bgInfo = battlefield.getInfo();
+
 	if(bgInfo->isSpecial)
 		return vstd::contains(allowedSpecialBfields, bgInfo->identifier);
 	
@@ -80,24 +85,31 @@ bool ObstacleInfo::isAppropriate(const TerrainId terrainType, const BattleField 
 
 ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
+	assert(identifier.find(':') == std::string::npos);
+
 	auto * info = new ObstacleInfo(Obstacle(index), identifier);
 	
 	info->animation = json["animation"].String();
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();
-	for(auto & t : json["allowedTerrains"].Vector())
-		info->allowedTerrains.emplace_back(VLC->terrainTypeHandler->getInfoByName(t.String())->id);
-	for(auto & t : json["specialBattlefields"].Vector())
+	for(const auto & t : json["allowedTerrains"].Vector())
+	{
+		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier){
+			info->allowedTerrains.emplace_back(identifier);
+		});
+	}
+	for(const auto & t : json["specialBattlefields"].Vector())
+
 		info->allowedSpecialBfields.emplace_back(t.String());
 	info->blockedTiles = json["blockedTiles"].convertTo<std::vector<si16>>();
 	info->isAbsoluteObstacle = json["absolute"].Bool();
-	
-	objects.push_back(info);
-	
+
+	objects.emplace_back(info);
+
 	return info;
 }
 
-std::vector<JsonNode> ObstacleHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> ObstacleHandler::loadLegacyData()
 {
 	return {};
 }

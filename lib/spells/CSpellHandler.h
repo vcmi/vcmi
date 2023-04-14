@@ -76,6 +76,7 @@ public:
 	struct AnimationItem
 	{
 		std::string resourceName;
+		std::string effectName;
 		VerticalPosition verticalPosition;
 		int pause;
 
@@ -84,6 +85,8 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName;
+			if (version > 806)
+				h & effectName;
 			h & verticalPosition;
 			h & pause;
 		}
@@ -94,9 +97,6 @@ public:
 
 	struct DLL_LINKAGE AnimationInfo
 	{
-		AnimationInfo();
-		~AnimationInfo();
-
 		///displayed on all affected targets.
 		TAnimationQueue affect;
 
@@ -120,18 +120,18 @@ public:
 
 		std::string selectProjectile(const double angle) const;
 	} animationInfo;
+
 public:
 	struct LevelInfo
 	{
-		std::string description; //descriptions of spell for skill level
-		si32 cost;
-		si32 power;
-		si32 AIValue;
+		si32 cost = 0;
+		si32 power = 0;
+		si32 AIValue = 0;
 
-		bool smartTarget;
-		bool clearTarget;
-		bool clearAffected;
-		std::string range;
+		bool smartTarget = true;
+		bool clearTarget = false;
+		bool clearAffected = false;
+		std::string range = "0";
 
 		//TODO: remove these two when AI will understand special effects
 		std::vector<std::shared_ptr<Bonus>> effects; //deprecated
@@ -139,12 +139,8 @@ public:
 
 		JsonNode battleEffects;
 
-		LevelInfo();
-		~LevelInfo();
-
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & description;
 			h & cost;
 			h & power;
 			h & AIValue;
@@ -165,6 +161,10 @@ public:
 	 *
 	 */
 	const CSpell::LevelInfo & getLevelInfo(const int32_t level) const;
+
+	SpellID id;
+	std::string identifier;
+	std::string modScope;
 public:
 	enum ESpellPositiveness
 	{
@@ -185,10 +185,6 @@ public:
 	};
 
 	using BTVector = std::vector<Bonus::BonusType>;
-
-	SpellID id;
-	std::string identifier;
-	std::string name;
 
 	si32 level;
 
@@ -234,13 +230,16 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	SpellID getId() const override;
 
-	int32_t getLevel() const override;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 
-	const std::string & getLevelDescription(const int32_t skillLevel) const override;
+	std::string getDescriptionTextID(int32_t level) const override;
+	std::string getDescriptionTranslated(int32_t level) const override;
+
+	int32_t getLevel() const override;
 
 	boost::logic::tribool getPositiveness() const override;
 
@@ -273,8 +272,9 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & identifier;
+		if (version > 820)
+			h & modScope;
 		h & id;
-		h & name;
 		h & level;
 		h & power;
 		h & probabilities;
@@ -366,11 +366,8 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {
 public:
-	CSpellHandler();
-	virtual ~CSpellHandler();
-
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 

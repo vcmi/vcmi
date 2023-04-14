@@ -26,15 +26,15 @@ Res::ResourceSet::ResourceSet()
 Res::ResourceSet::ResourceSet(const JsonNode & node)
 {
 	reserve(GameConstants::RESOURCE_QUANTITY);
-	for(std::string name : GameConstants::RESOURCE_NAMES)
-		push_back((int)node[name].Float());
+	for(const std::string & name : GameConstants::RESOURCE_NAMES)
+		push_back(static_cast<int>(node[name].Float()));
 }
 
 Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
 							TResource gems, TResource gold, TResource mithril)
 {
 	resize(GameConstants::RESOURCE_QUANTITY);
-	auto d = data();
+	auto * d = data();
 	d[Res::WOOD] = wood;
 	d[Res::MERCURY] = mercury;
 	d[Res::ORE] = ore;
@@ -60,7 +60,7 @@ void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::s
 
 bool Res::ResourceSet::nonZero() const
 {
-	for(auto & elem : *this)
+	for(const auto & elem : *this)
 		if(elem)
 			return true;
 
@@ -126,7 +126,7 @@ std::string Res::ResourceSet::toString() const
 	return out.str();
 }
 
-bool Res::ResourceSet::nziterator::valid()
+bool Res::ResourceSet::nziterator::valid() const
 {
 	return cur.resType < GameConstants::RESOURCE_QUANTITY && cur.resVal;
 }

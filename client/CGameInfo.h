@@ -38,7 +38,7 @@ VCMI_LIB_NAMESPACE_END
 class CMapHandler;
 class CSoundHandler;
 class CMusicHandler;
-class CCursorHandler;
+class CursorHandler;
 class IMainVideoPlayer;
 class CServerHandler;
 
@@ -49,7 +49,7 @@ public:
 	CSoundHandler * soundh;
 	CMusicHandler * musich;
 	CConsoleHandler * consoleh;
-	CCursorHandler * curh;
+	CursorHandler * curh;
 	IMainVideoPlayer * videoh;
 };
 extern CClientState * CCS;
@@ -71,12 +71,12 @@ public:
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
+	const IGameSettings * settings() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
 	const spells::effects::Registry * spellEffects() const override;
 	spells::effects::Registry * spellEffects() override;
-
 
 	ConstTransitivePtr<CModHandler> modh; //public?
 	ConstTransitivePtr<BattleFieldHandler> battleFieldHandler;

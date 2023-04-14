@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "../lib/NetPacks.h"
+#include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
 #include "../lib/IGameCallback.h"
@@ -22,384 +22,330 @@
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
 
-bool CPackForServer::isPlayerOwns(CGameHandler * gh, ObjectInstanceID id)
+void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
-	return gh->getPlayerAt(c) == gh->getOwner(id);
+	gh.save(pack.fname);
+	logGlobal->info("Game has been saved as %s", pack.fname);
+	result = true;
 }
 
-void CPackForServer::throwNotAllowedAction()
+void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 {
-	if(c)
+	PlayerColor currentPlayer = gs.currentPlayer;
+	if(pack.player != currentPlayer)
 	{
-		SystemMessage temp_message("You are not allowed to perform this action!");
-		c->sendPack(&temp_message);
-	}
-	logNetwork->error("Player is not allowed to perform this action!");
-	throw ExceptionNotAllowedAction();
-}
+		if(gh.getPlayerStatus(pack.player) == EPlayerStatus::INGAME)
+			gh.throwAndComplain(&pack, "pack.player attempted to end turn for another pack.player!");
 
-void CPackForServer::wrongPlayerMessage(CGameHandler * gh, PlayerColor expectedplayer)
-{
-	std::ostringstream oss;
-	oss << "You were identified as player " << gh->getPlayerAt(c) << " while expecting " << expectedplayer;
-	logNetwork->error(oss.str());
-	if(c)
-	{
-		SystemMessage temp_message(oss.str());
-		c->sendPack(&temp_message);
-	}
-}
+		logGlobal->debug("pack.player attempted to end turn after game over. Ignoring this request.");
 
-void CPackForServer::throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id)
-{
-	if(!isPlayerOwns(gh, id))
-	{
-		wrongPlayerMessage(gh, gh->getOwner(id));
-		throwNotAllowedAction();
-	}
-}
-
-void CPackForServer::throwOnWrongPlayer(CGameHandler * gh, PlayerColor player)
-{
-	if(!gh->hasPlayerAt(player, c) && player != gh->getPlayerAt(c))
-	{
-		wrongPlayerMessage(gh, player);
-		throwNotAllowedAction();
-	}
-}
-
-void CPackForServer::throwAndComplain(CGameHandler * gh, std::string txt)
-{
-	gh->complain(txt);
-	throwNotAllowedAction();
-}
-
-
-CGameState * CPackForServer::GS(CGameHandler * gh)
-{
-	return gh->gs;
-}
-
-bool SaveGame::applyGh(CGameHandler * gh)
-{
-	gh->save(fname);
-	logGlobal->info("Game has been saved as %s", fname);
-	return true;
-}
-
-bool EndTurn::applyGh(CGameHandler * gh)
-{
-	PlayerColor currentPlayer = GS(gh)->currentPlayer;
-	if(player != currentPlayer)
-	{
-		if(gh->getPlayerStatus(player) == EPlayerStatus::INGAME)
-			throwAndComplain(gh, "Player attempted to end turn for another player!");
-
-		logGlobal->debug("Player attempted to end turn after game over. Ignoring this request.");
-
-		return true;
+		result = true;
+		return;
 	}
 
-	throwOnWrongPlayer(gh, player);
-	if(gh->queries.topQuery(player))
-		throwAndComplain(gh, "Cannot end turn before resolving queries!");
+	gh.throwOnWrongPlayer(&pack, pack.player);
+	if(gh.queries.topQuery(pack.player))
+		gh.throwAndComplain(&pack, "Cannot end turn before resolving queries!");
 
-	gh->states.setFlag(GS(gh)->currentPlayer, &PlayerStatus::makingTurn, false);
-	return true;
+	gh.states.setFlag(gs.currentPlayer, &PlayerStatus::makingTurn, false);
+	result = true;
 }
 
-bool DismissHero::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 {
-	throwOnWrongOwner(gh, hid);
-	return gh->removeObject(gh->getObj(hid));
+	gh.throwOnWrongOwner(&pack, pack.hid);
+	result = gh.removeObject(gh.getObj(pack.hid));
 }
 
-bool MoveHero::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 {
-	throwOnWrongOwner(gh, hid);
-	return gh->moveHero(hid, dest, 0, transit, gh->getPlayerAt(c));
+	gh.throwOnWrongOwner(&pack, pack.hid);
+	result = gh.moveHero(pack.hid, pack.dest, 0, pack.transit, gh.getPlayerAt(pack.c));
 }
 
-bool CastleTeleportHero::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitCastleTeleportHero(CastleTeleportHero & pack)
 {
-	throwOnWrongOwner(gh, hid);
+	gh.throwOnWrongOwner(&pack, pack.hid);
 
-	return gh->teleportHero(hid, dest, source, gh->getPlayerAt(c));
+	result = gh.teleportHero(pack.hid, pack.dest, pack.source, gh.getPlayerAt(pack.c));
 }
 
-bool ArrangeStacks::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitArrangeStacks(ArrangeStacks & pack)
 {
 	//checks for owning in the gh func
-	return gh->arrangeStacks(id1, id2, what, p1, p2, val, gh->getPlayerAt(c));
+	result = gh.arrangeStacks(pack.id1, pack.id2, pack.what, pack.p1, pack.p2, pack.val, gh.getPlayerAt(pack.c));
 }
 
-bool BulkMoveArmy::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 {
-	return gh->bulkMoveArmy(srcArmy, destArmy, srcSlot);
+	result = gh.bulkMoveArmy(pack.srcArmy, pack.destArmy, pack.srcSlot);
 }
 
-bool BulkSplitStack::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBulkSplitStack(BulkSplitStack & pack)
 {
-	return gh->bulkSplitStack(src, srcOwner, amount);
+	result = gh.bulkSplitStack(pack.src, pack.srcOwner, pack.amount);
 }
 
-bool BulkMergeStacks::applyGh(CGameHandler* gh)
+void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 {
-	return gh->bulkMergeStacks(src, srcOwner);
+	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
 }
 
-bool BulkSmartSplitStack::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSmartSplitStack & pack)
 {
-	return gh->bulkSmartSplitStack(src, srcOwner);
+	result = gh.bulkSmartSplitStack(pack.src, pack.srcOwner);
 }
 
-bool DisbandCreature::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitDisbandCreature(DisbandCreature & pack)
 {
-	throwOnWrongOwner(gh, id);
-	return gh->disbandCreature(id, pos);
+	gh.throwOnWrongOwner(&pack, pack.id);
+	result = gh.disbandCreature(pack.id, pack.pos);
 }
 
-bool BuildStructure::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 {
-	throwOnWrongOwner(gh, tid);
-	return gh->buildStructure(tid, bid);
+	gh.throwOnWrongOwner(&pack, pack.tid);
+	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
-bool RecruitCreatures::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
 {
-	return gh->recruitCreatures(tid, dst, crid, amount, level);
+	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level);
 }
 
-bool UpgradeCreature::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)
 {
-	throwOnWrongOwner(gh, id);
-	return gh->upgradeCreature(id, pos, cid);
+	gh.throwOnWrongOwner(&pack, pack.id);
+	result = gh.upgradeCreature(pack.id, pack.pos, pack.cid);
 }
 
-bool GarrisonHeroSwap::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 {
-	const CGTownInstance * town = gh->getTown(tid);
-	if(!isPlayerOwns(gh, tid) && !(town->garrisonHero && isPlayerOwns(gh, town->garrisonHero->id)))
-		throwNotAllowedAction(); //neither town nor garrisoned hero (if present) is ours
-	return gh->garrisonSwap(tid);
+	const CGTownInstance * town = gh.getTown(pack.tid);
+	if(!gh.isPlayerOwns(&pack, pack.tid) && !(town->garrisonHero && gh.isPlayerOwns(&pack, town->garrisonHero->id)))
+		gh.throwNotAllowedAction(&pack); //neither town nor garrisoned hero (if present) is ours
+	result = gh.garrisonSwap(pack.tid);
 }
 
-bool ExchangeArtifacts::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	throwOnWrongPlayer(gh, src.owningPlayer()); //second hero can be ally
-	return gh->moveArtifact(src, dst);
+	gh.throwOnWrongPlayer(&pack, pack.src.owningPlayer()); //second hero can be ally
+	result = gh.moveArtifact(pack.src, pack.dst);
 }
 
-bool BulkExchangeArtifacts::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	const CGHeroInstance * pSrcHero = gh->getHero(srcHero);
-	throwOnWrongPlayer(gh, pSrcHero->getOwner());
-	return gh->bulkMoveArtifacts(srcHero, dstHero, swap);
+	const CGHeroInstance * pSrcHero = gh.getHero(pack.srcHero);
+	gh.throwOnWrongPlayer(&pack, pSrcHero->getOwner());
+	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap);
 }
 
-bool AssembleArtifacts::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 {
-	throwOnWrongOwner(gh, heroID);
-	return gh->assembleArtifacts(heroID, artifactSlot, assemble, assembleTo);
+	gh.throwOnWrongOwner(&pack, pack.heroID);
+	result = gh.assembleArtifacts(pack.heroID, pack.artifactSlot, pack.assemble, pack.assembleTo);
 }
 
-bool BuyArtifact::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 {
-	throwOnWrongOwner(gh, hid);
-	return gh->buyArtifact(hid, aid);
+	gh.throwOnWrongOwner(&pack, pack.hid);
+	result = gh.buyArtifact(pack.hid, pack.aid);
 }
 
-bool TradeOnMarketplace::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
-	const CGObjectInstance * market = gh->getObj(marketId);
+	const CGObjectInstance * market = gh.getObj(pack.marketId);
 	if(!market)
-		throwAndComplain(gh, "Invalid market object");
-	const CGHeroInstance * hero = gh->getHero(heroId);
+		gh.throwAndComplain(&pack, "Invalid market object");
+	const CGHeroInstance * hero = gh.getHero(pack.heroId);
 
 	//market must be owned or visited
 	const IMarket * m = IMarket::castFrom(market);
 
 	if(!m)
-		throwAndComplain(gh, "market is not-a-market! :/");
+		gh.throwAndComplain(&pack, "market is not-a-market! :/");
 
 	PlayerColor player = market->tempOwner;
 
 	if(player >= PlayerColor::PLAYER_LIMIT)
-		player = gh->getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
+		player = gh.getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
 
 	if(player >= PlayerColor::PLAYER_LIMIT)
-		throwAndComplain(gh, "No player can use this market!");
+		gh.throwAndComplain(&pack, "No player can use this market!");
 
-	bool allyTownSkillTrade = (mode == EMarketMode::RESOURCE_SKILL && gh->getPlayerRelations(player, hero->tempOwner) == PlayerRelations::ALLIES);
+	bool allyTownSkillTrade = (pack.mode == EMarketMode::RESOURCE_SKILL && gh.getPlayerRelations(player, hero->tempOwner) == PlayerRelations::ALLIES);
 
 	if(hero && (!(player == hero->tempOwner || allyTownSkillTrade)
 		|| hero->visitablePos() != market->visitablePos()))
-		throwAndComplain(gh, "This hero can't use this marketplace!");
+		gh.throwAndComplain(&pack, "This hero can't use this marketplace!");
 
 	if(!allyTownSkillTrade)
-		throwOnWrongPlayer(gh, player);
+		gh.throwOnWrongPlayer(&pack, player);
 
-	bool result = true;
+	result = true;
 
-	switch(mode)
+	switch(pack.mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->tradeResources(m, val[i], player, r1[i], r2[i]);
+		for(int i = 0; i < pack.r1.size(); ++i)
+			result &= gh.tradeResources(m, pack.val[i], player, pack.r1[i], pack.r2[i]);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->sendResources(val[i], player, static_cast<Res::ERes>(r1[i]), PlayerColor(r2[i]));
+		for(int i = 0; i < pack.r1.size(); ++i)
+			result &= gh.sendResources(pack.val[i], player, static_cast<Res::ERes>(pack.r1[i]), PlayerColor(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->sellCreatures(val[i], m, hero, SlotID(r1[i]), static_cast<Res::ERes>(r2[i]));
+		for(int i = 0; i < pack.r1.size(); ++i)
+			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), static_cast<Res::ERes>(pack.r2[i]));
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->buyArtifact(m, hero, static_cast<Res::ERes>(r1[i]), ArtifactID(r2[i]));
+		for(int i = 0; i < pack.r1.size(); ++i)
+			result &= gh.buyArtifact(m, hero, static_cast<Res::ERes>(pack.r1[i]), ArtifactID(pack.r2[i]));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->sellArtifact(m, hero, ArtifactInstanceID(r1[i]), static_cast<Res::ERes>(r2[i]));
+		for(int i = 0; i < pack.r1.size(); ++i)
+			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), static_cast<Res::ERes>(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
-		for(int i = 0; i < r1.size(); ++i)
-			result &= gh->transformInUndead(m, hero, SlotID(r1[i]));
+		for(int i = 0; i < pack.r1.size(); ++i)
+			result &= gh.transformInUndead(m, hero, SlotID(pack.r1[i]));
 		break;
 	case EMarketMode::RESOURCE_SKILL:
-		for(int i = 0; i < r2.size(); ++i)
-			result &= gh->buySecSkill(m, hero, SecondarySkill(r2[i]));
+		for(int i = 0; i < pack.r2.size(); ++i)
+			result &= gh.buySecSkill(m, hero, SecondarySkill(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
-		std::vector<SlotID> slotIDs(r1.begin(), r1.end());
-		std::vector<ui32> count(val.begin(), val.end());
-		return gh->sacrificeCreatures(m, hero, slotIDs, count);
+		std::vector<SlotID> slotIDs(pack.r1.begin(), pack.r1.end());
+		std::vector<ui32> count(pack.val.begin(), pack.val.end());
+		result = gh.sacrificeCreatures(m, hero, slotIDs, count);
+		return;
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
-		std::vector<ArtifactPosition> positions(r1.begin(), r1.end());
-		return gh->sacrificeArtifact(m, hero, positions);
+		std::vector<ArtifactPosition> positions(pack.r1.begin(), pack.r1.end());
+		result = gh.sacrificeArtifact(m, hero, positions);
+		return;
 	}
 	default:
-		throwAndComplain(gh, "Unknown exchange mode!");
+		gh.throwAndComplain(&pack, "Unknown exchange pack.mode!");
 	}
-
-	return result;
 }
 
-bool SetFormation::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 {
-	throwOnWrongOwner(gh, hid);
-	return gh->setFormation(hid, formation);
+	gh.throwOnWrongOwner(&pack, pack.hid);
+	result = gh.setFormation(pack.hid, pack.formation);
 }
 
-bool HireHero::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
-	const CGObjectInstance * obj = gh->getObj(tid);
+	const CGObjectInstance * obj = gh.getObj(pack.tid);
 	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
-	if(town && PlayerRelations::ENEMIES == gh->getPlayerRelations(obj->tempOwner, gh->getPlayerAt(c)))
-		throwAndComplain(gh, "Can't buy hero in enemy town!");
+	if(town && PlayerRelations::ENEMIES == gh.getPlayerRelations(obj->tempOwner, gh.getPlayerAt(pack.c)))
+		gh.throwAndComplain(&pack, "Can't buy hero in enemy town!");
 
-	return gh->hireHero(obj, hid, player);
+	result = gh.hireHero(obj, pack.hid, pack.player);
 }
 
-bool BuildBoat::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
 {
-	if(gh->getPlayerRelations(gh->getOwner(objid), gh->getPlayerAt(c)) == PlayerRelations::ENEMIES)
-		throwAndComplain(gh, "Can't build boat at enemy shipyard");
+	if(gh.getPlayerRelations(gh.getOwner(pack.objid), gh.getPlayerAt(pack.c)) == PlayerRelations::ENEMIES)
+		gh.throwAndComplain(&pack, "Can't build boat at enemy shipyard");
 
-	return gh->buildBoat(objid);
+	result = gh.buildBoat(pack.objid, gh.getPlayerAt(pack.c));
 }
 
-bool QueryReply::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 {
-	auto playerToConnection = gh->connections.find(player);
-	if(playerToConnection == gh->connections.end())
-		throwAndComplain(gh, "No such player!");
-	if(!vstd::contains(playerToConnection->second, c))
-		throwAndComplain(gh, "Message came from wrong connection!");
-	if(qid == QueryID(-1))
-		throwAndComplain(gh, "Cannot answer the query with id -1!");
+	auto playerToConnection = gh.connections.find(pack.player);
+	if(playerToConnection == gh.connections.end())
+		gh.throwAndComplain(&pack, "No such pack.player!");
+	if(!vstd::contains(playerToConnection->second, pack.c))
+		gh.throwAndComplain(&pack, "Message came from wrong connection!");
+	if(pack.qid == QueryID(-1))
+		gh.throwAndComplain(&pack, "Cannot answer the query with pack.id -1!");
 
-	assert(vstd::contains(gh->states.players, player));
-	return gh->queryReply(qid, reply, player);
+	assert(vstd::contains(gh.states.players, pack.player));
+
+	result = gh.queryReply(pack.qid, pack.reply, pack.player);
 }
 
-bool MakeAction::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
-	const BattleInfo * b = GS(gh)->curB;
+	const BattleInfo * b = gs.curB;
 	if(!b)
-		throwNotAllowedAction();
+		gh.throwNotAllowedAction(&pack);
 
 	if(b->tacticDistance)
 	{
-		if(ba.actionType != EActionType::WALK && ba.actionType != EActionType::END_TACTIC_PHASE
-			&& ba.actionType != EActionType::RETREAT && ba.actionType != EActionType::SURRENDER)
-			throwNotAllowedAction();
-		if(!vstd::contains(gh->connections[b->sides[b->tacticsSide].color], c))
-			throwNotAllowedAction();
+		if(pack.ba.actionType != EActionType::WALK && pack.ba.actionType != EActionType::END_TACTIC_PHASE
+			&& pack.ba.actionType != EActionType::RETREAT && pack.ba.actionType != EActionType::SURRENDER)
+			gh.throwNotAllowedAction(&pack);
+		if(!vstd::contains(gh.connections[b->sides[b->tacticsSide].color], pack.c))
+			gh.throwNotAllowedAction(&pack);
 	}
 	else
 	{
 		auto active = b->battleActiveUnit();
 		if(!active)
-			throwNotAllowedAction();
+			gh.throwNotAllowedAction(&pack);
 		auto unitOwner = b->battleGetOwner(active);
-		if(!vstd::contains(gh->connections[unitOwner], c))
-			throwNotAllowedAction();
+		if(!vstd::contains(gh.connections[unitOwner], pack.c))
+			gh.throwNotAllowedAction(&pack);
 	}
-	return gh->makeBattleAction(ba);
+
+	result = gh.makeBattleAction(pack.ba);
 }
 
-bool MakeCustomAction::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
 {
-	const BattleInfo * b = GS(gh)->curB;
+	const BattleInfo * b = gs.curB;
 	if(!b)
-		throwNotAllowedAction();
+		gh.throwNotAllowedAction(&pack);
 	if(b->tacticDistance)
-		throwNotAllowedAction();
+		gh.throwNotAllowedAction(&pack);
 	auto active = b->battleActiveUnit();
 	if(!active)
-		throwNotAllowedAction();
+		gh.throwNotAllowedAction(&pack);
 	auto unitOwner = b->battleGetOwner(active);
-	if(!vstd::contains(gh->connections[unitOwner], c))
-		throwNotAllowedAction();
-	if(ba.actionType != EActionType::HERO_SPELL)
-		throwNotAllowedAction();
-	return gh->makeCustomAction(ba);
+	if(!vstd::contains(gh.connections[unitOwner], pack.c))
+		gh.throwNotAllowedAction(&pack);
+	if(pack.ba.actionType != EActionType::HERO_SPELL)
+		gh.throwNotAllowedAction(&pack);
+
+	result = gh.makeCustomAction(pack.ba);
 }
 
-bool DigWithHero::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)
 {
-	throwOnWrongOwner(gh, id);
-	return gh->dig(gh->getHero(id));
+	gh.throwOnWrongOwner(&pack, pack.id);
+	result = gh.dig(gh.getHero(pack.id));
 }
 
-bool CastAdvSpell::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 {
-	throwOnWrongOwner(gh, hid);
+	gh.throwOnWrongOwner(&pack, pack.hid);
 
-	const CSpell * s = sid.toSpell();
+	const CSpell * s = pack.sid.toSpell();
 	if(!s)
-		throwNotAllowedAction();
-	const CGHeroInstance * h = gh->getHero(hid);
+		gh.throwNotAllowedAction(&pack);
+	const CGHeroInstance * h = gh.getHero(pack.hid);
 	if(!h)
-		throwNotAllowedAction();
+		gh.throwNotAllowedAction(&pack);
 
 	AdventureSpellCastParameters p;
 	p.caster = h;
-	p.pos = pos;
+	p.pos = pack.pos;
 
-	return s->adventureCast(gh->spellEnv, p);
+	result = s->adventureCast(gh.spellEnv, p);
 }
 
-bool PlayerMessage::applyGh(CGameHandler * gh)
+void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 {
-	if(!player.isSpectator()) // TODO: clearly not a great way to verify permissions
-		throwOnWrongPlayer(gh, player);
+	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions
+		gh.throwOnWrongPlayer(&pack, pack.player);
 	
-	gh->playerMessage(player, text, currObj);
-	return true;
+	gh.playerMessage(pack.player, pack.text, pack.currObj);
+	result = true;
 }

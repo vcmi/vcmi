@@ -35,6 +35,9 @@ class DLL_LINKAGE ObjectTemplate
 	/// list of terrains on which this object can be placed
 	std::set<TerrainId> allowedTerrains;
 
+	/// or, allow placing object on any terrain
+	bool anyTerrain;
+
 	void afterLoadFixup();
 
 public:
@@ -84,7 +87,12 @@ public:
 	inline int3 getBlockMapOffset() const
 	{
 		return blockMapOffset; 
-	}; 
+	}
+
+	inline int3 getTopVisibleOffset() const
+	{
+		return topVisibleOffset;
+	}
 
 	// Checks if object is visitable from certain direction. X and Y must be between -1..+1
 	bool isVisitableFrom(si8 X, si8 Y) const;
@@ -99,6 +107,16 @@ public:
 		return visitDir & 2;
 	};
 
+	inline bool canBePlacedAtAnyTerrain() const
+	{
+		return anyTerrain;
+	};
+
+	const std::set<TerrainId>& getAllowedTerrains() const
+	{
+		return allowedTerrains;
+	}
+
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(TerrainId terrain) const;
 
@@ -111,8 +129,8 @@ public:
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
-	void readJson(const JsonNode & node, const bool withTerrain = true);
-	void writeJson(JsonNode & node, const bool withTerrain = true) const;
+	void readJson(const JsonNode & node, bool withTerrain = true);
+	void writeJson(JsonNode & node, bool withTerrain = true) const;
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 
@@ -124,15 +142,17 @@ private:
 	std::set<int3> blockedOffsets;
 	int3 blockMapOffset;
 	int3 visitableOffset;
+	int3 topVisibleOffset;
 
 	void recalculate();
 
 	void calculateWidth();
 	void calculateHeight();
-	void calculateVsitable();
+	void calculateVisitable();
 	void calculateBlockedOffsets();
 	void calculateBlockMapOffset();
 	void calculateVisitableOffset();
+	void calculateTopVisibleOffset();
 
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)

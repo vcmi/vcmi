@@ -9,15 +9,19 @@
  */
 #include "StdInc.h"
 #include "CreaturePurchaseCard.h"
-#include "CAdvmapInterface.h"
+
 #include "CHeroWindow.h"
-#include "../widgets/Buttons.h"
-#include "../../CCallback.h"
-#include "../CreatureCostBox.h"
 #include "QuickRecruitmentWindow.h"
-#include "../gui/CGuiHandler.h"
-#include "../../lib/CCreatureHandler.h"
 #include "CCreatureWindow.h"
+
+#include "../gui/CGuiHandler.h"
+#include "../gui/TextAlignment.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/CreatureCostBox.h"
+
+#include "../../CCallback.h"
+#include "../../lib/CCreatureHandler.h"
 
 void CreaturePurchaseCard::initButtons()
 {
@@ -55,15 +59,15 @@ void CreaturePurchaseCard::switchCreatureLevel()
 
 void CreaturePurchaseCard::initAmountInfo()
 {
-	availableAmount = std::make_shared<CLabel>(pos.x + 25, pos.y + 146, FONT_SMALL, CENTER, Colors::YELLOW);
-	purchaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
+	availableAmount = std::make_shared<CLabel>(pos.x + 25, pos.y + 146, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW);
+	purchaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	updateAmountInfo(0);
 }
 
 void CreaturePurchaseCard::updateAmountInfo(int value)
 {
-	availableAmount->setText(boost::lexical_cast<std::string>(maxAmount-value));
-	purchaseAmount->setText(boost::lexical_cast<std::string>(value));
+	availableAmount->setText(std::to_string(maxAmount-value));
+	purchaseAmount->setText(std::to_string(value));
 }
 
 void CreaturePurchaseCard::initSlider()

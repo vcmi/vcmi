@@ -14,6 +14,8 @@
 namespace NKAI
 {
 
+HitMapInfo HitMapInfo::NoTreat;
+
 void DangerHitMapAnalyzer::updateHitMap()
 {
 	if(upToDate)
@@ -47,6 +49,9 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(auto pair : heroes)
 	{
+		if(!pair.first.isValidPlayer())
+			continue;
+
 		if(ai->cb->getPlayerRelations(ai->playerID, pair.first) != PlayerRelations::ENEMIES)
 			continue;
 
@@ -65,7 +70,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				auto turn = path.turn();
 				auto & node = hitMap[pos.x][pos.y][pos.z];
 
-				if(tileDanger > node.maximumDanger.danger
+				if(tileDanger / (turn / 3 + 1) > node.maximumDanger.danger / (node.maximumDanger.turn / 3 + 1)
 					|| (tileDanger == node.maximumDanger.danger && node.maximumDanger.turn > turn))
 				{
 					node.maximumDanger.danger = tileDanger;

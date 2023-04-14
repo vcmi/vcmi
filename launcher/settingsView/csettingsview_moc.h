@@ -24,7 +24,10 @@ public:
 	~CSettingsView();
 
 	void loadSettings();
+	void loadTranslation();
 	void setDisplayList();
+	void changeEvent(QEvent *event) override;
+	void showEvent(QShowEvent * event) override;
 
 	bool isExtraResolutionsModEnabled{};
 
@@ -32,43 +35,29 @@ public slots:
 	void fillValidResolutions(bool isExtraResolutionsModEnabled);
 
 private slots:
-	void on_checkBoxFullScreen_stateChanged(int state);
-
 	void on_comboBoxResolution_currentTextChanged(const QString & arg1);
-
 	void on_comboBoxFullScreen_currentIndexChanged(int index);
-
 	void on_comboBoxPlayerAI_currentIndexChanged(const QString & arg1);
-
 	void on_comboBoxFriendlyAI_currentIndexChanged(const QString & arg1);
-
 	void on_comboBoxNeutralAI_currentIndexChanged(const QString & arg1);
-
 	void on_comboBoxEnemyAI_currentIndexChanged(const QString & arg1);
-
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
-
 	void on_plainTextEditRepos_textChanged();
-
-	void on_comboBoxEncoding_currentIndexChanged(int index);
-
 	void on_openTempDir_clicked();
-
 	void on_openUserDataDir_clicked();
-
 	void on_openGameDataDir_clicked();
-
 	void on_comboBoxShowIntro_currentIndexChanged(int index);
-
 	void on_changeGameDataDir_clicked();
-
 	void on_comboBoxAutoCheck_currentIndexChanged(int index);
-
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
-
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
-
 	void on_updatesButton_clicked();
+	void on_comboBoxLanguage_currentIndexChanged(int index);
+	void on_comboBoxCursorType_currentIndexChanged(int index);
+	void on_listWidgetSettings_currentRowChanged(int currentRow);
+	void on_pushButtonTranslation_clicked();
+
+	void on_comboBoxLanguageBase_currentIndexChanged(int index);
 
 private:
 	Ui::CSettingsView * ui;

@@ -25,7 +25,7 @@ public:
 	CRmgTemplateStorage() = default;
 	
 	std::vector<bool> getDefaultAllowed() const override;
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;

@@ -37,7 +37,7 @@ public:
 	static BattleAction makeWait(const battle::Unit * stack);
 	static BattleAction makeMeleeAttack(const battle::Unit * stack, BattleHex destination, BattleHex attackFrom, bool returnAfterAttack = true);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
-	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, SpellID spellID);
+	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
 	static BattleAction makeMove(const battle::Unit * stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
 	static BattleAction makeRetreat(ui8 side);

@@ -60,6 +60,14 @@
 			"type": "string",
 			"description": "localizable skill name"
 		},
+		"obligatoryMajor":{
+			"type": "boolean",
+			"description": "This skill is major obligatory (like H3 Wisdom)"
+		},
+		"obligatoryMinor":{
+			"type": "boolean",
+			"description": "This skill is minor obligatory (like H3 Magic school)"
+		},
 		"gainChance" : {
 			"description" : "Chance for the skill to be offered on level-up (heroClass may override)",
 			"anyOf" : [

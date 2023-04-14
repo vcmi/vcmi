@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="side_margin">16dp</dimen>
+
+    <dimen name="entry_min_height">80dp</dimen>
+    <dimen name="entry_about_min_height">48dp</dimen>
+
+    <dimen name="font_normal">14sp</dimen>
+    <dimen name="font_big">18sp</dimen>
+    <dimen name="font_header">22sp</dimen>
+</resources>

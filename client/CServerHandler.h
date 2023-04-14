@@ -25,15 +25,13 @@ class CGameState;
 struct ClientPlayer;
 struct CPack;
 struct CPackForLobby;
+struct CPackForClient;
 
 template<typename T> class CApplier;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SharedMemory;
-
 class CClient;
-
 class CBaseForLobbyApply;
 
 // TODO: Add mutex so we can't set CONNECTION_CANCELLED if client already connected, but thread not setup yet
@@ -150,7 +148,7 @@ public:
 	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
-	void startGameplay(CGameState * gameState = nullptr);
+	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
 	void showServerError(std::string txt);
@@ -161,6 +159,9 @@ public:
 
 	void debugStartTest(std::string filename, bool save = false);
 	void restoreLastSession();
+
+	void visitForLobby(CPackForLobby & lobbyPack);
+	void visitForClient(CPackForClient & clientPack);
 };
 
 extern CServerHandler * CSH;

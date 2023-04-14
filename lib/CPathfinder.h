@@ -13,7 +13,6 @@
 #include "IGameCallback.h"
 #include "HeroBonus.h"
 #include "int3.h"
-#include "Terrain.h"
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -66,7 +65,7 @@ struct DLL_LINKAGE CGPathNode
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighboring tile but not passable
 		FLYABLE, //can only be accessed in air layer
-		BLOCKED //tile can't be entered nor visited
+		BLOCKED //tile can be neither entered nor visited
 	};
 
 	CGPathNode * theNodeBefore;
@@ -170,7 +169,6 @@ struct DLL_LINKAGE CGPath
 
 	int3 startPos() const; // start point
 	int3 endPos() const; //destination point
-	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
 struct DLL_LINKAGE CPathsInfo
@@ -414,7 +412,7 @@ private:
 	CPathsInfo & out;
 
 	STRONG_INLINE
-	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+	void resetTile(const int3 & tile, const EPathfindingLayer & layer, CGPathNode::EAccessibility accessibility);
 
 public:
 	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
@@ -472,12 +470,11 @@ public:
 	static std::vector<std::shared_ptr<IPathfindingRule>> buildRuleSet();
 };
 
-class CPathfinder : private CGameInfoCallback
+class CPathfinder
 {
 public:
 	friend class CPathfinderHelper;
 
-	CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero);
 	CPathfinder(
 		CGameState * _gs,
 		std::shared_ptr<PathfinderConfig> config);
@@ -485,6 +482,8 @@ public:
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
+	CGameState * gamestate;
+
 	typedef EPathfindingLayer ELayer;
 
 	std::shared_ptr<PathfinderConfig> config;
@@ -521,21 +520,23 @@ struct DLL_LINKAGE TurnInfo
 		int waterWalkingVal;
 		int pathfindingVal;
 
-		BonusCache(TConstBonusListPtr bonusList);
+		BonusCache(const TConstBonusListPtr & bonusList);
 	};
 	std::unique_ptr<BonusCache> bonusCache;
 
 	const CGHeroInstance * hero;
-	TConstBonusListPtr bonuses;
+	mutable TConstBonusListPtr bonuses;
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
 	TerrainId nativeTerrain;
+	int turn;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
-	bool isLayerAvailable(const EPathfindingLayer layer) const;
+	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int valOfBonuses(const Bonus::BonusType type, const int subtype = -1) const;
-	int getMaxMovePoints(const EPathfindingLayer layer) const;
+	void updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) const;
+	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };
 
 class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
@@ -561,14 +562,14 @@ public:
 	bool isHeroPatrolLocked() const;
 	bool isPatrolMovementAllowed(const int3 & dst) const;
 	void updateTurnInfo(const int turn = 0);
-	bool isLayerAvailable(const EPathfindingLayer layer) const;
+	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
-	int getMaxMovePoints(const EPathfindingLayer layer) const;
+	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	std::vector<int3> getCastleGates(const PathNodeInfo & source) const;
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
-	std::vector<int3> getAllowedTeleportChannelExits(TeleportChannelID channelID) const;
+	std::vector<int3> getAllowedTeleportChannelExits(const TeleportChannelID & channelID) const;
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
@@ -579,8 +580,8 @@ public:
 	std::vector<int3> getTeleportExits(const PathNodeInfo & source) const;
 
 	void getNeighbours(
-		const TerrainTile & srct,
-		const int3 & tile,
+		const TerrainTile & srcTile,
+		const int3 & srcCoord,
 		std::vector<int3> & vec,
 		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
@@ -590,8 +591,10 @@ public:
 		const int3 & dst,
 		const TerrainTile * ct,
 		const TerrainTile * dt,
-		const int remainingMovePoints =- 1,
-		const bool checkLast = true) const;
+		const int remainingMovePoints = -1,
+		const bool checkLast = true,
+		boost::logic::tribool isDstSailLayer = boost::logic::indeterminate,
+		boost::logic::tribool isDstWaterLayer = boost::logic::indeterminate) const;
 
 	int getMovementCost(
 		const PathNodeInfo & src,
@@ -605,7 +608,9 @@ public:
 			src.tile,
 			dst.tile,
 			remainingMovePoints,
-			checkLast
+			checkLast,
+			dst.node->layer == EPathfindingLayer::SAIL,
+			dst.node->layer == EPathfindingLayer::WATER
 		);
 	}
 

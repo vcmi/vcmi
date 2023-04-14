@@ -149,12 +149,6 @@ STRONG_INLINE bool operator>=(const A & a, const B & b)			\
 	ID_LIKE_OPERATORS_INTERNAL(ENUM_NAME, CLASS_NAME, a, b.num)
 
 
-#define OP_DECL_INT(CLASS_NAME, OP)					\
-bool operator OP (const CLASS_NAME & b) const		\
-{													\
-	return num OP b.num;							\
-}
-
 #define INSTID_LIKE_CLASS_COMMON(CLASS_NAME, NUMERIC_NAME)	\
 public:														\
 CLASS_NAME() : BaseForID<CLASS_NAME, NUMERIC_NAME>(-1) {}	\
@@ -204,14 +198,78 @@ public:
 		num += change;
 	}
 
-	typedef BaseForID<Derived, NumericType> __SelfType;
-	OP_DECL_INT(__SelfType, ==)
-	OP_DECL_INT(__SelfType, !=)
-	OP_DECL_INT(__SelfType, <)
-	OP_DECL_INT(__SelfType, >)
-	OP_DECL_INT(__SelfType, <=)
-	OP_DECL_INT(__SelfType, >=)
+	bool operator == (const BaseForID & b) const { return num == b.num; }
+	bool operator <= (const BaseForID & b) const { return num <= b.num; }
+	bool operator >= (const BaseForID & b) const { return num >= b.num; }
+	bool operator != (const BaseForID & b) const { return num != b.num; }
+	bool operator <  (const BaseForID & b) const { return num <  b.num; }
+	bool operator >  (const BaseForID & b) const { return num >  b.num; }
+
+	BaseForID & operator++() { ++num; return *this; }
 };
+
+template < typename T>
+class Identifier : public IdTag
+{
+public:
+	using EnumType    = T;
+	using NumericType = typename std::underlying_type<EnumType>::type;
+
+private:
+	NumericType num;
+
+public:
+	NumericType getNum() const
+	{
+		return num;
+	}
+
+	EnumType toEnum() const
+	{
+		return static_cast<EnumType>(num);
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & num;
+	}
+
+	explicit Identifier(NumericType _num = -1)
+	{
+		num = _num;
+	}
+
+	/* implicit */ Identifier(EnumType _num)
+	{
+		num = static_cast<NumericType>(_num);
+	}
+
+	void advance(int change)
+	{
+		num += change;
+	}
+
+	bool operator == (const Identifier & b) const { return num == b.num; }
+	bool operator <= (const Identifier & b) const { return num <= b.num; }
+	bool operator >= (const Identifier & b) const { return num >= b.num; }
+	bool operator != (const Identifier & b) const { return num != b.num; }
+	bool operator <  (const Identifier & b) const { return num <  b.num; }
+	bool operator >  (const Identifier & b) const { return num > b.num; }
+
+	Identifier & operator++()
+	{
+		++num;
+		return *this;
+	}
+
+	Identifier operator++(int)
+	{
+		Identifier ret(*this);
+		++num;
+		return ret;
+	}
+};
+
 
 template<typename Der, typename Num>
 std::ostream & operator << (std::ostream & os, BaseForID<Der, Num> id);
@@ -221,6 +279,14 @@ std::ostream & operator << (std::ostream & os, BaseForID<Der, Num> id)
 {
 	//We use common type with short to force char and unsigned char to be promoted and formatted as numbers.
 	typedef typename std::common_type<short, Num>::type Number;
+	return os << static_cast<Number>(id.getNum());
+}
+
+template<typename EnumType>
+std::ostream & operator << (std::ostream & os, Identifier<EnumType> id)
+{
+	//We use common type with short to force char and unsigned char to be promoted and formatted as numbers.
+	typedef typename std::common_type<short, typename Identifier<EnumType>::NumericType>::type Number;
 	return os << static_cast<Number>(id.getNum());
 }
 
@@ -407,7 +473,16 @@ public:
 	enum EBuildingID
 	{
 		DEFAULT = -50,
+		HORDE_PLACEHOLDER7 = -36,
+		HORDE_PLACEHOLDER6 = -35,
+		HORDE_PLACEHOLDER5 = -34,
+		HORDE_PLACEHOLDER4 = -33,
+		HORDE_PLACEHOLDER3 = -32,
+		HORDE_PLACEHOLDER2 = -31,
+		HORDE_PLACEHOLDER1 = -30,
+		HORDE_BUILDING_CONVERTER = -29, //-1 => -30
 		NONE = -1,
+		FIRST_REGULAR_ID = 0,
 		MAGES_GUILD_1 = 0,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
 		TAVERN,         SHIPYARD,      FORT,              CITADEL,         CASTLE,
 		VILLAGE_HALL,   TOWN_HALL,     CITY_HALL,         CAPITOL,         MARKETPLACE,
@@ -615,32 +690,27 @@ namespace ECommander
 	const int MAX_SKILL_LEVEL = 5;
 }
 
-namespace EWallPart
+enum class EWallPart : int8_t
 {
-	enum EWallPart
-	{
-		INDESTRUCTIBLE_PART_OF_GATE = -3, INDESTRUCTIBLE_PART = -2, INVALID = -1,
-		KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WALL, UPPER_TOWER, GATE,
-		PARTS_COUNT /* This constant SHOULD always stay as the last item in the enum. */
-	};
-}
+	INDESTRUCTIBLE_PART_OF_GATE = -3, INDESTRUCTIBLE_PART = -2, INVALID = -1,
+	KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WALL, UPPER_TOWER, GATE,
+	PARTS_COUNT /* This constant SHOULD always stay as the last item in the enum. */
+};
 
-namespace EWallState
+enum class EWallState : int8_t
 {
-	enum EWallState
-	{
-		NONE = -1, //no wall
-		DESTROYED,
-		DAMAGED,
-		INTACT
-	};
-}
+	NONE = -1, //no wall
+	DESTROYED,
+	DAMAGED,
+	INTACT,
+	REINFORCED, // walls in towns with castle
+};
 
-enum class EGateState : ui8
+enum class EGateState : uint8_t
 {
 	NONE,
 	CLOSED,
-	BLOCKED, //dead or alive stack blocking from outside
+	BLOCKED, // gate is blocked in closed state, e.g. by creature
 	OPENED,
 	DESTROYED
 };
@@ -731,6 +801,7 @@ public:
 		SCHOOL_OF_MAGIC = 47,
 		MAGIC_SPRING = 48,
 		MAGIC_WELL = 49,
+		MARKET_OF_TIME = 50,
 		MERCENARY_CAMP = 51,
 		MERMAID = 52,
 		MINE = 53,
@@ -830,55 +901,26 @@ public:
 
 ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
-namespace Terrain
+enum class Road : int8_t
 {
-	enum ETerrain : si8
-	{
-		NATIVE_TERRAIN = -4,
-		ANY_TERRAIN = -3,
-		WRONG = -2,
-		BORDER = -1,
-		FIRST_REGULAR_TERRAIN = 0,
-		DIRT = 0,
-		SAND,
-		GRASS,
-		SNOW,
-		SWAMP,
-		ROUGH,
-		SUBTERRANEAN,
-		LAVA,
-		WATER,
-		ROCK,
-		ORIGINAL_TERRAIN_COUNT
-	};
-}
+	NO_ROAD = 0,
+	FIRST_REGULAR_ROAD = 1,
+	DIRT_ROAD = 1,
+	GRAVEL_ROAD = 2,
+	COBBLESTONE_ROAD = 3,
+	ORIGINAL_ROAD_COUNT //+1
+};
 
-namespace Road
+enum class River : int8_t
 {
-	enum ERoad : ui8
-	{
-		NO_ROAD = 0,
-		FIRST_REGULAR_ROAD = 1,
-		DIRT_ROAD = 1,
-		GRAVEL_ROAD = 2,
-		COBBLESTONE_ROAD = 3,
-		ORIGINAL_ROAD_COUNT //+1
-	};
-}
-
-namespace River
-{
-	enum ERiver : ui8
-	{
-		NO_RIVER = 0,
-		FIRST_REGULAR_RIVER = 1,
-		WATER_RIVER = 1,
-		ICY_RIVER = 2,
-		MUD_RIVER = 3,
-		LAVA_RIVER = 4,
-		ORIGINAL_RIVER_COUNT //+1
-	};
-}
+	NO_RIVER = 0,
+	FIRST_REGULAR_RIVER = 1,
+	WATER_RIVER = 1,
+	ICY_RIVER = 2,
+	MUD_RIVER = 3,
+	LAVA_RIVER = 4,
+	ORIGINAL_RIVER_COUNT //+1
+};
 
 namespace SecSkillLevel
 {
@@ -911,7 +953,8 @@ enum class EActionType : int32_t
 	INVALID = -1,
 	NO_ACTION = 0,
 	HERO_SPELL,
-	WALK, DEFEND,
+	WALK,
+	DEFEND,
 	RETREAT,
 	SURRENDER,
 	WALK_AND_ATTACK,
@@ -921,7 +964,6 @@ enum class EActionType : int32_t
 	MONSTER_SPELL,
 	BAD_MORALE,
 	STACK_HEAL,
-	DAEMON_SUMMONING
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);
@@ -964,7 +1006,7 @@ public:
 	EEPathfindingLayer num;
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer & pathfindingLayer);
 
 ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
@@ -983,6 +1025,7 @@ class ArtifactPosition
 public:
 	enum EArtifactPosition
 	{
+		TRANSITION_POS = -3,
 		FIRST_AVAILABLE = -2,
 		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
 		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, //5
@@ -1000,6 +1043,8 @@ public:
 
 	ArtifactPosition(EArtifactPosition _num = PRE_FIRST) : num(_num)
 	{}
+
+	ArtifactPosition(std::string slotName);
 
 	ID_LIKE_CLASS_COMMON(ArtifactPosition, EArtifactPosition)
 
@@ -1084,6 +1129,7 @@ public:
 		LICHES = 64,
 		BONE_DRAGON = 68,
 		TROGLODYTES = 70,
+		MEDUSA = 76,
 		HYDRA = 110,
 		CHAOS_HYDRA = 111,
 		AIR_ELEMENTAL = 112,
@@ -1093,6 +1139,7 @@ public:
 		GOLD_GOLEM = 116,
 		DIAMOND_GOLEM = 117,
 		PSYCHIC_ELEMENTAL = 120,
+		MAGIC_ELEMENTAL = 121,
 		CATAPULT = 145,
 		BALLISTA = 146,
 		FIRST_AID_TENT = 147,
@@ -1179,17 +1226,39 @@ class BattleField : public BaseForID<BattleField, si32>
 	DLL_LINKAGE operator std::string() const;
 	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
 
-	DLL_LINKAGE static BattleField fromString(std::string identifier);
+	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
-	
+
+enum class ETerrainId {
+	NATIVE_TERRAIN = -4,
+	ANY_TERRAIN = -3,
+	NONE = -1,
+	FIRST_REGULAR_TERRAIN = 0,
+	DIRT = 0,
+	SAND,
+	GRASS,
+	SNOW,
+	SWAMP,
+	ROUGH,
+	SUBTERRANEAN,
+	LAVA,
+	WATER,
+	ROCK,
+	ORIGINAL_REGULAR_TERRAIN_COUNT = ROCK
+};
+
+using TerrainId = Identifier<ETerrainId>;
+using RoadId = Identifier<Road>;
+using RiverId = Identifier<River>;
+
 class ObstacleInfo;
 class Obstacle : public BaseForID<Obstacle, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(Obstacle, si32)
-	
+
 	DLL_LINKAGE const ObstacleInfo * getInfo() const;
 	DLL_LINKAGE operator std::string() const;
-	DLL_LINKAGE static Obstacle fromString(std::string identifier);
+	DLL_LINKAGE static Obstacle fromString(const std::string & identifier);
 };
 
 enum class ESpellSchool: ui8
@@ -1236,12 +1305,8 @@ enum class EHealPower : ui8
 // Typedef declarations
 typedef ui8 TFaction;
 typedef si64 TExpType;
-typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
-typedef si8 TerrainId;
-typedef si8 RoadId;
-typedef si8 RiverId;
 
 typedef int TRmgTemplateZoneId;
 
@@ -1249,6 +1314,5 @@ typedef int TRmgTemplateZoneId;
 #undef ID_LIKE_OPERATORS
 #undef ID_LIKE_OPERATORS_INTERNAL
 #undef INSTID_LIKE_CLASS_COMMON
-#undef OP_DECL_INT
 
 VCMI_LIB_NAMESPACE_END

@@ -17,15 +17,17 @@
 #include "RmgMap.h"
 #include "CMapGenerator.h"
 #include "Functions.h"
+#include "../TerrainHandler.h"
 #include "../CRandomGenerator.h"
 #include "../mapping/CMapEditManager.h"
+#include "../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void RockPlacer::process()
 {
-	rockTerrain = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()].rockTerrain;
-	assert(!VLC->terrainTypeHandler->terrains()[rockTerrain].isPassable());
+	rockTerrain = VLC->terrainTypeHandler->getById(zone.getTerrainType())->rockTerrain;
+	assert(!VLC->terrainTypeHandler->getById(rockTerrain)->isPassable());
 	
 	accessibleArea = zone.freePaths() + zone.areaUsed();
 	if(auto * m = zone.getModificator<ObjectManager>())

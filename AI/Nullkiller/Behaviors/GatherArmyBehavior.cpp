@@ -45,8 +45,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose() const
 
 	for(const CGHeroInstance * hero : heroes)
 	{
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::MAIN
-			&& hero->getArmyStrength() >= 300)
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::MAIN)
 		{
 			vstd::concatenate(tasks, deliverArmyToHero(hero));
 		}
@@ -66,17 +65,11 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
+	auto targetHeroScore = ai->nullkiller->heroManager->evaluateHero(hero);
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
-	if(ai->nullkiller->isHeroLocked(hero))
-	{
-#if NKAI_TRACE_LEVEL >= 1
-		logAi->trace("Skipping locked hero %s, %s", hero->getObjectName(), pos.toString());
-#endif
-		return tasks;
-	}
 
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 
@@ -91,6 +84,14 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 #endif
 		
 		if(path.containsHero(hero)) continue;
+
+		if(path.turn() == 0 && hero->inTownGarrison)
+		{
+#if NKAI_TRACE_LEVEL >= 1
+			logAi->trace("Skipping garnisoned hero %s, %s", hero->getObjectName(), pos.toString());
+#endif
+			continue;
+		}
 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
@@ -113,7 +114,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		float armyValue = (float)heroExchange.getReinforcementArmyStrength() / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
-		if(armyValue < 0.1f)
+		if(armyValue < 0.1f && armyValue < 20000)
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too small.");
@@ -122,7 +123,28 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		}
 
 		// avoid trying to move bigger army to the weaker one.
-		if(armyValue > 1)
+		bool hasOtherMainInPath = false;
+
+		for(auto node : path.nodes)
+		{
+			if(!node.targetHero) continue;
+
+			auto heroRole = ai->nullkiller->heroManager->getHeroRole(node.targetHero);
+
+			if(heroRole == HeroRole::MAIN)
+			{
+				auto score = ai->nullkiller->heroManager->evaluateHero(node.targetHero);
+
+				if(score >= targetHeroScore)
+				{
+					hasOtherMainInPath = true;
+
+					break;
+				}
+			}
+		}
+
+		if(hasOtherMainInPath)
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too large.");
@@ -131,15 +153,14 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		}
 
 		auto danger = path.getTotalDanger();
-
 		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
-			hero->name,
-			path.targetHero->name,
+			hero->getObjectName(),
+			path.targetHero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());
@@ -162,7 +183,17 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Action is blocked. Considering decomposition.");
 	#endif
-				composition.addNext(blockedAction->decompose(path.targetHero));
+				auto subGoal = blockedAction->decompose(path.targetHero);
+
+				if(subGoal->invalid())
+				{
+#if NKAI_TRACE_LEVEL >= 1
+					logAi->trace("Path is invalid. Skipping");
+#endif
+					continue;
+				}
+
+				composition.addNext(subGoal);
 			}
 			
 			tasks.push_back(sptr(composition));
@@ -194,7 +225,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
-		if(upgrader->visitingHero != path.targetHero)
+		if(upgrader->visitingHero && upgrader->visitingHero.get() != path.targetHero)
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
@@ -219,7 +250,10 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			continue;
 		}
 
-		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+		auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+
+		if(heroRole == HeroRole::SCOUT
+			&& ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
@@ -228,10 +262,25 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 		}
 
 		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
+
+		if(!upgrader->garrisonHero && ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN)
+		{
+			upgrade.upgradeValue +=	
+				ai->nullkiller->armyManager->howManyReinforcementsCanGet(
+					path.targetHero,
+					path.heroArmy,
+					upgrader->getUpperArmy());	
+		}
+
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
-		if(armyValue < 0.1f || upgrade.upgradeValue < 300) // avoid small upgrades
+		if((armyValue < 0.1f && armyValue < 20000) || upgrade.upgradeValue < 300) // avoid small upgrades
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Army value is too small (%f)", armyValue);
+#endif
 			continue;
+		}
 
 		auto danger = path.getTotalDanger();
 
@@ -242,7 +291,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
 			upgrader->getObjectName(),
-			path.targetHero->name,
+			path.targetHero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());

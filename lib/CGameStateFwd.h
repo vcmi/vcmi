@@ -52,7 +52,9 @@ public:
 	{
 		std::vector<si32> primskills;
 		si32 mana, manaLimit, luck, morale;
-	} *details;
+	};
+
+	Details * details = nullptr;
 
 	const CHeroClass *hclass;
 	int portrait;

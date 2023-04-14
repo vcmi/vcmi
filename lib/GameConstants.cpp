@@ -126,7 +126,7 @@ const CSpell * SpellID::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
 	{
-		logGlobal->error("Unable to get spell of invalid ID %d", int(num));
+		logGlobal->error("Unable to get spell of invalid ID %d", static_cast<int>(num));
 		return nullptr;
 	}
 	return VLC->spellh->objects[*this];
@@ -232,7 +232,6 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 		{EActionType::MONSTER_SPELL, "Monster spell"},
 		{EActionType::BAD_MORALE, "Bad morale"},
 		{EActionType::STACK_HEAL, "Stack heal"},
-		{EActionType::DAEMON_SUMMONING, "Daemon summoning"}
 	};
 
 	auto it = actionTypeToString.find(actionType);
@@ -240,7 +239,7 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 	else return os << it->second;
 }
 
-std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer)
+std::ostream & operator<<(std::ostream & os, const EPathfindingLayer & pathfindingLayer)
 {
 	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
 	{
@@ -287,7 +286,7 @@ const BattleFieldInfo * BattleField::getInfo() const
 	return VLC->battlefields()->getById(*this);
 }
 
-BattleField BattleField::fromString(std::string identifier)
+BattleField BattleField::fromString(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "battlefield", identifier);
 
@@ -307,7 +306,7 @@ Obstacle::operator std::string() const
 	return getInfo()->identifier;
 }
 
-Obstacle Obstacle::fromString(std::string identifier)
+Obstacle Obstacle::fromString(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "obstacle", identifier);
 

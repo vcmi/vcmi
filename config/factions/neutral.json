@@ -3,6 +3,7 @@
 	{
 		"name" : "Neutral",
 		"index" : 9,
+		"nativeTerrain" : "none",
 		"alignment" : "neutral",
 		"creatureBackground" :
 		{

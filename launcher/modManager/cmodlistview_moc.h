@@ -40,14 +40,15 @@ class CModListView : public QWidget
 
 	void showEvent(QShowEvent * event) override;
 
-	void keyPressEvent(QKeyEvent * event) override;
-
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
 	void loadRepositories();
 
 	void checkManagerErrors();
+
+	/// replace mod ID's with proper human-readable mod names
+	QStringList getModNames(QStringList input);
 
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findInvalidDependencies(QString mod);
@@ -64,24 +65,42 @@ class CModListView : public QWidget
 	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
 
+	void changeEvent(QEvent *event) override;
 signals:
 	void extraResolutionsEnabledChanged(bool enabled);
+	
+	void modsChanged();
 
 public:
 	explicit CModListView(QWidget * parent = 0);
 	~CModListView();
 
-	void showModInfo();
-	void hideModInfo();
 	void loadScreenshots();
 
-	void enableModInfo();
 	void disableModInfo();
 
 	void selectMod(const QModelIndex & index);
 	bool isExtraResolutionsModEnabled() const;
 
 	const CModList & getModList() const;
+	
+	// First Launch View interface
+
+	/// install mod by name
+	void doInstallMod(const QString & modName);
+
+	/// returns true if mod is available in repository and can be installed
+	bool isModAvailable(const QString & modName);
+
+	/// finds translation mod for specified languages. Returns empty string on error
+	QString getTranslationModName(const QString & language);
+
+	/// returns true if mod is currently enabled
+	bool isModEnabled(const QString & modName);
+
+public slots:
+	void enableModByName(QString modName);
+	void disableModByName(QString modName);
 
 private slots:
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
@@ -90,8 +109,6 @@ private slots:
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();
-
-	void on_hideModInfoButton_clicked();
 
 	void on_lineEdit_textChanged(const QString & arg1);
 
@@ -116,8 +133,6 @@ private slots:
 	void on_tabWidget_currentChanged(int index);
 
 	void on_screenshotsList_clicked(const QModelIndex & index);
-
-	void on_showInfoButton_clicked();
 
 private:
 	Ui::CModListView * ui;

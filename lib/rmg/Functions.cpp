@@ -21,6 +21,7 @@
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
+#include "../TerrainHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
@@ -58,7 +59,7 @@ void createModificators(RmgMap & map)
 
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
-	int distanceSq = distance * distance;
+	uint32_t distanceSq = distance * distance;
 	auto subarea = zone.getArea().getSubarea([&zone, distanceSq](const int3 & t)
 	{
 		return t.dist2dSQ(zone.getPos()) > distanceSq;
@@ -75,8 +76,8 @@ void createBorder(RmgMap & gen, Zone & zone)
 		auto tile = borderOutsideArea.nearest(t);
 		return gen.isOnMap(tile) && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
 	});
-	
-	for(auto & tile : blockBorder.getTilesVector())
+
+	for(const auto & tile : blockBorder.getTilesVector())
 	{
 		if(gen.isPossible(tile))
 		{
@@ -119,9 +120,9 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	{
 		//collect all water terrain types
 		std::vector<TerrainId> waterTerrains;
-		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-			if(terrain.isWater())
-				waterTerrains.push_back(terrain.id);
+		for(const auto & terrain : VLC->terrainTypeHandler->objects)
+			if(terrain->isWater())
+				waterTerrains.push_back(terrain->getId());
 		
 		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
@@ -129,28 +130,47 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	{
 		if(zone.isMatchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
 		{
-			zone.setTerrainType((*VLC->townh)[zone.getTownType()]->nativeTerrain);
-		}
-		else
-		{
-			zone.setTerrainType(*RandomGeneratorUtil::nextItem(zone.getTerrainTypes(), gen.rand));
-		}
-		
-		//Now, replace disallowed terrains on surface and in the underground
-		const auto & terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
+			auto terrainType = (*VLC->townh)[zone.getTownType()]->nativeTerrain;
 
-		if(zone.isUnderground())
-		{
-			if(!terrainType.isUnderground())
+			if (terrainType <= ETerrainId::NONE)
 			{
-				zone.setTerrainType(Terrain::SUBTERRANEAN);
+				logGlobal->warn("Town %s has invalid terrain type: %d", zone.getTownType(), terrainType);
+				zone.setTerrainType(ETerrainId::DIRT);
+			}
+			else
+			{
+				zone.setTerrainType(terrainType);
 			}
 		}
 		else
 		{
-			if (!terrainType.isSurface())
+			auto terrainTypes = zone.getTerrainTypes();
+			if (terrainTypes.empty())
 			{
-				zone.setTerrainType(Terrain::DIRT);
+				logGlobal->warn("No terrain types found, falling back to DIRT");
+				zone.setTerrainType(ETerrainId::DIRT);
+			}
+			else
+			{
+				zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, gen.rand));
+			}
+		}
+		
+		//Now, replace disallowed terrains on surface and in the underground
+		const auto & terrainType = VLC->terrainTypeHandler->getById(zone.getTerrainType());
+
+		if(zone.isUnderground())
+		{
+			if(!terrainType->isUnderground())
+			{
+				zone.setTerrainType(ETerrainId::SUBTERRANEAN);
+			}
+		}
+		else
+		{
+			if (!terrainType->isSurface())
+			{
+				zone.setTerrainType(ETerrainId::DIRT);
 			}
 		}
 	}

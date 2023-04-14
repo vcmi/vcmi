@@ -11,27 +11,35 @@
 
 #include <vcmi/Artifact.h>
 
-#include "windows/CAdvmapInterface.h"
-#include "battle/CBattleInterface.h"
-#include "battle/CBattleInterfaceClasses.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "mapView/mapHandler.h"
+#include "adventureMap/CList.h"
+#include "adventureMap/CInfoBar.h"
+#include "adventureMap/CMinimap.h"
+#include "battle/BattleInterface.h"
+#include "battle/BattleEffectsController.h"
+#include "battle/BattleFieldController.h"
+#include "battle/BattleInterfaceClasses.h"
+#include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
-#include "gui/CCursorHandler.h"
+#include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
+#include "CMT.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CQuestLog.h"
-#include "CMessage.h"
+#include "windows/CPuzzleWindow.h"
 #include "CPlayerInterface.h"
-#include "gui/SDL_Extensions.h"
 #include "widgets/CComponent.h"
+#include "widgets/Buttons.h"
 #include "windows/CTradeWindow.h"
 #include "windows/CSpellWindow.h"
 #include "../lib/CConfigHandler.h"
-#include "battle/CCreatureAnimation.h"
-#include "Graphics.h"
 #include "windows/GUIClasses.h"
+#include "render/CAnimation.h"
+#include "render/IImage.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -49,7 +57,6 @@
 #include "../lib/NetPacks.h"//todo: remove
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
-#include "mapHandler.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CPlayerState.h"
@@ -58,12 +65,15 @@
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"
-#include <SDL.h>
+#include "../lib/RoadHandler.h"
+#include "../lib/TerrainHandler.h"
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
 #include "gui/NotificationHandler.h"
+#include "adventureMap/CInGameConsole.h"
 
+#include <SDL_events.h>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that CPlayerInterface::pim mutex is locked.
@@ -82,23 +92,16 @@
 		return;						\
 	RETURN_IF_QUICK_COMBAT
 
-using namespace CSDL_Ext;
-
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
-CBattleInterface * CPlayerInterface::battleInt;
+std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
-
-static bool objectBlitOrderSorter(const TerrainTileObject  & a, const TerrainTileObject & b)
-{
-	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
-}
 
 struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 {
@@ -112,7 +115,97 @@ struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 	}
 };
 
-CPlayerInterface::CPlayerInterface(PlayerColor Player)
+HeroPathStorage::HeroPathStorage(CPlayerInterface & owner):
+	owner(owner)
+{
+}
+
+void HeroPathStorage::setPath(const CGHeroInstance *h, const CGPath & path)
+{
+	paths[h] = path;
+}
+
+const CGPath & HeroPathStorage::getPath(const CGHeroInstance *h) const
+{
+	assert(hasPath(h));
+	return paths.at(h);
+}
+
+bool HeroPathStorage::hasPath(const CGHeroInstance *h) const
+{
+	return paths.count(h) > 0;
+}
+
+bool HeroPathStorage::setPath(const CGHeroInstance *h, const int3 & destination)
+{
+	CGPath path;
+	if (!owner.cb->getPathsInfo(h)->getPath(path, destination))
+		return false;
+
+	setPath(h, path);
+	return true;
+}
+
+void HeroPathStorage::removeLastNode(const CGHeroInstance *h)
+{
+	assert(hasPath(h));
+	if (!hasPath(h))
+		return;
+
+	auto & path = paths[h];
+	path.nodes.pop_back();
+	if (path.nodes.size() < 2)  //if it was the last one, remove entire path and path with only one tile is not a real path
+		erasePath(h);
+}
+
+void HeroPathStorage::erasePath(const CGHeroInstance *h)
+{
+	paths.erase(h);
+	adventureInt->updateMoveHero(h, false);
+
+}
+
+void HeroPathStorage::verifyPath(const CGHeroInstance *h)
+{
+	if (!hasPath(h))
+		return;
+	setPath(h, getPath(h).endPos());
+}
+
+template<typename Handler>
+void HeroPathStorage::serialize(Handler & h, int version)
+{
+	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
+	if (h.saving)
+	{
+		for (auto &p : paths)
+		{
+			if (p.second.nodes.size())
+				pathsMap[p.first] = p.second.endPos();
+			else
+				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
+		}
+		h & pathsMap;
+	}
+	else
+	{
+		h & pathsMap;
+
+		if (owner.cb)
+		{
+			for (auto &p : pathsMap)
+			{
+				CGPath path;
+				owner.cb->getPathsInfo(p.first)->getPath(path, p.second);
+				paths[p.first] = path;
+				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
+			}
+		}
+	}
+}
+
+CPlayerInterface::CPlayerInterface(PlayerColor Player):
+	paths(*this)
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
@@ -122,7 +215,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	curAction = nullptr;
 	playerID=Player;
 	human=true;
-	currentSelection = nullptr;
 	battleInt = nullptr;
 	castleInt = nullptr;
 	makingTurn = false;
@@ -135,23 +227,22 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 	duringMovement = false;
 	ignoreEvents = false;
+	numOfMovedArts = 0;
 }
 
 CPlayerInterface::~CPlayerInterface()
 {
-	if(CCS->soundh) CCS->soundh->ambientStopAllChannels();
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	delete showingDialog;
 	delete cingconsole;
 	if (LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
-void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	env = ENV;
 
-	CCS->soundh->loadHorseSounds();
 	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
@@ -184,18 +275,17 @@ void CPlayerInterface::yourTurn()
 			{
 				int index = getLastIndex(prefix + "Newgame_");
 				index %= SAVES_COUNT;
-				cb->save("Saves/" + prefix + "Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
+				cb->save("Saves/" + prefix + "Newgame_Autosave_" + std::to_string(index + 1));
 			}
 			firstCall = 0;
 		}
 		else if(frequency > 0 && cb->getDate() % frequency == 0)
 		{
-			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
 			autosaveCount %= 5;
 		}
 
-		if (adventureInt->player != playerID)
-			adventureInt->setPlayer(playerID);
+		adventureInt->setPlayer(playerID);
 
 		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{
@@ -230,140 +320,71 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		return;
 
 	const CGHeroInstance * hero = cb->getHero(details.id); //object representing this hero
-	int3 hp = details.start;
 
-	if(!hero)
+	if (!hero)
+		return;
+
+	adventureInt->infoBar->requestPopAll();
+	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
-		//AI hero left the visible area (we can't obtain info)
-		//TODO very evil workaround -> retrieve pointer to hero so we could animate it
-		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
-		const TerrainTile2 & tile = CGI->mh->ttiles[hp.z][hp.x - 1][hp.y];
-		for(auto & elem : tile.objects)
-			if(elem.obj && elem.obj->id == details.id)
-				hero = dynamic_cast<const CGHeroInstance *>(elem.obj);
-
-		if(!hero) //still nothing...
-			return;
+		if(hero->getRemovalSound() && hero->tempOwner == playerID)
+			CCS->soundh->playSound(hero->getRemovalSound().get());
 	}
 
-	bool directlyAttackingCreature =
-		details.attackedFrom
-		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
-		&& adventureInt->terrain.currentPath->nodes.size() == 3;//FIXME should be 2 but works nevertheless...
+	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.start));
+	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.end));
+
+	bool directlyAttackingCreature = details.attackedFrom && paths.hasPath(hero) && paths.getPath(hero).endPos() == *details.attackedFrom;
 
 	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
-		updateAmbientSounds();
-		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true, false);
-
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
-			if(adventureInt->terrain.currentPath)
+			if(paths.hasPath(hero))
 			{
-				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
-				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
+				assert(paths.getPath(hero).nodes.size() >= 2);
+				auto nodesIt = paths.getPath(hero).nodes.end() - 1;
 
-				if((nodesIt)->coord == CGHeroInstance::convertPosition(details.start, false)
-					&& (nodesIt - 1)->coord == CGHeroInstance::convertPosition(details.end, false))
+				if((nodesIt)->coord == hero->convertToVisitablePos(details.start)
+					&& (nodesIt - 1)->coord == hero->convertToVisitablePos(details.end))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
-					removeLastNodeFromPath(hero);
+					paths.removeLastNode(hero);
 				}
 				else
 				{
 					//teleport was not along current path, it'll now be invalid (hero is somewhere else)
-					eraseCurrentPathOf(hero);
+					paths.erasePath(hero);
 
 				}
 			}
-			adventureInt->centerOn(hero, true); //actualizing screen pos
-			adventureInt->minimap.redraw();
-			adventureInt->heroList.update(hero);
-			return;	//teleport - no fancy moving animation
-					//TODO: smooth disappear / appear effect
 		}
 
 		if(hero->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
-			eraseCurrentPathOf(hero, false);
+			paths.erasePath(hero);
 		}
-		else if(adventureInt->terrain.currentPath && hero->pos == details.end) //&& hero is moving
+		else if(paths.hasPath(hero) && hero->pos == details.end) //&& hero is moving
 		{
 			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
-				removeLastNodeFromPath(hero);
+				paths.removeLastNode(hero);
 		}
 	}
 
 	if(details.stopMovement()) //hero failed to move
 	{
-		hero->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
-		GH.totalRedraw();
-		adventureInt->heroList.update(hero);
+		adventureInt->heroList->update(hero);
 		return;
 	}
 
-	ui32 speed = 0;
-	if(settings["session"]["spectate"].Bool())
-	{
-		if(!settings["session"]["spectate-hero-speed"].isNull())
-			speed = static_cast<ui32>(settings["session"]["spectate-hero-speed"].Integer());
-	}
-	else if(makingTurn) // our turn, our hero moves
-		speed = static_cast<ui32>(settings["adventure"]["heroSpeed"].Float());
-	else
-		speed = static_cast<ui32>(settings["adventure"]["enemySpeed"].Float());
+	adventureInt->heroList->redraw();
 
-	if(speed == 0)
-	{
-		//FIXME: is this a proper solution?
-		CGI->mh->hideObject(hero);
-		CGI->mh->printObject(hero);
-		return; // no animation
-	}
-
-	adventureInt->centerOn(hero); //actualizing screen pos
-	adventureInt->minimap.redraw();
-	adventureInt->heroList.redraw();
-
-	initMovement(details, hero, hp);
-
-	auto waitFrame = [&]()
-	{
-		int frameNumber = GH.mainFPSmng->getFrameNumber();
-
-		auto unlockPim = vstd::makeUnlockGuard(*pim);
-		while(frameNumber == GH.mainFPSmng->getFrameNumber())
-			SDL_Delay(5);
-	};
-
-	//first initializing done
-
-	//main moving
-	for(int i = 1; i < 32; i += 2 * speed)
-	{
-		movementPxStep(details, i, hp, hero);
-#ifndef VCMI_ANDROID
-		// currently android doesn't seem to be able to handle all these full redraws here, so let's disable it so at least it looks less choppy;
-		// most likely this is connected with the way that this manual animation+framerate handling is solved
-		adventureInt->updateScreen = true;
-#endif
-
-		//evil returns here ...
-		//todo: get rid of it
-		waitFrame(); //for animation purposes
-	}
-	//main moving done
-
-	//finishing move
-	finishMovement(details, hp, hero);
-	hero->isStanding = true;
+	CGI->mh->waitForOngoingAnimations();
 
 	//move finished
-	adventureInt->minimap.redraw();
-	adventureInt->heroList.update(hero);
+	adventureInt->heroList->update(hero);
 
 	//check if user cancelled movement
 	{
@@ -401,10 +422,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		const_cast<CGHeroInstance *>(hero)->moveDir = dirLookup[posOffset.y][posOffset.x];
 	}
 }
+
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->name % playerID);
+	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
 
 	const CArmedInstance *newSelection = nullptr;
 	if (makingTurn)
@@ -426,14 +448,13 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 
 	wanderingHeroes -= hero;
 
-	adventureInt->heroList.update(hero);
+	adventureInt->heroList->update(hero);
 	if (makingTurn && newSelection)
 		adventureInt->select(newSelection, true);
 	else if (adventureInt->selection == hero)
 		adventureInt->selection = nullptr;
-	
-	if (vstd::contains(paths, hero))
-		paths.erase(hero);
+
+	paths.erasePath(hero);
 }
 
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
@@ -450,7 +471,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	wanderingHeroes.push_back(hero);
-	adventureInt->heroList.update(hero);
+	adventureInt->heroList->update(hero);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
@@ -463,24 +484,11 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	GH.pushInt(newCastleInt);
 }
 
-int3 CPlayerInterface::repairScreenPos(int3 pos)
-{
-	if (pos.x<-CGI->mh->frameW)
-		pos.x = -CGI->mh->frameW;
-	if (pos.y<-CGI->mh->frameH)
-		pos.y = -CGI->mh->frameH;
-	if (pos.x>CGI->mh->sizes.x - adventureInt->terrain.tilesw + CGI->mh->frameW)
-		pos.x = CGI->mh->sizes.x - adventureInt->terrain.tilesw + CGI->mh->frameW;
-	if (pos.y>CGI->mh->sizes.y - adventureInt->terrain.tilesh + CGI->mh->frameH)
-		pos.y = CGI->mh->sizes.y - adventureInt->terrain.tilesh + CGI->mh->frameH;
-	return pos;
-}
-
 void CPlayerInterface::activateForSpectator()
 {
 	adventureInt->state = CAdvMapInt::INGAME;
 	adventureInt->activate();
-	adventureInt->minimap.activate();
+	adventureInt->minimap->activate();
 }
 
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
@@ -510,13 +518,13 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	updateInfo(hero);
 	if (makingTurn && hero->tempOwner == playerID)
-		adventureInt->heroList.update(hero);
+		adventureInt->heroList->update(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (makingTurn && hero->tempOwner == playerID)
-		adventureInt->heroList.update(hero);
+		adventureInt->heroList->update(hero);
 }
 void CPlayerInterface::receivedResource()
 {
@@ -556,18 +564,16 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 
 	if (town->garrisonHero) //wandering hero moved to the garrison
 	{
-		CGI->mh->hideObject(town->garrisonHero);
 		if (town->garrisonHero->tempOwner == playerID && vstd::contains(wanderingHeroes,town->garrisonHero)) // our hero
 			wanderingHeroes -= town->garrisonHero;
 	}
 
 	if (town->visitingHero) //hero leaves garrison
 	{
-		CGI->mh->printObject(town->visitingHero);
 		if (town->visitingHero->tempOwner == playerID && !vstd::contains(wanderingHeroes,town->visitingHero)) // our hero
 			wanderingHeroes.push_back(town->visitingHero);
 	}
-	adventureInt->heroList.update();
+	adventureInt->heroList->update();
 	adventureInt->updateNextHero(nullptr);
 
 	if(castleInt)
@@ -577,6 +583,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->garr->setArmy(town->visitingHero, 1);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
+		castleInt->redraw();
 	}
 	for (auto isa : GH.listInt)
 	{
@@ -585,9 +592,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		{
 			ki->townChanged(town);
 			ki->updateGarrisons();
+			ki->redraw();
 		}
 	}
-	GH.totalRedraw();
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
@@ -673,7 +680,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 			}
 		}
 	}
-	adventureInt->townList.update(town);
+	adventureInt->townList->update(town);
 }
 
 void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
@@ -689,7 +696,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if (settings["adventure"]["quickCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		autofightingAI->init(env, cb);
+		autofightingAI->initBattleInterface(env, cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
@@ -704,7 +711,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
-void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
+void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -715,34 +722,14 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 		{
 		case UnitChanges::EOperation::RESET_STATE:
 			{
-				const battle::Unit * unit = cb->battleGetUnitByID(info.id);
+				const CStack * stack = cb->battleGetStackByID(info.id );
 
-				if(!unit)
+				if(!stack)
 				{
 					logGlobal->error("Invalid unit ID %d", info.id);
 					continue;
 				}
-
-				auto iter = battleInt->creAnims.find(info.id);
-
-				if(iter == battleInt->creAnims.end())
-				{
-					logGlobal->error("Unit %d have no animation", info.id);
-					continue;
-				}
-
-				auto animation = iter->second;
-
-				if(unit->alive() && animation->isDead())
-					animation->setType(CCreatureAnim::HOLDING);
-
-				if (unit->isClone())
-				{
-					std::unique_ptr<ColorShifterDeepBlue> shifter(new ColorShifterDeepBlue());
-					animation->shiftColor(shifter.get());
-				}
-
-				//TODO: handle more cases
+				battleInt->stackReset(stack);
 			}
 			break;
 		case UnitChanges::EOperation::REMOVE:
@@ -756,7 +743,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 					logGlobal->error("Invalid unit ID %d", info.id);
 					continue;
 				}
-				battleInt->unitAdded(unit);
+				battleInt->stackAdded(unit);
 			}
 			break;
 		default:
@@ -764,8 +751,6 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 			break;
 		}
 	}
-
-	battleInt->displayCustomEffects(customEffects);
 }
 
 void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
@@ -773,7 +758,7 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	bool needUpdate = false;
+	std::vector<std::shared_ptr<const CObstacleInstance>> newObstacles;
 
 	for(auto & change : obstacles)
 	{
@@ -781,19 +766,16 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 		{
 			auto instance = cb->battleGetObstacleByID(change.id);
 			if(instance)
-				battleInt->obstaclePlaced(*instance);
+				newObstacles.push_back(instance);
 			else
 				logNetwork->error("Invalid obstacle instance %d", change.id);
 		}
-		else
-		{
-			needUpdate = true;
-		}
 	}
 
-	if(needUpdate)
-		//update accessible hexes
-		battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
+	if (!newObstacles.empty())
+		battleInt->obstaclePlaced(newObstacles);
+
+	battleInt->fieldController->redrawBackgroundWithHexes();
 }
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
@@ -858,36 +840,36 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		autofightingAI.reset();
 	}
 
-	CBattleInterface *b = battleInt;
+	assert(battleInt);
 
-	if(!b)
+	if(!battleInt)
 	{
 		return BattleAction::makeDefend(stack); // probably battle is finished already
 	}
 
-	if(CBattleInterface::givenCommand.get())
+	if(BattleInterface::givenCommand.get())
 	{
 		logGlobal->error("Command buffer must be clean! (we don't want to use old command)");
-		vstd::clear_pointer(CBattleInterface::givenCommand.data);
+		vstd::clear_pointer(BattleInterface::givenCommand.data);
 	}
 
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		b->stackActivated(stack);
+		battleInt->stackActivated(stack);
 		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command
-	boost::unique_lock<boost::mutex> lock(CBattleInterface::givenCommand.mx);
-	while(!CBattleInterface::givenCommand.data)
+	boost::unique_lock<boost::mutex> lock(BattleInterface::givenCommand.mx);
+	while(!BattleInterface::givenCommand.data)
 	{
-		CBattleInterface::givenCommand.cond.wait(lock);
+		BattleInterface::givenCommand.cond.wait(lock);
 		if (!battleInt) //battle ended while we were waiting for movement (eg. because of spell)
 			throw boost::thread_interrupted(); //will shut the thread peacefully
 	}
 
 	//tidy up
-	BattleAction ret = *(CBattleInterface::givenCommand.data);
-	vstd::clear_pointer(CBattleInterface::givenCommand.data);
+	BattleAction ret = *(BattleInterface::givenCommand.data);
+	vstd::clear_pointer(BattleInterface::givenCommand.data);
 
 	if(ret.actionType == EActionType::CANCEL)
 	{
@@ -912,7 +894,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if(!battleInt)
 		{
-			GH.pushIntT<CBattleResultWindow>(*br, *this);
+			GH.pushIntT<BattleResultWindow>(*br, *this);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
@@ -935,12 +917,12 @@ void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
 	battleInt->displayBattleLog(lines);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->stackMoved(stack, dest, distance);
+	battleInt->stackMoved(stack, dest, distance, teleport);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
@@ -959,12 +941,12 @@ void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	//TODO why is this different (no return on LOPLINT != this) ?
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	RETURN_IF_QUICK_COMBAT;
-	battleInt->battleTriggerEffect(bte);
+	battleInt->effectsController->battleTriggerEffect(bte);
 }
-void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -974,24 +956,25 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	{
 		const CStack * defender = cb->battleGetStackByID(elem.stackAttacked, false);
 		const CStack * attacker = cb->battleGetStackByID(elem.attackerID, false);
-		if(elem.isEffect())
-		{
-			if(defender && !elem.isSecondary())
-				battleInt->displayEffect(elem.effect, defender->getPosition());
-		}
-		if(elem.isSpell())
-		{
-			if(defender)
-				battleInt->displaySpellEffect(elem.spellID, defender->getPosition());
-		}
-		//FIXME: why action is deleted during enchanter cast?
-		bool remoteAttack = false;
 
-		if(LOCPLINT->curAction)
-			remoteAttack |= LOCPLINT->curAction->actionType != EActionType::WALK_AND_ATTACK;
+		assert(defender);
 
-		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
-		arg.push_back(to_put);
+		StackAttackedInfo     info;
+		info.defender       = defender;
+		info.attacker       = attacker;
+		info.damageDealt    = elem.damageAmount;
+		info.amountKilled   = elem.killedAmount;
+		info.spellEffect    = SpellID::NONE;
+		info.indirectAttack = ranged;
+		info.killed         = elem.killed();
+		info.rebirth        = elem.willRebirth();
+		info.cloneKilled    = elem.cloneKilled();
+		info.fireShield     = elem.fireShield();
+
+		if (elem.isSpell())
+			info.spellEffect = elem.spellID;
+
+		arg.push_back(info);
 	}
 	battleInt->stacksAreAttacked(arg);
 }
@@ -1002,96 +985,36 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 	assert(curAction);
 
-	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+	StackAttackInfo info;
+	info.attacker = cb->battleGetStackByID(ba->stackAttacking);
+	info.defender = nullptr;
+	info.indirectAttack = ba->shot();
+	info.lucky = ba->lucky();
+	info.unlucky = ba->unlucky();
+	info.deathBlow = ba->deathBlow();
+	info.lifeDrain = ba->lifeDrain();
+	info.tile = ba->tile;
+	info.spellEffect = SpellID::NONE;
 
-	if(!attacker)
-	{
-		logGlobal->error("Attacking stack not found");
-		return;
-	}
+	if (ba->spellLike())
+		info.spellEffect = ba->spellID;
 
-	if(ba->lucky()) //lucky hit
+	for(auto & elem : ba->bsa)
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(-45));
-		battleInt->displayEffect(18, attacker->getPosition());
-		CCS->soundh->playSound(soundBase::GOODLUCK);
-	}
-	if(ba->unlucky()) //unlucky hit
-	{
-		battleInt->console->addText(attacker->formatGeneralMessage(-44));
-		battleInt->displayEffect(48, attacker->getPosition());
-		CCS->soundh->playSound(soundBase::BADLUCK);
-	}
-	if(ba->deathBlow())
-	{
-		battleInt->console->addText(attacker->formatGeneralMessage(365));
-		for(auto & elem : ba->bsa)
+		if(!elem.isSecondary())
 		{
-			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-			battleInt->displayEffect(73, attacked->getPosition());
+			assert(info.defender == nullptr);
+			info.defender = cb->battleGetStackByID(elem.stackAttacked);
 		}
-		CCS->soundh->playSound(soundBase::deathBlow);
-	}
-
-	battleInt->displayCustomEffects(ba->customEffects);
-
-	battleInt->waitForAnims();
-
-	auto actionTarget = curAction->getTarget(cb.get());
-
-	if(actionTarget.empty() || (actionTarget.size() < 2 && !ba->shot()))
-	{
-		logNetwork->error("Invalid current action: no destination.");
-		return;
-	}
-
-	if(ba->shot())
-	{
-		for(auto & elem : ba->bsa)
+		else
 		{
-			if(!elem.isSecondary()) //display projectile only for primary target
-			{
-				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-				battleInt->stackAttacking(attacker, attacked->getPosition(), attacked, true);
-			}
+			info.secondaryDefender.push_back(cb->battleGetStackByID(elem.stackAttacked));
 		}
 	}
-	else
-	{
-		auto attackTarget = actionTarget.at(1).hexValue;
+	assert(info.defender != nullptr);
+	assert(info.attacker != nullptr);
 
-		//TODO: use information from BattleAttack but not curAction
-
-		int shift = 0;
-		if(ba->counter() && BattleHex::mutualPosition(attackTarget, attacker->getPosition()) < 0)
-		{
-			int distp = BattleHex::getDistance(attackTarget + 1, attacker->getPosition());
-			int distm = BattleHex::getDistance(attackTarget - 1, attacker->getPosition());
-
-			if(distp < distm)
-				shift = 1;
-			else
-				shift = -1;
-		}
-
-		if(!ba->bsa.empty())
-		{
-			const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-			battleInt->stackAttacking(attacker, ba->counter() ? BattleHex(attackTarget + shift) : attackTarget, attacked, false);
-		}
-	}
-
-	//battleInt->waitForAnims(); //FIXME: freeze
-
-	if(ba->spellLike())
-	{
-		//TODO: use information from BattleAttack but not curAction
-
-		auto destination = actionTarget.at(0).hexValue;
-		//display hit animation
-		SpellID spellID = ba->spellID;
-		battleInt->displaySpellHit(spellID, destination);
-	}
+	battleInt->stackAttacking(info);
 }
 
 void CPlayerInterface::battleGateStateChanged(const EGateState state)
@@ -1109,27 +1032,44 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(const Component &comp, std::string message)
+void CPlayerInterface::forceEndTacticPhase()
 {
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog(); //Fix for mantis #98
-
-	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
-	adventureInt->infoBar.showComponent(comp, message);
+	if (battleInt)
+		battleInt->tacticsMode = false;
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component> & components, int soundID)
+void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+
+	bool autoTryHover = settings["gameTweaks"]["infoBarPick"].Bool() && type == EInfoWindowMode::AUTO;
+	auto timer = type == EInfoWindowMode::INFO ? 3000 : 4500; //Implement long info windows like in HD mod
+
+	if(autoTryHover || type == EInfoWindowMode::INFO)
+	{
+		waitWhileDialog(); //Fix for mantis #98
+		adventureInt->infoBar->pushComponents(components, text, timer);
+
+		if (makingTurn && GH.listInt.size() && LOCPLINT == this)
+			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		return;
+	}
+
+	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
 	}
-	std::vector<std::shared_ptr<CComponent>> intComps;
-	for (auto & component : components)
-		intComps.push_back(std::make_shared<CComponent>(component));
-	showInfoDialog(text,intComps,soundID);
-
+	std::vector<Component> vect = components; //I do not know currently how to avoid copy here
+	do
+	{
+		std::vector<Component> sender = {vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8))};
+		std::vector<std::shared_ptr<CComponent>> intComps;
+		for (auto & component : sender)
+			intComps.push_back(std::make_shared<CComponent>(component));
+		showInfoDialog(text,intComps,soundID);
+		vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8)));
+	}
+	while(!vect.empty());
 }
 
 void CPlayerInterface::showInfoDialog(const std::string & text, std::shared_ptr<CComponent> component)
@@ -1145,7 +1085,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is LOCPLINT=%d", playerID % text % (this==LOCPLINT));
 	waitWhileDialog();
 
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if (settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
 		return;
 	}
@@ -1171,7 +1111,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 	std::string str;
 	text.toString(str);
 
-	showInfoDialog(str, components, 0);
+	showInfoDialog(EInfoWindowMode::MODAL, str, components, 0);
 	waitWhileDialog();
 }
 
@@ -1273,18 +1213,14 @@ void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &p
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
 	for (auto & po : pos)
-		adventureInt->minimap.showTile(po);
-	if (!pos.empty())
-		GH.totalRedraw();
+		adventureInt->minimap->updateTile(po);
 }
 
 void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for (auto & po : pos)
-		adventureInt->minimap.hideTile(po);
-	if (!pos.empty())
-		GH.totalRedraw();
+		adventureInt->minimap->updateTile(po);
 }
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
@@ -1298,9 +1234,13 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
-		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt().get());
-		if (fs)
-			fs->creaturesChanged();
+		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.topInt().get());
+		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.topInt().get());
+
+		if (fortScreen)
+			fortScreen->creaturesChangedEventHandler();
+		else if(castleInterface)
+			castleInterface->creaturesChangedEventHandler();
 
 		for(auto isa : GH.listInt)
 		{
@@ -1328,7 +1268,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
-		eraseCurrentPathOf(hero, false);
+		paths.erasePath(hero);
 	}
 }
 
@@ -1337,33 +1277,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & wanderingHeroes;
 	h & towns;
 	h & sleepingHeroes;
-
-	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
-	if (h.saving)
-	{
-		for (auto &p : paths)
-		{
-			if (p.second.nodes.size())
-				pathsMap[p.first] = p.second.endPos();
-			else
-				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->name);
-		}
-		h & pathsMap;
-	}
-	else
-	{
-		h & pathsMap;
-
-		if (cb)
-			for (auto &p : pathsMap)
-			{
-				CGPath path;
-				cb->getPathsInfo(p.first)->getPath(path, p.second);
-				paths[p.first] = path;
-				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
-			}
-	}
-
+	h & paths;
 	h & spellbookSettings;
 }
 
@@ -1380,7 +1294,7 @@ void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 	firstCall = -1;
 }
 
-void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
+void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
 	LOG_TRACE(logGlobal);
 	if (!LOCPLINT->makingTurn)
@@ -1406,22 +1320,12 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 }
 
-bool CPlayerInterface::shiftPressed() const
-{
-	return isShiftKeyDown();
-}
-
-bool CPlayerInterface::altPressed() const
-{
-	return isAltKeyDown();
-}
-
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
 
-	if (stillMoveHero.get() == DURING_MOVE  && adventureInt->terrain.currentPath && adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
+	if (stillMoveHero.get() == DURING_MOVE  && paths.hasPath(down) && paths.getPath(down).nodes.size() > 1) //to ignore calls on passing through garrisons
 	{
 		onEnd();
 		return;
@@ -1441,14 +1345,14 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  */
 void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes)
 {
-	std::string text = artifact->getDescription();
+	std::string text = artifact->getDescriptionTranslated();
 	text += "\n\n";
 	std::vector<std::shared_ptr<CComponent>> scs;
 
 	if(assembledArtifact)
 	{
 		// You possess all of the components to...
-		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getName());
+		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getNameTranslated());
 
 		// Picture of assembled artifact at bottom.
 		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
@@ -1498,7 +1402,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		for(auto & po : pos)
 		{
 			if(cb->isVisible(po))
-				adventureInt->minimap.showTile(po);
+				adventureInt->minimap->updateTile(po);
 		}
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1507,8 +1411,8 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 			else
 				towns -= obj;
 
-			adventureInt->townList.update();
-			adventureInt->minimap.update();
+			adventureInt->townList->update();
+			adventureInt->minimap->update();
 		}
 		assert(cb->getTownsInfo().size() == towns.size());
 	}
@@ -1573,7 +1477,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	//we might have built a boat in shipyard in opened town screen
 	if (obj->ID == Obj::BOAT
 		&& LOCPLINT->castleInt
-		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
+		&&  obj->visitablePos() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CCS->soundh->playSound(soundBase::newBuilding);
 		LOCPLINT->castleInt->addBuilding(BuildingID::SHIP);
@@ -1585,14 +1489,14 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->curh->hide();
-	adventureInt->centerOn (pos);
+	adventureInt->centerOnTile(pos);
 	if (focusTime)
 	{
 		GH.totalRedraw();
 		{
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
-			SDL_Delay(focusTime);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(focusTime));
 		}
 	}
 	CCS->curh->show();
@@ -1606,11 +1510,20 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 		waitWhileDialog();
 		CCS->soundh->playSound(obj->getRemovalSound().get());
 	}
+	CGI->mh->waitForOngoingAnimations();
+
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
 		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
+	GH.fakeMouseMove();
+}
+
+void CPlayerInterface::objectRemovedAfter()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->minimap->update();
 }
 
 void CPlayerInterface::playerBlocked(int reason, bool start)
@@ -1625,7 +1538,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			GH.curInt = this;
 			adventureInt->selection = nullptr;
 			adventureInt->setPlayer(playerID);
-			std::string msg = CGI->generaltexth->localizedTexts["adventureMap"]["playerAttacked"].String();
+			std::string msg = CGI->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
@@ -1634,22 +1547,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			makingTurn = false;
 		}
 	}
-}
-
-bool CPlayerInterface::ctrlPressed() const
-{
-	return isCtrlKeyDown();
-}
-
-const CArmedInstance * CPlayerInterface::getSelection()
-{
-	return currentSelection;
-}
-
-void CPlayerInterface::setSelection(const CArmedInstance * obj)
-{
-	currentSelection = obj;
-	updateAmbientSounds(true);
 }
 
 void CPlayerInterface::update()
@@ -1669,23 +1566,12 @@ void CPlayerInterface::update()
 		dialogs.pop_front();
 	}
 
-	//in some conditions we may receive calls before selection is initialized - we must ignore them
-	if(adventureInt && GH.topInt() == adventureInt
-		&& (!adventureInt->selection && !settings["session"]["spectate"].Bool()))
-	{
-		return;
-	}
+	assert(adventureInt);
 
 	// Handles mouse and key input
 	GH.updateTime();
 	GH.handleEvents();
-
-	if (!adventureInt || adventureInt->isActive())
-		GH.simpleRedraw();
-	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || adventureInt->scrollingDir)
-		GH.totalRedraw(); //player forces map scrolling though interface is disabled
-	else
-		GH.simpleRedraw();
+	GH.simpleRedraw();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)
@@ -1717,150 +1603,6 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	if (!dates.empty())
 		return (--dates.end())->second; //return latest file number
 	return 0;
-}
-
-void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
-{
-	auto subArr = (CGI->mh->ttiles)[hp.z];
-
-	ho->isStanding = false;
-
-	int heroWidth  = ho->appearance->getWidth();
-	int heroHeight = ho->appearance->getHeight();
-
-	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
-	int tileMaxX = std::max(details.start.x, details.end.x);
-	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
-	int tileMaxY = std::max(details.start.y, details.end.y);
-
-	// determine tiles on which hero will be visible during movement and add hero as visible object on these tiles where necessary
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			bool heroVisibleHere = false;
-			auto & tile = subArr[tileX][tileY];
-
-			for ( auto const & obj : tile.objects)
-			{
-				if (obj.obj == ho)
-				{
-					heroVisibleHere = true;
-					break;
-				}
-			}
-
-			if ( !heroVisibleHere)
-			{
-				tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
-				std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
-			}
-		}
-	}
-}
-
-void CPlayerInterface::movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho )
-{
-	auto subArr = (CGI->mh->ttiles)[hp.z];
-
-	int heroWidth  = ho->appearance->getWidth();
-	int heroHeight = ho->appearance->getHeight();
-
-	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
-	int tileMaxX = std::max(details.start.x, details.end.x);
-	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
-	int tileMaxY = std::max(details.start.y, details.end.y);
-
-	std::shared_ptr<CAnimation> animation = graphics->getAnimation(ho);
-
-	assert(animation);
-	assert(animation->size(0) != 0);
-	auto image = animation->getImage(0,0);
-
-	int heroImageOldX = details.start.x * 32;
-	int heroImageOldY = details.start.y * 32;
-
-	int heroImageNewX = details.end.x * 32;
-	int heroImageNewY = details.end.y * 32;
-
-	int heroImageCurrX = heroImageOldX + i*(heroImageNewX - heroImageOldX)/32;
-	int heroImageCurrY = heroImageOldY + i*(heroImageNewY - heroImageOldY)/32;
-
-	// recompute which part of hero sprite will be visible on each tile at this point of movement animation
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			for ( auto & obj : tile.objects)
-			{
-				if (obj.obj == ho)
-				{
-					int tilePosX = tileX * 32;
-					int tilePosY = tileY * 32;
-
-					obj.rect.x = tilePosX - heroImageCurrX + image->width() - 32;
-					obj.rect.y = tilePosY - heroImageCurrY + image->height() - 32;
-				}
-			}
-		}
-	}
-
-	adventureInt->terrain.moveX = (32 - i) * (heroImageNewX - heroImageOldX) / 32;
-	adventureInt->terrain.moveY = (32 - i) * (heroImageNewY - heroImageOldY) / 32;
-}
-
-void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho )
-{
-	auto subArr = (CGI->mh->ttiles)[hp.z];
-
-	int heroWidth  = ho->appearance->getWidth();
-	int heroHeight = ho->appearance->getHeight();
-
-	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
-	int tileMaxX = std::max(details.start.x, details.end.x);
-	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
-	int tileMaxY = std::max(details.start.y, details.end.y);
-
-	// erase hero from all tiles on which he is currently visible
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			for (size_t i = 0; i < tile.objects.size(); ++i)
-			{
-				if ( tile.objects[i].obj == ho)
-				{
-					tile.objects.erase(tile.objects.begin() + i);
-					break;
-				}
-			}
-		}
-	}
-
-	// re-add hero to all tiles on which he will still be visible after animation is over
-	for ( int tileX = details.end.x - heroWidth + 1; tileX <= details.end.x; ++tileX)
-	{
-		for ( int tileY = details.end.y - heroHeight + 1; tileY <= details.end.y; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
-		}
-	}
-
-	// update object list on all tiles that were affected during previous operations
-	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
-	{
-		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
-		{
-			auto & tile = subArr[tileX][tileY];
-			std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
-		}
-	}
-
-	//recompute hero sprite positioning using hero's final position
-	movementPxStep(details, 32, hp, ho);
 }
 
 void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )
@@ -1945,7 +1687,7 @@ void CPlayerInterface::showPuzzleMap()
 
 void CPlayerInterface::viewWorldMap()
 {
-	adventureInt->changeMode(EAdvMapMode::WORLD_VIEW);
+	adventureInt->openWorldView();
 }
 
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
@@ -1956,76 +1698,18 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		GH.popInts(1);
 
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
-		eraseCurrentPathOf(caster, false);
+		paths.erasePath(caster);
 
 	const spells::Spell * spell = CGI->spells()->getByIndex(spellID);
-
-	if(spellID == SpellID::VIEW_EARTH)
-	{
-		//TODO: implement on server side
-		const auto level = caster->getSpellSchoolLevel(spell);
-		adventureInt->worldViewOptions.showAllTerrain = (level > 2);
-	}
-
 	auto castSoundPath = spell->getCastSound();
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 }
 
-void CPlayerInterface::eraseCurrentPathOf(const CGHeroInstance * ho, bool checkForExistanceOfPath)
-{
-	if (checkForExistanceOfPath)
-	{
-		assert(vstd::contains(paths, ho));
-	}
-	else if (!vstd::contains(paths, ho))
-	{
-		return;
-	}
-	assert(ho == adventureInt->selection);
-
-	paths.erase(ho);
-	adventureInt->terrain.currentPath = nullptr;
-	adventureInt->updateMoveHero(ho, false);
-}
-
-void CPlayerInterface::removeLastNodeFromPath(const CGHeroInstance *ho)
-{
-	adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
-	if (adventureInt->terrain.currentPath->nodes.size() < 2)  //if it was the last one, remove entire path and path with only one tile is not a real path
-		eraseCurrentPathOf(ho);
-}
-
-CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
-{
-	if (vstd::contains(paths,h)) //hero has assigned path
-	{
-		CGPath &path = paths[h];
-		if (!path.nodes.size())
-		{
-			logGlobal->warn("Warning: empty path found...");
-			paths.erase(h);
-		}
-		else
-		{
-			assert(h->getPosition(false) == path.startPos());
-			//update the hero path in case of something has changed on map
-			if (LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
-				return &path;
-			else
-				paths.erase(h);
-		}
-	}
-
-	return nullptr;
-}
-
 void CPlayerInterface::acceptTurn()
 {
-	bool centerView = true;
 	if (settings["session"]["autoSkip"].Bool())
 	{
-		centerView = false;
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
 	}
@@ -2037,44 +1721,7 @@ void CPlayerInterface::acceptTurn()
 		adventureInt->startTurn();
 	}
 
-	adventureInt->heroList.update();
-	adventureInt->townList.update();
-
-	const CGHeroInstance * heroToSelect = nullptr;
-
-	// find first non-sleeping hero
-	for (auto hero : wanderingHeroes)
-	{
-		if (boost::range::find(sleepingHeroes, hero) == sleepingHeroes.end())
-		{
-			heroToSelect = hero;
-			break;
-		}
-	}
-
-	//select first hero if available.
-	if (heroToSelect != nullptr)
-	{
-		adventureInt->select(heroToSelect, centerView);
-	}
-	else if (towns.size())
-		adventureInt->select(towns.front(), centerView);
-	else
-		adventureInt->select(wanderingHeroes.front());
-
-	//show new day animation and sound on infobar
-	adventureInt->infoBar.showDate();
-
-	adventureInt->updateNextHero(nullptr);
-	adventureInt->showAll(screen);
-
-	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
-	{
-		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
-			iw->close();
-
-		adventureInt->fendTurn();
-	}
+	adventureInt->initializeNewTurn();
 
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)
@@ -2082,7 +1729,7 @@ void CPlayerInterface::acceptTurn()
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
-		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
+		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
 		MetaString text;
 
 		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
@@ -2112,11 +1759,8 @@ void CPlayerInterface::acceptTurn()
 void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
-	const bool isBlocked = CGI->mh->hasObjectHole(h->getPosition(false)); // Don't dig in the pit.
 
-	const auto diggingStatus = isBlocked
-		? EDiggingStatus::TILE_OCCUPIED
-		: h->diggingStatus().num;
+	const auto diggingStatus = h->diggingStatus();
 
 	switch(diggingStatus)
 	{
@@ -2143,7 +1787,17 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 
 void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 {
-	adventureInt->infoBar.showSelection();
+	bool isHero = dynamic_cast<const CGHeroInstance *>(specific) != nullptr;
+	bool changedHero = dynamic_cast<const CGHeroInstance *>(specific) != adventureInt->curHero();
+	bool isTown = dynamic_cast<const CGTownInstance *>(specific) != nullptr;
+
+	bool update = (isHero && changedHero) || (isTown);
+	// If infobar is showing components and we request an update to hero
+	// do not force infobar tick here, it will prevents us to show components just picked up
+	if(adventureInt->infoBar->showingComponents() && !update)
+		return;
+
+	adventureInt->infoBar->showSelection();
 }
 
 void CPlayerInterface::battleNewRoundFirst( int round )
@@ -2228,16 +1882,10 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu(bool won)
 {
-	CCS->soundh->ambientStopAllChannels();
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
 	else
-		sendCustomEvent(EUserEvent::RETURN_TO_MAIN_MENU);
-}
-
-void CPlayerInterface::sendCustomEvent( int code )
-{
-	CGuiHandler::pushSDLEvent(SDL_USEREVENT, code);
+		GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
@@ -2259,14 +1907,16 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar.showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	askToAssembleArtifact(al);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar.showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -2280,28 +1930,37 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar.showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), dst.artHolder);
+	updateInfo(hero);
+
+	bool redraw = true;
+	// If a bulk transfer has arrived, then redrawing only the last art movement.
+	if(numOfMovedArts != 0)
+	{
+		numOfMovedArts--;
+		if(numOfMovedArts != 0)
+			redraw = false;
+	}
+
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
-			artWin->artifactMoved(src, dst);
+			artWin->artifactMoved(src, dst, redraw);
 	}
-	if(!GH.objsToBlit.empty())
-		GH.objsToBlit.back()->redraw();
-
 	waitWhileDialog();
 }
 
-void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
+void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 {
-	askToAssembleArtifact(dst);
+	numOfMovedArts = numOfArts;
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar.showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -2313,7 +1972,8 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar.showSelection();
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
@@ -2332,7 +1992,8 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 	else
 	{
-		adventureInt->infoBar.showSelection();
+		if (player == playerID)
+			adventureInt->infoBar->showSelection();
 		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front().get())) //don't remove dialogs that expect query answer
 			GH.popInts(1);
 	}
@@ -2354,14 +2015,14 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 	while(!dialogs.empty())
 	{
 		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
-		SDL_Delay(5);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	}
 	waitWhileDialog(unlockPim);
 }
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [](){ GH.pushUserEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
@@ -2378,7 +2039,9 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	if (ignoreEvents)
+	bool needToLockAdventureMap = adventureInt && adventureInt->active && CGI->mh->hasOngoingAnimations();
+
+	if (ignoreEvents || needToLockAdventureMap)
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
 		while(!SDLEventsQueue.empty())
@@ -2409,7 +2072,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	int i = 1;
 	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
-		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
+		return cb->getTile(h->convertToVisitablePos(coord))->topVisitableObj(ignoreHero);
 	};
 
 	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
@@ -2448,9 +2111,12 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	};
 
 	{
-		path.convert(0);
-		TerrainId currentTerrain = Terrain::BORDER; // not init yet
+		for (auto & elem : path.nodes)
+			elem.coord = h->convertFromVisitablePos(elem.coord);
+
+		TerrainId currentTerrain = ETerrainId::NONE;
 		TerrainId newTerrain;
+		bool wasOnRoad = true;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2466,13 +2132,18 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
-			int3 currentCoord = path.nodes[i].coord;
+			int3 prevCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == h->pos);
+			auto prevRoad = cb->getTile(h->convertToVisitablePos(prevCoord))->roadType;
+			auto nextRoad = cb->getTile(h->convertToVisitablePos(nextCoord))->roadType;
+
+			bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
+
+			auto prevObject = getObj(prevCoord, prevCoord == h->pos);
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
-			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			auto destTeleportObj = getDestTeleportObj(prevObject, nextObjectTop, nextObject);
 			if (isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{
 				CCS->soundh->stopSound(sh);
@@ -2487,7 +2158,10 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+					if (movingOnRoad)
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSound, -1);
+					else
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSoundPenalty, -1);
 				}
 				continue;
 			}
@@ -2505,12 +2179,16 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType->id;
-				if(newTerrain != currentTerrain)
+				newTerrain = cb->getTile(h->convertToVisitablePos(prevCoord))->terType->getId();
+				if(newTerrain != currentTerrain || wasOnRoad != movingOnRoad)
 				{
 					CCS->soundh->stopSound(sh);
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+					if (movingOnRoad)
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSound, -1);
+					else
+						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSoundPenalty, -1);
 					currentTerrain = newTerrain;
+					wasOnRoad = movingOnRoad;
 				}
 			}
 
@@ -2550,61 +2228,14 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
-
-		// ugly workaround to force instant update of adventure map
-		adventureInt->animValHitCount = 8;
 	}
 
+	CGI->mh->waitForOngoingAnimations();
 	setMovementStatus(false);
 }
 
-void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions)
+void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	//TODO: showWorldViewEx
-
-	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
-
-	viewWorldMap();
-}
-
-void CPlayerInterface::updateAmbientSounds(bool resetAll)
-{
-	if(castleInt || battleInt || !makingTurn || !currentSelection)
-	{
-		CCS->soundh->ambientStopAllChannels();
-		return;
-	}
-	else if(!dynamic_cast<CAdvMapInt *>(GH.topInt().get()))
-	{
-		return;
-	}
-	if(resetAll)
-		CCS->soundh->ambientStopAllChannels();
-
-	std::map<std::string, int> currentSounds;
-	auto updateSounds = [&](std::string soundId, int distance) -> void
-	{
-		if(vstd::contains(currentSounds, soundId))
-			currentSounds[soundId] = std::max(currentSounds[soundId], distance);
-		else
-			currentSounds.insert(std::make_pair(soundId, distance));
-	};
-
-	int3 pos = currentSelection->getSightCenter();
-	std::unordered_set<int3, ShashInt3> tiles;
-	cb->getVisibleTilesInRange(tiles, pos, CCS->soundh->ambientGetRange(), int3::DIST_CHEBYSHEV);
-	for(int3 tile : tiles)
-	{
-		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
-		// We want sound for every special terrain on tile and not just one on top
-		for(auto & ttObj : CGI->mh->ttiles[tile.z][tile.x][tile.y].objects)
-		{
-			if(ttObj.ambientSound)
-				updateSounds(ttObj.ambientSound.get(), dist);
-		}
-		if(CGI->mh->map->isCoastalTile(tile))
-			updateSounds("LOOPOCEA", dist);
-	}
-	CCS->soundh->ambientUpdateChannels(currentSounds);
+	adventureInt->openWorldView(objectPositions, showTerrain );
 }

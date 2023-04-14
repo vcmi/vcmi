@@ -21,6 +21,7 @@
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
+#include "MinePlacer.h"
 #include "WaterAdopter.h"
 #include "TileInfo.h"
 
@@ -35,14 +36,12 @@ void TownPlacer::process()
 		return;
 	}
 	
-	
 	placeTowns(*manager);
-	placeMines(*manager);
 }
 
 void TownPlacer::init()
 {
-	POSTFUNCTION(ObjectManager);
+	POSTFUNCTION(MinePlacer);
 	POSTFUNCTION(RoadPlacer);
 } 
 
@@ -70,8 +69,8 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		}
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
-		
-		CGTownInstance * town = (CGTownInstance *) townFactory->create();
+
+		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create());
 		town->tempOwner = player;
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
@@ -126,9 +125,9 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		}
 		else
 		{
-			if(zone.getTownTypes().size())
+			if(!zone.getTownTypes().empty())
 				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator.rand));
-			else if(zone.getMonsterTypes().size())
+			else if(!zone.getMonsterTypes().empty())
 				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), generator.rand)); //this happens in Clash of Dragons in treasure zones, where all towns are banned
 			else //just in any case
 				zone.setTownType(getRandomTownType());
@@ -146,59 +145,16 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 		float distance = zone.getPos().dist2dSQ(t);
 		return 100000.f - distance; //some big number
 	}, ObjectManager::OptimizeType::WEIGHT);
-	rmgObject.setPosition(position);
+	rmgObject.setPosition(position + int3(2, 2, 0)); //place visitable tile in the exact center of a zone
 	manager.placeObject(rmgObject, false, true);
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
 	return position;
 }
 
-bool TownPlacer::placeMines(ObjectManager & manager)
-{
-	using namespace Res;
-	std::vector<CGMine*> createdMines;
-	
-	for(const auto & mineInfo : zone.getMinesInfo())
-	{
-		ERes res = (ERes)mineInfo.first;
-		for(int i = 0; i < mineInfo.second; ++i)
-		{
-			auto mineHandler = VLC->objtypeh->getHandlerFor(Obj::MINE, res);
-			auto & rmginfo = mineHandler->getRMGInfo();
-			auto mine = (CGMine*)mineHandler->create();
-			mine->producedResource = res;
-			mine->tempOwner = PlayerColor::NEUTRAL;
-			mine->producedQuantity = mine->defaultResProduction();
-			createdMines.push_back(mine);
-			
-			
-			if(!i && (res == ERes::WOOD || res == ERes::ORE))
-				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
-			else
-				manager.addRequiredObject(mine, rmginfo.value);
-		}
-	}
-	
-	//create extra resources
-	if(int extraRes = generator.getConfig().mineExtraResources)
-	{
-		for(auto * mine : createdMines)
-		{
-			for(int rc = generator.rand.nextInt(1, extraRes); rc > 0; --rc)
-			{
-				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create();
-				resourse->amount = CGResource::RANDOM_AMOUNT;
-				manager.addNearbyObject(resourse, mine);
-			}
-		}
-	}
-	
-	return true;
-}
-
 void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 {
-	for(auto & t : rmgObject.getArea().getBorderOutside())
+	for(const auto & t : rmgObject.getArea().getBorderOutside())
 	{
 		if(map.isOnMap(t))
 		{
@@ -209,7 +165,7 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 	}
 }
 
-void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, ObjectManager & manager)
+void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager)
 {
 	for(int i = 0; i < count; i++)
 	{
@@ -219,7 +175,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 		{
 			if(!zone.areTownsSameType())
 			{
-				if (zone.getTownTypes().size())
+				if(!zone.getTownTypes().empty())
 					subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator.rand);
 				else
 					subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), generator.rand); //it is possible to have zone with no towns allowed
@@ -227,7 +183,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 		}
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
-		auto town = (CGTownInstance *) townFactory->create();
+		auto * town = dynamic_cast<CGTownInstance *>(townFactory->create());
 		town->ID = Obj::TOWN;
 		
 		town->tempOwner = player;
@@ -257,7 +213,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 
 si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
 {
-	auto townTypesAllowed = (zone.getTownTypes().size() ? zone.getTownTypes() : zone.getDefaultTownTypes());
+	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes());
 	if(matchUndergroundType)
 	{
 		std::set<TFaction> townTypesVerify;

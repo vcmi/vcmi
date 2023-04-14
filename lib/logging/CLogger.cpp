@@ -13,6 +13,8 @@
 #ifdef VCMI_ANDROID
 #include <android/log.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace ELogLevel
 {
 	int toAndroid(ELogLevel logLevel)
@@ -30,6 +32,8 @@ namespace ELogLevel
 		return ANDROID_LOG_UNKNOWN;
 	}
 }
+
+VCMI_LIB_NAMESPACE_END
 #elif defined(VCMI_IOS)
 #import "iOS_utils.h"
 extern "C" {
@@ -71,7 +75,7 @@ CLoggerDomain CLoggerDomain::getParent() const
 	if(isGlobalDomain())
 		return *this;
 
-	const size_t pos = name.find_last_of(".");
+	const size_t pos = name.find_last_of('.');
 	if(pos != std::string::npos)
 		return CLoggerDomain(name.substr(0, pos));
 	return CLoggerDomain(DOMAIN_GLOBAL);
@@ -146,7 +150,7 @@ void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 	}
 	catch(...)
 	{
-        log(ELogLevel::ERROR, "Invalid log format!");
+		log(ELogLevel::ERROR, "Invalid log format!");
 	}
 }
 
@@ -185,7 +189,7 @@ void CLogger::callTargets(const LogRecord & record) const
 {
 	TLockGuard _(mx);
 	for(const CLogger * logger = this; logger != nullptr; logger = logger->parent)
-		for(auto & target : logger->targets)
+		for(const auto & target : logger->targets)
 			target->write(record);
 }
 
@@ -231,7 +235,8 @@ CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 std::vector<std::string> CLogManager::getRegisteredDomains() const
 {
 	std::vector<std::string> domains;
-	for (auto& pair : loggers)
+	domains.reserve(loggers.size());
+	for(const auto & pair : loggers)
 	{
 		domains.push_back(pair.second->getDomain().getName());
 	}
@@ -243,23 +248,9 @@ CLogFormatter::CLogFormatter()
 {
 }
 
-CLogFormatter::CLogFormatter(const std::string & pattern)
-	: pattern(pattern)
+CLogFormatter::CLogFormatter(std::string pattern):
+	pattern(std::move(pattern))
 {
-}
-
-CLogFormatter::CLogFormatter(const CLogFormatter & c) : pattern(c.pattern) { }
-CLogFormatter::CLogFormatter(CLogFormatter && m) : pattern(std::move(m.pattern)) { }
-
-CLogFormatter & CLogFormatter::operator=(const CLogFormatter & c)
-{
-	pattern = c.pattern;
-	return *this;
-}
-CLogFormatter & CLogFormatter::operator=(CLogFormatter && m)
-{
-	pattern = std::move(m.pattern);
-	return *this;
 }
 
 std::string CLogFormatter::format(const LogRecord & record) const
@@ -295,6 +286,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	boost::algorithm::replace_first(message, "%n", record.domain.getName());
 	boost::algorithm::replace_first(message, "%t", record.threadId);
 	boost::algorithm::replace_first(message, "%m", record.message);
+	boost::algorithm::replace_first(message, "%c", boost::posix_time::to_simple_string(record.timeStamp));
 
 	//return boost::to_string (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
@@ -347,10 +339,10 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 }
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) :
-#ifndef VCMI_IOS
-    console(console),
+#if !defined(VCMI_MOBILE)
+	console(console),
 #endif
-    threshold(ELogLevel::INFO), coloredOutputEnabled(true)
+	threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
 	formatter.setPattern("%m");
 }
@@ -363,7 +355,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-    __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
+	__android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
 #elif defined(VCMI_IOS)
 	os_log_type_t type;
 	switch (record.level)
@@ -432,8 +424,8 @@ void CLogConsoleTarget::setFormatter(const CLogFormatter & formatter) { this->fo
 const CColorMapping & CLogConsoleTarget::getColorMapping() const { return colorMapping; }
 void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { this->colorMapping = colorMapping; }
 
-CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append)
-	: file(std::move(filePath), append ? std::ios_base::app : std::ios_base::out)
+CLogFileTarget::CLogFileTarget(const boost::filesystem::path & filePath, bool append):
+	file(filePath, append ? std::ios_base::app : std::ios_base::out)
 {
 //	formatter.setPattern("%d %l %n [%t] - %m");
 	formatter.setPattern("%l %n [%t] - %m");

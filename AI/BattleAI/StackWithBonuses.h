@@ -130,7 +130,7 @@ public:
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 
-	void setWallState(int partOfWall, si8 state) override;
+	void setWallState(EWallPart partOfWall, EWallState state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
 	void updateObstacle(const ObstacleChanges& changes) override;
@@ -138,7 +138,7 @@ public:
 
 	uint32_t nextUnitId() const override;
 
-	int64_t getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
 
 	int64_t getTreeVersion() const;
 

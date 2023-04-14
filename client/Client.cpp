@@ -7,56 +7,44 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "Global.h"
 #include "StdInc.h"
 #include "Client.h"
 
-#include <SDL.h>
-
-#include "CMusicHandler.h"
-#include "../lib/mapping/CCampaignHandler.h"
-#include "../CCallback.h"
-#include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
-#include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
-#include "../lib/StartInfo.h"
-#include "../lib/battle/BattleInfo.h"
-#include "../lib/CModHandler.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/CTownHandler.h"
-#include "../lib/CBuildingHandler.h"
-#include "../lib/spells/CSpellHandler.h"
-#include "../lib/serializer/CTypeList.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/serializer/CLoadIntegrityValidator.h"
-#include "../lib/NetPacks.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/VCMIDirs.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/JsonNode.h"
-#include "mapHandler.h"
-#include "../lib/CConfigHandler.h"
-#include "mainmenu/CMainMenu.h"
-#include "mainmenu/CCampaignScreen.h"
-#include "lobby/CBonusSelection.h"
-#include "battle/CBattleInterface.h"
-#include "../lib/CThreadHelper.h"
-#include "../lib/registerTypes/RegisterTypes.h"
-#include "gui/CGuiHandler.h"
-#include "CMT.h"
 #include "CServerHandler.h"
-#include "../lib/ScriptHandler.h"
+#include "ClientNetPackVisitors.h"
+#include "adventureMap/CAdvMapInt.h"
+#include "battle/BattleInterface.h"
+#include "gui/CGuiHandler.h"
+#include "mapView/mapHandler.h"
+
+#include "../CCallback.h"
+#include "../lib/CConfigHandler.h"
+#include "../lib/CGameState.h"
+#include "../lib/CThreadHelper.h"
+#include "../lib/VCMIDirs.h"
+#include "../lib/battle/BattleInfo.h"
+#include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/mapping/CMapService.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/serializer/Connection.h"
+
+#include <memory>
 #include <vcmi/events/EventBus.h>
 
-#ifdef VCMI_ANDROID
-#include "lib/CAndroidVMHelper.h"
+#if SCRIPTING_ENABLED
+#include "../lib/ScriptHandler.h"
 #endif
 
 #ifdef VCMI_ANDROID
+#include "lib/CAndroidVMHelper.h"
+
+#ifndef SINGLE_PROCESS_APP
 std::atomic_bool androidTestServerReadyFlag;
+#endif
 #endif
 
 ThreadSafeVector<int> CClient::waitingRequest;
@@ -82,12 +70,14 @@ public:
 	void applyOnClAfter(CClient * cl, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyCl(cl);
+		ApplyClientNetPackVisitor visitor(*cl, *cl->gameState());
+		ptr->visit(visitor);
 	}
 	void applyOnClBefore(CClient * cl, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		ptr->applyFirstCl(cl);
+		ApplyFirstClientNetPackVisitor visitor(*cl, *cl->gameState());
+		ptr->visit(visitor);
 	}
 };
 
@@ -200,61 +190,47 @@ void CClient::newGame(CGameState * initializedGameState)
 void CClient::loadGame(CGameState * initializedGameState)
 {
 	logNetwork->info("Loading procedure started!");
-	
-	std::unique_ptr<CLoadFile> loader;
 
-	if(initializedGameState)
-	{
-		logNetwork->info("Game state was transferred over network, loading.");
-		gs = initializedGameState;
-	}
-	else
-	{
-		try
-		{
-			boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
-			boost::filesystem::path controlServerSaveName;
+	logNetwork->info("Game state was transferred over network, loading.");
+	gs = initializedGameState;
 
-			if(CResourceHandler::get("local")->existsResource(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME)))
-			{
-				controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME));
-			}
-			else // create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
-			{
-				controlServerSaveName = boost::filesystem::path(clientSaveName).replace_extension(".vsgm1");
-				CResourceHandler::get("local")->createResource(controlServerSaveName.string(), true);
-			}
-
-			if(clientSaveName.empty())
-				throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
-			if(controlServerSaveName.empty() || !boost::filesystem::exists(controlServerSaveName))
-				throw std::runtime_error("Cannot open server part of " + CSH->si->mapname);
-
-			{
-				CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
-				loadCommonState(checkingLoader);
-				loader = checkingLoader.decay();
-			}
-		}
-		catch(std::exception & e)
-		{
-			logGlobal->error("Cannot load game %s. Error: %s", CSH->si->mapname, e.what());
-			throw; //obviously we cannot continue here
-		}
-		logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
-	}
 	gs->preInit(VLC);
 	gs->updateOnLoad(CSH->si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
-	
+
 	initMapHandler();
 
 	reinitScripting();
 
 	initPlayerEnvironments();
 	
-	if(loader)
+	// Loading of client state - disabled for now
+	// Since client no longer writes or loads its own state and instead receives it from server
+	// client state serializer will serialize its own copies of all pointers, e.g. heroes/towns/objects
+	// and on deserialize will create its own copies (instead of using copies from state received from server)
+	// Potential solutions:
+	// 1) Use server gamestate to deserialize pointers, so any pointer to same object will point to server instance and not our copy
+	// 2) Remove all serialization of pointers with instance ID's and restore them on load (including AI deserializer code)
+	// 3) Completely remove client savegame and send all information, like hero paths and sleeping status to server (either in form of hero properties or as some generic "client options" message
+#ifdef BROKEN_CLIENT_STATE_SERIALIZATION_HAS_BEEN_FIXED
+	// try to deserialize client data including sleepingHeroes
+	try
+	{
+		boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
+
+		if(clientSaveName.empty())
+			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
+
+		std::unique_ptr<CLoadFile> loader (new CLoadFile(clientSaveName));
 		serialize(loader->serializer, loader->serializer.fileVersion);
+
+		logNetwork->info("Client data loaded.");
+	}
+	catch(std::exception & e)
+	{
+		logGlobal->info("Cannot load client data for game %s. Error: %s", CSH->si->mapname, e.what());
+	}
+#endif
 
 	initPlayerInterfaces();
 }
@@ -319,8 +295,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		nInt->human = isHuman;
 		nInt->playerID = pid;
 
-		nInt->loadGame(h, version);
-
+		bool shouldResetInterface = true;
 		// Client no longer handle this player at all
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), pid))
 		{
@@ -337,10 +312,18 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		else
 		{
 			installNewPlayerInterface(nInt, pid);
-			continue;
+			shouldResetInterface = false;
 		}
-		nInt.reset();
-		LOCPLINT = prevInt;
+
+		// loadGame needs to be called after initGameInterface to load paths correctly
+		// initGameInterface is called in installNewPlayerInterface
+		nInt->loadGame(h, version);
+
+		if (shouldResetInterface)
+		{
+			nInt.reset();
+			LOCPLINT = prevInt;
+		}
 	}
 
 #if SCRIPTING_ENABLED
@@ -380,21 +363,16 @@ void CClient::endGame()
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		logNetwork->info("Ending current game!");
-		if(GH.topInt())
-		{
-			GH.topInt()->deactivate();
-		}
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-		GH.statusbar = nullptr;
-		logNetwork->info("Removed GUI.");
+		removeGUI();
 
 		vstd::clear_pointer(const_cast<CGameInfo *>(CGI)->mh);
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
-		LOCPLINT = nullptr;
 	}
+
+	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
+	cleanThreads();
 
 	playerint.clear();
 	battleints.clear();
@@ -411,11 +389,8 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler();
-		CGI->mh->map = gs->map;
+		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
-		CGI->mh->init();
-		logNetwork->trace("Initializing mapHandler (together): %d ms", CSH->th->getDiff());
 	}
 
 	pathCache.clear();
@@ -509,7 +484,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	logGlobal->trace("\tInitializing the interface for player %s", color.getStr());
 	auto cb = std::make_shared<CCallback>(gs, color, this);
 	battleCallbacks[color] = cb;
-	gameInterface->init(playerEnvironments.at(color), cb);
+	gameInterface->initGameInterface(playerEnvironments.at(color), cb);
 
 	installNewBattleInterface(gameInterface, color, battlecb);
 }
@@ -525,7 +500,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 		logGlobal->trace("\tInitializing the battle interface for player %s", color.getStr());
 		auto cbc = std::make_shared<CBattleCallback>(color, this);
 		battleCallbacks[color] = cbc;
-		battleInterface->init(playerEnvironments.at(color), cbc);
+		battleInterface->initBattleInterface(playerEnvironments.at(color), cbc);
 	}
 }
 
@@ -594,11 +569,10 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		Rect battleIntRect((screen->w - 800)/2, (screen->h - 600)/2, 800, 600);
 		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
@@ -606,7 +580,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->setBattle(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
 
@@ -624,7 +598,8 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(info->tacticDistance && vstd::contains(battleints, info->sides[info->tacticsSide].color))
 	{
-		boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide].color]);
+		PlayerColor color = info->sides[info->tacticsSide].color;
+		playerTacticThreads[color] = std::make_unique<boost::thread>(&CClient::commenceTacticPhaseForInt, this, battleints[color]);
 	}
 }
 
@@ -764,20 +739,46 @@ scripting::Pool * CClient::getContextPool() const
 
 void CClient::reinitScripting()
 {
-	clientEventBus = make_unique<events::EventBus>();
+	clientEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
 	clientScripts.reset(new scripting::PoolImpl(this));
 #endif
 }
 
-#ifdef VCMI_ANDROID
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_clientSetupJNI(JNIEnv * env, jclass cls)
+void CClient::removeGUI()
 {
-	logNetwork->info("Received clientSetupJNI");
+	// CClient::endGame
+	GH.curInt = nullptr;
+	if(GH.topInt())
+		GH.topInt()->deactivate();
+	adventureInt.reset();
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+	GH.statusbar.reset();
+	logGlobal->info("Removed GUI.");
 
-	CAndroidVMHelper::cacheVM(env);
+	LOCPLINT = nullptr;
 }
 
+void CClient::cleanThreads()
+{
+	stopAllBattleActions();
+
+	while (!playerTacticThreads.empty())
+	{
+		PlayerColor color = playerTacticThreads.begin()->first;
+
+		//set tacticcMode of the players to false to stop tacticThread
+		if (vstd::contains(battleints, color))
+			battleints[color]->forceEndTacticPhase();
+
+		playerTacticThreads[color]->join();
+		playerTacticThreads.erase(color);
+	}
+}
+
+#ifdef VCMI_ANDROID
+#ifndef SINGLE_PROCESS_APP
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
 {
 	logNetwork->info("Received server closed signal");
@@ -791,6 +792,7 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerRe
 	logNetwork->info("Received server ready signal");
 	androidTestServerReadyFlag.store(true);
 }
+#endif
 
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {

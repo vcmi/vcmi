@@ -127,11 +127,12 @@ namespace SRSLPraserHelpers
 	}
 }
 
-
-BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_)
-	: BaseMechanics(event),
-	effects(effects_),
-	targetCondition(targetCondition_)
+BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event,
+										   std::shared_ptr<effects::Effects> effects_,
+										   std::shared_ptr<IReceptiveCheck> targetCondition_):
+	BaseMechanics(event),
+	effects(std::move(effects_)),
+	targetCondition(std::move(targetCondition_))
 {}
 
 BattleSpellMechanics::~BattleSpellMechanics() = default;
@@ -167,7 +168,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	{
 	case Mode::HERO:
 		{
-			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
+			const auto * castingHero = dynamic_cast<const CGHeroInstance *>(caster); //todo: unify hero|creature spell cost
 			if(!castingHero)
 			{
 				logGlobal->debug("CSpell::canBeCast: invalid caster");
@@ -272,7 +273,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	//calculate spell cost
 	if(mode == Mode::HERO)
 	{
-		auto casterHero = dynamic_cast<const CGHeroInstance *>(caster);
+		const auto * casterHero = dynamic_cast<const CGHeroInstance *>(caster);
 		spellCost = battle()->battleGetSpellCost(owner, casterHero);
 
 		if(nullptr != otherHero) //handle mana channel
@@ -330,8 +331,6 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
 
-//	afterCast();
-
 	if(sc.activeCast)
 	{
 		caster->spendMana(server, spellCost);
@@ -342,6 +341,11 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			otherHero->spendMana(server, -sc.manaGained);
 		}
 	}
+
+	// send empty event to client
+	// temporary(?) workaround to force animations to trigger
+	StacksInjured fake_event;
+	server->apply(&fake_event);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)
@@ -380,7 +384,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 	std::set<const battle::Unit *> unitTargets = collectTargets();
 
 	//process them
-	for(auto unit : unitTargets)
+	for(const auto * unit : unitTargets)
 		filterUnit(unit);
 
 	//and update targets
@@ -398,12 +402,12 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 	{
 		if(caster->getCasterUnitId() >= 0)
 		{
-			addCustomEffect(sc, caster->getCasterUnitId(), 3);
+			sc.reflectedCres.insert(caster->getCasterUnitId());
 		}
 	}
 
-	for(auto unit : resisted)
-		addCustomEffect(sc, unit, 78);
+	for(const auto * unit : resisted)
+		sc.resistedCres.insert(unit->unitId());
 }
 
 void BattleSpellMechanics::castEval(ServerCallback * server, const Target & target)
@@ -427,19 +431,6 @@ void BattleSpellMechanics::castEval(ServerCallback * server, const Target & targ
 		p.first->apply(server, this, p.second);
 }
 
-void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, const battle::Unit * target, ui32 effect)
-{
-	addCustomEffect(sc, target->unitId(), effect);
-}
-
-void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, ui32 targetId, ui32 effect)
-{
-	CustomEffectInfo customEffect;
-	customEffect.effect = effect;
-	customEffect.stack = targetId;
-	sc.customEffects.push_back(customEffect);
-}
-
 std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
 {
 	std::set<const battle::Unit *> result;
@@ -458,16 +449,16 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 {
 	SetStackEffect sse;
 
-	for(auto unit : targets)
+	for(const auto * unit : targets)
 	{
 		std::vector<Bonus> buffer;
 		auto bl = unit->getBonuses(selector);
 
-		for(auto item : *bl)
+		for(const auto & item : *bl)
 			buffer.emplace_back(*item);
 
 		if(!buffer.empty())
-			sse.toRemove.push_back(std::make_pair(unit->unitId(), buffer));
+			sse.toRemove.emplace_back(unit->unitId(), buffer);
 	}
 
 	if(!sse.toRemove.empty())
@@ -497,8 +488,10 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 
 	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
 	{
-		std::string number1, number2;
-		int beg, end;
+		std::string number1;
+		std::string number2;
+		int beg = 0;
+		int end = 0;
 		bool readingFirst = true;
 		for(auto & elem : rng)
 		{
@@ -514,12 +507,12 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 				//calculating variables
 				if(readingFirst)
 				{
-					beg = atoi(number1.c_str());
+					beg = std::stoi(number1);
 					number1 = "";
 				}
 				else
 				{
-					end = atoi(number2.c_str());
+					end = std::stoi(number2);
 					number2 = "";
 				}
 				//obtaining new hexes
@@ -534,7 +527,7 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 					readingFirst = true;
 				}
 				//adding obtained hexes
-				for(auto & curLayer_it : curLayer)
+				for(const auto & curLayer_it : curLayer)
 				{
 					ret.insert(curLayer_it);
 				}
@@ -542,7 +535,7 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 			}
 			else if(elem == '-') //dash
 			{
-				beg = atoi(number1.c_str());
+				beg = std::stoi(number1);
 				number1 = "";
 				readingFirst = false;
 			}
@@ -556,7 +549,7 @@ Target BattleSpellMechanics::transformSpellTarget(const Target & aimPoint) const
 {
 	Target spellTarget;
 
-	if(aimPoint.size() < 1)
+	if(aimPoint.empty())
 	{
 		logGlobal->error("Aimed spell cast with no destination.");
 	}
@@ -570,7 +563,7 @@ Target BattleSpellMechanics::transformSpellTarget(const Target & aimPoint) const
 		if(aimPointHex.isValid())
 		{
 			auto spellRange = spellRangeInHexes(aimPointHex);
-			for(auto & hex : spellRange)
+			for(const auto & hex : spellRange)
 				spellTarget.push_back(Destination(hex));
 		}
 	}
@@ -618,9 +611,9 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 				Target tmp = current;
 				tmp.emplace_back(dest);
 
-				detail::ProblemImpl ingored;
+				detail::ProblemImpl ignored;
 
-				if(canBeCastAt(tmp, ingored))
+				if(canBeCastAt(tmp, ignored))
 					ret.emplace_back(dest);
 			}
 		}
@@ -640,7 +633,7 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 	return targetCondition->isReceptive(this, target);
 }
 
-std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex, bool * outDroppedHexes) const
+std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
 		return std::vector<BattleHex>(1, BattleHex::INVALID);

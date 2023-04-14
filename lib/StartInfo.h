@@ -89,8 +89,8 @@ struct DLL_LINKAGE StartInfo
 
 	std::shared_ptr<CCampaignState> campState;
 
-	PlayerSettings & getIthPlayersSettings(PlayerColor no);
-	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const;
+	PlayerSettings & getIthPlayersSettings(const PlayerColor & no);
+	const PlayerSettings & getIthPlayersSettings(const PlayerColor & no) const;
 	PlayerSettings * getPlayersSettings(const ui8 connectedPlayerId);
 
 	// TODO: Must be client-side
@@ -111,7 +111,7 @@ struct DLL_LINKAGE StartInfo
 		h & campState;
 	}
 
-	StartInfo() : mode(INVALID), difficulty(0), seedToBeUsed(0), seedPostInit(0),
+	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
 		mapfileChecksum(0), turnTime(0)
 	{
 
@@ -171,10 +171,10 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	// Helpers for lobby state access
 	std::set<PlayerColor> clientHumanColors(int clientId);
 	PlayerColor clientFirstColor(int clientId) const;
-	bool isClientColor(int clientId, PlayerColor color) const;
+	bool isClientColor(int clientId, const PlayerColor & color) const;
 	ui8 clientFirstId(int clientId) const; // Used by chat only!
 	PlayerInfo & getPlayerInfo(int color);
-	TeamID getPlayerTeamId(PlayerColor color);
+	TeamID getPlayerTeamId(const PlayerColor & color);
 };
 
 

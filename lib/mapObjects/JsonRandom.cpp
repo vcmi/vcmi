@@ -31,16 +31,53 @@ namespace JsonRandom
 			return defaultValue;
 		if (value.isNumber())
 			return static_cast<si32>(value.Float());
+		if (value.isVector())
+		{
+			const auto & vector = value.Vector();
+
+			size_t index= rng.getIntRange(0, vector.size()-1)();
+			return loadValue(vector[index], rng, 0);
+		}
 		if (!value["amount"].isNull())
-			return static_cast<si32>(value["amount"].Float());
-		si32 min = static_cast<si32>(value["min"].Float());
-		si32 max = static_cast<si32>(value["max"].Float());
+			return static_cast<si32>(loadValue(value["amount"], rng, defaultValue));
+		si32 min = static_cast<si32>(loadValue(value["min"], rng, 0));
+		si32 max = static_cast<si32>(loadValue(value["max"], rng, 0));
 		return rng.getIntRange(min, max)();
+	}
+
+	DLL_LINKAGE std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::string defaultValue)
+	{
+		if (value.isNull())
+			return defaultValue;
+		if (value.isString())
+			return value.String();
+		if (!value["type"].isNull())
+			return value["type"].String();
+
+		if (value["list"].isNull())
+			return defaultValue;
+
+		const auto & resourceList = value["list"].Vector();
+
+		if (resourceList.empty())
+			return defaultValue;
+
+		si32 index = rng.getIntRange(0, resourceList.size() - 1 )();
+
+		return resourceList[index].String();
 	}
 
 	TResources loadResources(const JsonNode & value, CRandomGenerator & rng)
 	{
 		TResources ret;
+
+		if (value.isVector())
+		{
+			for (const auto & entry : value.Vector())
+				ret += loadResource(entry, rng);
+			return ret;
+		}
+
 		for (size_t i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		{
 			ret[i] = loadValue(value[GameConstants::RESOURCE_NAMES[i]], rng);
@@ -48,10 +85,22 @@ namespace JsonRandom
 		return ret;
 	}
 
+	TResources loadResource(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::string resourceName = loadKey(value, rng, "");
+		si32 resourceAmount = loadValue(value, rng, 0);
+		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).get());
+
+		TResources ret;
+		ret[resourceID] = resourceAmount;
+		return ret;
+	}
+
+
 	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::vector<si32> ret;
-		for (auto & name : PrimarySkill::names)
+		for(const auto & name : PrimarySkill::names)
 		{
 			ret.push_back(loadValue(value[name], rng));
 		}
@@ -61,7 +110,7 @@ namespace JsonRandom
 	std::map<SecondarySkill, si32> loadSecondary(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::map<SecondarySkill, si32> ret;
-		for (auto & pair : value.Struct())
+		for(const auto & pair : value.Struct())
 		{
 			SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
 			ret[id] = loadValue(pair.second, rng);
@@ -80,35 +129,35 @@ namespace JsonRandom
 		ui32 maxValue = std::numeric_limits<ui32>::max();
 
 		if (value["class"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedClasses.insert(VLC->arth->stringToClass(value["class"].String()));
+			allowedClasses.insert(CArtHandler::stringToClass(value["class"].String()));
 		else
-			for (auto & entry : value["class"].Vector())
-				allowedClasses.insert(VLC->arth->stringToClass(entry.String()));
+			for(const auto & entry : value["class"].Vector())
+				allowedClasses.insert(CArtHandler::stringToClass(entry.String()));
 
 		if (value["slot"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedPositions.insert(VLC->arth->stringToSlot(value["class"].String()));
+			allowedPositions.insert(ArtifactPosition(value["class"].String()));
 		else
-			for (auto & entry : value["slot"].Vector())
-				allowedPositions.insert(VLC->arth->stringToSlot(entry.String()));
+			for(const auto & entry : value["slot"].Vector())
+				allowedPositions.insert(ArtifactPosition(entry.String()));
 
 		if (!value["minValue"].isNull()) minValue = static_cast<ui32>(value["minValue"].Float());
 		if (!value["maxValue"].isNull()) maxValue = static_cast<ui32>(value["maxValue"].Float());
 
-		return VLC->arth->pickRandomArtifact(rng, [=](ArtifactID artID) -> bool
+		return VLC->arth->pickRandomArtifact(rng, [=](const ArtifactID & artID) -> bool
 		{
 			CArtifact * art = VLC->arth->objects[artID];
 
-			if (!vstd::iswithin(art->price, minValue, maxValue))
+			if(!vstd::iswithin(art->price, minValue, maxValue))
 				return false;
 
-			if (!allowedClasses.empty() && !allowedClasses.count(art->aClass))
+			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
 				return false;
 
-			if (!allowedPositions.empty())
+			if(!allowedPositions.empty())
 			{
-				for (auto pos : art->possibleSlots[ArtBearer::HERO])
+				for(const auto & pos : art->possibleSlots[ArtBearer::HERO])
 				{
-					if (allowedPositions.count(pos))
+					if(allowedPositions.count(pos))
 						return true;
 				}
 				return false;
@@ -131,10 +180,8 @@ namespace JsonRandom
 	{
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
 			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).get());
-		if (value["type"].getType() == JsonNode::JsonType::DATA_STRING)
-			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value["type"]).get());
 
-		vstd::erase_if(spells, [=](SpellID spell)
+		vstd::erase_if(spells, [=](const SpellID & spell)
 		{
 			return VLC->spellh->objects[spell]->level != si32(value["level"].Float());
 		});
@@ -142,7 +189,7 @@ namespace JsonRandom
 		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));
 	}
 
-	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells)
+	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const std::vector<SpellID> & spells)
 	{
 		// possible extensions: (taken from spell json config)
 		// "type": "adventure",//"adventure", "combat", "ability"
@@ -200,7 +247,7 @@ namespace JsonRandom
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{
-				for (auto creaID : crea->upgrades)
+				for(const auto & creaID : crea->upgrades)
 					info.allowedCreatures.push_back(VLC->creh->objects[creaID]);
 			}
 			ret.push_back(info);

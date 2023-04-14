@@ -25,16 +25,6 @@ namespace spells
 namespace effects
 {
 
-UnitEffect::UnitEffect()
-	: Effect(),
-	chainLength(0),
-	chainFactor(0.0),
-	ignoreImmunity(false)
-{
-}
-
-UnitEffect::~UnitEffect() = default;
-
 void UnitEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 {
 
@@ -42,7 +32,7 @@ void UnitEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 
 void UnitEffect::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
-	for(auto & destnation : spellTarget)
+	for(const auto & destnation : spellTarget)
 		hexes.insert(destnation.hexValue);
 }
 
@@ -50,7 +40,7 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 {
 	//stack effect is applicable in general if there is at least one smart target
 
-	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, true, _1);
+	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, false, _1);
 	auto predicate = std::bind(&UnitEffect::eraseByImmunityFilter, this, m, _1);
 
 	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
@@ -69,12 +59,12 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 
 bool UnitEffect::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
 {
-	//stack effect is applicable if it affects at least one smart target
-	//assume target correctly transformed, just reapply smart filter
+	//stack effect is applicable if it affects at least one target (smartness should not be checked)
+	//assume target correctly transformed, just reapply filter
 
-	for(auto & item : target)
+	for(const auto & item : target)
 		if(item.unitValue)
-			if(getStackFilter(m, true, item.unitValue))
+			if(getStackFilter(m, false, item.unitValue))
 				return true;
 
 	return false;
@@ -114,10 +104,11 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 	Target spellTargetCopy(spellTarget);
 
-	//make sure that we have valid target with valid aim, even if spell have invalid range configured
-	//TODO: check than spell range is actually not valid
-	//also hackfix for banned creature massive spells
-	if(!aimPoint.empty())
+	// make sure that we have valid target with valid aim, even if spell have invalid range configured
+	// TODO: check than spell range is actually not valid
+	// also hackfix for banned creature massive spells
+	// FIXME: potentially breaking change: aimPoint may NOT be in Target - example: frost ring
+	if(!aimPoint.empty() && spellTarget.empty())
 		spellTargetCopy.insert(spellTargetCopy.begin(), Destination(aimPoint.front()));
 
 	std::set<const battle::Unit *> targets;
@@ -126,7 +117,7 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 	{
 		//ignore spellTarget and add all stacks
 		auto units = m->battle()->battleGetUnitsIf(mainFilter);
-		for(auto unit : units)
+		for(const auto *unit : units)
 			targets.insert(unit);
 	}
 	else
@@ -151,7 +142,7 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 				auto units = m->battle()->battleGetUnitsIf(predicate);
 
-				for(auto unit : units)
+				for(const auto *unit : units)
 				{
 					if(unit->alive())
 					{
@@ -187,7 +178,7 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 	EffectTarget effectTarget;
 
-	for(auto s : targets)
+	for(const auto *s : targets)
 		effectTarget.push_back(Destination(s));
 
 	return effectTarget;
@@ -216,7 +207,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 		return isValidTarget(m, unit);
 	});
 
-	for(auto unit : possibleTargets)
+	for(const auto *unit : possibleTargets)
 	{
 		for(auto hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
 			possibleHexes.insert(hex);
@@ -227,7 +218,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	for(int32_t targetIndex = 0; targetIndex < chainLength; ++targetIndex)
 	{
-		auto unit = m->battle()->battleGetUnitByPos(destHex, true);
+		const auto *unit = m->battle()->battleGetUnitByPos(destHex, true);
 
 		if(!unit)
 			break;

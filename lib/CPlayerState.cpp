@@ -21,7 +21,7 @@ PlayerState::PlayerState()
 	setNodeType(PLAYER);
 }
 
-PlayerState::PlayerState(PlayerState && other):
+PlayerState::PlayerState(PlayerState && other) noexcept:
 	CBonusSystemNode(std::move(other)),
 	color(other.color),
 	human(other.human),

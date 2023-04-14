@@ -13,7 +13,6 @@
 
 #include "StartInfo.h"
 
-class CLobbyScreen;
 class CServerHandler;
 class CVCMIServer;
 
@@ -25,58 +24,26 @@ struct StartInfo;
 class CMapGenOptions;
 struct ClientPlayer;
 
-struct CPackForLobby : public CPack
+struct DLL_LINKAGE CLobbyPackToPropagate : public CPackForLobby
 {
-	bool checkClientPermissions(CVCMIServer * srv) const
-	{
-		return false;
-	}
-
-	bool applyOnServer(CVCMIServer * srv)
-	{
-		return true;
-	}
-
-	void applyOnServerAfterAnnounce(CVCMIServer * srv) {}
-
-	bool applyOnLobbyHandler(CServerHandler * handler)
-	{
-		return true;
-	}
-
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler) {}
 };
 
-struct CLobbyPackToPropagate : public CPackForLobby
+struct DLL_LINKAGE CLobbyPackToServer : public CPackForLobby
 {
-
+	virtual bool isForServer() const override;
 };
 
-struct CLobbyPackToServer : public CPackForLobby
-{
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	void applyOnServerAfterAnnounce(CVCMIServer * srv);
-};
-
-struct LobbyClientConnected : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 {
 	// Set by client before sending pack to server
 	std::string uuid;
 	std::vector<std::string> names;
-	StartInfo::EMode mode;
+	StartInfo::EMode mode = StartInfo::INVALID;
 	// Changed by server before announcing pack
-	int clientId;
-	int hostClientId;
+	int clientId = -1;
+	int hostClientId = -1;
 
-	LobbyClientConnected()
-		: mode(StartInfo::INVALID), clientId(-1), hostClientId(-1)
-	{}
-
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	bool applyOnLobbyHandler(CServerHandler * handler);
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
-	bool applyOnServer(CVCMIServer * srv);
-	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -89,17 +56,13 @@ struct LobbyClientConnected : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyClientDisconnected : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 {
 	int clientId;
-	bool shutdownServer;
+	bool shutdownServer = false;
 
-	LobbyClientDisconnected() : shutdownServer(false) {}
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	bool applyOnServer(CVCMIServer * srv);
-	void applyOnServerAfterAnnounce(CVCMIServer * srv);
-	bool applyOnLobbyHandler(CServerHandler * handler);
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -108,12 +71,11 @@ struct LobbyClientDisconnected : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyChatMessage : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 {
 	std::string playerName, message;
 
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -122,15 +84,14 @@ struct LobbyChatMessage : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyGuiAction : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 {
 	enum EAction : ui8 {
 		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS
-	} action;
+	} action = NONE;
 
-	LobbyGuiAction() : action(NONE) {}
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -138,14 +99,11 @@ struct LobbyGuiAction : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyEndGame : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
 {
 	bool closeConnection = false, restart = false;
 	
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	bool applyOnServer(CVCMIServer * srv);
-	void applyOnServerAfterAnnounce(CVCMIServer * srv);
-	bool applyOnLobbyHandler(CServerHandler * handler);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -154,19 +112,14 @@ struct LobbyEndGame : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyStartGame : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
-	std::shared_ptr<StartInfo> initializedStartInfo;
-	CGameState * initializedGameState;
-	int clientId; //-1 means to all clients
+	std::shared_ptr<StartInfo> initializedStartInfo = nullptr;
+	CGameState * initializedGameState = nullptr;
+	int clientId = -1; //-1 means to all clients
 
-	LobbyStartGame() : initializedStartInfo(nullptr), initializedGameState(nullptr), clientId(-1) {}
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	bool applyOnServer(CVCMIServer * srv);
-	void applyOnServerAfterAnnounce(CVCMIServer * srv);
-	bool applyOnLobbyHandler(CServerHandler * handler);
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -179,14 +132,11 @@ struct LobbyStartGame : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyChangeHost : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 {
-	int newHostConnectionId;
+	int newHostConnectionId = -1;
 
-	LobbyChangeHost() : newHostConnectionId(-1) {}
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	bool applyOnServer(CVCMIServer * srv);
-	bool applyOnServerAfterAnnounce(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -194,14 +144,12 @@ struct LobbyChangeHost : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbyUpdateState : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;
-	bool hostChanged; // Used on client-side only
+	bool hostChanged = false; // Used on client-side only
 
-	LobbyUpdateState() : hostChanged(false) {}
-	bool applyOnLobbyHandler(CServerHandler * handler);
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -209,13 +157,14 @@ struct LobbyUpdateState : public CLobbyPackToPropagate
 	}
 };
 
-struct LobbySetMap : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 {
 	std::shared_ptr<CMapInfo> mapInfo;
 	std::shared_ptr<CMapGenOptions> mapGenOpts;
 
 	LobbySetMap() : mapInfo(nullptr), mapGenOpts(nullptr) {}
-	bool applyOnServer(CVCMIServer * srv);
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -224,12 +173,11 @@ struct LobbySetMap : public CLobbyPackToServer
 	}
 };
 
-struct LobbySetCampaign : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetCampaign : public CLobbyPackToServer
 {
 	std::shared_ptr<CCampaignState> ourCampaign;
 
-	LobbySetCampaign() {}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -237,12 +185,11 @@ struct LobbySetCampaign : public CLobbyPackToServer
 	}
 };
 
-struct LobbySetCampaignMap : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetCampaignMap : public CLobbyPackToServer
 {
-	int mapId;
+	int mapId = -1;
 
-	LobbySetCampaignMap() : mapId(-1) {}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -250,12 +197,11 @@ struct LobbySetCampaignMap : public CLobbyPackToServer
 	}
 };
 
-struct LobbySetCampaignBonus : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 {
-	int bonusId;
+	int bonusId = -1;
 
-	LobbySetCampaignBonus() : bonusId(-1) {}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -263,16 +209,14 @@ struct LobbySetCampaignBonus : public CLobbyPackToServer
 	}
 };
 
-struct LobbyChangePlayerOption : public CLobbyPackToServer
+struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 {
 	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS};
-	ui8 what;
-	si8 direction; //-1 or +1
-	PlayerColor color;
+	ui8 what = UNKNOWN;
+	si8 direction = 0; //-1 or +1
+	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 
-	LobbyChangePlayerOption() : what(UNKNOWN), direction(0), color(PlayerColor::CANNOT_DETERMINE) {}
-	bool checkClientPermissions(CVCMIServer * srv) const;
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -282,12 +226,11 @@ struct LobbyChangePlayerOption : public CLobbyPackToServer
 	}
 };
 
-struct LobbySetPlayer : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetPlayer : public CLobbyPackToServer
 {
-	PlayerColor clickedColor;
+	PlayerColor clickedColor = PlayerColor::CANNOT_DETERMINE;
 
-	LobbySetPlayer() : clickedColor(PlayerColor::CANNOT_DETERMINE){}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -295,12 +238,11 @@ struct LobbySetPlayer : public CLobbyPackToServer
 	}
 };
 
-struct LobbySetTurnTime : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 {
-	ui8 turnTime;
+	ui8 turnTime = 0;
 
-	LobbySetTurnTime() : turnTime(0) {}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -308,12 +250,11 @@ struct LobbySetTurnTime : public CLobbyPackToServer
 	}
 };
 
-struct LobbySetDifficulty : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetDifficulty : public CLobbyPackToServer
 {
-	ui8 difficulty;
+	ui8 difficulty = 0;
 
-	LobbySetDifficulty() : difficulty(0) {}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -321,13 +262,12 @@ struct LobbySetDifficulty : public CLobbyPackToServer
 	}
 };
 
-struct LobbyForceSetPlayer : public CLobbyPackToServer
+struct DLL_LINKAGE LobbyForceSetPlayer : public CLobbyPackToServer
 {
-	ui8 targetConnectedPlayer;
-	PlayerColor targetPlayerColor;
+	ui8 targetConnectedPlayer = -1;
+	PlayerColor targetPlayerColor = PlayerColor::CANNOT_DETERMINE;
 
-	LobbyForceSetPlayer() : targetConnectedPlayer(-1), targetPlayerColor(PlayerColor::CANNOT_DETERMINE) {}
-	bool applyOnServer(CVCMIServer * srv);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -336,11 +276,11 @@ struct LobbyForceSetPlayer : public CLobbyPackToServer
 	}
 };
 
-struct LobbyShowMessage : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyShowMessage : public CLobbyPackToPropagate
 {
 	std::string message;
 	
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

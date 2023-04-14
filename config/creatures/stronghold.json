@@ -245,6 +245,13 @@
 		"index": 94,
 		"level": 6,
 		"faction": "stronghold",
+		"abilities" :
+		{
+			"siege" : {
+				"subtype" : "spell.cyclopsShot",
+				"type" : "CATAPULT"
+			}
+		},
 		"upgrades": ["cyclopKing"],
 		"graphics" :
 		{
@@ -271,9 +278,15 @@
 		"faction": "stronghold",
 		"abilities":
 		{
-			"siegeDoubleAttack" :
+			"siege" : {
+				"subtype" : "spell.cyclopsShot",
+				"type" : "CATAPULT"
+			},
+			"siegeLevel" :
 			{
+				"subtype" : "spell.cyclopsShot",
 				"type" : "CATAPULT_EXTRA_SHOTS",
+				"valueType" : "BASE_NUMBER",
 				"val" : 1
 			}
 		},

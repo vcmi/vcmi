@@ -13,7 +13,7 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
 ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
-	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY_TERRAIN)
+	: QSortFilterProxyModel{parent}, terrain(ETerrainId::ANY_TERRAIN)
 {
 }
 
@@ -33,7 +33,7 @@ bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
-	if(terrain == Terrain::ANY_TERRAIN)
+	if(terrain == ETerrainId::ANY_TERRAIN)
 		return result;
 
 	auto data = item->data().toJsonObject();
@@ -112,7 +112,6 @@ ObjectBrowser::ObjectBrowser(QWidget * parent):
 void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 {
 	logGlobal->info("Drag'n'drop: Start dragging object from ObjectBrowser");
-	QDrag *drag = new QDrag(this);
 	auto indexes = selectedIndexes();
 	if(indexes.isEmpty())
 		return;
@@ -121,7 +120,7 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 	if(!mimeData)
 		return;
 		
+	QDrag *drag = new QDrag(this);
 	drag->setMimeData(mimeData);
-
-	Qt::DropAction dropAction = drag->exec(supportedActions);
+	drag->exec(supportedActions);
 }

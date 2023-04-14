@@ -19,7 +19,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
+
+	void configureRewards(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, CRewardVisitInfo::ERewardEventType mode) const;
+
+	void configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const;
+	TRewardLimitersList configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const;
+
+	void configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
+	void configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & info, const JsonNode & source) const;
 public:
+	const JsonNode & getParameters() const;
+
 	bool givesResources() const override;
 
 	bool givesExperience() const override;
@@ -37,10 +47,12 @@ public:
 
 	void configureObject(CRewardableObject * object, CRandomGenerator & rng) const;
 
-	CRandomRewardObjectInfo()
-	{}
-
 	void init(const JsonNode & objectConfig);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & parameters;
+	}
 };
 
 class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
@@ -48,14 +60,23 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 	CRandomRewardObjectInfo objectInfo;
 
 	void initTypeData(const JsonNode & config) override;
+
 public:
-	CRewardableConstructor();
+	bool hasNameTextID() const override;
 
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		AObjectTypeHandler::serialize(h, version);
+
+		if (version >= 816)
+			h & objectInfo;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

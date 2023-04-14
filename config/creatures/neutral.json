@@ -400,7 +400,9 @@
 		{
 			"lucky" :
 			{
-				"type" : "SELF_LUCK"
+				"type" : "LUCK",
+				"val" : 1,
+				"valueType" : "INDEPENDENT_MAX"
 			}
 		 },
 		"graphics" :
@@ -571,7 +573,8 @@
 		{
 			"regenerates" :
 			{
-				"type" : "FULL_HP_REGENERATION"
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			}
 		},
 		"graphics" :

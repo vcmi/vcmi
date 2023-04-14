@@ -14,6 +14,10 @@
 
 #include <boost/program_options.hpp>
 
+#if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
+#define VCMI_ANDROID_DUAL_PROCESS 1
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapInfo;
@@ -113,9 +117,12 @@ public:
 
 	ui8 getIdOfFirstUnallocatedPlayer() const;
 
-#ifdef VCMI_ANDROID
+#if VCMI_ANDROID_DUAL_PROCESS
 	static void create();
 #elif defined(SINGLE_PROCESS_APP)
-    static void create(boost::condition_variable * cond, const std::vector<std::string> & args);
-#endif
+	static void create(boost::condition_variable * cond, const std::vector<std::string> & args);
+# ifdef VCMI_ANDROID
+	static void reuseClientJNIEnv(void * jniEnv);
+# endif // VCMI_ANDROID
+#endif // VCMI_ANDROID_DUAL_PROCESS
 };

@@ -29,7 +29,7 @@ bool BuyArmy::operator==(const BuyArmy & other) const
 
 std::string BuyArmy::toString() const
 {
-	return "Buy army at " + town->name;
+	return "Buy army at " + town->getNameTranslated();
 }
 
 void BuyArmy::accept(AIGateway * ai)

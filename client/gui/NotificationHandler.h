@@ -1,5 +1,5 @@
 /*
-* NotificationHandler.cpp, part of VCMI engine
+* NotificationHandler.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -10,7 +10,8 @@
 
 #pragma once
 
-#include <SDL_events.h>
+struct SDL_Window;
+union SDL_Event;
 
 class NotificationHandler
 {

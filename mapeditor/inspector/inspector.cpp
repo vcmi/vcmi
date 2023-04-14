@@ -67,7 +67,8 @@ void Initializer::initialize(CGCreature * o)
 	if(!o) return;
 	
 	o->character = CGCreature::Character::HOSTILE;
-	o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
+	if(!o->hasStackAtSlot(SlotID(0)))
+	   o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
@@ -131,9 +132,7 @@ void Initializer::initialize(CGHeroInstance * o)
 	if(!o->type)
 		o->type = VLC->heroh->objects.at(o->subID);
 	
-	o->name = o->type->getName();
 	o->sex = o->type->sex;
-	o->biography = o->type->biography;
 	o->portrait = o->type->imageIndex;
 	o->randomizeArmy(o->type->heroClass->faction);
 }
@@ -237,15 +236,15 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	
 	addProperty("Owner", o->tempOwner, o->ID == Obj::PRISON); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
-	addProperty("Hero class", o->type->heroClass->getName(), true);
+	addProperty("Hero class", o->type->heroClass->getNameTranslated(), true);
 	
 	{ //Sex
 		auto * delegate = new InspectorDelegate;
 		delegate->options << "MALE" << "FEMALE";
 		addProperty<std::string>("Sex", (o->sex ? "FEMALE" : "MALE"), delegate , false);
 	}
-	addProperty("Name", o->name, false);
-	addProperty("Biography", o->biography, new MessageDelegate, false);
+	addProperty("Name", o->nameCustom, false);
+	addProperty("Biography", o->biographyCustom, new MessageDelegate, false);
 	addProperty("Portrait", o->portrait, false);
 	
 	{ //Hero type
@@ -255,10 +254,10 @@ void Inspector::updateProperties(CGHeroInstance * o)
 			if(map->allowedHeroes.at(i))
 			{
 				if(o->ID == Obj::PRISON || (o->type && VLC->heroh->objects[i]->heroClass->getIndex() == o->type->heroClass->getIndex()))
-					delegate->options << QObject::tr(VLC->heroh->objects[i]->getName().c_str());
+					delegate->options << QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str());
 			}
 		}
-		addProperty("Hero type", o->type->getName(), delegate, false);
+		addProperty("Hero type", o->type->getNameTranslated(), delegate, false);
 	}
 }
 
@@ -266,7 +265,7 @@ void Inspector::updateProperties(CGTownInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Town name", o->name, false);
+	addProperty("Town name", o->getNameTranslated(), false);
 	
 	auto * delegate = new TownBuildingsDelegate(*o);
 	addProperty("Buildings", PropertyEditorPlaceholder(), delegate, false);
@@ -288,9 +287,9 @@ void Inspector::updateProperties(CGArtifact * o)
 			for(auto spell : VLC->spellh->objects)
 			{
 				//if(map->isAllowedSpell(spell->id))
-				delegate->options << QObject::tr(spell->name.c_str());
+				delegate->options << QObject::tr(spell->getJsonKey().c_str());
 			}
-			addProperty("Spell", VLC->spellh->objects[spellId]->name, delegate, false);
+			addProperty("Spell", VLC->spellh->objects[spellId]->getJsonKey(), delegate, false);
 		}
 	}
 }
@@ -494,7 +493,7 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 	if(!o) return;
 	
 	if(key == "Town name")
-		o->name = value.toString().toStdString();
+		o->setNameTranslated(value.toString().toStdString());
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)
@@ -524,7 +523,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	{
 		for(auto spell : VLC->spellh->objects)
 		{
-			if(spell->name == value.toString().toStdString())
+			if(spell->getJsonKey() == value.toString().toStdString())
 			{
 				o->storedArtifact = CArtifactInstance::createScroll(spell->getId());
 				break;
@@ -554,7 +553,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		o->sex = value.toString() == "MALE" ? 0 : 1;
 	
 	if(key == "Name")
-		o->name = value.toString().toStdString();
+		o->nameCustom = value.toString().toStdString();
 	
 	if(key == "Experience")
 		o->exp = value.toInt();
@@ -563,12 +562,10 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	{
 		for(auto t : VLC->heroh->objects)
 		{
-			if(t->getName() == value.toString().toStdString())
+			if(t->getNameTranslated() == value.toString().toStdString())
 				o->type = t.get();
 		}
-		o->name = o->type->getName();
 		o->sex = o->type->sex;
-		o->biography = o->type->biography;
 		o->portrait = o->type->imageIndex;
 		o->randomizeArmy(o->type->heroClass->faction);
 		updateProperties(); //updating other properties after change

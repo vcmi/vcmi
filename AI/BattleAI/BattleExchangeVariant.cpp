@@ -68,8 +68,9 @@ int64_t BattleExchangeVariant::trackAttack(
 	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
-	TDmgRange retaliation;
-	BattleAttackInfo bai(attacker.get(), defender.get(), shooting);
+	DamageEstimation retaliation;
+	// FIXME: provide distance info for Jousting bonus
+	BattleAttackInfo bai(attacker.get(), defender.get(), 0, shooting);
 
 	if(shooting)
 	{
@@ -77,7 +78,7 @@ int64_t BattleExchangeVariant::trackAttack(
 	}
 
 	auto attack = cb.battleEstimateDamage(bai, &retaliation);
-	int64_t attackDamage = (attack.first + attack.second) / 2;
+	int64_t attackDamage = (attack.damage.min + attack.damage.max) / 2;
 	int64_t defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, cb);
 	int64_t attackerDamageReduce = 0;
 
@@ -107,9 +108,9 @@ int64_t BattleExchangeVariant::trackAttack(
 
 	if(defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
-		if(retaliation.second != 0)
+		if(retaliation.damage.max != 0)
 		{
-			auto retaliationDamage = (retaliation.first + retaliation.second) / 2;
+			auto retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
 			attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, cb);
 
 			if(!evaluateOnly)
@@ -215,8 +216,6 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 
 	for(const battle::Unit * enemy : targets.unreachableEnemies)
 	{
-		int64_t stackScore = EvaluationResult::INEFFECTIVE_SCORE;
-
 		std::vector<const battle::Unit *> adjacentStacks = getAdjacentUnits(enemy);
 		auto closestStack = *vstd::minElementByFun(adjacentStacks, [&](const battle::Unit * u) -> int64_t
 			{
@@ -236,7 +235,8 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 
 		for(auto hex : hexes)
 		{
-			auto bai = BattleAttackInfo(activeStack, closestStack, cb->battleCanShoot(activeStack));
+			// FIXME: provide distance info for Jousting bonus
+			auto bai = BattleAttackInfo(activeStack, closestStack, 0, cb->battleCanShoot(activeStack));
 			auto attack = AttackPossibility::evaluate(bai, hex, hb);
 
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
@@ -354,6 +354,13 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %lld", ap.attack.shooting ? ap.dest : ap.from);
 #endif
+
+	if(cb->battleGetMySide() == BattlePerspective::LEFT_SIDE
+		&& cb->battleGetGateState() == EGateState::BLOCKED
+		&& ap.attack.defender->coversPos(ESiegeHex::GATE_BRIDGE))
+	{
+		return EvaluationResult::INEFFECTIVE_SCORE;
+	}
 
 	std::vector<const battle::Unit *> ourStacks;
 	std::vector<const battle::Unit *> enemyStacks;

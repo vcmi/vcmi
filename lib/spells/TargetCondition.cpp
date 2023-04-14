@@ -26,20 +26,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
-TargetConditionItem::TargetConditionItem() = default;
-TargetConditionItem::~TargetConditionItem() = default;
-
 class TargetConditionItemBase : public TargetConditionItem
 {
 public:
-	bool inverted;
-	bool exclusive;
-
-	TargetConditionItemBase()
-		: inverted(false),
-		exclusive(false)
-	{
-	}
+	bool inverted = false;
+	bool exclusive = false;
 
 	void setInverted(bool value) override
 	{
@@ -66,31 +57,40 @@ protected:
 	virtual bool check(const Mechanics * m, const battle::Unit * target) const = 0;
 };
 
-class BonusCondition : public TargetConditionItemBase
+class SelectorCondition : public TargetConditionItemBase
 {
 public:
-	BonusCondition(BonusTypeID type_)
-		: type(type_)
+	SelectorCondition(const CSelector & csel):
+		sel(csel)
+	{
+	}
+	SelectorCondition(const CSelector & csel, si32 minVal, si32 maxVal):
+		sel(csel),
+		minVal(minVal),
+		maxVal(maxVal)
 	{
 	}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return target->hasBonus(Selector::type()(type));
+		if(target->hasBonus(sel)) {
+			auto b = target->valOfBonuses(sel,"");
+			return b >= minVal && b <= maxVal;
+		}
+		return false;
 	}
 
 private:
-	BonusTypeID type;
+	CSelector sel;
+	si32 minVal = std::numeric_limits<si32>::min();
+	si32 maxVal = std::numeric_limits<si32>::max();
 };
 
 class CreatureCondition : public TargetConditionItemBase
 {
 public:
-	CreatureCondition(CreatureID type_)
-		: type(type_)
-	{
-	}
+	CreatureCondition(const CreatureID & type_): type(type_) {}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
@@ -118,10 +118,7 @@ protected:
 		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
 
 		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
-		
-		return levelImmunities->size() == 0 ||
-		levelImmunities->totalValue() < m->getSpellLevel() ||
-		m->getSpellLevel() <= 0;
+		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
 	}
 };
 
@@ -218,11 +215,6 @@ protected:
 //for Hypnotize
 class HealthValueCondition : public TargetConditionItemBase
 {
-public:
-	HealthValueCondition()
-	{
-	}
-
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -238,8 +230,7 @@ protected:
 class SpellEffectCondition : public TargetConditionItemBase
 {
 public:
-	SpellEffectCondition(SpellID spellID_)
-		: spellID(spellID_)
+	SpellEffectCondition(const SpellID & spellID_): spellID(spellID_)
 	{
 		std::stringstream builder;
 		builder << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
@@ -262,13 +253,6 @@ private:
 
 class ReceptiveFeatureCondition : public TargetConditionItemBase
 {
-public:
-	ReceptiveFeatureCondition()
-	{
-		selector = Selector::type()(Bonus::RECEPTIVE);
-		cachingString = "type_RECEPTIVE";
-	}
-
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -276,17 +260,12 @@ protected:
 	}
 
 private:
-	CSelector selector;
-	std::string cachingString;
+	CSelector selector = Selector::type()(Bonus::RECEPTIVE);
+	std::string cachingString = "type_RECEPTIVE";
 };
 
 class ImmunityNegationCondition : public TargetConditionItemBase
 {
-public:
-	ImmunityNegationCondition()
-	{
-	}
-
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -348,8 +327,16 @@ public:
 
 			auto it = bonusNameMap.find(identifier);
 			if(it != bonusNameMap.end())
-				return std::make_shared<BonusCondition>(it->second);
-			else
+				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
+
+			auto params = BonusParams(identifier, "", -1);
+			if(params.isConverted)
+			{
+				if(params.valRelevant)
+					return std::make_shared<SelectorCondition>(params.toSelector(), params.val, params.val);
+				return std::make_shared<SelectorCondition>(params.toSelector());
+			}
+
 				logMod->error("Invalid bonus type %s in spell target condition.", identifier);
 		}
 		else if(type == "creature")
@@ -382,6 +369,26 @@ public:
 		return Object();
 	}
 
+	Object createFromJsonStruct(const JsonNode & jsonStruct) const override
+	{
+		auto type = jsonStruct["type"].String();
+		auto parameters = jsonStruct["parameters"];
+		if(type == "selector")
+		{
+			auto minVal = std::numeric_limits<si32>::min();
+			auto maxVal = std::numeric_limits<si32>::max();
+			if(parameters["minVal"].isNumber())
+				minVal = parameters["minVal"].Integer();
+			if(parameters["maxVal"].isNumber())
+				maxVal = parameters["maxVal"].Integer();
+			auto sel = JsonUtils::parseSelector(parameters);
+			return std::make_shared<SelectorCondition>(sel, minVal, maxVal);
+		}
+
+		logMod->error("Invalid type %s in spell target condition.", type);
+		return Object();
+	}
+
 	Object createReceptiveFeature() const override
 	{
 		static std::shared_ptr<TargetConditionItem> condition = std::make_shared<ReceptiveFeatureCondition>();
@@ -400,20 +407,16 @@ const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
 	static std::unique_ptr<TargetConditionItemFactory> singleton;
 
 	if(!singleton)
-		singleton = make_unique<DefaultTargetConditionItemFactory>();
+		singleton = std::make_unique<DefaultTargetConditionItemFactory>();
 	return singleton.get();
 }
-
-TargetCondition::TargetCondition() = default;
-
-TargetCondition::~TargetCondition() = default;
 
 bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * target) const
 {
 	if(!check(absolute, m, target))
 		return false;
 
-	for(auto item : negation)
+	for(const auto & item : negation)
 	{
 		if(item->isReceptive(m, target))
 			return true;
@@ -423,6 +426,7 @@ bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * targ
 
 void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFactory * itemFactory)
 {
+	bool isNonMagical = false;
 	if(handler.saving)
 	{
 		logGlobal->error("Spell target condition saving is not supported");
@@ -433,13 +437,18 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 	normal.clear();
 	negation.clear();
 
-	absolute.push_back(itemFactory->createAbsoluteLevel());
 	absolute.push_back(itemFactory->createAbsoluteSpell());
-	normal.push_back(itemFactory->createElemental());
-	normal.push_back(itemFactory->createNormalLevel());
-	normal.push_back(itemFactory->createNormalSpell());
-	negation.push_back(itemFactory->createReceptiveFeature());
-	negation.push_back(itemFactory->createImmunityNegation());
+
+	handler.serializeBool("nonMagical", isNonMagical);
+	if(!isNonMagical)
+	{
+		absolute.push_back(itemFactory->createAbsoluteLevel());
+		normal.push_back(itemFactory->createElemental());
+		normal.push_back(itemFactory->createNormalLevel());
+		normal.push_back(itemFactory->createNormalSpell());
+		negation.push_back(itemFactory->createReceptiveFeature());
+		negation.push_back(itemFactory->createImmunityNegation());
+	}
 
 	{
 		auto anyOf = handler.enterStruct("anyOf");
@@ -462,7 +471,7 @@ bool TargetCondition::check(const ItemVector & condition, const Mechanics * m, c
 	bool nonExclusiveCheck = false;
 	bool nonExclusiveExits = false;
 
-	for(auto & item : condition)
+	for(const auto & item : condition)
 	{
 		if(item->isExclusive())
 		{
@@ -481,7 +490,7 @@ bool TargetCondition::check(const ItemVector & condition, const Mechanics * m, c
 
 void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory)
 {
-	for(auto & keyValue : source.Struct())
+	for(const auto & keyValue : source.Struct())
 	{
 		bool isAbsolute;
 
@@ -491,14 +500,24 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 			isAbsolute = true;
 		else if(value.String() == "normal")
 			isAbsolute = false;
+		else if(value.isStruct()) //assume conditions have a new struct format
+			isAbsolute = value["absolute"].Bool();
 		else
 			continue;
 
-		std::string scope, type, identifier;
+		std::shared_ptr<TargetConditionItem> item;
+		if(value.isStruct())
+			item = itemFactory->createFromJsonStruct(value);
+		else
+		{
+			std::string scope;
+			std::string type;
+			std::string identifier;
 
-		VLC->modh->parseIdentifier(keyValue.first, scope, type, identifier);
+			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
 
-		std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(scope, type, identifier);
+			item = itemFactory->createConfigurable(scope, type, identifier);
+		}
 
 		if(item)
 		{

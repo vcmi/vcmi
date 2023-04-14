@@ -23,11 +23,11 @@ std::string formatContainer(const Container & c, std::string delimeter = ", ", s
 	auto itr = std::begin(c);
 	if(itr != std::end(c))
 	{
-		ret += boost::lexical_cast<std::string>(*itr);
+		ret += std::to_string(*itr);
 		while(++itr != std::end(c))
 		{
 			ret += delimeter;
-			ret += boost::lexical_cast<std::string>(*itr);
+			ret += std::to_string(*itr);
 		}
 	}
 	ret += closer;
@@ -380,6 +380,9 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	if(auto upgrade = dynamic_ptr_cast<UpgradeCreature>(pack))
 		return !vstd::contains(ourIds, upgrade->id);
 
+	if(auto formation = dynamic_ptr_cast<SetFormation>(pack))
+		return !vstd::contains(ourIds, formation->hid);
+
 	return CDialogQuery::blocksPack(pack);
 }
 
@@ -486,10 +489,10 @@ void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 	if(visitDestAfterVictory && hero->tempOwner == players[0]) //hero still alive, so he won with the guard
 		//TODO what if there were H4-like escape? we should also check pos
 	{
-		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->name, tmh.end.toString());
+		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->getNameTranslated(), tmh.end.toString());
 		//finish movement
 		visitDestAfterVictory = false;
-		gh->visitObjectOnTile(*gh->getTile(CGHeroInstance::convertPosition(tmh.end, false)), hero);
+		gh->visitObjectOnTile(*gh->getTile(hero->convertToVisitablePos(tmh.end)), hero);
 	}
 
 	owner->popIfTop(*this);
@@ -535,6 +538,11 @@ void CGenericQuery::onExposure(QueryPtr topQuery)
 }
 
 void CGenericQuery::setReply(const JsonNode & reply)
+{
+	this->reply = reply;
+}
+
+void CGenericQuery::onRemoval(PlayerColor color)
 {
 	callback(reply);
 }

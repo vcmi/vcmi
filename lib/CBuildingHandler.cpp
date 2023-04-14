@@ -12,7 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<BuildingID> builtBuildings )
+BuildingID CBuildingHandler::campToERMU(int camp, int townType, const std::set<BuildingID> & builtBuildings)
 {
 	static const std::vector<BuildingID> campToERMU = 
 	{

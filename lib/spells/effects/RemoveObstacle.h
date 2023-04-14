@@ -27,9 +27,6 @@ namespace effects
 class RemoveObstacle : public LocationEffect
 {
 public:
-	RemoveObstacle();
-	virtual ~RemoveObstacle();
-
 	bool applicable(Problem & problem, const Mechanics * m) const override;
 	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
 
@@ -39,9 +36,9 @@ protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
 
 private:
-    bool removeAbsolute;
-    bool removeUsual;
-    bool removeAllSpells;
+    bool removeAbsolute = false;
+    bool removeUsual = false;
+    bool removeAllSpells = false;
 
     std::set<SpellID> removeSpells;
 

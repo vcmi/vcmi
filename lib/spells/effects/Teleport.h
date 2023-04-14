@@ -24,9 +24,6 @@ namespace effects
 class Teleport : public UnitEffect
 {
 public:
-	Teleport();
-	virtual ~Teleport();
-
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;

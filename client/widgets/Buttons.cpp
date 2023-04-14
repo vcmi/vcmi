@@ -16,21 +16,26 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
-#include "../gui/CAnimation.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
+#include "../render/CAnimation.h"
+#include "../renderSDL/SDL_Extensions.h"
+
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CGeneralTextHandler.h"
 
 void CButton::update()
 {
 	if (overlay)
 	{
+		Point targetPos = Rect::createCentered( pos, overlay->pos.dimensions()).topLeft();
+
 		if (state == PRESSED)
-			overlay->moveTo(overlay->pos.centerIn(pos).topLeft() + Point(1,1));
+			overlay->moveTo(targetPos + Point(1,1));
 		else
-			overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+			overlay->moveTo(targetPos);
 	}
 
 	int newPos = stateToIndex[int(state)];
@@ -77,15 +82,19 @@ void CButton::addCallback(std::function<void()> callback)
 void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, CENTER, color, Text));
+	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
 
 void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 {
 	overlay = newOverlay;
-	addChild(newOverlay.get());
-	overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	if(overlay)
+	{
+		addChild(newOverlay.get());
+		Point targetPos = Rect::createCentered( pos, overlay->pos.dimensions()).topLeft();
+		overlay->moveTo(targetPos);
+	}
 	update();
 }
 
@@ -207,26 +216,10 @@ void CButton::hover (bool on)
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
-		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
-		{
-			if(on && LOCPLINT->battleInt->console->alterTxt == "")
-			{
-				LOCPLINT->battleInt->console->alterTxt = name;
-				LOCPLINT->battleInt->console->whoSetAlter = 1;
-			}
-			else if (LOCPLINT->battleInt->console->alterTxt == name)
-			{
-				LOCPLINT->battleInt->console->alterTxt = "";
-				LOCPLINT->battleInt->console->whoSetAlter = 0;
-			}
-		}
-		else if(GH.statusbar) //for other buttons
-		{
-			if (on)
-				GH.statusbar->setText(name);
-			else if ( GH.statusbar->getText()==(name) )
-				GH.statusbar->clear();
-		}
+		if (on)
+			GH.statusbar->write(name);
+		else
+			GH.statusbar->clearIfMatching(name);
 	}
 }
 
@@ -289,8 +282,8 @@ void CButton::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 
 	auto borderColor = stateToBorderColor[getState()];
-	if (borderColor && borderColor->a == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
+	if (borderColor)
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, *borderColor);
 }
 
 std::pair<std::string, std::string> CButton::tooltip()
@@ -298,9 +291,12 @@ std::pair<std::string, std::string> CButton::tooltip()
 	return std::pair<std::string, std::string>();
 }
 
-std::pair<std::string, std::string> CButton::tooltip(const JsonNode & localizedTexts)
+std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
-	return std::make_pair(localizedTexts["label"].String(), localizedTexts["help"].String());
+	return std::make_pair(
+		CGI->generaltexth->translate(key, "hover"),
+		CGI->generaltexth->translate(key, "help")
+	);
 }
 
 std::pair<std::string, std::string> CButton::tooltip(const std::string & hover, const std::string & help)
@@ -461,14 +457,18 @@ void CToggleGroup::selectionChanged(int to)
 		buttons[to]->setSelected(true);
 
 	onChange(to);
-	if (parent)
-		parent->redraw();
+	redraw();
 }
 
-CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
+int CToggleGroup::getSelected() const
+{
+	return selectedID;
+}
+
+CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, ETooltipMode mode)
 	: CIntObject(LCLICK | RCLICK | WHEEL),
 	value(value),
-	helpHandlers(help)
+	mode(mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	animImage = std::make_shared<CAnimImage>(std::make_shared<CAnimation>(defName), 0, 0, position.x, position.y),
@@ -504,7 +504,7 @@ void CVolumeSlider::clickLeft(tribool down, bool previousState)
 {
 	if (down)
 	{
-		double px = GH.current->motion.x - pos.x;
+		double px = GH.getCursorPosition().x - pos.x;
 		double rx = px / static_cast<double>(pos.w);
 		// setVolume is out of 100
 		setVolume((int)(rx * 100));
@@ -523,14 +523,16 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
-		double px = GH.current->motion.x - pos.x;
+		double px = GH.getCursorPosition().x - pos.x;
 		int index = static_cast<int>(px / static_cast<double>(pos.w) * animImage->size());
-		std::string hoverText = helpHandlers[index].first;
-		std::string helpBox = helpHandlers[index].second;
+
+		size_t helpIndex = index + (mode == MUSIC ? 326 : 336);
+		std::string helpBox = CGI->generaltexth->translate("core.help", helpIndex, "help" );
+
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
 		if(GH.statusbar)
-			GH.statusbar->setText(helpBox);
+			GH.statusbar->write(helpBox);
 	}
 }
 
@@ -551,29 +553,29 @@ void CSlider::sliderClicked()
 		addUsedEvents(MOVE);
 }
 
-void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CSlider::mouseMoved (const Point & cursorPosition)
 {
 	double v = 0;
 	if(horizontal)
 	{
-		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  )
+		if(	std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2  )
 			return;
-		v = sEvent.x - pos.x - 24;
+		v = cursorPosition.x - pos.x - 24;
 		v *= positions;
 		v /= (pos.w - 48);
 	}
 	else
 	{
-		if(std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2  )
+		if(std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2  )
 			return;
-		v = sEvent.y - pos.y - 24;
+		v = cursorPosition.y - pos.y - 24;
 		v *= positions;
 		v /= (pos.h - 48);
 	}
 	v += 0.5;
 	if(v!=value)
 	{
-		moveTo((int)v);
+		moveTo(static_cast<int>(v));
 	}
 }
 
@@ -582,14 +584,29 @@ void CSlider::setScrollStep(int to)
 	scrollStep = to;
 }
 
-int CSlider::getAmount()
+void CSlider::setScrollBounds(const Rect & bounds )
+{
+	scrollBounds = bounds;
+}
+
+void CSlider::clearScrollBounds()
+{
+	scrollBounds = boost::none;
+}
+
+int CSlider::getAmount() const
 {
 	return amount;
 }
 
-int CSlider::getValue()
+int CSlider::getValue() const
 {
 	return value;
+}
+
+int CSlider::getCapacity() const
+{
+	return capacity;
 }
 
 void CSlider::moveLeft()
@@ -658,19 +675,19 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		double rw = 0;
 		if(horizontal)
 		{
-			pw = GH.current->motion.x-pos.x-25;
+			pw = GH.getCursorPosition().x-pos.x-25;
 			rw = pw / static_cast<double>(pos.w - 48);
 		}
 		else
 		{
-			pw = GH.current->motion.y-pos.y-24;
+			pw = GH.getCursorPosition().y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
 		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) - 40)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->mouseState(EIntObjMouseBtnType::LEFT));
+		slider->clickLeft(true, slider->mouseState(MouseButton::LEFT));
 		moveTo((int)(rw * positions  +  0.5));
 		return;
 	}
@@ -762,21 +779,31 @@ void CSlider::setAmount( int to )
 
 void CSlider::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::fillRectBlack(to, &pos);
+	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
 	CIntObject::showAll(to);
 }
 
 void CSlider::wheelScrolled(bool down, bool in)
 {
-	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
+	if (scrollBounds)
+	{
+		Rect testTarget = *scrollBounds + pos.topLeft();
+
+		if (!testTarget.isInside(GH.getCursorPosition()))
+			return;
+	}
+
+	// vertical slider -> scrolling up move slider upwards
+	// horizontal slider -> scrolling up moves slider towards right
+	bool positive = (down != horizontal);
+
+	moveTo(value + 3 * (positive ? +scrollStep : -scrollStep));
 }
 
-void CSlider::keyPressed(const SDL_KeyboardEvent & key)
+void CSlider::keyPressed(const SDL_Keycode & key)
 {
-	if(key.state != SDL_PRESSED) return;
-
 	int moveDest = value;
-	switch(key.keysym.sym)
+	switch(key)
 	{
 	case SDLK_UP:
 		if (!horizontal)

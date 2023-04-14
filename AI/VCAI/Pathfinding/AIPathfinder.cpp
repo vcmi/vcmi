@@ -55,7 +55,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 	auto calculatePaths = [&](const CGHeroInstance * hero, std::shared_ptr<AIPathfinding::AIPathfinderConfig> config)
 	{
-		logAi->debug("Recalculate paths for %s", hero->name);
+		logAi->debug("Recalculate paths for %s", hero->getNameTranslated());
 		
 		cb->calculatePaths(config);
 	};

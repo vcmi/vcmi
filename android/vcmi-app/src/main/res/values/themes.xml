@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base.Theme.VCMI" parent="@style/Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/bgMain</item>
+        <item name="colorPrimaryDark">@color/bgDark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
+
+        <item name="android:textViewStyle">@style/VCMI.Text</item>
+    </style>
+
+    <style name="Theme.VCMI" parent="@style/Base.Theme.VCMI">
+        <item name="android:listDivider">@drawable/divider_compat</item>
+    </style>
+
+    <style name="Theme.VCMI.Full">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+
+    <style name="VCMI" />
+
+    <style name="VCMI.Text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+        <item name="android:textColor">@color/textMain</item>
+    </style>
+
+    <style name="VCMI.Text.Header">
+        <item name="android:textSize">@dimen/font_header</item>
+    </style>
+
+    <style name="VCMI.Text.LauncherSection">
+        <item name="android:textColor">?attr/colorAccent</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+        <item name="android:paddingLeft">@dimen/side_margin</item>
+        <item name="android:paddingRight">@dimen/side_margin</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+
+    <style name="VCMI.Text.LauncherEntry">
+        <item name="android:textSize">@dimen/font_big</item>
+    </style>
+
+    <style name="VCMI.Text.LauncherEntry.Sub">
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+    </style>
+
+    <style name="VCMI.Text.ModName">
+        <item name="android:textSize">@dimen/font_big</item>
+    </style>
+
+    <style name="VCMI.Text.ModAuthor" />
+
+    <style name="VCMI.Text.ModSize">
+        <item name="android:textColor">@color/textSecondary</item>
+    </style>
+
+    <style name="VCMI.Text.ModType">
+        <item name="android:textColor">@color/textSecondary</item>
+    </style>
+
+    <style name="VCMI.OverlayButton">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:elevation">2dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="VCMI.Entry">
+        <item name="android:minHeight">@dimen/entry_min_height</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingLeft">@dimen/side_margin</item>
+        <item name="android:paddingRight">@dimen/side_margin</item>
+    </style>
+
+    <style name="VCMI.Entry.Clickable">
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="VCMI.Entry.Clickable.AboutSimpleEntry">
+        <item name="android:minHeight">@dimen/entry_about_min_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+        <item name="android:textColor">@color/textMain</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+    </style>
+
+</resources>

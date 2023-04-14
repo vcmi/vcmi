@@ -18,7 +18,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 
-#include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 
 namespace NKAI
 {
@@ -69,7 +69,7 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 	}
 
 	h = H;
-	name = h->name;
+	name = h->getNameTranslated();
 	hid = H->id;
 //	infosCount[ai->playerID][hid]++;
 }
@@ -109,7 +109,9 @@ const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 		}
 		else
 		{
-			assert(obj);
+			if (!obj)
+				logAi->error("Accessing no longer accessible hero %s!", h->getNameTranslated());
+			//assert(obj);
 			//assert(owned);
 		}
 	}
@@ -314,8 +316,9 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 		return false;
 
 	//TODO: allow polling of remaining creatures in dwelling
-	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
-		return true;
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
+		return rewardable->getResetDuration() == 7;
+
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
 	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
@@ -442,7 +445,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->cb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
+		return ai->cb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:

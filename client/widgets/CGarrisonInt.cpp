@@ -14,23 +14,20 @@
 #include "TextControls.h"
 
 #include "../gui/CGuiHandler.h"
-
-#include "../CGameInfo.h"
-#include "../CPlayerInterface.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
+#include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/TextOperations.h"
 
 #include "../../lib/CGameState.h"
-
-#ifdef VCMI_MAC
-#define SDL_SCANCODE_LCTRL SDL_SCANCODE_LGUI
-#endif
 
 void CGarrisonSlot::setHighlight(bool on)
 {
@@ -53,18 +50,18 @@ void CGarrisonSlot::hover (bool on)
 				if(owner->getSelection() == this)
 				{
 					temp = CGI->generaltexth->tcommands[4]; //View %s
-					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature == creature)
 				{
 					temp = CGI->generaltexth->tcommands[2]; //Combine %s armies
-					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature)
 				{
 					temp = CGI->generaltexth->tcommands[7]; //Exchange %s with %s
-					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->nameSing);
-					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
+					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else
 				{
@@ -92,7 +89,7 @@ void CGarrisonSlot::hover (bool on)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+				boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 			}
 		}
 		else
@@ -110,7 +107,7 @@ void CGarrisonSlot::hover (bool on)
 				else
 				{
 					temp = CGI->generaltexth->tcommands[6]; //Move %s
-					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
 				}
 			}
 			else
@@ -118,7 +115,7 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		GH.statusbar->setText(temp);
+		GH.statusbar->write(temp);
 	}
 	else
 	{
@@ -163,7 +160,7 @@ std::function<void()> CGarrisonSlot::getDismiss() const
 bool CGarrisonSlot::viewInfo()
 {
 	UpgradeInfo pom;
-	LOCPLINT->cb->getUpgradeInfo(getObj(), ID, pom);
+	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
 
 	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
@@ -334,7 +331,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				lastHeroStackSelected = true;
 			}
 
-			if((owner->getSplittingMode() || LOCPLINT->shiftPressed()) // split window
+			if((owner->getSplittingMode() || GH.isKeyboardShiftDown()) // split window
 				&& (!creature || creature == selection->creature))
 			{
 				refr = split();
@@ -378,7 +375,7 @@ void CGarrisonSlot::update()
 		creatureImage->setFrame(creature->getIconIndex());
 
 		stackCount->enable();
-		stackCount->setText(boost::lexical_cast<std::string>(myStack->count));
+		stackCount->setText(TextOperations::formatMetric(myStack->count, 4));
 	}
 	else
 	{
@@ -418,7 +415,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGa
 		pos.h = 64;
 	}
 
-	stackCount = std::make_shared<CLabel>(pos.w, pos.h, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+	stackCount = std::make_shared<CLabel>(pos.w, pos.h, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 
 	update();
 }
@@ -437,10 +434,9 @@ void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount
 
 bool CGarrisonSlot::handleSplittingShortcuts()
 {
-	const Uint8 * state = SDL_GetKeyboardState(NULL);
-	const bool isAlt = !!state[SDL_SCANCODE_LALT];
-	const bool isLShift = !!state[SDL_SCANCODE_LSHIFT];
-	const bool isLCtrl = !!state[SDL_SCANCODE_LCTRL];
+	const bool isAlt = GH.isKeyboardAltDown();
+	const bool isLShift = GH.isKeyboardShiftDown();
+	const bool isLCtrl = GH.isKeyboardCtrlDown();
 
 	if(!isAlt && !isLShift && !isLCtrl)
 		return false; // This is only case when return false

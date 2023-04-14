@@ -11,7 +11,6 @@
 
 #include "Teleport.h"
 #include "Registry.h"
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 #include "../../NetPacks.h"
 #include "../../battle/CBattleInfoCallback.h"
@@ -19,22 +18,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//TODO: Teleport effect
-
-static const std::string EFFECT_NAME = "core:teleport";
-
 namespace spells
 {
 namespace effects
 {
-VCMI_REGISTER_SPELL_EFFECT(Teleport, EFFECT_NAME);
-
-Teleport::Teleport()
-	: UnitEffect()
-{
-}
-
-Teleport::~Teleport() = default;
 
 void Teleport::adjustTargetTypes(std::vector<TargetType> & types) const
 {
@@ -71,7 +58,7 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 		return;
 	}
 
-	auto targetUnit = target[0].unitValue;
+	const auto *targetUnit = target[0].unitValue;
 	if(nullptr == targetUnit)
 	{
 		server->complain("No unit to teleport");

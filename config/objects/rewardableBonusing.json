@@ -1,0 +1,468 @@
+{
+	/// These are objects that covered by concept of "configurable object" and have their entire configuration in this config
+
+	"buoy" : {
+		"index" : 11,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPBUOY"],
+				"visit" : ["MORALE"]
+			}
+		},
+		"types" : {
+			"buoy" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"blockedVisitable" : true,
+				"onVisitedMessage" : 22,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 21,
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 94 } ]
+					}
+				]
+			}	
+		}
+	},
+	"swanPond" : {
+		"index" : 14,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LUCK"]
+			}
+		},
+		"types" : {
+			"swanPond" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 30,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 29,
+						"movePercentage" : 0,
+						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "description" : 67 } ]
+					}
+				]
+			}
+		}
+	},
+	"faerieRing" : {
+		"index" : 28,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFAER"],
+				"visit" : ["LUCK"]
+			}
+		},
+		"types" : {
+			"faerieRing" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 50,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 49,
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 71 } ]
+					}
+				]
+			}
+		}
+	},
+	"fountainOfFortune" : {
+		"index" : 30,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFOUN"],
+				"visit" : ["LUCK"]
+			}
+		},
+		"types" : {
+			"fountainOfFortune" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 56,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"resetParameters" : {
+					"period" : 7,
+					"rewards" : true
+				},
+
+				"rewards" : [
+					{
+						"message" : 55,
+						"appearChance" : { "min" : 0, "max" : 25 },
+						"bonuses" : [ { "type" : "LUCK", "val" : -1, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
+					},
+					{
+						"message" : 55,
+						"appearChance" : { "min" : 25, "max" : 50 },
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
+					},
+					{
+						"message" : 55,
+						"appearChance" : { "min" : 50, "max" : 75 },
+						"bonuses" : [ { "type" : "LUCK", "val" : 2, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
+					},
+					{
+						"message" : 55,
+						"appearChance" : { "min" : 75, "max" : 100 },
+						"bonuses" : [ { "type" : "LUCK", "val" : 3, "duration" : "ONE_BATTLE", "description" : 69 } ] // NOTE: strings has %s placeholder for morale value
+					},
+				]
+			}
+		}
+	},
+	"fountainOfYouth" : {
+		"index" : 31,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFALL"],
+				"visit" : ["MORALE"]
+			}
+		},
+		"types" : {
+			"fountainOfYouth" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 50
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 58,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 57,
+						"movePoints" : 400,
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 103 } ]
+					}
+				]
+			}
+		}
+	},
+	"idolOfFortune" : {
+		"index" : 38,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LUCK"]
+			}
+		},
+		"types" : {
+			"idolOfFortune" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 63,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 62,
+						"limiter" : { 
+							"anyOf" : [
+								{ "dayOfWeek" : 1 },
+								{ "dayOfWeek" : 3 },
+								{ "dayOfWeek" : 5 }
+							]
+						},
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 } ]
+					},
+					{
+						"message" : 62,
+						"limiter" : { 
+							"anyOf" : [
+								{ "dayOfWeek" : 2 },
+								{ "dayOfWeek" : 4 },
+								{ "dayOfWeek" : 6 }
+							]
+						},
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 } ]
+					},
+					{
+						"message" : 62,
+						"limiter" : { "dayOfWeek" : 7 },
+						"bonuses" : [ 
+							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 },
+							{ "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 68 }  
+						]
+					}
+				]
+			}
+		}
+	},
+	"mermaids" : {
+		"index" : 52,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LUCK"]
+			}
+		},
+		"types" : {
+			"mermaids" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 20
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 82,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 83,
+						"bonuses" : [ { "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 72 } ]
+					}
+				]
+			}
+		}
+	},
+	"oasis" : {
+		"index" : 56,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MORALE"]
+			}
+		},
+		"types" : {
+			"oasis" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 50
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 95,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 94,
+						"movePoints" : 800,
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 95 } ]
+					}
+				]
+			}
+		}
+	},
+	"stables" : {
+		"index" : 94,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPHORS"],
+				"visit" : ["STORE"]
+			}
+		},
+		"types" : {
+			"stables" : {
+				"index" : 0,
+				"aiValue" : 200,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 200,
+					"rarity"	: 40
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"onVisited" : [
+					{
+						"message" : 139,
+						"limiter" : {
+							"creatures" : [ { "type" : "cavalier", "amount" : 1 } ],
+						},
+						"changeCreatures" : {
+							"cavalier" : "champion"
+						}
+					},
+					{
+						"message" : 136
+					},
+				],
+
+				"rewards" : [
+					{
+						"limiter" : {
+							"creatures" : [ { "type" : "cavalier", "amount" : 1 } ],
+						},
+						"message" : 138,
+						"movePoints" : 400,
+						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : 1,  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ],
+						"changeCreatures" : {
+							"cavalier" : "champion"
+						}
+					},
+					{
+						"message" : 137,
+						"movePoints" : 400,
+						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : 1,  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ]
+					}
+				]
+			}
+		}
+	},
+	"temple" : {
+		"index" : 96,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSANC"],
+				"visit" : ["TEMPLE"]
+			}
+		},
+		"types" : {
+			"temple" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 141,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 140,
+						"limiter" : { "dayOfWeek" : 7 },
+						"bonuses" : [ { "type" : "MORALE", "val" : 2, "duration" : "ONE_BATTLE", "description" : 97 } ]
+					},
+					{
+						"message" : 140,
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 96 } ]
+					}
+				]
+			}
+		}
+	},
+	"rallyFlag" : {
+		"index" : 64,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFLAG"],
+				"visit" : ["MORALE"]
+			}
+		},
+		"types" : {
+			"rallyFlag" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 111,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 110,
+						"movePoints" : 400,
+						"bonuses" : [ 
+							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 102 },
+							{ "type" : "LUCK", "val" : 1, "duration" : "ONE_BATTLE", "description" : 102 }
+						]
+					}
+				]
+			}
+		}
+	},
+	"wateringHole" : {
+		"index" : 110,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MORALE"]
+			}
+		},
+		"types" : {
+			"wateringHole" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 500,
+					"rarity"	: 50
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 167,
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 166,
+						"movePoints" : 400,
+						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 100 } ]
+					}
+				]
+			} 
+		}
+	}
+}

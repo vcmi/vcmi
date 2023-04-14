@@ -10,16 +10,19 @@
 #include "StdInc.h"
 #include "CKingdomInterface.h"
 
-#include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
-#include "../CMT.h"
 #include "../CPlayerInterface.h"
+#include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/ObjectLists.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 
@@ -28,6 +31,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -54,27 +58,27 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 	switch(infoPos)
 	{
 	case POS_CORNER:
-		value = std::make_shared<CLabel>(pos.w, pos.h, font, BOTTOMRIGHT, Colors::WHITE, data->getValueText());
+		value = std::make_shared<CLabel>(pos.w, pos.h, font, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, data->getValueText());
 		break;
 	case POS_INSIDE:
-		value = std::make_shared<CLabel>(pos.w/2, pos.h-6, font, CENTER, Colors::WHITE, data->getValueText());
+		value = std::make_shared<CLabel>(pos.w/2, pos.h-6, font, ETextAlignment::CENTER, Colors::WHITE, data->getValueText());
 		break;
 	case POS_UP_DOWN:
-		name = std::make_shared<CLabel>(pos.w/2, -12, font, CENTER, Colors::WHITE, data->getNameText());
+		name = std::make_shared<CLabel>(pos.w/2, -12, font, ETextAlignment::CENTER, Colors::WHITE, data->getNameText());
 		FALLTHROUGH;
 	case POS_DOWN:
-		value = std::make_shared<CLabel>(pos.w/2, pos.h+8, font, CENTER, Colors::WHITE, data->getValueText());
+		value = std::make_shared<CLabel>(pos.w/2, pos.h+8, font, ETextAlignment::CENTER, Colors::WHITE, data->getValueText());
 		break;
 	case POS_RIGHT:
-		name = std::make_shared<CLabel>(pos.w+6, 6, font, TOPLEFT, Colors::WHITE, data->getNameText());
-		value = std::make_shared<CLabel>(pos.w+6, pos.h-16, font, TOPLEFT, Colors::WHITE, data->getValueText());
+		name = std::make_shared<CLabel>(pos.w+6, 6, font, ETextAlignment::TOPLEFT, Colors::WHITE, data->getNameText());
+		value = std::make_shared<CLabel>(pos.w+6, pos.h-16, font, ETextAlignment::TOPLEFT, Colors::WHITE, data->getValueText());
 		break;
 	}
 
 	if(name)
-		pos = pos | name->pos;
+		pos = pos.include(name->pos);
 	if(value)
-		pos = pos | value->pos;
+		pos = pos.include(value->pos);
 
 	hover = std::make_shared<CHoverableArea>();
 	hover->hoverText = data->getHoverText();
@@ -93,7 +97,7 @@ void InfoBox::clickRight(tribool down, bool previousState)
 		if (comp)
 			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 		else if (!text.empty())
-			adventureInt->handleRightClick(text, down);
+			CRClickPopup::createAndPush(text);
 	}
 }
 
@@ -135,7 +139,7 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	case HERO_MANA:
 	case HERO_EXPERIENCE:
 	case HERO_PRIMARY_SKILL:
-		return boost::lexical_cast<std::string>(getValue());
+		return std::to_string(getValue());
 	case HERO_SPECIAL:
 		return CGI->generaltexth->jktexts[5];
 	case HERO_SECONDARY_SKILL:
@@ -163,10 +167,10 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	case HERO_EXPERIENCE:
 		return CGI->generaltexth->jktexts[6];
 	case HERO_SPECIAL:
-		return CGI->heroh->objects[getSubID()]->specName;
+		return CGI->heroh->objects[getSubID()]->getSpecialtyNameTranslated();
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
-			return CGI->skillh->skillName(getSubID());
+			return CGI->skillh->getByIndex(getSubID())->getNameTranslated();
 		else
 			return "";
 	default:
@@ -256,7 +260,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		text = CGI->heroh->objects[getSubID()]->specDescr;
+		text = CGI->heroh->objects[getSubID()]->getSpecialtyDescriptionTranslated();
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
@@ -274,7 +278,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 			int  subID = getSubID();
 			if(value)
 			{
-				text = CGI->skillh->skillInfo(subID, (int)value);
+				text = CGI->skillh->getByIndex(subID)->getDescriptionTranslated((int)value);
 				comp = std::make_shared<CComponent>(CComponent::secskill, subID, (int)value);
 			}
 			break;
@@ -303,7 +307,7 @@ int InfoBoxHeroData::getSubID()
 		else
 			return 0;
 	case HERO_SPECIAL:
-		return hero->type->ID.getNum();
+		return hero->type->getIndex();
 	case HERO_MANA:
 	case HERO_EXPERIENCE:
 		return 0;
@@ -355,7 +359,7 @@ std::string InfoBoxHeroData::getHoverText()
 		if (hero->secSkills.size() > index)
 		{
 			std::string level = CGI->generaltexth->levels[hero->secSkills[index].second-1];
-			std::string skill = CGI->skillh->skillName(hero->secSkills[index].first);
+			std::string skill = CGI->skillh->getByIndex(hero->secSkills[index].first)->getNameTranslated();
 			return boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % level % skill);
 		}
 		else
@@ -374,10 +378,10 @@ std::string InfoBoxHeroData::getValueText()
 		switch (type)
 		{
 		case HERO_MANA:
-			return boost::lexical_cast<std::string>(hero->mana) + '/' +
-				boost::lexical_cast<std::string>(hero->manaLimit());
+			return std::to_string(hero->mana) + '/' +
+				std::to_string(hero->manaLimit());
 		case HERO_EXPERIENCE:
-			return boost::lexical_cast<std::string>(hero->exp);
+			return std::to_string(hero->exp);
 		}
 	}
 	return InfoBoxAbstractHeroData::getValueText();
@@ -390,15 +394,15 @@ void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CCompon
 	{
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[205];
-		boost::replace_first(text, "%s", boost::lexical_cast<std::string>(hero->name));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->mana));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
+		boost::replace_first(text, "%s", hero->getNameTranslated());
+		boost::replace_first(text, "%d", std::to_string(hero->mana));
+		boost::replace_first(text, "%d", std::to_string(hero->manaLimit()));
 		break;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[2];
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->level));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
-		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->exp));
+		boost::replace_first(text, "%d", std::to_string(hero->level));
+		boost::replace_first(text, "%d", std::to_string(CGI->heroh->reqExp(hero->level+1)));
+		boost::replace_first(text, "%d", std::to_string(hero->exp));
 		break;
 	default:
 		InfoBoxAbstractHeroData::prepareMessage(text, comp);
@@ -536,7 +540,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 	if(index < objects.size())
 	{
 		OwnedObjectInfo & obj = objects[index];
-		std::string value = boost::lexical_cast<std::string>(obj.count);
+		std::string value = std::to_string(obj.count);
 		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
@@ -581,7 +585,6 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(auto & heroe : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
 		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
 	}
 
@@ -593,15 +596,15 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	}
 	for(int i=0; i<7; i++)
 	{
-		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first);
+		std::string value = std::to_string(minesCount[i]);
+		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->translate("core.minename", i));
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
 	}
 	incomeArea = std::make_shared<CHoverableArea>();
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
-	incomeAmount = std::make_shared<CLabel>(628, footerPos + 70, FONT_SMALL, TOPLEFT, Colors::WHITE, boost::lexical_cast<std::string>(totalIncome));
+	incomeAmount = std::make_shared<CLabel>(628, footerPos + 70, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(totalIncome));
 }
 
 void CKingdomInterface::generateButtons()
@@ -665,10 +668,10 @@ void CKingdomInterface::artifactDisassembled(const ArtifactLocation& artLoc)
 		arts->artifactDisassembled(artLoc);
 }
 
-void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc)
+void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc, bool withRedraw)
 {
 	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
-		arts->artifactMoved(artLoc, destLoc);
+		arts->artifactMoved(artLoc, destLoc, withRedraw);
 }
 
 void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
@@ -682,8 +685,8 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CPicture>("OVTITLE",16,0);
 	title->colorize(LOCPLINT->playerID);
-	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
-	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
+	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
+	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
@@ -722,9 +725,9 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CPicture>("OVTITLE", 16, 0);
 	title->colorize(LOCPLINT->playerID);
-	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
-	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[4]);
-	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[5]);
+	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
+	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[4]);
+	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[5]);
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
@@ -767,16 +770,16 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CAnimImage>("OVSLOT", 6);
-	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, TOPLEFT, Colors::WHITE, town->name);
+	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 
-	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]));
+	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(town->dailyIncome()[Res::GOLD]));
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
 	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
 	garr = std::make_shared<CGarrisonInt>(313, 3, 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, true);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>("ITPT", iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
@@ -798,8 +801,8 @@ void CTownItem::updateGarrisons()
 
 void CTownItem::update()
 {
-	std::string incomeVal = boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]);
-	if (incomeVal != income->text)
+	std::string incomeVal = std::to_string(town->dailyIncome()[Res::GOLD]);
+	if (incomeVal != income->getText())
 		income->setText(incomeVal);
 
 	heroes->update();
@@ -863,7 +866,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	arts2->recActions = SHARE_POS;
 	backpack->recActions = SHARE_POS;
 
-	name = std::make_shared<CLabel>(75, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
+	name = std::make_shared<CLabel>(75, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
 
 	//layout is not trivial: MACH4 - catapult - excluded, MISC[x] rearranged
 	assert(arts1->arts.size() == 9);
@@ -919,8 +922,8 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait, 0, 5, 6);
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
 
-	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
-	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->overview[2]);
+	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
+	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[2]);
 
 	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 	{

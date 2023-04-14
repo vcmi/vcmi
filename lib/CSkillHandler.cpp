@@ -24,24 +24,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-///CSkill
-CSkill::LevelInfo::LevelInfo()
-{
-}
-
-CSkill::LevelInfo::~LevelInfo()
-{
-}
-
-CSkill::CSkill(SecondarySkill id, std::string identifier)
-	: id(id), identifier(identifier)
+CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligatoryMajor, bool obligatoryMinor):
+	id(id),
+	identifier(std::move(identifier)),
+	obligatoryMajor(obligatoryMajor),
+	obligatoryMinor(obligatoryMinor)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
-}
-
-CSkill::~CSkill()
-{
 }
 
 int32_t CSkill::getIndex() const
@@ -54,14 +44,31 @@ int32_t CSkill::getIconIndex() const
 	return getIndex(); //TODO: actual value with skill level
 }
 
-const std::string & CSkill::getName() const
+std::string CSkill::getNameTextID() const
 {
-	return name;
+	TextIdentifier id("skill", modScope, identifier, "name");
+	return id.get();
 }
 
-const std::string & CSkill::getJsonKey() const
+std::string CSkill::getNameTranslated() const
 {
-	return identifier;
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CSkill::getJsonKey() const
+{
+	return modScope + ':' + identifier;;
+}
+
+std::string CSkill::getDescriptionTextID(int level) const
+{
+	TextIdentifier id("skill", modScope, identifier, "description", NSecondarySkill::levels[level]);
+	return id.get();
+}
+
+std::string CSkill::getDescriptionTranslated(int level) const
+{
+	return VLC->generaltexth->translate(getDescriptionTextID(level));
 }
 
 void CSkill::registerIcons(const IconRegistar & cb) const
@@ -86,7 +93,7 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 	b->source = Bonus::SECONDARY_SKILL;
 	b->sid = id;
 	b->duration = Bonus::PERMANENT;
-	b->description = name;
+	b->description = getNameTranslated();
 	levels[level-1].effects.push_back(b);
 }
 
@@ -104,7 +111,6 @@ CSkill::LevelInfo & CSkill::at(int level)
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info)
 {
-	out << "(\"" << info.description << "\", [";
 	for(int i=0; i < info.effects.size(); i++)
 		out << (i ? "," : "") << info.effects[i]->Description();
 	return out << "])";
@@ -135,13 +141,8 @@ void CSkill::serializeJson(JsonSerializeFormat & handler)
 
 }
 
-
 ///CSkillHandler
-CSkillHandler::CSkillHandler()
-{
-}
-
-std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CSkillHandler::loadLegacyData()
 {
 	CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
 
@@ -154,7 +155,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 	do
 	{
 		skillNames.push_back(parser.readString());
-		skillInfoTexts.push_back(std::vector<std::string>());
+		skillInfoTexts.emplace_back();
 		for(int i = 0; i < 3; i++)
 			skillInfoTexts.back().push_back(parser.readString());
 	}
@@ -187,21 +188,18 @@ const std::vector<std::string> & CSkillHandler::getTypeNames() const
 	return typeNames;
 }
 
-const std::string & CSkillHandler::skillInfo(int skill, int level) const
-{
-	return objects[skill]->at(level).description;
-}
-
-const std::string & CSkillHandler::skillName(int skill) const
-{
-	return objects[skill]->name;
-}
-
 CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
-	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier);
+	assert(identifier.find(':') == std::string::npos);
+	assert(!scope.empty());
+	bool major, minor;
 
-	skill->name = json["name"].String();
+	major = json["obligatoryMajor"].Bool();
+	minor = json["obligatoryMinor"].Bool();
+	auto * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
+	skill->modScope = scope;
+
+	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -220,19 +218,18 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 		const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
 		const JsonNode & levelNode = json[levelName];
 		// parse bonus effects
-		for(auto b : levelNode["effects"].Struct())
+		for(const auto & b : levelNode["effects"].Struct())
 		{
 			auto bonus = JsonUtils::parseBonus(b.second);
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		skillAtLevel.description = levelNode["description"].String();
+		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"].String());
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
-	logMod->trace("%s", skill->toString());
 
 	return skill;
 }
@@ -253,10 +250,6 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
-}
-
-CSkillHandler::~CSkillHandler()
-{
 }
 
 std::vector<bool> CSkillHandler::getDefaultAllowed() const

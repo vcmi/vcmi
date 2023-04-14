@@ -41,7 +41,7 @@ public:
 	boost::optional<ui8> daysWithoutCastle;
 
 	PlayerState();
-	PlayerState(PlayerState && other);
+	PlayerState(PlayerState && other) noexcept;
 
 	std::string nodeName() const override;
 
@@ -86,7 +86,7 @@ public:
 	std::shared_ptr<boost::multi_array<ui8, 3>> fogOfWarMap; //[z][x][y] true - visible, false - hidden
 
 	TeamState();
-	TeamState(TeamState && other);
+	TeamState(TeamState && other) noexcept;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

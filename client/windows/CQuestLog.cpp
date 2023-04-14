@@ -10,16 +10,15 @@
 #include "StdInc.h"
 #include "CQuestLog.h"
 
-#include "CAdvmapInterface.h"
-
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../Graphics.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../widgets/CComponent.h"
+#include "../adventureMap/CAdvMapInt.h"
+#include "../widgets/Buttons.h"
+#include "../adventureMap/CMinimap.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
@@ -83,13 +82,11 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 	else
 		tile = q->tile;
 
-	int x,y;
-	minimap->tileToPixels (tile, x, y);
+	Point offset = tileToPixels(tile);
 
-	if (level != tile.z)
-		setLevel(tile.z);
+	onMapViewMoved(Rect(), tile.z);
 
-	auto pic = std::make_shared<CQuestIcon>("VwSymbol.def", 3, x, y);
+	auto pic = std::make_shared<CQuestIcon>("VwSymbol.def", 3, offset.x, offset.y);
 
 	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
 	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);
@@ -107,7 +104,7 @@ void CQuestMinimap::update()
 void CQuestMinimap::iconClicked()
 {
 	if(currentQuest->obj)
-		adventureInt->centerOn (currentQuest->obj->pos);
+		adventureInt->centerOnTile(currentQuest->obj->pos);
 	//moveAdvMapSelection();
 }
 
@@ -127,15 +124,13 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	const JsonNode & texts = CGI->generaltexth->localizedTexts["questLog"];
-
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
-	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), SDLK_RETURN);
 	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
-	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), "sysopchk.def", CButton::tooltip(texts["hideComplete"]), std::bind(&CQuestLog::toggleComplete, this, _1));
-	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
+	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), "sysopchk.def", CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
+	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.questLog.hideComplete.hover"));
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, false, CSlider::BROWN);
 
 	recreateLabelList();
@@ -176,7 +171,7 @@ void CQuestLog::recreateLabelList()
 			else
 				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
 		}
-		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
 
 		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);
@@ -211,10 +206,10 @@ void CQuestLog::showAll(SDL_Surface * to)
 	if(questIndex >= 0 && questIndex < labels.size())
 	{
 		//TODO: use child object to selection rect
-		Rect rect = Rect::around(labels[questIndex]->pos);
+		Rect rect = Rect::createAround(labels[questIndex]->pos, 1);
 		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
 		rect.w += 2;
-		CSDL_Ext::drawBorder(to, rect, int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
+		CSDL_Ext::drawBorder(to, rect, Colors::METALLIC_GOLD);
 	}
 }
 

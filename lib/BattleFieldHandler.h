@@ -14,7 +14,6 @@
 #include "HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 #include "battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -44,8 +43,9 @@ public:
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	BattleField getId() const override;
 
@@ -78,7 +78,7 @@ public:
 		size_t index) override;
 
 	virtual const std::vector<std::string> & getTypeNames() const override;
-	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	virtual std::vector<JsonNode> loadLegacyData() override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)

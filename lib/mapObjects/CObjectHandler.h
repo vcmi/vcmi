@@ -11,9 +11,9 @@
 
 #include "ObjectTemplate.h"
 
-//#include "../IGameCallback.h"
 #include "../int3.h"
 #include "../HeroBonus.h"
+#include "../NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,15 +29,14 @@ class JsonNode;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
-typedef std::vector<std::pair<ObjectInstanceID, int3>> TTeleportExitsList;
+using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class DLL_LINKAGE IObjectInterface
 {
 public:
 	static IGameCallback *cb;
 
-	IObjectInterface();
-	virtual ~IObjectInterface();
+	virtual ~IObjectInterface() = default;
 
 	virtual int32_t getObjGroupIndex() const = 0;
 	virtual int32_t getObjTypeIndex() const = 0;
@@ -59,7 +58,13 @@ public:
 	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
 	virtual void heroLevelUpDone(const CGHeroInstance *hero) const;
 
-//unified interface, AI helpers
+	//unified helper to show info dialog for object owner
+	virtual void showInfoDialog(const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;
+
+	//unified helper to show a specific window
+	static void openWindow(const EOpenWindowMode type, const int id1, const int id2 = -1);
+
+	//unified interface, AI helpers
 	virtual bool wasVisited (PlayerColor player) const;
 	virtual bool wasVisited (const CGHeroInstance * h) const;
 
@@ -78,7 +83,7 @@ public:
 	const CGObjectInstance *o;
 
 	IBoatGenerator(const CGObjectInstance *O);
-	virtual ~IBoatGenerator() {}
+	virtual ~IBoatGenerator() = default;
 
 	virtual int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
@@ -98,7 +103,6 @@ class DLL_LINKAGE IShipyard : public IBoatGenerator
 {
 public:
 	IShipyard(const CGObjectInstance *O);
-	virtual ~IShipyard() {}
 
 	virtual void getBoatCost(std::vector<si32> &cost) const;
 
@@ -133,8 +137,8 @@ public:
 	std::string typeName;
 	std::string subTypeName;
 
-	CGObjectInstance();
-	~CGObjectInstance();
+	CGObjectInstance(); //TODO: remove constructor
+	~CGObjectInstance() override;
 
 	int32_t getObjGroupIndex() const override;
 	int32_t getObjTypeIndex() const override;
@@ -146,7 +150,7 @@ public:
 	{
 		return this->tempOwner;
 	}
-	void setOwner(PlayerColor ow);
+	void setOwner(const PlayerColor & ow);
 
 	/** APPEARANCE ACCESSORS **/
 
@@ -155,6 +159,7 @@ public:
 	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
 	int3 visitablePos() const override;
 	int3 getPosition() const override;
+	int3 getTopVisiblePos() const;
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
@@ -196,7 +201,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
-	void setProperty(ui8 what, ui32 val) override final;
+	void setProperty(ui8 what, ui32 val) final;
 
 	virtual void afterAddToMap(CMap * map);
 	virtual void afterRemoveFromMap(CMap * map);
@@ -226,7 +231,7 @@ protected:
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
-	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
+	void giveDummyBonus(const ObjectInstanceID & heroID, ui8 duration = Bonus::ONE_DAY) const;
 
 	///Serialize object-type specific options
 	virtual void serializeJsonOptions(JsonSerializeFormat & handler);

@@ -15,7 +15,6 @@
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
 #include "../JsonNode.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -44,7 +43,7 @@ struct DLL_LINKAGE RandomMapInfo
 	ui32 value;
 
 	/// How many of such objects can be placed on map, 0 = object can not be placed by RMG
-	ui32 mapLimit;
+	boost::optional<ui32> mapLimit;
 
 	/// How many of such objects can be placed in one zone, 0 = unplaceable
 	ui32 zoneLimit;
@@ -54,10 +53,11 @@ struct DLL_LINKAGE RandomMapInfo
 
 	RandomMapInfo():
 		value(0),
-		mapLimit(0),
 		zoneLimit(0),
 		rarity(0)
 	{}
+
+	void setMapLimit(ui32 val) { mapLimit.reset(val); }
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -137,12 +137,12 @@ public:
 
 class CGObjectInstance;
 
+/// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 {
-	RandomMapInfo rmgInfo;
+	friend class CObjectClassesHandler;
 
-	/// Human-readable name of this object, used for objects like banks and dwellings, if set
-	boost::optional<std::string> objectName;
+	RandomMapInfo rmgInfo;
 
 	JsonNode base; /// describes base template
 
@@ -151,35 +151,41 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	SObjectSounds sounds;
 
 	boost::optional<si32> aiValue;
-
 	boost::optional<std::string> battlefield;
 
-protected:
-	void preInitObject(CGObjectInstance * obj) const;
-	virtual bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const;
-
-	/// initialization for classes that inherit this one
-	virtual void initTypeData(const JsonNode & input);
-public:
+	std::string modScope;
 	std::string typeName;
 	std::string subTypeName;
 
 	si32 type;
 	si32 subtype;
-	AObjectTypeHandler();
-	virtual ~AObjectTypeHandler();
 
-	void setType(si32 type, si32 subtype);
-	void setTypeName(std::string type, std::string subtype);
+protected:
+	void preInitObject(CGObjectInstance * obj) const;
+	virtual bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const;
+
+	/// initialization for classes that inherit this one
+	virtual void initTypeData(const JsonNode & input);
+public:
+
+	virtual ~AObjectTypeHandler() = default;
+
+	si32 getIndex() const;
+	si32 getSubIndex() const;
+
+	std::string getTypeName() const;
+	std::string getSubTypeName() const;
 
 	/// loads generic data from Json structure and passes it towards type-specific constructors
-	void init(const JsonNode & input, boost::optional<std::string> name = boost::optional<std::string>());
+	void init(const JsonNode & input);
+
+	/// returns full form of identifier of this object in form of modName:objectName
+	std::string getJsonKey() const;
 
 	/// Returns object-specific name, if set
-	boost::optional<std::string> getCustomName() const;
 	SObjectSounds getSounds() const;
 
-	void addTemplate(std::shared_ptr<const ObjectTemplate> templ);
+	void addTemplate(const std::shared_ptr<const ObjectTemplate> & templ);
 	void addTemplate(JsonNode config);
 
 	/// returns all templates matching parameters
@@ -192,12 +198,18 @@ public:
 
 	BattleField getBattlefield() const;
 
-	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
-	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-
 	const RandomMapInfo & getRMGInfo();
 
 	boost::optional<si32> getAiValue() const;
+
+	/// returns true if this class provides custom text ID's instead of generic per-object name
+	virtual bool hasNameTextID() const;
+
+	/// returns object's name in form of translatable text ID
+	virtual std::string getNameTextID() const;
+
+	/// returns object's name in form of human-readable text
+	std::string getNameTranslated() const;
 
 	virtual bool isStaticObject();
 
@@ -220,7 +232,7 @@ public:
 		h & subtype;
 		h & templates;
 		h & rmgInfo;
-		h & objectName;
+		h & modScope;
 		h & typeName;
 		h & subTypeName;
 		h & sounds;
@@ -231,40 +243,41 @@ public:
 
 typedef std::shared_ptr<AObjectTypeHandler> TObjectTypeHandler;
 
+/// Class responsible for creation of adventure map objects of specific type
+class DLL_LINKAGE ObjectClass
+{
+public:
+	std::string modScope;
+	std::string identifier;
+
+	si32 id;
+	std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
+
+	JsonNode base;
+	std::vector<TObjectTypeHandler> objects;
+
+	ObjectClass() = default;
+
+	std::string getJsonKey() const;
+	std::string getNameTextID() const;
+	std::string getNameTranslated() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id;
+		h & handlerName;
+		h & base;
+		h & objects;
+		h & identifier;
+		h & modScope;
+	}
+};
+
+/// Main class responsible for creation of all adventure map objects
 class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 {
-	/// Small internal structure that contains information on specific group of objects
-	/// (creating separate entity is overcomplicating at least at this point)
-	struct ObjectContainter
-	{
-		si32 id;
-		std::string identifier;
-		std::string name; // human-readable name
-		std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
-
-		JsonNode base;
-		std::map<si32, TObjectTypeHandler> subObjects;
-		std::map<std::string, si32> subIds;//full id from core scope -> subtype
-
-		SObjectSounds sounds;
-
-		boost::optional<si32> groupDefaultAiValue;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & name;
-			h & handlerName;
-			h & base;
-			h & subObjects;
-			h & identifier;
-			h & subIds;
-			h & sounds;
-			h & groupDefaultAiValue;
-		}
-	};
-
 	/// list of object handlers, each of them handles only one type
-	std::map<si32, ObjectContainter * > objects;
+	std::vector<ObjectClass * > objects;
 
 	/// map that is filled during contruction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
@@ -273,23 +286,25 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	typedef std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>> TTemplatesContainer;
 	TTemplatesContainer legacyTemplates;
 
-	/// contains list of custom names for H3 objects (e.g. Dwellings), used to load H3 data
-	/// format: customNames[primaryID][secondaryID] -> name
-	std::map<si32, std::vector<std::string>> customNames;
+	TObjectTypeHandler loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
 
-	void loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj, bool isSubobject = false);
-	ObjectContainter * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name);
+	void loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj);
+	void loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
+
+	ObjectClass * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
+
+	void generateExtraMonolithsForRMG();
 
 public:
 	CObjectClassesHandler();
 	~CObjectClassesHandler();
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	void loadSubObject(const std::string & identifier, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
+	void loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID);
 	void removeSubObject(si32 ID, si32 subID);
 
 	void beforeValidate(JsonNode & object) override;
@@ -303,19 +318,15 @@ public:
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
-	TObjectTypeHandler getHandlerFor(std::string scope, std::string type, std::string subtype) const;
+	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 
-	std::string getObjectName(si32 type) const;
 	std::string getObjectName(si32 type, si32 subtype) const;
 
-	SObjectSounds getObjectSounds(si32 type) const;
 	SObjectSounds getObjectSounds(si32 type, si32 subtype) const;
 
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(si32 type) const;
-
-	boost::optional<si32> getObjGroupAiValue(si32 primaryID) const; //default AI value of objects belonging to particular primaryID
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

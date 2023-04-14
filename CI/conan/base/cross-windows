@@ -1,0 +1,10 @@
+[settings]
+os=Windows
+compiler=gcc
+compiler.libcxx=libstdc++11
+compiler.version=10
+compiler.cppstd=11
+build_type=Release
+
+[conf]
+tools.cmake.cmaketoolchain:generator = Ninja

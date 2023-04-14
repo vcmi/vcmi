@@ -32,7 +32,7 @@ public:
 	explicit CAmmo(const battle::Unit * Owner, CSelector totalSelector);
 
 	//only copy construction is allowed for acquire(), serializeJson should be used for any other "assignment"
-	CAmmo(const CAmmo & other);
+	CAmmo(const CAmmo & other) = default;
 	CAmmo(CAmmo && other) = delete;
 
 	CAmmo & operator=(const CAmmo & other);
@@ -56,7 +56,7 @@ class DLL_LINKAGE CShots : public CAmmo
 {
 public:
 	explicit CShots(const battle::Unit * Owner);
-	CShots(const CShots & other);
+	CShots(const CShots & other) = default;
 	CShots & operator=(const CShots & other);
 	bool isLimited() const override;
 	int32_t total() const override;
@@ -72,16 +72,16 @@ class DLL_LINKAGE CCasts : public CAmmo
 {
 public:
 	explicit CCasts(const battle::Unit * Owner);
-	CCasts(const CCasts & other);
-	CCasts & operator=(const CCasts & other);
+	CCasts(const CCasts & other) = default;
+	CCasts & operator=(const CCasts & other) = default;
 };
 
 class DLL_LINKAGE CRetaliations : public CAmmo
 {
 public:
 	explicit CRetaliations(const battle::Unit * Owner);
-	CRetaliations(const CRetaliations & other);
-	CRetaliations & operator=(const CRetaliations & other);
+	CRetaliations(const CRetaliations & other) = default;
+	CRetaliations & operator=(const CRetaliations & other) = default;
 	bool isLimited() const override;
 	int32_t total() const override;
 	void reset() override;
@@ -98,7 +98,7 @@ class DLL_LINKAGE CHealth
 {
 public:
 	explicit CHealth(const battle::Unit * Owner);
-	CHealth(const CHealth & other);
+	CHealth(const CHealth & other) = default;
 
 	CHealth & operator=(const CHealth & other);
 
@@ -112,7 +112,10 @@ public:
 	int32_t getFirstHPleft() const;
 	int32_t getResurrected() const;
 
+	/// returns total remaining health
 	int64_t available() const;
+
+	/// returns total initial health
 	int64_t total() const;
 
 	void takeResurrected();
@@ -191,10 +194,12 @@ public:
 	PlayerColor getCasterOwner() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const override;
+	int32_t manaLimit() const override;
 
 	bool ableToRetaliate() const override;
 	bool alive() const override;
 	bool isGhost() const override;
+	bool isFrozen() const override;
 	bool isValidTarget(bool allowDead = false) const override;
 
 	bool isClone() const override;
@@ -224,7 +229,7 @@ public:
 	std::shared_ptr<Unit> acquire() const override;
 	std::shared_ptr<CUnitState> acquireState() const override;
 
-	int battleQueuePhase(int turn) const override;
+	BattlePhases::Type battleQueuePhase(int turn) const override;
 
 	int getTotalAttacks(bool ranged) const override;
 

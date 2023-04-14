@@ -72,7 +72,7 @@ public:
 	 * @return Returns an instance of resource loader.
 	 */
 	static ISimpleResourceLoader * get();
-	static ISimpleResourceLoader * get(std::string identifier);
+	static ISimpleResourceLoader * get(const std::string & identifier);
 
 	/**
 	 * Creates instance of initial resource loader.
@@ -80,6 +80,12 @@ public:
 	 *
 	 */
 	static void initialize();
+
+	/**
+	 * Destroys all existing data in filesystem, bringing it into uninitialized state
+	 *
+	 */
+	static void destroy();
 
 	/**
 	 * Will load all filesystem data from Json data at this path (normally - config/filesystem.json)

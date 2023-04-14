@@ -9,10 +9,13 @@
  */
 #pragma once
 
-#include "filesystem/Filesystem.h"
-
-#include "VCMI_Lib.h"
 #include "JsonNode.h"
+
+#ifdef __UCLIBC__
+#undef major
+#undef minor
+#undef patch
+#endif
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +27,7 @@ class IHandlerBase;
 
 /// class that stores all object identifiers strings and maps them to numeric ID's
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
-class CIdentifierStorage
+class DLL_LINKAGE CIdentifierStorage
 {
 	enum ELoadingState
 	{
@@ -44,7 +47,7 @@ class CIdentifierStorage
 
 		ObjectCallback(std::string localScope, std::string remoteScope,
 		               std::string type, std::string name,
-		               const std::function<void(si32)> & callback,
+		               std::function<void(si32)> callback,
 		               bool optional);
 	};
 
@@ -71,34 +74,34 @@ class CIdentifierStorage
 	ELoadingState state;
 
 	/// Check if identifier can be valid (camelCase, point as separator)
-	void checkIdentifier(std::string & ID);
+	static void checkIdentifier(std::string & ID);
 
 	void requestIdentifier(ObjectCallback callback);
 	bool resolveIdentifier(const ObjectCallback & callback);
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback);
 public:
 	CIdentifierStorage();
-	virtual ~CIdentifierStorage();
+	virtual ~CIdentifierStorage() = default;
 	/// request identifier for specific object name.
 	/// Function callback will be called during ID resolution phase of loading
-	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
+	void requestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback);
 	///fullName = [remoteScope:]type.name
-	void requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)> & callback);
-	void requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
+	void requestIdentifier(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback);
+	void requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback);
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback);
 
 	/// try to request ID. If ID with such name won't be loaded, callback function will not be called
-	void tryRequestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
-	void tryRequestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
+	void tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback);
+	void tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback);
 
 	/// get identifier immediately. If identifier is not know and not silent call will result in error message
-	boost::optional<si32> getIdentifier(std::string scope, std::string type, std::string name, bool silent = false);
-	boost::optional<si32> getIdentifier(std::string type, const JsonNode & name, bool silent = false);
+	boost::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false);
+	boost::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false);
 	boost::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
-	boost::optional<si32> getIdentifier(std::string scope, std::string fullName, bool silent = false);
+	boost::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false);
 
 	/// registers new object
-	void registerObject(std::string scope, std::string type, std::string name, si32 identifier);
+	void registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier);
 
 	/// called at the very end of loading to check for any missing ID's
 	void finalize();
@@ -129,12 +132,12 @@ public:
 	std::vector<JsonNode> originalData;
 	std::map<std::string, ModInfo> modData;
 
-	ContentTypeHandler(IHandlerBase * handler, std::string objectName);
+	ContentTypeHandler(IHandlerBase * handler, const std::string & objectName);
 
 	/// local version of methods in ContentHandler
 	/// returns true if loading was successful
-	bool preloadModData(std::string modName, std::vector<std::string> fileList, bool validate);
-	bool loadMod(std::string modName, bool validate);
+	bool preloadModData(const std::string & modName, const std::vector<std::string> & fileList, bool validate);
+	bool loadMod(const std::string & modName, bool validate);
 	void loadCustom();
 	void afterLoadFinalization();
 };
@@ -143,15 +146,14 @@ public:
 class DLL_LINKAGE CContentHandler
 {
 	/// preloads all data from fileList as data from modName.
-	bool preloadModData(std::string modName, JsonNode modConfig, bool validate);
+	bool preloadModData(const std::string & modName, JsonNode modConfig, bool validate);
 
 	/// actually loads data in mod
-	bool loadMod(std::string modName, bool validate);
+	bool loadMod(const std::string & modName, bool validate);
 
 	std::map<std::string, ContentTypeHandler> handlers;
-public:
-	CContentHandler();
 
+public:
 	void init();
 
 	/// preloads all data from fileList as data from modName.
@@ -213,6 +215,9 @@ public:
 	
 	/// version of the mod
 	Version version;
+
+	/// Base language of mod, all mod strings are assumed to be in this language
+	std::string baseLanguage;
 	
 	/// vcmi versions compatible with the mod
 
@@ -227,23 +232,29 @@ public:
 	/// CRC-32 checksum of the mod
 	ui32 checksum;
 
-	/// true if mod is enabled
-	bool enabled;
-
 	EValidationStatus validation;
 
 	JsonNode config;
 
 	CModInfo();
-	CModInfo(std::string identifier, const JsonNode & local, const JsonNode & config);
+	CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config);
 
 	JsonNode saveLocalData() const;
 	void updateChecksum(ui32 newChecksum);
 
-	static std::string getModDir(std::string name);
-	static std::string getModFile(std::string name);
+	bool isEnabled() const;
+	void setEnabled(bool on);
+
+	static std::string getModDir(const std::string & name);
+	static std::string getModFile(const std::string & name);
 
 private:
+	/// true if mod is enabled by user, e.g. in Launcher UI
+	bool explicitlyEnabled;
+
+	/// true if mod can be loaded - compatible and has no missing deps
+	bool implicitlyEnabled;
+
 	void loadLocalData(const JsonNode & data);
 };
 
@@ -253,15 +264,7 @@ class DLL_LINKAGE CModHandler
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 	CModInfo coreMod;
 
-	void loadConfigFromFile(std::string name);
-
-	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
-
-	//returns false if mod list is incorrect and prints error to console. Possible errors are:
-	// - missing dependency mod
-	// - conflicting mod in load order
-	// - circular dependencies
-	bool checkDependencies(const std::vector <TModID> & input) const;
+	bool hasCircularDependency(const TModID & mod, std::set<TModID> currentList = std::set<TModID>()) const;
 
 	/**
 	* 1. Set apart mods with resolved dependencies from mods which have unresolved dependencies
@@ -273,9 +276,12 @@ class DLL_LINKAGE CModHandler
 	*/
 	std::vector <TModID> validateAndSortDependencies(std::vector <TModID> modsToResolve) const;
 
-	std::vector<std::string> getModList(std::string path);
-	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
-	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
+	std::vector<std::string> getModList(const std::string & path) const;
+	void loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods);
+	void loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods);
+	void loadTranslation(const TModID & modName);
+
+	bool validateTranslations(TModID modName) const;
 public:
 
 	/// returns true if scope is reserved for internal use and can not be used by mods
@@ -327,7 +333,12 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	std::set<TModID> getModDependencies(TModID modId, bool & isModFound);
+	/// returns ID of mod that provides selected file resource
+	TModID findResourceOrigin(const ResourceID & name);
+
+	std::string getModLanguage(const TModID & modId) const;
+
+	std::set<TModID> getModDependencies(const TModID & modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();
@@ -337,57 +348,8 @@ public:
 	void load();
 	void afterLoad(bool onlyEssential);
 
-	struct DLL_LINKAGE hardcodedFeatures
-	{
-		JsonNode data;
-
-		int CREEP_SIZE; // neutral stacks won't grow beyond this number
-		int WEEKLY_GROWTH; //percent
-		int NEUTRAL_STACK_EXP;
-		int MAX_BUILDING_PER_TURN;
-		bool DWELLINGS_ACCUMULATE_CREATURES;
-		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
-		int MAX_HEROES_AVAILABLE_PER_PLAYER;
-		int MAX_HEROES_ON_MAP_PER_PLAYER;
-		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
-		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
-		bool NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & data;
-			h & CREEP_SIZE;
-			h & WEEKLY_GROWTH;
-			h & NEUTRAL_STACK_EXP;
-			h & MAX_BUILDING_PER_TURN;
-			h & DWELLINGS_ACCUMULATE_CREATURES;
-			h & ALL_CREATURES_GET_DOUBLE_MONTHS;
-			h & MAX_HEROES_AVAILABLE_PER_PLAYER;
-			h & MAX_HEROES_ON_MAP_PER_PLAYER;
-			h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
-			h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
-			h & NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
-		}
-	} settings;
-
-	struct DLL_LINKAGE gameModules
-	{
-		bool STACK_EXP;
-		bool STACK_ARTIFACT;
-		bool COMMANDERS;
-		bool MITHRIL;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & STACK_EXP;
-			h & STACK_ARTIFACT;
-			h & COMMANDERS;
-			h & MITHRIL;
-		}
-	} modules;
-
 	CModHandler();
-	virtual ~CModHandler();
+	virtual ~CModHandler() = default;
 
 	static std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier);
 
@@ -417,7 +379,7 @@ public:
 				h & mver;
 				
 				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
-					allMods[m].enabled = true;
+					allMods[m].setEnabled(true);
 				else
 					missingMods.emplace_back(m, mver.toString());
 			}
@@ -427,9 +389,7 @@ public:
 			
 			std::swap(activeMods, newActiveMods);
 		}
-				
-		h & settings;
-		h & modules;
+
 		h & identifiers;
 	}
 };

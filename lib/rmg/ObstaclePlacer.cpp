@@ -23,6 +23,7 @@
 #include "../CRandomGenerator.h"
 #include "Functions.h"
 #include "../mapping/CMapEditManager.h"
+#include "../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,7 +37,7 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(handler->isStaticObject())
 			{
-				for(auto temp : handler->getTemplates())
+				for(const auto & temp : handler->getTemplates())
 				{
 					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().valid())
 						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
@@ -44,9 +45,9 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 			}
 		}
 	}
-	for(auto o : obstaclesBySize)
+	for(const auto & o : obstaclesBySize)
 	{
-		possibleObstacles.push_back(o);
+		possibleObstacles.emplace_back(o);
 	}
 	boost::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
 	{
@@ -57,21 +58,21 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRandomGenerator & rand, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
 {
 	int maxWeight = std::numeric_limits<int>::min();
-	for(int i = 0; i < possibleObstacles.size(); ++i)
+	for(auto & possibleObstacle : possibleObstacles)
 	{
-		if(!possibleObstacles[i].first)
+		if(!possibleObstacle.first)
 			continue;
 
-		auto shuffledObstacles = possibleObstacles[i].second;
+		auto shuffledObstacles = possibleObstacle.second;
 		RandomGeneratorUtil::randomShuffle(shuffledObstacles, rand);
 
-		for(auto temp : shuffledObstacles)
+		for(const auto & temp : shuffledObstacles)
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto obj = handler->create(temp);
+			auto * obj = handler->create(temp);
 			allObjects.emplace_back(*obj);
 			rmg::Object * rmgObject = &allObjects.back();
-			for(auto & offset : obj->getBlockedOffsets())
+			for(const auto & offset : obj->getBlockedOffsets())
 			{
 				rmgObject->setPosition(tile - offset);
 				if(!map->isInTheMap(rmgObject->getPosition()))
@@ -89,7 +90,7 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRand
 				int coverageBlocked = 0;
 				int coveragePossible = 0;
 				//do not use area intersection in optimization purposes
-				for(auto & t : rmgObject->getArea().getTilesVector())
+				for(const auto & t : rmgObject->getArea().getTilesVector())
 				{
 					auto coverage = verifyCoverage(t);
 					if(coverage.first)
@@ -98,8 +99,8 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRand
 						++coveragePossible;
 				}
 
-				int coverageOverlap = possibleObstacles[i].first - coverageBlocked - coveragePossible;
-				int weight = possibleObstacles[i].first + coverageBlocked - coverageOverlap * possibleObstacles[i].first;
+				int coverageOverlap = possibleObstacle.first - coverageBlocked - coveragePossible;
+				int weight = possibleObstacle.first + coverageBlocked - coverageOverlap * possibleObstacle.first;
 				assert(coverageOverlap >= 0);
 
 				if(weight > maxWeight)

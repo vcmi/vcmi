@@ -29,7 +29,7 @@ CResourceHandler CResourceHandler::globalResourceHandler;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
 	filesystem(new CFilesystemList()),
-	prefix(prefix),
+	prefix(std::move(prefix)),
 	extractArchives(extractArchives)
 {
 }
@@ -48,9 +48,9 @@ CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
 
 void CFilesystemGenerator::loadConfig(const JsonNode & config)
 {
-	for(auto & mountPoint : config.Struct())
+	for(const auto & mountPoint : config.Struct())
 	{
-		for(auto & entry : mountPoint.second.Vector())
+		for(const auto & entry : mountPoint.second.Vector())
 		{
 			CStopWatch timer;
 			logGlobal->trace("\t\tLoading resource at %s%s", prefix, entry["path"].String());
@@ -82,7 +82,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 	std::string URI = prefix + config["path"].String();
 	int depth = 16;
 	if (!config["depth"].isNull())
-		depth = (int)config["depth"].Float();
+		depth = static_cast<int>(config["depth"].Float());
 
 	ResourceID resID(URI, EResType::DIRECTORY);
 
@@ -117,7 +117,7 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	if (filename)
 	{
 		auto configData = CResourceHandler::get("initial")->load(ResourceID(URI, EResType::TEXT))->readAll();
-		const JsonNode configInitial((char*)configData.first.get(), configData.second);
+		const JsonNode configInitial(reinterpret_cast<char *>(configData.first.get()), configData.second);
 		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
 	}
 }
@@ -126,10 +126,10 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 {
 	//temporary filesystem that will be used to initialize main one.
 	//used to solve several case-sensivity issues like Mp3 vs MP3
-	auto initialLoader = new CFilesystemList();
+	auto * initialLoader = new CFilesystemList();
 
 	//recurse only into specific directories
-	auto recurseInDir = [&](std::string URI, int depth)
+	auto recurseInDir = [&](const std::string & URI, int depth)
 	{
 		ResourceID ID(URI, EResType::DIRECTORY);
 
@@ -138,7 +138,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 			auto filename = loader->getResourceName(ID);
 			if (filename)
 			{
-				auto dir = new CFilesystemLoader(URI + '/', *filename, depth, true);
+				auto * dir = new CFilesystemLoader(URI + '/', *filename, depth, true);
 				initialLoader->addLoader(dir, false);
 			}
 		}
@@ -178,12 +178,12 @@ void CResourceHandler::initialize()
 	if (globalResourceHandler.rootLoader)
 		return;
 
-	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
+	globalResourceHandler.rootLoader = std::make_unique<CFilesystemList>();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
 
-	auto localFS = new CFilesystemList();
+	auto * localFS = new CFilesystemList();
 	localFS->addLoader(knownLoaders["saves"], true);
 	localFS->addLoader(knownLoaders["config"], true);
 
@@ -192,12 +192,18 @@ void CResourceHandler::initialize()
 	addFilesystem("root", "local", localFS);
 }
 
+void CResourceHandler::destroy()
+{
+	knownLoaders.clear();
+	globalResourceHandler.rootLoader.reset();
+}
+
 ISimpleResourceLoader * CResourceHandler::get()
 {
 	return get("root");
 }
 
-ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
+ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 {
 	return knownLoaders.at(identifier);
 }
@@ -206,7 +212,7 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 {
 	auto fsConfigData = get("initial")->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
 
-	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
+	const JsonNode fsConfig(reinterpret_cast<char *>(fsConfigData.first.get()), fsConfigData.second);
 
 	addFilesystem("data", CModHandler::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
@@ -227,7 +233,7 @@ void CResourceHandler::addFilesystem(const std::string & parent, const std::stri
 		return;
 	}
 
-	auto list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
+	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
 	assert(list);
 	list->addLoader(loader, false);
 	knownLoaders[identifier] = loader;
@@ -240,8 +246,8 @@ bool CResourceHandler::removeFilesystem(const std::string & parent, const std::s
 	
 	if(knownLoaders.count(parent) == 0)
 		return false;
-	
-	auto list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
+
+	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
 	assert(list);
 	list->removeLoader(knownLoaders[identifier]);
 	knownLoaders.erase(identifier);

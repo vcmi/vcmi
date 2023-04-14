@@ -21,16 +21,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 using namespace boost;
 using namespace boost::asio::ip;
 
-#if defined(__hppa__) || \
-	defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
-	(defined(__MIPS__) && defined(__MISPEB__)) || \
-	defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
-	defined(__sparc__)
-#define BIG_ENDIAN
-#else
-#define LIL_ENDIAN
-#endif
-
 struct ConnectionBuffers
 {
 	boost::asio::streambuf readBuffer;
@@ -58,7 +48,7 @@ void CConnection::init()
 	disableStackSendingByID();
 	registerTypes(iser);
 	registerTypes(oser);
-#ifdef LIL_ENDIAN
+#ifndef VCMI_ENDIAN_BIG
 	myEndianess = true;
 #else
 	myEndianess = false;
@@ -75,19 +65,25 @@ void CConnection::init()
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
-CConnection::CConnection(std::string host, ui16 port, std::string Name, std::string UUID)
-	: io_service(std::make_shared<asio::io_service>()), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
+CConnection::CConnection(const std::string & host, ui16 port, std::string Name, std::string UUID):
+	io_service(std::make_shared<asio::io_service>()),
+	iser(this),
+	oser(this),
+	name(std::move(Name)),
+	uuid(std::move(UUID))
 {
-	int i;
+	int i = 0;
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = std::make_shared<tcp::socket>(*io_service);
 
 	tcp::resolver resolver(*io_service);
-	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)),error);
+	tcp::resolver::iterator end;
+	tcp::resolver::iterator pom;
+	tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)), error);
 	if(error)
 	{
 		logNetwork->error("Problem with resolving: \n%s", error.message());
-		goto connerror1;
+		throw std::runtime_error("Can't establish connection: Problem with resolving");
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
@@ -95,9 +91,8 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name, std::str
 	else
 	{
 		logNetwork->error("Critical problem: No endpoints found!");
-		goto connerror1;
+		throw std::runtime_error("Can't establish connection: No endpoints found!");
 	}
-	i=0;
 	while(pom != end)
 	{
 		logNetwork->info("\t%d:%s", i, (boost::asio::ip::tcp::endpoint&)*pom);
@@ -115,27 +110,30 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name, std::str
 		}
 		else
 		{
-			logNetwork->error("Problem with connecting: %s", error.message());
+			throw std::runtime_error("Can't establish connection: Failed to connect!");
 		}
 		endpoint_iterator++;
 	}
-
-	//we shouldn't be here - error handling
-connerror1:
-	logNetwork->error("Something went wrong... checking for error info");
-	if(error)
-		logNetwork->error(error.message());
-	else
-		logNetwork->error("No error info. ");
-	throw std::runtime_error("Can't establish connection :(");
 }
-CConnection::CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID)
-	: iser(this), oser(this), socket(Socket), name(Name), uuid(UUID), connectionID(0)
+
+CConnection::CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID):
+	iser(this),
+	oser(this),
+	socket(std::move(Socket)),
+	name(std::move(Name)),
+	uuid(std::move(UUID))
 {
 	init();
 }
-CConnection::CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> io_service, std::string Name, std::string UUID)
-	: io_service(io_service), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
+CConnection::CConnection(const std::shared_ptr<TAcceptor> & acceptor,
+						 const std::shared_ptr<boost::asio::io_service> & io_service,
+						 std::string Name,
+						 std::string UUID):
+	io_service(io_service),
+	iser(this),
+	oser(this),
+	name(std::move(Name)),
+	uuid(std::move(UUID))
 {
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = std::make_shared<tcp::socket>(*io_service);
@@ -181,8 +179,7 @@ int CConnection::write(const void * data, unsigned size)
 			return size;
 		}
 
-		int ret;
-		ret = static_cast<int>(asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size))));
+		int ret = static_cast<int>(asio::write(*socket, asio::const_buffers_1(asio::const_buffer(data, size))));
 		return ret;
 	}
 	catch(...)

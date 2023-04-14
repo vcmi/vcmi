@@ -17,7 +17,7 @@ public:
 	/**
 	 * D-tor.
 	 */
-	virtual ~CStream() {}
+	virtual ~CStream() = default;
 
 	/**
 	 * Seeks to the specified position.

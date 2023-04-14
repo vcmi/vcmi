@@ -14,21 +14,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-ReachabilityInfo::Parameters::Parameters()
+ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition):
+	perspective(static_cast<BattlePerspective::BattlePerspective>(Stack->unitSide())),
+	startPosition(StartPosition),
+	doubleWide(Stack->doubleWide()),
+	side(Stack->unitSide()),
+	flying(Stack->hasBonusOfType(Bonus::FLYING))
 {
-	perspective = BattlePerspective::ALL_KNOWING;
-	side = 0;
-	doubleWide = flying = false;
-}
-
-ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition)
-{
-	perspective = (BattlePerspective::BattlePerspective)(Stack->unitSide());
-	startPosition = StartPosition;
-	doubleWide = Stack->doubleWide();
-	side = Stack->unitSide();
-	flying = Stack->hasBonusOfType(Bonus::FLYING);
 	knownAccessible = battle::Unit::getHexes(startPosition, doubleWide, side);
 }
 
@@ -43,17 +35,17 @@ bool ReachabilityInfo::isReachable(BattleHex hex) const
 	return distances[hex] < INFINITE_DIST;
 }
 
-int ReachabilityInfo::distToNearestNeighbour(
+uint32_t ReachabilityInfo::distToNearestNeighbour(
 	const std::vector<BattleHex> & targetHexes,
 	BattleHex * chosenHex) const
 {
-	int ret = 1000000;
+	uint32_t ret = 1000000;
 
 	for(auto targetHex : targetHexes)
 	{
 		for(auto & n : targetHex.neighbouringTiles())
 		{
-			if(distances[n] >= 0 && distances[n] < ret)
+			if(distances[n] < ret)
 			{
 				ret = distances[n];
 				if(chosenHex)
@@ -65,7 +57,7 @@ int ReachabilityInfo::distToNearestNeighbour(
 	return ret;
 }
 
-int ReachabilityInfo::distToNearestNeighbour(
+uint32_t ReachabilityInfo::distToNearestNeighbour(
 	const battle::Unit * attacker,
 	const battle::Unit * defender,
 	BattleHex * chosenHex) const

@@ -115,17 +115,28 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	{
 	case Obj::TOWN:
 	{
-		const CGTownInstance * cre = dynamic_cast<const CGTownInstance *>(obj);
-		return cre->getUpperArmy()->getArmyStrength();
+		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+		auto danger = town->getUpperArmy()->getArmyStrength();
+
+		if(danger || town->visitingHero)
+		{
+			auto fortLevel = town->fortLevel();
+
+			if(fortLevel == CGTownInstance::EFortLevel::CASTLE)
+				danger += 10000;
+			else if(fortLevel == CGTownInstance::EFortLevel::CITADEL)
+				danger += 4000;
+		}
+
+		return danger;
 	}
+
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{
 		if(!vstd::contains(ai->memory->alreadyVisited, obj))
-		{
 			return 0;
-		}
-		// passthrough
+		FALLTHROUGH;
 	}
 	case Obj::MONSTER:
 	case Obj::HERO:
@@ -135,6 +146,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::CREATURE_GENERATOR4:
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
+	case Obj::PANDORAS_BOX:
 	{
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		return a->getArmyStrength();

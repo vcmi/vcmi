@@ -20,6 +20,7 @@ class DLL_LINKAGE Faction : public EntityT<FactionID>
 {
 public:
 	virtual bool hasTown() const = 0;
+
 };
 
 VCMI_LIB_NAMESPACE_END

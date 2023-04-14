@@ -11,6 +11,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/int3.h"
 #include "../lib/NetPacks.h"
+#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -198,8 +199,10 @@ public:
 	bool endsByPlayerAnswer() const override;
 	void onExposure(QueryPtr topQuery) override;
 	void setReply(const JsonNode & reply) override;
+	void onRemoval(PlayerColor color) override;
 private:
 	std::function<void(const JsonNode &)> callback;
+	JsonNode reply;
 };
 
 class Queries

@@ -28,7 +28,7 @@ public:
 public:
 	static SubscriptionRegistry<EventExample> * getRegistry()
 	{
-		static std::unique_ptr<SubscriptionRegistry<EventExample>> Instance = make_unique<SubscriptionRegistry<EventExample>>();
+		static std::unique_ptr<SubscriptionRegistry<EventExample>> Instance = std::make_unique<SubscriptionRegistry<EventExample>>();
 		return Instance.get();
 	}
 

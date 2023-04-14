@@ -33,7 +33,7 @@ bool VisitTile::operator==(const VisitTile & other) const
 
 std::string VisitTile::completeMessage() const
 {
-	return "Hero " + hero.get()->name + " visited tile " + tile.toString();
+	return "Hero " + hero.get()->getNameTranslated() + " visited tile " + tile.toString();
 }
 
 TSubgoal VisitTile::whatToDoToAchieve()

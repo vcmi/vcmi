@@ -30,8 +30,11 @@
 #include "CGameState.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
-#include "CSkillHandler.h"
+#include "GameSettings.h"
 #include "ScriptHandler.h"
+#include "RoadHandler.h"
+#include "RiverHandler.h"
+#include "TerrainHandler.h"
 
 #include "serializer/Connection.h"
 
@@ -40,11 +43,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
+	floors.reserve(gs->map->levels());
 	for(int b = 0; b < gs->map->levels(); ++b)
 	{
 		floors.push_back(b);
 	}
-	const TerrainTile *tinfo;
+	const TerrainTile * tinfo = nullptr;
 	for (auto zd : floors)
 	{
 		for (int xd = 0; xd < gs->map->width; xd++)
@@ -53,13 +57,18 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
-					tiles.push_back (int3 (xd,yd,zd));
+					tiles.emplace_back(xd, yd, zd);
 			}
 		}
 	}
 }
 
-void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles, int3 pos, int radious, boost::optional<PlayerColor> player, int mode, int3::EDistanceFormula distanceFormula) const
+void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
+											  const int3 & pos,
+											  int radious,
+											  boost::optional<PlayerColor> player,
+											  int mode,
+											  int3::EDistanceFormula distanceFormula) const
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -67,7 +76,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 		return;
 	}
 	if(radious == CBuilding::HEIGHT_SKYSHIP) //reveal entire map
-		getAllTiles (tiles, player, -1, 0);
+		getAllTiles (tiles, player, -1, MapTerrainFilterMode::NONE);
 	else
 	{
 		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
@@ -91,15 +100,13 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 	}
 }
 
-void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, boost::optional<PlayerColor> Player, int level, int surface) const
+void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, boost::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
 		logGlobal->error("Illegal call to getAllTiles !");
 		return;
 	}
-	bool water = surface == 0 || surface == 2,
-		land = surface == 0 || surface == 1;
 
 	std::vector<int> floors;
 	if(level == -1)
@@ -112,22 +119,41 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 	else
 		floors.push_back(level);
 
-	for (auto zd : floors)
+	for(auto zd: floors)
 	{
-
-		for (int xd = 0; xd < gs->map->width; xd++)
+		for(int xd = 0; xd < gs->map->width; xd++)
 		{
-			for (int yd = 0; yd < gs->map->height; yd++)
+			for(int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,zd))->terType->isWater() && water)
-					|| (getTile (int3 (xd,yd,zd))->terType->isLand() && land))
-					tiles.insert(int3(xd,yd,zd));
+				bool isTileEligible = false;
+
+				switch(tileFilterMode)
+				{
+					case MapTerrainFilterMode::NONE:
+						isTileEligible = true;
+						break;
+					case MapTerrainFilterMode::WATER:
+						isTileEligible = getTile(int3(xd, yd, zd))->terType->isWater();
+						break;
+					case MapTerrainFilterMode::LAND:
+						isTileEligible = getTile(int3(xd, yd, zd))->terType->isLand();
+						break;
+					case MapTerrainFilterMode::LAND_CARTOGRAPHER:
+						isTileEligible = getTile(int3(xd, yd, zd))->terType->isSurfaceCartographerCompatible();
+						break;
+					case MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER:
+						isTileEligible = getTile(int3(xd, yd, zd))->terType->isUndergroundCartographerCompatible();
+						break;
+				}
+
+				if(isTileEligible)
+					tiles.insert(int3(xd, yd, zd));
 			}
 		}
 	}
 }
 
-void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const
 {
 	for (int j = 0; j < 3 ; j++)
 		out.push_back(VLC->arth->objects[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)]);
@@ -162,7 +188,7 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 	in.checkMagicBytes(SAVEGAME_MAGIC);
 
 	CMapHeader dum;
-	StartInfo *si;
+	StartInfo * si = nullptr;
 
 	logGlobal->info("\tReading header");
 	in.serializer & dum;
@@ -197,49 +223,49 @@ template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadIntegrit
 template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadFile>(CLoadFile &);
 template DLL_LINKAGE void CPrivilegedInfoCallback::saveCommonState<CSaveFile>(CSaveFile &) const;
 
-TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
+TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
 	if(!gs->map->isInTheMap(pos))
 		return nullptr;
 	return &gs->map->getTile(pos);
 }
 
-CGHeroInstance *CNonConstInfoCallback::getHero(ObjectInstanceID objid)
+CGHeroInstance * CNonConstInfoCallback::getHero(const ObjectInstanceID & objid)
 {
 	return const_cast<CGHeroInstance*>(CGameInfoCallback::getHero(objid));
 }
 
-CGTownInstance *CNonConstInfoCallback::getTown(ObjectInstanceID objid)
+CGTownInstance * CNonConstInfoCallback::getTown(const ObjectInstanceID & objid)
 {
 	return const_cast<CGTownInstance*>(CGameInfoCallback::getTown(objid));
 }
 
-TeamState *CNonConstInfoCallback::getTeam(TeamID teamID)
+TeamState * CNonConstInfoCallback::getTeam(const TeamID & teamID)
 {
 	return const_cast<TeamState*>(CGameInfoCallback::getTeam(teamID));
 }
 
-TeamState *CNonConstInfoCallback::getPlayerTeam(PlayerColor color)
+TeamState * CNonConstInfoCallback::getPlayerTeam(const PlayerColor & color)
 {
 	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
 }
 
-PlayerState * CNonConstInfoCallback::getPlayerState( PlayerColor color, bool verbose )
+PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color, bool verbose)
 {
 	return const_cast<PlayerState*>(CGameInfoCallback::getPlayerState(color, verbose));
 }
 
-CArtifactInstance * CNonConstInfoCallback::getArtInstance( ArtifactInstanceID aid )
+CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstanceID & aid)
 {
 	return gs->map->artInstances.at(aid.num);
 }
 
-CGObjectInstance * CNonConstInfoCallback::getObjInstance( ObjectInstanceID oid )
+CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID & oid)
 {
 	return gs->map->objects.at(oid.num);
 }
 
-CArmedInstance * CNonConstInfoCallback::getArmyInstance(ObjectInstanceID oid)
+CArmedInstance * CNonConstInfoCallback::getArmyInstance(const ObjectInstanceID & oid)
 {
 	return dynamic_cast<CArmedInstance *>(getObjInstance(oid));
 }

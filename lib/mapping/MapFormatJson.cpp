@@ -19,6 +19,9 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
+#include "../RiverHandler.h"
+#include "../RoadHandler.h"
+#include "../TerrainHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../mapObjects/CObjectClassesHandler.h"
@@ -139,15 +142,15 @@ namespace TriggeredEventsDetail
 		auto rawId = vstd::find_pos(NMetaclass::names, source);
 
 		if(rawId >= 0)
-			return (EMetaclass)rawId;
+			return static_cast<EMetaclass>(rawId);
 		else
 			return EMetaclass::INVALID;
 	}
 
 	static std::string encodeIdentifier(EMetaclass metaType, si32 type)
 	{
-		std::string metaclassName = NMetaclass::names[(int)metaType];
-		std::string identifier = "";
+		std::string metaclassName = NMetaclass::names[static_cast<int>(metaType)];
+		std::string identifier;
 
 		switch(metaType)
 		{
@@ -169,7 +172,7 @@ namespace TriggeredEventsDetail
 				{
 					si32 subtype = *subtypes.begin();
 					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
-					identifier = handler->typeName;
+					identifier = handler->getTypeName();
 				}
 			}
 			break;
@@ -186,7 +189,7 @@ namespace TriggeredEventsDetail
 			break;
 		}
 
-		return VLC->modh->makeFullIdentifier("", metaclassName, identifier);
+		return CModHandler::makeFullIdentifier("", metaclassName, identifier);
 	}
 
 	static EventCondition JsonToCondition(const JsonNode & node)
@@ -197,7 +200,7 @@ namespace TriggeredEventsDetail
 
 		auto pos = vstd::find_pos(conditionNames, conditionName);
 
-		event.condition = EventCondition::EWinLoseType(pos);
+		event.condition = static_cast<EventCondition::EWinLoseType>(pos);
 
 		if (node.Vector().size() > 1)
 		{
@@ -210,7 +213,10 @@ namespace TriggeredEventsDetail
 				{
 					//todo: support subtypes
 
-					std::string fullIdentifier = data["type"].String(), metaTypeName = "", scope = "" , identifier = "";
+					std::string fullIdentifier = data["type"].String();
+					std::string metaTypeName;
+					std::string scope;
+					std::string identifier;
 					CModHandler::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
 
 					event.metaType = decodeMetaclass(metaTypeName);
@@ -252,7 +258,7 @@ namespace TriggeredEventsDetail
 
 			if (!data["position"].isNull())
 			{
-				auto & position = data["position"].Vector();
+				const auto & position = data["position"].Vector();
 				event.position.x = static_cast<si32>(position.at(0).Float());
 				event.position.y = static_cast<si32>(position.at(1).Float());
 				event.position.z = static_cast<si32>(position.at(2).Float());
@@ -340,13 +346,43 @@ const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
 
 CMapFormatJson::CMapFormatJson():
 	fileVersionMajor(0), fileVersionMinor(0),
-	mapObjectResolver(make_unique<MapObjectResolver>(this)),
+	mapObjectResolver(std::make_unique<MapObjectResolver>(this)),
 	map(nullptr), mapHeader(nullptr)
 {
 
 }
 
-void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value)
+TerrainType * CMapFormatJson::getTerrainByCode(const std::string & code)
+{
+	for(const auto & object : VLC->terrainTypeHandler->objects)
+	{
+		if(object->shortIdentifier == code)
+			return const_cast<TerrainType *>(object.get());
+	}
+	return nullptr;
+}
+
+RiverType * CMapFormatJson::getRiverByCode(const std::string & code)
+{
+	for(const auto & object : VLC->riverTypeHandler->objects)
+	{
+		if (object->shortIdentifier == code)
+			return const_cast<RiverType *>(object.get());
+	}
+	return nullptr;
+}
+
+RoadType * CMapFormatJson::getRoadByCode(const std::string & code)
+{
+	for(const auto & object : VLC->roadTypeHandler->objects)
+	{
+		if (object->shortIdentifier == code)
+			return const_cast<RoadType *>(object.get());
+	}
+	return nullptr;
+}
+
+void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value) const
 {
 	//TODO: unify allowed factions with others - make them std::vector<bool>
 
@@ -354,11 +390,11 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 	temp.resize(VLC->townh->size(), false);
 	auto standard = VLC->townh->getDefaultAllowed();
 
-    if(handler.saving)
+	if(handler.saving)
 	{
 		for(auto faction : VLC->townh->objects)
-			if(faction->town && vstd::contains(value, faction->index))
-				temp[std::size_t(faction->index)] = true;
+			if(faction->town && vstd::contains(value, faction->getIndex()))
+				temp[static_cast<std::size_t>(faction->getIndex())] = true;
 	}
 
 	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, standard, temp);
@@ -368,7 +404,7 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 		value.clear();
 		for (std::size_t i=0; i<temp.size(); i++)
 			if(temp[i])
-				value.insert((TFaction)i);
+				value.insert(static_cast<TFaction>(i));
 	}
 }
 
@@ -484,24 +520,24 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 			{
 				if((obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO) && obj->tempOwner == PlayerColor(player))
 				{
-					CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj.get());
+					auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
 
 					auto heroes = handler.enterStruct("heroes");
 					if(hero)
 					{
 						auto heroData = handler.enterStruct(hero->instanceName);
-						heroData->serializeString("name", hero->name);
+						heroData->serializeString("name", hero->nameCustom);
 
 						if(hero->ID == Obj::HERO)
 						{
 							std::string temp;
 							if(hero->type)
 							{
-								temp = hero->type->identifier;
+								temp = hero->type->getJsonKey();
 							}
 							else
 							{
-								temp = VLC->heroh->objects[hero->subID]->identifier;
+								temp = VLC->heroh->objects[hero->subID]->getJsonKey();
 							}
 							handler.serializeString("type", temp);
 						}
@@ -524,7 +560,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 				hname.heroId = -1;
 				std::string rawId = data["type"].String();
 
-				if(rawId != "")
+				if(!rawId.empty())
 					hname.heroId = HeroTypeID::decode(rawId);
 
 				hname.heroName = data["name"].String();
@@ -632,7 +668,7 @@ void CMapFormatJson::readTriggeredEvents(JsonDeserializer & handler)
 
 	mapHeader->triggeredEvents.clear();
 
-	for(auto & entry : input["triggeredEvents"].Struct())
+	for(const auto & entry : input["triggeredEvents"].Struct())
 	{
 		TriggeredEvent event;
 		event.identifier = entry.first;
@@ -641,7 +677,7 @@ void CMapFormatJson::readTriggeredEvents(JsonDeserializer & handler)
 	}
 }
 
-void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode & source)
+void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode & source) const
 {
 	using namespace TriggeredEventsDetail;
 
@@ -656,13 +692,13 @@ void CMapFormatJson::writeTriggeredEvents(JsonSerializer & handler)
 {
 	JsonNode triggeredEvents(JsonNode::JsonType::DATA_STRUCT);
 
-	for(auto event : mapHeader->triggeredEvents)
+	for(const auto & event : mapHeader->triggeredEvents)
 		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
 
 	handler.serializeRaw("triggeredEvents", triggeredEvents, boost::none);
 }
 
-void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest)
+void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest) const
 {
 	using namespace TriggeredEventsDetail;
 
@@ -672,7 +708,7 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode 
 	if(!event.description.empty())
 		dest["description"].String() = event.description;
 
-	dest["effect"]["type"].String() = typeNames.at(size_t(event.effect.type));
+	dest["effect"]["type"].String() = typeNames.at(static_cast<size_t>(event.effect.type));
 
 	if(!event.effect.toOtherMessage.empty())
 		dest["effect"]["messageToSend"].String() = event.effect.toOtherMessage;
@@ -776,12 +812,12 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 		{
 			auto predefinedHero = handler.enterStruct(p.first);
 
-			CGHeroInstance * hero = new CGHeroInstance();
+			auto * hero = new CGHeroInstance();
 			hero->ID = Obj::HERO;
-            hero->setHeroTypeName(p.first);
-            hero->serializeJsonDefinition(handler);
+			hero->setHeroTypeName(p.first);
+			hero->serializeJsonDefinition(handler);
 
-            map->predefinedHeroes.push_back(hero);
+			map->predefinedHeroes.emplace_back(hero);
 		}
 	}
 }
@@ -814,9 +850,7 @@ void CMapFormatJson::writeOptions(JsonSerializer & handler)
 }
 
 ///CMapPatcher
-CMapPatcher::CMapPatcher(JsonNode stream):
-	CMapFormatJson(),
-	input(stream)
+CMapPatcher::CMapPatcher(const JsonNode & stream): input(stream)
 {
 	//todo: update map patches and change this
 	fileVersionMajor = 0;
@@ -838,19 +872,17 @@ void CMapPatcher::readPatchData()
 }
 
 ///CMapLoaderJson
-CMapLoaderJson::CMapLoaderJson(CInputStream * stream):
-	CMapFormatJson(),
-	buffer(stream),
-	ioApi(new CProxyROIOApi(buffer)),
-	loader("", "_", ioApi)
+CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
+	: buffer(stream)
+	, ioApi(new CProxyROIOApi(buffer))
+	, loader("", "_", ioApi)
 {
-
 }
 
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
 	LOG_TRACE(logGlobal);
-	std::unique_ptr<CMap> result = std::unique_ptr<CMap>(new CMap());
+	std::unique_ptr<CMap> result = std::make_unique<CMap>();
 	map = result.get();
 	mapHeader = map;
 	readMap();
@@ -861,7 +893,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
 	LOG_TRACE(logGlobal);
 	map = nullptr;
-	std::unique_ptr<CMapHeader> result = std::unique_ptr<CMapHeader>(new CMapHeader());
+	std::unique_ptr<CMapHeader> result = std::make_unique<CMapHeader>();
 	mapHeader = result.get();
 	readHeader(false);
 	return result;
@@ -949,7 +981,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		using namespace TerrainDetail;
 		{//terrain type
 			const std::string typeCode = src.substr(0, 2);
-			tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getInfoByCode(typeCode));
+			tile.terType = getTerrainByCode(typeCode);
 		}
 		int startPos = 2; //0+typeCode fixed length
 		{//terrain view
@@ -973,27 +1005,20 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		if (startPos >= src.size())
 			return;
 		bool hasRoad = true;
-		//FIXME: check without exceptions?
 		{//road type
 			const std::string typeCode = src.substr(startPos, 2);
 			startPos += 2;
-			try
+			tile.roadType = getRoadByCode(typeCode);
+			if(!tile.roadType) //it's not a road, it's a river
 			{
-				tile.roadType = const_cast<RoadType*>(VLC->terrainTypeHandler->getRoadByCode(typeCode));
-			}
-			catch (const std::exception& e) //it's not a road, it's a river
-			{
-				try
-				{
-					tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
-					hasRoad = false;
-				}
-				catch (const std::exception& e)
+				tile.roadType = VLC->roadTypeHandler->getById(Road::NO_ROAD);
+				tile.riverType = getRiverByCode(typeCode);
+				hasRoad = false;
+				if(!tile.riverType)
 				{
 					throw std::runtime_error("Invalid river type in " + src);
 				}
-
-			}	
+			}
 		}
 		if (hasRoad)
 		{//road dir
@@ -1021,7 +1046,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		{//river type
 			const std::string typeCode = src.substr(startPos, 2);
 			startPos += 2;
-			tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+			tile.riverType = getRiverByCode(typeCode);
 		}
 		{//river dir
 			int pos = startPos;
@@ -1042,7 +1067,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 				tile.extTileFlags |= (flip << 2);
 		}
 	}
-	catch (const std::exception & e)
+	catch (const std::exception &)
 	{
 		logGlobal->error("Failed to read terrain tile: %s");
 	}
@@ -1093,7 +1118,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 {
 	//TODO:consider move to ObjectTypeHandler
 	//find type handler
-	std::string typeName = configuration["type"].String(), subtypeName = configuration["subtype"].String();
+	std::string typeName = configuration["type"].String();
+	std::string subtypeName = configuration["subtype"].String();
 	if(typeName.empty())
 	{
 		logGlobal->error("Object type missing");
@@ -1107,7 +1133,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	pos.z = static_cast<si32>(configuration["l"].Float());
 
 	//special case for grail
-    if(typeName == "grail")
+	if(typeName == "grail")
 	{
 		owner->map->grailPos = pos;
 
@@ -1123,16 +1149,16 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto handler = VLC->objtypeh->getHandlerFor( CModHandler::scopeMap(), typeName, subtypeName);
 
-	auto appearance = new ObjectTemplate;
+	auto * appearance = new ObjectTemplate;
 
-	appearance->id = Obj(handler->type);
-	appearance->subid = handler->subtype;
+	appearance->id = Obj(handler->getIndex());
+	appearance->subid = handler->getSubIndex();
 	appearance->readJson(configuration["template"], false);
 
 	// Will be destroyed soon and replaced with shared template
 	instance = handler->create(std::shared_ptr<const ObjectTemplate>(appearance));
 
-	instance->id = ObjectInstanceID((si32)owner->map->objects.size());
+	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
 	instance->pos = pos;
 	owner->map->addNewObject(instance);
@@ -1150,7 +1176,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 	//artifact instance serialization requires access to Map object, handle it here for now
 	//todo: find better solution for artifact instance serialization
 
-	if(auto art = dynamic_cast<CGArtifact *>(instance))
+	if(auto * art = dynamic_cast<CGArtifact *>(instance))
 	{
 		auto artID = ArtifactID::NONE;
 		int spellID = -1;
@@ -1174,7 +1200,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		art->storedArtifact = CArtifactInstance::createArtifact(owner->map, artID, spellID);
 	}
 
-	if(auto hero = dynamic_cast<CGHeroInstance *>(instance))
+	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))
 	{
 		auto o = handler.enterStruct("options");
 		hero->serializeJsonArtifacts(handler, "artifacts", owner->map);
@@ -1191,7 +1217,7 @@ void CMapLoaderJson::readObjects()
 
 	//get raw data
 	for(auto & p : data.Struct())
-		loaders.push_back(vstd::make_unique<MapObjectLoader>(this, p));
+		loaders.push_back(std::make_unique<MapObjectLoader>(this, p));
 
 	for(auto & ptr : loaders)
 		ptr->construct();
@@ -1207,20 +1233,17 @@ void CMapLoaderJson::readObjects()
 }
 
 ///CMapSaverJson
-CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
-	CMapFormatJson(),
-	buffer(stream),
-	ioApi(new CProxyIOApi(buffer)),
-	saver(ioApi, "_")
+CMapSaverJson::CMapSaverJson(CInputOutputStream * stream)
+	: buffer(stream)
+	, ioApi(new CProxyIOApi(buffer))
+	, saver(ioApi, "_")
 {
 	fileVersionMajor = VERSION_MAJOR;
 	fileVersionMinor = VERSION_MINOR;
 }
 
-CMapSaverJson::~CMapSaverJson()
-{
-
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CMapSaverJson::~CMapSaverJson() = default;
 
 void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & filename)
 {
@@ -1233,7 +1256,7 @@ void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & file
 		auto s = out.str();
 		std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
-		if (stream->write((const ui8*)s.c_str(), s.size()) != s.size())
+		if(stream->write(reinterpret_cast<const ui8 *>(s.c_str()), s.size()) != s.size())
 			throw std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
 	}
 }
@@ -1289,13 +1312,13 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << tile.terType->typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << tile.terType->shortIdentifier << static_cast<int>(tile.terView) << flipCodes[tile.extTileFlags % 4];
 
-	if(tile.roadType->id != Road::NO_ROAD)
-		out << tile.roadType->code << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
+	if(tile.roadType->getId() != Road::NO_ROAD)
+		out << tile.roadType->shortIdentifier << static_cast<int>(tile.roadDir) << flipCodes[(tile.extTileFlags >> 4) % 4];
 
-	if(tile.riverType->id != River::NO_RIVER)
-		out << tile.riverType->code << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
+	if(tile.riverType->getId() != River::NO_RIVER)
+		out << tile.riverType->shortIdentifier << static_cast<int>(tile.riverDir) << flipCodes[(tile.extTileFlags >> 2) % 4];
 
 	return out.str();
 }

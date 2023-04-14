@@ -1,0 +1,75 @@
+{
+	"Jebus Cross":
+	{
+		"minSize" : "l", "maxSize" : "xl",
+		"players" : "2-4",
+		"zones":
+		{
+			"1":
+			{
+				"type" : "playerStart", "size" : 30, "owner" : 1,
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"bannedTowns" : ["necropolis", "conflux"],
+				"monsters" : "weak",
+				"mines" : {"wood" : 4, "ore" : 4, "gems" : 1, "crystal" : 1, "sulfur" : 1, "mercury" : 1, "gold" : 2},
+				"treasure" : [
+								{"min" : 12000, "max": 22000, "density": 1},
+								{"min" : 5000, "max": 16000, "density": 6},
+								{"min" : 300, "max": 3000, "density": 14}
+							]
+			},
+			"2":
+			{
+				"type" : "playerStart", "size" : 30, "owner" : 2,
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"bannedTowns" : ["necropolis", "conflux"],
+				"monsters" : "weak",
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3":
+			{
+				"type" : "playerStart", "size" : 30, "owner" : 3,
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"bannedTowns" : ["necropolis", "conflux"],
+				"monsters" : "weak",
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"4":
+			{
+				"type" : "playerStart", "size" : 30, "owner" : 4,
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"bannedTowns" : ["necropolis", "conflux"],
+				"monsters" : "weak",
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "treasure", "size" : 40,
+				"neutralTowns" : { "castles" : 2 },
+				"terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
+				"bannedTowns" : ["necropolis", "conflux"],
+				"monsters" : "strong",
+				"mines" : {"gold" : 4},
+				"treasure" : [
+								{"min" : 35000, "max": 55000, "density" : 3},
+								{"min" : 25000, "max": 35000, "density" : 10},
+								{"min" : 10000, "max": 25000, "density" : 10}
+							]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "5", "guard" : 45000 },
+			{ "a" : "2", "b" : "5", "guard" : 45000 },
+			{ "a" : "3", "b" : "5", "guard" : 45000 },
+			{ "a" : "4", "b" : "5", "guard" : 45000 }
+		]
+	}
+}

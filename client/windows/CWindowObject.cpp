@@ -10,29 +10,28 @@
 #include "StdInc.h"
 #include "CWindowObject.h"
 
-#include "CAdvmapInterface.h"
-
 #include "../widgets/MiscWidgets.h"
-
-#include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../windows/CMessage.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/SDL_PixelAccess.h"
+#include "../render/IImage.h"
 
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
-
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+
+#include <SDL_surface.h>
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
 	WindowBase(getUsedEvents(options_), Point()),
@@ -70,7 +69,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 	if(background)
 		pos = background->center();
 	else
-		center(Point(screen->w/2, screen->h/2));
+		center(GH.screenDimensions() / 2);
 
 	if(!(options & SHADOW_DISABLED))
 		setShadow(true);
@@ -86,6 +85,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool pl
 		return nullptr;
 
 	auto image = std::make_shared<CPicture>(imageName);
+	image->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 	if(playerColored)
 		image->colorize(LOCPLINT->playerID);
 	return image;
@@ -137,7 +137,7 @@ void CWindowObject::setShadow(bool on)
 		//helper to set last row
 		auto blitAlphaRow = [](SDL_Surface *surf, size_t row)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + surf->pitch * (row);
+			uint8_t * ptr = (uint8_t*)surf->pixels + surf->pitch * (row);
 
 			for (size_t i=0; i< surf->w; i++)
 			{
@@ -149,7 +149,7 @@ void CWindowObject::setShadow(bool on)
 		// helper to set last column
 		auto blitAlphaCol = [](SDL_Surface *surf, size_t col)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + 4 * (col);
+			uint8_t * ptr = (uint8_t*)surf->pixels + 4 * (col);
 
 			for (size_t i=0; i< surf->h; i++)
 			{
@@ -170,12 +170,10 @@ void CWindowObject::setShadow(bool on)
 			shadowBottomTempl = CSDL_Ext::createSurfaceWithBpp<4>(1, size);
 			shadowRightTempl  = CSDL_Ext::createSurfaceWithBpp<4>(size, 1);
 
-			Uint32 shadowColor = SDL_MapRGBA(shadowCornerTempl->format, 0, 0, 0, 192);
-
 			//fill with shadow body color
-			SDL_FillRect(shadowCornerTempl, nullptr, shadowColor);
-			SDL_FillRect(shadowBottomTempl, nullptr, shadowColor);
-			SDL_FillRect(shadowRightTempl,  nullptr, shadowColor);
+			CSDL_Ext::fillSurface(shadowCornerTempl, { 0, 0, 0, 192 } );
+			CSDL_Ext::fillSurface(shadowBottomTempl, { 0, 0, 0, 192 } );
+			CSDL_Ext::fillSurface(shadowRightTempl,  { 0, 0, 0, 192 } );
 
 			//fill last row and column with more transparent color
 			blitAlphaCol(shadowRightTempl , size-1);
@@ -215,11 +213,14 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, shadowPos.x, shadowPos.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowRight, shadowPos.x, shadowStart.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, shadowStart.x, shadowPos.y));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowBottom), Point(shadowStart.x, shadowPos.y)));
 
 		}
+		SDL_FreeSurface(shadowCorner);
+		SDL_FreeSurface(shadowBottom);
+		SDL_FreeSurface(shadowRight);
 	}
 }
 

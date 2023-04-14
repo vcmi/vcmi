@@ -202,7 +202,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
 
-	return std::move(map);
+	return map;
 }
 
 void WindowNewMap::on_okButton_clicked()

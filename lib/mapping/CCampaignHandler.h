@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
+class CInputStream;
 class CMap;
 class CMapHeader;
 class CMapInfo;
@@ -35,16 +36,15 @@ namespace CampaignVersion
 class DLL_LINKAGE CCampaignHeader
 {
 public:
-	si32 version; //4 - RoE, 5 - AB, 6 - SoD and WoG
-	ui8 mapVersion; //CampText.txt's format
+	si32 version = 0; //4 - RoE, 5 - AB, 6 - SoD and WoG
+	ui8 mapVersion = 0; //CampText.txt's format
 	std::string name, description;
-	ui8 difficultyChoosenByPlayer;
-	ui8 music; //CmpMusic.txt, start from 0
+	ui8 difficultyChoosenByPlayer = 0;
+	ui8 music = 0; //CmpMusic.txt, start from 0
 
 	std::string filename;
-	ui8 loadFromLod; //if true, this campaign must be loaded fro, .lod file
-
-	CCampaignHeader();
+	std::string modName;
+	std::string encoding;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -55,31 +55,30 @@ public:
 		h & difficultyChoosenByPlayer;
 		h & music;
 		h & filename;
-		h & loadFromLod;
+		h & modName;
+		h & encoding;
 	}
 };
 
 class DLL_LINKAGE CScenarioTravel
 {
 public:
-	ui8 whatHeroKeeps; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
+	ui8 whatHeroKeeps = 0; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
 	std::array<ui8, 19> monstersKeptByHero;
 	std::array<ui8, 18> artifsKeptByHero;
 
-	ui8 startOptions; //1 - start bonus, 2 - traveling hero, 3 - hero options
+	ui8 startOptions = 0; //1 - start bonus, 2 - traveling hero, 3 - hero options
 
-	ui8 playerColor; //only for startOptions == 1
+	ui8 playerColor = 0; //only for startOptions == 1
 
 	struct DLL_LINKAGE STravelBonus
 	{
 		enum EBonusType {SPELL, MONSTER, BUILDING, ARTIFACT, SPELL_SCROLL, PRIMARY_SKILL, SECONDARY_SKILL, RESOURCE,
 			HEROES_FROM_PREVIOUS_SCENARIO, HERO};
-		EBonusType type; //uses EBonusType
-		si32 info1, info2, info3; //purpose depends on type
+		EBonusType type = EBonusType::SPELL; //uses EBonusType
+		si32 info1 = 0, info2 = 0, info3 = 0; //purpose depends on type
 
 		bool isBonusForHero() const;
-
-		STravelBonus();
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
@@ -91,8 +90,6 @@ public:
 	};
 
 	std::vector<STravelBonus> bonusesToChoose;
-
-	CScenarioTravel();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -111,12 +108,10 @@ class DLL_LINKAGE CCampaignScenario
 public:
 	struct DLL_LINKAGE SScenarioPrologEpilog
 	{
-		bool hasPrologEpilog;
-		ui8 prologVideo; // from CmpMovie.txt
-		ui8 prologMusic; // from CmpMusic.txt
+		bool hasPrologEpilog = false;
+		ui8 prologVideo = 0; // from CmpMovie.txt
+		ui8 prologMusic = 0; // from CmpMusic.txt
 		std::string prologText;
-
-		SScenarioPrologEpilog();
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
@@ -129,11 +124,11 @@ public:
 
 	std::string mapName; //*.h3m
 	std::string scenarioName; //from header. human-readble
-	ui32 packedMapSize; //generally not used
+	ui32 packedMapSize = 0; //generally not used
 	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
-	ui8 regionColor;
-	ui8 difficulty;
-	bool conquered;
+	ui8 regionColor = 0;
+	ui8 difficulty = 0;
+	bool conquered = false;
 
 	std::string regionText;
 	SScenarioPrologEpilog prolog, epilog;
@@ -146,10 +141,8 @@ public:
 	void loadPreconditionRegions(ui32 regions);
 	bool isNotVoid() const;
 	// FIXME: due to usage of JsonNode I can't make these methods const
-	const CGHeroInstance * strongestHero(PlayerColor owner);
+	const CGHeroInstance * strongestHero(const PlayerColor & owner);
 	std::vector<CGHeroInstance *> getLostCrossoverHeroes(); /// returns a list of crossover heroes which started the scenario, but didn't complete it
-
-	CCampaignScenario();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -185,15 +178,13 @@ public:
 	}
 
 	bool conquerable(int whichScenario) const;
-
-	CCampaign();
 };
 
 class DLL_LINKAGE CCampaignState
 {
 public:
 	std::unique_ptr<CCampaign> camp;
-	std::string campaignName;
+	std::string fileEncoding;
 	std::vector<ui8> mapsConquered, mapsRemaining;
 	boost::optional<si32> currentMap;
 
@@ -212,14 +203,12 @@ public:
 	static JsonNode crossoverSerialize(CGHeroInstance * hero);
 	static CGHeroInstance * crossoverDeserialize(JsonNode & node);
 
-	CCampaignState();
+	CCampaignState() = default;
 	CCampaignState(std::unique_ptr<CCampaign> _camp);
-	~CCampaignState(){};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & camp;
-		h & campaignName;
 		h & mapsRemaining;
 		h & mapsConquered;
 		h & currentMap;
@@ -229,12 +218,17 @@ public:
 
 class DLL_LINKAGE CCampaignHandler
 {
-	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, int version, int mapVersion );
+	std::vector<size_t> scenariosCountPerCampaign;
+
+	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
+
+	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
-	static std::vector< std::vector<ui8> > getFile(const std::string & name, bool headerOnly);
+	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
+
 public:
 	static std::string prologVideoName(ui8 index);
 	static std::string prologMusicName(ui8 index);

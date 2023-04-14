@@ -46,7 +46,7 @@ void WaterRoutes::process()
 	}
 	
 	//prohibit to place objects on sealed off lakes
-	for(auto & lake : wproxy->getLakes())
+	for(const auto & lake : wproxy->getLakes())
 	{
 		if((lake.area * zone.freePaths()).getTilesVector().size() == 1)
 		{
@@ -56,7 +56,7 @@ void WaterRoutes::process()
 	}
 	
 	//prohibit to place objects on the borders
-	for(auto & t : zone.area().getBorder())
+	for(const auto & t : zone.area().getBorder())
 	{
 		if(zone.areaPossible().contains(t))
 		{

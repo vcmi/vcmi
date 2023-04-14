@@ -32,7 +32,11 @@
 		},
 		"animation": {
 			"type": "string",
-			"description": "Image resource"
+			"description": "Image resource",
+			"anyOf" : [
+				{ "format" : "defFile" },
+				{ "format" : "imageFile" }
+			]
 		},
 		"unknown": {
 			"type": "number",

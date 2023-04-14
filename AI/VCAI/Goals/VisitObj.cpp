@@ -33,7 +33,7 @@ bool VisitObj::operator==(const VisitObj & other) const
 
 std::string VisitObj::completeMessage() const
 {
-	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid);
+	return "hero " + hero.get()->getNameTranslated() + " captured Object ID = " + std::to_string(objid);
 }
 
 TGoalVec VisitObj::getAllPossibleSubgoals()

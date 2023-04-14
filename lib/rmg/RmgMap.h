@@ -11,10 +11,10 @@
 #pragma once
 #include "../int3.h"
 #include "../GameConstants.h"
-#include "../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CMap;
 class CMapEditManager;
 class TileInfo;
 class CMapGenOptions;
@@ -28,15 +28,15 @@ public:
 	CMap & map() const;
 	
 	RmgMap(const CMapGenOptions& mapGenOptions);
-	~RmgMap();
-	
+	~RmgMap() = default;
+
 	CMapEditManager* getEditManager() const;
 	const CMapGenOptions& getMapGenOptions() const;
-	
-	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
-	void foreachDirectNeighbour(const int3 &pos, std::function<void(int3& pos)> foo);
-	void foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& pos)> foo);
-	
+
+	void foreach_neighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const;
+	void foreachDirectNeighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const;
+	void foreachDiagonalNeighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const;
+
 	bool isBlocked(const int3 &tile) const;
 	bool shouldBeBlocked(const int3 &tile) const;
 	bool isPossible(const int3 &tile) const;
@@ -65,9 +65,9 @@ public:
 	ui32 getTotalZoneCount() const;
 	void initTiles(CMapGenerator & generator);
 	void addModificators();
-	
-	bool isAllowedSpell(SpellID sid) const;
-	
+
+	bool isAllowedSpell(const SpellID & sid) const;
+
 	void dump(bool zoneId) const;
 	
 private:

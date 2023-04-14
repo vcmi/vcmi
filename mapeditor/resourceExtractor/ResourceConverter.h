@@ -24,26 +24,35 @@ struct ExtractionOptions
 {
 	bool extractArchives = false;	// if set, original H3 archives will be extracted into a separate folder
 	ConversionOptions conversionOptions;
+	bool moveExtractedArchivesToSoDMod = false;
 };
 
+/// <summary>
+/// Class functionality to be used after extracting original H3 resources and before moving those resources to SoD Mod
+/// Splits def files containing individual images, so that faction resources are independent. (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44)
+/// (town creature portraits, hero army creature portraits, adventure map dwellings, small town icons, big town icons,
+/// hero speciality small icons, hero speciality large icons)
+/// Converts all PCX images to PNG
+/// </summary>
 class ResourceConverter
 {
 
 public:
 
-	// Splits def files that are shared between factions and converts pcx to bmp depending on Extraction Options
+	// Splits def files that are shared between factions and converts pcx to PNG depending on Extraction Options
 	static void convertExtractedResourceFiles(ConversionOptions conversionOptions);
 
 private:
 
-	// converts all pcx files from /Images into PNG
-	static void doConvertPcxToPng(bool deleteOriginals);
+	// Converts all .pcx from extractedFolder/Images into .png
+	static void doConvertPcxToPng(const bfs::path & sourceFolder, bool deleteOriginals);
 
-	// splits a def file into individual parts and converts the output to PNG format
-	static void splitDefFile(const std::string& fileName, const bfs::path& spritesPath, bool deleteOriginals);
+	// splits a .def file into individual images and converts the output to PNG format
+	static void splitDefFile(const std::string & fileName, const bfs::path & sourceFolder, bool deleteOriginals);
 
-	// splits def files (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44) so that faction resources are independent
-	// (town creature portraits, hero army creature portraits, adventure map dwellings, small town icons, big town icons, 
-	// hero speciality small icons, hero speciality large icons)
-	static void splitDefFiles(bool deleteOriginals);
+	/// <summary>
+	/// Splits the given .def files into individual images.
+	/// For each .def file, the resulting images will be output in the same folder, in a subfolder (named just like the .def file)
+	/// </summary>
+	static void splitDefFiles(const std::vector<std::string> & defFileNames, const bfs::path & sourceFolder, bool deleteOriginals);
 };

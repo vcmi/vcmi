@@ -96,6 +96,7 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 {
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
+	std::unique_ptr<boost::thread> battleThread;
 public:
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -184,7 +185,6 @@ public:
 	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap);
 	void synchronizeArtifactHandlerLists();
 
-	void showCompInfo(ShowInInfobox * comp) override;
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override; //use hero=nullptr for no hero
@@ -195,7 +195,7 @@ public:
 	void setMovePoints(SetMovePoints * smp) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player) override;
-	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override;
+	void changeObjPos(ObjectInstanceID objid, int3 newPos) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
@@ -233,12 +233,12 @@ public:
 	bool makeCustomAction(BattleAction &ba);
 	void stackEnchantedTrigger(const CStack * stack);
 	void stackTurnTrigger(const CStack *stack);
-	bool handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving = false); //checks if obstacle is land mine and handles possible consequences
+	bool handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving = false, const std::set<BattleHex> & passed = {}); //checks if obstacle is land mine and handles possible consequences
 
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
 	bool hireHero( const CGObjectInstance *obj, ui8 hid, PlayerColor player );
-	bool buildBoat( ObjectInstanceID objid );
+	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
 	bool sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count);
@@ -302,6 +302,13 @@ public:
 	void sendAndApply(CGarrisonOperationPack * pack);
 	void sendAndApply(SetResources * pack);
 	void sendAndApply(NewStructures * pack);
+
+	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
+	void throwNotAllowedAction(CPackForServer * pack);
+	void throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id);
+	void throwOnWrongPlayer(CPackForServer * pack, PlayerColor player);
+	void throwAndComplain(CPackForServer * pack, std::string txt);
+	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
 	struct FinishingBattleHelper
 	{

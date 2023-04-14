@@ -216,11 +216,17 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"demonSummon" :
+			"summons50HP" : 
 			{
-				"type" : "DAEMON_SUMMONING",
-				"subtype" : "creature.demon",
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.summonDemons",
 				"val" : 50
+			},
+			"resurrects" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.summonDemons",
+				"val" : 0
 			},
 			"castsAmount" :
 			{
@@ -360,9 +366,11 @@
 			"descreaseLuck" :
 			{
 				"type" : "LUCK",
-				"effectRange" : "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Devils"
+				"stacking" : "Devils",
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"blockRetaliation" :
 			{
@@ -412,9 +420,11 @@
 			"descreaseLuck" :
 			{
 				"type" : "LUCK",
-				"effectRange" : "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Devils"
+				"stacking" : "Devils",
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"blockRetaliation" :
 			{

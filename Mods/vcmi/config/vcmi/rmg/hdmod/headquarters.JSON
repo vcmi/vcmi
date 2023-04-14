@@ -1,0 +1,158 @@
+{
+	"Headquarters" :
+	{
+		"minSize" : "l", "maxSize" : "l+u",
+		"players" : "2-7",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "necropolis", "dungeon", "fortress", "neutral" ],
+				"mines" : { "wood" : 2, "mercury" : 1, "ore" : 2, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 12000, "max" : 22000, "density" : 1 },
+					{ "min" : 5000, "max" : 16000, "density" : 6 },
+					{ "min" : 300, "max" : 3000, "density" : 9 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "tower" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "necropolis", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 3,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"4" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 4,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 5,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "dungeon" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"6" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 6,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "necropolis" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"7" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 7,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "conflux" ],
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "neutral" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 60,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "dungeon", "stronghold", "fortress", "neutral" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 35000, "max" : 55000, "density" : 3 },
+					{ "min" : 25000, "max" : 35000, "density" : 10 },
+					{ "min" : 10000, "max" : 25000, "density" : 20 }
+				]
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 100,
+				"monsters" : "strong",
+				"neutralTowns" : { "castles" : 2 },
+				"allowedTowns" : [ "stronghold", "fortress" ],
+				"allowedMonsters" : [ "castle", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "rough" ],
+				"mines" : { "wood" : 2, "ore" : 2, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 25000, "max" : 30000, "density" : 3 },
+					{ "min" : 25000, "max" : 28000, "density" : 10 },
+					{ "min" : 10000, "max" : 25000, "density" : 10 }
+				]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "9", "guard" : 45000 },
+			{ "a" : "2", "b" : "9", "guard" : 45000 },
+			{ "a" : "3", "b" : "9", "guard" : 45000 },
+			{ "a" : "4", "b" : "9", "guard" : 45000 },
+			{ "a" : "5", "b" : "9", "guard" : 45000 },
+			{ "a" : "6", "b" : "9", "guard" : 45000 },
+			{ "a" : "7", "b" : "9", "guard" : 45000 },
+			{ "a" : "8", "b" : "9", "guard" : 45000 },
+			{ "a" : "1", "b" : "8", "guard" : 45000 },
+			{ "a" : "2", "b" : "8", "guard" : 45000 },
+			{ "a" : "3", "b" : "8", "guard" : 45000 },
+			{ "a" : "4", "b" : "8", "guard" : 45000 },
+			{ "a" : "5", "b" : "8", "guard" : 45000 },
+			{ "a" : "6", "b" : "8", "guard" : 45000 },
+			{ "a" : "7", "b" : "8", "guard" : 45000 }
+		]
+	}
+}

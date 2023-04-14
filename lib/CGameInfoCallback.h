@@ -25,6 +25,7 @@ struct TerrainTile;
 struct PlayerState;
 class CTown;
 struct StartInfo;
+struct CPathsInfo;
 
 struct InfoAboutHero;
 struct InfoAboutTown;
@@ -68,7 +69,7 @@ public:
 
 
 //	//armed object
-//	void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+//	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const = 0;
@@ -131,12 +132,9 @@ class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase, public IGame
 protected:
 	CGameState * gs;//todo: replace with protected const getter, only actual Server and Client objects should hold game state
 
-	CGameInfoCallback();
+	CGameInfoCallback() = default;
 	CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player);
 	bool hasAccess(boost::optional<PlayerColor> playerId) const;
-	bool isVisible(int3 pos, boost::optional<PlayerColor> Player) const;
-	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> Player) const;
-	bool isVisible(const CGObjectInstance *obj) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
 	bool isOwnedOrVisited(const CGObjectInstance *obj) const;
@@ -151,7 +149,6 @@ public:
 	const Player * getPlayer(PlayerColor color) const override;
 	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const;
 	virtual int getResource(PlayerColor Player, Res::ERes which) const;
-	virtual bool isVisible(int3 pos) const;
 	virtual PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	virtual EPlayerStatus::EStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
@@ -159,8 +156,15 @@ public:
 	PlayerColor getLocalPlayer() const override; //player that is currently owning given client (if not a client, then returns current player)
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 
+	//map
+	virtual bool isVisible(int3 pos, const boost::optional<PlayerColor> & Player) const;
+	virtual bool isVisible(const CGObjectInstance *obj, const boost::optional<PlayerColor> & Player) const;
+	virtual bool isVisible(const CGObjectInstance *obj) const;
+	virtual bool isVisible(int3 pos) const;
+
+
 	//armed object
-	virtual void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
@@ -191,7 +195,9 @@ public:
 	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
-	virtual void calculatePaths(std::shared_ptr<PathfinderConfig> config);
+	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config);
+	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
+	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const;
 
 	//town
 	virtual const CGTownInstance* getTown(ObjectInstanceID objid) const;
@@ -222,6 +228,9 @@ public:
 class DLL_LINKAGE CPlayerSpecificInfoCallback : public CGameInfoCallback
 {
 public:
+	// keep player-specific override in scope
+	using CGameInfoCallback::howManyTowns;
+
 	virtual int howManyTowns() const;
 	virtual int howManyHeroes(bool includeGarrisoned = true) const;
 	virtual int3 getGrailPos(double *outKnownRatio);
@@ -241,6 +250,5 @@ public:
 	virtual std::shared_ptr<const boost::multi_array<ui8, 3>> getVisibilityMap() const; //returns visibility map
 	//virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
-
 
 VCMI_LIB_NAMESPACE_END

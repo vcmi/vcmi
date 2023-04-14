@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@+id/mods_adapter_item_nesting"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/accent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/mods_adapter_item_name"
+        style="@style/VCMI.Text"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_marginLeft="8dp"
+        android:drawableLeft="@drawable/ic_error"
+        android:drawablePadding="18dp"
+        android:gravity="center_vertical"
+        android:padding="@dimen/side_margin"
+        android:text="@string/mods_failed_mod_loading" />
+</LinearLayout>

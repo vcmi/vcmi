@@ -10,9 +10,10 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
-
+#include "../render/Colors.h"
 #include "../../lib/FunctionList.h"
+
+#include <SDL_pixels.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,11 +21,11 @@ namespace config
 {
 struct ButtonInfo;
 }
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -115,7 +116,7 @@ public:
 
 	/// generates tooltip that can be passed into constructor
 	static std::pair<std::string, std::string> tooltip();
-	static std::pair<std::string, std::string> tooltip(const JsonNode & localizedTexts);
+	static std::pair<std::string, std::string> tooltipLocalized(const std::string & key);
 	static std::pair<std::string, std::string> tooltip(const std::string & hover, const std::string & help = "");
 };
 
@@ -185,24 +186,31 @@ public:
 	/// in some cases, e.g. LoadGame difficulty selection, after refreshing the UI, the ToggleGroup should 
 	/// reset all of it's child buttons to BLOCK state, then make selection again
 	void setSelectedOnly(int id);
+	int getSelected() const;
 };
 
 /// A typical slider for volume with an animated indicator
 class CVolumeSlider : public CIntObject
 {
+public:
+	enum ETooltipMode
+	{
+		MUSIC,
+		SOUND
+	};
+
+private:
 	int value;
 	CFunctionList<void(int)> onChange;
 	std::shared_ptr<CAnimImage> animImage;
-	const std::pair<std::string, std::string> * const helpHandlers;
+	ETooltipMode mode;
 	void setVolume(const int v);
 public:
-
 	/// @param position coordinates of slider
 	/// @param defName name of def animation for slider
 	/// @param value initial value for volume
-	/// @param help pointer to first helptext of slider
-	CVolumeSlider(const Point & position, const std::string & defName, const int value,
-	              const std::pair<std::string, std::string> * const help);
+	/// @param mode that determines tooltip texts
+	CVolumeSlider(const Point & position, const std::string & defName, const int value, ETooltipMode mode);
 
 	void moveTo(int id);
 	void addCallback(std::function<void(int)> callback);
@@ -220,6 +228,8 @@ class CSlider : public CIntObject
 	std::shared_ptr<CButton> left;
 	std::shared_ptr<CButton> right;
 	std::shared_ptr<CButton> slider;
+
+	boost::optional<Rect> scrollBounds;
 
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int positions; //number of highest position (0 if there is only one)
@@ -244,6 +254,10 @@ public:
 	/// Controls how many items wil be scrolled via one click
 	void setScrollStep(int to);
 
+	/// If set, mouse scroll will only scroll slider when inside of this area
+	void setScrollBounds(const Rect & bounds );
+	void clearScrollBounds();
+
 	/// Value modifiers
 	void moveLeft();
 	void moveRight();
@@ -256,15 +270,16 @@ public:
 	void setAmount(int to);
 
 	/// Accessors
-	int getAmount();
-	int getValue();
+	int getAmount() const;
+	int getValue() const;
+	int getCapacity() const;
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Keycode & key) override;
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved (const Point & cursorPosition) override;
 	void showAll(SDL_Surface * to) override;
 
 	 /// @param position coordinates of slider

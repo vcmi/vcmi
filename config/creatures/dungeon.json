@@ -261,7 +261,9 @@
 		{
 			"fearless" :
 			{
-				"type" : "SELF_MORALE"
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "INDEPENDENT_MAX"
 			}
 		 },
 		"upgrades": ["minotaurKing"],
@@ -287,7 +289,9 @@
 		{
 			"fearless" :
 			{
-				"type" : "SELF_MORALE"
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "INDEPENDENT_MAX"
 			}
 		 },
 		"graphics" :

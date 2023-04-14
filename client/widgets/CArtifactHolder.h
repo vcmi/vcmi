@@ -27,7 +27,7 @@ public:
 	CArtifactHolder();
 
 	virtual void artifactRemoved(const ArtifactLocation &artLoc)=0;
-	virtual void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)=0;
+	virtual void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw)=0;
 	virtual void artifactDisassembled(const ArtifactLocation &artLoc)=0;
 	virtual void artifactAssembled(const ArtifactLocation &artLoc)=0;
 };
@@ -90,7 +90,6 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void select();
-	void deselect();
 	void showAll(SDL_Surface * to) override;
 	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
 
@@ -115,7 +114,6 @@ public:
 			const CArtifactsOfHero *AOH;
 			const CArtifactInstance *art;
 
-			Artpos();
 			void clear();
 			void setTo(const CHeroArtPlace *place, bool dontTakeBackpack);
 			bool valid();
@@ -128,8 +126,6 @@ public:
 	};
 	std::shared_ptr<SCommonPart> commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
 
-	bool updateState; // Whether the commonInfo should be updated on setHero or not.
-
 	std::shared_ptr<CButton> leftArtRoll;
 	std::shared_ptr<CButton> rightArtRoll;
 	bool allowedAssembling;
@@ -138,10 +134,10 @@ public:
 	std::function<void(CHeroArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
-	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst, bool withUIUpdate);
 	void artifactRemoved(const ArtifactLocation &al);
 	void artifactUpdateSlots(const ArtifactLocation &al);
-	ArtPlacePtr getArtPlace(int slot);//may return null
+	ArtPlacePtr getArtPlace(ArtifactPosition slot);//may return null
 
 	void setHero(const CGHeroInstance * hero);
 	const CGHeroInstance *getHero() const;
@@ -152,11 +148,11 @@ public:
 	void deactivate() override;
 
 	void safeRedraw();
-	void markPossibleSlots(const CArtifactInstance* art);
-	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs
-	void unmarkLocalSlots(bool withRedraw = true); //unmarks slots in that particular AOH
-	void updateWornSlots(bool redrawParent = true);
-	void updateBackpackSlots(bool redrawParent = true);
+	void markPossibleSlots(const CArtifactInstance * art, bool withRedraw = false);
+	void unmarkSlots(bool withRedraw = false); //unmarks slots in all visible AOHs
+	void unmarkLocalSlots(bool withRedraw = false); //unmarks slots in that particular AOH
+	void updateWornSlots(bool redrawParent = false);
+	void updateBackpackSlots(bool redrawParent = false);
 
 	void updateSlot(ArtifactPosition i);
 
@@ -190,7 +186,7 @@ public:
 	std::shared_ptr<CArtifactsOfHero::SCommonPart> getCommonPart();
 
 	void artifactRemoved(const ArtifactLocation &artLoc) override;
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
 	void artifactDisassembled(const ArtifactLocation &artLoc) override;
 	void artifactAssembled(const ArtifactLocation &artLoc) override;
 };

@@ -21,16 +21,15 @@ class Entity;
 class DLL_LINKAGE IHandlerBase
 {
 protected:
-	std::string getScopeBuiltin() const;
+	static std::string getScopeBuiltin();
 
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
-	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
-	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
+	static void registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index);
 
 public:
 	/// loads all original game data in vector of json nodes
 	/// dataSize - is number of items that must be loaded (normally - constant from GameConstants)
-	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) = 0;
+	virtual std::vector<JsonNode> loadLegacyData() = 0;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) = 0;
@@ -94,7 +93,7 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
-		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, getScopeBuiltin(), name), objects.size());
+		auto object = loadFromJson(scope, data, name, objects.size());
 
 		objects.push_back(object);
 
@@ -104,7 +103,7 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
-		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, getScopeBuiltin(), name), index);
+		auto object = loadFromJson(scope, data, name, index);
 
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;

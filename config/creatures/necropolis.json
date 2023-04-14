@@ -92,8 +92,8 @@
 		{
 			"regenerate" : 
 			{
-				"type" : "FULL_HP_REGENERATION",
-				"subtype" : 1
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			}
 		},
 		"upgrades": ["wraith"],
@@ -120,8 +120,8 @@
 		{
 			"regenerate" : 
 			{
-				"type" : "FULL_HP_REGENERATION",
-				"subtype" : 1
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			},
 			"drainsMana" :
 			{
@@ -342,10 +342,12 @@
 			"decreaseMorale" :
 			{
 				"type" : "MORALE",
-				"effectRange": "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Undead Dragons"
-			},
+				"stacking" : "Undead Dragons",
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
+			}
 		},
 		"upgrades": ["ghostDragon"],
 		"graphics" :
@@ -375,9 +377,11 @@
 			"decreaseMorale" :
 			{
 				"type" : "MORALE",
-				"effectRange": "ONLY_ENEMY_ARMY",
 				"val" : -1,
-				"stacking" : "Undead Dragons"
+				"stacking" : "Undead Dragons",
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"age" :
 			{

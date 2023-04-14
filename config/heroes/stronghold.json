@@ -95,11 +95,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"offence" : {
-					"subtype" : "skill.offence",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}
@@ -132,11 +133,11 @@
 		"specialty" : {
 			"bonuses" : {
 				"sorcery" : {
-					"subtype" : "skill.sorcery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"type" : "SPELL_DAMAGE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -170,11 +171,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"logistics" : {
-					"subtype" : "skill.logistics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"subtype" : 1,
+					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -235,11 +237,11 @@
 		"specialty" : {
 			"bonuses" : {
 				"sorcery" : {
-					"subtype" : "skill.sorcery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"targetSourceType" : "SECONDARY_SKILL",
+					"type" : "SPELL_DAMAGE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE"
 				}
 			}
 		}
@@ -258,11 +260,12 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : "skill.eagleEye",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
-					"valueType" : "PERCENT_TO_BASE"
+					"valueType" : "PERCENT_TO_TARGET_TYPE",
+					"targetSourceType" : "SECONDARY_SKILL"
 				}
 			}
 		}

@@ -20,6 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CCastleEvent;
 class CGTownInstance;
 class CGDwelling;
+struct DamageRange;
 
 class DLL_LINKAGE CSpecObjInfo
 {
@@ -35,9 +36,8 @@ public:
 class DLL_LINKAGE CCreGenAsCastleInfo : public virtual CSpecObjInfo
 {
 public:
-	CCreGenAsCastleInfo();
-	bool asCastle;
-	ui32 identifier;//h3m internal identifier
+	bool asCastle = false;
+	ui32 identifier = 0;//h3m internal identifier
 
 	std::vector<bool> allowedFactions;
 
@@ -48,8 +48,8 @@ public:
 class DLL_LINKAGE CCreGenLeveledInfo : public virtual CSpecObjInfo
 {
 public:
-	CCreGenLeveledInfo();
-	ui8 minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <1, 7>
+	ui8 minLevel = 0;
+	ui8 maxLevel = 7; //minimal and maximal level of creature in dwelling: <1, 7>
 
 	void serializeJson(JsonSerializeFormat & handler) override;
 };
@@ -70,7 +70,7 @@ public:
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
 	CGDwelling();
-	virtual ~CGDwelling();
+	~CGDwelling() override;
 
 	void initRandomObjectInfo();
 protected:
@@ -99,9 +99,8 @@ class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
-	si32 indexOnTV; //identifies its index on towns vector
-	CGTownInstance *town;
-	CGTownBuilding() : bType(BuildingSubID::NONE), indexOnTV(0), town(nullptr) {};
+	si32 indexOnTV = 0; //identifies its index on towns vector
+	CGTownInstance *town = nullptr;
 
 	STRONG_INLINE
 	BuildingSubID::EBuildingSubID getBuildingSubtype() const
@@ -137,10 +136,10 @@ public:
 
 protected:
 	BuildingID bID; //from buildig list
-	BuildingSubID::EBuildingSubID bType;
+	BuildingSubID::EBuildingSubID bType = BuildingSubID::NONE;
 
-	const std::string getVisitingBonusGreeting() const;
-	const std::string getCustomBonusGreeting(const Bonus & bonus) const;
+	std::string getVisitingBonusGreeting() const;
+	std::string getCustomBonusGreeting(const Bonus & bonus) const;
 };
 
 class DLL_LINKAGE COPWBonus : public CGTownBuilding
@@ -150,8 +149,8 @@ public:
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
-	COPWBonus (BuildingID index, BuildingSubID::EBuildingSubID subId, CGTownInstance *TOWN);
-	COPWBonus () {};
+	COPWBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
+	COPWBonus() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -169,8 +168,8 @@ public:
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
-	CTownBonus (BuildingID index, BuildingSubID::EBuildingSubID subId, CGTownInstance *TOWN);
-	CTownBonus () {};
+	CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
+	CTownBonus() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -195,8 +194,8 @@ struct DLL_LINKAGE GrowthInfo
 		int count;
 		std::string description;
 		Entry(const std::string &format, int _count);
-		Entry(int subID, BuildingID building, int _count);
-		Entry(int _count, const std::string &fullDescription);
+		Entry(int subID, const BuildingID & building, int _count);
+		Entry(int _count, std::string fullDescription);
 	};
 
 	std::vector<Entry> entries;
@@ -205,12 +204,12 @@ struct DLL_LINKAGE GrowthInfo
 
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
+	std::string name; // name of town
 public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;
 	const CTown * town;
-	std::string name; // name of town
 	si32 builded; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
@@ -283,6 +282,9 @@ public:
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 
+	std::string getNameTranslated() const;
+	void setNameTranslated(const std::string & newName);
+
 	//////////////////////////////////////////////////////////////////////////
 
 	bool passableFor(PlayerColor color) const override;
@@ -313,22 +315,28 @@ public:
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
-	bool hasBuilt(BuildingID buildingID) const;
-	bool hasBuilt(BuildingID buildingID, int townID) const;
+	bool hasBuilt(const BuildingID & buildingID) const;
+	bool hasBuilt(const BuildingID & buildingID, int townID) const;
 
-	TResources getBuildingCost(BuildingID buildingID) const;
+	TResources getBuildingCost(const BuildingID & buildingID) const;
 	TResources dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
 
-	CBuilding::TRequired genBuildingRequirements(BuildingID build, bool deep = false) const;
+	CBuilding::TRequired genBuildingRequirements(const BuildingID & build, bool deep = false) const;
 
 	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
-	void removeCapitols (PlayerColor owner) const;
+	void removeCapitols(const PlayerColor & owner) const;
 	void clearArmy() const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID::EBuildingID bid);
+
+	/// Returns damage range for secondary towers of this town
+	DamageRange getTowerDamageRange() const;
+
+	/// Returns damage range for central tower(keep) of this town
+	DamageRange getKeepDamageRange() const;
 
 	const CTown * getTown() const ;
 
@@ -356,10 +364,10 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void setOwner(const PlayerColor owner) const;
-	void onTownCaptured(const PlayerColor winner) const;
+	void setOwner(const PlayerColor & owner) const;
+	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
-	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
+	bool hasBuiltInOldWay(ETownType::ETownType type, const BuildingID & bid) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
 	void tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);

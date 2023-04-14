@@ -4,8 +4,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.pathfinding",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "ROUGH_TERRAIN_DISCOUNT",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -31,8 +30,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.archery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
+					"subtype" : 1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -58,9 +57,9 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.logistics",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"subtype" : 1,
+					"type" : "MOVEMENT",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},
@@ -85,7 +84,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"type" : "SIGHT_RADIOUS",
+					"type" : "SIGHT_RADIUS",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -111,8 +110,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.diplomacy",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "WANDERING_CREATURES_JOIN_BONUS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"surr" : {
@@ -146,9 +144,9 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.navigation",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"subtype" : 0,
+					"type" : "MOVEMENT",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},
@@ -196,11 +194,11 @@
 	},
 	"wisdom" : {
 		"index" : 7,
+		"obligatoryMajor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.wisdom",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MAX_LEARNABLE_SPELL_LEVEL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -226,8 +224,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.mysticism",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MANA_REGENERATION",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -279,8 +276,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.ballistics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "spell.catapultShot",
+					"type" : "CATAPULT_EXTRA_SHOTS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
@@ -312,13 +309,13 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.eagleEye",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"valueType" : "BASE_NUMBER"
 				},
 				"val2" : {
-					"subtype" : "skill.eagleEye",
-					"type" : "SECONDARY_SKILL_VAL2",
+					"subtype" : -1,
+					"type" : "LEARN_BATTLE_SPELL_LEVEL_LIMIT",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -347,25 +344,32 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.necromancy",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "UNDEAD_RAISE_PERCENTAGE",
 					"valueType" : "BASE_NUMBER"
+				},
+				"power" : {
+					"type" : "IMPROVED_NECROMANCY",
+					"subtype" : "creature.skeleton",
+					"addInfo" : 0
 				}
 			}
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 10 }
+				"main" : { "val" : 10 },
+				"power" : { "val" : 1 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 20 }
+				"main" : { "val" : 20 },
+				"power" : { "val" : 2 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 30 }
+				"main" : { "val" : 30 },
+				"power" : { "val" : 3 }
 			}
 		}
 	},
@@ -374,26 +378,23 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.estates",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
 		},
 		"basic" : {
-			"description" : "{Basic Estates}\n\nYour hero contributes 125 gold per day to your cause.",
 			"effects" : {
 				"main" : { "val" : 125 }
 			}
 		},
 		"advanced" : {
-			"description" : "{Advanced Estates}\n\nYour hero contributes 250 gold per day to your cause.",
 			"effects" : {
 				"main" : { "val" : 250 }
 			}
 		},
 		"expert" : {
-			"description" : "{Expert Estates}\n\nYour hero contributes 500 gold per day to your cause.",
 			"effects" : {
 				"main" : { "val" : 500 }
 			}
@@ -401,11 +402,12 @@
 	},
 	"fireMagic" : {
 		"index" : 14,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.fireMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 2,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -428,11 +430,12 @@
 	},
 	"airMagic" : {
 		"index" : 15,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.airMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 1,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -455,11 +458,12 @@
 	},
 	"waterMagic" : {
 		"index" : 16,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.waterMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 4,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -482,11 +486,12 @@
 	},
 	"earthMagic" : {
 		"index" : 17,
+		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.earthMagic",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 8,
+					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -512,8 +517,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.scholar",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : -1,
+					"type" : "LEARN_MEETING_SPELL_LIMIT",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -539,25 +544,31 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.tactics",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "BEFORE_BATTLE_REPOSITION",
+					"valueType" : "BASE_NUMBER"
+				},
+				"block" : {
+					"type" : "BEFORE_BATTLE_REPOSITION_BLOCK",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 2 }
+				"main" : { "val" : 2 },
+				"block" : { "val" : 2 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 4 }
+				"main" : { "val" : 4 },
+				"block" : { "val" : 4 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 6 }
+				"main" : { "val" : 6 },
+				"block" : { "val" : 6 }
 			}
 		}
 	},
@@ -566,13 +577,13 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.artillery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "creature.ballista",
+					"type" : "BONUS_DAMAGE_CHANCE",
 					"valueType" : "BASE_NUMBER"
 				},
 				"val2" : {
-					"subtype" : "skill.artillery",
-					"type" : "SECONDARY_SKILL_VAL2",
+					"subtype" : "creature.ballista",
+					"type" : "HERO_GRANTS_ATTACKS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
@@ -584,6 +595,12 @@
 				"ctrl2" : {
 					"subtype" : "creature.arrowTower",
 					"type" : "MANUAL_CONTROL",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				},
+				"damagePower" : {
+					"subtype" : "creature.ballista",
+					"type" : "BONUS_DAMAGE_PERCENTAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				}
@@ -613,9 +630,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.learning",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"type" : "HERO_EXPERIENCE_GAIN_PERCENT",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},
@@ -640,8 +656,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.offence",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : 0,
+					"type" : "PERCENTAGE_DAMAGE_BOOST",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -667,8 +683,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.armorer",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "GENERAL_DAMAGE_REDUCTION",
+					"subtype" : -1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -694,9 +710,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.intelligence",
-					"type" : "SECONDARY_SKILL_PREMY",
-					"valueType" : "BASE_NUMBER"
+					"type" : "MANA_PER_KNOWLEDGE",
+					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
 		},
@@ -721,8 +736,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.sorcery",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "SPELL_DAMAGE",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -748,8 +762,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.resistance",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"type" : "MAGIC_RESISTANCE",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -775,8 +788,8 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "skill.firstAid",
-					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "spell.firstAid",
+					"type" : "SPECIFIC_SPELL_POWER",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {

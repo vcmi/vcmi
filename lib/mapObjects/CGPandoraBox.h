@@ -21,13 +21,13 @@ class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
 public:
 	std::string message;
-	mutable bool hasGuardians; //helper - after battle even though we have no stacks, allows us to know that there was battle
+	mutable bool hasGuardians = false; //helper - after battle even though we have no stacks, allows us to know that there was battle
 
 	//gained things:
-	ui32 gainedExp;
-	si32 manaDiff; //amount of gained / lost mana
-	si32 moraleDiff; //morale modifier
-	si32 luckDiff; //luck modifier
+	ui32 gainedExp = 0;
+	si32 manaDiff = 0; //amount of gained / lost mana
+	si32 moraleDiff = 0; //morale modifier
+	si32 luckDiff = 0; //luck modifier
 	TResources resources;//gained / lost resources
 	std::vector<si32> primskills;//gained / lost prim skills
 	std::vector<SecondarySkill> abilities; //gained abilities
@@ -36,7 +36,6 @@ public:
 	std::vector<SpellID> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 
-	CGPandoraBox();
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -73,10 +72,10 @@ private:
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
 {
 public:
-	bool removeAfterVisit; //true if event is removed after occurring
-	ui8 availableFor; //players whom this event is available for
-	bool computerActivate; //true if computer player can activate this event
-	bool humanActivate; //true if human player can activate this event
+	bool removeAfterVisit = false; //true if event is removed after occurring
+	ui8 availableFor = 0; //players whom this event is available for
+	bool computerActivate = false; //true if computer player can activate this event
+	bool humanActivate = false; //true if human player can activate this event
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -87,7 +86,6 @@ public:
 		h & humanActivate;
 	}
 
-	CGEvent();
 	void onHeroVisit(const CGHeroInstance * h) const override;
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

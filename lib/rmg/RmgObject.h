@@ -38,6 +38,7 @@ public:
 		void setTemplate(TerrainId terrain); //cache invalidation
 		void setAnyTemplate(); //cache invalidation
 		
+		int3 getTopTile() const;
 		int3 getPosition(bool isAbsolute = false) const;
 		void setPosition(const int3 & position); //cache invalidation
 		void setPositionRaw(const int3 & position); //no cache invalidation
@@ -75,6 +76,7 @@ public:
 	void setTemplate(const TerrainId & terrain);
 	
 	const Area & getArea() const;  //lazy cache invalidation
+	const int3 getVisibleTop() const;
 	
 	void finalize(RmgMap & map);
 	void clear();
@@ -84,7 +86,7 @@ private:
 	mutable Area dFullAreaCache;
 	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
 	int3 dPosition;
-	ui32 dStrenght;
+	ui32 dStrength;
 };
 }
 

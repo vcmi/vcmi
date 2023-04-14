@@ -46,10 +46,8 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 
 		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
 		{
-			auto bai = BattleAttackInfo(attackerInfo, defender, shooting);
-
-			if(hex.isValid() && !shooting)
-				bai.chargedFields = reachability.distances[hex];
+			int distance = hex.isValid() ? reachability.distances[hex] : 0;
+			auto bai = BattleAttackInfo(attackerInfo, defender, distance, shooting);
 
 			return AttackPossibility::evaluate(bai, hex, state);
 		};
@@ -92,8 +90,8 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 		auto & bestAp = possibleAttacks[0];
 
 		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
-			bestAp.attack.attacker->unitType()->identifier,
-			state.battleGetUnitByPos(bestAp.dest)->unitType()->identifier,
+			bestAp.attack.attacker->unitType()->getJsonKey(),
+			state.battleGetUnitByPos(bestAp.dest)->unitType()->getJsonKey(),
 			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
 			bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
 	}

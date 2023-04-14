@@ -17,6 +17,7 @@ typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
 struct Bonus;
+class CSelector;
 class ResourceID;
 class CAddInfo;
 class ILimiter;
@@ -75,7 +76,7 @@ public:
 	bool operator == (const JsonNode &other) const;
 	bool operator != (const JsonNode &other) const;
 
-	void setMeta(std::string metadata, bool recursive = true);
+	void setMeta(const std::string & metadata, bool recursive = true);
 
 	/// Convert node to another type. Converting to nullptr will clear all data
 	void setType(JsonType Type);
@@ -83,6 +84,9 @@ public:
 
 	bool isNull() const;
 	bool isNumber() const;
+	bool isString() const;
+	bool isVector() const;
+	bool isStruct() const;
 	/// true if node contains not-null data that cannot be extended via merging
 	/// used for generating common base node from multiple nodes (e.g. bonuses)
 	bool containsBaseData() const;
@@ -122,8 +126,8 @@ public:
 	Type convertTo() const;
 
 	//operator [], for structs only - get child node by name
-	JsonNode & operator[](std::string child);
-	const JsonNode & operator[](std::string child) const;
+	JsonNode & operator[](const std::string & child);
+	const JsonNode & operator[](const std::string & child) const;
 
 	std::string toJson(bool compact = false) const;
 
@@ -164,16 +168,17 @@ namespace JsonUtils
 	 * @brief parse short bonus format, excluding type
 	 * @note sets duration to Permament
 	 */
-	DLL_LINKAGE void parseTypedBonusShort(const JsonVector &source, std::shared_ptr<Bonus> dest);
+	DLL_LINKAGE void parseTypedBonusShort(const JsonVector & source, const std::shared_ptr<Bonus> & dest);
 
 	///
-	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector &ability_vec);
-	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode &ability);
-	DLL_LINKAGE std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode &ability, BuildingID building, std::string description);
-	DLL_LINKAGE bool parseBonus(const JsonNode &ability, Bonus *placement);
+	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
+	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode & ability);
+	DLL_LINKAGE std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description);
+	DLL_LINKAGE bool parseBonus(const JsonNode & ability, Bonus * placement);
 	DLL_LINKAGE std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
-	DLL_LINKAGE void resolveIdentifier(si32 &var, const JsonNode &node, std::string name);
-	DLL_LINKAGE void resolveIdentifier(const JsonNode &node, si32 &var);
+	DLL_LINKAGE CSelector parseSelector(const JsonNode &ability);
+	DLL_LINKAGE void resolveIdentifier(si32 & var, const JsonNode & node, const std::string & name);
+	DLL_LINKAGE void resolveIdentifier(const JsonNode & node, si32 & var);
 	DLL_LINKAGE void resolveAddInfo(CAddInfo & var, const JsonNode & node);
 
 	/**
@@ -196,11 +201,9 @@ namespace JsonUtils
 	 */
 	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source, bool ignoreOverride = false, bool copyMeta = false);
 
-    /** @brief recursively merges descendant into copy of base node
-     * Result emulates inheritance semantic
-     *
-     *
-     */
+	/** @brief recursively merges descendant into copy of base node
+	* Result emulates inheritance semantic
+	*/
 	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
 
 	/**
@@ -223,11 +226,11 @@ namespace JsonUtils
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */
-	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files);
-	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files, bool & isValid);
+	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files);
+	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, bool & isValid);
 
 	/// This version loads all files with same name (overridden by mods)
-	DLL_LINKAGE JsonNode assembleFromFiles(std::string filename);
+	DLL_LINKAGE JsonNode assembleFromFiles(const std::string & filename);
 
 	/**
 	 * @brief removes all nodes that are identical to default entry in schema
@@ -235,9 +238,9 @@ namespace JsonUtils
 	 * @param schemaName - name of schema to use
 	 * @note for minimizing data must be valid against given schema
 	 */
-	DLL_LINKAGE void minimize(JsonNode & node, std::string schemaName);
+	DLL_LINKAGE void minimize(JsonNode & node, const std::string & schemaName);
 	/// opposed to minimize, adds all missing, required entries that have default value
-	DLL_LINKAGE void maximize(JsonNode & node, std::string schemaName);
+	DLL_LINKAGE void maximize(JsonNode & node, const std::string & schemaName);
 
 	/**
 	* @brief validate node against specified schema
@@ -246,16 +249,16 @@ namespace JsonUtils
 	* @param dataName - some way to identify data (printed in console in case of errors)
 	* @returns true if data in node fully compilant with schema
 	*/
-	DLL_LINKAGE bool validate(const JsonNode & node, std::string schemaName, std::string dataName);
+	DLL_LINKAGE bool validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName);
 
 	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
 	/// example: schema "vcmi:settings" is used to check user settings
-	DLL_LINKAGE const JsonNode & getSchema(std::string URI);
+	DLL_LINKAGE const JsonNode & getSchema(const std::string & URI);
 
 	/// for easy construction of JsonNodes; helps with inserting primitives into vector node
 	DLL_LINKAGE JsonNode boolNode(bool value);
 	DLL_LINKAGE JsonNode floatNode(double value);
-	DLL_LINKAGE JsonNode stringNode(std::string value);
+	DLL_LINKAGE JsonNode stringNode(const std::string & value);
 	DLL_LINKAGE JsonNode intNode(si64 value);
 }
 

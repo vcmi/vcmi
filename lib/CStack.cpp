@@ -23,48 +23,35 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 
 ///CStack
-CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, SlotID S)
-	: CBonusSystemNode(STACK_BATTLE),
-	CUnitState(),
+CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, ui8 Side, const SlotID & S):
+	CBonusSystemNode(STACK_BATTLE),
 	base(Base),
 	ID(I),
 	type(Base->type),
 	baseAmount(base->count),
 	owner(O),
 	slot(S),
-	side(Side),
-	initialPosition(),
-	nativeTerrain()
+	side(Side)
 {
 	health.init(); //???
 }
 
-CStack::CStack()
-	: CBonusSystemNode(STACK_BATTLE),
-	CUnitState(),
-	nativeTerrain()
+CStack::CStack():
+	CBonusSystemNode(STACK_BATTLE),
+	owner(PlayerColor::NEUTRAL),
+	slot(SlotID(255)),
+	initialPosition(BattleHex())
 {
-	base = nullptr;
-	type = nullptr;
-	ID = -1;
-	baseAmount = -1;
-	owner = PlayerColor::NEUTRAL;
-	slot = SlotID(255);
-	side = 1;
-	initialPosition = BattleHex();
 }
 
-CStack::CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S)
-	: CBonusSystemNode(STACK_BATTLE),
-	CUnitState(),
-	base(nullptr),
+CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S):
+	CBonusSystemNode(STACK_BATTLE),
 	ID(I),
 	type(stack->type),
 	baseAmount(stack->count),
 	owner(O),
 	slot(S),
-	side(Side),
-	initialPosition()
+	side(Side)
 {
 	health.init(); //???
 }
@@ -101,24 +88,25 @@ ui32 CStack::level() const
 	if(base)
 		return base->getLevel(); //creature or commander
 	else
-		return std::max(1, (int)getCreature()->level); //war machine, clone etc
+		return std::max(1, static_cast<int>(getCreature()->level)); //war machine, clone etc
 }
 
 si32 CStack::magicResistance() const
 {
-	si32 magicResistance = IBonusBearer::magicResistance();
+	auto magicResistance = IBonusBearer::magicResistance();
 
 	si32 auraBonus = 0;
 
-	for(auto one : battle->battleAdjacentUnits(this))
+	for(const auto * one : battle->battleAdjacentUnits(this))
 	{
 		if(one->unitOwner() == owner)
 			vstd::amax(auraBonus, one->valOfBonuses(Bonus::SPELL_RESISTANCE_AURA)); //max value
 	}
-	magicResistance += auraBonus;
-	vstd::amin(magicResistance, 100);
+	vstd::abetween(auraBonus, 0, 100);
+	vstd::abetween(magicResistance, 0, 100);
+	float castChance = (100 - magicResistance) * (100 - auraBonus)/100.0;
 
-	return magicResistance;
+	return static_cast<si32>(100 - castChance);
 }
 
 BattleHex::EDir CStack::destShiftDir() const
@@ -181,7 +169,7 @@ std::string CStack::nodeName() const
 	oss << owner.getStr();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getNamePluralTextID();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -197,10 +185,11 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const
 	prepareAttacked(bsa, rand, newState);
 }
 
-void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::shared_ptr<battle::CUnitState> customState)
+void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const std::shared_ptr<battle::CUnitState> & customState)
 {
 	auto initialCount = customState->getCount();
 
+	// compute damage and update bsa.damageAmount
 	customState->damage(bsa.damageAmount);
 
 	bsa.killedAmount = initialCount - customState->getCount();
@@ -223,9 +212,9 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::s
 
 			double resurrectedRaw = baseAmount * resurrectFactor;
 
-			int32_t resurrectedCount = static_cast<int32_t>(floor(resurrectedRaw));
+			auto resurrectedCount = static_cast<int32_t>(floor(resurrectedRaw));
 
-			int32_t resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount/resurrectFactor));
+			auto resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount / resurrectFactor));
 
 			auto rangeGen = rand.getInt64Range(0, 99);
 
@@ -307,7 +296,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 			res.push_back(otherDefenderPos);
 		}
 	}
-	UNUSED(mask);
+	MAYBE_UNUSED(mask);
 
 	return res;
 }
@@ -319,20 +308,18 @@ bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? type->nameSing : type->namePl; //War machines can't use base
+	return (getCount() == 1) ? type->getNameSingularTranslated() : type->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const
 {
-	return getFirstHPleft() < (int32_t)MaxHealth()
-		   && isValidTarget()
-		   && !hasBonusOfType(Bonus::SIEGE_WEAPON);
+	return getFirstHPleft() < static_cast<int32_t>(MaxHealth()) && isValidTarget() && !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
 bool CStack::isOnNativeTerrain() const
 {
 	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == Terrain::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
+	auto res = nativeTerrain == ETerrainId::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
 	return res;
 }
 
@@ -361,10 +348,10 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 		}
 	}
 	//ammo cart works during creature bank battle while not on battlefield
-	auto ownerHero = battle->battleGetOwnerHero(unit);
+	const auto * ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->id == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->getId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}
