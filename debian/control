@@ -2,7 +2,7 @@ Source: vcmi
 Section: games
 Priority: optional
 Maintainer: Ivan Savenko <saven.ivan@gmail.com>
-Build-Depends: debhelper (>= 8), cmake, libsdl2-dev, libsdl2-image-dev, libsdl2-ttf-dev, libsdl2-mixer-dev, zlib1g-dev, libavformat-dev, libswscale-dev, libboost-dev (>=1.48), libboost-program-options-dev (>=1.48), libboost-filesystem-dev (>=1.48), libboost-system-dev (>=1.48), libboost-locale-dev (>=1.48), libboost-thread-dev (>=1.48),  qtbase5-dev, libtbb2-dev, libfuzzylite-dev, libminizip-dev, libluajit-5.1-dev, libenet-dev, qttools5-dev
+Build-Depends: debhelper (>= 8), cmake, libsdl2-dev, libsdl2-image-dev, libsdl2-ttf-dev, libsdl2-mixer-dev, zlib1g-dev, libavformat-dev, libswscale-dev, libboost-dev (>=1.48), libboost-program-options-dev (>=1.48), libboost-filesystem-dev (>=1.48), libboost-system-dev (>=1.48), libboost-locale-dev (>=1.48), libboost-thread-dev (>=1.48), qtbase5-dev, libtbb2-dev, libfuzzylite-dev, libminizip-dev, libluajit-5.1-dev, qttools5-dev
 Standards-Version: 3.9.1
 Homepage: http://vcmi.eu
 Vcs-Git: git://github.com/vcmi/vcmi.git
