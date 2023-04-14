@@ -77,14 +77,16 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 	if(!down)
 	{
 		//TODO: do not recreate window
-		#if 0
-		owner->update(hero, true);
-		#else
-		MAYBE_UNUSED(owner);
-		const CGHeroInstance * buf = hero;
-		GH.popInts(1);
-		GH.pushIntT<CHeroWindow>(buf);
-		#endif // 0
+		if (false)
+		{
+			owner->update(hero, true);
+		}
+		else
+		{
+			const CGHeroInstance * buf = hero;
+			GH.popInts(1);
+			GH.pushIntT<CHeroWindow>(buf);
+		}
 	}
 }
 

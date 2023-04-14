@@ -759,7 +759,7 @@ uint32_t ShootingAnimation::getAttackClimaxFrame() const
 
 	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 	uint32_t climaxFrame = shooterInfo->animation.attackClimaxFrame;
-	uint32_t selectedFrame = vstd::clamp(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
+	uint32_t selectedFrame = std::clamp<int>(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
 
 	if (climaxFrame != selectedFrame)
 		logGlobal->warn("Shooter %s has ranged attack climax frame set to %d, but only %d available!", shooterInfo->getNamePluralTranslated(), climaxFrame, maxFrames);

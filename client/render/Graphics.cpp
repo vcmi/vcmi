@@ -260,7 +260,7 @@ void Graphics::loadErmuToPicture()
 			ERMUtoPicture[idx][etp_idx] = n.String();
 			idx ++;
 		}
-		assert (idx == ARRAY_COUNT(ERMUtoPicture));
+		assert (idx == std::size(ERMUtoPicture));
 
 		etp_idx ++;
 	}

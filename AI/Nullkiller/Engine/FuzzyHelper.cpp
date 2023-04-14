@@ -136,7 +136,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	{
 		if(!vstd::contains(ai->memory->alreadyVisited, obj))
 			return 0;
-		FALLTHROUGH;
+		[[fallthrough]];
 	}
 	case Obj::MONSTER:
 	case Obj::HERO:

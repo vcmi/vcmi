@@ -457,7 +457,7 @@ int BonusList::totalValue() const
 	};
 
 	auto percent = [](int64_t base, int64_t percent) -> int {
-		return static_cast<int>(vstd::clamp((base * (100 + percent)) / 100, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
+		return static_cast<int>(std::clamp<int64_t>((base * (100 + percent)) / 100, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
 	};
 	std::array <BonusCollection, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
 	BonusCollection any;
@@ -520,7 +520,7 @@ int BonusList::totalValue() const
 	}));
 
 	if(notIndepBonuses)
-		return vstd::clamp(valFirst, any.indepMax, any.indepMin);
+		return std::clamp(valFirst, any.indepMax, any.indepMin);
 	
 	return hasIndepMin ? any.indepMin : hasIndepMax ? any.indepMax : 0;
 }
@@ -709,9 +709,7 @@ int IBonusBearer::MoraleVal() const
 	if(anaffectedByMorale.getHasBonus())
 		return 0;
 
-	int ret = moraleValue.getValue();
-
-	return vstd::abetween(ret, -3, +3);
+	return std::clamp(moraleValue.getValue(), -3, +3);
 }
 
 int IBonusBearer::LuckVal() const
@@ -719,9 +717,7 @@ int IBonusBearer::LuckVal() const
 	if(hasBonusOfType(Bonus::NO_LUCK))
 		return 0;
 
-	int ret = luckValue.getValue();
-
-	return vstd::abetween(ret, -3, +3);
+	return std::clamp(luckValue.getValue(), -3, +3);
 }
 
 int IBonusBearer::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
@@ -732,9 +728,8 @@ int IBonusBearer::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
 			bonusList = std::make_shared<const BonusList>();
 		return 0;
 	}
-	int ret = moraleValue.getValueAndList(bonusList);
 
-	return vstd::abetween(ret, -3, +3);
+	return std::clamp(moraleValue.getValueAndList(bonusList), -3, +3);
 }
 
 int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
@@ -745,9 +740,8 @@ int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
 			bonusList = std::make_shared<const BonusList>();
 		return 0;
 	}
-	int ret = luckValue.getValueAndList(bonusList);
 
-	return vstd::abetween(ret, -3, +3);
+	return std::clamp(luckValue.getValueAndList(bonusList), -3, +3);
 }
 
 ui32 IBonusBearer::MaxHealth() const

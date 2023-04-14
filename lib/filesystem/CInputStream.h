@@ -38,9 +38,8 @@ public:
 		std::unique_ptr<ui8[]> data(new ui8[getSize()]);
 
 		seek(0);
-		auto readSize = read(data.get(), getSize());
+		[[maybe_unused]] auto readSize = read(data.get(), getSize());
 		assert(readSize == getSize());
-		MAYBE_UNUSED(readSize);
 
 		return std::make_pair(std::move(data), getSize());
 	}

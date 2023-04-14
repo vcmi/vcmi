@@ -1463,9 +1463,8 @@ void NewObject::applyGs(CGameState *gs)
 		testObject.pos = pos;
 		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
 
-		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
+		[[maybe_unused]] const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
-		MAYBE_UNUSED(previousXAxisTile);
 	}
 	else
 	{
@@ -1689,10 +1688,11 @@ void RebalanceStacks::applyGs(CGameState * gs)
 
 	if(srcCount == count) //moving whole stack
 	{
-		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
+		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+
+		if(c) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			MAYBE_UNUSED(c);
 			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto * artHere = alHere.getArt();
@@ -1744,10 +1744,10 @@ void RebalanceStacks::applyGs(CGameState * gs)
 	}
 	else
 	{
-		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
+		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+		if(c) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
-			MAYBE_UNUSED(c);
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -1912,14 +1912,13 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 void AssembledArtifact::applyGs(CGameState *gs)
 {
 	CArtifactSet * artSet = al.getHolderArtSet();
-	const CArtifactInstance *transformedArt = al.getArt();
+	[[maybe_unused]] const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
 	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));
-	MAYBE_UNUSED(transformedArt);
 
 	auto * combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
