@@ -29,14 +29,13 @@ class CDownloadManager : public QObject
 
 		QNetworkReply * reply;
 		QSharedPointer<QFile> file;
+		QString filename;
 		Status status;
 		qint64 bytesReceived;
 		qint64 totalSize;
 	};
 
 	QStringList encounteredErrors;
-	
-	QString filename;
 
 	QNetworkAccessManager manager;
 
