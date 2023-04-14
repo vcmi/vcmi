@@ -170,7 +170,7 @@ public:
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<ui32, const std::type_info*> loadedPointersTypes;
-	std::map<const void*, boost::any> loadedSharedPointers;
+	std::map<const void*, std::any> loadedSharedPointers;
 	bool smartPointerSerialization;
 	bool saving;
 

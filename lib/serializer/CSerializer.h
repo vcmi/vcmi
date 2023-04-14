@@ -76,7 +76,7 @@ class DLL_LINKAGE CSerializer
 		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);
 	}
 
-	typedef std::map<const std::type_info *, boost::any, TypeComparer> TTypeVecMap;
+	typedef std::map<const std::type_info *, std::any, TypeComparer> TTypeVecMap;
 	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
 
 public:
@@ -103,7 +103,7 @@ public:
 #ifndef __APPLE__
 			assert(i->second.type() == typeid(VectorizedObjectInfo<T, U>));
 #endif
-			VectorizedObjectInfo<T, U> *ret = std::any_cast<VectorizedObjectInfo<T, U>*>(&(i->second));
+			VectorizedObjectInfo<T, U> *ret = std::any_cast<VectorizedObjectInfo<T, U>*>(i->second);
 			return ret;
 		}
 	}

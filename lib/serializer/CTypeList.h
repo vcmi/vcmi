@@ -15,17 +15,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct IPointerCaster
 {
-	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, returns To*
-	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
-	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
-	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
+	virtual std::any castRawPtr(const std::any &ptr) const = 0; // takes From*, returns To*
+	virtual std::any castSharedPtr(const std::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
+	virtual std::any castWeakPtr(const std::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
+	//virtual std::any castUniquePtr(const std::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
 	virtual ~IPointerCaster() = default;
 };
 
 template <typename From, typename To>
 struct PointerCaster : IPointerCaster
 {
-	virtual boost::any castRawPtr(const boost::any &ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
+	virtual std::any castRawPtr(const std::any &ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
 	{
 		From * from = (From*)std::any_cast<void*>(ptr);
 		To * ret = static_cast<To*>(from);
@@ -34,7 +34,7 @@ struct PointerCaster : IPointerCaster
 
 	// Helper function performing casts between smart pointers
 	template<typename SmartPt>
-	boost::any castSmartPtr(const boost::any &ptr) const
+	std::any castSmartPtr(const std::any &ptr) const
 	{
 		try
 		{
@@ -48,11 +48,11 @@ struct PointerCaster : IPointerCaster
 		}
 	}
 
-	virtual boost::any castSharedPtr(const boost::any &ptr) const override
+	virtual std::any castSharedPtr(const std::any &ptr) const override
 	{
 		return castSmartPtr<std::shared_ptr<From>>(ptr);
 	}
-	virtual boost::any castWeakPtr(const boost::any &ptr) const override
+	virtual std::any castWeakPtr(const std::any &ptr) const override
 	{
 		auto from = std::any_cast<std::weak_ptr<From>>(ptr);
 		return castSmartPtr<std::shared_ptr<From>>(from.lock());
@@ -88,13 +88,13 @@ private:
 	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to) const;
 	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to) const;
 
-	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
-	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
+	template<std::any(IPointerCaster::*CastingFunction)(const std::any &) const>
+	std::any castHelper(std::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
 	{
 		TSharedLock lock(mx);
 		auto typesSequence = castSequence(fromArg, toArg);
 
-		boost::any ptr = inputPtr;
+		std::any ptr = inputPtr;
 		for(int i = 0; i < static_cast<int>(typesSequence.size()) - 1; i++)
 		{
 			auto &from = typesSequence[i];
@@ -164,7 +164,7 @@ public:
 	}
 
 	template<typename TInput>
-	boost::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr) const
+	std::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr) const
 	{
 		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr.get());
@@ -179,7 +179,7 @@ public:
 	{
 		return std::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
 	}
-	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to) const
+	std::any castShared(std::any inputPtr, const std::type_info *from, const std::type_info *to) const
 	{
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, from, to);
 	}
