@@ -514,7 +514,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
 {
-	if(ps.isControlledByAI() || humanPlayers > 1)
+	if(ps.isControlledByAI() || humanPlayers > 0)
 		CSH->setPlayer(ps.color);
 }
 
