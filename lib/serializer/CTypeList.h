@@ -27,7 +27,7 @@ struct PointerCaster : IPointerCaster
 {
 	virtual boost::any castRawPtr(const boost::any &ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
 	{
-		From * from = (From*)boost::any_cast<void*>(ptr);
+		From * from = (From*)std::any_cast<void*>(ptr);
 		To * ret = static_cast<To*>(from);
 		return (void*)ret;
 	}
@@ -38,7 +38,7 @@ struct PointerCaster : IPointerCaster
 	{
 		try
 		{
-			auto from = boost::any_cast<SmartPt>(ptr);
+			auto from = std::any_cast<SmartPt>(ptr);
 			auto ret = std::static_pointer_cast<To>(from);
 			return ret;
 		}
@@ -54,7 +54,7 @@ struct PointerCaster : IPointerCaster
 	}
 	virtual boost::any castWeakPtr(const boost::any &ptr) const override
 	{
-		auto from = boost::any_cast<std::weak_ptr<From>>(ptr);
+		auto from = std::any_cast<std::weak_ptr<From>>(ptr);
 		return castSmartPtr<std::shared_ptr<From>>(from.lock());
 	}
 };
@@ -158,7 +158,7 @@ public:
 			return const_cast<void*>(reinterpret_cast<const void*>(inputPtr));
 		}
 
-		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(
+		return std::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(
 			const_cast<void*>(reinterpret_cast<const void*>(inputPtr)), &baseType,
 			derivedType));
 	}
@@ -177,7 +177,7 @@ public:
 
 	void * castRaw(void *inputPtr, const std::type_info *from, const std::type_info *to) const
 	{
-		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
+		return std::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
 	}
 	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to) const
 	{

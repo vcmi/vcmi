@@ -365,13 +365,13 @@ public:
 					if(*actualType == *typeWeNeedToReturn)
 					{
 						// No casting needed, just unpack already stored shared_ptr and return it
-						data = boost::any_cast<std::shared_ptr<T>>(itr->second);
+						data = std::any_cast<std::shared_ptr<T>>(itr->second);
 					}
 					else
 					{
 						// We need to perform series of casts
 						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
-						data = boost::any_cast<std::shared_ptr<T>>(ret);
+						data = std::any_cast<std::shared_ptr<T>>(ret);
 					}
 				}
 				catch(std::exception &e)

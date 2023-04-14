@@ -101,6 +101,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define _USE_MATH_DEFINES
 
 #include <algorithm>
+#include <any>
 #include <array>
 #include <atomic>
 #include <bitset>
