@@ -20,12 +20,12 @@ CDownloadManager::CDownloadManager()
 
 void CDownloadManager::downloadFile(const QUrl & url, const QString & file)
 {
-	filename = file;
 	QNetworkRequest request(url);
 	FileEntry entry;
 	entry.file.reset(new QFile(CLauncherDirs::get().downloadsPath() + '/' + file));
 	entry.bytesReceived = 0;
 	entry.totalSize = 0;
+	entry.filename = file;
 
 	if(entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
 	{
@@ -68,10 +68,13 @@ void CDownloadManager::downloadFinished(QNetworkReply * reply)
 	
 	if(possibleRedirectUrl.isValid())
 	{
+		QString filename;
+
 		for(int i = 0; i< currentDownloads.size(); ++i)
 		{
 			if(currentDownloads[i].file == file.file)
 			{
+				filename = currentDownloads[i].filename;
 				currentDownloads.removeAt(i);
 				break;
 			}
