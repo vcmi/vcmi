@@ -243,7 +243,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				
 				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
 				
-				return path2.valid() ? (dist + otherDist) : -1.f;
+				return path2.valid() ? (dist * otherDist) : -1.f;
 			}, guarded1, true, ObjectManager::OptimizeType::DISTANCE);
 			
 			if(path1.valid() && path2.valid())

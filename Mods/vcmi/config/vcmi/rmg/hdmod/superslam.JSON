@@ -1,0 +1,111 @@
+{
+	"SuperSlam" :
+	//(2 player, Large or XL  no under)  For powermonger players, meet by SLAMMING thru super zones. Your chances are not over until the fat lady sings! Should ban spec log along with normal random rules
+	{
+		"minSize" : "l", "maxSize" : "xl",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 20,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
+				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 400, "max" : 2000, "density" : 6 },
+					{ "min" : 3500, "max" : 5000, "density" : 5 },
+					{ "min" : 2100, "max" : 3000, "density" : 2 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 20,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 25,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "necropolis" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "grass", "subterra", "lava" ],
+				"mines" : { "wood" : 1, "ore" : 1, "sulfur" : 1, "gems" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 6000, "max" : 9500, "density" : 2 },
+					{ "min" : 3500, "max" : 6000, "density" : 5 },
+					{ "min" : 1000, "max" : 2000, "density" : 3 }
+				]
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 25,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "necropolis" ],
+				"terrainTypeLikeZone" : 3,
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 50,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"mines" : { "mercury" : 1, "crystal" : 1 },
+				"treasure" :
+				[
+					{ "min" : 25000, "max" : 29000, "density" : 5 },
+					{ "min" : 10000, "max" : 22000, "density" : 3 },
+					{ "min" : 1000, "max" : 1700, "density" : 1 }
+				]
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 50,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "snow" ],
+				"minesLikeZone" : 5,
+				"treasure" :
+				[
+					{ "min" : 10000, "max" : 22000, "density" : 3 },
+					{ "min" : 25000, "max" : 29000, "density" : 5 },
+					{ "min" : 1000, "max" : 1700, "density" : 1 }
+				]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 10 },
+			{ "a" : "2", "b" : "4", "guard" : 10 },
+			{ "a" : "3", "b" : "5", "guard" : 0 },
+			{ "a" : "4", "b" : "6", "guard" : 0 },
+			{ "a" : "5", "b" : "6", "guard" : 120000 },
+			{ "a" : "3", "b" : "4", "guard" : 120000 }
+		]
+	}
+}
