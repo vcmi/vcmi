@@ -15,4 +15,3 @@ for i in [16, 32, 128, 256, 512]:
 
 os.system("iconutil -c icns vcmi.iconset")
 shutil.rmtree("vcmi.iconset")
-
