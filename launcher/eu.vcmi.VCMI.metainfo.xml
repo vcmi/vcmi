@@ -37,6 +37,19 @@
 	<url type="homepage">https://vcmi.eu/</url>
 	<url type="bugtracker">https://github.com/vcmi/vcmi/issues</url>
 	<url type="faq">https://vcmi.eu/faq/</url>
+	<url type="help">https://wiki.vcmi.eu/Main_Page</url>
+	<url type="translate">https://github.com/vcmi/vcmi/wiki/Translations</url>
+	<url type="contact">https://slack.vcmi.eu/</url>
+	<url type="vcs-browser">https://github.com/vcmi/vcmi</url>
+	<recommends>
+		<control>keyboard</control>
+		<control>pointing</control>
+		<control>touch</control>
+	</recommends>
+	<categories>
+		<category>Game</category>
+		<category>StrategyGame</category>
+	</categories>
 	<releases>
 		<release version="1.3.0" date="2023-07-01" type="development" />
 		<release version="1.2.0" date="2023-04-14" />
@@ -45,6 +58,10 @@
 		<release version="1.0.0" date="2022-09-11" />
 		<release version="0.99" date="2016-11-01" />
 	</releases>
+	<keywords>
+		<keyword translate="no">heroes3</keyword>
+		<keyword translate="no">homm3</keyword>
+	</keywords>
 	<developer_name>VCMI Team</developer_name>
 	<content_rating type="oars-1.1">
 		<content_attribute id="violence-cartoon">moderate</content_attribute>
