@@ -186,8 +186,8 @@ public:
 	void showThievesGuildWindow (const CGObjectInstance * obj) override;
 	void showQuestLog() override;
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override; //called when a hero casts a spell
-	void tileHidden(const std::unordered_set<int3, ShashInt3> &pos) override; //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::unordered_set<int3, ShashInt3> &pos) override; //called when fog of war disappears from given tiles
+	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
+	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	void yourTurn() override;

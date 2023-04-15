@@ -989,14 +989,12 @@ void CAdventureMapInterface::startHotSeatWait(PlayerColor Player)
 	state = EGameStates::WAITING;
 }
 
-void CAdventureMapInterface::onMapTileChanged(const int3 & mapPosition)
+void CAdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
 {
-	minimap->updateTile(mapPosition);
-}
-
-void CAdventureMapInterface::onMapTilesChanged()
-{
-	minimap->update();
+	if (positions)
+		minimap->updateTiles(*positions);
+	else
+		minimap->update();
 }
 
 void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor Player)

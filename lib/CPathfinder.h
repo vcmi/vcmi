@@ -548,7 +548,7 @@ public:
 		PATROL_LOCKED = 1,
 		PATROL_RADIUS
 	} patrolState;
-	std::unordered_set<int3, ShashInt3> patrolTiles;
+	std::unordered_set<int3> patrolTiles;
 
 	int turn;
 	PlayerColor owner;

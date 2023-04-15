@@ -26,7 +26,6 @@ struct ArtifactLocation;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
-struct ShashInt3;
 
 namespace spells
 {
@@ -59,7 +58,7 @@ public:
 	void getFreeTiles(std::vector<int3> &tiles) const;
 
 	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
-	void getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
+	void getTilesInRange(std::unordered_set<int3> & tiles,
 						 const int3 & pos,
 						 int radious,
 						 std::optional<PlayerColor> player = std::optional<PlayerColor>(),
@@ -67,7 +66,7 @@ public:
 						 int3::EDistanceFormula formula = int3::DIST_2D) const;
 
 	//returns all tiles on given level (-1 - both levels, otherwise number of level)
-	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, std::optional<PlayerColor> player = std::optional<PlayerColor>(),
+	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player = std::optional<PlayerColor>(),
 					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
@@ -136,7 +135,7 @@ public:
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
-	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
+	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide) = 0;
 	
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 };

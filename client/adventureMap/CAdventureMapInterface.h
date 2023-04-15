@@ -177,10 +177,7 @@ public:
 	void onCurrentPlayerChanged(PlayerColor Player);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTileChanged(const int3 & mapPosition);
-
-	/// Called by PlayerInterface when unknown number of tiles changed and minimap should redraw
-	void onMapTilesChanged();
+	void onMapTilesChanged( boost::optional<std::unordered_set<int3> > positions);
 
 	/// Called by PlayerInterface when hero state changed and hero list must be updated
 	void onHeroChanged(const CGHeroInstance * hero);

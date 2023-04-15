@@ -68,6 +68,6 @@ public:
 
 	void showAll(SDL_Surface * to) override;
 
-	void updateTile(const int3 &pos);
+	void updateTiles(std::unordered_set<int3> positions);
 };
 

@@ -327,9 +327,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 			CCS->soundh->playSound(hero->getRemovalSound().value());
 	}
 
-
-	adventureInt->onMapTileChanged(hero->convertToVisitablePos(details.start));
-	adventureInt->onMapTileChanged(hero->convertToVisitablePos(details.end));
+	std::unordered_set<int3> changedTiles {
+		hero->convertToVisitablePos(details.start),
+		hero->convertToVisitablePos(details.end)
+	};
+	adventureInt->onMapTilesChanged(changedTiles);
 
 	bool directlyAttackingCreature = details.attackedFrom && paths.hasPath(hero) && paths.getPath(hero).endPos() == *details.attackedFrom;
 
@@ -1193,19 +1195,17 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	GH.pushInt(wnd);
 }
 
-void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
+void CPlayerInterface::tileRevealed(const std::unordered_set<int3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
-	for (auto & po : pos)
-		adventureInt->onMapTileChanged(po);
+	adventureInt->onMapTilesChanged(pos);
 }
 
-void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
+void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto & po : pos)
-		adventureInt->onMapTileChanged(po);
+	adventureInt->onMapTilesChanged(pos);
 }
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
@@ -1377,13 +1377,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	if (sop->what == ObjProperty::OWNER)
 	{
 		const CGObjectInstance * obj = cb->getObj(sop->id);
-		std::set<int3> pos = obj->getBlockedPos();
 
-		for(auto & po : pos)
-		{
-			if(cb->isVisible(po))
-				adventureInt->onMapTileChanged(po);
-		}
 		if(obj->ID == Obj::TOWN)
 		{
 			auto town = static_cast<const CGTownInstance *>(obj);
@@ -1394,8 +1388,12 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 				towns -= obj;
 
 			adventureInt->onTownChanged(town);
-			adventureInt->onMapTilesChanged();
 		}
+
+		std::set<int3> pos = obj->getBlockedPos();
+		std::unordered_set<int3> upos(pos.begin(), pos.end());
+		adventureInt->onMapTilesChanged(upos);
+
 		assert(cb->getTownsInfo().size() == towns.size());
 	}
 }
@@ -1505,7 +1503,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->onMapTilesChanged();
+	adventureInt->onMapTilesChanged(boost::none);
 }
 
 void CPlayerInterface::playerBlocked(int reason, bool start)

@@ -225,10 +225,13 @@ void CMinimap::setAIRadar(bool on)
 	redraw();
 }
 
-void CMinimap::updateTile(const int3 &pos)
+void CMinimap::updateTiles(std::unordered_set<int3> positions)
 {
 	if(minimap)
-		minimap->refreshTile(pos);
+	{
+		for (auto const & tile : positions)
+			minimap->refreshTile(tile);
+	}
 	redraw();
 }
 

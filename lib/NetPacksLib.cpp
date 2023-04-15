@@ -915,7 +915,7 @@ void FoWChange::applyGs(CGameState *gs)
 		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
-		std::unordered_set<int3, ShashInt3> tilesRevealed;
+		std::unordered_set<int3> tilesRevealed;
 		for (auto & elem : gs->map->objects)
 		{
 			const CGObjectInstance *o = elem;

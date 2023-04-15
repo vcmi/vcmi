@@ -117,8 +117,8 @@ public:
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
 	virtual void showQuestLog(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
-	virtual void tileHidden(const std::unordered_set<int3, ShashInt3> &pos){};
-	virtual void tileRevealed(const std::unordered_set<int3, ShashInt3> &pos){};
+	virtual void tileHidden(const std::unordered_set<int3> &pos){};
+	virtual void tileRevealed(const std::unordered_set<int3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = nullptr){}; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void centerView (int3 pos, int focusTime){};

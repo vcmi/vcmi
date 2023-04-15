@@ -182,9 +182,8 @@ public:
 	}
 };
 
-//Why not normal function?
-struct ShashInt3
-{
+template<>
+struct std::hash<int3> {
 	size_t operator()(int3 const& pos) const
 	{
 		size_t ret = std::hash<int>()(pos.x);
