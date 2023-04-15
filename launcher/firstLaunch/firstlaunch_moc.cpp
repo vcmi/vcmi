@@ -264,6 +264,18 @@ void FirstLaunchView::copyHeroesData()
 	if(!sourceRoot.exists())
 		return;
 
+	if (sourceRoot.dirName().compare("data", Qt::CaseInsensitive) == 0)
+	{
+		// We got Data folder. Possibly user selected "Data" folder of Heroes III install. Check whether valid data might exist 1 level above
+
+		QStringList dirData = sourceRoot.entryList({"data"}, QDir::Filter::Dirs);
+		if (dirData.empty())
+		{
+			// This is "Data" folder without any "Data" folders inside. Try to check for data 1 level above
+			sourceRoot.cdUp();
+		}
+	}
+
 	QStringList dirData = sourceRoot.entryList({"data"}, QDir::Filter::Dirs);
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
