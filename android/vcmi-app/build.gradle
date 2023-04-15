@@ -10,14 +10,16 @@ android {
 		applicationId "is.xyz.vcmi"
 		minSdk 19
 		targetSdk 31
-		versionCode 1103
-		versionName "1.1"
+		versionCode 1200
+		versionName "1.2"
 		setProperty("archivesBaseName", "vcmi")
 	}
 
 	signingConfigs {
 		releaseSigning
-		LoadSigningConfig()
+		dailySigning
+		LoadSigningConfig("releaseSigning")
+		LoadSigningConfig("dailySigning")
 	}
 
 	buildTypes {
@@ -46,6 +48,7 @@ android {
 		daily {
 			initWith release
 			applicationIdSuffix '.daily'
+			signingConfig signingConfigs.dailySigning
 			manifestPlaceholders = [
 				applicationLabel: 'VCMI daily',
 			]
@@ -118,38 +121,48 @@ def ResolveGitInfo() {
 		CommandOutput("git", ["describe", "--match=", "--always", "--abbrev=7"], ".")
 }
 
-def SigningPropertiesPath(final basePath) {
-	return file("${basePath}/signing.properties")
+def SigningPropertiesPath(final basePath, final signingConfigKey) {
+	return file("${basePath}/${signingConfigKey}.properties")
 }
 
 def SigningKeystorePath(final basePath, final keystoreFileName) {
 	return file("${basePath}/${keystoreFileName}")
 }
 
-def LoadSigningConfig() {
+def LoadSigningConfig(final signingConfigKey) {
 	final def projectRoot = "${project.projectDir}/../../CI/android"
 	final def props = new Properties()
-	final def propFile = SigningPropertiesPath(projectRoot)
+	final def propFile = SigningPropertiesPath(projectRoot, signingConfigKey)
+	
+	def signingConfig = android.signingConfigs.getAt(signingConfigKey)
+	
 	if (propFile.canRead()) {
 		props.load(new FileInputStream(propFile))
 
 		if (props != null
 			&& props.containsKey('STORE_FILE')
-			&& props.containsKey('STORE_PASSWORD')
-			&& props.containsKey('KEY_ALIAS')
-			&& props.containsKey('KEY_PASSWORD')) {
+			&& props.containsKey('KEY_ALIAS')) {
 
-			android.signingConfigs.releaseSigning.storeFile = SigningKeystorePath(projectRoot, props['STORE_FILE'])
-			android.signingConfigs.releaseSigning.storePassword = props['STORE_PASSWORD']
-			android.signingConfigs.releaseSigning.keyAlias = props['KEY_ALIAS']
-			android.signingConfigs.releaseSigning.keyPassword = props['KEY_PASSWORD']
+			signingConfig.storeFile = SigningKeystorePath(projectRoot, props['STORE_FILE'])
+			signingConfig.storePassword = props['STORE_PASSWORD']
+			signingConfig.keyAlias = props['KEY_ALIAS']
+			
+			if(props.containsKey('STORE_PASSWORD'))
+				signingConfig.storePassword = props['STORE_PASSWORD']
+			else
+				signingConfig.storePassword = System.getenv("ANDROID_STORE_PASSWORD")
+			
+			if(props.containsKey('KEY_PASSWORD'))
+				signingConfig.keyPassword = props['KEY_PASSWORD']
+			else
+				signingConfig.keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
 		} else {
 			println("Some props from signing file are missing")
-			android.buildTypes.release.signingConfig = null
+			android.signingConfigs.putAt(signingConfigKey, null)
 		}
 	} else {
 		println("file with signing properties is missing")
-		android.buildTypes.release.signingConfig = null
+		android.signingConfigs.putAt(signingConfigKey, null)
 	}
 }
 
