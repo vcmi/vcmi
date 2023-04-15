@@ -190,6 +190,7 @@ void FirstLaunchView::heroesDataMissing()
 	ui->labelDataCopy->setVisible(true);
 
 	ui->labelDataFound->setVisible(false);
+	ui->pushButtonDataNext->setEnabled(true);
 
 	if(hasVCMIBuilderScript)
 	{
@@ -218,6 +219,7 @@ void FirstLaunchView::heroesDataDetected()
 	}
 
 	ui->labelDataFound->setVisible(true);
+	ui->pushButtonDataNext->setEnabled(true);
 
 	heroesLanguageUpdate();
 }
@@ -247,7 +249,6 @@ void FirstLaunchView::heroesLanguageUpdate()
 
 	ui->labelDataFailure->setVisible(!success);
 	ui->labelDataSuccess->setVisible(success);
-	ui->pushButtonDataNext->setEnabled(success);
 }
 
 void FirstLaunchView::forceHeroesLanguage(const QString & language)
