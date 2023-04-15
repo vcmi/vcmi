@@ -138,9 +138,8 @@ void CMapLoaderH3M::readHeader()
 
 		if(hotaVersion > 1)
 		{
-			uint8_t unknown = reader->readUInt32();
+			[[maybe_unused]] uint8_t unknown = reader->readUInt32();
 			assert(unknown == 12);
-			MAYBE_UNUSED(unknown);
 		}
 	}
 	else
@@ -648,9 +647,11 @@ void CMapLoaderH3M::readMapOptions()
 
 	if(features.levelHOTA1)
 	{
-		uint8_t unknownConstant = reader->readUInt8();
+		// Unknown, may be another "sized bitmap", e.g
+		// 4 bytes - size of bitmap (16)
+		// 2 bytes - bitmap data (16 bits / 2 bytes)
+		[[maybe_unused]] uint8_t unknownConstant = reader->readUInt8();
 		assert(unknownConstant == 16);
-		MAYBE_UNUSED(unknownConstant);
 		reader->skipZero(5);
 	}
 
@@ -2041,8 +2042,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	if(features.levelHOTA1)
 	{
 		// TODO: HOTA support
-		bool spellResearchAvailable = reader->readBool();
-		MAYBE_UNUSED(spellResearchAvailable);
+		[[maybe_unused]] bool spellResearchAvailable = reader->readBool();
 	}
 
 	// Read castle events
