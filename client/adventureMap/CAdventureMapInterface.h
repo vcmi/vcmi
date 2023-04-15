@@ -185,7 +185,7 @@ public:
 	/// Called by PlayerInterface when town state changed and town list must be updated
 	void onTownChanged(const CGTownInstance * town);
 
-	/// Called when map audio should be paused, e.g. on combat or town scren access
+	/// Called when map audio should be paused, e.g. on combat or town screen access
 	void onAudioPaused();
 
 	/// Called when map audio should be resume, opposite to onPaused

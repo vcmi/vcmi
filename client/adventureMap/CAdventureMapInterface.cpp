@@ -984,17 +984,41 @@ bool CAdventureMapInterface::isActive()
 	return active & ~CIntObject::KEYBOARD;
 }
 
-void CAdventureMapInterface::startHotSeatWait(PlayerColor Player)
-{
-	state = EGameStates::WAITING;
-}
-
 void CAdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
 {
 	if (positions)
 		minimap->updateTiles(*positions);
 	else
 		minimap->update();
+}
+
+void CAdventureMapInterface::startHotSeatWait(PlayerColor Player)
+{
+	state = EGameStates::WAITING;
+}
+
+void CAdventureMapInterface::aiTurnStarted()
+{
+	if(settings["session"]["spectate"].Bool())
+		return;
+
+	adjustActiveness(true);
+	mapAudio->onEnemyTurnStarted();
+	adventureInt->minimap->setAIRadar(true);
+	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	adventureInt->minimap->showAll(screen);//force refresh on inactive object
+	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
+}
+
+void CAdventureMapInterface::adjustActiveness(bool aiTurnStart)
+{
+	bool wasActive = isActive();
+
+	if(wasActive)
+		deactivate();
+	adventureInt->duringAITurn = aiTurnStart;
+	if(wasActive)
+		activate();
 }
 
 void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor Player)
@@ -1436,30 +1460,6 @@ const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObject
 		return nullptr;
 
 	return ret;
-}
-
-void CAdventureMapInterface::aiTurnStarted()
-{
-	if(settings["session"]["spectate"].Bool())
-		return;
-
-	adjustActiveness(true);
-	mapAudio->onEnemyTurnStarted();
-	adventureInt->minimap->setAIRadar(true);
-	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
-	adventureInt->minimap->showAll(screen);//force refresh on inactive object
-	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
-}
-
-void CAdventureMapInterface::adjustActiveness(bool aiTurnStart)
-{
-	bool wasActive = isActive();
-
-	if(wasActive)
-		deactivate();
-	adventureInt->duringAITurn = aiTurnStart;
-	if(wasActive)
-		activate();
 }
 
 void CAdventureMapInterface::exitWorldView()

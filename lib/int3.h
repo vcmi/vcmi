@@ -182,17 +182,6 @@ public:
 	}
 };
 
-template<>
-struct std::hash<int3> {
-	size_t operator()(int3 const& pos) const
-	{
-		size_t ret = std::hash<int>()(pos.x);
-		vstd::hash_combine(ret, pos.y);
-		vstd::hash_combine(ret, pos.z);
-		return ret;
-	}
-};
-
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)
 {
@@ -214,3 +203,15 @@ int3 findClosestTile (Container & container, int3 dest)
 }
 
 VCMI_LIB_NAMESPACE_END
+
+
+template<>
+struct std::hash<VCMI_LIB_WRAP_NAMESPACE(int3)> {
+	size_t operator()(VCMI_LIB_WRAP_NAMESPACE(int3) const& pos) const
+	{
+		size_t ret = std::hash<int>()(pos.x);
+		VCMI_LIB_WRAP_NAMESPACE(vstd)::hash_combine(ret, pos.y);
+		VCMI_LIB_WRAP_NAMESPACE(vstd)::hash_combine(ret, pos.z);
+		return ret;
+	}
+};

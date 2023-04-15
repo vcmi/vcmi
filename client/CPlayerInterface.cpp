@@ -248,6 +248,33 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	// always recreate advmap interface to avoid possible memory-corruption bugs
 	adventureInt.reset(new CAdventureMapInterface());
 }
+
+void CPlayerInterface::playerStartsTurn(PlayerColor player)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if (!vstd::contains (GH.listInt, adventureInt))
+	{
+		GH.popInts ((int)GH.listInt.size()); //after map load - remove everything else
+		GH.pushInt (adventureInt);
+	}
+	else
+	{
+		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front().get())) //don't remove dialogs that expect query answer
+			GH.popInts(1);
+	}
+
+	if(CSH->howManyPlayerInterfaces() == 1)
+	{
+		GH.curInt = this;
+		adventureInt->startTurn();
+	}
+	if (player != playerID && this == LOCPLINT)
+	{
+		waitWhileDialog();
+		adventureInt->aiTurnStarted();
+	}
+}
+
 void CPlayerInterface::yourTurn()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -301,8 +328,57 @@ void CPlayerInterface::yourTurn()
 			adventureInt->startTurn();
 		}
 	}
-
 	acceptTurn();
+}
+
+void CPlayerInterface::acceptTurn()
+{
+	if (settings["session"]["autoSkip"].Bool())
+	{
+		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
+			iw->close();
+	}
+
+	if(CSH->howManyPlayerInterfaces() > 1)
+	{
+		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
+
+		adventureInt->startTurn();
+	}
+
+	adventureInt->initializeNewTurn();
+
+	// warn player if he has no town
+	if (cb->howManyTowns() == 0)
+	{
+		auto playerColor = *cb->getPlayerID();
+
+		std::vector<Component> components;
+		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
+		MetaString text;
+
+		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
+
+		if(optDaysWithoutCastle)
+		{
+			auto daysWithoutCastle = optDaysWithoutCastle.value();
+			if (daysWithoutCastle < 6)
+			{
+				text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
+				text.addReplacement(MetaString::COLOR, playerColor.getNum());
+				text.addReplacement(7 - daysWithoutCastle);
+			}
+			else if (daysWithoutCastle == 6)
+			{
+				text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+				text.addReplacement(MetaString::COLOR, playerColor.getNum());
+			}
+
+			showInfoDialogAndWait(components, text);
+		}
+		else
+			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
+	}
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
@@ -1685,56 +1761,6 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		CCS->soundh->playSound(castSoundPath);
 }
 
-void CPlayerInterface::acceptTurn()
-{
-	if (settings["session"]["autoSkip"].Bool())
-	{
-		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
-			iw->close();
-	}
-
-	if(CSH->howManyPlayerInterfaces() > 1)
-	{
-		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
-
-		adventureInt->startTurn();
-	}
-
-	adventureInt->initializeNewTurn();
-
-	// warn player if he has no town
-	if (cb->howManyTowns() == 0)
-	{
-		auto playerColor = *cb->getPlayerID();
-
-		std::vector<Component> components;
-		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
-		MetaString text;
-
-		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
-
-		if(optDaysWithoutCastle)
-		{
-			auto daysWithoutCastle = optDaysWithoutCastle.value();
-			if (daysWithoutCastle < 6)
-			{
-				text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-				text.addReplacement(MetaString::COLOR, playerColor.getNum());
-				text.addReplacement(7 - daysWithoutCastle);
-			}
-			else if (daysWithoutCastle == 6)
-			{
-				text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-				text.addReplacement(MetaString::COLOR, playerColor.getNum());
-			}
-
-			showInfoDialogAndWait(components, text);
-		}
-		else
-			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
-	}
-}
-
 void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
@@ -1945,32 +1971,6 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
 			artWin->artifactDisassembled(al);
-	}
-}
-
-void CPlayerInterface::playerStartsTurn(PlayerColor player)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (!vstd::contains (GH.listInt, adventureInt))
-	{
-		GH.popInts ((int)GH.listInt.size()); //after map load - remove everything else
-		GH.pushInt (adventureInt);
-	}
-	else
-	{
-		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front().get())) //don't remove dialogs that expect query answer
-			GH.popInts(1);
-	}
-
-	if(CSH->howManyPlayerInterfaces() == 1)
-	{
-		GH.curInt = this;
-		adventureInt->startTurn();
-	}
-	if (player != playerID && this == LOCPLINT)
-	{
-		waitWhileDialog();
-		adventureInt->aiTurnStarted();
 	}
 }
 
