@@ -80,7 +80,7 @@ namespace ERM
 		Tval val;
 	};
 
-	typedef boost::variant<TVarExpNotMacro, TMacroUsage> TVarExp;
+	typedef std::variant<TVarExpNotMacro, TMacroUsage> TVarExp;
 
 	//write-only variable expression
 	struct TVarpExp
@@ -89,7 +89,7 @@ namespace ERM
 	};
 
 	//i-expression (identifier expression) - an integral constant, variable symbol or array symbol
-	typedef boost::variant<TVarExp, int> TIexp;
+	typedef std::variant<TVarExp, int> TIexp;
 
 	struct TArithmeticOp
 	{
@@ -127,7 +127,7 @@ namespace ERM
 		TStringConstant string;
 	};
 
-	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroDef, TIexp, TVarpExp> TBodyOptionItem;
+	typedef std::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroDef, TIexp, TVarpExp> TBodyOptionItem;
 
 	typedef std::vector<TBodyOptionItem> TNormalBodyOptionList;
 
@@ -136,9 +136,9 @@ namespace ERM
 		char optionCode;
 		boost::optional<TNormalBodyOptionList> params;
 	};
-	typedef boost::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
+	typedef std::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
 
-//	typedef boost::variant<TIexp, TArithmeticOp > TIdentifierInternal;
+//	typedef std::variant<TIexp, TArithmeticOp > TIdentifierInternal;
 	typedef std::vector< TIexp > Tidentifier;
 
 	struct TComparison
@@ -157,7 +157,7 @@ namespace ERM
 
 	struct Tcondition
 	{
-		typedef boost::variant<
+		typedef std::variant<
 			TComparison,
 			int>
 			Tcond; //comparison or condition flag
@@ -196,7 +196,7 @@ namespace ERM
 	//moreover, I encountered a quite serious bug in boost: http://boost.2283326.n4.nabble.com/container-hpp-111-error-C2039-value-type-is-not-a-member-of-td3352328.html
 	//not sure how serious it is...
 
-	//typedef boost::variant<char, TStringConstant, TMacroUsage, TMacroDef> bodyItem;
+	//typedef std::variant<char, TStringConstant, TMacroUsage, TMacroDef> bodyItem;
 	typedef std::vector<TBodyOption> Tbody;
 
 	struct Tinstruction
@@ -217,7 +217,7 @@ namespace ERM
 
 	struct Tcommand
 	{
-		typedef	boost::variant<
+		typedef	std::variant<
 			Ttrigger,
 			Tinstruction,
 			Treceiver,
@@ -231,7 +231,7 @@ namespace ERM
 	//vector expression
 
 
-	typedef boost::variant<Tcommand, std::string, boost::spirit::unused_type> TERMline;
+	typedef std::variant<Tcommand, std::string, boost::spirit::unused_type> TERMline;
 
 	typedef std::string TVModifier; //'`', ',', ',@', '#''
 
@@ -245,7 +245,7 @@ namespace ERM
 
 	enum EVOtions{VEXP, SYMBOL, CHAR, DOUBLE, INT, TCMD, STRINGC};
 	struct TVExp;
-	typedef boost::variant<boost::recursive_wrapper<TVExp>, TSymbol, char, double, int, Tcommand, TStringConstant > TVOption; //options in v-expression
+	typedef std::variant<boost::recursive_wrapper<TVExp>, TSymbol, char, double, int, Tcommand, TStringConstant > TVOption; //options in v-expression
 	//v-expression
 	struct TVExp
 	{
@@ -254,7 +254,7 @@ namespace ERM
 	};
 
 	//script line
-	typedef boost::variant<TVExp, TERMline> TLine;
+	typedef std::variant<TVExp, TERMline> TLine;
 
 	template <typename T> struct ERM_grammar;
 }

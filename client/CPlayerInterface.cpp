@@ -1915,7 +1915,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	if(hero)
 	{
 		auto art = hero->getArt(al.slot);
@@ -1932,14 +1932,14 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
@@ -1954,7 +1954,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), dst.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), dst.artHolder);
 	updateInfo(hero);
 
 	bool redraw = true;
@@ -1983,7 +1983,7 @@ void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
@@ -1996,7 +1996,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{

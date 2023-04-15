@@ -1563,7 +1563,7 @@ void ArtifactLocation::removeArtifact()
 
 const CArmedInstance * ArtifactLocation::relatedObj() const
 {
-	return boost::apply_visitor(ObjectRetriever(), artHolder);
+	return std::visit(ObjectRetriever(), artHolder);
 }
 
 PlayerColor ArtifactLocation::owningPlayer() const
@@ -1574,12 +1574,12 @@ PlayerColor ArtifactLocation::owningPlayer() const
 
 CArtifactSet *ArtifactLocation::getHolderArtSet()
 {
-	return boost::apply_visitor(GetBase<CArtifactSet>(), artHolder);
+	return std::visit(GetBase<CArtifactSet>(), artHolder);
 }
 
 CBonusSystemNode *ArtifactLocation::getHolderNode()
 {
-	return boost::apply_visitor(GetBase<CBonusSystemNode>(), artHolder);
+	return std::visit(GetBase<CBonusSystemNode>(), artHolder);
 }
 
 const CArtifactInstance *ArtifactLocation::getArt() const
@@ -2533,12 +2533,12 @@ const CArtifactInstance * ArtSlotInfo::getArt() const
 
 CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
 {
-	return boost::apply_visitor(GetBase<CArtifactSet>(), srcArtHolder);
+	return std::visit(GetBase<CArtifactSet>(), srcArtHolder);
 }
 
 CArtifactSet * BulkMoveArtifacts::getDstHolderArtSet()
 {
-	return boost::apply_visitor(GetBase<CArtifactSet>(), dstArtHolder);
+	return std::visit(GetBase<CArtifactSet>(), dstArtHolder);
 }
 
 VCMI_LIB_NAMESPACE_END

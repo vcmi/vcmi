@@ -233,7 +233,7 @@ struct Component
 	}
 };
 
-using TArtHolder = boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance>>;
+using TArtHolder = std::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance>>;
 
 struct ArtifactLocation
 {
@@ -259,9 +259,9 @@ struct ArtifactLocation
 	template <typename T>
 	bool isHolder(const T *t) const
 	{
-		if(auto ptrToT = boost::get<ConstTransitivePtr<T> >(&artHolder))
+		if(auto ptrToT = std::get<ConstTransitivePtr<T>>(artHolder))
 		{
-			return ptrToT->get() == t;
+			return ptrToT == t;
 		}
 		return false;
 	}

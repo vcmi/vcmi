@@ -662,7 +662,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 
 		if (finishingBattle->loserHero)
 		{
-			//TODO: wrap it into a function, somehow (boost::variant -_-)
+			//TODO: wrap it into a function, somehow (std::variant -_-)
 			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
 			{
@@ -3930,11 +3930,11 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 		try
 		{
-			auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+			auto hero = std::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
 			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dst.slot))
 				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
-		catch(const boost::bad_get &)
+		catch(const std::bad_variant_access &)
 		{
 			// object other than hero received an art - ignore
 		}

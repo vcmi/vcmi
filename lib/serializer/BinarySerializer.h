@@ -331,13 +331,13 @@ public:
 		}
 	}
 	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-	void save(const boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	void save(const std::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
 	{
-		si32 which = data.which();
+		si32 which = data.index();
 		save(which);
 
 		VariantVisitorSaver<BinarySerializer> visitor(*this);
-		boost::apply_visitor(visitor, data);
+		std::visit(visitor, data);
 	}
 	template <typename T>
 	void save(const boost::optional<T> &data)

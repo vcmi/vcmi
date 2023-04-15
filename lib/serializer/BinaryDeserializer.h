@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 
 #include "CTypeList.h"
@@ -43,10 +44,21 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		Source & source;
 		std::vector<std::function<Variant()>> funcs;
 
+		template <class V>
+		struct mpl_types_impl;
+
+		template <class... Ts>
+		struct mpl_types_impl<std::variant<Ts...>> {
+			using type = boost::mpl::vector<Ts...>;
+		};
+
+		template <class V>
+		using mpl_types = typename mpl_types_impl<V>::type;
+
 		VariantLoaderHelper(Source & source):
 			source(source)
 		{
-			boost::mpl::for_each<typename Variant::types>(std::ref(*this));
+			boost::mpl::for_each<mpl_types<Variant>>(std::ref(*this));
 		}
 
 		template<typename Type>
@@ -495,9 +507,9 @@ public:
 	}
 
 	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-	void load(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	void load(std::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
 	{
-		typedef boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> TVariant;
+		typedef std::variant<BOOST_VARIANT_ENUM_PARAMS(T)> TVariant;
 
 		VariantLoaderHelper<TVariant, BinaryDeserializer> loader(*this);
 

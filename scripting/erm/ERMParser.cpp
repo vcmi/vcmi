@@ -28,7 +28,7 @@ namespace phoenix = boost::phoenix;
 //Greenspun's Tenth Rule of Programming:
 //Any sufficiently complicated C or Fortran program contains an ad hoc, informally-specified,
 //bug-ridden, slow implementation of half of Common Lisp.
-//actually these macros help in dealing with boost::variant
+//actually these macros help in dealing with std::variant
 
 
 CERMPreprocessor::CERMPreprocessor(const std::string & source)
