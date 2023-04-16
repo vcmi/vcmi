@@ -158,7 +158,7 @@ ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAn
 
 const CCreature * AttackAnimation::getCreature() const
 {
-	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+	if (attackingStack->getCreature()->getId() == CreatureID::ARROW_TOWERS)
 		return owner.siegeController->getTurretCreature();
 	else
 		return attackingStack->getCreature();
@@ -759,7 +759,7 @@ uint32_t ShootingAnimation::getAttackClimaxFrame() const
 
 	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 	uint32_t climaxFrame = shooterInfo->animation.attackClimaxFrame;
-	uint32_t selectedFrame = vstd::clamp(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
+	uint32_t selectedFrame = std::clamp<int>(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
 
 	if (climaxFrame != selectedFrame)
 		logGlobal->warn("Shooter %s has ranged attack climax frame set to %d, but only %d available!", shooterInfo->getNamePluralTranslated(), climaxFrame, maxFrames);
@@ -879,42 +879,43 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects):
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects, bool reversed):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	effectFlags(effects),
-	effectFinished(false)
+	effectFinished(false),
+	reversed(reversed)
 {
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	battlehexes = hex;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions = pos;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions.push_back(pos);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -932,6 +933,13 @@ bool EffectAnimation::init()
 		return false;
 	}
 
+	for (size_t i = 0; i < animation->size(size_t(BattleEffect::AnimType::DEFAULT)); ++i)
+	{
+		size_t current = animation->size(size_t(BattleEffect::AnimType::DEFAULT)) - 1 - i;
+
+		animation->duplicateImage(size_t(BattleEffect::AnimType::DEFAULT), current, size_t(BattleEffect::AnimType::REVERSE));
+	}
+
 	if (screenFill())
 	{
 		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
@@ -943,6 +951,7 @@ bool EffectAnimation::init()
 	be.effectID = ID;
 	be.animation = animation;
 	be.currentFrame = 0;
+	be.type = reversed ? BattleEffect::AnimType::REVERSE : BattleEffect::AnimType::DEFAULT;
 
 	for (size_t i = 0; i < std::max(battlehexes.size(), positions.size()); ++i)
 	{
@@ -961,13 +970,13 @@ bool EffectAnimation::init()
 		}
 		else
 		{
-			const CStack * destStack = owner.getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
+			const auto * destStack = owner.getCurrentPlayerInterface()->cb->battleGetUnitByPos(battlehexes[i], false);
 			Rect tilePos = owner.fieldController->hexPositionLocal(battlehexes[i]);
 
 			be.pos.x = tilePos.x + tilePos.w/2 - first->width()/2;
 
 			if(destStack && destStack->doubleWide()) // Correction for 2-hex creatures.
-				be.pos.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+				be.pos.x += (destStack->unitSide() == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
 			if (alignToBottom())
 				be.pos.y = tilePos.y + tilePos.h - first->height();

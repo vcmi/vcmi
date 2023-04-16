@@ -131,12 +131,12 @@ public:
 
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
-	std::set<TFaction> getDefaultTownTypes() const;
-	const std::set<TFaction> & getTownTypes() const;
-	const std::set<TFaction> & getMonsterTypes() const;
+	std::set<FactionID> getDefaultTownTypes() const;
+	const std::set<FactionID> & getTownTypes() const;
+	const std::set<FactionID> & getMonsterTypes() const;
 
-	void setTownTypes(const std::set<TFaction> & value);
-	void setMonsterTypes(const std::set<TFaction> & value);
+	void setTownTypes(const std::set<FactionID> & value);
+	void setMonsterTypes(const std::set<FactionID> & value);
 
 	void setMinesInfo(const std::map<TResource, ui16> & value);
 	std::map<TResource, ui16> getMinesInfo() const;
@@ -173,8 +173,8 @@ protected:
 	std::set<TerrainId> terrainTypes;
 	bool townsAreSameType;
 
-	std::set<TFaction> townTypes;
-	std::set<TFaction> monsterTypes;
+	std::set<FactionID> townTypes;
+	std::set<FactionID> monsterTypes;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 

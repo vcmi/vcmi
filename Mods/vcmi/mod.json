@@ -50,6 +50,7 @@
 		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
 		"author" : "Команда VCMI",
 		
+		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/ukrainian.json"
 		]

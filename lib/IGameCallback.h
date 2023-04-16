@@ -28,6 +28,11 @@ class CStackBasicDescriptor;
 class CGCreature;
 struct ShashInt3;
 
+namespace spells
+{
+	class Caster;
+}
+
 #if SCRIPTING_ENABLED
 namespace scripting
 {
@@ -93,7 +98,7 @@ public:
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
-	virtual void giveResource(PlayerColor player, Res::ERes which, int val)=0;
+	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, TResources resources)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
@@ -109,8 +114,8 @@ public:
 
 	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	virtual void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) = 0;
-	virtual void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) = 0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) = 0;
+	virtual bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) = 0;
 	virtual void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
@@ -132,6 +137,8 @@ public:
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
 	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
+	
+	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback

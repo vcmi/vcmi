@@ -162,7 +162,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		if(!town->visitingHero
 			&& town->hasBuilt(BuildingID::TAVERN)
-			&& cb->getResourceAmount(Res::GOLD) > GameConstants::HERO_GOLD_COST)
+			&& cb->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
 		{
 			auto heroesInTavern = cb->getAvailableHeroes(town);
 

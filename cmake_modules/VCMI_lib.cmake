@@ -77,7 +77,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/CMapOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMapService.cpp
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.cpp
+		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.cpp
+		${MAIN_LIB_DIR}/mapping/MapReaderH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.cpp
@@ -134,7 +136,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BattleSpellMechanics.cpp
 		${MAIN_LIB_DIR}/spells/BonusCaster.cpp
 		${MAIN_LIB_DIR}/spells/CSpellHandler.cpp
+		${MAIN_LIB_DIR}/spells/ExternalCaster.cpp
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.cpp
+		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.cpp
 		${MAIN_LIB_DIR}/spells/Problem.cpp
 		${MAIN_LIB_DIR}/spells/ProxyCaster.cpp
 		${MAIN_LIB_DIR}/spells/TargetCondition.cpp
@@ -149,6 +153,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Effects.cpp
 		${MAIN_LIB_DIR}/spells/effects/Heal.cpp
 		${MAIN_LIB_DIR}/spells/effects/LocationEffect.cpp
+		${MAIN_LIB_DIR}/spells/effects/Moat.cpp
 		${MAIN_LIB_DIR}/spells/effects/Obstacle.cpp
 		${MAIN_LIB_DIR}/spells/effects/Registry.cpp
 		${MAIN_LIB_DIR}/spells/effects/UnitEffect.cpp
@@ -160,6 +165,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
+		${MAIN_LIB_DIR}/BasicTypes.cpp
 		${MAIN_LIB_DIR}/BattleFieldHandler.cpp
 		${MAIN_LIB_DIR}/CAndroidVMHelper.cpp
 		${MAIN_LIB_DIR}/CArtHandler.cpp
@@ -222,10 +228,18 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vstd/RNG.h
 		${MAIN_LIB_DIR}/../include/vstd/StringUtils.h
 
+		${MAIN_LIB_DIR}/../include/vcmi/events/AdventureEvents.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/ApplyDamage.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/BattleEvents.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/Event.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/EventBus.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/GameResumed.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/GenericEvents.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ObjectVisitEnded.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ObjectVisitStarted.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/PlayerGotTurn.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/SubscriptionRegistry.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/TurnStarted.h
 
 		${MAIN_LIB_DIR}/../include/vcmi/scripting/Service.h
 
@@ -240,7 +254,19 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/CreatureService.h
 		${MAIN_LIB_DIR}/../include/vcmi/Entity.h
 		${MAIN_LIB_DIR}/../include/vcmi/Environment.h
+		${MAIN_LIB_DIR}/../include/vcmi/Faction.h
+		${MAIN_LIB_DIR}/../include/vcmi/FactionService.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroClass.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroClassService.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroType.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroTypeService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Metatype.h
+		${MAIN_LIB_DIR}/../include/vcmi/Player.h
+		${MAIN_LIB_DIR}/../include/vcmi/ServerCallback.h
 		${MAIN_LIB_DIR}/../include/vcmi/Services.h
+		${MAIN_LIB_DIR}/../include/vcmi/Skill.h
+		${MAIN_LIB_DIR}/../include/vcmi/SkillService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Team.h
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
@@ -323,7 +349,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/CMapOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapService.h
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.h
+		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.h
+		${MAIN_LIB_DIR}/mapping/MapReaderH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
@@ -375,7 +403,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BattleSpellMechanics.h
 		${MAIN_LIB_DIR}/spells/BonusCaster.h
 		${MAIN_LIB_DIR}/spells/CSpellHandler.h
+		${MAIN_LIB_DIR}/spells/ExternalCaster.h
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.h
+		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.h
 		${MAIN_LIB_DIR}/spells/Problem.h
 		${MAIN_LIB_DIR}/spells/ProxyCaster.h
 		${MAIN_LIB_DIR}/spells/TargetCondition.h

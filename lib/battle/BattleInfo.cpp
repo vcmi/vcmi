@@ -24,7 +24,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
+std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack)
 {
 	auto reachability = getReachability(stack);
 
@@ -205,6 +205,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	curB->battlefieldType = battlefieldType;
 	curB->round = -2;
 	curB->activeStack = -1;
+	curB->creatureBank = creatureBank;
 
 	if(town)
 	{
@@ -413,12 +414,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		for(auto i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
 		{
 			std::vector<int> *formationVector = nullptr;
-			if(creatureBank)
-				formationVector = &creBankFormations[side][formationNo];
-			else if(armies[side]->formation)
+			if(armies[side]->formation == EArmyFormation::TIGHT )
 				formationVector = &tightFormations[side][formationNo];
 			else
 				formationVector = &looseFormations[side][formationNo];
+
+			if(creatureBank)
+				formationVector = &creBankFormations[side][formationNo];
 
 			BattleHex pos = (k < formationVector->size() ? formationVector->at(k) : 0);
 			if(creatureBank && i->second->type->isDoubleWide())
@@ -451,12 +453,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 		}
 
-		//moat
-		auto moat = std::make_shared<MoatObstacle>();
-		moat->ID = curB->town->subID;
-		moat->obstacleType = CObstacleInstance::MOAT;
-		moat->uniqueID = static_cast<si32>(curB->obstacles.size());
-		curB->obstacles.push_back(moat);
+		//Moat generating is done on server
 	}
 
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
@@ -566,7 +563,15 @@ BattleInfo::BattleInfo():
 	setNodeType(BATTLE);
 }
 
-BattleInfo::~BattleInfo() = default;
+BattleInfo::~BattleInfo()
+{
+	for (auto & elem : stacks)
+		delete elem;
+
+	for(int i = 0; i < 2; i++)
+		if(auto * _armyObj = battleGetArmyObject(i))
+			_armyObj->battle = nullptr;
+}
 
 int32_t BattleInfo::getActiveStackID() const
 {
@@ -658,7 +663,7 @@ int32_t BattleInfo::getEnchanterCounter(ui8 side) const
 	return sides.at(side).enchanterCounter;
 }
 
-const IBonusBearer * BattleInfo::asBearer() const
+const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;
 }
@@ -740,6 +745,9 @@ void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 		return;
 	}
 	sta->position = destination;
+	//Bonuses can be limited by unit placement, so, change tree version 
+	//to force updating a bonus. TODO: update version only when such bonuses are present
+	CBonusSystemNode::treeHasChanged();
 }
 
 void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)

@@ -25,6 +25,9 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "NetPacksBase.h"
 
+#include <vcmi/FactionService.h>
+#include <vcmi/Faction.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 
@@ -415,7 +418,10 @@ int CCreatureSet::stacksCount() const
 
 void CCreatureSet::setFormation(bool tight)
 {
-	formation = tight;
+	if (tight)
+		formation = EArmyFormation::TIGHT;
+	else
+		formation = EArmyFormation::LOOSE;
 }
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
@@ -511,10 +517,9 @@ void CCreatureSet::putStack(const SlotID & slot, CStackInstance * stack)
 
 void CCreatureSet::joinStack(const SlotID & slot, CStackInstance * stack)
 {
-	const CCreature *c = getCreature(slot);
+	[[maybe_unused]] const CCreature *c = getCreature(slot);
 	assert(c == stack->type);
 	assert(c);
-	MAYBE_UNUSED(c);
 
 	//TODO move stuff
 	changeStackCount(slot, stack->count);
@@ -590,12 +595,12 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 		//get types of creatures that need their own slot
 		for(const auto & elem : cs.stacks)
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
-				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
-			//cres.addToSlot(elem.first, elem.second->type->idNumber, 1, true);
+				cres.addToSlot(j, elem.second->type->getId(), 1, true);  //merge if possible
+			//cres.addToSlot(elem.first, elem.second->type->getId(), 1, true);
 		for(const auto & elem : stacks)
 		{
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
-				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
+				cres.addToSlot(j, elem.second->type->getId(), 1, true);  //merge if possible
 			else
 				return false; //no place found
 		}
@@ -692,7 +697,6 @@ void CStackInstance::init()
 	experience = 0;
 	count = 0;
 	type = nullptr;
-	idRand = -1;
 	_armyObj = nullptr;
 	setNodeType(STACK_INSTANCE);
 }
@@ -706,7 +710,7 @@ int CStackInstance::getExpRank() const
 {
 	if (!VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 		return 0;
-	int tier = type->level;
+	int tier = type->getLevel();
 	if (vstd::iswithin(tier, 1, 7))
 	{
 		for(int i = static_cast<int>(VLC->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
@@ -729,7 +733,7 @@ int CStackInstance::getExpRank() const
 
 int CStackInstance::getLevel() const
 {
-	return std::max(1, static_cast<int>(type->level));
+	return std::max(1, static_cast<int>(type->getLevel()));
 }
 
 si32 CStackInstance::magicResistance() const
@@ -741,7 +745,7 @@ si32 CStackInstance::magicResistance() const
 
 void CStackInstance::giveStackExp(TExpType exp)
 {
-	int level = type->level;
+	int level = type->getLevel();
 	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
@@ -813,10 +817,9 @@ std::string CStackInstance::getQuantityTXT(bool capitalized) const
 
 bool CStackInstance::valid(bool allowUnrandomized) const
 {
-	bool isRand = (idRand != -1);
-	if(!isRand)
+	if(!randomStack)
 	{
-		return (type  &&  type == VLC->creh->objects[type->idNumber]);
+		return (type  &&  type == VLC->creh->objects[type->getId()]);
 	}
 	else
 		return allowUnrandomized;
@@ -828,8 +831,6 @@ std::string CStackInstance::nodeName() const
 	oss << "Stack of " << count << " of ";
 	if(type)
 		oss << type->getNamePluralTextID();
-	else if(idRand >= 0)
-		oss << "[no type, idRand=" << idRand << "]";
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -852,7 +853,7 @@ void CStackInstance::deserializationFix()
 CreatureID CStackInstance::getCreatureID() const
 {
 	if(type)
-		return type->idNumber;
+		return type->getId();
 	else
 		return CreatureID::NONE;
 }
@@ -865,7 +866,7 @@ std::string CStackInstance::getName() const
 ui64 CStackInstance::getPower() const
 {
 	assert(type);
-	return type->AIValue * count;
+	return type->getAIValue() * count;
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const
@@ -886,14 +887,13 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 
 	if(handler.saving)
 	{
-		if(idRand > -1)
+		if(randomStack)
 		{
-			int level = idRand / 2;
-
-			boost::logic::tribool upgraded = (idRand % 2) > 0;
+			int level = randomStack->level;
+			int upgrade = randomStack->upgrade;
 
 			handler.serializeInt("level", level, 0);
-			handler.serializeBool("upgraded", upgraded);
+			handler.serializeInt("upgraded", upgrade, 0);
 		}
 	}
 	else
@@ -901,15 +901,28 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 		//type set by CStackBasicDescriptor::serializeJson
 		if(type == nullptr)
 		{
-			int level = 0;
-			bool upgraded = false;
+			uint8_t level = 0;
+			uint8_t upgrade = 0;
 
 			handler.serializeInt("level", level, 0);
-			handler.serializeBool("upgraded", upgraded);
+			handler.serializeInt("upgrade", upgrade, 0);
 
-			idRand = level * 2 + static_cast<int>(upgraded);
+			randomStack = RandomStackInfo{ level, upgrade };
 		}
 	}
+}
+
+FactionID CStackInstance::getFaction() const
+{
+	if(type)
+		return type->getFaction();
+		
+	return FactionID::NEUTRAL;
+}
+
+const IBonusBearer* CStackInstance::getBonusBearer() const
+{
+	return this;
 }
 
 CCommanderInstance::CCommanderInstance()
@@ -931,7 +944,6 @@ void CCommanderInstance::init()
 	level = 1;
 	count = 1;
 	type = nullptr;
-	idRand = -1;
 	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);

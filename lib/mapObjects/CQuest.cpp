@@ -140,22 +140,30 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_ART:
+		{
 			// if the object was deserialized
 			if(artifactsRequirements.empty())
 				for(const auto & id : m5arts)
 					++artifactsRequirements[id];
 
+			size_t reqSlots = 0;
 			for(const auto & elem : artifactsRequirements)
 			{
 				// check required amount of artifacts
 				if(h->getArtPosCount(elem.first, false, true, true) < elem.second)
 					return false;
+				if(!h->hasArt(elem.first))
+					reqSlots += h->getAssemblyByConstituent(elem.first)->constituentsInfo.size() - 2;
 			}
-			return true;
+			if(ArtifactUtils::isBackpackFreeSlots(h, reqSlots))
+				return true;
+			else
+				return false;
+		}
 		case MISSION_ARMY:
 			return checkMissionArmy(this, h);
 		case MISSION_RESOURCES:
-			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
+			for(auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback
 				if(CGHeroInstance::cb->getResource(h->tempOwner, i) < static_cast<int>(m7resources[i]))
 					return false;
@@ -513,9 +521,6 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		{
 			auto r = handler.enterStruct("resources");
 
-			if(!handler.saving)
-				m7resources.resize(GameConstants::RESOURCE_QUANTITY-1);
-
 			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
 			{
 				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], m7resources[idx], 0);
@@ -787,21 +792,28 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 		switch (quest->missionType)
 		{
 			case CQuest::MISSION_ART:
-				for (auto & elem : quest->m5arts)
+				for(auto & elem : quest->m5arts)
 				{
-					if(!h->hasArt(elem))
+					if(h->hasArt(elem))
 					{
-						// first we need to disassemble this backpack artifact
+						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+					}
+					else
+					{
 						const auto * assembly = h->getAssemblyByConstituent(elem);
 						assert(assembly);
-						for(const auto & ci : assembly->constituentsInfo)
-						{
-							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::PRE_FIRST);
-						}
-						// remove the assembly
+						auto parts = assembly->constituentsInfo;
+
+						// Remove the assembly
 						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+
+						// Disassemble this backpack artifact
+						for(const auto & ci : parts)
+						{
+							if(ci.art->getTypeId() != elem)
+								cb->giveHeroNewArtifact(h, ci.art->artType, GameConstants::BACKPACK_START);
+						}
 					}
-					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
 				}
 				break;
 			case CQuest::MISSION_ARMY:
@@ -810,7 +822,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
 				{
-					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -static_cast<int>(quest->m7resources[i]));
+					cb->giveResource(h->getOwner(), static_cast<EGameResID>(i), -static_cast<int>(quest->m7resources[i]));
 				}
 				break;
 			default:
@@ -847,7 +859,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		}
 			break;
 		case RESOURCES:
-			cb->giveResource(h->getOwner(), static_cast<Res::ERes>(rID), rVal);
+			cb->giveResource(h->getOwner(), static_cast<EGameResID>(rID), rVal);
 			break;
 		case PRIMARY_SKILL:
 			cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);

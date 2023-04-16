@@ -45,10 +45,14 @@ class DLL_LINKAGE CIdentifierStorage
 		std::function<void(si32)> callback;
 		bool optional;
 
-		ObjectCallback(std::string localScope, std::string remoteScope,
-		               std::string type, std::string name,
-		               std::function<void(si32)> callback,
-		               bool optional);
+		/// Builds callback from identifier in form "targetMod:type.name"
+		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
+
+		/// Builds callback from identifier in form "targetMod:name"
+		static ObjectCallback fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
+
+	private:
+		ObjectCallback() = default;
 	};
 
 	struct ObjectData // entry created on ID registration

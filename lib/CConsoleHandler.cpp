@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::mutex CConsoleHandler::smx;
+std::mutex CConsoleHandler::smx;
 
 DLL_LINKAGE CConsoleHandler * console = nullptr;
 

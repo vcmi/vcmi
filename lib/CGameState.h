@@ -178,7 +178,7 @@ public:
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
-	void giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid);
+	bool giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid);
 
 	void apply(CPack *pack);
 	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);

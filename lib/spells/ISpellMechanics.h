@@ -228,6 +228,7 @@ public:
 
 	virtual bool isNegativeSpell() const = 0;
 	virtual bool isPositiveSpell() const = 0;
+	virtual bool isMagicalEffect() const = 0;
 
 	virtual int64_t adjustEffectValue(const battle::Unit * target) const = 0;
 	virtual int64_t applySpellBonus(int64_t value, const battle::Unit * target) const = 0;
@@ -288,6 +289,7 @@ public:
 
 	bool isNegativeSpell() const override;
 	bool isPositiveSpell() const override;
+	bool isMagicalEffect() const override;
 
 	int64_t adjustEffectValue(const battle::Unit * target) const override;
 	int64_t applySpellBonus(int64_t value, const battle::Unit * target) const override;
@@ -348,7 +350,7 @@ public:
 class DLL_LINKAGE AdventureSpellCastParameters
 {
 public:
-	const CGHeroInstance * caster;
+	const spells::Caster * caster;
 	int3 pos;
 };
 

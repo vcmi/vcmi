@@ -79,6 +79,10 @@
 	"vcmi.battleOptions.animationsSpeed1.help": "Set animation speed to very slow",
 	"vcmi.battleOptions.animationsSpeed5.help": "Set animation speed to very fast",
 	"vcmi.battleOptions.animationsSpeed6.help": "Set animation speed to instantaneous",
+	"vcmi.battleOptions.touchscreenMode.hover": "Touchscreen mode",
+	"vcmi.battleOptions.touchscreenMode.help": "{Touchscreen mode}\n\nIf enabled, second click is required to confirm and execute action. This is more suitable for touchscreen devices.",
+	"vcmi.battleOptions.movementHighlightOnHover.hover": "Movement Highlight on Hover",
+	"vcmi.battleOptions.movementHighlightOnHover.help": "{Movement Highlight on Hover}\n\nHighlight unit's movement range when you hover over it.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Skip Intro Music",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\nAllow actions during the intro music that plays at the beginning of each battle",
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to start battle immediately",
@@ -93,6 +97,8 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d damage",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
+
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\nShow the number of creatures available to purchase instead of their growth in town summary (bottom-left corner of town screen).",

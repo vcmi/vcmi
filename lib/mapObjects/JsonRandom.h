@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
-typedef std::vector<JsonNode> JsonVector;
+using JsonVector = std::vector<JsonNode>;
 class CRandomGenerator;
 
 struct Bonus;
@@ -32,7 +32,7 @@ namespace JsonRandom
 	};
 
 	DLL_LINKAGE si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue = 0);
-	DLL_LINKAGE std::string loadKey(const JsonNode & value, CRandomGenerator & rng, std::string defaultValue = "");
+	DLL_LINKAGE std::string loadKey(const JsonNode & value, CRandomGenerator & rng, const std::set<std::string> & valuesSet = {});
 	DLL_LINKAGE TResources loadResources(const JsonNode & value, CRandomGenerator & rng);
 	DLL_LINKAGE TResources loadResource(const JsonNode & value, CRandomGenerator & rng);
 	DLL_LINKAGE std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng);
@@ -41,8 +41,8 @@ namespace JsonRandom
 	DLL_LINKAGE ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng);
 	DLL_LINKAGE std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng);
 
-	DLL_LINKAGE SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells);
-	DLL_LINKAGE std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const std::vector<SpellID> & spells);
+	DLL_LINKAGE SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells = {});
+	DLL_LINKAGE std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const std::vector<SpellID> & spells = {});
 
 	DLL_LINKAGE CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng);
 	DLL_LINKAGE std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng);

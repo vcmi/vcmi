@@ -152,8 +152,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"warMachine" : "firstAidTent",
-			"moatDamage" : 70,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			"moatAbility" : "necropolisMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :
@@ -222,7 +221,6 @@
 				},
 				"moat" :
 				{
-					"bank" : { "x" : -1, "y" : -1 }, // Should not be present
 					"moat" : { "x" : 406, "y" : 77 }
 				},
 				"static" :

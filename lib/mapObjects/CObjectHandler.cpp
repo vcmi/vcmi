@@ -497,11 +497,10 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	}
 }
 
-void IShipyard::getBoatCost( std::vector<si32> &cost ) const
+void IShipyard::getBoatCost(TResources & cost) const
 {
-	cost.resize(GameConstants::RESOURCE_QUANTITY);
-	cost[Res::WOOD] = 10;
-	cost[Res::GOLD] = 1000;
+	cost[EGameResID::WOOD] = 10;
+	cost[EGameResID::GOLD] = 1000;
 }
 
 IShipyard::IShipyard(const CGObjectInstance *O)

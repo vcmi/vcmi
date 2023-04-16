@@ -169,7 +169,7 @@ public:
 	boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
-	void battleEnd(const BattleResult * br) override;
+	void battleEnd(const BattleResult * br, QueryID queryID) override;
 
 	void makeTurn();
 

@@ -134,8 +134,7 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 
 	const auto screens = qGuiApp->screens();
 	const auto currentScreen = screenIndex < screens.size() ? screens[screenIndex] : qGuiApp->primaryScreen();
-	const auto screenSize = currentScreen->size();
-	MAYBE_UNUSED(screenSize);
+	[[maybe_unused]] const auto screenSize = currentScreen->size();
 
 	for(const auto & entry : resolutions)
 	{

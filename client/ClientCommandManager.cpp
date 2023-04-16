@@ -439,7 +439,8 @@ void ClientCommandManager::processCommand(const std::string &message, bool calle
 	}
 	else
 	{
-		printCommandMessage("Command not found :(", ELogLevel::ERROR);
+		if (!commandName.empty() && !vstd::iswithin(commandName[0], 0, ' ')) // filter-out debugger/IDE noise
+			printCommandMessage("Command not found :(", ELogLevel::ERROR);
 	}
 }
 

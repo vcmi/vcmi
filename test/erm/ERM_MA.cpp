@@ -96,7 +96,7 @@ TEST_F(ERM_MA, Example)
 	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MELEE_PENALTY, Bonus::CREATURE_ABILITY, 0, 0);
 
 
-	EXPECT_CALL(oldCreature, getCost(Eq(6))).WillOnce(Return(COST));
+	EXPECT_CALL(oldCreature, getRecruitCost(Eq(6))).WillOnce(Return(COST));
 	EXPECT_CALL(oldCreature, getBaseAttack()).WillOnce(Return(ATTACK));
 	EXPECT_CALL(oldCreature, getBaseDefense()).WillOnce(Return(DEFENSE));
 	EXPECT_CALL(oldCreature, getBaseHitPoints()).WillOnce(Return(HIT_POINTS));
@@ -111,11 +111,11 @@ TEST_F(ERM_MA, Example)
 	EXPECT_CALL(oldCreature, getAIValue()).WillOnce(Return(AI_VALUE));
 	EXPECT_CALL(oldCreature, getFightValue()).WillOnce(Return(FIGHT_VALUE));
 	EXPECT_CALL(oldCreature, getLevel()).WillOnce(Return(LEVEL));
-	EXPECT_CALL(oldCreature, getFactionIndex()).WillOnce(Return(FACTION));
+	EXPECT_CALL(oldCreature, getFaction()).WillOnce(Return(FACTION));
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
 
-	EXPECT_CALL(oldCreature, accessBonuses()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
+	EXPECT_CALL(oldCreature, getBonusBearer()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
 
 	EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).Times(AtLeast(1)).WillRepeatedly(Invoke(this, &ERM_MA::onCommit));
 
@@ -216,7 +216,7 @@ TEST_F(ERM_MA, Bonuses)
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
 
-	EXPECT_CALL(oldCreature, accessBonuses()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
+	EXPECT_CALL(oldCreature, getBonusBearer()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
 
 	EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).WillOnce(Invoke(this, &ERM_MA::onCommit));
 
@@ -272,7 +272,7 @@ TEST_F(ERM_MA, BonusesNoChanges)
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::UNDEAD, Bonus::CREATURE_ABILITY, 0, 0));
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
-	EXPECT_CALL(oldCreature, accessBonuses()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
+	EXPECT_CALL(oldCreature, getBonusBearer()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
 	EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).Times(0);
 
 	std::stringstream source;

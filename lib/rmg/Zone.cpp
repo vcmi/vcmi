@@ -123,9 +123,9 @@ rmg::Area & Zone::freePaths()
 	return dAreaFree;
 }
 
-si32 Zone::getTownType() const
+FactionID Zone::getTownType() const
 {
-	return townType;
+	return FactionID(townType);
 }
 
 void Zone::setTownType(si32 town)

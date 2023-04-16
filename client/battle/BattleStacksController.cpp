@@ -200,7 +200,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 		stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
 
 		// FIXME: workaround for visible animation of Medusa tails (animation disabled in H3)
-		if (turretCreature->idNumber == CreatureID::MEDUSA )
+		if (turretCreature->getId() == CreatureID::MEDUSA )
 			stackAnimation[stack->ID]->pos.w = 250;
 
 		coords = owner.siegeController->getTurretCreaturePosition(stack->initialPosition);

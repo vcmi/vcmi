@@ -202,7 +202,7 @@ struct DLL_LINKAGE GrowthInfo
 	int totalGrowth() const;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider
 {
 	std::string name; // name of town
 public:
@@ -214,7 +214,7 @@ public:
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
-	si32 alignment;
+	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
 	std::set<BuildingID> builtBuildings;
 	std::set<BuildingID> overriddenBuildings; ///buildings which bonuses are overridden and should not be applied
@@ -239,7 +239,7 @@ public:
 		h & identifier;
 		h & garrisonHero;
 		h & visitingHero;
-		h & alignment;
+		h & alignmentToPlayer;
 		h & forbiddenBuildings;
 		h & builtBuildings;
 		h & bonusValue;
@@ -256,15 +256,18 @@ public:
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
-		vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
+		if(town)
 		{
-			if(!town->buildings.count(building) ||  !town->buildings.at(building))
+			vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
 			{
-				logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
-				return true;
-			}
-			return false;
-		});
+				if(!town->buildings.count(building) || !town->buildings.at(building))
+				{
+					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
+					return true;
+				}
+				return false;
+			});
+		}
 
 		h & overriddenBuildings;
 
@@ -338,7 +341,11 @@ public:
 	/// Returns damage range for central tower(keep) of this town
 	DamageRange getKeepDamageRange() const;
 
-	const CTown * getTown() const ;
+	const CTown * getTown() const;
+
+	/// INativeTerrainProvider
+	FactionID getFaction() const override;
+	TerrainId getNativeTerrain() const override;
 
 	CGTownInstance();
 	virtual ~CGTownInstance();

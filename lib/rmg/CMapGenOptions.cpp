@@ -135,14 +135,14 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 void CMapGenOptions::resetPlayersMap()
 {
 
-	std::map<PlayerColor, TFaction> rememberTownTypes;
+	std::map<PlayerColor, FactionID> rememberTownTypes;
 	std::map<PlayerColor, TeamID> rememberTeam;
 
 	for(const auto & p : players)
 	{
 		auto town = p.second.getStartingTown();
 		if (town != RANDOM_SIZE)
-			rememberTownTypes[p.first] = town;
+			rememberTownTypes[p.first] = FactionID(town);
 		rememberTeam[p.first] = p.second.getTeam();
 	}
 

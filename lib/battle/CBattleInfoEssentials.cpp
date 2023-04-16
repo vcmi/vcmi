@@ -85,9 +85,9 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	for(const CStack * s : battleGetAllStacks())
+	for(const auto * s : battleGetAllStacks())
 	{
-		if(s->side == side && s->getCreature()->isItNativeTerrain(getBattle()->getTerrainType()))
+		if(s->side == side && s->isNativeTerrain(getBattle()->getTerrainType()))
 			return true;
 	}
 
@@ -252,9 +252,9 @@ uint32_t CBattleInfoEssentials::battleCastSpells(ui8 side) const
 	return getBattle()->getCastSpells(side);
 }
 
-const IBonusBearer * CBattleInfoEssentials::getBattleNode() const
+const IBonusBearer * CBattleInfoEssentials::getBonusBearer() const
 {
-	return getBattle()->asBearer();
+	return getBattle()->getBonusBearer();
 }
 
 bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const

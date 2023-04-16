@@ -65,7 +65,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 		break;
 	case POS_UP_DOWN:
 		name = std::make_shared<CLabel>(pos.w/2, -12, font, ETextAlignment::CENTER, Colors::WHITE, data->getNameText());
-		FALLTHROUGH;
+		[[fallthrough]];
 	case POS_DOWN:
 		value = std::make_shared<CLabel>(pos.w/2, pos.h+8, font, ETextAlignment::CENTER, Colors::WHITE, data->getValueText());
 		break;
@@ -564,7 +564,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance *> & ownedObjects)
 {
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
-	std::vector<int> minesCount(GameConstants::RESOURCE_QUANTITY, 0);
+	TResources minesCount(GameConstants::RESOURCE_QUANTITY, 0);
 	int totalIncome=0;
 
 	for(const CGObjectInstance * object : ownedObjects)
@@ -576,7 +576,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 			assert(mine);
 			minesCount[mine->producedResource]++;
 
-			if (mine->producedResource == Res::GOLD)
+			if (mine->producedResource == EGameResID::GOLD)
 				totalIncome += mine->producedQuantity;
 		}
 	}
@@ -585,14 +585,14 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(auto & heroe : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
 	}
 
 	//Add town income of all towns
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & town : towns)
 	{
-		totalIncome += town->dailyIncome()[Res::GOLD];
+		totalIncome += town->dailyIncome()[EGameResID::GOLD];
 	}
 	for(int i=0; i<7; i++)
 	{
@@ -772,7 +772,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	background = std::make_shared<CAnimImage>("OVSLOT", 6);
 	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 
-	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(town->dailyIncome()[Res::GOLD]));
+	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(town->dailyIncome()[EGameResID::GOLD]));
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
 	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
@@ -801,7 +801,7 @@ void CTownItem::updateGarrisons()
 
 void CTownItem::update()
 {
-	std::string incomeVal = std::to_string(town->dailyIncome()[Res::GOLD]);
+	std::string incomeVal = std::to_string(town->dailyIncome()[EGameResID::GOLD]);
 	if (incomeVal != income->getText())
 		income->setText(incomeVal);
 

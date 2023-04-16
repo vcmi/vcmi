@@ -24,6 +24,7 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "HeroBonus.h"
+#include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -156,9 +157,24 @@ FactionID CFaction::getId() const
 	return FactionID(index);
 }
 
+FactionID CFaction::getFaction() const
+{
+	return FactionID(index);
+}
+
 bool CFaction::hasTown() const
 {
 	return town != nullptr;
+}
+
+EAlignment CFaction::getAlignment() const
+{
+	return alignment;
+}
+
+TerrainId CFaction::getNativeTerrain() const
+{
+	return nativeTerrain;
 }
 
 void CFaction::updateFrom(const JsonNode & data)
@@ -173,7 +189,7 @@ void CFaction::serializeJson(JsonSerializeFormat & handler)
 
 
 CTown::CTown()
-	: faction(nullptr), mageLevel(0), primaryRes(0), moatDamage(0), defaultTavernChance(0)
+	: faction(nullptr), mageLevel(0), primaryRes(0), moatAbility(SpellID::NONE), defaultTavernChance(0)
 {
 }
 
@@ -551,13 +567,7 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 		if(bonus == nullptr)
 			continue;
 
-		if(bonus->limiter != nullptr)
-		{
-			auto * limPtr = dynamic_cast<CreatureFactionLimiter *>(bonus->limiter.get());
-
-			if(limPtr != nullptr && limPtr->faction == static_cast<TFaction>(-1))
-			limPtr->faction = building->town->faction->getIndex();
-		}
+		bonus->sid = Bonus::getSid32(building->town->faction->getIndex(), building->bid);
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
@@ -625,21 +635,21 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	if(!ret->produce.nonZero())
 	{
 		switch (ret->bid) {
-			break; case BuildingID::VILLAGE_HALL: ret->produce[Res::GOLD] = 500;
-			break; case BuildingID::TOWN_HALL :   ret->produce[Res::GOLD] = 1000;
-			break; case BuildingID::CITY_HALL :   ret->produce[Res::GOLD] = 2000;
-			break; case BuildingID::CAPITOL :     ret->produce[Res::GOLD] = 4000;
-			break; case BuildingID::GRAIL :       ret->produce[Res::GOLD] = 5000;
+			break; case BuildingID::VILLAGE_HALL: ret->produce[EGameResID::GOLD] = 500;
+			break; case BuildingID::TOWN_HALL :   ret->produce[EGameResID::GOLD] = 1000;
+			break; case BuildingID::CITY_HALL :   ret->produce[EGameResID::GOLD] = 2000;
+			break; case BuildingID::CAPITOL :     ret->produce[EGameResID::GOLD] = 4000;
+			break; case BuildingID::GRAIL :       ret->produce[EGameResID::GOLD] = 5000;
 			break; case BuildingID::RESOURCE_SILO :
 			{
-				switch (ret->town->primaryRes)
+				switch (ret->town->primaryRes.toEnum())
 				{
-					case Res::GOLD:
+					case EGameResID::GOLD:
 						ret->produce[ret->town->primaryRes] = 500;
 						break;
-					case Res::WOOD_AND_ORE:
-						ret->produce[Res::WOOD] = 1;
-						ret->produce[Res::ORE] = 1;
+					case EGameResID::WOOD_AND_ORE:
+						ret->produce[EGameResID::WOOD] = 1;
+						ret->produce[EGameResID::ORE] = 1;
 						break;
 					default:
 						ret->produce[ret->town->primaryRes] = 1;
@@ -769,6 +779,9 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source) const
 
 Point JsonToPoint(const JsonNode & node)
 {
+	if(!node.isStruct())
+		return Point::makeInvalid();
+
 	Point ret;
 	ret.x = static_cast<si32>(node["x"].Float());
 	ret.y = static_cast<si32>(node["y"].Float());
@@ -867,14 +880,11 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 {
 	const auto * resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
 	if(resIter == std::end(GameConstants::RESOURCE_NAMES))
-		town->primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
+		town->primaryRes = GameResID(EGameResID::WOOD_AND_ORE); //Wood + Ore
 	else
-		town->primaryRes = static_cast<ui16>(resIter - std::begin(GameConstants::RESOURCE_NAMES));
+		town->primaryRes = GameResID(resIter - std::begin(GameConstants::RESOURCE_NAMES));
 
 	warMachinesToLoad[town] = source["warMachine"];
-
-	town->moatDamage = static_cast<si32>(source["moatDamage"].Float());
-	town->moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 
 	town->mageLevel = static_cast<ui32>(source["mageGuild"].Float());
 
@@ -883,6 +893,21 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		VLC->generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name.String());
 		town->namesCount += 1;
+	}
+
+	if (!source["moatAbility"].isNull()) // VCMI 1.2 compatibility code
+	{
+		VLC->modh->identifiers.requestIdentifier( "spell", source["moatAbility"], [=](si32 ability)
+		{
+			town->moatAbility = SpellID(ability);
+		});
+	}
+	else
+	{
+		VLC->modh->identifiers.requestIdentifier( source.meta, "spell", "castleMoat", [=](si32 ability)
+		{
+			town->moatAbility = SpellID(ability);
+		});
 	}
 
 	//  Horde building creature level
@@ -921,7 +946,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
 		{
-			VLC->heroh->classes[HeroClassID(classID)]->selectionProbability[town->faction->getIndex()] = chance;
+			VLC->heroh->classes[HeroClassID(classID)]->selectionProbability[town->faction->getId()] = chance;
 		});
 	}
 
@@ -931,7 +956,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
 		{
-			VLC->spellh->objects.at(spellID)->probabilities[town->faction->getIndex()] = chance;
+			VLC->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
 	}
 
@@ -977,7 +1002,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 	auto * faction = new CFaction();
 
-	faction->index = static_cast<TFaction>(index);
+	faction->index = static_cast<FactionID>(index);
 	faction->modScope = scope;
 	faction->identifier = identifier;
 
@@ -986,11 +1011,11 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
+	int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, source["alignment"].String());
 	if (alignment == -1)
 		faction->alignment = EAlignment::NEUTRAL;
 	else
-		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
+		faction->alignment = static_cast<EAlignment>(alignment);
 	
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
@@ -1180,9 +1205,9 @@ std::vector<bool> CTownHandler::getDefaultAllowed() const
 	return allowedFactions;
 }
 
-std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
+std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 {
-	std::set<TFaction> allowedFactions;
+	std::set<FactionID> allowedFactions;
 	std::vector<bool> allowed;
 	if (withTown)
 		allowed = getDefaultAllowed();
@@ -1191,7 +1216,7 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
 
 	for (size_t i=0; i<allowed.size(); i++)
 		if (allowed[i])
-			allowedFactions.insert(static_cast<TFaction>(i));
+			allowedFactions.insert(static_cast<FactionID>(i));
 
 	return allowedFactions;
 }

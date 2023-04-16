@@ -85,7 +85,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		
 		totalTowns++;
 		//register MAIN town of zone only
-		map.registerZone(town->subID);
+		map.registerZone(town->getFaction());
 		
 		if(playerInfo.canAnyonePlay()) //configure info for owning player
 		{
@@ -201,7 +201,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		{
 			//FIXME: discovered bug with small zones - getPos is close to map boarder and we have outOfMap exception
 			//register MAIN town of zone
-			map.registerZone(town->subID);
+			map.registerZone(town->getFaction());
 			//first town in zone goes in the middle
 			placeMainTown(manager, *town);
 		}
@@ -216,8 +216,8 @@ si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
 	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes());
 	if(matchUndergroundType)
 	{
-		std::set<TFaction> townTypesVerify;
-		for(TFaction factionIdx : townTypesAllowed)
+		std::set<FactionID> townTypesVerify;
+		for(auto factionIdx : townTypesAllowed)
 		{
 			bool preferUnderground = (*VLC->townh)[factionIdx]->preferUndergroundPlacement;
 			if(zone.isUnderground() ? preferUnderground : !preferUnderground)

@@ -147,8 +147,7 @@
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
 			"warMachine" : "ballista",
-			"moatDamage" : 70,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			"moatAbility" : "castleMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :

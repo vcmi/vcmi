@@ -182,7 +182,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -211,6 +211,10 @@
 				"terrainAnimation" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"alwaysSkipCombat" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
@@ -286,7 +290,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "queueSize", "touchscreenMode" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -300,7 +304,15 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"touchscreenMode" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"stackRange" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"movementHighlightOnHover" : {
 					"type" : "boolean",
 					"default" : true
 				},

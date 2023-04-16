@@ -308,7 +308,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 		siegeController->gateStateChanged(state);
 }
 
-void BattleInterface::battleFinished(const BattleResult& br)
+void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 {
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
@@ -318,22 +318,34 @@ void BattleInterface::battleFinished(const BattleResult& br)
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
+		curInt->cb->selectionMade(0, queryID);
 		windowObject->close();
 		return;
 	}
 
-	GH.pushInt(std::make_shared<BattleResultWindow>(br, *(this->curInt)));
+	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
+	wnd->resultCallback = [=](ui32 selection)
+	{
+		curInt->cb->selectionMade(selection, queryID);
+	};
+	GH.pushInt(wnd);
+	
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
-	windowObject->blockUI(true);
+	// Do not deactivate anything in tactics mode
+	// This is battlefield setup spells
+	if(!tacticsMode)
+	{
+		windowObject->blockUI(true);
 
-	// Disable current active stack duing the cast
-	// Store the current activeStack to stackToActivate
-	stacksController->deactivateStack();
+		// Disable current active stack duing the cast
+		// Store the current activeStack to stackToActivate
+		stacksController->deactivateStack();
+	}
 
 	CCS->curh->set(Cursor::Combat::BLOCKED);
 
@@ -558,6 +570,9 @@ bool BattleInterface::makingTurn() const
 
 void BattleInterface::endAction(const BattleAction* action)
 {
+	// it is possible that tactics mode ended while opening music is still playing
+	waitForAnimations();
+
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast
@@ -651,6 +666,11 @@ void BattleInterface::tacticNextStack(const CStack * current)
 void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi)
 {
 	obstacleController->obstaclePlaced(oi);
+}
+
+void BattleInterface::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
+{
+	obstacleController->obstacleRemoved(obstacles);
 }
 
 const CGHeroInstance *BattleInterface::currentHero() const

@@ -46,14 +46,13 @@ void MinePlacer::init()
 
 bool MinePlacer::placeMines(ObjectManager & manager)
 {
-	using namespace Res;
 	std::vector<CGMine*> createdMines;
 
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 
 	for(const auto & mineInfo : zone.getMinesInfo())
 	{
-		ERes res = static_cast<ERes>(mineInfo.first);
+		const auto res = GameResID(mineInfo.first);
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
 			auto mineHandler = VLC->objtypeh->getHandlerFor(Obj::MINE, res);
@@ -65,7 +64,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 			createdMines.push_back(mine);
 
 
-			if(!i && (res == ERes::WOOD || res == ERes::ORE))
+			if(!i && (res == EGameResID::WOOD || res == EGameResID::ORE))
 				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
 			else
 				requiredObjects.push_back(std::pair<CGObjectInstance*, ui32>(mine, rmginfo.value));

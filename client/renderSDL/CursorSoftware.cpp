@@ -53,8 +53,6 @@ void CursorSoftware::createTexture(const Point & dimensions)
 
 void CursorSoftware::updateTexture()
 {
-	Point dimensions(-1, -1);
-
 	if (!cursorSurface ||  Point(cursorSurface->w, cursorSurface->h) != cursorImage->dimensions())
 		createTexture(cursorImage->dimensions());
 

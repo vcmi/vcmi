@@ -388,7 +388,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 
 void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & pack)
 {
-	srv.si->difficulty = vstd::abetween(pack.difficulty, 0, 4);
+	srv.si->difficulty = std::clamp<uint8_t>(pack.difficulty, 0, 4);
 	result = true;
 }
 

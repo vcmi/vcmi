@@ -202,6 +202,23 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 	{
 		owner.actionsController->endCastingSpell();
 	}
+	else if(GH.isKeyboardShiftDown())
+	{
+		// save and activate setting
+		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
+		movementHighlightOnHoverCache = movementHighlightOnHover->Bool();
+		movementHighlightOnHover->Bool() = true;
+	}
+}
+
+void BattleWindow::keyReleased(const SDL_Keycode & key)
+{
+	if(!GH.isKeyboardShiftDown())
+	{
+		// set back to initial state
+		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
+		movementHighlightOnHover->Bool() = movementHighlightOnHoverCache;
+	}
 }
 
 void BattleWindow::clickRight(tribool down, bool previousState)
@@ -319,7 +336,7 @@ void BattleWindow::reallyFlee()
 
 void BattleWindow::reallySurrender()
 {
-	if (owner.curInt->cb->getResourceAmount(Res::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
+	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
 	{
 		owner.curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
 	}

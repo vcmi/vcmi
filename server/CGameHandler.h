@@ -88,7 +88,7 @@ struct CasualtiesAfterBattle
 	TSummoned summoned;
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat);
+	CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat);
 	void updateArmy(CGameHandler *gh);
 };
 
@@ -130,7 +130,8 @@ public:
 	////used only in endBattle - don't touch elsewhere
 	bool visitObjectAfterVictory;
 	//
-	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
+	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
+	void endBattleConfirm(const BattleInfo * battleInfo);
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
@@ -160,7 +161,7 @@ public:
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override;
-	void giveResource(PlayerColor player, Res::ERes which, int val) override;
+	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, TResources resources) override;
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override;
@@ -176,13 +177,13 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override;
 
-	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art);
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override;
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos = ArtifactPosition::FIRST_AVAILABLE) override;
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override;
 	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap);
+	bool eraseArtifactByClient(const ArtifactLocation & al);
 	void synchronizeArtifactHandlerLists();
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
@@ -200,6 +201,8 @@ public:
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
 	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override;
+	
+	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override;
@@ -233,7 +236,7 @@ public:
 	bool makeCustomAction(BattleAction &ba);
 	void stackEnchantedTrigger(const CStack * stack);
 	void stackTurnTrigger(const CStack *stack);
-	bool handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving = false, const std::set<BattleHex> & passed = {}); //checks if obstacle is land mine and handles possible consequences
+	bool handleDamageFromObstacle(const battle::Unit * curStack, const std::set<BattleHex> & passed = {}); //checks if obstacle is land mine and handles possible consequences
 
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
@@ -242,13 +245,13 @@ public:
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
 	bool sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count);
-	bool sendResources(ui32 val, PlayerColor player, Res::ERes r1, PlayerColor r2);
-	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, Res::ERes resourceID);
+	bool sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2);
+	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, GameResID resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, SlotID slot);
 	bool assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);
 	bool buyArtifact( ObjectInstanceID hid, ArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
-	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
-	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, ArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
+	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, GameResID rid, ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
+	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, ArtifactInstanceID aid, GameResID rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill);
 	bool garrisonSwap(ObjectInstanceID tid);
@@ -275,7 +278,6 @@ public:
 	bool dig(const CGHeroInstance *h);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 	const ObjectInstanceID putNewObject(Obj ID, int subID, int3 pos);
-
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -314,9 +316,12 @@ public:
 	{
 		FinishingBattleHelper();
 		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount);
+		
+		inline bool isDraw() const {return winnerSide == 2;}
 
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
+		ui8 winnerSide;
 
 		int remainingBattleQueriesCount;
 
@@ -326,6 +331,7 @@ public:
 			h & loserHero;
 			h & victor;
 			h & loser;
+			h & winnerSide;
 			h & remainingBattleQueriesCount;
 		}
 	};

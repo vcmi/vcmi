@@ -292,10 +292,11 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
-		if(creature->cost[i])
+		auto res = static_cast<EGameResID>(i);
+		if(creature->getRecruitCost(res))
 		{
 			resPicture.push_back(std::make_shared<CAnimImage>("RESOURCE", i, 0, 0, 0));
-			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(creature->cost[i])));
+			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(creature->getRecruitCost(res))));
 		}
 	}
 
@@ -807,10 +808,10 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
 		return;
 	}
-	auto art = dynamic_cast<const CArtifact*>(artifactID.toArtifact(CGI->artifacts()));
+	auto art = artifactID.toArtifact();
 
 	int price = art->getPrice();
-	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price;
+	bool possible = LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= price;
 	if(possible)
 	{
 		for(auto slot : art->possibleSlots.at(ArtBearer::HERO))
@@ -891,7 +892,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->getIndex() == (TFaction)ETownType::RAMPART)
+	if(this->town->town->faction->getIndex() == ETownType::RAMPART)
 	{
 		hasNotProduced = CGI->generaltexth->allTexts[677];
 		hasProduced = CGI->generaltexth->allTexts[678];
@@ -942,7 +943,7 @@ void CCastleBuildings::enterMagesGuild()
 			// "Yog has given up magic in all its forms..."
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[736]);
 		}
-		else if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 500) //not enough gold to buy spellbook
+		else if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < 500) //not enough gold to buy spellbook
 		{
 			openMagesGuild();
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
@@ -1100,7 +1101,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 		if (showAvailable)
 			GH.pushIntT<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
 		else
-			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
+			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->getId()));
 	}
 }
 
@@ -1279,7 +1280,7 @@ void CCastleInterface::recreateIcons()
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
-	income->setText(std::to_string(townIncome[Res::GOLD]));
+	income->setText(std::to_string(townIncome[EGameResID::GOLD]));
 
 	hall = std::make_shared<CTownInfo>(80, 413, town, true);
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
@@ -1870,5 +1871,5 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	else
 		buy->block(true);
 
-	costIcon = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 148, 244);
+	costIcon = std::make_shared<CAnimImage>("RESOURCE", GameResID(EGameResID::GOLD), 0, 148, 244);
 }

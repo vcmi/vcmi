@@ -74,12 +74,12 @@ public:
 	void battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn = 0, int8_t lastMoved = -1) const;
 
 	///returns reachable hexes (valid movement destinations), DOES contain stack current position
-	std::vector<BattleHex> battleGetAvailableHexes(const battle::Unit * unit, bool addOccupiable, std::vector<BattleHex> * attackable) const;
+	std::vector<BattleHex> battleGetAvailableHexes(const battle::Unit * unit, bool isActiveStack, bool addOccupiable, std::vector<BattleHex> * attackable) const;
 
 	///returns reachable hexes (valid movement destinations), DOES contain stack current position (lite version)
-	std::vector<BattleHex> battleGetAvailableHexes(const battle::Unit * unit) const;
+	std::vector<BattleHex> battleGetAvailableHexes(const battle::Unit * unit, bool isActiveStack) const;
 
-	std::vector<BattleHex> battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit) const;
+	std::vector<BattleHex> battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit, bool isActiveStack) const;
 
 	int battleGetSurrenderCost(const PlayerColor & Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const battle::Unit * unit, BattleHex assumedPosition) const;

@@ -46,13 +46,7 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
 	vstd::erase_if(targets, predicate);
 	if(targets.empty())
-	{
-		MetaString text;
-		text.addTxt(MetaString::GENERAL_TXT, 185);
-		problem.add(std::move(text), Problem::NORMAL);
-		return false;
-	}
-
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 
 	return true;
 }

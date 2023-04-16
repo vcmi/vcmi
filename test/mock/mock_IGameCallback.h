@@ -48,7 +48,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {} //cb will be called when player closes garrison window
 	void showTeleportDialog(TeleportDialog *iw) override {}
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {}
-	void giveResource(PlayerColor player, Res::ERes which, int val) override {}
+	void giveResource(PlayerColor player, EGameResID which, int val) override {}
 	void giveResources(PlayerColor player, TResources resources) override {}
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {}
@@ -64,8 +64,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override {}
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override {} //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;}

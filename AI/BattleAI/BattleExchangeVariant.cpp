@@ -271,7 +271,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(cons
 		auto hexes = stack->getSurroundingHexes();
 		for(auto hex : hexes)
 		{
-			auto neighbor = cb->battleGetStackByPos(hex);
+			auto neighbor = cb->battleGetUnitByPos(hex);
 
 			if(neighbor && neighbor->unitSide() == stack->unitSide() && !vstd::contains(checkedStacks, neighbor))
 			{

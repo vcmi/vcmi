@@ -13,6 +13,8 @@
 #include "GameConstants.h"
 #include "BattleHex.h"
 
+#include <vcmi/Entity.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CObstacleInstance;
@@ -45,7 +47,7 @@ namespace scripting
 }
 #endif
 
-class DLL_LINKAGE IBattleInfoCallback
+class DLL_LINKAGE IBattleInfoCallback : public IConstBonusProvider
 {
 public:
 #if SCRIPTING_ENABLED

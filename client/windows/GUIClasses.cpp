@@ -135,11 +135,11 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		else // if slider already at 0 - emulate call to sliderMoved()
 			sliderMoved(maxAmount);
 
-		costPerTroopValue->createItems(card->creature->cost);
-		totalCostValue->createItems(card->creature->cost);
+		costPerTroopValue->createItems(card->creature->getFullRecruitCost());
+		totalCostValue->createItems(card->creature->getFullRecruitCost());
 
-		costPerTroopValue->set(card->creature->cost);
-		totalCostValue->set(card->creature->cost * maxAmount);
+		costPerTroopValue->set(card->creature->getFullRecruitCost());
+		totalCostValue->set(card->creature->getFullRecruitCost() * maxAmount);
 
 		//Recruit %s
 		title->setText(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->getNamePluralTranslated()));
@@ -151,7 +151,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 
 void CRecruitmentWindow::buy()
 {
-	CreatureID crid =  selected->creature->idNumber;
+	CreatureID crid =  selected->creature->getId();
 	SlotID dstslot = dst-> getSlotFor(crid);
 
 	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
@@ -296,7 +296,7 @@ void CRecruitmentWindow::sliderMoved(int to)
 	availableValue->setText(std::to_string(selected->amount - to));
 	toRecruitValue->setText(std::to_string(to));
 
-	totalCostValue->set(selected->creature->cost * to);
+	totalCostValue->set(selected->creature->getFullRecruitCost() * to);
 }
 
 CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback_, int leftMin_, int rightMin_, int leftAmount_, int rightAmount_)
@@ -463,7 +463,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	recruit = std::make_shared<CButton>(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
 	thiefGuild = std::make_shared<CButton>(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
 
-	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
+	if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
 		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
@@ -811,7 +811,7 @@ void CExchangeController::moveArmy(bool leftToRight)
 			source->Slots(), 
 			[](const std::pair<SlotID, CStackInstance *> & s) -> int
 			{
-				return s.second->getCreatureID().toCreature()->AIValue;
+				return s.second->getCreatureID().toCreature()->getAIValue();
 			});
 
 		slot = weakestSlot->first;
@@ -843,7 +843,7 @@ void CExchangeController::moveArtifact(
 {
 	auto srcLocation = ArtifactLocation(source, srcPosition);
 	auto dstLocation = ArtifactLocation(target,
-		ArtifactUtils::getArtifactDstPosition(source->getArt(srcPosition), target));
+		ArtifactUtils::getArtAnyPosition(target, source->getArt(srcPosition)->getTypeId()));
 
 	cb->swapArtifacts(srcLocation, dstLocation);
 }
@@ -1079,7 +1079,7 @@ void CExchangeWindow::updateWidgets()
 	}
 }
 
-CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy)
+CShipyardWindow::CShipyardWindow(const TResources & cost, int state, int boatType, const std::function<void()> & onBuy)
 	: CStatusbarWindow(PLAYER_COLORED, "TPSHIP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1093,20 +1093,20 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 	bgShip->center(waterCenter);
 
 	// Create resource icons and costs.
-	std::string goldValue = std::to_string(cost[Res::GOLD]);
-	std::string woodValue = std::to_string(cost[Res::WOOD]);
+	std::string goldValue = std::to_string(cost[EGameResID::GOLD]);
+	std::string woodValue = std::to_string(cost[EGameResID::WOOD]);
 
 	goldCost = std::make_shared<CLabel>(118, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, goldValue);
 	woodCost = std::make_shared<CLabel>(212, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, woodValue);
 
-	goldPic = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 100, 244);
-	woodPic = std::make_shared<CAnimImage>("RESOURCE", Res::WOOD, 0, 196, 244);
+	goldPic = std::make_shared<CAnimImage>("RESOURCE",GameResID(EGameResID::GOLD), 0, 100, 244);
+	woodPic = std::make_shared<CAnimImage>("RESOURCE", GameResID(EGameResID::WOOD), 0, 196, 244);
 
 	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_ESCAPE);
 	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
 	build->addCallback(onBuy);
 
-	for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
+	for(auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, 1))
 	{
 		if(cost[i] > LOCPLINT->cb->getResourceAmount(i))
 		{
@@ -1141,7 +1141,7 @@ void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
 
 void CTransformerWindow::CItem::update()
 {
-	icon->setFrame(parent->army->getCreature(SlotID(id))->idNumber + 2);
+	icon->setFrame(parent->army->getCreature(SlotID(id))->getId() + 2);
 }
 
 CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id_)
@@ -1157,7 +1157,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id
 
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
-	icon = std::make_shared<CAnimImage>("TWCRPORT", parent->army->getCreature(SlotID(id))->idNumber + 2);
+	icon = std::make_shared<CAnimImage>("TWCRPORT", parent->army->getCreature(SlotID(id))->getId() + 2);
 	count = std::make_shared<CLabel>(28, 76,FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(size));
 }
 
@@ -1240,7 +1240,7 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		if(state() == 2)
-			GH.pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
+			GH.pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 	}
 }
 
@@ -1346,7 +1346,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	icon = std::make_shared<CAnimImage>("SECSKILL", SKILL*3+3, 0, 211, 51);
 	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);
 
-	costIcon = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 210, 210);
+	costIcon = std::make_shared<CAnimImage>("RESOURCE", GameResID(EGameResID::GOLD), 0, 210, 210);
 	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "2000");
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
@@ -1456,15 +1456,11 @@ void CHillFortWindow::updateGarrisons()
 {
 	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
 
-	TResources totalSumm; // totalSum[resource ID] = value
-	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
-
-	for(int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
-		totalSumm[i]=0;
+	TResources totalSum; // totalSum[resource ID] = value
 
 	for(int i=0; i<slotsCount; i++)
 	{
-		costs[i].clear();
+		std::fill(costs[i].begin(), costs[i].end(), 0);
 		int newState = getState(SlotID(i));
 		if(newState != -1)
 		{
@@ -1473,7 +1469,7 @@ void CHillFortWindow::updateGarrisons()
 			if(info.newID.size())//we have upgrades here - update costs
 			{
 				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
-				totalSumm += costs[i];
+				totalSum += costs[i];
 			}
 		}
 
@@ -1495,7 +1491,7 @@ void CHillFortWindow::updateGarrisons()
 		if(allUpgraded)
 			newState = 1;
 
-		if(!totalSumm.canBeAfforded(myRes))
+		if(!totalSum.canBeAfforded(myRes))
 			newState = 0;
 	}
 
@@ -1535,7 +1531,7 @@ void CHillFortWindow::updateGarrisons()
 			else//free upgrade - print gold image and "Free" text
 			{
 				slotIcons[i][0]->visible = true;
-				slotIcons[i][0]->setFrame(Res::GOLD);
+				slotIcons[i][0]->setFrame(GameResID(EGameResID::GOLD));
 				slotLabels[i][0]->setText(CGI->generaltexth->allTexts[344]);
 			}
 		}
@@ -1543,7 +1539,7 @@ void CHillFortWindow::updateGarrisons()
 
 	for(int i = 0; i < resCount; i++)
 	{
-		if(totalSumm[i] == 0)
+		if(totalSum[i] == 0)
 		{
 			totalIcons[i]->visible = false;
 			totalLabels[i]->setText("");
@@ -1551,7 +1547,7 @@ void CHillFortWindow::updateGarrisons()
 		else
 		{
 			totalIcons[i]->visible = true;
-			totalLabels[i]->setText(std::to_string(totalSumm[i]));
+			totalLabels[i]->setText(std::to_string(totalSum[i]));
 		}
 	}
 }
@@ -1666,7 +1662,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	itgflags->preload();
 
 	//printing flags
-	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
+	for(int g = 0; g < std::size(fields); ++g) //by lines
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
@@ -1911,7 +1907,7 @@ void CObjectListWindow::keyPressed (const SDL_Keycode & key)
 		return;
 	}
 
-	vstd::abetween(sel, 0, items.size()-1);
+	vstd::abetween<int>(sel, 0, items.size()-1);
 	list->scrollTo(sel);
 	changeSelection(sel);
 }

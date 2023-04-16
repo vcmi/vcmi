@@ -593,6 +593,11 @@ void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAssembleArtifacts(*this);
 }
 
+void EraseArtifactByClient::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEraseArtifactByClient(*this);
+}
+
 void BuyArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBuyArtifact(*this);
@@ -952,14 +957,18 @@ void GiveBonus::applyGs(CGameState *gs)
 	CBonusSystemNode *cbsn = nullptr;
 	switch(who)
 	{
-	case HERO:
+	case ETarget::HERO:
 		cbsn = gs->getHero(ObjectInstanceID(id));
 		break;
-	case PLAYER:
+	case ETarget::PLAYER:
 		cbsn = gs->getPlayerState(PlayerColor(id));
 		break;
-	case TOWN:
+	case ETarget::TOWN:
 		cbsn = gs->getTown(ObjectInstanceID(id));
+		break;
+	case ETarget::BATTLE:
+		assert(Bonus::OneBattle(&bonus));
+		cbsn = dynamic_cast<CBonusSystemNode*>(gs->curB.get());
 		break;
 	}
 
@@ -1106,7 +1115,7 @@ void PlayerReinitInterface::applyGs(CGameState *gs)
 void RemoveBonus::applyGs(CGameState *gs)
 {
 	CBonusSystemNode * node = nullptr;
-	if (who == HERO)
+	if (who == GiveBonus::ETarget::HERO)
 		node = gs->getHero(ObjectInstanceID(whoID));
 	else
 		node = gs->getPlayerState(PlayerColor(whoID));
@@ -1454,9 +1463,8 @@ void NewObject::applyGs(CGameState *gs)
 		testObject.pos = pos;
 		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
 
-		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
+		[[maybe_unused]] const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
-		MAYBE_UNUSED(previousXAxisTile);
 	}
 	else
 	{
@@ -1680,10 +1688,11 @@ void RebalanceStacks::applyGs(CGameState * gs)
 
 	if(srcCount == count) //moving whole stack
 	{
-		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
+		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+
+		if(c) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			MAYBE_UNUSED(c);
 			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto * artHere = alHere.getArt();
@@ -1693,14 +1702,18 @@ void RebalanceStacks::applyGs(CGameState * gs)
 				if (alDest.getArt())
 				{
 					auto * hero = dynamic_cast<CGHeroInstance *>(src.army.get());
-					if (hero)
+					auto dstSlot = ArtifactUtils::getArtBackpackPosition(hero, alDest.getArt()->getTypeId());
+					if(hero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						artDest->move (alDest, ArtifactLocation (hero, alDest.getArt()->firstBackpackSlot (hero)));
+						artDest->move (alDest, ArtifactLocation (hero, dstSlot));
 					}
 					//else - artifact cna be lost :/
 					else
 					{
-						logNetwork->warn("Artifact is present at destination slot!");
+						EraseArtifact ea;
+						ea.al = alDest;
+						ea.applyGs(gs);
+						logNetwork->warn("Cannot move artifact! No free slots");
 					}
 					artHere->move (alHere, alDest);
 					//TODO: choose from dialog
@@ -1731,10 +1744,10 @@ void RebalanceStacks::applyGs(CGameState * gs)
 	}
 	else
 	{
-		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
+		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+		if(c) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
-			MAYBE_UNUSED(c);
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -1751,7 +1764,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 		else //split stack to an empty slot
 		{
 			src.army->changeStackCount(src.slot, -count);
-			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
+			dst.army->addToSlot(dst.slot, srcType->getId(), count, false);
 			if (stackExp)
 				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
@@ -1899,14 +1912,13 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 void AssembledArtifact::applyGs(CGameState *gs)
 {
 	CArtifactSet * artSet = al.getHolderArtSet();
-	const CArtifactInstance *transformedArt = al.getArt();
+	[[maybe_unused]] const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
 	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));
-	MAYBE_UNUSED(transformedArt);
 
 	auto * combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
@@ -2182,15 +2194,11 @@ void BattleUpdateGateState::applyGs(CGameState * gs) const
 		gs->curB->si.gateState = state;
 }
 
-void BattleResult::applyGs(CGameState *gs)
+void BattleResultAccepted::applyGs(CGameState * gs) const
 {
-	for (auto & elem : gs->curB->stacks)
-		delete elem;
-
-
-	for(int i = 0; i < 2; ++i)
+	for(auto * h : {hero1, hero2})
 	{
-		if(auto * h = gs->curB->battleGetFightingHero(i))
+		if(h)
 		{
 			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
@@ -2206,14 +2214,16 @@ void BattleResult::applyGs(CGameState *gs)
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		for(int i = 0; i < 2; i++)
+		{
 			if(exp[i])
-				gs->curB->battleGetArmyObject(i)->giveStackExp(exp[i]);
+			{
+				if(auto * army = (i == 0 ? army1 : army2))
+					army->giveStackExp(exp[i]);
+			}
+		}
 
 		CBonusSystemNode::treeHasChanged();
 	}
-
-	for(int i = 0; i < 2; i++)
-		gs->curB->battleGetArmyObject(i)->battle = nullptr;
 
 	gs->curB.dellNull();
 }
@@ -2500,7 +2510,7 @@ void YourTurn::applyGs(CGameState * gs) const
 
 Component::Component(const CStackBasicDescriptor & stack)
 	: id(EComponentType::CREATURE)
-	, subtype(stack.type->idNumber)
+	, subtype(stack.type->getId())
 	, val(stack.count)
 {
 }

@@ -95,8 +95,8 @@ public:
 
 	void setMeAsDest(bool backpackAsVoid = true);
 	void setArtifact(const CArtifactInstance *art) override;
-	static bool askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
-	                          const CGHeroInstance *hero);
+	static bool askToAssemble(const CGHeroInstance * hero, ArtifactPosition slot);
+	static bool askToDisassemble(const CGHeroInstance * hero, ArtifactPosition slot);
 };
 
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked

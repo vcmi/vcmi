@@ -131,7 +131,7 @@ protected:
 class DLL_LINKAGE CGWitchHut : public CTeamVisited
 {
 public:
-	std::vector<si32> allowedAbilities;
+	std::set<si32> allowedAbilities;
 	ui32 ability;
 
 	std::string getHoverText(PlayerColor player) const override;
@@ -263,8 +263,9 @@ protected:
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public:
-	Res::ERes producedResource;
+	GameResID producedResource;
 	ui32 producedQuantity;
+	std::set<GameResID> abandonedMineResources;
 
 private:
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -285,6 +286,7 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & producedResource;
 		h & producedQuantity;
+		h & abandonedMineResources;
 	}
 	ui32 defaultResProduction() const;
 

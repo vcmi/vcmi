@@ -488,7 +488,7 @@ void CVolumeSlider::setVolume(int value_)
 
 void CVolumeSlider::moveTo(int id)
 {
-	vstd::abetween(id, 0, animImage->size() - 1);
+	vstd::abetween<int>(id, 0, animImage->size() - 1);
 	animImage->setFrame(id);
 	animImage->moveTo(Point(pos.x + (animImage->pos.w + 1) * id, pos.y));
 	if (active)

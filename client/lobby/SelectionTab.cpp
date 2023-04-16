@@ -333,7 +333,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 	{
 		for(auto elem : allItems)
 		{
-			if(elem->mapHeader && elem->mapHeader->version && (!size || elem->mapHeader->width == size))
+			if(elem->mapHeader && (!size || elem->mapHeader->width == size))
 				curItems.push_back(elem);
 		}
 	}
@@ -537,9 +537,9 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 			auto mapInfo = std::make_shared<CMapInfo>();
 			mapInfo->mapInit(file.getName());
 
-			// ignore unsupported map versions (e.g. WoG maps without WoG)
-			// but accept VCMI maps
-			if((mapInfo->mapHeader->version >= EMapFormat::VCMI) || (mapInfo->mapHeader->version <= CGI->settings()->getInteger(EGameSettings::TEXTS_MAP_VERSION)))
+			EMapFormat maxSupported = static_cast<EMapFormat>(CGI->settings()->getInteger(EGameSettings::TEXTS_MAP_VERSION));
+
+			if(mapInfo->mapHeader->version == EMapFormat::VCMI || mapInfo->mapHeader->version <= maxSupported)
 				allItems.push_back(mapInfo);
 		}
 		catch(std::exception & e)

@@ -14,6 +14,7 @@
 #include "../int3.h"
 #include "../HeroBonus.h"
 #include "../NetPacksBase.h"
+#include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -104,7 +105,7 @@ class DLL_LINKAGE IShipyard : public IBoatGenerator
 public:
 	IShipyard(const CGObjectInstance *O);
 
-	virtual void getBoatCost(std::vector<si32> &cost) const;
+	virtual void getBoatCost(TResources & cost) const;
 
 	static const IShipyard *castFrom(const CGObjectInstance *obj);
 	static IShipyard *castFrom(CGObjectInstance *obj);

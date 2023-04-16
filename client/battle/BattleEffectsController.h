@@ -30,6 +30,13 @@ class EffectAnimation;
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
 struct BattleEffect
 {
+	enum class AnimType : ui8 
+	{
+		DEFAULT = 0, //If we have such animation
+		REVERSE = 1 //Reverse DEFAULT will be used
+	};
+
+	AnimType type;
 	Point pos; //position on the screen
 	float currentFrame;
 	std::shared_ptr<CAnimation> animation;

@@ -120,10 +120,11 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 			case 0x00088B1F:
 				stream = std::unique_ptr<CInputStream>(new CCompressedStream(std::move(stream), true));
 				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(mapName, modName, encoding, stream.get()));
-			case EMapFormat::WOG :
-			case EMapFormat::AB  :
-			case EMapFormat::ROE :
-			case EMapFormat::SOD :
+			case static_cast<int>(EMapFormat::WOG) :
+			case static_cast<int>(EMapFormat::AB)  :
+			case static_cast<int>(EMapFormat::ROE) :
+			case static_cast<int>(EMapFormat::SOD) :
+			case static_cast<int>(EMapFormat::HOTA) :
 				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(mapName, modName, encoding, stream.get()));
 			default :
 				throw std::runtime_error("Unknown map format");
@@ -136,6 +137,8 @@ static JsonNode loadPatches(std::string path)
 	JsonNode node = JsonUtils::assembleFromFiles(std::move(path));
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
+
+	node.setMeta(CModHandler::scopeMap());
 	return node;
 }
 

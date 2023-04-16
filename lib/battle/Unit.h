@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <vcmi/Entity.h>
 #include <vcmi/spells/Caster.h>
 
 #include "../HeroBonus.h"
@@ -40,7 +41,7 @@ namespace BattlePhases
 
 class CUnitState;
 
-class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer
+class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public IConstBonusNativeTerrainProvider
 {
 public:
 	virtual ~Unit();
@@ -125,6 +126,9 @@ public:
 	std::string formatGeneralMessage(const int32_t baseTextId) const;
 
 	int getRawSurrenderCost() const;
+
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
 
 	//NOTE: save could possibly be const, but this requires heavy changes to Json serialization,
 	//also this method should be called only after modifying object

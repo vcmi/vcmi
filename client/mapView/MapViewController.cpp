@@ -58,10 +58,10 @@ void MapViewController::setViewCenter(const Point & position, int level)
 		lowerLimit = actualLowerLimit;
 	}
 
-	Point betterPosition = {vstd::clamp(position.x, lowerLimit.x, upperLimit.x), vstd::clamp(position.y, lowerLimit.y, upperLimit.y)};
+	Point betterPosition = {std::clamp(position.x, lowerLimit.x, upperLimit.x), std::clamp(position.y, lowerLimit.y, upperLimit.y)};
 
 	model->setViewCenter(betterPosition);
-	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
+	model->setLevel(std::clamp(level, 0, context->getMapSize().z));
 
 	if(adventureInt) // may be called before adventureInt is initialized
 		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());

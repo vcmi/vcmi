@@ -93,9 +93,9 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 
 int32_t convertToGold(const TResources & res)
 {
-	return res[Res::GOLD] 
-		+ 75 * (res[Res::WOOD] + res[Res::ORE]) 
-		+ 125 * (res[Res::GEMS] + res[Res::CRYSTAL] + res[Res::MERCURY] + res[Res::SULFUR]);
+	return res[EGameResID::GOLD] 
+		+ 75 * (res[EGameResID::WOOD] + res[EGameResID::ORE]) 
+		+ 125 * (res[EGameResID::GEMS] + res[EGameResID::CRYSTAL] + res[EGameResID::MERCURY] + res[EGameResID::SULFUR]);
 }
 
 TResources BuildAnalyzer::getResourcesRequiredNow() const
@@ -164,8 +164,8 @@ void BuildAnalyzer::update()
 	}
 	else
 	{
-		goldPreasure = ai->getLockedResources()[Res::GOLD] / 10000.0f
-			+ (float)armyCost[Res::GOLD] / (1 + ai->getFreeGold() + (float)dailyIncome[Res::GOLD] * 7.0f);
+		goldPreasure = ai->getLockedResources()[EGameResID::GOLD] / 10000.0f
+			+ (float)armyCost[EGameResID::GOLD] / (1 + ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 	}
 
 	logAi->trace("Gold preasure: %f", goldPreasure);
@@ -280,7 +280,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 		if(mine)
 		{
-			dailyIncome[mine->producedResource] += mine->producedQuantity;
+			dailyIncome[mine->producedResource.getNum()] += mine->producedQuantity;
 		}
 	}
 
@@ -294,7 +294,7 @@ bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
-		if(tdi.town->alignment == alignment && tdi.town->hasBuilt(bid))
+		if(tdi.town->subID == alignment && tdi.town->hasBuilt(bid))
 			return true;
 	}
 
@@ -355,10 +355,10 @@ BuildingInfo::BuildingInfo(
 
 	if(creature)
 	{
-		creatureGrows = creature->growth;
-		creatureID = creature->idNumber;
-		creatureCost = creature->cost;
-		creatureLevel = creature->level;
+		creatureGrows = creature->getGrowth();
+		creatureID = creature->getId();
+		creatureCost = creature->getFullRecruitCost();
+		creatureLevel = creature->getLevel();
 		baseCreatureID = baseCreature;
 
 		if(exists)
@@ -367,7 +367,7 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			creatureGrows = creature->growth;
+			creatureGrows = creature->getGrowth();
 
 			if(town->hasBuilt(BuildingID::CASTLE))
 				creatureGrows *= 2;

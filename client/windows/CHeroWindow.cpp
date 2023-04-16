@@ -77,14 +77,16 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 	if(!down)
 	{
 		//TODO: do not recreate window
-		#if 0
-		owner->update(hero, true);
-		#else
-		MAYBE_UNUSED(owner);
-		const CGHeroInstance * buf = hero;
-		GH.popInts(1);
-		GH.pushIntT<CHeroWindow>(buf);
-		#endif // 0
+		if (false)
+		{
+			owner->update(hero, true);
+		}
+		else
+		{
+			const CGHeroInstance * buf = hero;
+			GH.popInts(1);
+			GH.pushIntT<CHeroWindow>(buf);
+		}
 	}
 }
 
@@ -333,7 +335,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	formations->resetCallback();
 	//setting formations
-	formations->setSelected(curHero->formation);
+	formations->setSelected(curHero->formation == EArmyFormation::TIGHT ? 1 : 0);
 	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, value);});
 
 	morale->set(&heroWArt);
@@ -359,7 +361,7 @@ void CHeroWindow::commanderWindow()
 	{
 		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 		//artSelected = true;
-		ArtifactPosition freeSlot = art->firstAvailableSlot (curHero->commander);
+		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, art->artType->getId());
 		if(freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
 			ArtifactLocation src(srcHero, commonInfo->src.slotID);
@@ -369,7 +371,8 @@ void CHeroWindow::commanderWindow()
 			{	//equip clicked stack
 				if(dst.getArt())
 				{
-					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero,
+						ArtifactUtils::getArtBackpackPosition(srcHero, art->getTypeId())));
 				}
 				LOCPLINT->cb->swapArtifacts(src, dst);
 			}

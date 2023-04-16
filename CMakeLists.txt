@@ -159,8 +159,8 @@ include(UseDoxygen OPTIONAL)
 #        Compile and linking options       #
 ############################################
 
-#Enable C++14 Globally
-set (CMAKE_CXX_STANDARD 14)
+#Enable C++17 Globally
+set (CMAKE_CXX_STANDARD 17)
 #General visibility options
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
@@ -222,6 +222,11 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED_FOR_APPS YES)
 	set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_IDENTIFIER_PREFIX}.$(PRODUCT_NAME)")
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+endif()
+
+if(APPLE_MACOS)
+	# Not supported by standard library of our current minimal target - macOS 10.14 or newer required
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aligned-allocation")
 endif()
 
 if(MINGW OR MSVC)
@@ -340,6 +345,9 @@ if(NOT WIN32 AND NOT APPLE_IOS)
 	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
 	if(HAVE_RT_LIB)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
+	endif()
+	if(HAIKU)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
 	endif()
 endif()
 

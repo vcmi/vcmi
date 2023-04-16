@@ -200,11 +200,11 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
+	for (EGameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; vstd::advance(i, 1))
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * i, pos.y + pos.h/2));
+		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * GameResID(i), pos.y + pos.h/2));
 	}
 	graphics->fonts[FONT_SMALL]->renderTextCenter(to, buildDateString(), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
 }
@@ -347,10 +347,10 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 		if(town.details->customRes)//silo is built
 		{
-			if(town.tType->primaryRes == Res::WOOD_AND_ORE )// wood & ore
+			if(town.tType->primaryRes == EGameResID::WOOD_AND_ORE )// wood & ore
 			{
-				res1 = std::make_shared<CAnimImage>("SMALRES", Res::WOOD, 0, 7, 75);
-				res2 = std::make_shared<CAnimImage>("SMALRES", Res::ORE , 0, 7, 88);
+				res1 = std::make_shared<CAnimImage>("SMALRES", GameResID(EGameResID::WOOD), 0, 7, 75);
+				res2 = std::make_shared<CAnimImage>("SMALRES", GameResID(EGameResID::ORE), 0, 7, 88);
 			}
 			else
 			{
@@ -448,7 +448,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	pos.x+=x;
 	pos.y+=y;
 
-	TFaction faction = cre->faction;
+	auto faction = cre->getFaction();
 
 	assert(CGI->townh->size() > faction);
 

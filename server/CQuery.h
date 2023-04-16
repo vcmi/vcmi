@@ -97,6 +97,7 @@ class CBattleQuery : public CGhQuery
 {
 public:
 	std::array<const CArmedInstance *,2> belligerents;
+	std::array<int, 2> initialHeroMana;
 
 	const BattleInfo *bi;
 	boost::optional<BattleResult> result;
@@ -143,6 +144,16 @@ public:
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
 	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 	virtual bool blocksPack(const CPack *pack) const override;
+};
+
+class CBattleDialogQuery : public CDialogQuery
+{
+public:
+	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
+
+	const BattleInfo * bi;
+
+	virtual void onRemoval(PlayerColor color) override;
 };
 
 //yes/no and component selection dialogs

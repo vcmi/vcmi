@@ -176,7 +176,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 {
 	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
 	static const std::string patternTypes[] = { "terrainView", "terrainType" };
-	for (int i = 0; i < ARRAY_COUNT(patternTypes); ++i)
+	for (int i = 0; i < std::size(patternTypes); ++i)
 	{
 		const auto& patternsVec = config[patternTypes[i]].Vector();
 		for (const auto& ptrnNode : patternsVec)

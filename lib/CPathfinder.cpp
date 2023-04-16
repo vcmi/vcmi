@@ -803,7 +803,7 @@ void DestinationActionRule::process(
 		}
 
 		/// don't break - next case shared for both land and sail layers
-		FALLTHROUGH
+		[[fallthrough]];
 
 	case EPathfindingLayer::SAIL:
 		if(destination.isNodeObjectVisitable())

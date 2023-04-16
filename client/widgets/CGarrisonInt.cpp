@@ -204,7 +204,8 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 					{
 						//creature can wear only one active artifact
 						//if we are placing a new one, the old one will be returned to the hero's backpack
-						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero,
+							ArtifactUtils::getArtBackpackPosition(srcHero, dst.getArt()->getTypeId())));
 					}
 					LOCPLINT->cb->swapArtifacts(src, dst);
 				}

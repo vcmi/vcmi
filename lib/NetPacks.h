@@ -349,15 +349,16 @@ struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
-	GiveBonus(ui8 Who = 0)
+	enum class ETarget : ui8 { HERO, PLAYER, TOWN, BATTLE };
+	
+	GiveBonus(ETarget Who = ETarget::HERO)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	enum { HERO, PLAYER, TOWN };
-	ui8 who = 0; //who receives bonus, uses enum above
+	ETarget who = ETarget::HERO; //who receives bonus
 	si32 id = 0; //hero. town or player id - whoever receives it
 	Bonus bonus;
 	MetaString bdescr;
@@ -424,15 +425,14 @@ struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
 
 struct DLL_LINKAGE RemoveBonus : public CPackForClient
 {
-	RemoveBonus(ui8 Who = 0)
+	RemoveBonus(GiveBonus::ETarget Who = GiveBonus::ETarget::HERO)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	enum { HERO, PLAYER, TOWN };
-	ui8 who; //who receives bonus, uses enum above
+	GiveBonus::ETarget who; //who receives bonus
 	ui32 whoID = 0; //hero, town or player id - whoever loses bonus
 
 	//vars to identify bonus: its source
@@ -950,7 +950,14 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
+	PutArtifact() = default;
+	PutArtifact(ArtifactLocation * dst, bool askAssemble = true)
+		: al(*dst), askAssemble(askAssemble)
+	{
+	}
+
 	ArtifactLocation al;
+	bool askAssemble = false;
 	ConstTransitivePtr<CArtifactInstance> art;
 
 	void applyGs(CGameState * gs);
@@ -959,6 +966,7 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & al;
+		h & askAssemble;
 		h & art;
 	}
 };
@@ -1466,12 +1474,31 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE BattleResult : public CPackForClient
+struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+	
+	CGHeroInstance * hero1 = nullptr;
+	CGHeroInstance * hero2 = nullptr;
+	CArmedInstance * army1 = nullptr;
+	CArmedInstance * army2 = nullptr;
+	TExpType exp[2];
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero1;
+		h & hero2;
+		h & army1;
+		h & army2;
+		h & exp;
+	}
+};
+
+struct DLL_LINKAGE BattleResult : public Query
 {
 	enum EResult { NORMAL = 0, ESCAPE = 1, SURRENDER = 2 };
 
 	void applyFirstCl(CClient * cl);
-	void applyGs(CGameState * gs);
 
 	EResult result = NORMAL;
 	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
@@ -1483,6 +1510,7 @@ struct DLL_LINKAGE BattleResult : public CPackForClient
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & queryID;
 		h & result;
 		h & winner;
 		h & casualties[0];
@@ -2295,6 +2323,24 @@ struct DLL_LINKAGE AssembleArtifacts : public CPackForServer
 		h & artifactSlot;
 		h & assemble;
 		h & assembleTo;
+	}
+};
+
+struct DLL_LINKAGE EraseArtifactByClient : public CPackForServer
+{
+	EraseArtifactByClient() = default;
+	EraseArtifactByClient(const ArtifactLocation & al)
+		: al(al)
+	{
+	}
+	ArtifactLocation al;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & al;
 	}
 };
 

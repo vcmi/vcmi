@@ -50,7 +50,7 @@ public:
 	uint32_t getCastSpells(ui8 side) const override;
 	int32_t getEnchanterCounter(ui8 side) const override;
 
-	const IBonusBearer * asBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 protected:
 	Subject subject;
 };

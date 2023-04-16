@@ -78,7 +78,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 		attachTo(*army);
 		attachTo(const_cast<CCreature&>(*type));
 	}
-	nativeTerrain = type->getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
+	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
 	position = initialPosition;
 }
@@ -88,7 +88,7 @@ ui32 CStack::level() const
 	if(base)
 		return base->getLevel(); //creature or commander
 	else
-		return std::max(1, static_cast<int>(getCreature()->level)); //war machine, clone etc
+		return std::max(1, static_cast<int>(getCreature()->getLevel())); //war machine, clone etc
 }
 
 si32 CStack::magicResistance() const
@@ -296,7 +296,6 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 			res.push_back(otherDefenderPos);
 		}
 	}
-	MAYBE_UNUSED(mask);
 
 	return res;
 }
@@ -338,11 +337,16 @@ int32_t CStack::unitBaseAmount() const
 	return baseAmount;
 }
 
+const IBonusBearer* CStack::getBonusBearer() const
+{
+	return this;
+}
+
 bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
 	for(const CStack * st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st, unit, true) && st->getCreature()->idNumber == CreatureID::AMMO_CART)
+		if(battle->battleMatchOwner(st, unit, true) && st->getCreature()->getId() == CreatureID::AMMO_CART)
 		{
 			return st->alive();
 		}

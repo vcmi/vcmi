@@ -19,6 +19,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/CStack.h" // TODO: remove
                               // Eventually only IBattleInfoCallback and battle::Unit should be used,
                               // CUnitState should be private and CStack should be removed completely
@@ -101,7 +102,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	try
 	{
-		if(stack->type->idNumber == CreatureID::CATAPULT)
+		if(stack->type->getId() == CreatureID::CATAPULT)
 			return useCatapult(stack);
 		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
 		{
@@ -281,7 +282,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, true);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
@@ -322,25 +323,37 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 
 	if(stack->hasBonusOfType(Bonus::FLYING))
 	{
-		std::set<BattleHex> moatHexes;
+		std::set<BattleHex> obstacleHexes;
 
-		if(hb.battleGetSiegeLevel() >= BuildingID::CITADEL)
-		{
-			auto townMoat = hb.getDefendedTown()->town->moatHexes;
+		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> obstacleHexes) {
+			auto affectedHexes = spellObst.getAffectedTiles();
+			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
+		};
 
-			moatHexes = std::set<BattleHex>(townMoat.begin(), townMoat.end());
+		const auto & obstacles = hb.battleGetAllObstacles();
+
+		for (const auto & obst: obstacles) {
+
+			if(obst->triggersEffects())
+			{
+				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
+				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
+
+				if(triggerIsNegative)
+					insertAffected(*obst, obstacleHexes);
+			}
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
 		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
 		{
-			const int MOAT_PENALTY = 100; // avoid landing on moat
+			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
 			auto distance = BattleHex::getDistance(bestNeighbor, hex);
 
-			if(vstd::contains(moatHexes, hex))
-				distance += MOAT_PENALTY;
+			if(vstd::contains(obstacleHexes, hex))
+				distance += NEGATIVE_OBSTACLE_PENALTY;
 
 			return scoreEvaluator.checkPositionBlocksOurStacks(hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
 		});

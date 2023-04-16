@@ -84,6 +84,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return static_cast<ui32>(ret);
 }
 
+FactionID CGHeroInstance::getFaction() const
+{
+	return FactionID(type->heroClass->faction);
+}
+
+const IBonusBearer* CGHeroInstance::getBonusBearer() const
+{
+	return this;
+}
+
 TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
@@ -96,7 +106,7 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 
 	for(const auto & stack : stacks)
 	{
-		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
 		if(stackNativeTerrain == ETerrainId::NONE)
 			continue;
@@ -222,7 +232,7 @@ CGHeroInstance::CGHeroInstance():
 	portrait(UNINITIALIZED_PORTRAIT),
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
-	sex(std::numeric_limits<ui8>::max()),
+	gender(EHeroGender::DEFAULT),
 	lowestCreatureSpeed(0)
 {
 	setNodeType(HERO);
@@ -286,8 +296,8 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
 
-	if (sex == 0xFF)//sex is default
-		sex = type->sex;
+	if (gender == EHeroGender::DEFAULT)
+		gender = type->gender;
 
 	setFormation(false);
 	if (!stacksCount()) //standard army//initial army
@@ -325,7 +335,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander)
 	{
-		commander = new CCommanderInstance(type->heroClass->commander->idNumber);
+		commander = new CCommanderInstance(type->heroClass->commander->getId());
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
@@ -510,9 +520,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 	//copy active (probably growing) bonuses from hero prototype to hero object
 	for(const std::shared_ptr<Bonus> & b : type->specialty)
 		addNewBonus(b);
-	for(SSpecialtyInfo & spec : type->specDeprecated)
-		for(const std::shared_ptr<Bonus> & b : SpecialtyInfoToBonuses(spec, type->getIndex()))
-			addNewBonus(b);
 
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
@@ -573,7 +580,7 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 
 int32_t CGHeroInstance::getCasterUnitId() const
 {
-	return -1; //TODO: special value for attacker/defender hero
+	return id.getNum();
 }
 
 int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
@@ -603,7 +610,9 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 {
 	//applying sorcery secondary skill
 
-	base = static_cast<int64_t>(base * (valOfBonuses(Bonus::SPELL_DAMAGE)) / 100.0);
+	if(spell->isMagical())
+		base = static_cast<int64_t>(base * (valOfBonuses(Bonus::SPELL_DAMAGE)) / 100.0);
+
 	base = static_cast<int64_t>(base * (100 + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
 
 	int maxSchoolBonus = 0;
@@ -668,6 +677,11 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
+}
+
+const CGHeroInstance * CGHeroInstance::getHeroCaster() const
+{
+	return this;
 }
 
 void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) const
@@ -791,7 +805,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 			};
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, VLC->creh->objects[casualty.first]->level);
+				vstd::amax(maxCasualtyLevel, VLC->creatures()->getByIndex(casualty.first)->getLevel());
 			// pick best bonus available
 			std::shared_ptr<Bonus> topPick;
 			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
@@ -807,8 +821,8 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				{
 					auto quality = [getCreatureID](const std::shared_ptr<Bonus> & pick) -> std::tuple<int, int, int>
 					{
-						const CCreature * c = VLC->creh->objects[getCreatureID(pick)];
-						return std::tuple<int, int, int> {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
+						const auto * c = getCreatureID(pick).toCreature();
+						return std::tuple<int, int, int> {c->getLevel(), static_cast<int>(c->getFullRecruitCost().marketValue()), -pick->additionalInfo[1]};
 					};
 					if(quality(topPick) < quality(newPick))
 						topPick = newPick;
@@ -841,7 +855,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			const CCreature * c = VLC->creh->objects[casualty.first];
 			double raisedFromCasualty = std::min(c->MaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
-			if(c->level < requiredCasualtyLevel)
+			if(c->getLevel() < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;
 			raisedUnits += raisedFromCasualty;
 		}
@@ -958,7 +972,7 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 	addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
-EAlignment::EAlignment CGHeroInstance::getAlignment() const
+EAlignment CGHeroInstance::getAlignment() const
 {
 	return type->heroClass->getAlignment();
 }
@@ -1021,11 +1035,6 @@ void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
 {
 	assert(!getArt(pos));
 	art->putAt(ArtifactLocation(this, pos));
-}
-
-void CGHeroInstance::putInBackpack(CArtifactInstance *art)
-{
-	putArtifact(art->firstBackpackSlot(this), art);
 }
 
 bool CGHeroInstance::hasSpellbook() const
@@ -1126,7 +1135,8 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(static_cast<int>(movement) < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
-
+	if(!VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(this))
+		return EDiggingStatus::BACKPACK_IS_FULL;
 	return cb->getTileDigStatus(visitablePos());
 }
 
@@ -1458,7 +1468,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeString("name", nameCustom);
-	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
+	handler.serializeInt("gender", gender, 0);
 
 	{
 		const int legacyHeroes = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO);
@@ -1609,8 +1619,10 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			setHeroTypeName(typeName);
 	}
 
+	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
+
 	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeBool<ui8>("tightFormation", formation, 1, 0, 0);
+	handler.serializeEnum("formation", formation, FORMATIONS);
 
 	{
 		static constexpr int NO_PATROLING = -1;

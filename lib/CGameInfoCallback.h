@@ -10,7 +10,7 @@
 #pragma once
 
 #include "int3.h"
-#include "ResourceSet.h" // for Res::ERes
+#include "ResourceSet.h" // for Res
 #include "battle/CCallbackBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -58,7 +58,7 @@ public:
 
 	//player
 	virtual const Player * getPlayer(PlayerColor color) const = 0;
-//	virtual int getResource(PlayerColor Player, Res::ERes which) const = 0;
+//	virtual int getResource(PlayerColor Player, EGameResID which) const = 0;
 //	bool isVisible(int3 pos) const;
 //	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 //	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
@@ -148,7 +148,7 @@ public:
 	//player
 	const Player * getPlayer(PlayerColor color) const override;
 	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const;
-	virtual int getResource(PlayerColor Player, Res::ERes which) const;
+	virtual int getResource(PlayerColor Player, GameResID which) const;
 	virtual PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	virtual EPlayerStatus::EStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
@@ -245,7 +245,7 @@ public:
 	virtual std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	virtual std::vector <QuestInfo> getMyQuests() const;
 
-	virtual int getResourceAmount(Res::ERes type) const;
+	virtual int getResourceAmount(GameResID type) const;
 	virtual TResources getResourceAmount() const;
 	virtual std::shared_ptr<const boost::multi_array<ui8, 3>> getVisibilityMap() const; //returns visibility map
 	//virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
