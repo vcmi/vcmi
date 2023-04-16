@@ -70,8 +70,8 @@ namespace LogicalExpressionDetail
 	};
 
 	/// Visitor to test result (true/false) of the expression
-	template <typename ContainedClass>
-	class TestVisitor : public boost::static_visitor<bool>
+	template<typename ContainedClass>
+	class TestVisitor
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -116,8 +116,8 @@ namespace LogicalExpressionDetail
 	template <typename ContainedClass>
 	class FalsifiabilityVisitor;
 
-	template <typename ContainedClass>
-	class PossibilityVisitor : public boost::static_visitor<bool>
+	template<typename ContainedClass>
+	class PossibilityVisitor
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -235,8 +235,8 @@ namespace LogicalExpressionDetail
 
 	/// visitor that is trying to generates candidates that must be fulfilled
 	/// to complete this expression
-	template <typename ContainedClass>
-	class CandidatesVisitor : public boost::static_visitor<std::vector<ContainedClass> >
+	template<typename ContainedClass>
+	class CandidatesVisitor
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 		typedef std::vector<typename Base::Value> TValueList;
@@ -285,8 +285,8 @@ namespace LogicalExpressionDetail
 	};
 
 	/// Simple foreach visitor
-	template <typename ContainedClass>
-	class ForEachVisitor : public boost::static_visitor<typename ExpressionBase<ContainedClass>::Variant>
+	template<typename ContainedClass>
+	class ForEachVisitor
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -312,8 +312,8 @@ namespace LogicalExpressionDetail
 	};
 
 	/// Minimizing visitor that removes all redundant elements from variant (e.g. AllOf inside another AllOf can be merged safely)
-	template <typename ContainedClass>
-	class MinimizingVisitor : public boost::static_visitor<typename ExpressionBase<ContainedClass>::Variant>
+	template<typename ContainedClass>
+	class MinimizingVisitor
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -397,8 +397,8 @@ namespace LogicalExpressionDetail
 	};
 
 	/// Serializes expression in JSON format. Part of map format.
-	template <typename ContainedClass>
-	class Writer : public boost::static_visitor<JsonNode>
+	template<typename ContainedClass>
+	class Writer
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -442,8 +442,8 @@ namespace LogicalExpressionDetail
 	std::string DLL_LINKAGE getTextForOperator(const std::string & operation);
 
 	/// Prints expression in human-readable format
-	template <typename ContainedClass>
-	class Printer : public boost::static_visitor<std::string>
+	template<typename ContainedClass>
+	class Printer
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 

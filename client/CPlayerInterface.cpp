@@ -103,7 +103,7 @@ std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
-struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
+struct HeroObjectRetriever
 {
 	const CGHeroInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
 	{

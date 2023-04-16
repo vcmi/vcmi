@@ -156,7 +156,7 @@ namespace ERMConverter
 		}
 	};
 
-	struct LVL2IexpToVar : boost::static_visitor<Variable>
+	struct LVL2IexpToVar
 	{
 		LVL2IexpToVar() = default;
 
@@ -174,11 +174,11 @@ namespace ERMConverter
 		}
 	};
 
-	struct LVL1IexpToVar : boost::static_visitor<Variable>
+	struct LVL1IexpToVar
 	{
 		LVL1IexpToVar() = default;
 
-		Variable operator()(int const & constant) const
+		Variable operator()(const int & constant) const
 		{
 			return Variable("", constant);
 		}
@@ -189,11 +189,8 @@ namespace ERMConverter
 		}
 	};
 
-	struct Condition : public boost::static_visitor<std::string>
+	struct Condition
 	{
-		Condition()
-		{}
-
 		std::string operator()(const TComparison & cmp) const
 		{
 			Variable lhs = std::visit(LVL1IexpToVar(), cmp.lhs);
@@ -207,7 +204,7 @@ namespace ERMConverter
 			fmt % lhs.str() % sign->second % rhs.str();
 			return fmt.str();
 		}
-		std::string operator()(int const & flag) const
+		std::string operator()(const int & flag) const
 		{
 			return boost::to_string(boost::format("F['%d']") % flag);
 		}
@@ -222,7 +219,7 @@ namespace ERMConverter
 		std::string semiCmpSign = "";
 	};
 
-	struct Converter : public boost::static_visitor<>
+	struct Converter
 	{
 		mutable std::ostream * out;
 		Converter(std::ostream * out_)
@@ -246,11 +243,8 @@ namespace ERMConverter
 		}
 	};
 
-	struct GetBodyOption : public boost::static_visitor<std::string>
+	struct GetBodyOption
 	{
-		GetBodyOption()
-		{}
-
 		virtual std::string operator()(const TVarConcatString & cmp) const
 		{
 			throw EScriptExecError("String concatenation not allowed in this receiver");
@@ -285,7 +279,7 @@ namespace ERMConverter
 		}
 	};
 
-	struct BodyOption : public boost::static_visitor<ParamIO>
+	struct BodyOption
 	{
 		ParamIO operator()(const TVarConcatString & cmp) const
 		{
@@ -1151,23 +1145,23 @@ namespace ERMConverter
 			endLine();
 		}
 
-		void operator()(spirit::unused_type const &) const
+		void operator()(const spirit::unused_type &) const
 		{
 		}
 	};
 
-	struct TLiteralEval : public boost::static_visitor<std::string>
+	struct TLiteralEval
 	{
 
-		std::string operator()(char const & val)
+		std::string operator()(const char & val)
 		{
 			return "{\"'\",'"+ std::to_string(val) +"'}";
 		}
-		std::string operator()(double const & val)
+		std::string operator()(const double & val)
 		{
 			return std::to_string(val);
 		}
-		std::string operator()(int const & val)
+		std::string operator()(const int & val)
 		{
 			return std::to_string(val);
 		}
@@ -1187,18 +1181,18 @@ namespace ERMConverter
 		{
 			(*out) << "{}";
 		}
-		void operator()(VNode const & opt) const;
+		void operator()(const VNode & opt) const;
 
-		void operator()(VSymbol const & opt) const
+		void operator()(const VSymbol & opt) const 
 		{
 			(*out) << "\"" << opt.text << "\"";
 		}
-		void operator()(TLiteral const & opt) const
+		void operator()(const TLiteral & opt) const
 		{
 			TLiteralEval tmp;
 			(*out) << std::visit(tmp, opt);
 		}
-		void operator()(ERM::Tcommand const & opt) const
+		void operator()(ERM const ::Tcommand & opt) const
 		{
 			//this is how FP works, evaluation == producing side effects
 			//TODO: can we evaluate to smth more useful?
@@ -1208,7 +1202,7 @@ namespace ERMConverter
 		}
 	};
 
-	void VOptionEval::operator()(VNode const& opt) const
+	void VOptionEval::operator()(const VNode & opt) const
 	{
 		VNode tmpn(opt);
 
@@ -1228,7 +1222,7 @@ namespace ERMConverter
 			: Converter(out_)
 		{}
 
-		void operator()(TVExp const & cmd) const
+		void operator()(const TVExp & cmd) const
 		{
 			put("VERM:E");
 
@@ -1240,7 +1234,7 @@ namespace ERMConverter
 
 			endLine();
 		}
-		void operator()(TERMline const & cmd) const
+		void operator()(const TERMline & cmd) const
 		{
 			std::visit(Command(out), cmd);
 		}
@@ -1367,7 +1361,7 @@ namespace ERMConverter
 	}
 }
 
-struct ScriptScanner : boost::static_visitor<>
+struct ScriptScanner
 {
 	ERMInterpreter * interpreter;
 	LinePointer lp;
@@ -1375,11 +1369,11 @@ struct ScriptScanner : boost::static_visitor<>
 	ScriptScanner(ERMInterpreter * interpr, const LinePointer & _lp) : interpreter(interpr), lp(_lp)
 	{}
 
-	void operator()(TVExp const& cmd) const
+	void operator()(const TVExp & cmd) const
 	{
 		//
 	}
-	void operator()(TERMline const& cmd) const
+	void operator()(const TERMline & cmd) const
 	{
 		if(cmd.which() == 0) //TCommand
 		{
@@ -1712,34 +1706,34 @@ namespace VERMInterpreter
 		return ret;
 	}
 
-	VOption OptionConverterVisitor::operator()( ERM::TVExp const& cmd ) const
+	VOption OptionConverterVisitor::operator()(ERM const ::TVExp & cmd) const
 	{
 		return VNode(cmd);
 	}
-	VOption OptionConverterVisitor::operator()( ERM::TSymbol const& cmd ) const
+	VOption OptionConverterVisitor::operator()(ERM const ::TSymbol & cmd) const
 	{
 		if(cmd.symModifier.empty())
 			return VSymbol(cmd.sym);
 		else
 			return VNode(cmd);
 	}
-	VOption OptionConverterVisitor::operator()( char const& cmd ) const
+	VOption OptionConverterVisitor::operator()(const char & cmd) const
 	{
 		return TLiteral(cmd);
 	}
-	VOption OptionConverterVisitor::operator()( double const& cmd ) const
+	VOption OptionConverterVisitor::operator()(const double & cmd) const
 	{
 		return TLiteral(cmd);
 	}
-	VOption OptionConverterVisitor::operator()(int const& cmd) const
+	VOption OptionConverterVisitor::operator()(const int & cmd) const
 	{
 		return TLiteral(cmd);
 	}
-	VOption OptionConverterVisitor::operator()(ERM::Tcommand const& cmd) const
+	VOption OptionConverterVisitor::operator()(ERM const ::Tcommand & cmd) const
 	{
 		return cmd;
 	}
-	VOption OptionConverterVisitor::operator()( ERM::TStringConstant const& cmd ) const
+	VOption OptionConverterVisitor::operator()(ERM const ::TStringConstant & cmd) const
 	{
 		return TLiteral(cmd.str);
 	}

@@ -1532,7 +1532,7 @@ const CStackInstance * StackLocation::getStack()
 	return &army->getStack(slot);
 }
 
-struct ObjectRetriever : boost::static_visitor<const CArmedInstance *>
+struct ObjectRetriever
 {
 	const CArmedInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
 	{
@@ -1543,8 +1543,8 @@ struct ObjectRetriever : boost::static_visitor<const CArmedInstance *>
 		return s->armyObj;
 	}
 };
-template <typename T>
-struct GetBase : boost::static_visitor<T*>
+template<typename T>
+struct GetBase
 {
 	template <typename TArg>
 	T * operator()(TArg &arg) const

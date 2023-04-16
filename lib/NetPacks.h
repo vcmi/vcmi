@@ -930,7 +930,7 @@ struct DLL_LINKAGE BulkSmartRebalanceStacks : CGarrisonOperationPack
 	}
 };
 
-struct GetEngagedHeroIds: boost::static_visitor<std::optional<ObjectInstanceID>>
+struct GetEngagedHeroIds
 {
 	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
 	{

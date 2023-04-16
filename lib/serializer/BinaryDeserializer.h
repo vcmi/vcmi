@@ -506,10 +506,10 @@ public:
 		this->read((void*)data.c_str(),length);
 	}
 
-	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-	void load(std::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	template<typename T0, typename... TN>
+	void load(std::variant<T0, TN...> & data)
 	{
-		typedef std::variant<BOOST_VARIANT_ENUM_PARAMS(T)> TVariant;
+		using TVariant = std::variant<T0, TN...>;
 
 		VariantLoaderHelper<TVariant, BinaryDeserializer> loader(*this);
 
