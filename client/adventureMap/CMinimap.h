@@ -10,13 +10,12 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../../lib/GameConstants.h"
-#include "../render/Canvas.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
 
+class Canvas;
 class CMinimap;
 
 class CMinimapInstance : public CIntObject

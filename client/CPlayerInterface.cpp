@@ -254,24 +254,42 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (!vstd::contains (GH.listInt, adventureInt))
 	{
-		GH.popInts ((int)GH.listInt.size()); //after map load - remove everything else
+		// after map load - remove all active windows and replace them with adventure map
+		GH.popInts ((int)GH.listInt.size());
 		GH.pushInt (adventureInt);
 	}
-	else
-	{
-		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front().get())) //don't remove dialogs that expect query answer
-			GH.popInts(1);
-	}
 
-	if(CSH->howManyPlayerInterfaces() == 1)
-	{
-		GH.curInt = this;
-		adventureInt->startTurn();
-	}
-	if (player != playerID && this == LOCPLINT)
+	// remove all dialogs that do not expect query answer
+	while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front().get()))
+		GH.popInts(1);
+
+	if (player != playerID && LOCPLINT == this)
 	{
 		waitWhileDialog();
-		adventureInt->aiTurnStarted();
+		adventureInt->onEnemyTurnStarted(player);
+	}
+}
+
+void CPlayerInterface::performAutosave()
+{
+	std::string prefix = settings["session"]["saveprefix"].String();
+	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
+	if(firstCall)
+	{
+		autosaveCount = getLastIndex(prefix + "Autosave_");
+
+		if(firstCall > 0) //new game, not loaded
+		{
+			int index = getLastIndex(prefix + "Newgame_");
+			index %= SAVES_COUNT;
+			cb->save("Saves/" + prefix + "Newgame_Autosave_" + std::to_string(index + 1));
+		}
+		firstCall = 0;
+	}
+	else if(frequency > 0 && cb->getDate() % frequency == 0)
+	{
+		LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
+		autosaveCount %= 5;
 	}
 }
 
@@ -285,35 +303,11 @@ void CPlayerInterface::yourTurn()
 		GH.curInt = this;
 
 		NotificationHandler::notify("Your turn");
-
-		std::string prefix = settings["session"]["saveprefix"].String();
-		int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
-		if (firstCall)
-		{
-			if(CSH->howManyPlayerInterfaces() == 1)
-				adventureInt->onCurrentPlayerChanged(playerID);
-
-			autosaveCount = getLastIndex(prefix + "Autosave_");
-
-			if (firstCall > 0) //new game, not loaded
-			{
-				int index = getLastIndex(prefix + "Newgame_");
-				index %= SAVES_COUNT;
-				cb->save("Saves/" + prefix + "Newgame_Autosave_" + std::to_string(index + 1));
-			}
-			firstCall = 0;
-		}
-		else if(frequency > 0 && cb->getDate() % frequency == 0)
-		{
-			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
-			autosaveCount %= 5;
-		}
-
-		adventureInt->onCurrentPlayerChanged(playerID);
+		performAutosave();
 
 		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{
-			adventureInt->startHotSeatWait(playerID);
+			adventureInt->onHotseatWaitStarted(playerID);
 
 			makingTurn = true;
 			std::string msg = CGI->generaltexth->allTexts[13];
@@ -325,7 +319,7 @@ void CPlayerInterface::yourTurn()
 		else
 		{
 			makingTurn = true;
-			adventureInt->startTurn();
+			adventureInt->onPlayerTurnStarted(playerID);
 		}
 	}
 	acceptTurn();
@@ -343,10 +337,8 @@ void CPlayerInterface::acceptTurn()
 	{
 		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
 
-		adventureInt->startTurn();
+		adventureInt->onPlayerTurnStarted(playerID);
 	}
-
-	adventureInt->initializeNewTurn();
 
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)
@@ -532,11 +524,6 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	GH.pushInt(newCastleInt);
 }
 
-void CPlayerInterface::activateForSpectator()
-{
-	adventureInt->activate();
-}
-
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -696,11 +683,6 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 	}
 
 	GH.totalRedraw();
-}
-
-void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj)
-{
-	garrisonsChanged(std::vector<const CGObjectInstance *>(1, obj));
 }
 
 void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) //what: 1 - built, 2 - demolished
@@ -1669,10 +1651,12 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (victoryLossCheckResult.loss())
 			showInfoDialog(CGI->generaltexth->allTexts[95]);
 
-		//we assume GH.curInt == LOCPLINT
+		assert(GH.curInt == LOCPLINT);
 		auto previousInterface = LOCPLINT; //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
+
 		LOCPLINT = this; //this is needed for dialog to show and avoid freeze, dialog showing logic should be reworked someday
 		GH.curInt = this; //waiting for dialogs requires this to get events
+
 		if(!makingTurn)
 		{
 			makingTurn = true; //also needed for dialog to show with current implementation
@@ -1690,9 +1674,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 			if(adventureInt)
 			{
 				GH.terminate_cond->setn(true);
-				adventureInt->deactivate();
-				if (GH.topInt() == adventureInt)
-					GH.popInt(adventureInt);
+				GH.popInts(GH.listInt.size());
 				adventureInt.reset();
 			}
 		}
@@ -1710,7 +1692,8 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 			requestReturningToMainMenu(false);
 		}
 
-		if (GH.curInt == this) GH.curInt = nullptr;
+		if (GH.curInt == this)
+			GH.curInt = nullptr;
 	}
 	else
 	{

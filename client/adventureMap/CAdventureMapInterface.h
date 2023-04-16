@@ -11,9 +11,6 @@
 
 #include "../gui/CIntObject.h"
 
-#include "../../lib/int3.h"
-#include "../../lib/GameConstants.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
@@ -24,6 +21,7 @@ class IShipyard;
 struct CGPathNode;
 struct ObjectPosInfo;
 struct Component;
+class int3;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -44,35 +42,31 @@ class MapAudioPlayer;
 
 struct MapDrawingInfo;
 
-enum class EAdvMapMode
-{
-	NORMAL,
-	WORLD_VIEW
-};
-
 /// That's a huge class which handles general adventure map actions and
 /// shows the right menu(questlog, spellbook, end turn,..) from where you
 /// can get to the towns and heroes.
 class CAdventureMapInterface : public CIntObject
 {
 private:
-	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
-	enum class EGameStates {NA, INGAME, WAITING};
+	enum class EGameState
+	{
+		NOT_INITIALIZED,
+		HOTSEAT_WAIT,
+		MAKING_TURN,
+		ENEMY_TURN,
+		WORLD_VIEW
+	};
 
-	EGameStates state;
-	EAdvMapMode mode;
+	EGameState state;
 
 	/// Currently selected object, can be town, hero or null
-	const CArmedInstance *selection;
+	const CArmedInstance *currentSelection;
 
 	/// currently acting player
-	PlayerColor player;
-
-	bool duringAITurn;
+	PlayerColor currentPlayerID;
 
 	/// uses EDirections enum
-	ui8 scrollingDir;
-	bool scrollingState;
+	bool scrollingCursorSet;
 
 	const CSpell *spellBeingCasted; //nullptr if none
 
@@ -125,7 +119,6 @@ private:
 	void fnextHero();
 	void fendTurn();
 
-	void setScrollingCursor(ui8 direction) const;
 	void selectionChanged();
 	bool isActive();
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
@@ -148,9 +141,10 @@ private:
 	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
 	void endingTurn();
 
-public:
-	CAdventureMapInterface();
+	/// exits currently opened world view mode and returns to normal map
+	void exitWorldView();
 
+protected:
 	// CIntObject interface implementation
 
 	void activate() override;
@@ -160,21 +154,24 @@ public:
 	void showAll(SDL_Surface * to) override;
 
 	void keyPressed(const SDL_Keycode & key) override;
-	void keyReleased(const SDL_Keycode & key) override;
-	void mouseMoved (const Point & cursorPosition) override;
 
-	// public interface
+public:
+	CAdventureMapInterface();
 
-	void startHotSeatWait(PlayerColor Player);
-	void startTurn();
-	void initializeNewTurn();
-	void aiTurnStarted();
+	/// Called by PlayerInterface when specified player is ready to start his turn
+	void onHotseatWaitStarted(PlayerColor playerID);
+
+	/// Called by PlayerInterface when AI or remote human player starts his turn
+	void onEnemyTurnStarted(PlayerColor playerID);
+
+	/// Called by PlayerInterface when local human player starts his turn
+	void onPlayerTurnStarted(PlayerColor playerID);
+
+	/// Called by PlayerInterface when interface should be switched to specified player without starting turn
+	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when hero is forced to wake up, e.g. on moving sleeping hero
 	void onHeroWokeUp(const CGHeroInstance * hero);
-
-	/// Called by PlayerInterface when current player changes in hotseat
-	void onCurrentPlayerChanged(PlayerColor Player);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
 	void onMapTilesChanged( boost::optional<std::unordered_set<int3> > positions);
@@ -215,7 +212,8 @@ public:
 	void onTileRightClicked(const int3 & mapPos);
 
 	void enterCastingMode(const CSpell * sp);
-	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
+	void leaveCastingMode(const int3 & castTarget);
+	void abortCastingMode();
 
 	const CGHeroInstance * getCurrentHero() const;
 	const CGTownInstance * getCurrentTown() const;
@@ -223,9 +221,6 @@ public:
 
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;
-
-	/// exits currently opened world view mode and returns to normal map
-	void exitWorldView();
 
 	/// opens world view at default scale
 	void openWorldView();
@@ -235,7 +230,6 @@ public:
 
 	/// opens world view with specific info, e.g. after View Earth/Air is shown
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
-
 };
 
 extern std::shared_ptr<CAdventureMapInterface> adventureInt;

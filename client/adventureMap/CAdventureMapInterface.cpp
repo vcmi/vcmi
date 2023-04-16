@@ -55,34 +55,7 @@
 
 std::shared_ptr<CAdventureMapInterface> adventureInt;
 
-void CAdventureMapInterface::setScrollingCursor(ui8 direction) const
-{
-	if(direction & CAdventureMapInterface::RIGHT)
-	{
-		if(direction & CAdventureMapInterface::UP)
-			CCS->curh->set(Cursor::Map::SCROLL_NORTHEAST);
-		else if(direction & CAdventureMapInterface::DOWN)
-			CCS->curh->set(Cursor::Map::SCROLL_SOUTHEAST);
-		else
-			CCS->curh->set(Cursor::Map::SCROLL_EAST);
-	}
-	else if(direction & CAdventureMapInterface::LEFT)
-	{
-		if(direction & CAdventureMapInterface::UP)
-			CCS->curh->set(Cursor::Map::SCROLL_NORTHWEST);
-		else if(direction & CAdventureMapInterface::DOWN)
-			CCS->curh->set(Cursor::Map::SCROLL_SOUTHWEST);
-		else
-			CCS->curh->set(Cursor::Map::SCROLL_WEST);
-	}
-	else if(direction & CAdventureMapInterface::UP)
-		CCS->curh->set(Cursor::Map::SCROLL_NORTH);
-	else if(direction & CAdventureMapInterface::DOWN)
-		CCS->curh->set(Cursor::Map::SCROLL_SOUTH);
-}
-
 CAdventureMapInterface::CAdventureMapInterface():
-	mode(EAdvMapMode::NORMAL),
 	minimap(new CMinimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH))),
 	statusbar(CGStatusBar::create(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG)),
 	heroList(new CHeroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD)),
@@ -91,13 +64,11 @@ CAdventureMapInterface::CAdventureMapInterface():
 	resdatabar(new CResDataBar),
 	mapAudio(new MapAudioPlayer()),
 	terrain(new MapView(Point(ADVOPT.advmapX, ADVOPT.advmapY), Point(ADVOPT.advmapW, ADVOPT.advmapH))),
-	state(EGameStates::NA),
+	state(EGameState::NOT_INITIALIZED),
 	spellBeingCasted(nullptr),
-	selection(nullptr),
+	currentSelection(nullptr),
 	activeMapPanel(nullptr),
-	duringAITurn(false),
-	scrollingDir(0),
-	scrollingState(false)
+	scrollingCursorSet(false)
 {
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -218,7 +189,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 
 	onCurrentPlayerChanged(LOCPLINT->playerID);
 
-	int iconColorMultiplier = player.getNum() * 19;
+	int iconColorMultiplier = currentPlayerID.getNum() * 19;
 	int wvLeft = heroList->pos.x - 2; // TODO correct drawing position
 	//int wvTop = 195;
 	for (int i = 0; i < 5; ++i)
@@ -246,8 +217,6 @@ CAdventureMapInterface::CAdventureMapInterface():
 	underground->block(!CGI->mh->getMap()->twoLevel);
 	questlog->block(!CGI->mh->getMap()->quests.size());
 	worldViewUnderground->block(!CGI->mh->getMap()->twoLevel);
-
-	addUsedEvents(MOVE);
 }
 
 void CAdventureMapInterface::fshowOverview()
@@ -351,7 +320,7 @@ void CAdventureMapInterface::fshowSpellbok()
 	if (!getCurrentHero()) //checking necessary values
 		return;
 
-	centerOnObject(selection);
+	centerOnObject(currentSelection);
 
 	GH.pushIntT<CSpellWindow>(getCurrentHero(), LOCPLINT, false);
 }
@@ -368,7 +337,7 @@ void CAdventureMapInterface::fsystemOptions()
 
 void CAdventureMapInterface::fnextHero()
 {
-	auto hero = dynamic_cast<const CGHeroInstance*>(selection);
+	auto hero = dynamic_cast<const CGHeroInstance*>(currentSelection);
 	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
 	if (next < 0)
 		return;
@@ -451,7 +420,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 	heroList->update(h);
 
 	if (h == getCurrentHero())
-		adventureInt->infoBar->showSelection();
+		infoBar->showSelection();
 
 	int start = vstd::find_pos(LOCPLINT->wanderingHeroes, h);
 	int next = getNextHeroIndex(start);
@@ -478,7 +447,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
 {
 	townList->update(town);
-	adventureInt->infoBar->showSelection();
+	infoBar->showSelection();
 }
 
 void CAdventureMapInterface::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
@@ -501,10 +470,12 @@ void CAdventureMapInterface::activate()
 		LOCPLINT->cingconsole->pos = this->pos;
 	}
 	
-	if(!duringAITurn)
+	if(state != EGameState::ENEMY_TURN)
 	{
+		assert(state == EGameState::MAKING_TURN);
+
 		activeMapPanel->activate();
-		if (mode == EAdvMapMode::NORMAL)
+		if (state == EGameState::MAKING_TURN)
 		{
 			heroList->activate();
 			townList->activate();
@@ -522,13 +493,13 @@ void CAdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
 
-	if(!duringAITurn)
+	if(state != EGameState::ENEMY_TURN)
 	{
-		scrollingDir = 0;
+		assert(state == EGameState::MAKING_TURN);
 
 		CCS->curh->set(Cursor::Map::POINTER);
 		activeMapPanel->deactivate();
-		if (mode == EAdvMapMode::NORMAL)
+		if (state == EGameState::MAKING_TURN)
 		{
 			heroList->deactivate();
 			townList->deactivate();
@@ -544,20 +515,13 @@ void CAdventureMapInterface::showAll(SDL_Surface * to)
 {
 	bg->draw(to, 0, 0);
 
-	if(state != EGameStates::INGAME)
+	if(state != EGameState::MAKING_TURN)
 		return;
 
-	switch (mode)
-	{
-	case EAdvMapMode::NORMAL:
+	heroList->showAll(to);
+	townList->showAll(to);
+	infoBar->showAll(to);
 
-		heroList->showAll(to);
-		townList->showAll(to);
-		infoBar->showAll(to);
-		break;
-	case EAdvMapMode::WORLD_VIEW:
-		break;
-	}
 	activeMapPanel->showAll(to);
 
 	minimap->showAll(to);
@@ -585,7 +549,7 @@ void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
 	sleepWake->clickLeft(true, false);
 	sleepWake->clickLeft(false, true);
 	//could've just called
-	//adventureInt->fsleepWake();
+	//fsleepWake();
 	//but no authentic button click/sound ;-)
 }
 
@@ -595,12 +559,13 @@ void CAdventureMapInterface::setHeroSleeping(const CGHeroInstance *hero, bool sl
 		LOCPLINT->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
 	else
 		LOCPLINT->sleepingHeroes -= hero;
-	onHeroChanged(nullptr);
+
+	onHeroChanged(hero);
 }
 
 void CAdventureMapInterface::show(SDL_Surface * to)
 {
-	if(state != EGameStates::INGAME)
+	if(state != EGameState::MAKING_TURN)
 		return;
 
 	handleMapScrollingUpdate();
@@ -628,38 +593,69 @@ void CAdventureMapInterface::show(SDL_Surface * to)
 void CAdventureMapInterface::handleMapScrollingUpdate()
 {
 	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
-	double scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
-	int32_t scrollDistance = static_cast<int32_t>(scrollSpeedPixels * timePassed / 1000);
-	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
+	uint32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
+	uint32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
 
-	if(scrollingDir & LEFT)
-		terrain->onMapScrolled(Point(-scrollDistance, 0));
+	bool scrollingActive = !GH.isKeyboardCtrlDown() && isActive() && state == EGameState::MAKING_TURN;
 
-	if(scrollingDir & RIGHT)
-		terrain->onMapScrolled(Point(+scrollDistance, 0));
+	Point cursorPosition = GH.getCursorPosition();
+	Point scrollDirection;
 
-	if(scrollingDir & UP)
-		terrain->onMapScrolled(Point(0, -scrollDistance));
+	if (cursorPosition.x < 15)
+		scrollDirection.x = -1;
 
-	if(scrollingDir & DOWN)
-		terrain->onMapScrolled(Point(0, +scrollDistance));
+	if (cursorPosition.x > GH.screenDimensions().x - 15)
+		scrollDirection.x = +1;
 
-	if(scrollingDir)
+	if (cursorPosition.y < 15)
+		scrollDirection.y = -1;
+
+	if (cursorPosition.y > GH.screenDimensions().y - 15)
+		scrollDirection.y = +1;
+
+	Point scrollDelta = scrollDirection * scrollDistance;
+
+	if (scrollingActive && scrollDelta != Point(0,0))
+		terrain->onMapScrolled(scrollDelta);
+
+	if (scrollDelta == Point(0,0) && !scrollingCursorSet)
+		return;
+
+	if(scrollDelta.x > 0)
 	{
-		setScrollingCursor(scrollingDir);
-		scrollingState = true;
+		if(scrollDelta.y < 0)
+			CCS->curh->set(Cursor::Map::SCROLL_NORTHEAST);
+		if(scrollDelta.y > 0)
+			CCS->curh->set(Cursor::Map::SCROLL_SOUTHEAST);
+		if(scrollDelta.y == 0)
+			CCS->curh->set(Cursor::Map::SCROLL_EAST);
 	}
-	else if(scrollingState)
+	if(scrollDelta.x < 0)
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
-		scrollingState = false;
+		if(scrollDelta.y < 0)
+			CCS->curh->set(Cursor::Map::SCROLL_NORTHWEST);
+		if(scrollDelta.y > 0)
+			CCS->curh->set(Cursor::Map::SCROLL_SOUTHWEST);
+		if(scrollDelta.y == 0)
+			CCS->curh->set(Cursor::Map::SCROLL_WEST);
+	}
+
+	if (scrollDelta.x == 0)
+	{
+		if(scrollDelta.y < 0)
+			CCS->curh->set(Cursor::Map::SCROLL_NORTH);
+		if(scrollDelta.y > 0)
+			CCS->curh->set(Cursor::Map::SCROLL_SOUTH);
+		if(scrollDelta.y == 0)
+			CCS->curh->set(Cursor::Map::POINTER);
 	}
 }
+
 
 void CAdventureMapInterface::selectionChanged()
 {
 	const CGTownInstance *to = LOCPLINT->towns[townList->getSelectedIndex()];
-	if (selection != to)
+	if (currentSelection != to)
 		setSelection(to);
 }
 
@@ -673,37 +669,9 @@ void CAdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 	terrain->onCenteredObject(obj);
 }
 
-void CAdventureMapInterface::keyReleased(const SDL_Keycode &key)
-{
-	if (mode != EAdvMapMode::NORMAL)
-		return;
-
-	switch (key)
-	{
-		case SDLK_s:
-			if(isActive())
-				GH.pushIntT<CSavingScreen>();
-			return;
-		default:
-		{
-			auto direction = keyToMoveDirection(key);
-
-			if (!direction)
-				return;
-
-			ui8 Dir = (direction->x<0 ? LEFT  : 0) |
-				  (direction->x>0 ? RIGHT : 0) |
-				  (direction->y<0 ? UP    : 0) |
-				  (direction->y>0 ? DOWN  : 0) ;
-
-			scrollingDir &= ~Dir;
-		}
-	}
-}
-
 void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 {
-	if (mode != EAdvMapMode::NORMAL)
+	if (state != EGameState::MAKING_TURN)
 		return;
 
 	const CGHeroInstance *h = getCurrentHero(); //selected hero
@@ -731,6 +699,10 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 	case SDLK_i:
 		if(isActive())
 			CAdventureOptions::showScenarioInfo();
+		return;
+	case SDLK_s:
+		if(isActive())
+			GH.pushIntT<CSavingScreen>();
 		return;
 	case SDLK_l:
 		if(isActive())
@@ -769,7 +741,7 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 		return;
 	case SDLK_RETURN:
 		{
-			if(!isActive() || !selection)
+			if(!isActive() || !currentSelection)
 				return;
 			if(h)
 				LOCPLINT->openHeroWindow(h);
@@ -783,7 +755,7 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 			if(!isActive() || GH.topInt().get() != this || !spellBeingCasted)
 				return;
 
-			leaveCastingMode();
+			abortCastingMode();
 			return;
 		}
 	case SDLK_t:
@@ -830,20 +802,6 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 			if (!direction)
 				return;
 
-			ui8 Dir = (direction->x<0 ? LEFT  : 0) |
-				  (direction->x>0 ? RIGHT : 0) |
-				  (direction->y<0 ? UP    : 0) |
-				  (direction->y>0 ? DOWN  : 0) ;
-
-
-
-			//ctrl makes arrow move screen, not hero
-			if(GH.isKeyboardCtrlDown())
-			{
-				scrollingDir |= Dir;
-				return;
-			}
-
 			if(!h || !isActive())
 				return;
 
@@ -872,7 +830,6 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 			if(!path.nodes[0].turns)
 				LOCPLINT->moveHero(h, path);
 		}
-
 		return;
 	}
 }
@@ -901,9 +858,9 @@ std::optional<Point> CAdventureMapInterface::keyToMoveDirection(const SDL_Keycod
 void CAdventureMapInterface::setSelection(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
-	if(selection != sel)
+	if(currentSelection != sel)
 		infoBar->popAll();
-	selection = sel;
+	currentSelection = sel;
 	mapAudio->onSelectionChanged(sel);
 	if(centerView)
 		centerOnObject(sel);
@@ -938,47 +895,6 @@ void CAdventureMapInterface::setSelection(const CArmedInstance *sel, bool center
 	heroList->redraw();
 }
 
-void CAdventureMapInterface::mouseMoved( const Point & cursorPosition )
-{
-	// adventure map scrolling with mouse
-	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
-	if(!GH.isKeyboardCtrlDown() && isActive() && mode == EAdvMapMode::NORMAL)
-	{
-		if(cursorPosition.x<15)
-		{
-			scrollingDir |= LEFT;
-		}
-		else
-		{
-			scrollingDir &= ~LEFT;
-		}
-		if(cursorPosition.x > GH.screenDimensions().x - 15)
-		{
-			scrollingDir |= RIGHT;
-		}
-		else
-		{
-			scrollingDir &= ~RIGHT;
-		}
-		if(cursorPosition.y<15)
-		{
-			scrollingDir |= UP;
-		}
-		else
-		{
-			scrollingDir &= ~UP;
-		}
-		if(cursorPosition.y > GH.screenDimensions().y - 15)
-		{
-			scrollingDir |= DOWN;
-		}
-		else
-		{
-			scrollingDir &= ~DOWN;
-		}
-	}
-}
-
 bool CAdventureMapInterface::isActive()
 {
 	return active & ~CIntObject::KEYBOARD;
@@ -992,22 +908,23 @@ void CAdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_se
 		minimap->update();
 }
 
-void CAdventureMapInterface::startHotSeatWait(PlayerColor Player)
+void CAdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
-	state = EGameStates::WAITING;
+	onCurrentPlayerChanged(playerID);
+	state = EGameState::HOTSEAT_WAIT;
 }
 
-void CAdventureMapInterface::aiTurnStarted()
+void CAdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
 
 	adjustActiveness(true);
 	mapAudio->onEnemyTurnStarted();
-	adventureInt->minimap->setAIRadar(true);
-	adventureInt->infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
-	adventureInt->minimap->showAll(screen);//force refresh on inactive object
-	adventureInt->infoBar->showAll(screen);//force refresh on inactive object
+	minimap->setAIRadar(true);
+	infoBar->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	minimap->showAll(screen);//force refresh on inactive object
+	infoBar->showAll(screen);//force refresh on inactive object
 }
 
 void CAdventureMapInterface::adjustActiveness(bool aiTurnStart)
@@ -1016,30 +933,37 @@ void CAdventureMapInterface::adjustActiveness(bool aiTurnStart)
 
 	if(wasActive)
 		deactivate();
-	adventureInt->duringAITurn = aiTurnStart;
+
+	if (aiTurnStart)
+		state = EGameState::ENEMY_TURN;
+	else
+		state = EGameState::MAKING_TURN;
+
 	if(wasActive)
 		activate();
 }
 
-void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor Player)
+void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 {
-	selection = nullptr;
+	currentSelection = nullptr;
 
-	if (Player == player)
+	if (playerID == currentPlayerID)
 		return;
 
-	player = Player;
-	bg->playerColored(player);
+	currentPlayerID = playerID;
+	bg->playerColored(currentPlayerID);
 
-	panelMain->setPlayerColor(player);
-	panelWorldView->setPlayerColor(player);
-	panelWorldView->recolorIcons(player, player.getNum() * 19);
-	resdatabar->colorize(player);
+	panelMain->setPlayerColor(currentPlayerID);
+	panelWorldView->setPlayerColor(currentPlayerID);
+	panelWorldView->recolorIcons(currentPlayerID, currentPlayerID.getNum() * 19);
+	resdatabar->colorize(currentPlayerID);
 }
 
-void CAdventureMapInterface::startTurn()
+void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 {
-	state = EGameStates::INGAME;
+	onCurrentPlayerChanged(playerID);
+
+	state = EGameState::MAKING_TURN;
 	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
 		|| settings["session"]["spectate"].Bool())
 	{
@@ -1047,10 +971,7 @@ void CAdventureMapInterface::startTurn()
 		minimap->setAIRadar(false);
 		infoBar->showSelection();
 	}
-}
 
-void CAdventureMapInterface::initializeNewTurn()
-{
 	heroList->update();
 	townList->update();
 
@@ -1121,7 +1042,7 @@ const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapP
 
 void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
-	if(mode != EAdvMapMode::NORMAL)
+	if(state != EGameState::MAKING_TURN)
 		return;
 
 	//FIXME: this line breaks H3 behavior for Dimension Door
@@ -1134,7 +1055,7 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 
 	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
 
-	int3 selPos = selection->getSightCenter();
+	int3 selPos = currentSelection->getSightCenter();
 	if(spellBeingCasted && isInScreenRange(selPos, mapPos))
 	{
 		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
@@ -1143,11 +1064,11 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		{
 		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == Obj::BOAT)
-				leaveCastingMode(true, mapPos);
+				leaveCastingMode(mapPos);
 			break;
 		case SpellID::DIMENSION_DOOR:
 			if(!tile || tile->isClear(heroTile))
-				leaveCastingMode(true, mapPos);
+				leaveCastingMode(mapPos);
 			break;
 		}
 		return;
@@ -1157,9 +1078,9 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner);
 
 	bool isHero = false;
-	if(selection->ID != Obj::HERO) //hero is not selected (presumably town)
+	if(currentSelection->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
-		if(selection == topBlocking) //selected town clicked
+		if(currentSelection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
 			setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
@@ -1209,9 +1130,12 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 
 void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 {
-	if(mode != EAdvMapMode::NORMAL //disable in world view
-		|| !selection) //may occur just at the start of game (fake move before full intiialization)
+	if(state == EGameState::MAKING_TURN)
 		return;
+
+	if(!currentSelection) //may occur just at the start of game (fake move before full intiialization)
+		return;
+
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
@@ -1246,7 +1170,7 @@ void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 		case SpellID::DIMENSION_DOOR:
 			{
 				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
-				int3 hpos = selection->getSightCenter();
+				int3 hpos = currentSelection->getSightCenter();
 				if((!t || t->isClear(LOCPLINT->cb->getTile(hpos))) && isInScreenRange(hpos, mapPos))
 					CCS->curh->set(Cursor::Map::TELEPORT);
 				else
@@ -1256,7 +1180,7 @@ void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 		}
 	}
 
-	if(selection->ID == Obj::TOWN)
+	if(currentSelection->ID == Obj::TOWN)
 	{
 		if(objAtTile)
 		{
@@ -1305,7 +1229,7 @@ void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 		case CGPathNode::TELEPORT_BLOCKING_VISIT:
 			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
-				if(selection == objAtTile)
+				if(currentSelection == objAtTile)
 					CCS->curh->set(Cursor::Map::HERO);
 				else
 					CCS->curh->set(cursorExchange[turns]);
@@ -1368,13 +1292,15 @@ void CAdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & h
 
 void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 {
-	if(mode != EAdvMapMode::NORMAL)
+	if(state != EGameState::MAKING_TURN)
 		return;
+
 	if(spellBeingCasted)
 	{
-		leaveCastingMode();
+		abortCastingMode();
 		return;
 	}
+
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CRClickPopup::createAndPush(VLC->generaltexth->allTexts[61]); //Uncharted Territory
@@ -1407,40 +1333,45 @@ void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
 	GH.fakeMouseMove();
 }
 
-void CAdventureMapInterface::leaveCastingMode(bool cast, int3 dest)
+void CAdventureMapInterface::abortCastingMode()
 {
 	assert(spellBeingCasted);
-	SpellID id = spellBeingCasted->id;
 	spellBeingCasted = nullptr;
 	terrain->deactivate();
 	activate();
+}
 
-	if(cast)
+void CAdventureMapInterface::leaveCastingMode(const int3 & dest)
+{
+	SpellID id = spellBeingCasted->id;
+
+	abortCastingMode();
+//	if(cast)
 		LOCPLINT->cb->castSpell(getCurrentHero(), id, dest);
-	else
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
+//	else
+//		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 
 const CGHeroInstance * CAdventureMapInterface::getCurrentHero() const
 {
-	if(selection && selection->ID == Obj::HERO)
-		return dynamic_cast<const CGHeroInstance *>(selection);
+	if(currentSelection && currentSelection->ID == Obj::HERO)
+		return dynamic_cast<const CGHeroInstance *>(currentSelection);
 	else
 		return nullptr;
 }
 
 const CGTownInstance * CAdventureMapInterface::getCurrentTown() const
 {
-	if(selection && selection->ID == Obj::TOWN)
-		return dynamic_cast<const CGTownInstance *>(selection);
+	if(currentSelection && currentSelection->ID == Obj::TOWN)
+		return dynamic_cast<const CGTownInstance *>(currentSelection);
 	else
 		return nullptr;
 }
 
 const CArmedInstance * CAdventureMapInterface::getCurrentArmy() const
 {
-	if (selection)
-		return dynamic_cast<const CArmedInstance *>(selection);
+	if (currentSelection)
+		return dynamic_cast<const CArmedInstance *>(currentSelection);
 	else
 		return nullptr;
 }
@@ -1455,7 +1386,7 @@ const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObject
 	const IShipyard *ret = IShipyard::castFrom(obj);
 
 	if(!ret ||
-		obj->tempOwner != player ||
+		obj->tempOwner != currentPlayerID ||
 		(CCS->curh->get<Cursor::Map>() != Cursor::Map::T1_SAIL && CCS->curh->get<Cursor::Map>() != Cursor::Map::POINTER))
 		return nullptr;
 
@@ -1464,7 +1395,7 @@ const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObject
 
 void CAdventureMapInterface::exitWorldView()
 {
-	mode = EAdvMapMode::NORMAL;
+	state = EGameState::MAKING_TURN;
 
 	panelMain->activate();
 	panelWorldView->deactivate();
@@ -1480,7 +1411,7 @@ void CAdventureMapInterface::exitWorldView()
 
 void CAdventureMapInterface::openWorldView(int tileSize)
 {
-	mode = EAdvMapMode::WORLD_VIEW;
+	state = EGameState::WORLD_VIEW;
 	panelMain->deactivate();
 	panelWorldView->activate();
 

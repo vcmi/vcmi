@@ -19,6 +19,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_PixelAccess.h"
+#include "../render/Canvas.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"

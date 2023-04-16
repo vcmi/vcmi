@@ -91,30 +91,35 @@ public:
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
-public:
-	HeroPathStorage paths;
+	// -1 - just loaded game; 1 - just started game; 0 otherwise
+	int firstCall;
+	int autosaveCount;
+	static const int SAVES_COUNT = 5;
 
-	std::shared_ptr<Environment> env;
+	std::pair<const CCreatureSet *, const CCreatureSet *> lastBattleArmies;
+	bool allowBattleReplay = false;
+	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
+	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
+
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
 	int3 destinationTeleportPos;
+
+public: // TODO: make private
+	std::shared_ptr<Environment> env;
+
+	HeroPathStorage paths;
 
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
 
 	static boost::recursive_mutex *pim;
 	bool makingTurn; //if player is already making his turn
-	int firstCall; // -1 - just loaded game; 1 - just started game; 0 otherwise
-	int autosaveCount;
-	static const int SAVES_COUNT = 5;
 
 	CCastleInterface * castleInt; //nullptr if castle window isn't opened
 	static std::shared_ptr<BattleInterface> battleInt; //nullptr if no battle
 	CInGameConsole * cingconsole;
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
-	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
-
-	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
@@ -123,8 +128,6 @@ public:
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
-	bool allowBattleReplay = false;
-	std::pair<const CCreatureSet *, const CCreatureSet *> lastBattleArmies;
 
 	struct SpellbookLastSetting
 	{
@@ -141,6 +144,7 @@ public:
 		}
 	} spellbookSettings;
 
+public:
 	void update() override;
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
@@ -233,7 +237,6 @@ public:
 	//-------------//
 	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
 	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
-	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog(bool unlockPim = true);
 	void waitForAllDialogs(bool unlockPim = true);
@@ -241,7 +244,6 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
-	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
 	// show dialogs
 	void showInfoDialog(const std::string &text, std::shared_ptr<CComponent> component);
@@ -265,10 +267,7 @@ public:
 	~CPlayerInterface();
 
 private:
-
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
-
-private:
 
 	struct IgnoreEvents
 	{
@@ -284,14 +283,15 @@ private:
 
 	};
 
-
-
 	bool duringMovement;
 	bool ignoreEvents;
 	size_t numOfMovedArts;
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
+
+	/// Performs autosave, if needed according to settings
+	void performAutosave();
 };
 
 extern CPlayerInterface * LOCPLINT;
