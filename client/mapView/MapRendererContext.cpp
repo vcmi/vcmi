@@ -17,6 +17,7 @@
 #include "../../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../adventureMap/CAdventureMapInterface.h"
 
 #include "../../lib/CPathfinder.h"
@@ -211,10 +212,10 @@ const CGPath * MapRendererAdventureContext::currentPath() const
 	if(!hero)
 		return nullptr;
 
-	if(!LOCPLINT->paths.hasPath(hero))
+	if(!LOCPLINT->localState->hasPath(hero))
 		return nullptr;
 
-	return &LOCPLINT->paths.getPath(hero);
+	return &LOCPLINT->localState->getPath(hero);
 }
 
 size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const

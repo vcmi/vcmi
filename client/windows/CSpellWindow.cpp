@@ -18,6 +18,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../CVideoHandler.h"
 
 #include "../battle/BattleInterface.h"
@@ -221,9 +222,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		}
 	}
 
-	selectedTab = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap;
+	selectedTab = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap;
 	schoolTab->setFrame(selectedTab, 0);
-	int cp = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
+	int cp = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
 	setCurrentPage(cp);
@@ -237,8 +238,8 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
 
 	close();
 }
@@ -556,8 +557,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{
-				owner->myInt->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
-				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
+				owner->myInt->localState->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
+				owner->myInt->localState->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
 			});
 
 			if(mySpell->getTargetType() == spells::AimType::LOCATION)

@@ -110,6 +110,7 @@ set(client_SRCS
 	CMT.cpp
 	CMusicHandler.cpp
 	CPlayerInterface.cpp
+	PlayerLocalState.cpp
 	CServerHandler.cpp
 	CVideoHandler.cpp
 	Client.cpp
@@ -238,6 +239,7 @@ set(client_HEADERS
 	CMT.h
 	CMusicHandler.h
 	CPlayerInterface.h
+	PlayerLocalState.h
 	CServerHandler.h
 	CVideoHandler.h
 	Client.h

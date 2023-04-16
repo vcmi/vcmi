@@ -22,6 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 
 #include "../../CCallback.h"
@@ -114,7 +115,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	for(auto town : LOCPLINT->towns)
+	for(auto town : LOCPLINT->localState->ownedTowns)
 	{
 		int hallLevel = town->hallLevel();
 		//negative value means no village hall, unlikely but possible

@@ -19,6 +19,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
@@ -1241,13 +1242,13 @@ void CCastleInterface::castleTeleport(int where)
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
 	adventureInt->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
-	LOCPLINT->paths.erasePath(town->visitingHero);
+	LOCPLINT->localState->erasePath(town->visitingHero);
 }
 
 void CCastleInterface::townChange()
 {
 	//TODO: do not recreate window
-	const CGTownInstance * dest = LOCPLINT->towns[townlist->getSelectedIndex()];
+	const CGTownInstance * dest = LOCPLINT->localState->ownedTowns[townlist->getSelectedIndex()];
 	const CGTownInstance * town = this->town;// "this" is going to be deleted
 	if ( dest == town )
 		return;

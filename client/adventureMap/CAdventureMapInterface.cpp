@@ -38,6 +38,7 @@
 #include "../widgets/Buttons.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "../CMT.h"
+#include "../PlayerLocalState.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -309,10 +310,10 @@ void CAdventureMapInterface::fsleepWake()
 void CAdventureMapInterface::fmoveHero()
 {
 	const CGHeroInstance *h = getCurrentHero();
-	if (!h || !LOCPLINT->paths.hasPath(h) || CGI->mh->hasOngoingAnimations())
+	if (!h || !LOCPLINT->localState->hasPath(h) || CGI->mh->hasOngoingAnimations())
 		return;
 
-	LOCPLINT->moveHero(h, LOCPLINT->paths.getPath(h));
+	LOCPLINT->moveHero(h, LOCPLINT->localState->getPath(h));
 }
 
 void CAdventureMapInterface::fshowSpellbok()
@@ -338,10 +339,10 @@ void CAdventureMapInterface::fsystemOptions()
 void CAdventureMapInterface::fnextHero()
 {
 	auto hero = dynamic_cast<const CGHeroInstance*>(currentSelection);
-	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
+	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->localState->wanderingHeroes, hero));
 	if (next < 0)
 		return;
-	setSelection(LOCPLINT->wanderingHeroes[next], true);
+	setSelection(LOCPLINT->localState->wanderingHeroes[next], true);
 }
 
 void CAdventureMapInterface::fendTurn()
@@ -351,22 +352,22 @@ void CAdventureMapInterface::fendTurn()
 
 	if(settings["adventure"]["heroReminder"].Bool())
 	{
-		for(auto hero : LOCPLINT->wanderingHeroes)
+		for(auto hero : LOCPLINT->localState->wanderingHeroes)
 		{
 			if(!isHeroSleeping(hero) && hero->movement > 0)
 			{
 				// Only show hero reminder if conditions met:
 				// - There still movement points
 				// - Hero don't have a path or there not points for first step on path
-				LOCPLINT->paths.verifyPath(hero);
+				LOCPLINT->localState->verifyPath(hero);
 
-				if(!LOCPLINT->paths.hasPath(hero))
+				if(!LOCPLINT->localState->hasPath(hero))
 				{
 					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdventureMapInterface::endingTurn, this), nullptr );
 					return;
 				}
 
-				auto path = LOCPLINT->paths.getPath(hero);
+				auto path = LOCPLINT->localState->getPath(hero);
 				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
 				{
 					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdventureMapInterface::endingTurn, this), nullptr );
@@ -396,7 +397,7 @@ void CAdventureMapInterface::updateSpellbook(const CGHeroInstance *h)
 
 int CAdventureMapInterface::getNextHeroIndex(int startIndex)
 {
-	if (LOCPLINT->wanderingHeroes.size() == 0)
+	if (LOCPLINT->localState->wanderingHeroes.size() == 0)
 		return -1;
 	if (startIndex < 0)
 		startIndex = 0;
@@ -404,12 +405,12 @@ int CAdventureMapInterface::getNextHeroIndex(int startIndex)
 	do
 	{
 		i++;
-		if (i >= LOCPLINT->wanderingHeroes.size())
+		if (i >= LOCPLINT->localState->wanderingHeroes.size())
 			i = 0;
 	}
-	while (((LOCPLINT->wanderingHeroes[i]->movement == 0) || isHeroSleeping(LOCPLINT->wanderingHeroes[i])) && (i != startIndex));
+	while (((LOCPLINT->localState->wanderingHeroes[i]->movement == 0) || isHeroSleeping(LOCPLINT->localState->wanderingHeroes[i])) && (i != startIndex));
 
-	if ((LOCPLINT->wanderingHeroes[i]->movement != 0) && !isHeroSleeping(LOCPLINT->wanderingHeroes[i]))
+	if ((LOCPLINT->localState->wanderingHeroes[i]->movement != 0) && !isHeroSleeping(LOCPLINT->localState->wanderingHeroes[i]))
 		return i;
 	else
 		return -1;
@@ -422,14 +423,14 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 	if (h == getCurrentHero())
 		infoBar->showSelection();
 
-	int start = vstd::find_pos(LOCPLINT->wanderingHeroes, h);
+	int start = vstd::find_pos(LOCPLINT->localState->wanderingHeroes, h);
 	int next = getNextHeroIndex(start);
 	if (next < 0)
 	{
 		nextHero->block(true);
 		return;
 	}
-	const CGHeroInstance *nextH = LOCPLINT->wanderingHeroes[next];
+	const CGHeroInstance *nextH = LOCPLINT->localState->wanderingHeroes[next];
 	bool noActiveHeroes = (next == start) && ((nextH->movement == 0) || isHeroSleeping(nextH));
 	nextHero->block(noActiveHeroes);
 
@@ -439,7 +440,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 		return;
 	}
 	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
-	bool hasPath = LOCPLINT->paths.hasPath(h);
+	bool hasPath = LOCPLINT->localState->hasPath(h);
 
 	moveHero->block(!(bool)hasPath || (h->movement == 0));
 }
@@ -538,7 +539,7 @@ bool CAdventureMapInterface::isHeroSleeping(const CGHeroInstance *hero)
 	if (!hero)
 		return false;
 
-	return vstd::contains(LOCPLINT->sleepingHeroes, hero);
+	return vstd::contains(LOCPLINT->localState->sleepingHeroes, hero);
 }
 
 void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
@@ -556,9 +557,9 @@ void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
 void CAdventureMapInterface::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 {
 	if (sleep)
-		LOCPLINT->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
+		LOCPLINT->localState->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
 	else
-		LOCPLINT->sleepingHeroes -= hero;
+		LOCPLINT->localState->sleepingHeroes -= hero;
 
 	onHeroChanged(hero);
 }
@@ -654,7 +655,7 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 
 void CAdventureMapInterface::selectionChanged()
 {
-	const CGTownInstance *to = LOCPLINT->towns[townList->getSelectedIndex()];
+	const CGTownInstance *to = LOCPLINT->localState->ownedTowns[townList->getSelectedIndex()];
 	if (currentSelection != to)
 		setSelection(to);
 }
@@ -685,12 +686,12 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 
 		{
 			//find first town with tavern
-			auto itr = range::find_if(LOCPLINT->towns, [](const CGTownInstance * town)
+			auto itr = range::find_if(LOCPLINT->localState->ownedTowns, [](const CGTownInstance * town)
 			{
 				return town->hasBuilt(BuildingID::TAVERN);
 			});
 
-			if(itr != LOCPLINT->towns.end())
+			if(itr != LOCPLINT->localState->ownedTowns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
 				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
@@ -819,10 +820,10 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 			if (!CGI->mh->isInMap((dst)))
 				return;
 
-			if ( !LOCPLINT->paths.setPath(h, dst))
+			if ( !LOCPLINT->localState->setPath(h, dst))
 				return;
 
-			const CGPath & path = LOCPLINT->paths.getPath(h);
+			const CGPath & path = LOCPLINT->localState->getPath(h);
 
 			if (path.nodes.size() > 2)
 				onHeroChanged(h);
@@ -885,7 +886,7 @@ void CAdventureMapInterface::setSelection(const CArmedInstance *sel, bool center
 		heroList->select(hero);
 		townList->select(nullptr);
 
-		LOCPLINT->paths.verifyPath(hero);
+		LOCPLINT->localState->verifyPath(hero);
 
 		updateSleepWake(hero);
 		onHeroChanged(hero);
@@ -978,9 +979,9 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	const CGHeroInstance * heroToSelect = nullptr;
 
 	// find first non-sleeping hero
-	for (auto hero : LOCPLINT->wanderingHeroes)
+	for (auto hero : LOCPLINT->localState->wanderingHeroes)
 	{
-		if (boost::range::find(LOCPLINT->sleepingHeroes, hero) == LOCPLINT->sleepingHeroes.end())
+		if (boost::range::find(LOCPLINT->localState->sleepingHeroes, hero) == LOCPLINT->localState->sleepingHeroes.end())
 		{
 			heroToSelect = hero;
 			break;
@@ -994,10 +995,10 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	{
 		setSelection(heroToSelect, centerView);
 	}
-	else if (LOCPLINT->towns.size())
-		setSelection(LOCPLINT->towns.front(), centerView);
+	else if (LOCPLINT->localState->ownedTowns.size())
+		setSelection(LOCPLINT->localState->ownedTowns.front(), centerView);
 	else
-		setSelection(LOCPLINT->wanderingHeroes.front());
+		setSelection(LOCPLINT->localState->wanderingHeroes.front());
 
 	//show new day animation and sound on infobar
 	infoBar->showDate();
@@ -1102,16 +1103,16 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
-			if(LOCPLINT->paths.hasPath(currentHero) &&
-			   LOCPLINT->paths.getPath(currentHero).endPos() == mapPos)//we'll be moving
+			if(LOCPLINT->localState->hasPath(currentHero) &&
+			   LOCPLINT->localState->getPath(currentHero).endPos() == mapPos)//we'll be moving
 			{
 				if(!CGI->mh->hasOngoingAnimations())
-					LOCPLINT->moveHero(currentHero, LOCPLINT->paths.getPath(currentHero));
+					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
 				return;
 			}
 			else //remove old path and find a new one if we clicked on accessible tile
 			{
-				LOCPLINT->paths.setPath(currentHero, mapPos);
+				LOCPLINT->localState->setPath(currentHero, mapPos);
 				onHeroChanged(currentHero);
 			}
 		}

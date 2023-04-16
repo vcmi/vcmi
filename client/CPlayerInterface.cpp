@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "CPlayerInterface.h"
 
 #include <vcmi/Artifact.h>
 
@@ -25,12 +26,12 @@
 #include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
+#include "PlayerLocalState.h"
 #include "CMT.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CQuestLog.h"
 #include "windows/CPuzzleWindow.h"
-#include "CPlayerInterface.h"
 #include "widgets/CComponent.h"
 #include "widgets/Buttons.h"
 #include "windows/CTradeWindow.h"
@@ -114,96 +115,8 @@ struct HeroObjectRetriever
 	}
 };
 
-HeroPathStorage::HeroPathStorage(CPlayerInterface & owner):
-	owner(owner)
-{
-}
-
-void HeroPathStorage::setPath(const CGHeroInstance *h, const CGPath & path)
-{
-	paths[h] = path;
-}
-
-const CGPath & HeroPathStorage::getPath(const CGHeroInstance *h) const
-{
-	assert(hasPath(h));
-	return paths.at(h);
-}
-
-bool HeroPathStorage::hasPath(const CGHeroInstance *h) const
-{
-	return paths.count(h) > 0;
-}
-
-bool HeroPathStorage::setPath(const CGHeroInstance *h, const int3 & destination)
-{
-	CGPath path;
-	if (!owner.cb->getPathsInfo(h)->getPath(path, destination))
-		return false;
-
-	setPath(h, path);
-	return true;
-}
-
-void HeroPathStorage::removeLastNode(const CGHeroInstance *h)
-{
-	assert(hasPath(h));
-	if (!hasPath(h))
-		return;
-
-	auto & path = paths[h];
-	path.nodes.pop_back();
-	if (path.nodes.size() < 2)  //if it was the last one, remove entire path and path with only one tile is not a real path
-		erasePath(h);
-}
-
-void HeroPathStorage::erasePath(const CGHeroInstance *h)
-{
-	paths.erase(h);
-	adventureInt->onHeroChanged(h);
-}
-
-void HeroPathStorage::verifyPath(const CGHeroInstance *h)
-{
-	if (!hasPath(h))
-		return;
-	setPath(h, getPath(h).endPos());
-}
-
-template<typename Handler>
-void HeroPathStorage::serialize(Handler & h, int version)
-{
-	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
-	if (h.saving)
-	{
-		for (auto &p : paths)
-		{
-			if (p.second.nodes.size())
-				pathsMap[p.first] = p.second.endPos();
-			else
-				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->getNameTranslated());
-		}
-		h & pathsMap;
-	}
-	else
-	{
-		h & pathsMap;
-
-		if (owner.cb)
-		{
-			for (auto &p : pathsMap)
-			{
-				CGPath path;
-				owner.cb->getPathsInfo(p.first)->getPath(path, p.second);
-				paths[p.first] = path;
-				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
-			}
-		}
-	}
-}
-
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
-	paths(*this)
+	localState(std::make_unique<PlayerLocalState>(*this))
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
@@ -401,27 +314,27 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	};
 	adventureInt->onMapTilesChanged(changedTiles);
 
-	bool directlyAttackingCreature = details.attackedFrom && paths.hasPath(hero) && paths.getPath(hero).endPos() == *details.attackedFrom;
+	bool directlyAttackingCreature = details.attackedFrom && localState->hasPath(hero) && localState->getPath(hero).endPos() == *details.attackedFrom;
 
 	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
-			if(paths.hasPath(hero))
+			if(localState->hasPath(hero))
 			{
-				assert(paths.getPath(hero).nodes.size() >= 2);
-				auto nodesIt = paths.getPath(hero).nodes.end() - 1;
+				assert(localState->getPath(hero).nodes.size() >= 2);
+				auto nodesIt = localState->getPath(hero).nodes.end() - 1;
 
 				if((nodesIt)->coord == hero->convertToVisitablePos(details.start)
 					&& (nodesIt - 1)->coord == hero->convertToVisitablePos(details.end))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
-					paths.removeLastNode(hero);
+					localState->removeLastNode(hero);
 				}
 				else
 				{
 					//teleport was not along current path, it'll now be invalid (hero is somewhere else)
-					paths.erasePath(hero);
+					localState->erasePath(hero);
 
 				}
 			}
@@ -430,12 +343,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		if(hero->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
-			paths.erasePath(hero);
+			localState->erasePath(hero);
 		}
-		else if(paths.hasPath(hero) && hero->pos == details.end) //&& hero is moving
+		else if(localState->hasPath(hero) && hero->pos == details.end) //&& hero is moving
 		{
 			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
-				paths.removeLastNode(hero);
+				localState->removeLastNode(hero);
 		}
 	}
 
@@ -492,9 +405,9 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
-	wanderingHeroes -= hero;
+	localState->wanderingHeroes -= hero;
 	adventureInt->onHeroChanged(hero);
-	paths.erasePath(hero);
+	localState->erasePath(hero);
 }
 
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
@@ -510,7 +423,7 @@ void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectI
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	wanderingHeroes.push_back(hero);
+	localState->wanderingHeroes.push_back(hero);
 	adventureInt->onHeroChanged(hero);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
@@ -596,14 +509,14 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 
 	if (town->garrisonHero) //wandering hero moved to the garrison
 	{
-		if (town->garrisonHero->tempOwner == playerID && vstd::contains(wanderingHeroes,town->garrisonHero)) // our hero
-			wanderingHeroes -= town->garrisonHero;
+		if (town->garrisonHero->tempOwner == playerID && vstd::contains(localState->wanderingHeroes,town->garrisonHero)) // our hero
+			localState->wanderingHeroes -= town->garrisonHero;
 	}
 
 	if (town->visitingHero) //hero leaves garrison
 	{
-		if (town->visitingHero->tempOwner == playerID && !vstd::contains(wanderingHeroes,town->visitingHero)) // our hero
-			wanderingHeroes.push_back(town->visitingHero);
+		if (town->visitingHero->tempOwner == playerID && !vstd::contains(localState->wanderingHeroes,town->visitingHero)) // our hero
+			localState->wanderingHeroes.push_back(town->visitingHero);
 	}
 	adventureInt->onHeroChanged(nullptr);
 	adventureInt->onTownChanged(town);
@@ -1311,29 +1224,20 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
-		paths.erasePath(hero);
+		localState->erasePath(hero);
 	}
-}
-
-template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
-{
-	h & wanderingHeroes;
-	h & towns;
-	h & sleepingHeroes;
-	h & paths;
-	h & spellbookSettings;
 }
 
 void CPlayerInterface::saveGame( BinarySerializer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	serializeTempl(h,version);
+	h & localState;
 }
 
 void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	serializeTempl(h,version);
+	h & localState;
 	firstCall = -1;
 }
 
@@ -1362,7 +1266,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
 
-	if (stillMoveHero.get() == DURING_MOVE  && paths.hasPath(down) && paths.getPath(down).nodes.size() > 1) //to ignore calls on passing through garrisons
+	if (stillMoveHero.get() == DURING_MOVE  && localState->hasPath(down) && localState->getPath(down).nodes.size() > 1) //to ignore calls on passing through garrisons
 	{
 		onEnd();
 		return;
@@ -1441,9 +1345,9 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 			auto town = static_cast<const CGTownInstance *>(obj);
 
 			if(obj->tempOwner == playerID)
-				towns.push_back(town);
+				localState->ownedTowns.push_back(town);
 			else
-				towns -= obj;
+				localState->ownedTowns -= obj;
 
 			adventureInt->onTownChanged(town);
 		}
@@ -1452,24 +1356,24 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		std::unordered_set<int3> upos(pos.begin(), pos.end());
 		adventureInt->onMapTilesChanged(upos);
 
-		assert(cb->getTownsInfo().size() == towns.size());
+		assert(cb->getTownsInfo().size() == localState->ownedTowns.size());
 	}
 }
 
 void CPlayerInterface::initializeHeroTownList()
 {
-	if(!wanderingHeroes.size())
+	if(!localState->wanderingHeroes.size())
 	{
 		std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
 		for(auto & hero : heroes)
 		{
 			if(!hero->inTownGarrison)
-				wanderingHeroes.push_back(hero);
+				localState->wanderingHeroes.push_back(hero);
 		}
 	}
 
-	if(!towns.size())
-		towns = cb->getTownsInfo();
+	if(!localState->ownedTowns.size())
+		localState->ownedTowns = cb->getTownsInfo();
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);
@@ -1736,7 +1640,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		GH.popInts(1);
 
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
-		paths.erasePath(caster);
+		localState->erasePath(caster);
 
 	const spells::Spell * spell = CGI->spells()->getByIndex(spellID);
 	auto castSoundPath = spell->getCastSound();
@@ -1970,12 +1874,6 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 void CPlayerInterface::proposeLoadingGame()
 {
 	showYesNoDialog(CGI->generaltexth->allTexts[68], [](){ GH.pushUserEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
-}
-
-CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
-{
-	spellbookLastPageBattle = spellbokLastPageAdvmap = 0;
-	spellbookLastTabBattle = spellbookLastTabAdvmap = 4;
 }
 
 bool CPlayerInterface::capturedAllEvents()

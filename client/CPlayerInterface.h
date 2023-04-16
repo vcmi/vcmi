@@ -9,15 +9,9 @@
  */
 #pragma once
 
-
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
-#include "../lib/NetPacksBase.h"
 #include "gui/CIntObject.h"
-
-#ifdef __GNUC__
-#define sprintf_s snprintf
-#endif
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,42 +45,15 @@ class ClickableR;
 class Hoverable;
 class KeyInterested;
 class MotionInterested;
+class PlayerLocalState;
 class TimeInterested;
 class IShowable;
-
-struct SDL_Surface;
-union SDL_Event;
 
 namespace boost
 {
 	class mutex;
 	class recursive_mutex;
 }
-
-class CPlayerInterface;
-
-class HeroPathStorage
-{
-	CPlayerInterface & owner;
-
-	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
-
-public:
-	explicit HeroPathStorage(CPlayerInterface &owner);
-
-	void setPath(const CGHeroInstance *h, const CGPath & path);
-	bool setPath(const CGHeroInstance *h, const int3 & destination);
-
-	const CGPath & getPath(const CGHeroInstance *h) const;
-	bool hasPath(const CGHeroInstance *h) const;
-
-	void removeLastNode(const CGHeroInstance *h);
-	void erasePath(const CGHeroInstance *h);
-	void verifyPath(const CGHeroInstance *h);
-
-	template <typename Handler>
-	void serialize( Handler &h, int version );
-};
 
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
@@ -107,7 +74,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 public: // TODO: make private
 	std::shared_ptr<Environment> env;
 
-	HeroPathStorage paths;
+	std::unique_ptr<PlayerLocalState> localState;
 
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
@@ -121,28 +88,9 @@ public: // TODO: make private
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
 
-	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
-	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
-	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
-
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
-
-	struct SpellbookLastSetting
-	{
-		int spellbookLastPageBattle, spellbokLastPageAdvmap; //on which page we left spellbook
-		int spellbookLastTabBattle, spellbookLastTabAdvmap; //on which page we left spellbook
-
-		SpellbookLastSetting();
-		template <typename Handler> void serialize( Handler &h, const int version )
-		{
-			h & spellbookLastPageBattle;
-			h & spellbokLastPageAdvmap;
-			h & spellbookLastTabBattle;
-			h & spellbookLastTabAdvmap;
-		}
-	} spellbookSettings;
 
 public:
 	void update() override;
@@ -267,8 +215,6 @@ public:
 	~CPlayerInterface();
 
 private:
-	template <typename Handler> void serializeTempl(Handler &h, const int version);
-
 	struct IgnoreEvents
 	{
 		CPlayerInterface & owner;
