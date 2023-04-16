@@ -83,6 +83,11 @@ public:
 	 */
 	static ModCompatibilityInfo verifyMapHeaderMods(const CMapHeader & map);
 	
+	/**
+	 * Saves map into VCMI format with name specified
+	 * @param map to save
+	 * @param fullPath full path to file to write, including extension
+	 */
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const;
 	
 private:
