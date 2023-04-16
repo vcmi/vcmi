@@ -722,7 +722,7 @@ void CGameState::preInit(Services * services)
 	this->services = services;
 }
 
-void CGameState::init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap)
+void CGameState::init(const CMapService * mapService, StartInfo * si, bool allowSavingRandomMap)
 {
 	preInitAuto();
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
@@ -851,7 +851,7 @@ void CGameState::preInitAuto()
 	}
 }
 
-void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap)
+void CGameState::initNewGame(const CMapService * mapService, bool allowSavingRandomMap)
 {
 	if(scenarioOps->createRandomMap())
 	{
