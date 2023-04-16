@@ -449,64 +449,7 @@ void ClientCommandManager::handleUnlockCommand(std::istringstream& singleWordBuf
 		LOCPLINT->pim->unlock();
 }
 
-		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
-		{
-			const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / URI;
-
-			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
-
-			boost::filesystem::create_directories(outPath.parent_path());
-			boost::filesystem::ofstream outFile(outPath, boost::filesystem::ofstream::binary);
-			outFile.write((char*)data.first.get(), data.second);
-		}
-		else
-			printCommandMessage("File not found!", ELogLevel::ERROR);
-	}
-	else if(commandName == "setBattleAI")
-	{
-		std::string fname;
-		singleWordBuffer >> fname;
-		printCommandMessage("Will try loading that AI to see if it is correct name...\n");
-		try
-		{
-			if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
-			{
-				Settings neutralAI = settings.write["server"]["neutralAI"];
-				neutralAI->String() = fname;
-				printCommandMessage("Setting changed, from now the battle ai will be " + fname + "!\n");
-			}
-		}
-		catch(std::exception &e)
-		{
-			printCommandMessage("Failed opening " + fname + ": " + e.what(), ELogLevel::WARN);
-			printCommandMessage("Setting not changed, AI not found or invalid!", ELogLevel::WARN);
-		}
-	}
-	else if(commandName == "autoskip")
-	{
-		Settings session = settings.write["session"];
-		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
-	}
-	else if(commandName == "gosolo")
-	{
-		ClientCommandManager::handleGoSolo();
-	}
-	else if(commandName == "controlai")
-	{
-		std::string colorName;
-		singleWordBuffer >> colorName;
-		boost::to_lower(colorName);
-
-		ClientCommandManager::handleControlAi(colorName);
-	}
-	else
-	{
-		if (!commandName.empty() && !vstd::iswithin(commandName[0], 0, ' ')) // filter-out debugger/IDE noise
-			printCommandMessage("Command not found :(", ELogLevel::ERROR);
-	}
-}
-
-void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
+void ClientCommandManager::handleCrashCommand()
 {
 	int* ptr = nullptr;
 	*ptr = 666;
@@ -672,5 +615,8 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 		handleCrashCommand();
 
 	else
-		printCommandMessage("Command not found :(", ELogLevel::ERROR);
+	{
+		if (!commandName.empty() && !vstd::iswithin(commandName[0], 0, ' ')) // filter-out debugger/IDE noise
+			printCommandMessage("Command not found :(", ELogLevel::ERROR);
+	}
 }
