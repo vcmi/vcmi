@@ -21,6 +21,8 @@ class CInputStream;
 class IMapLoader;
 class IMapPatcher;
 
+class ModCompatibilityInfo;
+
 /**
  * The map service provides loading and saving of VCMI/H3 map files.
  */
@@ -74,7 +76,15 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const;
 	
+	/**
+	 * Tests if mods used in the map are currently loaded
+	 * @param map const reference to map header
+	 * @return data structure representing missing or incompatible mods (those which are needed from map but not loaded)
+	 */
+	static ModCompatibilityInfo verifyMapHeaderMods(const CMapHeader & map);
+	
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const;
+	
 private:
 	/**
 	 * Gets a map input stream object specified by a map name.

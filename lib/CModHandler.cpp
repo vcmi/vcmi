@@ -967,6 +967,11 @@ std::vector<std::string> CModHandler::getActiveMods()
 	return activeMods;
 }
 
+const CModInfo & CModHandler::getModInfo(const TModID & modId) const
+{
+	return allMods.at(modId);
+}
+
 static JsonNode genDefaultFS()
 {
 	// default FS config for mods: directory "Content" that acts as H3 root directory

@@ -174,7 +174,7 @@ public:
 	const ContentTypeHandler & operator[] (const std::string & name) const;
 };
 
-typedef std::string TModID;
+using TModID = std::string;
 
 class DLL_LINKAGE CModInfo
 {
@@ -347,6 +347,8 @@ public:
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();
 	std::vector<std::string> getActiveMods();
+	
+	const CModInfo & getModInfo(const TModID & modId) const;
 
 	/// load content from all available mods
 	void load();
