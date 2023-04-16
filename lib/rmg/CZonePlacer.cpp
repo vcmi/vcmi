@@ -43,94 +43,39 @@ float CZonePlacer::getDistance (float distance) const
 
 void CZonePlacer::findPathsBetweenZones()
 {
-	typedef std::pair<int, int> ConnectionIndex;
-
 	auto zones = map.getZones();
 
 	std::set<std::shared_ptr<Zone>> zonesToCheck;
 
-	//Initialize direct connections
-	for (auto zone : zones)
-	{
-		auto zoneId = zone.second->getId();
-		for (auto connection : zone.second->getConnections())
-		{
-			if (!vstd::contains(distancesBetweenZones[zoneId], connection))
-			{
-				distancesBetweenZones[zoneId][connection] = 1;
-				distancesBetweenZones[connection][zoneId] = 1;
-			}
-		}
-	}
+	// Iterate through each pair of nodes in the graph
 
-	for (auto startZone : zones)
+	for (const auto& zone : zones)
 	{
-		size_t start = startZone.second->getId();
+		int start = zone.first;
+		const auto& zone1Ptr = zone.second;
+		distancesBetweenZones[start][start] = 0; // Distance from a node to itself is 0
 
-		for (auto endZone : zones)
+		std::queue<int> q;
+		std::map<int, bool> visited;
+		visited[start] = true;
+		q.push(start);
+
+		// Perform Breadth-First Search from the starting node
+		while (!q.empty())
 		{
-			size_t end = endZone.second->getId();
-			
-			if (start != end)
+			int current = q.front();
+			q.pop();
+
+			const auto& currentZone = zones.at(current);
+			const auto& connections = currentZone->getConnections();
+
+			for (uint32_t neighbor : connections)
 			{
-				auto currentEnd = end;
-				while (!vstd::contains(distancesBetweenZones[start], end))
+				if (!visited[neighbor])
 				{
-					size_t distance = 10; //Some large but not infinite number to not blow up the weights
-					std::stack<int> nearbyZones;
-					std::set<int> checkedZones;
-					
-					//FIXME: we may know the path from previous iterations, but can't be sure if it's optimal :?
-
-					for (auto nearbyZone : startZone.second->getConnections())
-					{
-						nearbyZones.push(nearbyZone);
-					}
-
-					while (!nearbyZones.empty())
-					{
-						auto currentZone = nearbyZones.top();
-						nearbyZones.pop();
-
-						checkedZones.insert(currentZone);
-
-						for (auto neighbourZone : distancesBetweenZones[currentZone])
-						{
-							if (neighbourZone.first == currentEnd)
-							{
-								//This zone has connection to our end zone
-
-								if (!vstd::contains(distancesBetweenZones[currentZone], currentEnd))
-								{
-									//Initialize the connection of adjacent zones
-									distancesBetweenZones[currentZone][currentEnd] = 1;
-								}
-
-								if ((distancesBetweenZones[currentZone][currentEnd] + 1) < distance)
-								{
-									//We found new, shorter path
-									distance = distancesBetweenZones[currentZone][currentEnd] + 1;
-
-									//Add just found connection
-									distancesBetweenZones[start][currentEnd] = distance;
-									//Connection is bidirectional
-									distancesBetweenZones[currentEnd][start] = distance;
-
-									//Unwind the stack, find the path between start previous-to-last zone
-									currentEnd = currentZone;
-								}
-							}
-							else
-							{
-								if (!vstd::contains(checkedZones, neighbourZone.first))
-								{
-									//We didn't check that zone yet
-									nearbyZones.push(neighbourZone.first);
-								}
-							}
-						}
-					}
-					//At the very least after this step we will find 1 more step connecting the two zones
+					visited[neighbor] = true;
+					q.push(neighbor);
+					distancesBetweenZones[start][neighbor] = distancesBetweenZones[start][current] + 1;
 				}
 			}
 		}
