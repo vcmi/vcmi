@@ -570,6 +570,9 @@ bool BattleInterface::makingTurn() const
 
 void BattleInterface::endAction(const BattleAction* action)
 {
+	// it is possible that tactics mode ended while opening music is still playing
+	waitForAnimations();
+
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast

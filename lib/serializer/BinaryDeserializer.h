@@ -118,7 +118,8 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	{
 		ui32 length;
 		load(length);
-		if(length > 500000)
+		//NOTE: also used for h3m's embedded in campaigns, so it may be quite large in some cases (e.g. XXL maps with multiple objects)
+		if(length > 1000000)
 		{
 			logGlobal->warn("Warning: very big length: %d", length);
 			reader->reportState(logGlobal);

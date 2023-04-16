@@ -86,17 +86,9 @@ struct DLL_LINKAGE PlayerInfo
 	int3 posOfMainTown;
 	TeamID team; /// The default value NO_TEAM
 
-
-	bool generateHero; /// Unused.
-	si32 p7; /// Unknown and unused.
-	/// Unused. Count of hero placeholders containing hero type.
-	/// WARNING: powerPlaceholders sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning ???
-	ui8 powerPlaceholders;
-
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & p7;
 		h & hasRandomHero;
 		h & mainCustomHeroId;
 		h & canHumanPlay;
@@ -111,7 +103,6 @@ struct DLL_LINKAGE PlayerInfo
 		h & generateHeroAtMainTown;
 		h & posOfMainTown;
 		h & team;
-		h & generateHero;
 		h & mainHeroInstance;
 	}
 };
@@ -245,7 +236,7 @@ struct DLL_LINKAGE DisposedHero
 	DisposedHero();
 
 	ui32 heroId;
-	ui16 portrait; /// The portrait id of the hero, 0xFF is default.
+	ui32 portrait; /// The portrait id of the hero, -1 is default.
 	std::string name;
 	ui8 players; /// Who can hire this hero (bitfield).
 
@@ -259,20 +250,17 @@ struct DLL_LINKAGE DisposedHero
 	}
 };
 
-namespace EMapFormat
-{
-enum EMapFormat: ui8
+enum class EMapFormat: uint8_t
 {
 	INVALID = 0,
-	//    HEX     DEC
-	ROE = 0x0e, // 14
-	AB  = 0x15, // 21
-	SOD = 0x1c, // 28
-// HOTA = 0x1e ... 0x20 // 28 ... 30
-	WOG = 0x33,  // 51
-	VCMI = 0xF0
+	//       HEX    DEC
+	ROE   = 0x0e, // 14
+	AB    = 0x15, // 21
+	SOD   = 0x1c, // 28
+	HOTA  = 0x20, // 32
+	WOG   = 0x33, // 51
+	VCMI  = 0xF0
 };
-}
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
 class DLL_LINKAGE CMapHeader
@@ -293,7 +281,7 @@ public:
 
 	ui8 levels() const;
 
-	EMapFormat::EMapFormat version; /// The default value is EMapFormat::SOD.
+	EMapFormat version; /// The default value is EMapFormat::SOD.
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
 	bool twoLevel; /// The default value is true.

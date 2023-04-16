@@ -77,7 +77,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/CMapOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMapService.cpp
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.cpp
+		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.cpp
+		${MAIN_LIB_DIR}/mapping/MapReaderH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.cpp
@@ -347,7 +349,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/CMapOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapService.h
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.h
+		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.h
+		${MAIN_LIB_DIR}/mapping/MapReaderH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h

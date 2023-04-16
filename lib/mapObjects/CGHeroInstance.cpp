@@ -232,7 +232,7 @@ CGHeroInstance::CGHeroInstance():
 	portrait(UNINITIALIZED_PORTRAIT),
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
-	sex(std::numeric_limits<ui8>::max()),
+	gender(EHeroGender::DEFAULT),
 	lowestCreatureSpeed(0)
 {
 	setNodeType(HERO);
@@ -296,8 +296,8 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
 
-	if (sex == 0xFF)//sex is default
-		sex = type->sex;
+	if (gender == EHeroGender::DEFAULT)
+		gender = type->gender;
 
 	setFormation(false);
 	if (!stacksCount()) //standard army//initial army
@@ -1468,7 +1468,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeString("name", nameCustom);
-	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
+	handler.serializeInt("gender", gender, 0);
 
 	{
 		const int legacyHeroes = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO);
@@ -1619,8 +1619,10 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			setHeroTypeName(typeName);
 	}
 
+	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
+
 	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeBool<ui8>("tightFormation", formation, 1, 0, 0);
+	handler.serializeEnum("formation", formation, FORMATIONS);
 
 	{
 		static constexpr int NO_PATROLING = -1;

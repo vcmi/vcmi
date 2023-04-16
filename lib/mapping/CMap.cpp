@@ -35,7 +35,7 @@ SHeroName::SHeroName() : heroId(-1)
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), hasRandomHero(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), posOfMainTown(-1), team(TeamID::NO_TEAM), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
+	generateHeroAtMainTown(false), posOfMainTown(-1), team(TeamID::NO_TEAM)
 {
 	allowedFactions = VLC->townh->getAllowedFactions();
 }

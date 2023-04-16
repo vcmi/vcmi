@@ -634,7 +634,7 @@ CGTownInstance::CGTownInstance():
 	builded(0),
 	destroyed(0),
 	identifier(0),
-	alignment(0xff)
+	alignmentToPlayer(PlayerColor::NEUTRAL)
 {
 	this->setNodeType(CBonusSystemNode::TOWN);
 }
@@ -1494,9 +1494,11 @@ void CGTownInstance::reset()
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
+	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
+
 	CGObjectInstance::serializeJsonOwner(handler);
 	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeBool<ui8>("tightFormation", formation, 1, 0, 0);
+	handler.serializeEnum("tightFormation", formation, FORMATIONS);
 	handler.serializeString("name", name);
 
 	{

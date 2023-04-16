@@ -418,7 +418,10 @@ int CCreatureSet::stacksCount() const
 
 void CCreatureSet::setFormation(bool tight)
 {
-	formation = tight;
+	if (tight)
+		formation = EArmyFormation::TIGHT;
+	else
+		formation = EArmyFormation::LOOSE;
 }
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
@@ -694,7 +697,6 @@ void CStackInstance::init()
 	experience = 0;
 	count = 0;
 	type = nullptr;
-	idRand = -1;
 	_armyObj = nullptr;
 	setNodeType(STACK_INSTANCE);
 }
@@ -815,8 +817,7 @@ std::string CStackInstance::getQuantityTXT(bool capitalized) const
 
 bool CStackInstance::valid(bool allowUnrandomized) const
 {
-	bool isRand = (idRand != -1);
-	if(!isRand)
+	if(!randomStack)
 	{
 		return (type  &&  type == VLC->creh->objects[type->getId()]);
 	}
@@ -830,8 +831,6 @@ std::string CStackInstance::nodeName() const
 	oss << "Stack of " << count << " of ";
 	if(type)
 		oss << type->getNamePluralTextID();
-	else if(idRand >= 0)
-		oss << "[no type, idRand=" << idRand << "]";
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -888,14 +887,13 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 
 	if(handler.saving)
 	{
-		if(idRand > -1)
+		if(randomStack)
 		{
-			int level = idRand / 2;
-
-			boost::logic::tribool upgraded = (idRand % 2) > 0;
+			int level = randomStack->level;
+			int upgrade = randomStack->upgrade;
 
 			handler.serializeInt("level", level, 0);
-			handler.serializeBool("upgraded", upgraded);
+			handler.serializeInt("upgraded", upgrade, 0);
 		}
 	}
 	else
@@ -903,13 +901,13 @@ void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 		//type set by CStackBasicDescriptor::serializeJson
 		if(type == nullptr)
 		{
-			int level = 0;
-			bool upgraded = false;
+			uint8_t level = 0;
+			uint8_t upgrade = 0;
 
 			handler.serializeInt("level", level, 0);
-			handler.serializeBool("upgraded", upgraded);
+			handler.serializeInt("upgrade", upgrade, 0);
 
-			idRand = level * 2 + static_cast<int>(upgraded);
+			randomStack = RandomStackInfo{ level, upgrade };
 		}
 	}
 }
@@ -946,7 +944,6 @@ void CCommanderInstance::init()
 	level = 1;
 	count = 1;
 	type = nullptr;
-	idRand = -1;
 	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);

@@ -294,7 +294,7 @@ bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
-		if(tdi.town->alignment == alignment && tdi.town->hasBuilt(bid))
+		if(tdi.town->subID == alignment && tdi.town->hasBuilt(bid))
 			return true;
 	}
 
