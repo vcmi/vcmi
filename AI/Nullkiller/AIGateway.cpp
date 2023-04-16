@@ -866,7 +866,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
-	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
+	for(auto i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
 		if(i.getNum() >= bestArmy.size())
 		{
@@ -894,7 +894,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 		for(auto armyPtr : armies)
 		{
-			for(SlotID j = SlotID(0); j.validSlot(); j.advance(1))
+			for(auto j = SlotID(0); j.validSlot(); j.advance(1))
 			{
 				if(armyPtr->getCreature(j) == targetCreature && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{

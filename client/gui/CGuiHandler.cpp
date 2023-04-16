@@ -757,7 +757,7 @@ bool CGuiHandler::isMouseButtonPressed(MouseButton button) const
 	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
 	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
 
-	uint32_t index = static_cast<uint32_t>(button);
+	auto index = static_cast<uint32_t>(button);
 	return mouseButtonsMask & SDL_BUTTON(index);
 }
 

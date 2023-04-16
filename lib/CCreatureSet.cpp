@@ -436,8 +436,8 @@ void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
 
 void CCreatureSet::giveStackExp(TExpType exp)
 {
-	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
-		i->second->giveStackExp(exp);
+	for(auto & stack : stacks)
+		stack.second->giveStackExp(exp);
 }
 void CCreatureSet::setStackExp(const SlotID & slot, TExpType exp)
 {

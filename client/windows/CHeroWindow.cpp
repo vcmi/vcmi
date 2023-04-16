@@ -304,7 +304,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	bool noDismiss=false;
 	for(auto isa : GH.listInt)
 	{
-		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
+		if(auto * cew = dynamic_cast<CExchangeWindow *>(isa.get()))
 		{
 			for(auto & g : cew->heroInst)
 				if(g == curHero)

@@ -1474,7 +1474,7 @@ void CMapLoaderH3M::readObjects()
 		int3 mapPosition = reader->readInt3();
 
 		uint32_t defIndex = reader->readUInt32();
-		ObjectInstanceID objectInstanceID = ObjectInstanceID(static_cast<si32>(map->objects.size()));
+		auto objectInstanceID = ObjectInstanceID(static_cast<si32>(map->objects.size()));
 
 		std::shared_ptr<const ObjectTemplate> objectTemplate = templates.at(defIndex);
 		reader->skipZero(5);

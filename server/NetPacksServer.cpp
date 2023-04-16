@@ -247,7 +247,7 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	const CGObjectInstance * obj = gh.getObj(pack.tid);
-	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
+	const auto * town = dynamic_ptr_cast<CGTownInstance>(obj);
 	if(town && PlayerRelations::ENEMIES == gh.getPlayerRelations(obj->tempOwner, gh.getPlayerAt(pack.c)))
 		gh.throwAndComplain(&pack, "Can't buy hero in enemy town!");
 

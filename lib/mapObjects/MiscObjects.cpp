@@ -419,7 +419,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	{
 		if (containsUpgradedStack()) //upgrade
 		{
-			SlotID slotID = SlotID(static_cast<si32>(std::floor(static_cast<float>(stacks.size()) / 2.0f)));
+			auto slotID = SlotID(static_cast<si32>(std::floor(static_cast<float>(stacks.size()) / 2.0f)));
 			const auto & upgrades = getStack(slotID).type->upgrades;
 			if(!upgrades.empty())
 			{
@@ -756,7 +756,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(handler.saving)
 		{
 			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
-			for(auto const & resID : abandonedMineResources)
+			for(const auto & resID : abandonedMineResources)
 			{
 				JsonNode one(JsonNode::JsonType::DATA_STRING);
 				one.String() = GameConstants::RESOURCE_NAMES[resID];

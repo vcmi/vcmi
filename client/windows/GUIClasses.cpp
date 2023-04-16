@@ -1865,7 +1865,7 @@ void CObjectListWindow::changeSelection(size_t which)
 
 	for(std::shared_ptr<CIntObject> element : list->getItems())
 	{
-		CItem * item = dynamic_cast<CItem*>(element.get());
+		auto * item = dynamic_cast<CItem *>(element.get());
 		if(item)
 		{
 			if(item->index == selected)

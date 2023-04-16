@@ -587,7 +587,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	}
 	for (auto isa : GH.listInt)
 	{
-		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
+		auto * ki = dynamic_cast<CKingdomInterface *>(isa.get());
 		if (ki)
 		{
 			ki->townChanged(town);
@@ -631,11 +631,11 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 
 	for (auto & elem : GH.listInt)
 	{
-		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(elem.get());
+		auto * cgh = dynamic_cast<CGarrisonHolder *>(elem.get());
 		if (cgh)
 			cgh->updateGarrisons();
 
-		if (CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(elem.get()))
+		if(auto * cmw = dynamic_cast<CTradeWindow *>(elem.get()))
 		{
 			if (vstd::contains(objs, cmw->hero))
 				cmw->garrisonChanged();
@@ -1257,7 +1257,7 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
+	if(const auto * townObj = dynamic_cast<const CGTownInstance *>(town))
 	{
 		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.topInt().get());
 		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.topInt().get());
@@ -1269,7 +1269,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 
 		for(auto isa : GH.listInt)
 		{
-			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
+			auto * ki = dynamic_cast<CKingdomInterface *>(isa.get());
 			if (ki && townObj)
 				ki->townChanged(townObj);
 		}
@@ -1539,7 +1539,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
-		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
+		const auto * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
 	GH.fakeMouseMove();

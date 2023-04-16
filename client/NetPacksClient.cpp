@@ -537,7 +537,7 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
 {
-	const CGDwelling * dw = static_cast<const CGDwelling*>(cl.getObj(pack.tid));
+	const auto * dw = static_cast<const CGDwelling *>(cl.getObj(pack.tid));
 
 	PlayerColor p;
 	if(dw->ID == Obj::WAR_MACHINE_FACTORY) //War Machines Factory is not flaggable, it's "owned" by visitor
@@ -653,7 +653,7 @@ void ApplyClientNetPackVisitor::visitBlockingDialog(BlockingDialog & pack)
 void ApplyClientNetPackVisitor::visitGarrisonDialog(GarrisonDialog & pack)
 {
 	const CGHeroInstance *h = cl.getHero(pack.hid);
-	const CArmedInstance *obj = static_cast<const CArmedInstance*>(cl.getObj(pack.objid));
+	const auto * obj = static_cast<const CArmedInstance *>(cl.getObj(pack.objid));
 
 	callOnlyThatInterface(cl, h->getOwner(), &CGameInterface::showGarrisonDialog, obj, h, pack.removableUnits, pack.queryID);
 }
@@ -898,8 +898,8 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::RECRUITMENT_FIRST:
 	case EOpenWindowMode::RECRUITMENT_ALL:
 		{
-			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl.getObj(ObjectInstanceID(pack.id1)));
-			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl.getObj(ObjectInstanceID(pack.id2)));
+			const auto * dw = dynamic_cast<const CGDwelling *>(cl.getObj(ObjectInstanceID(pack.id1)));
+			const auto * dst = dynamic_cast<const CArmedInstance *>(cl.getObj(ObjectInstanceID(pack.id2)));
 			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1);
 		}
 		break;
@@ -983,7 +983,7 @@ void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts
 	}
 	else
 	{
-		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl.getObj(ObjectInstanceID(pack.id)));
+		const auto * bm = dynamic_cast<const CGBlackMarket *>(cl.getObj(ObjectInstanceID(pack.id)));
 		assert(bm);
 		callInterfaceIfPresent(cl, cl.getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::availableArtifactsChanged, bm);
 	}

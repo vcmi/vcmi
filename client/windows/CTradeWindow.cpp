@@ -127,7 +127,7 @@ int CTradeWindow::CTradeableItem::getIndex()
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	auto * mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
 
 	Point posToBitmap;
@@ -171,15 +171,15 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	auto * mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
 	if(down)
 	{
 
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
-			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
-			if(const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art)
+			auto * aw = static_cast<CAltarWindow *>(mw);
+			if(const auto * movedArt = aw->arts->commonInfo->src.art)
 			{
 				aw->moveFromSlotToAltar(aw->arts->commonInfo->src.slotID, this->shared_from_this(), movedArt);
 			}

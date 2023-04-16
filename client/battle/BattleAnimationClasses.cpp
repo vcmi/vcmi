@@ -372,7 +372,7 @@ bool MovementAnimation::init()
 
 	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
 	{
-		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
+		auto distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
 		progressPerSecond =  AnimationControls::getFlightDistance(stack->unitType()) / distance;
 	}
 

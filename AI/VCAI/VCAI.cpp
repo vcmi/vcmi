@@ -1067,13 +1067,13 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 	auto bestArmy = ah->getSortedSlots(destinationArmy, source);
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
-	for(SlotID i = SlotID(0); i.getNum() < bestArmy.size() && i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
+	for(auto i = SlotID(0); i.getNum() < bestArmy.size() && i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
 		const CCreature * targetCreature = bestArmy[i.getNum()].creature;
 
 		for(auto armyPtr : armies)
 		{
-			for(SlotID j = SlotID(0); j.validSlot(); j.advance(1))
+			for(auto j = SlotID(0); j.validSlot(); j.advance(1))
 			{
 				if(armyPtr->getCreature(j) == targetCreature && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{
@@ -2806,7 +2806,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		if(obj->tempOwner != h->tempOwner)
 			return true; //flag just in case
 		bool canRecruitCreatures = false;
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		const auto * d = dynamic_cast<const CGDwelling *>(obj);
 		for(auto level : d->creatures)
 		{
 			for(auto c : level.second)

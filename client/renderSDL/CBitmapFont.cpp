@@ -134,7 +134,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 	//for each line in symbol
 	for(int dy = lineBegin; dy <lineEnd; dy++)
 	{
-		uint8_t *dstLine = (uint8_t*)surface->pixels;
+		auto * dstLine = (uint8_t *)surface->pixels;
 		const uint8_t *srcLine = character.pixels.data();
 
 		// shift source\destination pixels to current position

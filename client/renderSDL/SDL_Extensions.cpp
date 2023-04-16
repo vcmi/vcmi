@@ -627,7 +627,7 @@ void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x,
 template<int bpp>
 void CSDL_Ext::convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect )
 {
-	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
+	auto * pixels = static_cast<uint8_t *>(surf->pixels);
 
 	for(int yp = rect.top(); yp < rect.bottom(); ++yp)
 	{

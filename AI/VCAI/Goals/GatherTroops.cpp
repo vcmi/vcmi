@@ -145,7 +145,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 		}
 	}
 
-	CreatureID creID = CreatureID(objid);
+	auto creID = CreatureID(objid);
 
 	vstd::erase_if(solutions, [&](TSubgoal goal)->bool
 	{

@@ -45,7 +45,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const BattleHe
 
 void BattleEffectsController::displayEffect(EBattleEffect effect, std::string soundFile, const BattleHex & destTile)
 {
-	size_t effectID = static_cast<size_t>(effect);
+	auto effectID = static_cast<size_t>(effect);
 
 	std::string customAnim = graphics->battleACToDef[effectID][0];
 

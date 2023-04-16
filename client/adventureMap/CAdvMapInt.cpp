@@ -605,7 +605,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 {
 	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
 	double scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
-	int32_t scrollDistance = static_cast<int32_t>(scrollSpeedPixels * timePassed / 1000);
+	auto scrollDistance = static_cast<int32_t>(scrollSpeedPixels * timePassed / 1000);
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 
 	if(scrollingDir & LEFT)

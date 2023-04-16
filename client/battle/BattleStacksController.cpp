@@ -116,7 +116,7 @@ BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack) 
 		// stack position will be updated only *after* movement is finished
 		// before this - stack is always at its initial position. Thus we need to find
 		// its current position. Which can be found only in this class
-		if (StackMoveAnimation *move = dynamic_cast<StackMoveAnimation*>(anim))
+		if(auto * move = dynamic_cast<StackMoveAnimation *>(anim))
 		{
 			if (move->stack == stack)
 				return std::max(move->prevHex, move->nextHex);
@@ -405,7 +405,7 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->ID == stackID)
 	{
-		BattleAction *action = new BattleAction();
+		auto * action = new BattleAction();
 		action->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
 		action->actionType = EActionType::CANCEL;
 		action->stackNumber = getActiveStack()->ID;

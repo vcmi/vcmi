@@ -2396,7 +2396,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		// if this moveHero call was triggered by teleporter
 		if (!t.visitableObjects.empty())
 		{
-			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(t.visitableObjects.back()))
+			if(auto * town = dynamic_cast<CGTownInstance *>(t.visitableObjects.back()))
 				town->onHeroVisit(h);
 		}
 
@@ -2466,7 +2466,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	std::set<PlayerColor> playerColors = {owner, oldOwner};
 	checkVictoryLossConditions(playerColors);
 
-	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+	const auto * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
 		if (owner < PlayerColor::PLAYER_LIMIT) //new owner is real player
@@ -2554,7 +2554,7 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 	std::vector<CStackBasicDescriptor> cres = creatures;
 	if (cres.size() <= 0)
 		return;
-	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
+	const auto * obj = static_cast<const CArmedInstance *>(getObj(objid));
 
 	for (CStackBasicDescriptor &sbd : cres)
 	{
@@ -3011,7 +3011,7 @@ bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si3
 	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	const CArmedInstance * army = static_cast<const CArmedInstance*>(getObjInstance(srcOwner));
+	const auto * army = static_cast<const CArmedInstance *>(getObjInstance(srcOwner));
 	const CCreatureSet & creatureSet = *army;
 
 	if((!vstd::contains(creatureSet.stacks, slotSrc) && complain(complainNoCreatures))
@@ -3055,7 +3055,7 @@ bool CGameHandler::bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner)
 	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	const CArmedInstance * army = static_cast<const CArmedInstance*>(getObjInstance(srcOwner));
+	const auto * army = static_cast<const CArmedInstance *>(getObjInstance(srcOwner));
 	const CCreatureSet & creatureSet = *army;
 
 	if(!vstd::contains(creatureSet.stacks, slotSrc) && complain(complainNoCreatures))
@@ -3097,13 +3097,13 @@ bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destA
 	if(!srcSlot.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	const CArmedInstance * armySrc = static_cast<const CArmedInstance*>(getObjInstance(srcArmy));
+	const auto * armySrc = static_cast<const CArmedInstance *>(getObjInstance(srcArmy));
 	const CCreatureSet & setSrc = *armySrc;
 
 	if(!vstd::contains(setSrc.stacks, srcSlot) && complain(complainNoCreatures))
 		return false;
 
-	const CArmedInstance * armyDest = static_cast<const CArmedInstance*>(getObjInstance(destArmy));
+	const auto * armyDest = static_cast<const CArmedInstance *>(getObjInstance(destArmy));
 	const CCreatureSet & setDest = *armyDest;
 	auto freeSlots = setDest.getFreeSlotsQueue();
 
@@ -3124,7 +3124,7 @@ bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destA
 		auto currSlot = pair.second;
 		const auto quantity = setSrc.getStackCount(currSlot);
 
-		TMapCreatureSlot::iterator lb = destMap.lower_bound(currCreature);
+		auto lb = destMap.lower_bound(currCreature);
 		const bool alreadyExists = (lb != destMap.end() && !(keyComp(currCreature, lb->first)));
 
 		if(!alreadyExists)
@@ -3182,7 +3182,7 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	const CArmedInstance * army = static_cast<const CArmedInstance*>(getObjInstance(srcOwner));
+	const auto * army = static_cast<const CArmedInstance *>(getObjInstance(srcOwner));
 	const CCreatureSet & creatureSet = *army;
 
 	if(!vstd::contains(creatureSet.stacks, slotSrc) && complain(complainNoCreatures))
@@ -3261,8 +3261,7 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
 {
-	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1)),
-		* s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
+	const auto *s1 = static_cast<const CArmedInstance *>(getObjInstance(id1)), *s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
 	const CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 	if (!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
@@ -3429,7 +3428,7 @@ PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const
 
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 {
-	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id));
+	const auto * s1 = static_cast<const CArmedInstance *>(getObjInstance(id));
 	if (!vstd::contains(s1->stacks,pos))
 	{
 		complain("Illegal call to disbandCreature - no such stack in army!");
@@ -3639,7 +3638,7 @@ void CGameHandler::sendMessageToAll(const std::string &message)
 
 bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl)
 {
-	const CGDwelling * dw = static_cast<const CGDwelling *>(getObj(objid));
+	const auto * dw = static_cast<const CGDwelling *>(getObj(objid));
 	const CArmedInstance *dst = nullptr;
 	const CCreature *c = VLC->creh->objects.at(crid);
 	const bool warMachine = c->warMachine != ArtifactID::NONE;
@@ -3692,7 +3691,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 
 	if (warMachine)
 	{
-		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(dst);
+		const auto * h = dynamic_cast<const CGHeroInstance *>(dst);
 
 		COMPLAIN_RET_FALSE_IF(!h, "Only hero can buy war machines");
 
@@ -3715,7 +3714,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 
 bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureID upgID)
 {
-	const CArmedInstance * obj = static_cast<const CArmedInstance *>(getObjInstance(objid));
+	const auto * obj = static_cast<const CArmedInstance *>(getObjInstance(objid));
 	if (!obj->hasStackAtSlot(pos))
 	{
 		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
@@ -4166,7 +4165,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 		saa.id = -1;
 		saa.arts = CGTownInstance::merchantArtifacts;
 	}
-	else if (const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m->o)) //black market
+	else if(const auto * bm = dynamic_cast<const CGBlackMarket *>(m->o)) //black market
 	{
 		saa.id = bm->id.getNum();
 		saa.arts = bm->artifacts;
@@ -4905,7 +4904,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			auto wrapper = wrapAction(ba);
 
 			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
-			SpellID spellID = SpellID(ba.actionSubtype);
+			auto spellID = SpellID(ba.actionSubtype);
 
 			std::shared_ptr<const Bonus> randSpellcaster = stack->getBonus(Selector::type()(Bonus::RANDOM_SPELLCASTER));
 			std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
@@ -5482,21 +5481,21 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 	{
 		if (o1->ID == Obj::TOWN)
 		{
-			const CGTownInstance *t = static_cast<const CGTownInstance*>(o1);
+			const auto * t = static_cast<const CGTownInstance *>(o1);
 			if (t->visitingHero == o2  ||  t->garrisonHero == o2)
 				return true;
 		}
 		if (o2->ID == Obj::TOWN)
 		{
-			const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
+			const auto * t = static_cast<const CGTownInstance *>(o2);
 			if (t->visitingHero == o1  ||  t->garrisonHero == o1)
 				return true;
 		}
 
 		if (o1->ID == Obj::HERO && o2->ID == Obj::HERO)
 		{
-			const CGHeroInstance *h1 = static_cast<const CGHeroInstance*>(o1);
-			const CGHeroInstance *h2 = static_cast<const CGHeroInstance*>(o2);
+			const auto * h1 = static_cast<const CGHeroInstance *>(o1);
+			const auto * h2 = static_cast<const CGHeroInstance *>(o2);
 
 			// two heroes in same town (garrisoned and visiting)
 			if (h1->visitedTown != nullptr && h2->visitedTown != nullptr && h1->visitedTown == h2->visitedTown)
@@ -6359,7 +6358,7 @@ void CGameHandler::runBattle()
 		{
 			std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(Bonus::SUMMON_GUARDIANS));
 			auto accessibility = getAccesibility();
-			CreatureID creatureData = CreatureID(summonInfo->subtype);
+			auto creatureData = CreatureID(summonInfo->subtype);
 			std::vector<BattleHex> targetHexes;
 			const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
 			const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
@@ -6434,7 +6433,7 @@ void CGameHandler::runBattle()
 		auto obstacles = gs->curB->obstacles; //we copy container, because we're going to modify it
 		for (auto &obstPtr : obstacles)
 		{
-			if (const SpellCreatedObstacle *sco = dynamic_cast<const SpellCreatedObstacle *>(obstPtr.get()))
+			if(const auto * sco = dynamic_cast<const SpellCreatedObstacle *>(obstPtr.get()))
 				if (sco->turnsRemaining == 0)
 					removeObstacle(*obstPtr);
 		}

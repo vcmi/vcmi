@@ -126,7 +126,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
-					std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
+					auto i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
 					if(i == enemiesReachable.end())
 					{
 						enemiesReachable.emplace_back(s);

@@ -59,8 +59,7 @@ Composition & Composition::addNext(TSubgoal goal)
 {
 	if(goal->goalType == COMPOSITION)
 	{
-		Composition & other = dynamic_cast<Composition &>(*goal);
-		
+		auto & other = dynamic_cast<Composition &>(*goal);
 		vstd::concatenate(subtasks, other.subtasks);
 	}
 	else

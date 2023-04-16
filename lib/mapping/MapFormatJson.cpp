@@ -607,7 +607,7 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 		for(int team = 0; team < mapHeader->howManyTeams; team++)
 			for(const JsonNode & playerData : srcVector[team].Vector())
 			{
-				PlayerColor player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
+				auto player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
 				if(player.isValidPlayer())
 					if(mapHeader->players[player.getNum()].canAnyonePlay())
 						mapHeader->players[player.getNum()].team = TeamID(team);
@@ -730,7 +730,7 @@ void CMapFormatJson::readDisposedHeroes(JsonSerializeFormat & handler)
 
 		for(const JsonNode & playerData : entry.second["availableFor"].Vector())
 		{
-			PlayerColor player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
+			auto player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
 			if(player.isValidPlayer())
 			{
 				mask |= 1 << player.getNum();

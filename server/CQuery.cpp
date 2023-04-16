@@ -49,7 +49,7 @@ CQuery::CQuery(Queries * Owner):
 {
 	boost::unique_lock<boost::mutex> l(Queries::mx);
 
-	static QueryID QID = QueryID(0);
+	static auto QID = QueryID(0);
 
 	queryID = ++QID;
 	logGlobal->trace("Created a new query with id %d", queryID);

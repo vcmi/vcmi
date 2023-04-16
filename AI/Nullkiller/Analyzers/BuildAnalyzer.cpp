@@ -40,7 +40,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 
 		for(BuildingID prefix : prefixes)
 		{
-			BuildingID building = BuildingID(prefix + level);
+			auto building = BuildingID(prefix + level);
 
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
@@ -276,7 +276,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 	for(const CGObjectInstance* obj : objects)
 	{
-		const CGMine* mine = dynamic_cast<const CGMine*>(obj);
+		const auto * mine = dynamic_cast<const CGMine *>(obj);
 
 		if(mine)
 		{
