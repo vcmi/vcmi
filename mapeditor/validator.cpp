@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "validator.h"
+#include "mapcontroller.h"
 #include "ui_validator.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/CHeroHandler.h"
@@ -158,6 +159,15 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			issues.emplace_back("Map name is not specified", false);
 		if(map->description.empty())
 			issues.emplace_back("Map description is not specified", false);
+		
+		//verificationfor mods
+		for(auto & mod : MapController::modAssessmentMap(*map))
+		{
+			if(!map->mods.count(mod.first))
+			{
+				issues.emplace_back(QString("Map contains object from mod \"%1\", but doesn't require it").arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).name)), true);
+			}
+		}
 	}
 	catch(const std::exception & e)
 	{

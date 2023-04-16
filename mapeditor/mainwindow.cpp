@@ -333,7 +333,23 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	CMapService mapService;
 	try
 	{
-		controller.setMap(mapService.loadMap(resId));
+		if(auto header = mapService.loadMapHeader(resId))
+		{
+			auto missingMods = CMapService::verifyMapHeaderMods(*header);
+			CModHandler::Incompatibility::ModList modList;
+			for(const auto & m : missingMods)
+				modList.push_back({m.first, m.second.toString()});
+			
+			if(!modList.empty())
+				throw CModHandler::Incompatibility(std::move(modList));
+			
+			controller.setMap(mapService.loadMap(resId));
+		}
+	}
+	catch(const CModHandler::Incompatibility & e)
+	{
+		QMessageBox::warning(this, "Mods requiered", e.what());
+		return false;
 	}
 	catch(const std::exception & e)
 	{

@@ -554,3 +554,33 @@ void MapController::redo()
 	sceneForceUpdate(); //TODO: use smart invalidation (setDirty)
 	main->mapChanged();
 }
+
+ModCompatibilityInfo MapController::modAssessmentAll()
+{
+	ModCompatibilityInfo result;
+	for(auto primaryID : VLC->objtypeh->knownObjects())
+	{
+		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
+			if(modName != "core")
+				result[modName] = VLC->modh->getModInfo(modName).version;
+		}
+	}
+	return result;
+}
+
+ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
+{
+	ModCompatibilityInfo result;
+	for(auto obj : map.objects)
+	{
+		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
+		if(modName != "core")
+			result[modName] = VLC->modh->getModInfo(modName).version;
+	}
+	//TODO: terrains?
+	return result;
+}
