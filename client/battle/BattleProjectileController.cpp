@@ -146,7 +146,7 @@ BattleProjectileController::BattleProjectileController(BattleInterface & owner):
 
 const CCreature & BattleProjectileController::getShooter(const CStack * stack) const
 {
-	const CCreature * creature = stack->getCreature();
+	const CCreature * creature = stack->unitType();
 
 	if(creature->getId() == CreatureID::ARROW_TOWERS)
 		creature = owner.siegeController->getTurretCreature();

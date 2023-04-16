@@ -14,9 +14,13 @@
 
 #include "../CStack.h"
 #include "BattleInfo.h"
+#include "CObstacleInstance.h"
 #include "DamageCalculator.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../NetPacks.h"
+#include "../spells/ObstacleCasterProxy.h"
+#include "../spells/ISpellMechanics.h"
+#include "../spells/Problem.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
@@ -133,11 +137,13 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	return ESpellCastProblem::OK;
 }
 
-bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
+bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
 {
 	auto isTileBlocked = [&](BattleHex tile)
 	{
 		EWallPart wallPart = battleHexToWallPart(tile);
+		if (wallPart == EWallPart::INVALID)
+			return false; // there is no wall here
 		if (wallPart == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
 			return false; // does not blocks ranged attacks
 		if (wallPart == EWallPart::INDESTRUCTIBLE_PART)
@@ -145,35 +151,54 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 
 		return isWallPartAttackable(wallPart);
 	};
-
-	auto needWallPenalty = [&](BattleHex from, BattleHex dest)
+	// Count wall penalty requirement by shortest path, not by arbitrary line, to avoid various OH3 bugs
+	auto getShortestPath = [](BattleHex from, BattleHex dest) -> std::vector<BattleHex>
 	{
-		// arbitrary selected cell size for virtual grid
-		// any even number can be selected (for division by two)
-		static const int cellSize = 10;
+		//Out early
+		if(from == dest)
+			return {};
 
-		// create line that goes from center of shooter cell to center of target cell
-		Point line1{ from.getX()*cellSize+cellSize/2, from.getY()*cellSize+cellSize/2};
-		Point line2{ dest.getX()*cellSize+cellSize/2, dest.getY()*cellSize+cellSize/2};
+		std::vector<BattleHex> ret;
+		auto next = from;
+		//Not a real direction, only to indicate to which side we should search closest tile
+		auto direction = from.getX() > dest.getX() ? BattleSide::DEFENDER : BattleSide::ATTACKER;
 
-		for (int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
+		while (next != dest)
 		{
-			BattleHex obstacle = lineToWallHex(y);
-			if (!isTileBlocked(obstacle))
-				continue;
-
-			// create rect around cell with an obstacle
-			Rect rect {
-				Point(obstacle.getX(), obstacle.getY()) * cellSize,
-				Point( cellSize, cellSize)
-			};
-
-			if ( rect.intersectionTest(line1, line2))
-				return true;
+			auto tiles = next.neighbouringTiles();
+			std::set<BattleHex> possibilities = {tiles.begin(), tiles.end()};
+			next = BattleHex::getClosestTile(direction, dest, possibilities);
+			ret.push_back(next);
 		}
-		return false;
+		assert(!ret.empty());
+		ret.pop_back(); //Remove destination hex
+		return ret;
 	};
 
+	RETURN_IF_NOT_BATTLE(false);
+	auto checkNeeded = !sameSideOfWall(from, dest);
+	bool pathHasWall = false;
+	bool pathHasMoat = false;
+
+	for(const auto & hex : getShortestPath(from, dest))
+	{
+		pathHasWall |= isTileBlocked(hex);
+		if(!checkMoat)
+			continue;
+
+		auto obstacles = battleGetAllObstaclesOnPos(hex, false);
+
+		if(hex != ESiegeHex::GATE_BRIDGE || (battleIsGatePassable()))
+			for(const auto & obst : obstacles)
+				if(obst->obstacleType ==  CObstacleInstance::MOAT)
+					pathHasMoat |= true;
+	}
+
+	return checkNeeded && ( (checkWall && pathHasWall) || (checkMoat && pathHasMoat) );
+}
+
+bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
+{
 	RETURN_IF_NOT_BATTLE(false);
 	if(!battleGetSiegeLevel())
 		return false;
@@ -184,26 +209,9 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, Bat
 	if(shooter->hasBonus(selectorNoWallPenalty, cachingStrNoWallPenalty))
 		return false;
 
-	const int wallInStackLine = lineToWallHex(shooterPosition.getY());
-	const bool shooterOutsideWalls = shooterPosition < wallInStackLine;
+	const auto shooterOutsideWalls = shooterPosition < lineToWallHex(shooterPosition.getY());
 
-	return shooterOutsideWalls && needWallPenalty(shooterPosition, destHex);
-}
-
-si8 CBattleInfoCallback::battleCanTeleportTo(const battle::Unit * stack, BattleHex destHex, int telportLevel) const
-{
-	RETURN_IF_NOT_BATTLE(false);
-	if (!getAccesibility(stack).accessible(destHex, stack))
-		return false;
-
-	const ui8 siegeLevel = battleGetSiegeLevel();
-
-	//check for wall
-	//advanced teleport can pass wall of fort|citadel, expert - of castle
-	if ((siegeLevel > CGTownInstance::NONE && telportLevel < 2) || (siegeLevel >= CGTownInstance::CASTLE && telportLevel < 3))
-		return sameSideOfWall(stack->getPosition(), destHex);
-
-	return true;
+	return shooterOutsideWalls && battleHasPenaltyOnLine(shooterPosition, destHex, true, false);
 }
 
 std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data)
@@ -271,7 +279,7 @@ PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * s
 	return PossiblePlayerBattleAction(spellSelMode, spell->id);
 }
 
-std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	std::set<BattleHex> attackedHexes;
 	RETURN_IF_NOT_BATTLE(attackedHexes);
@@ -645,7 +653,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 	return ret;
 }
 
-bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const
+bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const battle::Unit * target, BattleHex dest) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
@@ -658,7 +666,7 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	if(!battleMatchOwner(stack, target))
 		return false;
 
-	auto id = stack->getCreature()->getId();
+	auto id = stack->unitType()->getId();
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;
 
@@ -814,13 +822,72 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 						affectedObstacles.push_back(i);
 		}
 		for(auto hex : unit->getHexes())
-			if(hex == ESiegeHex::GATE_BRIDGE)
-				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
-					for(int i=0; i<affectedObstacles.size(); i++)
-						if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
-							affectedObstacles.erase(affectedObstacles.begin()+i);
+			if(hex == ESiegeHex::GATE_BRIDGE && battleIsGatePassable())
+				for(int i=0; i<affectedObstacles.size(); i++)
+					if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
+						affectedObstacles.erase(affectedObstacles.begin()+i);
 	}
 	return affectedObstacles;
+}
+
+bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & spellEnv, const battle::Unit & unit, const std::set<BattleHex> & passed) const
+{
+	if(!unit.alive())
+		return false;
+	bool movementStopped = false;
+	for(auto & obstacle : getAllAffectedObstaclesByStack(&unit, passed))
+	{
+		//helper info
+		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
+
+		if(spellObstacle)
+		{
+			auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
+			{
+				// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+				auto operation = ObstacleChanges::EOperation::UPDATE;
+				if (spellObstacle.removeOnTrigger)
+					operation = ObstacleChanges::EOperation::REMOVE;
+
+				SpellCreatedObstacle changedObstacle;
+				changedObstacle.uniqueID = spellObstacle.uniqueID;
+				changedObstacle.revealed = true;
+
+				BattleObstaclesChanged bocp;
+				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
+				changedObstacle.toInfo(bocp.changes.back(), operation);
+				spellEnv.apply(&bocp);
+			};
+			const auto side = unit.unitSide();
+			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
+			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
+			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+			const auto * sp = obstacle->getTrigger().toSpell();
+			if(obstacle->triggersEffects() && sp)
+			{
+				auto cast = spells::BattleCast(this, &caster, spells::Mode::PASSIVE, sp);
+				spells::detail::ProblemImpl ignored;
+				auto target = spells::Target(1, spells::Destination(&unit));
+				if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
+				{
+					if(shouldReveal) { //hidden obstacle triggers effects after revealed
+						revealObstacles(*spellObstacle);
+						cast.cast(&spellEnv, target);
+					}
+				}
+			}
+			else if(shouldReveal)
+				revealObstacles(*spellObstacle);
+		}
+
+		if(!unit.alive())
+			return false;
+
+		if(obstacle->stopsMovement())
+			movementStopped = true;
+	}
+
+	return unit.alive() && !movementStopped;
 }
 
 AccessibilityInfo CBattleInfoCallback::getAccesibility() const

@@ -53,12 +53,8 @@ public:
 	 */
 	virtual int32_t getLevelPower(const int32_t skillLevel) const = 0;
 
-	virtual std::string getNameTextID() const = 0;
-	virtual std::string getNameTranslated() const  = 0;
-
 	virtual std::string getDescriptionTextID(int32_t level) const  = 0;
 	virtual std::string getDescriptionTranslated(int32_t level) const  = 0;
-
 };
 
 }

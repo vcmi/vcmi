@@ -96,6 +96,7 @@ public:
 	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	EWallState battleGetWallState(EWallPart partOfWall) const;
 	EGateState battleGetGateState() const;
+	bool battleIsGatePassable() const;
 
 	//helpers
 	///returns all stacks, alive or dead or undead or mechanical :)

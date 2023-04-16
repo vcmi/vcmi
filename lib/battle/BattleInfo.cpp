@@ -52,7 +52,7 @@ void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 		const CStack * const st = elem;
 		si32 killed = st->getKilled();
 		if(killed > 0)
-			casualties[st->side][st->getCreature()->getId()] += killed;
+			casualties[st->side][st->unitType()->getId()] += killed;
 	}
 }
 
@@ -210,7 +210,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	if(town)
 	{
 		curB->town = town;
-		curB->terrainType = (*VLC->townh)[town->subID]->nativeTerrain;
+		curB->terrainType = town->getNativeTerrain();
 	}
 	else
 	{

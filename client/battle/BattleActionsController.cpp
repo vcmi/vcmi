@@ -569,10 +569,10 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -583,18 +583,14 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::TELEPORT:
-		{
-			ui8 skill = getCurrentSpellcaster()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
-			return owner.curInt->cb->battleCanTeleportTo(selectedStack, targetHex, skill);
-		}
+			return selectedStack && isCastingPossibleHere(action.spell().toSpell(), selectedStack, targetHex);
 
 		case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
 			return targetStack && targetStack != selectedStack && targetStackOwned && targetStack->alive();
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
-			return isCastingPossibleHere(action.spell().toSpell(), owner.stacksController->getActiveStack(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
@@ -904,7 +900,7 @@ spells::Mode BattleActionsController::getCurrentCastMode() const
 
 }
 
-bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *casterStack, const CStack *targetStack, BattleHex targetHex)
+bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *targetStack, BattleHex targetHex)
 {
 	assert(currentSpell);
 	if (!currentSpell)
@@ -915,6 +911,8 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 	const spells::Mode mode = heroSpellToCast ? spells::Mode::HERO : spells::Mode::CREATURE_ACTIVE;
 
 	spells::Target target;
+	if(targetStack)
+		target.emplace_back(targetStack);
 	target.emplace_back(targetHex);
 
 	spells::BattleCast cast(owner.curInt->cb.get(), caster, mode, currentSpell);

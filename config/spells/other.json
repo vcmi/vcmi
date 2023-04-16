@@ -140,11 +140,6 @@
 							"appearAnimation" : "C09SPF0",
 							"appearSound" : "LANDMINE"
 						}
-					},
-					"damage":{
-						"type":"core:damage",
-						"optional":false,
-						"indirect":true
 					}
 				}
 			},
@@ -641,6 +636,21 @@
 					}
 				},
 				"targetModifier":{"smart":true}
+			},
+			"advanced" :{
+				"battleEffects":{
+					"teleport":{
+						"isMoatPassable" : true
+					}
+				}
+			},
+			"expert" : {
+				"battleEffects":{
+					"teleport":{
+						"isWallPassable" : true,
+						"isMoatPassable" : true
+					}
+				}
 			}
 		},
 		"flags" : {

@@ -56,11 +56,6 @@ CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I
 	health.init(); //???
 }
 
-const CCreature * CStack::getCreature() const
-{
-	return type;
-}
-
 void CStack::localInit(BattleInfo * battleInfo)
 {
 	battle = battleInfo;
@@ -88,7 +83,7 @@ ui32 CStack::level() const
 	if(base)
 		return base->getLevel(); //creature or commander
 	else
-		return std::max(1, static_cast<int>(getCreature()->getLevel())); //war machine, clone etc
+		return std::max(1, static_cast<int>(unitType()->getLevel())); //war machine, clone etc
 }
 
 si32 CStack::magicResistance() const
@@ -346,7 +341,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
 	for(const CStack * st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st, unit, true) && st->getCreature()->getId() == CreatureID::AMMO_CART)
+		if(battle->battleMatchOwner(st, unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
 		{
 			return st->alive();
 		}

@@ -1208,11 +1208,11 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 		boost::format txt(formatString);
 		if(killed > 1)
 		{
-			txt % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->getCreature()->getNamePluralTranslated()); // creatures perish
+			txt % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->unitType()->getNamePluralTranslated()); // creatures perish
 		}
 		else //killed == 1
 		{
-			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->getNameSingularTranslated()); // creature perishes
+			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->unitType()->getNameSingularTranslated()); // creature perishes
 		}
 		MetaString line;
 		line << txt.str();
@@ -1527,7 +1527,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				if(stackIsMoving && start != curStack->getPosition())
 				{
-					stackIsMoving = handleDamageFromObstacle(curStack, passed);
+					stackIsMoving = handleObstacleTriggersForUnit(*spellEnv, *curStack, passed);
 					passed.insert(curStack->getPosition());
 					if(curStack->doubleWide())
 						passed.insert(curStack->occupiedHex());
@@ -1565,7 +1565,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	handleDamageFromObstacle(curStack, passed);
+	handleObstacleTriggersForUnit(*spellEnv, *curStack, passed);
 
 	return ret;
 }
@@ -4478,10 +4478,10 @@ void CGameHandler::updateGateState()
 	// - deals moat damage to attacker if bridge is closed (fortress only)
 
 	bool hasForceFieldOnBridge = !battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), true).empty();
-	bool hasStackAtGateInner   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
-	bool hasStackAtGateOuter   = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
-	bool hasStackAtGateBridge  = gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false) != nullptr;
-	bool hasWideMoat         = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	bool hasStackAtGateInner   = gs->curB->battleGetUnitByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
+	bool hasStackAtGateOuter   = gs->curB->battleGetUnitByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
+	bool hasStackAtGateBridge  = gs->curB->battleGetUnitByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false) != nullptr;
+	bool hasWideMoat           = vstd::contains_if(battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
@@ -4933,7 +4933,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	}
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND
 			|| ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
-		handleDamageFromObstacle(stack);
+		handleObstacleTriggersForUnit(*spellEnv, *stack);
 	if(ba.stackNumber == gs->curB->activeStack || battleResult.get()) //active stack has moved or battle has finished
 		battleMadeAction.setn(true);
 	return ok;
@@ -5287,66 +5287,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 			}
 		}
 	}
-}
-
-bool CGameHandler::handleDamageFromObstacle(const battle::Unit * curStack, const std::set<BattleHex> & passed)
-{
-	if(!curStack->alive())
-		return false;
-	bool movementStopped = false;
-	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack, passed))
-	{
-		//helper info
-		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
-
-		if(spellObstacle)
-		{
-			auto revealObstacles = [&](const SpellCreatedObstacle & spellObstacle) -> void
-			{
-				// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-				auto operation = ObstacleChanges::EOperation::UPDATE;
-				if (spellObstacle.removeOnTrigger)
-					operation = ObstacleChanges::EOperation::REMOVE;
-
-				SpellCreatedObstacle changedObstacle;
-				changedObstacle.uniqueID = spellObstacle.uniqueID;
-				changedObstacle.revealed = true;
-
-				BattleObstaclesChanged bocp;
-				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
-				changedObstacle.toInfo(bocp.changes.back(), operation);
-				sendAndApply(&bocp);
-			};
-			const auto side = curStack->unitSide();
-			auto shouldReveal = !spellObstacle->hidden || !gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
-			const auto * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-			auto caster = spells::ObstacleCasterProxy(gs->curB->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-			const auto * sp = obstacle->getTrigger().toSpell();
-			if(obstacle->triggersEffects() && sp)
-			{
-				auto cast = spells::BattleCast(gs->curB, &caster, spells::Mode::PASSIVE, sp);
-				spells::detail::ProblemImpl ignored;
-				auto target = spells::Target(1, spells::Destination(curStack));
-				if(sp->battleMechanics(&cast)->canBeCastAt(target, ignored)) // Obstacles should not be revealed by immune creatures
-				{
-					if(shouldReveal) { //hidden obstacle triggers effects after revealed
-						revealObstacles(*spellObstacle);
-						cast.cast(spellEnv, target);
-					}
-				}
-			}
-			else if(shouldReveal)
-				revealObstacles(*spellObstacle);
-		}
-
-		if(!curStack->alive())
-			return false;
-
-		if(obstacle->stopsMovement())
-			movementStopped = true;
-	}
-
-	return curStack->alive() && !movementStopped;
 }
 
 void CGameHandler::handleTimeEvents()
@@ -6031,8 +5971,8 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(Bonus::TRANSMUTATION))->additionalInfo[0];
 
-		if(defender->getCreature()->getId() == bonusAdditionalInfo ||
-			(bonusAdditionalInfo == CAddInfo::NONE && defender->getCreature()->getId() == attacker->getCreature()->getId()))
+		if(defender->unitType()->getId() == bonusAdditionalInfo ||
+			(bonusAdditionalInfo == CAddInfo::NONE && defender->unitType()->getId() == attacker->unitType()->getId()))
 			return;
 
 		battle::UnitInfo resurrectInfo;
@@ -6421,7 +6361,7 @@ void CGameHandler::runBattle()
 			auto accessibility = getAccesibility();
 			CreatureID creatureData = CreatureID(summonInfo->subtype);
 			std::vector<BattleHex> targetHexes;
-			const bool targetIsBig = stack->getCreature()->isDoubleWide(); //target = creature to guard
+			const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
 			const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
 
 			/*Chosen idea for two hex units was to cover all possible surrounding hexes of target unit with as small number of stacks as possible.
@@ -6606,7 +6546,7 @@ void CGameHandler::runBattle()
 			}
 
 			const CGHeroInstance * curOwner = battleGetOwnerHero(next);
-			const int stackCreatureId = next->getCreature()->getId();
+			const int stackCreatureId = next->unitType()->getId();
 
 			if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
 				&& (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, stackCreatureId)))
@@ -6622,7 +6562,7 @@ void CGameHandler::runBattle()
 
 				for(auto & elem : gs->curB->stacks)
 				{
-					if(elem->getCreature()->getId() != CreatureID::CATAPULT
+					if(elem->unitType()->getId() != CreatureID::CATAPULT
 						&& elem->owner != next->owner
 						&& elem->isValidTarget()
 						&& gs->curB->battleCanShoot(next, elem->getPosition()))
@@ -6644,7 +6584,7 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			if (next->getCreature()->getId() == CreatureID::CATAPULT)
+			if (next->unitType()->getId() == CreatureID::CATAPULT)
 			{
 				const auto & attackableBattleHexes = curB.getAttackableBattleHexes();
 
@@ -6666,7 +6606,7 @@ void CGameHandler::runBattle()
 				}
 			}
 
-			if (next->getCreature()->getId() == CreatureID::FIRST_AID_TENT)
+			if (next->unitType()->getId() == CreatureID::FIRST_AID_TENT)
 			{
 				TStacks possibleStacks = battleGetStacksIf([=](const CStack * s)
 				{
