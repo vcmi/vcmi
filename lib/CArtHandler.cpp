@@ -740,9 +740,21 @@ void CArtHandler::erasePickedArt(const ArtifactID & id)
 {
 	CArtifact *art = objects[id];
 
-	if(auto artl = listFromClass(art->aClass))
+	if(!(art->aClass & CArtifact::ART_SPECIAL))
 	{
-		auto & artifactList = artl->get();
+		auto & artifactList = treasures;
+		switch(art->aClass)
+		{
+			case CArtifact::ART_MINOR:
+				artifactList = minors;
+				break;
+			case CArtifact::ART_MAJOR:
+				artifactList = majors;
+				break;
+			case CArtifact::ART_RELIC:
+				artifactList = relics;
+				break;
+		}
 		if(artifactList.empty())
 			fillList(artifactList, art->aClass);
 
@@ -757,23 +769,6 @@ void CArtHandler::erasePickedArt(const ArtifactID & id)
 	}
 	else
 		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
-}
-
-std::optional<std::reference_wrapper<std::vector<CArtifact *>>> CArtHandler::listFromClass(CArtifact::EartClass artifactClass)
-{
-	switch(artifactClass)
-	{
-	case CArtifact::ART_TREASURE:
-		return {std::ref(treasures)};
-	case CArtifact::ART_MINOR:
-		return {std::ref(minors)};
-	case CArtifact::ART_MAJOR:
-		return {std::ref(majors)};
-	case CArtifact::ART_RELIC:
-		return {std::ref(relics)};
-	default: //special artifacts should not be erased
-		return {};
-	}
 }
 
 void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
