@@ -247,7 +247,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 
 									//Players with lower indexes (especially 1 and 2) will be placed further apart
 
-									localDistance *= (1.0f + (std::abs<float>(firstPlayer - secondPlayer) / (firstPlayer * secondPlayer)));
+									localDistance *= (1.0f + (2.0f / (firstPlayer * secondPlayer)));
 								}
 
 								distance += localDistance;
@@ -329,8 +329,8 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	let's assume we try to fit N circular zones with radius = size on a map
 	*/
 
-	gravityConstant = 4e-3f;
-	stiffnessConstant = 4e-3f;
+	gravityConstant = 2e-3f;
+	stiffnessConstant = 6e-3f;
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
@@ -579,7 +579,9 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 			float minDistance = (zone.second->getSize() + otherZone.second->getSize()) / mapSize;
 			if (distance < minDistance)
 			{
-				forceVector -= (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stiffnessConstant; //negative value
+				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stiffnessConstant;
+				//negative value
+				forceVector -= localForce * (distancesBetweenZones[zone.second->getId()][otherZone.second->getId()] / 2.0f);
 				overlap += (minDistance - distance); //overlapping of small zones hurts us more
 			}
 		}
@@ -630,7 +632,8 @@ void CZonePlacer::moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDis
 		totalDistance += zone.second;
 		float overlap = overlaps[zone.first];
 		totalOverlap += overlap;
-		float ratio = (zone.second + overlap) / static_cast<float>(totalForces[zone.first].mag()); //if distance to actual movement is long, the zone is misplaced
+		//if distance to actual movement is long, the zone is misplaced
+		float ratio = (zone.second + overlap) / static_cast<float>(totalForces[zone.first].mag());
 		if (ratio > maxRatio)
 		{
 			maxRatio = ratio;
