@@ -31,6 +31,8 @@ static std::map<std::string, int> KeycodeMap{
 	{"left", SDLK_LEFT},
 	{"right", SDLK_RIGHT},
 	{"space", SDLK_SPACE},
+	{"escape", SDLK_ESCAPE},
+	{"backspace", SDLK_BACKSPACE},
 	{"enter", SDLK_RETURN}
 };
 
@@ -220,10 +222,16 @@ int InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
 		auto s = config.String();
 		if(s.size() == 1) //keyboard symbol
 			return s[0];
-		return KeycodeMap[s];
+
+		if (KeycodeMap.count(s))
+			return KeycodeMap[s];
+
+		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
+		return SDLK_UNKNOWN;
 	}
-	
-	return 0;
+
+	logGlobal->error("Invalid keycode format in interface configuration! Expected string or integer!", config.String());
+	return SDLK_UNKNOWN;
 }
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const

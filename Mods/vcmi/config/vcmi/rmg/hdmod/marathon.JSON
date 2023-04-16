@@ -1,0 +1,638 @@
+{
+	"Marathon XL" :
+	{
+		"minSize" : "xl", "maxSize" : "xl",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 4000, "max" : 5000, "density" : 4 },
+					{ "min" : 300, "max" : 2000, "density" : 7 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1 },
+				"treasure" :
+				[
+					{ "min" : 6000, "max" : 9600, "density" : 7 },
+					{ "min" : 1000, "max" : 2000, "density" : 6 }
+				]
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "sulfur" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 22000, "density" : 1 },
+					{ "min" : 3500, "max" : 8000, "density" : 6 },
+					{ "min" : 1000, "max" : 2000, "density" : 6 }
+				]
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "fortress" ],
+				"mines" : { "mercury" : 1, "crystal" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 9000, "max" : 10000, "density" : 1 },
+					{ "min" : 3500, "max" : 6000, "density" : 5 },
+					{ "min" : 1000, "max" : 2000, "density" : 6 }
+				]
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 4,
+				"treasureLikeZone" : 4
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "fortress" ],
+				"minesLikeZone" : 5,
+				"treasureLikeZone" : 5
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "rampart", "dungeon" ],
+				"mines" : { "mercury" : 1 },
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 22000, "density" : 1 },
+					{ "min" : 5000, "max" : 9300, "density" : 6 },
+					{ "min" : 1000, "max" : 2000, "density" : 3 }
+				]
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno" ],
+				"mines" : { "sulfur" : 1 },
+				"treasure" :
+				[
+					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 8000, "max" : 9300, "density" : 6 },
+					{ "min" : 1000, "max" : 2000, "density" : 3 }
+				]
+			},
+			"11" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno", "necropolis" ],
+				"mines" : { "crystal" : 1 },
+				"treasure" :
+				[
+					{ "min" : 25000, "max" : 29000, "density" : 1 },
+					{ "min" : 7000, "max" : 9300, "density" : 6 },
+					{ "min" : 1000, "max" : 2000, "density" : 3 }
+				]
+			},
+			"12" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "rampart", "dungeon" ],
+				"minesLikeZone" : 9,
+				"treasureLikeZone" : 9
+			},
+			"13" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno" ],
+				"minesLikeZone" : 10,
+				"treasureLikeZone" : 10
+			},
+			"14" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno", "necropolis" ],
+				"minesLikeZone" : 11,
+				"treasureLikeZone" : 11
+			},
+			"15" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "snow", "swamp", "rough" ],
+				"treasure" :
+				[
+					{ "min" : 35000, "max" : 45000, "density" : 1 },
+					{ "min" : 20000, "max" : 22000, "density" : 1 },
+					{ "min" : 7000, "max" : 9300, "density" : 7 }
+				]
+			},
+			"16" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"17" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"18" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"19" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"20" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"21" :
+			{
+				"type" : "treasure",
+				"size" : 30,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "castle", "rampart", "dungeon" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"treasure" :
+				[
+					{ "min" : 80000, "max" : 120000, "density" : 2 },
+					{ "min" : 40000, "max" : 70000, "density" : 1 },
+					{ "min" : 10000, "max" : 29000, "density" : 1 }
+				]
+			},
+			"22" :
+			{
+				"type" : "treasure",
+				"size" : 30,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "castle", "rampart", "dungeon" ],
+				"terrainTypeLikeZone" : 21,
+				"treasureLikeZone" : 21
+			},
+			"23" :
+			{
+				"type" : "treasure",
+				"size" : 30,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "castle", "rampart", "dungeon" ],
+				"terrainTypeLikeZone" : 21,
+				"treasureLikeZone" : 21
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 5000 },
+			{ "a" : "1", "b" : "4", "guard" : 6000 },
+			{ "a" : "1", "b" : "5", "guard" : 7000 },
+			{ "a" : "2", "b" : "6", "guard" : 7000 },
+			{ "a" : "2", "b" : "7", "guard" : 6000 },
+			{ "a" : "2", "b" : "8", "guard" : 5000 },
+			{ "a" : "3", "b" : "9", "guard" : 18000 },
+			{ "a" : "4", "b" : "9", "guard" : 23000 },
+			{ "a" : "4", "b" : "10", "guard" : 20000 },
+			{ "a" : "5", "b" : "10", "guard" : 23000 },
+			{ "a" : "5", "b" : "11", "guard" : 16000 },
+			{ "a" : "3", "b" : "11", "guard" : 27000 },
+			{ "a" : "6", "b" : "12", "guard" : 18000 },
+			{ "a" : "7", "b" : "12", "guard" : 23000 },
+			{ "a" : "8", "b" : "13", "guard" : 23000 },
+			{ "a" : "8", "b" : "14", "guard" : 18000 },
+			{ "a" : "7", "b" : "13", "guard" : 20000 },
+			{ "a" : "6", "b" : "14", "guard" : 27000 },
+			{ "a" : "9", "b" : "15", "guard" : 40000 },
+			{ "a" : "10", "b" : "16", "guard" : 45000 },
+			{ "a" : "11", "b" : "17", "guard" : 35000 },
+			{ "a" : "12", "b" : "18", "guard" : 40000 },
+			{ "a" : "13", "b" : "19", "guard" : 45000 },
+			{ "a" : "14", "b" : "20", "guard" : 35000 },
+			{ "a" : "15", "b" : "21", "guard" : 60000 },
+			{ "a" : "16", "b" : "22", "guard" : 80000 },
+			{ "a" : "17", "b" : "23", "guard" : 70000 },
+			{ "a" : "18", "b" : "21", "guard" : 70000 },
+			{ "a" : "19", "b" : "22", "guard" : 80000 },
+			{ "a" : "20", "b" : "23", "guard" : 60000 },
+			{ "a" : "21", "b" : "22", "guard" : 280000 },
+			{ "a" : "22", "b" : "23", "guard" : 280000 },
+			{ "a" : "23", "b" : "21", "guard" : 280000 }
+		]
+	},
+	"Marathon XXL":
+	{
+		"minSize" : "xl+u", "maxSize" : "g+u",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 4000, "max" : 5000, "density" : 5 },
+					{ "min" : 300, "max" : 2000, "density" : 5 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 30,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1 },
+				"treasure" :
+				[
+					{ "min" : 6000, "max" : 9600, "density" : 5 },
+					{ "min" : 1000, "max" : 2000, "density" : 4 }
+				]
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "sulfur" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 22000, "density" : 1 },
+					{ "min" : 3500, "max" : 8000, "density" : 5 },
+					{ "min" : 1000, "max" : 2000, "density" : 4 }
+				]
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "fortress" ],
+				"mines" : { "mercury" : 1, "crystal" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 9000, "max" : 10000, "density" : 1 },
+					{ "min" : 3500, "max" : 6000, "density" : 5 },
+					{ "min" : 1000, "max" : 2000, "density" : 4 }
+				]
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 4,
+				"treasureLikeZone" : 4
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 14,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "fortress" ],
+				"minesLikeZone" : 5,
+				"treasureLikeZone" : 5
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "rampart", "dungeon" ],
+				"mines" : { "mercury" : 1 },
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 22000, "density" : 1 },
+					{ "min" : 5000, "max" : 9300, "density" : 4 },
+					{ "min" : 1000, "max" : 2000, "density" : 4 }
+				]
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno" ],
+				"mines" : { "sulfur" : 1 },
+				"treasure" :
+				[
+					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 8000, "max" : 9300, "density" : 4 },
+					{ "min" : 1000, "max" : 2000, "density" : 4 }
+				]
+			},
+			"11" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno", "necropolis" ],
+				"mines" : { "crystal" : 1 },
+				"treasure" :
+				[
+					{ "min" : 25000, "max" : 29000, "density" : 1 },
+					{ "min" : 7000, "max" : 9300, "density" : 4 },
+					{ "min" : 1000, "max" : 2000, "density" : 4 }
+				]
+			},
+			"12" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "rampart", "dungeon" ],
+				"minesLikeZone" : 9,
+				"treasureLikeZone" : 9
+			},
+			"13" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno" ],
+				"minesLikeZone" : 10,
+				"treasureLikeZone" : 10
+			},
+			"14" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "inferno", "necropolis" ],
+				"minesLikeZone" : 11,
+				"treasureLikeZone" : 11
+			},
+			"15" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "snow", "swamp", "rough" ],
+				"treasure" :
+				[
+					{ "min" : 35000, "max" : 45000, "density" : 1 },
+					{ "min" : 20000, "max" : 22000, "density" : 1 },
+					{ "min" : 7000, "max" : 9300, "density" : 5 }
+				]
+			},
+			"16" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"17" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"18" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"19" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"20" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedMonsters" : [ "castle", "rampart", "tower", "dungeon", "stronghold", "fortress", "conflux" ],
+				"terrainTypeLikeZone" : 15,
+				"treasureLikeZone" : 15
+			},
+			"21" :
+			{
+				"type" : "treasure",
+				"size" : 30,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "castle", "rampart", "dungeon" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"treasure" :
+				[
+					{ "min" : 110000, "max" : 120000, "density" : 2 },
+					{ "min" : 60000, "max" : 70000, "density" : 1 },
+					{ "min" : 30000, "max" : 60000, "density" : 1 }
+				]
+			},
+			"22" :
+			{
+				"type" : "treasure",
+				"size" : 30,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "castle", "rampart", "dungeon" ],
+				"terrainTypeLikeZone" : 21,
+				"treasureLikeZone" : 21
+			},
+			"23" :
+			{
+				"type" : "treasure",
+				"size" : 30,
+				"monsters" : "strong",
+				"allowedMonsters" : [ "castle", "rampart", "dungeon" ],
+				"terrainTypeLikeZone" : 21,
+				"treasureLikeZone" : 21
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 5000 },
+			{ "a" : "1", "b" : "4", "guard" : 6000 },
+			{ "a" : "1", "b" : "5", "guard" : 7000 },
+			{ "a" : "2", "b" : "6", "guard" : 7000 },
+			{ "a" : "2", "b" : "7", "guard" : 6000 },
+			{ "a" : "2", "b" : "8", "guard" : 5000 },
+			{ "a" : "3", "b" : "9", "guard" : 18000 },
+			{ "a" : "4", "b" : "9", "guard" : 25000 },
+			{ "a" : "4", "b" : "10", "guard" : 22000 },
+			{ "a" : "5", "b" : "10", "guard" : 23000 },
+			{ "a" : "5", "b" : "11", "guard" : 16000 },
+			{ "a" : "3", "b" : "11", "guard" : 29000 },
+			{ "a" : "6", "b" : "12", "guard" : 18000 },
+			{ "a" : "7", "b" : "12", "guard" : 25000 },
+			{ "a" : "7", "b" : "13", "guard" : 22000 },
+			{ "a" : "8", "b" : "13", "guard" : 23000 },
+			{ "a" : "8", "b" : "14", "guard" : 18000 },
+			{ "a" : "6", "b" : "14", "guard" : 29000 },
+			{ "a" : "9", "b" : "15", "guard" : 45000 },
+			{ "a" : "10", "b" : "16", "guard" : 50000 },
+			{ "a" : "11", "b" : "17", "guard" : 40000 },
+			{ "a" : "12", "b" : "18", "guard" : 45000 },
+			{ "a" : "13", "b" : "19", "guard" : 50000 },
+			{ "a" : "14", "b" : "20", "guard" : 40000 },
+			{ "a" : "15", "b" : "21", "guard" : 70000 },
+			{ "a" : "16", "b" : "22", "guard" : 90000 },
+			{ "a" : "17", "b" : "23", "guard" : 80000 },
+			{ "a" : "18", "b" : "21", "guard" : 80000 },
+			{ "a" : "19", "b" : "22", "guard" : 90000 },
+			{ "a" : "20", "b" : "23", "guard" : 70000 },
+			{ "a" : "21", "b" : "22", "guard" : 350000 },
+			{ "a" : "22", "b" : "23", "guard" : 350000 },
+			{ "a" : "23", "b" : "21", "guard" : 350000 }
+		]
+	}
+}

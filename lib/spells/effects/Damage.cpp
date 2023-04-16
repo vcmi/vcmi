@@ -22,14 +22,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static const std::string EFFECT_NAME = "core:damage";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Damage, EFFECT_NAME);
 
 void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {

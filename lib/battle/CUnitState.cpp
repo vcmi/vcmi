@@ -478,6 +478,11 @@ void CUnitState::getCastDescription(const spells::Spell * spell, const std::vect
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
 }
 
+int32_t CUnitState::manaLimit() const
+{
+	return 0; //TODO: creature casting with mana mode (for mods)
+}
+
 bool CUnitState::ableToRetaliate() const
 {
 	return alive()

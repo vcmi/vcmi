@@ -7,6 +7,7 @@
 #include "StdInc.h"
 #include "MinePlacer.h"
 #include "TownPlacer.h"
+#include "ConnectionsPlacer.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
 #include "../mapping/CMap.h"
@@ -38,6 +39,7 @@ void MinePlacer::process()
 void MinePlacer::init()
 {
 	DEPENDENCY(TownPlacer);
+	DEPENDENCY(ConnectionsPlacer);
 	POSTFUNCTION(ObjectManager);
 	POSTFUNCTION(RoadPlacer);
 }

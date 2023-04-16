@@ -83,7 +83,7 @@ private slots:
 
 	void on_toolErase_clicked();
 
-	void on_terrainFilterCombo_currentTextChanged(const QString &arg1);
+	void on_terrainFilterCombo_currentIndexChanged(int index);
 
 	void on_filter_textChanged(const QString &arg1);
 

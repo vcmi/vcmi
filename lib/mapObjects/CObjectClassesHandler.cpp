@@ -165,6 +165,8 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	obj->objects.push_back(object);
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
+	for (auto const & compatID : entry["compatibilityIdentifiers"].Vector())
+		registerObject(scope, obj->getJsonKey(), compatID.String(), object->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)
@@ -176,6 +178,8 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	obj->objects[index] = object;
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
+	for (auto const & compatID : entry["compatibilityIdentifiers"].Vector())
+		registerObject(scope, obj->getJsonKey(), compatID.String(), object->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index)

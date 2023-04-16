@@ -24,15 +24,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-static const std::string EFFECT_NAME = "core:summon";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Summon, EFFECT_NAME);
 
 void Summon::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {

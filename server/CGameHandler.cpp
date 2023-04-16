@@ -168,6 +168,11 @@ public:
 		return owner;
 	}
 
+	int32_t manaLimit() const override
+	{
+		return 0;
+	}
+
 	void getCasterName(MetaString & text) const override
 	{
 		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCasterName");

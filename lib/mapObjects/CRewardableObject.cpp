@@ -152,8 +152,14 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		BlockingDialog sd(canRefuse, rewards.size() > 1);
 		sd.player = h->tempOwner;
 		sd.text = dialog;
-		for (auto index : rewards)
-			sd.components.push_back(info[index].reward.getDisplayedComponent(h));
+
+		if (rewards.size() > 1)
+			for (auto index : rewards)
+				sd.components.push_back(info[index].reward.getDisplayedComponent(h));
+
+		if (rewards.size() == 1)
+			info[rewards[0]].reward.loadComponents(sd.components, h);
+
 		cb->showBlockingDialog(&sd);
 	};
 

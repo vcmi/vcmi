@@ -22,15 +22,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-static const std::string EFFECT_NAME = "core:heal";
-
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Heal, EFFECT_NAME);
 
 void Heal::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {

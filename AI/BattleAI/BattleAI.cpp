@@ -89,6 +89,7 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = true;
 	CB->unlockGsWhenWaiting = false;
+	movesSkippedByDefense = 0;
 }
 
 BattleAction CBattleAI::activeStack( const CStack * stack )
@@ -181,6 +182,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
 			{
 				// return because spellcast value is damage dealt and score is dps reduce
+				movesSkippedByDefense = 0;
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 			}
 
@@ -196,14 +198,15 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				}
 				else if(bestAttack.attack.shooting)
 				{
-
 					result = BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 					action = "shot";
+					movesSkippedByDefense = 0;
 				}
 				else
 				{
 					result = BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.from);
 					action = "melee";
+					movesSkippedByDefense = 0;
 				}
 
 				logAi->debug("BattleAI: %s -> %s x %d, %s, from %d curpos %d dist %d speed %d: +%lld -%lld = %lld",
@@ -217,6 +220,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		}
 		else if(bestSpellcast.is_initialized())
 		{
+			movesSkippedByDefense = 0;
 			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 		}
 
@@ -235,12 +239,8 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			}
 		}
 
-		if(score > EvaluationResult::INEFFECTIVE_SCORE)
-		{
-			return result;
-		}
-
-		if(!stack->hasBonusOfType(Bonus::FLYING)
+		if(score <= EvaluationResult::INEFFECTIVE_SCORE
+			&& !stack->hasBonusOfType(Bonus::FLYING)
 			&& stack->unitSide() == BattleSide::ATTACKER
 			&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
@@ -248,10 +248,12 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 			if(brokenWallMoat.size())
 			{
+				movesSkippedByDefense = 0;
+
 				if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
-					return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
+					result = BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 				else
-					return goTowardsNearest(stack, brokenWallMoat);
+					result = goTowardsNearest(stack, brokenWallMoat);
 			}
 		}
 	}
@@ -262,6 +264,15 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	catch(std::exception &e)
 	{
 		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
+	}
+
+	if(result.actionType == EActionType::DEFEND)
+	{
+		movesSkippedByDefense++;
+	}
+	else if(result.actionType != EActionType::WAIT)
+	{
+		movesSkippedByDefense = 0;
 	}
 
 	return result;
@@ -285,7 +296,9 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 	for(auto hex : hexes)
 	{
 		if(vstd::contains(avHexes, hex))
+		{
 			return BattleAction::makeMove(stack, hex);
+		}
 
 		if(stack->coversPos(hex))
 		{
@@ -395,6 +408,8 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	attack.actionType = EActionType::CATAPULT;
 	attack.side = side;
 	attack.stackNumber = stack->ID;
+
+	movesSkippedByDefense = 0;
 
 	return attack;
 }
@@ -703,6 +718,7 @@ void CBattleAI::attemptCastingSpell()
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
 		cb->battleMakeAction(&spellcast);
+		movesSkippedByDefense = 0;
 	}
 	else
 	{
@@ -796,12 +812,21 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 		}
 	}
 
+	bs.turnsSkippedByDefense = movesSkippedByDefense / bs.ourStacks.size();
+
 	if(!bs.canFlee || !bs.canSurrender)
 	{
 		return boost::none;
 	}
 
-	return cb->makeSurrenderRetreatDecision(bs);
+	auto result = cb->makeSurrenderRetreatDecision(bs);
+
+	if(!result && bs.canFlee && bs.turnsSkippedByDefense > 30)
+	{
+		return BattleAction::makeRetreat(bs.ourSide);
+	}
+
+	return result;
 }
 
 

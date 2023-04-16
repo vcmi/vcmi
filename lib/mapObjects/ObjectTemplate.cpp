@@ -524,6 +524,22 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 	return dirMap[dy][dx] != 0;
 }
 
+void ObjectTemplate::calculateTopVisibleOffset()
+{
+	for(int y = static_cast<int>(getHeight()) - 1; y >= 0; y--) //Templates start from bottom-right corner
+	{
+		for(int x = 0; x < static_cast<int>(getWidth()); x++)
+		{
+			if (isVisibleAt(x, y))
+			{
+				topVisibleOffset = int3(x, y, 0);
+				return;
+			}
+		}
+	}
+	topVisibleOffset = int3(0, 0, 0);
+}
+
 void ObjectTemplate::calculateVisitableOffset()
 {
 	for(int y = 0; y < static_cast<int>(getHeight()); y++)
@@ -559,6 +575,7 @@ void ObjectTemplate::recalculate()
 	calculateBlockedOffsets();
 	calculateBlockMapOffset();
 	calculateVisitableOffset();
+	calculateTopVisibleOffset();
 
 	if (visitable && visitDir == 0)
 		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile);

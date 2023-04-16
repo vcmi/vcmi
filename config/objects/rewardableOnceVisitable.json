@@ -17,7 +17,8 @@
 					"value"		: 500,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 65,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
@@ -32,7 +33,7 @@
 							}
 						]
 					}
-				]				
+				]
 			}
 		}
 	},
@@ -52,7 +53,8 @@
 					"value"		: 500,
 					"rarity"	: 100
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 38,
 				"blockedVisitable" : true,
 				"visitMode" : "once",
@@ -92,7 +94,8 @@
 					"value"		: 500,
 					"rarity"	: 50
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onVisitedMessage" : 156,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
@@ -142,7 +145,8 @@
 					"value"		: 6000,
 					"rarity"	: 20
 				},
-				
+				"compatibilityIdentifiers" : [ "object" ],
+
 				"onSelectMessage" : 161,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",

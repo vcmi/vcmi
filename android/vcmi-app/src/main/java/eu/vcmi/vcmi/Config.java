@@ -14,13 +14,13 @@ import eu.vcmi.vcmi.util.Log;
  */
 public class Config
 {
-    public static final String DEFAULT_CODEPAGE = "CP1250";
+    public static final String DEFAULT_LANGUAGE = "english";
     public static final int DEFAULT_MUSIC_VALUE = 5;
     public static final int DEFAULT_SOUND_VALUE = 5;
     public static final int DEFAULT_SCREEN_RES_W = 800;
     public static final int DEFAULT_SCREEN_RES_H = 600;
 
-    public String mCodepage;
+    public String mLanguage;
     public int mResolutionWidth;
     public int mResolutionHeight;
     public boolean mSwipeEnabled;
@@ -85,11 +85,11 @@ public class Config
         final Config config = new Config();
         final JSONObject general = accessNode(obj, "general");
         final JSONObject server = accessNode(obj, "server");
-        config.mCodepage = loadEntry(general, "encoding", DEFAULT_CODEPAGE);
+        config.mLanguage = loadEntry(general, "language", DEFAULT_LANGUAGE);
         config.mVolumeSound = loadEntry(general, "sound", DEFAULT_SOUND_VALUE);
         config.mVolumeMusic = loadEntry(general, "music", DEFAULT_MUSIC_VALUE);
         config.mSwipeEnabled = loadEntry(general, "swipe", true);
-        config.adventureAi = loadEntry(server, "playerAI", "VCAI");
+        config.adventureAi = loadEntry(server, "playerAI", "Nullkiller");
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
 
@@ -101,9 +101,9 @@ public class Config
         return config;
     }
 
-    public void updateCodepage(final String s)
+    public void updateLanguage(final String s)
     {
-        mCodepage = s;
+        mLanguage = s;
         mIsModified = true;
     }
 
@@ -140,7 +140,7 @@ public class Config
 
     public String getAdventureAi()
     {
-        return this.adventureAi == null ? "VCAI" : this.adventureAi;
+        return this.adventureAi == null ? "Nullkiller" : this.adventureAi;
     }
 
     public void setPointerSpeedMultiplier(float speedMultiplier)
@@ -202,9 +202,9 @@ public class Config
         final JSONObject screenRes = screenResNode == null ? new JSONObject() : screenResNode;
         final JSONObject server = serverNode == null ? new JSONObject() : serverNode;
 
-        if (mCodepage != null)
+        if (mLanguage != null)
         {
-            general.put("encoding", mCodepage);
+            general.put("language", mLanguage);
         }
 
         general.put("swipe", mSwipeEnabled);

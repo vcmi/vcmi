@@ -12,13 +12,6 @@
 
 #include "Effect.h"
 
-#define VCMI_REGISTER_SPELL_EFFECT(Type, Name) \
-namespace\
-{\
-RegisterEffect<Type> register ## Type(Name);\
-}\
-\
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
@@ -57,17 +50,6 @@ public:
 	Effect * create() const override
 	{
 		return new E();
-	}
-};
-
-template<typename E>
-class RegisterEffect
-{
-public:
-	RegisterEffect(const std::string & name)
-	{
-		auto f = std::make_shared<EffectFactory<E>>();
-		GlobalRegistry::get()->add(name, f);
 	}
 };
 

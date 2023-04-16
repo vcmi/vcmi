@@ -1,0 +1,139 @@
+{
+	"Roadrunner" :
+	//(ban fly/DD, 2 player, 31-May-03, midnight design)
+	{
+		"minSize" : "xl", "maxSize" : "xl",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 15,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
+				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 3500, "max" : 6000, "density" : 4 },
+					{ "min" : 300, "max" : 2000, "density" : 5 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 15,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 25,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "necropolis" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "grass", "subterra", "lava" ],
+				"mines" : { "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 6000, "max" : 9500, "density" : 2 },
+					{ "min" : 3500, "max" : 6000, "density" : 5 },
+					{ "min" : 1000, "max" : 2000, "density" : 3 }
+				]
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 25,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "necropolis" ],
+				"terrainTypeLikeZone" : 3,
+				"minesLikeZone" : 3,
+				"treasureLikeZone" : 3
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 40,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"terrainTypeLikeZone" : 3,
+				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 45000, "max" : 50000, "density" : 1 },
+					{ "min" : 15000, "max" : 22000, "density" : 1 },
+					{ "min" : 8000, "max" : 9200, "density" : 12 }
+				]
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 40,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"terrainTypeLikeZone" : 3,
+				"minesLikeZone" : 5,
+				"treasureLikeZone" : 5
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 20,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"matchTerrainToTown" : false,
+				"treasure" :
+				[
+					{ "min" : 100000, "max" : 120000, "density" : 1 },
+					{ "min" : 25000, "max" : 29000, "density" : 1 },
+					{ "min" : 8000, "max" : 9200, "density" : 12 }
+				]
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 20,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 7
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 0 },
+			{ "a" : "1", "b" : "3", "guard" : 0 },
+			{ "a" : "2", "b" : "4", "guard" : 0 },
+			{ "a" : "2", "b" : "4", "guard" : 0 },
+			{ "a" : "3", "b" : "5", "guard" : 0 },
+			{ "a" : "3", "b" : "5", "guard" : 0 },
+			{ "a" : "3", "b" : "5", "guard" : 0 },
+			{ "a" : "4", "b" : "6", "guard" : 0 },
+			{ "a" : "4", "b" : "6", "guard" : 0 },
+			{ "a" : "4", "b" : "6", "guard" : 0 },
+			{ "a" : "5", "b" : "7", "guard" : 0 },
+			{ "a" : "5", "b" : "7", "guard" : 0 },
+			{ "a" : "6", "b" : "8", "guard" : 0 },
+			{ "a" : "6", "b" : "8", "guard" : 0 },
+			{ "a" : "7", "b" : "8", "guard" : 0 },
+			{ "a" : "7", "b" : "8", "guard" : 0 },
+			{ "a" : "7", "b" : "8", "guard" : 0 }
+		]
+	}
+}

@@ -10,9 +10,9 @@
     <string name="launcher_btn_start_subtitle">Поточна версія VCMI: %1$s</string>
     <string name="launcher_btn_mods_title">Моди</string>
     <string name="launcher_btn_mods_subtitle">Додати нові замки, істот, об’єкти, розширення</string>
-    <string name="launcher_btn_cp_title">Кодова сторінка</string>
-    <string name="launcher_btn_cp_subtitle_unknown">Поточна: невідомо</string>
-    <string name="launcher_btn_cp_subtitle">Поточна: %1$s</string>
+    <string name="launcher_btn_language_title">Мова</string>
+    <string name="launcher_btn_language_subtitle_unknown">Поточна: невідомо</string>
+    <string name="launcher_btn_language_subtitle">Поточна: %1$s</string>
     <string name="launcher_btn_pointermode_title">Змінити режим керування курсором</string>
     <string name="launcher_btn_pointermode_subtitle">Поточна: %1$s</string>
     <string name="launcher_btn_pointermulti_subtitle">Поточна: %1$s</string>

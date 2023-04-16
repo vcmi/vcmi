@@ -128,6 +128,7 @@ void BattleActionsController::endCastingSpell()
 	if(owner.stacksController->getActiveStack())
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
 
+	selectedStack = nullptr;
 	GH.fakeMouseMove();
 }
 
@@ -529,7 +530,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return (targetStack && targetStackOwned && targetStack->Speed() > 0);
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
-			return (targetStack && targetStackOwned);
+			return (targetStack && targetStackOwned && targetStack->alive());
 
 		case PossiblePlayerBattleAction::HERO_INFO:
 			if (targetHex == BattleHex::HERO_ATTACKER)

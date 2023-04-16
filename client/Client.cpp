@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "Global.h"
 #include "StdInc.h"
 #include "Client.h"
 
@@ -31,6 +32,7 @@
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/Connection.h"
 
+#include <memory>
 #include <vcmi/events/EventBus.h>
 
 #if SCRIPTING_ENABLED
@@ -369,6 +371,9 @@ void CClient::endGame()
 		logNetwork->info("Deleted mapHandler and gameState.");
 	}
 
+	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
+	cleanThreads();
+
 	playerint.clear();
 	battleints.clear();
 	battleCallbacks.clear();
@@ -593,7 +598,8 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(info->tacticDistance && vstd::contains(battleints, info->sides[info->tacticsSide].color))
 	{
-		boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide].color]);
+		PlayerColor color = info->sides[info->tacticsSide].color;
+		playerTacticThreads[color] = std::make_unique<boost::thread>(&CClient::commenceTacticPhaseForInt, this, battleints[color]);
 	}
 }
 
@@ -752,6 +758,23 @@ void CClient::removeGUI()
 	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
+}
+
+void CClient::cleanThreads()
+{
+	stopAllBattleActions();
+
+	while (!playerTacticThreads.empty())
+	{
+		PlayerColor color = playerTacticThreads.begin()->first;
+
+		//set tacticcMode of the players to false to stop tacticThread
+		if (vstd::contains(battleints, color))
+			battleints[color]->forceEndTacticPhase();
+
+		playerTacticThreads[color]->join();
+		playerTacticThreads.erase(color);
+	}
 }
 
 #ifdef VCMI_ANDROID
