@@ -328,7 +328,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
 		if(hero->getRemovalSound() && hero->tempOwner == playerID)
-			CCS->soundh->playSound(hero->getRemovalSound().get());
+			CCS->soundh->playSound(hero->getRemovalSound().value());
 	}
 
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.start));
@@ -463,7 +463,7 @@ void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectI
 	if(start && visitedObj)
 	{
 		if(visitedObj->getVisitSound())
-			CCS->soundh->playSound(visitedObj->getVisitSound().get());
+			CCS->soundh->playSound(visitedObj->getVisitSound().value());
 	}
 }
 
@@ -1530,7 +1530,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 	if(LOCPLINT->cb->getCurrentPlayer() == playerID && obj->getRemovalSound())
 	{
 		waitWhileDialog();
-		CCS->soundh->playSound(obj->getRemovalSound().get());
+		CCS->soundh->playSound(obj->getRemovalSound().value());
 	}
 	CGI->mh->waitForOngoingAnimations();
 
@@ -1758,7 +1758,7 @@ void CPlayerInterface::acceptTurn()
 
 		if(optDaysWithoutCastle)
 		{
-			auto daysWithoutCastle = optDaysWithoutCastle.get();
+			auto daysWithoutCastle = optDaysWithoutCastle.value();
 			if (daysWithoutCastle < 6)
 			{
 				text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.

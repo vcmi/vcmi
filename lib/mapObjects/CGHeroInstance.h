@@ -182,7 +182,7 @@ public:
 	PrimarySkill::PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	boost::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
+	std::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills() const;

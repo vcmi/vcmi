@@ -288,31 +288,31 @@ std::string CGObjectInstance::getObjectName() const
 	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
-boost::optional<std::string> CGObjectInstance::getAmbientSound() const
+std::optional<std::string> CGObjectInstance::getAmbientSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
 		return sounds.front(); // TODO: Support randomization of ambient sounds
 
-	return boost::none;
+	return std::nullopt;
 }
 
-boost::optional<std::string> CGObjectInstance::getVisitSound() const
+std::optional<std::string> CGObjectInstance::getVisitSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
 
-	return boost::none;
+	return std::nullopt;
 }
 
-boost::optional<std::string> CGObjectInstance::getRemovalSound() const
+std::optional<std::string> CGObjectInstance::getRemovalSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
 
-	return boost::none;
+	return std::nullopt;
 }
 
 std::string CGObjectInstance::getHoverText(PlayerColor player) const
@@ -384,7 +384,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeInt("l", pos.z);
 		JsonNode app;
 		appearance->writeJson(app, false);
-		handler.serializeRaw("template",app, boost::none);
+		handler.serializeRaw("template", app, std::nullopt);
 	}
 
 	{

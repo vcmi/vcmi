@@ -2050,11 +2050,11 @@ void NewTurn::applyGs(CGameState *gs)
 				if (playerState.daysWithoutCastle)
 					++(*playerState.daysWithoutCastle);
 				else
-					playerState.daysWithoutCastle = boost::make_optional(0);
+					playerState.daysWithoutCastle = std::make_optional(0);
 			}
 			else
 			{
-				playerState.daysWithoutCastle = boost::none;
+				playerState.daysWithoutCastle = std::nullopt;
 			}
 		}
 	}
@@ -2085,7 +2085,7 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
 				if(p->daysWithoutCastle)
-					p->daysWithoutCastle = boost::none;
+					p->daysWithoutCastle = std::nullopt;
 			}
 		}
 

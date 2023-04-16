@@ -74,8 +74,8 @@ namespace ERM
 
 	struct TVarExpNotMacro
 	{
-		typedef boost::optional<int> Tval;
-		boost::optional<char> questionMark;
+		typedef std::optional<int> Tval;
+		std::optional<char> questionMark;
 		std::string varsym;
 		Tval val;
 	};
@@ -134,7 +134,7 @@ namespace ERM
 	struct TNormalBodyOption
 	{
 		char optionCode;
-		boost::optional<TNormalBodyOptionList> params;
+		std::optional<TNormalBodyOptionList> params;
 	};
 	typedef std::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
 
@@ -148,12 +148,7 @@ namespace ERM
 	};
 
 	struct Tcondition;
-	typedef
-		boost::optional<
-		boost::recursive_wrapper<Tcondition>
-		>
-		TconditionNode;
-
+	typedef std::optional<boost::recursive_wrapper<Tcondition>> TconditionNode;
 
 	struct Tcondition
 	{
@@ -170,8 +165,8 @@ namespace ERM
 	{
 		bool pre; //if false it's !$ post-trigger, elsewise it's !# (pre)trigger
 		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
+		std::optional<Tidentifier> identifier;
+		std::optional<Tcondition> condition;
 	};
 
 	struct Ttrigger : TTriggerBase
@@ -202,17 +197,17 @@ namespace ERM
 	struct Tinstruction
 	{
 		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
+		std::optional<Tidentifier> identifier;
+		std::optional<Tcondition> condition;
 		Tbody body;
 	};
 
 	struct Treceiver
 	{
 		TCmdName name;
-		boost::optional<Tidentifier> identifier;
-		boost::optional<Tcondition> condition;
-		boost::optional<Tbody> body;
+		std::optional<Tidentifier> identifier;
+		std::optional<Tcondition> condition;
+		std::optional<Tbody> body;
 	};
 
 	struct Tcommand

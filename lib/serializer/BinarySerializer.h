@@ -339,8 +339,8 @@ public:
 		VariantVisitorSaver<BinarySerializer> visitor(*this);
 		std::visit(visitor, data);
 	}
-	template <typename T>
-	void save(const boost::optional<T> &data)
+	template<typename T>
+	void save(const std::optional<T> & data)
 	{
 		if(data)
 		{

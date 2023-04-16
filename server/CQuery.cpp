@@ -455,7 +455,7 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const Her
 void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
-	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName(), answer.get());
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName(), answer.value());
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
@@ -474,7 +474,7 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner,
 void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
-	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.get());
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
 	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
 }
 

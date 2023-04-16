@@ -925,7 +925,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 
 void CGameState::initCampaign()
 {
-	logGlobal->info("Open campaign map file: %d", scenarioOps->campState->currentMap.get());
+	logGlobal->info("Open campaign map file: %d", scenarioOps->campState->currentMap.value());
 	map = scenarioOps->campState->getMap();
 }
 
@@ -1068,7 +1068,7 @@ void CGameState::placeCampaignHeroes()
 	{
 		// place bonus hero
 		auto campaignBonus = scenarioOps->campState->getBonusForCurrentMap();
-		bool campaignGiveHero = campaignBonus && campaignBonus.get().type == CScenarioTravel::STravelBonus::HERO;
+		bool campaignGiveHero = campaignBonus && campaignBonus->type == CScenarioTravel::STravelBonus::HERO;
 
 		if(campaignGiveHero)
 		{
@@ -1568,7 +1568,7 @@ void CGameState::initHeroes()
 
 void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 {
-	const boost::optional<CScenarioTravel::STravelBonus> & curBonus = scenarioOps->campState->getBonusForCurrentMap();
+	const std::optional<CScenarioTravel::STravelBonus> & curBonus = scenarioOps->campState->getBonusForCurrentMap();
 	if(!curBonus)
 		return;
 
@@ -2234,7 +2234,7 @@ void CGameState::updateRumor()
 	while(!rumor.update(rumorId, rumorExtra));
 }
 
-bool CGameState::isVisible(int3 pos, const boost::optional<PlayerColor> & player) const
+bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
 {
 	if (!map->isInTheMap(pos))
 		return false;
@@ -2248,7 +2248,7 @@ bool CGameState::isVisible(int3 pos, const boost::optional<PlayerColor> & player
 	return (*getPlayerTeam(*player)->fogOfWarMap)[pos.z][pos.x][pos.y];
 }
 
-bool CGameState::isVisible( const CGObjectInstance *obj, const boost::optional<PlayerColor> & player) const
+bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const
 {
 	if(!player)
 		return true;
@@ -2433,7 +2433,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::DAYS_WITHOUT_TOWN:
 		{
 			if (p->daysWithoutCastle)
-				return p->daysWithoutCastle.get() >= condition.value;
+				return p->daysWithoutCastle >= condition.value;
 			else
 				return false;
 		}

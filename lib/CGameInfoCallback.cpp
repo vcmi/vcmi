@@ -401,7 +401,7 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 	return gs->getDate(mode);
 }
 
-bool CGameInfoCallback::isVisible(int3 pos, const boost::optional<PlayerColor> & Player) const
+bool CGameInfoCallback::isVisible(int3 pos, const std::optional<PlayerColor> & Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->isVisible(pos, Player);
@@ -412,7 +412,7 @@ bool CGameInfoCallback::isVisible(int3 pos) const
 	return isVisible(pos, player);
 }
 
-bool CGameInfoCallback::isVisible( const CGObjectInstance *obj,const boost::optional<PlayerColor> & Player) const
+bool CGameInfoCallback::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & Player) const
 {
 	return gs->isVisible(obj, Player);
 }
@@ -521,8 +521,8 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 //TODO: typedef?
 std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {
-	assert(player.is_initialized());
-	const auto * team = getPlayerTeam(player.get());
+	assert(player.has_value());
+	const auto * team = getPlayerTeam(player.value());
 
 	size_t width = gs->map->width;
 	size_t height = gs->map->height;
@@ -619,9 +619,9 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 	return gs->map;
 }
 
-bool CGameInfoCallback::hasAccess(boost::optional<PlayerColor> playerId) const
+bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 {
-	return !player || player.get().isSpectator() || gs->getPlayerRelations( *playerId, *player ) != PlayerRelations::ENEMIES;
+	return !player || player->isSpectator() || gs->getPlayerRelations(*playerId, *player) != PlayerRelations::ENEMIES;
 }
 
 EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
@@ -703,7 +703,7 @@ PlayerColor CGameInfoCallback::getCurrentPlayer() const
 	return gs->currentPlayer;
 }
 
-CGameInfoCallback::CGameInfoCallback(CGameState * GS, boost::optional<PlayerColor> Player):
+CGameInfoCallback::CGameInfoCallback(CGameState * GS, std::optional<PlayerColor> Player):
 	gs(GS)
 {
 	player = std::move(Player);
@@ -754,7 +754,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	return ret;
 }
 
-boost::optional<PlayerColor> CPlayerSpecificInfoCallback::getMyColor() const
+std::optional<PlayerColor> CPlayerSpecificInfoCallback::getMyColor() const
 {
 	return player;
 }
@@ -882,7 +882,7 @@ const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 	if (team != gs->teams.end())
 	{
 		const TeamState *ret = &team->second;
-		if (!player.is_initialized()) //neutral (or invalid) player
+		if(!player.has_value()) //neutral (or invalid) player
 			return ret;
 		else
 		{

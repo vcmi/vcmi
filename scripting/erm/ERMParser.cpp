@@ -216,7 +216,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TVarExpNotMacro,
-	(boost::optional<char>, questionMark)
+	(std::optional<char>, questionMark)
 	(std::string, varsym)
 	(ERM::TVarExpNotMacro::Tval, val)
 	)
@@ -248,14 +248,14 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TNormalBodyOption,
 	(char, optionCode)
-	(boost::optional<ERM::TNormalBodyOptionList>, params)
+	(std::optional<ERM::TNormalBodyOptionList>, params)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::Ttrigger,
 	(ERM::TCmdName, name)
-	(boost::optional<ERM::Tidentifier>, identifier)
-	(boost::optional<ERM::Tcondition>, condition)
+	(std::optional<ERM::Tidentifier>, identifier)
+	(std::optional<ERM::Tcondition>, condition)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -293,24 +293,24 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::Tinstruction,
 	(ERM::TCmdName, name)
-	(boost::optional<ERM::Tidentifier>, identifier)
-	(boost::optional<ERM::Tcondition>, condition)
+	(std::optional<ERM::Tidentifier>, identifier)
+	(std::optional<ERM::Tcondition>, condition)
 	(ERM::Tbody, body)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::Treceiver,
 	(ERM::TCmdName, name)
-	(boost::optional<ERM::Tidentifier>, identifier)
-	(boost::optional<ERM::Tcondition>, condition)
-	(boost::optional<ERM::Tbody>, body)
+	(std::optional<ERM::Tidentifier>, identifier)
+	(std::optional<ERM::Tcondition>, condition)
+	(std::optional<ERM::Tbody>, body)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::TPostTrigger,
 	(ERM::TCmdName, name)
-	(boost::optional<ERM::Tidentifier>, identifier)
-	(boost::optional<ERM::Tcondition>, condition)
+	(std::optional<ERM::Tidentifier>, identifier)
+	(std::optional<ERM::Tcondition>, condition)
 	)
 
 //BOOST_FUSION_ADAPT_STRUCT(

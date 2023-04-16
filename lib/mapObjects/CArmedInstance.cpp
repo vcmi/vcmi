@@ -29,7 +29,7 @@ void CArmedInstance::randomizeArmy(int type)
 			int upgrade = elem.second->randomStack->upgrade;
 			elem.second->setType((*VLC->townh)[type]->town->creatures[level][upgrade]);
 
-			elem.second->randomStack = boost::none;
+			elem.second->randomStack = std::nullopt;
 		}
 		assert(elem.second->valid(false));
 		assert(elem.second->armyObj == this);

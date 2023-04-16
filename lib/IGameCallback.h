@@ -62,12 +62,12 @@ public:
 	void getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
 						 const int3 & pos,
 						 int radious,
-						 boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+						 std::optional<PlayerColor> player = std::optional<PlayerColor>(),
 						 int mode = 0,
 						 int3::EDistanceFormula formula = int3::DIST_2D) const;
 
 	//returns all tiles on given level (-1 - both levels, otherwise number of level)
-	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, std::optional<PlayerColor> player = std::optional<PlayerColor>(),
 					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant

@@ -897,7 +897,7 @@ void CPathfinderHelper::initializePatrol()
 		if(hero->patrol.patrolRadius)
 		{
 			state = PATROL_RADIUS;
-			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, boost::optional<PlayerColor>(), 0, int3::DIST_MANHATTAN);
+			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, std::optional<PlayerColor>(), 0, int3::DIST_MANHATTAN);
 		}
 		else
 			state = PATROL_LOCKED;
@@ -1100,8 +1100,12 @@ void TurnInfo::updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) co
 	}
 }
 
-CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options)
-	: CGameInfoCallback(gs, boost::optional<PlayerColor>()), turn(-1), hero(Hero), options(Options), owner(Hero->tempOwner)
+CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
+	CGameInfoCallback(gs, std::optional<PlayerColor>()),
+	turn(-1),
+	hero(Hero),
+	options(Options),
+	owner(Hero->tempOwner)
 {
 	turnsInfo.reserve(16);
 	updateTurnInfo();

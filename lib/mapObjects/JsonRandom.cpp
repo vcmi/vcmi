@@ -99,7 +99,7 @@ namespace JsonRandom
 		
 		std::string resourceName = loadKey(value, rng, defaultResources);
 		si32 resourceAmount = loadValue(value, rng, 0);
-		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).get());
+		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).value());
 
 		TResources ret;
 		ret[resourceID] = resourceAmount;
@@ -138,7 +138,7 @@ namespace JsonRandom
 		{
 			for(const auto & pair : value.Struct())
 			{
-				SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).value());
 				ret[id] = loadValue(pair.second, rng);
 			}
 		}
@@ -153,7 +153,7 @@ namespace JsonRandom
 			
 			for(const auto & element : value.Vector())
 			{
-				SecondarySkill id(VLC->modh->identifiers.getIdentifier(element.meta, "skill", loadKey(element, rng, defaultSkills)).get());
+				SecondarySkill id(VLC->modh->identifiers.getIdentifier(element.meta, "skill", loadKey(element, rng, defaultSkills)).value());
 				ret[id] = loadValue(element, rng);
 			}
 		}
@@ -163,7 +163,7 @@ namespace JsonRandom
 	ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng)
 	{
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
-			return ArtifactID(VLC->modh->identifiers.getIdentifier("artifact", value).get());
+			return ArtifactID(VLC->modh->identifiers.getIdentifier("artifact", value).value());
 
 		std::set<CArtifact::EartClass> allowedClasses;
 		std::set<ArtifactPosition> allowedPositions;
@@ -224,7 +224,7 @@ namespace JsonRandom
 	SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells)
 	{
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
-			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).get());
+			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).value());
 
 		vstd::erase_if(spells, [=](const SpellID & spell)
 		{
@@ -252,7 +252,7 @@ namespace JsonRandom
 	CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng)
 	{
 		CStackBasicDescriptor stack;
-		stack.type = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", value["type"]).get()];
+		stack.type = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", value["type"]).value()];
 		stack.count = loadValue(value, rng);
 		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
 		{
@@ -288,7 +288,7 @@ namespace JsonRandom
 				info.minAmount = static_cast<si32>(node["min"].Float());
 				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
-			const CCreature * crea = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", node["type"]).get()];
+			const CCreature * crea = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", node["type"]).value()];
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{

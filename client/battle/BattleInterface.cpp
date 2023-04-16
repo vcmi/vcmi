@@ -252,7 +252,7 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 	}
 
 	auto ba = new BattleAction(); //is deleted in CPlayerInterface::stacksController->getActiveStack()()
-	ba->side = side.get();
+	ba->side = side.value();
 	ba->actionType = action;
 	ba->aimToHex(tile);
 	ba->actionSubtype = additional;

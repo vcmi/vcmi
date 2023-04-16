@@ -106,7 +106,7 @@ namespace AIPathfinding
 				return;
 			}
 
-			AIPathNode *  battleNode = battleNodeOptional.get();
+			auto * battleNode = battleNodeOptional.value();
 
 			if(battleNode->locked)
 			{

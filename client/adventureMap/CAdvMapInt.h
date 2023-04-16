@@ -143,7 +143,7 @@ private:
 
 	const CGObjectInstance *getActiveObject(const int3 &tile);
 
-	boost::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
+	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
 public:
 	CAdvMapInt();

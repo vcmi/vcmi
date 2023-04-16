@@ -577,8 +577,8 @@ namespace vstd
 		return i >= 0  &&  i < c.size();
 	}
 
-	template <typename Container, typename Index>
-	boost::optional<typename Container::const_reference> tryAt(const Container &c, Index i)
+	template<typename Container, typename Index>
+	std::optional<typename Container::value_type> tryAt(const Container & c, Index i)
 	{
 		if(isValidIndex(c, i))
 		{
@@ -586,15 +586,15 @@ namespace vstd
 			std::advance(itr, i);
 			return *itr;
 		}
-		return boost::none;
+		return std::nullopt;
 	}
 
-	template <typename Container, typename Pred>
-	static boost::optional<typename Container::const_reference> tryFindIf(const Container &r, const Pred &t)
+	template<typename Container, typename Pred>
+	static std::optional<typename Container::const_reference> tryFindIf(const Container & r, const Pred & t)
 	{
 		auto pos = range::find_if(r, t);
 		if(pos == boost::end(r))
-			return boost::none;
+			return std::nullopt;
 		else
 			return *pos;
 	}
@@ -669,8 +669,8 @@ namespace vstd
 		return false;
 	}
 
-	template <class M, class Key, class F>
-	typename M::mapped_type & getOrCompute(M & m, Key const & k, F f)
+	template<class M, class Key, class F>
+	typename M::mapped_type & getOrCompute(M & m, const Key & k, F f)
 	{
 		typedef typename M::mapped_type V;
 

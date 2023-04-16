@@ -244,7 +244,7 @@ public:
 
 	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of given class. No side effects
 
-	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);
+	std::optional<std::reference_wrapper<std::vector<CArtifact *>>> listFromClass(CArtifact::EartClass artifactClass);
 
 	static CArtifact::EartClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
 

@@ -533,7 +533,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		return sid & 0x0000FFFF;
 	}
 
-	std::string Description(boost::optional<si32> customValue = {}) const;
+	std::string Description(std::optional<si32> customValue = {}) const;
 	JsonNode toJsonNode() const;
 	std::string nameForBonus() const; // generate suitable name for bonus - e.g. for storing in json struct
 

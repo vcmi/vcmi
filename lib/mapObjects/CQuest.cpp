@@ -1067,7 +1067,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			if(rawId)
 			{
-				rID = rawId.get();
+				rID = rawId.value();
 			}
 			else
 			{

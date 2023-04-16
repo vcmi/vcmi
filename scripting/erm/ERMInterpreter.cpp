@@ -162,7 +162,7 @@ namespace ERMConverter
 
 		Variable operator()(const TVarExpNotMacro & val) const
 		{
-			if(val.val.is_initialized())
+			if(val.val.has_value())
 				return Variable(val.varsym, val.val.get());
 			else
 				return Variable(val.varsym, 0);
@@ -396,7 +396,7 @@ namespace ERMConverter
 
 			std::vector<ParamIO> optionParams;
 
-			if(trig.params.is_initialized())
+			if(trig.params.has_value())
 			{
 				for(auto & p : trig.params.get())
 					optionParams.push_back(std::visit(BodyOption(), p));
@@ -576,7 +576,7 @@ namespace ERMConverter
 			{
 			case 'S':
 				{
-					if(option.params.is_initialized())
+					if(option.params.has_value())
 					{
 						for(auto & p : option.params.get())
 						{
@@ -743,7 +743,7 @@ namespace ERMConverter
 
 					std::vector<ParamIO> optionParams;
 
-					if(trig.params.is_initialized())
+					if(trig.params.has_value())
 					{
 						for(auto & p : trig.params.get())
 							optionParams.push_back(std::visit(BodyOption(), p));
@@ -765,7 +765,7 @@ namespace ERMConverter
 				break;
 			case 'H': //checking if string is empty
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:H option takes exactly 1 parameter!");
 
 					std::string opt = std::visit(VR_H(), trig.params.get()[0]);
@@ -776,7 +776,7 @@ namespace ERMConverter
 				break;
 			case 'U':
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:H/U need 1 parameter!");
 
 					std::string opt = std::visit(VR_S(), trig.params.get()[0]);
@@ -787,7 +787,7 @@ namespace ERMConverter
 				break;
 			case 'M': //string operations
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() < 2)
+					if(!trig.params.has_value() || trig.params.get().size() < 2)
 						throw EScriptExecError("VR:M needs at least 2 parameters!");
 
 					std::string opt = std::visit(VR_X(), trig.params.get()[0]);
@@ -820,7 +820,7 @@ namespace ERMConverter
 				break;
 			case 'X': //bit xor
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:X option takes exactly 1 parameter!");
 
 					std::string opt = std::visit(VR_X(), trig.params.get()[0]);
@@ -837,7 +837,7 @@ namespace ERMConverter
 				break;
 			case 'S': //setting variable
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:S option takes exactly 1 parameter!");
 
 					std::string opt = std::visit(VR_S(), trig.params.get()[0]);
@@ -855,7 +855,7 @@ namespace ERMConverter
 				break;
 			case 'V': //convert string to value
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:V option takes exactly 1 parameter!");
 
 					std::string opt = std::visit(VR_X(), trig.params.get()[0]);
@@ -879,9 +879,9 @@ namespace ERMConverter
 		{}
 
 		template <typename Visitor>
-		void performBody(const boost::optional<ERM::Tbody> & body, const Visitor & visitor) const
+		void performBody(const std::optional<ERM::Tbody> & body, const Visitor & visitor) const
 		{
-			if(body.is_initialized())
+			if(body.has_value())
 			{
 				const ERM::Tbody & bo = body.get();
 				for(int g=0; g<bo.size(); ++g)
@@ -891,14 +891,14 @@ namespace ERMConverter
 			}
 		}
 
-		void convert(const std::string & name, const boost::optional<Tidentifier> & identifier, const boost::optional<Tbody> & body) const
+		void convert(const std::string & name, const std::optional<Tidentifier> & identifier, const std::optional<Tbody> & body) const
 		{
 			if(name == "VR")
 			{
-				if(!identifier.is_initialized())
+				if(!identifier.has_value())
 					throw EScriptExecError("VR receiver requires arguments");
 
-				ERM::Tidentifier tid = identifier.get();
+				ERM::Tidentifier tid = identifier.value();
 				if(tid.size() != 1)
 					throw EScriptExecError("VR receiver takes exactly 1 argument");
 
@@ -906,10 +906,10 @@ namespace ERMConverter
 			}
 			else if(name == "re")
 			{
-				if(!identifier.is_initialized())
+				if(!identifier.has_value())
 					throw EScriptExecError("re receiver requires arguments");
 
-				ERM::Tidentifier tid = identifier.get();
+				ERM::Tidentifier tid = identifier.value();
 
 				auto argc = tid.size();
 
@@ -935,15 +935,15 @@ namespace ERMConverter
 					throw EScriptExecError("re receiver requires arguments");
 				}
 			}
-			else if(name == "FU" && !identifier.is_initialized())
+			else if(name == "FU" && !identifier.has_value())
 			{
 				performBody(body, FU(out)); //assume FU:E
 			}
 			else if(name == "MC")
 			{
-				if(identifier.is_initialized())
+				if(identifier.has_value())
 				{
-					ERM::Tidentifier tid = identifier.get();
+					ERM::Tidentifier tid = identifier.value();
 					if(tid.size() != 1)
 						throw EScriptExecError("MC receiver takes no more than 1 argument");
 
@@ -958,9 +958,9 @@ namespace ERMConverter
 			{
 				std::vector<std::string> identifiers;
 
-				if(identifier.is_initialized())
+				if(identifier.has_value())
 				{
-					for(const auto & id : identifier.get())
+					for(const auto & id : identifier.value())
 					{
 						Variable v = std::visit(LVL1IexpToVar(), id);
 
@@ -979,7 +979,7 @@ namespace ERMConverter
 					params += *iter;
 				}
 
-				if(body.is_initialized())
+				if(body.has_value())
 				{
 					const ERM::Tbody & bo = body.get();
 					if(bo.size() == 1)
@@ -1038,7 +1038,7 @@ namespace ERMConverter
 
 			put(lhs);
 
-			if(cond.rhs.is_initialized())
+			if(cond.rhs.has_value())
 			{
 				switch (op)
 				{
@@ -1061,7 +1061,7 @@ namespace ERMConverter
 			put("if ");
 			put(lhs);
 
-			if(cond.rhs.is_initialized())
+			if(cond.rhs.has_value())
 			{
 				switch (cond.ctype)
 				{
@@ -1079,14 +1079,14 @@ namespace ERMConverter
 			putLine(" then ");
 		}
 
-		void convertReceiverOrInstruction(const boost::optional<Tcondition> & condition,
+		void convertReceiverOrInstruction(const std::optional<Tcondition> & condition,
 			const std::string & name,
-			const boost::optional<Tidentifier> & identifier,
-			const boost::optional<Tbody> & body) const
+			const std::optional<Tidentifier> & identifier,
+			const std::optional<Tbody> & body) const
 		{
 			if(name=="if")
 			{
-				if(condition.is_initialized())
+				if(condition.has_value())
 					convertCondition(condition.get());
 				else
 					putLine("if true then");
@@ -1101,7 +1101,7 @@ namespace ERMConverter
 			}
 			else
 			{
-				if(condition.is_initialized())
+				if(condition.has_value())
 				{
 					convertCondition(condition.get());
 					convert(name, identifier, body);
@@ -1126,7 +1126,7 @@ namespace ERMConverter
 
 		void operator()(const Tinstruction & trig) const
 		{
-			convertReceiverOrInstruction(trig.condition, trig.name, trig.identifier, boost::make_optional(trig.body));
+			convertReceiverOrInstruction(trig.condition, trig.name, trig.identifier, std::make_optional(trig.body));
 		}
 
 		void operator()(const Treceiver & trig) const
@@ -1277,10 +1277,10 @@ namespace ERMConverter
 
 			out << "ERM:addTrigger({" << std::endl;
 
-			if(!trig.identifier.is_initialized())
+			if(!trig.identifier.has_value())
 				throw EInterpreterError("Function must have identifier");
 
-			ERM::Tidentifier tid = trig.identifier.get();
+			ERM::Tidentifier tid = trig.identifier.value();
 
 			if(tid.empty())
 				throw EInterpreterError("Function must have identifier");
@@ -1328,9 +1328,9 @@ namespace ERMConverter
 
 			std::vector<std::string> identifiers;
 
-			if(trig.identifier.is_initialized())
+			if(trig.identifier.has_value())
 			{
-				for(const auto & id : trig.identifier.get())
+				for(const auto & id : trig.identifier.value())
 				{
 					Variable v = std::visit(LVL1IexpToVar(), id);
 

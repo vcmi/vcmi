@@ -43,7 +43,7 @@ struct DLL_LINKAGE RandomMapInfo
 	ui32 value;
 
 	/// How many of such objects can be placed on map, 0 = object can not be placed by RMG
-	boost::optional<ui32> mapLimit;
+	std::optional<ui32> mapLimit;
 
 	/// How many of such objects can be placed in one zone, 0 = unplaceable
 	ui32 zoneLimit;
@@ -57,7 +57,7 @@ struct DLL_LINKAGE RandomMapInfo
 		rarity(0)
 	{}
 
-	void setMapLimit(ui32 val) { mapLimit.reset(val); }
+	void setMapLimit(ui32 val) { mapLimit = val; }
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -150,8 +150,8 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	SObjectSounds sounds;
 
-	boost::optional<si32> aiValue;
-	boost::optional<std::string> battlefield;
+	std::optional<si32> aiValue;
+	std::optional<std::string> battlefield;
 
 	std::string modScope;
 	std::string typeName;
@@ -200,7 +200,7 @@ public:
 
 	const RandomMapInfo & getRMGInfo();
 
-	boost::optional<si32> getAiValue() const;
+	std::optional<si32> getAiValue() const;
 
 	/// returns true if this class provides custom text ID's instead of generic per-object name
 	virtual bool hasNameTextID() const;

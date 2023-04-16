@@ -136,7 +136,7 @@ std::vector<std::string> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 			logGlobal->warn("Already removed object %d found on tile! (%d %d %d)", objectID.getNum(), tile.x, tile.y, tile.z);
 
 		if(object && object->getAmbientSound())
-			result.push_back(object->getAmbientSound().get());
+			result.push_back(object->getAmbientSound().value());
 	}
 
 	if(CGI->mh->getMap()->isCoastalTile(tile))

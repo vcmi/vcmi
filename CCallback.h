@@ -54,7 +54,7 @@ public:
 	//battle
 	virtual int battleMakeAction(const BattleAction * action) = 0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual bool battleMakeTacticAction(BattleAction * action) = 0; // performs tactic phase actions
-	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
 };
 
 class IGameActionCallback
@@ -113,10 +113,10 @@ protected:
 	CClient *cl;
 
 public:
-	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
+	CBattleCallback(std::optional<PlayerColor> Player, CClient * C);
 	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
-	boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
@@ -131,7 +131,7 @@ class CCallback : public CPlayerSpecificInfoCallback,
 	public CBattleCallback
 {
 public:
-	CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C);
+	CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C);
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)

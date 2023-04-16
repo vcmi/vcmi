@@ -64,7 +64,7 @@ si32 HeroTypeID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -88,7 +88,7 @@ si32 ArtifactID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "artifact", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -112,7 +112,7 @@ si32 CreatureID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -141,7 +141,7 @@ si32 SpellID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "spell", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -204,7 +204,7 @@ si32 FactionID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "faction", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return FactionID::DEFAULT;
 }
@@ -292,7 +292,7 @@ BattleField BattleField::fromString(const std::string & identifier)
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "battlefield", identifier);
 
 	if(rawId)
-		return BattleField(rawId.get());
+		return BattleField(rawId.value());
 	else
 		return BattleField::NONE;
 }
@@ -312,7 +312,7 @@ Obstacle Obstacle::fromString(const std::string & identifier)
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "obstacle", identifier);
 
 	if(rawId)
-		return Obstacle(rawId.get());
+		return Obstacle(rawId.value());
 	else
 		return Obstacle(-1);
 }

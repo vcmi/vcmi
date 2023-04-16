@@ -1151,7 +1151,7 @@ void CTownHandler::initializeRequirements()
 				logMod->warn("Entry contains: ");
 				logMod->warn(node.toJson());
 			}
-			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).get());
+			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).value());
 		});
 	}
 	requirementsToLoad.clear();
@@ -1166,7 +1166,7 @@ void CTownHandler::initializeOverridden()
 
 		for(const auto & b : jsonNode.Vector())
 		{
-			auto bid = BuildingID(VLC->modh->identifiers.getIdentifier(scope, b).get());
+			auto bid = BuildingID(VLC->modh->identifiers.getIdentifier(scope, b).value());
 			bidHelper.building->overrideBids.insert(bid);
 		}
 	}

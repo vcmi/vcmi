@@ -202,9 +202,8 @@ public:
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 
-
-	bool isVisible(int3 pos, const boost::optional<PlayerColor> & player) const override;
-	bool isVisible(const CGObjectInstance *obj, const boost::optional<PlayerColor> & player) const override;
+	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
+	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;
 
 	int getDate(Date::EDateType mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 

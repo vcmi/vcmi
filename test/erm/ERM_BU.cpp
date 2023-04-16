@@ -32,7 +32,7 @@ protected:
 class ERM_BU_C : public ERM_BU
 {
 protected:
-	void doTest(boost::optional<int> input, double output)
+	void doTest(std::optional<int> input, double output)
 	{
 		EXPECT_CALL(binfoMock, battleIsFinished()).WillOnce(Return(input));
 
@@ -51,12 +51,12 @@ protected:
 
 TEST_F(ERM_BU_C, Finished)
 {
-	doTest(boost::make_optional(1), 1);
+	doTest(std::make_optional(1), 1);
 }
 
 TEST_F(ERM_BU_C, NotFinished)
 {
-	doTest(boost::none, 0);
+	doTest(std::nullopt, 0);
 }
 
 class ERM_BU_D : public ERM_BU

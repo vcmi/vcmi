@@ -66,7 +66,7 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 
 void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
 {
-	for (auto const & oi : obstacles)
+	for(const auto & oi : obstacles)
 	{
 		auto & obstacle = oi.data["obstacle"];
 
@@ -97,11 +97,11 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 
 void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
 {
-	for (auto const & oi : obstacles)
+	for(const auto & oi : obstacles)
 	{
 		auto side = owner.curInt->cb->playerToSide(owner.curInt->playerID);
 
-		if(!oi->visibleForSide(side.get(),owner.curInt->cb->battleHasNativeStack(side.get())))
+		if(!oi->visibleForSide(side.value(), owner.curInt->cb->battleHasNativeStack(side.value())))
 			continue;
 
 		auto animation = std::make_shared<CAnimation>(oi->getAppearAnimation());

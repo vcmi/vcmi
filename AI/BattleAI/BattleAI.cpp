@@ -134,7 +134,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 
 		//evaluate casting spell for spellcasting stack
-		boost::optional<PossibleSpellcast> bestSpellcast(boost::none);
+		std::optional<PossibleSpellcast> bestSpellcast(std::nullopt);
 		//TODO: faerie dragon type spell should be selected by server
 		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
 		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
@@ -157,7 +157,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
 				if(!possibleCasts.empty() && possibleCasts.front().value > 0)
 				{
-					bestSpellcast = boost::optional<PossibleSpellcast>(possibleCasts.front());
+					bestSpellcast = std::optional<PossibleSpellcast>(possibleCasts.front());
 				}
 			}
 		}
@@ -180,7 +180,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			auto & bestAttack = evaluationResult.bestAttack;
 
 			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
-			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
+			if(bestSpellcast.has_value() && bestSpellcast->value > bestAttack.damageDiff())
 			{
 				// return because spellcast value is damage dealt and score is dps reduce
 				movesSkippedByDefense = 0;
@@ -219,7 +219,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				);
 			}
 		}
-		else if(bestSpellcast.is_initialized())
+		else if(bestSpellcast.has_value())
 		{
 			movesSkippedByDefense = 0;
 			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
@@ -801,7 +801,7 @@ void CBattleAI::print(const std::string &text) const
 	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
 }
 
-boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
+std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 {
 	BattleStateInfoForRetreat bs;
 
@@ -829,7 +829,7 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	if(!bs.canFlee || !bs.canSurrender)
 	{
-		return boost::none;
+		return std::nullopt;
 	}
 
 	auto result = cb->makeSurrenderRetreatDecision(bs);

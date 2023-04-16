@@ -519,8 +519,8 @@ public:
 		data = loader.funcs.at(which)();
 	}
 
-	template <typename T>
-	void load(boost::optional<T> & data)
+	template<typename T>
+	void load(std::optional<T> & data)
 	{
 		ui8 present;
 		load( present );
@@ -529,11 +529,11 @@ public:
 			//TODO: replace with emplace once we start request Boost 1.56+, see PR360
 			T t;
 			load(t);
-			data = boost::make_optional(std::move(t));
+			data = std::make_optional(std::move(t));
 		}
 		else
 		{
-			data = boost::optional<T>();
+			data = std::optional<T>();
 		}
 	}
 

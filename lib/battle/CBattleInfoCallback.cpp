@@ -106,7 +106,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	const auto side = playerToSide(player);
 	if(!side)
 		return ESpellCastProblem::INVALID;
-	if(!battleDoWeKnowAbout(side.get()))
+	if(!battleDoWeKnowAbout(side.value()))
 	{
 		logGlobal->warn("You can't check if enemy can cast given spell!");
 		return ESpellCastProblem::INVALID;
@@ -119,7 +119,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	{
 	case spells::Mode::HERO:
 	{
-		if(battleCastSpells(side.get()) > 0)
+		if(battleCastSpells(side.value()) > 0)
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
@@ -229,7 +229,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		{
 			if(stack->hasBonusOfType(Bonus::SPELLCASTER))
 			{
-				for (auto const & spellID : data.creatureSpellsToCast)
+				for(const auto & spellID : data.creatureSpellsToCast)
 				{
 					const CSpell *spell = spellID.toSpell();
 					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
@@ -767,7 +767,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 			//TODO: rewrite using boost::numeric::interval
 			//TODO: rewire once more using interval-based fuzzy arithmetic
 
-			auto const & estimateRetaliation = [&]( int64_t damage)
+			const auto & estimateRetaliation = [&](int64_t damage)
 			{
 				auto retaliationAttack = bai.reverse();
 				auto state = retaliationAttack.attacker->acquireState();
@@ -1763,7 +1763,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) cons
 	const auto sideOpt = playerToSide(Player);
 	if(!sideOpt)
 		return -1;
-	const auto side = sideOpt.get();
+	const auto side = sideOpt.value();
 
 	int ret = 0;
 	double discount = 0;
@@ -1816,7 +1816,7 @@ si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
 	return GameConstants::SPELL_LEVELS;
 }
 
-boost::optional<int> CBattleInfoCallback::battleIsFinished() const
+std::optional<int> CBattleInfoCallback::battleIsFinished() const
 {
 	auto units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
@@ -1831,7 +1831,7 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 		hasUnit.at(unit->unitSide()) = true;
 
 		if(hasUnit[0] && hasUnit[1])
-			return boost::none;
+			return std::nullopt;
 	}
 	
 	hasUnit = {false, false};
