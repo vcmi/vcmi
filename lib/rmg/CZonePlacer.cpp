@@ -25,10 +25,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
-	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0), gravityConstant(0), stiffnessConstant(0),
+	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0),
+	gravityConstant(5e-4f),
+	stiffnessConstant(3e-3f),
+	stifness(0),
+	stiffnessIncreaseFactor(1.05f),
 	map(map)
 {
-
 }
 
 int3 CZonePlacer::cords(const float3 & f) const
@@ -311,9 +314,6 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	Connected zones attract, intersecting zones and map boundaries push back
 	*/
 
-	gravityConstant = 5e-4f;
-	stiffnessConstant = 3e-3f;
-
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
 
@@ -333,8 +333,8 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	TDistanceVector distances;
 	TDistanceVector overlaps;
 
-	const int MAX_ITERATIONS = 100;
-	for (int i = 0; i < MAX_ITERATIONS; ++i) //until zones reach their desired size and fill the map tightly
+	 //Start with low stiffness. Bigger graphs need more time and more flexibility
+	for (stifness = stiffnessConstant / zones.size(); stifness <= stiffnessConstant; stifness *= stiffnessIncreaseFactor)
 	{
 		//1. attract connected zones
 		attractConnectedZones(zones, forces, distances);
@@ -561,7 +561,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 			float minDistance = (zone.second->getSize() + otherZone.second->getSize()) / mapSize;
 			if (distance < minDistance)
 			{
-				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stiffnessConstant;
+				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stifness;
 				//negative value
 				forceVector -= localForce * (distancesBetweenZones[zone.second->getId()][otherZone.second->getId()] / 2.0f);
 				overlap += (minDistance - distance); //overlapping of small zones hurts us more
@@ -577,7 +577,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 			float3 boundary = float3(x, y, pos.z);
 			auto distance = static_cast<float>(pos.dist2d(boundary));
 			overlap += std::max<float>(0, distance - size); //check if we're closer to map boundary than value of zone size
-			forceVector -= (boundary - pos) * (size - distance) / this->getDistance(distance) * this->stiffnessConstant; //negative value
+			forceVector -= (boundary - pos) * (size - distance) / this->getDistance(distance) * this->stifness; //negative value
 		};
 		if (pos.x < size)
 		{
