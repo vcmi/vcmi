@@ -76,7 +76,7 @@ struct DLL_LINKAGE StartInfo
 	EMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
-	typedef std::map<PlayerColor, PlayerSettings> TPlayerInfos;
+	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
@@ -84,7 +84,7 @@ struct DLL_LINKAGE StartInfo
 	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
-	bool createRandomMap() const { return mapGenOptions.get() != nullptr; }
+	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
 	std::shared_ptr<CCampaignState> campState;

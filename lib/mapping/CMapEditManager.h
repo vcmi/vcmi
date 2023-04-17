@@ -46,7 +46,7 @@ public:
 	void setUndoCallback(std::function<void(bool, bool)> functor);
 
 private:
-	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
+	using TStack = std::list<std::unique_ptr<CMapOperation>>;
 
 	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
 	const CMapOperation * peek(const TStack & stack) const;

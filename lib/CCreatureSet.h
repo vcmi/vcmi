@@ -163,22 +163,18 @@ public:
 	}
 };
 
-typedef std::map<SlotID, CStackInstance*> TSlots;
-typedef std::map<SlotID, std::pair<CreatureID, TQuantity>> TSimpleSlots;
+using TSlots = std::map<SlotID, CStackInstance *>;
+using TSimpleSlots = std::map<SlotID, std::pair<CreatureID, TQuantity>>;
 
-typedef std::pair<const CCreature*, SlotID> TPairCreatureSlot;
-typedef std::map<const CCreature*, SlotID> TMapCreatureSlot;
+using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
+using TMapCreatureSlot = std::map<const CCreature *, SlotID>;
 
 struct DLL_LINKAGE CreatureSlotComparer
 {
 	bool operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs);
 };
 
-typedef std::priority_queue<
-	TPairCreatureSlot,
-	std::vector<TPairCreatureSlot>,
-	CreatureSlotComparer
-> TCreatureQueue;
+using TCreatureQueue = std::priority_queue<TPairCreatureSlot, std::vector<TPairCreatureSlot>, CreatureSlotComparer>;
 
 class IArmyDescriptor
 {

@@ -28,7 +28,7 @@ private:
 	TacticalAdvantageEngine tacticalAdvantageEngine;
 
 public:
-	FuzzyHelper(const Nullkiller * ai) : ai(ai), tacticalAdvantageEngine() {}
+	FuzzyHelper(const Nullkiller * ai): ai(ai) {}
 
 	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
 

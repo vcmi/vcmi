@@ -100,7 +100,7 @@ class DLL_LINKAGE BinarySerializer : public CSaverBase
 	public:
 		void savePtr(CSaverBase &ar, const void *data) const override
 		{
-			BinarySerializer &s = static_cast<BinarySerializer&>(ar);
+			auto & s = static_cast<BinarySerializer &>(ar);
 			const T *ptr = static_cast<const T*>(data);
 
 			//T is most derived known type, it's time to call actual serialize
@@ -210,7 +210,7 @@ public:
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
 			// Therefore, all pointers need to be normalized to the actual object address.
 			auto actualPointer = typeList.castToMostDerived(data);
-			std::map<const void*,ui32>::iterator i = savedPointers.find(actualPointer);
+			auto i = savedPointers.find(actualPointer);
 			if(i != savedPointers.end())
 			{
 				//this pointer has been already serialized - write only it's id
@@ -275,28 +275,28 @@ public:
 	template <typename T>
 	void save(const std::set<T> &data)
 	{
-		std::set<T> &d = const_cast<std::set<T> &>(data);
+		auto & d = const_cast<std::set<T> &>(data);
 		ui32 length = (ui32)d.size();
 		save(length);
-		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
+		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
 	}
 	template <typename T, typename U>
 	void save(const std::unordered_set<T, U> &data)
 	{
-		std::unordered_set<T, U> &d = const_cast<std::unordered_set<T, U> &>(data);
+		auto & d = const_cast<std::unordered_set<T, U> &>(data);
 		ui32 length = (ui32)d.size();
 		*this & length;
-		for(typename std::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
+		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
 	}
 	template <typename T>
 	void save(const std::list<T> &data)
 	{
-		std::list<T> &d = const_cast<std::list<T> &>(data);
+		auto & d = const_cast<std::list<T> &>(data);
 		ui32 length = (ui32)d.size();
 		*this & length;
-		for(typename std::list<T>::iterator i=d.begin();i!=d.end();i++)
+		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
 	}
 	void save(const std::string &data)
@@ -314,7 +314,7 @@ public:
 	void save(const std::map<T1,T2> &data)
 	{
 		*this & ui32(data.size());
-		for(typename std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 		{
 			save(i->first);
 			save(i->second);
@@ -324,7 +324,7 @@ public:
 	void save(const std::multimap<T1, T2> &data)
 	{
 		*this & ui32(data.size());
-		for(typename std::map<T1, T2>::const_iterator i = data.begin(); i != data.end(); i++)
+		for(auto i = data.begin(); i != data.end(); i++)
 		{
 			save(i->first);
 			save(i->second);

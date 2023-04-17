@@ -97,7 +97,7 @@ public:
 
 		objects.push_back(object);
 
-		for(auto type_name : getTypeNames())
+		for(const auto & type_name : getTypeNames())
 			registerObject(scope, type_name, name, object->getIndex());
 	}
 
@@ -108,7 +108,7 @@ public:
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
 
-		for(auto type_name : getTypeNames())
+		for(const auto & type_name : getTypeNames())
 			registerObject(scope, type_name, name, object->getIndex());
 	}
 

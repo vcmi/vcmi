@@ -92,8 +92,8 @@ public:
 		}
 	};
 
-	typedef AnimationItem TAnimation;
-	typedef std::vector<TAnimation> TAnimationQueue;
+	using TAnimation = AnimationItem;
+	using TAnimationQueue = std::vector<TAnimation>;
 
 	struct DLL_LINKAGE AnimationInfo
 	{

@@ -13,8 +13,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
-typedef std::map <std::string, JsonNode> JsonMap;
-typedef std::vector <JsonNode> JsonVector;
+using JsonMap = std::map<std::string, JsonNode>;
+using JsonVector = std::vector<JsonNode>;
 
 struct Bonus;
 class CSelector;

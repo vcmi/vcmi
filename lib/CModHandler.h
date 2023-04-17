@@ -310,7 +310,7 @@ public:
 			missingMods(std::move(_missingMods))
 		{
 			std::ostringstream _ss;
-			for(auto & m : missingMods)
+			for(const auto & m : missingMods)
 				_ss << m.first << ' ' << m.second << std::endl;
 			message = _ss.str();
 		}

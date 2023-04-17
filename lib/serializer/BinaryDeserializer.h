@@ -98,7 +98,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 			}
 			else
 			{
-				auto hero = dynamic_cast<CGHeroInstance *>(armedObj);
+				auto * hero = dynamic_cast<CGHeroInstance *>(armedObj);
 				assert(hero);
 				assert(hero->commander);
 				data = hero->commander;
@@ -158,7 +158,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	public:
 		const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const override //data is pointer to the ACTUAL POINTER
 		{
-			BinaryDeserializer &s = static_cast<BinaryDeserializer&>(ar);
+			auto & s = static_cast<BinaryDeserializer &>(ar);
 			T *&ptr = *static_cast<T**>(data);
 
 			//create new object under pointer
@@ -217,7 +217,7 @@ public:
 		assert( fileVersion != 0 );
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename std::remove_const<T>::type nonConstT;
-		nonConstT &hlp = const_cast<nonConstT&>(data);
+		auto & hlp = const_cast<nonConstT &>(data);
 		hlp.serialize(*this,fileVersion);
 	}
 	template < typename T, typename std::enable_if < std::is_array<T>::value, int  >::type = 0 >
@@ -301,7 +301,7 @@ public:
 		if(smartPointerSerialization)
 		{
 			load( pid ); //get the id
-			std::map<ui32, void*>::iterator i = loadedPointers.find(pid); //lookup
+			auto i = loadedPointers.find(pid); //lookup
 
 			if(i != loadedPointers.end())
 			{
@@ -327,7 +327,7 @@ public:
 		}
 		else
 		{
-			auto app = applier.getApplier(tid);
+			auto * app = applier.getApplier(tid);
 			if(app == nullptr)
 			{
 				logGlobal->error("load %d %d - no loader exists", tid, pid);

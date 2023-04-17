@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CThreadHelper
 {
 public:
-	typedef std::function<void()> Task;
+	using Task = std::function<void()>;
 	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
 	void run();
 private:
