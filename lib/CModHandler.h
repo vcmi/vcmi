@@ -186,7 +186,7 @@ public:
 		PASSED
 	};
 	
-	struct Version
+	struct DLL_LINKAGE Version
 	{
 		int major = 0;
 		int minor = 0;
