@@ -75,7 +75,8 @@ CAdventureMapInterface::CAdventureMapInterface():
 	pos.h = GH.screenDimensions().y;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 	townList->onSelect = [this](){
-		const CGTownInstance * selectedTown = LOCPLINT->localState->ownedTowns[townList->getSelectedIndex()];
+		const CGTownInstance * selectedTown = LOCPLINT->localState->getOwnedTown(townList->getSelectedIndex());
+		assert(selectedTown);
 		LOCPLINT->setSelection(selectedTown);
 	};
 
@@ -683,12 +684,12 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 
 		{
 			//find first town with tavern
-			auto itr = range::find_if(LOCPLINT->localState->ownedTowns, [](const CGTownInstance * town)
+			auto itr = range::find_if(LOCPLINT->localState->getOwnedTowns(), [](const CGTownInstance * town)
 			{
 				return town->hasBuilt(BuildingID::TAVERN);
 			});
 
-			if(itr != LOCPLINT->localState->ownedTowns.end())
+			if(itr != LOCPLINT->localState->getOwnedTowns().end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
 				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
@@ -991,9 +992,9 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	{
 		LOCPLINT->setSelection(heroToSelect, centerView);
 	}
-	else if (LOCPLINT->localState->ownedTowns.size())
+	else if (LOCPLINT->localState->getOwnedTowns().size())
 	{
-		LOCPLINT->setSelection(LOCPLINT->localState->ownedTowns.front(), centerView);
+		LOCPLINT->setSelection(LOCPLINT->localState->getOwnedTown(0), centerView);
 	}
 	else
 	{

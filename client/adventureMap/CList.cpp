@@ -263,8 +263,8 @@ void CHeroList::update(const CGHeroInstance * hero)
 
 std::shared_ptr<CIntObject> CTownList::createTownItem(size_t index)
 {
-	if (LOCPLINT->localState->ownedTowns.size() > index)
-		return std::make_shared<CTownItem>(this, LOCPLINT->localState->ownedTowns[index]);
+	if (LOCPLINT->localState->getOwnedTowns().size() > index)
+		return std::make_shared<CTownItem>(this, LOCPLINT->localState->getOwnedTown(index));
 	return std::make_shared<CAnimImage>("ITPA", 0);
 }
 
@@ -313,20 +313,20 @@ std::string CTownList::CTownItem::getHoverText()
 }
 
 CTownList::CTownList(int size, Point position, std::string btnUp, std::string btnDown):
-	CList(size, position, btnUp, btnDown, LOCPLINT->localState->ownedTowns.size(),  306, 307, std::bind(&CTownList::createTownItem, this, _1))
+	CList(size, position, btnUp, btnDown, LOCPLINT->localState->getOwnedTowns().size(),  306, 307, std::bind(&CTownList::createTownItem, this, _1))
 {
 }
 
 void CTownList::select(const CGTownInstance * town)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->localState->ownedTowns, town));
+	selectIndex(vstd::find_pos(LOCPLINT->localState->getOwnedTowns(), town));
 }
 
 void CTownList::update(const CGTownInstance *)
 {
 	//simplest solution for now: reset list and restore selection
 
-	listBox->resize(LOCPLINT->localState->ownedTowns.size());
+	listBox->resize(LOCPLINT->localState->getOwnedTowns().size());
 	if (LOCPLINT->localState->getCurrentTown())
 		select(LOCPLINT->localState->getCurrentTown());
 

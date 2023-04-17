@@ -1248,7 +1248,7 @@ void CCastleInterface::castleTeleport(int where)
 void CCastleInterface::townChange()
 {
 	//TODO: do not recreate window
-	const CGTownInstance * dest = LOCPLINT->localState->ownedTowns[townlist->getSelectedIndex()];
+	const CGTownInstance * dest = LOCPLINT->localState->getOwnedTown(townlist->getSelectedIndex());
 	const CGTownInstance * town = this->town;// "this" is going to be deleted
 	if ( dest == town )
 		return;

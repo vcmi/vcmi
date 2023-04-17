@@ -115,7 +115,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	for(auto town : LOCPLINT->localState->ownedTowns)
+	for(auto town : LOCPLINT->localState->getOwnedTowns())
 	{
 		int hallLevel = town->hallLevel();
 		//negative value means no village hall, unlikely but possible

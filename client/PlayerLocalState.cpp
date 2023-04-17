@@ -177,3 +177,29 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 	vstd::erase(wanderingHeroes, hero);
 	vstd::erase(sleepingHeroes, hero);
 }
+
+const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
+{
+	return ownedTowns;
+}
+
+const CGTownInstance * PlayerLocalState::getOwnedTown(size_t index)
+{
+	if (index < ownedTowns.size())
+		return ownedTowns[index];
+	return nullptr;
+}
+
+void PlayerLocalState::addOwnedTown(const CGTownInstance * town)
+{
+	assert(town);
+	assert(!vstd::contains(ownedTowns, town));
+	ownedTowns.push_back(town);
+}
+
+void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
+{
+	assert(town);
+	assert(vstd::contains(ownedTowns, town));
+	vstd::erase(ownedTowns, town);
+}

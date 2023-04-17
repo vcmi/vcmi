@@ -1351,9 +1351,9 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 			auto town = static_cast<const CGTownInstance *>(obj);
 
 			if(obj->tempOwner == playerID)
-				localState->ownedTowns.push_back(town);
+				localState->addOwnedTown(town);
 			else
-				localState->ownedTowns -= obj;
+				localState->removeOwnedTown(town);
 
 			adventureInt->onTownChanged(town);
 		}
@@ -1362,7 +1362,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		std::unordered_set<int3> upos(pos.begin(), pos.end());
 		adventureInt->onMapTilesChanged(upos);
 
-		assert(cb->getTownsInfo().size() == localState->ownedTowns.size());
+		assert(cb->getTownsInfo().size() == localState->getOwnedTowns().size());
 	}
 }
 
@@ -1370,16 +1370,18 @@ void CPlayerInterface::initializeHeroTownList()
 {
 	if(localState->getWanderingHeroes().empty())
 	{
-		std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
-		for(auto & hero : heroes)
+		for(auto & hero : cb->getHeroesInfo())
 		{
 			if(!hero->inTownGarrison)
 				localState->addWanderingHero(hero);
 		}
 	}
 
-	if(!localState->ownedTowns.size())
-		localState->ownedTowns = cb->getTownsInfo();
+	if(localState->getOwnedTowns().empty())
+	{
+		for(auto & town : cb->getTownsInfo())
+			localState->addOwnedTown(town);
+	}
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);
