@@ -26,7 +26,7 @@ class RmgMap;
 class CMap;
 class Zone;
 
-typedef std::vector<JsonNode> JsonVector;
+using JsonVector = std::vector<JsonNode>;
 
 /// The map generator creates a map randomly.
 class DLL_LINKAGE CMapGenerator: public Load::Progress

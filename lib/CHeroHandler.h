@@ -198,10 +198,9 @@ public:
 
 		if(!h.saving)
 		{
-			for(auto i = 0; i < secSkillProbability.size(); i++)
-				if(secSkillProbability[i] < 0)
-					secSkillProbability[i] = 0;
-	}
+			for(int & i : secSkillProbability)
+				vstd::amax(i, 0);
+		}
 	}
 	EAlignment getAlignment() const;
 };

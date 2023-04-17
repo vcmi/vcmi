@@ -34,13 +34,13 @@ PACKED_STRUCT_BEGIN struct unaligned_Uint32 { ui32 val; } PACKED_STRUCT_END;
 
 static inline ui16 read_unaligned_u16(const void *p)
 {
-	const struct unaligned_Uint16 *v = reinterpret_cast<const struct unaligned_Uint16 *>(p);
+	const auto * v = reinterpret_cast<const struct unaligned_Uint16 *>(p);
 	return v->val;
 }
 
 static inline ui32 read_unaligned_u32(const void *p)
 {
-	const struct unaligned_Uint32 *v = reinterpret_cast<const struct unaligned_Uint32 *>(p);
+	const auto * v = reinterpret_cast<const struct unaligned_Uint32 *>(p);
 	return v->val;
 }
 

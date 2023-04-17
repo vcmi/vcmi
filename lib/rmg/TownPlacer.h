@@ -32,9 +32,8 @@ protected:
 	void placeTowns(ObjectManager & manager);
 	bool placeMines(ObjectManager & manager);
 	int3 placeMainTown(ObjectManager & manager, CGTownInstance & town);
-	
+
 protected:
-	
 	int totalTowns = 0;
 };
 

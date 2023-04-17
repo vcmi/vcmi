@@ -100,7 +100,7 @@ public:
 			return;
 		}
 
-		UData * ptr = static_cast<UData *>(raw);
+		auto * ptr = static_cast<UData *>(raw);
 		*ptr = value;
 
 		luaL_getmetatable(L, KEY);

@@ -161,8 +161,8 @@ public:
 
 	ResourceSet & operator=(const TResource &rhs)
 	{
-		for(int i = 0; i < container.size(); i++)
-			container.at(i) = rhs;
+		for(int & i : container)
+			i = rhs;
 
 		return *this;
 	}

@@ -42,7 +42,7 @@ struct DLL_LINKAGE NodeComparer
 
 struct DLL_LINKAGE CGPathNode
 {
-	typedef EPathfindingLayer ELayer;
+	using ELayer = EPathfindingLayer;
 
 	enum ENodeAction : ui8
 	{
@@ -151,10 +151,7 @@ struct DLL_LINKAGE CGPathNode
 		return turns < 255;
 	}
 
-	typedef boost::heap::fibonacci_heap<
-		CGPathNode *,
-		boost::heap::compare<NodeComparer<CGPathNode>>
-	> TFibHeap;
+	using TFibHeap = boost::heap::fibonacci_heap<CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>>>;
 
 	TFibHeap::handle_type pqHandle;
 	TFibHeap* pq;
@@ -173,7 +170,7 @@ struct DLL_LINKAGE CGPath
 
 struct DLL_LINKAGE CPathsInfo
 {
-	typedef EPathfindingLayer ELayer;
+	using ELayer = EPathfindingLayer;
 
 	const CGHeroInstance * hero;
 	int3 hpos;
@@ -484,7 +481,7 @@ public:
 private:
 	CGameState * gamestate;
 
-	typedef EPathfindingLayer ELayer;
+	using ELayer = EPathfindingLayer;
 
 	std::shared_ptr<PathfinderConfig> config;
 

@@ -1315,11 +1315,11 @@ enum class EHealPower : ui8
 };
 
 // Typedef declarations
-typedef si64 TExpType;
-typedef si32 TBonusSubtype;
-typedef si32 TQuantity;
+using TExpType = si64;
+using TBonusSubtype = si32;
+using TQuantity = si32;
 
-typedef int TRmgTemplateZoneId;
+using TRmgTemplateZoneId = int;
 
 #undef ID_LIKE_CLASS_COMMON
 #undef ID_LIKE_OPERATORS

@@ -72,7 +72,7 @@ public:
 	
 private:
 	void assertOnMap(const int3 &tile) const; //throws
-	
+
 private:
 	Zones zones;
 	std::map<FactionID, ui32> zonesPerFaction;

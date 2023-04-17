@@ -25,14 +25,14 @@ class IPropagator;
 class IUpdater;
 class BonusList;
 
-typedef std::shared_ptr<BonusList> TBonusListPtr;
-typedef std::shared_ptr<const BonusList> TConstBonusListPtr;
-typedef std::shared_ptr<ILimiter> TLimiterPtr;
-typedef std::shared_ptr<IPropagator> TPropagatorPtr;
-typedef std::shared_ptr<IUpdater> TUpdaterPtr;
-typedef std::set<CBonusSystemNode*> TNodes;
-typedef std::set<const CBonusSystemNode*> TCNodes;
-typedef std::vector<CBonusSystemNode *> TNodesVector;
+using TBonusListPtr = std::shared_ptr<BonusList>;
+using TConstBonusListPtr = std::shared_ptr<const BonusList>;
+using TLimiterPtr = std::shared_ptr<ILimiter>;
+using TPropagatorPtr = std::shared_ptr<IPropagator>;
+using TUpdaterPtr = std::shared_ptr<IUpdater>;
+using TNodes = std::set<CBonusSystemNode *>;
+using TCNodes = std::set<const CBonusSystemNode *>;
+using TNodesVector = std::vector<CBonusSystemNode *>;
 
 class CSelector : std::function<bool(const Bonus*)>
 {
@@ -548,7 +548,7 @@ struct DLL_LINKAGE BonusParams {
 	bool isConverted;
 	Bonus::BonusType type = Bonus::NONE;
 	TBonusSubtype subtype = -1;
-	std::string subtypeStr = "";
+	std::string subtypeStr;
 	bool subtypeRelevant = false;
 	Bonus::ValueType valueType = Bonus::BASE_NUMBER;
 	bool valueTypeRelevant = false;
@@ -569,7 +569,7 @@ private:
 class DLL_LINKAGE BonusList
 {
 public:
-	typedef std::vector<std::shared_ptr<Bonus>> TInternalContainer;
+	using TInternalContainer = std::vector<std::shared_ptr<Bonus>>;
 
 private:
 	TInternalContainer bonuses;
@@ -577,11 +577,11 @@ private:
 	void changed() const;
 
 public:
-	typedef TInternalContainer::const_reference const_reference;
-	typedef TInternalContainer::value_type value_type;
+	using const_reference = TInternalContainer::const_reference;
+	using value_type = TInternalContainer::value_type;
 
-	typedef TInternalContainer::const_iterator const_iterator;
-	typedef TInternalContainer::iterator iterator;
+	using const_iterator = TInternalContainer::const_iterator;
+	using iterator = TInternalContainer::iterator;
 
 	BonusList(bool BelongsToTree = false);
 	BonusList(const BonusList &bonusList);
@@ -628,9 +628,8 @@ public:
 	void remove_if(Predicate pred)
 	{
 		BonusList newList;
-		for (ui32 i = 0; i < bonuses.size(); i++)
+		for(const auto & b : bonuses)
 		{
-			auto b = bonuses[i];
 			if (!pred(b.get()))
 				newList.push_back(b);
 		}

@@ -47,7 +47,7 @@ namespace Channels
 
 		static void STRONG_INLINE set(uint8_t *ptr, uint8_t value)
 		{
-			uint16_t * const pixel = (uint16_t*)ptr;
+			auto * const pixel = (uint16_t *)ptr;
 			uint8_t subpx = value >> (8 - bits);
 			*pixel = (*pixel & ~mask) | ((subpx << shift) & mask );
 		}
@@ -226,7 +226,7 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(uint8_t *&ptr, const u
 	if(incrementPtr == -1)
 		ptr -= 2;
 
-	uint16_t * const px = (uint16_t*)ptr;
+	auto * const px = (uint16_t *)ptr;
 	*px = (B>>3) + ((G>>2) << 5) + ((R>>3) << 11); //drop least significant bits of 24 bpp encoded color
 
 	if(incrementPtr == 1)

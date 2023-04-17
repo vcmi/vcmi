@@ -166,7 +166,7 @@ struct BankConfig
 	}
 };
 
-typedef std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>> TPossibleGuards;
+using TPossibleGuards = std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>>;
 
 template <typename T>
 struct DLL_LINKAGE PossibleReward

@@ -212,7 +212,7 @@ struct DLL_LINKAGE TerrainViewPattern
 class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
-	typedef std::vector<TerrainViewPattern> TVPVector;
+	using TVPVector = std::vector<TerrainViewPattern>;
 
 	CTerrainViewPatternConfig();
 
