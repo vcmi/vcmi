@@ -77,8 +77,7 @@ public:
 	CampaignRegions campaignRegions;
 	int numberOfScenarios = 0;
 	std::string name, description;
-	ui8 difficultyChoosenByPlayer = 0;
-	ui8 music = 0; //CmpMusic.txt, start from 0, field is unused in vcmi
+	bool difficultyChoosenByPlayer = false;
 	bool valid = false;
 
 	std::string filename;
@@ -90,34 +89,44 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & version;
-		if(!h.saving && formatVersion < 821)
-		{
-			ui8 campId = 0; //legacy field
-			h & campId;
-			loadLegacyData(campId);
-		}
-		else
-		{
-			h & campaignRegions;
-			h & numberOfScenarios;
-		}
+		h & campaignRegions;
+		h & numberOfScenarios;
 		h & name;
 		h & description;
 		h & difficultyChoosenByPlayer;
-		if(formatVersion < 821)
-			h & music; //deprecated
 		h & filename;
 		h & modName;
 		h & encoding;
+		h & valid;
 	}
 };
 
 class DLL_LINKAGE CScenarioTravel
 {
 public:
-	ui8 whatHeroKeeps = 0; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
-	std::array<ui8, 19> monstersKeptByHero;
-	std::array<ui8, 18> artifsKeptByHero;
+	
+	struct DLL_LINKAGE WhatHeroKeeps
+	{
+		bool experience = false;
+		bool primarySkills = false;
+		bool secondarySkills = false;
+		bool spells = false;
+		bool artifacts = false;
+		
+		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		{
+			h & experience;
+			h & primarySkills;
+			h & secondarySkills;
+			h & spells;
+			h & artifacts;
+		}
+	};
+	
+	WhatHeroKeeps whatHeroKeeps;
+	
+	std::set<CreatureID> monstersKeptByHero;
+	std::set<ArtifactID> artifactsKeptByHero;
 
 	ui8 startOptions = 0; //1 - start bonus, 2 - traveling hero, 3 - hero options
 
@@ -147,7 +156,7 @@ public:
 	{
 		h & whatHeroKeeps;
 		h & monstersKeptByHero;
-		h & artifsKeptByHero;
+		h & artifactsKeptByHero;
 		h & startOptions;
 		h & playerColor;
 		h & bonusesToChoose;
@@ -176,7 +185,6 @@ public:
 
 	std::string mapName; //*.h3m
 	std::string scenarioName; //from header. human-readble
-	ui32 packedMapSize = 0; //generally not used
 	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
 	ui8 regionColor = 0;
 	ui8 difficulty = 0;
@@ -200,7 +208,6 @@ public:
 	{
 		h & mapName;
 		h & scenarioName;
-		h & packedMapSize;
 		h & preconditionRegions;
 		h & regionColor;
 		h & difficulty;

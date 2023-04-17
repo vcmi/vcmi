@@ -282,13 +282,6 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 {
 	CScenarioTravel ret;
 
-	std::map<std::string, ui8> heroKeepsMap = {
-		{"experience", 1},
-		{"primarySkill", 2},
-		{"secondarySkill", 4},
-		{"spells", 8},
-		{"artifacts", 16}
-	};
 	std::map<std::string, ui8> startOptionsMap = {
 		{"none", 0},
 		{"bonus", 1},
@@ -337,31 +330,25 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	};
 	
 	for(auto & k : reader["heroKeeps"].Vector())
-		ret.whatHeroKeeps |= heroKeepsMap[k.String()];
+	{
+		if(k.String() == "experience") ret.whatHeroKeeps.experience = true;
+		if(k.String() == "primarySkills") ret.whatHeroKeeps.primarySkills = true;
+		if(k.String() == "secondarySkills") ret.whatHeroKeeps.secondarySkills = true;
+		if(k.String() == "spells") ret.whatHeroKeeps.spells = true;
+		if(k.String() == "artifacts") ret.whatHeroKeeps.artifacts = true;
+	}
 	
 	for(auto & k : reader["keepCreatures"].Vector())
 	{
 		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()))
-		{
-			int creId = identifier.get();
-			if(creId >= ret.monstersKeptByHero.size())
-				logGlobal->warn("VCMP Loading: creature %s with id %d isn't supported yet", k.String(), creId);
-			else
-				ret.monstersKeptByHero[creId / 8] |= (1 << creId % 8);
-		}
+			ret.monstersKeptByHero.insert(CreatureID(identifier.get()));
 		else
 			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
 	}
 	for(auto & k : reader["keepArtifacts"].Vector())
 	{
 		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()))
-		{
-			int artId = identifier.get();
-			if(artId >= ret.artifsKeptByHero.size())
-				logGlobal->warn("VCMP Loading: artifact %s with id %d isn't supported yet", k.String(), artId);
-			else
-				ret.artifsKeptByHero[artId / 8] |= (1 << artId % 8);
-		}
+			ret.artifactsKeptByHero.insert(ArtifactID(identifier.get()));
 		else
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
 	}
@@ -491,8 +478,8 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
-		ret.difficultyChoosenByPlayer = 0;
-	ret.music = reader.readInt8();
+		ret.difficultyChoosenByPlayer = false;
+	reader.readInt8(); //music - skip as unused
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -518,7 +505,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	CCampaignScenario ret;
 	ret.conquered = false;
 	ret.mapName = reader.readBaseString();
-	ret.packedMapSize = reader.readUInt32();
+	reader.readUInt32(); //packedMapSize - not used
 	if(header.numberOfScenarios > 8) //unholy alliance
 	{
 		ret.loadPreconditionRegions(reader.readUInt16());
@@ -551,18 +538,29 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 {
 	CScenarioTravel ret;
 
-	ret.whatHeroKeeps = reader.readUInt8();
-	reader.getStream()->read(ret.monstersKeptByHero.data(), ret.monstersKeptByHero.size());
-
-	if (version < CampaignVersion::SoD)
+	ui8 whatHeroKeeps = reader.readUInt8();
+	ret.whatHeroKeeps.experience = whatHeroKeeps & 1;
+	ret.whatHeroKeeps.primarySkills = whatHeroKeeps & 2;
+	ret.whatHeroKeeps.secondarySkills = whatHeroKeeps & 4;
+	ret.whatHeroKeeps.spells = whatHeroKeeps & 8;
+	ret.whatHeroKeeps.artifacts = whatHeroKeeps & 16;
+		
+	auto bitMaskToId = [&reader]<typename T>(std::set<T> & container, int size)
 	{
-		ret.artifsKeptByHero.fill(0);
-		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size() - 1);
-	}
+		for(int iId = 0, byte = 0; iId < size * 8; ++iId)
+		{
+			if(iId % 8 == 0)
+				byte = reader.readUInt8();
+			if(byte & (1 << iId % 8))
+				container.insert(T(iId));
+		}
+	};
+	
+	bitMaskToId(ret.monstersKeptByHero, 19);
+	if(version < CampaignVersion::SoD)
+		bitMaskToId(ret.artifactsKeptByHero, 17);
 	else
-	{
-		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size());
-	}
+		bitMaskToId(ret.artifactsKeptByHero, 18);
 
 	ret.startOptions = reader.readUInt8();
 
