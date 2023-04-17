@@ -1231,13 +1231,13 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 void CPlayerInterface::saveGame( BinarySerializer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	h & localState;
+	localState->serialize(h, version);
 }
 
 void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	h & localState;
+	localState->serialize(h, version);
 	firstCall = -1;
 }
 
@@ -1323,6 +1323,12 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 		destinationTeleportPos = int3(-1);
 		stillMoveHero.setn(CONTINUE_MOVE);
 	}
+}
+
+
+void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
+{
+	heroExchangeStarted(hero1, hero2, QueryID(-1));
 }
 
 void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -2074,4 +2080,10 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->openWorldView(objectPositions, showTerrain );
+}
+
+void CPlayerInterface::setSelection(const CArmedInstance *sel, bool centerView)
+{
+	localState->setSelection(sel);
+	adventureInt->onSelectionChanged(sel, centerView);
 }

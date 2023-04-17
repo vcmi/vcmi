@@ -11,6 +11,7 @@
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
+#include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 
@@ -332,8 +333,8 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	}
 	else
 	{
-		if(adventureInt->getCurrentHero())
-			CRClickPopup::createAndPush(obj->getHoverText(adventureInt->getCurrentHero()));
+		if(LOCPLINT->localState->getCurrentHero())
+			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->localState->getCurrentHero()));
 		else
 			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
 	}
@@ -376,7 +377,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->getCurrentTown()); //todo: should this be nearest hero?
+	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentTown()); //todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
@@ -386,7 +387,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->getCurrentHero());//todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentHero());//todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
@@ -405,7 +406,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
-		specific = adventureInt->getCurrentArmy();
+		specific = LOCPLINT->localState->getCurrentArmy();
 
 	if(nullptr == specific)
 	{

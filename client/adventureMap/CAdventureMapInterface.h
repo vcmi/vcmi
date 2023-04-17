@@ -182,6 +182,9 @@ public:
 	/// Called by PlayerInterface when town state changed and town list must be updated
 	void onTownChanged(const CGTownInstance * town);
 
+	/// Changes currently selected object
+	void onSelectionChanged(const CArmedInstance *sel, bool centerView = true);
+
 	/// Called when map audio should be paused, e.g. on combat or town screen access
 	void onAudioPaused();
 
@@ -190,9 +193,6 @@ public:
 
 	/// Requests to display provided information inside infobox
 	void showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer);
-
-	/// Changes currently selected object
-	void setSelection(const CArmedInstance *sel, bool centerView = true);
 
 	/// Changes position on map to center selected location
 	void centerOnTile(int3 on);
@@ -214,10 +214,6 @@ public:
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(const int3 & castTarget);
 	void abortCastingMode();
-
-	const CGHeroInstance * getCurrentHero() const;
-	const CGTownInstance * getCurrentTown() const;
-	const CArmedInstance * getCurrentArmy() const;
 
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;

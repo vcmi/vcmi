@@ -15,6 +15,7 @@
 #include "adventureMap/CInGameConsole.h"
 #include "adventureMap/CAdventureMapInterface.h"
 #include "CPlayerInterface.h"
+#include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/NetPacks.h"
@@ -387,12 +388,12 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		ss << b;
 		return ss.str();
 	};
-		printCommandMessage("Bonuses of " + adventureInt->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(adventureInt->getCurrentArmy()->getBonusList()) + "\n");
+		printCommandMessage("Bonuses of " + LOCPLINT->localState->getCurrentArmy()->getObjectName() + "\n");
+		printCommandMessage(format(LOCPLINT->localState->getCurrentArmy()->getBonusList()) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-		adventureInt->getCurrentArmy()->getParents(parents);
+		LOCPLINT->localState->getCurrentArmy()->getParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
 		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");

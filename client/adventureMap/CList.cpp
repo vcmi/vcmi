@@ -204,8 +204,8 @@ std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 
 void CHeroList::CHeroItem::select(bool on)
 {
-	if(on && adventureInt->getCurrentHero() != hero)
-		adventureInt->setSelection(hero);
+	if(on && LOCPLINT->localState->getCurrentHero() != hero)
+		LOCPLINT->setSelection(hero);
 }
 
 void CHeroList::CHeroItem::open()
@@ -255,8 +255,8 @@ void CHeroList::update(const CGHeroInstance * hero)
 	//simplest solution for now: reset list and restore selection
 
 	listBox->resize(LOCPLINT->localState->wanderingHeroes.size());
-	if (adventureInt->getCurrentHero())
-		select(adventureInt->getCurrentHero());
+	if (LOCPLINT->localState->getCurrentHero())
+		select(LOCPLINT->localState->getCurrentHero());
 
 	CList::update();
 }
@@ -293,8 +293,8 @@ void CTownList::CTownItem::update()
 
 void CTownList::CTownItem::select(bool on)
 {
-	if (on && adventureInt->getCurrentTown() != town)
-		adventureInt->setSelection(town);
+	if (on && LOCPLINT->localState->getCurrentTown() != town)
+		LOCPLINT->localState->setSelection(town);
 }
 
 void CTownList::CTownItem::open()
@@ -327,8 +327,8 @@ void CTownList::update(const CGTownInstance *)
 	//simplest solution for now: reset list and restore selection
 
 	listBox->resize(LOCPLINT->localState->ownedTowns.size());
-	if (adventureInt->getCurrentTown())
-		select(adventureInt->getCurrentTown());
+	if (LOCPLINT->localState->getCurrentTown())
+		select(LOCPLINT->localState->getCurrentTown());
 
 	CList::update();
 }

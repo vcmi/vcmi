@@ -13,6 +13,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CGTownInstance;
+class CArmedInstance;
 struct CGPath;
 class int3;
 
@@ -24,6 +25,9 @@ class CPlayerInterface;
 class PlayerLocalState
 {
 	CPlayerInterface & owner;
+
+	/// Currently selected object, can be town, hero or null
+	const CArmedInstance * currentSelection;
 
 	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 
@@ -51,7 +55,6 @@ public:
 	std::vector<const CGTownInstance *> ownedTowns; //our towns on the adventure map
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
-	PlayerLocalState();
 	explicit PlayerLocalState(CPlayerInterface & owner);
 
 	void setPath(const CGHeroInstance *h, const CGPath & path);
@@ -63,6 +66,14 @@ public:
 	void removeLastNode(const CGHeroInstance *h);
 	void erasePath(const CGHeroInstance *h);
 	void verifyPath(const CGHeroInstance *h);
+
+	/// Returns currently selected object
+	const CGHeroInstance * getCurrentHero() const;
+	const CGTownInstance * getCurrentTown() const;
+	const CArmedInstance * getCurrentArmy() const;
+
+	/// Changes currently selected object
+	void setSelection(const CArmedInstance *selection);
 
 	template <typename Handler>
 	void serialize( Handler &h, int version )

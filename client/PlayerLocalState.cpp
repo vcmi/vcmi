@@ -13,18 +13,13 @@
 #include "../CCallback.h"
 #include "../lib/CPathfinder.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/CGTownInstance.h"
 #include "CPlayerInterface.h"
 #include "adventureMap/CAdventureMapInterface.h"
 
-PlayerLocalState::PlayerLocalState()
-	: owner(*LOCPLINT)
-{
-	// should never be called, method required for serializer methods template instantiations
-	throw std::runtime_error("Can not create PlayerLocalState without interface!");
-}
-
 PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 	: owner(owner)
+	, currentSelection(nullptr)
 {
 }
 
@@ -102,4 +97,33 @@ void PlayerLocalState::verifyPath(const CGHeroInstance * h)
 	if(!hasPath(h))
 		return;
 	setPath(h, getPath(h).endPos());
+}
+
+const CGHeroInstance * PlayerLocalState::getCurrentHero() const
+{
+	if(currentSelection && currentSelection->ID == Obj::HERO)
+		return dynamic_cast<const CGHeroInstance *>(currentSelection);
+	else
+		return nullptr;
+}
+
+const CGTownInstance * PlayerLocalState::getCurrentTown() const
+{
+	if(currentSelection && currentSelection->ID == Obj::TOWN)
+		return dynamic_cast<const CGTownInstance *>(currentSelection);
+	else
+		return nullptr;
+}
+
+const CArmedInstance * PlayerLocalState::getCurrentArmy() const
+{
+	if (currentSelection)
+		return dynamic_cast<const CArmedInstance *>(currentSelection);
+	else
+		return nullptr;
+}
+
+void PlayerLocalState::setSelection(const CArmedInstance *selection)
+{
+	currentSelection = selection;
 }

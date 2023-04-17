@@ -58,6 +58,10 @@ namespace boost
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
+	bool duringMovement;
+	bool ignoreEvents;
+	size_t numOfMovedArts;
+
 	// -1 - just loaded game; 1 - just started game; 0 otherwise
 	int firstCall;
 	int autosaveCount;
@@ -92,14 +96,12 @@ public: // TODO: make private
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
 
-public:
+protected: // Call-ins from server, should not be called directly, but only via GameInterface
+
 	void update() override;
-	void initializeHeroTownList();
-	int getLastIndex(std::string namePrefix);
+	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 
-	//overridden funcs from CGameInterface
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
-
 	void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override; //what: 1 - built, 2 - demolished
 
 	void artifactPut(const ArtifactLocation &al) override;
@@ -124,19 +126,13 @@ public:
 	void receivedResource() override;
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
-	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void showPuzzleMap() override;
-	void viewWorldMap() override;
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
-	void showTavernWindow(const CGObjectInstance *townOrTavern) override;
-	void showThievesGuildWindow (const CGObjectInstance * obj) override;
-	void showQuestLog() override;
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override; //called when a hero casts a spell
 	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
 	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
@@ -182,18 +178,23 @@ public:
 	void yourTacticPhase(int distance) override;
 	void forceEndTacticPhase() override;
 
-	//-------------//
+public: // public interface for use by client via LOCPLINT access
+
+	// part of GameInterface that is also used by client code
+	void showPuzzleMap() override;
+	void viewWorldMap() override;
+	void showQuestLog() override;
+	void showThievesGuildWindow (const CGObjectInstance * obj) override;
+	void showTavernWindow(const CGObjectInstance *townOrTavern) override;
+	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
+
+	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
 	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
-	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
-	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog(bool unlockPim = true);
 	void waitForAllDialogs(bool unlockPim = true);
-	void redrawHeroWin(const CGHeroInstance * hero);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
-	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 
-	// show dialogs
 	void showInfoDialog(const std::string &text, std::shared_ptr<CComponent> component);
 	void showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>(), int soundID = 0);
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
@@ -202,11 +203,12 @@ public:
 	void stopMovement();
 	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
-	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
-	void requestReturningToMainMenu(bool won);
 	void proposeLoadingGame();
+
+	/// Changes currently selected object
+	void setSelection(const CArmedInstance *sel, bool centerView = true);
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
@@ -229,10 +231,12 @@ private:
 
 	};
 
-	bool duringMovement;
-	bool ignoreEvents;
-	size_t numOfMovedArts;
-
+	void heroKilled(const CGHeroInstance* hero);
+	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
+	void requestReturningToMainMenu(bool won);
+	void acceptTurn(); //used during hot seat after your turn message is close
+	void initializeHeroTownList();
+	int getLastIndex(std::string namePrefix);
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
 
@@ -240,4 +244,5 @@ private:
 	void performAutosave();
 };
 
+/// Provides global access to instance of interface of currently active player
 extern CPlayerInterface * LOCPLINT;

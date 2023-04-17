@@ -496,7 +496,7 @@ void HeroSlots::splitClicked()
 {
 	if(!!town->visitingHero && town->garrisonHero && (visitingHero->isSelected() || garrisonedHero->isSelected()))
 	{
-		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id, QueryID(-1));
+		LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
 	}
 }
 
@@ -1230,9 +1230,9 @@ void CCastleInterface::close()
 	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town
 	{
 		if(town->visitingHero && town->visitingHero->tempOwner == LOCPLINT->playerID)
-			adventureInt->setSelection(town->visitingHero);
+			LOCPLINT->setSelection(town->visitingHero);
 		else
-			adventureInt->setSelection(town);
+			LOCPLINT->setSelection(town);
 	}
 	CWindowObject::close();
 }
@@ -1240,7 +1240,7 @@ void CCastleInterface::close()
 void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
-	adventureInt->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
+	LOCPLINT->localState->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
 	LOCPLINT->localState->erasePath(town->visitingHero);
 }

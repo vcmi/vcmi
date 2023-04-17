@@ -229,7 +229,7 @@ void CAdventureMapInterface::fworldViewBack()
 {
 	exitWorldView();
 
-	auto hero = getCurrentHero();
+	auto hero = LOCPLINT->localState->getCurrentHero();
 	if (hero)
 		centerOnObject(hero);
 }
@@ -288,7 +288,7 @@ void CAdventureMapInterface::fshowQuestlog()
 
 void CAdventureMapInterface::fsleepWake()
 {
-	const CGHeroInstance *h = getCurrentHero();
+	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 	if (!h)
 		return;
 	bool newSleep = !isHeroSleeping(h);
@@ -309,7 +309,7 @@ void CAdventureMapInterface::fsleepWake()
 
 void CAdventureMapInterface::fmoveHero()
 {
-	const CGHeroInstance *h = getCurrentHero();
+	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 	if (!h || !LOCPLINT->localState->hasPath(h) || CGI->mh->hasOngoingAnimations())
 		return;
 
@@ -318,12 +318,12 @@ void CAdventureMapInterface::fmoveHero()
 
 void CAdventureMapInterface::fshowSpellbok()
 {
-	if (!getCurrentHero()) //checking necessary values
+	if (!LOCPLINT->localState->getCurrentHero()) //checking necessary values
 		return;
 
 	centerOnObject(currentSelection);
 
-	GH.pushIntT<CSpellWindow>(getCurrentHero(), LOCPLINT, false);
+	GH.pushIntT<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
 }
 
 void CAdventureMapInterface::fadventureOPtions()
@@ -342,7 +342,7 @@ void CAdventureMapInterface::fnextHero()
 	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->localState->wanderingHeroes, hero));
 	if (next < 0)
 		return;
-	setSelection(LOCPLINT->localState->wanderingHeroes[next], true);
+	LOCPLINT->setSelection(LOCPLINT->localState->wanderingHeroes[next], true);
 }
 
 void CAdventureMapInterface::fendTurn()
@@ -420,7 +420,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
 	heroList->update(h);
 
-	if (h == getCurrentHero())
+	if (h == LOCPLINT->localState->getCurrentHero())
 		infoBar->showSelection();
 
 	int start = vstd::find_pos(LOCPLINT->localState->wanderingHeroes, h);
@@ -657,7 +657,7 @@ void CAdventureMapInterface::selectionChanged()
 {
 	const CGTownInstance *to = LOCPLINT->localState->ownedTowns[townList->getSelectedIndex()];
 	if (currentSelection != to)
-		setSelection(to);
+		LOCPLINT->setSelection(to);
 }
 
 void CAdventureMapInterface::centerOnTile(int3 on)
@@ -675,8 +675,8 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 	if (state != EGameState::MAKING_TURN)
 		return;
 
-	const CGHeroInstance *h = getCurrentHero(); //selected hero
-	const CGTownInstance *t = getCurrentTown(); //selected town
+	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero(); //selected hero
+	const CGTownInstance *t = LOCPLINT->localState->getCurrentTown(); //selected town
 
 	switch(key)
 	{
@@ -856,7 +856,7 @@ std::optional<Point> CAdventureMapInterface::keyToMoveDirection(const SDL_Keycod
 	return std::nullopt;
 }
 
-void CAdventureMapInterface::setSelection(const CArmedInstance *sel, bool centerView)
+void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
 	if(currentSelection != sel)
@@ -993,12 +993,12 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	//select first hero if available.
 	if (heroToSelect != nullptr)
 	{
-		setSelection(heroToSelect, centerView);
+		LOCPLINT->setSelection(heroToSelect, centerView);
 	}
 	else if (LOCPLINT->localState->ownedTowns.size())
-		setSelection(LOCPLINT->localState->ownedTowns.front(), centerView);
+		LOCPLINT->setSelection(LOCPLINT->localState->ownedTowns.front(), centerView);
 	else
-		setSelection(LOCPLINT->localState->wanderingHeroes.front());
+		LOCPLINT->setSelection(LOCPLINT->localState->wanderingHeroes.front());
 
 	//show new day animation and sound on infobar
 	infoBar->showDate();
@@ -1084,9 +1084,9 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		if(currentSelection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
-			setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
+			LOCPLINT->setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
 	}
-	else if(const CGHeroInstance * currentHero = getCurrentHero()) //hero is selected
+	else if(const CGHeroInstance * currentHero = LOCPLINT->localState->getCurrentHero()) //hero is selected
 	{
 		isHero = true;
 
@@ -1098,7 +1098,7 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		}
 		else if(canSelect && pn->turns == 255 ) //selectable object at inaccessible tile
 		{
-			setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
+			LOCPLINT->setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
 			return;
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
@@ -1148,7 +1148,7 @@ void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
-		std::string text = getCurrentHero() ? objAtTile->getHoverText(getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
+		std::string text = LOCPLINT->localState->getCurrentHero() ? objAtTile->getHoverText(LOCPLINT->localState->getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
 		statusbar->write(text);
 	}
@@ -1195,7 +1195,7 @@ void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 		else
 			CCS->curh->set(Cursor::Map::POINTER);
 	}
-	else if(const CGHeroInstance * hero = getCurrentHero())
+	else if(const CGHeroInstance * hero = LOCPLINT->localState->getCurrentHero())
 	{
 		std::array<Cursor::Map, 4> cursorMove      = { Cursor::Map::T1_MOVE,       Cursor::Map::T2_MOVE,       Cursor::Map::T3_MOVE,       Cursor::Map::T4_MOVE,       };
 		std::array<Cursor::Map, 4> cursorAttack    = { Cursor::Map::T1_ATTACK,     Cursor::Map::T2_ATTACK,     Cursor::Map::T3_ATTACK,     Cursor::Map::T4_ATTACK,     };
@@ -1348,33 +1348,9 @@ void CAdventureMapInterface::leaveCastingMode(const int3 & dest)
 
 	abortCastingMode();
 //	if(cast)
-		LOCPLINT->cb->castSpell(getCurrentHero(), id, dest);
+		LOCPLINT->cb->castSpell(LOCPLINT->localState->getCurrentHero(), id, dest);
 //	else
 //		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
-}
-
-const CGHeroInstance * CAdventureMapInterface::getCurrentHero() const
-{
-	if(currentSelection && currentSelection->ID == Obj::HERO)
-		return dynamic_cast<const CGHeroInstance *>(currentSelection);
-	else
-		return nullptr;
-}
-
-const CGTownInstance * CAdventureMapInterface::getCurrentTown() const
-{
-	if(currentSelection && currentSelection->ID == Obj::TOWN)
-		return dynamic_cast<const CGTownInstance *>(currentSelection);
-	else
-		return nullptr;
-}
-
-const CArmedInstance * CAdventureMapInterface::getCurrentArmy() const
-{
-	if (currentSelection)
-		return dynamic_cast<const CArmedInstance *>(currentSelection);
-	else
-		return nullptr;
 }
 
 Rect CAdventureMapInterface::terrainAreaPixels() const

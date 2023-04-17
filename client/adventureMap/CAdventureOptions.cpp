@@ -15,6 +15,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../lobby/CCampaignInfoScreen.h"
 #include "../lobby/CScenarioInfoScreen.h"
 #include "../gui/CGuiHandler.h"
@@ -41,7 +42,7 @@ CAdventureOptions::CAdventureOptions()
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
 
 	dig = std::make_shared<CButton>(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_d);
-	if(const CGHeroInstance *h = adventureInt->getCurrentHero())
+	if(const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero())
 		dig->addCallback(std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h));
 	else
 		dig->block(true);
