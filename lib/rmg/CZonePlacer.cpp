@@ -80,25 +80,6 @@ void CZonePlacer::findPathsBetweenZones()
 			}
 		}
 	}
-
-	//Dump debug
-	for (auto startZone : zones)
-	{
-		auto startId = startZone.second->getId();
-
-		for (auto endZone : zones)
-		{
-			auto endId = endZone.second->getId();
-
-			if (startId >= endId)
-			{
-				//Print only conections in one way
-				continue;
-			}
-			logGlobal->info((boost::format("Distance between zone %2d and %2d: %d")
-				% startId % endId % distancesBetweenZones[startId][endId]).str());
-		}
-	}
 }
 
 void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
@@ -296,9 +277,9 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			{
 				//i.e. for grid size 5 we get range (0.5 - 4.5)
 				auto targetX = rand->nextDouble(x + 0.5f, x + 0.5f);
-				vstd::clamp(targetX, 0.5, gridSize - 0.5);
+				std::clamp(targetX, 0.5, gridSize - 0.5);
 				auto targetY = rand->nextDouble(y + 0.5f, y + 0.5f);
-				vstd::clamp(targetY, 0.5, gridSize - 0.5);
+				std::clamp(targetY, 0.5, gridSize - 0.5);
 
 				zone->setCenter(float3(targetX / gridSize, targetY / gridSize, zone->getPos().z));
 			}
@@ -324,13 +305,14 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	placeOnGrid(rand);
 
 	/*
-	gravity-based algorithm
+	Fruchterman-Reingold algorithm
 
-	let's assume we try to fit N circular zones with radius = size on a map
+	Let's assume we try to fit N circular zones with radius = size on a map
+	Connected zones attract, intersecting zones and map boundaries push back
 	*/
 
-	gravityConstant = 2e-3f;
-	stiffnessConstant = 6e-3f;
+	gravityConstant = 5e-4f;
+	stiffnessConstant = 3e-3f;
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
@@ -339,8 +321,6 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 
 	//0. set zone sizes and surface / underground level
 	prepareZones(zones, zonesVector, underground, rand);
-
-	//gravity-based algorithm. connected zones attract, intersecting zones and map boundaries push back
 
 	//remember best solution
 	float bestTotalDistance = 1e10;
@@ -499,12 +479,14 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 		else
 			levels[zone.first] = 0;
 	}
+
 	for(const auto & zone : zonesVector)
 	{
 		int level = levels[zone.first];
 		totalSize[level] += (zone.second->getSize() * zone.second->getSize());
-		auto randomAngle = static_cast<float>(rand->nextDouble(0, pi2));
-		zone.second->setCenter(float3(0.5f + std::sin(randomAngle) * radius, 0.5f + std::cos(randomAngle) * radius, level)); //place zones around circle
+		float3 center = zone.second->getCenter();
+		center.z = level;
+		zone.second->setCenter(center);
 	}
 
 	/*
@@ -538,6 +520,11 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 			auto otherZone = zones[con];
 			float3 otherZoneCenter = otherZone->getCenter();
 			auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
+			
+			forceVector += (otherZoneCenter - pos) * distance * gravityConstant; //positive value
+
+			//Attract zone centers always
+
 			float minDistance = 0;
 
 			if (pos.z != otherZoneCenter.z)
@@ -546,12 +533,7 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 				minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize; //scale down to (0,1) coordinates
 
 			if (distance > minDistance)
-			{
-				//WARNING: compiler used to 'optimize' that line so it never actually worked
-				float overlapMultiplier = (pos.z == otherZoneCenter.z) ? (minDistance / distance) : 1.0f;
-				forceVector += ((otherZoneCenter - pos)* overlapMultiplier / getDistance(distance)) * gravityConstant; //positive value
 				totalDistance += (distance - minDistance);
-			}
 		}
 		distances[zone.second] = totalDistance;
 		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
@@ -622,7 +604,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 void CZonePlacer::moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps) const
 {
 	float maxRatio = 0;
-	const int maxDistanceMovementRatio = static_cast<int>(zones.size() * zones.size()); //experimental - the more zones, the greater total distance expected
+	const int maxDistanceMovementRatio = 1e1 * static_cast<int>(zones.size() * zones.size()); //experimental - the more zones, the greater total distance expected
 	std::shared_ptr<Zone> misplacedZone;
 
 	float totalDistance = 0;
