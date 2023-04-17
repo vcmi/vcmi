@@ -276,10 +276,10 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			if (zone)
 			{
 				//i.e. for grid size 5 we get range (0.5 - 4.5)
-				auto targetX = rand->nextDouble(x + 0.5f, x + 0.5f);
-				std::clamp(targetX, 0.5, gridSize - 0.5);
-				auto targetY = rand->nextDouble(y + 0.5f, y + 0.5f);
-				std::clamp(targetY, 0.5, gridSize - 0.5);
+				auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);
+				vstd::abetween(targetX, 0.5, gridSize - 0.5);
+				auto targetY = rand->nextDouble(y + 0.25f, y + 0.75f);
+				vstd::abetween(targetY, 0.5, gridSize - 0.5);
 
 				zone->setCenter(float3(targetX / gridSize, targetY / gridSize, zone->getPos().z));
 			}
